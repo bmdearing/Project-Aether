@@ -14,7 +14,7 @@ func absorb(incoming_damage: float, damage_type: Constants.DamageType) -> float:
 	if current_ward <= 0.0:
 		return incoming_damage
 
-	var absorbed := min(current_ward, incoming_damage)
+	var absorbed: float = min(current_ward, incoming_damage)
 	current_ward -= absorbed
 	if current_ward <= 0.0:
 		EventBus.ward_depleted.emit(get_parent())
