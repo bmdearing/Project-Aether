@@ -1,0 +1,46 @@
+[gd_resource type="Resource" script_class="Slate" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://data/slates/slate.gd" id="1"]
+[ext_resource type="Script" path="res://data/slates/modifier.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "Designate one Spell skill - that skill automatically triggers when its cooldown expires"
+stat_key = "auto_cast_designated_spell"
+value = 1.0
+is_more_multiplier = false
+
+[sub_resource type="Resource" id="SubResource_2"]
+script = ExtResource("2")
+description = "The triggered skill deals 60% of its normal damage when auto-cast"
+stat_key = "auto_cast_damage_percent"
+value = 60.0
+is_more_multiplier = true
+
+[sub_resource type="Resource" id="SubResource_3"]
+script = ExtResource("2")
+description = "Auto-cast triggers do not consume resources"
+stat_key = "auto_cast_free_resource"
+value = 1.0
+is_more_multiplier = false
+
+[sub_resource type="Resource" id="SubResource_4"]
+script = ExtResource("2")
+description = "Auto-cast triggers cannot activate Riposte windows or apply Composure damage"
+stat_key = "auto_cast_no_riposte_no_composure"
+value = 1.0
+is_more_multiplier = false
+
+[resource]
+script = ExtResource("1")
+slate_id = "unique_unbound_chorus"
+display_name = "The Unbound Chorus"
+tag = 0
+is_hybrid = false
+secondary_tag = 0
+category_tag_override = "Spell"
+shape_cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0)])
+aether_cost = 8
+rarity = 4
+modifiers = Array[ExtResource("2")]([SubResource("SubResource_1"), SubResource("SubResource_2"), SubResource("SubResource_3"), SubResource("SubResource_4")])
+implicit_flavor_text = "It does not wait for permission."

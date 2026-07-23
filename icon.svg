@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+<rect width="128" height="128" fill="#2b2118"/>
+<circle cx="64" cy="64" r="40" fill="none" stroke="#c9a35a" stroke-width="4"/>
+<text x="64" y="72" font-size="14" fill="#c9a35a" text-anchor="middle" font-family="monospace">AETHER</text>
+</svg>

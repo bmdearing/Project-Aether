@@ -1,0 +1,44 @@
+[gd_resource type="Resource" script_class="Slate" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/slates/slate.gd" id="1"]
+[ext_resource type="Script" path="res://data/slates/modifier.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "Entropic damage deals 8% increased damage per Wound on the enemy"
+stat_key = "entropic_dmg_per_wound"
+value = 8.0
+value_min = 0.0
+value_max = 0.0
+is_more_multiplier = false
+
+[sub_resource type="Resource" id="SubResource_2"]
+script = ExtResource("2")
+description = "Entropic skills have a 12% chance to apply Unraveling on hit"
+stat_key = "entropic_unraveling_chance"
+value = 12.0
+value_min = 0.0
+value_max = 0.0
+is_more_multiplier = false
+
+[sub_resource type="Resource" id="SubResource_3"]
+script = ExtResource("2")
+description = "Enemies affected by Unraveling take 6% increased damage from all Esoteric sources"
+stat_key = "esoteric_dmg_vs_unraveling"
+value = 6.0
+value_min = 0.0
+value_max = 0.0
+is_more_multiplier = false
+
+[resource]
+script = ExtResource("1")
+slate_id = "sample_entropic_01"
+display_name = "Entropic Slate (Sample)"
+tag = 7
+is_hybrid = false
+secondary_tag = 0
+shape_cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(2, 1), Vector2i(3, 1), Vector2i(0, 1), Vector2i(1, 1), Vector2i(3, 0)])
+aether_cost = 14
+rarity = 2
+modifiers = Array[ExtResource("2")]([SubResource("SubResource_1"), SubResource("SubResource_2"), SubResource("SubResource_3")])
+implicit_flavor_text = ""

@@ -1,0 +1,23 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://entities/enemies/glass_cannon/GlassCannon.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://entities/enemies/mobile_bruiser/MobileBruiser.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://entities/enemies/heavy_hitter/HeavyHitter.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://ui/debug/DebugOverlay.tscn" id="5"]
+
+[node name="TestArena" type="Node2D"]
+
+[node name="Player" parent="." instance=ExtResource("1")]
+position = Vector2(300, 300)
+
+[node name="GlassCannon" parent="." instance=ExtResource("2")]
+position = Vector2(600, 200)
+
+[node name="MobileBruiser" parent="." instance=ExtResource("3")]
+position = Vector2(600, 300)
+
+[node name="HeavyHitter" parent="." instance=ExtResource("4")]
+position = Vector2(600, 400)
+
+[node name="DebugOverlay" parent="." instance=ExtResource("5")]

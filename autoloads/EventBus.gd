@@ -1,0 +1,20 @@
+extends Node
+## Global signal bus. Systems emit here instead of holding direct references
+## to each other - keeps FateBoard, Combat, and UI decoupled.
+
+signal damage_dealt(source: Node, target: Node, amount: float, damage_type: int, is_more_multiplier_applied: bool)
+signal status_effect_applied(target: Node, effect_id: String, stacks: int)
+
+signal stance_damaged(enemy: Node, amount: float, remaining: float)
+signal composure_broken(enemy: Node)
+signal parry_successful(player: Node, enemy: Node)
+signal riposte_window_opened(target: Node)
+signal riposte_executed(source: Node, target: Node)
+
+signal slate_placed(slate_id: String, grid_position: Vector2i)
+signal slate_removed(slate_id: String, grid_position: Vector2i)
+signal chain_recalculated(chain_id: int, tile_count: int, bonus_percent: float)
+signal aether_budget_changed(used: int, capacity: int)
+
+signal ward_depleted(target: Node)
+signal ward_restored(target: Node, amount: float)
