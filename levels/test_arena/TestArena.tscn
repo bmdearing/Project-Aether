@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://h3ynqkxvk7p6"]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://entities/enemies/glass_cannon/GlassCannon.tscn" id="2"]
@@ -6,18 +6,56 @@
 [ext_resource type="PackedScene" path="res://entities/enemies/heavy_hitter/HeavyHitter.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://ui/debug/DebugOverlay.tscn" id="5"]
 
-[node name="TestArena" type="Node2D" unique_id=831755082]
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(60, 1, 60)
 
-[node name="Player" parent="." unique_id=74330197 instance=ExtResource("1")]
-position = Vector2(300, 300)
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
+size = Vector2(60, 60)
 
-[node name="GlassCannon" parent="." unique_id=1557037965 instance=ExtResource("2")]
-position = Vector2(600, 200)
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.16, 0.14, 0.12, 1)
+roughness = 0.9
 
-[node name="MobileBruiser" parent="." unique_id=1446286680 instance=ExtResource("3")]
-position = Vector2(600, 300)
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.35, 0.36, 0.4, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.5, 0.55, 1)
+ambient_light_energy = 0.6
 
-[node name="HeavyHitter" parent="." unique_id=2090846657 instance=ExtResource("4")]
-position = Vector2(600, 400)
+[sub_resource type="World3D" id="World3D_1"]
+environment = SubResource("Environment_1")
 
-[node name="DebugOverlay" parent="." unique_id=388906351 instance=ExtResource("5")]
+[node name="TestArena" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8, -0.35, 0.5, 0, 0.82, 0.58, -0.6, -0.46, 0.66, 0, 8, 0)
+light_energy = 1.1
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+position = Vector3(0, -0.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("PlaneMesh_floor")
+surface_material_override/0 = SubResource("StandardMaterial3D_floor")
+
+[node name="Player" parent="." instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+
+[node name="GlassCannon" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -6)
+
+[node name="MobileBruiser" parent="." instance=ExtResource("3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6)
+
+[node name="HeavyHitter" parent="." instance=ExtResource("4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -6)
+
+[node name="DebugOverlay" parent="." instance=ExtResource("5")]

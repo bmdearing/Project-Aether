@@ -3,6 +3,13 @@ class_name ParryRiposteHandler
 ## Orchestrates Parry -> Stance damage -> Composure Break -> Riposte window,
 ## per Section 07. Attach to the Player; targets are enemies carrying
 ## StanceComponent + ComposureComponent.
+##
+## Camera-agnostic by design: this handler doesn't care whether the game is
+## first-person or third-person. The piece that DOES care is whatever feeds
+## `attempt_parry()` its `attacker` argument - in first-person that will
+## likely be an Area3D "parry detection" volume in front of the camera,
+## resolved against whichever enemy's telegraphed attack is active. Not
+## implemented yet - flagged as the next Claude Code task.
 
 @export var parry_window_seconds: float = 0.25
 @export var parry_stance_damage: float = 25.0

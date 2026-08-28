@@ -2,6 +2,7 @@ extends CanvasLayer
 class_name DebugOverlay
 ## Numeric overlay for validating the damage formula and Fate Board chain
 ## math before any art exists. Toggle via GameState.debug_overlay_enabled.
+## Renders fine over a 3D viewport - CanvasLayer is compositing-agnostic.
 
 @onready var label: Label = $Label
 
@@ -10,7 +11,7 @@ func _ready() -> void:
 	EventBus.chain_recalculated.connect(_on_chain_recalculated)
 	EventBus.damage_dealt.connect(_on_damage_dealt)
 	visible = GameState.debug_overlay_enabled
-	label.text = "Project Aether — Debug Overlay\nAether: 0/0"
+	label.text = "Project Aether — Debug Overlay\nAether: 0/0\n(Esc to release mouse)"
 
 func _on_aether_changed(used: int, capacity: int) -> void:
 	_append_line("Aether: %d/%d" % [used, capacity])
