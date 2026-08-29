@@ -141,3 +141,11 @@ const WEAPON_BASE_CRIT_CHANCE := {
 	"Service Pistol": 0.06,
 }
 const DEFAULT_BASE_CRIT_CHANCE := 0.05
+
+## Picks readable text over an arbitrary background color set at
+## runtime (item rarity/damage-type colors) - without this, buttons
+## colored with a light background (Common rarity white, etc.) get the
+## same light default theme text as everything else and go illegible.
+static func get_contrasting_text_color(bg: Color) -> Color:
+	var luminance := 0.299 * bg.r + 0.587 * bg.g + 0.114 * bg.b
+	return Color(0.05, 0.05, 0.05) if luminance > 0.6 else Color(0.95, 0.95, 0.95)

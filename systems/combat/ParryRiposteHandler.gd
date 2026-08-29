@@ -1,25 +1,44 @@
 extends Node
 class_name ParryRiposteHandler
-## Orchestrates Parry -> Stance damage -> Composure Break -> Riposte window,
+## Orchestrates Parry -> Stance damage -> Composure Break -> Riposte,
 ## per Section 07. Attach to the Player; targets are enemies carrying
 ## StanceComponent + ComposureComponent.
 ##
 ## `attempt_parry()` is fed by EnemyMeleeAttack.gd's Strike state, called
 ## directly with the attacking enemy as `attacker` when the swing
 ## resolves - stands in for a real hitbox until enemy art/animation exists.
+##
+## Riposte itself is triggered from PlayerMeleeAttack._deal_damage() -
+## any melee attack landed on a target while ComposureComponent.is_broken
+## is true, not gated to only-after-a-parry (attrition-broken enemies are
+## just as riposte-able as parry-broken ones). Riposte is universal per
+## Section 07 - available to every build, not gated by Slate investment
+## (Slates only amplify effectiveness).
 
 @export var parry_window_seconds: float = 0.25
 @export var parry_stance_damage: float = 25.0
+## Riposte's motion-value multiplier on top of the weapon's normal swing -
+## "a large amount of damage," invented, not doc-sourced with an exact
+## number. Riposte damage also inherits ComposureComponent's existing
+## "damage taken while broken" multiplier for free, since the target is
+## still broken at the moment the hit lands (end_broken_state() runs after).
+const RIPOSTE_MOTION_VALUE_MULTIPLIER := 3.0
+@export var riposte_invuln_duration: float = 1.0
 
+var is_invulnerable: bool = false
 var _parry_active: bool = false
 var _parry_timer: float = 0.0
-var _riposte_available_target: Node = null
+var _invuln_timer: float = 0.0
 
 func _process(delta: float) -> void:
 	if _parry_active:
 		_parry_timer -= delta
 		if _parry_timer <= 0.0:
 			_parry_active = false
+	if is_invulnerable:
+		_invuln_timer -= delta
+		if _invuln_timer <= 0.0:
+			is_invulnerable = false
 
 func start_parry_window() -> void:
 	_parry_active = true
@@ -40,21 +59,28 @@ func attempt_parry(attacker: Node, ward: WardComponent) -> bool:
 		ward.restore_on_parry_success()
 
 	EventBus.parry_successful.emit(get_parent(), attacker)
-	_riposte_available_target = attacker
 	return true
 
-## Riposte is universal per Section 07 - available to every build, not gated
-## by Slate investment (Slates only amplify effectiveness).
 func can_riposte(target: Node) -> bool:
-	if target != _riposte_available_target:
-		return false
-	var composure: ComposureComponent = target.get_node_or_null("ComposureComponent")
+	var composure: ComposureComponent = target.get_node_or_null("ComposureComponent") if target else null
 	return composure != null and composure.is_broken
 
-func execute_riposte(target: Node, riposte_ability: Ability) -> void:
+## Big damage burst + a brief invulnerability window ("the duration of the
+## animation" - there's no real animation, so this just times out
+## alongside PlayerMeleeAttack's stronger riposte hitstop/shake). Ends the
+## target's broken state - one riposte consumes the window, it doesn't
+## loop for its remaining duration.
+func execute_riposte(target: Enemy, weapon: Weapon, base_motion_value: float, damage_type: Constants.DamageType) -> void:
 	if not can_riposte(target):
 		return
-	if riposte_ability and riposte_ability.can_trigger_riposte == false:
-		push_warning("Riposte executed with an ability not flagged can_trigger_riposte - check data authoring.")
-	EventBus.riposte_executed.emit(get_parent(), target)
-	_riposte_available_target = null
+	var player: Player = get_parent()
+	var hit := weapon.roll_damage(base_motion_value * RIPOSTE_MOTION_VALUE_MULTIPLIER, player.stat_sheet)
+	var final_damage: float = hit["final_damage"]
+
+	target.take_damage(final_damage, damage_type)
+	EventBus.damage_dealt.emit(player, target, final_damage, damage_type, false, hit["is_critical"])
+
+	target.composure.end_broken_state()
+	is_invulnerable = true
+	_invuln_timer = riposte_invuln_duration
+	EventBus.riposte_executed.emit(player, target)

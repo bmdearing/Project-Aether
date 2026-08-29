@@ -24,9 +24,13 @@ Trinity Rule archetypes) were pulled from this source and match it exactly.
 
 **Player** (`entities/player/Player.gd`): first-person `CharacterBody3D`
 (WASD relative to body facing, mouse look, jump, sprint, crouch, slide).
-Melee (`V` to select Primary) and ranged (Sidearm) attacks, each a real
-swept/static `Area3D` hitbox driving `DamageCalculator`. Parry (`F`) via
-`ParryRiposteHandler`. Health/Ward/Mana resource components. A `StatSheet`
+Melee or ranged attack, dispatched automatically by whatever's equipped
+in `PRIMARY_WEAPON` (`Weapon.is_ranged`), each a real swept/static
+`Area3D` hitbox driving `DamageCalculator`. Parry (`F`) via
+`ParryRiposteHandler`, which also handles Riposte: melee-attacking an
+enemy while its Composure is broken (see Enemies below) deals 3x motion
+value and grants 1 second of player invulnerability instead of a normal
+hit. Health/Ward/Mana resource components. A `StatSheet`
 (Vitality/Strength/Instinct/Arcane/Enigma/Intellect) — **all six now drive
 something** (Section 12's Per-Point Values table): Strength/Arcane/Enigma
 scale Physical/Elemental/Esoteric damage
@@ -71,17 +75,29 @@ gap's width and landing height ahead via raycast and only jumps
 (`jump_velocity`, an invented `7.0`) if the archetype's speed can
 physically clear it — `MobileBruiser` clears the Vault's jump gap,
 `HeavyHitter` is too slow and gets walled off by it (both intentional),
-`GlassCannon` never needs to since it fights from range.
+`GlassCannon` never needs to since it fights from range. A red flashing
+sphere appears above an enemy's head whenever its `ComposureComponent` is
+broken — the on-screen signal that it's Riposte-able.
 
-**Abilities** (`systems/abilities/`, `data/abilities/`): a hand-authored
-Cold kit (Ice Pulse, Comet, Winter's Eye, Frost Armor, Section 26 flavor).
-Cast on `1`-`4` (`PlayerAbilityCast`), drawing from a Mana pool
-(`ManaComponent`). Every ability currently executes as a self-centered
-damage nova sized by its own `radius` — not yet each ability's actual
-described mechanic (see gaps below). Abilities can be upgraded (`rank`,
-0-5) via the Abilities screen (`N`), boosting Motion Value and reducing
-cooldown. `ui/ability_bar/` shows equipped abilities with a cooldown wipe
-and Mana cost; `ui/abilities/AbilitiesScreen.gd` is the equip/upgrade menu.
+**Abilities** (`systems/abilities/`, `data/abilities/`): 9 hand-authored
+spells across Fire/Cold/Lightning/Entropic (Ice Pulse, Comet, Winter's
+Eye, Frost Armor, Cinder Lance, Inferno, Static Discharge, Stormcall,
+Entropic Decay). Cast on `1`-`4` (`PlayerAbilityCast`), drawing from a
+Mana pool (`ManaComponent`). Most abilities execute as a self-centered
+damage nova sized by its own `radius`, on press — not yet each ability's
+actual described mechanic (see gaps below). Three (`Ability.
+is_ground_targeted`: Comet, Inferno, Stormcall) are hold-to-aim instead —
+holding the key shows a ground ring tracking a camera raycast, releasing
+casts centered there rather than on the player. Those three also get a
+bespoke cast VFX instead of the generic expanding ring every other
+ability shares - a falling ice ball that shatters (`CometImpact`), an
+erupting fire column (`InfernoPillar`), and a jagged lightning strike
+(`StormcallBolt`), all in `entities/effects/`. Abilities can be
+upgraded (`rank`, 0-5) via the Abilities screen (`N`) for Gold
+(`Ability.get_upgrade_cost()`, scaling per rank), boosting Motion Value
+and reducing cooldown. `ui/ability_bar/` shows equipped abilities with a
+cooldown wipe and Mana cost; `ui/abilities/AbilitiesScreen.gd` is the
+equip/upgrade menu.
 **The player starts with zero abilities** — per Patch v3.1's Skill
 System replacement ("skills come exclusively from loot-dropped Skill
 Tomes"), every ability now has to be unlocked via a `SkillTome` drop (see
@@ -98,9 +114,12 @@ two-hander and naturally replaces one, rather than needing its own
 Sidearm-only slot. `ui/inventory/InventoryScreen.gd` (`B`) is a 3-column
 layout: a live stats column (left), a slot-grid inventory (center,
 excluding anything currently equipped), and a paper-doll equipment
-diagram (right, weapons flanking a center torso column). Placeholder-art
-throughout — every item is a colored square (rarity or damage-type
-color), not an icon.
+diagram (right, weapons flanking a center torso column). Items with a
+real `icon_path` (`assets/sprites/` - a purchased dark-fantasy icon
+pack) show that icon via `ItemSlotButton`; anything without one yet
+still falls back to a colored square (rarity or damage-type color).
+`worn_pistol` deliberately has no icon - no firearm exists in that
+asset pack.
 
 **Stat cards** (`ui/item_card/`): hovering any item, Slate, or ability
 anywhere in the UI shows a rich PoE-style card (stats, affixes, flavor
@@ -259,13 +278,29 @@ restarts — a rolled item's `resource_path` is empty
 stores either a path (hand-authored items) or a full `ItemSerializer`
 dict per equipped slot, whichever the item actually has.
 
+**Main Menu background** (`levels/main_menu_background/`): a procedural
+night-storm scene rendered into a `SubViewport` behind the menu buttons -
+layered mountain silhouettes (`MountainRange.gd`, a `SurfaceTool`-built
+ridge flat), a night sky (`shaders/night_sky.gdshader`: hashed stars, a
+moon, drifting cloud cover that occludes them, and a lightning-flash
+uniform), falling rain (`CPUParticles3D`), and rain/thunder audio
+synthesized at runtime sample-by-sample
+(`systems/audio/ProceduralRain.gd`/`ProceduralThunder.gd` push into an
+`AudioStreamGenerator` - no audio files needed for those). Thunder fires
+at random intervals and syncs a light flash to the rumble. Menu music
+(`MainMenu.gd`) loops `assets/music/lament.mp3` - the one real audio
+asset in the project, everything else here is generated.
+
 **Menus & HUD**: `MainMenu` (Continue/New Game/Settings/About/Quit),
 `PauseMenu` (`Esc` — Resume/Return to Hub/Quit; Inventory/Fate
 Board/Abilities/Character/Map are hotkey-only, not buttons),
 `DeathScreen` (on `HealthComponent.died`, offers Return to Hub or Quit),
 `ui/player_hud/` (always-on Life/Mana orbs flanking the ability bar - Ward
-renders as a ring around the Life orb - a notched XP bar above them, a
-Gold counter, and an active-weapon indicator that flashes on swap),
+renders as a ring around the Life orb - a notched, multi-color-gradient
+XP bar spanning from the level badge at the far left to near the right
+screen edge, its text inline on the bar itself (GW2-style layout), a Gold
+counter, and an active-weapon indicator that flashes whenever the
+equipped weapon changes),
 `ui/debug/DebugOverlay.gd` (numeric
 readout of damage/chains/casts/parries — no art needed to validate
 formulas).
@@ -281,8 +316,7 @@ formulas).
 | Crouch (hold) / Slide (tap while sprinting + moving) | Ctrl |
 | Parry | F |
 | Attack (melee or ranged, depending on active weapon) | Left Mouse |
-| Cast equipped ability (slot 1-4) | 1 / 2 / 3 / 4 |
-| Swap active weapon (Primary / Sidearm) | V |
+| Cast equipped ability (slot 1-4) - hold + release to aim for Comet/Inferno/Stormcall | 1 / 2 / 3 / 4 |
 | Pause menu (Resume / Return to Hub / Quit) | Esc |
 | Return to Hub directly (no pause menu needed) | T |
 | Open Fate Board directly | P |
@@ -308,9 +342,11 @@ None of the four have a `PauseMenu` button — hotkey-only.
    percentages anywhere, so Physical 1.0 / Elemental 0.6 / Esoteric 0.35
    remains a well-justified guess.
 3. **First-person melee weight** (Pillar 2): camera shake + hitstop +
-   swinging placeholder blade exist, but the docs are camera-agnostic on
-   *how it should feel* (timing, intensity), and there's no real
-   viewmodel. Worth a design pass once art exists.
+   a swinging weapon (a real model for Greatsword/Dagger now, still the
+   placeholder blade for anything else) exist, but the docs are
+   camera-agnostic on *how it should feel* (timing, intensity), and the
+   real model's pose was tuned by eye via screenshots, not exact
+   hand-placement - worth your own live nudging for final polish.
 4. **Ability numeric tuning**: `motion_value`, `scaling_grade`,
    `cooldown_seconds`, `resource_cost`, `radius` on the four Ability
    instances are invented (relative to each ability's described weight) —
@@ -346,19 +382,18 @@ None of the four have a `PauseMenu` button — hotkey-only.
 11. **Map Device / Hub scope cuts**: no map-selection UI or map-item
     economy (the device rolls and commits in one keypress); leaving a
     map is always manual, not triggered by clearing enemies; Settings
-    has exactly three real options and master volume has nothing
-    audible to affect yet (no audio content anywhere in the project).
+    has exactly three real options. Master volume now has real audio to
+    affect (Main Menu music + procedural rain/thunder, see the Main Menu
+    background section above) but nothing plays in the Hub/Map yet.
 12. **Ability casting is one generic self-centered nova for all 4
     abilities**, not their actual described mechanics (Comet's targeted
     drop, Winter's Eye's traveling orb, Frost Armor's melee-retaliation
     trigger). `applies_status_effects` (chill, etc.) also isn't wired to
     anything — no status-effect system exists to apply/track it.
-13. **Ability upgrading has no cost gating** — free and unlimited, just
-    rank-capped at 5. No currency/economy exists for it to spend from.
-14. **Map items have no selection/inspection UI and no doc-sourced affix
+13. **Map items have no selection/inspection UI and no doc-sourced affix
     table** — the Map Device rolls and commits in one keypress; the
     affix pool and tier curve are invented.
-15. **Vitality's Resilience/DoT mitigation, Instinct's Stamina pool +
+14. **Vitality's Resilience/DoT mitigation, Instinct's Stamina pool +
     dodge-roll/Active-Blocking, and Intellect's Debuff effectiveness are
     NOT wired**, even though the rest of each stat's Section 12
     expression now is — none of the three has a supporting system built
@@ -367,7 +402,7 @@ None of the four have a `PauseMenu` button — hotkey-only.
     there's nothing yet for that portion of the stat to modify. Strength's
     Stagger effect/Stun Recovery are similarly unwired for the same
     reason (no stagger/stun mechanic exists).
-16. **Critical Strike System's per-ability base crit chance is thematic
+15. **Critical Strike System's per-ability base crit chance is thematic
     guesswork, not a real mechanical distinction** — the doc keys base
     crit chance off "spell type" (single target/AoE/channeled/etc.),
     but abilities in this project don't carry that classification (all 4
@@ -378,20 +413,20 @@ None of the four have a `PauseMenu` button — hotkey-only.
     (`Constants.WEAPON_BASE_CRIT_CHANCE`) - just only transcribed for the
     2 weapon types this project actually has (Greatsword, Service
     Pistol) out of the doc's ~55-entry table.
-17. **Affix tier-gating (`ItemRoller._roll_tier()`) is entirely
+16. **Affix tier-gating (`ItemRoller._roll_tier()`) is entirely
     invented** — the doc defines the tier VALUE RANGES themselves (real
     Section 16/18 data, e.g. Flat Armor Mod Tiers), but never specifies
     what determines which tiers a given roll can reach. Gated by
     `power_level` (Map tier, or player level as a Hub-only fallback) with
     a simple "one tier better per power point" curve, not derived from
     anything doc-sourced.
-18. **XP/leveling has no doc-sourced design to follow at all** — the
+17. **XP/leveling has no doc-sourced design to follow at all** — the
     referenced sections don't define a leveling system, so the XP curve
     and `xp_reward` per archetype are invented from genre convention.
     Leveling grants no stat points (Section 12 explicitly rules that
     out - see the Player section above) and now has no mechanical effect
     beyond display and standing in as GearShop's stock-quality signal.
-19. **Loot generation duplicates hand-authored base items rather than
+18. **Loot generation duplicates hand-authored base items rather than
     generating a truly procedural item shape** — `ItemRoller.roll()`
     picks a real base (weapon type, damage type, scaling grade, armor
     values, etc.) and only re-rolls rarity + affixes, since Section 25's
@@ -401,12 +436,12 @@ None of the four have a `PauseMenu` button — hotkey-only.
     (`physical_dmg_increased`, `flat_armor`, etc.) are still
     descriptive-only — no aggregation of those into the damage/armor
     formulas exists yet, only the 6 core stats got wired this pass.
-20. **Loot pickup is auto-pickup-on-touch, not a manual pickup/prompt**
+19. **Loot pickup is auto-pickup-on-touch, not a manual pickup/prompt**
     — a judgment call, not requested verbatim; fits how often gear
     would drop during combat better than a keypress flow, but is a
     different UX than the Map Device's "walk up, press E" pattern used
     elsewhere in this project.
-21. **Map generation parameters are invented, not doc-sourced** — grid
+20. **Map generation parameters are invented, not doc-sourced** — grid
     size (5x5), room count (7-10), doorway width, jump-gap size, and the
     "one Vault per map" rule are standard roguelike-generation choices,
     not pulled from any section of the design docs (there's no dungeon-
@@ -417,7 +452,7 @@ None of the four have a `PauseMenu` button — hotkey-only.
     Vault's jump — flagged as a deliberate first-pass scope cut, not a
     misreading, given how much riskier untested geometry math gets
     without the ability to visually playtest here.
-22. **Skill Tomes unlock an ability into `AbilitiesScreen`, they don't
+21. **Skill Tomes unlock an ability into `AbilitiesScreen`, they don't
     implement Patch v3.1's literal "socketed into weapon slots"
     mechanic** — the patch doc actually describes a fairly detailed
     system (3 skill slots per weapon, Tomes socketed per-weapon, up to 9
@@ -427,12 +462,12 @@ None of the four have a `PauseMenu` button — hotkey-only.
     this pass only builds the acquisition half of the doc's replacement
     Skill System (a flat "owns it or doesn't" unlock), not the
     per-weapon-slot socketing half.
-23. **Gold is a brand-new invented currency with no doc-sourced economy
+22. **Gold is a brand-new invented currency with no doc-sourced economy
     to follow** — granted by `Enemy.gold_reward` (per-archetype, same
     relative-toughness scaling as `xp_reward`), spent at the GearShop.
     `GearShop.COST_BY_RARITY`/`REROLL_COST` are similarly invented, not
     derived from anything.
-24. **SpellTestShop is an explicit debug/testing tool, not designed
+23. **SpellTestShop is an explicit debug/testing tool, not designed
     game content** — grants every ability for free per direct user
     request ("for testing purposes"); it bypasses the SkillTome
     acquisition path entirely and isn't meant to represent real
@@ -443,13 +478,16 @@ None of the four have a `PauseMenu` button — hotkey-only.
 Crafting (Cube/Brands/Corruption), a Gem/Jewel/weapon-socket system (Skill
 Tomes unlock abilities directly instead — see flagged gaps), a Stamina pool +
 dodge-roll/Active-Blocking mechanic (Instinct's per-point Stamina value has
-nothing to spend into yet), full 9-damage-type coverage, co-op, real
-viewmodel/weapon art (placeholder primitives only), Conduit/Secondary
-(Throwable) attack input, a status-effect system (also blocks Vitality's DoT
-mitigation and Intellect's Debuff effectiveness from doing anything),
-save persistence for Fate Board layout or mid-map state, pathfinding/
-navigation for enemies (fine today — every generated room is an open box,
-nothing to path around within one).
+nothing to spend into yet), full 9-damage-type coverage, co-op, any
+skeletal character animation (`assets/animations/` has two full rigged
+animation libraries + a mannequin imported cleanly, but there's no
+`AnimationPlayer`/`AnimationTree`/skeleton pipeline anywhere in this
+project yet - a much bigger, separate undertaking than everything else
+in this list), Conduit/Secondary (Throwable) attack input, a status-effect system (also
+blocks Vitality's DoT mitigation and Intellect's Debuff effectiveness
+from doing anything), save persistence for Fate Board layout or mid-map
+state, pathfinding/navigation for enemies (fine today — every generated
+room is an open box, nothing to path around within one).
 
 ## Opening this project
 
@@ -469,3 +507,16 @@ nothing to path around within one).
    walls, one or more enemies per room, and a Vault room (denser enemies,
    a jump-gap to an elevated platform) somewhere in the layout — walk/look
    around immediately, mouse is captured on scene start.
+
+## Exporting
+
+`export_presets.cfg` (gitignored — machine-local, not committed) has two
+64-bit presets, each a single embedded-pck executable: **Windows
+Desktop** -> `builds/windows/ProjectAether.exe` and **Linux** ->
+`builds/linux/ProjectAether.x86_64` (`builds/` is gitignored too). Both
+require Godot 4.7.1's export templates installed (Editor menu: Editor ->
+Manage Export Templates). To export from the command line:
+```
+godot --headless --export-release "Windows Desktop" "builds/windows/ProjectAether.exe"
+godot --headless --export-release "Linux" "builds/linux/ProjectAether.x86_64"
+```

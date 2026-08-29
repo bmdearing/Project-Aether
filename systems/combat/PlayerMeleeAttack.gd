@@ -7,9 +7,9 @@ class_name PlayerMeleeAttack
 
 enum State { IDLE, WINDUP, STRIKE, RECOVERY }
 
-@export var windup_duration: float = 0.2
-@export var strike_duration: float = 0.15
-@export var recovery_duration: float = 0.3
+@export var windup_duration: float = 0.1
+@export var strike_duration: float = 0.12
+@export var recovery_duration: float = 0.15
 ## Stands in for a "Basic Attack" skill's motion value - no skill/Tome
 ## system exists yet to grant one (Section 11: motion values live on
 ## individual skills, never a bare weapon).
@@ -108,12 +108,21 @@ func _on_hitbox_body_entered(body: Node3D) -> void:
 		return
 	_resolved_this_swing = true
 	if _hitbox:
-		_hitbox.monitoring = false
+		_hitbox.set_deferred("monitoring", false)  # can't set monitoring synchronously from inside body_entered
 	_deal_damage(enemy)
 
 func _deal_damage(target: Enemy) -> void:
 	var weapon: Weapon = _player.get_active_weapon()
 	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+
+	# A melee hit on an already-broken enemy is a Riposte, not a normal
+	# swing - big bonus damage + a moment of player invulnerability,
+	# handled entirely by ParryRiposteHandler.
+	if _player.parry_handler and _player.parry_handler.can_riposte(target):
+		_player.parry_handler.execute_riposte(target, weapon, base_motion_value, damage_type)
+		_trigger_hit_feedback(true)
+		return
+
 	var hit := weapon.roll_damage(base_motion_value, _player.stat_sheet)
 	var final_damage: float = hit["final_damage"]
 	var is_critical: bool = hit["is_critical"]
@@ -123,17 +132,19 @@ func _deal_damage(target: Enemy) -> void:
 		target.stance.apply_attack_stance_damage(final_damage, damage_type)
 	EventBus.damage_dealt.emit(_player, target, final_damage, damage_type, false, is_critical)
 
-	_trigger_hit_feedback()
+	_trigger_hit_feedback(false)
 
-func _trigger_hit_feedback() -> void:
-	Engine.time_scale = hitstop_time_scale
-	get_tree().create_timer(hitstop_duration, true, false, true).timeout.connect(_end_hitstop)
+func _trigger_hit_feedback(big: bool = false) -> void:
+	Engine.time_scale = hitstop_time_scale * 0.5 if big else hitstop_time_scale
+	var duration := hitstop_duration * 3.0 if big else hitstop_duration
+	get_tree().create_timer(duration, true, false, true).timeout.connect(_end_hitstop)
 
 	var camera := _player.camera
 	if camera == null:
 		return
 	var base_pos: Vector3 = camera.position
-	var offset := Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), 0.0) * shake_strength
+	var strength := shake_strength * 3.0 if big else shake_strength
+	var offset := Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), 0.0) * strength
 	var tween := create_tween()
 	tween.tween_property(camera, "position", base_pos + offset, shake_duration * 0.3).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(camera, "position", base_pos, shake_duration * 0.7).set_trans(Tween.TRANS_SINE)

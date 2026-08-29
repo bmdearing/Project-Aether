@@ -17,3 +17,9 @@ class_name Item
 @export var max_sockets: int = 0
 @export var affixes: Array[ItemAffix] = []
 @export var flavor_text: String = ""
+## res:// path to a 64x64 icon (assets/sprites/) shown instead of the
+## flat rarity/damage-type color square - a String (not a Texture2D
+## reference) so ItemSerializer's plain-Dictionary rolled-item save data
+## stays JSON-safe. Empty means no icon exists yet - callers fall back to
+## the color square exactly as before.
+@export var icon_path: String = ""

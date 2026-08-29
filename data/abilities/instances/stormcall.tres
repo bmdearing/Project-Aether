@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "stormcall"
+display_name = "Stormcall"
+description = "Calls down a concentrated bolt of lightning that splits into forking arcs on impact, punishing anyone grouped together."
+damage_type = 5
+motion_value = 2.0
+scaling_grade = 1
+cooldown_seconds = 10.0
+resource_cost = 34.0
+can_trigger_riposte = true
+is_auto_cast_eligible = true
+applies_status_effects = Array[String](["shock"])
+radius = 6.0
+base_crit_chance = 0.08
+is_ground_targeted = true

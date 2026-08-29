@@ -1,8 +1,10 @@
 extends CharacterBody3D
 class_name Player
 ## First-person controller. Camera lives in Head; WeaponSocket under the
-## camera holds the placeholder blade. Melee weight (Pillar 2) reads
-## through camera shake/swing/hitstop, not a visible body.
+## camera holds the active weapon's visual - a real model where one
+## exists (_update_weapon_model()), the placeholder blade otherwise.
+## Melee weight (Pillar 2) reads through camera shake/swing/hitstop, not
+## a visible body.
 
 @export var move_speed: float = 6.0
 @export var sprint_speed: float = 9.0
@@ -10,6 +12,10 @@ class_name Player
 ## 7.0 (was 4.5) - needed to clear the Vault's jump gap + platform rise;
 ## matches Enemy.jump_velocity, tuned the same way.
 @export var jump_velocity: float = 7.0
+## Extra gravity while falling (not rising) - standard "snappier jump arc"
+## trick, doesn't touch the ascent so Vault gap-clearing (tuned assuming
+## the old symmetric gravity through the rise) is unaffected.
+const FALL_GRAVITY_MULTIPLIER := 1.7
 @export var mouse_sensitivity: float = 0.0035
 @export var max_look_up_deg: float = 89.0
 @export var stat_sheet: StatSheet
@@ -33,8 +39,21 @@ class_name Player
 @onready var ability_cast: PlayerAbilityCast = $PlayerAbilityCast
 @onready var experience: ExperienceComponent = $ExperienceComponent
 
+## Real weapon models (assets/models/pack1/, a purchased low-poly pack) -
+## keyed by Weapon.weapon_type, same string GearShop/DebugOverlay/
+## Constants.WEAPON_BASE_CRIT_CHANCE already key off. Anything not listed
+## here (e.g. "Service Pistol" - no firearm exists in this melee-focused
+## pack) falls back to the original placeholder blade, tinted by damage
+## type same as before.
+const WEAPON_MODEL_SCENES := {
+	"Greatsword": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Great_Sword.fbx"),
+	"Dagger": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Dagger.fbx"),
+}
+
 var fate_board: FateBoard
-var _active_weapon_slot: Constants.EquipmentSlot = Constants.EquipmentSlot.PRIMARY_WEAPON
+var _last_active_weapon: Weapon = null
+var _weapon_model: Node3D
+var _placeholder_blade_mesh: Mesh
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _base_max_health: float = 0.0
 var _base_max_mana: float = 0.0
@@ -94,6 +113,7 @@ func _ready() -> void:
 	_base_mana_regen = mana.regen_per_second
 	if collision_shape.shape:
 		collision_shape.shape = collision_shape.shape.duplicate()
+	_placeholder_blade_mesh = weapon_mesh.mesh
 	equipment.equipment_changed.connect(_on_equipment_changed)
 	_apply_saved_loadout()
 	_apply_saved_experience()
@@ -106,6 +126,10 @@ func _on_equipment_changed() -> void:
 	_apply_derived_stats()
 	_update_shield_mesh()
 	_update_active_weapon_visual()
+	var active := get_active_weapon()
+	if active != _last_active_weapon:
+		_last_active_weapon = active
+		EventBus.weapon_swapped.emit(self)
 
 ## Section 12 per-point values. DoT mitigation/Debuff effectiveness are
 ## deferred - no supporting system exists yet.
@@ -172,8 +196,36 @@ func _apply_saved_ability_ranks() -> void:
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
-func _update_weapon_mesh_color() -> void:
-	_color_mesh_for_weapon(weapon_mesh, equipment.primary_weapon)
+## A weapon with a real model (WEAPON_MODEL_SCENES) shows that model
+## instanced under weapon_mesh, in its own baked materials - untinted,
+## unlike the placeholder blade below, since flattening a model that
+## already has real wood/metal materials to one flat color would look
+## worse than the placeholder it's replacing. Anything unmapped (no
+## model for that weapon_type yet) falls back to exactly the old
+## tinted-box placeholder.
+func _update_weapon_model() -> void:
+	if _weapon_model:
+		_weapon_model.queue_free()
+		_weapon_model = null
+	var weapon := equipment.primary_weapon
+	var scene: PackedScene = WEAPON_MODEL_SCENES.get(weapon.weapon_type) if weapon else null
+	if scene:
+		_weapon_model = scene.instantiate()
+		weapon_mesh.add_child(_weapon_model)
+		weapon_mesh.mesh = null
+		weapon_mesh.material_override = null
+		# Scaled down and tucked toward the bottom-right, closer to camera -
+		# the pack's own FBX->Godot axis correction already leaves the
+		# blade pointing roughly forward at rest (confirmed by screenshot,
+		# not assumed), it just needed to be smaller and positioned like a
+		# held weapon instead of life-size and centered. Approximate,
+		# tuned by eye via screenshot, not exact hand-placement math.
+		_weapon_model.scale = Vector3.ONE * 0.45
+		_weapon_model.rotation_degrees = Vector3(15.0, -20.0, 10.0)
+		_weapon_model.position = Vector3(0.4, -0.4, 0.35)
+	elif weapon:
+		weapon_mesh.mesh = _placeholder_blade_mesh
+		weapon_mesh.material_override = _unshaded_material(Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE))
 
 func _update_sidearm_mesh_color() -> void:
 	_color_mesh_for_weapon(sidearm_mesh, equipment.sidearm_weapon)
@@ -187,13 +239,12 @@ func _color_mesh_for_weapon(target_mesh: MeshInstance3D, weapon: Weapon) -> void
 	target_mesh.material_override = _unshaded_material(Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE))
 
 func _update_active_weapon_visual() -> void:
-	_update_weapon_mesh_color()
+	_update_weapon_model()
 	_update_sidearm_mesh_color()
-	var primary_active := _active_weapon_slot == Constants.EquipmentSlot.PRIMARY_WEAPON
 	if weapon_mesh:
-		weapon_mesh.visible = primary_active and equipment.primary_weapon != null
+		weapon_mesh.visible = equipment.primary_weapon != null
 	if sidearm_mesh:
-		sidearm_mesh.visible = not primary_active and equipment.sidearm_weapon != null
+		sidearm_mesh.visible = equipment.sidearm_weapon != null
 
 func _update_shield_mesh() -> void:
 	if shield_mesh == null:
@@ -212,16 +263,16 @@ func _unshaded_material(color: Color) -> StandardMaterial3D:
 	return mat
 
 ## Melee vs ranged attack follows the active Weapon's is_ranged, not
-## which slot it's in - see the dispatch in _physics_process().
-func _swap_active_weapon() -> void:
-	_active_weapon_slot = Constants.EquipmentSlot.SIDEARM_WEAPON if _active_weapon_slot == Constants.EquipmentSlot.PRIMARY_WEAPON else Constants.EquipmentSlot.PRIMARY_WEAPON
-	_update_active_weapon_visual()
-	EventBus.weapon_swapped.emit(self)
-
+## which slot it's in - see the dispatch in _physics_process(). Ranged
+## weapons equip into PRIMARY_WEAPON same as melee ones (see
+## worn_pistol.tres), so "active weapon" is just whatever's equipped
+## there - no manual weapon-slot toggle needed.
 func get_active_weapon() -> Weapon:
-	return equipment.sidearm_weapon if _active_weapon_slot == Constants.EquipmentSlot.SIDEARM_WEAPON else equipment.primary_weapon
+	return equipment.primary_weapon
 
 func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null) -> void:
+	if parry_handler and parry_handler.is_invulnerable:
+		return
 	var mitigated := amount
 	if Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.PHYSICAL:
 		var armor := equipment.get_total_armor() if equipment else 0.0
@@ -239,7 +290,8 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
-		velocity.y -= _gravity * delta
+		var gravity_scale := FALL_GRAVITY_MULTIPLIER if velocity.y < 0.0 else 1.0
+		velocity.y -= _gravity * gravity_scale * delta
 		_is_sliding = false
 	if Input.is_action_just_pressed("jump") and is_on_floor():
 		velocity.y = jump_velocity
@@ -272,9 +324,6 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("parry"):
 		parry_handler.start_parry_window()
-
-	if Input.is_action_just_pressed("swap_weapon"):
-		_swap_active_weapon()
 
 	if Input.is_action_just_pressed("attack"):
 		var active_weapon := get_active_weapon()

@@ -21,6 +21,7 @@ equip_slot = 4
 max_sockets = 6
 affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
 flavor_text = ""
+icon_path = "res://assets/sprites/Dark fantasy Asset Pack 2_weapons and shields/weapons/weapon_split/10_part_005.png"
 weapon_type = "Greatsword"
 base_damage = 12.0
 scaling_grade = 4

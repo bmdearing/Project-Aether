@@ -11,8 +11,9 @@ class_name AbilitiesScreen
 ## since ownership can change mid-session. Clicking an owned ability
 ## equips it into the first open slot.
 ##
-## Upgrading is free and uncapped-by-cost (rank-capped at Ability.MAX_RANK)
-## - no currency/economy exists for it to spend yet.
+## Upgrading costs Gold, scaling per rank (Ability.get_upgrade_cost()) and
+## rank-capped at Ability.MAX_RANK - the button also disables when the
+## player can't afford the next rank, not just when maxed.
 
 const ABILITY_INSTANCE_DIR := "res://data/abilities/instances/"
 
@@ -100,6 +101,10 @@ func _build_owned_list() -> void:
 		icon.add_theme_stylebox_override("normal", box)
 		icon.add_theme_stylebox_override("hover", box)
 		icon.add_theme_stylebox_override("pressed", box)
+		var text_color := Constants.get_contrasting_text_color(box.bg_color)
+		icon.add_theme_color_override("font_color", text_color)
+		icon.add_theme_color_override("font_hover_color", text_color)
+		icon.add_theme_color_override("font_pressed_color", text_color)
 		icon.pressed.connect(_on_owned_ability_pressed.bind(ability))
 		row.add_child(icon)
 
@@ -109,7 +114,6 @@ func _build_owned_list() -> void:
 		_rank_labels.append(rank_label)
 
 		var upgrade_button := Button.new()
-		upgrade_button.text = "Upgrade"
 		upgrade_button.pressed.connect(_on_upgrade_pressed.bind(ability))
 		row.add_child(upgrade_button)
 		_upgrade_buttons.append(upgrade_button)
@@ -132,7 +136,8 @@ func _on_owned_ability_pressed(ability: Ability) -> void:
 		GameState.sync_ability_loadout(_ability_loadout)
 
 func _on_upgrade_pressed(ability: Ability) -> void:
-	if ability.can_upgrade():
+	if ability.can_upgrade() and GameState.gold >= ability.get_upgrade_cost():
+		GameState.gold -= ability.get_upgrade_cost()
 		ability.rank += 1
 		GameState.ability_ranks[ability.ability_id] = ability.rank
 	_refresh_owned_list()
@@ -147,7 +152,13 @@ func _refresh_owned_list() -> void:
 	for i in range(_owned_abilities.size()):
 		var ability := _owned_abilities[i]
 		_rank_labels[i].text = "Rank %d/%d" % [ability.rank, Ability.MAX_RANK]
-		_upgrade_buttons[i].disabled = not ability.can_upgrade()
+		var button := _upgrade_buttons[i]
+		if ability.can_upgrade():
+			button.text = "Upgrade (%d Gold)" % ability.get_upgrade_cost()
+			button.disabled = GameState.gold < ability.get_upgrade_cost()
+		else:
+			button.text = "Max Rank"
+			button.disabled = true
 
 func _refresh_equipped_row() -> void:
 	if _ability_loadout == null:
@@ -169,3 +180,7 @@ func _refresh_equipped_row() -> void:
 		button.add_theme_stylebox_override("normal", box)
 		button.add_theme_stylebox_override("hover", box)
 		button.add_theme_stylebox_override("pressed", box)
+		var text_color := Constants.get_contrasting_text_color(box.bg_color)
+		button.add_theme_color_override("font_color", text_color)
+		button.add_theme_color_override("font_hover_color", text_color)
+		button.add_theme_color_override("font_pressed_color", text_color)

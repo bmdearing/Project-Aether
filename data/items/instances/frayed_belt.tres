@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item.gd" id="1"]
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "+18 Strength (implicit)"
+stat_key = "flat_strength"
+value = 18.0
+value_min = 0.0
+value_max = 0.0
+is_prefix = false
+
+[resource]
+script = ExtResource("1")
+item_id = "frayed_belt"
+display_name = "Frayed Belt"
+rarity = 0
+equip_slot = 10
+max_sockets = 1
+affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
+flavor_text = ""
+icon_path = "res://assets/sprites/gear sets-1/1_part_016.png"

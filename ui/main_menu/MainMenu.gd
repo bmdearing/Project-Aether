@@ -25,9 +25,13 @@ class_name MainMenu
 @onready var fullscreen_checkbox: CheckBox = $SettingsPanel/VBoxContainer/FullscreenCheckBox
 @onready var settings_back_button: Button = $SettingsPanel/VBoxContainer/SettingsBackButton
 @onready var about_back_button: Button = $AboutPanel/VBoxContainer/AboutBackButton
+@onready var music_player: AudioStreamPlayer = $MusicPlayer
+
+const MUSIC_PATH := "res://assets/music/lament.mp3"
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
+	_play_music()
 	continue_button.disabled = not SaveManager.has_save()
 	continue_button.pressed.connect(_on_continue_pressed)
 	new_game_button.pressed.connect(_on_new_game_pressed)
@@ -43,6 +47,17 @@ func _ready() -> void:
 	mouse_sensitivity_slider.value_changed.connect(_on_mouse_sensitivity_changed)
 	master_volume_slider.value_changed.connect(_on_master_volume_changed)
 	fullscreen_checkbox.toggled.connect(_on_fullscreen_toggled)
+
+## Loaded via load(), not preload() - the .mp3 has no .import config yet
+## until Godot's asset pipeline processes it, and preload() resolves at
+## script parse time, before that's guaranteed to have happened.
+func _play_music() -> void:
+	var stream: AudioStreamMP3 = load(MUSIC_PATH)
+	if stream == null:
+		return
+	stream.loop = true
+	music_player.stream = stream
+	music_player.play()
 
 func _show_panel(panel: Control) -> void:
 	main_panel.visible = panel == main_panel

@@ -1,12 +1,15 @@
 extends Node
 class_name ComposureComponent
 ## Handles the vulnerable "Broken" state that opens after Stance depletes
-## to zero. Riposte is only available while is_broken == true (or during
-## a successful Parry window, handled by ParryRiposteHandler).
+## to zero. A melee attack landed while is_broken == true is a Riposte
+## (see ParryRiposteHandler.execute_riposte(), called from
+## PlayerMeleeAttack._deal_damage()) - not gated by how the break
+## happened (a Parry or plain attrition both work).
 ##
 ## Part Composure (independent limb-breaking for Behemoth-tier enemies) is
 ## flagged as a future extension - not implemented in this scaffold.
 
+signal broken_state_started
 signal broken_state_ended
 
 @export var break_duration: float = 4.0
@@ -29,17 +32,25 @@ func enter_broken_state() -> void:
 	is_broken = true
 	_break_timer = break_duration
 	EventBus.riposte_window_opened.emit(get_parent())
+	broken_state_started.emit()
 
 func _process(delta: float) -> void:
 	if not is_broken:
 		return
 	_break_timer -= delta
 	if _break_timer <= 0.0:
-		is_broken = false
-		var stance: StanceComponent = get_parent().get_node_or_null("StanceComponent")
-		if stance:
-			stance.reset()
-		broken_state_ended.emit()
+		end_broken_state()
+
+## Public so a successful Riposte can end the window early (it consumes
+## the break) instead of waiting out break_duration.
+func end_broken_state() -> void:
+	if not is_broken:
+		return
+	is_broken = false
+	var stance: StanceComponent = get_parent().get_node_or_null("StanceComponent")
+	if stance:
+		stance.reset()
+	broken_state_ended.emit()
 
 ## World Doc Section 07: Composure Break increases damage taken from attacks
 ## and skills, explicitly NOT spells - is_spell must be true for Conduit/spell

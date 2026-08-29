@@ -15,6 +15,12 @@ class_name Ability
 @export var can_trigger_riposte: bool = false    # true only for high-MV committed attacks per Section 07
 @export var is_auto_cast_eligible: bool = true   # false for e.g. Riposte itself
 @export var applies_status_effects: Array[String] = []  # status effect ids, e.g. "chill", "ignite"
+## Hold the ability's hotkey to aim (PlayerAbilityCast shows a ground
+## ring), release to cast centered there, instead of the usual instant
+## self-centered nova on press. Reserved for high-commitment single-target
+## drops (Comet, Inferno, Stormcall) - not every ability's mechanic reads
+## as "aim a spot," so this is opt-in per ability, not automatic.
+@export var is_ground_targeted: bool = false
 
 ## AoE radius in meters - invented, not doc-sourced, loosely sized off
 ## each ability's flavor text.
@@ -31,6 +37,11 @@ class_name Ability
 const MAX_RANK := 5
 const MOTION_VALUE_PER_RANK := 0.10       # +10% per rank
 const COOLDOWN_REDUCTION_PER_RANK := 0.04 # -4% per rank
+## Gold cost of the NEXT rank, invented (no doc-sourced economy for this
+## any more than GearShop's own prices are) - scales with the rank being
+## bought so later upgrades cost more, same shape as most ARPG skill trees.
+const UPGRADE_BASE_COST := 20
+const UPGRADE_COST_PER_RANK := 15
 
 func get_effective_motion_value() -> float:
 	return motion_value * (1.0 + rank * MOTION_VALUE_PER_RANK)
@@ -40,6 +51,9 @@ func get_effective_cooldown() -> float:
 
 func can_upgrade() -> bool:
 	return rank < MAX_RANK
+
+func get_upgrade_cost() -> int:
+	return UPGRADE_BASE_COST + rank * UPGRADE_COST_PER_RANK
 
 ## Shared groundwork for predict_damage()/roll_damage() - see
 ## Weapon.gd's own _base_hit() for the same split rationale.

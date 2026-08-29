@@ -209,6 +209,11 @@ func _apply_button_color(button: Button, color: Color) -> void:
 	button.add_theme_stylebox_override("hover", box)
 	button.add_theme_stylebox_override("pressed", box)
 	button.add_theme_stylebox_override("disabled", box)
+	var text_color := Constants.get_contrasting_text_color(color)
+	button.add_theme_color_override("font_color", text_color)
+	button.add_theme_color_override("font_hover_color", text_color)
+	button.add_theme_color_override("font_pressed_color", text_color)
+	button.add_theme_color_override("font_disabled_color", text_color)
 
 ## Weapons key off damage type; everything else off rarity.
 func _item_color(item: Item) -> Color:

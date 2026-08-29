@@ -29,18 +29,59 @@ const TELEGRAPH_COLOR := Color(1.0, 0.95, 0.2)
 @onready var composure: ComposureComponent = $ComposureComponent
 @onready var attack_hitbox: Area3D = $AttackHitbox
 
+const RIPOSTE_INDICATOR_HEIGHT := 2.2
+const RIPOSTE_INDICATOR_COLOR := Color(1.0, 0.05, 0.05)
+const RIPOSTE_BLINK_INTERVAL := 0.25
+
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _base_color: Color = Color.WHITE
 var _player: Player
 var _gap_jumping: bool = false
+var _riposte_indicator: MeshInstance3D
+var _riposte_blink_tween: Tween
 
 func _ready() -> void:
 	health.died.connect(_on_died)
 	add_to_group("enemy")
 	_player = get_tree().get_first_node_in_group("player") as Player
+	_build_riposte_indicator()
+	composure.broken_state_started.connect(_on_broken_state_started)
+	composure.broken_state_ended.connect(_on_broken_state_ended)
 	# Deferred so archetype subclasses' own health.max_health (set after
 	# super._ready()) isn't overwritten by this.
 	call_deferred("_apply_map_modifiers")
+
+## Hidden red light above the head, only shown (blinking) while
+## Riposte-able - "you melee attack an enemy whose stance is broken to
+## riposte them" needs a clear on-screen signal of that window.
+func _build_riposte_indicator() -> void:
+	_riposte_indicator = MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.14
+	sphere.height = 0.28
+	_riposte_indicator.mesh = sphere
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.albedo_color = RIPOSTE_INDICATOR_COLOR
+	_riposte_indicator.material_override = mat
+	_riposte_indicator.position = Vector3(0, RIPOSTE_INDICATOR_HEIGHT, 0)
+	_riposte_indicator.visible = false
+	_riposte_indicator.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_riposte_indicator)
+
+func _on_broken_state_started() -> void:
+	_riposte_indicator.visible = true
+	if _riposte_blink_tween:
+		_riposte_blink_tween.kill()
+	_riposte_blink_tween = create_tween()
+	_riposte_blink_tween.set_loops()
+	_riposte_blink_tween.tween_callback(func(): _riposte_indicator.visible = false).set_delay(RIPOSTE_BLINK_INTERVAL)
+	_riposte_blink_tween.tween_callback(func(): _riposte_indicator.visible = true).set_delay(RIPOSTE_BLINK_INTERVAL)
+
+func _on_broken_state_ended() -> void:
+	if _riposte_blink_tween:
+		_riposte_blink_tween.kill()
+	_riposte_indicator.visible = false
 
 func _apply_map_modifiers() -> void:
 	if GameState.active_map == null:

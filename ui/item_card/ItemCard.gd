@@ -29,7 +29,10 @@ func display_item(item: Item, advanced: bool = false) -> void:
 	_set_border_color(rarity_color)
 	if advanced:
 		_add_close_button()
-	_add_title(item.display_name, rarity_color)
+	if item.icon_path != "":
+		_add_title_with_icon(item.display_name, rarity_color, item.icon_path)
+	else:
+		_add_title(item.display_name, rarity_color)
 	_add_subtitle(_item_type_line(item))
 	_add_separator()
 	for line in _item_stat_lines(item):
@@ -175,6 +178,24 @@ func _add_title(text: String, color: Color) -> void:
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_font_size_override("font_size", 18)
 	_content().add_child(label)
+
+func _add_title_with_icon(text: String, color: Color, icon_path: String) -> void:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	var icon := TextureRect.new()
+	icon.texture = load(icon_path)
+	icon.custom_minimum_size = Vector2(32, 32)
+	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	row.add_child(icon)
+	var label := Label.new()
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(CARD_WIDTH - 40, 0)
+	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_font_size_override("font_size", 18)
+	row.add_child(label)
+	_content().add_child(row)
 
 func _add_subtitle(text: String) -> void:
 	var label := Label.new()

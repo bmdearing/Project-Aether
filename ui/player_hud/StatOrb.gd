@@ -1,9 +1,11 @@
 extends Control
 class_name StatOrb
-## Circular resource gauge (Life/Mana) - radial pie fill (like a cooldown
-## wheel, sweeping clockwise from the top) rather than a shader-based
-## liquid fill, matching the project's no-shader placeholder-art style.
-## An optional outer ring (Ward on the Life orb) draws around the rim.
+## Circular resource gauge (Life/Mana) - a liquid-style fill that drains
+## top-to-bottom (empty space grows from the top as the value drops),
+## built by drawing the exact circular segment below the waterline
+## rather than a shader/mask, matching the project's no-shader
+## placeholder-art style. An optional outer ring (Ward on the Life orb)
+## draws around the rim.
 
 @export var radius: float = 46.0
 @export var fill_color: Color = Color.WHITE
@@ -42,7 +44,7 @@ func set_ring_value(current: float, max_value: float) -> void:
 func _draw() -> void:
 	var center: Vector2 = size / 2.0
 	draw_circle(center, radius, bg_color)
-	_draw_pie(center, radius, _fraction, fill_color)
+	_draw_liquid_fill(center, radius, _fraction, fill_color)
 	draw_arc(center, radius, 0.0, TAU, 48, border_color, 3.0, true)
 	if _ring_fraction > 0.0:
 		var ring_radius: float = radius + 6.0
@@ -51,18 +53,26 @@ func _draw() -> void:
 		var segments: int = max(8, int(48 * _ring_fraction))
 		draw_arc(center, ring_radius, start_angle, end_angle, segments, ring_color, 5.0, true)
 
-func _draw_pie(center: Vector2, r: float, fraction: float, color: Color) -> void:
+## Fills the circular segment below the waterline y = r - 2r*fraction (in
+## local, center-relative coordinates), i.e. the portion of the circle at
+## or past that height - fraction 0 is an empty waterline at the bottom
+## edge, 1 is a full circle. Traced as an arc from the right waterline
+## intersection through the bottom point to the left intersection; the
+## straight closing edge Godot draws back to the start is the flat
+## waterline itself.
+func _draw_liquid_fill(center: Vector2, r: float, fraction: float, color: Color) -> void:
 	if fraction <= 0.0:
 		return
 	if fraction >= 1.0:
 		draw_circle(center, r, color)
 		return
-	var start_angle: float = -PI / 2.0
-	var end_angle: float = start_angle + TAU * fraction
-	var segments: int = max(8, int(64 * fraction))
+	var waterline_y: float = clamp(r - 2.0 * r * fraction, -r, r)
+	var angle_right: float = asin(waterline_y / r)
+	var angle_left: float = PI - angle_right
+	var sweep: float = angle_left - angle_right
+	var segments: int = max(8, int(64 * sweep / TAU))
 	var points := PackedVector2Array()
-	points.append(center)
 	for i in range(segments + 1):
-		var t: float = start_angle + (end_angle - start_angle) * i / float(segments)
+		var t: float = angle_right + sweep * i / float(segments)
 		points.append(center + Vector2(cos(t), sin(t)) * r)
 	draw_colored_polygon(points, color)

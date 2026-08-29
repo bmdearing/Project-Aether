@@ -84,6 +84,10 @@ func _build_row(entry: Dictionary) -> HBoxContainer:
 	icon.add_theme_stylebox_override("normal", box)
 	icon.add_theme_stylebox_override("hover", box)
 	icon.add_theme_stylebox_override("pressed", box)
+	var text_color := Constants.get_contrasting_text_color(box.bg_color)
+	icon.add_theme_color_override("font_color", text_color)
+	icon.add_theme_color_override("font_hover_color", text_color)
+	icon.add_theme_color_override("font_pressed_color", text_color)
 	row.add_child(icon)
 
 	var cost: int = entry.get("cost", 0)

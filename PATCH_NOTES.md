@@ -7,6 +7,444 @@ there. Most recent first.
 
 ---
 
+## 2026-08-29 — Real 3D Weapon Models (Greatsword, Dagger)
+
+User asked why the weapon models weren't rendering yet - last entry
+explicitly deferred this as too risky to rush, but with the screenshot
+capability already proven out, went back and actually did it.
+
+- **`Player._update_weapon_model()`**: keyed by `Weapon.weapon_type`
+  (`WEAPON_MODEL_SCENES` - "Greatsword" -> `Great_Sword.fbx`, "Dagger" ->
+  `Dagger.fbx`), instances the real FBX scene as a child of `weapon_mesh`
+  and clears `weapon_mesh.mesh` so the placeholder box doesn't render
+  behind it. Anything unmapped (currently just "Service Pistol" - no
+  firearm exists in this melee-focused pack) falls back to exactly the
+  old tinted placeholder blade, `_placeholder_blade_mesh` cached once at
+  `_ready()` so it can always be restored.
+- **Not tinted like the placeholder was** - inspected the imported
+  meshes first and found each already has 3 real baked materials (Wood/
+  Metal/Dark Metal, flat-colored, no textures needed) - flattening that
+  to one damage-type color would look worse than what it replaces, so
+  real models keep their own material entirely.
+- **Pose tuned by actually looking at it**, not by guessing blind: four
+  screenshot iterations (scale 1.0 -> 0.45, rotation guessed wrong twice
+  before landing on one where the blade genuinely points up with the
+  grip down, position pushed hard toward the bottom-right since the
+  original socket offset was tuned for a tiny placeholder box and barely
+  moves a life-sized sword's apparent screen position at that distance).
+  Landed on a real, presentable "held weapon" pose - not pixel-perfect
+  AAA placement, flagged as worth the user's own live nudging for final
+  polish rather than more blind iteration.
+- Verified via a real scene-load test (5 checks): the real model shows
+  and melee still deals damage at the same tuned range, swapping to the
+  unmapped pistol correctly restores the tinted placeholder, swapping to
+  the dagger shows its own model, and repeated swaps don't leak old
+  model instances (exactly `AttackHitbox` + one current model every time).
+
+---
+
+## 2026-08-29 — Real Item Icons + 6 New Items Filling Empty Equipment Slots
+
+User dropped a large batch of purchased/free assets into `assets/`
+(1080 files: ~1000 dark-fantasy item icon sprites, 36 low-poly weapon
+FBX models, and two full character-animation GLB/FBX libraries with a
+rigged mannequin) and asked me to import and use whatever fits.
+
+- **Confirmed Godot 4.7.1 imports FBX/GLB natively** (via ufbx) - no
+  Blender/conversion step needed. Ran a full project (re)import (1080
+  assets) with zero errors across every category.
+- **Real item icons, finally** (`Item.icon_path: String`, not a
+  `Texture2D` reference - keeps `ItemSerializer`'s plain-Dictionary
+  rolled-item save data JSON-safe). `ItemSlotButton` now shows the icon
+  as a child `TextureRect` whenever `item.icon_path` is set, everywhere
+  a slot button already existed (inventory grid, paper-doll, shop rows) -
+  zero changes needed at any of those call sites, since they all already
+  just set `.item = ...`. Falls back to exactly the old colored-square
+  look for anything without an icon yet. `ItemCard`'s tooltip also shows
+  a small icon next to the title now.
+- **Picked icons for all 5 existing hand-authored items** (crude_
+  greatsword, padded_coat, guardians_kite_shield, vitality_pendant) by
+  actually looking at candidate sprites first, not guessing blindly.
+  **`worn_pistol` intentionally has no icon** - this is a dark-fantasy
+  icon pack, no firearm exists in it; showing a mismatched sword/wand
+  icon for a gun would be worse than the honest color-square fallback,
+  so it's flagged as a real gap rather than silently faked.
+- **6 new hand-authored items, each with a real icon**, filling
+  equipment slots that had *zero* items before this (confirmed by
+  listing every `instances/` folder - Helmet/Gloves/Boots/Ring/Belt were
+  completely empty, meaning those paper-doll slots could never be
+  filled by anything): Worn Dagger (1H melee, Piercing), Battered Helm,
+  Worn Gauntlets, Scuffed Boots, Tarnished Ring (+18 Instinct), Frayed
+  Belt (+18 Strength). All discovered automatically by `ItemRoller`'s
+  existing directory scan - no roller code changes needed, confirmed via
+  a 200-roll test that all 6 actually surface as loot.
+- **Deliberately did not attempt** the first-person weapon mesh swap
+  (FBX models imported cleanly and are ready, but correctly calibrating
+  pivot/scale/orientation against `PlayerMeleeAttack`'s already-tuned
+  hitbox reach needs real visual iteration I didn't want to rush into a
+  broken state) or the character-animation library (a full rigged
+  skeleton + `AnimationPlayer`/`AnimationTree` setup is a fundamentally
+  new kind of system this project has never had - a much bigger,
+  separate undertaking than "wire up an icon"). Both are flagged here
+  rather than silently ignored or half-attempted.
+- Verified via a real scene-load test (20 checks: every new item loads
+  with the right slot + a real loadable icon texture, `icon_path`
+  survives an `ItemSerializer` round-trip, `ItemSlotButton` correctly
+  shows/hides the icon, the new items equip through the real
+  `EquipmentComponent`, and all 6 show up in `ItemRoller` rolls) plus a
+  windowed screenshot confirming the icons actually render cleanly in
+  both the inventory grid and the equipped paper-doll slots.
+
+---
+
+## 2026-08-29 — Bespoke Cast VFX for Comet, Inferno, Stormcall
+
+User asked for the three ground-targeted spells to have their own
+distinct impact effects instead of the generic expanding ring every
+ability shares: an ice ball smashing down for Comet, a fire pillar for
+Inferno, a lightning strike for Stormcall.
+
+- **`CometImpact`** (`entities/effects/comet_impact/`): an icy sphere
+  falls from 8m up (`TRANS_QUAD`/`EASE_IN`, so it accelerates like
+  gravity) and lands at the cast point in ~0.32s, then bursts into a
+  one-shot `CPUParticles3D` spray of small ice-shard cubes plus the
+  existing ring VFX for the ground shockwave.
+- **`InfernoPillar`** (`entities/effects/inferno_pillar/`): a
+  translucent fire-colored cylinder scales up from nothing to a 4.5m
+  column in 0.15s, holds briefly, then fades while overshooting slightly
+  taller - plus embers (`CPUParticles3D`, spherical emission, drifting
+  upward) bursting from the base.
+- **`StormcallBolt`** (`entities/effects/stormcall_bolt/`): a jagged
+  bolt - two crossed vertical quads following a randomized zigzag path,
+  same ridge-building `SurfaceTool` technique `MountainRange.gd` already
+  uses for its silhouettes, just vertical - flashes in and fades in
+  ~0.2s total (real lightning doesn't loiter), plus the ring shockwave.
+- **Wiring**: `PlayerAbilityCast._play_range_effect()` now looks up
+  `ability.ability_id` in a small scene dictionary, falling back to the
+  original generic `AbilityRangeEffect` ring for every ability that
+  isn't one of these three - untouched otherwise.
+- All three VFX are purely visual and don't gate the actual damage
+  timing - the hit already lands the instant `_cast()` runs, same as
+  before; the fall/rise/flash is a payoff you see for a hit that already
+  landed, not a delay before it happens. Flagged in each script's own
+  header rather than silently decoupled.
+- Verified via a real scene-load test: casting each of the three spawns
+  the correct effect class (not the generic ring), and a normal ability
+  (Ice Pulse) still spawns the original ring untouched. **Not verified
+  visually** - these are sub-second transient effects I can't easily
+  catch mid-animation with a screenshot the way a static UI layout can
+  be confirmed; the particle counts/colors/timing are unverified in
+  practice and worth a look.
+
+---
+
+## 2026-08-29 — Ground-Targeted Spells (Comet, Inferno, Stormcall)
+
+User asked for hold-to-aim targeting on select spells: hold the hotkey,
+a ring shows where it'll land, release to cast there.
+
+- **`Ability.is_ground_targeted`** (new field, `true` on comet/inferno/
+  stormcall only) - opt-in per ability since most abilities' generic
+  self-centered-nova execution doesn't read as "aim a spot."
+  `PlayerAbilityCast._on_ability_pressed()` branches on it: a normal
+  ability still casts instantly on press (unchanged); a targeted one
+  enters an aiming state instead of casting immediately.
+- **Targeting ray**: `_get_ground_target_point()` raycasts from the
+  camera along its forward direction (this is first-person with a fixed
+  center crosshair, so no mouse-position math needed) against the
+  physics world - floor, walls, or an enemy's own collision all work as
+  a target surface. Aiming at open sky (nothing hit) falls back to
+  projecting onto a horizontal plane at the player's own feet height,
+  capped at 30m either way so there's always a defined point.
+  Re-raycasts every physics frame while held so the ring tracks where
+  the camera is currently aimed, not just where it started.
+- **Reticle**: a flat `TorusMesh` ring sized to the ability's radius,
+  colored by its damage type (reusing the same "flat colored ring"
+  language `AbilityRangeEffect`'s cast VFX already established), shown
+  on press and hidden on release - not a new visual language, just
+  reused.
+- **Mana/cooldown are checked and spent on release, not on press** - a
+  targeted cast only actually commits once it fires, same as any other
+  cast only ever fires once its checks pass. Only one targeting session
+  can be active at a time; pressing a second targeted ability's key
+  mid-aim is ignored until the first releases.
+- `_cast()`/`_play_range_effect()` now take an explicit `cast_position`
+  instead of always reading the player's own position - the mechanism
+  every ability already shares, just no longer hardcoded to the caster.
+- Verified via a real scene-load test (11 checks): holding shows the
+  reticle without casting, the reticle tracks an enemy 12m away (well
+  outside any self-centered nova's reach), releasing casts exactly there
+  and starts the cooldown, and a normal (non-targeted) ability is
+  completely unaffected - still fires instantly on press as before.
+
+---
+
+## 2026-08-29 — Riposte Redesign, 5 New Spells, Upgrade Costs, Combat Feel Pass
+
+Large batch: a real Riposte mechanic (previously dead/unused API), a red
+flashing "riposte-able" indicator on enemies, 5 new spells across
+Fire/Lightning/Entropic, Gold-cost spell upgrades, XP bar layout v2 (full
+width, inline text), melee reach/timing tuned further, and faster jump
+falls.
+
+- **Riposte, actually wired up for the first time**: `ParryRiposteHandler.
+  execute_riposte()`/`can_riposte()` existed since early this project but
+  were never called from anywhere (confirmed via a full-project grep) -
+  gated on `_riposte_available_target`, only ever set by a successful
+  Parry, so an enemy broken by plain attrition damage could never be
+  riposted even though `ComposureComponent.is_broken` was already true.
+  Redesigned per the user's actual description ("melee attack an enemy
+  whose stance is broken to riposte them"): `PlayerMeleeAttack._deal_damage()`
+  now checks `composure.is_broken` before rolling a normal hit, and routes
+  to `execute_riposte()` instead - 3x motion value, and the damage still
+  gets `ComposureComponent`'s existing "+50% damage taken while broken"
+  multiplier for free since the break doesn't end until after the hit
+  lands. Grants the player 1s of invulnerability
+  (`ParryRiposteHandler.is_invulnerable`, checked first thing in `Player.
+  take_damage()`) and ends the target's broken state early (consumed, not
+  looped). Bigger hitstop/camera-shake than a normal hit for the "finishing
+  blow" feel.
+- **Red flashing riposte indicator**: `Enemy.gd` builds a small unshaded
+  red sphere above the head (hidden by default), shown and blinked via a
+  looping `Tween` while `ComposureComponent.is_broken` (new `broken_state_
+  started` signal, paired with the existing `broken_state_ended`).
+- **5 new spells** (`data/abilities/instances/`): Cinder Lance + Inferno
+  (Fire), Static Discharge + Stormcall (Lightning), Entropic Decay
+  (Entropic) - same generic-nova execution every ability already uses, so
+  no engine code needed beyond authoring the .tres data (9 spells total
+  now, up from the single Cold kit).
+- **Spell upgrades now cost Gold**: `Ability.get_upgrade_cost()`
+  (20 + 15/rank, invented) - `AbilitiesScreen`'s Upgrade button shows the
+  cost and disables when unaffordable, not just when maxed. Resolves
+  README's old gap #13 ("no cost gating").
+- **XP bar v2**: per more specific direction from the user's actual GW2
+  reference - spans from just past the level badge to near the right
+  screen edge now (not just matching the ability-bar-group's own
+  narrower width, which the first pass used), and the XP text sits
+  inline on the bar itself (white with a black outline for contrast
+  against every gradient color it crosses) instead of floating above it.
+  **Found and fixed a real bug while screenshotting this**: the gradient
+  texture's `Gradient.colors` was set to 6 colors without also setting a
+  matching 6-entry `.offsets` array, leaving it mismatched against the
+  default 2-entry offsets - rendered as a garbled/reversed spectrum
+  instead of the intended blue-to-red sweep.
+- **Melee reach and timing, tuned further**: still short of "should
+  strike as far as they should" per the user - blade reach extended
+  again (weapon mesh 0.55m -> 0.85m out from the socket, hitbox radius
+  0.45 -> 0.55) and windup/strike/recovery cut roughly in half
+  (0.2/0.15/0.3s -> 0.1/0.12/0.15s) for a snappier swing-to-ready cycle.
+- **Jump falls faster**: `Player._physics_process()` now applies 1.7x
+  gravity only while falling (`velocity.y < 0`), not while rising - a
+  standard snappier-arc trick that doesn't touch the ascent, so it
+  doesn't affect the already-tuned Vault gap-clearing math.
+- Verified via two real scene-load tests (13 checks: riposte damage/
+  invulnerability/expiry, all 5 new ability ids load, upgrade cost/
+  afford-gating/spend-on-upgrade) plus two windowed screenshots (one
+  caught the gradient bug above, the second confirmed the fix and the
+  new XP bar layout).
+
+---
+
+## 2026-08-29 — Illegible Item-Slot Text (Real Screenshot Diagnosis)
+
+User asked why I couldn't take screenshots to see the game myself. Turns
+out this session does have real desktop access (confirmed by capturing
+actual screen bounds and a live NVIDIA GPU in a launched process) - not
+something to have assumed, and the first attempt over-captured the whole
+desktop including private content, which got deleted immediately. Second
+attempt (find the Godot window by process name, capture only its own
+rect after bringing it to the foreground) worked cleanly and showed the
+actual bug: on light item-slot colors (Common-rarity white, some rolled
+rarities), the button text was nearly invisible.
+
+- **Root cause**: `_apply_button_color()`-style helpers across the UI set
+  a `StyleBoxFlat` background per item/ability/weapon color but never set
+  a matching `font_color` - so every colored slot used the same default
+  theme text color regardless of how light or dark its background was.
+  Confirmed as a systemic copy-pasted pattern, not a one-off: found in
+  `InventoryScreen.gd`, `PlayerHUD.gd`'s weapon icon, `AbilityBar.gd`,
+  `ShopScreen.gd`, and `AbilitiesScreen.gd` (two call sites).
+- **Fix**: new `Constants.get_contrasting_text_color(bg: Color) -> Color`
+  (luminance-based black/white pick) called alongside every one of those
+  stylebox overrides, setting `font_color`/`font_hover_color`/
+  `font_pressed_color` (and `font_disabled_color` where relevant) to
+  match.
+- Verified two ways: a real scene-load headless run (no errors), and -
+  for the first time this session - an actual screenshot of the running
+  windowed game showing the fix (dark text now reads clearly against the
+  light "Vitality"/"Guardia" slots that were previously illegible).
+
+---
+
+## 2026-08-29 — GW2-Style XP Bar: Below the Ability Bar, Level Badge, Gradient Fill
+
+User shared a Guild Wars 2 screenshot and asked for the XP bar to match
+that layout: below the ability bar near the very bottom of the screen,
+the player's level shown at the far left, and a multi-color bar instead
+of one flat color.
+
+- **Position**: moved from above the Life/Mana orbs + ability bar row to
+  below them, in the ~20px gap between that row and the true screen edge.
+- **Level badge**: a small square readout sits just left of the bar's own
+  left edge (outside its fillable area, not inside it) - GW2 overlaps its
+  level circle onto the start of the bar the same way. Updates via the
+  same `xp_changed` handler that was already reading `experience.level`,
+  since that signal always fires after `ExperienceComponent.add_xp()`'s
+  own level-up processing completes.
+- **Gradient fill**: `_xp_fill_clip` (`clip_contents=true`, width grows
+  with fill fraction) now clips a *fixed-width* `TextureRect` showing a
+  `GradientTexture1D` (blue -> teal -> green -> yellow -> orange -> red)
+  instead of stretching a texture to fit the growing bar - so the color
+  at a given point along the bar stays put as XP fills in, matching how
+  GW2's bar actually reveals color rather than remixing it. The exact
+  color stops are an invented placeholder spectrum, not a real GW2 color
+  match (couldn't inspect their actual asset).
+- Verified via a real scene-load test (Hub.tscn, `Player.experience.
+  add_xp()`) - badge starts at 1, fill fraction grows correctly, a level-
+  up both updates `ExperienceComponent.level` and the badge text, fill
+  fraction stays in [0,1] across the rollover. 6/6 checks passed.
+
+---
+
+## 2026-08-29 — Menu Music, Cloud Cover, Moon Fix
+
+User supplied a real track (`assets/music/lament.mp3`) and asked for
+clouds in the night sky plus a moon.
+
+- **Menu music**: `MainMenu.gd._play_music()` loads the mp3 at runtime
+  (`load()`, not `preload()` - the file had no `.import` config yet
+  until Godot's asset pipeline processed it, and `preload()` resolves at
+  script parse time, before that's guaranteed), sets `AudioStreamMP3.loop
+  = true`, and plays it on a new `MusicPlayer` node. Default Master bus,
+  so it already respects the existing volume slider; `volume_db = -10`
+  so it sits under the rain/thunder rather than over it.
+- **Moon was actually never visible**: `night_sky.gdshader`'s original
+  `moon_direction` (0.3, 0.6, -0.5) sat ~50 degrees off the camera's
+  forward direction - entirely outside the ~30-degree half-FOV cone, so
+  it never rendered on screen despite existing in code. Moved it to
+  (0.2, 0.2, -0.95), inside the visible frustum (up and slightly right,
+  above the mountain line), and bumped `moon_size` up for a more
+  deliberate focal point.
+- **Clouds**: added a 4-octave value-noise fbm to the same shader,
+  projected onto the same gnomonic sky-plane the stars use, slowly
+  drifting via a `TIME`-scaled offset. `cloud_coverage` thresholds the
+  noise so higher values mean thicker cloud, not just more of it. Clouds
+  occlude the stars/moon underneath them (density scales down their
+  contribution) and pick up a lighter tint near the moon's direction, as
+  if catching its light on their edges.
+- Verified via a real scene-load headless run - shader compiles, music
+  loads and plays with no errors. Same benign forced-quit resource
+  warnings as before (the abrupt `--quit-after N` kill doesn't free an
+  in-progress `AudioStreamPlaybackMP3`/`AudioStreamGeneratorPlayback`
+  gracefully; confirmed via `--verbose` that's the entire list, nothing
+  else). **Still not verified visually or audibly** - can't confirm from
+  here whether the moon's new position/size reads well, the cloud
+  density/speed feels right, or the mix level against rain/thunder is
+  balanced.
+
+---
+
+## 2026-08-29 — Procedural Night-Storm Main Menu Background + Night Sky Shader
+
+User asked for a Main Menu backdrop: a mountain landscape, rain (visual
++ sound), thunder, and a night sky shader. This project has zero
+external art/audio assets anywhere, so everything here is generated at
+runtime rather than authored/imported content - consistent with the
+rest of the project's placeholder-art convention, just extended to audio
+for the first time.
+
+- **Structure**: `MainMenu.tscn`'s old flat `ColorRect` background is
+  now a `SubViewportContainer`/`SubViewport` rendering a real 3D scene
+  behind the existing 2D menu buttons (which are otherwise completely
+  untouched - `MainMenu.gd` needed no changes). A `Vignette` ColorRect
+  (30% black, `mouse_filter=IGNORE`) sits between the 3D view and the
+  buttons for text contrast.
+- **`shaders/night_sky.gdshader`**: a spatial `unshaded` shader on a
+  flipped-normals `SphereMesh` skydome - vertical gradient, a hashed
+  procedural star field (no texture), a soft moon glow, and a
+  `flash_intensity` uniform for lightning.
+- **Mountains**: `MountainRange.gd` procedurally builds a jagged
+  silhouette "flat" per instance (a `SurfaceTool` ridge strip, unshaded
+  flat color, no back/sides) - same layered-cutout trick 2D games use
+  for parallax backdrops. Two layers (far/darker, near/lighter) for depth.
+- **Rain**: a `CPUParticles3D` emitting thin unshaded translucent box
+  streaks from a wide box above the camera, falling with gravity + a
+  slight sideways drift.
+- **Rain/thunder audio, fully synthesized at runtime**: `ProceduralRain.gd`
+  and `ProceduralThunder.gd` push samples into an `AudioStreamGenerator`
+  every `_process()` frame rather than playing an audio file - rain is a
+  continuous low-pass-filtered white noise wash, thunder is periodic
+  (random 14-32s interval) rumble bursts with a fading envelope and a
+  heavier low-pass for a deeper tone. Both play on the default Master
+  bus, so they already respect the existing `GameState.master_volume`
+  slider with no extra wiring. `ProceduralThunder.thunder_started` syncs
+  a lightning flash (tweens the sky shader's `flash_intensity` + a brief
+  `DirectionalLight3D` energy spike) to the same moment the rumble starts.
+- Verified via a real scene-load headless run: shader compiles, no
+  script errors, only a benign `AudioStreamGeneratorPlayback` leak
+  warning from the abrupt `--quit-after N` process kill (expected -
+  same non-issue class as this project's other headless-quit artifacts,
+  not a real leak during a normal scene-tree teardown). **Not
+  verified visually or audibly** - headless mode can confirm it loads
+  and runs without erroring, not what the mountains/rain/sky actually
+  look like or the noise/rumble actually sound like. Worth a real look
+  and a listen before calling the tuning (colors, mountain proportions,
+  rain density, audio levels/timbre) final.
+
+---
+
+## 2026-08-29 — Weapon-Update Bugs, Liquid Orb Fill, Melee Hitbox Reach
+
+User reported the bottom-right weapon indicator and the 3D weapon model
+both "don't update properly," the Life/Mana orbs should fill top-to-
+bottom instead of sweeping like a clock, and melee "does not properly
+hit enemies."
+
+- **Root cause of both weapon-update bugs**: the Primary/Sidearm
+  "active weapon slot" toggle (`V` key, `Player._swap_active_weapon()`)
+  was left over from before last session's change that moved ranged
+  weapons (pistols) into `PRIMARY_WEAPON` alongside melee weapons -
+  nothing in the project equips into `SIDEARM_WEAPON` anymore, so
+  pressing V (or having previously toggled to it) made both the weapon
+  mesh and the HUD indicator show nothing, and equipping a new weapon
+  from the Inventory screen never updated the HUD icon at all (it only
+  refreshed on the now-largely-dead `V` swap). Removed the toggle
+  entirely: `get_active_weapon()` is now just `equipment.primary_weapon`,
+  and `EventBus.weapon_swapped` fires from `Player._on_equipment_changed()`
+  whenever the active weapon actually changes (tracked via
+  `_last_active_weapon`), not just on a manual swap - so both the mesh
+  and the HUD indicator update on every real weapon change, and an
+  unrelated equip (a ring, armor, etc.) doesn't spuriously re-fire the
+  signal. Removed the now-dead `swap_weapon` input action and its README
+  documentation.
+- **Melee hitbox actually reaches enemies now**: the `AttackHitbox`
+  sphere sat essentially AT `WeaponSocket`'s own rotation pivot (offset
+  ~0.05m), so the swing's rotation barely moved it in world space
+  regardless of the animated arc, and the sphere sat only ~0.6m from the
+  camera - short of where an enemy stops to attack (Enemy.stop_distance
+  2.3, capsule radius 0.45, i.e. ~1.85m from the camera to its surface).
+  Moved `WeaponMesh` (and its child `AttackHitbox`) 0.55m further out
+  along the socket's local -Z, both extending base reach to ~1.6-1.9m
+  from the camera AND giving the swing's rotation real leverage to sweep
+  the hitbox through an actual arc. Bumped the hitbox radius 0.35->0.45
+  to match enemy capsule radius. Verified via a real scene-load test
+  (Player + HeavyHitter, `try_attack()` at 1.3m/1.9m gaps) - both now
+  connect. **Found and fixed a real latent engine error along the way**:
+  `_on_hitbox_body_entered()` set `_hitbox.monitoring = false`
+  synchronously from inside the hitbox's own `body_entered` callback,
+  which Godot disallows ("Function blocked during in/out signal") -
+  this error only ever surfaced now because the hit was reliably
+  connecting for the first time; fixed with `set_deferred("monitoring",
+  false)`.
+- **Orb fill direction**: `StatOrb._draw_liquid_fill()` replaces the
+  earlier radial pie sweep - computes the exact circular segment below a
+  rising/falling waterline (`y = r - 2r*fraction` in local coordinates)
+  instead of a clock-style wedge, so the orb drains from the top down
+  like a liquid gauge, matching the user's expectation and standard ARPG
+  orb HUDs.
+
+---
+
 ## 2026-08-29 — Fullscreen Fix, Orb HUD, Wider Stats Panel, Notched XP Bar
 
 User reported the game looks wrong (stretched/wrong aspect) when going

@@ -13,6 +13,7 @@ func _ready() -> void:
 	EventBus.parry_successful.connect(_on_parry_successful)
 	EventBus.stance_damaged.connect(_on_stance_damaged)
 	EventBus.composure_broken.connect(_on_composure_broken)
+	EventBus.riposte_executed.connect(_on_riposte_executed)
 	EventBus.enemy_attack_resolved.connect(_on_enemy_attack_resolved)
 	EventBus.ability_cast.connect(_on_ability_cast)
 	EventBus.ability_cast_failed.connect(_on_ability_cast_failed)
@@ -58,6 +59,9 @@ func _on_stance_damaged(enemy: Node, amount: float, remaining: float) -> void:
 
 func _on_composure_broken(enemy: Node) -> void:
 	_append_line("COMPOSURE BROKEN: %s - Riposte available!" % enemy.name)
+
+func _on_riposte_executed(source: Node, target: Node) -> void:
+	_append_line("RIPOSTE! %s executed on %s" % [source.name if source else "?", target.name if target else "?"])
 
 func _on_enemy_attack_resolved(enemy: Node, target: Node, hit: bool, parried: bool) -> void:
 	if parried:

@@ -33,6 +33,7 @@ static func to_dict(item: Item) -> Dictionary:
 		"equip_slot": item.equip_slot,
 		"max_sockets": item.max_sockets,
 		"flavor_text": item.flavor_text,
+		"icon_path": item.icon_path,
 		"affixes": affixes,
 	}
 	if item is Weapon:
@@ -70,6 +71,7 @@ static func from_dict(d: Dictionary) -> Item:
 	item.equip_slot = d.get("equip_slot", 0)
 	item.max_sockets = d.get("max_sockets", 0)
 	item.flavor_text = d.get("flavor_text", "")
+	item.icon_path = d.get("icon_path", "")
 
 	var affixes: Array[ItemAffix] = []
 	for a in d.get("affixes", []):

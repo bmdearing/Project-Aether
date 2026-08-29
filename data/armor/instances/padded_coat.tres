@@ -10,6 +10,7 @@ rarity = 0
 equip_slot = 1
 max_sockets = 6
 flavor_text = ""
+icon_path = "res://assets/sprites/gear sets-1/1_part_003.png"
 armor_value = 35.0
 evasion_value = 0.0
 ward_value = 0.0

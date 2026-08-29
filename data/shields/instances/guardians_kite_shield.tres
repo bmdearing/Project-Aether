@@ -10,6 +10,7 @@ rarity = 0
 equip_slot = 6
 max_sockets = 3
 flavor_text = ""
+icon_path = "res://assets/sprites/Dark fantasy Asset Pack 2_weapons and shields/shields/shield_split/10_part_001.png"
 block_chance = 0.17
 block_threshold = 140.0
 armor_value = 15.0
