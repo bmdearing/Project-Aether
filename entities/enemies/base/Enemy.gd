@@ -46,6 +46,25 @@ func _ready() -> void:
 	# is Enemy's own _ready(), and Player's subtree finishes readying
 	# before any Enemy's does (Player is declared first in TestArena.tscn).
 	_player = get_tree().get_first_node_in_group("player") as Player
+	# Deferred: archetype subclasses (HeavyHitter etc.) call super._ready()
+	# FIRST, then set their own health.max_health afterward - applying the
+	# map's health multiplier here directly would just get overwritten.
+	# call_deferred runs after every _ready() this frame (including the
+	# subclass's) has finished, so it always sees the final base value.
+	call_deferred("_apply_map_modifiers")
+
+func _apply_map_modifiers() -> void:
+	if GameState.active_map == null:
+		return
+	health.max_health *= GameState.active_map.enemy_health_multiplier
+	health.current_health = health.max_health
+
+## Outgoing damage multiplier from the current Map's rolled affixes (1.0
+## if none active) - EnemyMeleeAttack/EnemyRangedAttack apply this to
+## their exported damage_amount when a hit actually lands/fires, rather
+## than mutating those export values directly.
+func get_outgoing_damage_multiplier() -> float:
+	return GameState.active_map.enemy_damage_multiplier if GameState.active_map else 1.0
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():

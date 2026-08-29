@@ -15,3 +15,4 @@ resource_cost = 30.0
 can_trigger_riposte = true
 is_auto_cast_eligible = true
 applies_status_effects = Array[String]([])
+radius = 4.0

@@ -108,6 +108,22 @@ func get_total_armor() -> float:
 	if offhand: total += offhand.armor_value
 	return total
 
+## Flat list of resource_path for every currently-equipped item, in a
+## fixed field order (primary_weapon always before sidearm_weapon/offhand,
+## matching the two-handed-clears-those-slots invariant equip() already
+## enforces) - used by GameState.sync_equipment() to save/restore the
+## loadout without needing to know which slot each item belongs to (each
+## Item re-routes itself via its own equip_slot on re-equip).
+func get_all_equipped_paths() -> Array[String]:
+	var paths: Array[String] = []
+	for item in [helmet, body_armour, gloves, boots, primary_weapon, sidearm_weapon, offhand, conduit, secondary_throwable, amulet, belt]:
+		if item:
+			paths.append(item.resource_path)
+	for ring in rings:
+		if ring:
+			paths.append(ring.resource_path)
+	return paths
+
 func _equip_ring(item: Item) -> void:
 	for i in range(rings.size()):
 		if rings[i] == null:

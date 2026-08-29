@@ -1,0 +1,76 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/character_screen/CharacterScreen.gd" id="1"]
+
+[node name="CharacterScreen" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="DimBackground" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.75)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer"]
+custom_minimum_size = Vector2(640, 0)
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBox"]
+theme_override_font_sizes/font_size = 22
+text = "Character"
+horizontal_alignment = 1
+
+[node name="HintLabel" type="Label" parent="CenterContainer/VBox"]
+autowrap_mode = 3
+text = "Strength/Arcane/Enigma drive damage scaling for Physical/Elemental/Esoteric attacks respectively - the other three stats (Vitality/Instinct/Intellect) aren't wired to any formula yet. Predicted damage numbers use your current gear and stats, and match exactly what attacking/casting actually deals."
+
+[node name="Columns" type="HBoxContainer" parent="CenterContainer/VBox"]
+theme_override_constants/separation = 20
+
+[node name="OffenseColumn" type="VBoxContainer" parent="CenterContainer/VBox/Columns"]
+custom_minimum_size = Vector2(200, 0)
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="OffenseTitle" type="Label" parent="CenterContainer/VBox/Columns/OffenseColumn"]
+theme_override_font_sizes/font_size = 18
+text = "Offense"
+
+[node name="OffenseSeparator" type="HSeparator" parent="CenterContainer/VBox/Columns/OffenseColumn"]
+
+[node name="OffenseList" type="VBoxContainer" parent="CenterContainer/VBox/Columns/OffenseColumn"]
+theme_override_constants/separation = 4
+
+[node name="DefenseColumn" type="VBoxContainer" parent="CenterContainer/VBox/Columns"]
+custom_minimum_size = Vector2(200, 0)
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="DefenseTitle" type="Label" parent="CenterContainer/VBox/Columns/DefenseColumn"]
+theme_override_font_sizes/font_size = 18
+text = "Defense"
+
+[node name="DefenseSeparator" type="HSeparator" parent="CenterContainer/VBox/Columns/DefenseColumn"]
+
+[node name="DefenseList" type="VBoxContainer" parent="CenterContainer/VBox/Columns/DefenseColumn"]
+theme_override_constants/separation = 4
+
+[node name="MiscColumn" type="VBoxContainer" parent="CenterContainer/VBox/Columns"]
+custom_minimum_size = Vector2(200, 0)
+size_flags_horizontal = 3
+theme_override_constants/separation = 4
+
+[node name="MiscTitle" type="Label" parent="CenterContainer/VBox/Columns/MiscColumn"]
+theme_override_font_sizes/font_size = 18
+text = "Misc"
+
+[node name="MiscSeparator" type="HSeparator" parent="CenterContainer/VBox/Columns/MiscColumn"]
+
+[node name="MiscList" type="VBoxContainer" parent="CenterContainer/VBox/Columns/MiscColumn"]
+theme_override_constants/separation = 4
+
+[node name="CloseButton" type="Button" parent="CenterContainer/VBox"]
+text = "Close (Esc)"

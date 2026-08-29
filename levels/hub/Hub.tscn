@@ -1,0 +1,72 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
+[ext_resource type="PackedScene" path="res://entities/interactables/map_device/MapDevice.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://ui/debug/DebugOverlay.tscn" id="3"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu/PauseMenu.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://ui/fate_board_editor/FateBoardEditor.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://ui/inventory/InventoryScreen.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://ui/ability_bar/AbilityBar.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://ui/abilities/AbilitiesScreen.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://ui/character_screen/CharacterScreen.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://ui/player_hud/PlayerHUD.tscn" id="10"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(40, 1, 40)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
+size = Vector2(40, 40)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.12, 0.13, 0.15, 1)
+roughness = 0.9
+
+[sub_resource type="Environment" id="Environment_1"]
+background_mode = 1
+background_color = Color(0.15, 0.16, 0.2, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.4, 0.45, 0.5, 1)
+ambient_light_energy = 0.5
+
+[node name="Hub" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_1")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8, -0.35, 0.5, 0, 0.82, 0.58, -0.6, -0.46, 0.66, 0, 8, 0)
+light_energy = 0.9
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_floor")
+position = Vector3(0, -0.5, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("PlaneMesh_floor")
+surface_material_override/0 = SubResource("StandardMaterial3D_floor")
+
+[node name="Player" parent="." instance=ExtResource("1")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+
+[node name="MapDevice" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)
+
+[node name="DebugOverlay" parent="." instance=ExtResource("3")]
+
+[node name="FateBoardEditor" parent="." instance=ExtResource("5")]
+
+[node name="InventoryScreen" parent="." instance=ExtResource("6")]
+
+[node name="AbilitiesScreen" parent="." instance=ExtResource("8")]
+
+[node name="CharacterScreen" parent="." instance=ExtResource("9")]
+
+[node name="AbilityBar" parent="." instance=ExtResource("7")]
+
+[node name="PlayerHUD" parent="." instance=ExtResource("10")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("4")]
+show_return_to_hub = false

@@ -15,6 +15,12 @@ class_name PlayerMeleeAttack
 ## the floor/self). Swing/camera shake are procedural Tweens, not baked
 ## AnimationPlayer keyframes - easier to author correctly without the
 ## visual editor, same player-facing result.
+##
+## _deal_damage() calls Weapon.predict_damage() rather than wiring
+## DamageCalculator itself (used to inline the exact same call) - same
+## centralization Ability.predict_damage() does, so CharacterScreen's
+## "Predicted Melee Damage" readout can't drift from what attacking
+## actually deals.
 
 enum State { IDLE, WINDUP, STRIKE, RECOVERY }
 
@@ -125,21 +131,12 @@ func _on_hitbox_body_entered(body: Node3D) -> void:
 func _deal_damage(target: Enemy) -> void:
 	var weapon: Weapon = _player.equipment.primary_weapon
 	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
-	var main_stat: Constants.Stat = Constants.DAMAGE_TYPE_MAIN_STAT.get(damage_type, Constants.Stat.STRENGTH)
-	var stat_value: float = _player.stat_sheet.get_stat(main_stat) if _player.stat_sheet else 0.0
-	var mastery: float = _player.stat_sheet.get_mastery(damage_type) if _player.stat_sheet else 0.0
+	var final_damage: float = weapon.predict_damage(base_motion_value, _player.stat_sheet)
 
-	# No Slate/gear stat aggregation into StatSheet yet (EquipmentComponent's
-	# own header comment flags the same gap) - both pools stay empty for now.
-	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		weapon.base_damage, base_motion_value, stat_value, weapon.scaling_grade,
-		0.5, mastery, [], [], damage_type
-	)
-
-	target.take_damage(result.final_damage, damage_type)
+	target.take_damage(final_damage, damage_type)
 	if target.stance:
-		target.stance.apply_attack_stance_damage(result.final_damage, damage_type)
-	EventBus.damage_dealt.emit(_player, target, result.final_damage, damage_type, false)
+		target.stance.apply_attack_stance_damage(final_damage, damage_type)
+	EventBus.damage_dealt.emit(_player, target, final_damage, damage_type, false)
 
 	_trigger_hit_feedback()
 

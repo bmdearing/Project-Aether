@@ -6,11 +6,11 @@
 [ext_resource type="Script" path="res://entities/components/WardComponent.gd" id="3"]
 [ext_resource type="Script" path="res://systems/combat/ParryRiposteHandler.gd" id="4"]
 [ext_resource type="Script" path="res://systems/equipment/EquipmentComponent.gd" id="5"]
-[ext_resource type="Resource" path="res://data/weapons/instances/crude_greatsword.tres" id="6"]
-[ext_resource type="Resource" path="res://data/armor/instances/padded_coat.tres" id="7"]
 [ext_resource type="Script" path="res://systems/combat/PlayerMeleeAttack.gd" id="8"]
 [ext_resource type="Script" path="res://systems/combat/PlayerRangedAttack.gd" id="9"]
-[ext_resource type="Resource" path="res://data/weapons/instances/worn_pistol.tres" id="10"]
+[ext_resource type="Script" path="res://entities/components/ManaComponent.gd" id="12"]
+[ext_resource type="Script" path="res://systems/abilities/AbilityLoadoutComponent.gd" id="13"]
+[ext_resource type="Script" path="res://systems/abilities/PlayerAbilityCast.gd" id="14"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -81,17 +81,24 @@ max_health = 150.0
 script = ExtResource("3")
 max_ward = 100.0
 
+[node name="ManaComponent" type="Node" parent="."]
+script = ExtResource("12")
+max_mana = 100.0
+
 [node name="ParryRiposteHandler" type="Node" parent="."]
 script = ExtResource("4")
 
 [node name="EquipmentComponent" type="Node" parent="."]
 script = ExtResource("5")
-body_armour = ExtResource("7")
-primary_weapon = ExtResource("6")
-sidearm_weapon = ExtResource("10")
+
+[node name="AbilityLoadoutComponent" type="Node" parent="."]
+script = ExtResource("13")
 
 [node name="PlayerMeleeAttack" type="Node" parent="."]
 script = ExtResource("8")
 
 [node name="PlayerRangedAttack" type="Node" parent="."]
 script = ExtResource("9")
+
+[node name="PlayerAbilityCast" type="Node" parent="."]
+script = ExtResource("14")

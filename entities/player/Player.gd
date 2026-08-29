@@ -23,10 +23,13 @@ class_name Player
 @onready var shield_mesh: MeshInstance3D = $Head/Camera3D/ShieldSocket/ShieldMesh
 @onready var health: HealthComponent = $HealthComponent
 @onready var ward: WardComponent = $WardComponent
+@onready var mana: ManaComponent = $ManaComponent
 @onready var parry_handler: ParryRiposteHandler = $ParryRiposteHandler
 @onready var equipment: EquipmentComponent = $EquipmentComponent
+@onready var ability_loadout: AbilityLoadoutComponent = $AbilityLoadoutComponent
 @onready var melee_attack: PlayerMeleeAttack = $PlayerMeleeAttack
 @onready var ranged_attack: PlayerRangedAttack = $PlayerRangedAttack
+@onready var ability_cast: PlayerAbilityCast = $PlayerAbilityCast
 
 var fate_board: FateBoard
 var _active_weapon_slot: Constants.EquipmentSlot = Constants.EquipmentSlot.PRIMARY_WEAPON
@@ -49,9 +52,11 @@ func _ready() -> void:
 	GameState.player_stat_sheet = stat_sheet
 	GameState.fate_board = fate_board
 	GameState.player_equipment = equipment
+	mouse_sensitivity = GameState.mouse_sensitivity  # SettingsPanel writes here; Player is respawned fresh per scene so it can't just keep its own value
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	add_to_group("player")
 	health.died.connect(_on_died)
+	_apply_saved_loadout()
 	_update_shield_mesh()
 	_update_active_weapon_visual()
 
@@ -61,6 +66,49 @@ func _ready() -> void:
 ## actual bug, not just missing flavor. See player_baseline.tres.
 func _on_died() -> void:
 	EventBus.player_died.emit()
+
+## Applies GameState's equipment/ability-loadout/rank fields, which are
+## always populated - either with DEFAULT_EQUIPMENT_PATHS/
+## DEFAULT_ABILITY_LOADOUT_PATHS (fresh boot, no save), whatever
+## SaveManager.load_game() read from disk, or whatever the player last
+## equipped this session (Player is a fresh instance every Hub<->Map
+## scene load, so without re-applying this every time, gear/abilities
+## would silently reset on every transition - this used to be true and
+## went unnoticed before GameState became the loadout source of truth).
+func _apply_saved_loadout() -> void:
+	for path in GameState.equipment_paths:
+		if path != "":
+			var item: Item = load(path)
+			if item:
+				equipment.equip(item)
+	for i in range(GameState.ability_loadout_paths.size()):
+		var path: String = GameState.ability_loadout_paths[i]
+		if path != "":
+			var ability: Ability = load(path)
+			if ability:
+				ability_loadout.equip(ability, i)
+	_apply_saved_ability_ranks()
+
+## Re-scans data/abilities/instances/ (same pattern AbilitiesScreen's own
+## _scan_owned_abilities() uses) and matches on ability_id rather than
+## assuming a file's name matches its ability_id - more robust than
+## string-building a path from the id.
+func _apply_saved_ability_ranks() -> void:
+	if GameState.ability_ranks.is_empty():
+		return
+	var dir_path := "res://data/abilities/instances/"
+	var dir := DirAccess.open(dir_path)
+	if dir == null:
+		return
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		if file_name.ends_with(".tres"):
+			var ability: Ability = load(dir_path + file_name) as Ability
+			if ability and GameState.ability_ranks.has(ability.ability_id):
+				ability.rank = GameState.ability_ranks[ability.ability_id]
+		file_name = dir.get_next()
+	dir.list_dir_end()
 
 ## Placeholder blade colored by the equipped weapon's damage type (same
 ## Constants.DAMAGE_TYPE_COLOR language used for the Fate Board grid).
@@ -126,6 +174,13 @@ func _unshaded_material(color: Color) -> StandardMaterial3D:
 func _swap_active_weapon() -> void:
 	_active_weapon_slot = Constants.EquipmentSlot.SIDEARM_WEAPON if _active_weapon_slot == Constants.EquipmentSlot.PRIMARY_WEAPON else Constants.EquipmentSlot.PRIMARY_WEAPON
 	_update_active_weapon_visual()
+	EventBus.weapon_swapped.emit(self)
+
+## Whichever weapon PlayerMeleeAttack/PlayerRangedAttack would actually
+## use right now - PlayerHUD reads this to show the active weapon and
+## react to swaps, rather than duplicating the _active_weapon_slot check.
+func get_active_weapon() -> Weapon:
+	return equipment.sidearm_weapon if _active_weapon_slot == Constants.EquipmentSlot.SIDEARM_WEAPON else equipment.primary_weapon
 
 ## Physical hits are mitigated by equipped Armor first (Section 16), then
 ## Ward absorbs the Esoteric portion of what's left (WardComponent.absorb),

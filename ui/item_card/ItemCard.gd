@@ -69,6 +69,29 @@ func display_slate(slate: Slate) -> void:
 		_add_separator()
 		_add_flavor(slate.implicit_flavor_text)
 
+## `stat_sheet` is optional (defaults to null) so callers without a live
+## Player reference can still show the card, just without the
+## stats-dependent "Predicted Damage" line - ItemSlotButton passes the
+## current player's StatSheet when one exists.
+func display_ability(ability: Ability, stat_sheet: StatSheet = null) -> void:
+	_clear()
+	_set_border_color(AFFIX_COLOR)
+	_add_title(ability.display_name, AFFIX_COLOR)
+	_add_subtitle("Ability - %s (Rank %d/%d)" % [Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "?"), ability.rank, Ability.MAX_RANK])
+	_add_separator()
+	_add_stat_line("Cooldown: %.1fs" % ability.get_effective_cooldown())
+	_add_stat_line("Mana Cost: %.0f" % ability.resource_cost)
+	_add_stat_line("Range: %.0fm" % ability.radius)
+	_add_stat_line("Motion Value: %.2f" % ability.get_effective_motion_value())
+	_add_stat_line("Scaling Grade: %s" % Constants.ScalingGrade.keys()[ability.scaling_grade])
+	if stat_sheet:
+		_add_stat_line("Predicted Damage: %.1f" % ability.predict_damage(stat_sheet))
+	if ability.applies_status_effects.size() > 0:
+		_add_stat_line("Applies: %s" % ", ".join(ability.applies_status_effects))
+	if ability.description != "":
+		_add_separator()
+		_add_flavor(ability.description)
+
 func _item_type_line(item: Item) -> String:
 	if item is Weapon:
 		var w := item as Weapon
@@ -77,6 +100,8 @@ func _item_type_line(item: Item) -> String:
 		return "Armour - %s" % Constants.EquipmentSlot.keys()[item.equip_slot].capitalize()
 	if item is Shield:
 		return "Shield"
+	if item is MapItem:
+		return "Map - Tier %d" % (item as MapItem).tier
 	return Constants.EquipmentSlot.keys()[item.equip_slot].capitalize()
 
 func _item_stat_lines(item: Item) -> Array[String]:
@@ -102,6 +127,12 @@ func _item_stat_lines(item: Item) -> Array[String]:
 			lines.append("Armour: %.0f" % s.armor_value)
 		lines.append("Block Chance: %.0f%%" % s.block_chance)
 		lines.append("Block Threshold: %.0f" % s.block_threshold)
+	elif item is MapItem:
+		var m := item as MapItem
+		lines.append("Monster Damage: %.0f%%" % (m.enemy_damage_multiplier * 100.0))
+		lines.append("Monster Life: %.0f%%" % (m.enemy_health_multiplier * 100.0))
+		lines.append("Item Quantity: %.0f%% (no loot system yet - inert)" % (m.loot_quantity_multiplier * 100.0))
+		lines.append("Item Rarity: %.0f%% (no loot system yet - inert)" % (m.loot_rarity_multiplier * 100.0))
 	if item.max_sockets > 0:
 		lines.append("Sockets: %d" % item.max_sockets)
 	return lines

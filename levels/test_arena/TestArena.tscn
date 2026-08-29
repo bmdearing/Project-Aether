@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=19 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://entities/enemies/glass_cannon/GlassCannon.tscn" id="2"]
@@ -9,6 +9,10 @@
 [ext_resource type="PackedScene" path="res://ui/fate_board_editor/FateBoardEditor.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://ui/inventory/InventoryScreen.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://ui/death_screen/DeathScreen.tscn" id="9"]
+[ext_resource type="PackedScene" path="res://ui/ability_bar/AbilityBar.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://ui/abilities/AbilitiesScreen.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://ui/character_screen/CharacterScreen.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://ui/player_hud/PlayerHUD.tscn" id="13"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(60, 1, 60)
@@ -67,6 +71,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -6)
 [node name="FateBoardEditor" parent="." instance=ExtResource("7")]
 
 [node name="InventoryScreen" parent="." instance=ExtResource("8")]
+
+[node name="AbilitiesScreen" parent="." instance=ExtResource("11")]
+
+[node name="CharacterScreen" parent="." instance=ExtResource("12")]
+
+[node name="AbilityBar" parent="." instance=ExtResource("10")]
+
+[node name="PlayerHUD" parent="." instance=ExtResource("13")]
 
 [node name="DeathScreen" parent="." instance=ExtResource("9")]
 

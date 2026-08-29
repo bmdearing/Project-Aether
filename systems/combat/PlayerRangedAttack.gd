@@ -3,6 +3,12 @@ class_name PlayerRangedAttack
 ## Sidearm-slot ranged attack: spawns a Projectile.tscn instance moving
 ## forward from WeaponSocket. No windup/strike states like
 ## PlayerMeleeAttack - there's no swing - just a fire cooldown.
+##
+## _fire() calls Weapon.predict_damage() rather than wiring
+## DamageCalculator itself (used to inline the exact same call) - same
+## centralization Ability.predict_damage() does, so CharacterScreen's
+## "Predicted Ranged Damage" readout can't drift from what firing
+## actually deals.
 
 const PROJECTILE_SCENE := preload("res://entities/projectile/Projectile.tscn")
 
@@ -34,19 +40,10 @@ func _physics_process(delta: float) -> void:
 
 func _fire(weapon: Weapon) -> void:
 	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
-	var main_stat: Constants.Stat = Constants.DAMAGE_TYPE_MAIN_STAT.get(damage_type, Constants.Stat.STRENGTH)
-	var stat_value: float = _player.stat_sheet.get_stat(main_stat) if _player.stat_sheet else 0.0
-	var mastery: float = _player.stat_sheet.get_mastery(damage_type) if _player.stat_sheet else 0.0
-
-	# No Slate/gear stat aggregation into StatSheet yet - same gap flagged
-	# on PlayerMeleeAttack._deal_damage(), both pools stay empty for now.
-	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		weapon.base_damage, base_motion_value, stat_value, weapon.scaling_grade,
-		0.5, mastery, [], [], damage_type
-	)
+	var final_damage: float = weapon.predict_damage(base_motion_value, _player.stat_sheet)
 
 	var projectile: Projectile = PROJECTILE_SCENE.instantiate()
-	projectile.damage_amount = result.final_damage
+	projectile.damage_amount = final_damage
 	projectile.damage_type = damage_type
 	projectile.source = _player
 	projectile.speed = projectile_speed

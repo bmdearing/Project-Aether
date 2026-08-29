@@ -2,7 +2,8 @@ extends CanvasLayer
 class_name InventoryScreen
 ## Slot-based grid inventory (uniform 1x1 cells - Item.gd has no footprint
 ## data, so this is the "uniform grid" half of Section 14's Satchel, not a
-## Tetris packer; see README gap #7/#8 history) plus a paper-doll equipment
+## Tetris packer; see README's flagged gaps and PATCH_NOTES.md for the
+## history) plus a paper-doll equipment
 ## diagram arranged around a center torso column with PRIMARY_WEAPON/
 ## OFFHAND flanking it, replacing the old flat button-list UI on both
 ## sides. Still placeholder-art: every slot is a colored square (rarity
@@ -154,6 +155,7 @@ func _on_item_selected(item: Item) -> void:
 		return
 	status_label.text = ""
 	_equipment.equip(item)
+	GameState.sync_equipment(_equipment)
 	_refresh_doll()
 
 func _on_doll_slot_pressed(row: Dictionary) -> void:
@@ -161,6 +163,7 @@ func _on_doll_slot_pressed(row: Dictionary) -> void:
 		return
 	var ring_index: int = row.get("ring_index", 0)
 	_equipment.unequip(row["slot"], ring_index)
+	GameState.sync_equipment(_equipment)
 	status_label.text = ""
 	_refresh_doll()
 

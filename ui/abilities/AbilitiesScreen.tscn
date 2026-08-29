@@ -1,0 +1,52 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/abilities/AbilitiesScreen.gd" id="1"]
+
+[node name="AbilitiesScreen" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="DimBackground" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.75)
+
+[node name="HBox" type="HBoxContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = -24.0
+theme_override_constants/separation = 24
+
+[node name="OwnedPanel" type="VBoxContainer" parent="HBox"]
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="OwnedTitle" type="Label" parent="HBox/OwnedPanel"]
+text = "Abilities"
+
+[node name="OwnedScroll" type="ScrollContainer" parent="HBox/OwnedPanel"]
+size_flags_vertical = 3
+
+[node name="OwnedList" type="VBoxContainer" parent="HBox/OwnedPanel/OwnedScroll"]
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="SidePanel" type="VBoxContainer" parent="HBox"]
+custom_minimum_size = Vector2(360, 0)
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="HBox/SidePanel"]
+text = "Equipped"
+
+[node name="HintLabel" type="Label" parent="HBox/SidePanel"]
+autowrap_mode = 3
+text = "Click an ability on the left to equip it in the first open slot. Click an equipped slot below to unequip it. Upgrade raises its rank (up to 5) - free for now, no cost gating yet."
+
+[node name="EquippedRow" type="HBoxContainer" parent="HBox/SidePanel"]
+theme_override_constants/separation = 8
+
+[node name="CloseButton" type="Button" parent="HBox/SidePanel"]
+text = "Close (Esc)"

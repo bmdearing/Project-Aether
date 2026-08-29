@@ -4,6 +4,8 @@ class_name WardComponent
 ## requires active restoration via kill, Parry, Riposte, or Aetheric skill
 ## use per the World Doc's Ward design notes (Section 16).
 
+signal ward_changed(current: float, max: float)
+
 @export var max_ward: float = 0.0
 var current_ward: float = 0.0
 
@@ -16,6 +18,7 @@ func absorb(incoming_damage: float, damage_type: Constants.DamageType) -> float:
 
 	var absorbed: float = min(current_ward, incoming_damage)
 	current_ward -= absorbed
+	ward_changed.emit(current_ward, max_ward)
 	if current_ward <= 0.0:
 		EventBus.ward_depleted.emit(get_parent())
 	return incoming_damage - absorbed
@@ -24,6 +27,7 @@ func restore(amount: float) -> void:
 	if amount <= 0.0:
 		return
 	current_ward = min(max_ward, current_ward + amount)
+	ward_changed.emit(current_ward, max_ward)
 	EventBus.ward_restored.emit(get_parent(), amount)
 
 func restore_on_parry_success() -> void:

@@ -80,7 +80,7 @@ func _fire() -> void:
 	var spawn_pos := origin + dir * 0.7
 
 	var projectile: Projectile = PROJECTILE_SCENE.instantiate()
-	projectile.damage_amount = damage_amount
+	projectile.damage_amount = damage_amount * _enemy.get_outgoing_damage_multiplier()
 	projectile.damage_type = damage_type
 	projectile.source = _enemy
 	projectile.speed = projectile_speed

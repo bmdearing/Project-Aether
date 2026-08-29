@@ -26,11 +26,11 @@ horizontal_alignment = 1
 [node name="ResumeButton" type="Button" parent="CenterContainer/VBoxContainer"]
 text = "Resume"
 
-[node name="InventoryButton" type="Button" parent="CenterContainer/VBoxContainer"]
-text = "Inventory"
+[node name="ReturnToHubButton" type="Button" parent="CenterContainer/VBoxContainer"]
+text = "Return to Hub"
 
-[node name="FateBoardButton" type="Button" parent="CenterContainer/VBoxContainer"]
-text = "Fate Board"
+[node name="MainMenuButton" type="Button" parent="CenterContainer/VBoxContainer"]
+text = "Quit to Main Menu"
 
 [node name="QuitButton" type="Button" parent="CenterContainer/VBoxContainer"]
 text = "Quit to Desktop"

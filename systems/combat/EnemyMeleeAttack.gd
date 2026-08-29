@@ -124,5 +124,5 @@ func _poll_hitbox() -> void:
 func _resolve_hit(player: Player) -> void:
 	var parried: bool = player.parry_handler and player.parry_handler.attempt_parry(_enemy, player.ward)
 	if not parried:
-		player.take_damage(damage_amount, damage_type, _enemy)
+		player.take_damage(damage_amount * _enemy.get_outgoing_damage_multiplier(), damage_type, _enemy)
 	EventBus.enemy_attack_resolved.emit(_enemy, player, true, parried)

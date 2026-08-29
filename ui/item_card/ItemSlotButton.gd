@@ -8,23 +8,30 @@ class_name ItemSlotButton
 ## still need to set that (any non-empty placeholder works - the text
 ## itself is ignored once item/slate is set).
 ##
-## Used by both InventoryScreen (grid + paper-doll slots) and
-## FateBoardEditor (Slate palette) - set exactly one of `item`/`slate` per
-## button; the other stays null. Neither set means "empty slot," which
-## falls through to Godot's default plain-text tooltip (or none, if
-## tooltip_text is also empty).
+## Used by InventoryScreen (grid + paper-doll slots), FateBoardEditor
+## (Slate palette), and AbilitiesScreen (owned list + bar slots) - set
+## exactly one of `item`/`slate`/`ability` per button; the rest stay null.
+## None set means "empty slot," which falls through to Godot's default
+## plain-text tooltip (or none, if tooltip_text is also empty).
 
 const ITEM_CARD_SCENE := preload("res://ui/item_card/ItemCard.tscn")
 
 var item: Item
 var slate: Slate
+var ability: Ability
 
 func _make_custom_tooltip(_for_text: String) -> Object:
-	if item == null and slate == null:
+	if item == null and slate == null and ability == null:
 		return null
 	var card: ItemCard = ITEM_CARD_SCENE.instantiate()
 	if item:
 		card.display_item(item)
-	else:
+	elif slate:
 		card.display_slate(slate)
+	else:
+		# Looked up fresh per hover (not cached) so "Predicted Damage"
+		# reflects the player's CURRENT stats, not whatever they were
+		# when this button was built.
+		var player := get_tree().get_first_node_in_group("player") as Player
+		card.display_ability(ability, player.stat_sheet if player else null)
 	return card

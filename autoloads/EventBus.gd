@@ -23,3 +23,8 @@ signal ward_depleted(target: Node)
 signal ward_restored(target: Node, amount: float)
 
 signal player_died
+
+signal ability_cast(caster: Node, ability: Ability)
+signal ability_cast_failed(caster: Node, ability: Ability, reason: String)
+
+signal weapon_swapped(player: Node)
