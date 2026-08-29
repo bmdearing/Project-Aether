@@ -1,10 +1,14 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=15 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://entities/enemies/glass_cannon/GlassCannon.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://entities/enemies/mobile_bruiser/MobileBruiser.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://entities/enemies/heavy_hitter/HeavyHitter.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://ui/debug/DebugOverlay.tscn" id="5"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu/PauseMenu.tscn" id="6"]
+[ext_resource type="PackedScene" path="res://ui/fate_board_editor/FateBoardEditor.tscn" id="7"]
+[ext_resource type="PackedScene" path="res://ui/inventory/InventoryScreen.tscn" id="8"]
+[ext_resource type="PackedScene" path="res://ui/death_screen/DeathScreen.tscn" id="9"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(60, 1, 60)
@@ -59,3 +63,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -6)
 
 [node name="DebugOverlay" parent="." instance=ExtResource("5")]
+
+[node name="FateBoardEditor" parent="." instance=ExtResource("7")]
+
+[node name="InventoryScreen" parent="." instance=ExtResource("8")]
+
+[node name="DeathScreen" parent="." instance=ExtResource("9")]
+
+[node name="PauseMenu" parent="." instance=ExtResource("6")]

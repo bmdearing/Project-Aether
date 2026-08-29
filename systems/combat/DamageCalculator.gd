@@ -26,7 +26,10 @@ static func calculate(
 	damage_type: Constants.DamageType
 ) -> DamageResult:
 	var range: Vector2 = Constants.SCALING_RANGES[scaling_grade]
-	var base_scale := lerp(range.x, range.y, clamp(grade_roll_t, 0.0, 1.0))
+	# lerp()'s builtin signature returns Variant (it's polymorphic over
+	# float/Vector2/Vector3/Color) - explicit : float forces the narrowing
+	# so this doesn't infer Variant via :=.
+	var base_scale: float = lerp(range.x, range.y, clamp(grade_roll_t, 0.0, 1.0))
 	var effective_scale := base_scale * (1.0 + mastery_bonus)
 
 	var scaled_stat_damage := stat_value * effective_scale
@@ -54,3 +57,15 @@ static func calculate(
 		"more_multiplier": more_multiplier,
 	}
 	return result
+
+## Section 16 Armor System: Damage Reduction % = Armor / (Armor + 6 x Hit
+## Damage). The doc splits Kinetic (full %) / Piercing (partial) / Explosive
+## (flat reduction) behavior but never gives a concrete ratio for the
+## Piercing/Explosive cases, so this applies the full formula uniformly to
+## all Physical damage as a placeholder - flagged in the README, not a
+## silent guess. Soft cap ~6,000 Armor is inherent to the formula's shape,
+## not separately enforced.
+static func physical_mitigation(armor: float, hit_damage: float) -> float:
+	if armor <= 0.0 or hit_damage <= 0.0:
+		return 0.0
+	return armor / (armor + 6.0 * hit_damage)

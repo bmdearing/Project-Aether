@@ -5,11 +5,13 @@ class_name ParryRiposteHandler
 ## StanceComponent + ComposureComponent.
 ##
 ## Camera-agnostic by design: this handler doesn't care whether the game is
-## first-person or third-person. The piece that DOES care is whatever feeds
-## `attempt_parry()` its `attacker` argument - in first-person that will
-## likely be an Area3D "parry detection" volume in front of the camera,
-## resolved against whichever enemy's telegraphed attack is active. Not
-## implemented yet - flagged as the next Claude Code task.
+## first-person or third-person. `attempt_parry()` is currently fed by
+## EnemyMeleeAttack.gd's Strike state, which calls it directly with the
+## attacking enemy as `attacker` at the moment the swing resolves - a
+## distance check stands in for a real hitbox until enemy art/animation
+## exists (see EnemyMeleeAttack for why). A player-facing Area3D "parry
+## detection" volume would only matter for attacks with actual trajectories,
+## which don't exist yet either.
 
 @export var parry_window_seconds: float = 0.25
 @export var parry_stance_damage: float = 25.0

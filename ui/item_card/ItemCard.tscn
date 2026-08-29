@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/item_card/ItemCard.gd" id="1"]
+
+[node name="ItemCard" type="PanelContainer"]
+script = ExtResource("1")
+
+[node name="Margin" type="MarginContainer" parent="."]
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="Content" type="VBoxContainer" parent="Margin"]
+custom_minimum_size = Vector2(260, 0)
+theme_override_constants/separation = 4

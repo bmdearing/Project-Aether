@@ -12,9 +12,9 @@ class_name Slate
 @export var secondary_tag: Constants.DamageType   # only meaningful if is_hybrid
 
 ## Some documented Slates (e.g. "The Unbound Chorus") use a non-damage-type
-## tag like "Spell". Flagged gap: the World Doc doesn't yet define a formal
-## tag taxonomy beyond the 9 damage types. If set, this overrides `tag` for
-## display and chain-matching purposes until that's resolved.
+## tag like "Spell" - confirmed intentional by Patch v3.1's Flame Wall example
+## ("A Spell Slate modifier..." alongside Fire Slate modifiers), not a taxonomy
+## gap. If set, this overrides `tag` for display and chain-matching purposes.
 @export var category_tag_override: String = ""
 
 ## Local grid cell offsets defining the footprint, e.g. [(0,0),(1,0),(1,1)] for an L-shape.

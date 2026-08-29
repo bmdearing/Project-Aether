@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "comet"
+display_name = "Comet"
+description = "A frozen mass of ice and compressed cold energy plunges from above into a targeted area. Deals massively increased damage against enemies that are Chilled or Frozen."
+damage_type = 4
+motion_value = 1.9
+scaling_grade = 1
+cooldown_seconds = 9.0
+resource_cost = 30.0
+can_trigger_riposte = true
+is_auto_cast_eligible = true
+applies_status_effects = Array[String]([])

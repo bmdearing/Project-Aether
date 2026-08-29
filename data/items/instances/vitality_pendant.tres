@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item.gd" id="1"]
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "+23 Vitality (implicit)"
+stat_key = "flat_vitality"
+value = 23.0
+value_min = 0.0
+value_max = 0.0
+is_prefix = false
+
+[resource]
+script = ExtResource("1")
+item_id = "vitality_pendant"
+display_name = "Vitality Pendant"
+rarity = 0
+equip_slot = 9
+max_sockets = 1
+affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
+flavor_text = ""

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "padded_coat"
+display_name = "Padded Coat"
+rarity = 0
+equip_slot = 1
+max_sockets = 6
+flavor_text = ""
+armor_value = 35.0
+evasion_value = 0.0
+ward_value = 0.0

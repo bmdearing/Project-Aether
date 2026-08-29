@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://entities/enemies/base/Enemy.gd" id="1"]
 [ext_resource type="Script" path="res://entities/components/HealthComponent.gd" id="2"]
@@ -15,6 +15,9 @@ height = 1.9
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1"]
 albedo_color = Color(0.75, 0.18, 0.18, 1)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_hitbox"]
+radius = 2.5
 
 [node name="Enemy" type="CharacterBody3D"]
 script = ExtResource("1")
@@ -38,3 +41,11 @@ max_stance = 100.0
 
 [node name="ComposureComponent" type="Node" parent="."]
 script = ExtResource("4")
+
+[node name="AttackHitbox" type="Area3D" parent="."]
+position = Vector3(0, 0.95, 0)
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="AttackHitbox"]
+shape = SubResource("SphereShape3D_hitbox")

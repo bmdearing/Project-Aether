@@ -10,6 +10,10 @@ func _ready() -> void:
 	EventBus.aether_budget_changed.connect(_on_aether_changed)
 	EventBus.chain_recalculated.connect(_on_chain_recalculated)
 	EventBus.damage_dealt.connect(_on_damage_dealt)
+	EventBus.parry_successful.connect(_on_parry_successful)
+	EventBus.stance_damaged.connect(_on_stance_damaged)
+	EventBus.composure_broken.connect(_on_composure_broken)
+	EventBus.enemy_attack_resolved.connect(_on_enemy_attack_resolved)
 	visible = GameState.debug_overlay_enabled
 	label.text = "Project Aether — Debug Overlay\nAether: 0/0\n(Esc to release mouse)"
 
@@ -19,8 +23,33 @@ func _on_aether_changed(used: int, capacity: int) -> void:
 func _on_chain_recalculated(chain_id: int, tile_count: int, bonus_percent: float) -> void:
 	_append_line("Chain %d: %d tiles, +%.2f%% bonus" % [chain_id, tile_count, bonus_percent * 100.0])
 
+## Distinguishes player-dealt hits ("YOU dealt...") from everything else,
+## so it's actually possible to tell from this overlay whether an attack
+## landed on an enemy vs. one landing on the player - the flat "Dmg: X"
+## line before this didn't record direction at all.
 func _on_damage_dealt(source: Node, target: Node, amount: float, damage_type: int, more_applied: bool) -> void:
-	_append_line("Dmg: %.1f (type %d)%s" % [amount, damage_type, " [More applied]" if more_applied else ""])
+	var type_name: String = Constants.DAMAGE_TYPE_NAME.get(damage_type, "?")
+	var target_name: String = target.name if target else "?"
+	var tag: String = " [More applied]" if more_applied else ""
+	if source is Player:
+		_append_line("YOU dealt %.1f %s dmg to %s%s" % [amount, type_name, target_name, tag])
+	else:
+		var source_name: String = source.name if source else "?"
+		_append_line("%s dealt %.1f %s dmg to %s%s" % [source_name, amount, type_name, target_name, tag])
+
+func _on_parry_successful(player: Node, enemy: Node) -> void:
+	_append_line("Parry! Stance damage dealt to %s" % enemy.name)
+
+func _on_stance_damaged(enemy: Node, amount: float, remaining: float) -> void:
+	_append_line("Stance: %s at %.0f (-%.0f)" % [enemy.name, remaining, amount])
+
+func _on_composure_broken(enemy: Node) -> void:
+	_append_line("COMPOSURE BROKEN: %s - Riposte available!" % enemy.name)
+
+func _on_enemy_attack_resolved(enemy: Node, target: Node, hit: bool, parried: bool) -> void:
+	if parried:
+		return  # already covered by _on_parry_successful
+	_append_line("%s's attack landed on %s" % [enemy.name, target.name])
 
 func _append_line(text: String) -> void:
 	label.text += "\n" + text

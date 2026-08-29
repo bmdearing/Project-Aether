@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="1"]
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "+12% increased Critical Strike Chance (implicit)"
+stat_key = "crit_chance_increased"
+value = 12.0
+value_min = 0.0
+value_max = 0.0
+is_prefix = false
+
+[resource]
+script = ExtResource("1")
+item_id = "worn_pistol"
+display_name = "Worn Pistol"
+rarity = 0
+equip_slot = 5
+max_sockets = 3
+affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
+flavor_text = ""
+weapon_type = "Service Pistol"
+base_damage = 6.0
+scaling_grade = 4
+native_damage_type = 0
+infused_damage_type = -1
+is_two_handed = false
+skill_ids = Array[String]([])

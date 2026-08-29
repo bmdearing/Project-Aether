@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="StatSheet" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://systems/stats/StatSheet.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+vitality = 10.0
+strength = 10.0
+instinct = 10.0
+arcane = 10.0
+enigma = 10.0
+intellect = 10.0

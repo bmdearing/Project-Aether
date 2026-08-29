@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "ice_pulse"
+display_name = "Ice Pulse"
+description = "A rapid shimmer of freezing energy radiates outward from the caster, coating nearby enemies in a thin layer of ice on contact."
+damage_type = 4
+motion_value = 0.4
+scaling_grade = 4
+cooldown_seconds = 2.5
+resource_cost = 8.0
+can_trigger_riposte = false
+is_auto_cast_eligible = true
+applies_status_effects = Array[String](["chill"])

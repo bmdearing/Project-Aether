@@ -22,7 +22,48 @@ const DAMAGE_TYPE_CATEGORY := {
 	DamageType.PALE: DamageCategory.ESOTERIC,
 }
 
+# Damage type display name + color, for UI (Fate Board grid, etc). Colors
+# reuse the Gem palette from Section 15 (Jarne/Silfre/Raffe/Eldre/Ise/Leikre/
+# Aedre/Rotne/Folre) so tag color language stays consistent across systems.
+const DAMAGE_TYPE_NAME := {
+	DamageType.KINETIC: "Kinetic",
+	DamageType.PIERCING: "Piercing",
+	DamageType.EXPLOSIVE: "Explosive",
+	DamageType.FIRE: "Fire",
+	DamageType.COLD: "Cold",
+	DamageType.LIGHTNING: "Lightning",
+	DamageType.AETHERIC: "Aetheric",
+	DamageType.ENTROPIC: "Entropic",
+	DamageType.PALE: "Pale",
+}
+
+const DAMAGE_TYPE_COLOR := {
+	DamageType.KINETIC: Color(0.55, 0.55, 0.58),
+	DamageType.PIERCING: Color(0.75, 0.75, 0.8),
+	DamageType.EXPLOSIVE: Color(0.85, 0.55, 0.15),
+	DamageType.FIRE: Color(0.75, 0.15, 0.1),
+	DamageType.COLD: Color(0.6, 0.85, 0.95),
+	DamageType.LIGHTNING: Color(0.9, 0.85, 0.2),
+	DamageType.AETHERIC: Color(0.3, 0.6, 0.65),
+	DamageType.ENTROPIC: Color(0.35, 0.15, 0.45),
+	DamageType.PALE: Color(0.85, 0.83, 0.75),
+}
+
 enum Stat { VITALITY, STRENGTH, INSTINCT, ARCANE, ENIGMA, INTELLECT }
+
+# Section 10 - Main Stat by Tag. Drives which stat DamageCalculator scales
+# an attack against, keyed by the attack's damage type.
+const DAMAGE_TYPE_MAIN_STAT := {
+	DamageType.KINETIC: Stat.STRENGTH,
+	DamageType.PIERCING: Stat.STRENGTH,
+	DamageType.EXPLOSIVE: Stat.STRENGTH,
+	DamageType.FIRE: Stat.ARCANE,
+	DamageType.COLD: Stat.ARCANE,
+	DamageType.LIGHTNING: Stat.ARCANE,
+	DamageType.AETHERIC: Stat.ENIGMA,
+	DamageType.ENTROPIC: Stat.ENIGMA,
+	DamageType.PALE: Stat.ENIGMA,
+}
 
 enum ScalingGrade { S, A, B, C, D, E }
 
@@ -46,4 +87,40 @@ const CHAIN_BONUS_TIERS := [
 
 enum SlateRarity { COMMON, UNCOMMON, RARE, VERY_RARE, UNIQUE, MYTHIC }
 
+# No doc-sourced color column for SlateRarity (unlike ITEM_RARITY_COLOR's
+# Section 18 White/Blue/Yellow/Orange/Peach) - reuses that same palette for
+# the 5 shared tier names, with an invented violet slotted in for the
+# extra VERY_RARE tier between Rare and Unique. Placeholder, flagged in
+# the README.
+const SLATE_RARITY_COLOR := {
+	SlateRarity.COMMON: Color(0.9, 0.9, 0.9),
+	SlateRarity.UNCOMMON: Color(0.3, 0.55, 0.95),
+	SlateRarity.RARE: Color(0.95, 0.85, 0.2),
+	SlateRarity.VERY_RARE: Color(0.7, 0.4, 0.9),
+	SlateRarity.UNIQUE: Color(0.9, 0.55, 0.15),
+	SlateRarity.MYTHIC: Color(0.98, 0.75, 0.75),
+}
+
 enum EnemyArchetype { GLASS_CANNON, MOBILE_BRUISER, HEAVY_HITTER }
+
+# Section 13 - Equipment Slots. OFFHAND covers a Shield in the offhand slot.
+enum EquipmentSlot {
+	HELMET, BODY_ARMOUR, GLOVES, BOOTS,
+	PRIMARY_WEAPON, SIDEARM_WEAPON, OFFHAND, CONDUIT, SECONDARY_THROWABLE,
+	AMULET, BELT, RING,
+}
+
+# Section 18 - Item Rarity & Affixes. Distinct scale from SlateRarity above
+# (that one's 6-tier and Slate-specific per Section 10).
+enum ItemRarity { COMMON, UNCOMMON, RARE, UNIQUE, MYTHIC }
+
+# Section 18's rarity color column (White/Blue/Yellow/Orange/Peach) - used
+# for items with no damage-type identity of their own to key a color off of
+# (e.g. a Shield, which isn't tied to one of the 9 damage types).
+const ITEM_RARITY_COLOR := {
+	ItemRarity.COMMON: Color(0.9, 0.9, 0.9),
+	ItemRarity.UNCOMMON: Color(0.3, 0.55, 0.95),
+	ItemRarity.RARE: Color(0.95, 0.85, 0.2),
+	ItemRarity.UNIQUE: Color(0.9, 0.55, 0.15),
+	ItemRarity.MYTHIC: Color(0.98, 0.75, 0.75),
+}

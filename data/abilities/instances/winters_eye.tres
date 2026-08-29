@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "winters_eye"
+display_name = "Winter's Eye"
+description = "A slow-moving orb of frozen energy launched toward a target area. Continuously fires a spiral of icicles at nearby enemies as it travels, then detonates at the end of its duration."
+damage_type = 4
+motion_value = 1.0
+scaling_grade = 3
+cooldown_seconds = 6.0
+resource_cost = 18.0
+can_trigger_riposte = false
+is_auto_cast_eligible = true
+applies_status_effects = Array[String](["chill"])
