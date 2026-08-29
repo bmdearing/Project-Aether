@@ -2,9 +2,10 @@ extends Node
 class_name EquipmentComponent
 ## Holds a full gear loadout per Section 13 Equipment Slots. Attach to
 ## Player (or any future equippable actor) - same pattern as
-## HealthComponent/WardComponent. No affix/stat aggregation into StatSheet
-## yet (that math doesn't exist for gear yet, same as Slates aren't summed
-## into StatSheet either); this just tracks what's equipped where.
+## HealthComponent/WardComponent. compute_stat_bonuses() aggregates
+## flat_<stat> affixes (see ItemRoller.gd) into the six core stats per
+## Section 12 ("all stats come from gear...") - Slate stat contributions
+## still aren't summed in, that stays a gap.
 
 @export var helmet: Armor
 @export var body_armour: Armor
@@ -22,6 +23,9 @@ class_name EquipmentComponent
 @export var rings: Array[Item] = [null, null, null, null]
 
 signal equip_failed(reason: String)
+## Fired on every successful equip()/unequip() (not rejected paths) -
+## Player.gd recomputes stat bonuses and visuals on this.
+signal equipment_changed
 
 ## Routes by item.equip_slot. Two-handed primary weapons clear the sidearm
 ## and offhand slots per Section 13 ("Two-Handed Weapon occupies both
@@ -58,6 +62,7 @@ func equip(item: Item) -> void:
 		Constants.EquipmentSlot.AMULET: amulet = item
 		Constants.EquipmentSlot.BELT: belt = item
 		Constants.EquipmentSlot.RING: _equip_ring(item)
+	equipment_changed.emit()
 
 func unequip(slot: Constants.EquipmentSlot, ring_index: int = 0) -> void:
 	match slot:
@@ -75,6 +80,7 @@ func unequip(slot: Constants.EquipmentSlot, ring_index: int = 0) -> void:
 		Constants.EquipmentSlot.RING:
 			if ring_index >= 0 and ring_index < rings.size():
 				rings[ring_index] = null
+	equipment_changed.emit()
 
 ## Read counterpart to equip()/unequip()'s routing, so callers (UI) don't
 ## need 15 bespoke field accesses.
@@ -95,10 +101,6 @@ func get_equipped(slot: Constants.EquipmentSlot, ring_index: int = 0) -> Item:
 			return rings[ring_index] if ring_index >= 0 and ring_index < rings.size() else null
 	return null
 
-## Section 16: sums Armor value across all equipped Armor/Shield pieces, for
-## DamageCalculator.physical_mitigation(). Evasion (Dodge/Deflection) and
-## Ward's full 5-bracket system aren't wired to gear yet - WardComponent
-## keeps its existing simple absorb-first flow.
 func get_total_armor() -> float:
 	var total := 0.0
 	if helmet: total += helmet.armor_value
@@ -108,21 +110,44 @@ func get_total_armor() -> float:
 	if offhand: total += offhand.armor_value
 	return total
 
-## Flat list of resource_path for every currently-equipped item, in a
-## fixed field order (primary_weapon always before sidearm_weapon/offhand,
-## matching the two-handed-clears-those-slots invariant equip() already
-## enforces) - used by GameState.sync_equipment() to save/restore the
-## loadout without needing to know which slot each item belongs to (each
-## Item re-routes itself via its own equip_slot on re-equip).
-func get_all_equipped_paths() -> Array[String]:
-	var paths: Array[String] = []
-	for item in [helmet, body_armour, gloves, boots, primary_weapon, sidearm_weapon, offhand, conduit, secondary_throwable, amulet, belt]:
-		if item:
-			paths.append(item.resource_path)
-	for ring in rings:
-		if ring:
-			paths.append(ring.resource_path)
-	return paths
+## Restore-descriptor per equipped item for GameState.sync_equipment() -
+## a resource_path String, or an ItemSerializer Dictionary for rolled
+## items (no resource_path to save as a path).
+func get_all_equipped_refs() -> Array:
+	var refs: Array = []
+	for item in get_all_equipped_items():
+		refs.append(_ref_for(item))
+	return refs
+
+## The only source of stat growth beyond player_baseline.tres (Section
+## 12: gear only, no level-up allocation). Slate contributions aren't
+## summed in yet.
+const AFFIX_STAT_KEYS := {
+	"flat_vitality": Constants.Stat.VITALITY,
+	"flat_strength": Constants.Stat.STRENGTH,
+	"flat_instinct": Constants.Stat.INSTINCT,
+	"flat_arcane": Constants.Stat.ARCANE,
+	"flat_enigma": Constants.Stat.ENIGMA,
+	"flat_intellect": Constants.Stat.INTELLECT,
+}
+
+func compute_stat_bonuses() -> Dictionary:
+	var totals := {}
+	for item in get_all_equipped_items():
+		for affix in item.affixes:
+			if AFFIX_STAT_KEYS.has(affix.stat_key):
+				var stat: Constants.Stat = AFFIX_STAT_KEYS[affix.stat_key]
+				totals[stat] = totals.get(stat, 0.0) + affix.value
+	return totals
+
+func get_all_equipped_items() -> Array[Item]:
+	var items: Array[Item] = [helmet, body_armour, gloves, boots, primary_weapon, sidearm_weapon, offhand, conduit, secondary_throwable, amulet, belt]
+	items.append_array(rings)
+	items = items.filter(func(i): return i != null)
+	return items
+
+func _ref_for(item: Item):
+	return item.resource_path if item.resource_path != "" else ItemSerializer.to_dict(item)
 
 func _equip_ring(item: Item) -> void:
 	for i in range(rings.size()):

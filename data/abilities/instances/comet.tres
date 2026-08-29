@@ -16,3 +16,4 @@ can_trigger_riposte = true
 is_auto_cast_eligible = true
 applies_status_effects = Array[String]([])
 radius = 4.0
+base_crit_chance = 0.06

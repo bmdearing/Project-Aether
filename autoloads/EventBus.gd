@@ -2,7 +2,7 @@ extends Node
 ## Global signal bus. Systems emit here instead of holding direct references
 ## to each other - keeps FateBoard, Combat, and UI decoupled.
 
-signal damage_dealt(source: Node, target: Node, amount: float, damage_type: int, is_more_multiplier_applied: bool)
+signal damage_dealt(source: Node, target: Node, amount: float, damage_type: int, is_more_multiplier_applied: bool, is_critical: bool)
 signal status_effect_applied(target: Node, effect_id: String, stacks: int)
 
 signal stance_damaged(enemy: Node, amount: float, remaining: float)
@@ -28,3 +28,10 @@ signal ability_cast(caster: Node, ability: Ability)
 signal ability_cast_failed(caster: Node, ability: Ability, reason: String)
 
 signal weapon_swapped(player: Node)
+
+signal player_leveled_up(new_level: int)
+
+signal loot_dropped(item: Item, at_position: Vector3)
+signal loot_picked_up(item: Item)
+signal tome_picked_up(tome: SkillTome)
+signal gold_picked_up(amount: int)

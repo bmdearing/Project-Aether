@@ -3,30 +3,16 @@ class_name EnemyMeleeAttack
 ## Telegraph + Area3D hitbox melee attack: Idle -> Telegraph -> Strike ->
 ## Recovery. Attach to an Enemy that should threaten the player.
 ##
-## Strike uses a real Area3D (Enemy.attack_hitbox) instead of the distance
-## check this used to have - same upgrade PlayerMeleeAttack got. It's a
-## static sphere centered on the enemy, not swept through an animation the
-## way PlayerMeleeAttack's blade-attached hitbox is, since enemies don't
-## move/rotate to face the player yet - there's no swing to attach it to.
-## The hitbox radius (Enemy.tscn's AttackHitbox, currently 2.5) is baked
-## into the base scene rather than driven by attack_range below per
-## instance - mutating a shared .tscn sub-resource's shape at runtime risks
-## affecting other enemy instances since sub-resources aren't guaranteed
-## distinct per instantiation, so this stays a scene-level constant until
-## an archetype actually needs a different reach.
+## Strike's hitbox is a static sphere centered on the enemy (Enemy.tscn's
+## AttackHitbox, radius baked into the scene) rather than a swept hitbox -
+## enemies don't move/rotate to face the player yet, so there's no swing
+## to attach one to.
 ##
 ## Strike resolves hits by POLLING get_overlapping_bodies() every physics
-## frame, not by listening for body_entered. body_entered only fires on a
-## fresh overlap transition, but Idle's aggro check uses this same
-## attack_range as the hitbox radius, so the player is essentially always
-## already standing inside the sphere by the time Strike flips monitoring
-## on - there's no "entering" left to detect. A moving/swept hitbox (like
-## PlayerMeleeAttack's) doesn't have this problem since it starts outside
-## the target and sweeps in; a static sphere centered on a stationary
-## target needs an explicit "who's inside right now" check instead.
-##
-## Idle's proximity check below is aggro range, not hit detection - it was
-## never the placeholder being replaced, so it stays a plain distance check.
+## frame instead of listening for body_entered: Idle's aggro check already
+## uses attack_range as the hitbox radius, so the player is typically
+## already inside the sphere when Strike enables monitoring - there's no
+## "entering" transition left for body_entered to catch.
 
 enum State { IDLE, TELEGRAPH, STRIKE, RECOVERY }
 
@@ -47,12 +33,8 @@ var _resolved_this_strike: bool = false
 func _ready() -> void:
 	_enemy = get_parent()
 	_player = get_tree().get_first_node_in_group("player") as Player
-	# Deferred: EnemyMeleeAttack is a CHILD of Enemy, and Godot readies
-	# children before parents, so Enemy's own @onready attack_hitbox isn't
-	# assigned yet if read here directly - it was silently null for the
-	# entire lifetime of this node, which is why Strike could never enable
-	# monitoring or find anything to poll. call_deferred runs this after
-	# the whole scene tree (including Enemy._ready()) has finished readying.
+	# Deferred: children ready before parents, so Enemy's @onready attack_hitbox
+	# isn't assigned yet if read directly here.
 	call_deferred("_setup_hitbox")
 
 func _setup_hitbox() -> void:

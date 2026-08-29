@@ -20,6 +20,40 @@ offset_right = -24.0
 offset_bottom = -24.0
 theme_override_constants/separation = 24
 
+[node name="StatsPanel" type="VBoxContainer" parent="HBox"]
+custom_minimum_size = Vector2(360, 0)
+theme_override_constants/separation = 8
+
+[node name="StatsTitle" type="Label" parent="HBox/StatsPanel"]
+text = "Stats"
+
+[node name="StatsScroll" type="ScrollContainer" parent="HBox/StatsPanel"]
+size_flags_vertical = 3
+
+[node name="StatsList" type="VBoxContainer" parent="HBox/StatsPanel/StatsScroll"]
+theme_override_constants/separation = 10
+
+[node name="OffenseTitle" type="Label" parent="HBox/StatsPanel/StatsScroll/StatsList"]
+theme_override_font_sizes/font_size = 16
+text = "Offense"
+
+[node name="OffenseList" type="VBoxContainer" parent="HBox/StatsPanel/StatsScroll/StatsList"]
+theme_override_constants/separation = 4
+
+[node name="DefenseTitle" type="Label" parent="HBox/StatsPanel/StatsScroll/StatsList"]
+theme_override_font_sizes/font_size = 16
+text = "Defense"
+
+[node name="DefenseList" type="VBoxContainer" parent="HBox/StatsPanel/StatsScroll/StatsList"]
+theme_override_constants/separation = 4
+
+[node name="MiscTitle" type="Label" parent="HBox/StatsPanel/StatsScroll/StatsList"]
+theme_override_font_sizes/font_size = 16
+text = "Misc"
+
+[node name="MiscList" type="VBoxContainer" parent="HBox/StatsPanel/StatsScroll/StatsList"]
+theme_override_constants/separation = 4
+
 [node name="InventoryPanel" type="VBoxContainer" parent="HBox"]
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -49,7 +83,7 @@ text = ""
 
 [node name="HintLabel" type="Label" parent="HBox/SidePanel"]
 autowrap_mode = 3
-text = "Click a slot in the grid to equip it. Click an equipped paper-doll slot to unequip it. Hover any occupied slot for its stat card."
+text = "Click a slot in the grid to equip it. Click an equipped paper-doll slot to unequip it. Hover any occupied slot for its stat card - hold Alt for an advanced one."
 
 [node name="PaperDoll" type="HBoxContainer" parent="HBox/SidePanel"]
 size_flags_vertical = 3

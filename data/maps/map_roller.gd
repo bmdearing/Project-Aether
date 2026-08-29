@@ -1,13 +1,9 @@
 extends RefCounted
 class_name MapRoller
 ## Rolls a fresh MapItem on demand (called by MapDevice.gd on interact -
-## there's no map inventory/stash to draw pre-rolled maps from, this
-## project only has the one Map anyway). Invented and undocumented: no
-## map-item table exists anywhere in the referenced docs (Section 25
-## covers weapon/armor item tables, not Maps), so both the affix pool and
-## the tier-to-baseline-multiplier numbers here are placeholder tuning,
-## not doc-sourced - same category as the other invented numbers flagged
-## throughout this project.
+## no map inventory/stash exists). Invented and undocumented: no map-item
+## table exists in the referenced docs, so the affix pool and tier
+## multipliers here are placeholder tuning, not doc-sourced.
 
 const AFFIX_POOL := [
 	{"target": "enemy_damage_multiplier", "min": 10.0, "max": 40.0, "desc": "%d%% increased Monster Damage"},
@@ -17,9 +13,7 @@ const AFFIX_POOL := [
 ]
 
 ## affix_count: how many of the 4 pool entries to roll (no duplicates).
-## Higher tiers roll more affixes and a higher rarity band, same
-## increasing-danger-and-reward shape maps have in PoE, though the exact
-## curve here is invented.
+## Higher tiers roll more affixes and a higher rarity band.
 static func roll(tier: int) -> MapItem:
 	var map := MapItem.new()
 	map.item_id = "rolled_map_t%d_%d" % [tier, randi()]

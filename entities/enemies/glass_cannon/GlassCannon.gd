@@ -18,4 +18,6 @@ func _ready() -> void:
 	stop_distance = 7.0       # holds near EnemyRangedAttack.fire_range (9.0)
 	retreat_distance = 4.5    # backs off if the player closes inside this
 	health.max_health = 60.0
+	xp_reward = 12.0
+	gold_reward = 6
 	_set_placeholder_color(Color(0.95, 0.85, 0.2))  # yellow - fast/fragile

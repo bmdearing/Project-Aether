@@ -1,0 +1,51 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://ui/map_screen/MapScreen.gd" id="1"]
+[ext_resource type="Script" path="res://ui/map_screen/MapView.gd" id="2"]
+
+[node name="MapScreen" type="CanvasLayer"]
+script = ExtResource("1")
+
+[node name="DimBackground" type="ColorRect" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0, 0, 0, 0.75)
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+anchor_right = 1.0
+anchor_bottom = 1.0
+
+[node name="VBox" type="VBoxContainer" parent="CenterContainer"]
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="CenterContainer/VBox"]
+theme_override_font_sizes/font_size = 22
+text = "Map"
+horizontal_alignment = 1
+
+[node name="MapPanel" type="Control" parent="CenterContainer/VBox"]
+custom_minimum_size = Vector2(560, 560)
+
+[node name="MapBackground" type="ColorRect" parent="CenterContainer/VBox/MapPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.08, 0.08, 0.1, 1)
+
+[node name="MapView" type="Control" parent="CenterContainer/VBox/MapPanel"]
+script = ExtResource("2")
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="NoDataLabel" type="Label" parent="CenterContainer/VBox/MapPanel"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+text = "No map data here - this screen shows a generated Map's room layout."
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+
+[node name="CloseButton" type="Button" parent="CenterContainer/VBox"]
+text = "Close (Esc)"

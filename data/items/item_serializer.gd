@@ -1,0 +1,117 @@
+extends RefCounted
+class_name ItemSerializer
+## Full-data (not just resource_path) serialize/deserialize for rolled
+## Items. A rolled item (ItemRoller.roll(), Resource.duplicate() under
+## the hood) has no resource_path for the usual path-based persistence to
+## reference. Hand-authored items still use resource_path as before (see
+## EquipmentComponent.get_all_equipped_refs()) - this only kicks in for
+## an item whose resource_path is empty.
+##
+## Centralized here rather than spread across Item/Weapon/Armor/Shield -
+## GDScript static funcs aren't polymorphic, so a single loader needs to
+## branch on type to know which subclass to instantiate.
+
+static func to_dict(item: Item) -> Dictionary:
+	if item == null:
+		return {}
+	var affixes := []
+	for affix in item.affixes:
+		affixes.append({
+			"description": affix.description,
+			"stat_key": affix.stat_key,
+			"value": affix.value,
+			"value_min": affix.value_min,
+			"value_max": affix.value_max,
+			"tier": affix.tier,
+			"is_prefix": affix.is_prefix,
+		})
+	var d := {
+		"class": _class_tag(item),
+		"item_id": item.item_id,
+		"display_name": item.display_name,
+		"rarity": item.rarity,
+		"equip_slot": item.equip_slot,
+		"max_sockets": item.max_sockets,
+		"flavor_text": item.flavor_text,
+		"affixes": affixes,
+	}
+	if item is Weapon:
+		d["weapon_type"] = item.weapon_type
+		d["base_damage"] = item.base_damage
+		d["scaling_grade"] = item.scaling_grade
+		d["native_damage_type"] = item.native_damage_type
+		d["infused_damage_type"] = item.infused_damage_type
+		d["is_two_handed"] = item.is_two_handed
+		d["is_ranged"] = item.is_ranged
+		d["skill_ids"] = item.skill_ids
+	elif item is Armor:
+		d["armor_value"] = item.armor_value
+		d["evasion_value"] = item.evasion_value
+		d["ward_value"] = item.ward_value
+	elif item is Shield:
+		d["block_chance"] = item.block_chance
+		d["block_threshold"] = item.block_threshold
+		d["armor_value"] = item.armor_value
+	return d
+
+static func from_dict(d: Dictionary) -> Item:
+	if d.is_empty():
+		return null
+	var item: Item
+	match d.get("class", "Item"):
+		"Weapon": item = Weapon.new()
+		"Armor": item = Armor.new()
+		"Shield": item = Shield.new()
+		_: item = Item.new()
+
+	item.item_id = d.get("item_id", "")
+	item.display_name = d.get("display_name", "")
+	item.rarity = d.get("rarity", 0)
+	item.equip_slot = d.get("equip_slot", 0)
+	item.max_sockets = d.get("max_sockets", 0)
+	item.flavor_text = d.get("flavor_text", "")
+
+	var affixes: Array[ItemAffix] = []
+	for a in d.get("affixes", []):
+		var affix := ItemAffix.new()
+		affix.description = a.get("description", "")
+		affix.stat_key = a.get("stat_key", "")
+		affix.value = a.get("value", 0.0)
+		affix.value_min = a.get("value_min", 0.0)
+		affix.value_max = a.get("value_max", 0.0)
+		affix.tier = a.get("tier", 0)
+		affix.is_prefix = a.get("is_prefix", true)
+		affixes.append(affix)
+	item.affixes = affixes
+
+	if item is Weapon:
+		item.weapon_type = d.get("weapon_type", "")
+		item.base_damage = d.get("base_damage", 0.0)
+		item.scaling_grade = d.get("scaling_grade", 0)
+		item.native_damage_type = d.get("native_damage_type", 0)
+		item.infused_damage_type = d.get("infused_damage_type", -1)
+		item.is_two_handed = d.get("is_two_handed", false)
+		item.is_ranged = d.get("is_ranged", false)
+		var ids: Array[String] = []
+		for s in d.get("skill_ids", []):
+			ids.append(str(s))
+		item.skill_ids = ids
+	elif item is Armor:
+		item.armor_value = d.get("armor_value", 0.0)
+		item.evasion_value = d.get("evasion_value", 0.0)
+		item.ward_value = d.get("ward_value", 0.0)
+	elif item is Shield:
+		item.block_chance = d.get("block_chance", 0.0)
+		item.block_threshold = d.get("block_threshold", 0.0)
+		item.armor_value = d.get("armor_value", 0.0)
+
+	return item
+
+static func _class_tag(item: Item) -> String:
+	if item is Weapon:
+		return "Weapon"
+	if item is Armor:
+		return "Armor"
+	if item is Shield:
+		return "Shield"
+	return "Item"

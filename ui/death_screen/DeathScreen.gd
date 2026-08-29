@@ -1,17 +1,12 @@
 extends CanvasLayer
 class_name DeathScreen
 ## Shown when Player.gd forwards HealthComponent.died -> EventBus.player_died.
-## Not a "blocking_menu" screen (PauseMenu/FateBoardEditor/InventoryScreen) -
-## there's nothing to toggle or close, only Return to Hub/Main Menu/Quit
-## once you're dead.
+## Not a "blocking_menu" screen - nothing to toggle or close, only Return
+## to Hub/Main Menu/Quit once dead.
 ##
 ## "Return to Hub" (not a same-map restart) matches the Hub/Map-Device
-## structure - dying ends the map, same as leaving via the pause menu's
-## Return to Hub button, rather than instantly retrying the exact same
-## map in place. GameState/EventBus/Constants are autoloads and survive
-## a scene change untouched, which is fine here since none of them hold
-## state that needs clearing (GameState's player_stat_sheet/fate_board/
-## player_equipment all just get overwritten by the new Player._ready()).
+## structure - dying ends the map, same as the pause menu's equivalent
+## button, rather than retrying the same map in place.
 
 @onready var restart_button: Button = $CenterContainer/VBoxContainer/RestartButton
 @onready var main_menu_button: Button = $CenterContainer/VBoxContainer/MainMenuButton
@@ -31,8 +26,7 @@ func _on_player_died() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 ## get_tree().paused must be cleared before changing scenes, otherwise it
-## carries over and leaves the Hub's Player/etc. frozen. SaveManager.
-## save_game() first, same as PauseMenu's equivalent buttons.
+## carries over and leaves the Hub's Player frozen.
 func _on_restart_pressed() -> void:
 	SaveManager.save_game()
 	get_tree().paused = false

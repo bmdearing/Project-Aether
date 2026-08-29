@@ -1,30 +1,18 @@
 extends CanvasLayer
 class_name InventoryScreen
-## Slot-based grid inventory (uniform 1x1 cells - Item.gd has no footprint
-## data, so this is the "uniform grid" half of Section 14's Satchel, not a
-## Tetris packer; see README's flagged gaps and PATCH_NOTES.md for the
-## history) plus a paper-doll equipment
-## diagram arranged around a center torso column with PRIMARY_WEAPON/
-## OFFHAND flanking it, replacing the old flat button-list UI on both
-## sides. Still placeholder-art: every slot is a colored square (rarity
-## color for armor/accessories, Constants.DAMAGE_TYPE_COLOR for weapons -
-## same language WeaponMesh/SidearmMesh/ShieldMesh already use on the
-## Player model), not a real icon - but hovering any occupied slot shows a
-## full ui/item_card/ItemCard.tscn stat card (ItemSlotButton.gd wires this
-## up via Godot's _make_custom_tooltip hook).
+## Slot-based grid inventory (uniform 1x1 cells, not the Tetris Satchel -
+## see README) + paper-doll equipment diagram + a live stats column
+## (StatSummaryBuilder, shared with CharacterScreen) so equipping
+## something visibly changes stats in place. Placeholder-art: every slot
+## is a colored square, not an icon - hovering shows a stat card
+## (ItemSlotButton), holding Alt shows an advanced one (AdvancedTooltip).
 ##
-## "Owned" items are still directory-scanned from
-## data/{armor,shields,weapons,items}/instances/, same stand-in convention
-## as before - as if the player owns one of each, no real ownership/loot
-## tracking yet.
-##
-## The paper-doll has 15 slots (our EquipmentSlot enum, incl. 4 rings) vs.
-## a typical 12-slot ARPG doll, since Section 13 also has CONDUIT and
-## SECONDARY_THROWABLE as real equip slots most games fold into "weapon
-## swap". Those two plus SIDEARM_WEAPON sit in a small row above the
-## helmet rather than getting their own flanking column - there's no
-## natural doll position for a third/fourth weapon slot without real art
-## to arrange around.
+## "Owned" items are directory-scanned from data/{armor,shields,weapons,
+## items}/instances/ once at _ready() (as if the player owns one of
+## each hand-authored base) plus GameState.owned_loot (real rolled
+## drops), rebuilt every time this screen opens since loot can arrive
+## mid-session. Anything currently equipped is excluded from the grid -
+## it shows on the paper-doll instead, not in both places.
 
 const ITEM_INSTANCE_DIRS := [
 	"res://data/armor/instances/",
@@ -39,6 +27,9 @@ const GRID_MIN_CAPACITY := 35  # pads with empty cells so it reads as a real inv
 const EMPTY_SLOT_COLOR := Color(0.25, 0.25, 0.28)
 const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
 
+@onready var offense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/OffenseList
+@onready var defense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/DefenseList
+@onready var misc_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/MiscList
 @onready var inventory_grid: GridContainer = $HBox/InventoryPanel/InventoryScroll/InventoryGrid
 @onready var status_label: Label = $HBox/SidePanel/StatusLabel
 @onready var close_button: Button = $HBox/SidePanel/CloseButton
@@ -90,7 +81,6 @@ func _ready() -> void:
 	for row in _doll_rows:
 		(row["button"] as ItemSlotButton).pressed.connect(_on_doll_slot_pressed.bind(row))
 	_scan_owned_items()
-	_build_inventory_grid()
 
 func is_open() -> bool:
 	return _is_open
@@ -104,7 +94,9 @@ func open() -> void:
 	if _equipment and not _equipment.equip_failed.is_connected(_on_equip_failed):
 		_equipment.equip_failed.connect(_on_equip_failed)
 	status_label.text = ""
+	_build_inventory_grid()
 	_refresh_doll()
+	_refresh_stats()
 
 func close() -> void:
 	_is_open = false
@@ -134,15 +126,24 @@ func _scan_owned_items() -> void:
 			file_name = dir.get_next()
 		dir.list_dir_end()
 
+## Anything currently equipped is excluded - it's shown on the paper-doll,
+## not duplicated in the grid too.
 func _build_inventory_grid() -> void:
-	var capacity: int = max(GRID_MIN_CAPACITY, _owned_items.size())
+	for child in inventory_grid.get_children():
+		child.queue_free()
+	var equipped: Array[Item] = _equipment.get_all_equipped_items() if _equipment else []
+	var all_items: Array[Item] = []
+	for item in _owned_items + GameState.owned_loot:
+		if not equipped.has(item):
+			all_items.append(item)
+	var capacity: int = max(GRID_MIN_CAPACITY, all_items.size())
 	capacity += (GRID_COLUMNS - capacity % GRID_COLUMNS) % GRID_COLUMNS  # round up to a full row
 	for i in range(capacity):
 		var button := ItemSlotButton.new()
 		button.custom_minimum_size = Vector2(64, 64)
 		button.clip_text = true
-		if i < _owned_items.size():
-			var item := _owned_items[i]
+		if i < all_items.size():
+			var item := all_items[i]
 			_style_slot_button(button, item)
 			button.pressed.connect(_on_item_selected.bind(item))
 		else:
@@ -157,6 +158,8 @@ func _on_item_selected(item: Item) -> void:
 	_equipment.equip(item)
 	GameState.sync_equipment(_equipment)
 	_refresh_doll()
+	_build_inventory_grid()
+	_refresh_stats()
 
 func _on_doll_slot_pressed(row: Dictionary) -> void:
 	if _equipment == null:
@@ -166,6 +169,8 @@ func _on_doll_slot_pressed(row: Dictionary) -> void:
 	GameState.sync_equipment(_equipment)
 	status_label.text = ""
 	_refresh_doll()
+	_build_inventory_grid()
+	_refresh_stats()
 
 func _refresh_doll() -> void:
 	if _equipment == null:
@@ -178,6 +183,10 @@ func _refresh_doll() -> void:
 			_style_slot_button(button, equipped)
 		else:
 			_style_empty_button(button, row["label"])
+
+func _refresh_stats() -> void:
+	var player := get_tree().get_first_node_in_group("player") as Player
+	StatSummaryBuilder.refresh(offense_list, defense_list, misc_list, player)
 
 func _style_slot_button(button: ItemSlotButton, item: Item) -> void:
 	button.text = item.display_name
@@ -201,10 +210,7 @@ func _apply_button_color(button: Button, color: Color) -> void:
 	button.add_theme_stylebox_override("pressed", box)
 	button.add_theme_stylebox_override("disabled", box)
 
-## Weapons key off their damage type, same as WeaponMesh/SidearmMesh in
-## Player.gd - everything else (Armor/Shield/generic Item) keys off
-## rarity, same as ShieldMesh (a Shield has no damage-type identity of its
-## own to key a color off of).
+## Weapons key off damage type; everything else off rarity.
 func _item_color(item: Item) -> Color:
 	if item is Weapon:
 		var weapon := item as Weapon

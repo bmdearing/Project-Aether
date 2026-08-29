@@ -4,11 +4,9 @@ class_name ChainCalculator
 ## four-tier table in Constants.CHAIN_BONUS_TIERS.
 ##
 ## Interpretation flagged for design review: chains are computed per tag
-## (same-tag adjacency), since Mastery is explicitly tag-specific ("Mastery
-## multiplies per-tile rate per tag") and Hybrid Slates are described as
-## "bridging two chains" - implying chains are tag-scoped groups, not a
-## single board-wide connectivity graph. Loops and double connections are
-## naturally handled since flood fill visits each cell once.
+## (same-tag adjacency), since Mastery is tag-specific and Hybrid Slates
+## "bridge two chains" - implying chains are tag-scoped, not one
+## board-wide connectivity graph.
 
 class ChainResult:
 	var tag: Constants.DamageType

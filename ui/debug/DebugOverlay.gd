@@ -16,6 +16,10 @@ func _ready() -> void:
 	EventBus.enemy_attack_resolved.connect(_on_enemy_attack_resolved)
 	EventBus.ability_cast.connect(_on_ability_cast)
 	EventBus.ability_cast_failed.connect(_on_ability_cast_failed)
+	EventBus.loot_dropped.connect(_on_loot_dropped)
+	EventBus.player_leveled_up.connect(_on_player_leveled_up)
+	EventBus.tome_picked_up.connect(_on_tome_picked_up)
+	EventBus.gold_picked_up.connect(_on_gold_picked_up)
 	visible = GameState.debug_overlay_enabled
 	label.text = "Project Aether — Debug Overlay\nAether: 0/0\n(Esc to release mouse)"
 	if GameState.active_map:
@@ -35,10 +39,11 @@ func _on_chain_recalculated(chain_id: int, tile_count: int, bonus_percent: float
 ## so it's actually possible to tell from this overlay whether an attack
 ## landed on an enemy vs. one landing on the player - the flat "Dmg: X"
 ## line before this didn't record direction at all.
-func _on_damage_dealt(source: Node, target: Node, amount: float, damage_type: int, more_applied: bool) -> void:
+func _on_damage_dealt(source: Node, target: Node, amount: float, damage_type: int, more_applied: bool, is_critical: bool) -> void:
 	var type_name: String = Constants.DAMAGE_TYPE_NAME.get(damage_type, "?")
 	var target_name: String = target.name if target else "?"
 	var tag: String = " [More applied]" if more_applied else ""
+	tag += " [CRIT]" if is_critical else ""
 	if source is Player:
 		_append_line("YOU dealt %.1f %s dmg to %s%s" % [amount, type_name, target_name, tag])
 	else:
@@ -66,6 +71,18 @@ func _on_ability_cast(caster: Node, ability: Ability) -> void:
 func _on_ability_cast_failed(caster: Node, ability: Ability, reason: String) -> void:
 	if caster is Player:
 		_append_line("Can't cast %s: %s" % [ability.display_name, reason])
+
+func _on_loot_dropped(item: Item, _at_position: Vector3) -> void:
+	_append_line("Loot dropped: %s (%s)" % [item.display_name, Constants.ItemRarity.keys()[item.rarity]])
+
+func _on_player_leveled_up(new_level: int) -> void:
+	_append_line("LEVEL UP! Now level %d" % new_level)
+
+func _on_tome_picked_up(tome: SkillTome) -> void:
+	_append_line("Learned: %s" % tome.display_name)
+
+func _on_gold_picked_up(amount: int) -> void:
+	_append_line("Picked up %d Gold" % amount)
 
 func _append_line(text: String) -> void:
 	label.text += "\n" + text

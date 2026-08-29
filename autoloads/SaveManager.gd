@@ -1,25 +1,17 @@
 extends Node
-## Single JSON save file at user://savegame.json. Loads at boot (its own
-## _ready(), before MainMenu ever shows) and populates GameState's
-## fields directly; MainMenu's Continue button is then just "GameState is
-## already what it should be, go to the Hub" - no separate load step.
+## Single JSON save file at user://savegame.json. Loads at boot, before
+## MainMenu shows, populating GameState directly - Continue is then just
+## "go to the Hub", no separate load step.
 ##
-## Deliberately NOT a periodic-timer autosave - instead saves at every
-## meaningful transition point (every change_scene_to_file() away from
-## gameplay, every quit). There are only a handful of such call sites in
-## this whole project (PauseMenu, DeathScreen, MainMenu, MapDevice), few
-## enough to enumerate and guard directly with save_game() calls, which is
-## simpler and more deterministic than reasoning about a timer interval.
+## Saves at every meaningful transition (scene change away from gameplay,
+## quit) rather than on a timer - few enough call sites to enumerate
+## directly (PauseMenu, DeathScreen, MainMenu, MapDevice).
 ##
-## Scope, deliberately limited for a first pass (see GameState.gd's
-## header for the fields actually saved): equipment loadout, ability
-## loadout + ranks, and settings. NOT saved: Fate Board layout (no
-## serialize/deserialize path built for FateBoard.placements yet),
-## current Health/Ward/Mana or player position (you always resume the
-## Hub at full - there's no "resume mid-map" concept since maps aren't
-## persistent either), GameState.active_map (irrelevant once you've left
-## a map). A player who quits mid-map and reloads starts back in the Hub,
-## not where they were.
+## Saves: equipment loadout (incl. rolled/pathless items via
+## ItemSerializer), owned loot, ability loadout + ranks, level/XP, gold,
+## owned ability ids, settings. NOT saved: Fate Board layout, current
+## Health/Ward/Mana or player position (always resume the Hub at full),
+## GameState.active_map.
 
 const SAVE_PATH := "user://savegame.json"
 
@@ -32,14 +24,22 @@ func has_save() -> bool:
 func save_game() -> void:
 	if not GameState.game_started:
 		return
+	var owned_loot_data := []
+	for item in GameState.owned_loot:
+		owned_loot_data.append(ItemSerializer.to_dict(item))
 	var data := {
 		"game_started": GameState.game_started,
 		"mouse_sensitivity": GameState.mouse_sensitivity,
 		"master_volume": GameState.master_volume,
 		"fullscreen": GameState.fullscreen,
-		"equipment_paths": GameState.equipment_paths,
+		"equipment_refs": GameState.equipment_refs,
 		"ability_loadout_paths": GameState.ability_loadout_paths,
 		"ability_ranks": GameState.ability_ranks,
+		"player_level": GameState.player_level,
+		"player_xp": GameState.player_xp,
+		"gold": GameState.gold,
+		"owned_ability_ids": GameState.owned_ability_ids,
+		"owned_loot": owned_loot_data,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -67,11 +67,30 @@ func load_game() -> void:
 	GameState.mouse_sensitivity = parsed.get("mouse_sensitivity", GameState.mouse_sensitivity)
 	GameState.master_volume = parsed.get("master_volume", GameState.master_volume)
 	GameState.fullscreen = parsed.get("fullscreen", GameState.fullscreen)
-	GameState.equipment_paths = _to_string_array(parsed.get("equipment_paths"), GameState.equipment_paths)
+	GameState.equipment_refs = _to_ref_array(parsed.get("equipment_refs"), GameState.equipment_refs)
 	GameState.ability_loadout_paths = _to_string_array(parsed.get("ability_loadout_paths"), GameState.ability_loadout_paths)
 	var ranks = parsed.get("ability_ranks", {})
 	if typeof(ranks) == TYPE_DICTIONARY:
 		GameState.ability_ranks = ranks
+	GameState.player_level = int(parsed.get("player_level", GameState.player_level))
+	GameState.player_xp = float(parsed.get("player_xp", GameState.player_xp))
+	GameState.gold = int(parsed.get("gold", GameState.gold))
+	var ids = parsed.get("owned_ability_ids", [])
+	if typeof(ids) == TYPE_ARRAY:
+		var typed_ids: Array[String] = []
+		for id in ids:
+			typed_ids.append(str(id))
+		GameState.owned_ability_ids = typed_ids
+
+	var loot_raw = parsed.get("owned_loot", [])
+	if typeof(loot_raw) == TYPE_ARRAY:
+		var loot: Array[Item] = []
+		for entry in loot_raw:
+			if typeof(entry) == TYPE_DICTIONARY:
+				var item := ItemSerializer.from_dict(entry)
+				if item:
+					loot.append(item)
+		GameState.owned_loot = loot
 
 func delete_save() -> void:
 	if FileAccess.file_exists(SAVE_PATH):
@@ -83,4 +102,16 @@ func _to_string_array(value, fallback: Array[String]) -> Array[String]:
 	var result: Array[String] = []
 	for v in value:
 		result.append(str(v))
+	return result
+
+## Entries stay whatever type they parsed as (String or Dictionary) rather
+## than being coerced with str() - a rolled item's Dictionary data would
+## be mangled otherwise. Any other type is dropped.
+func _to_ref_array(value, fallback: Array) -> Array:
+	if typeof(value) != TYPE_ARRAY:
+		return fallback
+	var result: Array = []
+	for v in value:
+		if typeof(v) == TYPE_STRING or typeof(v) == TYPE_DICTIONARY:
+			result.append(v)
 	return result

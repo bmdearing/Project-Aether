@@ -1,26 +1,9 @@
 extends Node
 class_name PlayerMeleeAttack
-## Player-driven melee attack: Idle -> Windup -> Strike -> Recovery, the
-## input-triggered counterpart to EnemyMeleeAttack.gd's state shape. First
-## thing that actually calls DamageCalculator with a real equipped Weapon +
-## StatSheet, and the first thing to exercise
-## StanceComponent.apply_attack_stance_damage(), which existed unused since
-## it was written.
-##
-## Hit detection is a real Area3D (Player.attack_hitbox, child of the blade
-## mesh so it sweeps through the swing arc with it) - body_entered against
-## the "enemy" group, filtered by an Enemy cast rather than new collision
-## layers (nothing else in the project uses custom layers yet, everything
-## defaults to layer 1, so a type check is the minimal-diff way to ignore
-## the floor/self). Swing/camera shake are procedural Tweens, not baked
-## AnimationPlayer keyframes - easier to author correctly without the
-## visual editor, same player-facing result.
-##
-## _deal_damage() calls Weapon.predict_damage() rather than wiring
-## DamageCalculator itself (used to inline the exact same call) - same
-## centralization Ability.predict_damage() does, so CharacterScreen's
-## "Predicted Melee Damage" readout can't drift from what attacking
-## actually deals.
+## Player-driven melee attack: Idle -> Windup -> Strike -> Recovery.
+## Hit detection is a real Area3D (Player.attack_hitbox, sweeps with the
+## blade mesh) - body_entered against the "enemy" group. Swing/camera
+## shake are procedural Tweens, not baked animation.
 
 enum State { IDLE, WINDUP, STRIKE, RECOVERY }
 
@@ -46,16 +29,13 @@ var _resolved_this_swing: bool = false
 func _ready() -> void:
 	_player = get_parent()
 
-## Called from Player._physics_process on the "attack" action. Deferred
-## member access (weapon_socket/camera/equipment/attack_hitbox) is
-## intentional - Player's own @onready vars aren't guaranteed set yet
-## during THIS node's _ready() (children ready before their parent), so
-## nothing above touches them until an actual attack is attempted, well
-## after the tree has settled.
+## Called from Player._physics_process on the "attack" action. Player's
+## @onready vars (weapon_socket/camera/etc.) aren't touched until an
+## actual attack, well after children ready before their parent.
 func try_attack() -> void:
 	if _state != State.IDLE:
 		return
-	if _player.equipment == null or _player.equipment.primary_weapon == null:
+	if _player.get_active_weapon() == null:
 		return
 	if _hitbox == null:
 		_hitbox = _player.attack_hitbox
@@ -79,14 +59,19 @@ func _physics_process(delta: float) -> void:
 			if _timer <= 0.0:
 				_state = State.IDLE
 
+## Section 12: Instinct -> "+1% Attack/Cast speed per point" divides the
+## base duration rather than mutating windup_duration/etc. directly.
+func _effective_duration(base: float) -> float:
+	return base / _player.get_action_speed_multiplier()
+
 func _enter_windup() -> void:
 	_state = State.WINDUP
-	_timer = windup_duration
+	_timer = _effective_duration(windup_duration)
 	_play_swing()
 
 func _enter_strike() -> void:
 	_state = State.STRIKE
-	_timer = strike_duration
+	_timer = _effective_duration(strike_duration)
 	_resolved_this_swing = false
 	if _hitbox:
 		_hitbox.monitoring = true
@@ -98,13 +83,11 @@ func _end_strike() -> void:
 
 func _enter_recovery() -> void:
 	_state = State.RECOVERY
-	_timer = recovery_duration
+	_timer = _effective_duration(recovery_duration)
 
-## Rest local rotation is assumed Vector3.ZERO (Player.tscn's WeaponSocket
-## default) - swings out and back relative to that, not a cached value, so
-## this doesn't depend on read order either. The out-swing spans the full
-## windup so the blade (and its hitbox) arrives at full extension exactly
-## as Strike begins and monitoring turns on, instead of already retracting.
+## Rest rotation is assumed Vector3.ZERO (WeaponSocket's default). The
+## out-swing spans the full windup so the blade arrives at full extension
+## exactly as Strike begins and monitoring turns on.
 func _play_swing() -> void:
 	var socket := _player.weapon_socket
 	if socket == null:
@@ -112,9 +95,9 @@ func _play_swing() -> void:
 	var rest_rotation := Vector3.ZERO
 	var swing_rotation := Vector3(deg_to_rad(-40.0), deg_to_rad(20.0), deg_to_rad(-10.0))
 	var tween := create_tween()
-	tween.tween_property(socket, "rotation", swing_rotation, windup_duration) \
+	tween.tween_property(socket, "rotation", swing_rotation, _effective_duration(windup_duration)) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-	tween.tween_property(socket, "rotation", rest_rotation, strike_duration + recovery_duration) \
+	tween.tween_property(socket, "rotation", rest_rotation, _effective_duration(strike_duration + recovery_duration)) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
 
 func _on_hitbox_body_entered(body: Node3D) -> void:
@@ -129,14 +112,16 @@ func _on_hitbox_body_entered(body: Node3D) -> void:
 	_deal_damage(enemy)
 
 func _deal_damage(target: Enemy) -> void:
-	var weapon: Weapon = _player.equipment.primary_weapon
+	var weapon: Weapon = _player.get_active_weapon()
 	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
-	var final_damage: float = weapon.predict_damage(base_motion_value, _player.stat_sheet)
+	var hit := weapon.roll_damage(base_motion_value, _player.stat_sheet)
+	var final_damage: float = hit["final_damage"]
+	var is_critical: bool = hit["is_critical"]
 
 	target.take_damage(final_damage, damage_type)
 	if target.stance:
 		target.stance.apply_attack_stance_damage(final_damage, damage_type)
-	EventBus.damage_dealt.emit(_player, target, final_damage, damage_type, false)
+	EventBus.damage_dealt.emit(_player, target, final_damage, damage_type, false, is_critical)
 
 	_trigger_hit_feedback()
 

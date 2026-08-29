@@ -16,3 +16,4 @@ can_trigger_riposte = false
 is_auto_cast_eligible = true
 applies_status_effects = Array[String](["chill"])
 radius = 3.0
+base_crit_chance = 0.02

@@ -1,20 +1,15 @@
 extends CanvasLayer
 class_name AbilityBar
-## Always-on HUD readout of the player's 4 equipped abilities
-## (AbilityLoadoutComponent) - icon colored by damage type (same
-## placeholder convention as everything else with no real art), a
-## top-down cooldown wipe overlay, remaining-cooldown seconds, and the
-## Mana cost, all per slot. Slots are built in code (not laid out in the
-## .tscn) since all 4 are structurally identical - same reasoning
-## InventoryScreen's grid cells are built in code.
+## Always-on HUD readout of the player's 4 equipped abilities - icon
+## colored by damage type, a top-down cooldown wipe overlay, remaining
+## seconds, and Mana cost, per slot. Slots are built in code since all 4
+## are structurally identical.
 ##
 ## Purely a display - casting happens via PlayerAbilityCast reading
-## ability_1..4 input directly, this doesn't route input at all. Hovering
-## a slot shows the same ItemCard stat card the Abilities/Inventory
-## screens use (ItemSlotButton), though there's nothing to click here -
-## equip/unequip lives in AbilitiesScreen. Refreshes its icons whenever
-## AbilityLoadoutComponent.loadout_changed fires, so re-equipping from
-## that screen shows up here immediately instead of going stale.
+## ability_1..4 directly. Hovering a slot shows the same ItemCard stat
+## card Abilities/Inventory use, though nothing here is clickable -
+## equip/unequip lives in AbilitiesScreen. Refreshes on
+## AbilityLoadoutComponent.loadout_changed.
 
 const SLOT_SIZE := 64.0
 const EMPTY_COLOR := Color(0.2, 0.2, 0.22)

@@ -1,40 +1,34 @@
 extends PanelContainer
 class_name ItemCard
-## Rich PoE-style stat card, built dynamically per call from whatever
-## Item/Slate subclass is passed in - the fields worth showing differ by
-## type (Weapon vs Armor vs Shield vs generic accessory Item vs Slate), so
-## this isn't a fixed template, it's a builder. Returned from
-## ItemSlotButton._make_custom_tooltip() (Godot's built-in hook for a rich,
-## non-plain-text hover tooltip) - positioning/hover-delay/auto-hide all
-## come from Godot's tooltip system, nothing custom here.
-##
-## Every line comes straight from existing exported data -
-## ItemAffix.description / SlateModifier.description are already
-## player-facing text (see their own header comments), so this never
-## reformats numbers itself. No invented fields either (e.g. no level
-## requirement line, since Item.gd has no such field) - "detail the
-## information they give," not add new mechanics.
+## Rich stat card, built dynamically per call from whatever Item/Slate/
+## Ability is passed in. Two display modes: the normal one (used by
+## ItemSlotButton's native hover tooltip - auto-position/hide come from
+## Godot) and `advanced` (Alt-hover, via AdvancedTooltip.gd) which adds a
+## Close button, full tier ranges on rolled mods, and clickable stat
+## keywords that print their Section 12 per-point value inline.
 
-const AFFIX_COLOR := Color(0.45, 0.65, 0.95)      # PoE-style "magic" blue
-const MORE_MOD_COLOR := Color(0.85, 0.55, 0.95)   # More multipliers read stronger/rarer than Increased
+signal closed
+
+const AFFIX_COLOR := Color(0.45, 0.65, 0.95)
+const MORE_MOD_COLOR := Color(0.85, 0.55, 0.95)
 const STAT_COLOR := Color(0.85, 0.85, 0.85)
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
 const FLAVOR_COLOR := Color(0.75, 0.65, 0.45)
+const GLOSSARY_COLOR := Color(0.6, 0.85, 0.6)
 const CARD_WIDTH := 260.0
 
-## Deliberately NOT @onready - ItemSlotButton builds a card via
-## ITEM_CARD_SCENE.instantiate() and calls display_item()/display_slate()
-## on it immediately, before the card is ever added to a SceneTree.
-## @onready vars only get assigned on NOTIFICATION_READY (tree-entry), so
-## they'd still be null at that point; $NodePath lookups work right away
-## since instantiate() already built the full node hierarchy in memory.
+## Not @onready - ItemSlotButton builds a card via instantiate() and
+## calls display_item()/etc. on it immediately, before it's ever added
+## to a SceneTree, so @onready (NOTIFICATION_READY) would still be null.
 func _content() -> VBoxContainer:
 	return $Margin/Content
 
-func display_item(item: Item) -> void:
+func display_item(item: Item, advanced: bool = false) -> void:
 	_clear()
 	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 	_set_border_color(rarity_color)
+	if advanced:
+		_add_close_button()
 	_add_title(item.display_name, rarity_color)
 	_add_subtitle(_item_type_line(item))
 	_add_separator()
@@ -43,15 +37,20 @@ func display_item(item: Item) -> void:
 	if item.affixes.size() > 0:
 		_add_separator()
 		for affix in item.affixes:
-			_add_mod_line(affix.description, AFFIX_COLOR)
+			if advanced and affix.tier > 0:
+				_add_mod_line_advanced(affix)
+			else:
+				_add_mod_line(affix.description, AFFIX_COLOR)
 	if item.flavor_text != "":
 		_add_separator()
 		_add_flavor(item.flavor_text)
 
-func display_slate(slate: Slate) -> void:
+func display_slate(slate: Slate, advanced: bool = false) -> void:
 	_clear()
 	var rarity_color: Color = Constants.SLATE_RARITY_COLOR.get(slate.rarity, Color.WHITE)
 	_set_border_color(rarity_color)
+	if advanced:
+		_add_close_button()
 	_add_title(slate.display_name, rarity_color)
 	var tag_name: String = slate.category_tag_override if slate.category_tag_override != "" else Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
 	_add_subtitle("Slate - %s" % tag_name)
@@ -69,13 +68,13 @@ func display_slate(slate: Slate) -> void:
 		_add_separator()
 		_add_flavor(slate.implicit_flavor_text)
 
-## `stat_sheet` is optional (defaults to null) so callers without a live
-## Player reference can still show the card, just without the
-## stats-dependent "Predicted Damage" line - ItemSlotButton passes the
-## current player's StatSheet when one exists.
-func display_ability(ability: Ability, stat_sheet: StatSheet = null) -> void:
+## stat_sheet optional so callers without a live Player can still show
+## the card, just without the "Predicted Damage" line.
+func display_ability(ability: Ability, stat_sheet: StatSheet = null, advanced: bool = false) -> void:
 	_clear()
 	_set_border_color(AFFIX_COLOR)
+	if advanced:
+		_add_close_button()
 	_add_title(ability.display_name, AFFIX_COLOR)
 	_add_subtitle("Ability - %s (Rank %d/%d)" % [Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "?"), ability.rank, Ability.MAX_RANK])
 	_add_separator()
@@ -84,6 +83,7 @@ func display_ability(ability: Ability, stat_sheet: StatSheet = null) -> void:
 	_add_stat_line("Range: %.0fm" % ability.radius)
 	_add_stat_line("Motion Value: %.2f" % ability.get_effective_motion_value())
 	_add_stat_line("Scaling Grade: %s" % Constants.ScalingGrade.keys()[ability.scaling_grade])
+	_add_stat_line("Crit Chance: %.0f%%" % (ability.base_crit_chance * 100.0))
 	if stat_sheet:
 		_add_stat_line("Predicted Damage: %.1f" % ability.predict_damage(stat_sheet))
 	if ability.applies_status_effects.size() > 0:
@@ -95,7 +95,12 @@ func display_ability(ability: Ability, stat_sheet: StatSheet = null) -> void:
 func _item_type_line(item: Item) -> String:
 	if item is Weapon:
 		var w := item as Weapon
-		return "%s%s" % [w.weapon_type, " (Two-Handed)" if w.is_two_handed else ""]
+		var tags: Array[String] = []
+		if w.is_two_handed:
+			tags.append("Two-Handed")
+		if w.is_ranged:
+			tags.append("Ranged")
+		return "%s%s" % [w.weapon_type, " (%s)" % ", ".join(tags) if tags.size() > 0 else ""]
 	if item is Armor:
 		return "Armour - %s" % Constants.EquipmentSlot.keys()[item.equip_slot].capitalize()
 	if item is Shield:
@@ -113,6 +118,7 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		if w.infused_damage_type != -1:
 			lines.append("Infused: %s" % Constants.DAMAGE_TYPE_NAME.get(w.infused_damage_type, "?"))
 		lines.append("Scaling Grade: %s" % Constants.ScalingGrade.keys()[w.scaling_grade])
+		lines.append("Base Crit Chance: %.0f%%" % (w.get_base_crit_chance() * 100.0))
 	elif item is Armor:
 		var a := item as Armor
 		if a.armor_value > 0.0:
@@ -149,6 +155,18 @@ func _set_border_color(color: Color) -> void:
 	box.set_corner_radius_all(4)
 	add_theme_stylebox_override("panel", box)
 
+func _add_close_button() -> void:
+	var row := HBoxContainer.new()
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
+	var button := Button.new()
+	button.text = "x"
+	button.custom_minimum_size = Vector2(22, 22)
+	button.pressed.connect(func(): closed.emit())
+	row.add_child(button)
+	_content().add_child(row)
+
 func _add_title(text: String, color: Color) -> void:
 	var label := Label.new()
 	label.text = text
@@ -179,6 +197,42 @@ func _add_mod_line(text: String, color: Color) -> void:
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
 	label.add_theme_color_override("font_color", color)
+	_content().add_child(label)
+
+## Advanced-only: shows the affix's full tier range and, for a
+## flat_<stat> affix, a clickable keyword that prints the stat's
+## Section 12 per-point value inline when clicked.
+func _add_mod_line_advanced(affix: ItemAffix) -> void:
+	var stat: int = EquipmentComponent.AFFIX_STAT_KEYS.get(affix.stat_key, -1)
+	var rtl := RichTextLabel.new()
+	rtl.bbcode_enabled = true
+	rtl.fit_content = true
+	rtl.scroll_active = false
+	rtl.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	var color_hex := AFFIX_COLOR.to_html(false)
+	var range_text := " (Tier %d, range %d-%d)" % [affix.tier, round(affix.value_min), round(affix.value_max)]
+	if stat != -1:
+		var stat_name: String = Constants.Stat.keys()[stat]
+		var linked_text: String = affix.description.replace(stat_name.capitalize(), "[url=stat:%d]%s[/url]" % [stat, stat_name.capitalize()])
+		rtl.text = "[color=#%s]%s%s[/color]" % [color_hex, linked_text, range_text]
+		rtl.meta_clicked.connect(_on_glossary_link_clicked)
+	else:
+		rtl.text = "[color=#%s]%s%s[/color]" % [color_hex, affix.description, range_text]
+	_content().add_child(rtl)
+
+func _on_glossary_link_clicked(meta: Variant) -> void:
+	var meta_str: String = str(meta)
+	if not meta_str.begins_with("stat:"):
+		return
+	var stat: int = int(meta_str.substr(5))
+	var definition: String = Constants.STAT_GLOSSARY.get(stat, "")
+	if definition == "":
+		return
+	var label := Label.new()
+	label.text = "%s: %s" % [Constants.Stat.keys()[stat].capitalize(), definition]
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	label.add_theme_color_override("font_color", GLOSSARY_COLOR)
 	_content().add_child(label)
 
 func _add_flavor(text: String) -> void:

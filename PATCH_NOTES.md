@@ -7,6 +7,634 @@ there. Most recent first.
 
 ---
 
+## 2026-08-29 — Fullscreen Fix, Orb HUD, Wider Stats Panel, Notched XP Bar
+
+User reported the game looks wrong (stretched/wrong aspect) when going
+fullscreen, and asked for a HUD redesign: Life/Mana as orbs flanking the
+ability bar (Ward as a ring on the Life orb, "HP" renamed "Life"), a
+wider stats panel (was visibly truncating text in a screenshot), and an
+XP bar with 10%-notch tick marks.
+
+- **Fullscreen aspect fix**: `project.godot` had no `[display]` section
+  at all - added one (`window/size/viewport_width/height=1920x1080`,
+  `window/stretch/mode="canvas_items"`, `window/stretch/aspect="expand"`)
+  so the game scales to fill any monitor's resolution/aspect ratio
+  without distortion or black bars, the standard Godot fix for this
+  symptom. Untested against the user's actual monitor (no way to drive
+  the real windowed game from here) - flag if it's still off.
+- **Life/Mana orbs**: new `ui/player_hud/StatOrb.gd` (a `Control` with a
+  hand-drawn radial pie fill via `_draw()`/`draw_colored_polygon()` -
+  same no-shader placeholder-art convention as everything else) replaces
+  the old stacked Health/Mana/Ward bars. Life and Mana orbs now flank
+  `AbilityBar`'s slot row at the bottom-center of the screen. Ward
+  renders as a colored ring around the Life orb's rim (fills clockwise
+  same as the pie) rather than its own bar - visually "on top of" Life
+  per the request. "HP" is now "Life" on the orb label.
+- **Notched XP bar**: new `ui/player_hud/NotchedBar.gd`, a thin
+  `_draw()`-only overlay drawing 9 interior tick lines at each 10%
+  boundary, layered on top of the existing fill bar - spans the combined
+  width of the Life orb + ability bar + Mana orb, sitting just above them.
+- **Wider stats panel**: `InventoryScreen.tscn`'s `StatsPanel` minimum
+  width was `230` - too narrow for lines like "Main Hand Crit 100%
+  chance / 150% dmg", which were getting cut off at the panel edge (seen
+  in the user's screenshot). Widened to `360`.
+- **DebugOverlay moved off the stats panel**: same screenshot showed
+  `DebugOverlay`'s always-on text overlapping the stats panel's header -
+  both were anchored to the top-left corner. Re-anchored `DebugOverlay`
+  to the top-right corner instead, out of the way of any left-docked
+  screen.
+
+---
+
+## 2026-08-29 — Advanced Tooltips, Inventory Relayout, Weapon-Slot Flexibility, Comment Trim
+
+User asked for an Alt-hover "advanced" tooltip mode, faster tooltips,
+equipped items hidden from the inventory grid, a relaid-out
+Inventory/Character screen (stats left, grid center, paper-doll right),
+Main Hand/Offhand crit display instead of Melee/Ranged, pistols equippable
+to the main hand (replacing a two-hander), a shield-render bug fix, and a
+project-wide comment-trim pass.
+
+- **Advanced tooltip (Alt-hover)**: new `AdvancedTooltip` autoload
+  (`autoloads/AdvancedTooltip.gd`) shows a pinned `ItemCard` that stays
+  open until dismissed (`Esc`, an outside click, or its own close
+  button) instead of Godot's native hide-on-mouse-leave tooltip - lets
+  the player move around and read it. `ItemSlotButton._input()` watches
+  for `KEY_ALT` while hovered. `ItemCard.gd`'s `display_item/slate/
+  ability()` gained an `advanced` param that adds the close button and,
+  for rolled affixes, a full tier range (`ItemAffix.tier/value_min/
+  value_max`, now rolled by `ItemRoller` and persisted by
+  `ItemSerializer`) plus clickable stat keywords
+  (`Constants.STAT_GLOSSARY`) that print the stat's Section 12 per-point
+  value inline via `meta_clicked`.
+- **Faster tooltips**: `project.godot`'s `[gui] timers/tooltip_delay_sec`
+  dropped from Godot's default `0.5` to `0.15`.
+- **Inventory relayout**: `InventoryScreen.tscn` is now a 3-column
+  `StatsPanel | InventoryPanel | PaperDoll`, so equipping something
+  shows the stat change immediately without switching screens. The new
+  stats column is shared with `CharacterScreen` via `StatSummaryBuilder.gd`
+  (`ui/character_screen/`) rather than duplicated logic in each screen.
+  Anything currently equipped is filtered out of the grid entirely -
+  it only shows on the paper-doll.
+- **Main Hand / Offhand crit display**: `StatSummaryBuilder` now reports
+  Main Hand/Offhand Damage + Crit (keyed by equip slot) instead of
+  Melee/Ranged - ranged weapons in the main hand now show a real crit
+  line, which they previously had none of.
+- **Pistols equip to the main hand**: added `Weapon.is_ranged: bool`,
+  decoupling melee/ranged attack dispatch from equip slot.
+  `worn_pistol.tres`'s `equip_slot` moved from Sidearm to
+  `PRIMARY_WEAPON`, so equipping it naturally displaces a two-handed
+  weapon via the existing single-slot-replacement rule - no special-case
+  code needed. `PlayerMeleeAttack`/`PlayerRangedAttack`/`Player._physics_process()`
+  now dispatch off `get_active_weapon().is_ranged` rather than a
+  hardcoded slot.
+- **Shield-not-rendering-on-first-equip, fixed**: `_update_shield_mesh()`/
+  `_update_active_weapon_visual()` were only ever called from
+  `Player._ready()` and weapon-swap, never from an ordinary mid-session
+  equip via the Inventory screen. Wired into `Player._on_equipment_changed()`
+  (already listening to `EquipmentComponent.equipment_changed`), so any
+  equip now refreshes both visuals.
+- **Comment trim**: pass across the highest-comment-density files in the
+  project (`item_roller.gd`, `Player.gd`, `Enemy.gd`, `GameState.gd`,
+  `Constants.gd`, `EquipmentComponent.gd`, `PauseMenu.gd`, `MapGraph.gd`,
+  `PlayerHUD.gd`, `SaveManager.gd`, and ~20 more) - condensed multi-
+  paragraph header comments and inline asides down to concise WHY-only
+  notes, no functional changes. Verified via a full class-cache rebuild
+  and real scene-load checks on `MainMenu`/`Hub`/`GeneratedMap`/
+  `TestArena` afterward.
+
+---
+
+## 2026-08-29 — Stat Wiring, Critical Strikes, Tiered Affixes, Crouch/Slide, Player Jump Fix
+
+User asked to review the six stats and "actually plug them in," build
+tiered rolled-stat affixes, add crouch/slide, and fix the player's jump
+(a specific room type - the Vault - was impossible to enter). Converted
+both design PDFs to `.docx` and extracted plain text via `unzip` +
+`sed` (PDF text search had been unreliable) to check what the docs
+actually specify before inventing anything - Section 12 "Stat System"
+turned out to have a complete "Six Stats — Per Point Values" table and a
+full Critical Strike System with exact per-weapon-type base values, none
+of which had been read before this session.
+
+- **Real conflict found and resolved with the user**: Section 12 states
+  explicitly *"All stats come from gear, Slates, Jewels, and infusions —
+  no manual allocation on level up."* The previous session had built
+  exactly that (a level-up stat-point-spending UI on the Character
+  Screen). Asked the user directly rather than silently overriding
+  either the doc or the earlier work; they chose doc-accuracy. Removed
+  `StatSheet.unspent_points`/`allocate_point()`/`STAT_POINTS_PER_LEVEL`/
+  `POINT_VALUE` entirely, along with the now-dead `GameState.
+  saved_stat_sheet_data` persistence path it needed (raw stat values
+  never change post-spawn anymore, so there's nothing to save/restore -
+  `player_baseline.tres`'s flat defaults are permanently fixed). Leveling
+  still exists (invented XP curve, already flagged) but no longer grants
+  anything mechanical - `GameState.player_level` now doubles as a rough
+  "how strong should this loot be" signal for the Hub's GearShop, which
+  has no Map-tier context of its own to use instead.
+- **Gear is now the real (and only) source of stat growth.**
+  `EquipmentComponent.compute_stat_bonuses()` sums every equipped item's
+  `flat_<stat>` affixes into a `Constants.Stat -> float` total; a new
+  `equipment_changed` signal (fired on every successful equip()/
+  unequip()) drives `StatSheet.set_equipment_bonus()` via `Player.
+  _on_equipment_changed()`, so `StatSheet.get_stat()` always reflects
+  current gear without any caller needing to know that.
+- **Vitality/Instinct/Intellect actually do something now** (Section 12
+  per-point values, doc-exact): Vitality -> `+2 Life`/point +
+  `+0.1 Life regen/sec`/point (new `HealthComponent.regen_per_second` +
+  `_process()` tick, plus `set_max_health()` that heals by the delta on
+  an increase rather than just inflating the denominator). Intellect ->
+  `+2 Mana`/point + `+0.1 Mana regen/sec`/point (on top of
+  `ManaComponent`'s existing flat base regen). Instinct -> Action Speed,
+  split by doc-given per-type rates: `+0.5%` Move speed/point
+  (`Player.get_move_speed_multiplier()`), `+1%` Attack/Cast speed/point
+  (`Player.get_action_speed_multiplier()`, divides
+  `PlayerMeleeAttack`'s windup/strike/recovery, `PlayerRangedAttack`'s
+  fire cooldown, and Ability cooldowns - faster gear-tuned characters
+  attack more often, not just deal more damage per hit). Deferred,
+  flagged: Vitality's Resilience/DoT mitigation, Instinct's Stamina pool
+  + dodge-roll/Active-Blocking, Intellect's Debuff effectiveness - none
+  have a supporting system built (no DoT/status-effect system, no
+  Stamina mechanic, no debuff-magnitude system), so there's nothing yet
+  for that part of the stat to modify.
+- **Critical Strike System** (`DamageCalculator.get_crit_chance()`/
+  `get_crit_damage_multiplier()`/`apply_crit()`/`get_expected_damage()`),
+  doc-exact: base crit chance fixed per weapon/spell type (2%-8% per the
+  doc's own table; `Constants.WEAPON_BASE_CRIT_CHANCE` keyed by
+  `weapon_type` string, transcribed for the 2 weapon types this project
+  actually has - Greatsword 4%, Service Pistol 6%, both confirmed exact
+  matches to the doc), multiplied by Instinct (+3%/point); 150% base
+  crit damage, multiplied by Intellect (+1%/point). `Weapon`/`Ability`
+  each gained `roll_damage()` (an actual random crit roll, used by real
+  attacks/casts - each `PlayerAbilityCast` AoE target rolls
+  independently, not one shared roll for the whole nova) alongside the
+  existing `predict_damage()` (now an expected-value blend via
+  `get_expected_damage()`, so the stat card shows one stable number
+  instead of jittering between two on every hover). `EventBus.
+  damage_dealt` gained an `is_critical` parameter; `DebugOverlay` tags
+  crits `[CRIT]` in its combat log. Ability crit chance is thematic
+  guesswork (abilities don't carry the doc's "spell type" classification
+  since all 4 still execute as a generic nova - flagged, pre-existing
+  gap).
+- **Tiered rolled affixes** (`ItemRoller.gd`): 5 tiers per affix, Tier 1
+  best, each tier's range ~80% of the tier above - loosely modeled on
+  the doc's own mod-tier tables' shape (e.g. Section 16's Flat Armor Mod
+  Tiers has 11 real tiers with a comparable step-down), though this
+  project uses one consistent tier count for every affix rather than
+  transcribing each mod's real doc table. Which tier a roll can reach is
+  gated by a new `power_level` parameter (the active Map's `tier` in
+  real gameplay, player level as a Hub-only fallback for GearShop stock)
+  - entirely invented gating, the doc defines tier ranges but never what
+  unlocks access to them. Also fixed rarity -> affix count to match
+  Section 18's real table exactly (was `1/2/3` fixed; now Common always
+  `0`, Uncommon `0-2`, Rare `0-6`, matching the doc's own "Rarity
+  determined by base quality, not affix count" - a Rare item genuinely
+  can roll with few or no affixes now).
+- **Loot/equipment persistence extended to full item data.**
+  `data/items/item_serializer.gd` (`to_dict()`/`from_dict()`, branches
+  on a stored `"class"` tag since GDScript static funcs aren't
+  polymorphic) already existed from last session for `owned_loot`;
+  `EquipmentComponent.get_all_equipped_paths()` (String-only) became
+  `get_all_equipped_refs()` (String path OR Dictionary per slot) so
+  equipping a *rolled* item with real stat affixes actually keeps
+  contributing its stat bonus across scene transitions and saves, not
+  just showing up in inventory.
+- **Crouch & Slide** (user-requested, no doc-sourced design for either):
+  hold Ctrl to crouch - `CollisionShape3D`'s `CapsuleShape3D.height`
+  smoothly interpolates down (`move_toward`, anchored at the feet so it
+  shrinks from the top, not centered - otherwise crouching would sink
+  the player into the floor), camera lowers to match, move speed drops.
+  Tap Ctrl while sprinting and moving to slide instead - launches along
+  the current heading at `SLIDE_SPEED` (or current sprint speed if
+  faster), decelerating to crouch speed over `SLIDE_DURATION`; jumping
+  or leaving the floor cancels it immediately; ends into a crouch if
+  Ctrl is still held, otherwise stands back up. No headroom/ceiling
+  check on standing up - every generated room is a simple open box,
+  nothing low enough to clip into yet, flagged for whenever that
+  changes.
+- **Player jump fix**: `Player.jump_velocity` bumped `4.5 -> 7.0` -
+  the actual root cause of "a certain room type stops us from entering"
+  (the Vault): its jump gap (3m) + raised platform (1.2m) needs the
+  jump arc to have risen 1.2m by the time the 3m gap is crossed, not
+  just enough hangtime×speed to cover the horizontal distance -
+  math showed 4.5 fell meaningfully short even at full sprint. Matches
+  the value `Enemy.jump_velocity` was already independently tuned to
+  last session for the identical reason - confirmed via a real-scene
+  headless test (driving actual `sprint`/`move_forward`/`jump` Input
+  actions, not teleporting) that both walking and sprinting now clear it
+  with real margin, across 6 consecutive random Vault placements.
+- Verified via two real-scene-load test runners (16 + 1 checks, all
+  passing): gear-derived Vitality/Intellect/Instinct bonuses apply and
+  revert correctly on equip/unequip, the Crit System's observed crit
+  rate and average rolled damage both match their theoretical values
+  within statistical tolerance over hundreds of trials, rarity/affix-
+  count/tier-gating all match their intended tables, crouch shrinks the
+  collision capsule, sprint+crouch+moving triggers a slide that
+  decelerates and ends correctly, and the player jump clears the Vault.
+
+## 2026-08-29 — Loot Persistence, GearShop Restock, Gold Drops, Stat Allocation
+
+User picked four items off a backlog offered at end of the previous
+session, in order: fix rolled-loot/equipment persistence, GearShop
+restock, gold as a real drop instead of an instant grant, and stat
+allocation.
+
+- **Rolled-item/equipment persistence fixed.** New
+  `data/items/item_serializer.gd` (`ItemSerializer.to_dict()`/
+  `from_dict()`) serializes an Item's full data (base fields +
+  Weapon/Armor/Shield-specific fields + affixes), branching on a stored
+  `"class"` tag since GDScript static funcs aren't polymorphic.
+  `EquipmentComponent.get_all_equipped_paths()` (String-only) became
+  `get_all_equipped_refs()` (`Array` of String *or* Dictionary per
+  slot - a path for hand-authored items, a full `ItemSerializer` dict
+  for anything with an empty `resource_path`, i.e. rolled loot).
+  `GameState.equipment_paths` renamed `equipment_refs` to match;
+  `Player._apply_saved_loadout()` now branches per entry instead of
+  assuming everything is a loadable path.
+  `GameState.owned_loot`/the equipped-rolled-item case are now both
+  covered by `SaveManager` (previously `owned_loot` wasn't saved to disk
+  at all, and an equipped rolled item silently reverted to empty on the
+  very next Hub<->Map scene transition, not just an app restart, since
+  `Player._apply_saved_loadout()` runs on every scene load). Verified
+  via a real-scene-load test: equipping a rolled item produces a
+  Dictionary ref, `owned_loot` and the equipped ref both survive an
+  actual `SaveManager.save_game()`/`load_game()` round trip, and calling
+  `_apply_saved_loadout()` again correctly reconstructs the rolled item
+  from scratch.
+- **GearShop restock**: `ShopScreen.open_with()` gained an optional
+  `action` parameter (a single button above the item list, distinct from
+  per-item "Buy" - GearShop's "Reroll Stock", invented `15` Gold).
+  SpellTestShop doesn't pass one (nothing to reroll there). Verified the
+  button deducts Gold and the stock array is actually different
+  afterward, not just re-displayed.
+- **Gold drops as visible pickups**: new `entities/pickups/gold_pickup/`
+  (`GoldPickup.gd`, same auto-pickup-on-touch/bob-and-spin convention as
+  `LootPickup.gd`, placeholder spinning coin mesh). `Enemy._drop_gold()`
+  now spawns one instead of `GameState.gold += gold_reward` running
+  instantly and invisibly on death. Verified Gold is genuinely 0 right
+  after a kill and only changes once the pickup is actually touched.
+- **Stat allocation**: `StatSheet.get_stat()` no longer auto-adds
+  `(level-1) * STAT_GROWTH_PER_LEVEL` to every stat - leveling now
+  grants `unspent_points` (`STAT_POINTS_PER_LEVEL`, invented `3`/level)
+  instead, spent via the new `StatSheet.allocate_point(stat)`
+  (`POINT_VALUE`, invented `+4`/point) on whichever of the 6 stats the
+  player picks. `CharacterScreen.gd` shows an "Unspent Stat Points: N"
+  label and a "+" button next to each of the 6 stat lines whenever
+  `unspent_points > 0`, refreshing in place on click. Needed its own
+  persistence path since `StatSheet` had none before this: `to_dict()`/
+  `apply_dict()` + `GameState.saved_stat_sheet_data` (same "GameState
+  holds raw data, Player applies it at `_ready()`" pattern equipment/
+  ability loadout already use), and `GameState.reset_to_defaults()`
+  explicitly resets `player_baseline.tres`'s mutated fields back to
+  their authored defaults on New Game (same shared-cached-Resource
+  gotcha `Ability.rank` already needed this treatment for). Verified
+  leveling grants points, `allocate_point()` raises only the targeted
+  stat by exactly `POINT_VALUE` and leaves the others untouched, the
+  Character Screen shows the button, and the full stat sheet (allocated
+  values + level + unspent points) round-trips through an actual
+  save/load.
+- All four verified together via one real-scene-load test runner (see
+  `reference_godot_headless_verification` in project memory for why
+  that method over `--script` mode) - 12 checks, all passing.
+
+## 2026-08-29 — Map Screen, Skill Tomes, Gold, Shops
+
+User asked for four things together: a Map screen (`M`), removing the
+free starting spells in favor of lootable Skill Tomes, a Hub gear shop,
+and a free "every spell" shop for testing.
+
+- **Map screen** (`ui/map_screen/`, hotkey `M`/`open_map`): `MapView.gd`
+  (a `Control` with its own `_draw()`) renders `GeneratedMap.graph`
+  directly as a room grid with connection lines, colored by role
+  (start/vault/normal) with the player's current room outlined -
+  `MapScreen.gd` just owns open/close/hotkey state and resolves
+  `get_tree().current_scene` to a `GeneratedMap` each time it opens.
+  Shows "No map data" in the Hub/TestArena (static hand-built scenes,
+  no graph) instead of erroring. Dispatched from `PauseMenu.gd`'s
+  existing central hotkey handler, same as P/B/N/C.
+- **Abilities are no longer free at game start.** Per Patch v3.1's Skill
+  System replacement ("skills come exclusively from loot-dropped Skill
+  Tomes... not an allocatable node web"),
+  `GameState.DEFAULT_ABILITY_LOADOUT_PATHS` is now 4 empty strings
+  instead of the old hardcoded Cold kit, and `AbilitiesScreen.gd`'s
+  "owned" list is filtered to `GameState.owned_ability_ids` instead of
+  showing every `.tres` under `data/abilities/instances/` as a free
+  "owns one of each" stand-in. New `data/abilities/skill_tome.gd`
+  (`SkillTome extends Item`) + `data/abilities/tome_roller.gd`
+  (`TomeRoller.roll_for_unowned()`, synthesizes a Tome referencing a
+  random ability the player doesn't already own - no pre-authored Tome
+  `.tres` files needed). `Enemy._maybe_drop_loot()` gained an
+  independent, flat invented `8%` Tome-drop check (separate from the
+  existing gear-drop roll) before the existing gear-drop roll;
+  `LootPickup.gd` branches on `item is SkillTome` to unlock the ability
+  into `GameState.owned_ability_ids` instead of adding to
+  `GameState.owned_loot`. **Does not implement the doc's literal
+  "socketed into weapon slots" mechanic** - there's no functioning
+  socket system anywhere in this project - just the acquisition half,
+  flagged in the README.
+- **Gold**: new invented currency (`GameState.gold`), no doc-sourced
+  economy exists anywhere in this project (Ability upgrading/Map
+  affixes were already flagged as free/uncosted before this).
+  `Enemy.gold_reward` (per-archetype, same relative-toughness scaling as
+  `xp_reward`) grants it on death. Persisted by `SaveManager` (a plain
+  int, no path-serialization problem like rolled Items have). Shown on
+  `PlayerHUD` via a small polled label (no natural `*_changed` signal
+  source, same tradeoff `AbilityBar`'s cooldown readout already makes).
+- **GearShop** (`entities/interactables/gear_shop/`) and **SpellTestShop**
+  (`entities/interactables/spell_test_shop/`): two new Hub interactables,
+  same walk-up-and-`E` proximity pattern as the Map Device. GearShop
+  rolls 6 `ItemRoller` items once per Hub visit, priced by rarity
+  (invented `COST_BY_RARITY`), bought items removed from that visit's
+  stock (no restock mechanic yet). SpellTestShop lists every ability for
+  free - an explicit debug/testing tool per direct user request, not
+  designed game content, bypassing the Tome-drop acquisition path
+  entirely. Both share one new generic `ui/shop/ShopScreen.gd`
+  (`open_with(title, entries)`, each entry a label/cost/color/callback +
+  optional Item/Ability for the `ItemSlotButton` hover tooltip) instead
+  of each building its own list UI.
+  - **Bug found and fixed**: both shop interactables cached their
+    `ShopScreen` reference via a `get_first_node_in_group()` lookup in
+    their own `_ready()` - but they're declared *before* `ShopScreen` in
+    `Hub.tscn`, and Godot readies siblings in declaration order, so the
+    lookup always found nothing (same bug class as this project's
+    `@onready` parent/child timing issues, just between siblings this
+    time - see `feedback_godot_onready_timing` in project memory). Fixed
+    by resolving it lazily on first actual use instead of caching a
+    possibly-stale `_ready()`-time reference.
+- **Testing note**: the `--script`-mode SceneTree headless harness this
+  project normally uses for quick tests showed much worse autoload
+  compile-ordering noise than usual this session (nearly the whole
+  project's scripts failing to compile on the first pass, not just the
+  documented benign one-or-two-line quirk) once the test script declared
+  many new custom-class-typed variables (`GearShop`, `ShopScreen`, etc.)
+  - static type annotations force GDScript to eagerly compile the
+    referenced class, which transitively touches `GameState`/`EventBus`
+    much earlier and more broadly than a `load()` call alone does.
+    Switched to the more reliable method this project's own reference
+    memory already recommends for anything beyond a trivial check: a
+    real scene (`[gd_scene]` instancing the actual Hub/GeneratedMap with
+    a small test-runner script as a child) loaded via
+    `--path . res://test_scene.tscn`, not `--script`. This also caught a
+    real, unrelated finding: a stale `user://savegame.json` on this dev
+    machine (leftover from earlier test sessions, matching XP/level
+    values from that testing) was loading 4 old default abilities at
+    boot, which looked like a bug in the "zero starting abilities"
+    change until checked against `MainMenu.gd`'s actual New-Game reset
+    flow - the save file was cleared for a clean test, not a game bug.
+- Verified via the real-scene-load test runner: zero abilities equipped
+  at a fresh boot, a Tome drop + pickup correctly unlocks exactly one
+  ability (and only that one shows in `AbilitiesScreen`), a GearShop
+  purchase deducts the right Gold and adds the item to `owned_loot`,
+  SpellTestShop grants every ability for free without touching Gold, and
+  MapScreen correctly distinguishes "real graph data" (`GeneratedMap`,
+  resolved player cell) from "no data" (Hub).
+
+## 2026-08-29 — Item/Loot Generation
+
+Third piece of the user's combined ask this session ("item generation
+for loot and maps"). Map-item rolling already existed (`MapRoller.gd`,
+an earlier session); this closes the actual gear-loot half.
+
+- **`data/items/item_roller.gd`** (new, mirrors `MapRoller.gd`'s
+  shape): `ItemRoller.roll(loot_rarity_multiplier)` duplicates a random
+  existing hand-authored base item (weapon/armor/shield/accessory) and
+  re-rolls only its rarity + a fresh affix list, rather than building a
+  fully procedural item-shape system — Item.gd's own header already
+  flagged full procedural rolling as deferred design before this pass,
+  and every hand-authored item's affixes were already descriptive-only
+  (no gear-affix aggregation into `StatSheet` exists anywhere in this
+  project), so rolled ones being the same isn't a new gap. Rarity odds
+  shift with `loot_rarity_multiplier` — this finally makes that MapItem
+  field do something; it (and `loot_quantity_multiplier`) were
+  previously tracked on rolled Maps but completely inert.
+- **`entities/pickups/loot_pickup/`** (new): a floating/bobbing
+  placeholder sphere colored by rarity, auto-picked-up on touch (a
+  judgment call — fits how often gear drops during combat better than a
+  keypress/prompt flow like the Map Device's, but is a different UX
+  pattern than that). `Enemy.gd` gained `xp_reward`'s loot counterpart:
+  a `_maybe_drop_loot()` call in `_on_died()`, invented 35% base chance
+  scaled by `loot_quantity_multiplier`, spawning one `LootPickup` at the
+  death position when it hits.
+- **`GameState.owned_loot: Array[Item]`**: session-only pool of picked-up
+  rolled items. `InventoryScreen` now rebuilds its grid every time it
+  opens (previously built once at `_ready()`) so newly picked-up loot
+  actually shows up, combined with the existing directory-scanned
+  hand-authored "owns one of each" stand-in items — same click-to-equip
+  flow either way, `EquipmentComponent.equip()` doesn't care where an
+  Item came from.
+  - **Flagged, not fixed**: rolled loot doesn't survive a Hub<->Map
+    scene transition or save/reload once equipped. `Resource.duplicate()`
+    (what `ItemRoller.roll()` uses to avoid mutating the shared cached
+    base) produces a Resource with no `resource_path`, and
+    `SaveManager`'s entire equipment-persistence mechanism
+    (`GameState.equipment_paths`) only knows how to round-trip items by
+    path — an equipped rolled item silently reverts to empty on the next
+    transition, same as any item with an empty path would. Fixing this
+    for real needs `SaveManager` to serialize full item data, not just a
+    path - a bigger persistence-format change than this pass's scope.
+  - `DebugOverlay` now also logs loot drops (item name + rarity) and
+    level-ups, alongside its existing damage/chain/ability log lines.
+- Verified with a headless test: 200 rolls all produced valid
+  items (non-empty id/name, no `resource_path`, well-formed affixes)
+  with a real rarity spread; a higher `loot_rarity_multiplier`
+  measurably skewed the average rolled rarity upward over 150 rolls
+  each; killing enough enemies reliably spawned at least one
+  `LootPickup`; walking into one added it to `GameState.owned_loot` and
+  freed the pickup; `InventoryScreen`'s grid, once (re)opened, actually
+  contained a button for the picked-up item.
+
+## 2026-08-29 — XP, Leveling, Stat Growth
+
+User asked to "start working on the RPG part of this more" — experience,
+leveling, and stat gain, alongside gap-jumping and loot generation.
+
+- **`entities/components/ExperienceComponent.gd`** (new, attached to
+  `Player.tscn`): `level`/`xp` fields, `add_xp()` loops (not a single
+  `if`) so one large gain can cross multiple level thresholds in a
+  single call, `leveled_up`/`xp_changed` signals. XP curve
+  (`XP_BASE=100`, 25% growth per level) is invented — no leveling system
+  is doc-sourced anywhere in the referenced sections.
+- **No stat-allocation UI was built.** "Gain stats" is implemented as
+  automatic flat growth to every `StatSheet` stat per level
+  (`StatSheet.level` + `STAT_GROWTH_PER_LEVEL`, baked into
+  `get_stat()`) rather than spendable points — the simplest
+  interpretation that fits the ask without inventing a whole allocation
+  screen in the same pass. A real allocation UI is natural follow-up
+  work, not a scope gap being hidden.
+- **`Enemy.gd` gained `xp_reward`** (invented, loosely scaled by
+  archetype toughness: `HeavyHitter` 25, `MobileBruiser` 18,
+  `GlassCannon` 12), granted to the player on `_on_died()`.
+- **Cross-scene persistence**: same problem equipment/ability loadout
+  already solved — `Player` is a fresh instance every Hub<->Map scene
+  load, so `GameState.player_level`/`player_xp` mirror the live
+  `ExperienceComponent` (written on every XP change, read back at
+  `Player._apply_saved_experience()`), and `SaveManager` now persists
+  both across app restarts too.
+- **UI**: `PlayerHUD` gained a 4th bar ("Lv N - current/needed XP",
+  reusing the existing bar-builder helper). `CharacterScreen`'s Misc
+  column now shows Level and XP.
+- Verified with a headless test: a single `HeavyHitter` kill grants
+  exactly its `xp_reward`, `GameState` correctly mirrors the live
+  component, enough kills to cross 100 XP actually leveled the player
+  up, `STRENGTH` (and every other stat) measurably increased afterward
+  via `stat_sheet.get_stat()`, and `stat_sheet.level` stayed in sync
+  with `experience.level`.
+  - Minor harness-only hiccup while writing this test, not a game bug:
+    a `preload()` for an Enemy-derived scene resolves at *compile time*,
+    which in this headless `--script`-mode runner happens before
+    autoloads (`GameState`/`EventBus`) are registered — cascaded into
+    `Enemy.gd` itself failing to compile. Switching to a runtime
+    `load()` inside the test function fixed it; a real scene-file load
+    (`--path . res://Scene.tscn`, how the actual game boots) was
+    unaffected the whole time. See
+    `reference_godot_headless_verification` in project memory.
+
+## 2026-08-29 — Doorway Floor Gaps, Enemy Gap-Jumping
+
+User reported "enemies falling to their death more than dying to me."
+Two separate bugs turned out to be involved, plus a design gap in the
+jump-arc math discovered while verifying the fix.
+
+- **Bug found: every doorway in every generated Map had a missing floor
+  segment, not just the Vault's intentional jump gap.** `ROOM_FOOTPRINT`
+  (13m) is smaller than `CELL_SIZE` (16m, the spacing between adjacent
+  rooms) — walls correctly opened a doorway-width gap, but nothing was
+  ever built to bridge the resulting 3m floor gap between two connected
+  rooms' footprints. This is almost certainly the primary cause of the
+  report: chasing through *any* doorway dropped an enemy (or the player)
+  into an unfloored void with no safety net, on every single connection
+  in every generated layout. Fixed with a new
+  `GeneratedMap._build_doorway_bridges()` that builds one floor bridge
+  per connection, sized to exactly close the gap (each connection
+  processed once via a canonical pair key, not twice from both rooms'
+  side). Verified with a dedicated raycast-based test sampling 5 points
+  along the doorway path for all 74 connections across 10 random
+  layouts — all confirmed solid floor after the fix (none were, before
+  it).
+- **Enemy gap-jump behavior**: `Enemy.gd` had no awareness of gaps at
+  all before this — chasing an enemy across the Vault's intentional
+  jump gap just walked it straight off the edge. New
+  `_check_gap_jump()` probes ahead with a raycast; if the floor ahead is
+  missing, it ray-marches forward to measure the actual gap width *and*
+  the landing floor's height (not hardcoded — stays correct if gap
+  sizes or platform heights ever change), then solves the real
+  projectile-motion question: given this archetype's `move_speed` and
+  `jump_velocity`, does the arc's height at the moment it reaches the
+  far edge clear the landing height, with margin? If yes, it jumps
+  (`velocity.y = jump_velocity`); if not, it stops at the edge instead
+  of walking off it. `jump_velocity` (7.0, up from an initial guess of
+  5.5) is invented, tuned specifically against the Vault's 3m gap + 1.2m
+  platform rise via testing (see below) — HeavyHitter (`move_speed`
+  1.8) still correctly can't clear it even at this value, since its
+  bottleneck is horizontal speed, not airtime.
+  - **Bug found while first testing this: mid-air kiting reversal.**
+    `_update_chase()` recalculated horizontal velocity every physics
+    frame unconditionally, including mid-jump — so a kiting enemy
+    (`retreat_distance > 0`, i.e. `GlassCannon`) sailing across a gap
+    would have its distance-to-player shrink mid-flight, cross into
+    retreat range, and get its horizontal velocity reversed *while
+    airborne*, steering it back over the open gap instead of landing.
+    Fixed with a `_gap_jumping` flag that suppresses chase/retreat
+    velocity recalculation until the enemy is back on the floor.
+  - **Design gap found via testing, not a bug in the fix above: the
+    original jump check only verified horizontal clear distance,
+    ignoring that the Vault's platform sits 1.2m higher than the main
+    floor.** Enemies fast enough to cross the gap horizontally were
+    still below 1.2m of arc height by the time they reached the
+    platform's edge, so they slammed into its vertical face mid-flight
+    and got knocked back instead of landing — repeating the same failed
+    attempt indefinitely. Rewrote the check to solve for arc height at
+    the landing point's actual horizontal distance and compare against
+    the *measured* rise (works for a drop, a rise, or level ground, not
+    just this one gap), and raised `jump_velocity` so the "Fast"
+    melee archetype (`MobileBruiser`) can actually clear it — a ranged
+    kiter (`GlassCannon`) never needs to, since it fights from range
+    and correctly just holds at its own `stop_distance` short of the
+    edge instead.
+  - Verified with a dedicated headless test across 8+ random Vault
+    placements: `HeavyHitter` always correctly blocked at the edge,
+    `MobileBruiser` always correctly clears the gap and lands safely,
+    `GlassCannon` always correctly holds at range without needing to
+    cross — none of the three ever fall through the world. Getting a
+    trustworthy version of this test took several iterations: an
+    initial version compared a world coordinate against a room-local
+    offset without adding the room's origin; a version placing all
+    three enemies on the same X line let the one that stops earliest
+    (`GlassCannon`) physically block the others approaching from
+    behind, which looked exactly like a failed jump but was really
+    enemies colliding with each other (fixed by giving each its own
+    spawn lane); and the map's own auto-spawned enemies (every
+    non-start room gets some, the Vault gets extra) could stand in a
+    controlled test enemy's path too (fixed by clearing them before
+    placing the controlled ones).
+
+## 2026-08-29 — Procedural Map Generation
+
+User asked for "properly generated maps that feel different, with walls,
+jumps, interesting things that pop up," followed by asset import as a
+separate next phase.
+
+- **`systems/level_generation/MapGraph.gd`**: pure-data room-and-
+  connection graph, no `Node3D`/geometry at all — deliberately separated
+  from the geometry builder so the generation *algorithm* can be tested
+  in complete isolation, and so a later asset-import pass only has to
+  change how rooms are rendered, never how they're laid out. Randomized
+  Prim's-style spanning-tree growth from a start cell on a 5x5 grid
+  (`ROOM_COUNT_MIN`/`MAX` 7-10) — guarantees every room is reachable
+  since it *is* a spanning tree. The room with the greatest graph
+  distance from start becomes the Vault (denser enemies + a jump
+  platform). Verified with a 200-trial stress test: room count in range,
+  full BFS reachability, every connection symmetric and to an orthogonal
+  grid neighbor only, vault always distinct from start.
+- **`levels/generated_map/GeneratedMap.gd`**: turns the graph into actual
+  geometry — `BoxMesh`/`PlaneMesh` placeholder primitives (no real art
+  yet), real `StaticBody3D` collision on every wall/floor. Each room
+  boundary is either a solid wall or has a centered doorway gap where a
+  connection exists. The Vault room's floor splits into a main section
+  (y=0) and an elevated platform (y=1.2), separated by a jump gap, with a
+  full-footprint safety floor a shallow 0.5m below the whole room so a
+  missed jump is a small stumble, not a fall through the world — a
+  deliberate safety margin given none of this can be visually playtested
+  here. `GameState.MAP_SCENE` now points here instead of
+  `TestArena.tscn`, which stays in the repo as a static hand-built
+  sandbox for direct editor testing.
+- **Bug found: `is_connected(a, b)` collided with `RefCounted`/`Object`'s
+  built-in `is_connected(signal, callable)`**, which Godot rejects as an
+  incompatible override — a hard compile error caught immediately by the
+  first headless test run. Renamed to `has_connection()`.
+- **Bug found and fixed before it ever shipped: UI would have found a
+  null Player on every generated map.** `GeneratedMap`'s root script
+  spawns `Player` from its own `_ready()`, but Godot readies children
+  *before* parents — so if the UI suite (`AbilityBar`, `PlayerHUD`, etc.)
+  were static `.tscn` children like `Hub.tscn`/`TestArena.tscn` use,
+  every one of them would run its own one-time
+  `get_tree().get_first_node_in_group("player")` lookup *before* the
+  parent's `_ready()` ever got to spawn the Player — since the Player's
+  spawn position depends on the generated layout and can't be known
+  until generation runs. Caught by reasoning about the ordering before
+  ever testing it (same bug class as three earlier ones this project has
+  hit), not by a failing test. Fixed by instantiating the entire UI suite
+  in code instead of as static scene children, added via `add_child()`
+  strictly *after* `_spawn_player()` — a node added to an already-live
+  tree runs its `_ready()` synchronously as part of that `add_child()`
+  call, so by the time each UI script's lookup runs, the Player already
+  exists and is already in the `"player"` group. Verified directly: a
+  15-trial test confirmed `AbilityBar`/`PlayerHUD` both found a valid
+  Player reference on every trial, across 15 different random layouts,
+  plus a real physics shape-overlap query confirming the player spawn
+  point never lands inside a wall's collision shape.
+
+## 2026-08-29 — Documentation Cleanup
+
+User asked for the README to be cleaned up and a dedicated patch-notes
+file created to track changes going forward. `README.md` had grown to
+over 1000 lines as a de facto changelog (every bug's root cause, every
+judgment call's full reasoning, appended chronologically) — split into
+this file (the history) and a rewritten `README.md` (~200 lines, current
+state only: what's implemented, flagged gaps, controls, how to open the
+project). Flagged-gap numbers were renumbered in the process — resolved
+gaps were dropped rather than kept as strikethrough clutter.
+
 ## 2026-08-29 — Character Screen, Predicted Damage, Ability Range VFX
 
 - **Character Screen** (user-requested): `ui/character_screen/`, opens

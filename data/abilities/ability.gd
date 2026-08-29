@@ -16,25 +16,17 @@ class_name Ability
 @export var is_auto_cast_eligible: bool = true   # false for e.g. Riposte itself
 @export var applies_status_effects: Array[String] = []  # status effect ids, e.g. "chill", "ignite"
 
-## AoE radius in meters, used by PlayerAbilityCast's self-centered nova
-## (see its header comment) and the range-pulse VFX. Not doc-sourced - no
-## per-ability range/radius exists anywhere in the referenced docs, so
-## these are invented per-spell placeholders (loosely sized off each
-## ability's flavor text: Frost Armor is melee-retaliation so it's small,
-## Winter's Eye "fires... at nearby enemies" so it's wide), not a real
-## AoE-size system.
+## AoE radius in meters - invented, not doc-sourced, loosely sized off
+## each ability's flavor text.
 @export var radius: float = 5.0
 
-## Upgrade rank (0 = unranked/base). Not doc-sourced - no upgrade/leveling
-## system exists anywhere in the referenced docs for Abilities, so this
-## whole mechanic (rank cap, per-rank scaling formula, and AbilitiesScreen
-## making upgrades free/unlimited with no cost gating) is an invented
-## placeholder, flagged same as the other invented tuning numbers in this
-## project. `rank` lives on the shared loaded .tres Resource, same as
-## every other "owns one of each" instance in this project (Slates,
-## Items, Weapons) - upgrading persists for the running session (all
-## references to this Ability see the new rank) but not across an app
-## restart, since there's still no save/load system.
+## Doc-sourced base crit chance is per "spell type"; abilities here have
+## no such classification (all execute as a generic nova), so this is a
+## thematic guess at which doc category fits each one.
+@export var base_crit_chance: float = 0.05
+
+## Invented upgrade mechanic, not doc-sourced. Lives on the shared
+## loaded .tres, same session-persistence as other "owns one" resources.
 @export var rank: int = 0
 const MAX_RANK := 5
 const MOTION_VALUE_PER_RANK := 0.10       # +10% per rank
@@ -49,17 +41,9 @@ func get_effective_cooldown() -> float:
 func can_upgrade() -> bool:
 	return rank < MAX_RANK
 
-## Predicted final damage against a given StatSheet - the EXACT
-## calculation PlayerAbilityCast._cast() uses when actually casting
-## (base_weapon_damage passed as 1.0, since abilities aren't tied to a
-## Weapon - see PlayerAbilityCast.gd's header). Centralized here, called
-## from both the real cast path and ItemCard's stat-card display, so the
-## displayed prediction can never drift from what casting actually does.
-## grade_roll_t is fixed at 0.5 (same as the real cast), so this is a
-## single deterministic number, not a min-max range.
-func predict_damage(stat_sheet: StatSheet) -> float:
-	if stat_sheet == null:
-		return 0.0
+## Shared groundwork for predict_damage()/roll_damage() - see
+## Weapon.gd's own _base_hit() for the same split rationale.
+func _base_hit(stat_sheet: StatSheet) -> Dictionary:
 	var main_stat: Constants.Stat = Constants.DAMAGE_TYPE_MAIN_STAT.get(damage_type, Constants.Stat.ARCANE)
 	var stat_value: float = stat_sheet.get_stat(main_stat)
 	var mastery: float = stat_sheet.get_mastery(damage_type)
@@ -67,4 +51,23 @@ func predict_damage(stat_sheet: StatSheet) -> float:
 		1.0, get_effective_motion_value(), stat_value, scaling_grade,
 		0.5, mastery, [], [], damage_type
 	)
-	return result.final_damage
+	return {
+		"base_damage": result.final_damage,
+		"crit_chance": DamageCalculator.get_crit_chance(base_crit_chance, stat_sheet.get_stat(Constants.Stat.INSTINCT)),
+		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_stat(Constants.Stat.INTELLECT)),
+	}
+
+## Expected-value blend (not a random roll) - matches PlayerAbilityCast's
+## actual cast exactly, so the stat card can't drift from reality.
+func predict_damage(stat_sheet: StatSheet) -> float:
+	if stat_sheet == null:
+		return 0.0
+	var hit := _base_hit(stat_sheet)
+	return DamageCalculator.get_expected_damage(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
+
+## Real-cast counterpart to predict_damage() - actually rolls crit.
+func roll_damage(stat_sheet: StatSheet) -> Dictionary:
+	if stat_sheet == null:
+		return {"final_damage": 0.0, "is_critical": false}
+	var hit := _base_hit(stat_sheet)
+	return DamageCalculator.apply_crit(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])

@@ -1,21 +1,14 @@
 extends Control
 class_name MainMenu
 ## Entry point (project.godot's run/main_scene). Plain Control, not a
-## CanvasLayer overlay like PauseMenu/InventoryScreen/etc - there's no
-## gameplay running underneath to overlay, this scene IS the whole game
-## at this point.
+## CanvasLayer overlay - no gameplay runs underneath to overlay here.
 ##
-## "Continue Game" vs "New Game" now actually differ: SaveManager loads
-## any existing user://savegame.json into GameState at boot (before this
-## scene even shows), so Continue is gated on SaveManager.has_save() and
-## just goes straight to the Hub - GameState is already what it should
-## be. New Game explicitly resets GameState back to its defaults
-## (GameState.reset_to_defaults()) and deletes the save file, so a stale
-## Continue can't reappear after starting fresh. Settings write straight
-## to GameState + the engine (AudioServer/DisplayServer) so they take
-## effect immediately, and now DO persist across app restarts via the
-## same save file (loaded at boot regardless of Continue/New Game, since
-## they're a preference, not "progress").
+## SaveManager loads any existing save into GameState at boot, before
+## this scene shows, so Continue (gated on SaveManager.has_save()) just
+## goes straight to the Hub. New Game resets GameState to defaults and
+## deletes the save file, so a stale Continue can't reappear. Settings
+## write straight to GameState + the engine and persist via the same
+## save file regardless of Continue/New Game.
 
 @onready var continue_button: Button = $MainPanel/VBoxContainer/ContinueButton
 @onready var new_game_button: Button = $MainPanel/VBoxContainer/NewGameButton

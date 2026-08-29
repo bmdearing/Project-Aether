@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3]
+[gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://entities/interactables/map_device/MapDevice.tscn" id="2"]
@@ -10,6 +10,10 @@
 [ext_resource type="PackedScene" path="res://ui/abilities/AbilitiesScreen.tscn" id="8"]
 [ext_resource type="PackedScene" path="res://ui/character_screen/CharacterScreen.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://ui/player_hud/PlayerHUD.tscn" id="10"]
+[ext_resource type="PackedScene" path="res://ui/map_screen/MapScreen.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://ui/shop/ShopScreen.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://entities/interactables/gear_shop/GearShop.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://entities/interactables/spell_test_shop/SpellTestShop.tscn" id="14"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(40, 1, 40)
@@ -54,6 +58,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
 [node name="MapDevice" parent="." instance=ExtResource("2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)
 
+[node name="GearShop" parent="." instance=ExtResource("13")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -3)
+
+[node name="SpellTestShop" parent="." instance=ExtResource("14")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -3)
+
 [node name="DebugOverlay" parent="." instance=ExtResource("3")]
 
 [node name="FateBoardEditor" parent="." instance=ExtResource("5")]
@@ -63,6 +73,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)
 [node name="AbilitiesScreen" parent="." instance=ExtResource("8")]
 
 [node name="CharacterScreen" parent="." instance=ExtResource("9")]
+
+[node name="MapScreen" parent="." instance=ExtResource("11")]
+
+[node name="ShopScreen" parent="." instance=ExtResource("12")]
 
 [node name="AbilityBar" parent="." instance=ExtResource("7")]
 

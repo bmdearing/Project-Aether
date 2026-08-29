@@ -1,13 +1,8 @@
 extends RefCounted
 class_name DamageCalculator
-## Implements the Section 11 damage formula:
-##   Final Damage = Base Weapon Damage x Motion Value
-##                  x (Stat Scaling Grade Multiplier x Mastery Bonus)
-##                  x (1 + sum of Increased%)
-##                  x product(More multipliers)
-##
-## Increased multipliers pool additively; More multipliers are rare,
-## multiplicative, and stack independently (Section 11).
+## Section 11 damage formula: Final Damage = Base Weapon Damage x Motion
+## Value x (Scaling Grade x Mastery) x (1 + sum Increased%) x product(More).
+## Increased pools additively; More multipliers stack multiplicatively.
 
 class DamageResult:
 	var final_damage: float = 0.0
@@ -19,16 +14,14 @@ static func calculate(
 	motion_value: float,
 	stat_value: float,
 	scaling_grade: Constants.ScalingGrade,
-	grade_roll_t: float,          # 0.0-1.0 position within the grade's range, for reproducible rolls
+	grade_roll_t: float,          # 0.0-1.0 position within the grade's range
 	mastery_bonus: float,         # e.g. 0.5 for +0.5 Mastery
 	increased_percents: Array[float],   # additive pool, each e.g. 8.0 for 8%
 	more_multipliers: Array[float],     # each e.g. 1.3 for a 30% More multiplier
 	damage_type: Constants.DamageType
 ) -> DamageResult:
 	var range: Vector2 = Constants.SCALING_RANGES[scaling_grade]
-	# lerp()'s builtin signature returns Variant (it's polymorphic over
-	# float/Vector2/Vector3/Color) - explicit : float forces the narrowing
-	# so this doesn't infer Variant via :=.
+	# lerp() returns Variant (polymorphic) - explicit : float avoids inferring Variant.
 	var base_scale: float = lerp(range.x, range.y, clamp(grade_roll_t, 0.0, 1.0))
 	var effective_scale := base_scale * (1.0 + mastery_bonus)
 
@@ -58,14 +51,33 @@ static func calculate(
 	}
 	return result
 
-## Section 16 Armor System: Damage Reduction % = Armor / (Armor + 6 x Hit
-## Damage). The doc splits Kinetic (full %) / Piercing (partial) / Explosive
-## (flat reduction) behavior but never gives a concrete ratio for the
-## Piercing/Explosive cases, so this applies the full formula uniformly to
-## all Physical damage as a placeholder - flagged in the README, not a
-## silent guess. Soft cap ~6,000 Armor is inherent to the formula's shape,
-## not separately enforced.
+## Section 16: Damage Reduction % = Armor / (Armor + 6 x Hit Damage).
+## Doc splits Kinetic/Piercing/Explosive behavior without concrete ratios,
+## so this applies the full formula uniformly to all Physical damage
+## (placeholder, flagged in README).
 static func physical_mitigation(armor: float, hit_damage: float) -> float:
 	if armor <= 0.0 or hit_damage <= 0.0:
 		return 0.0
 	return armor / (armor + 6.0 * hit_damage)
+
+## Section 12: base crit chance is fixed per weapon/spell type (2%-8%);
+## Instinct is a multiplicative "+3% increased" modifier on that base.
+static func get_crit_chance(base_crit_chance: float, instinct: float) -> float:
+	return base_crit_chance * (1.0 + instinct * 0.03)
+
+## Base Critical Strike Damage multiplier 150%; Intellect +1%/point, multiplicative.
+static func get_crit_damage_multiplier(intellect: float) -> float:
+	return 1.5 * (1.0 + intellect * 0.01)
+
+## roll_t: fixed 0.0-1.0 for reproducible rolls, or omit (< 0) to roll randomly.
+static func apply_crit(base_damage: float, crit_chance: float, crit_damage_multiplier: float, roll_t: float = -1.0) -> Dictionary:
+	var t: float = roll_t if roll_t >= 0.0 else randf()
+	var is_critical: bool = t < crit_chance
+	return {
+		"final_damage": base_damage * crit_damage_multiplier if is_critical else base_damage,
+		"is_critical": is_critical,
+	}
+
+## Expected-value blend (not a random roll) for stat-card "Predicted Damage" display.
+static func get_expected_damage(base_damage: float, crit_chance: float, crit_damage_multiplier: float) -> float:
+	return base_damage * (1.0 + clamp(crit_chance, 0.0, 1.0) * (crit_damage_multiplier - 1.0))

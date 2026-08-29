@@ -1,19 +1,12 @@
 extends Node
 class_name EnemyRangedAttack
 ## Telegraph + Projectile ranged attack: Idle -> Windup -> Fire -> Cooldown.
-## Sibling to EnemyMeleeAttack.gd (same Idle-proximity/telegraph shape,
-## same begin/update/end_attack_telegraph() calls on Enemy), but fires
-## entities/projectile/Projectile.tscn - the same scene PlayerRangedAttack
-## uses - aimed at the player's position at the moment Windup completes,
-## rather than resolving a hitbox overlap. Not homing: the direction is
-## baked into the projectile's transform at fire time, same "no
-## retroactive changes after the shot leaves" design Projectile already
-## has.
+## Sibling to EnemyMeleeAttack.gd, but fires Projectile.tscn aimed at the
+## player's position when Windup completes - not homing, direction is
+## baked in at fire time.
 ##
-## Chasing/kiting distance is Enemy's job (chase_range/stop_distance/
-## retreat_distance) - this component only decides *when to fire* once
-## the player is within fire_range, same decoupling EnemyMeleeAttack has
-## from Enemy's movement.
+## Chasing/kiting distance is Enemy's job; this component only decides
+## *when to fire* once the player is within fire_range.
 
 const PROJECTILE_SCENE := preload("res://entities/projectile/Projectile.tscn")
 
@@ -73,10 +66,8 @@ func _fire() -> void:
 	var origin: Vector3 = _enemy.global_position + Vector3(0, 0.95, 0)
 	var target_pos: Vector3 = _player.global_position + Vector3(0, 0.9, 0)
 	var dir := (target_pos - origin).normalized()
-	# Muzzle offset forward of the enemy's own capsule (radius 0.45) - unlike
-	# PlayerRangedAttack, which fires from WeaponSocket (already ahead of
-	# Player's capsule), spawning at `origin` would land inside the
-	# shooter's own collision shape and self-trigger body_entered.
+	# Muzzle offset forward of the enemy's capsule - spawning at `origin`
+	# would land inside the shooter's own collision shape.
 	var spawn_pos := origin + dir * 0.7
 
 	var projectile: Projectile = PROJECTILE_SCENE.instantiate()

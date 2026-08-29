@@ -1,21 +1,18 @@
 extends CanvasLayer
 class_name AbilitiesScreen
 ## Ability equip/upgrade menu - opens via the `open_abilities` hotkey (N),
-## same "hotkey-only, no PauseMenu button" pattern as Inventory (B) and
-## Fate Board (P). List-based, not a uniform grid like InventoryScreen -
-## each owned ability needs an Upgrade button and rank readout alongside
-## it, which doesn't fit a plain icon grid the way equip-only items do.
+## hotkey-only like Inventory (B)/Fate Board (P). List-based, not a grid
+## like InventoryScreen - each ability needs an Upgrade button and rank
+## readout alongside it.
 ##
-## "Owned" abilities are still directory-scanned from
-## data/abilities/instances/, same stand-in convention as Inventory/Fate
-## Board - as if the player owns one of each, no real acquisition system.
-## Any ability can go in any of the 4 equip slots (unlike
-## EquipmentComponent's typed slots), so clicking an owned ability equips
-## it into the first open slot (AbilityLoadoutComponent.equip_first_open).
+## "Owned" abilities are directory-scanned from data/abilities/instances/,
+## filtered to GameState.owned_ability_ids (found via SkillTome or the
+## Hub's SpellTestShop). List rebuilds every open, not just at _ready(),
+## since ownership can change mid-session. Clicking an owned ability
+## equips it into the first open slot.
 ##
-## Upgrading is free and uncapped-by-cost right now (just rank-capped at
-## Ability.MAX_RANK) - there's no currency/economy for it to spend,
-## flagged in Ability.gd's own header comment as an invented placeholder.
+## Upgrading is free and uncapped-by-cost (rank-capped at Ability.MAX_RANK)
+## - no currency/economy exists for it to spend yet.
 
 const ABILITY_INSTANCE_DIR := "res://data/abilities/instances/"
 
@@ -36,8 +33,6 @@ func _ready() -> void:
 	add_to_group("abilities_screen")
 	add_to_group("blocking_menu")
 	close_button.pressed.connect(close)
-	_scan_owned_abilities()
-	_build_owned_list()
 	_build_equipped_row()
 
 func is_open() -> bool:
@@ -52,6 +47,7 @@ func open() -> void:
 	_ability_loadout = player.ability_loadout if player else null
 	if _ability_loadout and not _ability_loadout.loadout_changed.is_connected(_refresh_equipped_row):
 		_ability_loadout.loadout_changed.connect(_refresh_equipped_row)
+	_build_owned_list()
 	_refresh_equipped_row()
 
 func close() -> void:
@@ -68,6 +64,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 
 func _scan_owned_abilities() -> void:
+	_owned_abilities = []
 	var dir := DirAccess.open(ABILITY_INSTANCE_DIR)
 	if dir == null:
 		return
@@ -76,12 +73,17 @@ func _scan_owned_abilities() -> void:
 	while file_name != "":
 		if file_name.ends_with(".tres"):
 			var ability: Ability = load(ABILITY_INSTANCE_DIR + file_name) as Ability
-			if ability:
+			if ability and GameState.owned_ability_ids.has(ability.ability_id):
 				_owned_abilities.append(ability)
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
 func _build_owned_list() -> void:
+	for child in owned_list.get_children():
+		child.queue_free()
+	_rank_labels = []
+	_upgrade_buttons = []
+	_scan_owned_abilities()
 	for ability in _owned_abilities:
 		var row := HBoxContainer.new()
 		row.add_theme_constant_override("separation", 8)
@@ -134,7 +136,7 @@ func _on_upgrade_pressed(ability: Ability) -> void:
 		ability.rank += 1
 		GameState.ability_ranks[ability.ability_id] = ability.rank
 	_refresh_owned_list()
-	_refresh_equipped_row()  # equipped copies share the same Resource, but cooldown/motion_value readouts on the bar depend on rank too
+	_refresh_equipped_row()  # equipped copies share the Resource, but the bar's readouts depend on rank too
 
 func _on_equipped_slot_pressed(slot_index: int) -> void:
 	if _ability_loadout:

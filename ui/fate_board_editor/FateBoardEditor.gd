@@ -1,16 +1,12 @@
 extends CanvasLayer
 class_name FateBoardEditor
-## Vertical-slice Fate Board placement UI (Section 10), opened from
-## PauseMenu. Renders GameState.fate_board's live placements/Aether budget
-## via FateBoardGrid, and recomputes ChainCalculator results after every
-## placement/removal, emitting EventBus.chain_recalculated (declared but
-## previously never fired) so DebugOverlay picks up real chain data too.
+## Vertical-slice Fate Board placement UI (Section 10). Renders
+## GameState.fate_board's live placements/Aether budget via FateBoardGrid,
+## and recomputes ChainCalculator results after every placement/removal.
 ##
 ## Slate "ownership" stands in for the not-yet-built Satchel/loot system:
-## every .tres under data/slates/instances/ is scanned and offered in the
-## palette, as if the player owns one of each. Palette buttons are
-## ItemSlotButton (see ui/item_card/) so hovering one shows a full
-## ItemCard stat card, same as InventoryScreen's item slots.
+## every .tres under data/slates/instances/ is offered in the palette, as
+## if the player owns one of each.
 
 const SLATE_INSTANCES_DIR := "res://data/slates/instances/"
 

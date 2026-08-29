@@ -51,6 +51,17 @@ const DAMAGE_TYPE_COLOR := {
 
 enum Stat { VITALITY, STRENGTH, INSTINCT, ARCANE, ENIGMA, INTELLECT }
 
+# Section 12 per-point values - shown in the advanced (Alt-hover) tooltip
+# when a mod line links to one of these stats.
+const STAT_GLOSSARY := {
+	Stat.VITALITY: "+2 Life, +0.1 Life regen/sec per point.",
+	Stat.STRENGTH: "+1% increased Physical damage per point.",
+	Stat.INSTINCT: "+3% increased Crit Chance, +1% Attack/Cast speed, +0.5% Move speed per point.",
+	Stat.ARCANE: "+1% increased Elemental damage per point.",
+	Stat.ENIGMA: "+1% increased Esoteric damage per point.",
+	Stat.INTELLECT: "+1% increased Crit damage, +2 Mana, +0.1 Mana regen/sec per point.",
+}
+
 # Section 10 - Main Stat by Tag. Drives which stat DamageCalculator scales
 # an attack against, keyed by the attack's damage type.
 const DAMAGE_TYPE_MAIN_STAT := {
@@ -87,11 +98,8 @@ const CHAIN_BONUS_TIERS := [
 
 enum SlateRarity { COMMON, UNCOMMON, RARE, VERY_RARE, UNIQUE, MYTHIC }
 
-# No doc-sourced color column for SlateRarity (unlike ITEM_RARITY_COLOR's
-# Section 18 White/Blue/Yellow/Orange/Peach) - reuses that same palette for
-# the 5 shared tier names, with an invented violet slotted in for the
-# extra VERY_RARE tier between Rare and Unique. Placeholder, flagged in
-# the README.
+# No doc-sourced color for SlateRarity - reuses ITEM_RARITY_COLOR's palette,
+# plus an invented violet for the extra VERY_RARE tier. Placeholder, flagged in README.
 const SLATE_RARITY_COLOR := {
 	SlateRarity.COMMON: Color(0.9, 0.9, 0.9),
 	SlateRarity.UNCOMMON: Color(0.3, 0.55, 0.95),
@@ -124,3 +132,12 @@ const ITEM_RARITY_COLOR := {
 	ItemRarity.UNIQUE: Color(0.9, 0.55, 0.15),
 	ItemRarity.MYTHIC: Color(0.98, 0.75, 0.75),
 }
+
+# Section 11 "Base Crit Chance by Weapon Type", keyed by Weapon.weapon_type.
+# Only the two types this project has built are transcribed; add more as
+# needed rather than the doc's full ~55-entry table. DEFAULT covers the rest.
+const WEAPON_BASE_CRIT_CHANCE := {
+	"Greatsword": 0.04,
+	"Service Pistol": 0.06,
+}
+const DEFAULT_BASE_CRIT_CHANCE := 0.05

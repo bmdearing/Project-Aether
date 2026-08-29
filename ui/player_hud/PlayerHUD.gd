@@ -1,76 +1,64 @@
 extends CanvasLayer
 class_name PlayerHUD
-## Always-on readout of Health/Mana/Ward and the currently active weapon,
-## user-requested ("see their health, mana, what weapon is equipped, show
-## what it looks like when they swap"). Bars are plain ColorRect fills
-## (background + a foreground rect whose width scales with current/max
-## via anchor_right) - same placeholder-art convention as everything else
-## in this project, no real art/textures anywhere yet.
+## Always-on readout of Life/Mana/Ward and the active weapon. Life and
+## Mana are circular `StatOrb`s flanking the ability bar (Ward renders as
+## a ring around the Life orb); XP is a notched bar above them. Placeholder
+## art throughout, matching the rest of the project.
 ##
-## Health/Mana/Ward push-update via their component's own *_changed
-## signal (WardComponent didn't have one before this - added to match
-## Health/Mana's existing pattern) rather than polling per-frame. The
-## initial read is deferred via call_deferred() rather than done inline
-## in _ready() - HealthComponent's current_health assignment is itself
-## deferred (see its own header comment on why), so reading it
-## synchronously here would catch it before that's run and show 0 HP for
-## a frame.
+## Life/Mana/Ward push-update via their component's *_changed signal. The
+## initial read is deferred via call_deferred() since HealthComponent's
+## current_health assignment is itself deferred - a synchronous read here
+## would catch it before that runs and show an empty orb for a frame.
 ##
-## Weapon swaps listen to EventBus.weapon_swapped (new - Player.gd's
-## _active_weapon_slot was private and nothing outside Player needed to
-## know when it changed before now) and play a brief flash/scale-punch
-## Tween on the weapon icon so a swap is visibly readable on the HUD
-## itself, not just the 3D viewmodel mesh swap that already existed.
+## Weapon swaps listen to EventBus.weapon_swapped and play a brief
+## flash/scale-punch Tween on the weapon icon.
 
-const BAR_WIDTH := 200.0
-const BAR_HEIGHT := 22.0
+const ABILITY_BAR_HALF_WIDTH := 136.0
+const ORB_GAP := 16.0
+const ORB_BOTTOM_OFFSET := -20.0
+const ORB_HEIGHT := 108.0  # must match StatOrb's own computed min size (radius*2 + 16)
+
+const XP_BAR_WIDTH := (ABILITY_BAR_HALF_WIDTH + ORB_GAP + ORB_HEIGHT) * 2.0
+const XP_BAR_HEIGHT := 16.0
+const XP_BAR_GAP := 6.0
+
 const HEALTH_COLOR := Color(0.75, 0.15, 0.15)
 const MANA_COLOR := Color(0.25, 0.45, 0.85)
 const WARD_COLOR := Color(0.55, 0.55, 0.95)
+const XP_COLOR := Color(0.65, 0.45, 0.9)
 const EMPTY_BG_COLOR := Color(0.12, 0.12, 0.14, 0.85)
 const WEAPON_ICON_SIZE := 56.0
 const SWAP_PUNCH_DURATION := 0.2
 
-@onready var bars: VBoxContainer = $Bars
 @onready var weapon_indicator: HBoxContainer = $WeaponIndicator
 
 var _player: Player
-var _health_fill: ColorRect
-var _health_label: Label
-var _mana_fill: ColorRect
-var _mana_label: Label
-var _ward_fill: ColorRect
-var _ward_bar_root: Control
-var _ward_label: Label
+var _life_orb: StatOrb
+var _mana_orb: StatOrb
+var _xp_fill: ColorRect
+var _xp_label: Label
 var _weapon_icon: ItemSlotButton
 var _weapon_name_label: Label
+var _gold_label: Label
+var _last_gold: int = -1
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_player = get_tree().get_first_node_in_group("player") as Player
 
-	var health_bar := _build_bar(HEALTH_COLOR)
-	bars.add_child(health_bar["root"])
-	_health_fill = health_bar["fill"]
-	_health_label = health_bar["label"]
+	_life_orb = _build_orb(HEALTH_COLOR, "Life", -ABILITY_BAR_HALF_WIDTH - ORB_GAP - ORB_HEIGHT, -ABILITY_BAR_HALF_WIDTH - ORB_GAP)
+	_life_orb.ring_color = WARD_COLOR
+	_mana_orb = _build_orb(MANA_COLOR, "Mana", ABILITY_BAR_HALF_WIDTH + ORB_GAP, ABILITY_BAR_HALF_WIDTH + ORB_GAP + ORB_HEIGHT)
 
-	var mana_bar := _build_bar(MANA_COLOR)
-	bars.add_child(mana_bar["root"])
-	_mana_fill = mana_bar["fill"]
-	_mana_label = mana_bar["label"]
-
-	var ward_bar := _build_bar(WARD_COLOR)
-	bars.add_child(ward_bar["root"])
-	_ward_bar_root = ward_bar["root"]
-	_ward_fill = ward_bar["fill"]
-	_ward_label = ward_bar["label"]
-
+	_build_xp_bar()
 	_build_weapon_indicator()
+	_build_gold_label()
 
 	if is_instance_valid(_player):
 		_player.health.health_changed.connect(_on_health_changed)
 		_player.mana.mana_changed.connect(_on_mana_changed)
 		_player.ward.ward_changed.connect(_on_ward_changed)
+		_player.experience.xp_changed.connect(_on_xp_changed)
 		EventBus.weapon_swapped.connect(_on_weapon_swapped)
 		call_deferred("_initial_refresh")
 
@@ -80,11 +68,38 @@ func _initial_refresh() -> void:
 	_on_health_changed(_player.health.current_health, _player.health.max_health)
 	_on_mana_changed(_player.mana.current_mana, _player.mana.max_mana)
 	_on_ward_changed(_player.ward.current_ward, _player.ward.max_ward)
+	_on_xp_changed(_player.experience.xp, _player.experience.xp_to_next_level())
 	_refresh_weapon_indicator()
 
-func _build_bar(color: Color) -> Dictionary:
+func _build_orb(color: Color, prefix: String, offset_left: float, offset_right: float) -> StatOrb:
+	var orb := StatOrb.new()
+	orb.fill_color = color
+	orb.label_prefix = prefix
+	orb.anchor_left = 0.5
+	orb.anchor_right = 0.5
+	orb.anchor_top = 1.0
+	orb.anchor_bottom = 1.0
+	orb.offset_left = offset_left
+	orb.offset_right = offset_right
+	orb.offset_bottom = ORB_BOTTOM_OFFSET
+	orb.offset_top = ORB_BOTTOM_OFFSET - ORB_HEIGHT
+	orb.grow_vertical = 0
+	add_child(orb)
+	return orb
+
+func _build_xp_bar() -> void:
 	var root := Control.new()
-	root.custom_minimum_size = Vector2(BAR_WIDTH, BAR_HEIGHT)
+	root.anchor_left = 0.5
+	root.anchor_right = 0.5
+	root.anchor_top = 1.0
+	root.anchor_bottom = 1.0
+	root.offset_left = -XP_BAR_WIDTH / 2.0
+	root.offset_right = XP_BAR_WIDTH / 2.0
+	root.offset_bottom = ORB_BOTTOM_OFFSET - ORB_HEIGHT - XP_BAR_GAP
+	root.offset_top = root.offset_bottom - XP_BAR_HEIGHT
+	root.grow_horizontal = 2
+	root.grow_vertical = 0
+	add_child(root)
 
 	var bg := ColorRect.new()
 	bg.color = EMPTY_BG_COLOR
@@ -93,23 +108,44 @@ func _build_bar(color: Color) -> Dictionary:
 	root.add_child(bg)
 
 	var fill := ColorRect.new()
-	fill.color = color
+	fill.color = XP_COLOR
 	fill.anchor_left = 0.0
 	fill.anchor_top = 0.0
-	fill.anchor_right = 1.0
+	fill.anchor_right = 0.0
 	fill.anchor_bottom = 1.0
 	fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(fill)
+	_xp_fill = fill
+
+	var notches := NotchedBar.new()
+	notches.set_anchors_preset(Control.PRESET_FULL_RECT)
+	root.add_child(notches)
 
 	var label := Label.new()
-	label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	label.anchor_left = 0.0
+	label.anchor_right = 1.0
+	label.offset_top = -18.0
+	label.offset_bottom = -2.0
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.add_theme_font_size_override("font_size", 14)
+	label.add_theme_font_size_override("font_size", 13)
 	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(label)
+	_xp_label = label
 
-	return {"root": root, "fill": fill, "label": label}
+## Gold has no single owning component with a *_changed signal (spent/
+## granted from several unrelated places) - polled in _process() instead.
+func _build_gold_label() -> void:
+	_gold_label = Label.new()
+	_gold_label.add_theme_font_size_override("font_size", 14)
+	_gold_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.3))
+	_gold_label.text = "Gold: %d" % GameState.gold
+	weapon_indicator.add_child(_gold_label)
+
+func _process(_delta: float) -> void:
+	if GameState.gold != _last_gold:
+		_last_gold = GameState.gold
+		_gold_label.text = "Gold: %d" % GameState.gold
 
 func _build_weapon_indicator() -> void:
 	_weapon_icon = ItemSlotButton.new()
@@ -124,19 +160,21 @@ func _build_weapon_indicator() -> void:
 	weapon_indicator.add_child(_weapon_name_label)
 
 func _on_health_changed(current: float, max_value: float) -> void:
-	_update_bar(_health_fill, _health_label, "HP", current, max_value)
+	_life_orb.set_value(current, max_value)
 
 func _on_mana_changed(current: float, max_value: float) -> void:
-	_update_bar(_mana_fill, _mana_label, "MP", current, max_value)
+	_mana_orb.set_value(current, max_value)
 
 func _on_ward_changed(current: float, max_value: float) -> void:
-	_update_bar(_ward_fill, _ward_label, "Ward", current, max_value)
-	_ward_bar_root.visible = max_value > 0.0
+	_life_orb.set_ring_value(current, max_value)
+	if is_instance_valid(_player):
+		_life_orb.set_value(_player.health.current_health, _player.health.max_health)
 
-func _update_bar(fill: ColorRect, label: Label, prefix: String, current: float, max_value: float) -> void:
-	var fraction: float = current / max_value if max_value > 0.0 else 0.0
-	fill.anchor_right = clamp(fraction, 0.0, 1.0)
-	label.text = "%s %.0f/%.0f" % [prefix, current, max_value]
+## needed is always > 0 (XP_BASE * XP_GROWTH^n never reaches 0), unlike
+## Life/Mana's max_value which can legitimately be 0 (no Ward gear, e.g.).
+func _on_xp_changed(current: float, needed: float) -> void:
+	_xp_fill.anchor_right = clamp(current / needed, 0.0, 1.0)
+	_xp_label.text = "Lv %d - %.0f/%.0f XP" % [_player.experience.level, current, needed]
 
 func _on_weapon_swapped(player: Node) -> void:
 	if player != _player:
