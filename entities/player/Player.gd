@@ -2,9 +2,10 @@ extends CharacterBody3D
 class_name Player
 ## First-person controller. Camera lives in Head; WeaponSocket under the
 ## camera holds the active weapon's visual - a real model where one
-## exists (_update_weapon_model()), the placeholder blade otherwise.
-## Melee weight (Pillar 2) reads through camera shake/swing/hitstop, not
-## a visible body.
+## exists (_update_weapon_model()), the placeholder blade otherwise -
+## now mounted on ArmRig's Hand bone rather than sitting directly on
+## WeaponSocket (2026-08-30, PlayerArmRig). Melee weight (Pillar 2) reads
+## through camera shake/swing/hitstop plus the arm's own 3-bone swing.
 
 @export var move_speed: float = 6.0
 @export var sprint_speed: float = 9.0
@@ -24,8 +25,13 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var weapon_socket: Node3D = $Head/Camera3D/WeaponSocket
-@onready var weapon_mesh: MeshInstance3D = $Head/Camera3D/WeaponSocket/WeaponMesh
-@onready var attack_hitbox: Area3D = $Head/Camera3D/WeaponSocket/WeaponMesh/AttackHitbox
+## PlayerArmRig reparents WeaponMesh onto its Hand bone during its own
+## _ready() (child of WeaponSocket, so it runs before Player's own
+## @onready block below resolves) - these paths point at that final
+## location, not WeaponMesh's static position in Player.tscn.
+@onready var arm_rig: PlayerArmRig = $Head/Camera3D/WeaponSocket/ArmRig
+@onready var weapon_mesh: MeshInstance3D = $Head/Camera3D/WeaponSocket/ArmRig/Skeleton3D/HandAttachment/WeaponMesh
+@onready var attack_hitbox: Area3D = $Head/Camera3D/WeaponSocket/ArmRig/Skeleton3D/HandAttachment/WeaponMesh/AttackHitbox
 @onready var sidearm_mesh: MeshInstance3D = $Head/Camera3D/WeaponSocket/SidearmMesh
 @onready var shield_mesh: MeshInstance3D = $Head/Camera3D/ShieldSocket/ShieldMesh
 @onready var health: HealthComponent = $HealthComponent
@@ -39,6 +45,7 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var ability_cast: PlayerAbilityCast = $PlayerAbilityCast
 @onready var experience: ExperienceComponent = $ExperienceComponent
 @onready var status_effects: StatusEffectComponent = $StatusEffectComponent
+@onready var weapon_stance: WeaponStance = $WeaponStance
 
 ## Real weapon models (assets/models/pack1/, a purchased low-poly pack) -
 ## keyed by Weapon.weapon_type, same string GearShop/DebugOverlay/
@@ -83,6 +90,28 @@ var _is_sliding: bool = false
 var _slide_timer: float = 0.0
 var _slide_direction: Vector3 = Vector3.ZERO
 var _slide_speed_current: float = 0.0
+
+## Dash: user request, "Tapping shift and a direction should allow
+## players to dash in a direction." Reuses the "sprint" action (already
+## bound to Shift) rather than a new key - just_pressed fires once
+## regardless of how long the key stays down afterward, so a tap
+## triggers a dash burst and holding still sprints normally on top of it,
+## no new binding or hold/tap-duration detection needed. Fully invented,
+## no doc-sourced design (same status as Crouch/Slide above) - a fixed-
+## impulse burst that decays like Slide's own SLIDE_SPEED/
+## SLIDE_DECELERATION pattern, not integrated with it (Slide requires
+## sprinting+crouch-tap+floor; Dash works in the air and while stationary
+## alike, since "dash to reposition/dodge" is the point).
+const DASH_SPEED := 14.0
+const DASH_DURATION := 0.2
+const DASH_DECELERATION := 20.0
+const DASH_COOLDOWN := 1.0
+
+var _is_dashing: bool = false
+var _dash_timer: float = 0.0
+var _dash_direction: Vector3 = Vector3.ZERO
+var _dash_speed_current: float = 0.0
+var _dash_cooldown_remaining: float = 0.0
 
 ## Section 12: Instinct -> Action Speed, split by type ("1% Attack/Cast |
 ## 0.7% Dodge | 0.5% Move" per point). No Dodge mechanic exists yet.
@@ -334,6 +363,15 @@ func _update_active_weapon_visual() -> void:
 		weapon_mesh.visible = equipment.primary_weapon != null
 	if sidearm_mesh:
 		sidearm_mesh.visible = equipment.sidearm_weapon != null
+	# User request (2026-08-30): "Two handed weapons should clearly need
+	# two hands." primary_weapon rather than get_active_weapon() - a
+	# two-handed ranged weapon isn't a concept that exists (Service
+	# Pistol.is_two_handed is false), but reading straight off the equipped
+	# weapon's own flag rather than re-deriving "is this melee" keeps this
+	# correct if that ever changes.
+	if arm_rig:
+		var weapon := equipment.primary_weapon
+		arm_rig.set_two_handed(weapon != null and weapon.is_two_handed)
 
 func _update_shield_mesh() -> void:
 	if shield_mesh == null:
@@ -404,10 +442,26 @@ func _physics_process(delta: float) -> void:
 	var input_dir := Input.get_vector("move_left", "move_right", "move_forward", "move_backward")
 	var move_dir := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 
-	if Input.is_action_just_pressed("crouch") and is_on_floor() and not _is_sliding and sprinting and move_dir.length() > 0.1:
+	if _dash_cooldown_remaining > 0.0:
+		_dash_cooldown_remaining -= delta
+	# just_pressed fires once on the initial keydown regardless of how long
+	# Shift stays held afterward - a tap dashes, continuing to hold still
+	# sprints normally on top of it (see the const block's own comment).
+	if Input.is_action_just_pressed("sprint") and not stunned and not _is_dashing and not _is_sliding \
+			and _dash_cooldown_remaining <= 0.0 and move_dir.length() > 0.1:
+		_start_dash(move_dir)
+
+	if Input.is_action_just_pressed("crouch") and is_on_floor() and not _is_sliding and not _is_dashing and sprinting and move_dir.length() > 0.1:
 		_start_slide(move_dir)
 
-	if _is_sliding:
+	if _is_dashing:
+		_dash_timer -= delta
+		_dash_speed_current = max(_dash_speed_current - DASH_DECELERATION * delta, 0.0)
+		velocity.x = _dash_direction.x * _dash_speed_current
+		velocity.z = _dash_direction.z * _dash_speed_current
+		if _dash_timer <= 0.0:
+			_is_dashing = false
+	elif _is_sliding:
 		_slide_timer -= delta
 		_slide_speed_current = max(_slide_speed_current - SLIDE_DECELERATION * delta, _effective_speed(crouch_speed))
 		velocity.x = _slide_direction.x * _slide_speed_current
@@ -433,7 +487,9 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("attack"):
 		var active_weapon := get_active_weapon()
 		if active_weapon and active_weapon.is_ranged:
-			ranged_attack.try_attack()
+			ranged_attack.try_attack(weapon_stance.is_active)
+		elif weapon_stance.is_active:
+			melee_attack.try_special_attack()
 		else:
 			melee_attack.try_attack()
 
@@ -441,10 +497,31 @@ func get_move_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_stat(Constants.Stat.INSTINCT) * INSTINCT_MOVE_SPEED_PCT
 
 func _effective_speed(base: float) -> float:
-	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier()
+	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier() \
+		* melee_attack.get_move_speed_multiplier() * ability_cast.get_move_speed_multiplier()
 
 func get_action_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_stat(Constants.Stat.INSTINCT) * INSTINCT_ACTION_SPEED_PCT
+
+func _start_dash(move_dir: Vector3) -> void:
+	_is_dashing = true
+	_dash_timer = DASH_DURATION
+	_dash_direction = move_dir
+	_dash_speed_current = DASH_SPEED
+	_dash_cooldown_remaining = DASH_COOLDOWN
+
+## User request (2026-08-30): Dagger's stance special ("a rapier might
+## dash and thrust in one direction") - called from
+## PlayerMeleeAttack.try_special_attack(). Reuses the exact same dash
+## state/cooldown as the Shift-tap dash rather than a separate free dash
+## resource, so this and the movement dash share one budget. Returns
+## whether the dash actually fired - the thrust itself still lands even
+## when this returns false (dash on cooldown), just without the lunge.
+func try_special_dash(direction: Vector3) -> bool:
+	if status_effects.is_stunned() or _is_dashing or _is_sliding or _dash_cooldown_remaining > 0.0:
+		return false
+	_start_dash(direction)
+	return true
 
 func _start_slide(move_dir: Vector3) -> void:
 	_is_sliding = true

@@ -13,6 +13,8 @@
 [ext_resource type="Script" path="res://systems/abilities/PlayerAbilityCast.gd" id="14"]
 [ext_resource type="Script" path="res://entities/components/ExperienceComponent.gd" id="15"]
 [ext_resource type="Script" path="res://entities/components/StatusEffectComponent.gd" id="16"]
+[ext_resource type="Script" path="res://entities/player/player_arm/PlayerArmRig.gd" id="17"]
+[ext_resource type="Script" path="res://systems/combat/WeaponStance.gd" id="18"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -51,16 +53,19 @@ near = 0.05
 [node name="WeaponSocket" type="Node3D" parent="Head/Camera3D"]
 position = Vector3(0.25, -0.2, -0.6)
 
-[node name="WeaponMesh" type="MeshInstance3D" parent="Head/Camera3D/WeaponSocket"]
+[node name="ArmRig" type="Node3D" parent="Head/Camera3D/WeaponSocket"]
+script = ExtResource("17")
+
+[node name="WeaponMesh" type="MeshInstance3D" parent="Head/Camera3D/WeaponSocket/ArmRig"]
 position = Vector3(0, 0.05, -0.85)
 rotation_degrees = Vector3(0, 0, 20)
 mesh = SubResource("BoxMesh_blade")
 
-[node name="AttackHitbox" type="Area3D" parent="Head/Camera3D/WeaponSocket/WeaponMesh"]
+[node name="AttackHitbox" type="Area3D" parent="Head/Camera3D/WeaponSocket/ArmRig/WeaponMesh"]
 monitoring = false
 monitorable = false
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Head/Camera3D/WeaponSocket/WeaponMesh/AttackHitbox"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Head/Camera3D/WeaponSocket/ArmRig/WeaponMesh/AttackHitbox"]
 shape = SubResource("SphereShape3D_hitbox")
 
 [node name="SidearmMesh" type="MeshInstance3D" parent="Head/Camera3D/WeaponSocket"]
@@ -110,3 +115,6 @@ script = ExtResource("15")
 
 [node name="StatusEffectComponent" type="Node" parent="."]
 script = ExtResource("16")
+
+[node name="WeaponStance" type="Node" parent="."]
+script = ExtResource("18")

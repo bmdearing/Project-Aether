@@ -6,7 +6,7 @@
 script = ExtResource("1")
 ability_id = "flame_jets"
 display_name = "Flame Jets"
-description = "A sustained torrent of fire expelled forward, hitting enemies multiple times over a short channel duration."
+description = "A sustained torrent of fire expelled at whatever you're looking at, hitting enemies multiple times over a short channel. Slows you while channeling."
 damage_type = 3
 motion_value = 0.9
 scaling_grade = 2

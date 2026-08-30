@@ -39,7 +39,7 @@ const RIPOSTE_BLINK_INTERVAL := 0.25
 const STATUS_ICON_HEIGHT := 2.0
 const STATUS_ICON_RADIUS := 0.08
 const STATUS_ICON_SPACING := 0.22
-const STATUS_EFFECT_IDS := ["ignite", "chill", "freeze", "electrocute", "unraveling"]
+const STATUS_EFFECT_IDS := ["ignite", "chill", "freeze", "electrocute", "unraveling", "slow"]
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _base_color: Color = Color.WHITE

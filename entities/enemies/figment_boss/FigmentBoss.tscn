@@ -1,11 +1,17 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/enemies/base/Enemy.tscn" id="1"]
 [ext_resource type="Script" path="res://entities/enemies/figment_boss/FigmentBoss.gd" id="2"]
 [ext_resource type="Script" path="res://systems/combat/EnemyMeleeAttack.gd" id="3"]
+[ext_resource type="PackedScene" path="res://assets/models/Arator the Redeemer/Arator_Midnights.glb" id="4"]
 
 [node name="FigmentBoss" instance=ExtResource("1")]
 script = ExtResource("2")
+
+[node name="MeshInstance3D" parent="."]
+visible = false
+
+[node name="ArorModel" parent="." instance=ExtResource("4")]
 
 [node name="MeleeAttack" type="Node" parent="."]
 script = ExtResource("3")

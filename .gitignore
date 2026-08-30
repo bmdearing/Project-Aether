@@ -8,3 +8,8 @@ export_presets.cfg
 data_*/
 mono_crash.*.json
 builds/
+
+# MDX->glTF pipeline (tools/mdx_pipeline/) - node_modules is
+# regenerable via `npm install`, .glb outputs are build artifacts.
+tools/mdx_pipeline/node_modules/
+tools/mdx_pipeline/*.glb

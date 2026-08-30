@@ -28,6 +28,11 @@ func _ready() -> void:
 	_enemy = get_parent()
 	_player = get_tree().get_first_node_in_group("player") as Player
 
+## Counter damage (see EnemyMeleeAttack.is_attacking()'s own comment) -
+## Windup is this component's equivalent "committed, mid-attack" window.
+func is_attacking() -> bool:
+	return _state == State.WINDUP
+
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Player

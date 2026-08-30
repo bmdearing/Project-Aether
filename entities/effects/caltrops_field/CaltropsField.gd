@@ -2,13 +2,16 @@ extends Node3D
 class_name CaltropsField
 ## Caltrops ("26 - Ability Staging Ground", Physical): "Scatter caltrops
 ## across a designated ground area. Enemies that walk through take
-## Piercing damage and are slowed." The "slowed" half is scoped out - no
-## generic movement-slow status effect independent of Cold's Chill exists
-## (StatusEffectComponent.gd), and Chill's own slow is explicitly Cold-
-## flavored (Constants.STATUS_EFFECT_DAMAGE_TYPE), so reusing it for a
-## Physical/Piercing effect would be a thematic mismatch - flagged, not
-## built. This deals repeated Piercing damage to anything standing in the
-## field for DURATION seconds; each tick rolls its own fraction of the
+## Piercing damage and are slowed." User revision (2026-08-30) added a
+## real "slow" status effect (StatusEffectComponent.gd) independent of
+## Cold's Chill - reusing Chill for a Physical/Piercing effect would have
+## been a thematic mismatch. This deals repeated Piercing damage to
+## anything standing in the field for DURATION seconds AND refreshes
+## "slow" on every tick (its own duration is intentionally shorter than
+## TICK_INTERVAL's cadence would need for a single application to
+## linger, but longer than the gap between ticks - continuous standing
+## keeps it topped up, stepping out lets it expire on its own within a
+## tick's worth of time); each damage tick rolls its own fraction of the
 ## ability's damage independently (ability.roll_damage()) rather than
 ## reusing one hit's damage repeatedly, so Crit still varies tick to tick.
 
@@ -59,3 +62,4 @@ func _physics_process(delta: float) -> void:
 		var damage: float = hit["final_damage"] * TICK_DAMAGE_PERCENT
 		enemy.take_damage(damage, Constants.DamageType.PIERCING)
 		EventBus.damage_dealt.emit(_source, enemy, damage, Constants.DamageType.PIERCING, false, hit["is_critical"])
+		enemy.status_effects.apply_effect("slow", _source)

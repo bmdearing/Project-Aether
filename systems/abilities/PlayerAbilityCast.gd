@@ -39,9 +39,57 @@ const SPECIAL_EFFECT_SCENES := {
 	"stormcall": preload("res://entities/effects/stormcall_bolt/StormcallBolt.tscn"),
 	"black_hole": preload("res://entities/effects/black_hole_field/BlackHoleField.tscn"),
 	"caltrops": preload("res://entities/effects/caltrops_field/CaltropsField.tscn"),
+	"flame_wall": preload("res://entities/effects/flame_wall_field/FlameWallField.tscn"),
+	"winters_eye": preload("res://entities/effects/winters_eye_orb/WintersEyeOrb.tscn"),
 }
 
 const BLINK_DISTANCE := 8.0
+const PIERCING_BOLT_SCENE := preload("res://entities/effects/piercing_bolt/PiercingBolt.tscn")
+## User request (2026-08-30): "Cinder Lance should throw a spear of fire
+## at a crosshair, this should pierce" / "Thunder Javelin should work
+## like Cinder Lance." Both replaced by PIERCING_BOLT_SCENE - a real
+## traveling bolt (see that scene's own header) instead of the generic
+## instant-AoE-at-cast-point every other first-pass ability still uses.
+const PIERCING_BOLT_ABILITY_IDS := ["cinder_lance", "thunder_javelin"]
+const THUNDER_SWEEP_BOLT_COUNT := 8
+
+## Frost Armor ("A layer of frozen energy coats the Freeblood. Enemies
+## that strike in melee range trigger a Retaliation Damage burst of Cold
+## damage. Applies Chill on retaliation hit.") - a pure self-buff at cast
+## time (no AoE hit on cast, same as Blink/Purge skip the generic loop),
+## a fixed duration window during which EnemyMeleeAttack._resolve_hit()
+## (the exact point a melee hit lands on the player) calls
+## trigger_frost_armor_retaliation() back here. User-reported bug fix
+## (2026-08-30): "Frost Armor doesn't properly deal cold retaliation
+## damage to enemies when they melee attack the player" - it never had
+## any retaliation mechanic at all before this, just the generic instant-
+## AoE-at-cast-point every other first-pass ability used.
+const FROST_ARMOR_DURATION := 8.0  # invented, no doc-given buff duration
+
+var _frost_armor_ability: Ability = null
+var _frost_armor_remaining: float = 0.0
+
+## Flame Jets ("flamethrower type spell, slowing the character down and
+## throwing flames at what the player is looking at" - user request,
+## 2026-08-30). A timed channel started on cast (resource_cost/cooldown
+## still spend/start once at press, same economy every other ability
+## uses - a true continuously-draining channel would be a bigger resource-
+## model change than this pass is taking on), re-aiming at the camera's
+## CURRENT forward direction every tick rather than locking direction at
+## cast time - "what the player is looking at" reads as continuous, not a
+## single snapshot. Player._effective_speed() reads get_move_speed_
+## multiplier() below every physics frame while this is active, same
+## pattern PlayerMeleeAttack's own attack-speed penalty already follows.
+const FLAME_JETS_DURATION := 1.8
+const FLAME_JETS_TICK_INTERVAL := 0.15
+const FLAME_JETS_TICK_DAMAGE_PERCENT := 0.25
+const FLAME_JETS_RANGE := 6.0
+const FLAME_JETS_HALF_ANGLE_DEG := 20.0
+const FLAME_JETS_MOVE_SPEED_MULTIPLIER := 0.4
+
+var _flame_jets_ability: Ability = null
+var _flame_jets_remaining: float = 0.0
+var _flame_jets_tick_timer: float = 0.0
 
 var _cooldowns: Dictionary = {}  # Ability -> float seconds remaining
 var _player: Player
@@ -59,6 +107,14 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	for ability in _cooldowns.keys():
 		_cooldowns[ability] = max(0.0, _cooldowns[ability] - delta)
+	if _frost_armor_remaining > 0.0:
+		_frost_armor_remaining = max(0.0, _frost_armor_remaining - delta)
+	if _flame_jets_remaining > 0.0:
+		_flame_jets_remaining = max(0.0, _flame_jets_remaining - delta)
+		_flame_jets_tick_timer -= delta
+		if _flame_jets_tick_timer <= 0.0:
+			_flame_jets_tick_timer += FLAME_JETS_TICK_INTERVAL
+			_tick_flame_jets()
 
 	for i in range(AbilityLoadoutComponent.SLOT_COUNT):
 		var action := "ability_%d" % (i + 1)
@@ -129,6 +185,55 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		return
 	if ability.ability_id == "purge":
 		_player.status_effects.clear_all_effects()
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "frost_armor":
+		_frost_armor_ability = ability
+		_frost_armor_remaining = FROST_ARMOR_DURATION
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "flame_jets":
+		_flame_jets_ability = ability
+		_flame_jets_remaining = FLAME_JETS_DURATION
+		_flame_jets_tick_timer = 0.0  # ticks on the very next physics frame, not after a full interval's delay
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	# Black Hole ("shouldn't be a DoT, but deals Entropic damage every
+	# .25 seconds", 2026-08-30) - ALL of its damage now comes from
+	# BlackHoleField's own repeated ticks (see that scene's header), not
+	# an instant hit here.
+	if ability.ability_id == "black_hole":
+		_play_range_effect(ability, cast_position)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if PIERCING_BOLT_ABILITY_IDS.has(ability.ability_id):
+		_fire_piercing_bolt(ability, damage_multiplier)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	# Thunder Sweep: "should fire out bolts of lightning along the floor
+	# originating from the player" - THUNDER_SWEEP_BOLT_COUNT PiercingBolts
+	# spawned radiating outward in a full circle around the player
+	# (matches the doc's older "strikes all surrounding enemies" intent
+	# via coverage rather than one big AoE), each flattened to travel
+	# along the ground rather than following the camera's pitch.
+	if ability.ability_id == "thunder_sweep":
+		_fire_radiating_bolts(ability, damage_multiplier)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	# Flame Wall: no instant burst on cast, per the user's own description
+	# ("makes a wall of fire that ignites... and does damage over time") -
+	# all its damage comes from FlameWallField's own Ignite-on-entry +
+	# repeated tick, same "bespoke mechanic skips the generic loop"
+	# precedent as Black Hole/Frost Armor/Blink/Purge above.
+	if ability.ability_id == "flame_wall":
+		_play_range_effect(ability, cast_position)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	# Winter's Eye: the orb SPAWNS at the player and travels TOWARD
+	# cast_position - doesn't fit _play_range_effect()'s generic "spawn
+	# the VFX at cast_position" pattern, so it gets its own dispatch.
+	if ability.ability_id == "winters_eye":
+		_fire_winters_eye(ability, cast_position)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 
@@ -212,12 +317,100 @@ func _play_range_effect(ability: Ability, cast_position: Vector3) -> void:
 	_player.get_tree().current_scene.add_child(effect)
 	effect.global_position = cast_position
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
-	if ability.ability_id == "caltrops":
-		# CaltropsField needs the ability + StatSheet directly (it rolls its
-		# own damage per tick rather than reusing one hit's damage repeatedly).
+	if ability.ability_id == "flame_wall":
+		# Needs the caster's own position too, to orient the wall - see
+		# FlameWallField.play()'s own comment.
+		effect.call("play", ability.radius, color, ability, _player.stat_sheet, _player, _player.global_position)
+	elif ability.ability_id == "caltrops" or ability.ability_id == "black_hole":
+		# CaltropsField/BlackHoleField need the ability + StatSheet directly -
+		# both roll their own damage per tick rather than reusing one hit's
+		# damage repeatedly.
 		effect.call("play", ability.radius, color, ability, _player.stat_sheet, _player)
 	else:
 		effect.call("play", ability.radius, color)
+
+## Called by EnemyMeleeAttack._resolve_hit() at the exact moment an enemy's
+## melee strike lands on the player - "melee range" per Frost Armor's own
+## doc text, not any damage the player takes. Rolls a fresh hit off the
+## Ability's own scaling (same pattern every other ability's damage
+## already follows) rather than a fixed number, so gear/stats still matter.
+func get_move_speed_multiplier() -> float:
+	return FLAME_JETS_MOVE_SPEED_MULTIPLIER if _flame_jets_remaining > 0.0 else 1.0
+
+## Cone check via dot product against the camera's CURRENT forward
+## direction (not whatever it was at cast time) - a flamethrower stream
+## should track where the player is looking while it's firing.
+func _tick_flame_jets() -> void:
+	var origin := _player.camera.global_position
+	var forward := -_player.camera.global_transform.basis.z
+	var cos_half_angle := cos(deg_to_rad(FLAME_JETS_HALF_ANGLE_DEG))
+	for enemy in get_tree().get_nodes_in_group("enemy"):
+		if not enemy is Enemy:
+			continue
+		var to_enemy: Vector3 = enemy.global_position - origin
+		var dist := to_enemy.length()
+		if dist > FLAME_JETS_RANGE or dist < 0.01:
+			continue
+		if to_enemy.normalized().dot(forward) < cos_half_angle:
+			continue
+		var hit := _flame_jets_ability.roll_damage(_player.stat_sheet)
+		var damage: float = hit["final_damage"] * FLAME_JETS_TICK_DAMAGE_PERCENT
+		enemy.take_damage(damage, _flame_jets_ability.damage_type)
+		if enemy.stance:
+			enemy.stance.apply_attack_stance_damage(damage, _flame_jets_ability.damage_type)
+		EventBus.damage_dealt.emit(_player, enemy, damage, _flame_jets_ability.damage_type, false, hit["is_critical"])
+		for effect_id in _flame_jets_ability.applies_status_effects:
+			enemy.status_effects.apply_effect(effect_id, _player, damage)
+
+func has_frost_armor() -> bool:
+	return _frost_armor_remaining > 0.0
+
+func trigger_frost_armor_retaliation(attacker: Enemy) -> void:
+	if not has_frost_armor() or _frost_armor_ability == null or attacker == null:
+		return
+	var hit := _frost_armor_ability.roll_damage(_player.stat_sheet)
+	var damage: float = hit["final_damage"]
+	attacker.take_damage(damage, _frost_armor_ability.damage_type)
+	if attacker.stance:
+		attacker.stance.apply_attack_stance_damage(damage, _frost_armor_ability.damage_type)
+	EventBus.damage_dealt.emit(_player, attacker, damage, _frost_armor_ability.damage_type, false, hit["is_critical"])
+	for effect_id in _frost_armor_ability.applies_status_effects:
+		attacker.status_effects.apply_effect(effect_id, _player, damage)
+
+## Fired from the camera's own forward direction ("at a crosshair") -
+## not ground-targeted, no aim-hold step, matches "throw a spear ... at a
+## crosshair" reading as an instant-direction throw, not a placed point.
+func _fire_piercing_bolt(ability: Ability, damage_multiplier: float) -> void:
+	_spawn_bolt(ability, damage_multiplier, _player.camera.global_transform)
+
+## THUNDER_SWEEP_BOLT_COUNT bolts spawned at evenly-spaced yaw angles
+## around the player, each flattened to the horizontal plane (a "ground
+## bolt" shouldn't inherit the camera's up/down look pitch the way a
+## crosshair-aimed bolt should).
+func _fire_radiating_bolts(ability: Ability, damage_multiplier: float) -> void:
+	var origin := _player.global_position + Vector3(0, 0.3, 0)
+	for i in range(THUNDER_SWEEP_BOLT_COUNT):
+		var angle := TAU * i / float(THUNDER_SWEEP_BOLT_COUNT)
+		var xform := Transform3D(Basis(Vector3.UP, angle), origin)
+		_spawn_bolt(ability, damage_multiplier, xform)
+
+func _fire_winters_eye(ability: Ability, target: Vector3) -> void:
+	var orb: Node3D = SPECIAL_EFFECT_SCENES["winters_eye"].instantiate()
+	_player.get_tree().current_scene.add_child(orb)
+	orb.global_position = _player.global_position + Vector3(0, 1.0, 0)
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+	orb.call("play", ability.radius, color, ability, _player.stat_sheet, _player, target)
+
+func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D) -> void:
+	var bolt: PiercingBolt = PIERCING_BOLT_SCENE.instantiate()
+	_player.get_tree().current_scene.add_child(bolt)
+	bolt.global_transform = xform
+	var hit := ability.roll_damage(_player.stat_sheet)
+	bolt.damage_amount = hit["final_damage"] * damage_multiplier
+	bolt.is_critical = hit["is_critical"]
+	bolt.damage_type = ability.damage_type
+	bolt.source = _player
+	bolt.applies_status_effects = ability.applies_status_effects
 
 ## "26 - Ability Staging Ground", Utility - Blink: "Teleport a short
 ## distance in a targeted direction. No attack component." Raycasts along

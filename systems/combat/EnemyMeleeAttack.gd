@@ -105,8 +105,24 @@ func _poll_hitbox() -> void:
 			_resolve_hit(player)
 			return
 
+## User request (2026-08-30): "If you melee attack an enemy while they
+## are mid attack animation, you deal Counter damage and deal 15% more
+## damage." Telegraph AND Strike both count as "mid attack" - the whole
+## committed window, not just the instant the hitbox is live, matching
+## how the enemy's own telegraph-flash already reads as "this enemy is
+## attacking" the moment it starts, not just at the swing itself. Read by
+## PlayerMeleeAttack._deal_damage() via get_node_or_null("MeleeAttack").
+func is_attacking() -> bool:
+	return _state == State.TELEGRAPH or _state == State.STRIKE
+
 func _resolve_hit(player: Player) -> void:
 	var parried: bool = player.parry_handler and player.parry_handler.attempt_parry(_enemy, player.ward)
 	if not parried:
 		player.take_damage(damage_amount * _enemy.get_outgoing_damage_multiplier(), damage_type, _enemy)
+		# Frost Armor: "Enemies that strike in melee range trigger a
+		# Retaliation Damage burst of Cold damage" - a parried hit never
+		# actually lands, so no retaliation there (matches the doc's own
+		# framing of this as a response to a landed strike).
+		if player.ability_cast:
+			player.ability_cast.trigger_frost_armor_retaliation(_enemy)
 	EventBus.enemy_attack_resolved.emit(_enemy, player, true, parried)

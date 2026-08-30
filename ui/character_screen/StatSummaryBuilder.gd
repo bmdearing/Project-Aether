@@ -54,11 +54,16 @@ static func _weapon_in(player: Player, slot: Constants.EquipmentSlot) -> Weapon:
 ## motion_value comes from whichever attack script would actually use
 ## this slot (melee vs ranged), matching Player's own dispatch by
 ## Weapon.is_ranged rather than assuming Primary=melee/Sidearm=ranged.
+## Melee reads PlayerMeleeAttack._effective_motion_value(weapon) rather
+## than its own flat base_motion_value now that motion value varies per
+## weapon_type (2026-08-30) - README/this file's own convention is this
+## number can never drift from what a real swing actually deals, so it
+## has to follow that change too, not just PlayerMeleeAttack.gd itself.
 static func _predict_damage(player: Player, slot: Constants.EquipmentSlot) -> String:
 	var weapon := _weapon_in(player, slot)
 	if weapon == null:
 		return "None equipped"
-	var motion_value: float = player.ranged_attack.base_motion_value if weapon.is_ranged else player.melee_attack.base_motion_value
+	var motion_value: float = player.ranged_attack.base_motion_value if weapon.is_ranged else player.melee_attack._effective_motion_value(weapon)
 	return "%.1f" % weapon.predict_damage(motion_value, player.stat_sheet)
 
 static func _crit_summary(player: Player, slot: Constants.EquipmentSlot) -> String:

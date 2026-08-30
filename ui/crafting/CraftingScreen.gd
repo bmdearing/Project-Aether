@@ -259,7 +259,7 @@ func _refresh_items_list() -> void:
 	for item in GameState.owned_loot:
 		if item is Brand or _is_crafting_consumable(item):
 			continue
-		var button := _make_row_button(item.display_name, _item_color(item))
+		var button := _make_row_button(item.display_name, _item_color(item), item)
 		button.pressed.connect(_on_item_selected.bind(item))
 		_items_list.add_child(button)
 
@@ -332,8 +332,7 @@ func _refresh_brands_list() -> void:
 	for item_id in brand_counts:
 		var entry: Dictionary = brand_counts[item_id]
 		var brand: Brand = entry["brand"]
-		var button := _make_row_button("%s x%d" % [brand.display_name, entry["count"]], SLOT_EMPTY_COLOR)
-		button.tooltip_text = brand.flavor_text
+		var button := _make_row_button("%s x%d" % [brand.display_name, entry["count"]], SLOT_EMPTY_COLOR, brand)
 		button.pressed.connect(_on_brand_clicked.bind(brand))
 		_brands_list.add_child(button)
 
@@ -347,10 +346,19 @@ func _refresh_brands_list() -> void:
 		var entry: Dictionary = consumable_counts[item_id]
 		var item: Item = entry["item"]
 		var row := HBoxContainer.new()
-		var label := Label.new()
-		label.text = "%s x%d" % [item.display_name, entry["count"]]
-		label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		row.add_child(label)
+		# ItemSlotButton (not a plain Label) so hovering shows the real
+		# ItemCard, same as every other row here now - previously this was
+		# a bare Label with no tooltip mechanism at all (user-reported gap,
+		# see _make_row_button()'s own comment).
+		var name_button := ItemSlotButton.new()
+		name_button.item = item
+		name_button.text = "%s x%d" % [item.display_name, entry["count"]]
+		name_button.clip_text = true
+		name_button.alignment = HORIZONTAL_ALIGNMENT_LEFT
+		name_button.flat = true
+		name_button.mouse_default_cursor_shape = Control.CURSOR_ARROW
+		name_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(name_button)
 		var action := Button.new()
 		action.text = _consumable_action_label(item.item_id)
 		action.pressed.connect(_on_consumable_pressed.bind(item))
@@ -381,6 +389,24 @@ func _on_affix_clicked(index: int) -> void:
 	_selected_affix_index = -1 if _selected_affix_index == index else index
 	_refresh_target_panel()
 
+## User-reported bug (2026-08-30): "I only have one of a brand but I can
+## add it multiple times." Root cause went one level deeper than "no
+## ownership check" - the single Brand button in the palette (one per
+## unique item_id, see _refresh_brands_list()'s "x%d" count label) is
+## bound to just ONE representative owned Resource, and every click
+## appended that SAME reference to _cube_brands again. CraftingSystem.
+## MAX_SAME_BRAND (2, doc-exact) allowed it with only 1 real copy owned -
+## but even with 2 DISTINCT owned copies of the same Brand, this would
+## have queued one of them twice and left the other never referenced at
+## all. Either way, craft_cube()'s consumption (`GameState.owned_loot.
+## erase(brand)` once per queued entry) would try to erase the same
+## object reference twice - the second call finds nothing left to remove
+## (Godot's Array.erase() is reference-equality for Resources) and
+## silently no-ops, so the player always paid for at most 1 real copy no
+## matter how many the Cube showed queued. Fixed at the root via
+## _next_unqueued_owned_copy() below - each click queues a genuinely
+## distinct owned object, so consumption removes exactly as many real
+## copies as were actually queued.
 func _on_brand_clicked(brand: Brand) -> void:
 	_show_brand_preview(brand)
 	if _target_item == null:
@@ -396,8 +422,21 @@ func _on_brand_clicked(brand: Brand) -> void:
 	if same_count >= CraftingSystem.MAX_SAME_BRAND:
 		_status_label.text = "Maximum %d of the same Brand per craft." % CraftingSystem.MAX_SAME_BRAND
 		return
-	_cube_brands.append(brand)
+	var next_copy := _next_unqueued_owned_copy(brand.item_id)
+	if next_copy == null:
+		_status_label.text = "You don't own another %s." % brand.display_name
+		return
+	_cube_brands.append(next_copy)
 	_refresh_target_panel()
+
+## A real owned Brand object (not just the one representative reference
+## _refresh_brands_list() happens to display) with the given item_id that
+## isn't already queued in _cube_brands - see the header comment above.
+func _next_unqueued_owned_copy(item_id: String) -> Brand:
+	for item in GameState.owned_loot:
+		if item is Brand and item.item_id == item_id and not _cube_brands.has(item):
+			return item
+	return null
 
 ## Category Brands (Damage/Defensive/Umbrella) roll from a real, fixed
 ## pool - show exactly what's in it for the currently selected item, so
@@ -488,8 +527,18 @@ func _on_consumable_pressed(consumable: Item) -> void:
 
 ## ---- Shared row/button styling --------------------------------------
 
-func _make_row_button(text: String, color: Color) -> Button:
-	var button := Button.new()
+## `item` is optional - when given, the row is a real ItemSlotButton
+## carrying a rich ItemCard hover tooltip (same mechanism InventoryScreen/
+## FateBoardEditor/AbilitiesScreen already use - Alt-hold for the advanced
+## card too), not just a plain Button. User-reported gap (2026-08-30):
+## "Let me hover over Owned Items... and Consumables... to see what I'm
+## looking at" - neither the Owned Items rows nor the Consumables row
+## (previously a bare Label, no tooltip mechanism at all) showed anything
+## on hover before this.
+func _make_row_button(text: String, color: Color, item: Item = null) -> Button:
+	var button: Button = ItemSlotButton.new() if item else Button.new()
+	if item:
+		(button as ItemSlotButton).item = item
 	button.text = text
 	button.clip_text = true
 	button.alignment = HORIZONTAL_ALIGNMENT_LEFT

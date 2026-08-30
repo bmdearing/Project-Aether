@@ -11,6 +11,7 @@ signal composure_broken(enemy: Node)
 signal parry_successful(player: Node, enemy: Node)
 signal riposte_window_opened(target: Node)
 signal riposte_executed(source: Node, target: Node)
+signal counter_hit(source: Node, target: Node)
 
 signal enemy_attack_telegraphed(enemy: Node)
 signal enemy_attack_resolved(enemy: Node, target: Node, hit: bool, parried: bool)

@@ -6,11 +6,11 @@
 script = ExtResource("1")
 ability_id = "thunder_sweep"
 display_name = "Thunder Sweep"
-description = "A burst of lightning erupts from the caster, striking all surrounding enemies simultaneously."
+description = "Bolts of lightning radiate outward along the ground from the caster in every direction."
 damage_type = 5
 motion_value = 0.5
 scaling_grade = 3
-cooldown_seconds = 3.0
+cooldown_seconds = 4.0
 resource_cost = 12.0
 can_trigger_riposte = false
 is_auto_cast_eligible = true

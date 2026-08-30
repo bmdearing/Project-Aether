@@ -76,6 +76,7 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 	"freeze": DamageType.COLD,
 	"electrocute": DamageType.LIGHTNING,
 	"unraveling": DamageType.ENTROPIC,
+	"slow": DamageType.PIERCING,  # Caltrops - a generic slow independent of Chill's Cold flavor, colored via its own Piercing source instead
 }
 
 ## Section 20's Infusion Stone/Shrivening Stone/Shard of Tharsis - fixed,
@@ -91,6 +92,7 @@ const STATUS_EFFECT_NAME := {
 	"freeze": "Freeze",
 	"electrocute": "Electrocute",
 	"unraveling": "Unraveling",
+	"slow": "Slowed",
 }
 
 # Section 10 - Main Stat by Tag. Drives which stat DamageCalculator scales

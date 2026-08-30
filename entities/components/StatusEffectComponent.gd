@@ -32,6 +32,17 @@ const ELECTROCUTE_DURATION := 0.8
 const UNRAVELING_DURATION := 5.0
 const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.25  # "Increased Esoteric damage taken" - applies to the whole category, not just Entropic
 
+## Generic movement slow, independent of Chill - user request (2026-08-30):
+## "Caltrops should slow... enemies that continue to stand on it." Reusing
+## Chill for this would be a thematic mismatch (Chill is explicitly Cold-
+## flavored per Constants.STATUS_EFFECT_DAMAGE_TYPE, Caltrops is Physical/
+## Piercing) - this is its own effect instead. Refreshed continuously by
+## CaltropsField while an enemy stands in the field (not a one-shot
+## application), so SLOW_DURATION just needs to outlast one tick interval
+## comfortably, not model a real "how long does this linger" duration.
+const SLOW_DURATION := 0.75
+const SLOW_MOVE_SLOW_PERCENT := 0.35
+
 ## Section 12: Intellect -> "+1.5% Debuff effectiveness" per point, keyed
 ## off the APPLYING side's Intellect (source), extending non-DoT effect
 ## durations. Vitality's Resilience/DoT mitigation is the DoT-side
@@ -109,6 +120,9 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 		"unraveling":
 			_apply_timed("unraveling", UNRAVELING_DURATION, source)
 			_emit_applied("unraveling")
+		"slow":
+			_apply_timed("slow", SLOW_DURATION, source)
+			_emit_applied("slow")
 
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
@@ -137,9 +151,12 @@ func is_stunned() -> bool:
 func get_move_speed_multiplier() -> float:
 	if is_stunned():
 		return 0.0
+	var multiplier := 1.0
 	if has_effect("chill"):
-		return 1.0 - CHILL_MOVE_SLOW_PERCENT
-	return 1.0
+		multiplier *= 1.0 - CHILL_MOVE_SLOW_PERCENT
+	if has_effect("slow"):
+		multiplier *= 1.0 - SLOW_MOVE_SLOW_PERCENT
+	return multiplier
 
 func get_action_speed_multiplier() -> float:
 	return get_move_speed_multiplier()

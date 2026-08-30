@@ -30,7 +30,77 @@ in `PRIMARY_WEAPON` (`Weapon.is_ranged`), each a real swept/static
 `ParryRiposteHandler`, which also handles Riposte: melee-attacking an
 enemy while its Composure is broken (see Enemies below) deals 3x motion
 value and grants 1 second of player invulnerability instead of a normal
-hit. Health/Ward/Mana resource components. A `StatSheet`
+hit. **Counter damage** (2026-08-30, user request, exact wording): melee-
+attacking an enemy while ITS OWN attack is mid-swing (`EnemyMeleeAttack`/
+`EnemyRangedAttack.is_attacking()` - Telegraph-or-Strike / Windup) instead
+deals a flat +15% bonus, a separate, smaller bonus than Riposte's -
+`EventBus.counter_hit` fires alongside the normal hit rather than
+replacing it (checked first, since Riposte only applies to a Composure-
+broken enemy - the two conditions don't usually overlap). Health/Ward/Mana
+resource components.
+
+**First-person arm rig** (`entities/player/player_arm/PlayerArmRig.gd`,
+2026-08-30): **the arm mesh itself is currently disabled**
+(`SHOW_ARM_MESH = false`, user call - the visible geometry had been the
+single biggest source of bugs/iteration relative to what it added, since
+the weighty-swing feel reads through the weapon's own arc/timing/hitstop
+rather than through rendering an arm; only the equipped weapon shows,
+still fully driven by the bone rig below). A procedural low-poly arm - no
+imported skeleton/body asset,
+the mesh is built at runtime with `SurfaceTool` and rigged to a real
+3-bone `Skeleton3D` chain (shoulder/elbow/wrist), rigidly skinned (each
+segment bound 100% to one bone). The equipped weapon's actual visual
+mounts on the wrist bone (measured at runtime, not hand-placed - see the
+script's own comments for two earlier placements that looked plausible
+and were wrong), so a swing rotates a real bone chain instead of tweening
+one rigid socket node. **Two-handed weapons get a second arm**
+(`Weapon.is_two_handed`, user request) - an unarmed off-hand chain that
+tracks the primary hand's actual current position with a real 2-bone IK
+solve (`_solve_offhand_ik()`, damped to 50% of the primary hand's actual
+displacement so the target always stays in reach - a straight rotation-
+share was tried first and looked "awkward," like the off-hand let go of
+the sword, since two arms with different shoulder positions and bone
+lengths swing along different arcs even given identical rotations).
+Normal attacks cycle through per-weapon swing types
+(`WEAPON_TYPE_COMBO_POSES`) so repeated attacks read as a combo instead
+of the same cut every time - Greatsword alternates two horizontal sweeps
+only (no diagonal mixed in, so it reads as one consistent windmill, not
+two unrelated motions), anything else gets a 3-pose diagonal+horizontal
+mix. Swing timing/arc size are both per-weapon-type
+(`WEAPON_TYPE_SWING_DURATION_MULT`/`WEAPON_TYPE_SWING_INTENSITY` in
+`PlayerMeleeAttack.gd`) - a Greatsword swings ~2.4x slower with a ~1.3x
+bigger arc than the baseline, a Dagger faster/tighter. Idle sway/bob, the
+right-click stance/moveset "engine" in full, kicks, and sword/dagger/
+cast-specific animations are all still future work - this is the rig
+plus the melee swing riding on it, not a complete animation system.
+
+**Weapon stance** (`systems/combat/WeaponStance.gd`, hold Right Mouse,
+2026-08-30 user request): preps a per-weapon special. Melee holds a
+dedicated `PoseSet.GUARD` - small, mostly rest-adjacent, always played at
+intensity 1.0 regardless of weapon - while held, so the weapon stays
+clearly visible and forward-facing (a first version reused the special
+attack's own big windup pose at an even further boosted intensity, which
+swung the sword/arm ~114 degrees around the shoulder and off past the
+edge of the screen - user report, fixed by giving stance its own much
+smaller pose entirely rather than reusing an attack pose at any scale).
+Pressing Attack while active fires `PlayerMeleeAttack.try_special_attack()`
+instead of a normal swing - a bigger, slower, harder-hitting version of
+the swing (1.8x motion value, 1.4x duration, 1.1x arc) using a
+weapon-specific pose (`WEAPON_TYPE_SPECIAL_POSE`): Greatsword gets an
+exaggerated horizontal `BIG_SWEEP`, Dagger gets a `DASH_THRUST` that also
+fires a real forward `Player.try_special_dash()` (sharing the same
+dash state/cooldown as the Shift-tap dash, not a separate free resource)
+before the stab lands. Ranged weapons aim instead - the camera FOV zooms
+in while held, and firing while aimed deals 1.4x damage (no
+spread/accuracy system exists to tighten instead). **Not implemented**:
+a Rapier's dash-and-thrust and a caster weapon's innate ability were both
+part of the request but neither has a real equippable item in this
+project yet (only Greatsword/Dagger/Service Pistol exist; spellcasting is
+entirely independent of the weapon slot) - Dagger's special stands in for
+the Rapier example as the closest existing light one-handed weapon, and
+the per-weapon-type dict pattern is ready to extend the moment a real
+caster weapon item exists. `StanceComponent.gd` is unrelated - that's an
+enemy poise/posture bar, not this. A `StatSheet`
 (Vitality/Strength/Instinct/Arcane/Enigma/Intellect) — **all six now drive
 something** (Section 12's Per-Point Values table): Strength/Arcane/Enigma
 scale Physical/Elemental/Esoteric damage two ways at once, both doc-sourced
@@ -59,6 +129,20 @@ speed along the current heading that decays over half a second, ending
 into a crouch if Ctrl is still held or standing back up otherwise. No
 headroom/ceiling check on standing up — every generated room is a simple
 open box, nothing low enough to clip into yet.
+
+**Dash** (2026-08-30, user request, exact wording: "Tapping shift and a
+direction should allow players to dash in a direction"): reuses the
+`sprint` action (already bound to Shift) instead of a new binding -
+`just_pressed` fires once on the initial keydown regardless of how long
+the key stays down afterward, so a tap dashes and continuing to hold
+still sprints normally on top of it. A fixed-impulse burst that decays,
+same shape as Slide above, on a 1s cooldown; works in the air and while
+stationary alike (Slide requires sprinting + a floor). **Movement speed
+is also reduced while melee attacking** (user request, exact wording) -
+0.5x for the whole Windup-through-Recovery window of a swing, not just
+the instant Strike - and while channeling Flame Jets (0.4x, see Abilities
+below) - both read through `Player._effective_speed()` the same way
+Instinct/status-effect speed modifiers already do.
 
 **Combat formula** (`systems/combat/DamageCalculator.gd`): implements the
 Section 11 formula (`Base Damage x Motion Value x Stat Value x Scaling-Grade
@@ -116,66 +200,79 @@ physically clear it — `MobileBruiser` clears the Vault's jump gap,
 sphere appears above an enemy's head whenever its `ComposureComponent` is
 broken — the on-screen signal that it's Riposte-able.
 
-**Abilities** (`systems/abilities/`, `data/abilities/`): 17 hand-authored
-spells. 9 predate this README's own doc-checking convention (Ice Pulse,
-Comet, Winter's Eye, Frost Armor - real Section 26 names - alongside
-Cinder Lance, Inferno, Static Discharge, Stormcall, Entropic Decay,
-which are invented and were never in the doc). The other 8 (2026-08-30)
-are transcribed straight from Section 26, "Ability Staging Ground" -
-"Abilities are thrown in raw and sorted by damage type... not all
-entries will be added to the game" - a real doc section a prior PDF-based
-pass never found (found via a `.docx`-extraction search of the raw text,
-this project's established fallback for doc content the PDF reader
-misses - see the Master doc note above): Flame Jets, Meteor
-(Fire), Thunder Javelin, Thunder Sweep (Lightning), Black Hole
-(Entropic), Caltrops (Physical), Blink and Purge (Utility). User
-direction on the naming overlap: keep both sets rather than retire the
-invented five. Cast on `1`-`4` (`PlayerAbilityCast`), drawing from a Mana
-pool (`ManaComponent`). Most abilities execute as a self-centered damage
-nova sized by its own `radius`, on press — not yet each ability's actual
-described mechanic (see gaps below). Several (`Ability.is_ground_targeted`:
-Comet, Inferno, Stormcall, Meteor, Thunder Javelin - a small radius
-approximating "single target focus", Black Hole, Caltrops) are hold-to-aim
-instead — holding the key shows a ground ring tracking a camera raycast,
-releasing casts centered there rather than on the player. Comet/Inferno/
-Stormcall/Black Hole/Caltrops also get a bespoke cast VFX instead of the
-generic expanding ring every other ability shares - a falling ice ball
-that shatters (`CometImpact`, reused as-is for Meteor - same "descends
-from above" mechanic, just Fire-colored), an erupting fire column
-(`InfernoPillar`), a jagged lightning strike (`StormcallBolt`), a
-gravity-well that pulls nearby enemies toward its center for 2.5s
-(`BlackHoleField` - the pull is real physics, not just visual; the
-instant hit itself stays thin per the doc's "low direct damage"), and a
-ground patch that Piercing-damages anything standing in it every 0.5s for
-5s (`CaltropsField` - the doc's other half, "and are slowed", isn't built:
-no movement-slow status independent of Cold's own Chill exists, and
-reusing Chill for a Physical effect would be a thematic mismatch,
-flagged). **Blink and Purge deal no damage at all** ("No attack
-component" per the doc for both) - Blink raycasts the player forward up
-to 8m (stopping short of a wall), Purge clears every debuff currently on
-the player (`StatusEffectComponent.clear_all_effects()`); the doc's other
-half of Purge, stripping buffs from surrounding enemies, isn't built - no
-enemy-buff system exists in this project to strip anything from (every
-enemy-facing mechanic here is a debuff already). Abilities can be
-upgraded (`rank`, 0-5) via the Abilities screen (`N`) for Gold
-(`Ability.get_upgrade_cost()`, scaling per rank), boosting Motion Value
-and reducing cooldown. `ui/ability_bar/` shows equipped abilities with a
-cooldown wipe and Mana cost; `ui/abilities/AbilitiesScreen.gd` is the
-equip/upgrade menu.
+**Abilities** (`systems/abilities/`, `data/abilities/`): 18 hand-authored
+spells (17 + Flame Wall, invented, see below). 9 predate this README's
+own doc-checking convention (Ice Pulse, Comet, Winter's Eye, Frost Armor
+- real Section 26 names - alongside Cinder Lance, Inferno, Static
+Discharge, Stormcall, Entropic Decay, invented, never in the doc - user
+direction: keep both sets, don't retire the invented five). The other 8
+are transcribed from Section 26, "Ability Staging Ground" (a real doc
+section a prior PDF-based pass never found): Flame Jets, Meteor (Fire),
+Thunder Javelin, Thunder Sweep (Lightning), Black Hole (Entropic),
+Caltrops (Physical), Blink and Purge (Utility). Cast on `1`-`4`
+(`PlayerAbilityCast`), drawing from a Mana pool (`ManaComponent`).
+
+**Most abilities still execute as a self-centered damage nova** sized by
+`radius`, on press. **A growing set of exceptions now have their own real
+mechanic** (2026-08-30 pass, per the user's own description of each -
+see `PATCH_NOTES.md` for the full writeup of what changed and why):
+- **Black Hole** pulls enemies toward its center for 2.5s (real physics,
+  not visual) AND ticks real Entropic damage every 0.25s to anything in
+  the pull radius - no instant hit at cast anymore.
+- **Caltrops** ticks Piercing damage every 0.5s to anything standing in
+  its field AND applies a new generic `"slow"` status effect
+  (`StatusEffectComponent.gd`, independent of Cold's own Chill).
+- **Cinder Lance** and **Thunder Javelin** fire a real traveling,
+  PIERCING bolt (`PiercingBolt`, new shared effect - unlike the ranged-
+  weapon `Projectile.gd`, doesn't stop at its first hit) aimed at the
+  camera's crosshair.
+- **Flame Jets** is a timed channel (not ground-targeted) that re-aims at
+  wherever the camera is CURRENTLY looking every tick and slows the
+  player to 0.4x movement speed for the channel's duration.
+- **Winter's Eye** launches a slow orb toward the target point that
+  ticks proximity Cold damage + Chill to nearby enemies as it travels
+  (an approximation of "a spiral of icicles" - ticks, not literal spawned
+  sub-projectiles), then detonates for a burst hit on arrival.
+- **Thunder Sweep** fires 8 `PiercingBolt`s radiating outward in a full
+  circle from the player, flattened to the ground plane.
+- **Flame Wall** (new, invented - no Section 26 entry exists for it):
+  ground-targeted, spawns a wall oriented perpendicular to the caster-
+  >target line; Ignites enemies on entry, ticks damage to anything
+  standing inside.
+- **Frost Armor** is a pure self-buff at cast (no AoE hit) - for 8s,
+  every enemy melee strike that lands on the player triggers a real Cold
+  retaliation burst + Chill back at the attacker
+  (`EnemyMeleeAttack._resolve_hit()` -> `PlayerAbilityCast.
+  trigger_frost_armor_retaliation()`), matching the doc's own wording
+  exactly. Previously had no retaliation mechanic at all.
+- **Blink and Purge deal no damage at all** ("No attack component" per
+  the doc for both) - Blink raycasts the player forward up to 8m
+  (stopping short of a wall), Purge clears every debuff currently on the
+  player; Purge's other half (stripping buffs from surrounding enemies)
+  isn't built - no enemy-buff system exists in this project to strip
+  anything from.
+
+Every other ability (Comet, Inferno, Stormcall, Meteor, Ice Pulse, Static
+Discharge, Entropic Decay, Winter's Eye's own detonation, Flame Jets'
+`applies_status_effects`, etc.) still uses the generic instant-nova path,
+several with a bespoke cast VFX instead of the generic expanding ring
+(`CometImpact`/`InfernoPillar`/`StormcallBolt`). Abilities can be upgraded
+(`rank`, 0-5) via the Abilities screen (`N`) for Gold, boosting Motion
+Value and reducing cooldown. `ui/ability_bar/` shows equipped abilities
+with a cooldown wipe and Mana cost; `ui/abilities/AbilitiesScreen.gd` is
+the equip/upgrade menu.
 **The player starts with zero abilities** — per Patch v3.1's Skill
-System replacement ("skills come exclusively from loot-dropped Skill
-Tomes"), every ability now has to be unlocked via a `SkillTome` drop (see
-Loot generation below) before it shows up in the Abilities screen at all.
-The Hub's SpellTestShop (see Shops below) unlocks every ability for free,
+System replacement, every ability has to be unlocked via a `SkillTome`
+drop (see Loot generation below) before it shows up in the Abilities
+screen at all. The Hub's SpellTestShop unlocks every ability for free,
 for testing without grinding drops. **Not built from Section 26**:
 Purity From Within (a Fire self-damage-drain aura that also buffs other
-spells - needs a persistent toggle/channel ability archetype this
-project's instant-cast model doesn't have), Blinkstrike (teleport-to-
-enemy + a strike scaled by the equipped melee weapon rather than the
-Ability's own scaling - breaks the generic damage model every other
-ability shares), and Conduit/Prowess (both explicitly "(Passive)" in the
-doc, not something a hotbar slot casts - no passive-node system exists
-outside gear/Slates/Stats).
+spells - needs a persistent toggle/channel ability archetype beyond what
+Flame Jets' own timed channel covers), Blinkstrike (teleport-to-enemy + a
+strike scaled by the equipped melee weapon rather than the Ability's own
+scaling - breaks the generic damage model every other ability shares),
+and Conduit/Prowess (both explicitly "(Passive)" in the doc - no passive-
+node system exists outside gear/Slates/Stats).
 
 **Status Effects** (`entities/components/StatusEffectComponent.gd`,
 Section 09): bidirectional — a copy lives on both Player and Enemy, so any
@@ -184,7 +281,12 @@ future enemy-side applier works with zero new plumbing. Covers Ignite
 applications escalate to Freeze), Freeze (full immobilization), Electrocute
 (Lightning stun/stagger), and Unraveling (Entropic, +25% Esoteric damage
 taken) — the 5 effects with a real applier today, via each spell's
-`applies_status_effects` (see Abilities above). Vitality's Resilience/DoT
+`applies_status_effects` (see Abilities above). **A 6th, `"slow"`, was
+added 2026-08-30** for Caltrops specifically (-35% move/action speed,
+stacks multiplicatively with Chill if somehow both are active) - not
+doc-named, invented because reusing Chill for a Physical/Piercing effect
+would have been a thematic mismatch (Chill is explicitly Cold-flavored
+per `Constants.STATUS_EFFECT_DAMAGE_TYPE`). Vitality's Resilience/DoT
 mitigation and Intellect's Debuff effectiveness (Section 12) are wired
 through it too — Resilience reduces Ignite's tick damage, the applying
 side's Intellect extends Chill/Electrocute/Unraveling's duration. Stunned
@@ -396,6 +498,38 @@ per Map" already guarantees exactly one, making it the natural home for
 the one guaranteed boss too). Its death fires `EventBus.figment_completed`,
 which feeds Figment Tree points (see below).
 
+**The boss has a real model now, not the placeholder capsule every other
+enemy still uses** (2026-08-30, user-provided asset: "Arator the
+Redeemer," a Warcraft III Reforged character pack dropped into
+`assets/models/`). Godot has no native `.mdx` support, so a from-scratch
+converter was built (`tools/mdx_pipeline/`, its own README has the full
+technical writeup) using `war3-model` (an npm library that parses both
+classic and Reforged MDX) to export geometry + a 144-bone skeleton +
+skinning to `.glb`, which Godot imports natively. Materials are assigned
+Godot-side rather than baked into the glTF - Godot already imports the
+`.dds` textures natively and has `ORMMaterial3D`, a direct match for this
+asset's Diffuse/Normal/Emissive/ORM packing - hardcoded to this specific
+model's known 9-geoset order in `FigmentBoss.gd` (this model is a
+composite rig merging pieces from other base Reforged models this project
+has no textures for; those geosets get a flat gray placeholder instead,
+same treatment as any other missing art here). `FigmentBoss._apply_mesh_
+color()` overrides the base single-mesh telegraph-flash (Section 07's
+attack-readability signal) to work across every real mesh on the model
+instead. **The boss now animates** (2026-08-30) - all 13 of the model's
+sequences are baked into the `.glb` (see the pipeline's own README for the
+exact math), and `FigmentBoss.gd` drives 4 of them through the boss's real
+combat state machine: an idle/walk blend off `Enemy`'s own chase velocity
+(`Base`/`Walk 1`, looping), `Attack 1` on `begin_attack_telegraph()`
+(alongside the inherited color-flash, not replacing it), and `Death 1`
+played to completion before the base class's cleanup/`queue_free()` -
+the one enemy in this project where dying doesn't happen instantly, since
+it's the only one with a real death animation to show first. The other 9
+sequences (Stand 2/3, Stand Ready 1, Stand Victory 1, Spell 1, Stand
+Channel 1, Dissipate) have no real trigger in this project's current
+combat model and are left unused rather than wired to something that
+wouldn't be meaningful - every other enemy in this project is still
+unanimated, so this remains the one exception, not a new baseline.
+
 **Enemies also scale deterministically off the Map's own `tier`**
 (`Enemy._apply_map_modifiers()`/`get_outgoing_damage_multiplier()`), on
 top of the Figment's own `enemy_health_multiplier`/`enemy_damage_multiplier`
@@ -478,7 +612,18 @@ transitions/saves; a Tome unlocks its ability into
 `data/brands/`, `K`, Section 20): the doc's three distinct crafting
 methods, all real. **The Cube**: place one owned item + up to 8 Brands
 (this project's uniform 1x1 inventory means every item costs exactly one
-of the 3x3 grid's 9 cells), hit Craft. 24 of the doc's ~29 named Brands
+of the 3x3 grid's 9 cells), hit Craft. **Can't queue more of a Brand than
+you actually own** (2026-08-30 bug fix, user report: "I only have one of
+a brand but I can add it multiple times") - the palette's one button per
+Brand type used to queue the SAME representative owned object on every
+click, which let `CraftingSystem.MAX_SAME_BRAND`'s per-craft cap of 2
+silently over-consume (crafting with "2 queued" while only 1 was ever
+actually owned, since the second reference never matched a second real
+object at consumption time) - fixed by queuing genuinely distinct owned
+objects instead. **Owned Items and Consumables now show a real hover
+card** too (2026-08-30, user-reported gap) - both were previously either
+a plain `Button`/`Label` with no tooltip at all, now `ItemSlotButton`
+like everywhere else in this project's UI. 24 of the doc's ~29 named Brands
 exist (all 9 Damage Type, all 5 Defensive Type, all 4 Umbrella, all 6
 Crafting Utility, plus Binder/Rectify from Special/Rare — Facsimile/
 Amalgam/Imbue are cut, see gap below), dropped as loot only
@@ -644,6 +789,7 @@ formulas).
 | Crouch (hold) / Slide (tap while sprinting + moving) | Ctrl |
 | Parry | F |
 | Attack (melee or ranged, depending on active weapon) | Left Mouse |
+| Weapon stance (hold) - preps a special melee attack or aims (ranged) | Right Mouse |
 | Cast equipped ability (slot 1-4) - hold + release to aim for Comet/Inferno/Stormcall | 1 / 2 / 3 / 4 |
 | Pause menu (Resume / Return to Hub / Quit) | Esc |
 | Return to Hub directly (no pause menu needed) | T |

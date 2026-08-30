@@ -7,6 +7,569 @@ there. Most recent first.
 
 ---
 
+## 2026-08-30 (yet later) — Arm Mesh Disabled (Weapon-Only, For Now)
+
+After the IK fix above, asked the user directly whether the visible arm
+geometry was worth the trouble: it had been the single biggest source of
+bugs/iteration all session (invisible mesh, wrong grip anchor, blending
+into the floor, the stance pose swinging off-screen, the off-hand losing
+the sword) relative to what it actually added, since the "weighty swing"
+feel reads through the weapon's own arc/timing/hitstop, not through
+rendering the arm. User agreed: "Yeah, lets do that then."
+
+`PlayerArmRig.SHOW_ARM_MESH` (new, `false`) gates the `MeshInstance3D`
+creation in `_build_arm()` - the Skeleton3D/bone chain, the weapon's
+`BoneAttachment3D`, and the off-hand's 2-bone IK all still run exactly as
+before (harmlessly, on now-invisible bones), so the swing itself,
+per-weapon timing/pose-mix, stance, and two-handed off-hand tracking are
+all unaffected - only the rendered arm/glove geometry is skipped. The
+mesh-generation code (`_build_mesh()`, `_add_tapered_box()`, `_quad()`,
+`_build_material()`) was left in place rather than deleted, given how
+much tuning went into it - flip `SHOW_ARM_MESH` back to `true` to bring
+it back later.
+
+Verified: headless load clean; screenshot confirms the equipped weapon
+(tested with Dagger) still renders and holds its position with no arm
+geometry attached.
+
+---
+
+## 2026-08-30 (even later) — Two-Handed Second Arm, Sweep Variety, Weapon Stance
+
+User follow-up on the arm rig work above: "Two handed weapons should
+clearly need two hands, so see if you can add the second arm and also
+feel free to sweep from side to side as well... I'm also hoping to add a
+stance for melee weapons, holding right click puts you in a stance that
+preps you for heavier or special attacks... This can also work for caster
+weapons to do an innate ability... This will also work for ranged weapons
+to aim their weapons."
+
+**Investigated before writing anything** (right-click binding, existing
+block/parry, weapon roster, `is_two_handed`, naming collisions): right
+mouse button was completely unbound; Parry is a timed F-key press, not a
+hold-to-block, so no conflict. `Weapon.is_two_handed` already exists and
+is already enforced in `EquipmentComponent` (a two-handed primary clears
+sidearm/offhand automatically) - no new equip-rule logic needed. Only
+three weapon `.tres` instances exist in the whole project: Greatsword
+(two-handed), Dagger, Service Pistol (ranged) - no Rapier, no caster
+weapon of any kind. `StanceComponent.gd` already means something
+unrelated (enemy poise/posture bar) - the new player-held mode is
+`WeaponStance.gd`, deliberately a different name.
+
+**Second arm** (`PlayerArmRig.gd`, `set_two_handed()`): the single-arm
+rig was refactored to build N independent 3-bone chains (an inner `_Arm`
+helper class) instead of one hardcoded skeleton. `Player._update_active_
+weapon_visual()` calls `arm_rig.set_two_handed(weapon.is_two_handed)` on
+every equip change. The off-hand arm has no weapon/hand-attachment of its
+own - it reaches to a secondary grip point near the primary hand
+(`OFFHAND_HAND_POS`) and plays whatever pose the primary arm is playing
+(same rotation values, not mirrored - both hands move together on a real
+two-handed grip). Screenshot-verified: both arms visibly converge on the
+Greatsword's grip.
+
+**Swing variety**: `PlayerArmRig` now holds 5 pose sets (`PoseSet` enum) -
+the original diagonal `CLEAVE` plus two new horizontal `SWEEP_RIGHT`/
+`SWEEP_LEFT` slashes. Normal attacks cycle through all three
+(`NORMAL_COMBO_POSES`) each successive press instead of playing the same
+cut every time. `play_attack_swing()` now blends from whatever pose is
+*currently* applied rather than always starting from rest, so combo
+attacks and stance-to-swing transitions don't visually snap.
+
+**Weapon stance** (`WeaponStance.gd`, new component on Player, right
+mouse via the new `stance` input action): holding right-click enters a
+per-weapon mode. Melee holds a weapon-specific "ready" pose
+(`PlayerArmRig.enter_ready_pose()` - the special's own windup pose, held
+indefinitely instead of auto-returning); pressing Attack while active
+calls `PlayerMeleeAttack.try_special_attack()` instead of a normal swing.
+Two new pose sets exist just for specials: `BIG_SWEEP` (Greatsword - an
+exaggerated version of the horizontal sweep) and `DASH_THRUST` (Dagger -
+arm draws back then extends straight out). Specials deal 1.8x motion
+value over 1.4x duration with a 1.25x bigger arc than a normal swing of
+that weapon (`SPECIAL_MOTION_VALUE_MULTIPLIER`/`SPECIAL_DURATION_
+MULTIPLIER`/`SPECIAL_INTENSITY_MULTIPLIER`). Dagger's special also calls
+`Player.try_special_dash()`, a thin wrapper around the existing Shift-tap
+Dash sharing its exact same cooldown/state (deliberately not a separate
+free dash resource) - best-effort: the thrust still lands even if the
+dash itself is on cooldown, just without the lunge. Ranged weapons get a
+different `WeaponStance` branch entirely: no pose, just a camera FOV
+tween down to 55° while held (`AIM_FOV`), and `PlayerRangedAttack.
+try_attack(aimed)` now takes an `aimed` flag worth a flat 1.4x damage
+multiplier when firing while zoomed - there's no spread/accuracy system
+in this project to tighten instead, so this is a damage reward rather
+than a real precision mechanic.
+
+**Explicitly not built - no backing content exists yet**: a Rapier's
+dash-and-thrust (mapped onto Dagger instead, as the closest existing
+light one-handed weapon - `WEAPON_TYPE_SPECIAL_POSE` just needs a new
+entry once a real Rapier item exists) and a caster weapon's innate
+ability (no equippable item in this project identifies as a caster
+weapon at all - spellcasting via `PlayerAbilityCast.gd` is entirely
+independent of the weapon slot, and the `conduit` equipment slot exists
+but nothing reads it - there's nothing for a `Mode.CASTER` branch to key
+off yet).
+
+Verified: headless scene loads clean throughout; an 11-check scratch test
+covering off-hand-arm construction, combo cycling, stance pose changes,
+and special-attack motion-value/duration/state-machine behavior all
+passed; two real screenshots (Greatsword two-handed grip, Greatsword
+stance ready pose) confirm both visually read as intended. Not
+exhaustively screenshot-verified: the exact angles of `SWEEP_RIGHT`/
+`SWEEP_LEFT`/`DASH_THRUST` and the off-hand grip's precise placement -
+these are plausible numbers in the same spirit as the primary arm's own
+first-pass placement, not confirmed correct the way the primary grip
+connection and the two-handed convergence were. Both of the un-verified
+pieces broke, per the very next user report - see below.
+
+---
+
+## 2026-08-30 (still later) — Stance Pose Bug, Slower Greatsword Sweeps
+
+User report with a screen recording: "The first person animations still
+don't feel right for great sword, slower side to side cleaves would look
+good. And the stance does not put you in a proper stance, it makes the
+sword and arms disappear to the sides. You should poise your sword ready
+in that position attached" (a reference screenshot of a held-ready blade,
+clearly on-screen and forward-facing).
+
+**Root cause, found by re-deriving the math rather than guessing**:
+`WeaponStance`'s melee branch was reusing the special attack's own
+windup pose (`get_special_pose_set()`) at `get_special_intensity()` -
+`_effective_swing_intensity()` (1.3 for Greatsword) times
+`SPECIAL_INTENSITY_MULTIPLIER` (1.25) = 1.625x. Applied to `BIG_SWEEP`'s
+windup shoulder yaw (70°), that's ~114° of shoulder rotation - well past
+enough to swing the sword and arm out past the edge of the screen. This
+exactly matches "makes the sword and arms disappear to the sides" and
+was never screenshot-verified in the previous pass (flagged as such at
+the time - see above).
+
+**Fix**: stance and "the attack that stance preps" are no longer the same
+pose. New `PlayerArmRig.PoseSet.GUARD` - a small, mostly rest-adjacent
+raise (nothing like BIG_SWEEP's magnitude) - is what `WeaponStance` now
+holds, always at intensity 1.0 (no per-weapon or special scaling at all),
+so this class of bug can't recur regardless of how big a future special's
+own pose gets. `BIG_SWEEP`'s own base angles were also independently
+halved and `SPECIAL_INTENSITY_MULTIPLIER` lowered to 1.1, so the special
+*attack* itself (not just the stance hold) stays framed too. Screenshot
+confirms the sword now stays clearly on-screen, angled up and across the
+body, while held.
+
+**Greatsword normal swing**: two changes. `WEAPON_TYPE_SWING_DURATION_
+MULT["Greatsword"]` raised again, 1.85x -> 2.4x - "still don't feel
+right" even after the previous slowdown pass. More importantly, Greatsword
+no longer mixes in the diagonal `CLEAVE` - alternating a vertical cut and
+a horizontal sweep every other attack read as two unrelated motions
+rather than one weapon's combo, not what "slower side to side cleaves"
+was asking for. `WEAPON_TYPE_COMBO_POSES` (new, same minimal-table-plus-
+DEFAULT convention as the rest of this file) lets Greatsword cycle only
+`SWEEP_RIGHT`/`SWEEP_LEFT` while everything else keeps the full 3-pose
+variety.
+
+Verified: headless loads clean; the GUARD-pose fix screenshot-confirmed.
+The Greatsword timing/pose-mix change was not re-verified with a live
+recording (no practical way to time-capture a mid-swing frame reliably) -
+if the "feel" still isn't right, that's the piece most likely to need
+another pass.
+
+**Same-turn follow-up**: "The issue is that the other hand lets go of the
+sword, and that looks awkward." Root cause: the off-hand arm was applying
+the exact same bone ROTATION values as the primary arm (see the previous
+entry above), but the two arms have different shoulder positions and
+different rest bone-chain shapes - identical rotations from different
+rest poses swing the two hands along completely different arcs, so the
+off-hand visibly drifted away from the weapon during any swing.
+
+Replaced rotation-sharing with a real analytic 2-bone IK
+(`PlayerArmRig._solve_offhand_ik()`, law-of-cosines shoulder/elbow solve)
+that targets the PRIMARY hand's actual current position each frame (plus
+a small static offset toward the grip's pommel side). First IK attempt
+mirrored the off-hand's shoulder all the way across camera-center
+(~1.5 units from the primary hand's own area) and was numerically
+unreachable through most of a real swing (a scratch test measuring
+hand-to-hand drift came back ~0.58 units off - caught before ever taking
+a screenshot). Moved the off-hand shoulder to a modest "shoulder width"
+step from the primary shoulder instead of a full mirror, which helped but
+still wasn't enough reach on its own (peak required distance ~1.34 units
+vs. ~0.93 max reach) - added `OFFHAND_TRACKING_DAMPING` (0.5) so the IK's
+target only follows half of the primary hand's actual displacement from
+rest, guaranteeing it stays within reach at the cost of not being a
+perfectly rigid grip-lock. Re-verified numerically after each change
+(final: hands stay within ~0.57 units of each other throughout a full
+swing, down from as much as ~1.5+ before) rather than re-guessing by eye.
+
+---
+
+First piece of the deferred Dark Messiah-style animation engine pass, built
+on the user's own go-ahead after reviewing a concept sketch. The Player
+still has no imported skeleton/body asset, so this is entirely procedural:
+`PlayerArmRig.gd` builds a low-poly arm mesh at runtime with `SurfaceTool`
+(4 tapered-box segments - shoulder cuff, upper arm, forearm, hand/glove)
+and a real 3-bone `Skeleton3D` chain (UpperArm -> Forearm -> Hand), rigidly
+skinned (each segment bound 100% to one bone, no weight blending - matches
+the faceted low-poly look rather than needing a real weight-painting pass).
+The existing `WeaponMesh` (still authored in `Player.tscn`, still driven by
+`Player._update_weapon_model()` exactly as before) reparents onto the Hand
+bone's `BoneAttachment3D` at `_ready()` via `reparent(..., true)`, so its
+resting position/rotation is unchanged - only its parent, and therefore its
+behavior during a swing, changes.
+
+`PlayerMeleeAttack._play_swing()` now calls `PlayerArmRig.play_attack_swing()`
+instead of tweening the flat `WeaponSocket` node's rotation - three bones
+move independently through invented windup/strike/recovery poses (shoulder
+pulls back and up, elbow bends tighter, then snaps forward past neutral
+with the elbow extending and a wrist flick), giving the swing real
+anticipation and follow-through instead of one rigid rotation. Ranged
+attacks are unaffected (`weapon_socket` itself no longer moves at all,
+where it previously did during melee swings too, incidentally).
+
+**Two real bugs caught by screenshot verification, not code reading** (see
+`reference_windowed_screenshot_capture` memory) - headless scene loads and
+a scratch bone-rotation test both passed cleanly the whole time, but the
+rig was invisible in an actual windowed capture:
+1. First attempt anchored the bone chain near the `WeaponSocket` origin
+   instead of out at the weapon's actual authored position - the arm and
+   the weapon ended up nearly a meter apart in depth, with the arm itself
+   sitting close enough to the camera to be an off-frame sliver. Fixed by
+   anchoring the Hand bone at the weapon mesh's own original local
+   position and building the rest of the chain back from there.
+2. A hand-built `Skin` resource (manually inverting each bone's rest
+   transform for the bind pose) was replaced with `MeshInstance3D`'s
+   built-in auto-generated skin (leave `skin` null, it derives bind poses
+   from the skeleton's own rest pose) - the manual version's bind-pose
+   transform convention was never actually verified against this engine
+   version, and switching to the built-in generator removes the whole
+   class of "inverted twice or not at all" bugs. This alone didn't fix
+   visibility though - the real cause of "invisible" turned out to be
+   unrelated (next line).
+3. Not a bug exactly, but nearly shipped as one: the placeholder material
+   was an unshaded muted brown that blended almost perfectly into
+   TestArena's own brown floor/wall geometry - confirmed by temporarily
+   swapping in loud magenta, which made the (correctly-shaped, correctly-
+   positioned) mesh immediately obvious. Final material is a real lit
+   steel-blue-gray so facet shading actually reads as faceted instead of
+   flattening into one undifferentiated mass.
+
+Idle sway/bob, the right-click stance/moveset system, kicks, and the sword/
+dagger/cast-specific animations are all still deferred - this pass is only
+the rig itself plus the melee swing wired onto it.
+
+**Follow-up (same day): grip connection + greatsword weight.** User
+screenshot showed the arm floating with zero visual connection to the
+sword, and called the swing "far too fast along with the animation." Two
+separate fixes:
+1. The Hand bone had been anchored to `WeaponMesh`'s own (near-empty)
+   pivot node, not the actual weapon model - `Player._update_weapon_model()`
+   nests the real weapon scene under `WeaponMesh` with its own extra
+   `Vector3(0.4, -0.4, 0.35)` offset for a "held" look, so the two were
+   ~0.5 units apart. Measured the real grip position at runtime
+   (`arm_rig.to_local(_weapon_model.global_transform.origin)`, a temporary
+   debug print, removed once confirmed) instead of computing it by hand -
+   two prior placements had both looked plausible on paper and were both
+   wrong. `HAND_POS` now sits exactly at the measured grip, which also
+   fixes the swing's rotation pivot landing at empty space instead of the
+   weapon itself.
+2. Swing timing/weight is now per-weapon-type
+   (`WEAPON_TYPE_SWING_DURATION_MULT`, `WEAPON_TYPE_SWING_INTENSITY` in
+   `PlayerMeleeAttack.gd`) instead of one fixed speed for every weapon -
+   Greatsword now swings ~1.85x slower with a ~1.3x bigger arc (total
+   swing ~0.9s, up from 0.37s flat before), Dagger stays quick (~0.75x
+   duration, ~0.85x arc). The base (no-match) durations themselves were
+   also raised - even a Dagger-less default felt too fast. `PlayerArmRig`'s
+   pose choreography also changed: windup now ends with a brief held
+   anticipation beat instead of flowing straight into the strike, and the
+   strike eases in (slow start, fast finish - a heavy object overcoming
+   its own inertia) instead of easing out (a flick).
+
+A large combined pass. The user's own message bundled ~18 asks including a
+full animation/stance/dash "engine" (Dark Messiah-style) - that piece was
+explicitly scoped OUT of this pass by the user's own choice (recommended
+option: "well-scoped items first, animation engine as its own pass"),
+since the Player has no skeleton/body at all (just a weapon prop on the
+camera) and building real movesets needs its own design conversation
+first. Everything below is what shipped instead.
+
+**Crafting: Brand over-consumption bug, two layers deep.** User report:
+"I only have one of a brand but I can add it multiple times." The
+palette's one button per Brand type was bound to a single representative
+owned Resource - clicking it twice queued that SAME reference twice.
+`CraftingSystem.MAX_SAME_BRAND` (2, doc-exact) allowed it with only 1
+real copy owned, and even with 2 genuinely owned copies, consumption
+(`GameState.owned_loot.erase(brand)` once per queued entry, reference-
+equality) would only ever remove 1 real copy - the second `erase()` call
+silently found nothing left to remove. Fixed at the root via a new
+`_next_unqueued_owned_copy()` that queues genuinely distinct owned
+objects instead of the same reference. Verified with a 7-check test
+covering the 1-owned/2-owned/3-owned cases directly.
+
+**Crafting: hover tooltips.** User: "Let me hover over Owned Items... and
+Consumables... to see what I'm looking at." Neither the Owned Items rows
+nor the Consumables row (a bare `Label`, no tooltip mechanism at all)
+showed anything on hover before. Both (plus the Brands list, previously
+just a flat `tooltip_text` string) now use `ItemSlotButton`, the same
+rich `ItemCard` hover mechanism Inventory/Fate Board/Abilities already
+share.
+
+**Counter damage.** User: "If you melee attack an enemy while they are
+mid attack animation, you deal Counter damage and deal 15% more damage."
+New `EnemyMeleeAttack.is_attacking()`/`EnemyRangedAttack.is_attacking()`
+(their own Telegraph-or-Strike / Windup states) checked in
+`PlayerMeleeAttack._deal_damage()` before the Riposte branch - a real hit
+during that window multiplies damage by 1.15 and fires a new
+`EventBus.counter_hit` signal (logged in the debug overlay, same
+convention `riposte_executed` already gets).
+
+**Dash.** User: "Tapping shift and a direction should allow players to
+dash in a direction." Reuses the `sprint` action (already bound to
+Shift) rather than a new binding - `just_pressed` fires once on the
+initial keydown regardless of hold duration, so a tap dashes and
+continuing to hold still sprints normally afterward. A fixed-impulse
+burst that decays, same shape as the existing Slide mechanic, on a 1s
+cooldown.
+
+**Movement speed reduced while melee attacking.** User request, exact
+wording. `PlayerMeleeAttack.get_move_speed_multiplier()` (0.5x for the
+whole Windup-through-Recovery window, not just the instant Strike) now
+feeds `Player._effective_speed()` alongside the existing Instinct/status-
+effect multipliers.
+
+**Nine spell mechanic rewrites**, each replacing the generic instant-AoE-
+at-cast-point every ability used until now with a real, distinct
+mechanic per the user's own description of each:
+- **Black Hole**: "shouldn't be a DoT, but deals Entropic damage every
+  .25 seconds" - no more instant hit at cast, `BlackHoleField` now ticks
+  real damage (fresh `roll_damage()` each tick, crit varies) every 0.25s
+  to anything in its pull radius, including an enemy pulled all the way
+  to the center (a `dist < 0.05` guard meant only to protect the pull
+  math's normalize was accidentally also skipping damage there -
+  caught by the test suite, fixed).
+- **Caltrops**: now actually slows, via a new generic `"slow"` status
+  effect (`StatusEffectComponent.gd`) independent of Cold's own Chill -
+  reusing Chill for a Physical/Piercing effect would have been a
+  thematic mismatch. Refreshed every damage tick while an enemy stands
+  in the field.
+- **Cinder Lance / Thunder Javelin**: "should throw a spear... at a
+  crosshair, this should pierce" / "should work like Cinder Lance." Both
+  now fire a real traveling `PiercingBolt` (new shared effect, doesn't
+  `queue_free()` on its first hit like the ranged-weapon `Projectile.gd`
+  does) aimed at the camera's forward direction. Thunder Javelin's own
+  tuning was brought down to Cinder Lance's tier (was notably better on
+  every axis - faster cooldown, better grade - despite being asked to
+  "work like" it) rather than left to quietly outclass it.
+- **Flame Jets**: "flamethrower type spell, slowing the character down
+  and throwing flames at what the player is looking at." A new timed
+  channel (`PlayerAbilityCast`'s own state, not a persistent scene) that
+  re-aims at the camera's CURRENT forward direction every tick (not
+  locked at cast time) and applies a 0.4x move-speed multiplier for the
+  channel's duration, read by `Player._effective_speed()` the same way
+  the melee attack-speed penalty above is.
+- **Winter's Eye**: "throw out a sphere of ice that shoot a spiral of
+  icicles at enemies around it" - a new `WintersEyeOrb` travels from the
+  player toward the target point, ticking proximity damage+Chill to
+  nearby enemies as it goes (the "icicles" are approximated as ticks
+  rather than literal spawned sub-projectiles - flagged, a scope call
+  given everything else in this pass), then detonates for a burst hit on
+  arrival.
+- **Thunder Sweep**: "fire out bolts of lightning along the floor
+  originating from the player" - 8 `PiercingBolt`s spawned radiating
+  outward in a full circle, flattened to the horizontal plane (a ground
+  bolt shouldn't inherit camera pitch the way a crosshair-aimed one
+  should). Cooldown raised slightly (3s -> 4s) since it can hit several
+  enemies at once at each one's full damage, unlike the single-target
+  spells sharing that same cooldown tier.
+- **Flame Wall** (new spell, not doc-sourced - invented per the user's
+  own description, no Section 26 entry exists for it): a ground-targeted
+  wall, oriented perpendicular to the caster->target direction. Ignites
+  on entry (once per pass, not per physics frame a stationary enemy sits
+  in it) and separately ticks direct damage to anything currently inside.
+- **Frost Armor retaliation** (user-reported bug: "Frost Armor doesn't
+  properly deal cold retaliation damage to enemies when they melee
+  attack the player"): it never had a retaliation mechanic at all before
+  this, just the same generic instant AoE every other ability started
+  with. Now a pure self-buff at cast (no AoE hit) - `EnemyMeleeAttack.
+  _resolve_hit()` calls `PlayerAbilityCast.trigger_frost_armor_
+  retaliation()` at the exact moment a melee strike lands on the player,
+  dealing a real Cold hit + Chill back at the attacker, matching the
+  doc's own wording exactly ("Enemies that strike in melee range trigger
+  a Retaliation Damage burst of Cold damage. Applies Chill on
+  retaliation hit.").
+
+**Motion value review.** Applied per-weapon-type differentiation to the
+melee system too, per the user's own request ("faster movesets... lower
+motion value, while slower weapons like the greatsword will have a
+higher motion value") - `PlayerMeleeAttack.WEAPON_TYPE_MOTION_VALUE`
+(Dagger 0.65, Greatsword 1.35, same minimal-table-plus-DEFAULT convention
+`Constants.WEAPON_BASE_CRIT_CHANCE` already uses). `StatSummaryBuilder.
+gd`'s "Predicted Damage" preview was updated to read the same per-weapon
+value - it explicitly promises to never drift from what a real swing
+deals, so it had to follow this change too, not just `PlayerMeleeAttack.
+gd` itself. Reviewed every ability's motion_value/scaling_grade/cooldown
+together for internal consistency; adjusted Thunder Javelin (see above)
+and Thunder Sweep's cooldown - the rest already read consistently with
+the doc's own "low motion value = fast/chainable, high = slow/committed"
+framing and were left alone.
+
+Verified in stages throughout rather than all at once at the end - a
+17-check combat test (dash/attack-speed/Counter damage) and a 22-check
+spell test (one per new mechanic: no-instant-hit, periodic ticks, pierce-
+through, retaliation, channel damage+slow, radiating bolt count, orb
+travel, wall ignite+DoT), both including cleanup/regression checks for
+the systems they touched. The spell test also caught two real test-
+methodology bugs worth remembering: `Area3D.body_entered` only fires from
+genuine engine physics steps (`await get_tree().physics_frame`), not from
+manually calling `_physics_process()` in a loop - the proximity-check
+effects (Black Hole/Caltrops) don't care since they scan
+`get_nodes_in_group("enemy")` directly with no real collision query
+involved, but `PiercingBolt` absolutely does.
+
+## 2026-08-30 (later still) — Boss Animations: Stage 2 of the MDX Pipeline
+
+User: "Let's work on animations for the first boss now" - the pipeline's
+own README had this scoped as "not yet implemented" with the math worked
+out but unwritten. Built it.
+
+**Baking.** Each MDX Sequence becomes one glTF animation
+(`tools/mdx_pipeline/mdx_to_gltf.js`'s `buildAnimations()`). Every
+animated node's per-frame LOCAL matrix (`Translate(pivot)*Translate(T)*
+Rotate(R)*Scale(S)*Translate(-pivot)` - the same formula confirmed
+against `war3-model`'s `updateNode()` in the Stage 1 entry above) is
+sampled at a fixed 30Hz across the Sequence's frame interval and
+decomposed into T/R/S. Used `gl-matrix` for the composition/decomposition
+math rather than hand-rolling it - it's already a `war3-model` transitive
+dependency, and its `mat4.fromRotationTranslationScaleOrigin` is the
+literal same function `war3-model`'s own renderer calls, which removed a
+lot of the risk a hand-rolled version would have carried.
+`GlobalSeqId`-scoped channels (independent looping tracks - idle
+blinking, cloth sway) are scoped out, same "no real spec need
+established" reasoning as other simplifications in this pipeline.
+
+**Caught and fixed a real bug in the same pass**: `usableAnimVector()`'s
+first draft had an operator-precedence bug (`a && b && c && d === null ||
+e === undefined ? f : null` - `&&` binds tighter than `||`, so this
+didn't parse as intended and would throw on any node missing a channel
+entirely, i.e. most of them). Fixed before ever running it, by writing it
+as plain sequential `if` returns instead of a single dense expression.
+
+**Wired into the boss's actual combat state machine**
+(`FigmentBoss.gd`), not just exported and left inert: idle/walk selection
+off `Enemy`'s own chase velocity (extracted into a new
+`_update_animation_state()`, split out from `_physics_process()`
+specifically so it's testable without a real Player in the scene for
+`Enemy._update_chase()` to steer against), `Attack 1` on
+`begin_attack_telegraph()` (layered alongside the inherited color-flash,
+not replacing it - both fire), and `Death 1` played to completion via
+`await animation_finished` before `_on_died()`'s inherited cleanup/
+`queue_free()` runs - the one enemy in this project where death isn't
+instant. `loop_mode` (Godot's glTF importer leaves every animation at its
+default `LOOP_NONE`) is set at runtime for the two looping clips
+(idle/walk) - a gameplay decision, deliberately not baked into the export
+step itself.
+
+**Verified in three passes**, learning directly from the scale bug above
+(a structural pass alone wasn't enough there): a 14-check structural test
+covering the full idle<->walk<->attack<->death state transitions (all
+passed after fixing one test bug of its own - the test tried calling the
+full `_physics_process()` with a manually-set `velocity`, not realizing
+`Enemy._update_chase()` immediately zeroes it back out with no Player in
+the scratch scene; switched the test to call the newly-extracted
+`_update_animation_state()` directly), then two real windowed screenshots
+- one mid-`Walk 1` (clean stride, correct cloth/robe flow, no tearing)
+and one mid-`Attack 1` (full weapon follow-through, torso twisted into
+the swing) - both confirming the bake is visually correct, not just
+structurally present.
+
+## 2026-08-30 — Arator the Redeemer is the First Figment Boss (New MDX->glTF Pipeline)
+
+User dropped a Warcraft III Reforged model pack ("Arator the Redeemer" -
+`.mdx` + `.dds` files) into `assets/models/` and asked to build an import
+pipeline, then to make it the first Figment boss. Godot has zero native
+`.mdx` support, so this is a from-scratch converter
+(`tools/mdx_pipeline/mdx_to_gltf.js`), built on
+[`war3-model`](https://github.com/4eb0da/war3-model) (an npm library that
+parses both classic and Reforged MDX - confirmed against this real
+Reforged v1200 file, not assumed from classic-MDX docs, which describe a
+different convention). Node.js was installed via `winget` for this
+(wasn't present on the machine at all).
+
+The two facts the exporter's math depends on were confirmed by reading
+`war3-model`'s own rendering source, not general MDX write-ups: skin
+weight bytes (4 joint-index + 4 weight bytes/vertex, indices referencing
+the full Nodes array by ObjectId) and the bind-pose math (MDX's
+`Translate(pivot)*Translate(T)*Rotate(R)*Scale(S)*Translate(-pivot)`
+formula collapses to Identity at rest for every node regardless of pivot
+value - so every glTF inverseBindMatrix and rest-pose joint transform is
+just Identity, a clean mapping with no per-node special-casing needed).
+Verified in three passes: structurally (exact vertex/joint/mesh counts
+matched the source file), visually via a real windowed screenshot
+(correctly-proportioned, upright, no mesh tearing), and again after wiring
+materials (see below).
+
+Deliberately scoped to geometry + skeleton + skinning only for this pass -
+no animation baking (the math is worked out, documented in
+`tools/mdx_pipeline/README.md`, just not written), and no materials baked
+into the glTF itself (glTF wants PNG/JPEG; Godot already imports `.dds`
+natively and has `ORMMaterial3D`, a literal match for this asset's
+Diffuse/Normal/Emissive/ORM packing, so fighting glTF's texture model
+would have bought nothing).
+
+**Wired into `FigmentBoss`**: the placeholder capsule mesh is hidden
+(`visible = false`, not deleted - `Enemy.gd`'s telegraph-flash code looks
+up `$MeshInstance3D` by exact node name), the real Arator model sits
+alongside it as a sibling instance. Materials assigned Godot-side,
+hardcoded to this specific model's known 9-geoset order (this model is a
+composite rig merging pieces from other base Reforged models this project
+has no textures for - those 3 geosets get a flat gray placeholder instead,
+same "missing asset, flagged" treatment as everywhere else in this
+project; 2 more are diffuse-only since their Normal/ORM references point
+at base-game paths not present here). `FigmentBoss._apply_mesh_color()`
+overrides the base single-mesh telegraph-flash to work across every real
+mesh instead, flashing to a flat color and restoring the real textures
+correctly (verified: a scratch test confirmed the exact live surface
+materials before/during/after a simulated telegraph). No animation yet -
+the boss stands in its natural (not T-pose) bind pose, which reads fine
+since no other enemy in this project has skeletal animation either.
+
+Caught two real bugs during verification, both fixed before this reached
+the user: (1) the scratch viewing scene's floor `StaticBody3D` had a mesh
+but no `CollisionShape3D`, so the boss fell straight through under gravity
+(user caught this from a screenshot before I'd even finished diagnosing
+it myself); (2) a cleanup command that broadly pattern-matched
+`.godot/imported/` cache entries by name to delete scratch-test leftovers
+also matched and deleted the REAL permanent asset's cache, breaking every
+scene referencing `FigmentBoss.tscn` until a routine post-change headless
+sweep caught it and a plain `--headless --import` fixed it.
+
+### 2026-08-30 (later same day) — Fixed: Boss Rendered Far Too Small In Real Gameplay
+
+User report, from an actual gameplay screenshot: the boss was tiny next
+to the level geometry. Two compounding bugs, both fixed:
+
+1. **Wrong calibration source.** The exporter's `scale` argument was
+   picked (0.0066) against the MDX file's own *declared*
+   `Info.MinimumExtent`/`MaximumExtent` (~220x142x288 units), assumed to
+   be the model's real bounds. That metadata turned out to be loose/
+   padded, not tight - a structural test run earlier in the same session
+   had already measured the ACTUAL mesh bounding box at ~98x114x87 units,
+   a very different number that was never cross-checked against the
+   scale choice. Recalibrated against the real number instead (0.02,
+   targeting a height a bit taller than the Player's own 1.8-unit
+   capsule - appropriate for a boss).
+2. **The scale wasn't even reaching the render.** Independently of the
+   number being wrong, the mechanism was broken: `scale` was applied
+   directly to a skeleton joint node (also listed in the skin's `joints`
+   array). Godot's glTF importer absorbs a joint node's transform into
+   internal `Skeleton3D` bone data rather than preserving it as a literal
+   scene-tree `Node3D` transform - so the scale factor silently never
+   affected the actual skinned render at all, regardless of what value it
+   was set to. Two rounds of scratch-test diagnostics missed this (both
+   accidentally measured the wrong thing - a mesh instance's own identity
+   node transform, then a skeleton's rest-pose bone positions, which are
+   all Identity by this model's own bind-pose design - see the entry
+   above). Fixed properly by introducing a plain, non-joint "ModelRoot"
+   wrapper node that both the skeleton and every mesh instance sit under,
+   with the scale applied there instead - not ambiguous with skeleton-
+   internal data, and verified this time by an actual visual comparison
+   against a reference capsule of known height (1.8) in the same shot,
+   not just a printed number.
+
 ## 2026-08-30 — Slate System Overhaul, HUD Redesign, Section 26 Spells
 
 Seven user-directed changes in one pass.

@@ -14,6 +14,7 @@ func _ready() -> void:
 	EventBus.stance_damaged.connect(_on_stance_damaged)
 	EventBus.composure_broken.connect(_on_composure_broken)
 	EventBus.riposte_executed.connect(_on_riposte_executed)
+	EventBus.counter_hit.connect(_on_counter_hit)
 	EventBus.status_effect_applied.connect(_on_status_effect_applied)
 	EventBus.status_effect_expired.connect(_on_status_effect_expired)
 	EventBus.enemy_attack_resolved.connect(_on_enemy_attack_resolved)
@@ -65,6 +66,9 @@ func _on_composure_broken(enemy: Node) -> void:
 
 func _on_riposte_executed(source: Node, target: Node) -> void:
 	_append_line("RIPOSTE! %s executed on %s" % [source.name if source else "?", target.name if target else "?"])
+
+func _on_counter_hit(source: Node, target: Node) -> void:
+	_append_line("COUNTER! %s hit %s mid-attack (+15%% dmg)" % [source.name if source else "?", target.name if target else "?"])
 
 func _on_status_effect_applied(target: Node, effect_id: String, _stacks: int) -> void:
 	var target_name: String = "YOU" if target is Player else (target.name if target else "?")

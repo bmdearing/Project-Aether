@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "flame_wall"
+display_name = "Flame Wall"
+description = "Conjures a wall of fire at a targeted location. Ignites enemies that pass through it and burns anything standing on it."
+damage_type = 3
+motion_value = 0.5
+scaling_grade = 3
+cooldown_seconds = 8.0
+resource_cost = 26.0
+can_trigger_riposte = false
+is_auto_cast_eligible = true
+applies_status_effects = Array[String](["ignite"])
+radius = 2.5
+base_crit_chance = 0.02
+is_ground_targeted = true
