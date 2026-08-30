@@ -72,6 +72,39 @@ func remove_slate(placement_id: String) -> void:
 func get_occupied_cells() -> Dictionary:
 	return _occupied_cells
 
+## Section 10: "Slates sized 5 tiles and above provide stat contributions
+## per tile... 2-4 tile Slates provide no stats." Sums every PLACED
+## Slate's flat_<stat> modifiers regardless of chain participation - a
+## Slate contributes its own stat line just by being placed; the Chain
+## Bonus System (see ChainCalculator) is a separate, additional bonus on
+## top. Reuses EquipmentComponent.AFFIX_STAT_KEYS' stat_key->Stat mapping
+## so a Slate modifier with stat_key "flat_strength" means exactly what a
+## gear affix of the same key already means.
+func compute_stat_bonuses() -> Dictionary:
+	var totals := {}
+	for placement_id in placements:
+		var data: PlacedSlateData = placements[placement_id]
+		for modifier in data.slate.modifiers:
+			if EquipmentComponent.AFFIX_STAT_KEYS.has(modifier.stat_key):
+				var stat: Constants.Stat = EquipmentComponent.AFFIX_STAT_KEYS[modifier.stat_key]
+				totals[stat] = totals.get(stat, 0.0) + modifier.value
+	return totals
+
+## Section 10/23: Mastery is granted by a Slate's "mastery" modifier,
+## applied to that Slate's own (primary) tag - a Hybrid Slate's mastery
+## modifier only benefits its dominant tag, not both (Hybrid's "full
+## bonus to both" wording in Section 10 describes chain-EXTENSION
+## specifically, not a Slate's own static modifier lines - an invented
+## simplification where the doc doesn't say either way).
+func compute_mastery_bonuses() -> Dictionary:
+	var totals := {}
+	for placement_id in placements:
+		var data: PlacedSlateData = placements[placement_id]
+		for modifier in data.slate.modifiers:
+			if modifier.stat_key == "mastery":
+				totals[data.slate.tag] = totals.get(data.slate.tag, 0.0) + modifier.value
+	return totals
+
 func _world_cells(slate: Slate, origin: Vector2i, rotation_steps: int, flipped: bool) -> Array[Vector2i]:
 	var local := slate.get_transformed_shape(rotation_steps, flipped)
 	var world: Array[Vector2i] = []

@@ -4,9 +4,13 @@ class_name FateBoardEditor
 ## GameState.fate_board's live placements/Aether budget via FateBoardGrid,
 ## and recomputes ChainCalculator results after every placement/removal.
 ##
-## Slate "ownership" stands in for the not-yet-built Satchel/loot system:
-## every .tres under data/slates/instances/ is offered in the palette, as
-## if the player owns one of each.
+## Palette = the hand-authored data/slates/instances/ samples (still an
+## unlimited "owns one of each" stand-in for the 2 originals, per this
+## project's usual dir-scanned-catalog convention) PLUS every real
+## SlateRoller drop in GameState.owned_slates - those ARE finite: placing
+## one removes it from the palette until it's removed from the board
+## again (see _is_slate_available()), same "you only have the one" rule
+## gear/Brands/consumables already follow elsewhere.
 
 const SLATE_INSTANCES_DIR := "res://data/slates/instances/"
 
@@ -31,7 +35,6 @@ func _ready() -> void:
 	add_to_group("blocking_menu")
 	grid.cell_clicked.connect(_on_cell_clicked)
 	close_button.pressed.connect(close)
-	_populate_palette()
 
 func is_open() -> bool:
 	return _is_open
@@ -45,6 +48,7 @@ func open() -> void:
 	if _board and not _board.placement_failed.is_connected(_on_placement_failed):
 		_board.placement_failed.connect(_on_placement_failed)
 	grid.set_board(_board)
+	_populate_palette()
 	_refresh_aether()
 	_refresh_chains()
 
@@ -68,18 +72,22 @@ func _unhandled_input(event: InputEvent) -> void:
 		grid.set_pending(_selected_slate, _rotation_steps, _flipped)
 
 func _populate_palette() -> void:
+	for child in palette_list.get_children():
+		child.queue_free()
 	var dir := DirAccess.open(SLATE_INSTANCES_DIR)
-	if dir == null:
-		return
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-	while file_name != "":
-		if file_name.ends_with(".tres"):
-			var slate: Slate = load(SLATE_INSTANCES_DIR + file_name) as Slate
-			if slate:
-				_add_palette_entry(slate)
-		file_name = dir.get_next()
-	dir.list_dir_end()
+	if dir:
+		dir.list_dir_begin()
+		var file_name := dir.get_next()
+		while file_name != "":
+			if file_name.ends_with(".tres"):
+				var slate: Slate = load(SLATE_INSTANCES_DIR + file_name) as Slate
+				if slate:
+					_add_palette_entry(slate)
+			file_name = dir.get_next()
+		dir.list_dir_end()
+	for slate in GameState.owned_slates:
+		if _is_slate_available(slate):
+			_add_palette_entry(slate)
 
 func _add_palette_entry(slate: Slate) -> void:
 	var tag_name: String = slate.category_tag_override if slate.category_tag_override != "" else Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
@@ -110,15 +118,32 @@ func _on_cell_clicked(cell: Vector2i, button_index: int) -> void:
 			grid.queue_redraw()
 			_refresh_aether()
 			_refresh_chains()
+			_populate_palette()
 		return
 
 	if button_index == MOUSE_BUTTON_LEFT:
+		if not _is_slate_available(_selected_slate):
+			status_label.text = "You don't have another one of those to place."
+			return
 		var id := _board.place_slate(_selected_slate, cell, _rotation_steps, _flipped)
 		if id != "":
 			status_label.text = ""
 			grid.queue_redraw()
 			_refresh_aether()
 			_refresh_chains()
+			_populate_palette()
+
+## Hand-authored data/slates/instances/ samples are unlimited (the
+## existing "owns one of each" stand-in); a real SlateRoller drop
+## (GameState.owned_slates) is single-use until it's removed from the
+## board again.
+func _is_slate_available(slate: Slate) -> bool:
+	if not GameState.owned_slates.has(slate):
+		return true
+	for placement_id in _board.placements:
+		if _board.placements[placement_id].slate == slate:
+			return false
+	return true
 
 func _on_placement_failed(reason: String) -> void:
 	status_label.text = "Can't place: %s" % reason

@@ -14,10 +14,13 @@ func _ready() -> void:
 	EventBus.stance_damaged.connect(_on_stance_damaged)
 	EventBus.composure_broken.connect(_on_composure_broken)
 	EventBus.riposte_executed.connect(_on_riposte_executed)
+	EventBus.status_effect_applied.connect(_on_status_effect_applied)
+	EventBus.status_effect_expired.connect(_on_status_effect_expired)
 	EventBus.enemy_attack_resolved.connect(_on_enemy_attack_resolved)
 	EventBus.ability_cast.connect(_on_ability_cast)
 	EventBus.ability_cast_failed.connect(_on_ability_cast_failed)
 	EventBus.loot_dropped.connect(_on_loot_dropped)
+	EventBus.slate_dropped.connect(_on_slate_dropped)
 	EventBus.player_leveled_up.connect(_on_player_leveled_up)
 	EventBus.tome_picked_up.connect(_on_tome_picked_up)
 	EventBus.gold_picked_up.connect(_on_gold_picked_up)
@@ -63,6 +66,14 @@ func _on_composure_broken(enemy: Node) -> void:
 func _on_riposte_executed(source: Node, target: Node) -> void:
 	_append_line("RIPOSTE! %s executed on %s" % [source.name if source else "?", target.name if target else "?"])
 
+func _on_status_effect_applied(target: Node, effect_id: String, _stacks: int) -> void:
+	var target_name: String = "YOU" if target is Player else (target.name if target else "?")
+	_append_line("%s: %s applied" % [target_name, Constants.STATUS_EFFECT_NAME.get(effect_id, effect_id)])
+
+func _on_status_effect_expired(target: Node, effect_id: String) -> void:
+	var target_name: String = "YOU" if target is Player else (target.name if target else "?")
+	_append_line("%s: %s expired" % [target_name, Constants.STATUS_EFFECT_NAME.get(effect_id, effect_id)])
+
 func _on_enemy_attack_resolved(enemy: Node, target: Node, hit: bool, parried: bool) -> void:
 	if parried:
 		return  # already covered by _on_parry_successful
@@ -78,6 +89,9 @@ func _on_ability_cast_failed(caster: Node, ability: Ability, reason: String) -> 
 
 func _on_loot_dropped(item: Item, _at_position: Vector3) -> void:
 	_append_line("Loot dropped: %s (%s)" % [item.display_name, Constants.ItemRarity.keys()[item.rarity]])
+
+func _on_slate_dropped(slate: Slate, _at_position: Vector3) -> void:
+	_append_line("Slate dropped: %s (%d tiles, %s)" % [slate.display_name, slate.get_size(), Constants.SlateRarity.keys()[slate.rarity]])
 
 func _on_player_leveled_up(new_level: int) -> void:
 	_append_line("LEVEL UP! Now level %d" % new_level)

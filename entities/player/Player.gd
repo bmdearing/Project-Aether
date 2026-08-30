@@ -38,6 +38,7 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var ranged_attack: PlayerRangedAttack = $PlayerRangedAttack
 @onready var ability_cast: PlayerAbilityCast = $PlayerAbilityCast
 @onready var experience: ExperienceComponent = $ExperienceComponent
+@onready var status_effects: StatusEffectComponent = $StatusEffectComponent
 
 ## Real weapon models (assets/models/pack1/, a purchased low-poly pack) -
 ## keyed by Weapon.weapon_type, same string GearShop/DebugOverlay/
@@ -115,9 +116,12 @@ func _ready() -> void:
 		collision_shape.shape = collision_shape.shape.duplicate()
 	_placeholder_blade_mesh = weapon_mesh.mesh
 	equipment.equipment_changed.connect(_on_equipment_changed)
+	EventBus.slate_placed.connect(func(_id, _pos): _apply_fate_board_bonuses())
+	EventBus.slate_removed.connect(func(_id, _pos): _apply_fate_board_bonuses())
 	_apply_saved_loadout()
 	_apply_saved_experience()
 	_on_equipment_changed()  # applies stat bonuses + visuals for whatever _apply_saved_loadout() just equipped
+	_apply_fate_board_bonuses()  # empty board at boot, but keeps StatSheet's Slate fields consistent rather than left at their class defaults
 
 ## Fires on every equip()/unequip(), not just at spawn - also covers a
 ## shield/weapon equipped into a previously-empty slot.
@@ -131,20 +135,46 @@ func _on_equipment_changed() -> void:
 		_last_active_weapon = active
 		EventBus.weapon_swapped.emit(self)
 
-## Section 12 per-point values. DoT mitigation/Debuff effectiveness are
-## deferred - no supporting system exists yet.
+## Fires on every FateBoard.place_slate()/remove_slate() (EventBus.
+## slate_placed/slate_removed, both already emitted there - this is the
+## only listener). Section 10's Slate stat contribution, Mastery, and the
+## Mastery-amplified Chain Bonus System all flow through here into
+## StatSheet, then _apply_derived_stats() re-runs so Vitality/Intellect
+## gained from a placed Slate immediately affects max Health/Mana too,
+## same as an equipment change already does.
+func _apply_fate_board_bonuses() -> void:
+	if fate_board == null:
+		return
+	stat_sheet.set_slate_bonus(fate_board.compute_stat_bonuses())
+	stat_sheet.mastery_by_tag = fate_board.compute_mastery_bonuses()
+	var chains := ChainCalculator.compute_chains(fate_board)
+	stat_sheet.set_chain_bonus_by_tag(ChainCalculator.amplify_by_mastery(chains, stat_sheet))
+	_apply_derived_stats()
+
+## Section 12 per-point values. Instinct's Stamina pool is still deferred -
+## no Stamina/dodge-roll mechanic exists.
 const VITALITY_LIFE_PER_POINT := 2.0
 const VITALITY_LIFE_REGEN_PER_POINT := 0.1
+const VITALITY_RESILIENCE_PER_POINT := 3.0
 const INTELLECT_MANA_PER_POINT := 2.0
 const INTELLECT_MANA_REGEN_PER_POINT := 0.1
+
+## Section 12: "Resilience / DoT mitigation" - reduces StatusEffectComponent's
+## Ignite ticks (DamageCalculator.dot_mitigation()). Not persisted/exported;
+## always re-derived in _apply_derived_stats() like every other stat here.
+var resilience: float = 0.0
 
 func _apply_derived_stats() -> void:
 	var vitality := stat_sheet.get_stat(Constants.Stat.VITALITY)
 	var intellect := stat_sheet.get_stat(Constants.Stat.INTELLECT)
 	health.set_max_health(_base_max_health + vitality * VITALITY_LIFE_PER_POINT)
 	health.regen_per_second = vitality * VITALITY_LIFE_REGEN_PER_POINT
+	resilience = vitality * VITALITY_RESILIENCE_PER_POINT
 	mana.max_mana = _base_max_mana + intellect * INTELLECT_MANA_PER_POINT
 	mana.regen_per_second = _base_mana_regen + intellect * INTELLECT_MANA_REGEN_PER_POINT
+
+func get_dot_mitigation() -> float:
+	return DamageCalculator.dot_mitigation(resilience)
 
 func _apply_saved_experience() -> void:
 	experience.level = GameState.player_level
@@ -273,10 +303,10 @@ func get_active_weapon() -> Weapon:
 func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null) -> void:
 	if parry_handler and parry_handler.is_invulnerable:
 		return
-	var mitigated := amount
+	var mitigated := amount * status_effects.get_damage_taken_multiplier(damage_type)
 	if Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.PHYSICAL:
 		var armor := equipment.get_total_armor() if equipment else 0.0
-		mitigated = amount * (1.0 - DamageCalculator.physical_mitigation(armor, amount))
+		mitigated *= (1.0 - DamageCalculator.physical_mitigation(armor, mitigated))
 	var overflow := ward.absorb(mitigated, damage_type)
 	health.apply_damage(overflow)
 	EventBus.damage_dealt.emit(source, self, mitigated, damage_type, false, false)
@@ -293,7 +323,11 @@ func _physics_process(delta: float) -> void:
 		var gravity_scale := FALL_GRAVITY_MULTIPLIER if velocity.y < 0.0 else 1.0
 		velocity.y -= _gravity * gravity_scale * delta
 		_is_sliding = false
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	# Electrocute/Freeze ("disrupts target action" / "full immobilization") -
+	# movement itself is already zeroed via _effective_speed()'s status
+	# multiplier below; this additionally blocks jump/parry/attack input.
+	var stunned := status_effects.is_stunned()
+	if Input.is_action_just_pressed("jump") and is_on_floor() and not stunned:
 		velocity.y = jump_velocity
 		_is_sliding = false
 
@@ -322,6 +356,9 @@ func _physics_process(delta: float) -> void:
 	_update_crouch_visual(delta)
 	move_and_slide()
 
+	if stunned:
+		return
+
 	if Input.is_action_just_pressed("parry"):
 		parry_handler.start_parry_window()
 
@@ -336,7 +373,7 @@ func get_move_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_stat(Constants.Stat.INSTINCT) * INSTINCT_MOVE_SPEED_PCT
 
 func _effective_speed(base: float) -> float:
-	return base * get_move_speed_multiplier()
+	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier()
 
 func get_action_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_stat(Constants.Stat.INSTINCT) * INSTINCT_ACTION_SPEED_PCT

@@ -54,12 +54,43 @@ enum Stat { VITALITY, STRENGTH, INSTINCT, ARCANE, ENIGMA, INTELLECT }
 # Section 12 per-point values - shown in the advanced (Alt-hover) tooltip
 # when a mod line links to one of these stats.
 const STAT_GLOSSARY := {
-	Stat.VITALITY: "+2 Life, +0.1 Life regen/sec per point.",
+	Stat.VITALITY: "+2 Life, +0.1 Life regen/sec, +3 Resilience (DoT mitigation) per point.",
 	Stat.STRENGTH: "+1% increased Physical damage per point.",
 	Stat.INSTINCT: "+3% increased Crit Chance, +1% Attack/Cast speed, +0.5% Move speed per point.",
 	Stat.ARCANE: "+1% increased Elemental damage per point.",
 	Stat.ENIGMA: "+1% increased Esoteric damage per point.",
-	Stat.INTELLECT: "+1% increased Crit damage, +2 Mana, +0.1 Mana regen/sec per point.",
+	Stat.INTELLECT: "+1% increased Crit damage, +2 Mana, +0.1 Mana regen/sec, +1.5% Debuff effectiveness per point.",
+}
+
+# Section 09 - Status Effects. Scope: the 5 effects that already have a
+# real applier in this project (Ability.applies_status_effects on the
+# elemental/esoteric spells) - Bleed/Armor Shred/Stagger-Stun (Physical
+# family, no weapon-side proc mechanic exists) and Scorch/Aetherburn/
+# Pallid (no Fire-channel/Aetheric/Pale ability exists yet) are left for
+# StatusEffectComponent to grow into once a real source exists (flagged
+# in README). Blind is explicitly deferred in the patch doc itself, not
+# just by this project, so it's not modeled at all.
+const STATUS_EFFECT_DAMAGE_TYPE := {
+	"ignite": DamageType.FIRE,
+	"chill": DamageType.COLD,
+	"freeze": DamageType.COLD,
+	"electrocute": DamageType.LIGHTNING,
+	"unraveling": DamageType.ENTROPIC,
+}
+
+## Section 20's Infusion Stone/Shrivening Stone/Shard of Tharsis - fixed,
+## non-Brand crafting items (see data/consumables/instances/). Shared by
+## Enemy.gd (loot drop), CraftingScreen.gd (their own action buttons),
+## and InventoryScreen.gd (excluded from equip-on-click) so the 3 ids
+## live in exactly one place.
+const CRAFTING_CONSUMABLE_IDS := ["infusion_stone", "shrivening_stone", "shard_of_tharsis"]
+
+const STATUS_EFFECT_NAME := {
+	"ignite": "Ignite",
+	"chill": "Chill",
+	"freeze": "Freeze",
+	"electrocute": "Electrocute",
+	"unraveling": "Unraveling",
 }
 
 # Section 10 - Main Stat by Tag. Drives which stat DamageCalculator scales

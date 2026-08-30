@@ -27,11 +27,19 @@ const TELEGRAPH_COLOR := Color(1.0, 0.95, 0.2)
 @onready var health: HealthComponent = $HealthComponent
 @onready var stance: StanceComponent = $StanceComponent
 @onready var composure: ComposureComponent = $ComposureComponent
+@onready var status_effects: StatusEffectComponent = $StatusEffectComponent
 @onready var attack_hitbox: Area3D = $AttackHitbox
 
 const RIPOSTE_INDICATOR_HEIGHT := 2.2
 const RIPOSTE_INDICATOR_COLOR := Color(1.0, 0.05, 0.05)
 const RIPOSTE_BLINK_INTERVAL := 0.25
+
+## Small colored dots above the head, one per active status effect (Section
+## 09), stacked below the (higher, blinking) riposte indicator.
+const STATUS_ICON_HEIGHT := 2.0
+const STATUS_ICON_RADIUS := 0.08
+const STATUS_ICON_SPACING := 0.22
+const STATUS_EFFECT_IDS := ["ignite", "chill", "freeze", "electrocute", "unraveling"]
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _base_color: Color = Color.WHITE
@@ -39,17 +47,45 @@ var _player: Player
 var _gap_jumping: bool = false
 var _riposte_indicator: MeshInstance3D
 var _riposte_blink_tween: Tween
+var _status_icons: Dictionary = {}  # effect_id -> MeshInstance3D
 
 func _ready() -> void:
 	health.died.connect(_on_died)
 	add_to_group("enemy")
 	_player = get_tree().get_first_node_in_group("player") as Player
 	_build_riposte_indicator()
+	_build_status_icons()
 	composure.broken_state_started.connect(_on_broken_state_started)
 	composure.broken_state_ended.connect(_on_broken_state_ended)
+	status_effects.effect_applied.connect(_on_status_effect_changed)
+	status_effects.effect_expired.connect(_on_status_effect_changed)
 	# Deferred so archetype subclasses' own health.max_health (set after
 	# super._ready()) isn't overwritten by this.
 	call_deferred("_apply_map_modifiers")
+
+func _build_status_icons() -> void:
+	for i in range(STATUS_EFFECT_IDS.size()):
+		var effect_id: String = STATUS_EFFECT_IDS[i]
+		var icon := MeshInstance3D.new()
+		var sphere := SphereMesh.new()
+		sphere.radius = STATUS_ICON_RADIUS
+		sphere.height = STATUS_ICON_RADIUS * 2.0
+		icon.mesh = sphere
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		var dmg_type: Constants.DamageType = Constants.STATUS_EFFECT_DAMAGE_TYPE.get(effect_id, Constants.DamageType.KINETIC)
+		mat.albedo_color = Constants.DAMAGE_TYPE_COLOR.get(dmg_type, Color.WHITE)
+		icon.material_override = mat
+		icon.position = Vector3((i - (STATUS_EFFECT_IDS.size() - 1) / 2.0) * STATUS_ICON_SPACING, STATUS_ICON_HEIGHT, 0)
+		icon.visible = false
+		icon.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(icon)
+		_status_icons[effect_id] = icon
+
+func _on_status_effect_changed(effect_id: String) -> void:
+	var icon: MeshInstance3D = _status_icons.get(effect_id)
+	if icon:
+		icon.visible = status_effects.has_effect(effect_id)
 
 ## Hidden red light above the head, only shown (blinking) while
 ## Riposte-able - "you melee attack an enemy whose stance is broken to
@@ -83,14 +119,31 @@ func _on_broken_state_ended() -> void:
 		_riposte_blink_tween.kill()
 	_riposte_indicator.visible = false
 
+## Deterministic scaling by the active Map's own tier (`MapItem.tier`) -
+## on top of enemy_health_multiplier/enemy_damage_multiplier, which are
+## only a PROBABILISTIC bonus (MapRoller doesn't guarantee either affix
+## rolls onto a given Map - see AFFIX_POOL there), so two Tier 5 Maps
+## could otherwise end up equally tough as two Tier 1 Maps by chance.
+## Tier itself always makes enemies tougher, harder-hitting, and more
+## rewarding. Invented growth curve, not doc-sourced - Section 24 defers
+## Map/tier balance entirely (same convention as every other flagged gap).
+const TIER_HEALTH_GROWTH_PER_TIER := 0.15
+const TIER_DAMAGE_GROWTH_PER_TIER := 0.10
+const TIER_REWARD_GROWTH_PER_TIER := 0.20
+
 func _apply_map_modifiers() -> void:
 	if GameState.active_map == null:
 		return
-	health.max_health *= GameState.active_map.enemy_health_multiplier
+	var tier_bonus := 1.0 + (GameState.active_map.tier - 1) * TIER_REWARD_GROWTH_PER_TIER
+	health.max_health *= GameState.active_map.enemy_health_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_HEALTH_GROWTH_PER_TIER)
 	health.current_health = health.max_health
+	xp_reward *= tier_bonus
+	gold_reward = int(gold_reward * tier_bonus)
 
 func get_outgoing_damage_multiplier() -> float:
-	return GameState.active_map.enemy_damage_multiplier if GameState.active_map else 1.0
+	if GameState.active_map == null:
+		return 1.0
+	return GameState.active_map.enemy_damage_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_DAMAGE_GROWTH_PER_TIER)
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
@@ -125,12 +178,13 @@ func _update_chase() -> void:
 		return
 
 	var dir := to_player / dist
+	var speed := move_speed * status_effects.get_move_speed_multiplier()
 	if retreat_distance > 0.0 and dist < retreat_distance:
-		velocity.x = -dir.x * move_speed
-		velocity.z = -dir.z * move_speed
+		velocity.x = -dir.x * speed
+		velocity.z = -dir.z * speed
 	elif dist > stop_distance:
-		velocity.x = dir.x * move_speed
-		velocity.z = dir.z * move_speed
+		velocity.x = dir.x * speed
+		velocity.z = dir.z * speed
 	else:
 		velocity.x = 0.0
 		velocity.z = 0.0
@@ -205,6 +259,13 @@ func _floor_height_at(space_state: PhysicsDirectSpaceState3D, pos: Vector3):
 ## Invented drop rates - no doc-sourced table exists.
 const BASE_LOOT_DROP_CHANCE := 0.35
 const TOME_DROP_CHANCE := 0.08  # flat, independent of the gear roll below
+## Section 20: Brands "dropped as loot only" - same flat, independent
+## treatment as Tomes. Stones/Shard are rarer (one flat roll picks
+## between the 3, not 3 independent rolls).
+const BRAND_DROP_CHANCE := 0.12
+const CRAFTING_CONSUMABLE_DROP_CHANCE := 0.03
+const CRAFTING_CONSUMABLE_DIR := "res://data/consumables/instances/"
+const SLATE_DROP_CHANCE := 0.10
 const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPickup.tscn")
 const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
 
@@ -231,6 +292,25 @@ func _maybe_drop_loot() -> void:
 			_spawn_pickup(tome)
 			return  # one drop max per kill
 
+	if randf() <= BRAND_DROP_CHANCE:
+		var brand := BrandRoller.roll()
+		if brand:
+			_spawn_pickup(brand)
+			return
+
+	if randf() <= CRAFTING_CONSUMABLE_DROP_CHANCE:
+		var consumable := _roll_crafting_consumable()
+		if consumable:
+			_spawn_pickup(consumable)
+			return
+
+	if randf() <= SLATE_DROP_CHANCE:
+		var power_level: int = GameState.active_map.tier if GameState.active_map else 1
+		var slate := SlateRoller.roll(power_level)
+		if slate:
+			_spawn_slate_pickup(slate)
+			return
+
 	var quantity_mult: float = GameState.active_map.loot_quantity_multiplier if GameState.active_map else 1.0
 	if randf() > BASE_LOOT_DROP_CHANCE * quantity_mult:
 		return
@@ -241,6 +321,11 @@ func _maybe_drop_loot() -> void:
 		return
 	_spawn_pickup(item)
 
+func _roll_crafting_consumable() -> Item:
+	var id: String = Constants.CRAFTING_CONSUMABLE_IDS[randi() % Constants.CRAFTING_CONSUMABLE_IDS.size()]
+	var base := load(CRAFTING_CONSUMABLE_DIR + id + ".tres") as Item
+	return base.duplicate(true) as Item if base else null
+
 func _spawn_pickup(item: Item) -> void:
 	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()
 	pickup.item = item
@@ -248,9 +333,17 @@ func _spawn_pickup(item: Item) -> void:
 	pickup.global_position = global_position
 	EventBus.loot_dropped.emit(item, global_position)
 
+func _spawn_slate_pickup(slate: Slate) -> void:
+	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()
+	pickup.slate = slate
+	get_parent().add_child(pickup)
+	pickup.global_position = global_position
+	EventBus.slate_dropped.emit(slate, global_position)
+
 func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false) -> void:
 	var multiplier := composure.get_damage_multiplier(is_spell) if composure else 1.0
-	health.apply_damage(amount * multiplier)
+	var status_multiplier := status_effects.get_damage_taken_multiplier(damage_type) if status_effects else 1.0
+	health.apply_damage(amount * multiplier * status_multiplier)
 
 func _set_placeholder_color(c: Color) -> void:
 	_base_color = c

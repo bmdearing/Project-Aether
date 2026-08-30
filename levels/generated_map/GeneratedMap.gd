@@ -44,6 +44,7 @@ const UI_SCENES: Array[PackedScene] = [
 	preload("res://ui/debug/DebugOverlay.tscn"),
 	preload("res://ui/fate_board_editor/FateBoardEditor.tscn"),
 	preload("res://ui/inventory/InventoryScreen.tscn"),
+	preload("res://ui/crafting/CraftingScreen.tscn"),
 	preload("res://ui/abilities/AbilitiesScreen.tscn"),
 	preload("res://ui/character_screen/CharacterScreen.tscn"),
 	preload("res://ui/map_screen/MapScreen.tscn"),

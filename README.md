@@ -105,6 +105,23 @@ Loot generation below) before it shows up in the Abilities screen at all.
 The Hub's SpellTestShop (see Shops below) unlocks every ability for free,
 for testing without grinding drops.
 
+**Status Effects** (`entities/components/StatusEffectComponent.gd`,
+Section 09): bidirectional — a copy lives on both Player and Enemy, so any
+future enemy-side applier works with zero new plumbing. Covers Ignite
+(Fire DoT, ticks over 4s), Chill (Cold, -30% move/action speed, 3
+applications escalate to Freeze), Freeze (full immobilization), Electrocute
+(Lightning stun/stagger), and Unraveling (Entropic, +25% Esoteric damage
+taken) — the 5 effects with a real applier today, via each spell's
+`applies_status_effects` (see Abilities above). Vitality's Resilience/DoT
+mitigation and Intellect's Debuff effectiveness (Section 12) are wired
+through it too — Resilience reduces Ignite's tick damage, the applying
+side's Intellect extends Chill/Electrocute/Unraveling's duration. Stunned
+targets have their `EnemyMeleeAttack`/`EnemyRangedAttack` state machine
+paused (Enemy side) or lose jump/parry/attack input (Player side). Active
+effects show as a colored chip row top-left on `PlayerHUD` and as small
+floating dots above an Enemy's head. Bleed/Armor Shred/Stagger-Stun and
+Scorch/Aetherburn/Pallid aren't modeled yet — see gaps below.
+
 **Equipment & Items** (`data/items/`, `data/armor/`, `data/shields/`,
 `data/weapons/`, `systems/equipment/EquipmentComponent.gd`): Section 13
 equip slots, two-handed-weapon-clears-sidearm/offhand rule enforced.
@@ -120,6 +137,31 @@ pack) show that icon via `ItemSlotButton`; anything without one yet
 still falls back to a colored square (rarity or damage-type color).
 `worn_pistol` deliberately has no icon - no firearm exists in that
 asset pack.
+
+**The inventory grid is rearrangeable** - drag a slot onto an EMPTY cell
+and it moves there, exactly, full stop; drag it onto an OCCUPIED cell and
+the two swap (native Godot `Control` drag-and-drop, `ItemSlotButton.
+draggable` opt-in so Fate Board/Abilities/Shop's own buttons are
+unaffected). Real per-cell positioning (`InventoryScreen._slot_assignment`),
+not a reordered list - two earlier versions got this wrong (insert-before-
+target bumped every later slot down by one; a naive "empty means append"
+fallback dragged every item between the source and the actual empty cell
+along with it) before landing on real per-cell placement, both caught by
+the user in play. Position is session-local (not saved - only ownership
+is; a flagged gap, revisit if this needs to survive a reload).
+`GameState.owned_loot`'s own array order is never touched by dragging at
+all now - only which grid cell each entry renders in changes.
+Only real drops are draggable - the directory-scanned "one of each base"
+catalog always sits first and can't be picked up or targeted, since its
+scan order isn't something the player actually owns to rearrange. **Brand
+stacks**: identical Brands (fungible crafting currency, not unique rolled
+gear - see Crafting above) group into one slot with a count ("Impel x3")
+instead of one slot per drop, and drag as a whole block. Clicking a Brand
+or crafting consumable in the grid no longer tries to equip it (both have
+a meaningless leftover `equip_slot` default that, before this, silently
+cleared whatever was actually equipped in that slot - a real bug, not
+just a missing feature) - it shows a status message pointing at the
+Crafting screen instead.
 
 **Stat cards** (`ui/item_card/`): hovering any item, Slate, or ability
 anywhere in the UI shows a rich PoE-style card (stats, affixes, flavor
@@ -137,9 +179,45 @@ the number can't drift from reality).
 
 **Fate Board** (`systems/fate_board/`, `ui/fate_board_editor/`, Section
 10): grid Slate placement gated by an Aether budget, flood-fill chain
-detection with tiered bonuses. UI is a bounded 32x32 window (not the
-doc's "effectively unlimited" board), palette scanned live from
-`data/slates/instances/`. Opens with `P`.
+detection with tiered bonuses (`Constants.CHAIN_BONUS_TIERS`, doc-exact).
+UI is a bounded 32x32 window (not the doc's "effectively unlimited"
+board), opens with `P`. The palette shows the hand-authored
+`data/slates/instances/` samples (11 now - see below) as an always-
+available catalog, plus every real `SlateRoller` drop in
+`GameState.owned_slates` - those are finite: placing one removes it from
+the palette until it's pulled back off the board.
+
+**Slates now do something** - three real, mechanical pathways out of the
+Fate Board, all landing on `StatSheet` and consumed by the existing
+damage formula with no changes needed there:
+1. **Stat contribution** (Section 10's "Stats Per Tile" - doc-exact: 1.7
+   Main Stat/tile keyed by the Slate's tag via the same
+   `Constants.DAMAGE_TYPE_MAIN_STAT` table weapons/abilities already
+   scale against, 0.8 Random Stat/tile, 5+ tile Slates only) sums across
+   every PLACED Slate into `StatSheet.slate_bonus`, same channel gear's
+   `flat_<stat>` affixes already use.
+2. **Mastery** (Section 10/23: "tag-specific... multiplying weapon
+   scaling grade effectiveness for that tag") is granted by a Slate's own
+   "mastery" modifier. `StatSheet.mastery_by_tag` existed and was already
+   read by `Weapon`/`Ability` damage rolls since early in this project -
+   nothing had ever populated it until now.
+3. **Chain Bonus** amplifies by Mastery (`ChainCalculator.
+   amplify_by_mastery()` - "Mastery... multiplying the per-tile chain
+   bonus rate") and the result feeds `Weapon`/`Ability._base_hit()`'s
+   `increased_percents` as real "increased damage" for that tag's
+   category - the same formula parameter every damage roll already
+   accepted but nothing had ever passed anything into before this.
+
+Whether a Slate's own stat rolls should ALSO be chain-amplified is
+explicitly unresolved in Section 10 itself ("deferred pending balance
+evaluation") - not implemented, matching that stated deferral rather
+than guessing. **`SlateRoller`** (mirrors `ItemRoller`/`BrandRoller`)
+rolls all five of Section 10's axes - Tag, Shape (from a small invented
+template pool, freely rotated/flipped at placement), Size (the doc's own
+2-4/5-9/10-11 tile brackets, each with its own rarity band and design
+identity), Modifier Count, and Modifier Values (the stat formula above is
+deterministic per tile count, not randomized) - and drops as loot (10%
+chance per kill, same flat-independent-roll convention as Tomes/Brands).
 
 **Hub, Maps, and the Map Device** (`levels/hub/`,
 `entities/interactables/map_device/`): `MainMenu.tscn` (project's main
@@ -148,6 +226,17 @@ and press `E` to roll a `MapItem` (`data/maps/`, tier-scaled
 enemy-damage/enemy-health/loot-quantity/loot-rarity affixes) and enter a
 procedurally generated Map. Leaving is manual (Pause menu's "Return to
 Hub," or death).
+
+**Enemies now also scale deterministically off the Map's own `tier`**
+(`Enemy._apply_map_modifiers()`/`get_outgoing_damage_multiplier()`), on
+top of the existing `enemy_health_multiplier`/`enemy_damage_multiplier`
+affixes above. Those affixes are only a *probabilistic* bonus (`MapRoller`
+doesn't guarantee either one rolls onto a given Map), so two Tier 5 Maps
+could otherwise end up just as tough as two Tier 1 Maps by chance alone —
+tier itself now always makes enemies tougher, harder-hitting, and more
+rewarding (XP/Gold scale too). Invented growth curve (+15% health/+10%
+damage/+20% XP+Gold per tier above 1) — not doc-sourced, Section 24
+defers Map/tier balance entirely.
 
 **Shops** (`entities/interactables/gear_shop/`,
 `entities/interactables/spell_test_shop/`, `ui/shop/ShopScreen.gd`): two
@@ -166,8 +255,10 @@ already uses for item/slate/ability display).
 
 **Loot generation** (`data/items/item_roller.gd`,
 `data/abilities/tome_roller.gd`, `entities/pickups/loot_pickup/`,
-`entities/pickups/gold_pickup/`): killing an enemy can drop up to three
-different things. **Gold**: `Enemy.gold_reward` (per-archetype, invented)
+`entities/pickups/gold_pickup/`): killing an enemy can drop up to six
+different things (Gold, Gear, a Skill Tome, a Brand, a crafting
+consumable, or a Slate — first match wins, "one drop max per kill" per
+the existing convention). **Gold**: `Enemy.gold_reward` (per-archetype, invented)
 spawns as a visible `GoldPickup` — a small spinning coin, auto-picked-up
 on touch — rather than being granted instantly. **Gear**: invented `35%`
 base chance, scaled by the active Map's `loot_quantity_multiplier`
@@ -200,6 +291,34 @@ rolled items — see Save/Load below) and shows up in `InventoryScreen`'s
 grid, fully equippable and now safe to keep equipped across scene
 transitions/saves; a Tome unlocks its ability into
 `GameState.owned_ability_ids` and shows up in `AbilitiesScreen`.
+
+**Crafting** (`systems/crafting/CraftingSystem.gd`, `ui/crafting/`,
+`data/brands/`, `K`, Section 20): the doc's three distinct crafting
+methods, all real. **The Cube**: place one owned item + up to 8 Brands
+(this project's uniform 1x1 inventory means every item costs exactly one
+of the 3x3 grid's 9 cells), hit Craft. 24 of the doc's ~29 named Brands
+exist (all 9 Damage Type, all 5 Defensive Type, all 4 Umbrella, all 6
+Crafting Utility, plus Binder/Rectify from Special/Rare — Facsimile/
+Amalgam/Imbue are cut, see gap below), dropped as loot only
+(`BrandRoller.gd`, same flat-chance convention as Skill Tomes). A Damage/
+Defensive/Umbrella Brand alone adds one new modifier weighted toward its
+category (reusing `ItemRoller.AFFIX_POOL`, now tagged per category — see
+gap below for which categories are still descriptive-only); Render/
+Refine/Cleave/Excise/Bore/Sever do their doc-described thing for real
+(Cleave locks one modifier and risks destroying the item on a second use;
+Sever, combined with a category Brand, permanently seals that tag from
+ever rolling on the item again); Binder exempts every other Brand in the
+craft from consumption. **Infusion/Shrivening Stone**: reroll or clear a
+weapon's `infused_damage_type` (the field already existed, unused, before
+this). **Shard of Tharsis**: corrupts an item per Section 20's own
+"Possible Corruption Outcomes" list (new modifier, rerolled ranges,
+sockets added/removed, etc.) — every corruption attempt also rolls the
+doc's "chance to retain craftable/corruptible status," which can
+permanently lock an item out of any further Cube craft or corruption.
+Every probability/priority-order choice below the doc's own named
+mechanics is this project's invented placeholder (Section 24 explicitly
+defers "Cube combination rules," "Brand rarity tiers," and "Corruption
+probability distribution" to a future design pass) — see flagged gap.
 
 **Map screen** (`ui/map_screen/`, `M`): a top-down schematic of the
 current generated Map's room graph — start room green, Vault gold, your
@@ -324,14 +443,15 @@ formulas).
 | Open Abilities (equip/upgrade) directly | N |
 | Open Character Screen directly | C |
 | Open Map Screen directly | M |
+| Open Crafting (The Cube) directly | K |
 | Rotate pending Slate *(Fate Board editor only)* | R |
 | Flip pending Slate *(Fate Board editor only)* | Q |
 | Interact *(Map Device, Hub only)* | E |
 
-P/B/N/C work from anywhere — gameplay, the pause menu, or another such
+P/B/N/C/M/K work from anywhere — gameplay, the pause menu, or another such
 screen — and jump straight to their target, closing whatever else was
 open. Pressing the same key again while already on that screen closes it.
-None of the four have a `PauseMenu` button — hotkey-only.
+None of the six have a `PauseMenu` button — hotkey-only.
 
 ## Flagged design gaps (need your call, not resolved unilaterally)
 
@@ -385,23 +505,30 @@ None of the four have a `PauseMenu` button — hotkey-only.
     has exactly three real options. Master volume now has real audio to
     affect (Main Menu music + procedural rain/thunder, see the Main Menu
     background section above) but nothing plays in the Hub/Map yet.
-12. **Ability casting is one generic self-centered nova for all 4
-    abilities**, not their actual described mechanics (Comet's targeted
-    drop, Winter's Eye's traveling orb, Frost Armor's melee-retaliation
-    trigger). `applies_status_effects` (chill, etc.) also isn't wired to
-    anything — no status-effect system exists to apply/track it.
+12. **Ability casting is still a generic AoE-at-cast-point hit for every
+    ability** (3 of 9 add ground-targeting + bespoke impact VFX - Comet,
+    Inferno, Stormcall - but even those deal generic AoE damage on
+    landing, not their actual described mechanics: Comet's "massively
+    increased damage against Chilled/Frozen enemies," Winter's Eye's
+    traveling orb, Frost Armor's melee-retaliation trigger).
+    `applies_status_effects` IS now wired though - see
+    `StatusEffectComponent` (Ignite/Chill/Freeze/Electrocute/Unraveling,
+    Section 09) - `PlayerAbilityCast._cast()` applies each ability's
+    listed effect(s) to every enemy it hits.
 13. **Map items have no selection/inspection UI and no doc-sourced affix
     table** — the Map Device rolls and commits in one keypress; the
     affix pool and tier curve are invented.
-14. **Vitality's Resilience/DoT mitigation, Instinct's Stamina pool +
-    dodge-roll/Active-Blocking, and Intellect's Debuff effectiveness are
-    NOT wired**, even though the rest of each stat's Section 12
-    expression now is — none of the three has a supporting system built
-    anywhere in this project (no DoT/status-effect system, no
-    Stamina/dodge/block-charge mechanic, no debuff-magnitude system), so
-    there's nothing yet for that portion of the stat to modify. Strength's
-    Stagger effect/Stun Recovery are similarly unwired for the same
-    reason (no stagger/stun mechanic exists).
+14. **Vitality's Resilience/DoT mitigation and Intellect's Debuff
+    effectiveness are now wired** (`Player.get_dot_mitigation()` /
+    `DamageCalculator.dot_mitigation()`, and
+    `StatusEffectComponent._debuff_effectiveness_multiplier()`
+    respectively - see `StatusEffectComponent`), now that a real DoT/
+    debuff system (status effects) exists for them to modify. **Instinct's
+    Stamina pool + dodge-roll/Active-Blocking is still NOT wired** - no
+    Stamina/dodge/block-charge mechanic exists. Strength's Stagger
+    effect/Stun Recovery are similarly unwired - no stagger/stun-duration
+    mechanic exists (Electrocute/Freeze's stun is currently a flat,
+    invented duration, not modified by either stat).
 15. **Critical Strike System's per-ability base crit chance is thematic
     guesswork, not a real mechanical distinction** — the doc keys base
     crit chance off "spell type" (single target/AoE/channeled/etc.),
@@ -435,7 +562,11 @@ None of the four have a `PauseMenu` button — hotkey-only.
     the Player section above), but the damage/armor/ward affixes
     (`physical_dmg_increased`, `flat_armor`, etc.) are still
     descriptive-only — no aggregation of those into the damage/armor
-    formulas exists yet, only the 6 core stats got wired this pass.
+    formulas exists yet, only the 6 core stats got wired this pass. The
+    Crafting pass (gap #25) extended this same pool with 4 more
+    descriptive-only entries (Evasion/Resistance/Resilience/skill
+    cooldown) so every Brand category has *something* real to roll -
+    same gap, just wider now, not a new one.
 19. **Loot pickup is auto-pickup-on-touch, not a manual pickup/prompt**
     — a judgment call, not requested verbatim; fits how often gear
     would drop during combat better than a keypress flow, but is a
@@ -457,8 +588,9 @@ None of the four have a `PauseMenu` button — hotkey-only.
     mechanic** — the patch doc actually describes a fairly detailed
     system (3 skill slots per weapon, Tomes socketed per-weapon, up to 9
     skills with both weapon slots filled), but there's no functioning
-    socket system anywhere in this project (`Item.max_sockets` isn't
-    wired to anything, Gems/Jewels are explicitly not-built-yet), so
+    socket system anywhere in this project (`Item.max_sockets` is now
+    settable — Bore/Corruption, Section 20 — but nothing can be socketed
+    INTO it yet; Gems/Jewels are still explicitly not-built-yet), so
     this pass only builds the acquisition half of the doc's replacement
     Skill System (a flat "owns it or doesn't" unlock), not the
     per-weapon-slot socketing half.
@@ -472,22 +604,97 @@ None of the four have a `PauseMenu` button — hotkey-only.
     request ("for testing purposes"); it bypasses the SkillTome
     acquisition path entirely and isn't meant to represent real
     in-fiction economy the way GearShop is.
+24. **`StatusEffectComponent` only covers 5 of Section 09's 11 status
+    effects** — Ignite/Chill/Freeze/Electrocute/Unraveling, the ones with
+    a real applier today (`Ability.applies_status_effects` on the
+    elemental/esoteric spells). Bleed/Armor Shred/Stagger-Stun (Physical
+    family) have no weapon-side proc mechanic and Scorch/Aetherburn/
+    Pallid have no Fire-channel/Aetheric/Pale ability yet, so both groups
+    are left for the component to grow into once a real source exists.
+    Blind is deliberately not modeled at all — the patch doc itself defers
+    its mechanical expression, not just this project. Every duration/
+    magnitude/stack-threshold inside the component (Ignite's 4s DoT
+    dealing 50% of the triggering hit, Chill's 30% slow, 3 stacks to
+    Freeze, Electrocute's 0.8s stun, Unraveling's +25% Esoteric damage
+    taken) is invented — the doc names each effect and its qualitative
+    behavior only, no numbers, same as every other unspecified-tuning gap
+    on this list.
+25. **Crafting's Cube combination rules and Corruption probabilities are
+    entirely invented** — Section 24 ("Deferred Design") explicitly says
+    so itself ("Cube combination rules — how many Brands per combination,
+    fixed vs variable slots," "Corruption probability distribution —
+    outcome weightings," "Maximum modifier count per item — balance
+    dependent" are all listed there as not yet designed, not just missed
+    by this project). `CraftingSystem.FUNCTION_PRIORITY` (which Brand
+    function governs a craft when several are placed together),
+    `MAX_AFFIXES` (6, reusing Section 18's own "Rare: 0-6" ceiling),
+    `CLEAVE_DESTROY_CHANCE`/`SEVER_UNDO_CHANCE`/`REFINE_BOOST_PERCENT`/
+    `RETAIN_CRAFTABLE_CHANCE`, and `CORRUPTION_OUTCOMES`' weights are all
+    this project's own placeholders for those specific gaps. Facsimile
+    (item duplication), Amalgam (merging two items' mods), and Imbue (a
+    new "powerful implicit" pool) are cut from the Special/Rare Brand
+    list — each is its own separate mechanic with no natural home in the
+    systems this pass touches. Vestiges (boss-exclusive mod pools) aren't
+    modeled — this project has no boss encounters to drop one. Corruption
+    and Bore both touch `Item.max_sockets`, but per gap #21 nothing can
+    actually be socketed into it yet.
+26. **Inventory slot arrangement doesn't survive a save/reload** -
+    `InventoryScreen._slot_assignment` (which grid cell each item/Brand
+    stack renders in) lives on the screen instance itself, not
+    `GameState`, so it resets whenever the scene reloads (returning to
+    Hub, entering a Map, loading a save). `GameState.owned_loot` - actual
+    *ownership* - is unaffected and still persists exactly as before;
+    only the player's chosen layout is session-local. Not requested, and
+    keying a persistent version to something stable across a save's
+    item-reconstruction (`ItemSerializer.from_dict()` builds fresh
+    Resource objects with new instance ids every load) would need a real
+    per-item save-stable id that doesn't exist yet - flagged rather than
+    guessed at.
+27. **The Slate System's numeric/probabilistic choices beyond Section
+    10's own doc-exact numbers are invented** - the Chain Bonus tiers,
+    Stats Per Tile formula (1.7/0.8/2.5), Main Stat by Tag table, and
+    Slate Size/Rarity brackets are all doc-exact and transcribed
+    verbatim; everything `SlateRoller` decides beyond those (which shape
+    template within a size bracket, Hybrid chance, Mastery's value range
+    and how often a 5+ tile Slate additionally rolls one, Aether cost)
+    has no doc-sourced formula - Section 10 states the mechanics and
+    axes, not their exact acquisition curve, same "Deferred Design"
+    pattern as Crafting (gap #25). Two specific interpretive calls worth
+    flagging on their own: **(a)** a Slate's own "mastery" modifier grants
+    Mastery to its primary tag only, even on a Hybrid Slate - the doc's
+    "full bonus to both" wording for Hybrids describes chain-EXTENSION
+    specifically (Section 10), not a Slate's own static modifier lines,
+    which the doc doesn't address either way. **(b)** Chain Bonus's own
+    output (after Mastery amplification) is treated as "increased damage"
+    for that tag's category, feeding the same `increased_percents` slot
+    every damage roll already accepted - the doc names the Chain Bonus
+    System and gives its numbers but never states what the resulting
+    percentage actually modifies; "increased damage of that tag" is the
+    most natural reading given everything else about it (a per-tag
+    bonus from a tag-scoped build-customization system), not a
+    transcription of doc text. Fate Board LAYOUT still isn't saved
+    (existing gap, unchanged - see "Explicitly not built yet" below);
+    `GameState.owned_slates` (real Slate ownership) now is.
 
 ## Explicitly not built yet (per Vertical Slice Brief scope)
 
-Crafting (Cube/Brands/Corruption), a Gem/Jewel/weapon-socket system (Skill
-Tomes unlock abilities directly instead — see flagged gaps), a Stamina pool +
-dodge-roll/Active-Blocking mechanic (Instinct's per-point Stamina value has
-nothing to spend into yet), full 9-damage-type coverage, co-op, any
-skeletal character animation (`assets/animations/` has two full rigged
-animation libraries + a mannequin imported cleanly, but there's no
+A Gem/Jewel/weapon-socket system (Skill Tomes unlock abilities directly
+instead — see flagged gaps; Crafting's Bore/Corruption can now raise
+`Item.max_sockets`, but nothing can be socketed into it yet), a Stamina
+pool + dodge-roll/Active-Blocking mechanic (Instinct's per-point Stamina
+value has nothing to spend into yet), full 9-damage-type coverage, co-op,
+any skeletal character animation (`assets/animations/` has two full
+rigged animation libraries + a mannequin imported cleanly, but there's no
 `AnimationPlayer`/`AnimationTree`/skeleton pipeline anywhere in this
 project yet - a much bigger, separate undertaking than everything else
-in this list), Conduit/Secondary (Throwable) attack input, a status-effect system (also
-blocks Vitality's DoT mitigation and Intellect's Debuff effectiveness
-from doing anything), save persistence for Fate Board layout or mid-map
-state, pathfinding/navigation for enemies (fine today — every generated
-room is an open box, nothing to path around within one).
+in this list), Conduit/Secondary (Throwable) attack input, save
+persistence for Fate Board layout or mid-map state, pathfinding/
+navigation for enemies (fine today — every generated room is an open box,
+nothing to path around within one). A status-effect system now exists
+(`StatusEffectComponent`, flagged gap #24) but only for 5 of Section 09's
+11 effects. Crafting (`CraftingSystem`, flagged gap #25) now exists too -
+The Cube, Infusion/Shrivening Stone, and Shard of Tharsis are all real,
+minus Facsimile/Amalgam/Imbue and Vestiges (no boss encounters to drop one).
 
 ## Opening this project
 

@@ -8,10 +8,12 @@ extends Node
 ## directly (PauseMenu, DeathScreen, MainMenu, MapDevice).
 ##
 ## Saves: equipment loadout (incl. rolled/pathless items via
-## ItemSerializer), owned loot, ability loadout + ranks, level/XP, gold,
-## owned ability ids, settings. NOT saved: Fate Board layout, current
-## Health/Ward/Mana or player position (always resume the Hub at full),
-## GameState.active_map.
+## ItemSerializer), owned loot, owned Slates (SlateSerializer, same
+## rationale), ability loadout + ranks, level/XP, gold, owned ability
+## ids, settings. NOT saved: Fate Board LAYOUT (which Slate sits where -
+## owning a Slate and having it placed are different things; only
+## ownership persists), current Health/Ward/Mana or player position
+## (always resume the Hub at full), GameState.active_map.
 
 const SAVE_PATH := "user://savegame.json"
 
@@ -27,6 +29,9 @@ func save_game() -> void:
 	var owned_loot_data := []
 	for item in GameState.owned_loot:
 		owned_loot_data.append(ItemSerializer.to_dict(item))
+	var owned_slates_data := []
+	for slate in GameState.owned_slates:
+		owned_slates_data.append(SlateSerializer.to_dict(slate))
 	var data := {
 		"game_started": GameState.game_started,
 		"mouse_sensitivity": GameState.mouse_sensitivity,
@@ -40,6 +45,7 @@ func save_game() -> void:
 		"gold": GameState.gold,
 		"owned_ability_ids": GameState.owned_ability_ids,
 		"owned_loot": owned_loot_data,
+		"owned_slates": owned_slates_data,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -91,6 +97,16 @@ func load_game() -> void:
 				if item:
 					loot.append(item)
 		GameState.owned_loot = loot
+
+	var slates_raw = parsed.get("owned_slates", [])
+	if typeof(slates_raw) == TYPE_ARRAY:
+		var slates: Array[Slate] = []
+		for entry in slates_raw:
+			if typeof(entry) == TYPE_DICTIONARY:
+				var slate := SlateSerializer.from_dict(entry)
+				if slate:
+					slates.append(slate)
+		GameState.owned_slates = slates
 
 func delete_save() -> void:
 	if FileAccess.file_exists(SAVE_PATH):

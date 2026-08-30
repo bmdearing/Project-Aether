@@ -4,6 +4,7 @@ extends Node
 
 signal damage_dealt(source: Node, target: Node, amount: float, damage_type: int, is_more_multiplier_applied: bool, is_critical: bool)
 signal status_effect_applied(target: Node, effect_id: String, stacks: int)
+signal status_effect_expired(target: Node, effect_id: String)
 
 signal stance_damaged(enemy: Node, amount: float, remaining: float)
 signal composure_broken(enemy: Node)
@@ -33,5 +34,7 @@ signal player_leveled_up(new_level: int)
 
 signal loot_dropped(item: Item, at_position: Vector3)
 signal loot_picked_up(item: Item)
+signal slate_dropped(slate: Slate, at_position: Vector3)
+signal slate_picked_up(slate: Slate)
 signal tome_picked_up(tome: SkillTome)
 signal gold_picked_up(amount: int)

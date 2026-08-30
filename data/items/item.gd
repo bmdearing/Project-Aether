@@ -23,3 +23,19 @@ class_name Item
 ## stays JSON-safe. Empty means no icon exists yet - callers fall back to
 ## the color square exactly as before.
 @export var icon_path: String = ""
+
+## Section 20 Crafting. Cleave's "second application risks destroying the
+## item" needs a use-count; Sever's tag-sealing needs to persist which
+## damage-type/defensive/umbrella category_tags (Brand.category_tag) are
+## permanently blocked from rolling again. Both no-ops until CraftingSystem
+## touches an item - 0/empty for everything else.
+@export var cleave_count: int = 0
+@export var sealed_tags: Array[String] = []
+
+## Section 20: Shard of Tharsis. "Every corruption attempt has an
+## independent % chance to retain craftable/corruptible status regardless
+## of outcome" - is_corrupted just records that a Shard was used;
+## is_craftable is what that retain-chance roll actually gates (false
+## permanently blocks any further Cube craft or Corruption attempt).
+@export var is_corrupted: bool = false
+@export var is_craftable: bool = true

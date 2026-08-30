@@ -66,6 +66,21 @@ static func _flood_fill(board: FateBoard, start_cell: Vector2i, tag: Constants.D
 
 	return result
 
+## Section 10/23: "Mastery... multiplying the per-tile chain bonus rate."
+## Takes compute_chains()'s raw per-chain results and amplifies each by
+## (1 + that chain's tag's Mastery) - kept as a separate pass (rather than
+## folded into compute_chains() itself) so the raw board geometry stays
+## testable/displayable without a StatSheet dependency (FateBoardEditor's
+## own chain_label still shows the unamplified per-tag numbers). Two
+## disconnected same-tag chains both contribute, summed per tag.
+static func amplify_by_mastery(chains: Array[ChainResult], stat_sheet: StatSheet) -> Dictionary:
+	var totals: Dictionary = {}
+	for result in chains:
+		var mastery: float = stat_sheet.get_mastery(result.tag) if stat_sheet else 0.0
+		var amplified: float = result.bonus_percent * (1.0 + mastery)
+		totals[result.tag] = totals.get(result.tag, 0.0) + amplified
+	return totals
+
 static func _bonus_for_tile_count(tile_count: int) -> float:
 	var bonus := 0.0
 	var remaining := tile_count

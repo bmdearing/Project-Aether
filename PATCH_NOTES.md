@@ -7,6 +7,349 @@ there. Most recent first.
 
 ---
 
+## 2026-08-30 — Slate System Expansion: Real Stats, Mastery, Chain Damage, a Roller
+
+User asked to expand the Slate system; a survey turned up that placing
+Slates, computing chains, and tracking Aether budget all worked and
+updated the UI live, but NONE of it reached `StatSheet`/`DamageCalculator`
+- the whole Fate Board was a placement puzzle with no combat effect.
+User picked all three offered directions: wire Slate output into
+gameplay, add a real acquisition path (a `SlateRoller`), and author more
+content.
+
+Re-read Section 10 from the docx-extracted design doc rather than
+guessing at the mechanics - found doc-exact numbers for the Chain Bonus
+tiers (already transcribed correctly in `Constants.CHAIN_BONUS_TIERS`
+from an earlier pass), a "Stats Per Tile" formula (1.7 Main Stat/tile +
+0.8 Random Stat/tile, 5+ tile Slates only), a Main Stat by Tag table
+(matches `Constants.DAMAGE_TYPE_MAIN_STAT`, already in the project for
+weapon/ability scaling), and Mastery's real definition: "tag-specific...
+multiplying both the per-tile chain bonus rate AND weapon scaling grade
+effectiveness for that tag" - the causality is Mastery amplifies chain
+bonus, not the reverse (an earlier assumption while planning this that
+the doc corrected on a careful re-read).
+
+- **`StatSheet` gained `slate_bonus`/`chain_bonus_by_tag`** alongside the
+  existing (but never-populated) `mastery_by_tag`. `FateBoard.
+  compute_stat_bonuses()` sums every placed Slate's `flat_<stat>`
+  modifiers into the first, reusing `EquipmentComponent.AFFIX_STAT_KEYS`
+  so a Slate modifier means exactly what a gear affix already means.
+  `FateBoard.compute_mastery_bonuses()` sums "mastery" modifiers by tag
+  into the second - `Weapon`/`Ability._base_hit()` were ALREADY reading
+  `stat_sheet.get_mastery(damage_type)` into the damage formula's
+  scaling-grade multiplier since early in this project; nothing had ever
+  written to it. Just adding a source made Mastery real with zero changes
+  to the damage formula itself.
+- **`ChainCalculator.amplify_by_mastery()`** (new): takes raw per-tag
+  chain results and each tag's Mastery, returns `(1 + mastery)`-amplified
+  bonus per tag - kept separate from `compute_chains()` so the raw board
+  geometry stays usable without a `StatSheet` (`FateBoardEditor`'s own
+  chain label still shows the unamplified numbers). The amplified result
+  feeds `Weapon`/`Ability._base_hit()`'s `increased_percents` parameter -
+  every damage roll already accepted this array, nothing had ever passed
+  anything into it. Whether a Slate's own STAT rolls should also be
+  chain-amplified is explicitly unresolved in the doc itself ("deferred
+  pending balance evaluation") - left unamplified, matching that stated
+  deferral rather than guessing past it.
+- **`Player._apply_fate_board_bonuses()`** (new): listens to
+  `EventBus.slate_placed`/`slate_removed` (both already emitted by
+  `FateBoard`, nothing new needed there) and recomputes all three
+  StatSheet fields plus `_apply_derived_stats()`, so a placed Slate's
+  Vitality immediately affects max Health the same frame, same as
+  equipping gear already does.
+- **`SlateRoller`** (new, mirrors `ItemRoller`/`BrandRoller`): rolls all
+  five of Section 10's axes. Tag/Hybrid/shape (a small invented template
+  pool spanning 2-11 tiles) are randomized; the stat formula is NOT
+  rolled in a range once size is chosen - it's the doc's own deterministic
+  per-tile formula. Small (2-4 tile) Slates get a Mastery modifier
+  instead of stats, matching the doc's "no stat contribution... pure
+  modifier expression" - an invented reading of what that modifier
+  actually IS, since the doc never says. Dropped as loot (`Enemy.gd`,
+  10% chance/kill, same flat-independent convention as Tomes/Brands) via
+  a new `LootPickup.slate` field (Slate doesn't extend Item, so it needed
+  its own field alongside `item`) and two new EventBus signals
+  (`slate_dropped`/`slate_picked_up` - `loot_dropped`/`loot_picked_up`
+  are typed to `Item`, which Slate isn't).
+- **`GameState.owned_slates` + `SlateSerializer`** (new): real Slate
+  ownership now persists across saves, same full-data rationale as
+  `owned_loot`/`ItemSerializer`. `FateBoardEditor`'s palette now shows
+  the hand-authored catalog (unlimited, unchanged) PLUS every owned
+  rolled Slate NOT currently placed (`_is_slate_available()`) - a rolled
+  Slate is single-use until pulled back off the board, unlike the
+  catalog's infinite samples. Fate Board LAYOUT (which Slate sits where)
+  still isn't saved (unchanged, existing gap) - only ownership is.
+- **9 new hand-authored Slates** (`data/slates/instances/`) spanning 7 of
+  the 9 damage tags, both stat-formula and Mastery-only variants, and one
+  Hybrid (Cold/Fire) - the project's first Slate content beyond the
+  original 2 samples.
+- Found and fixed one real bug while building this: `SlateRoller`'s
+  shape templates are plain untyped `Array`s (a GDScript const
+  array-of-arrays literal doesn't infer `Array[Vector2i]` for the inner
+  arrays), so a direct assignment to `Slate.shape_cells` crashed with a
+  type error on every roll - fixed with an explicit element-by-element
+  copy into a typed array.
+- Verified with a 183-check real scene-load test: stat/Mastery
+  aggregation, chain-amplification math at an exact value, live
+  `EventBus`-driven `StatSheet` updates on a real `Player` (place a
+  Slate, watch Strength rise; remove it, watch it revert), an end-to-end
+  proof that a chain bonus multiplies actual predicted weapon damage by
+  exactly the expected ratio (and does NOT leak across tags), `SlateRoller`
+  output respecting every doc bracket/formula across 40 rolls,
+  `SlateSerializer` round-trips, and the palette's single-use gating -
+  all 183 passed. `TestArena`/`Hub`/`GeneratedMap` all still load clean.
+
+## 2026-08-29 — Real Per-Cell Inventory Positioning (the Swap Fix Wasn't Enough)
+
+User tried the swap fix from the previous entry and it still wasn't
+right: dropping on an empty cell across the grid landed the item right
+next to the other real items instead of in the exact cell dropped on,
+and everything in between visibly slid over. Root cause the swap fix
+didn't address: the grid was still backed by a plain ordered list
+(`GameState.owned_loot`'s array order, or `_stack_entries`' derived
+order) - "drop on empty slot 30" and "drop on empty slot 8" were
+indistinguishable to that model, both just meaning "append to the end of
+the real items." A list can't represent a gap; only real per-cell
+position tracking can.
+
+- **`InventoryScreen._slot_assignment`** (new): entry key -> the grid
+  cell the player actually put it in, relative to `_draggable_start_index`
+  so the whole real-items region can slide as a block if the catalog's
+  shown count changes without invalidating stored positions. `_resolve_
+  slots()` places every entry at its remembered cell if free, otherwise
+  the lowest free cell in entry order (so a never-touched item still
+  just fills in left-to-right/top-to-bottom, unchanged from before).
+  Entry keys: Brands key off `"brand:<item_id>"` (intentional - that's
+  exactly what makes duplicates stack into one entry); everything else
+  keys off its own Resource's `get_instance_id()`, since `item_id` alone
+  isn't unique per-instance for non-rolled items (two separately-dropped
+  Infusion Stones share `item_id` but must NOT merge the way Brands do).
+- **`GameState.owned_loot`'s own array order is no longer touched by
+  dragging at all** - the previous swap-fix version still flattened
+  reordered entries back into it; now only `_slot_assignment` changes,
+  which is simpler and also happens to make the whole equipped-item-
+  position-preservation dance from the last entry moot (nothing reorders
+  the array, so there's nothing to preserve against).
+- Position is intentionally session-local, not persisted (`GameState`
+  never sees `_slot_assignment`) - README flagged gap #26. Doing better
+  would need a real save-stable per-item id, which doesn't exist yet
+  (`ItemSerializer.from_dict()` reconstructs fresh Resource objects with
+  new instance ids on every load) - flagged rather than guessed at.
+- Verified with a 25-check rewrite of the previous test, including the
+  literal bug report as its own case (drag to a far empty cell, assert it
+  lands exactly there AND every other real item's slot is provably
+  untouched), plus occupied-slot swap, position surviving a plain rebuild
+  with no changes (simulating close/reopen), and confirming
+  `GameState.owned_loot`'s order truly never changes anymore - all 25
+  passed. `TestArena`/`Hub`/`GeneratedMap` all still load clean.
+
+## 2026-08-29 — Inventory Drag Now Swaps Instead of Inserting
+
+User caught this in play immediately: dragging an item onto a slot was
+inserting it just before that slot's original position (the previous
+entry's design), which shoved every later slot down by one instead of
+actually placing the dragged item where it was dropped.
+
+- **`InventoryScreen._on_item_drag_dropped()` rewritten as a real swap**:
+  the display order (`_stack_entries`) is swapped at the entry level
+  first (source and target trade places, full stop), then flattened back
+  into `GameState.owned_loot`'s UNEQUIPPED positions only - equipped
+  items keep their own absolute array index untouched throughout (their
+  relative order was never meaningful to anything downstream; only the
+  unequipped order the player actually sees needs to stay stable).
+  Dropping past the last real slot (empty padding, nothing to swap with)
+  still moves the dragged stack to the end, same as before.
+- Verified with an updated 20-check version of the previous test:
+  single-item swap, whole-Brand-stack swap, drop-on-empty-padding, and a
+  new check that an equipped item's exact array position survives an
+  unrelated swap elsewhere in the list - all 20 passed.
+  `TestArena`/`Hub` reload clean.
+
+## 2026-08-29 — Rearrangeable Inventory + Stacking Brands (+ an Equip-Click Bug Fix)
+
+User asked for two things: a moveable/rearrangeable inventory grid, and
+Brands that stack instead of taking one slot per drop.
+
+- **`ItemSlotButton` gained opt-in drag-and-drop** (`draggable`, off by
+  default): `_get_drag_data()`/`_can_drop_data()`/`_drop_data()` are
+  Godot's own native Control drag API, emitting a new
+  `item_drag_dropped(source_index, target_index)` signal off each
+  button's own index in its parent container. Off by default so Fate
+  Board/Abilities/Shop's own `ItemSlotButton` usages are untouched -
+  only `InventoryScreen` turns it on.
+- **`InventoryScreen`'s grid is now rearrangeable**: dragging a slot onto
+  another reorders `GameState.owned_loot` directly (remove the dragged
+  stack, reinsert just before the target's original position) - no new
+  save-format field needed, array order was already part of `SaveManager`'s
+  existing save data. Only real owned_loot entries are draggable; the
+  directory-scanned "one of each hand-authored base" catalog always sits
+  first, fixed, un-draggable and un-targetable (its scan order isn't
+  something the player owns to rearrange).
+- **Brands now stack**: `InventoryScreen._build_stack_entries()` groups
+  identical Brands (same `item_id` - fungible crafting currency, not
+  unique rolled gear) into one grid slot showing a count ("Impel x3")
+  instead of one slot per drop, and the whole stack drags as one block.
+  Everything else (weapons, armor, unique rolled items, crafting
+  consumables) stays one slot per item, unchanged.
+- **Found and fixed a real bug while touching this code**: clicking any
+  grid slot called `EquipmentComponent.equip(item)` unconditionally.
+  Brands and the 3 crafting consumables (added to `owned_loot` two turns
+  ago) default to `equip_slot = HELMET` (an inherited-but-meaningless
+  field, same as `MapItem` already notes for itself) - clicking one in
+  the inventory silently cleared whatever the player actually had
+  equipped in that slot (`item as Armor` safe-casts to `null` for a
+  non-Armor type, so `helmet = null`). Added `InventoryScreen.
+  _is_equippable()` to gate the click handler; a Brand/consumable click
+  now shows a status message pointing at the Crafting screen instead.
+- Verified with a 17-check real scene-load test reusing `TestArena.tscn`
+  (stack counts and `loot_indices`, grid button text, single-item and
+  whole-stack drag reordering producing the exact expected
+  `GameState.owned_loot` order, and - the regression check - equipping a
+  helmet then clicking a Brand and confirming the helmet stays equipped)
+  - all 17 passed. `TestArena`/`Hub`/`GeneratedMap` all still load clean.
+
+## 2026-08-29 — Enemy Tier Scaling + Crafting System (The Cube, Brands, Corruption)
+
+User asked for two things: enemies that scale with the Map's tier, and
+the Crafting system from Section 20 of the design doc.
+
+**Enemy tier scaling** (`Enemy.gd`): `MapItem.tier` already fed
+`enemy_health_multiplier`/`enemy_damage_multiplier` indirectly through
+`MapRoller`'s random affix rolls, but neither is guaranteed to land on a
+given Map - two Tier 5 Maps could end up no tougher than two Tier 1 Maps
+by chance. Added a deterministic curve on top (+15% health/+10% damage/
++20% XP+Gold per tier above 1, invented, Section 24 defers Map/tier
+balance entirely) so tier always matters regardless of what affixes rolled.
+
+**Crafting System** (`systems/crafting/CraftingSystem.gd`, `ui/crafting/`,
+`data/brands/`, hotkey `K`): pulled Section 20 and Section 14/15's Cube/
+Socket content from the docx-extracted design doc rather than guessing -
+found a full "Three distinct crafting methods" table (The Cube/Brand
+combinations, Infusion/Shrivening Stone, Shard of Tharsis) plus a named
+Brand list (~29 entries) and a Corruption outcomes list, but also found
+Section 24 ("Deferred Design") explicitly listing "Cube combination
+rules," "Brand rarity tiers," and "Corruption probability distribution"
+as NOT YET DESIGNED by the doc itself - not a gap in this project's
+reading, a gap the doc names about itself. Built all three methods with
+this project's own invented placeholders for those specific unresolved
+pieces, flagged throughout (README gap #25), same convention as every
+other deferred-design gap already in this project.
+
+- **`Brand`** (new `Item` subclass, `data/brands/brand.gd`): 24 of the
+  doc's ~29 named Brands exist as real `.tres` instances (all 9 Damage
+  Type, all 5 Defensive Type, all 4 Umbrella, all 6 Crafting Utility, plus
+  Binder/Rectify from Special/Rare) - Facsimile/Amalgam/Imbue cut, each
+  being its own separate mechanic (duplication, mod-pool merging, a new
+  "powerful implicit" pool) with no natural home here. Dropped as loot
+  only (`BrandRoller.gd`, same flat-chance convention as Skill Tomes) -
+  wired into `Enemy._maybe_drop_loot()` alongside a new, rarer roll for
+  Infusion Stone/Shrivening Stone/Shard of Tharsis (`data/consumables/`).
+- **`ItemRoller.AFFIX_POOL` extended** with a `brand_tags` field per
+  entry (which Brand category can draw it) and 4 new descriptive-only
+  entries (Evasion/Resistance/Resilience/skill cooldown) so every Brand
+  category has something real to roll - same "descriptive-only, not
+  aggregated into a formula" caveat flat_armor/flat_ward already carried
+  (gap #18), just extended, not a new gap.
+- **`CraftingSystem.craft_cube()`**: no utility/special Brand present ->
+  category Brands (Damage/Defensive/Umbrella) add one new weighted affix,
+  a Brand placed twice just doubling that category's odds (covers "max 2
+  of the same Brand" without a separate stacking rule). With a utility
+  Brand present, Render/Refine/Cleave/Excise/Bore/Sever each do their
+  doc-described thing for real - Cleave locks one modifier (player-chosen,
+  click an affix row in the UI) and rerolls the rest, a second Cleave
+  risking destruction; Sever, combined with a category Brand in the same
+  craft, permanently seals that tag, with Binder protecting the seal from
+  a second Sever's undo-chance. When several utility Brands are placed
+  together (undefined by the doc), a fixed invented priority order decides
+  which one governs - documented, not silently arbitrary.
+- **Infusion/Shrivening Stone**: finally wire `Weapon.infused_damage_type`,
+  which existed unused since early in the project - Infusion rerolls it to
+  a random type other than native, Shrivening clears it.
+- **Shard of Tharsis**: `CraftingSystem.corrupt()` rolls one of Section
+  20's own 8 listed outcomes (weighted, invented), and separately rolls
+  the doc's stated "chance to retain craftable/corruptible status" -
+  failing that roll sets a new `Item.is_craftable = false`, permanently
+  blocking any further Cube craft or corruption on that item.
+- **`CraftingScreen`** (new, built in code like `PlayerHUD` rather than a
+  hand-laid-out `.tscn` - three columns: owned target items, the Cube
+  itself, owned Brands/consumables). Deliberately restricted to
+  `GameState.owned_loot` only, never the hand-authored "one of each base"
+  list `InventoryScreen` shows for convenience - those are shared
+  `load()`-cached Resources, and crafting one in place would have
+  permanently corrupted that base `.tres` for the rest of the session
+  (including future `ItemRoller.roll()` picks from it). Wired into
+  `PauseMenu`'s existing hotkey router (`open_crafting`, `K`) and every
+  scene that already carries the other menu screens (`Hub.tscn`,
+  `GeneratedMap.gd`'s `UI_SCENES`, `TestArena.tscn`).
+- Verified with a 89-check real scene-load test: tier scaling's exact
+  growth curve at tier 1 and tier 5, every Cube function (including a
+  50-iteration loop confirming Cleave's destroy chance actually fires),
+  Sever's tag-sealing blocking a later add, Binder's consumption
+  exemption, the max-2-same-Brand and is_craftable gates, Infuse/Shrive,
+  Corruption's outcome variety and its craftable-retention odds across 20
+  fresh items, and full `ItemSerializer` round-trips for `Brand` and the
+  4 new `Item` fields (`cleave_count`, `sealed_tags`, `is_corrupted`,
+  `is_craftable`) - all 89 passed. `Hub`/`GeneratedMap`/`TestArena` all
+  still load clean with the new scenes/nodes wired in.
+
+## 2026-08-29 — Status Effect System (Ignite, Chill/Freeze, Electrocute, Unraveling)
+
+User asked what to build next; agreed on a status-effect system since
+`Ability.applies_status_effects` already existed on 6 of 9 spells but did
+nothing (flagged gap #12), and it's the natural unlock for two more
+standing gaps (Vitality's Resilience/DoT mitigation, Intellect's Debuff
+effectiveness - gap #14). Pulled Section 09's real effect table from the
+docx-extracted design doc rather than inventing names - it lists 11
+effects across Physical/Elemental/Esoteric; scoped this pass to the 5
+with a real applier today (Ignite/Chill/Freeze/Electrocute/Unraveling -
+all Elemental/Esoteric, matching the spells that already declare them).
+Physical family (Bleed/Armor Shred/Stagger-Stun) has no weapon-side proc
+mechanic and Scorch/Aetherburn/Pallid have no Fire-channel/Aetheric/Pale
+ability yet - both left for `StatusEffectComponent` to grow into later.
+Blind is explicitly deferred in the patch doc itself, not modeled at all.
+
+- **`StatusEffectComponent`** (new, `entities/components/`): bidirectional
+  by design (attached to both `Player.tscn` and `Enemy.tscn`) even though
+  only Player→Enemy is exercised today - no enemy currently applies an
+  effect, but the component doesn't care which side owns it. Ignite ticks
+  Fire DoT damage over 4s (50% of the triggering hit, spread across 8
+  ticks); Chill slows move/action speed 30% and a 3rd application within
+  its own window escalates to Freeze (full immobilization) instead of
+  just refreshing; Electrocute is a flat stun; Unraveling raises Esoteric
+  damage taken 25%. All durations/magnitudes are invented - the doc gives
+  qualitative behavior only, no numbers (flagged gap #24).
+- **Resilience/Debuff effectiveness wired for real**: `Player.resilience`
+  (Vitality × 3, doc-exact) feeds `DamageCalculator.dot_mitigation()`
+  (`Resilience / (Resilience + 2000)`, soft-capped 50%, also doc-exact)
+  to reduce Ignite ticks. The *applying* side's Intellect stat extends
+  Chill/Electrocute/Unraveling's duration by 1.5%/point (also doc-exact).
+  Renamed two ability instances' effect ids to match Section 09's actual
+  terminology now that it's been read (`stormcall.tres`/
+  `static_discharge.tres`: `"shock"` -> `"electrocute"`;
+  `entropic_decay.tres`: `"weaken"` -> `"unraveling"`).
+- **Combat-loop integration**: `PlayerAbilityCast._cast()` now applies
+  each hit ability's `applies_status_effects` to every enemy it damages.
+  `Player.take_damage()`/`Enemy.take_damage()` both run damage through
+  `get_damage_taken_multiplier()` (Unraveling). Stunned (Electrocute/
+  Freeze) enemies have `EnemyMeleeAttack`/`EnemyRangedAttack`'s state
+  machine paused, not reset, at the top of their own `_physics_process()`
+  - a frozen mid-telegraph enemy resumes exactly where it left off, not
+  from Idle. Stunned Player loses jump/parry/attack input for the same
+  physics tick movement already zeroes out through the existing
+  `_effective_speed()` chain.
+- **Visual feedback**: small colored dots above an Enemy's head (one per
+  active effect, tag color reused from `Constants.DAMAGE_TYPE_COLOR` via
+  the effect's underlying damage type) sit below the existing riposte
+  indicator. `PlayerHUD` gained a matching top-left chip row for the
+  player's own active effects, built/removed live off two new
+  `EventBus` signals (`status_effect_applied` already existed unused;
+  added `status_effect_expired`). `DebugOverlay` logs both.
+- Verified with a 21-check real scene-load test (Ignite DoT ticking +
+  natural expiry, Chill→Freeze escalation, movement zeroing, Electrocute
+  pausing a mid-telegraph `EnemyMeleeAttack` and resuming after, Unraveling's
+  damage multiplier applied on both Player and Enemy `take_damage()`,
+  Resilience mitigation's formula at 3 points including its own soft cap)
+  - all 21 passed. `Hub`/`GeneratedMap`/`TestArena` all still load clean.
+
 ## 2026-08-29 — Real 3D Weapon Models (Greatsword, Dagger)
 
 User asked why the weapon models weren't rendering yet - last entry

@@ -1,0 +1,31 @@
+[gd_resource type="Resource" script_class="Slate" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/slates/slate.gd" id="1"]
+[ext_resource type="Script" path="res://data/slates/modifier.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "+15.3 Arcane (Main Stat)"
+stat_key = "flat_arcane"
+value = 15.3
+is_more_multiplier = false
+
+[sub_resource type="Resource" id="SubResource_2"]
+script = ExtResource("2")
+description = "+7.2 Intellect (Random Stat)"
+stat_key = "flat_intellect"
+value = 7.2
+is_more_multiplier = false
+
+[resource]
+script = ExtResource("1")
+slate_id = "stormtouched_array"
+display_name = "Stormtouched Array"
+tag = 5
+is_hybrid = false
+secondary_tag = 0
+shape_cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1), Vector2i(0, 2), Vector2i(1, 2), Vector2i(2, 2)])
+aether_cost = 9
+rarity = 0
+modifiers = Array[ExtResource("2")]([SubResource("SubResource_1"), SubResource("SubResource_2")])
+implicit_flavor_text = ""

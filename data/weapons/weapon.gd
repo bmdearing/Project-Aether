@@ -23,9 +23,14 @@ func _base_hit(motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 	var main_stat: Constants.Stat = Constants.DAMAGE_TYPE_MAIN_STAT.get(damage_type, Constants.Stat.STRENGTH)
 	var stat_value: float = stat_sheet.get_stat(main_stat)
 	var mastery: float = stat_sheet.get_mastery(damage_type)
+	# Section 10's Chain Bonus System (Mastery-amplified - see
+	# ChainCalculator.amplify_by_mastery()), stored as a raw fraction on
+	# StatSheet, converted to the percent-units DamageCalculator.calculate()
+	# expects (each entry "e.g. 8.0 for 8%").
+	var increased: Array[float] = [stat_sheet.get_chain_bonus(damage_type) * 100.0]
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
 		base_damage, motion_value, stat_value, scaling_grade,
-		0.5, mastery, [], [], damage_type
+		0.5, mastery, increased, [], damage_type
 	)
 	return {
 		"base_damage": result.final_damage,

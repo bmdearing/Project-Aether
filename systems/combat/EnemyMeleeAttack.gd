@@ -48,6 +48,8 @@ func _physics_process(delta: float) -> void:
 		return
 	if not _enemy.health.is_alive():
 		return
+	if _enemy.status_effects.is_stunned():
+		return  # Electrocute/Freeze pause the state machine, not reset it
 
 	match _state:
 		State.IDLE:

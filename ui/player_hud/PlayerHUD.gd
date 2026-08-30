@@ -17,6 +17,11 @@ class_name PlayerHUD
 ##
 ## Weapon swaps listen to EventBus.weapon_swapped and play a brief
 ## flash/scale-punch Tween on the weapon icon.
+##
+## A top-left row of colored chips shows the player's own active status
+## effects (Section 09), built/removed live off EventBus.status_effect_
+## applied/_expired - the same signals StatusEffectComponent emits for
+## Enemy's floating head icons.
 
 const ABILITY_BAR_HALF_WIDTH := 136.0
 const ORB_GAP := 16.0
@@ -36,6 +41,12 @@ const WARD_COLOR := Color(0.55, 0.55, 0.95)
 const EMPTY_BG_COLOR := Color(0.12, 0.12, 0.14, 0.85)
 const WEAPON_ICON_SIZE := 56.0
 const SWAP_PUNCH_DURATION := 0.2
+
+const STATUS_ROW_TOP_MARGIN := 16.0
+const STATUS_ROW_LEFT_MARGIN := 16.0
+const STATUS_CHIP_HEIGHT := 26.0
+const STATUS_CHIP_MIN_WIDTH := 76.0
+const STATUS_CHIP_GAP := 6.0
 ## Fixed stops along the bar, not tied to fill level - GW2's XP bar reads
 ## as a spectrum you reveal, not a color that changes with progress.
 const XP_GRADIENT_COLORS := [
@@ -59,6 +70,8 @@ var _weapon_icon: ItemSlotButton
 var _weapon_name_label: Label
 var _gold_label: Label
 var _last_gold: int = -1
+var _status_row: HBoxContainer
+var _status_chips: Dictionary = {}  # effect_id -> Label
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -71,6 +84,7 @@ func _ready() -> void:
 	_build_xp_bar()
 	_build_weapon_indicator()
 	_build_gold_label()
+	_build_status_row()
 
 	if is_instance_valid(_player):
 		_player.health.health_changed.connect(_on_health_changed)
@@ -78,6 +92,8 @@ func _ready() -> void:
 		_player.ward.ward_changed.connect(_on_ward_changed)
 		_player.experience.xp_changed.connect(_on_xp_changed)
 		EventBus.weapon_swapped.connect(_on_weapon_swapped)
+		EventBus.status_effect_applied.connect(_on_status_effect_applied)
+		EventBus.status_effect_expired.connect(_on_status_effect_expired)
 		call_deferred("_initial_refresh")
 
 func _initial_refresh() -> void:
@@ -231,6 +247,43 @@ func _build_gold_label() -> void:
 	_gold_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.3))
 	_gold_label.text = "Gold: %d" % GameState.gold
 	weapon_indicator.add_child(_gold_label)
+
+## Top-left row of colored chips, one per active status effect (Section
+## 09) - built/removed live via EventBus.status_effect_applied/_expired,
+## same push-update style as the orbs/XP bar above.
+func _build_status_row() -> void:
+	_status_row = HBoxContainer.new()
+	_status_row.anchor_left = 0.0
+	_status_row.anchor_top = 0.0
+	_status_row.offset_left = STATUS_ROW_LEFT_MARGIN
+	_status_row.offset_top = STATUS_ROW_TOP_MARGIN
+	_status_row.add_theme_constant_override("separation", STATUS_CHIP_GAP)
+	_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_status_row)
+
+func _on_status_effect_applied(target: Node, effect_id: String, _stacks: int) -> void:
+	if target != _player or _status_chips.has(effect_id):
+		return
+	var chip := Label.new()
+	chip.text = Constants.STATUS_EFFECT_NAME.get(effect_id, effect_id.capitalize())
+	chip.custom_minimum_size = Vector2(STATUS_CHIP_MIN_WIDTH, STATUS_CHIP_HEIGHT)
+	chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	chip.add_theme_font_size_override("font_size", 13)
+	var dmg_type: Constants.DamageType = Constants.STATUS_EFFECT_DAMAGE_TYPE.get(effect_id, Constants.DamageType.KINETIC)
+	var box := StyleBoxFlat.new()
+	box.bg_color = Constants.DAMAGE_TYPE_COLOR.get(dmg_type, Color.WHITE)
+	box.set_corner_radius_all(4)
+	chip.add_theme_stylebox_override("normal", box)
+	chip.add_theme_color_override("font_color", Constants.get_contrasting_text_color(box.bg_color))
+	_status_row.add_child(chip)
+	_status_chips[effect_id] = chip
+
+func _on_status_effect_expired(target: Node, effect_id: String) -> void:
+	if target != _player or not _status_chips.has(effect_id):
+		return
+	_status_chips[effect_id].queue_free()
+	_status_chips.erase(effect_id)
 
 func _process(_delta: float) -> void:
 	if GameState.gold != _last_gold:

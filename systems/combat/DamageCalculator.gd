@@ -69,6 +69,15 @@ static func get_crit_chance(base_crit_chance: float, instinct: float) -> float:
 static func get_crit_damage_multiplier(intellect: float) -> float:
 	return 1.5 * (1.0 + intellect * 0.01)
 
+## Section 12: "Resilience Mitigation % = Resilience / (Resilience + 2,000).
+## Soft cap at 50% DoT mitigation." Reduces StatusEffectComponent's Ignite
+## ticks for whichever side has Resilience (currently Player only - see
+## Player.resilience).
+static func dot_mitigation(resilience: float) -> float:
+	if resilience <= 0.0:
+		return 0.0
+	return min(0.5, resilience / (resilience + 2000.0))
+
 ## roll_t: fixed 0.0-1.0 for reproducible rolls, or omit (< 0) to roll randomly.
 static func apply_crit(base_damage: float, crit_chance: float, crit_damage_multiplier: float, roll_t: float = -1.0) -> Dictionary:
 	var t: float = roll_t if roll_t >= 0.0 else randf()

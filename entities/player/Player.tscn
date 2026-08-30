@@ -12,6 +12,7 @@
 [ext_resource type="Script" path="res://systems/abilities/AbilityLoadoutComponent.gd" id="13"]
 [ext_resource type="Script" path="res://systems/abilities/PlayerAbilityCast.gd" id="14"]
 [ext_resource type="Script" path="res://entities/components/ExperienceComponent.gd" id="15"]
+[ext_resource type="Script" path="res://entities/components/StatusEffectComponent.gd" id="16"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -106,3 +107,6 @@ script = ExtResource("14")
 
 [node name="ExperienceComponent" type="Node" parent="."]
 script = ExtResource("15")
+
+[node name="StatusEffectComponent" type="Node" parent="."]
+script = ExtResource("16")

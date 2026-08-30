@@ -4,6 +4,7 @@
 [ext_resource type="Script" path="res://entities/components/HealthComponent.gd" id="2"]
 [ext_resource type="Script" path="res://systems/combat/StanceComponent.gd" id="3"]
 [ext_resource type="Script" path="res://systems/combat/ComposureComponent.gd" id="4"]
+[ext_resource type="Script" path="res://entities/components/StatusEffectComponent.gd" id="5"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.45
@@ -41,6 +42,9 @@ max_stance = 100.0
 
 [node name="ComposureComponent" type="Node" parent="."]
 script = ExtResource("4")
+
+[node name="StatusEffectComponent" type="Node" parent="."]
+script = ExtResource("5")
 
 [node name="AttackHitbox" type="Area3D" parent="."]
 position = Vector3(0, 0.95, 0)

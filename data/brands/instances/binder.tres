@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Brand" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/brands/brand.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "binder"
+display_name = "Binder"
+rarity = 2
+equip_slot = 0
+max_sockets = 0
+flavor_text = "Preserves all other Brands on one attempt. Also protects a first Sever on a failed second attempt."
+icon_path = ""
+brand_function = 9
+category_tag = ""

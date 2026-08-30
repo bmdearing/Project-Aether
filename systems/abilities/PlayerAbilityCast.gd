@@ -13,9 +13,11 @@ class_name PlayerAbilityCast
 ##
 ## Execution is otherwise deliberately generic for every ability: consume
 ## resource_cost, start cooldown, deal damage to every Enemy within the
-## ability's own radius of the cast point. Not each ability's actual
-## described mechanic (Comet/Winter's Eye/Frost Armor are distinct real
-## mechanics) - a first pass so the ability bar's readouts aren't inert UI.
+## ability's own radius of the cast point, then apply Ability.
+## applies_status_effects (Section 09, via StatusEffectComponent) to each
+## hit. Not each ability's actual described mechanic (Comet/Winter's Eye/
+## Frost Armor are distinct real mechanics) - a first pass so the ability
+## bar's readouts aren't inert UI.
 
 const RANGE_EFFECT_SCENE := preload("res://entities/effects/ability_range_effect/AbilityRangeEffect.tscn")
 const MAX_TARGET_RANGE := 30.0
@@ -107,6 +109,8 @@ func _cast(ability: Ability, cast_position: Vector3) -> void:
 		if enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
 		EventBus.damage_dealt.emit(_player, enemy, damage, ability.damage_type, false, is_critical)
+		for effect_id in ability.applies_status_effects:
+			enemy.status_effects.apply_effect(effect_id, _player, damage)
 
 	_play_range_effect(ability, cast_position)
 	EventBus.ability_cast.emit(_player, ability)

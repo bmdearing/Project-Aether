@@ -51,6 +51,13 @@ var player_xp: float = 0.0
 ## ItemSerializer (full data, since rolled items have no resource_path).
 var owned_loot: Array[Item] = []
 
+## Rolled Slates picked up this session (SlateRoller drops) - persisted
+## by SaveManager via SlateSerializer, same full-data rationale as
+## owned_loot. The 2 hand-authored data/slates/instances/ samples are
+## still always-available in FateBoardEditor's palette on top of these -
+## this array is additive, not a replacement for that starter pool.
+var owned_slates: Array[Slate] = []
+
 ## Invented currency, no doc-sourced economy exists. Granted on enemy
 ## death, spent at the Hub's GearShop.
 var gold: int = 0
@@ -74,6 +81,7 @@ func reset_to_defaults() -> void:
 	player_level = 1
 	player_xp = 0.0
 	owned_loot = []
+	owned_slates = []
 	gold = 0
 
 ## Scans the whole instances directory (not a fixed list) since a Tome-

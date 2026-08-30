@@ -14,6 +14,7 @@
 [ext_resource type="PackedScene" path="res://ui/shop/ShopScreen.tscn" id="12"]
 [ext_resource type="PackedScene" path="res://entities/interactables/gear_shop/GearShop.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://entities/interactables/spell_test_shop/SpellTestShop.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://ui/crafting/CraftingScreen.tscn" id="15"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(40, 1, 40)
@@ -69,6 +70,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -3)
 [node name="FateBoardEditor" parent="." instance=ExtResource("5")]
 
 [node name="InventoryScreen" parent="." instance=ExtResource("6")]
+
+[node name="CraftingScreen" parent="." instance=ExtResource("15")]
 
 [node name="AbilitiesScreen" parent="." instance=ExtResource("8")]
 

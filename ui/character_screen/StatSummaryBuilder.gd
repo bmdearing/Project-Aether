@@ -41,6 +41,10 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 		var value: float = stats.mastery_by_tag[tag]
 		if value != 0.0:
 			_add(misc_list, "%s Mastery" % Constants.DAMAGE_TYPE_NAME.get(tag, "?"), "+%.2f" % value)
+	for tag in stats.chain_bonus_by_tag:
+		var bonus: float = stats.chain_bonus_by_tag[tag]
+		if bonus != 0.0:
+			_add(misc_list, "%s Chain Bonus" % Constants.DAMAGE_TYPE_NAME.get(tag, "?"), "+%.1f%%" % (bonus * 100.0))
 
 static func _weapon_in(player: Player, slot: Constants.EquipmentSlot) -> Weapon:
 	if player.equipment == null:

@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="Slate" load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://data/slates/slate.gd" id="1"]
+[ext_resource type="Script" path="res://data/slates/modifier.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "+8.5 Enigma (Main Stat)"
+stat_key = "flat_enigma"
+value = 8.5
+is_more_multiplier = false
+
+[sub_resource type="Resource" id="SubResource_2"]
+script = ExtResource("2")
+description = "+4.0 Intellect (Random Stat)"
+stat_key = "flat_intellect"
+value = 4.0
+is_more_multiplier = false
+
+[sub_resource type="Resource" id="SubResource_3"]
+script = ExtResource("2")
+description = "+0.30 Aetheric Mastery"
+stat_key = "mastery"
+value = 0.3
+is_more_multiplier = false
+
+[resource]
+script = ExtResource("1")
+slate_id = "aetheric_conduit"
+display_name = "Aetheric Conduit"
+tag = 6
+is_hybrid = false
+secondary_tag = 0
+shape_cells = Array[Vector2i]([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(1, 1), Vector2i(1, 2)])
+aether_cost = 6
+rarity = 1
+modifiers = Array[ExtResource("2")]([SubResource("SubResource_1"), SubResource("SubResource_2"), SubResource("SubResource_3")])
+implicit_flavor_text = ""

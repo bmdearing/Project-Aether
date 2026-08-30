@@ -4,8 +4,10 @@ class_name EquipmentComponent
 ## Player (or any future equippable actor) - same pattern as
 ## HealthComponent/WardComponent. compute_stat_bonuses() aggregates
 ## flat_<stat> affixes (see ItemRoller.gd) into the six core stats per
-## Section 12 ("all stats come from gear...") - Slate stat contributions
-## still aren't summed in, that stays a gap.
+## Section 12 ("all stats come from gear..."). Slate stat contributions
+## now sum in too - see FateBoard.compute_stat_bonuses(), which reuses
+## AFFIX_STAT_KEYS below so a Slate modifier's stat_key means exactly
+## what a gear affix's does.
 
 @export var helmet: Armor
 @export var body_armour: Armor
@@ -119,9 +121,10 @@ func get_all_equipped_refs() -> Array:
 		refs.append(_ref_for(item))
 	return refs
 
-## The only source of stat growth beyond player_baseline.tres (Section
-## 12: gear only, no level-up allocation). Slate contributions aren't
-## summed in yet.
+## Not the only source of stat growth anymore - FateBoard.
+## compute_stat_bonuses() reuses this same dict for Slate modifiers'
+## stat_key. Together they're the only two (Section 12: gear + Slates,
+## no level-up allocation).
 const AFFIX_STAT_KEYS := {
 	"flat_vitality": Constants.Stat.VITALITY,
 	"flat_strength": Constants.Stat.STRENGTH,

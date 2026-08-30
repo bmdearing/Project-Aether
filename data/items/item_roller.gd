@@ -35,18 +35,31 @@ const TIER_DECAY := 0.8
 ## tier1_min/tier1_max define only the best (Tier 1) range - lower tiers
 ## are derived via _tier_range(). "applies_to": [] means any base item
 ## type; otherwise a list of category strings (see _pool_for()).
+##
+## "brand_tags": which Brand.category_tag value(s) (Section 20) a Cube
+## craft's Damage Type/Defensive Type/Umbrella Brand can draw this entry
+## from - see _pool_for_brand_tag(), used by CraftingSystem.gd. Evasion/
+## Resistance/Resilience/Skills have no other stat anywhere in this
+## project to hang a REAL affix off yet (same as flat_armor/flat_ward
+## already were before this - README gap #18: descriptive-only, not
+## aggregated into a formula), so their 4 entries below just extend that
+## same existing gap rather than opening a new one.
 const AFFIX_POOL := [
-	{"stat_key": "flat_vitality", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Vitality", "applies_to": []},
-	{"stat_key": "flat_strength", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Strength", "applies_to": []},
-	{"stat_key": "flat_instinct", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Instinct", "applies_to": []},
-	{"stat_key": "flat_arcane", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Arcane", "applies_to": []},
-	{"stat_key": "flat_enigma", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Enigma", "applies_to": []},
-	{"stat_key": "flat_intellect", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Intellect", "applies_to": []},
-	{"stat_key": "physical_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Physical damage", "applies_to": ["weapon"]},
-	{"stat_key": "elemental_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Elemental damage", "applies_to": ["weapon"]},
-	{"stat_key": "esoteric_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Esoteric damage", "applies_to": ["weapon"]},
-	{"stat_key": "flat_armor", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Armor", "applies_to": ["armor", "shield"]},
-	{"stat_key": "flat_ward", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Ward", "applies_to": ["armor"]},
+	{"stat_key": "flat_vitality", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Vitality", "applies_to": [], "brand_tags": []},
+	{"stat_key": "flat_strength", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Strength", "applies_to": [], "brand_tags": ["kinetic", "piercing", "explosive"]},
+	{"stat_key": "flat_instinct", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Instinct", "applies_to": [], "brand_tags": ["movement"]},
+	{"stat_key": "flat_arcane", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Arcane", "applies_to": [], "brand_tags": ["fire", "cold", "lightning"]},
+	{"stat_key": "flat_enigma", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Enigma", "applies_to": [], "brand_tags": ["aetheric", "entropic", "pale"]},
+	{"stat_key": "flat_intellect", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Intellect", "applies_to": [], "brand_tags": ["resource"]},
+	{"stat_key": "physical_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Physical damage", "applies_to": ["weapon"], "brand_tags": ["kinetic", "piercing", "explosive"]},
+	{"stat_key": "elemental_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Elemental damage", "applies_to": ["weapon"], "brand_tags": ["fire", "cold", "lightning"]},
+	{"stat_key": "esoteric_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Esoteric damage", "applies_to": ["weapon"], "brand_tags": ["aetheric", "entropic", "pale"]},
+	{"stat_key": "flat_armor", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Armor", "applies_to": ["armor", "shield"], "brand_tags": ["armor"]},
+	{"stat_key": "flat_ward", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Ward", "applies_to": ["armor"], "brand_tags": ["ward"]},
+	{"stat_key": "flat_evasion", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Evasion", "applies_to": ["armor"], "brand_tags": ["evasion"]},
+	{"stat_key": "resistance_increased", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "+%d%% increased Resistance", "applies_to": ["armor", "shield"], "brand_tags": ["resistance"]},
+	{"stat_key": "flat_resilience", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Resilience", "applies_to": [], "brand_tags": ["resilience"]},
+	{"stat_key": "skill_cooldown_reduced", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% reduced skill cooldowns", "applies_to": [], "brand_tags": ["skills"]},
 ]
 
 ## power_level: the active Map's tier, or player level as a fallback in
@@ -127,6 +140,17 @@ static func _pool_for(item: Item) -> Array:
 	for entry in AFFIX_POOL:
 		var applies: Array = entry["applies_to"]
 		if applies.is_empty() or applies.has(category):
+			result.append(entry)
+	return result
+
+## Used by CraftingSystem.gd (Section 20's Cube) - same item-type
+## filtering as _pool_for(), further narrowed to entries whose brand_tags
+## include the Brand.category_tag driving the craft.
+static func _pool_for_brand_tag(item: Item, tag: String) -> Array:
+	var result := []
+	for entry in _pool_for(item):
+		var tags: Array = entry["brand_tags"]
+		if tags.has(tag):
 			result.append(entry)
 	return result
 

@@ -35,8 +35,15 @@ static func to_dict(item: Item) -> Dictionary:
 		"flavor_text": item.flavor_text,
 		"icon_path": item.icon_path,
 		"affixes": affixes,
+		"cleave_count": item.cleave_count,
+		"sealed_tags": item.sealed_tags,
+		"is_corrupted": item.is_corrupted,
+		"is_craftable": item.is_craftable,
 	}
-	if item is Weapon:
+	if item is Brand:
+		d["brand_function"] = item.brand_function
+		d["category_tag"] = item.category_tag
+	elif item is Weapon:
 		d["weapon_type"] = item.weapon_type
 		d["base_damage"] = item.base_damage
 		d["scaling_grade"] = item.scaling_grade
@@ -63,6 +70,7 @@ static func from_dict(d: Dictionary) -> Item:
 		"Weapon": item = Weapon.new()
 		"Armor": item = Armor.new()
 		"Shield": item = Shield.new()
+		"Brand": item = Brand.new()
 		_: item = Item.new()
 
 	item.item_id = d.get("item_id", "")
@@ -72,6 +80,13 @@ static func from_dict(d: Dictionary) -> Item:
 	item.max_sockets = d.get("max_sockets", 0)
 	item.flavor_text = d.get("flavor_text", "")
 	item.icon_path = d.get("icon_path", "")
+	item.cleave_count = d.get("cleave_count", 0)
+	var sealed: Array[String] = []
+	for tag in d.get("sealed_tags", []):
+		sealed.append(str(tag))
+	item.sealed_tags = sealed
+	item.is_corrupted = d.get("is_corrupted", false)
+	item.is_craftable = d.get("is_craftable", true)
 
 	var affixes: Array[ItemAffix] = []
 	for a in d.get("affixes", []):
@@ -86,7 +101,10 @@ static func from_dict(d: Dictionary) -> Item:
 		affixes.append(affix)
 	item.affixes = affixes
 
-	if item is Weapon:
+	if item is Brand:
+		item.brand_function = d.get("brand_function", 0)
+		item.category_tag = d.get("category_tag", "")
+	elif item is Weapon:
 		item.weapon_type = d.get("weapon_type", "")
 		item.base_damage = d.get("base_damage", 0.0)
 		item.scaling_grade = d.get("scaling_grade", 0)
@@ -116,4 +134,6 @@ static func _class_tag(item: Item) -> String:
 		return "Armor"
 	if item is Shield:
 		return "Shield"
+	if item is Brand:
+		return "Brand"
 	return "Item"

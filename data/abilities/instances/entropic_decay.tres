@@ -14,6 +14,6 @@ cooldown_seconds = 7.0
 resource_cost = 24.0
 can_trigger_riposte = false
 is_auto_cast_eligible = true
-applies_status_effects = Array[String](["weaken"])
+applies_status_effects = Array[String](["unraveling"])
 radius = 5.0
 base_crit_chance = 0.03

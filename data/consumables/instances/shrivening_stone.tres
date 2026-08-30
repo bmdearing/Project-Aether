@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "shrivening_stone"
+display_name = "Shrivening Stone"
+rarity = 2
+equip_slot = 0
+max_sockets = 0
+flavor_text = "Strips an infused damage type away, restoring a weapon to its native identity."
+icon_path = ""

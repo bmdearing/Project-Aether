@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="Brand" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/brands/brand.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "hone"
+display_name = "Hone"
+rarity = 1
+equip_slot = 0
+max_sockets = 0
+flavor_text = "Directs a craft toward skill behavior."
+icon_path = ""
+brand_function = 2
+category_tag = "skills"
