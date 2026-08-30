@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_gi2cq"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_v8qrj"]
+
+[resource]
+script = ExtResource("2_v8qrj")
+evasion_value = 160.0
+item_id = "gen_helmet_hunters_hood"
+display_name = "Hunter's Hood"
+max_sockets = 2
+flavor_text = "Maximum Evasion"
+item_level = 34
+base_line_id = "helmet_line3"
+stat_requirement = 0
+stat_requirement_value = 17.0

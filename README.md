@@ -92,15 +92,39 @@ fires a real forward `Player.try_special_dash()` (sharing the same
 dash state/cooldown as the Shift-tap dash, not a separate free resource)
 before the stab lands. Ranged weapons aim instead - the camera FOV zooms
 in while held, and firing while aimed deals 1.4x damage (no
-spread/accuracy system exists to tighten instead). **Not implemented**:
-a Rapier's dash-and-thrust and a caster weapon's innate ability were both
-part of the request but neither has a real equippable item in this
-project yet (only Greatsword/Dagger/Service Pistol exist; spellcasting is
-entirely independent of the weapon slot) - Dagger's special stands in for
-the Rapier example as the closest existing light one-handed weapon, and
-the per-weapon-type dict pattern is ready to extend the moment a real
-caster weapon item exists. `StanceComponent.gd` is unrelated - that's an
-enemy poise/posture bar, not this. A `StatSheet`
+spread/accuracy system exists to tighten instead). `StanceComponent.gd`
+is unrelated - that's an enemy poise/posture bar, not this.
+
+**Weapon base types** (`data/weapons/instances/*.tres`, dynamically
+scanned by `ItemRoller.BASE_ITEM_DIRS` for loot drops/Gear Shop stock -
+no other registration needed to make a new one obtainable): Greatsword
+(two-handed), Dagger, Service Pistol (ranged), and four more added
+2026-08-30 - Rapier (fast/light, a pure thruster - always plays
+`DASH_THRUST`, the "real" owner of that pose now that a Rapier item
+exists), Bow (ranged, two-handed, real model, its own `BOW_RELEASE`
+draw-and-loose fire animation), Staff (two-handed, its own `TWIRL_RIGHT`/
+`TWIRL_LEFT` wrist-driven combo - not a shoulder-driven cleave like
+Greatsword - and reuses `BIG_SWEEP` for its special), and **Gauntlet**
+(the fastest weapon in the game, always `JAB`s - an elbow-extension-
+driven punch, not a blade-swing pose at all - and doubles as this
+project's first conduit-flavored weapon: Aetheric damage instead of
+Kinetic, and a `flat_enigma` implicit instead of crit chance, so
+equipping it both hits harder for its own damage type AND raises the
+Enigma that scales Esoteric spells - through the existing generic
+`flat_<stat>` affix system, which already sums from whichever weapon
+slot an item sits in, no new "conduit" mechanic needed). Every melee type
+now has a genuinely distinct swing/punch/thrust pose, not just a scaled
+copy of another weapon's motion (`PlayerMeleeAttack.
+WEAPON_TYPE_COMBO_POSES`/`WEAPON_TYPE_SPECIAL_POSE`), and ranged weapons
+finally have a fire-reaction animation too (`PlayerRangedAttack.
+_play_fire_animation()`, cosmetic only - doesn't touch the instant-fire
+timing). Real 3D models exist for Greatsword/Dagger/Bow/Staff
+(`Player.WEAPON_MODEL_SCENES`, from the same purchased low-poly pack);
+Service Pistol/Rapier/Gauntlet have no matching model in that pack and
+fall back to the tinted placeholder box. No caster weapon that gates an
+innate *ability* exists yet, and spellcasting itself remains entirely
+independent of the weapon slot - Gauntlet boosts spell damage by raising
+a stat, it doesn't grant or modify which spells you can cast. A `StatSheet`
 (Vitality/Strength/Instinct/Arcane/Enigma/Intellect) — **all six now drive
 something** (Section 12's Per-Point Values table): Strength/Arcane/Enigma
 scale Physical/Elemental/Esoteric damage two ways at once, both doc-sourced
@@ -169,8 +193,13 @@ passive, +5% on every kill, +15% on a successful Parry (that ratio
 predates the patch, still invented - see flagged gap). Every restoration
 source scales by the same Enigma-driven `restoration_multiplier` (+1%
 per point, "Ward Restoration is a unified stat"). **Pool size comes from
-armor only** - `flat_ward` gear affixes (real now, not just descriptive -
-see flagged gap for what that resolves), no baseline pool at all -
+armor only** - each equipped Armor/Shield's own base `ward_value` plus any
+rolled `flat_ward` affixes (`EquipmentComponent.compute_ward_bonus()`,
+renamed 2026-08-30 from `compute_flat_ward_bonus()` after a user bug
+report - it only ever summed the affix, never the base `ward_value` field
+Section 25's generator populates on ~170 armor pieces, so equipping one
+silently granted zero Ward despite a real, prominent tooltip line saying
+otherwise; see flagged gap for the rest of that pass), no baseline pool at all -
 Enigma applies as an INCREASED% multiplier on top of that base (2%/point,
 invented rate - no doc-exact number exists for this specific multiplier),
 not its own flat contribution, so zero Ward-granting gear means zero
@@ -410,12 +439,21 @@ shader (`ui/fate_board_editor/slate_nebula.gdshader`) renders a drifting,
 per-cell-phase-offset noise field tinted by `Constants.DAMAGE_TYPE_COLOR`
 with sparse twinkling stars, sampling a small `cell_data` texture
 `FateBoardGrid.gd` rebuilds only when placements actually change (not on
-every hover-driven redraw). This is the one deliberate exception to this
-project's usual no-shader placeholder-art convention (see `StatOrb.gd`'s
-own header) - motion is the actual content being asked for here, not
-just a static color, and a CPU `_draw()` loop redrawing hand-rolled noise
-across every occupied cell every frame would be both slower and far more
-code than the GPU doing the same thing.
+every hover-driven redraw). This was the first deliberate exception to
+this project's earlier no-shader placeholder-art convention - motion is
+the actual content being asked for here, not just a static color, and a
+CPU `_draw()` loop redrawing hand-rolled noise across every occupied cell
+every frame would be both slower and far more code than the GPU doing the
+same thing. `StatOrb.gd`'s Life/Mana/Ward orbs joined it 2026-08-30 (user
+request: "make a shader for the Life orb, Mana orb, and Ward shield... to
+make them look interesting") - a single `canvas_item` `ShaderMaterial` on
+a `ColorRect` sized to exactly the circle's own diameter (so `UV` maps
+cleanly onto it) replaced the old `_draw()`-based liquid fill entirely,
+adding an animated wavy waterline, a liquid depth gradient, a surface-
+glow highlight, and a soft fresnel rim glow that a flat
+`draw_colored_polygon()` fill couldn't produce. The "no-shader" framing
+is now more historical than descriptive - not a hard rule any more, just
+what most of the UI still happens to look like.
 
 **Spell-designated Slates** (Section 10's Unique "The Unbound Chorus":
 "Designate one Spell skill - that skill automatically triggers when its
@@ -771,7 +809,11 @@ spanning from the level badge at the far left to near the right screen
 edge, its text inline on the bar itself (GW2-style layout), now a moving
 yellow/gold/orange gradient with twinkling stars visible in the filled
 portion (`xp_bar.gdshader`, 2026-08-30, replacing the previous static
-6-color rainbow gradient per user direction), a Gold counter, and an
+6-color rainbow gradient per user direction) - the fill now tweens from
+its old value to its new one on every XP gain instead of snapping
+(`PlayerHUD._on_xp_changed()`, 0.5s), and a level-up crossing plays the
+fill-to-full, snap-back-to-empty, fill-to-new-remainder sequence rather
+than jumping straight to a smaller-looking ratio - a Gold counter, and an
 active-weapon indicator that flashes whenever the equipped weapon
 changes),
 `ui/debug/DebugOverlay.gd` (numeric
@@ -935,21 +977,51 @@ None of the six have a `PauseMenu` button — hotkey-only.
     Leveling grants no stat points (Section 12 explicitly rules that
     out - see the Player section above) and now has no mechanical effect
     beyond display and standing in as GearShop's stock-quality signal.
-18. **Loot generation duplicates hand-authored base items rather than
-    generating a truly procedural item shape** — `ItemRoller.roll()`
-    picks a real base (weapon type, damage type, scaling grade, armor
-    values, etc.) and only re-rolls rarity + affixes, since Section 25's
-    full item tables were already flagged as deferred design before this
-    pass. `flat_<stat>` affixes are real (summed into `StatSheet` - see
-    the Player section above), and `flat_ward`/the 4 Resistance affixes
-    joined them as of Patch v3.2, but the damage/armor increased-%
-    affixes (`physical_dmg_increased`, `flat_armor`, etc.) are still
-    descriptive-only — no aggregation of those into the damage/armor
-    formulas exists yet. The
-    Crafting pass (gap #25) extended this same pool with 4 more
-    descriptive-only entries (Evasion/Resistance/Resilience/skill
-    cooldown) so every Brand category has *something* real to roll -
-    same gap, just wider now, not a new one.
+18. **Loot generation picks a real base item and re-rolls rarity +
+    affixes, rather than generating a truly procedural item shape** —
+    `ItemRoller.roll()` picks a real base (weapon type, damage type,
+    scaling grade, armor values, etc.). As of the 2026-08-30 pass, that
+    base pool IS Section 25's real tiered catalog — no longer deferred.
+    `tools/generate_base_types.gd` (a headless one-shot generator, kept
+    in the repo as a real tool, not scratch) parses the design doc's own
+    Section 25 text and writes one `.tres` per tier straight into
+    `data/weapons|armor|shields/instances/` and `data/items/instances/`
+    (throwables) — ~853 generated bases across all 27 doc-detailed weapon
+    types, 4 armor slots, 8 shield lines, and 5 throwable lines, each
+    tagged with a real `item_level` (the tier's own doc "Level") and
+    `base_line_id` (which doc "Line" it belongs to). `ItemRoller.
+    _pick_base_item()` now takes a target item level, keeps only the
+    single highest-item_level tier per line that's still at or below it,
+    and rolls uniformly among those plus the untagged pre-existing
+    hand-authored singles - "always the current best base this level has
+    unlocked," per-line, same principle PoE-style ilvl-gated bases follow.
+    `Enemy._compute_item_level()` derives that target from the Map's
+    area level plus the killer's own rank offset (see gap #29 below).
+    Per-tier "Base Damage"/"Base Armor" columns are doc-exact (averaged
+    across their range); native_damage_type/is_two_handed/is_ranged per
+    weapon type are an invented-but-consistent guess (the doc never pairs
+    weapon type -> damage type anywhere) documented in the generator's
+    own `WEAPON_TYPE_META` table. Each tier's doc "Implicit" text is
+    folded into `flavor_text` as flavor rather than a real `ItemAffix` -
+    `ItemRoller.roll()` always wipes and re-rolls `affixes` on every roll
+    regardless of base, so a "persistent implicit" affix would never
+    survive a roll anyway (same pre-existing behavior every hand-authored
+    base's own implicit already had). `flat_<stat>` roll affixes are real
+    (summed into `StatSheet` - see the Player section above), and
+    `flat_ward`/the 4 Resistance affixes joined them as of Patch v3.2, but
+    the damage/armor increased-% affixes (`physical_dmg_increased`,
+    `flat_armor`, etc.) are still descriptive-only — no aggregation of
+    those into the damage/armor formulas exists yet. The Crafting pass
+    (gap #25) extended this same pool with 4 more descriptive-only
+    entries (Evasion/Resistance/Resilience/skill cooldown) so every Brand
+    category has *something* real to roll - same gap, just wider now, not
+    a new one. Shield gained `evasion_value`/`ward_value` fields
+    alongside its original `armor_value` (matching Armor's existing
+    hybrid shape) so Buckler/Rune Shield/Warded Barrier-style lines that
+    lead with Evasion or Ward instead of Armor could be represented at
+    all - like Armor's own evasion_value/ward_value, these are
+    descriptive-only, not aggregated (only `armor_value` is real, summed
+    in `EquipmentComponent.compute_stat_bonuses()`).
 19. **Loot pickup is auto-pickup-on-touch, not a manual pickup/prompt**
     — a judgment call, not requested verbatim; fits how often gear
     would drop during combat better than a keypress flow, but is a
@@ -1058,6 +1130,77 @@ None of the six have a `PauseMenu` button — hotkey-only.
     transcription of doc text. Fate Board LAYOUT itself now saves too
     (2026-08-30 fix, see Fate Board above) - both it and
     `GameState.owned_slates` (real Slate ownership) persist.
+28. **Enemy rank (White/Blue/Rare/Boss) is a brand-new, fully invented
+    system** - no doc-sourced enemy rarity/rank design exists anywhere
+    referenced. Added 2026-08-30 specifically to give loot's new
+    `item_level` gating (gap #18) something meaningful to key off per
+    kill, per the user's own formula ("White mobs are the area level,
+    blue mobs are the area +1, rare mobs are the area +2 levels, bosses
+    are the area +5 levels" - see `Constants.ENEMY_RANK_ITEM_LEVEL_
+    OFFSET`). Regular enemies roll Normal/Magic/Rare at spawn off an
+    invented weight table (80/16/4, genre-standard shape, not doc-
+    sourced); Boss is never auto-rolled, only set explicitly by a boss
+    encounter's own scene. Deliberately scoped to item-level gating only
+    - no stat scaling (health/damage) or visual tint by rank exists yet,
+    since nothing else asked for it and Enemy's existing `_base_color`
+    hook is already spoken for by archetype identity + attack telegraphs.
+29. **Leveling's XP curve has been retuned twice and MAX_LEVEL (100) now
+    exists** (`ExperienceComponent`, 2026-08-30 user requests) - the
+    original 25%/level curve compounded to an unreachable ~10^11 XP by
+    level 100; replaced with 6%/level to make level 100 actually
+    climbable; then replaced again with ~19.64%/level after user feedback
+    that 6% made leveling "too easy." The current rate isn't a round
+    invented number - it's solved algebraically so level 99's requirement
+    (the last one this system ever computes) lands on an exact user-given
+    target, `4294967295 - 1` (1 below the unsigned 32-bit int limit).
+    Still fully invented in the sense that no doc-sourced curve exists
+    (gap #17) - just precisely pinned instead of picked by feel.
+    `add_xp()` discards XP gained past MAX_LEVEL rather than banking it.
+30. **Fate Board Aether budget now scales with player level** (`FateBoard.
+    capacity_for_level()`, 2026-08-30 user request: "gain 2 points of
+    Aether... every time you level up. Start with 10 at level 1") -
+    replaces the previous flat `aether_capacity = 30`. Fully invented, no
+    doc-sourced acquisition curve exists (Section 10 just calls the board
+    "effectively unlimited," gated by Aether) - same "Deferred Design"
+    footing as `SlateRoller`'s other invented numbers (gap #27).
+31. **`levels/pinnacle_boss/PinnacleArena.tscn` exists but isn't wired
+    into the game anywhere yet** - a Belial-style crescent arena (user
+    request 2026-08-30), built and verified (crescent shape confirmed by
+    screenshot, invisible boundary collision confirmed by a scratch
+    physics test - see `PATCH_NOTES.md`), but there's no boss encounter,
+    no Map/Hub entry point, and no way to reach it from normal play. First
+    use of `CSGShape3D` in the project (every other level's floor is a
+    simple plane/box) - a crescent/lune shape isn't expressible with the
+    usual approach. `BossSpawnPoint`/`PlayerSpawnPoint` are bare
+    `Marker3D`s for a future pass to read.
+32. **Item level/stat requirements are a brand-new, fully invented
+    equip-gate system** (2026-08-30) - no doc-sourced requirement system
+    exists. `Item.item_level` (already existed for loot-tier selection)
+    doubles as the level requirement; `stat_requirement`/
+    `stat_requirement_value` are new fields the Section 25 generator fills
+    in per item (a weapon's own damage-type main stat, or Vitality for
+    armor/shields which have no damage type to key off, at 0.5 per
+    `item_level`) - throwables get no stat requirement. Enforced in
+    `EquipmentComponent.equip()`, bypassed only when `Player.
+    _apply_saved_loadout()` restores a previous save (a save should
+    always restore cleanly even if a later balance change or edge case
+    would otherwise block it). The ~14 pre-Section-25 hand-authored items
+    were left untouched (`stat_requirement == -1`, `item_level` defaults
+    to 1) - trivially satisfied either way, not worth a retrofit.
+33. **The "own one of everything" debug/testing catalogs (Inventory
+    and Fate Board) now only cover the ORIGINAL small hand-authored sets,
+    not Section 25's generated catalog** - user report (2026-08-30):
+    "let's not add all of the new high level items to the player's
+    inventory at the start." `InventoryScreen._scan_owned_items()`
+    filters to `base_line_id == ""` (every generated tier has a real
+    line id, every pre-Section-25 single doesn't). The same always-
+    available pattern existed for `FateBoardEditor`'s Slate palette (11
+    hand-authored samples, unrelated to Section 25, just the same
+    convention) - user confirmed removing it too, so the palette now
+    shows only real `GameState.owned_slates` drops. `AbilitiesScreen` was
+    checked against the same concern and found already correctly earned-
+    only (`GameState.owned_ability_ids` defaults empty) - no change
+    needed there.
 
 ## Explicitly not built yet (per Vertical Slice Brief scope)
 

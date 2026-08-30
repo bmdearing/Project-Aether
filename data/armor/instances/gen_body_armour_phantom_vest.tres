@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_gu0m4"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_72otu"]
+
+[resource]
+script = ExtResource("2_72otu")
+item_id = "gen_body_armour_phantom_vest"
+display_name = "Phantom Vest"
+equip_slot = 1
+max_sockets = 3
+flavor_text = "Maximum Evasion"
+item_level = 67
+base_line_id = "body_armour_line3"
+stat_requirement = 0
+stat_requirement_value = 33.5

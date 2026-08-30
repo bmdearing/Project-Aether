@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_w74mx"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_vcadf"]
+
+[resource]
+script = ExtResource("2_vcadf")
+base_damage = 45.5
+scaling_grade = 4
+is_two_handed = true
+item_id = "gen_greatsword_tempest_sword"
+display_name = "Tempest Sword"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "Momentum - Implicit: +16% increased Momentum generation"
+item_level = 46
+base_line_id = "greatsword_line4"
+stat_requirement = 1
+stat_requirement_value = 23.0

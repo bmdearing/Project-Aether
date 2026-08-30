@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_5o8fx"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_pt5nk"]
+
+[resource]
+script = ExtResource("2_pt5nk")
+armor_value = 10.0
+evasion_value = 26.0
+item_id = "gen_helmet_crude_cap"
+display_name = "Crude Cap"
+max_sockets = 1
+flavor_text = "Armor/Evasion Hybrid"
+base_line_id = "helmet_line5"
+stat_requirement = 0
+stat_requirement_value = 0.5

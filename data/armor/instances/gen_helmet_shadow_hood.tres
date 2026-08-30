@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_u6vum"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_41rqe"]
+
+[resource]
+script = ExtResource("2_41rqe")
+evasion_value = 213.0
+item_id = "gen_helmet_shadow_hood"
+display_name = "Shadow Hood"
+max_sockets = 2
+flavor_text = "Maximum Evasion"
+item_level = 45
+base_line_id = "helmet_line3"
+stat_requirement = 0
+stat_requirement_value = 22.5

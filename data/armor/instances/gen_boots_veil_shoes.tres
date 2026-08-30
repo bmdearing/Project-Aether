@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_qvmi2"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_5i41a"]
+
+[resource]
+script = ExtResource("2_5i41a")
+ward_value = 33.0
+item_id = "gen_boots_veil_shoes"
+display_name = "Veil Shoes"
+equip_slot = 3
+max_sockets = 1
+flavor_text = "Maximum Ward"
+item_level = 14
+base_line_id = "boots_line3"
+stat_requirement = 0
+stat_requirement_value = 7.0

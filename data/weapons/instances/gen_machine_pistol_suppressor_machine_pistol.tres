@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_qd73r"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_efmx1"]
+
+[resource]
+script = ExtResource("2_efmx1")
+weapon_type = "Machine Pistol"
+base_damage = 3.0
+scaling_grade = 4
+is_ranged = true
+item_id = "gen_machine_pistol_suppressor_machine_pistol"
+display_name = "Suppressor Machine Pistol"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Suppression - Implicit: +20% increased Stagger effect on hit"
+base_line_id = "machine_pistol_line2"
+stat_requirement = 1
+stat_requirement_value = 0.5

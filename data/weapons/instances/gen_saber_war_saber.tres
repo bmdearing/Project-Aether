@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ybwd1"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_m4ogk"]
+
+[resource]
+script = ExtResource("2_m4ogk")
+weapon_type = "Saber"
+base_damage = 45.5
+scaling_grade = 4
+item_id = "gen_saber_war_saber"
+display_name = "War Saber"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "Slashing - Implicit: +9% increased Physical damage"
+item_level = 34
+base_line_id = "saber_line1"
+stat_requirement = 1
+stat_requirement_value = 17.0

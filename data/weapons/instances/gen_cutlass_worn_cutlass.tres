@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_rim5p"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_46u3v"]
+
+[resource]
+script = ExtResource("2_46u3v")
+weapon_type = "Cutlass"
+base_damage = 9.5
+scaling_grade = 4
+item_id = "gen_cutlass_worn_cutlass"
+display_name = "Worn Cutlass"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Aggressive - Implicit: +10% increased Physical damage"
+base_line_id = "cutlass_line1"
+stat_requirement = 1
+stat_requirement_value = 0.5

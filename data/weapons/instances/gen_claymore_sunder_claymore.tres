@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ke4tx"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_4ip0h"]
+
+[resource]
+script = ExtResource("2_4ip0h")
+weapon_type = "Claymore"
+base_damage = 40.0
+scaling_grade = 4
+is_two_handed = true
+item_id = "gen_claymore_sunder_claymore"
+display_name = "Sunder Claymore"
+equip_slot = 4
+max_sockets = 3
+flavor_text = "Stagger - Implicit: +16% increased Stagger effect"
+item_level = 31
+base_line_id = "claymore_line2"
+stat_requirement = 1
+stat_requirement_value = 15.5

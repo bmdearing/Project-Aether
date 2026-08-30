@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_h8sod"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_74u8b"]
+
+[resource]
+script = ExtResource("2_74u8b")
+weapon_type = "Revolver"
+base_damage = 17.0
+scaling_grade = 4
+is_ranged = true
+item_id = "gen_revolver_marksmans_revolver"
+display_name = "Marksman's Revolver"
+equip_slot = 4
+max_sockets = 3
+flavor_text = "Critical Strike - Implicit: +14% increased Critical Strike Chance"
+item_level = 14
+base_line_id = "revolver_line2"
+stat_requirement = 1
+stat_requirement_value = 7.0

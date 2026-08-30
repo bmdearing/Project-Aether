@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_61x1a"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_6ag0c"]
+
+[resource]
+script = ExtResource("2_6ag0c")
+block_chance = 0.31
+block_threshold = 837.0
+armor_value = 130.0
+item_id = "gen_spiked_shield_bladesingers_spiked_shield"
+display_name = "Bladesinger's Spiked Shield"
+equip_slot = 6
+max_sockets = 3
+flavor_text = "Critical Strike - Implicit: +14% increased Critical Strike Chance"
+item_level = 91
+base_line_id = "spiked_shield_line2"
+stat_requirement = 0
+stat_requirement_value = 45.5

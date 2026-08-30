@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_4lknp"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_2l5x8"]
+
+[resource]
+script = ExtResource("2_2l5x8")
+weapon_type = "Pump Action Shotgun"
+base_damage = 12.5
+scaling_grade = 4
+is_two_handed = true
+is_ranged = true
+item_id = "gen_pump_action_shotgun_piercer_pump_shotgun"
+display_name = "Piercer Pump Shotgun"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Armor Penetration - Implicit: +22% Armor penetration on hits"
+base_line_id = "pump_action_shotgun_line2"
+stat_requirement = 1
+stat_requirement_value = 0.5

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_fe0lo"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_cjp3r"]
+
+[resource]
+script = ExtResource("2_cjp3r")
+block_chance = 0.19
+block_threshold = 92.0
+armor_value = 10.0
+item_id = "gen_spiked_shield_duelists_spiked_shield"
+display_name = "Duelist's Spiked Shield"
+equip_slot = 6
+max_sockets = 1
+flavor_text = "Critical Strike"
+base_line_id = "spiked_shield_line2"
+stat_requirement = 0
+stat_requirement_value = 0.5

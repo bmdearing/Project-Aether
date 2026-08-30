@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_vg5o4"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_rwvw8"]
+
+[resource]
+script = ExtResource("2_rwvw8")
+item_id = "gen_grenade_iron_grenade"
+display_name = "Iron Grenade"
+equip_slot = 8
+flavor_text = "High Damage Base Damage: 15-24."
+item_level = 14
+base_line_id = "grenade_line1"

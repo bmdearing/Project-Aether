@@ -51,11 +51,14 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 ## keyed by Weapon.weapon_type, same string GearShop/DebugOverlay/
 ## Constants.WEAPON_BASE_CRIT_CHANCE already key off. Anything not listed
 ## here (e.g. "Service Pistol" - no firearm exists in this melee-focused
-## pack) falls back to the original placeholder blade, tinted by damage
-## type same as before.
+## pack; "Rapier"/"Gauntlet" - no matching model in this pack either, see
+## PATCH_NOTES.md) falls back to the original placeholder blade, tinted
+## by damage type same as before.
 const WEAPON_MODEL_SCENES := {
 	"Greatsword": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Great_Sword.fbx"),
 	"Dagger": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Dagger.fbx"),
+	"Bow": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Bow.fbx"),
+	"Staff": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Wizard_Staff.fbx"),
 }
 
 var fate_board: FateBoard
@@ -221,7 +224,7 @@ func _apply_derived_stats() -> void:
 	resilience = vitality * VITALITY_RESILIENCE_PER_POINT
 	mana.max_mana = _base_max_mana + intellect * INTELLECT_MANA_PER_POINT
 	mana.regen_per_second = _base_mana_regen + intellect * INTELLECT_MANA_REGEN_PER_POINT
-	ward.set_max_ward(equipment.compute_flat_ward_bonus() * (1.0 + enigma * WARD_INCREASED_PER_ENIGMA))
+	ward.set_max_ward(equipment.compute_ward_bonus() * (1.0 + enigma * WARD_INCREASED_PER_ENIGMA))
 	ward.restoration_multiplier = 1.0 + enigma * WARD_RESTORATION_PER_ENIGMA
 
 func get_dot_mitigation() -> float:
@@ -232,11 +235,18 @@ func _apply_saved_experience() -> void:
 	experience.xp = GameState.player_xp
 	experience.leveled_up.connect(_on_leveled_up)
 	experience.xp_changed.connect(_on_xp_changed)
+	# Keeps Fate Board Aether budget in sync with whatever level a save
+	# restored at - independent of _apply_saved_fate_board()'s own restore
+	# order, see place_slate()'s bypass_budget comment for why that matters.
+	fate_board.aether_capacity = FateBoard.capacity_for_level(GameState.player_level)
 
-## Section 12: leveling grants no stat points (gear-only). Level itself
-## just feeds GearShop's stock-quality signal.
+## Section 12: leveling grants no stat points (gear-only), but user
+## request (2026-08-30) gives leveling a real Fate Board effect: "gain 2
+## points of Aether... every time you level up."
 func _on_leveled_up(new_level: int) -> void:
 	GameState.player_level = new_level
+	fate_board.aether_capacity = FateBoard.capacity_for_level(new_level)
+	EventBus.aether_budget_changed.emit(fate_board.aether_used, fate_board.aether_capacity)
 	EventBus.player_leveled_up.emit(new_level)
 
 func _on_xp_changed(current: float, _needed: float) -> void:
@@ -251,7 +261,7 @@ func _apply_saved_loadout() -> void:
 	for ref in GameState.equipment_refs:
 		var item: Item = load(ref) if ref is String and ref != "" else (ItemSerializer.from_dict(ref) if ref is Dictionary else null)
 		if item:
-			equipment.equip(item)
+			equipment.equip(item, true)
 	for i in range(GameState.ability_loadout_paths.size()):
 		var path: String = GameState.ability_loadout_paths[i]
 		if path != "":
@@ -280,7 +290,7 @@ func _apply_saved_fate_board() -> void:
 		var origin := Vector2i(int(origin_raw[0]), int(origin_raw[1])) if origin_raw is Array and origin_raw.size() == 2 else Vector2i.ZERO
 		fate_board.place_slate(
 			slate, origin, int(entry.get("rotation_steps", 0)), bool(entry.get("flipped", false)),
-			str(entry.get("designated_ability_id", ""))
+			str(entry.get("designated_ability_id", "")), true
 		)
 
 ## slate_ref is a resource_path String (hand-authored palette Slate) or an

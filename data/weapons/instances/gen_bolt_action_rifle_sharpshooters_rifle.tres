@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_eea6w"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_oqih8"]
+
+[resource]
+script = ExtResource("2_oqih8")
+weapon_type = "Bolt Action Rifle"
+base_damage = 78.0
+scaling_grade = 4
+is_two_handed = true
+is_ranged = true
+item_id = "gen_bolt_action_rifle_sharpshooters_rifle"
+display_name = "Sharpshooter's Rifle"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "Critical Strike - Implicit: +14% increased Critical Strike Chance"
+item_level = 41
+base_line_id = "bolt_action_rifle_line1"
+stat_requirement = 1
+stat_requirement_value = 20.5

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_d553u"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_lv3kj"]
+
+[resource]
+script = ExtResource("2_lv3kj")
+weapon_type = "Pump Action Shotgun"
+base_damage = 14.0
+scaling_grade = 4
+is_two_handed = true
+is_ranged = true
+item_id = "gen_pump_action_shotgun_crude_pump_shotgun"
+display_name = "Crude Pump Shotgun"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "High Damage - Implicit: +15% increased AoE radius on hits"
+base_line_id = "pump_action_shotgun_line1"
+stat_requirement = 1
+stat_requirement_value = 0.5

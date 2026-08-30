@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_l15ph"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_8a5lk"]
+
+[resource]
+script = ExtResource("2_8a5lk")
+armor_value = 20.0
+item_id = "gen_gloves_iron_gauntlets"
+display_name = "Iron Gauntlets"
+equip_slot = 2
+max_sockets = 1
+flavor_text = "Maximum Armor"
+item_level = 14
+base_line_id = "gloves_line1"
+stat_requirement = 0
+stat_requirement_value = 7.0

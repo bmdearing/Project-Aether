@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ttukc"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_hbi0k"]
+
+[resource]
+script = ExtResource("2_hbi0k")
+armor_value = 93.0
+ward_value = 186.0
+item_id = "gen_body_armour_warded_coat"
+display_name = "Warded Coat"
+equip_slot = 1
+max_sockets = 1
+flavor_text = "Ward/Armor Hybrid"
+item_level = 14
+base_line_id = "body_armour_line8"
+stat_requirement = 0
+stat_requirement_value = 7.0

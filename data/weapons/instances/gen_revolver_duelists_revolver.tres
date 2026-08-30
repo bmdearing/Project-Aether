@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_jr8ee"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_41lpd"]
+
+[resource]
+script = ExtResource("2_41lpd")
+weapon_type = "Revolver"
+base_damage = 8.0
+scaling_grade = 4
+is_ranged = true
+item_id = "gen_revolver_duelists_revolver"
+display_name = "Duelist's Revolver"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Critical Strike - Implicit: +14% increased Critical Strike Chance"
+base_line_id = "revolver_line2"
+stat_requirement = 1
+stat_requirement_value = 0.5

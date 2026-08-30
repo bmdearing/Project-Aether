@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ym3td"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_iqh1l"]
+
+[resource]
+script = ExtResource("2_iqh1l")
+evasion_value = 830.0
+ward_value = 701.0
+item_id = "gen_body_armour_veilborn_vest"
+display_name = "Veilborn Vest"
+equip_slot = 1
+max_sockets = 3
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 79
+base_line_id = "body_armour_line7"
+stat_requirement = 0
+stat_requirement_value = 39.5

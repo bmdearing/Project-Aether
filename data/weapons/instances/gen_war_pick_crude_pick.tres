@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_g5guj"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_ltivr"]
+
+[resource]
+script = ExtResource("2_ltivr")
+weapon_type = "War Pick"
+base_damage = 9.5
+scaling_grade = 4
+native_damage_type = 1
+item_id = "gen_war_pick_crude_pick"
+display_name = "Crude Pick"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Armor Penetration - Implicit: +20% Armor penetration on hits"
+base_line_id = "war_pick_line1"
+stat_requirement = 1
+stat_requirement_value = 0.5

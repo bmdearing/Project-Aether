@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ew3nx"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_mr0e1"]
+
+[resource]
+script = ExtResource("2_mr0e1")
+weapon_type = "Lever Action Rifle"
+base_damage = 11.0
+scaling_grade = 4
+is_two_handed = true
+is_ranged = true
+item_id = "gen_lever_action_rifle_worn_lever_rifle"
+display_name = "Worn Lever Rifle"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "High Damage - Implicit: +12% increased Physical damage"
+base_line_id = "lever_action_rifle_line1"
+stat_requirement = 1
+stat_requirement_value = 0.5

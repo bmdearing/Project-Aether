@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_exh3i"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_xgoey"]
+
+[resource]
+script = ExtResource("2_xgoey")
+weapon_type = "Mace"
+base_damage = 76.0
+scaling_grade = 4
+item_id = "gen_mace_crusher"
+display_name = "Crusher"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "Stagger - Implicit: +14% increased Stagger effect"
+item_level = 53
+base_line_id = "mace_line1"
+stat_requirement = 1
+stat_requirement_value = 26.5

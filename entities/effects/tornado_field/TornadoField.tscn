@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://entities/effects/tornado_field/TornadoField.gd" id="1"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_funnel"]
+top_radius = 0.15
+bottom_radius = 1.0
+height = 2.5
+
+[node name="TornadoField" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Funnel" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.25, 0)
+mesh = SubResource("CylinderMesh_funnel")

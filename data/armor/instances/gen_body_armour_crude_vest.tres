@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_qpf43"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_5me8r"]
+
+[resource]
+script = ExtResource("2_5me8r")
+evasion_value = 260.0
+item_id = "gen_body_armour_crude_vest"
+display_name = "Crude Vest"
+equip_slot = 1
+max_sockets = 1
+flavor_text = "Maximum Evasion"
+base_line_id = "body_armour_line3"
+stat_requirement = 0
+stat_requirement_value = 0.5

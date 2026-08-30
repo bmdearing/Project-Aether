@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_vuscm"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_j3tew"]
+
+[resource]
+script = ExtResource("2_j3tew")
+block_chance = 0.13
+evasion_value = 150.0
+item_id = "gen_buckler_riposte_buckler"
+display_name = "Riposte Buckler"
+equip_slot = 6
+max_sockets = 2
+flavor_text = "Riposte/Parry"
+item_level = 61
+base_line_id = "buckler_line2"
+stat_requirement = 0
+stat_requirement_value = 30.5

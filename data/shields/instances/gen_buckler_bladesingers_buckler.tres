@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_pq33e"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_nfy6x"]
+
+[resource]
+script = ExtResource("2_nfy6x")
+block_chance = 0.15
+evasion_value = 250.0
+item_id = "gen_buckler_bladesingers_buckler"
+display_name = "Bladesinger's Buckler"
+equip_slot = 6
+max_sockets = 3
+flavor_text = "Riposte/Parry - Implicit: +14% increased Riposte damage"
+item_level = 91
+base_line_id = "buckler_line2"
+stat_requirement = 0
+stat_requirement_value = 45.5

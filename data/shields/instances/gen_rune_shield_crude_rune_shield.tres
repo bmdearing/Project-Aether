@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ju1md"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_xy2o4"]
+
+[resource]
+script = ExtResource("2_xy2o4")
+block_chance = 0.15
+block_threshold = 109.0
+ward_value = 18.0
+item_id = "gen_rune_shield_crude_rune_shield"
+display_name = "Crude Rune Shield"
+equip_slot = 6
+max_sockets = 1
+flavor_text = "Ward Line"
+base_line_id = "rune_shield_line1"
+stat_requirement = 0
+stat_requirement_value = 0.5

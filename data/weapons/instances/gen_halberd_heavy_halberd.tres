@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_dnexw"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_n8yjl"]
+
+[resource]
+script = ExtResource("2_n8yjl")
+weapon_type = "Halberd"
+base_damage = 67.0
+scaling_grade = 4
+native_damage_type = 1
+is_two_handed = true
+item_id = "gen_halberd_heavy_halberd"
+display_name = "Heavy Halberd"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "High Damage - Implicit: +10% increased Physical damage"
+item_level = 45
+base_line_id = "halberd_line1"
+stat_requirement = 1
+stat_requirement_value = 22.5

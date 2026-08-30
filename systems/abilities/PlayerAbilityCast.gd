@@ -41,7 +41,23 @@ const SPECIAL_EFFECT_SCENES := {
 	"caltrops": preload("res://entities/effects/caltrops_field/CaltropsField.tscn"),
 	"flame_wall": preload("res://entities/effects/flame_wall_field/FlameWallField.tscn"),
 	"winters_eye": preload("res://entities/effects/winters_eye_orb/WintersEyeOrb.tscn"),
+	"tornado": preload("res://entities/effects/tornado_field/TornadoField.tscn"),
 }
+
+## Spark ("creates 3 lightning projectiles that crawl the ground and
+## search for enemies", user request 2026-08-30) - spawned directly by
+## _fire_spark() below rather than through SPECIAL_EFFECT_SCENES/
+## _play_range_effect(), since it's 3 independently-moving crawlers, not
+## one VFX instance at a fixed cast point.
+const SPARK_CRAWLER_SCENE := preload("res://entities/effects/spark_crawler/SparkCrawler.tscn")
+const SPARK_COUNT := 3
+const SPARK_SPREAD_DEG := 25.0
+
+## Tornado ("You can have up to three tornadoes at once", user request
+## 2026-08-30) - gated in _try_cast() by counting the "tornado_field"
+## group TornadoField.play() adds itself to, same spirit as the cooldown/
+## mana checks right above it but ability-specific rather than generic.
+const TORNADO_MAX_ACTIVE := 3
 
 const BLINK_DISTANCE := 8.0
 const PIERCING_BOLT_SCENE := preload("res://entities/effects/piercing_bolt/PiercingBolt.tscn")
@@ -159,14 +175,18 @@ func _try_cast(slot_index: int, cast_position: Vector3) -> void:
 	if get_cooldown_remaining(ability) > 0.0:
 		EventBus.ability_cast_failed.emit(_player, ability, "On cooldown")
 		return
+	if ability.ability_id == "tornado" and get_tree().get_nodes_in_group("tornado_field").size() >= TORNADO_MAX_ACTIVE:
+		EventBus.ability_cast_failed.emit(_player, ability, "3 tornadoes already active")
+		return
 	if _player.mana.current_mana < ability.resource_cost:
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
 		return
 	_player.mana.spend(ability.resource_cost)
 	# Section 12: Instinct -> "+1% Attack/Cast speed per point" - divides
 	# the authored cooldown, same treatment PlayerMeleeAttack/
-	# PlayerRangedAttack give their own timings.
-	_cooldowns[ability] = ability.get_effective_cooldown() / _player.get_action_speed_multiplier()
+	# PlayerRangedAttack give their own timings. get_final_cooldown() caps
+	# the combined reduction at Constants.MAX_COOLDOWN_REDUCTION.
+	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier())
 	_cast(ability, cast_position)
 
 ## Each enemy rolls its own crit independently (roll_damage() per-target,
@@ -236,6 +256,19 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		_fire_winters_eye(ability, cast_position)
 		EventBus.ability_cast.emit(_player, ability)
 		return
+	# Spark: 3 independently-seeking ground crawlers, not one AoE-at-a-point
+	# VFX - see _fire_spark()'s own header.
+	if ability.ability_id == "spark":
+		_fire_spark(ability, damage_multiplier)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	# Tornado: all damage comes from TornadoField's own repeated ticks
+	# while it drifts/hunts, same "bespoke mechanic skips the generic
+	# loop" precedent as Black Hole/Flame Wall above.
+	if ability.ability_id == "tornado":
+		_play_range_effect(ability, cast_position)
+		EventBus.ability_cast.emit(_player, ability)
+		return
 
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
@@ -280,7 +313,7 @@ func _process_slate_autocasts() -> void:
 ## this never calls ManaComponent.spend(), unlike _try_cast()), no
 ## Riposte window/Composure damage (apply_composure=false).
 func _auto_cast(ability: Ability, slate: Slate) -> void:
-	_cooldowns[ability] = ability.get_effective_cooldown() / _player.get_action_speed_multiplier()
+	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier())
 	var damage_percent := _modifier_value(slate, "auto_cast_damage_percent", 100.0)
 	_cast(ability, _player.global_position, damage_percent / 100.0, false)
 
@@ -321,7 +354,7 @@ func _play_range_effect(ability: Ability, cast_position: Vector3) -> void:
 		# Needs the caster's own position too, to orient the wall - see
 		# FlameWallField.play()'s own comment.
 		effect.call("play", ability.radius, color, ability, _player.stat_sheet, _player, _player.global_position)
-	elif ability.ability_id == "caltrops" or ability.ability_id == "black_hole":
+	elif ability.ability_id == "caltrops" or ability.ability_id == "black_hole" or ability.ability_id == "tornado":
 		# CaltropsField/BlackHoleField need the ability + StatSheet directly -
 		# both roll their own damage per tick rather than reusing one hit's
 		# damage repeatedly.
@@ -393,6 +426,28 @@ func _fire_radiating_bolts(ability: Ability, damage_multiplier: float) -> void:
 		var angle := TAU * i / float(THUNDER_SWEEP_BOLT_COUNT)
 		var xform := Transform3D(Basis(Vector3.UP, angle), origin)
 		_spawn_bolt(ability, damage_multiplier, xform)
+
+## Spawns SPARK_COUNT crawlers in a fan spread in front of the caster
+## (flattened to the horizontal plane), each independently re-targeting
+## the nearest enemy once it's loose - see SparkCrawler's own header.
+func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
+	var forward := -_player.camera.global_transform.basis.z
+	forward.y = 0.0
+	if forward.length() < 0.01:
+		forward = -_player.global_transform.basis.z
+	forward = forward.normalized()
+	var origin := _player.global_position + forward * 0.5
+	for i in range(SPARK_COUNT):
+		var offset_deg := SPARK_SPREAD_DEG * (i - (SPARK_COUNT - 1) / 2.0)
+		var heading: Vector3 = forward.rotated(Vector3.UP, deg_to_rad(offset_deg))
+		var crawler: SparkCrawler = SPARK_CRAWLER_SCENE.instantiate()
+		crawler.heading = heading
+		crawler.ability = ability
+		crawler.stat_sheet = _player.stat_sheet
+		crawler.source = _player
+		crawler.damage_multiplier = damage_multiplier
+		_player.get_tree().current_scene.add_child(crawler)
+		crawler.global_position = origin
 
 func _fire_winters_eye(ability: Ability, target: Vector3) -> void:
 	var orb: Node3D = SPECIAL_EFFECT_SCENES["winters_eye"].instantiate()

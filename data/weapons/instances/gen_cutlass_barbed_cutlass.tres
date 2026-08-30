@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_gbqvf"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_vbk2a"]
+
+[resource]
+script = ExtResource("2_vbk2a")
+weapon_type = "Cutlass"
+base_damage = 8.0
+scaling_grade = 4
+item_id = "gen_cutlass_barbed_cutlass"
+display_name = "Barbed Cutlass"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Bleed - Implicit: +18% increased Bleed damage"
+base_line_id = "cutlass_line2"
+stat_requirement = 1
+stat_requirement_value = 0.5

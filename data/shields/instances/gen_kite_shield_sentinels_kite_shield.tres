@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_l0mhh"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_w6kt0"]
+
+[resource]
+script = ExtResource("2_w6kt0")
+block_chance = 0.23
+block_threshold = 517.0
+armor_value = 63.0
+item_id = "gen_kite_shield_sentinels_kite_shield"
+display_name = "Sentinel's Kite Shield"
+equip_slot = 6
+max_sockets = 2
+flavor_text = "Block Threshold"
+item_level = 46
+base_line_id = "kite_shield_line2"
+stat_requirement = 0
+stat_requirement_value = 23.0

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_vmpaw"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_hrhao"]
+
+[resource]
+script = ExtResource("2_hrhao")
+item_id = "gen_infusion_grenade_affliction_infusion_grenade"
+display_name = "Affliction Infusion Grenade"
+equip_slot = 8
+flavor_text = "Status Effect Base Damage: 11-18."
+item_level = 16
+base_line_id = "infusion_grenade_line2"

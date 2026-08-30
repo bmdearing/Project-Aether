@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_j51bh"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_hr4wh"]
+
+[resource]
+script = ExtResource("2_hr4wh")
+armor_value = 163.0
+item_id = "gen_boots_colossus_boots"
+display_name = "Colossus Boots"
+equip_slot = 3
+max_sockets = 3
+flavor_text = "Maximum Armor - Implicit: +11% increased Armor"
+item_level = 91
+base_line_id = "boots_line1"
+stat_requirement = 0
+stat_requirement_value = 45.5

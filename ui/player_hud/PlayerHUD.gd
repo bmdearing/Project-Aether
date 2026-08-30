@@ -29,7 +29,7 @@ class_name PlayerHUD
 const ABILITY_BAR_HALF_WIDTH := 136.0
 const ORB_GAP := 16.0
 const ORB_BOTTOM_OFFSET := -20.0
-const ORB_HEIGHT := 108.0  # must match StatOrb's own computed min size (radius*2 + 16)
+const ORB_HEIGHT := 132.0  # must match StatOrb's own computed min size (radius*2 + 16)
 
 const XP_BAR_HEIGHT := 18.0
 const XP_BAR_BOTTOM_OFFSET := -2.0
@@ -52,6 +52,10 @@ const STATUS_CHIP_MIN_WIDTH := 76.0
 const STATUS_CHIP_GAP := 6.0
 const XP_BAR_SHADER := preload("res://ui/player_hud/xp_bar.gdshader")
 
+## User request (2026-08-30): "tween between the experience bar that they
+## had to the experience that they end up at... show it filling up."
+const XP_FILL_TWEEN_DURATION := 0.5
+
 @onready var weapon_indicator: HBoxContainer = $WeaponIndicator
 
 var _player: Player
@@ -59,6 +63,11 @@ var _life_orb: StatOrb
 var _mana_orb: StatOrb
 var _xp_fill_clip: Control
 var _xp_label: Label
+var _xp_tween: Tween
+## -1 = not yet initialized (the deferred startup call in _ready() should
+## snap the bar to wherever a loaded save's XP already is, not tween up
+## from empty).
+var _xp_last_needed: float = -1.0
 var _level_badge_label: Label
 var _weapon_icon: ItemSlotButton
 var _weapon_name_label: Label
@@ -296,10 +305,38 @@ func _on_ward_changed(current: float, max_value: float) -> void:
 ## Level shows in the badge now, not this text - xp_changed always fires
 ## after any level-up processing (ExperienceComponent.add_xp()), so
 ## _player.experience.level is already the current value here.
+##
+## User request (2026-08-30): tween the fill from where it was to where
+## it ends up, instead of snapping instantly. ExperienceComponent.add_xp()
+## only emits xp_changed once per call even if it crossed a level (it
+## loops internally and fires after the loop, see its own comments) - so
+## a level-up shows up here as `needed` having changed since the last
+## call. When that happens, fill the OLD bar the rest of the way to 1.0
+## first, snap back to empty, then fill toward the new target - the
+## classic "level up" bar animation - rather than jumping straight to
+## whatever (probably smaller-looking) ratio the new level starts at.
 func _on_xp_changed(current: float, needed: float) -> void:
-	_xp_fill_clip.anchor_right = clamp(current / needed, 0.0, 1.0)
-	_xp_label.text = "%.0f / %.0f XP" % [current, needed]
+	var at_max_level: bool = _player.experience.is_max_level()
+	_xp_label.text = "MAX LEVEL" if at_max_level else "%.0f / %.0f XP" % [current, needed]
 	_level_badge_label.text = str(_player.experience.level)
+	var target_ratio: float = 1.0 if at_max_level else clamp(current / needed, 0.0, 1.0)
+
+	if _xp_last_needed < 0.0:
+		_xp_fill_clip.anchor_right = target_ratio
+		_xp_last_needed = needed
+		return
+
+	if _xp_tween and _xp_tween.is_valid():
+		_xp_tween.kill()
+	_xp_tween = create_tween()
+	if needed != _xp_last_needed:
+		_xp_tween.tween_property(_xp_fill_clip, "anchor_right", 1.0, XP_FILL_TWEEN_DURATION) \
+			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		_xp_tween.tween_callback(func(): _xp_fill_clip.anchor_right = 0.0)
+	_xp_tween.tween_property(_xp_fill_clip, "anchor_right", target_ratio, XP_FILL_TWEEN_DURATION) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+
+	_xp_last_needed = needed
 
 func _on_weapon_swapped(player: Node) -> void:
 	if player != _player:

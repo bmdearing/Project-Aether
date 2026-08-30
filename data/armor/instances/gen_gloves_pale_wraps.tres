@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_5efer"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_08fi0"]
+
+[resource]
+script = ExtResource("2_08fi0")
+ward_value = 54.0
+item_id = "gen_gloves_pale_wraps"
+display_name = "Pale Wraps"
+equip_slot = 2
+max_sockets = 2
+flavor_text = "Maximum Ward"
+item_level = 27
+base_line_id = "gloves_line3"
+stat_requirement = 0
+stat_requirement_value = 13.5

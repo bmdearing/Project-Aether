@@ -73,7 +73,7 @@ const OFFHAND_FOREARM_POS := (OFFHAND_SHOULDER_POS + OFFHAND_HAND_POS) * 0.5 + V
 ## scratch test measuring hand-to-hand drift, not eyeballed.
 const OFFHAND_TRACKING_DAMPING := 0.5
 
-enum PoseSet { CLEAVE, SWEEP_RIGHT, SWEEP_LEFT, BIG_SWEEP, DASH_THRUST, GUARD }
+enum PoseSet { CLEAVE, SWEEP_RIGHT, SWEEP_LEFT, BIG_SWEEP, DASH_THRUST, GUARD, JAB, RECOIL, BOW_RELEASE, TWIRL_RIGHT, TWIRL_LEFT }
 
 ## One arm's runtime rig state (skeleton + bone indices). Two of these
 ## can exist at once (primary, off-hand) - see set_two_handed().
@@ -130,6 +130,27 @@ func _ready() -> void:
 ##   "sword and arms disappear to the sides" bug above - a small, mostly
 ##   rest-adjacent raise instead, so the weapon stays clearly on-screen
 ##   the way a real held-ready pose (poised, blade up and visible) would.
+## - JAB: Gauntlet's own identity (user feedback, 2026-08-30 later still:
+##   "the animations are all the same for all of the weapons" - Gauntlet
+##   had been reusing DASH_THRUST, a lunging thrust, for a FIST weapon).
+##   Elbow-extension-dominant rather than shoulder-arc-dominant like every
+##   other pose here - a punch mostly straightens the arm, it doesn't
+##   swing it around the shoulder - so this reads as a genuinely different
+##   kind of motion, not just a faster/smaller copy of a sword swing.
+## - RECOIL/BOW_RELEASE: PlayerRangedAttack's fire-reaction poses (same
+##   feedback - ranged weapons had NO animation at all before this,
+##   melee and ranged both needed real differentiation). Purely cosmetic,
+##   layered on top of an unchanged instant-fire/cooldown model - see
+##   PlayerRangedAttack._play_fire_animation(). RECOIL is a sharp,
+##   small kick-back (Pistol); BOW_RELEASE is a fuller draw-then-release
+##   motion (Bow) - windup doubles as "drawing the string."
+## - TWIRL_RIGHT/TWIRL_LEFT: Staff's own combo (it had been sharing
+##   Greatsword's SWEEP pair outright - a real leftover gap in the same
+##   "all the same" pass, caught by a scratch test asserting every
+##   weapon's combo pose LIST is distinct, not just its name). Wrist-
+##   rotation-dominant rather than shoulder-arc-dominant like SWEEP - a
+##   spin, not a committed heavy cleave, matching a staff's lighter,
+##   whippier weight versus a greatsword's.
 func _build_swing_poses() -> void:
 	_poses[PoseSet.CLEAVE] = {
 		"windup": [_euler_deg(-25.0, 15.0, 30.0), _euler_deg(-55.0, 0.0, 0.0), _euler_deg(-15.0, 0.0, 0.0)],
@@ -147,15 +168,96 @@ func _build_swing_poses() -> void:
 		"windup": [_euler_deg(-8.0, 35.0, 10.0), _euler_deg(-18.0, 0.0, 0.0), _euler_deg(-10.0, 0.0, 0.0)],
 		"strike": [_euler_deg(15.0, -40.0, -18.0), _euler_deg(15.0, 0.0, 0.0), _euler_deg(18.0, 0.0, 22.0)],
 	}
+	# User feedback (2026-08-30, yet another follow-up): "still just
+	# slashes upward, no twisting to point at enemies and stab" - the
+	# original X-axis-dominant rotation here was measured (a scratch probe
+	# comparing camera-local weapon position before/after) to actually
+	# pull the blade UP and BACK toward the camera, the opposite of a
+	# thrust - a bad axis assumption, not just weak tuning. A first
+	# redesign (Y-axis/yaw-dominant, reorienting the blade to face camera-
+	# forward) was a real improvement but still imperfect on screenshot
+	# review.
+	#
+	# The actual governing insight, found by sweeping single-axis
+	# rotations and measuring the resulting camera-local weapon position:
+	# this rig's REST pose is already close to the arm's full natural
+	# reach (HAND_POS sits at the real measured weapon grip - see that
+	# constant's own comment) - essentially every tested rotation pulls
+	# the hand BACK toward the camera, none push it meaningfully further
+	# forward. So a convincing thrust can't be "reach past rest," it has
+	# to be windup RETRACTS (pulls the arm back and up, away from the
+	# target) and strike SNAPS BACK toward/just past rest - the felt
+	# "explosive extension" comes from that relative retract-then-release,
+	# not from ever exceeding rest's own reach by much. Verified
+	# numerically before committing: strike ends up ~0.12 units MORE
+	# forward than rest (not less), and the windup-to-strike relative
+	# motion is ~0.8 units forward + 0.7 units downward - a real forward-
+	# and-down punch-through, not another arc-in-place.
+	# User feedback (2026-08-30, next follow-up still): "it's still the
+	# exact same for both of them [Rapier, Gauntlet]... I'm not sure what
+	# you've changed here honestly." Real cause, this time: DASH_THRUST and
+	# JAB both used the identical retract-release SHAPE (similar
+	# proportions across all 3 bones), just scaled by different
+	# magnitudes/speed - genuinely different numbers, but not a
+	# genuinely different-LOOKING motion, especially on a small placeholder
+	# mesh (see BoxMesh_blade's own resize in Player.tscn, a second
+	# contributing cause - a nearly-square 8x8cm rod barely shows any
+	# silhouette change under rotation at all, flattened to a real blade
+	# profile so orientation actually reads). DASH_THRUST is now WRIST-
+	# dominant (the hand bone carries most of the rotation - precise
+	# point control, like aiming a thin blade), JAB is ELBOW-dominant (see
+	# below) - different joints doing the work changes the actual pivot
+	# the weapon swings around, not just the angle.
+	#
+	# A first pass at this concentrated 30 degrees onto the hand bone
+	# alone - screenshot-checked afterward (windup and strike, both
+	# weapons) and the windup pose turned out to swing the weapon
+	# completely OFF-SCREEN, invisible for the entire windup phase. That
+	# alone explains "looks the same" far better than any pose-shape
+	# theory: the player never sees the retraction at all, only a snap-
+	# into-view at strike, which reads the same regardless of the pose
+	# data underneath. Brought back down to a magnitude close to what an
+	# earlier, confirmed-visible version used (shoulder=15/elbow=25/
+	# hand=10), just re-weighted toward the hand instead of the elbow.
 	_poses[PoseSet.DASH_THRUST] = {
-		"windup": [_euler_deg(-10.0, 5.0, 10.0), _euler_deg(-20.0, 0.0, 0.0), _euler_deg(-5.0, 0.0, 0.0)],
-		"strike": [_euler_deg(20.0, 0.0, -5.0), _euler_deg(45.0, 0.0, 0.0), _euler_deg(10.0, 0.0, 5.0)],
+		"windup": [_euler_deg(8.0, 6.0, 4.0), _euler_deg(10.0, 0.0, 0.0), _euler_deg(18.0, 0.0, 0.0)],
+		"strike": [_euler_deg(-3.0, -3.0, -2.0), _euler_deg(-3.0, 0.0, 0.0), _euler_deg(-9.0, 0.0, 3.0)],
 	}
 	# Modest raise from rest - blade tilts up and slightly across the body,
 	# staying in frame the whole time (see the enum-comment block above).
 	_poses[PoseSet.GUARD] = {
 		"windup": [_euler_deg(-8.0, 8.0, 6.0), _euler_deg(-12.0, 0.0, 0.0), _euler_deg(-6.0, 0.0, 0.0)],
 		"strike": [_euler_deg(-8.0, 8.0, 6.0), _euler_deg(-12.0, 0.0, 0.0), _euler_deg(-6.0, 0.0, 0.0)],
+	}
+	# Same retract-then-release principle as DASH_THRUST above. Unlike
+	# DASH_THRUST's wrist-dominant point control, JAB is ELBOW-dominant -
+	# the elbow bone carries most of the rotation, since a real punch is
+	# fundamentally an elbow-extension motion, not a wrist flick (see
+	# DASH_THRUST's own comment for why this axis-per-bone redistribution
+	# exists at all - two poses sharing the same shape at different sizes
+	# read as "the same" even with correct numbers underneath).
+	# Same off-screen-windup problem as DASH_THRUST above (32 degrees
+	# concentrated on the elbow alone) - brought down to a magnitude
+	# that stays on-screen, same fix.
+	_poses[PoseSet.JAB] = {
+		"windup": [_euler_deg(6.0, 5.0, 4.0), _euler_deg(19.0, 0.0, 0.0), _euler_deg(9.0, 0.0, 0.0)],
+		"strike": [_euler_deg(-2.0, -2.0, -2.0), _euler_deg(-8.0, 0.0, 0.0), _euler_deg(-3.0, 0.0, 3.0)],
+	}
+	_poses[PoseSet.RECOIL] = {
+		"windup": [_euler_deg(2.0, -2.0, -2.0), _euler_deg(-5.0, 0.0, 0.0), _euler_deg(-5.0, 0.0, 0.0)],
+		"strike": [_euler_deg(-15.0, 10.0, 15.0), _euler_deg(-20.0, 0.0, 0.0), _euler_deg(-25.0, 0.0, -10.0)],
+	}
+	_poses[PoseSet.BOW_RELEASE] = {
+		"windup": [_euler_deg(-12.0, 20.0, 10.0), _euler_deg(-35.0, 0.0, 0.0), _euler_deg(-15.0, 0.0, 0.0)],
+		"strike": [_euler_deg(15.0, -25.0, -12.0), _euler_deg(15.0, 0.0, 0.0), _euler_deg(20.0, 0.0, 15.0)],
+	}
+	_poses[PoseSet.TWIRL_RIGHT] = {
+		"windup": [_euler_deg(-6.0, 30.0, 8.0), _euler_deg(-12.0, 0.0, 0.0), _euler_deg(-20.0, 0.0, 10.0)],
+		"strike": [_euler_deg(8.0, -35.0, -10.0), _euler_deg(8.0, 0.0, 0.0), _euler_deg(15.0, 0.0, -30.0)],
+	}
+	_poses[PoseSet.TWIRL_LEFT] = {
+		"windup": [_euler_deg(-6.0, -30.0, -8.0), _euler_deg(-12.0, 0.0, 0.0), _euler_deg(-20.0, 0.0, -10.0)],
+		"strike": [_euler_deg(8.0, 35.0, 10.0), _euler_deg(8.0, 0.0, 0.0), _euler_deg(15.0, 0.0, 30.0)],
 	}
 
 static func _euler_deg(x: float, y: float, z: float) -> Quaternion:

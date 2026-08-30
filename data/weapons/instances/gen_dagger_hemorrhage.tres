@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_3hxku"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_x66jq"]
+
+[resource]
+script = ExtResource("2_x66jq")
+weapon_type = "Dagger"
+base_damage = 83.0
+scaling_grade = 4
+native_damage_type = 1
+item_id = "gen_dagger_hemorrhage"
+display_name = "Hemorrhage"
+equip_slot = 4
+max_sockets = 6
+flavor_text = "Bleed Line - Implicit: +20% increased Bleed duration"
+item_level = 79
+base_line_id = "dagger_line2"
+stat_requirement = 1
+stat_requirement_value = 39.5

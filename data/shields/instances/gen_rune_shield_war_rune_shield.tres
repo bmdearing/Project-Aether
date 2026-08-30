@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_v0kfc"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_eglqb"]
+
+[resource]
+script = ExtResource("2_eglqb")
+block_chance = 0.19
+block_threshold = 277.0
+ward_value = 54.0
+item_id = "gen_rune_shield_war_rune_shield"
+display_name = "War Rune Shield"
+equip_slot = 6
+max_sockets = 2
+flavor_text = "Ward Line"
+item_level = 27
+base_line_id = "rune_shield_line1"
+stat_requirement = 0
+stat_requirement_value = 13.5

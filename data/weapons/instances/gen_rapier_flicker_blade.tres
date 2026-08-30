@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_27x0e"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_povvx"]
+
+[resource]
+script = ExtResource("2_povvx")
+weapon_type = "Rapier"
+base_damage = 4.5
+scaling_grade = 4
+native_damage_type = 1
+item_id = "gen_rapier_flicker_blade"
+display_name = "Flicker Blade"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Attack Speed Line - Implicit: +18% increased Attack Speed"
+base_line_id = "rapier_line4"
+stat_requirement = 1
+stat_requirement_value = 0.5

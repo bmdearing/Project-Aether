@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_8rqmr"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_wv1fv"]
+
+[resource]
+script = ExtResource("2_wv1fv")
+item_id = "gen_body_armour_mantle_coat"
+display_name = "Mantle Coat"
+equip_slot = 1
+max_sockets = 3
+flavor_text = "Maximum Ward"
+item_level = 79
+base_line_id = "body_armour_line5"
+stat_requirement = 0
+stat_requirement_value = 39.5

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_2ust2"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_ps6mi"]
+
+[resource]
+script = ExtResource("2_ps6mi")
+evasion_value = 21.0
+item_id = "gen_boots_swift_shoes"
+display_name = "Swift Shoes"
+equip_slot = 3
+max_sockets = 1
+flavor_text = "Movement Speed"
+base_line_id = "boots_line4"
+stat_requirement = 0
+stat_requirement_value = 0.5

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_xgsm7"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_0qw6a"]
+
+[resource]
+script = ExtResource("2_0qw6a")
+armor_value = 83.0
+item_id = "gen_helmet_heavy_helm"
+display_name = "Heavy Helm"
+max_sockets = 2
+flavor_text = "Maximum Armor"
+item_level = 45
+base_line_id = "helmet_line1"
+stat_requirement = 0
+stat_requirement_value = 22.5

@@ -4,13 +4,16 @@ class_name FateBoardEditor
 ## GameState.fate_board's live placements/Aether budget via FateBoardGrid,
 ## and recomputes ChainCalculator results after every placement/removal.
 ##
-## Palette = the hand-authored data/slates/instances/ samples (still an
-## unlimited "owns one of each" stand-in for the 2 originals, per this
-## project's usual dir-scanned-catalog convention) PLUS every real
-## SlateRoller drop in GameState.owned_slates - those ARE finite: placing
+## Palette = only real SlateRoller drops (GameState.owned_slates) - placing
 ## one removes it from the palette until it's removed from the board
 ## again (see _is_slate_available()), same "you only have the one" rule
-## gear/Brands/consumables already follow elsewhere.
+## gear/Brands/consumables already follow elsewhere. User request
+## (2026-08-30): "the player starts with several slates... instead of
+## having to earn them" - this used to also freely list every hand-
+## authored data/slates/instances/ sample as an unlimited "owns one of
+## each" testing stand-in (the same pattern InventoryScreen's item catalog
+## had, fixed earlier the same day), which meant a fresh save effectively
+## started with the whole sample set already unlocked.
 
 const SLATE_INSTANCES_DIR := "res://data/slates/instances/"
 const ABILITY_INSTANCE_DIR := "res://data/abilities/instances/"
@@ -84,17 +87,6 @@ func _unhandled_input(event: InputEvent) -> void:
 func _populate_palette() -> void:
 	for child in palette_list.get_children():
 		child.queue_free()
-	var dir := DirAccess.open(SLATE_INSTANCES_DIR)
-	if dir:
-		dir.list_dir_begin()
-		var file_name := dir.get_next()
-		while file_name != "":
-			if file_name.ends_with(".tres"):
-				var slate: Slate = load(SLATE_INSTANCES_DIR + file_name) as Slate
-				if slate:
-					_add_palette_entry(slate)
-			file_name = dir.get_next()
-		dir.list_dir_end()
 	for slate in GameState.owned_slates:
 		if _is_slate_available(slate):
 			_add_palette_entry(slate)

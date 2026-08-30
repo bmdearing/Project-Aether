@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ko4wa"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_s82cn"]
+
+[resource]
+script = ExtResource("2_s82cn")
+item_id = "gen_throwing_knives_exsanguinators_knife"
+display_name = "Exsanguinator's Knife"
+equip_slot = 8
+flavor_text = "Bleed - Implicit: +24% increased Bleed damage Base Damage: 68-83."
+item_level = 91
+base_line_id = "throwing_knives_line1"

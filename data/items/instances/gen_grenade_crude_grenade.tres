@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_a13p6"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_nw1gg"]
+
+[resource]
+script = ExtResource("2_nw1gg")
+item_id = "gen_grenade_crude_grenade"
+display_name = "Crude Grenade"
+equip_slot = 8
+flavor_text = "High Damage Base Damage: 6-13."
+base_line_id = "grenade_line1"

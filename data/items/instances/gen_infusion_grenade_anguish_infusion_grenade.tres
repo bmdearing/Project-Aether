@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_364m4"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_v5n1a"]
+
+[resource]
+script = ExtResource("2_v5n1a")
+item_id = "gen_infusion_grenade_anguish_infusion_grenade"
+display_name = "Anguish Infusion Grenade"
+equip_slot = 8
+flavor_text = "Status Effect Base Damage: 31-42."
+item_level = 46
+base_line_id = "infusion_grenade_line2"

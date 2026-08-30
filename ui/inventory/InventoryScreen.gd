@@ -153,6 +153,16 @@ func _unhandled_input(event: InputEvent) -> void:
 		close()
 		get_viewport().set_input_as_handled()
 
+## User request (2026-08-30): "let's not add all of the new high level
+## items to the player's inventory at the start." Section 25's generator
+## (tools/generate_base_types.gd) grew these 4 directories from ~14 hand-
+## authored bases to ~867 files (real tiered items up to level 91) - this
+## scan's own "as if the player owns one of each hand-authored base" intent
+## (a testing convenience predating Section 25) never meant to include
+## that whole catalog, just the original small set. base_line_id (empty
+## only for the pre-Section-25 hand-authored singles, real for every
+## generated tier) is exactly the tag needed to keep the old behavior
+## without also keeping up with however large the generated catalog grows.
 func _scan_owned_items() -> void:
 	for dir_path in ITEM_INSTANCE_DIRS:
 		var dir := DirAccess.open(dir_path)
@@ -163,7 +173,7 @@ func _scan_owned_items() -> void:
 		while file_name != "":
 			if file_name.ends_with(".tres"):
 				var item: Item = load(dir_path + file_name) as Item
-				if item:
+				if item and item.base_line_id == "":
 					_owned_items.append(item)
 			file_name = dir.get_next()
 		dir.list_dir_end()

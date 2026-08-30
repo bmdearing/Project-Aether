@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_hpvhg"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_trnml"]
+
+[resource]
+script = ExtResource("2_trnml")
+item_id = "gen_throwing_knives_barbed_throwing_knife"
+display_name = "Barbed Throwing Knife"
+equip_slot = 8
+flavor_text = "Bleed Base Damage: 20-27."
+item_level = 40
+base_line_id = "throwing_knives_line1"

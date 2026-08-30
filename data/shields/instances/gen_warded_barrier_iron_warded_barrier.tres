@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_msmiy"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_x43at"]
+
+[resource]
+script = ExtResource("2_x43at")
+block_chance = 0.15
+block_threshold = 154.0
+ward_value = 44.0
+item_id = "gen_warded_barrier_iron_warded_barrier"
+display_name = "Iron Warded Barrier"
+equip_slot = 6
+max_sockets = 1
+flavor_text = "Maximum Ward"
+item_level = 14
+base_line_id = "warded_barrier_line1"
+stat_requirement = 0
+stat_requirement_value = 7.0

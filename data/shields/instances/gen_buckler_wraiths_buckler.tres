@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_bb0hs"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_q1brc"]
+
+[resource]
+script = ExtResource("2_q1brc")
+block_chance = 0.15
+evasion_value = 342.0
+item_id = "gen_buckler_wraiths_buckler"
+display_name = "Wraith's Buckler"
+equip_slot = 6
+max_sockets = 3
+flavor_text = "Maximum Evasion - Implicit: +14% increased Evasion"
+item_level = 91
+base_line_id = "buckler_line1"
+stat_requirement = 0
+stat_requirement_value = 45.5

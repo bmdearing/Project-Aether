@@ -7,6 +7,583 @@ there. Most recent first.
 
 ---
 
+## 2026-08-30 (newest) — Leveling Is Actually Hard Now, Aether Per Level
+
+**XP curve steepened.** User: "experience requirement should increase the
+more you level up. It shouldn't be so easy to level up I think." The
+6%/level curve from the previous pass (chosen specifically to fix an
+*unreachable* 25%/level curve) turned out to have overcorrected the other
+way - technically climbable to level 100, but early levels felt trivial.
+Follow-up gave an exact target instead of another guess: "Make level 99's
+requirement 1 below the unsigned integer limit" - i.e.
+`xp_to_next_level()` at level=99 (the last real threshold this system
+ever computes; level 100 is `MAX_LEVEL`, no further one needed) should
+equal `4294967295 - 1 = 4294967294` exactly. Solved algebraically
+(`100 * growth^98 = 4294967294`) rather than picked by feel - works out
+to `growth = 1.196430141231720`, ~19.64%/level. Precision mattered here:
+a first pass at the constant (10 decimal digits) was accurate to only
+~11 XP out of 4.3 billion at level 99 - close, but the 98th-power
+amplifies any rounding error, so it failed a scratch test's exact-match
+assertion. Recomputed at full double precision (15 digits) and it landed
+dead-on.
+
+**Aether now scales with level.** User: "You should also gain 2 points
+of Aether for the Fate Board every time you level up. Start with 10 at
+level 1." Replaced the previous flat `aether_capacity = 30` with
+`FateBoard.capacity_for_level(level) = 10 + (level - 1) * 2`, kept in
+sync by `Player._apply_saved_experience()` (initial sync, whatever level
+a save restored at) and `_on_leveled_up()` (every level-up thereafter).
+One real edge case caught before it shipped, same class of bug as the
+equip-requirement one two passes ago: `Player._apply_saved_fate_board()`
+restores a save's placed Slates via `FateBoard.place_slate()`, which
+enforces the Aether budget - since capacity is now level-derived instead
+of a flat 30, a save with placements that fit under the OLD flat budget
+could fail to restore under a lower level-derived one. Gave `place_slate()`
+a `bypass_budget` param, `true` only from that one restore call site -
+same "a save always restores cleanly" principle as `EquipmentComponent.
+equip()`'s own `bypass_requirements`.
+
+Both verified with a scratch test isolated from the real local save file
+(a fresh standalone `ExperienceComponent`/`FateBoard` pair, not the real
+`Player.tscn`) specifically so the assertions weren't skewed by whatever
+level that save happens to be sitting at - level 99's requirement matches
+the target exactly, and `capacity_for_level()` / the level-up signal both
+check out (10 -> 12 after one level-up).
+
+---
+
+## 2026-08-30 (latest) — Ward Was Actually Broken, Requirements, Orb Shaders
+
+Four separate user reports/requests in one pass:
+
+**"Let's not add all of the new high level items to the player's
+inventory at the start."** `InventoryScreen._scan_owned_items()` has
+always freely listed every file in `data/{armor,shields,weapons,items}/
+instances/` as an "own one of each hand-authored base" testing
+convenience - fine at ~14 files, not at the ~853 Section 25 added.
+Filtered to `base_line_id == ""` (every pre-Section-25 hand-authored
+single; every generated tier has a real one) so the debug catalog goes
+back to its original small set. Same question came up for Slates
+(`FateBoardEditor`'s palette had the identical always-available pattern
+for its 11 hand-authored samples) - user confirmed after a re-ask (an
+earlier answer was an accidental click while scrolling): gate Slates the
+same way, real `GameState.owned_slates` only. Abilities turned out to
+already be correctly earned-only (`GameState.owned_ability_ids` defaults
+empty, `AbilitiesScreen` already filters against it) - checked, no change
+needed there.
+
+**Level + stat requirements.** Invented (no doc-sourced requirement
+system exists). `Item.item_level` (already existed, drives loot-tier
+selection) doubles as the level requirement - one number, one meaning,
+not a separate field. Added `stat_requirement`/`stat_requirement_value`;
+the generator assigns every weapon its own damage-type main stat
+(mirroring `Constants.DAMAGE_TYPE_MAIN_STAT`) and every armor/shield
+Vitality (invented "physical toughness" gate, armor has no damage type of
+its own to key off), scaled at 0.5/level - reachable off 2 pieces of
+`flat_<stat>` gear at Tier 1 rolls even at level 91. Throwables get no
+stat requirement, just the level one. Enforced in `EquipmentComponent.
+equip()` (same spot the existing two-handed-conflict check already lived,
+reusing the existing `equip_failed` signal so `InventoryScreen`'s
+"Can't equip: %s" line needed no changes). Regenerated all 853 items to
+carry the new fields. One real edge case caught before it shipped:
+`Player._apply_saved_loadout()` restoring a previous save hit this exact
+gate immediately (the actual live save file had `gen_helmet_void_cowl.tres`
+equipped - clearly obtained through the now-fixed inventory-catalog
+exploit, since level 2 shouldn't be near a level-90-ish piece) - a save
+should always restore cleanly, so `equip()` gained a `bypass_requirements`
+param, `true` only from that one call site.
+
+**"Ward is not actually being applied to the character anymore."** Real
+regression, not a rarity issue. `EquipmentComponent.compute_flat_ward_bonus()`
+only ever summed rolled `flat_ward` AFFIXES - it never read `Armor.
+ward_value`/`Shield.ward_value` (the base stat field Section 25's
+generator populates directly, matching how `get_total_armor()` already
+sums `armor_value`). ~170 armor pieces went straight from generation to
+having a real, prominent "Ward: 461"-style tooltip line that silently did
+nothing on equip. Renamed to `compute_ward_bonus()` and made it sum both
+the base `ward_value` across every equipped Armor/Shield slot AND any
+rolled `flat_ward` affixes, additively. Verified with a scratch test
+against the real save's own equipped gear (helmet + body armour) -
+`compute_ward_bonus()` correctly summed both pieces' `ward_value` (342 +
+846 = 1188), confirmed via a live screenshot showing "Ward 1325/1426" on
+the HUD.
+
+**Orb shaders.** "Make a shader for the Life orb, Mana orb, and Ward
+shield on the life orb to make them look interesting" - `StatOrb.gd` was
+pure `Control._draw()` (draw_circle/draw_colored_polygon/draw_rect,
+explicitly "no-shader placeholder-art style" per its own prior header).
+Replaced with a single `canvas_item` `ShaderMaterial` on a `ColorRect`
+sized to exactly `radius*2` (so `UV` maps cleanly to the circle) -
+animated wavy waterline (two overlaid sine waves, different frequency/
+speed so it doesn't read as one mechanical oscillation), a liquid depth
+gradient below the waterline, a bright surface-glow band right at the
+waterline, a soft fresnel rim glow, and the border ring - for both the
+main fill and the inset Ward strip independently. `fraction`/
+`ward_fraction`/every color are shader uniforms updated from `set_value()`/
+`set_ward_value()`, unchanged public API. Follow-up: "make the orbs a bit
+larger... that part of the UI doesn't match the rest" - radius 46 -> 58,
+`PlayerHUD.ORB_HEIGHT` and the label font size bumped to match.
+
+**Two real bugs caught by screenshotting, not just reading the diff:**
+(1) `##` GDScript-style doc-comments inside the shader code string don't
+compile - GLSL/Godot Shading Language only has `//`. Fixed before ever
+reaching the user, headless load caught it immediately. (2) The Ward
+strip rendered pure white instead of its intended blue-violet tint on the
+first screenshot - `PlayerHUD` sets `_life_orb.ward_color = WARD_COLOR`
+*after* `_build_orb()` already returned (and therefore after `_ready()`
+already ran and snapshotted the old default into the shader uniform once).
+The old `_draw()`-based version never had this bug because `_draw()`
+re-reads `self.ward_color` fresh on every redraw; a shader uniform is a
+one-time push, not a live read. Fixed by turning `fill_color`/`bg_color`/
+`border_color`/`ward_color` into real property setters that push to the
+shader material on every assignment, not just at `_ready()` - a second
+screenshot confirmed the correct color.
+
+---
+
+## 2026-08-30 (even later) — The First Pinnacle Boss Arena
+
+User: "A Diablo 3 Belial style arena where its a crescent shape and the
+boss stands in the center of the crescent. Build an invisible wall so
+that players cannot fall off. Build the arena first, and then we'll
+figure out how to get there. Feel free to use shaders to make it as
+terrifying as possible." Scoped to exactly that - `levels/pinnacle_boss/
+PinnacleArena.tscn` is the arena and nothing else; no boss logic, no
+Player/enemy instances, nothing wiring it into the game's actual flow yet.
+
+Built procedurally in `PinnacleArena.gd`'s `_ready()` (same convention
+`GeneratedMap.gd` already uses for its own floor/wall geometry) rather
+than hand-authored in the `.tscn`, since a crescent/lune shape isn't
+expressible with this project's usual BoxShape3D-per-piece approach.
+First real use of `CSGShape3D` in the project - a Boolean geometry op
+that also generates matching collision via `use_collision`. Construction:
+two same-radius circles (26m), one at the origin, one offset 9m along
++Z, subtracted - a small offset relative to the radius is what makes the
+remaining sliver thin and uniformly curved rather than a fat D-shape with
+one bite taken out. The invisible boundary wall (a separate `use_
+collision=true, visible=false` CSG tree) traces the SAME two circles as
+full 360° rings rather than just the crescent's own two arcs - the extra
+wall length past the crescent's ends has no floor near it and is never in
+the player's way, but a full ring is far simpler to build than tracing
+the exact lune boundary.
+
+**Two real bugs caught by actually looking, not just reading the code -
+same lesson as the arm-rig animation saga earlier this session:**
+(1) `CSGCylinder3D` defaults to 8-sided geometry - a first screenshot
+showed the "crescent" as a sharp angular chevron/wedge, not a curve, on
+every circle in the scene (floor and both wall rings). Fixed by setting
+`sides = 64` on all six cylinders. (2) The first lighting pass was
+technically "atmospheric" but genuinely unplayable-dark - a screenshot
+from a normal eye-level angle showed almost nothing but a thin red sliver
+at the very bottom of frame. Brightened ambient light energy (0.35 ->
+0.9), directional light energy (0.5 -> 1.4), thinned the fog by ~4x, and
+lightened the floor shader's unlit base stone color - "terrifying" needs
+to read as contrast between dark stone and glowing cracks/embers, not a
+scene so dim nothing is visible at all.
+
+The floor's cracked-obsidian look is a hand-written `ShaderMaterial`
+(voronoi-cell edge cracks, pulsing emissive glow) rather than a texture
+asset - no matching texture exists, and a shader keeps it fully self-
+contained. Also added dim red ambient/fog, a warm-red directional light,
+an ember glow point light near the boss spot, and a `GPUParticles3D`
+ember drift for atmosphere.
+
+**Verification, actually done, not assumed:** the crescent shape was
+confirmed via a real top-down screenshot (windowed launch + window-
+cropped screen capture, this project's established procedure) before and
+after the `sides` fix - the difference between the two is stark. The
+invisible wall was verified FUNCTIONALLY, not just visually - a scratch
+physics test spawned a `CharacterBody3D` near each edge (outer rim and
+inner cutout) and drove it outward with `move_and_slide()` for 120
+physics frames each; both stopped at the wall's actual radius rather than
+crossing into the void. First attempt at the inner-cutout test reported a
+false FAIL - the rig's start position was miscalculated and it began
+already inside the removed cutout region with no floor under it at all
+(not a wall bug, a test-setup bug); fixed the start z and both tests pass
+clean.
+
+`BossSpawnPoint`/`PlayerSpawnPoint` are just `Marker3D`s for a future pass
+to read - no boss encounter, no way to reach this arena from the game's
+normal flow yet, exactly as scoped.
+
+---
+
+## 2026-08-30 (later) — Cooldown Cap, Two New Spells, Level 100, and the Real Section 25 Item System
+
+Several independent requests bundled into one pass:
+
+**Cooldown Reduction cap.** No CDR stat existed before this - Instinct's
+Action/Cast Speed and Ability.rank's own -4%/rank were the only cooldown
+levers, and nothing capped their combination. Added `Constants.
+MAX_COOLDOWN_REDUCTION = 0.75` and `Ability.get_final_cooldown()`, which
+clamps the combined reduction so a cooldown can never drop below 25% of
+its authored value. `PlayerAbilityCast` now calls this instead of dividing
+raw.
+
+**Ability cooldown tuning.** Ice Pulse 2.5s -> 1.5s, Static Discharge 2.0s
+-> 1.5s, Thunder Javelin 2.0s -> 5.0s (user-specified exact values, not a
+blanket "spammable" pass).
+
+**Two new spells.** Spark (Lightning): 3 ground-crawling projectiles
+(`SparkCrawler.gd`) that re-target the nearest enemy every frame and can
+re-hit the same target every 0.15s (no lock-on, no per-target hit cap
+otherwise). Tornado (Physical/Kinetic): a `TornadoField` that seeks the
+nearest enemy within 14m (falling back to a slower random wander only when
+nothing's in range - user follow-up: "it wants to go up into enemies and
+not just wander randomly"), capped at 3 concurrent instances via a
+`tornado_field` group count check in `PlayerAbilityCast._try_cast()`.
+
+**Level cap 100.** The XP curve's growth rate was the real problem, not
+just the missing cap - 25%/level compounded to ~10^11 XP by level 100.
+Changed to 6%/level (genre-standard) and added `MAX_LEVEL = 100`;
+`PlayerHUD` shows "MAX LEVEL" with a full bar once reached instead of an
+XP fraction that would otherwise sit frozen at a huge denominator.
+
+**The real Section 25 item system.** This was the big one. User asked for
+more weapon/armor base types "as detailed" - reading the actual doc
+(Section 25) revealed it's not a short list, it's a full tiered catalog:
+27 weapon types, 4 armor slots, 8 shield lines, 5 throwable lines, each
+split into 2-4 "Lines" of 2-10 named tiers apiece (~750+ individual items
+with real names/levels/damage-armor ranges). A prior session had already
+read this and explicitly deferred it (README gap #18) as too large for
+that pass. Asked the user directly whether to keep doing one representative
+item per type (today's existing pattern), build the full system, or skip
+it - they chose the full system, plus their own formula for which tier a
+kill should drop: "White mobs are the area level, blue mobs are the area
++1, rare mobs are the area +2 levels, bosses are the area +5 levels."
+
+Built `tools/generate_base_types.gd` - a headless one-shot generator (kept
+in the repo as a real tool, not scratch) that parses the design doc's own
+extracted Section 25 text and writes one `.tres` per tier directly into
+`data/weapons|armor|shields/instances/` and `data/items/instances/`
+(throwables). Parsing challenge: the doc's Word tables come through as one
+cell's text per line with no delimiters and inconsistent column counts per
+line (weapons are Tier/Name/Level/Base Damage; some armor/shield lines add
+a second Armor/Evasion/Ward column, or Block Chance/Threshold) - solved
+generically by recording whichever run of known column-label lines follows
+each "Line N —" header, then reading that many lines per row until a line
+isn't a valid Tier integer. Ran clean on the first real attempt after one
+type-inference fix: **853 items generated, 0 skipped rows** (508 weapons,
+171 armor, 99 shields, 75 throwables).
+
+Added `Item.item_level`/`Item.base_line_id` so `ItemRoller._pick_base_item()`
+can pick, per doc "Line", the single highest-item_level tier still at or
+below a roll's target level - "always the current best base this level has
+unlocked," the same ilvl-gated-base principle PoE-style tiered items
+follow - then rolls uniformly among every line's current pick plus the
+untagged pre-existing hand-authored singles. Added a lazy static
+`_candidate_meta_cache` in `ItemRoller` after measuring the naive approach
+(reloading and re-scanning ~850 files on every single roll) would have
+been a real per-kill hitch - warm rolls now cost ~1.4ms each after a
+~260ms one-time first-roll cost, verified via a scratch perf test.
+
+Added `Constants.EnemyRank` (White/Blue/Rare/Boss, fully invented - no
+doc-sourced enemy rank system exists) purely to give the new item_level
+gating something to key off: `Enemy._compute_item_level()` = area level
+(Map tier) + the killer's own rank offset, exactly the user's formula.
+Regular enemies roll Normal/Magic/Rare at spawn off an invented 80/16/4
+weight table; Boss is never auto-rolled, reserved for an explicit boss
+encounter's own scene (see the Pinnacle boss work, next entry). Explicitly
+scoped to item-level gating only - no stat scaling or visual tint by rank,
+since nothing asked for that and Enemy's `_base_color` hook is already
+spoken for.
+
+Weapon type -> native_damage_type/is_two_handed/is_ranged has no doc
+source (Section 25 never pairs them), so it's an invented-but-consistent
+guess per type's real-world shape, documented in the generator's own
+`WEAPON_TYPE_META` table. Also transcribed the doc's real "Base Crit
+Chance by Weapon Type" table into `Constants.WEAPON_BASE_CRIT_CHANCE` for
+all 27 types while reading that section (previously only 4 types were
+filled in from earlier ad-hoc additions). Shield gained `evasion_value`/
+`ward_value` fields (descriptive-only, matching Armor's existing
+non-aggregated evasion_value/ward_value) so Buckler/Rune Shield/Warded
+Barrier-style lines that lead with Evasion or Ward instead of Armor could
+be represented at all.
+
+**Bugs hit and fixed along the way** (same class both times - GDScript
+can't infer a `:=` variable's type when either operand is untyped/Variant):
+`Ability.get_final_cooldown()`'s `get_effective_cooldown() / max(...)`
+(max() returns Variant) and `ItemRoller._build_candidate_meta_cache()`'s
+`dir_path + file_name` (dir_path was an untyped loop var over a `const`
+array literal) both needed an explicit `: float`/`: String` annotation to
+compile - caught by the project's standard headless scene-load check
+before ever reaching the user.
+
+---
+
+## 2026-08-30 (the actual last one) — The Windup Pose Was Invisible
+
+User: "Yeah, its still the exact same for both of them? I'm not sure what
+you've changed here honestly." Third report in this same saga, and the
+one that finally found the real problem.
+
+**Checked with a real side-by-side comparison this time, not another
+round of math.** Screenshotted the actual windup and strike poses for
+both Rapier (`DASH_THRUST`) and Gauntlet (`JAB`) after the previous
+pass's fix (wrist-dominant vs elbow-dominant rotation, meant to give
+each a different "which joint moves" signature). The strike poses
+looked reasonable. **The windup poses were flat-out invisible in both
+cases** - the weapon had swung completely off-screen. That's the actual
+explanation for "still the exact same": the player never sees the
+windup/retraction phase at all, only a snap-into-view at strike, which
+looks identical regardless of what pose data drives it, because the part
+that was supposed to look different was never on screen.
+
+Root cause: concentrating most of the rotation onto a single bone (30
+degrees on the hand for `DASH_THRUST`, 32 on the elbow for `JAB`) swings
+that bone's whole downstream chain through a much wider arc than
+spreading the same total rotation across multiple joints - a lesson the
+previous pass's own forward-kinematics sweep had the data for (single-
+axis 30-degree tests routinely produced 0.5+ unit position swings) but
+the conclusion wasn't connected to "will this still be in frame" at the
+time. Brought both back down to roughly the same total magnitude an
+earlier, screenshot-confirmed-visible version had used, keeping the
+wrist-vs-elbow dominance split (still different joints, just not enough
+rotation on either to leave the frame).
+
+**Also fixed while investigating**: `BoxMesh_blade` (the generic
+placeholder both Rapier and Gauntlet fall back to - see the "Four New
+Weapon Base Types" entry above for why neither has a real model) was a
+nearly-square 8x8cm rod. A shape that symmetric barely shows any
+silhouette change under rotation at all, which was very likely
+compounding the "looks the same" problem on top of the invisible-windup
+bug - flattened to an actual blade profile (16cm x 2.5cm cross-section)
+so orientation changes are visually legible regardless of which pose is
+driving them.
+
+Verified: headless load clean; this time with real screenshots of both
+weapons' windup poses confirmed genuinely visible and in distinctly
+different on-screen positions from each other and from rest (not just
+numeric deltas trusted on faith). Still not verified: the live in-motion
+tween itself, same limitation as every pass in this saga - no practical
+way to capture a moving mid-swing frame, so confidence here is "the two
+endpoints are now both visible and different," not "the full animation
+has been watched and confirmed to look right."
+
+---
+
+## 2026-08-30 (truly finally later) — Fixed DASH_THRUST/JAB: They Were Moving Backward
+
+User report: "the rapier still just slashes upward, no twisting to point
+at enemies and stab right now" - followed shortly by "It really seems
+like none of the animations changed at all?"
+
+**The second report was checked, not assumed.** A scratch probe dumped
+every weapon's actual dispatched pose set, rotation values, intensity,
+and duration side by side - Greatsword/Dagger/Rapier/Gauntlet all
+resolved genuinely different data (`SWEEP_RIGHT`/`CLEAVE`/`DASH_THRUST`/
+`JAB` respectively, with different numbers). The per-weapon dispatch
+logic from the previous two passes was never broken. What actually
+happened: `DASH_THRUST` (Rapier's entire moveset, half of Dagger's) and
+`JAB` (Gauntlet's entire moveset) were both moving the weapon the wrong
+way, badly enough that every weapon using them looked like the same
+generic "swing up and back" regardless of the pose data being correctly
+distinct underneath - explaining both reports as one root cause.
+
+**Root cause, found by measurement, not by re-guessing the same way
+twice.** A scratch probe compared the equipped weapon's actual camera-
+local position before and after applying `DASH_THRUST`'s strike pose:
+the origin moved to LESS negative Z (toward the camera) and sharply
+positive Y (upward) - the pose was pulling the blade up and back, the
+exact opposite of a thrust, and exactly what "slashes upward" describes.
+A forward-kinematics sweep (every bone, every axis, +30/-30 degrees,
+each measured the same way) mapped how this specific rig's geometry
+actually responds to rotation - and turned up a deeper fact: `HAND_POS`
+sits at the real measured weapon grip (already near this arm's full
+natural reach - see that constant's own history), so essentially *no*
+rotation pushes the hand further forward than rest. A thrust can't be
+"reach past rest," because there's nowhere left to reach.
+
+**The fix**: windup RETRACTS (pulls the arm back and up, away from the
+target - verified ~0.68 units back, ~0.47 up), strike SNAPS BACK toward
+rest (verified to land ~0.12 units *past* rest, i.e. slightly more
+extended, not less). The felt "explosive thrust" comes from that
+relative retract-then-release (~0.8 units forward + ~0.7 units downward
+between windup and strike), not from ever exceeding rest's own reach by
+much. Applied the same fix to `JAB` (Gauntlet's punch had the identical
+X-axis-dominant assumption baked in, never separately verified). A first
+attempt at fixing `DASH_THRUST` alone (Y-axis/yaw-dominant, twisting the
+blade to face forward) was a real improvement over the original but
+still imperfect on screenshot review - superseded by this retract-
+release redesign once the deeper "REST is already near full reach" fact
+was found.
+
+Verified: headless load clean; screenshots of both the windup pose
+(visibly retracted/tucked, distinct from rest) and the strike pose
+(visibly back near the normal held position, using Dagger's real blade
+model rather than Rapier/Gauntlet's placeholder box for a clearer read)
+confirm the two ends of the motion are now genuinely different and in
+the right relationship to each other. Not verified: the live in-between
+tween motion itself (no practical way to capture a moving mid-swing
+frame) - the numeric before/after measurements are what's actually
+confirmed, not a full recording of the animation in motion.
+
+---
+
+## 2026-08-30 (finally later) — Per-Weapon Animation Variety, Gauntlet as a Conduit
+
+Two user follow-ups on the new weapon base types: "the animations are all
+the same for all of the weapons," and "I was also hoping gauntlet would
+be a spell type conduit weapon as well." A third message mid-investigation
+clarified the second: "Conduits are not a slot, they can be a primary or
+offhand weapon just like the others" - ruling out
+`EquipmentComponent.conduit`/`EquipmentSlot.CONDUIT` (a real but
+completely unused field/slot pair) as the mechanism.
+
+**Animation variety.** Root cause: the per-weapon-type dicts built for
+Rapier/Bow/Staff/Gauntlet mostly reused existing pose sets wholesale -
+Rapier/Dagger/Gauntlet all fell back to the same default 3-pose combo,
+and ranged weapons (`PlayerRangedAttack.gd`) had no animation at ALL,
+just an instant fire-and-cooldown. Three new pose sets in
+`PlayerArmRig.gd`: `JAB` (elbow-extension-dominant, not shoulder-arc-
+dominant like every sword pose - a punch actually straightens the arm,
+it doesn't swing it around the shoulder), and `RECOIL`/`BOW_RELEASE` for
+`PlayerRangedAttack._play_fire_animation()` (new - reuses
+`PlayerArmRig.play_attack_swing()`, purely cosmetic, layered on top of
+the unchanged instant-fire model, not gating or delaying the shot).
+`WEAPON_TYPE_COMBO_POSES` now covers every melee type distinctly: Rapier
+is a pure thruster (single-pose "combo," always `DASH_THRUST`, no
+cycling - a rapier doesn't really slash), Dagger alternates slash/stab,
+Gauntlet always `JAB`s. Gauntlet's special pose also changed from
+`DASH_THRUST` to `JAB` (scaled bigger via the existing intensity/duration
+multipliers) - a special should feel like a BIGGER version of a weapon's
+own identity, not switch motion families entirely.
+
+Caught mid-fix by a scratch test (asserting every weapon's combo pose
+*list* is distinct, not just checking names): Staff had been silently
+sharing Greatsword's exact `[SWEEP_RIGHT, SWEEP_LEFT]` pair from the
+previous pass. Added a fourth new pose pair, `TWIRL_RIGHT`/`TWIRL_LEFT`
+(wrist-rotation-dominant - a spin, not Greatsword's shoulder-driven heavy
+cleave) so Staff has its own identity too.
+
+**Gauntlet as a conduit.** Redesigned rather than mechanically extended -
+no new code needed at all, because the systems already supported it:
+`native_damage_type` changed from Kinetic to Aetheric (its punches
+channel Esoteric energy now, not blunt physical), and its implicit affix
+changed from `crit_chance_increased` to `flat_enigma` (+18) - Enigma is
+Aetheric/Entropic/Pale's main stat (`Constants.DAMAGE_TYPE_MAIN_STAT`),
+so this is internally coherent: the weapon's own damage type and its
+stat bonus reinforce each other, the same way Greatsword's
+`physical_dmg_increased` implicit already matches its own Kinetic type.
+(First pass used `flat_arcane` - wrong stat, Arcane governs Elemental/
+Fire-Cold-Lightning, not Aetheric; caught and fixed before finalizing by
+actually checking `DAMAGE_TYPE_MAIN_STAT` instead of assuming.)
+`EquipmentComponent.compute_stat_bonuses()` already sums `flat_<stat>`
+affixes from `get_all_equipped_items()`, which already includes both
+`primary_weapon` and `sidearm_weapon` - so Gauntlet functions as a
+spell-boosting item regardless of which of the two weapon slots it's
+equipped into, exactly matching "primary or offhand... just like the
+others," entirely through the existing generic stat system. `equip_slot`
+still targets `PRIMARY_WEAPON` only, same as every other weapon in the
+project (nothing currently supports choosing which weapon slot an item
+goes into) - the day that UI exists, Gauntlet works as a sidearm with
+zero further changes needed, since the stat aggregation already doesn't
+care which slot it's in.
+
+Verified: headless load clean; a 6-check scratch test confirms all 5
+melee weapons now have genuinely distinct combo pose lists, Gauntlet's
+special is `JAB`, Gauntlet deals Aetheric damage, equipping it raises
+Enigma by exactly 18, Bow/Pistol use different fire poses, and firing the
+Bow now actually moves the (invisible) arm rig bones where it previously
+did nothing at all.
+
+---
+
+## 2026-08-30 (still yet later) — Four New Weapon Base Types
+
+User: "Lets do rapier, bow, staff, gauntlet if possible?" - following up
+on a discussion about whether the project was blocked waiting for more
+weapon models. It wasn't: `assets/models/pack1` (the purchased low-poly
+pack already backing Greatsword/Dagger) has ~30 more unused models,
+including a real Bow and Wizard Staff. Checked before writing anything -
+**no Rapier or Gauntlet model exists in the pack** (confirmed via a full
+directory listing, not assumed); both new weapons use the same tinted-
+placeholder-box fallback Service Pistol already uses for the same reason,
+rather than guessing a wrong-shaped stand-in model.
+
+Four new `.tres` instances in `data/weapons/instances/` (`worn_rapier`,
+`worn_bow`, `worn_staff`, `worn_gauntlet`) - no registration needed
+beyond the file itself, since `ItemRoller.BASE_ITEM_DIRS` already scans
+that whole directory dynamically for loot drops and Gear Shop stock
+(verified: all 4 turned up across 1500 `ItemRoller.roll()` calls).
+`Player.WEAPON_MODEL_SCENES` gained `"Bow"`/`"Staff"` entries (real FBX
+models); `Constants.WEAPON_BASE_CRIT_CHANCE` gained `"Rapier": 0.08`/
+`"Gauntlet": 0.06` (precision weapons); `PlayerMeleeAttack.gd`'s four
+per-weapon-type dicts (motion value, swing duration/intensity, special
+pose, combo pose) gained entries for the three melee ones (Bow is
+ranged, never reaches that class) - this is exactly the extensibility
+these dicts were built for back when only Greatsword/Dagger existed.
+
+**Rapier finally gets its "real" mapping**: `WEAPON_TYPE_SPECIAL_POSE`
+had `"Dagger": DASH_THRUST` as an explicitly-flagged stand-in ("a rapier
+might dash and thrust in one direction" - no Rapier item existed yet).
+Rapier now has its own entry alongside Dagger's (both keep it - a quick
+dagger lunge is just as fitting, no need to take it away). Staff reuses
+`BIG_SWEEP` (a staff sweep) and gets Greatsword's `[SWEEP_RIGHT,
+SWEEP_LEFT]` combo-pose treatment (a twirling staff, not a diagonal
+cut). Gauntlet also reuses `DASH_THRUST` - "draw back, extend straight
+out" reads as a punch as well as a stab.
+
+Tuning (fully invented, no doc source, same status as every other
+per-weapon-type entry in this file): Rapier and Gauntlet are fast/light
+(motion value 0.55/0.5, duration 0.65x/0.55x - Gauntlet is now the
+fastest weapon in the game); Staff sits at baseline weight (motion value
+1.0, duration 1.4x, a bit heavier than a one-handed weapon since it's
+marked two-handed). Bow and Staff are both `is_two_handed = true`
+(clears the shield/sidearm slot on equip, and - now that the arm mesh
+itself is hidden - harmlessly builds an invisible off-hand IK chain same
+as Greatsword). `WeaponStance` needed zero changes - it already branches
+purely on `weapon.is_ranged`, so Bow automatically gets the aim-zoom
+branch and the other three automatically get the GUARD-pose/special-
+attack branch.
+
+**Not done**: no new icon art - all 4 have empty `icon_path`, same
+precedent as Service Pistol ("the icon pack is dark-fantasy with no
+firearm art" - here, no rapier/gauntlet/bow/staff icons were verified to
+exist either, and guessing a mismatched icon seemed worse than none).
+`PlayerRangedAttack.gd` is still fully weapon-type-agnostic, so Bow
+currently fires identically to the pistol mechanically (same cooldown,
+same aim-bonus math) - just different visuals; a real
+draw-and-release-feel for the bow would be its own follow-up.
+
+Verified: headless load clean; a 27-check scratch test covering all 4
+weapons' equip/dispatch/motion-value/special-pose/two-handed/stance-mode
+behavior, plus loot-pool reachability, all passed; screenshots confirm
+the Bow and Staff models render at a plausible size/orientation using the
+existing (sword-tuned) weapon-model transform, not broken or absurdly
+scaled.
+
+---
+
+## 2026-08-30 (latest) — XP Bar Fill Tween
+
+User request: "When a player gains experience, we should tween between
+the experience bar that they had to the experience that they end up at.
+Just to show it filling up."
+
+`PlayerHUD._on_xp_changed()` was setting `anchor_right` on the fill-clip
+`Control` directly (instant snap) - now tweens it (0.5s, sine ease-out).
+`ExperienceComponent.add_xp()` only emits `xp_changed` once per call even
+if it crossed a level (it loops internally, firing after the loop) - a
+level-up shows up here as `needed` having changed since the last call.
+When that happens, the HUD fills the OLD bar the rest of the way to 1.0
+first, snaps back to empty, then fills toward the new remainder - the
+classic "level up" bar animation - rather than jumping straight to
+whatever (probably smaller-looking) ratio the new level starts at. A
+sentinel (`_xp_last_needed = -1.0`) keeps the very first update (HUD
+just built, possibly from a loaded save already mid-level) an instant
+snap rather than an animation from empty.
+
+Verified with a 4-check scratch test: a normal gain doesn't snap
+instantly and settles at the correct ratio, and a gain large enough to
+force exactly one level-up visibly passes through a full (1.0) bar before
+settling at the correct post-level-up ratio. (Headless test note: had to
+poll by real elapsed time via `Time.get_ticks_msec()` rather than a fixed
+process-frame count - headless mode runs frames uncapped, so a fixed
+frame count doesn't correspond to a fixed amount of tween-relevant time.)
+
+---
+
 ## 2026-08-30 (yet later) — Arm Mesh Disabled (Weapon-Only, For Now)
 
 After the IK fix above, asked the user directly whether the visible arm

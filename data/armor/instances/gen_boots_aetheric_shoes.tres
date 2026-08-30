@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_5my5v"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_538lh"]
+
+[resource]
+script = ExtResource("2_538lh")
+ward_value = 18.0
+item_id = "gen_boots_aetheric_shoes"
+display_name = "Aetheric Shoes"
+equip_slot = 3
+max_sockets = 1
+flavor_text = "Maximum Ward"
+base_line_id = "boots_line3"
+stat_requirement = 0
+stat_requirement_value = 0.5

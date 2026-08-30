@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_tuswq"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_kig01"]
+
+[resource]
+script = ExtResource("2_kig01")
+weapon_type = "Whip"
+base_damage = 5.0
+scaling_grade = 4
+item_id = "gen_whip_crude_whip"
+display_name = "Crude Whip"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Bleed - Implicit: +22% increased Bleed damage"
+base_line_id = "whip_line1"
+stat_requirement = 1
+stat_requirement_value = 0.5

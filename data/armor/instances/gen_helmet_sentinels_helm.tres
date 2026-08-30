@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_8hkwi"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_48qu6"]
+
+[resource]
+script = ExtResource("2_48qu6")
+armor_value = 69.0
+item_id = "gen_helmet_sentinels_helm"
+display_name = "Sentinel's Helm"
+max_sockets = 2
+flavor_text = "Armor + Life"
+item_level = 53
+base_line_id = "helmet_line2"
+stat_requirement = 0
+stat_requirement_value = 26.5

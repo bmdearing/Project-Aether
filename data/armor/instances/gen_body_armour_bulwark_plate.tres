@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_crthw"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_2g4wn"]
+
+[resource]
+script = ExtResource("2_2g4wn")
+armor_value = 401.0
+ward_value = 711.0
+item_id = "gen_body_armour_bulwark_plate"
+display_name = "Bulwark Plate"
+equip_slot = 1
+max_sockets = 3
+flavor_text = "Ward/Armor Hybrid"
+item_level = 79
+base_line_id = "body_armour_line8"
+stat_requirement = 0
+stat_requirement_value = 39.5

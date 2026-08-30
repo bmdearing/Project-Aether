@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_o0un1"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_t6oct"]
+
+[resource]
+script = ExtResource("2_t6oct")
+ward_value = 81.0
+item_id = "gen_gloves_threshold_wraps"
+display_name = "Threshold Wraps"
+equip_slot = 2
+max_sockets = 2
+flavor_text = "Maximum Ward"
+item_level = 40
+base_line_id = "gloves_line3"
+stat_requirement = 0
+stat_requirement_value = 20.0

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ynh0p"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_oc51b"]
+
+[resource]
+script = ExtResource("2_oc51b")
+block_chance = 0.33
+armor_value = 229.0
+item_id = "gen_pavise_titans_pavise"
+display_name = "Titan's Pavise"
+equip_slot = 6
+max_sockets = 3
+flavor_text = "Stationary Fortress"
+item_level = 79
+base_line_id = "pavise_line1"
+stat_requirement = 0
+stat_requirement_value = 39.5

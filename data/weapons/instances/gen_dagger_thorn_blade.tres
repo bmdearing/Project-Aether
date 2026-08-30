@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ddxcn"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_f5d51"]
+
+[resource]
+script = ExtResource("2_f5d51")
+weapon_type = "Dagger"
+base_damage = 27.0
+scaling_grade = 4
+native_damage_type = 1
+item_id = "gen_dagger_thorn_blade"
+display_name = "Thorn Blade"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "Bleed Line - Implicit: +20% increased Bleed duration"
+item_level = 34
+base_line_id = "dagger_line2"
+stat_requirement = 1
+stat_requirement_value = 17.0

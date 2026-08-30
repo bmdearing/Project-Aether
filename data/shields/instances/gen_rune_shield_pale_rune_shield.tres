@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_jyeqd"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_c2fye"]
+
+[resource]
+script = ExtResource("2_c2fye")
+block_chance = 0.25
+block_threshold = 477.0
+ward_value = 87.0
+item_id = "gen_rune_shield_pale_rune_shield"
+display_name = "Pale Rune Shield"
+equip_slot = 6
+max_sockets = 2
+flavor_text = "Esoteric/Spell"
+item_level = 61
+base_line_id = "rune_shield_line2"
+stat_requirement = 0
+stat_requirement_value = 30.5

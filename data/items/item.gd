@@ -39,3 +39,27 @@ class_name Item
 ## permanently blocks any further Cube craft or Corruption attempt).
 @export var is_corrupted: bool = false
 @export var is_craftable: bool = true
+
+## Section 25's real per-tier data (user request 2026-08-30: build the
+## actual tiered base-type system, not just one representative item per
+## type). item_level is the tier's authored "Level" column - the
+## character/area level at which this exact base becomes the best
+## available. base_line_id groups every tier of one doc "Line" (e.g.
+## "rapier_line1") so ItemRoller can pick the single highest-item_level
+## tier within a line that's still <= the roll's target level, instead of
+## treating all ~750 generated tiers as independent candidates. Empty
+## string (every hand-authored pre-existing base item) means "not part of
+## a tiered line" - always its own standalone candidate, gated only by
+## its own item_level (which defaults to 1, i.e. always available).
+@export var item_level: int = 1
+@export var base_line_id: String = ""
+
+## Equip gate (user request 2026-08-30, invented - no doc-sourced
+## requirement system exists). item_level doubles as the level
+## requirement (the same field ItemRoller's drop-tier selection already
+## reads) rather than a separate field - one number, one meaning.
+## stat_requirement is -1 for "none" (every pre-Section-25 hand-authored
+## item, and every generated throwable - no single governing stat to
+## require). See EquipmentComponent._requirement_block_reason().
+@export var stat_requirement: Constants.Stat = -1
+@export var stat_requirement_value: float = 0.0

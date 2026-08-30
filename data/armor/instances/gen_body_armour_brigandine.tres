@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ov7of"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_f732h"]
+
+[resource]
+script = ExtResource("2_f732h")
+armor_value = 23.0
+evasion_value = 57.0
+item_id = "gen_body_armour_brigandine"
+display_name = "Brigandine"
+equip_slot = 1
+max_sockets = 1
+flavor_text = "Armor/Evasion Hybrid"
+base_line_id = "body_armour_line6"
+stat_requirement = 0
+stat_requirement_value = 0.5

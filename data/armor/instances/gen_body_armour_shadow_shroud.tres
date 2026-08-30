@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ug70t"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_q6ywk"]
+
+[resource]
+script = ExtResource("2_q6ywk")
+evasion_value = 441.0
+ward_value = 356.0
+item_id = "gen_body_armour_shadow_shroud"
+display_name = "Shadow Shroud"
+equip_slot = 1
+max_sockets = 2
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 40
+base_line_id = "body_armour_line7"
+stat_requirement = 0
+stat_requirement_value = 20.0

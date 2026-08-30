@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_0ofkv"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_2ump4"]
+
+[resource]
+script = ExtResource("2_2ump4")
+weapon_type = "Crossbow"
+base_damage = 99.5
+scaling_grade = 4
+native_damage_type = 1
+is_two_handed = true
+is_ranged = true
+item_id = "gen_crossbow_headhunters_crossbow"
+display_name = "Headhunter's Crossbow"
+equip_slot = 4
+max_sockets = 5
+flavor_text = "Critical Strike - Implicit: +15% increased Critical Strike Chance"
+item_level = 79
+base_line_id = "crossbow_line2"
+stat_requirement = 1
+stat_requirement_value = 39.5

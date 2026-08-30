@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_8mwi7"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_fdojm"]
+
+[resource]
+script = ExtResource("2_fdojm")
+evasion_value = 109.0
+item_id = "gen_boots_hunters_boots"
+display_name = "Hunter's Boots"
+equip_slot = 3
+max_sockets = 2
+flavor_text = "Maximum Evasion"
+item_level = 40
+base_line_id = "boots_line2"
+stat_requirement = 0
+stat_requirement_value = 20.0

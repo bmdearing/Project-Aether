@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_b4p0q"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_hp2h1"]
+
+[resource]
+script = ExtResource("2_hp2h1")
+block_chance = 0.27
+block_threshold = 682.0
+armor_value = 91.0
+item_id = "gen_tower_shield_guardians_tower_shield"
+display_name = "Guardian's Tower Shield"
+equip_slot = 6
+max_sockets = 2
+flavor_text = "Armor + Block"
+item_level = 46
+base_line_id = "tower_shield_line2"
+stat_requirement = 0
+stat_requirement_value = 23.0

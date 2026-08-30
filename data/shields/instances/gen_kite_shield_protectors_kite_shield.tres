@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_3a1vq"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_ogp3r"]
+
+[resource]
+script = ExtResource("2_ogp3r")
+block_chance = 0.21
+block_threshold = 361.0
+armor_value = 43.0
+item_id = "gen_kite_shield_protectors_kite_shield"
+display_name = "Protector's Kite Shield"
+equip_slot = 6
+max_sockets = 2
+flavor_text = "Block Threshold"
+item_level = 31
+base_line_id = "kite_shield_line2"
+stat_requirement = 0
+stat_requirement_value = 15.5

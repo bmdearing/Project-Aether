@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ham4k"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_duqqf"]
+
+[resource]
+script = ExtResource("2_duqqf")
+armor_value = 130.0
+evasion_value = 250.0
+item_id = "gen_helmet_duelists_cap"
+display_name = "Duelist's Cap"
+max_sockets = 3
+flavor_text = "Armor/Evasion Hybrid"
+item_level = 79
+base_line_id = "helmet_line5"
+stat_requirement = 0
+stat_requirement_value = 39.5

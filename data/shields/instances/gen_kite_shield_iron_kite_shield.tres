@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_3mbt5"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_7kf33"]
+
+[resource]
+script = ExtResource("2_7kf33")
+block_chance = 0.17
+armor_value = 24.0
+evasion_value = 33.0
+item_id = "gen_kite_shield_iron_kite_shield"
+display_name = "Iron Kite Shield"
+equip_slot = 6
+max_sockets = 1
+flavor_text = "Balanced"
+item_level = 14
+base_line_id = "kite_shield_line1"
+stat_requirement = 0
+stat_requirement_value = 7.0

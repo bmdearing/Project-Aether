@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_hdxhx"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_8a2db"]
+
+[resource]
+script = ExtResource("2_8a2db")
+weapon_type = "Loaded Shotgun"
+base_damage = 67.0
+scaling_grade = 4
+is_two_handed = true
+is_ranged = true
+item_id = "gen_loaded_shotgun_sunder_shotgun"
+display_name = "Sunder Shotgun"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "Stagger - Implicit: +20% increased Stagger effect on hit"
+item_level = 61
+base_line_id = "loaded_shotgun_line2"
+stat_requirement = 1
+stat_requirement_value = 30.5

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_7uxpp"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_m8ebd"]
+
+[resource]
+script = ExtResource("2_m8ebd")
+evasion_value = 46.0
+item_id = "gen_boots_leather_shoes"
+display_name = "Leather Shoes"
+equip_slot = 3
+max_sockets = 1
+flavor_text = "Maximum Evasion"
+item_level = 14
+base_line_id = "boots_line2"
+stat_requirement = 0
+stat_requirement_value = 7.0

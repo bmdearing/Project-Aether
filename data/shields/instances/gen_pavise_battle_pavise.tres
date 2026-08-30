@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_kuc14"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_r22nb"]
+
+[resource]
+script = ExtResource("2_r22nb")
+block_chance = 0.27
+block_threshold = 772.0
+armor_value = 91.0
+item_id = "gen_pavise_battle_pavise"
+display_name = "Battle Pavise"
+equip_slot = 6
+max_sockets = 2
+flavor_text = "Stationary Fortress"
+item_level = 40
+base_line_id = "pavise_line1"
+stat_requirement = 0
+stat_requirement_value = 20.0

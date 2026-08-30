@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_turrj"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_yhhu5"]
+
+[resource]
+script = ExtResource("2_yhhu5")
+weapon_type = "Spear"
+base_damage = 8.0
+scaling_grade = 4
+native_damage_type = 1
+is_two_handed = true
+item_id = "gen_spear_charging_spear"
+display_name = "Charging Spear"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Momentum - Implicit: +14% increased Momentum generation"
+base_line_id = "spear_line3"
+stat_requirement = 1
+stat_requirement_value = 0.5

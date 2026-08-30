@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ymnn3"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_m1n1t"]
+
+[resource]
+script = ExtResource("2_m1n1t")
+weapon_type = "Battle Rifle"
+base_damage = 67.0
+scaling_grade = 4
+is_two_handed = true
+is_ranged = true
+item_id = "gen_battle_rifle_heavy_battle_rifle"
+display_name = "Heavy Battle Rifle"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "High Damage - Implicit: +11% increased Physical damage"
+item_level = 45
+base_line_id = "battle_rifle_line1"
+stat_requirement = 1
+stat_requirement_value = 22.5

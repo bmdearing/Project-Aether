@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ujkih"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_41ug6"]
+
+[resource]
+script = ExtResource("2_41ug6")
+weapon_type = "Mace"
+base_damage = 67.0
+scaling_grade = 4
+item_id = "gen_mace_vengeance_mace"
+display_name = "Vengeance Mace"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "Retaliation - Implicit: +20% increased Retaliation damage"
+item_level = 53
+base_line_id = "mace_line3"
+stat_requirement = 1
+stat_requirement_value = 26.5

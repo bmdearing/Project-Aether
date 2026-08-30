@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://entities/effects/spark_crawler/SparkCrawler.gd" id="1"]
+
+[sub_resource type="PrismMesh" id="PrismMesh_spark"]
+size = Vector3(0.18, 0.18, 0.4)
+
+[node name="SparkCrawler" type="Node3D"]
+script = ExtResource("1")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+position = Vector3(0, 0.1, 0)
+mesh = SubResource("PrismMesh_spark")

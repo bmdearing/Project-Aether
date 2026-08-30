@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_snpeo"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_mrmhy"]
+
+[resource]
+script = ExtResource("2_mrmhy")
+item_id = "gen_throwing_knives_light_throwing_knife"
+display_name = "Light Throwing Knife"
+equip_slot = 8
+flavor_text = "Critical Strike Base Damage: 2-4."
+base_line_id = "throwing_knives_line2"

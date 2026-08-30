@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_qw60m"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_tq4tw"]
+
+[resource]
+script = ExtResource("2_tq4tw")
+item_id = "gen_grenade_blaster_grenade"
+display_name = "Blaster Grenade"
+equip_slot = 8
+flavor_text = "AoE Base Damage: 35-47."
+item_level = 46
+base_line_id = "grenade_line2"

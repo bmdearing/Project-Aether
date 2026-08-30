@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_q41ei"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_kc1nq"]
+
+[resource]
+script = ExtResource("2_kc1nq")
+weapon_type = "Service Pistol"
+base_damage = 36.5
+scaling_grade = 4
+is_ranged = true
+item_id = "gen_service_pistol_marksmans_pistol"
+display_name = "Marksman's Pistol"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "Critical Strike - Implicit: +12% increased Critical Strike Chance"
+item_level = 34
+base_line_id = "service_pistol_line1"
+stat_requirement = 1
+stat_requirement_value = 17.0

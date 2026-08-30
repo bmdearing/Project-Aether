@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_4yq1h"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_t5jki"]
+
+[resource]
+script = ExtResource("2_t5jki")
+block_chance = 0.13
+block_threshold = 92.0
+ward_value = 24.0
+item_id = "gen_warded_barrier_crude_warded_barrier"
+display_name = "Crude Warded Barrier"
+equip_slot = 6
+max_sockets = 1
+flavor_text = "Maximum Ward"
+base_line_id = "warded_barrier_line1"
+stat_requirement = 0
+stat_requirement_value = 0.5

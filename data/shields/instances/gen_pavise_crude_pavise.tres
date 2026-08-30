@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_2451m"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_ahrqn"]
+
+[resource]
+script = ExtResource("2_ahrqn")
+block_chance = 0.21
+block_threshold = 210.0
+armor_value = 21.0
+item_id = "gen_pavise_crude_pavise"
+display_name = "Crude Pavise"
+equip_slot = 6
+max_sockets = 1
+flavor_text = "Stationary Fortress"
+base_line_id = "pavise_line1"
+stat_requirement = 0
+stat_requirement_value = 0.5

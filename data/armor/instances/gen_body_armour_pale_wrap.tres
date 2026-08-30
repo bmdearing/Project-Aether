@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ho5yt"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_6wqr5"]
+
+[resource]
+script = ExtResource("2_6wqr5")
+ward_value = 491.0
+item_id = "gen_body_armour_pale_wrap"
+display_name = "Pale Wrap"
+equip_slot = 1
+max_sockets = 2
+flavor_text = "Maximum Ward"
+item_level = 27
+base_line_id = "body_armour_line5"
+stat_requirement = 0
+stat_requirement_value = 13.5

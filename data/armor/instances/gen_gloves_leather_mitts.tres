@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_yixre"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_kcg68"]
+
+[resource]
+script = ExtResource("2_kcg68")
+armor_value = 15.0
+evasion_value = 33.0
+item_id = "gen_gloves_leather_mitts"
+display_name = "Leather Mitts"
+equip_slot = 2
+max_sockets = 1
+flavor_text = "Armor/Evasion Hybrid"
+item_level = 16
+base_line_id = "gloves_line4"
+stat_requirement = 0
+stat_requirement_value = 8.0

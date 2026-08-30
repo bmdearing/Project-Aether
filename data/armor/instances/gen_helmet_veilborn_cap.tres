@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_6ykmo"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_wmom4"]
+
+[resource]
+script = ExtResource("2_wmom4")
+ward_value = 171.0
+item_id = "gen_helmet_veilborn_cap"
+display_name = "Veilborn Cap"
+max_sockets = 2
+flavor_text = "Maximum Ward"
+item_level = 53
+base_line_id = "helmet_line4"
+stat_requirement = 0
+stat_requirement_value = 26.5

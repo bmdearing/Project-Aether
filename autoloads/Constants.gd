@@ -51,6 +51,19 @@ const DAMAGE_TYPE_COLOR := {
 
 enum Stat { VITALITY, STRENGTH, INSTINCT, ARCANE, ENIGMA, INTELLECT }
 
+# Display names - used by ItemCard's requirement line and EquipmentComponent's
+# equip-block reason (user request 2026-08-30: gate Section 25's items behind
+# a level + stat requirement) rather than each spot inventing its own
+# capitalization of the enum key.
+const STAT_NAME := {
+	Stat.VITALITY: "Vitality",
+	Stat.STRENGTH: "Strength",
+	Stat.INSTINCT: "Instinct",
+	Stat.ARCANE: "Arcane",
+	Stat.ENIGMA: "Enigma",
+	Stat.INTELLECT: "Intellect",
+}
+
 # Section 12 per-point values - shown in the advanced (Alt-hover) tooltip
 # when a mod line links to one of these stats.
 const STAT_GLOSSARY := {
@@ -167,13 +180,86 @@ const ITEM_RARITY_COLOR := {
 }
 
 # Section 11 "Base Crit Chance by Weapon Type", keyed by Weapon.weapon_type.
-# Only the two types this project has built are transcribed; add more as
-# needed rather than the doc's full ~55-entry table. DEFAULT covers the rest.
+# Doc-exact for every weapon type Section 25 actually details a real tiered
+# line for (see tools/generate_base_types.gd) - the doc's table also lists
+# several caster types (Rod/Focus/Tome/Talisman/Seal/Charm/Lantern/Spell
+# Gauntlet/Athame/Grimoire/Fetish/Rail Carbine/Voltage Pistol/Pressurized
+# Rifle/Thermal Pistol/Jet Rifle) that have no Section 25 tier table at
+# all, so this project has no base item that could ever read them -
+# skipped rather than transcribed dead. "Bow" and "Gauntlet" (this
+# project's own, added 2026-08-30 before Section 25 was fully read) aren't
+# doc weapon types either - Gauntlet's own 6% stays as an invented value,
+# and Bow simply isn't in this table (falls through to DEFAULT).
 const WEAPON_BASE_CRIT_CHANCE := {
+	"Dagger": 0.08,
+	"Rapier": 0.07,
+	"Shortsword": 0.06,
+	"Saber": 0.06,
+	"Cutlass": 0.05,
+	"Mace": 0.03,
+	"War Pick": 0.04,
 	"Greatsword": 0.04,
+	"Claymore": 0.04,
+	"Halberd": 0.05,
+	"Spear": 0.06,
+	"Shock Lance": 0.05,
+	"Whip": 0.04,
+	"Pressure Fist": 0.03,
 	"Service Pistol": 0.06,
+	"Revolver": 0.07,
+	"Machine Pistol": 0.03,
+	"Crossbow": 0.08,
+	"Bolt Action Rifle": 0.08,
+	"Lever Action Rifle": 0.07,
+	"Loaded Shotgun": 0.03,
+	"Pump Action Shotgun": 0.03,
+	"Battle Rifle": 0.05,
+	"Submachine Gun": 0.03,
+	"Machine Gun": 0.02,
+	"Wand": 0.06,
+	"Staff": 0.04,
+	"Gauntlet": 0.06,
 }
 const DEFAULT_BASE_CRIT_CHANCE := 0.05
+
+## Enemy rarity rank (invented - no doc-sourced enemy rank system exists,
+## same footing as EnemyArchetype above). User request (2026-08-30):
+## drives which item-level tier of Section 25's real base types a kill
+## can drop - "White mobs are the area level, blue mobs are the area +1,
+## rare mobs are the area + 2 levels, bosses are the area + 5 levels."
+## BOSS is never auto-rolled (see Enemy._roll_rank()) - only set
+## explicitly by a boss encounter's own scene/script.
+enum EnemyRank { NORMAL, MAGIC, RARE, BOSS }
+
+const ENEMY_RANK_NAME := {
+	EnemyRank.NORMAL: "White",
+	EnemyRank.MAGIC: "Blue",
+	EnemyRank.RARE: "Rare",
+	EnemyRank.BOSS: "Boss",
+}
+
+const ENEMY_RANK_ITEM_LEVEL_OFFSET := {
+	EnemyRank.NORMAL: 0,
+	EnemyRank.MAGIC: 1,
+	EnemyRank.RARE: 2,
+	EnemyRank.BOSS: 5,
+}
+
+## Spawn-time odds for a regular (non-boss-flagged) enemy to roll each
+## rank - invented, genre-standard shape (most kills are White, Rare is
+## uncommon). Boss is deliberately absent - it's only ever set explicitly.
+const ENEMY_RANK_SPAWN_WEIGHTS := {
+	EnemyRank.NORMAL: 80.0,
+	EnemyRank.MAGIC: 16.0,
+	EnemyRank.RARE: 4.0,
+}
+
+# Cooldown Reduction cap (user request 2026-08-30): across every source that
+# reduces an ability's cooldown at cast time - Ability.rank's own -4%/rank
+# and Instinct's Action/Cast Speed (Player.get_action_speed_multiplier()) -
+# an ability's cooldown can never drop below 25% of its authored
+# cooldown_seconds. See Ability.get_final_cooldown().
+const MAX_COOLDOWN_REDUCTION := 0.75
 
 ## Picks readable text over an arbitrary background color set at
 ## runtime (item rarity/damage-type colors) - without this, buttons

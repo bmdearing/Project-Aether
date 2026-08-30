@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_p4ghf"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_1jieq"]
+
+[resource]
+script = ExtResource("2_1jieq")
+armor_value = 113.0
+item_id = "gen_body_armour_guardians_plate"
+display_name = "Guardian's Plate"
+equip_slot = 1
+max_sockets = 2
+flavor_text = "Armor + Life"
+item_level = 40
+base_line_id = "body_armour_line2"
+stat_requirement = 0
+stat_requirement_value = 20.0

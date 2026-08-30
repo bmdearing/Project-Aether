@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_687xl"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_oqyo2"]
+
+[resource]
+script = ExtResource("2_oqyo2")
+evasion_value = 790.0
+item_id = "gen_body_armour_scouts_vest"
+display_name = "Scout's Vest"
+equip_slot = 1
+max_sockets = 2
+flavor_text = "Maximum Evasion"
+item_level = 34
+base_line_id = "body_armour_line3"
+stat_requirement = 0
+stat_requirement_value = 17.0

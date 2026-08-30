@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_1kohw"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_dd24h"]
+
+[resource]
+script = ExtResource("2_dd24h")
+weapon_type = "Service Pistol"
+base_damage = 5.0
+scaling_grade = 4
+is_ranged = true
+item_id = "gen_service_pistol_suppressor_pistol"
+display_name = "Suppressor Pistol"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Interrupt/Stagger - Implicit: +18% increased Stagger effect on hit"
+base_line_id = "service_pistol_line3"
+stat_requirement = 1
+stat_requirement_value = 0.5

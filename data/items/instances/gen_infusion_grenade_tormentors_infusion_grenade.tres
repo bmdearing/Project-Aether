@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_g1bdk"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_ghuna"]
+
+[resource]
+script = ExtResource("2_ghuna")
+item_id = "gen_infusion_grenade_tormentors_infusion_grenade"
+display_name = "Tormentor's Infusion Grenade"
+equip_slot = 8
+flavor_text = "Status Effect - Implicit: +24% increased Status Effect duration Base Damage: 76-93."
+item_level = 91
+base_line_id = "infusion_grenade_line2"

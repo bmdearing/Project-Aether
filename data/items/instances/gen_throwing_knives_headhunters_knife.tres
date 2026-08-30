@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_bw7e0"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_awbb0"]
+
+[resource]
+script = ExtResource("2_awbb0")
+item_id = "gen_throwing_knives_headhunters_knife"
+display_name = "Headhunter's Knife"
+equip_slot = 8
+flavor_text = "Critical Strike - Implicit: +18% increased Critical Strike Chance Base Damage: 44-55."
+item_level = 91
+base_line_id = "throwing_knives_line2"

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_kciuo"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_gvlds"]
+
+[resource]
+script = ExtResource("2_gvlds")
+block_chance = 0.17
+block_threshold = 181.0
+ward_value = 33.0
+item_id = "gen_rune_shield_iron_rune_shield"
+display_name = "Iron Rune Shield"
+equip_slot = 6
+max_sockets = 1
+flavor_text = "Ward Line"
+item_level = 14
+base_line_id = "rune_shield_line1"
+stat_requirement = 0
+stat_requirement_value = 7.0

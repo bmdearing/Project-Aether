@@ -1,10 +1,33 @@
 extends Node
 class_name PlayerRangedAttack
 ## Ranged attack: spawns a Projectile.tscn instance moving forward from
-## WeaponSocket. No windup/strike states like PlayerMeleeAttack - just a
-## fire cooldown.
+## WeaponSocket. No windup/strike states like PlayerMeleeAttack - hit
+## registration is still a single instant fire-and-cooldown, unchanged.
+## _play_fire_animation() (2026-08-30 later still, user feedback: "the
+## animations are all the same for all of the weapons" - ranged weapons
+## had NO animation at all before this) layers a purely cosmetic pose
+## tween on PlayerArmRig on top of that, via the same play_attack_swing()
+## PlayerMeleeAttack itself uses - it doesn't gate or delay the shot.
 
 const PROJECTILE_SCENE := preload("res://entities/projectile/Projectile.tscn")
+
+## Same minimal-table-plus-DEFAULT convention as PlayerMeleeAttack's own
+## per-weapon-type dicts - Bow gets a fuller draw-then-release motion,
+## anything unmapped (Service Pistol) gets a sharp recoil kick instead.
+const WEAPON_TYPE_FIRE_POSE := {
+	"Bow": PlayerArmRig.PoseSet.BOW_RELEASE,
+}
+const DEFAULT_FIRE_POSE := PlayerArmRig.PoseSet.RECOIL
+const WEAPON_TYPE_FIRE_DURATION_MULT := {
+	"Bow": 1.6,
+}
+const FIRE_WINDUP := 0.06
+const FIRE_STRIKE := 0.06
+const FIRE_RECOVERY := 0.16
+const WEAPON_TYPE_FIRE_INTENSITY := {
+	"Bow": 1.1,
+}
+const DEFAULT_FIRE_INTENSITY := 0.8
 
 @export var fire_cooldown: float = 0.4
 ## Stands in for a "Basic Shot" skill's motion value - no skill/Tome
@@ -54,3 +77,21 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 	projectile.speed = projectile_speed
 	_player.get_tree().current_scene.add_child(projectile)
 	projectile.global_transform = _player.weapon_socket.global_transform
+
+	_play_fire_animation(weapon)
+
+func _play_fire_animation(weapon: Weapon) -> void:
+	var rig := _player.arm_rig
+	if rig == null:
+		return
+	var pose_set: PlayerArmRig.PoseSet = WEAPON_TYPE_FIRE_POSE.get(weapon.weapon_type, DEFAULT_FIRE_POSE)
+	var duration_mult: float = WEAPON_TYPE_FIRE_DURATION_MULT.get(weapon.weapon_type, 1.0)
+	var intensity: float = WEAPON_TYPE_FIRE_INTENSITY.get(weapon.weapon_type, DEFAULT_FIRE_INTENSITY)
+	var action_speed := _player.get_action_speed_multiplier()
+	rig.play_attack_swing(
+		pose_set,
+		FIRE_WINDUP * duration_mult / action_speed,
+		FIRE_STRIKE * duration_mult / action_speed,
+		FIRE_RECOVERY * duration_mult / action_speed,
+		intensity
+	)

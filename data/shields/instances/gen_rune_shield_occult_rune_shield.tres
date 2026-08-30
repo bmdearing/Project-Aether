@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_y2bjq"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_h5rb7"]
+
+[resource]
+script = ExtResource("2_h5rb7")
+block_chance = 0.17
+block_threshold = 92.0
+ward_value = 15.0
+item_id = "gen_rune_shield_occult_rune_shield"
+display_name = "Occult Rune Shield"
+equip_slot = 6
+max_sockets = 1
+flavor_text = "Esoteric/Spell"
+base_line_id = "rune_shield_line2"
+stat_requirement = 0
+stat_requirement_value = 0.5

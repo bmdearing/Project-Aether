@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_okcxx"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_4di25"]
+
+[resource]
+script = ExtResource("2_4di25")
+item_id = "gen_infusion_grenade_cursing_infusion_grenade"
+display_name = "Cursing Infusion Grenade"
+equip_slot = 8
+flavor_text = "Status Effect Base Damage: 4-9."
+base_line_id = "infusion_grenade_line2"

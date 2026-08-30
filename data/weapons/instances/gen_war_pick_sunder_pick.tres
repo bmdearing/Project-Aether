@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ny4xl"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_x1s1i"]
+
+[resource]
+script = ExtResource("2_x1s1i")
+weapon_type = "War Pick"
+base_damage = 35.0
+scaling_grade = 4
+native_damage_type = 1
+item_id = "gen_war_pick_sunder_pick"
+display_name = "Sunder Pick"
+equip_slot = 4
+max_sockets = 3
+flavor_text = "Stagger - Implicit: +16% increased Stagger effect"
+item_level = 31
+base_line_id = "war_pick_line2"
+stat_requirement = 1
+stat_requirement_value = 15.5

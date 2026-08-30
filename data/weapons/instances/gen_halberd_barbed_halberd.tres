@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_bs8go"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_2lwp4"]
+
+[resource]
+script = ExtResource("2_2lwp4")
+weapon_type = "Halberd"
+base_damage = 9.5
+scaling_grade = 4
+native_damage_type = 1
+is_two_handed = true
+item_id = "gen_halberd_barbed_halberd"
+display_name = "Barbed Halberd"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Bleed/Pierce - Implicit: +18% increased Bleed damage"
+base_line_id = "halberd_line2"
+stat_requirement = 1
+stat_requirement_value = 0.5

@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "tornado"
+display_name = "Tornado"
+description = "Summons a churning tornado that hunts down and rips through nearby enemies. Up to 3 can be active at once."
+damage_type = 0
+motion_value = 0.4
+scaling_grade = 4
+cooldown_seconds = 1.5
+resource_cost = 14.0
+can_trigger_riposte = false
+is_auto_cast_eligible = true
+applies_status_effects = Array[String]([])
+radius = 3.0
+base_crit_chance = 0.04
+is_ground_targeted = true

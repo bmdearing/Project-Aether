@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_wfgpn"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_0g2ou"]
+
+[resource]
+script = ExtResource("2_0g2ou")
+base_damage = 11.0
+scaling_grade = 4
+is_two_handed = true
+item_id = "gen_greatsword_crushing_blade"
+display_name = "Crushing Blade"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Stagger - Implicit: +14% increased Stagger effect"
+base_line_id = "greatsword_line2"
+stat_requirement = 1
+stat_requirement_value = 0.5

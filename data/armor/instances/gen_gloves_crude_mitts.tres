@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_si06q"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_eb5q5"]
+
+[resource]
+script = ExtResource("2_eb5q5")
+armor_value = 7.0
+evasion_value = 18.0
+item_id = "gen_gloves_crude_mitts"
+display_name = "Crude Mitts"
+equip_slot = 2
+max_sockets = 1
+flavor_text = "Armor/Evasion Hybrid"
+base_line_id = "gloves_line4"
+stat_requirement = 0
+stat_requirement_value = 0.5

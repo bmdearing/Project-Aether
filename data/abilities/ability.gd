@@ -49,6 +49,16 @@ func get_effective_motion_value() -> float:
 func get_effective_cooldown() -> float:
 	return cooldown_seconds * (1.0 - rank * COOLDOWN_REDUCTION_PER_RANK)
 
+## Real cast-time cooldown: rank reduction folded in, then divided by
+## Instinct's Action/Cast Speed multiplier (PlayerAbilityCast's own
+## treatment) - clamped so the combination of both sources can never take
+## more than Constants.MAX_COOLDOWN_REDUCTION off the authored value.
+func get_final_cooldown(action_speed_multiplier: float) -> float:
+	var safe_multiplier: float = max(action_speed_multiplier, 0.01)
+	var reduced: float = get_effective_cooldown() / safe_multiplier
+	var floor_cooldown := cooldown_seconds * (1.0 - Constants.MAX_COOLDOWN_REDUCTION)
+	return max(reduced, floor_cooldown)
+
 func can_upgrade() -> bool:
 	return rank < MAX_RANK
 

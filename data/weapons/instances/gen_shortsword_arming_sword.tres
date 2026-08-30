@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_cf315"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_la7t3"]
+
+[resource]
+script = ExtResource("2_la7t3")
+weapon_type = "Shortsword"
+base_damage = 28.0
+scaling_grade = 4
+native_damage_type = 1
+item_id = "gen_shortsword_arming_sword"
+display_name = "Arming Sword"
+equip_slot = 4
+max_sockets = 3
+flavor_text = "Balanced - Implicit: +6% increased Physical damage"
+item_level = 23
+base_line_id = "shortsword_line1"
+stat_requirement = 1
+stat_requirement_value = 11.5

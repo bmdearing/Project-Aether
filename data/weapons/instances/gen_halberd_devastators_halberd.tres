@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_6iaug"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_ma48c"]
+
+[resource]
+script = ExtResource("2_ma48c")
+weapon_type = "Halberd"
+base_damage = 156.0
+scaling_grade = 4
+native_damage_type = 1
+is_two_handed = true
+item_id = "gen_halberd_devastators_halberd"
+display_name = "Devastator's Halberd"
+equip_slot = 4
+max_sockets = 6
+flavor_text = "High Damage - Implicit: +10% increased Physical damage"
+item_level = 91
+base_line_id = "halberd_line1"
+stat_requirement = 1
+stat_requirement_value = 45.5

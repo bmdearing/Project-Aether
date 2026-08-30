@@ -41,6 +41,9 @@ enum State { IDLE, WINDUP, STRIKE, RECOVERY }
 const WEAPON_TYPE_MOTION_VALUE := {
 	"Dagger": 0.65,
 	"Greatsword": 1.35,
+	"Rapier": 0.55,
+	"Staff": 1.0,
+	"Gauntlet": 0.5,
 }
 
 ## User feedback (2026-08-30): a greatsword swing needs to actually feel
@@ -57,36 +60,67 @@ const WEAPON_TYPE_MOTION_VALUE := {
 const WEAPON_TYPE_SWING_DURATION_MULT := {
 	"Dagger": 0.75,
 	"Greatsword": 2.4,
+	"Rapier": 0.65,
+	"Staff": 1.4,
+	"Gauntlet": 0.55,
 }
 const WEAPON_TYPE_SWING_INTENSITY := {
 	"Dagger": 0.85,
 	"Greatsword": 1.3,
+	"Rapier": 0.9,
+	"Staff": 1.15,
+	"Gauntlet": 0.8,
 }
 
 ## User feedback (2026-08-30, second follow-up): "slower side to side
 ## cleaves would look good" for Greatsword specifically - mixing in the
 ## diagonal CLEAVE made successive swings alternate between two visually
 ## unrelated motion types (a vertical cut, then a horizontal one) instead
-## of reading as one consistent windmill. Greatsword now alternates only
-## the two horizontal sweeps; anything unmapped keeps the full 3-pose
-## variety (NORMAL_COMBO_POSES) - same minimal-table-plus-DEFAULT
-## convention as the rest of this file.
+## of reading as one consistent windmill - Greatsword alternates the two
+## horizontal sweeps. User feedback (2026-08-30 later still): "the
+## animations are all the same for all of the weapons" - Rapier/Dagger/
+## Gauntlet had all been falling back to the same NORMAL_COMBO_POSES
+## default, AND Staff had been sharing Greatsword's exact SWEEP pair (a
+## scratch test asserting every weapon's combo pose LIST is distinct
+## caught that second one). Each weapon now has its own: Rapier is a pure
+## thruster (single-pose "combo" - every attack is DASH_THRUST, no
+## cycling, since a rapier doesn't really slash), Dagger alternates a
+## slash and a stab (a flurry, distinct from Rapier's pure-thrust
+## identity), Gauntlet always JABs (its own elbow-driven punch pose, not
+## a blade motion at all), Staff gets its own TWIRL pair (wrist-rotation-
+## dominant, a spin rather than Greatsword's shoulder-driven heavy
+## cleave). Same minimal-table-plus-DEFAULT convention as the rest of
+## this file - anything still unmapped (a future weapon type) keeps the
+## full 3-pose NORMAL_COMBO_POSES variety.
 const WEAPON_TYPE_COMBO_POSES := {
 	"Greatsword": [PlayerArmRig.PoseSet.SWEEP_RIGHT, PlayerArmRig.PoseSet.SWEEP_LEFT],
+	"Staff": [PlayerArmRig.PoseSet.TWIRL_RIGHT, PlayerArmRig.PoseSet.TWIRL_LEFT],
+	"Rapier": [PlayerArmRig.PoseSet.DASH_THRUST],
+	"Dagger": [PlayerArmRig.PoseSet.CLEAVE, PlayerArmRig.PoseSet.DASH_THRUST],
+	"Gauntlet": [PlayerArmRig.PoseSet.JAB],
 }
 
 ## User request (2026-08-30): "holding right click puts you in a stance
 ## that preps you for heavier or special attacks... a great sword might
-## have a big sweep, a rapier might dash and thrust in one direction." No
-## Rapier item exists in this project (confirmed - only Greatsword, Dagger,
-## Service Pistol have real .tres instances), so its dash-and-thrust
-## behavior is mapped onto Dagger instead, as the closest existing light
-## one-handed weapon; a real Rapier just needs a new entry here once one
-## exists. Driven by WeaponStance.gd, which owns the right-click hold
+## have a big sweep, a rapier might dash and thrust in one direction." A
+## real Rapier item didn't exist yet when this was first built, so
+## DASH_THRUST was mapped onto Dagger as a stand-in (closest existing
+## light one-handed weapon) - now that worn_rapier.tres exists (2026-08-30
+## later still), Rapier gets its own entry (the "real" intended match),
+## and Dagger keeps DASH_THRUST too since a quick dagger lunge is just as
+## fitting. Staff reuses BIG_SWEEP (a staff sweep). Gauntlet's special is
+## JAB, not DASH_THRUST anymore (2026-08-30 even later, "the animations
+## are all the same" feedback) - its special should feel like a BIGGER
+## punch, not switch to an entirely different motion family; the existing
+## intensity/duration multipliers already make a scaled-up JAB read as a
+## haymaker. Driven by WeaponStance.gd, which owns the right-click hold
 ## input and calls try_special_attack() on a left-click while active.
 const WEAPON_TYPE_SPECIAL_POSE := {
 	"Dagger": PlayerArmRig.PoseSet.DASH_THRUST,
 	"Greatsword": PlayerArmRig.PoseSet.BIG_SWEEP,
+	"Rapier": PlayerArmRig.PoseSet.DASH_THRUST,
+	"Staff": PlayerArmRig.PoseSet.BIG_SWEEP,
+	"Gauntlet": PlayerArmRig.PoseSet.JAB,
 }
 const SPECIAL_MOTION_VALUE_MULTIPLIER := 1.8
 const SPECIAL_DURATION_MULTIPLIER := 1.4

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_2wcsv"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_e7fba"]
+
+[resource]
+script = ExtResource("2_e7fba")
+item_id = "gen_impact_hatchet_crude_hatchet"
+display_name = "Crude Hatchet"
+equip_slot = 8
+flavor_text = "Stagger Base Damage: 4-9."
+base_line_id = "impact_hatchet_line1"

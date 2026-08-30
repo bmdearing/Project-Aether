@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_lj4c5"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_c5gmg"]
+
+[resource]
+script = ExtResource("2_c5gmg")
+armor_value = 134.0
+item_id = "gen_body_armour_chain_coat"
+display_name = "Chain Coat"
+equip_slot = 1
+max_sockets = 2
+flavor_text = "Maximum Armor"
+item_level = 34
+base_line_id = "body_armour_line1"
+stat_requirement = 0
+stat_requirement_value = 17.0

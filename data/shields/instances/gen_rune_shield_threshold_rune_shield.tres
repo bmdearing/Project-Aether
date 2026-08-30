@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_hnkqy"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_f0sqc"]
+
+[resource]
+script = ExtResource("2_f0sqc")
+block_chance = 0.27
+block_threshold = 642.0
+ward_value = 115.0
+item_id = "gen_rune_shield_threshold_rune_shield"
+display_name = "Threshold Rune Shield"
+equip_slot = 6
+max_sockets = 3
+flavor_text = "Esoteric/Spell"
+item_level = 76
+base_line_id = "rune_shield_line2"
+stat_requirement = 0
+stat_requirement_value = 38.0

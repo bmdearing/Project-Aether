@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_b0t3a"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_p62s3"]
+
+[resource]
+script = ExtResource("2_p62s3")
+armor_value = 58.0
+ward_value = 116.0
+item_id = "gen_body_armour_runed_coat"
+display_name = "Runed Coat"
+equip_slot = 1
+max_sockets = 1
+flavor_text = "Ward/Armor Hybrid"
+base_line_id = "body_armour_line8"
+stat_requirement = 0
+stat_requirement_value = 0.5

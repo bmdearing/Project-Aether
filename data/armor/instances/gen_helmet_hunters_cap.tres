@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_034xv"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_8c61k"]
+
+[resource]
+script = ExtResource("2_8c61k")
+armor_value = 74.0
+evasion_value = 150.0
+item_id = "gen_helmet_hunters_cap"
+display_name = "Hunter's Cap"
+max_sockets = 2
+flavor_text = "Armor/Evasion Hybrid"
+item_level = 53
+base_line_id = "helmet_line5"
+stat_requirement = 0
+stat_requirement_value = 26.5

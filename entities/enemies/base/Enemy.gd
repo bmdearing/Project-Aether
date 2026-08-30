@@ -7,6 +7,13 @@ class_name Enemy
 ## below - chasing and attacking are decoupled.
 
 @export var archetype: Constants.EnemyArchetype
+## User request (2026-08-30): White/Blue/Rare/Boss rank, gating which item-
+## level tier of loot this enemy can drop (see _compute_item_level()).
+## Left at NORMAL here and rolled randomly in _ready() unless a scene
+## explicitly overrides it to BOSS (a real boss encounter's own scene sets
+## this before _ready() runs, same as any other @export override) - see
+## _roll_rank()'s own header for why BOSS itself is never auto-rolled.
+@export var rank: Constants.EnemyRank = Constants.EnemyRank.NORMAL
 @export var move_speed: float = 3.0
 @export var chase_range: float = 15.0
 ## Distance to close to and hold - melee archetypes keep this inside
@@ -50,6 +57,8 @@ var _riposte_blink_tween: Tween
 var _status_icons: Dictionary = {}  # effect_id -> MeshInstance3D
 
 func _ready() -> void:
+	if rank != Constants.EnemyRank.BOSS:
+		rank = _roll_rank()
 	health.died.connect(_on_died)
 	add_to_group("enemy")
 	_player = get_tree().get_first_node_in_group("player") as Player
@@ -328,8 +337,7 @@ func _maybe_drop_loot() -> void:
 	if randf() > BASE_LOOT_DROP_CHANCE * quantity_mult:
 		return
 	var rarity_mult: float = GameState.active_map.loot_rarity_multiplier if GameState.active_map else 1.0
-	var power_level: int = GameState.active_map.tier if GameState.active_map else 1
-	var item := ItemRoller.roll(power_level, rarity_mult)
+	var item := ItemRoller.roll(_compute_item_level(), rarity_mult)
 	if item == null:
 		return
 	_spawn_pickup(item)
@@ -368,6 +376,32 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		if shred > 0.0:
 			mitigated *= (1.0 - DamageCalculator.resistance_mitigation(-shred))
 	health.apply_damage(mitigated)
+
+## Never returns BOSS - a boss encounter's own scene/script sets `rank`
+## to BOSS directly (see _ready()'s own guard), it doesn't come from this
+## weighted roll. Falls back to NORMAL if the weight table were ever
+## emptied, which it isn't.
+func _roll_rank() -> Constants.EnemyRank:
+	var total := 0.0
+	for w in Constants.ENEMY_RANK_SPAWN_WEIGHTS.values():
+		total += w
+	var roll := randf() * total
+	var cumulative := 0.0
+	for r in Constants.ENEMY_RANK_SPAWN_WEIGHTS:
+		cumulative += Constants.ENEMY_RANK_SPAWN_WEIGHTS[r]
+		if roll <= cumulative:
+			return r
+	return Constants.EnemyRank.NORMAL
+
+## User request (2026-08-30): "the right tier is based on the level of the
+## area and mobs. White mobs are the area level, blue mobs are the area +1,
+## rare mobs are the area + 2 levels, bosses are the area + 5 levels."
+## Scoped to ItemRoller drops specifically (real weapon/armor/shield base
+## types) - Slate/Figment rolls just below keep using the Map tier
+## directly, a separate tier concept this request didn't touch.
+func _compute_item_level() -> int:
+	var area_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
+	return area_level + Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
 
 func _set_placeholder_color(c: Color) -> void:
 	_base_color = c

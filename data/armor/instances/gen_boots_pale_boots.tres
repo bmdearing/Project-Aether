@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_4eqlw"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_vr5ny"]
+
+[resource]
+script = ExtResource("2_vr5ny")
+ward_value = 54.0
+item_id = "gen_boots_pale_boots"
+display_name = "Pale Boots"
+equip_slot = 3
+max_sockets = 2
+flavor_text = "Maximum Ward"
+item_level = 27
+base_line_id = "boots_line3"
+stat_requirement = 0
+stat_requirement_value = 13.5

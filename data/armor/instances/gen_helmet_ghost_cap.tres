@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_x70gv"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_fdi6c"]
+
+[resource]
+script = ExtResource("2_fdi6c")
+armor_value = 164.0
+evasion_value = 309.0
+item_id = "gen_helmet_ghost_cap"
+display_name = "Ghost Cap"
+max_sockets = 3
+flavor_text = "Armor/Evasion Hybrid - Implicit: +9% Armor, +9% Evasion"
+item_level = 91
+base_line_id = "helmet_line5"
+stat_requirement = 0
+stat_requirement_value = 45.5

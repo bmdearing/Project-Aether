@@ -1,0 +1,30 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="1"]
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "+11% increased Esoteric damage (implicit)"
+stat_key = "esoteric_dmg_increased"
+value = 11.0
+value_min = 0.0
+value_max = 0.0
+is_prefix = false
+
+[resource]
+script = ExtResource("1")
+item_id = "worn_staff"
+display_name = "Worn Staff"
+rarity = 0
+equip_slot = 4
+max_sockets = 5
+affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
+flavor_text = ""
+weapon_type = "Staff"
+base_damage = 9.0
+scaling_grade = 3
+native_damage_type = 6
+infused_damage_type = -1
+is_two_handed = true
+skill_ids = Array[String]([])

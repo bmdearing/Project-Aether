@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ij7b6"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_p6a5x"]
+
+[resource]
+script = ExtResource("2_p6a5x")
+evasion_value = 26.0
+item_id = "gen_gloves_crude_gloves"
+display_name = "Crude Gloves"
+equip_slot = 2
+max_sockets = 1
+flavor_text = "Maximum Evasion"
+base_line_id = "gloves_line2"
+stat_requirement = 0
+stat_requirement_value = 0.5

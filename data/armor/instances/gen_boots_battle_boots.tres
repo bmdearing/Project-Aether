@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_0r3fx"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_b0ffs"]
+
+[resource]
+script = ExtResource("2_b0ffs")
+armor_value = 52.0
+item_id = "gen_boots_battle_boots"
+display_name = "Battle Boots"
+equip_slot = 3
+max_sockets = 2
+flavor_text = "Maximum Armor"
+item_level = 40
+base_line_id = "boots_line1"
+stat_requirement = 0
+stat_requirement_value = 20.0

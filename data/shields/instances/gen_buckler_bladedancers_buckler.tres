@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_f7plr"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_du0q4"]
+
+[resource]
+script = ExtResource("2_du0q4")
+block_chance = 0.14
+evasion_value = 197.0
+item_id = "gen_buckler_bladedancers_buckler"
+display_name = "Bladedancer's Buckler"
+equip_slot = 6
+max_sockets = 3
+flavor_text = "Riposte/Parry"
+item_level = 76
+base_line_id = "buckler_line2"
+stat_requirement = 0
+stat_requirement_value = 38.0

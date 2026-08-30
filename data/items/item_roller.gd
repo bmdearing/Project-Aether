@@ -1,11 +1,20 @@
 extends RefCounted
 class_name ItemRoller
 ## Rolls a random piece of gear on demand - dropped by Enemy.gd on death,
-## picked up via LootPickup.gd, or stocked by the Hub's GearShop. No
-## procedural item-generation table exists in the docs, so this
-## duplicates an existing hand-authored base item (real, balanced
-## weapon_type/damage_type/scaling_grade/etc.) and re-rolls only its
-## rarity + affix list.
+## picked up via LootPickup.gd, or stocked by the Hub's GearShop. Picks a
+## real, balanced base item (weapon_type/damage_type/scaling_grade/etc.)
+## and re-rolls only its rarity + affix list.
+##
+## User request (2026-08-30): Section 25's full tiered base-type catalog
+## is now real (see tools/generate_base_types.gd - ~750 generated .tres
+## across data/weapons|armor|shields/instances/, each tagged item_level +
+## base_line_id) alongside the original hand-authored singles (untagged,
+## base_line_id == ""). power_level now doubles as the target item level:
+## _pick_base_item() picks, per doc "Line", the single highest-item_level
+## tier still <= power_level - "always the current best base your level
+## has unlocked" - then rolls uniformly among every line's current pick
+## plus every untagged standalone base. See Enemy._compute_item_level()
+## for how a kill's own power_level is derived from area level + rank.
 ##
 ## Rarity -> affix count matches Section 18 (Common 0, Uncommon 0-2, Rare
 ## 0-6 - rarity is determined by base quality, not affix count). Affix
@@ -74,7 +83,7 @@ const AFFIX_POOL := [
 ## the Hub - a rough "how strong should this roll be" signal.
 ## loot_rarity_multiplier: shifts the rarity roll upward.
 static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> Item:
-	var base := _pick_base_item()
+	var base := _pick_base_item(power_level)
 	if base == null:
 		return null
 	var item: Item = base.duplicate(true)
@@ -125,8 +134,47 @@ static func _roll_tier(power_level: int) -> int:
 	var best_reachable: int = clamp(TIER_COUNT - power_level, 1, TIER_COUNT)
 	return randi_range(best_reachable, TIER_COUNT)
 
-static func _pick_base_item() -> Item:
-	var candidates: Array[String] = []
+## path -> {"item_level": int, "base_line_id": String} for every base item
+## file across BASE_ITEM_DIRS - built once (loading ~750 generated .tres
+## just to read 2 fields off each, every single kill, would be a real
+## per-roll hitch) and reused for the process's whole lifetime; base items
+## are static content, never added/removed/edited at runtime.
+static var _candidate_meta_cache: Dictionary = {}
+
+static func _pick_base_item(target_item_level: int) -> Item:
+	if _candidate_meta_cache.is_empty():
+		_build_candidate_meta_cache()
+	if _candidate_meta_cache.is_empty():
+		return null
+
+	# Group tiered-line candidates (base_line_id != "") down to just the
+	# single highest-item_level tier still <= target_item_level per line -
+	# "always drop the current-tier base this level has unlocked," the
+	# same ilvl-gated-base principle PoE-style tiered bases follow.
+	# Standalone hand-authored items (base_line_id == "", every pre-
+	# Section-25 base) are never grouped - always their own candidate,
+	# gated only by their own item_level (1 by default, i.e. always in).
+	var best_per_line: Dictionary = {}  # base_line_id -> {"path": String, "item_level": int}
+	var pool: Array[String] = []
+	for path in _candidate_meta_cache:
+		var meta: Dictionary = _candidate_meta_cache[path]
+		var item_level: int = meta["item_level"]
+		if item_level > target_item_level:
+			continue
+		var line_id: String = meta["base_line_id"]
+		if line_id == "":
+			pool.append(path)
+			continue
+		var current: Dictionary = best_per_line.get(line_id, {})
+		if current.is_empty() or item_level > int(current["item_level"]):
+			best_per_line[line_id] = {"path": path, "item_level": item_level}
+	for entry in best_per_line.values():
+		pool.append(entry["path"])
+	if pool.is_empty():
+		return null
+	return load(pool[randi() % pool.size()]) as Item
+
+static func _build_candidate_meta_cache() -> void:
 	for dir_path in BASE_ITEM_DIRS:
 		var dir := DirAccess.open(dir_path)
 		if dir == null:
@@ -135,12 +183,12 @@ static func _pick_base_item() -> Item:
 		var file_name := dir.get_next()
 		while file_name != "":
 			if file_name.ends_with(".tres"):
-				candidates.append(dir_path + file_name)
+				var path: String = dir_path + file_name
+				var item := load(path) as Item
+				if item:
+					_candidate_meta_cache[path] = {"item_level": item.item_level, "base_line_id": item.base_line_id}
 			file_name = dir.get_next()
 		dir.list_dir_end()
-	if candidates.is_empty():
-		return null
-	return load(candidates[randi() % candidates.size()]) as Item
 
 static func _pool_for(item: Item) -> Array:
 	var category := _category_of(item)

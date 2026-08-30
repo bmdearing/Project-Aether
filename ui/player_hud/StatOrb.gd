@@ -1,108 +1,179 @@
 extends Control
 class_name StatOrb
 ## Circular resource gauge (Life/Mana) - a liquid-style fill that drains
-## top-to-bottom (empty space grows from the top as the value drops),
-## built by drawing the exact circular segment below the waterline
-## rather than a shader/mask, matching the project's no-shader
-## placeholder-art style. An optional inset Ward strip (Life orb only)
-## fills the same top-to-bottom way within a band along the orb's right
-## edge - see set_ward_value()/_draw_ward_strip() (user direction,
-## 2026-08-30, replacing the previous design's outer ring around the rim).
+## top-to-bottom (empty space grows from the top as the value drops), with
+## an optional inset Ward strip (Life orb only) filling the same way
+## within a band along the orb's right edge - see set_ward_value().
+##
+## User request (2026-08-30): "make a shader for the Life orb, Mana orb,
+## and Ward shield on the life orb to make them look interesting."
+## Previously drawn with Control._draw() (draw_circle/draw_colored_polygon/
+## draw_rect, "matching the project's no-shader placeholder-art style" per
+## this file's own prior header) - replaced entirely with a single
+## ShaderMaterial (ORB_SHADER_CODE below) on a ColorRect sized to exactly
+## radius*2 so its UV maps cleanly to the circle. The shader adds real
+## motion (an animated wavy waterline, not a flat line), a liquid depth
+## gradient, a surface-glow highlight right at the waterline, and a soft
+## fresnel rim glow - none of which a flat draw_colored_polygon() fill
+## could do. fraction/ward_fraction and every color are plain shader
+## uniforms, updated from set_value()/set_ward_value() same as before.
 
-@export var radius: float = 46.0
-@export var fill_color: Color = Color.WHITE
-@export var bg_color: Color = Color(0.12, 0.12, 0.14, 0.9)
-@export var border_color: Color = Color(0, 0, 0, 0.75)
-@export var ward_color: Color = Color.WHITE
+## User request (2026-08-30): "make the orbs a bit larger... that part of
+## the UI doesn't match the rest" - bumped from 46 (PlayerHUD.ORB_HEIGHT
+## must stay in sync, see that file's own comment on it).
+@export var radius: float = 58.0
+
+## Real setters (not plain @export fields) - PlayerHUD sets ward_color
+## AFTER _build_orb() already returned (`_life_orb.ward_color = WARD_
+## COLOR`, one line below the constructor call), which is also after
+## add_child() has already run this node's _ready(). A plain field would
+## only get read once, at _ready() time, into the shader uniform - this
+## setter pushes to the uniform on every assignment instead, whenever it
+## happens to land, so a HUD build order like that one still works.
+@export var fill_color: Color = Color.WHITE:
+	set(value):
+		fill_color = value
+		_push_color("fill_color", value)
+@export var bg_color: Color = Color(0.12, 0.12, 0.14, 0.9):
+	set(value):
+		bg_color = value
+		_push_color("bg_color", value)
+@export var border_color: Color = Color(0, 0, 0, 0.75):
+	set(value):
+		border_color = value
+		_push_color("border_color", value)
+@export var ward_color: Color = Color.WHITE:
+	set(value):
+		ward_color = value
+		_push_color("ward_color", value)
 @export var label_prefix: String = ""
+
+func _push_color(param: String, value: Color) -> void:
+	if _shader_mat:
+		_shader_mat.set_shader_parameter(param, value)
 
 ## User direction (2026-08-30): "Ward should appear as a fill from top to
 ## bottom covering only 20% of the Life orb, it should be oriented to the
 ## right." 20% is read as the strip's WIDTH relative to the orb's own
-## diameter; "fill from top to bottom" as the same top-drains liquid
-## convention _draw_liquid_fill() below already uses, for visual
-## consistency between the two fills on the same orb.
+## diameter.
 const WARD_STRIP_WIDTH_FRACTION := 0.2
+
+const ORB_SHADER_CODE := """
+shader_type canvas_item;
+
+uniform float fill_fraction : hint_range(0.0, 1.0) = 1.0;
+uniform float ward_fraction : hint_range(0.0, 1.0) = 0.0;
+uniform float ward_strip_width : hint_range(0.0, 1.0) = 0.2;
+uniform vec4 fill_color : source_color = vec4(0.8, 0.1, 0.1, 1.0);
+uniform vec4 ward_color : source_color = vec4(0.6, 0.75, 0.95, 1.0);
+uniform vec4 bg_color : source_color = vec4(0.12, 0.12, 0.14, 0.9);
+uniform vec4 border_color : source_color = vec4(0.0, 0.0, 0.0, 0.75);
+
+// waterline in [-1,1] local space for a given fill fraction, rippled by
+// two overlaid sine waves (different frequency/speed so it doesn't read
+// as a single mechanical oscillation) - fraction 0 -> waterline at the
+// bottom (y=1), fraction 1 -> waterline above the top (y=-1).
+float waterline_y(float p_x, float fraction, float speed_mult) {
+	float wave = sin(p_x * 10.0 + TIME * 2.0 * speed_mult) * 0.025
+		+ sin(p_x * 4.0 - TIME * 1.3 * speed_mult) * 0.015;
+	return 1.0 - 2.0 * fraction + wave;
+}
+
+void fragment() {
+	vec2 p = UV * 2.0 - 1.0;
+	float dist = length(p);
+	if (dist > 1.0) {
+		discard;
+	}
+
+	vec3 col = bg_color.rgb;
+	float alpha = bg_color.a;
+
+	if (fill_fraction > 0.0) {
+		float waterline = waterline_y(p.x, fill_fraction, 1.0);
+		if (p.y > waterline) {
+			float depth = clamp((p.y - waterline) / 2.0, 0.0, 1.0);
+			vec3 liquid = fill_color.rgb * mix(1.15, 0.7, depth);
+			float surface_glow = smoothstep(0.06, 0.0, abs(p.y - waterline));
+			liquid += vec3(surface_glow * 0.5);
+			col = liquid;
+			alpha = fill_color.a;
+		}
+	}
+
+	if (ward_fraction > 0.0) {
+		float strip_left = 1.0 - 2.0 * ward_strip_width;
+		if (p.x > strip_left) {
+			float ward_waterline = waterline_y(p.x, ward_fraction, 1.4);
+			if (p.y > ward_waterline) {
+				float depth = clamp((p.y - ward_waterline) / 2.0, 0.0, 1.0);
+				vec3 liquid = ward_color.rgb * mix(1.2, 0.75, depth);
+				float surface_glow = smoothstep(0.06, 0.0, abs(p.y - ward_waterline));
+				liquid += vec3(surface_glow * 0.5);
+				col = liquid;
+				alpha = ward_color.a;
+			}
+		}
+	}
+
+	// Soft fresnel rim glow, tinted by the fill color, so the orb reads
+	// as a glassy sphere rather than a flat disc.
+	float rim = smoothstep(0.82, 1.0, dist);
+	col += fill_color.rgb * rim * 0.35;
+
+	// Border ring.
+	float border = smoothstep(0.94, 0.965, dist) - smoothstep(0.965, 1.0, dist);
+	col = mix(col, border_color.rgb, border * border_color.a);
+
+	COLOR = vec4(col, alpha);
+}
+"""
 
 var _fraction: float = 1.0
 var _ward_fraction: float = 0.0
 var _extra_text: String = ""
 var _label: Label
+var _visual: ColorRect
+var _shader_mat: ShaderMaterial
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(radius, radius) * 2.0 + Vector2(16, 16)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	_visual = ColorRect.new()
+	_visual.color = Color.WHITE  # fully driven by the shader below
+	_visual.size = Vector2(radius, radius) * 2.0
+	_visual.position = (custom_minimum_size - _visual.size) / 2.0
+	_visual.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var shader := Shader.new()
+	shader.code = ORB_SHADER_CODE
+	_shader_mat = ShaderMaterial.new()
+	_shader_mat.shader = shader
+	_shader_mat.set_shader_parameter("fill_color", fill_color)
+	_shader_mat.set_shader_parameter("bg_color", bg_color)
+	_shader_mat.set_shader_parameter("border_color", border_color)
+	_shader_mat.set_shader_parameter("ward_color", ward_color)
+	_shader_mat.set_shader_parameter("ward_strip_width", WARD_STRIP_WIDTH_FRACTION)
+	_visual.material = _shader_mat
+	add_child(_visual)
+
 	_label = Label.new()
 	_label.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_label.autowrap_mode = TextServer.AUTOWRAP_OFF
-	_label.add_theme_font_size_override("font_size", 13)
+	_label.add_theme_font_size_override("font_size", 15)
 	_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_label)
 
 func set_value(current: float, max_value: float) -> void:
 	_fraction = current / max_value if max_value > 0.0 else 0.0
 	_label.text = "%s\n%.0f/%.0f%s" % [label_prefix, current, max_value, ("\n" + _extra_text) if _extra_text != "" else ""]
-	queue_redraw()
+	if _shader_mat:
+		_shader_mat.set_shader_parameter("fill_fraction", _fraction)
 
 func set_ward_value(current: float, max_value: float) -> void:
 	_ward_fraction = clamp(current / max_value, 0.0, 1.0) if max_value > 0.0 else 0.0
 	_extra_text = "Ward %.0f/%.0f" % [current, max_value] if max_value > 0.0 else ""
-	queue_redraw()
-
-func _draw() -> void:
-	var center: Vector2 = size / 2.0
-	draw_circle(center, radius, bg_color)
-	_draw_liquid_fill(center, radius, _fraction, fill_color)
-	if _ward_fraction > 0.0:
-		_draw_ward_strip(center, radius, _ward_fraction, ward_color)
-	draw_arc(center, radius, 0.0, TAU, 48, border_color, 3.0, true)
-
-## A vertical band along the circle's right edge, WARD_STRIP_WIDTH_FRACTION
-## of the orb's diameter wide, filling/draining top-to-bottom exactly like
-## _draw_liquid_fill() (same waterline_y formula) but clipped to the
-## circle's own curve at every scanline rather than filling a plain
-## rectangle - drawn as a stack of thin horizontal rects (this project's
-## established no-shader/immediate-draw style) rather than one polygon,
-## since the circle clip makes each row's width different.
-func _draw_ward_strip(center: Vector2, r: float, fraction: float, color: Color) -> void:
-	var strip_left: float = r * (1.0 - 2.0 * WARD_STRIP_WIDTH_FRACTION)
-	var waterline_y: float = clamp(r - 2.0 * r * fraction, -r, r)
-	var steps := 48
-	for i in range(steps):
-		var y0: float = -r + (2.0 * r) * i / float(steps)
-		var y1: float = -r + (2.0 * r) * (i + 1) / float(steps)
-		var y_mid: float = (y0 + y1) * 0.5
-		if y_mid < waterline_y:
-			continue  # above the waterline - undrawn, same "empty grows from the top" rule as the main fill
-		var half_chord: float = sqrt(max(0.0, r * r - y_mid * y_mid))
-		var right: float = min(r, half_chord)
-		if strip_left >= right:
-			continue  # this scanline is above/below the circle's own bulge, no valid band here
-		var rect := Rect2(center.x + strip_left, center.y + y0, right - strip_left, y1 - y0 + 0.75)
-		draw_rect(rect, color)
-
-## Fills the circular segment below the waterline y = r - 2r*fraction (in
-## local, center-relative coordinates), i.e. the portion of the circle at
-## or past that height - fraction 0 is an empty waterline at the bottom
-## edge, 1 is a full circle. Traced as an arc from the right waterline
-## intersection through the bottom point to the left intersection; the
-## straight closing edge Godot draws back to the start is the flat
-## waterline itself.
-func _draw_liquid_fill(center: Vector2, r: float, fraction: float, color: Color) -> void:
-	if fraction <= 0.0:
-		return
-	if fraction >= 1.0:
-		draw_circle(center, r, color)
-		return
-	var waterline_y: float = clamp(r - 2.0 * r * fraction, -r, r)
-	var angle_right: float = asin(waterline_y / r)
-	var angle_left: float = PI - angle_right
-	var sweep: float = angle_left - angle_right
-	var segments: int = max(8, int(64 * sweep / TAU))
-	var points := PackedVector2Array()
-	for i in range(segments + 1):
-		var t: float = angle_right + sweep * i / float(segments)
-		points.append(center + Vector2(cos(t), sin(t)) * r)
-	draw_colored_polygon(points, color)
+	if _shader_mat:
+		_shader_mat.set_shader_parameter("ward_fraction", _ward_fraction)

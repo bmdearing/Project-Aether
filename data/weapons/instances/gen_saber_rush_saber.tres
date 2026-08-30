@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_pdfaw"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_qvcsm"]
+
+[resource]
+script = ExtResource("2_qvcsm")
+weapon_type = "Saber"
+base_damage = 41.0
+scaling_grade = 4
+item_id = "gen_saber_rush_saber"
+display_name = "Rush Saber"
+equip_slot = 4
+max_sockets = 4
+flavor_text = "Momentum - Implicit: +15% increased Momentum generation"
+item_level = 40
+base_line_id = "saber_line2"
+stat_requirement = 1
+stat_requirement_value = 20.0

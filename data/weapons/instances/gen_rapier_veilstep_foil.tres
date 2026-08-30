@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_dpgqf"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_7tkn3"]
+
+[resource]
+script = ExtResource("2_7tkn3")
+weapon_type = "Rapier"
+base_damage = 119.0
+scaling_grade = 4
+native_damage_type = 1
+item_id = "gen_rapier_veilstep_foil"
+display_name = "Veilstep Foil"
+equip_slot = 4
+max_sockets = 6
+flavor_text = "Duelist's Line (Riposte) - Implicit: +12% increased Riposte damage"
+item_level = 81
+base_line_id = "rapier_line1"
+stat_requirement = 1
+stat_requirement_value = 40.5

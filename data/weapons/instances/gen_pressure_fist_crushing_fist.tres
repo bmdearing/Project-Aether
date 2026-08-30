@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_qxnbh"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_f5uwv"]
+
+[resource]
+script = ExtResource("2_f5uwv")
+weapon_type = "Pressure Fist"
+base_damage = 9.5
+scaling_grade = 4
+item_id = "gen_pressure_fist_crushing_fist"
+display_name = "Crushing Fist"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Stagger - Implicit: +18% increased Stagger effect"
+base_line_id = "pressure_fist_line2"
+stat_requirement = 1
+stat_requirement_value = 0.5

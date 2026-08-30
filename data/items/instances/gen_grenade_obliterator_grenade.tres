@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_tyr0n"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_bk0ap"]
+
+[resource]
+script = ExtResource("2_bk0ap")
+item_id = "gen_grenade_obliterator_grenade"
+display_name = "Obliterator Grenade"
+equip_slot = 8
+flavor_text = "AoE - Implicit: +26% increased AoE radius Base Damage: 83-101."
+item_level = 91
+base_line_id = "grenade_line2"

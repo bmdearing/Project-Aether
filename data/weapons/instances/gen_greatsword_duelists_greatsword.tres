@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_r20r6"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_fxrcj"]
+
+[resource]
+script = ExtResource("2_fxrcj")
+base_damage = 9.5
+scaling_grade = 4
+is_two_handed = true
+item_id = "gen_greatsword_duelists_greatsword"
+display_name = "Duelist's Greatsword"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Riposte - Implicit: +13% increased Riposte damage"
+base_line_id = "greatsword_line3"
+stat_requirement = 1
+stat_requirement_value = 0.5

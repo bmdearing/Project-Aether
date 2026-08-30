@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_fbtf8"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_kyxgt"]
+
+[resource]
+script = ExtResource("2_kyxgt")
+item_id = "gen_throwing_knives_swift_throwing_knife"
+display_name = "Swift Throwing Knife"
+equip_slot = 8
+flavor_text = "Critical Strike Base Damage: 6-9."
+item_level = 16
+base_line_id = "throwing_knives_line2"

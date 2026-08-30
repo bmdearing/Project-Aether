@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_a8oye"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_d86nk"]
+
+[resource]
+script = ExtResource("2_d86nk")
+weapon_type = "Spear"
+base_damage = 92.0
+scaling_grade = 4
+native_damage_type = 1
+is_two_handed = true
+item_id = "gen_spear_bloodlance"
+display_name = "Bloodlance"
+equip_slot = 4
+max_sockets = 5
+flavor_text = "Bleed - Implicit: +20% increased Bleed damage"
+item_level = 79
+base_line_id = "spear_line2"
+stat_requirement = 1
+stat_requirement_value = 39.5

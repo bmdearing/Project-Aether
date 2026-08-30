@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_s73hm"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_x0au5"]
+
+[resource]
+script = ExtResource("2_x0au5")
+weapon_type = "Shock Lance"
+base_damage = 28.0
+scaling_grade = 4
+native_damage_type = 5
+is_two_handed = true
+item_id = "gen_shock_lance_charge_lance"
+display_name = "Charge Lance"
+equip_slot = 4
+max_sockets = 3
+flavor_text = "Lightning - Implicit: +18% increased Lightning damage"
+item_level = 27
+base_line_id = "shock_lance_line1"
+stat_requirement = 3
+stat_requirement_value = 13.5

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_3s0c2"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_qu222"]
+
+[resource]
+script = ExtResource("2_qu222")
+weapon_type = "Bolt Action Rifle"
+base_damage = 148.0
+scaling_grade = 4
+is_two_handed = true
+is_ranged = true
+item_id = "gen_bolt_action_rifle_annihilator_bolt_rifle"
+display_name = "Annihilator Bolt Rifle"
+equip_slot = 4
+max_sockets = 6
+flavor_text = "Armor Penetration - Implicit: +25% Armor penetration on hits"
+item_level = 91
+base_line_id = "bolt_action_rifle_line3"
+stat_requirement = 1
+stat_requirement_value = 45.5

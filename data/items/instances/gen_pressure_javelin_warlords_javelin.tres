@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_1qfnr"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_svoc6"]
+
+[resource]
+script = ExtResource("2_svoc6")
+item_id = "gen_pressure_javelin_warlords_javelin"
+display_name = "Warlord's Javelin"
+equip_slot = 8
+flavor_text = "Piercing Base Damage: 65-81."
+item_level = 66
+base_line_id = "pressure_javelin_line1"

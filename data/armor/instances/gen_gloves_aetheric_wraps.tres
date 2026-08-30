@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_qdedj"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_ygtd4"]
+
+[resource]
+script = ExtResource("2_ygtd4")
+ward_value = 18.0
+item_id = "gen_gloves_aetheric_wraps"
+display_name = "Aetheric Wraps"
+equip_slot = 2
+max_sockets = 1
+flavor_text = "Maximum Ward"
+base_line_id = "gloves_line3"
+stat_requirement = 0
+stat_requirement_value = 0.5

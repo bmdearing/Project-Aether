@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_joy1q"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_j80uh"]
+
+[resource]
+script = ExtResource("2_j80uh")
+armor_value = 251.0
+ward_value = 471.0
+item_id = "gen_body_armour_warded_plate"
+display_name = "Warded Plate"
+equip_slot = 1
+max_sockets = 2
+flavor_text = "Ward/Armor Hybrid"
+item_level = 53
+base_line_id = "body_armour_line8"
+stat_requirement = 0
+stat_requirement_value = 26.5

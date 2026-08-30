@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_0rsm2"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="2_2g8g8"]
+
+[resource]
+script = ExtResource("2_2g8g8")
+item_id = "gen_pressure_javelin_crude_javelin"
+display_name = "Crude Javelin"
+equip_slot = 8
+flavor_text = "Piercing Base Damage: 5-11."
+base_line_id = "pressure_javelin_line1"

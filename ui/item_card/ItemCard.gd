@@ -179,6 +179,10 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		lines.append("Item Rarity: %.0f%% (no loot system yet - inert)" % (m.loot_rarity_multiplier * 100.0))
 	if item.max_sockets > 0:
 		lines.append("Sockets: %d" % item.max_sockets)
+	if item.item_level > 1:
+		lines.append("Requires Level %d" % item.item_level)
+	if item.stat_requirement != -1:
+		lines.append("Requires %.0f %s" % [item.stat_requirement_value, Constants.STAT_NAME.get(item.stat_requirement, "?")])
 	return lines
 
 func _clear() -> void:

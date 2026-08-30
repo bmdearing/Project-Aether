@@ -29,12 +29,32 @@ signal equip_failed(reason: String)
 ## Player.gd recomputes stat bonuses and visuals on this.
 signal equipment_changed
 
+## Only Player currently instances this despite the "any future equippable
+## actor" framing above - level/stat requirement checks (2026-08-30) need
+## somewhere to read player_level/stat_sheet from, and Player is the only
+## real candidate today.
+@onready var _player: Player = get_parent()
+
 ## Routes by item.equip_slot. Two-handed primary weapons clear the sidearm
 ## and offhand slots per Section 13 ("Two-Handed Weapon occupies both
 ## weapon slots"). RING uses the first open ring slot, or slot 0 if all full.
-func equip(item: Item) -> void:
+##
+## bypass_requirements: true only for Player._apply_saved_loadout()
+## restoring a previous session's save - a save should always restore
+## cleanly (silently stripping a slot the player already legitimately
+## equipped, just because a later balance change or a level-up-in-reverse
+## edge case put it out of reach, would be a real regression, not correct
+## gating). A live player-initiated equip (inventory click, GearShop
+## purchase) always leaves this at its default false.
+func equip(item: Item, bypass_requirements: bool = false) -> void:
 	if item == null:
 		return
+	if not bypass_requirements:
+		var block_reason := _requirement_block_reason(item)
+		if block_reason != "":
+			push_warning(block_reason)
+			equip_failed.emit(block_reason)
+			return
 	match item.equip_slot:
 		Constants.EquipmentSlot.HELMET: helmet = item as Armor
 		Constants.EquipmentSlot.BODY_ARMOUR: body_armour = item as Armor
@@ -112,12 +132,24 @@ func get_total_armor() -> float:
 	if offhand: total += offhand.armor_value
 	return total
 
-## Patch v3.2: "Ward pool size scales through gear rolls." flat_ward
-## affixes existed since ItemRoller.AFFIX_POOL's first pass but were
-## purely descriptive (README gap #18) until this patch gave Ward a real
-## formula to feed - see Player._apply_derived_stats().
-func compute_flat_ward_bonus() -> float:
+## Patch v3.2: "Ward pool size scales through gear rolls." Two real
+## sources sum together: each equipped Armor/Shield's own base
+## `ward_value` (Section 25's doc-sourced "Base Ward" column - same
+## mechanical treatment get_total_armor() already gives armor_value; added
+## 2026-08-30 after a user bug report that Ward "isn't actually being
+## applied anymore" - the Section 25 generator gave ~170 armor pieces a
+## real, prominent ward_value that this method was silently ignoring,
+## reading only the separate, much rarer rolled flat_ward AFFIX) plus any
+## flat_ward affixes rolled onto ANY equipped item (existed since
+## ItemRoller.AFFIX_POOL's first pass, purely descriptive per README gap
+## #18 until Patch v3.2 gave Ward a real formula to feed).
+func compute_ward_bonus() -> float:
 	var total := 0.0
+	if helmet: total += helmet.ward_value
+	if body_armour: total += body_armour.ward_value
+	if gloves: total += gloves.ward_value
+	if boots: total += boots.ward_value
+	if offhand: total += offhand.ward_value
 	for item in get_all_equipped_items():
 		for affix in item.affixes:
 			if affix.stat_key == "flat_ward":
@@ -184,6 +216,22 @@ func get_all_equipped_items() -> Array[Item]:
 
 func _ref_for(item: Item):
 	return item.resource_path if item.resource_path != "" else ItemSerializer.to_dict(item)
+
+## User request (2026-08-30): "They should also have the appropriate
+## level requirement and stat requirement to equip." Empty string = OK to
+## equip. Checked at the top of equip() itself (same spot the existing
+## two-handed-conflict checks already live), so the existing equip_failed
+## signal / InventoryScreen's "Can't equip: %s" status line handle display
+## for free - no new UI plumbing needed.
+func _requirement_block_reason(item: Item) -> String:
+	if GameState.player_level < item.item_level:
+		return "Requires character level %d" % item.item_level
+	if item.stat_requirement != -1 and _player:
+		var have := _player.stat_sheet.get_stat(item.stat_requirement)
+		if have < item.stat_requirement_value:
+			var stat_name: String = Constants.STAT_NAME.get(item.stat_requirement, "?")
+			return "Requires %.0f %s (have %.0f)" % [item.stat_requirement_value, stat_name, have]
+	return ""
 
 func _equip_ring(item: Item) -> void:
 	for i in range(rings.size()):
