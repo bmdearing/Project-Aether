@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "purge"
+display_name = "Purge"
+description = "A burst of cleansing force clears every debuff currently active on you. No damage component."
+damage_type = 0
+motion_value = 0.0
+scaling_grade = 5
+cooldown_seconds = 8.0
+resource_cost = 20.0
+can_trigger_riposte = false
+is_auto_cast_eligible = false
+applies_status_effects = Array[String]([])
+radius = 0.0
+base_crit_chance = 0.0

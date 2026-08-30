@@ -18,6 +18,23 @@ const MAX_SAME_BRAND := 2  # doc-exact ("Maximum 2 of the same Brand per craft")
 const CLEAVE_DESTROY_CHANCE := 0.2   # invented - 2nd Cleave attempt only
 const SEVER_UNDO_CHANCE := 0.35      # invented - 2nd Sever attempt only
 const REFINE_BOOST_PERCENT := 0.15   # invented - "improves... value ranges"
+
+## User request: "Figments should be craftable to make them harder." A
+## Figment's "affixes" are enemy/loot multipliers (FigmentRoller.
+## AFFIX_POOL), not the flat_<stat>/damage-% pool the Cube's Brand system
+## rolls against - the generic craft_cube() path doesn't apply to them
+## semantically (a Figment is never equipped/placed, nothing reads its
+## affixes as player stats), so this is its own dedicated action, gated
+## by Gold rather than Brands since nothing else about Figments is doc-
+## or design-brief-sourced either.
+const EMPOWER_FIGMENT_GOLD_COST := 25
+
+static func empower_figment(figment: FigmentItem) -> Dictionary:
+	if figment == null:
+		return {"success": false, "message": "No Figment selected."}
+	figment.tier += 1
+	FigmentRoller.strengthen(figment)
+	return {"success": true, "message": "The Figment grows harder - now Tier %d." % figment.tier}
 const RETAIN_CRAFTABLE_CHANCE := 0.2 # invented - Shard's "% chance to retain craftable/corruptible status"
 
 ## When multiple utility/special Brand functions are placed together in

@@ -3,7 +3,7 @@ class_name LootPickup
 ## Auto-pickup on touch - a judgment call, not requested verbatim. Fits
 ## genre convention for gear that drops constantly during combat better
 ## than adding a whole proximity-prompt + keypress flow (like
-## MapDevice's) for something this frequent. Spawned by Enemy.gd on death
+## RealityEngine's) for something this frequent. Spawned by Enemy.gd on death
 ## with one ItemRoller-rolled Item (or, since the Slate-system expansion,
 ## a SlateRoller-rolled Slate - see the `slate` field) already assigned.
 ## Placeholder visual (a colored, rotating/bobbing sphere) keyed by rarity

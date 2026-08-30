@@ -7,7 +7,7 @@ class_name Brand
 ## placement time, not here.
 ##
 ## `equip_slot` (inherited from Item) is meaningless here, same as
-## MapItem - a Brand is never equipped via EquipmentComponent.
+## FigmentItem - a Brand is never equipped via EquipmentComponent.
 ##
 ## Scope: the doc's Damage Type (9), Defensive Type (5), Umbrella (4), and
 ## Crafting Utility (6) Brands are all modeled, plus 2 of the 5 Special/

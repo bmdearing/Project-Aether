@@ -6,6 +6,24 @@ class_name ItemCard
 ## Godot) and `advanced` (Alt-hover, via AdvancedTooltip.gd) which adds a
 ## Close button, full tier ranges on rolled mods, and clickable stat
 ## keywords that print their Section 12 per-point value inline.
+##
+## The 3 card types are deliberately given a distinct silhouette so a
+## player can tell which one they're looking at before reading a word of
+## it (user-reported: rarity-colored borders alone made a Rare Item and a
+## Rare Slate look identical). Each type layers 3 independent cues -
+## a colored type badge, a corner-radius/border-width "shape," and a
+## faint background tint - so recognition doesn't depend on any single
+## one landing: **Item** stays sharp-cornered with the existing rarity-
+## color border (the genre-standard cue players already expect) plus an
+## "ITEM" badge in that same rarity color. **Slate** is rounded with a
+## thicker border and a fixed violet "SLATE" badge, independent of the
+## Slate's own rarity color (still shown on the border) - a Common and a
+## Mythic Slate should still both read as "Slate" at a glance. **Ability**
+## is the most rounded of the three (no gear has soft corners; only
+## spells do) with a "SPELL" badge and border both colored by the
+## ability's own damage type instead of one flat color for every spell
+## regardless of element - a fix that also makes different spells
+## distinguishable from EACH OTHER, not just from items/Slates.
 
 signal closed
 
@@ -17,6 +35,19 @@ const FLAVOR_COLOR := Color(0.75, 0.65, 0.45)
 const GLOSSARY_COLOR := Color(0.6, 0.85, 0.6)
 const CARD_WIDTH := 260.0
 
+const SLATE_BADGE_COLOR := Color(0.55, 0.35, 0.85)  # fixed - independent of the Slate's own rarity color, shown on the border instead
+
+const ITEM_CORNER_RADIUS := 2
+const SLATE_CORNER_RADIUS := 10
+const ABILITY_CORNER_RADIUS := 16
+const ITEM_BORDER_WIDTH := 2
+const SLATE_BORDER_WIDTH := 4
+const ABILITY_BORDER_WIDTH := 2
+
+const ITEM_BG := Color(0.08, 0.08, 0.10, 0.97)
+const SLATE_BG := Color(0.10, 0.08, 0.13, 0.97)
+const ABILITY_BG := Color(0.07, 0.09, 0.12, 0.97)
+
 ## Not @onready - ItemSlotButton builds a card via instantiate() and
 ## calls display_item()/etc. on it immediately, before it's ever added
 ## to a SceneTree, so @onready (NOTIFICATION_READY) would still be null.
@@ -26,9 +57,10 @@ func _content() -> VBoxContainer:
 func display_item(item: Item, advanced: bool = false) -> void:
 	_clear()
 	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
-	_set_border_color(rarity_color)
+	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH)
 	if advanced:
 		_add_close_button()
+	_add_type_badge("ITEM", rarity_color)
 	if item.icon_path != "":
 		_add_title_with_icon(item.display_name, rarity_color, item.icon_path)
 	else:
@@ -51,9 +83,10 @@ func display_item(item: Item, advanced: bool = false) -> void:
 func display_slate(slate: Slate, advanced: bool = false) -> void:
 	_clear()
 	var rarity_color: Color = Constants.SLATE_RARITY_COLOR.get(slate.rarity, Color.WHITE)
-	_set_border_color(rarity_color)
+	_set_card_style(rarity_color, SLATE_BG, SLATE_CORNER_RADIUS, SLATE_BORDER_WIDTH)
 	if advanced:
 		_add_close_button()
+	_add_type_badge("SLATE", SLATE_BADGE_COLOR)
 	_add_title(slate.display_name, rarity_color)
 	var tag_name: String = slate.category_tag_override if slate.category_tag_override != "" else Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
 	_add_subtitle("Slate - %s" % tag_name)
@@ -75,10 +108,12 @@ func display_slate(slate: Slate, advanced: bool = false) -> void:
 ## the card, just without the "Predicted Damage" line.
 func display_ability(ability: Ability, stat_sheet: StatSheet = null, advanced: bool = false) -> void:
 	_clear()
-	_set_border_color(AFFIX_COLOR)
+	var element_color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, AFFIX_COLOR)
+	_set_card_style(element_color, ABILITY_BG, ABILITY_CORNER_RADIUS, ABILITY_BORDER_WIDTH)
 	if advanced:
 		_add_close_button()
-	_add_title(ability.display_name, AFFIX_COLOR)
+	_add_type_badge("SPELL", element_color)
+	_add_title(ability.display_name, element_color)
 	_add_subtitle("Ability - %s (Rank %d/%d)" % [Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "?"), ability.rank, Ability.MAX_RANK])
 	_add_separator()
 	_add_stat_line("Cooldown: %.1fs" % ability.get_effective_cooldown())
@@ -108,8 +143,8 @@ func _item_type_line(item: Item) -> String:
 		return "Armour - %s" % Constants.EquipmentSlot.keys()[item.equip_slot].capitalize()
 	if item is Shield:
 		return "Shield"
-	if item is MapItem:
-		return "Map - Tier %d" % (item as MapItem).tier
+	if item is FigmentItem:
+		return "Figment - Tier %d" % (item as FigmentItem).tier
 	return Constants.EquipmentSlot.keys()[item.equip_slot].capitalize()
 
 func _item_stat_lines(item: Item) -> Array[String]:
@@ -136,8 +171,8 @@ func _item_stat_lines(item: Item) -> Array[String]:
 			lines.append("Armour: %.0f" % s.armor_value)
 		lines.append("Block Chance: %.0f%%" % s.block_chance)
 		lines.append("Block Threshold: %.0f" % s.block_threshold)
-	elif item is MapItem:
-		var m := item as MapItem
+	elif item is FigmentItem:
+		var m := item as FigmentItem
 		lines.append("Monster Damage: %.0f%%" % (m.enemy_damage_multiplier * 100.0))
 		lines.append("Monster Life: %.0f%%" % (m.enemy_health_multiplier * 100.0))
 		lines.append("Item Quantity: %.0f%% (no loot system yet - inert)" % (m.loot_quantity_multiplier * 100.0))
@@ -150,13 +185,32 @@ func _clear() -> void:
 	for child in _content().get_children():
 		child.queue_free()
 
-func _set_border_color(color: Color) -> void:
+func _set_card_style(border_color: Color, bg_color: Color, corner_radius: int, border_width: int) -> void:
 	var box := StyleBoxFlat.new()
-	box.bg_color = Color(0.08, 0.08, 0.1, 0.97)
-	box.border_color = color
-	box.set_border_width_all(2)
-	box.set_corner_radius_all(4)
+	box.bg_color = bg_color
+	box.border_color = border_color
+	box.set_border_width_all(border_width)
+	box.set_corner_radius_all(corner_radius)
 	add_theme_stylebox_override("panel", box)
+
+## The first thing drawn in the card - a small colored pill naming the
+## card's TYPE (not its rarity/element), so recognition doesn't depend on
+## reading the subtitle line underneath it.
+func _add_type_badge(text: String, color: Color) -> void:
+	var badge := Label.new()
+	badge.text = text
+	badge.add_theme_font_size_override("font_size", 11)
+	var box := StyleBoxFlat.new()
+	box.bg_color = color
+	box.set_corner_radius_all(3)
+	box.content_margin_left = 6.0
+	box.content_margin_right = 6.0
+	box.content_margin_top = 1.0
+	box.content_margin_bottom = 1.0
+	badge.add_theme_stylebox_override("normal", box)
+	badge.add_theme_color_override("font_color", Constants.get_contrasting_text_color(color))
+	badge.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	_content().add_child(badge)
 
 func _add_close_button() -> void:
 	var row := HBoxContainer.new()

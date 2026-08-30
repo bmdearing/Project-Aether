@@ -43,6 +43,12 @@ static func to_dict(item: Item) -> Dictionary:
 	if item is Brand:
 		d["brand_function"] = item.brand_function
 		d["category_tag"] = item.category_tag
+	elif item is FigmentItem:
+		d["tier"] = item.tier
+		d["enemy_damage_multiplier"] = item.enemy_damage_multiplier
+		d["enemy_health_multiplier"] = item.enemy_health_multiplier
+		d["loot_quantity_multiplier"] = item.loot_quantity_multiplier
+		d["loot_rarity_multiplier"] = item.loot_rarity_multiplier
 	elif item is Weapon:
 		d["weapon_type"] = item.weapon_type
 		d["base_damage"] = item.base_damage
@@ -71,6 +77,7 @@ static func from_dict(d: Dictionary) -> Item:
 		"Armor": item = Armor.new()
 		"Shield": item = Shield.new()
 		"Brand": item = Brand.new()
+		"FigmentItem": item = FigmentItem.new()
 		_: item = Item.new()
 
 	item.item_id = d.get("item_id", "")
@@ -104,6 +111,12 @@ static func from_dict(d: Dictionary) -> Item:
 	if item is Brand:
 		item.brand_function = d.get("brand_function", 0)
 		item.category_tag = d.get("category_tag", "")
+	elif item is FigmentItem:
+		item.tier = d.get("tier", 1)
+		item.enemy_damage_multiplier = d.get("enemy_damage_multiplier", 1.0)
+		item.enemy_health_multiplier = d.get("enemy_health_multiplier", 1.0)
+		item.loot_quantity_multiplier = d.get("loot_quantity_multiplier", 1.0)
+		item.loot_rarity_multiplier = d.get("loot_rarity_multiplier", 1.0)
 	elif item is Weapon:
 		item.weapon_type = d.get("weapon_type", "")
 		item.base_damage = d.get("base_damage", 0.0)
@@ -136,4 +149,6 @@ static func _class_tag(item: Item) -> String:
 		return "Shield"
 	if item is Brand:
 		return "Brand"
+	if item is FigmentItem:
+		return "FigmentItem"
 	return "Item"

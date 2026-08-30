@@ -1,18 +1,58 @@
 extends Node
 class_name WardComponent
-## Absorbs Esoteric damage before Health. Does not regenerate passively -
-## requires active restoration via kill, Parry, Riposte, or Aetheric skill
-## use per the World Doc's Ward design notes (Section 16).
+## Patch v3.2 "Revision - Ward System": Ward is a universal secondary
+## life pool absorbing ALL damage types (Physical/Elemental/Esoteric)
+## after Armor/Resistance mitigation, before Health - a pure buffer, no
+## mitigation percentage of its own. Replaces the old Esoteric-only,
+## non-regenerating Ward this project shipped before the patch.
+##
+## Restoration: a 2s delay after any hit (reset by every subsequent hit),
+## then 4% of max Ward/second passive regen. restoration_multiplier
+## (Enigma's "+1% Ward Restoration per point," Section 12/patch, set by
+## Player._apply_derived_stats()) scales EVERY restoration source -
+## passive regen, on-kill, Parry - uniformly, per the patch's "unified
+## stat" framing.
 
 signal ward_changed(current: float, max: float)
 
+const REGEN_DELAY_SECONDS := 2.0
+const REGEN_PERCENT_PER_SECOND := 0.04
+## Patch-exact: "On kill: 5% Ward Restoration baseline."
+const ON_KILL_RESTORE_PERCENT := 0.05
+## Patch: "Parry, Riposte, skill use, status effect application" restore
+## Ward - exact ratios aren't given for any of them (only the passive/
+## on-kill baselines are numeric), so this stays the same invented flat
+## ratio it always was, just now routed through restore()'s Enigma scaling.
+const PARRY_RESTORE_PERCENT := 0.15
+
 @export var max_ward: float = 0.0
 var current_ward: float = 0.0
+## Set by Player._apply_derived_stats() from Enigma - "+1% Ward
+## Restoration per point," applied multiplicatively to every restore().
+var restoration_multiplier: float = 1.0
 
-## Returns the remaining damage that should overflow to Health after Ward absorption.
-func absorb(incoming_damage: float, damage_type: Constants.DamageType) -> float:
-	if Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) != Constants.DamageCategory.ESOTERIC:
-		return incoming_damage
+var _regen_delay_timer: float = 0.0
+
+func _process(delta: float) -> void:
+	if _regen_delay_timer > 0.0:
+		_regen_delay_timer -= delta
+		return
+	if current_ward < max_ward:
+		# "4% of max Ward per second" is a flat rate off max_ward, not a
+		# compounding percent-of-current-ward one - it works the same
+		# starting from empty as it does from any partial amount. Scaled
+		# by restoration_multiplier same as every other source - "Ward
+		# Restoration is a unified stat" per the patch, and passive regen
+		# is explicitly listed under that same heading, distinct from Ward
+		# POOL SIZE's own (separate) Enigma scaling.
+		restore(max_ward * REGEN_PERCENT_PER_SECOND * delta)
+
+## Absorbs any damage type (Patch v3.2 removes the old Esoteric-only
+## restriction) - pure buffer, no mitigation of its own. Every hit resets
+## the passive-regen delay, whether or not it actually touched Ward
+## (matches the patch's "any hit resets the 2 second delay").
+func absorb(incoming_damage: float) -> float:
+	_regen_delay_timer = REGEN_DELAY_SECONDS
 	if current_ward <= 0.0:
 		return incoming_damage
 
@@ -23,12 +63,28 @@ func absorb(incoming_damage: float, damage_type: Constants.DamageType) -> float:
 		EventBus.ward_depleted.emit(get_parent())
 	return incoming_damage - absorbed
 
+## Every restoration source (passive regen, on-kill, Parry, ...) routes
+## through here and gets restoration_multiplier's Enigma scaling - "Ward
+## Restoration is a unified stat" per the patch.
 func restore(amount: float) -> void:
 	if amount <= 0.0:
 		return
-	current_ward = min(max_ward, current_ward + amount)
+	var final_amount := amount * restoration_multiplier
+	current_ward = min(max_ward, current_ward + final_amount)
 	ward_changed.emit(current_ward, max_ward)
-	EventBus.ward_restored.emit(get_parent(), amount)
+	EventBus.ward_restored.emit(get_parent(), final_amount)
+
+## Mirrors HealthComponent.set_max_health()'s missing-value-preserving
+## behavior - heals by the delta on an increase (so gearing more Enigma
+## doesn't just inflate the denominator), clamps on a decrease.
+func set_max_ward(new_max: float) -> void:
+	var delta := new_max - max_ward
+	max_ward = new_max
+	current_ward = clamp(current_ward + max(delta, 0.0), 0.0, max_ward)
+	ward_changed.emit(current_ward, max_ward)
+
+func restore_on_kill() -> void:
+	restore(max_ward * ON_KILL_RESTORE_PERCENT)
 
 func restore_on_parry_success() -> void:
-	restore(max_ward * 0.15)  # placeholder ratio - numerical formula deferred per Section 16
+	restore(max_ward * PARRY_RESTORE_PERCENT)

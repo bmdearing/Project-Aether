@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "thunder_javelin"
+display_name = "Thunder Javelin"
+description = "A bolt of lightning hurled at a single target. Fast projectile, single target focus."
+damage_type = 5
+motion_value = 0.6
+scaling_grade = 2
+cooldown_seconds = 1.8
+resource_cost = 7.0
+can_trigger_riposte = false
+is_auto_cast_eligible = true
+applies_status_effects = Array[String](["electrocute"])
+radius = 1.5
+base_crit_chance = 0.07
+is_ground_targeted = true

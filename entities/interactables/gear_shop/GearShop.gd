@@ -1,12 +1,12 @@
 extends Node3D
 class_name GearShop
-## Hub interactable, same proximity+E pattern as MapDevice, opens
+## Hub interactable, same proximity+E pattern as RealityEngine, opens
 ## ShopScreen. Stock is ItemRoller.roll()'d fresh once per Hub visit, or
 ## on demand via "Reroll Stock" (REROLL_COST Gold) - browsing never rerolls.
 ##
 ## Gold is an invented currency, no doc-sourced economy exists.
 ## COST_BY_RARITY/REROLL_COST are loosely modeled after ItemRoller/
-## MapRoller's own invented tuning.
+## FigmentRoller's own invented tuning.
 
 const STOCK_SIZE := 6
 const REROLL_COST := 15

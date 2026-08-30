@@ -2,7 +2,7 @@ extends Node3D
 class_name SpellTestShop
 ## Hub interactable for testing: lists every ability under
 ## data/abilities/instances/ at 0 cost, same proximity+E pattern as
-## MapDevice/GearShop. Bypasses the normal SkillTome-drop acquisition path.
+## RealityEngine/GearShop. Bypasses the normal SkillTome-drop acquisition path.
 
 const ABILITY_DIR := "res://data/abilities/instances/"
 

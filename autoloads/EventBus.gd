@@ -32,6 +32,8 @@ signal weapon_swapped(player: Node)
 
 signal player_leveled_up(new_level: int)
 
+signal figment_completed(figment: FigmentItem)
+
 signal loot_dropped(item: Item, at_position: Vector3)
 signal loot_picked_up(item: Item)
 signal slate_dropped(slate: Slate, at_position: Vector3)

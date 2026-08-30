@@ -26,8 +26,15 @@ func _base_hit(motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 	# Section 10's Chain Bonus System (Mastery-amplified - see
 	# ChainCalculator.amplify_by_mastery()), stored as a raw fraction on
 	# StatSheet, converted to the percent-units DamageCalculator.calculate()
-	# expects (each entry "e.g. 8.0 for 8%").
-	var increased: Array[float] = [stat_sheet.get_chain_bonus(damage_type) * 100.0]
+	# expects (each entry "e.g. 8.0 for 8%"). Section 12's own Per-Point
+	# Values table separately gives main_stat itself "+1% increased
+	# <category> damage per point" - stacking on top of, not instead of,
+	# main_stat's existing role scaling stat_value above. stat_value is
+	# already in raw point units, which is 1:1 with percent at this rate.
+	var increased: Array[float] = [
+		stat_sheet.get_chain_bonus(damage_type) * 100.0,
+		stat_value,
+	]
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
 		base_damage, motion_value, stat_value, scaling_grade,
 		0.5, mastery, increased, [], damage_type

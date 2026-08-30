@@ -119,9 +119,9 @@ func _on_broken_state_ended() -> void:
 		_riposte_blink_tween.kill()
 	_riposte_indicator.visible = false
 
-## Deterministic scaling by the active Map's own tier (`MapItem.tier`) -
+## Deterministic scaling by the active Map's own tier (`FigmentItem.tier`) -
 ## on top of enemy_health_multiplier/enemy_damage_multiplier, which are
-## only a PROBABILISTIC bonus (MapRoller doesn't guarantee either affix
+## only a PROBABILISTIC bonus (FigmentRoller doesn't guarantee either affix
 ## rolls onto a given Map - see AFFIX_POOL there), so two Tier 5 Maps
 ## could otherwise end up equally tough as two Tier 1 Maps by chance.
 ## Tier itself always makes enemies tougher, harder-hitting, and more
@@ -266,6 +266,10 @@ const BRAND_DROP_CHANCE := 0.12
 const CRAFTING_CONSUMABLE_DROP_CHANCE := 0.03
 const CRAFTING_CONSUMABLE_DIR := "res://data/consumables/instances/"
 const SLATE_DROP_CHANCE := 0.10
+## User request: "make map items droppable." Rarer than gear/Brands -
+## Figments are a stronger reward (an entire extra Map's worth of loot),
+## same invented-rate convention as everything else in this table.
+const FIGMENT_DROP_CHANCE := 0.06
 const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPickup.tscn")
 const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
 
@@ -273,6 +277,8 @@ func _on_died() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player and player.experience:
 		player.experience.add_xp(xp_reward)
+	if player and player.ward:
+		player.ward.restore_on_kill()  # Patch v3.2: "On kill: 5% Ward Restoration baseline"
 	_drop_gold()
 	_maybe_drop_loot()
 	queue_free()
@@ -311,6 +317,13 @@ func _maybe_drop_loot() -> void:
 			_spawn_slate_pickup(slate)
 			return
 
+	if randf() <= FIGMENT_DROP_CHANCE:
+		var power_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
+		var figment := FigmentRoller.roll_for_drop(power_level)
+		if figment:
+			_spawn_pickup(figment)
+			return
+
 	var quantity_mult: float = GameState.active_map.loot_quantity_multiplier if GameState.active_map else 1.0
 	if randf() > BASE_LOOT_DROP_CHANCE * quantity_mult:
 		return
@@ -340,10 +353,21 @@ func _spawn_slate_pickup(slate: Slate) -> void:
 	pickup.global_position = global_position
 	EventBus.slate_dropped.emit(slate, global_position)
 
+## Patch v3.2 Resistance Shred: enemies have no Resistance stat of their
+## own (no StatSheet/gear here), but "0% base - shred%" is still a real,
+## meaningful negative Resistance - this is the doc's own primary framing
+## for the mechanic (shredding an ENEMY's Resistance), so it's wired even
+## without a full enemy-side Resistance system to shred FROM.
 func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false) -> void:
 	var multiplier := composure.get_damage_multiplier(is_spell) if composure else 1.0
 	var status_multiplier := status_effects.get_damage_taken_multiplier(damage_type) if status_effects else 1.0
-	health.apply_damage(amount * multiplier * status_multiplier)
+	var mitigated := amount * multiplier * status_multiplier
+	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
+	if status_effects and (category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC):
+		var shred := status_effects.get_resistance_shred()
+		if shred > 0.0:
+			mitigated *= (1.0 - DamageCalculator.resistance_mitigation(-shred))
+	health.apply_damage(mitigated)
 
 func _set_placeholder_color(c: Color) -> void:
 	_base_color = c

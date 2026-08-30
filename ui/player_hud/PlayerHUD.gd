@@ -2,13 +2,16 @@ extends CanvasLayer
 class_name PlayerHUD
 ## Always-on readout of Life/Mana/Ward and the active weapon. Life and
 ## Mana are circular `StatOrb`s flanking the ability bar (Ward renders as
-## a ring around the Life orb); XP is a notched, multi-color-gradient bar
-## below the ability bar near the very bottom of the screen, with a level
-## badge at its left end - GW2-style layout, per user reference. The
-## gradient is a fixed-width texture revealed by a shrinking clip window
-## (not stretched to fit), so the color at a given point along the bar
-## stays put as it fills, same as GW2's. Placeholder art throughout,
-## matching the rest of the project.
+## an inset vertical strip along the right edge of the Life orb, see
+## StatOrb.set_ward_value()); XP is a notched bar below the ability bar
+## near the very bottom of the screen, with a level badge at its left end
+## - GW2-style layout, per user reference. The fill is a fixed-size
+## `ColorRect` (unstretched) running xp_bar.gdshader - a moving yellow/
+## gold/orange gradient with twinkling stars (user direction, 2026-08-30,
+## replacing the previous static 6-color rainbow `GradientTexture1D`) -
+## revealed by a shrinking clip window, so the animation at a given point
+## along the bar stays put as it fills rather than resampling/squishing.
+## Placeholder art otherwise, matching the rest of the project.
 ##
 ## Life/Mana/Ward push-update via their component's *_changed signal. The
 ## initial read is deferred via call_deferred() since HealthComponent's
@@ -47,16 +50,7 @@ const STATUS_ROW_LEFT_MARGIN := 16.0
 const STATUS_CHIP_HEIGHT := 26.0
 const STATUS_CHIP_MIN_WIDTH := 76.0
 const STATUS_CHIP_GAP := 6.0
-## Fixed stops along the bar, not tied to fill level - GW2's XP bar reads
-## as a spectrum you reveal, not a color that changes with progress.
-const XP_GRADIENT_COLORS := [
-	Color(0.25, 0.5, 0.95),
-	Color(0.25, 0.75, 0.75),
-	Color(0.4, 0.8, 0.35),
-	Color(0.9, 0.85, 0.25),
-	Color(0.95, 0.55, 0.2),
-	Color(0.85, 0.25, 0.4),
-]
+const XP_BAR_SHADER := preload("res://ui/player_hud/xp_bar.gdshader")
 
 @onready var weapon_indicator: HBoxContainer = $WeaponIndicator
 
@@ -78,7 +72,7 @@ func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player") as Player
 
 	_life_orb = _build_orb(HEALTH_COLOR, "Life", -ABILITY_BAR_HALF_WIDTH - ORB_GAP - ORB_HEIGHT, -ABILITY_BAR_HALF_WIDTH - ORB_GAP)
-	_life_orb.ring_color = WARD_COLOR
+	_life_orb.ward_color = WARD_COLOR
 	_mana_orb = _build_orb(MANA_COLOR, "Mana", ABILITY_BAR_HALF_WIDTH + ORB_GAP, ABILITY_BAR_HALF_WIDTH + ORB_GAP + ORB_HEIGHT)
 
 	_build_xp_bar()
@@ -162,13 +156,14 @@ func _build_xp_bar() -> void:
 	# independent), so its rendered pixel width isn't known until runtime -
 	# computed here from the viewport rather than a compile-time constant.
 	var bar_width: float = get_viewport().get_visible_rect().size.x - XP_BAR_LEFT_MARGIN - XP_BAR_RIGHT_MARGIN
-	var gradient_rect := TextureRect.new()
-	gradient_rect.texture = _build_xp_gradient_texture()
+	var gradient_rect := ColorRect.new()
+	gradient_rect.color = Color.WHITE  # shader fully replaces this - just needs an opaque quad to shade
+	gradient_rect.material = ShaderMaterial.new()
+	(gradient_rect.material as ShaderMaterial).shader = XP_BAR_SHADER
 	gradient_rect.anchor_left = 0.0
 	gradient_rect.anchor_top = 0.0
 	gradient_rect.anchor_bottom = 1.0
 	gradient_rect.offset_right = bar_width
-	gradient_rect.stretch_mode = TextureRect.STRETCH_SCALE
 	gradient_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	fill_clip.add_child(gradient_rect)
 
@@ -191,23 +186,6 @@ func _build_xp_bar() -> void:
 	_xp_label = label
 
 	_build_level_badge(root)
-
-func _build_xp_gradient_texture() -> GradientTexture1D:
-	var gradient := Gradient.new()
-	# Gradient requires offsets.size() == colors.size() - without setting
-	# offsets too, they stay at the default 2-element [0.0, 1.0] against
-	# 6 colors, producing a garbled/reversed-looking result rather than
-	# an even left-to-right spectrum.
-	var count := XP_GRADIENT_COLORS.size()
-	var offsets := PackedFloat32Array()
-	for i in range(count):
-		offsets.append(float(i) / float(count - 1))
-	gradient.offsets = offsets
-	gradient.colors = PackedColorArray(XP_GRADIENT_COLORS)
-	var texture := GradientTexture1D.new()
-	texture.gradient = gradient
-	texture.width = 512
-	return texture
 
 ## Sits just left of the bar's own left edge (like GW2's level circle
 ## overlapping the start of the XP bar), not inside its fillable area.
@@ -309,7 +287,7 @@ func _on_mana_changed(current: float, max_value: float) -> void:
 	_mana_orb.set_value(current, max_value)
 
 func _on_ward_changed(current: float, max_value: float) -> void:
-	_life_orb.set_ring_value(current, max_value)
+	_life_orb.set_ward_value(current, max_value)
 	if is_instance_valid(_player):
 		_life_orb.set_value(_player.health.current_health, _player.health.max_health)
 

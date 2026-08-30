@@ -92,7 +92,7 @@ const SHAPE_TEMPLATES := [
 ]
 
 ## power_level: the active Map's tier, or player level as a fallback in
-## the Hub - same signal ItemRoller/MapRoller already use, here only
+## the Hub - same signal ItemRoller/FigmentRoller already use, here only
 ## widening the Mastery roll's range slightly.
 static func roll(power_level: int = 1) -> Slate:
 	var bracket: Dictionary = SIZE_BRACKETS[randi() % SIZE_BRACKETS.size()]

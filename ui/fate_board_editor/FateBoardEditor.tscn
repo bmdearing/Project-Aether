@@ -45,6 +45,9 @@ text = ""
 autowrap_mode = 3
 text = "Select a Slate below, then click the grid to place it. Right-click a placed Slate to remove it. R rotates, Q flips."
 
+[node name="DesignateOption" type="OptionButton" parent="HBox/SidePanel"]
+visible = false
+
 [node name="ChainLabel" type="Label" parent="HBox/SidePanel"]
 autowrap_mode = 3
 text = "No chains yet"

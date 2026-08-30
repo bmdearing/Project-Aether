@@ -33,7 +33,7 @@ class_name InventoryScreen
 ## Brands and the 3 crafting consumables (data/consumables/) aren't
 ## equippable - clicking one shows a status message instead of trying to
 ## equip it (equip_slot on those is a meaningless leftover default, same
-## as MapItem's own doc comment already notes for Maps).
+## as FigmentItem's own doc comment already notes for Maps).
 
 const ITEM_INSTANCE_DIRS := [
 	"res://data/armor/instances/",
@@ -275,7 +275,7 @@ func _resolve_slots() -> Dictionary:
 	return entry_at_slot
 
 func _is_equippable(item: Item) -> bool:
-	return not (item is Brand) and not Constants.CRAFTING_CONSUMABLE_IDS.has(item.item_id)
+	return not (item is Brand) and not (item is FigmentItem) and not Constants.CRAFTING_CONSUMABLE_IDS.has(item.item_id)
 
 func _on_item_selected(item: Item) -> void:
 	if _equipment == null:
@@ -288,7 +288,10 @@ func _on_item_selected(item: Item) -> void:
 	_refresh_stats()
 
 func _on_non_equippable_selected(item: Item) -> void:
-	status_label.text = "%s is used from the Crafting screen (K), not equipped." % item.display_name
+	if item is FigmentItem:
+		status_label.text = "%s is used at the Reality Engine, not equipped." % item.display_name
+	else:
+		status_label.text = "%s is used from the Crafting screen (K), not equipped." % item.display_name
 
 ## Dropping on an EMPTY cell moves the dragged stack there and nothing
 ## else - no compacting, no shifting (the bug report this fixes: dropping

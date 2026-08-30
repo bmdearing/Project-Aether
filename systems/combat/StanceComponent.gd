@@ -14,6 +14,15 @@ const CATEGORY_WEIGHT := {
 	Constants.DamageCategory.ESOTERIC: 0.35,  # Occult/Spell - weakest Stance depletion, bypasses physical guard
 }
 
+## User-reported feel issue: ordinary attacks were depleting Stance far
+## too fast ("too much stance damage just by hitting"), breaking Composure
+## almost immediately and cheapening Parry's own dedicated role ("Stance
+## depleted primarily through successful Parries" per Section 07 - attack
+## chip damage was drowning that out). -80% on the attack-damage path
+## only; Parry's own apply_parry_damage() is untouched, still the primary
+## Stance-break tool it's meant to be.
+const ATTACK_STANCE_DAMAGE_MULTIPLIER := 0.2
+
 func _ready() -> void:
 	current_stance = max_stance
 
@@ -23,7 +32,7 @@ func apply_parry_damage(amount: float) -> void:
 func apply_attack_stance_damage(raw_amount: float, damage_type: Constants.DamageType) -> void:
 	var category: Constants.DamageCategory = Constants.DAMAGE_TYPE_CATEGORY[damage_type]
 	var weight: float = CATEGORY_WEIGHT.get(category, 0.5)
-	_deplete(raw_amount * weight)
+	_deplete(raw_amount * weight * ATTACK_STANCE_DAMAGE_MULTIPLIER)
 
 func _deplete(amount: float) -> void:
 	if current_stance <= 0.0:

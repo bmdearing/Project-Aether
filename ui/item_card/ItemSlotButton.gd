@@ -55,12 +55,23 @@ func _refresh_icon() -> void:
 	else:
 		_icon_rect.visible = false
 
+## Alt is a HOLD, not a toggle (matches Path of Exile's real behavior,
+## confirmed by request) - press while hovered shows the advanced card,
+## release notifies AdvancedTooltip to close it (unless the mouse has
+## moved onto the card itself - see AdvancedTooltip.on_alt_released()).
+## Release isn't gated on _is_hovered - the mouse may have already moved
+## onto the card by the time Alt comes up.
 func _input(event: InputEvent) -> void:
-	if not _is_hovered or not event is InputEventKey:
+	if not event is InputEventKey:
 		return
 	var key_event := event as InputEventKey
-	if key_event.keycode == KEY_ALT and key_event.pressed and not key_event.echo:
-		_show_advanced()
+	if key_event.keycode != KEY_ALT or key_event.echo:
+		return
+	if key_event.pressed:
+		if _is_hovered:
+			_show_advanced()
+	else:
+		AdvancedTooltip.on_alt_released()
 
 func _show_advanced() -> void:
 	var pos := get_global_mouse_position() + Vector2(16, 16)

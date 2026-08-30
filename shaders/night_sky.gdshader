@@ -105,7 +105,13 @@ void fragment() {
 	sky_color += moon_color * moon_mask * (1.0 - cloud_density * 0.9);
 	sky_color = mix(sky_color, lit_cloud, cloud_density);
 
-	sky_color = mix(sky_color, flash_color, flash_intensity * clamp(dir.y * 0.5 + 0.6, 0.0, 1.0));
+	// Was damped toward straight-up (dir.y close to 1) and nearly zeroed
+	// out near the horizon - exactly where MainMenuBackground's camera
+	// actually points (a near-flat forward look), so the flash was almost
+	// entirely happening off-screen above the player's real view. Floored
+	// instead of scaled to zero, so a flash reads clearly everywhere the
+	// camera can actually see, not just near the zenith.
+	sky_color = mix(sky_color, flash_color, flash_intensity * clamp(dir.y * 0.25 + 0.85, 0.0, 1.0));
 
 	ALBEDO = sky_color;
 }

@@ -56,6 +56,15 @@ var mastery_by_tag: Dictionary = {}
 ## increased_percents pool as real "increased <category> damage".
 var chain_bonus_by_tag: Dictionary = {}
 
+## Patch v3.2 "Revision - Resistance System": String key ("fire"/"cold"/
+## "lightning"/"esoteric") -> float percent (e.g. 20.0 for 20%), summed
+## from equipped gear's resistance affixes (EquipmentComponent.
+## compute_resistance_bonuses()). Esoteric is unified across Aetheric/
+## Entropic/Pale per the patch - one value covers all three. Physical
+## (Kinetic/Piercing/Explosive) has no Resistance stat; Armor still
+## covers it, unchanged by this patch.
+var equipment_resistance: Dictionary = {}
+
 func get_stat(stat: Constants.Stat) -> float:
 	var base := 0.0
 	match stat:
@@ -88,3 +97,20 @@ func get_chain_bonus(tag: Constants.DamageType) -> float:
 
 func set_chain_bonus_by_tag(bonus: Dictionary) -> void:
 	chain_bonus_by_tag = bonus
+
+## Maps a DamageType to which of the 4 unified Resistance stats covers it
+## (Patch v3.2) - null for Physical types, which Armor covers instead.
+static func resistance_key_for(damage_type: Constants.DamageType):
+	match damage_type:
+		Constants.DamageType.FIRE: return "fire"
+		Constants.DamageType.COLD: return "cold"
+		Constants.DamageType.LIGHTNING: return "lightning"
+		Constants.DamageType.AETHERIC, Constants.DamageType.ENTROPIC, Constants.DamageType.PALE: return "esoteric"
+	return null
+
+func get_resistance(damage_type: Constants.DamageType) -> float:
+	var key = resistance_key_for(damage_type)
+	return equipment_resistance.get(key, 0.0) if key else 0.0
+
+func set_equipment_resistance(resistance: Dictionary) -> void:
+	equipment_resistance = resistance

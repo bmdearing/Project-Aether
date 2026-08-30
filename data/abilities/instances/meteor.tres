@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "meteor"
+display_name = "Meteor"
+description = "A mass of molten slag descends from above, crashing into a targeted area and dealing heavy Fire damage on impact."
+damage_type = 3
+motion_value = 1.6
+scaling_grade = 2
+cooldown_seconds = 8.0
+resource_cost = 28.0
+can_trigger_riposte = true
+is_auto_cast_eligible = true
+applies_status_effects = Array[String](["ignite"])
+radius = 4.0
+base_crit_chance = 0.04
+is_ground_targeted = true

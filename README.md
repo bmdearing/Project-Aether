@@ -2,8 +2,8 @@
 
 Vertical Slice Brief v0.1 scaffold. Godot 4.7.1, GDScript, **true first-person
 3D** (Borderlands-style: camera in head, no visible player body, weapon
-socket for a future viewmodel). Endgame-first structure — a Hub with a Map
-Device leading into instanced maps, no campaign yet.
+socket for a future viewmodel). Endgame-first structure — a Hub with a
+Reality Engine leading into instanced Figment maps, no campaign yet.
 
 See **`PATCH_NOTES.md`** for the history of how the project got here — bugs
 found and fixed, judgment calls made, reasoning behind non-obvious choices.
@@ -33,14 +33,23 @@ value and grants 1 second of player invulnerability instead of a normal
 hit. Health/Ward/Mana resource components. A `StatSheet`
 (Vitality/Strength/Instinct/Arcane/Enigma/Intellect) — **all six now drive
 something** (Section 12's Per-Point Values table): Strength/Arcane/Enigma
-scale Physical/Elemental/Esoteric damage
-(`Constants.DAMAGE_TYPE_MAIN_STAT`); Vitality raises max Health + Life
-regen; Instinct raises Crit Chance + Attack/Cast/Move speed; Intellect
-raises Crit Damage + max Mana + Mana regen. Per Section 12 ("all stats
-come from gear... no manual allocation on level up"), stats only grow
-from equipped gear now — `EquipmentComponent.compute_stat_bonuses()`
-sums every equipped item's `flat_<stat>` affixes into
-`StatSheet.equipment_bonus`, recomputed on every equip/unequip.
+scale Physical/Elemental/Esoteric damage two ways at once, both doc-sourced
+and both stacking — as the "Main Stat" (`Constants.DAMAGE_TYPE_MAIN_STAT`,
+Section 10), their raw point value multiplies directly into
+`DamageCalculator`'s Stat Scaling Grade term, **and** separately, per
+Section 12's own Per-Point Values table, each point is also worth a flat
++1% increased damage of that same category (`Weapon`/`Ability._base_hit()`
+folds `stat_value` straight into the `increased_percents` pool at 1:1) —
+this second piece was documented in `Constants.STAT_GLOSSARY` from early
+on but never actually wired up until a user report that these stats
+weren't giving the "% increased damage… not a high amount" the doc
+describes (2026-08-30 fix). Vitality raises max Health + Life regen;
+Instinct raises Crit Chance + Attack/Cast/Move speed; Intellect raises
+Crit Damage + max Mana + Mana regen. Per Section 12 ("all stats come from
+gear... no manual allocation on level up"), stats only grow from equipped
+gear now — `EquipmentComponent.compute_stat_bonuses()` sums every equipped
+item's `flat_<stat>` affixes into `StatSheet.equipment_bonus`, recomputed
+on every equip/unequip.
 
 **Crouch & Slide** (`entities/player/Player.gd`, `Ctrl`): both invented,
 no doc-sourced design exists for either. Hold Ctrl to crouch (shrinks the
@@ -60,9 +69,37 @@ chance is fixed per weapon/spell type (`Constants.WEAPON_BASE_CRIT_CHANCE`,
 Intellect. `Weapon`/`Ability` each expose `predict_damage()` (an
 expected-value blend for stat-card display, doesn't jitter between hover
 peeks) and `roll_damage()` (an actual random crit roll, used by real
-attacks/casts). Armor mitigates Physical damage
-(`Armor / (Armor + 6 x Hit Damage)`, Section 16) before Ward absorbs the
-Esoteric portion and the remainder hits Health.
+attacks/casts). Order of operations (Patch v3.2, superseding the Master
+doc's Ward-bracket design): Armor mitigates Physical damage (`Armor /
+(Armor + 6 x Hit Damage)`, Section 16), Resistance mitigates Elemental/
+Esoteric damage (`fire_resistance_pct`/`cold_resistance_pct`/
+`lightning_resistance_pct`/`esoteric_resistance_pct` gear affixes, the
+last unifying Aetheric/Entropic/Pale per the patch) - then Ward absorbs
+whatever's left **regardless of damage type** (the old Esoteric-only
+restriction is gone) before the remainder hits Health.
+
+**Ward** (`entities/components/WardComponent.gd`, Patch v3.2): a pure
+buffer with no mitigation of its own, now with real regen - a 2s delay
+after any hit (reset by every subsequent hit), then 4% of max Ward/second
+passive, +5% on every kill, +15% on a successful Parry (that ratio
+predates the patch, still invented - see flagged gap). Every restoration
+source scales by the same Enigma-driven `restoration_multiplier` (+1%
+per point, "Ward Restoration is a unified stat"). **Pool size comes from
+armor only** - `flat_ward` gear affixes (real now, not just descriptive -
+see flagged gap for what that resolves), no baseline pool at all -
+Enigma applies as an INCREASED% multiplier on top of that base (2%/point,
+invented rate - no doc-exact number exists for this specific multiplier),
+not its own flat contribution, so zero Ward-granting gear means zero
+Ward regardless of Enigma investment. (An earlier pass gave every
+character a flat base + a flat per-Enigma-point bonus, so a fresh,
+completely ungeared character started with 900 Ward out of nowhere -
+user-caught, fixed.) **Resistance Shred** (patch
+addition: reduces a target's Resistance for 8s, diminishing-returns
+stacking - highest source full value, every other at half its own value)
+is implemented as a real, tested mechanic
+(`StatusEffectComponent.apply_resistance_shred()`) with no current
+applier - the patch introduces it via a Throwable-focused Unique this
+project can't build yet (no Throwable weapon category exists).
 
 **Enemies** (`entities/enemies/`): three Trinity Rule archetypes (Section
 21) — `HeavyHitter` and `MobileBruiser` are melee brawlers
@@ -79,20 +116,47 @@ physically clear it — `MobileBruiser` clears the Vault's jump gap,
 sphere appears above an enemy's head whenever its `ComposureComponent` is
 broken — the on-screen signal that it's Riposte-able.
 
-**Abilities** (`systems/abilities/`, `data/abilities/`): 9 hand-authored
-spells across Fire/Cold/Lightning/Entropic (Ice Pulse, Comet, Winter's
-Eye, Frost Armor, Cinder Lance, Inferno, Static Discharge, Stormcall,
-Entropic Decay). Cast on `1`-`4` (`PlayerAbilityCast`), drawing from a
-Mana pool (`ManaComponent`). Most abilities execute as a self-centered
-damage nova sized by its own `radius`, on press — not yet each ability's
-actual described mechanic (see gaps below). Three (`Ability.
-is_ground_targeted`: Comet, Inferno, Stormcall) are hold-to-aim instead —
-holding the key shows a ground ring tracking a camera raycast, releasing
-casts centered there rather than on the player. Those three also get a
-bespoke cast VFX instead of the generic expanding ring every other
-ability shares - a falling ice ball that shatters (`CometImpact`), an
-erupting fire column (`InfernoPillar`), and a jagged lightning strike
-(`StormcallBolt`), all in `entities/effects/`. Abilities can be
+**Abilities** (`systems/abilities/`, `data/abilities/`): 17 hand-authored
+spells. 9 predate this README's own doc-checking convention (Ice Pulse,
+Comet, Winter's Eye, Frost Armor - real Section 26 names - alongside
+Cinder Lance, Inferno, Static Discharge, Stormcall, Entropic Decay,
+which are invented and were never in the doc). The other 8 (2026-08-30)
+are transcribed straight from Section 26, "Ability Staging Ground" -
+"Abilities are thrown in raw and sorted by damage type... not all
+entries will be added to the game" - a real doc section a prior PDF-based
+pass never found (found via a `.docx`-extraction search of the raw text,
+this project's established fallback for doc content the PDF reader
+misses - see the Master doc note above): Flame Jets, Meteor
+(Fire), Thunder Javelin, Thunder Sweep (Lightning), Black Hole
+(Entropic), Caltrops (Physical), Blink and Purge (Utility). User
+direction on the naming overlap: keep both sets rather than retire the
+invented five. Cast on `1`-`4` (`PlayerAbilityCast`), drawing from a Mana
+pool (`ManaComponent`). Most abilities execute as a self-centered damage
+nova sized by its own `radius`, on press — not yet each ability's actual
+described mechanic (see gaps below). Several (`Ability.is_ground_targeted`:
+Comet, Inferno, Stormcall, Meteor, Thunder Javelin - a small radius
+approximating "single target focus", Black Hole, Caltrops) are hold-to-aim
+instead — holding the key shows a ground ring tracking a camera raycast,
+releasing casts centered there rather than on the player. Comet/Inferno/
+Stormcall/Black Hole/Caltrops also get a bespoke cast VFX instead of the
+generic expanding ring every other ability shares - a falling ice ball
+that shatters (`CometImpact`, reused as-is for Meteor - same "descends
+from above" mechanic, just Fire-colored), an erupting fire column
+(`InfernoPillar`), a jagged lightning strike (`StormcallBolt`), a
+gravity-well that pulls nearby enemies toward its center for 2.5s
+(`BlackHoleField` - the pull is real physics, not just visual; the
+instant hit itself stays thin per the doc's "low direct damage"), and a
+ground patch that Piercing-damages anything standing in it every 0.5s for
+5s (`CaltropsField` - the doc's other half, "and are slowed", isn't built:
+no movement-slow status independent of Cold's own Chill exists, and
+reusing Chill for a Physical effect would be a thematic mismatch,
+flagged). **Blink and Purge deal no damage at all** ("No attack
+component" per the doc for both) - Blink raycasts the player forward up
+to 8m (stopping short of a wall), Purge clears every debuff currently on
+the player (`StatusEffectComponent.clear_all_effects()`); the doc's other
+half of Purge, stripping buffs from surrounding enemies, isn't built - no
+enemy-buff system exists in this project to strip anything from (every
+enemy-facing mechanic here is a debuff already). Abilities can be
 upgraded (`rank`, 0-5) via the Abilities screen (`N`) for Gold
 (`Ability.get_upgrade_cost()`, scaling per rank), boosting Motion Value
 and reducing cooldown. `ui/ability_bar/` shows equipped abilities with a
@@ -103,7 +167,15 @@ System replacement ("skills come exclusively from loot-dropped Skill
 Tomes"), every ability now has to be unlocked via a `SkillTome` drop (see
 Loot generation below) before it shows up in the Abilities screen at all.
 The Hub's SpellTestShop (see Shops below) unlocks every ability for free,
-for testing without grinding drops.
+for testing without grinding drops. **Not built from Section 26**:
+Purity From Within (a Fire self-damage-drain aura that also buffs other
+spells - needs a persistent toggle/channel ability archetype this
+project's instant-cast model doesn't have), Blinkstrike (teleport-to-
+enemy + a strike scaled by the equipped melee weapon rather than the
+Ability's own scaling - breaks the generic damage model every other
+ability shares), and Conduit/Prowess (both explicitly "(Passive)" in the
+doc, not something a hotbar slot casts - no passive-node system exists
+outside gear/Slates/Stats).
 
 **Status Effects** (`entities/components/StatusEffectComponent.gd`,
 Section 09): bidirectional — a copy lives on both Player and Enemy, so any
@@ -166,16 +238,33 @@ Crafting screen instead.
 **Stat cards** (`ui/item_card/`): hovering any item, Slate, or ability
 anywhere in the UI shows a rich PoE-style card (stats, affixes, flavor
 text, rarity-colored border) via `ItemCard.gd` + `ItemSlotButton.gd`
-(wired through Godot's `_make_custom_tooltip()` hook, `0.15s` delay).
+(wired through Godot's `_make_custom_tooltip()` hook, `0.03s` delay - was
+`0.15s`, dropped further for a near-instant feel per user request).
+**Item/Slate/Ability cards each have a distinct silhouette** now, not
+just a rarity-colored border - a Rare Item and a Rare Slate used to look
+identical at a glance (same rarity-color palette collision, user-caught).
+Each type layers 3 independent cues: a colored type badge ("ITEM"/
+"SLATE"/"SPELL", the first thing drawn), a corner-radius/border-width
+"shape" (Item sharp, Slate rounded + thicker border, Ability roundest of
+the three), and a faint background tint. Ability cards are also now
+colored by the ability's own damage type instead of one flat blue for
+every spell regardless of element - a spell's card is now recognizable
+both as "a spell" AND as "which element" on sight.
+
 Holding **Alt** while hovering opens an *advanced* card instead
-(`AdvancedTooltip.gd`) — pinned open until dismissed (Esc/outside-click/
-close button) rather than hiding when the mouse leaves, so it can be read
-while moving. Rolled affixes show their full tier range, and stat
-keywords are clickable, printing that stat's Section 12 per-point value
-inline. Weapon/ability cards include a live "Predicted Damage" number
-computed from the player's current stats (`Weapon.predict_damage()`/
-`Ability.predict_damage()` — the exact formula real attacks/casts use, so
-the number can't drift from reality).
+(`AdvancedTooltip.gd`) — a real HOLD now (matches Path of Exile's actual
+behavior, confirmed by request before redesigning this): release Alt and
+it closes, same as every other hold-modifier in this project, unless the
+mouse has moved onto the card itself (still reading/clicking through it),
+in which case it closes once the mouse leaves the card instead. The
+previous version stayed pinned open until Esc/outside-click regardless of
+Alt, which read as sticky/unintuitive - user-reported. Rolled affixes
+show their full tier range, and stat keywords are clickable, printing
+that stat's Section 12 per-point value inline. Weapon/ability cards
+include a live "Predicted Damage" number computed from the player's
+current stats (`Weapon.predict_damage()`/`Ability.predict_damage()` — the
+exact formula real attacks/casts use, so the number can't drift from
+reality).
 
 **Fate Board** (`systems/fate_board/`, `ui/fate_board_editor/`, Section
 10): grid Slate placement gated by an Aether budget, flood-fill chain
@@ -186,6 +275,64 @@ board), opens with `P`. The palette shows the hand-authored
 available catalog, plus every real `SlateRoller` drop in
 `GameState.owned_slates` - those are finite: placing one removes it from
 the palette until it's pulled back off the board.
+
+**Layout now persists** (2026-08-30, user-reported: "Slates do not
+persist between scenes, they need to stay on the character") - Player is
+a fresh instance every Hub<->Map reload, and `FateBoard` used to be
+recreated empty every single time (`Player._ready()` unconditionally did
+`FateBoard.new()` with nothing to restore it from - the Fate Board's own
+`aether_used`/`placements` state was live-only, never synced anywhere).
+`FateBoard.place_slate()`/`remove_slate()` now call `GameState.
+sync_fate_board()` on every change, persisted the same way equipment/
+ability loadout already are (`GameState.fate_board_placements`,
+`SaveManager` save/load) and restored by a new `Player._apply_saved_
+fate_board()` alongside the existing loadout restore. This supersedes the
+older "only ownership persists, not layout" design note that used to be
+in `SaveManager.gd`.
+
+**Slates must now connect** (2026-08-30, user direction: "Slates should
+have to connect with each other, not be placed freely") - every placement
+must be orthogonally adjacent to (or overlap) either an already-placed
+Slate or `FateBoard.ANCHOR_CELL`, a fixed cell at the board's center that
+always counts as "already placed" so an empty board still has one legal
+starting point. Only enforced at placement time, not re-checked on
+removal - removing a Slate that leaves others "orphaned" from the anchor
+is allowed (an invented simplification; the doc doesn't specify either
+way). `FateBoardEditor`'s status line now explains *why* a placement
+failed (insufficient Aether / cell occupied / not connected) instead of
+printing the raw internal reason string.
+
+**Slates now have an animated background** (2026-08-30, user reference
+image: moving color-shifting nebula texture per Slate type) - a canvas
+shader (`ui/fate_board_editor/slate_nebula.gdshader`) renders a drifting,
+per-cell-phase-offset noise field tinted by `Constants.DAMAGE_TYPE_COLOR`
+with sparse twinkling stars, sampling a small `cell_data` texture
+`FateBoardGrid.gd` rebuilds only when placements actually change (not on
+every hover-driven redraw). This is the one deliberate exception to this
+project's usual no-shader placeholder-art convention (see `StatOrb.gd`'s
+own header) - motion is the actual content being asked for here, not
+just a static color, and a CPU `_draw()` loop redrawing hand-rolled noise
+across every occupied cell every frame would be both slower and far more
+code than the GPU doing the same thing.
+
+**Spell-designated Slates** (Section 10's Unique "The Unbound Chorus":
+"Designate one Spell skill - that skill automatically triggers when its
+cooldown expires") - `Slate.requires_spell_designation` marks a Slate as
+needing one of the player's owned Abilities bound to it before it can be
+placed; `FateBoardEditor` shows a picker (any owned Ability, not just
+what's in the 4-slot hotbar - the whole point of a Slate-granted cast is
+it doesn't cost a hotbar slot) and the choice is stored on
+`FateBoard.PlacedSlateData.designated_ability_id`, persisted the same way
+the rest of the layout is. `PlayerAbilityCast._process_slate_autocasts()`
+fires the designated ability automatically once its cooldown (tracked in
+the same `_cooldowns` dict a real press would use) reaches 0, at the
+doc's own reduced 60% damage, no resource cost, no Riposte/Composure
+interaction - all three straight off The Unbound Chorus's own modifier
+list (`unbound_chorus.tres`), not generic behavior. This is scoped to
+exactly that one doc-sourced mechanic; other interaction types a Slate
+could have with a designated spell (buff it, retrigger it on some other
+condition, modify it) would need their own concrete Slate designs to
+build against, same as this one did - none exist in the doc yet.
 
 **Slates now do something** - three real, mechanical pathways out of the
 Fate Board, all landing on `StatSheet` and consumed by the existing
@@ -219,28 +366,60 @@ identity), Modifier Count, and Modifier Values (the stat formula above is
 deterministic per tile count, not randomized) - and drops as loot (10%
 chance per kill, same flat-independent-roll convention as Tomes/Brands).
 
-**Hub, Maps, and the Map Device** (`levels/hub/`,
-`entities/interactables/map_device/`): `MainMenu.tscn` (project's main
-scene) leads to `Hub.tscn`, a non-combat room. Walk up to the Map Device
-and press `E` to roll a `MapItem` (`data/maps/`, tier-scaled
-enemy-damage/enemy-health/loot-quantity/loot-rarity affixes) and enter a
-procedurally generated Map. Leaving is manual (Pause menu's "Return to
-Hub," or death).
+**Hub, Figments, and the Reality Engine** (`levels/hub/`,
+`entities/interactables/reality_engine/`, `data/figments/`): `MainMenu.tscn`
+(project's main scene) leads to `Hub.tscn`, a non-combat room. This whole
+system is entirely invented - no doc content covers it at all (Section
+24 lists "Endgame content loop" as explicitly not designed either).
+Walk up to the Reality Engine (renamed from "Map Device" per user
+request) and press `E` to choose a **Figment** (renamed from "Map" -
+`FigmentItem`, `data/figments/`, tier-scaled enemy-damage/enemy-health/
+loot-quantity/loot-rarity affixes) and enter the procedurally generated
+Map it configures. The selection screen (reuses `ShopScreen`, the same
+generic list UI GearShop/SpellTestShop already share) lists every owned
+Figment plus an always-available free Tier 1 offer, so there's never a
+hard floor on playing even before any Figment has dropped. **Figments are
+now droppable** (`Enemy.gd`, 6% chance/kill, scaled near the killing
+Map's own tier via `FigmentRoller.roll_for_drop()`) and **craftable** -
+selecting one in the Crafting screen (`K`) shows an "Empower" action
+(Gold-gated, `CraftingSystem.empower_figment()`) that raises its tier and
+strengthens its rolls, making it harder on purpose. Leaving a Map is
+manual (Pause menu's "Return to Hub," or death).
 
-**Enemies now also scale deterministically off the Map's own `tier`**
+**Figments now have a boss, and killing it "completes" the Figment.**
+`FigmentBoss` (`entities/enemies/figment_boss/`) is a from-scratch archetype
+(no boss design exists anywhere in the doc - Section 24 flags "Boss
+design philosophy" as undesigned there too) - roughly an 8x-health,
+2.2x-damage, 10x-reward `HeavyHitter`, spawned in the Vault room's
+platform slot (replacing the old reward `GlassCannon` there - "one Vault
+per Map" already guarantees exactly one, making it the natural home for
+the one guaranteed boss too). Its death fires `EventBus.figment_completed`,
+which feeds Figment Tree points (see below).
+
+**Enemies also scale deterministically off the Map's own `tier`**
 (`Enemy._apply_map_modifiers()`/`get_outgoing_damage_multiplier()`), on
-top of the existing `enemy_health_multiplier`/`enemy_damage_multiplier`
-affixes above. Those affixes are only a *probabilistic* bonus (`MapRoller`
-doesn't guarantee either one rolls onto a given Map), so two Tier 5 Maps
-could otherwise end up just as tough as two Tier 1 Maps by chance alone —
-tier itself now always makes enemies tougher, harder-hitting, and more
-rewarding (XP/Gold scale too). Invented growth curve (+15% health/+10%
-damage/+20% XP+Gold per tier above 1) — not doc-sourced, Section 24
-defers Map/tier balance entirely.
+top of the Figment's own `enemy_health_multiplier`/`enemy_damage_multiplier`
+affixes. Those affixes are only a *probabilistic* bonus (`FigmentRoller`
+doesn't guarantee either one rolls onto a given Figment), so two Tier 5
+Figments could otherwise end up just as tough as two Tier 1 Figments by
+chance alone — tier itself now always makes enemies tougher, harder-
+hitting, and more rewarding (XP/Gold scale too). Invented growth curve
+(+15% health/+10% damage/+20% XP+Gold per tier above 1) — not doc-
+sourced, Section 24 defers Map/tier balance entirely.
+
+**Figment Tree** (`systems/figment_tree/`) - scaffolding only, per direct
+request ("prepare legs for a Figment Tree ... not "build it"). A real,
+tested data model (`FigmentTreeNode`) and unlock/validation logic
+(`FigmentTree.can_unlock()`/`unlock()`, spending `GameState.
+figment_tree_points` - 1 point per completed Figment's tier, invented
+rate) against 5 hand-authored stub nodes with prerequisite gating. No UI
+screen exists to spend points through yet, and no node's `effect_key`
+(e.g. `"figment_loot_quantity"`) is wired into `FigmentRoller` or loot
+generation - both explicitly left for a future pass.
 
 **Shops** (`entities/interactables/gear_shop/`,
 `entities/interactables/spell_test_shop/`, `ui/shop/ShopScreen.gd`): two
-more Hub interactables, same walk-up-and-`E` pattern as the Map Device.
+more Hub interactables, same walk-up-and-`E` pattern as the Reality Engine.
 **GearShop** sells 6 `ItemRoller`-rolled items per Hub visit for Gold (a
 brand-new invented currency — see gap below), cost scaled by rolled
 rarity, plus a "Reroll Stock" action button (invented `15` Gold) to
@@ -277,8 +456,11 @@ loosely modeled on the doc's own mod-tier tables' shape, e.g. Section
 power unlocks access to better tiers, not a guaranteed roll of one.
 `flat_<stat>` affixes (Vitality/Strength/Instinct/Arcane/Enigma/
 Intellect) are real now, not descriptive-only — they're the only source
-of stat growth in the game (see Player section above); the
-damage/armor/ward affixes are still descriptive-only (see flagged gap).
+of stat growth in the game (see Player section above); `flat_ward` and
+the 4 `*_resistance_pct` affixes are real too as of Patch v3.2 (Ward
+pool size, Resistance mitigation - see the Combat formula section
+above); the damage/armor increased-% affixes are still descriptive-only
+(see flagged gap).
 **Skill Tomes**: a separate, flat invented `8%` chance (not scaled by
 loot_quantity) rolls a `SkillTome` for a random ability the player
 doesn't already own (`TomeRoller.gd`) — per Patch v3.1's Skill System,
@@ -303,7 +485,13 @@ Amalgam/Imbue are cut, see gap below), dropped as loot only
 (`BrandRoller.gd`, same flat-chance convention as Skill Tomes). A Damage/
 Defensive/Umbrella Brand alone adds one new modifier weighted toward its
 category (reusing `ItemRoller.AFFIX_POOL`, now tagged per category — see
-gap below for which categories are still descriptive-only); Render/
+gap below for which categories are still descriptive-only). **Clicking
+any Brand previews what it can actually do** to the selected item before
+you commit it to the Cube - for a category Brand, the real list pulled
+from `ItemRoller._pool_for_brand_tag()` (the exact pool a craft would
+roll against, so the preview can never promise something a craft
+wouldn't produce); for a Utility/Special Brand (no pool to roll from,
+just a fixed action), its function description instead. Render/
 Refine/Cleave/Excise/Bore/Sever do their doc-described thing for real
 (Cleave locks one modifier and risks destroying the item on a second use;
 Sever, combined with a category Brand, permanently seals that tag from
@@ -353,7 +541,7 @@ generation *algorithm* doesn't know or care what the rooms are made of.
     instead of 1, plus one more standing on the jump platform — a
     real risk/reward set-piece, not just a random room like the rest.
   - `levels/test_arena/TestArena.tscn` still exists as a static hand-built
-    sandbox for direct-from-editor testing, but the Map Device no longer
+    sandbox for direct-from-editor testing, but the Reality Engine no longer
     sends you there — `GameState.MAP_SCENE` now points at
     `GeneratedMap.tscn`.
 
@@ -381,9 +569,11 @@ same way equipment/ability loadout does (`GameState.player_level`/
 **Save/Load** (`autoloads/SaveManager.gd`): single JSON file at
 `user://savegame.json`. Persists equipment (including full data for
 rolled/pathless items via `data/items/item_serializer.gd`, not just a
-path), owned rolled loot, ability loadout + ranks, player level/XP, Gold,
-unlocked ability ids, and settings — not Fate Board layout, current
-Health/Ward/Mana, player position, or map state. `StatSheet`'s raw values
+path), owned rolled loot, Fate Board layout including any Spell Slate's
+designated ability (`GameState.fate_board_placements` - see Fate Board
+above, 2026-08-30 fix), ability loadout + ranks, player level/XP, Gold,
+unlocked ability ids, and settings — not current Health/Ward/Mana,
+player position, or map state. `StatSheet`'s raw values
 need no save path of their own — Section 12 means they never change from
 `player_baseline.tres`'s fixed defaults, and the gear-derived bonus on
 top is re-summed live from the (already-saved) equipment on every load.
@@ -400,26 +590,45 @@ dict per equipped slot, whichever the item actually has.
 **Main Menu background** (`levels/main_menu_background/`): a procedural
 night-storm scene rendered into a `SubViewport` behind the menu buttons -
 layered mountain silhouettes (`MountainRange.gd`, a `SurfaceTool`-built
-ridge flat), a night sky (`shaders/night_sky.gdshader`: hashed stars, a
-moon, drifting cloud cover that occludes them, and a lightning-flash
-uniform), falling rain (`CPUParticles3D`), and rain/thunder audio
-synthesized at runtime sample-by-sample
+ridge flat) **plus a foreground tree band** (`TreeSilhouette.gd`, new -
+22 procedural conifer silhouettes, same flat-facing-camera trick, scaled/
+seeded per-tree so a cluster doesn't look copy-pasted - user request: "add
+trees to the landscape"), a night sky (`shaders/night_sky.gdshader`:
+hashed stars, a moon, drifting cloud cover that occludes them, and a
+lightning-flash uniform), falling rain (`CPUParticles3D`), and rain/
+thunder audio synthesized at runtime sample-by-sample
 (`systems/audio/ProceduralRain.gd`/`ProceduralThunder.gd` push into an
 `AudioStreamGenerator` - no audio files needed for those). Thunder fires
-at random intervals and syncs a light flash to the rumble. Menu music
-(`MainMenu.gd`) loops `assets/music/lament.mp3` - the one real audio
-asset in the project, everything else here is generated.
+at random intervals (tightened to 6-16s) and syncs a light flash to the
+rumble - **the flash itself was a real, user-caught bug**: the shader
+damped it to near-zero exactly where the camera actually looks (it only
+read strongly near the sky's zenith, off-screen given the camera's
+near-flat forward angle), and boosting the moonlight's energy never
+touched the mountains/trees at all since both use unshaded flat-color
+materials that ignore scene lighting entirely - the flash was
+sky-only and essentially invisible in practice. Fixed on both fronts
+(`MainMenuBackground._set_flash()` now also lerps every registered
+silhouette material's own albedo directly) plus a quick second flicker
+for realism. Menu music (`MainMenu.gd`) loops `assets/music/lament.mp3` -
+the one real audio asset in the project, everything else here is
+generated.
 
 **Menus & HUD**: `MainMenu` (Continue/New Game/Settings/About/Quit),
 `PauseMenu` (`Esc` — Resume/Return to Hub/Quit; Inventory/Fate
 Board/Abilities/Character/Map are hotkey-only, not buttons),
 `DeathScreen` (on `HealthComponent.died`, offers Return to Hub or Quit),
-`ui/player_hud/` (always-on Life/Mana orbs flanking the ability bar - Ward
-renders as a ring around the Life orb - a notched, multi-color-gradient
-XP bar spanning from the level badge at the far left to near the right
-screen edge, its text inline on the bar itself (GW2-style layout), a Gold
-counter, and an active-weapon indicator that flashes whenever the
-equipped weapon changes),
+`ui/player_hud/` (always-on Life/Mana orbs flanking the ability bar -
+Ward renders as an inset vertical strip along the right edge of the Life
+orb, 20% of its width, filling/draining top-to-bottom same as the main
+Life liquid fill (`StatOrb.set_ward_value()`, 2026-08-30, replacing the
+previous outer-ring design per user direction) - a notched XP bar
+spanning from the level badge at the far left to near the right screen
+edge, its text inline on the bar itself (GW2-style layout), now a moving
+yellow/gold/orange gradient with twinkling stars visible in the filled
+portion (`xp_bar.gdshader`, 2026-08-30, replacing the previous static
+6-color rainbow gradient per user direction), a Gold counter, and an
+active-weapon indicator that flashes whenever the equipped weapon
+changes),
 `ui/debug/DebugOverlay.gd` (numeric
 readout of damage/chains/casts/parries — no art needed to validate
 formulas).
@@ -446,7 +655,7 @@ formulas).
 | Open Crafting (The Cube) directly | K |
 | Rotate pending Slate *(Fate Board editor only)* | R |
 | Flip pending Slate *(Fate Board editor only)* | Q |
-| Interact *(Map Device, Hub only)* | E |
+| Interact *(Reality Engine, Hub only)* | E |
 
 P/B/N/C/M/K work from anywhere — gameplay, the pause menu, or another such
 screen — and jump straight to their target, closing whatever else was
@@ -457,10 +666,30 @@ None of the six have a `PauseMenu` button — hotkey-only.
 
 1. **Ward restore-on-parry ratio**: placeholder 15% of max Ward — Section
    07/16 both confirm this is deferred to playtesting, no number given.
+   Patch v3.2 gives real numbers for passive regen (4%/s) and on-kill
+   (5%) but not Parry specifically, so this one placeholder survives the
+   patch unchanged. Also invented and doc-unsupported: Ward's `flat_ward`-
+   only pool-size model and its `+2%` per-Enigma-point multiplier (user
+   direction, overriding the patch's own "scales through gear rolls AND
+   Enigma investment" wording, which read as Enigma contributing its own
+   flat share - the patch's 3 target bands, Low 800-1200/Moderate
+   2000-3000/High 4000-6000, were never hit by either version and aren't
+   being targeted anymore, since a fresh character now starts at exactly
+   0 Ward with no Ward-granting gear); Resistance's mitigation floor/
+   ceiling (-200%/95% - the patch caps neither explicitly, only that
+   Resistance Shred can push Resistance negative; these two numbers are
+   user-set directly, 2026-08-30, replacing this project's own earlier
+   invented 75%-cap/uncapped-floor placeholder).
 2. **Stance depletion weights**: ordering is confirmed (Blunt/Explosive
    strong -> Piercing/ranged moderate -> Spells weakest), but no
    percentages anywhere, so Physical 1.0 / Elemental 0.6 / Esoteric 0.35
-   remains a well-justified guess.
+   remains a well-justified guess. On top of those category weights,
+   ordinary attacks now also carry a flat `ATTACK_STANCE_DAMAGE_
+   MULTIPLIER` of 0.2 (`StanceComponent.gd`) - user-reported feel issue,
+   ordinary hits were breaking Composure almost immediately and drowning
+   out Parry's own dedicated role as the primary Stance-break tool
+   (Section 07). Parry's own `apply_parry_damage()` is untouched by this,
+   still full-strength.
 3. **First-person melee weight** (Pillar 2): camera shake + hitstop +
    a swinging weapon (a real model for Greatsword/Dagger now, still the
    placeholder blade for anything else) exist, but the docs are
@@ -468,10 +697,10 @@ None of the six have a `PauseMenu` button — hotkey-only.
    real model's pose was tuned by eye via screenshots, not exact
    hand-placement - worth your own live nudging for final polish.
 4. **Ability numeric tuning**: `motion_value`, `scaling_grade`,
-   `cooldown_seconds`, `resource_cost`, `radius` on the four Ability
-   instances are invented (relative to each ability's described weight) —
-   the doc gives the damage formula and flavor text but never per-ability
-   numbers.
+   `cooldown_seconds`, `resource_cost`, `radius` on every Ability instance
+   (17 now, including the 8 Section 26 additions from 2026-08-30) are
+   invented (relative to each ability's described weight) — the doc gives
+   the damage formula and flavor text but never per-ability numbers.
 5. **Fate Board UI is a bounded 32x32 window**, not the "effectively
    unlimited" board Section 10 describes — a deliberate scope cut.
    Revisit with real pan/zoom if a Slate loadout ever needs more room.
@@ -499,12 +728,15 @@ None of the six have a `PauseMenu` button — hotkey-only.
     a judgment call, not something explicitly requested** — genre
     convention + archetype differentiation by engagement style. Worth
     confirming before building more content that assumes it.
-11. **Map Device / Hub scope cuts**: no map-selection UI or map-item
-    economy (the device rolls and commits in one keypress); leaving a
-    map is always manual, not triggered by clearing enemies; Settings
-    has exactly three real options. Master volume now has real audio to
-    affect (Main Menu music + procedural rain/thunder, see the Main Menu
-    background section above) but nothing plays in the Hub/Map yet.
+11. **Reality Engine / Hub scope cuts**: a real Figment-selection UI now
+    exists (reuses `ShopScreen` - see the Hub section above), but leaving
+    a Map is still always manual, not triggered by clearing enemies or
+    completing the boss (killing the boss only fires
+    `EventBus.figment_completed` for Figment Tree points - it doesn't
+    end the run); Settings has exactly three real options. Master volume
+    now has real audio to affect (Main Menu music + procedural rain/
+    thunder, see the Main Menu background section above) but nothing
+    plays in the Hub/Map yet.
 12. **Ability casting is still a generic AoE-at-cast-point hit for every
     ability** (3 of 9 add ground-targeting + bespoke impact VFX - Comet,
     Inferno, Stormcall - but even those deal generic AoE damage on
@@ -515,9 +747,13 @@ None of the six have a `PauseMenu` button — hotkey-only.
     `StatusEffectComponent` (Ignite/Chill/Freeze/Electrocute/Unraveling,
     Section 09) - `PlayerAbilityCast._cast()` applies each ability's
     listed effect(s) to every enemy it hits.
-13. **Map items have no selection/inspection UI and no doc-sourced affix
-    table** — the Map Device rolls and commits in one keypress; the
-    affix pool and tier curve are invented.
+13. **Figments have no doc-sourced affix table** (none could exist - this
+    whole system is invented, not doc content at all) — the affix pool
+    and tier curve (`FigmentRoller.gd`) are invented throughout, including
+    the drop-scaling curve (`roll_for_drop()`) and the Empower Gold cost
+    (`CraftingSystem.EMPOWER_FIGMENT_GOLD_COST`). Selection/inspection UI
+    is real now (see the Hub section above) - this gap is narrower than
+    it used to be.
 14. **Vitality's Resilience/DoT mitigation and Intellect's Debuff
     effectiveness are now wired** (`Player.get_dot_mitigation()` /
     `DamageCalculator.dot_mitigation()`, and
@@ -559,10 +795,11 @@ None of the six have a `PauseMenu` button — hotkey-only.
     values, etc.) and only re-rolls rarity + affixes, since Section 25's
     full item tables were already flagged as deferred design before this
     pass. `flat_<stat>` affixes are real (summed into `StatSheet` - see
-    the Player section above), but the damage/armor/ward affixes
-    (`physical_dmg_increased`, `flat_armor`, etc.) are still
+    the Player section above), and `flat_ward`/the 4 Resistance affixes
+    joined them as of Patch v3.2, but the damage/armor increased-%
+    affixes (`physical_dmg_increased`, `flat_armor`, etc.) are still
     descriptive-only — no aggregation of those into the damage/armor
-    formulas exists yet, only the 6 core stats got wired this pass. The
+    formulas exists yet. The
     Crafting pass (gap #25) extended this same pool with 4 more
     descriptive-only entries (Evasion/Resistance/Resilience/skill
     cooldown) so every Brand category has *something* real to roll -
@@ -570,7 +807,7 @@ None of the six have a `PauseMenu` button — hotkey-only.
 19. **Loot pickup is auto-pickup-on-touch, not a manual pickup/prompt**
     — a judgment call, not requested verbatim; fits how often gear
     would drop during combat better than a keypress flow, but is a
-    different UX than the Map Device's "walk up, press E" pattern used
+    different UX than the Reality Engine's "walk up, press E" pattern used
     elsewhere in this project.
 20. **Map generation parameters are invented, not doc-sourced** — grid
     size (5x5), room count (7-10), doorway width, jump-gap size, and the
@@ -672,9 +909,9 @@ None of the six have a `PauseMenu` button — hotkey-only.
     percentage actually modifies; "increased damage of that tag" is the
     most natural reading given everything else about it (a per-tag
     bonus from a tag-scoped build-customization system), not a
-    transcription of doc text. Fate Board LAYOUT still isn't saved
-    (existing gap, unchanged - see "Explicitly not built yet" below);
-    `GameState.owned_slates` (real Slate ownership) now is.
+    transcription of doc text. Fate Board LAYOUT itself now saves too
+    (2026-08-30 fix, see Fate Board above) - both it and
+    `GameState.owned_slates` (real Slate ownership) persist.
 
 ## Explicitly not built yet (per Vertical Slice Brief scope)
 
@@ -688,7 +925,8 @@ rigged animation libraries + a mannequin imported cleanly, but there's no
 `AnimationPlayer`/`AnimationTree`/skeleton pipeline anywhere in this
 project yet - a much bigger, separate undertaking than everything else
 in this list), Conduit/Secondary (Throwable) attack input, save
-persistence for Fate Board layout or mid-map state, pathfinding/
+persistence for mid-map state (Fate Board layout now saves - see Fate
+Board above), pathfinding/
 navigation for enemies (fine today — every generated room is an open box,
 nothing to path around within one). A status-effect system now exists
 (`StatusEffectComponent`, flagged gap #24) but only for 5 of Section 09's
@@ -703,7 +941,7 @@ minus Facsimile/Amalgam/Imbue and Vestiges (no boss encounters to drop one).
 2. Open `project.godot` from the Godot project manager.
 3. Run the project (F5) — `ui/main_menu/MainMenu.tscn` is the main scene.
    "New Game" (or "Continue Game" once a save exists) drops you into
-   `levels/hub/Hub.tscn`; walk up to the Map Device and press `E` to enter
+   `levels/hub/Hub.tscn`; walk up to the Reality Engine and press `E` to enter
    a freshly generated Map (`levels/generated_map/GeneratedMap.tscn`,
    different every time — see "Procedural map generation"). To iterate
    directly on enemy/combat work without going through the menu each

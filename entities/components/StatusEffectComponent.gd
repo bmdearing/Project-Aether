@@ -38,11 +38,21 @@ const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.25  # "Increased Esoteric damage take
 ## counterpart - see Player.get_dot_mitigation(), applied in _tick_ignite().
 const DEBUFF_EFFECTIVENESS_PER_INTELLECT := 0.015
 
+## Patch v3.2 ADDITION - Resistance Shred: "Temporarily reduces a target's
+## Resistance values by a flat percentage for 8 seconds... Stacks from
+## multiple sources with diminishing returns." No current applier exists
+## in this project - the doc introduces it via The Cartographer of Ruin,
+## a Throwable-focused unique, and Throwables aren't built yet (README) -
+## the mechanic itself is real and tested, just unreachable from any real
+## content for now, same shape as several Brand categories already here.
+const RESISTANCE_SHRED_DURATION := 8.0
+
 var _timers: Dictionary = {}  # effect_id -> float seconds remaining
 var _chill_stacks: int = 0
 var _ignite_ticker: float = 0.0
 var _ignite_tick_damage: float = 0.0
 var _ignite_source: Node
+var _resistance_shred_sources: Array = []  # each {"value": float, "remaining": float}
 
 @onready var _owner: Node = get_parent()
 
@@ -53,6 +63,37 @@ func _process(delta: float) -> void:
 			_expire(effect_id)
 	if has_effect("ignite"):
 		_tick_ignite(delta)
+	_tick_resistance_shred(delta)
+
+## Independent-source stacking with a hard duration (not the _timers'
+## single-value-refresh model above) - each application is its own
+## instance, all contributing simultaneously via get_resistance_shred().
+func apply_resistance_shred(percent: float) -> void:
+	_resistance_shred_sources.append({"value": percent, "remaining": RESISTANCE_SHRED_DURATION})
+
+## Doc-exact stacking rule, verified against the doc's own worked example
+## (20%/15%/10% -> 20 + 7.5 + 5 = 32.5%): the single largest active source
+## applies at full value, every OTHER active source contributes at half
+## of ITS OWN value - not a compounding chain (10% halved is 5%, not a
+## further halving of an already-halved 15%).
+func get_resistance_shred() -> float:
+	if _resistance_shred_sources.is_empty():
+		return 0.0
+	var values: Array = []
+	for entry in _resistance_shred_sources:
+		values.append(entry["value"])
+	values.sort()
+	values.reverse()
+	var total: float = values[0]
+	for i in range(1, values.size()):
+		total += values[i] * 0.5
+	return total
+
+func _tick_resistance_shred(delta: float) -> void:
+	for i in range(_resistance_shred_sources.size() - 1, -1, -1):
+		_resistance_shred_sources[i]["remaining"] -= delta
+		if _resistance_shred_sources[i]["remaining"] <= 0.0:
+			_resistance_shred_sources.remove_at(i)
 
 ## hit_damage is only used by Ignite (its DoT total is a percent of the
 ## triggering hit) - irrelevant for the others.
@@ -71,6 +112,22 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
+
+## "26 - Ability Staging Ground", Utility - Purge: "stripping buffs from
+## surrounding enemies while simultaneously clearing debuffs from the
+## caster." Only the caster-side half is implemented - no enemy buff
+## system exists in this project to strip (every enemy-facing mechanic
+## here is a debuff already), so that half of the doc description has
+## nothing to act on yet. Ends every active timed effect immediately
+## (each via _expire() so effect_expired/EventBus fire normally, same as
+## a natural timeout) and clears Resistance Shred sources too, even
+## though Shred is something a target of the player's own casts carries,
+## not the player - harmless no-op when called on the player, and correct
+## if this is ever called on an Enemy's own StatusEffectComponent instead.
+func clear_all_effects() -> void:
+	for effect_id in _timers.keys().duplicate():
+		_expire(effect_id)
+	_resistance_shred_sources.clear()
 
 ## Electrocute's "Stun / stagger effect" and Freeze's "full immobilization"
 ## both disrupt action - Chill alone (a slow) does not.

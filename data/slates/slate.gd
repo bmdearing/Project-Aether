@@ -24,6 +24,13 @@ class_name Slate
 @export var modifiers: Array[SlateModifier] = []
 @export var implicit_flavor_text: String = ""
 
+## Section 10's Unique Slate "The Unbound Chorus": "Designate one Spell
+## skill" - true for any Slate whose modifiers reference a player-chosen
+## ability rather than acting on their own (autocast/buff/retrigger/
+## modify a designated spell - user direction, 2026-08-30). FateBoardEditor
+## prompts for which owned Ability to bind before allowing placement.
+@export var requires_spell_designation: bool = false
+
 func get_size() -> int:
 	return shape_cells.size()
 

@@ -14,7 +14,7 @@ class_name ItemRoller
 ## in this project (Section 12: gear only) - summed into StatSheet by
 ## EquipmentComponent.compute_stat_bonuses().
 ##
-## loot_rarity_multiplier (from the active Map, see MapItem.gd) shifts
+## loot_rarity_multiplier (from the active Map, see FigmentItem.gd) shifts
 ## the rarity roll. loot_quantity_multiplier is consumed by Enemy.gd's
 ## drop-chance roll instead, not here.
 
@@ -57,7 +57,15 @@ const AFFIX_POOL := [
 	{"stat_key": "flat_armor", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Armor", "applies_to": ["armor", "shield"], "brand_tags": ["armor"]},
 	{"stat_key": "flat_ward", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Ward", "applies_to": ["armor"], "brand_tags": ["ward"]},
 	{"stat_key": "flat_evasion", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Evasion", "applies_to": ["armor"], "brand_tags": ["evasion"]},
-	{"stat_key": "resistance_increased", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "+%d%% increased Resistance", "applies_to": ["armor", "shield"], "brand_tags": ["resistance"]},
+	# Patch v3.2 "Revision - Resistance System": doc-exact range, matching
+	# the Ember/Frost/Volt/Void Ring implicits (+11-27%) - Esoteric is
+	# unified across Aetheric/Entropic/Pale per the patch, one stat covers
+	# all three. applies_to: [] (any item) since the doc's own examples
+	# are Rings, not armor.
+	{"stat_key": "fire_resistance_pct", "tier1_min": 11.0, "tier1_max": 27.0, "desc": "+%d%% Fire Resistance", "applies_to": [], "brand_tags": ["resistance", "fire"]},
+	{"stat_key": "cold_resistance_pct", "tier1_min": 11.0, "tier1_max": 27.0, "desc": "+%d%% Cold Resistance", "applies_to": [], "brand_tags": ["resistance", "cold"]},
+	{"stat_key": "lightning_resistance_pct", "tier1_min": 11.0, "tier1_max": 27.0, "desc": "+%d%% Lightning Resistance", "applies_to": [], "brand_tags": ["resistance", "lightning"]},
+	{"stat_key": "esoteric_resistance_pct", "tier1_min": 11.0, "tier1_max": 27.0, "desc": "+%d%% Esoteric Resistance", "applies_to": [], "brand_tags": ["resistance", "aetheric", "entropic", "pale"]},
 	{"stat_key": "flat_resilience", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Resilience", "applies_to": [], "brand_tags": ["resilience"]},
 	{"stat_key": "skill_cooldown_reduced", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% reduced skill cooldowns", "applies_to": [], "brand_tags": ["skills"]},
 ]

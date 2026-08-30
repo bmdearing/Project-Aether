@@ -7,6 +7,499 @@ there. Most recent first.
 
 ---
 
+## 2026-08-30 — Slate System Overhaul, HUD Redesign, Section 26 Spells
+
+Seven user-directed changes in one pass.
+
+**Fate Board layout now persists.** User report: "Slates do not persist
+between scenes, they need to stay on the character." Root cause:
+`Player._ready()` unconditionally built a fresh, empty `FateBoard.new()`
+every scene load (Player is a fresh instance every Hub<->Map reload) -
+`GameState` had no serializable record of *which Slate sits where* to
+restore from, only ownership. `FateBoard.place_slate()`/`remove_slate()`
+now call `GameState.sync_fate_board()` on every change (mirroring
+`sync_equipment()`/`sync_ability_loadout()`'s existing pattern);
+`Player._apply_saved_fate_board()` restores from `GameState.
+fate_board_placements` the same way `_apply_saved_loadout()` already
+does. A palette Slate (loaded from `data/slates/instances/`) is
+referenced by its `resource_path`; a rolled `owned_slates` drop (no path)
+by array index - preserves the exact object identity `FateBoardEditor`'s
+single-use-ownership check already depends on rather than reconstructing
+a duplicate. Persisted through `SaveManager` too, so it survives an app
+restart, not just a scene change. Verified with 3 scratch tests (16 + 8 +
+6 checks, all passed): connection-requirement edge cases, the full
+`FateBoardEditor` UI placement flow including a Spell Slate's designation
+picker, and a real `SaveManager.save_game()`/`load_game()` round-trip -
+the real save file at `user://savegame.json` was backed up before that
+last test ran and restored immediately after, since `save_game()` writes
+for real.
+
+**Slates must now connect.** User direction: "Slates should have to
+connect with each other, not be placed freely." `FateBoard.can_place()`
+now rejects any placement that isn't orthogonally adjacent to (or
+overlapping) an already-placed Slate or a new `FateBoard.ANCHOR_CELL`
+(board center, always counts as "placed" so an empty board has a legal
+first move) - invented, no doc-given board origin exists (Section 10
+calls the board "effectively unlimited"). Only enforced at placement
+time; removing a Slate that orphans others from the anchor is allowed,
+not retroactively blocked - a simplification the doc doesn't speak to
+either way. `FateBoardEditor`'s status line now explains *why* a
+placement failed in plain text instead of the raw `insufficient_aether`/
+`cell_occupied`/`not_connected` string.
+
+**Animated, type-colored Slate backgrounds.** User reference image: a
+moving, color-shifting nebula texture per Slate type. New canvas shader
+(`ui/fate_board_editor/slate_nebula.gdshader`) - hand-rolled hash-based
+value noise (no external noise texture exists in this project), layered
+and time-scrolled with a per-cell phase offset so a run of same-tag
+Slates doesn't scroll as one flat blob, tinted by `Constants.
+DAMAGE_TYPE_COLOR`, with sparse twinkling stars. Applied via a
+`cell_data` texture `FateBoardGrid.gd` rebuilds only when placements
+actually change, not on every hover-driven redraw. This is a deliberate,
+flagged exception to the project's usual no-shader placeholder-art
+convention (see `StatOrb.gd`'s header) - motion was the actual content
+requested, and a CPU `_draw()` loop redrawing noise every frame would
+have been both slower and far more code.
+
+**Ward orb redesigned.** User direction: "Ward should appear as a fill
+from top to bottom covering only 20% of the Life orb, oriented to the
+right." Replaced the old outer-ring-around-the-rim design
+(`StatOrb.set_ring_value()`/`_ring_fraction`/`ring_color`, all renamed to
+`set_ward_value()`/`_ward_fraction`/`ward_color`) with an inset vertical
+band along the orb's right edge, 20% of its diameter wide, clipped to the
+circle's own curve at every scanline and filling/draining top-to-bottom
+via the exact same `waterline_y` formula the main Life liquid fill
+already used - same visual language, different placement.
+
+**XP bar redesigned.** User direction: "mostly yellow/gold/orange... look
+dynamic and move with visible stars in the bar when its filled." Replaced
+the static 6-color rainbow `GradientTexture1D` with a `ColorRect` running
+a new shader (`ui/player_hud/xp_bar.gdshader`) - a drifting warm gold/
+amber/deep-orange blend, a sweeping highlight band, a slow noise-based
+cloud texture, and twinkling stars. The bar's existing shrinking-clip-
+window reveal mechanic (unchanged) already only shows the filled portion
+of whatever's drawn underneath, so "stars only in the filled part" came
+for free with no extra masking logic needed.
+
+**Section 26, "Ability Staging Ground", found and mined.** Requested: a
+spell list from the docs, implemented as much as possible. A docx-
+extraction search (this project's established fallback for content the
+PDF reader misses) surfaced a real, dense spell list the existing 9
+abilities were never actually checked against - Ice Pulse/Comet/Winter's
+Eye/Frost Armor really are doc-sourced, but Cinder Lance/Inferno/Static
+Discharge/Stormcall/Entropic Decay are invented names from before this
+section was found. Flagged as a conflict per user instruction ("for any
+conflicts please ask me"); user chose to keep both sets rather than
+retire the invented five. Added 8 new doc-sourced abilities: Flame Jets
+and Meteor (Fire - Meteor reuses Comet's own fall-and-impact VFX outright
+as the same mechanic, just Fire-colored), Thunder Javelin (small-radius
+ground-target approximating "single target focus" - this project's cast
+model has no discrete single-target lock) and Thunder Sweep (Lightning),
+Black Hole (Entropic - a real 2.5s pull toward center via a new
+`BlackHoleField` effect scene, on top of a deliberately thin instant hit
+per the doc's own "low direct damage"), Caltrops (Physical - a new
+`CaltropsField` effect scene dealing repeat Piercing damage over 5s; the
+doc's "and are slowed" half is scoped out, since reusing Cold's Chill for
+a Physical effect would be a thematic mismatch and no type-agnostic slow
+exists), and Blink/Purge (Utility - the only two abilities with zero
+damage component, special-cased in `PlayerAbilityCast._cast()`'s early
+returns rather than forced through the generic enemy-damage loop; Blink
+raycasts the player forward up to 8m, Purge clears the player's own
+active debuffs via a new `StatusEffectComponent.clear_all_effects()` -
+Purge's enemy-buff-stripping half isn't built, since no enemy-buff system
+exists to strip anything from). Not built: Purity From Within (needs a
+persistent toggle/channel ability archetype), Blinkstrike (needs a
+weapon-scaled special dispatch outside the generic Ability damage model),
+Conduit/Prowess (both explicitly "(Passive)" in the doc - no passive-node
+system exists for a hotbar to grant).
+
+**Slate-designated spells.** Requested: a Slate mechanic that binds to a
+player-owned Tome/spell and interacts with it (trigger/buff/modify/
+autocast). Found real doc grounding for exactly the autocast case -
+Section 10's Unique Slate "The Unbound Chorus" ("Designate one Spell
+skill - that skill automatically triggers when its cooldown expires"),
+already present as inert flavor data (`unbound_chorus.tres`) with no
+runtime mechanism reading it. Built the general framework - `Slate.
+requires_spell_designation`, a `FateBoardEditor` picker over the player's
+owned Abilities (not just the 4-slot hotbar), `FateBoard.PlacedSlateData.
+designated_ability_id` (persisted) - and one concrete implementation on
+top of it: `PlayerAbilityCast._process_slate_autocasts()` fires the
+designated ability automatically once its cooldown reaches 0, at the
+doc's own 60% damage, no resource cost, no Riposte/Composure interaction,
+all three straight off The Unbound Chorus's own modifier list. Buff/
+retrigger/modify variants are explicitly out of scope for now - no doc
+example exists for those, so building them now would be pure invention
+with nothing to implement against.
+
+**Bug caught during verification, fixed in the same pass:** the new
+Blink ability's wall-raycast originated at the player's own
+`global_position` (feet/floor height) - a horizontal ray started exactly
+at floor level immediately self-intersects the floor collider, reporting
+a 0-distance "hit" and zeroing out every blink. Fixed by raycasting from
+camera height instead, same as the existing ground-target aim raycast
+already does. Caught by `scratch_big_test.gd`'s own Blink check before
+this reached the user.
+
+## 2026-08-30 — Fixed: Resistance Bounds Set, Strength/Arcane/Enigma's Missing "% Increased Damage" Per-Point Bonus Wired Up
+
+Two related user directions in one pass: "The floor for resistances
+should be -200%, the ceiling for resistances should be 95%" and "All of
+the stats should be giving % increased damage for their respective
+category and not a high amount."
+
+**Resistance floor/ceiling.** `DamageCalculator.resistance_mitigation()`
+previously had an invented 75% cap and an intentionally uncapped floor
+(so Resistance Shred, patch v3.2, could push it arbitrarily negative).
+Neither the Master doc nor either patch gives an exact number for this -
+patch v3.2 only says Resistance Shred "can reduce Resistance below zero"
+with no floor stated. Replaced with user-set `RESISTANCE_FLOOR := -200.0`
+/ `RESISTANCE_CEILING := 95.0`, both applied via a single `clamp()` on the
+resistance percent before converting to a mitigation fraction - shared by
+both `Player.take_damage()` and `Enemy.take_damage()`, the only two call
+sites.
+
+**Strength/Arcane/Enigma's per-point "% increased damage."** Checked
+Section 12's "The Six Stats — Per Point Values" table (docx-extracted,
+`documents/Project_Aether_Master_v3.docx`) against what's actually
+implemented: the table gives Strength +1% increased Physical damage per
+point, Arcane +1% increased Elemental damage per point, Enigma +1%
+increased Esoteric damage per point - `Constants.STAT_GLOSSARY` already
+had this exact text as a tooltip string, but `Weapon`/`Ability._base_hit()`
+never actually added it to the `increased_percents` pool DamageCalculator
+consumes. What WAS implemented is a separate, also-doc-real mechanic:
+Section 10's "Main Stat by Tag" table, where the same stat's raw point
+value multiplies directly into the Stat Scaling Grade term (`stat_value *
+effective_scale`) - this is likely what the user was seeing as "a high
+amount," since a high-Grade weapon (S-grade: 150-200% of stat value) with
+a stacked main stat scales hard through that channel alone, with the
+doc's own separate, modest 1%-per-point "increased" bonus never actually
+applying on top. Both mechanics are doc-real and meant to stack (Section
+10 governs weapon/ability scaling; Section 12 lists universal per-point
+stat effects) - so the fix wasn't replacing the scaling role, only adding
+the missing modest layer: `increased_percents` in both `_base_hit()`s now
+includes `stat_value` directly (1 raw point = 1%, matching the doc's flat
+rate exactly, no invented multiplier).
+- Verified with a 6-check test: resistance -500% clamps to -200% (mitigation
+  -2.0); resistance 150% clamps to 95% (mitigation 0.95); in-bounds
+  resistance values (-50%, 40%) pass through unchanged; 0 Strength still
+  gives 0 damage (increased% can't manufacture damage from a zero
+  scaling base, same property as the earlier Ward fix); and a direct
+  `DamageCalculator.calculate()` comparison confirmed +50% increased (50
+  Strength points) multiplies final damage by exactly 1.5x. All 6 passed.
+  `TestArena` still loads clean.
+
+## 2026-08-30 — Fixed: Fresh Characters Started With 900 Ward From Nowhere
+
+User report: "Why do I start with 900 ward? ... Ward should only come
+from your armor" - correct catch. The Ward/Resistance patch pass gave
+every character a flat 300 base + 60 per Enigma point (invented, meant
+to land near Patch v3.2's own "Low 800-1200" target band) regardless of
+equipped gear - a completely ungeared character (baseline Enigma 10) got
+`300 + 10*60 = 900` Ward for existing, with zero items actually granting
+any of it.
+
+User clarified further mid-fix: Ward should come from armor AND Enigma,
+but Enigma should apply as an INCREASED% multiplier on the armor's own
+flat Ward, not contribute its own flat amount - so zero Ward-granting
+gear still means zero Ward no matter how much Enigma investment exists
+(a multiplier on 0 is 0).
+
+- Removed the flat base/per-Enigma-point constants entirely.
+  `Player._apply_derived_stats()` now computes `ward.set_max_ward(
+  equipment.compute_flat_ward_bonus() * (1.0 + enigma *
+  WARD_INCREASED_PER_ENIGMA))` - `flat_ward` gear affixes are the only
+  base, Enigma only scales what's already there. `WARD_INCREASED_PER_
+  ENIGMA` (2%/point) is invented - no doc-exact rate exists for this
+  specific multiplier (the patch's only exact Enigma/Ward number is the
+  separate restoration-RATE one, untouched by this fix).
+  `Player.tscn`'s `WardComponent.max_ward` default reset from 300 to 0
+  to match (functionally inert either way - `_apply_derived_stats()`
+  overwrites it at boot - but 300 was actively misleading to read).
+- Verified with a 4-check test: a fresh character with starting gear
+  (no `flat_ward` anywhere in this project's starting loadout) now has
+  exactly 0 max Ward; artificially high Enigma with zero Ward gear still
+  gives exactly 0 (proving the multiplier can't manufacture Ward from
+  nothing); a real armor piece with a 200 `flat_ward` affix at 0 Enigma
+  gives exactly 200; the same armor at 25 Enigma gives exactly 300 (200 x
+  1.5, confirming the multiplicative math) - all 4 passed. `TestArena`
+  still loads clean.
+
+## 2026-08-30 — Fixed: Entering a Figment Froze the Game
+
+User report: "I entered my first Figment, and the game froze" - a real
+regression from the previous turn's Reality Engine selection-screen work.
+
+Root cause: `RealityEngine._enter()` called `get_tree().change_scene_to_
+file(GameState.MAP_SCENE)` without first clearing `get_tree().paused`.
+The OLD Map Device flow rolled and traveled directly from an
+`_unhandled_input` callback, never pausing anything - but the NEW
+selection screen (`ShopScreen`, opened to let the player pick a Figment)
+pauses the tree like every other menu in this project, and `_enter()`
+never unpaused before leaving. `paused` is a `SceneTree`-level flag that
+survives a scene change, so the new `GeneratedMap` loaded already paused -
+every node without `PROCESS_MODE_ALWAYS` (the Player, every enemy) simply
+never ran. This is a known, previously-fixed class of bug in this exact
+project (`DeathScreen`/`MainMenu`/`PauseMenu` all carry the identical
+`get_tree().paused = false` line before their own `change_scene_to_file()`
+calls, with a comment explicitly warning about it) - a
+`grep -rn change_scene_to_file` across every `.gd` file confirmed
+`RealityEngine.gd` was the only of 7 call sites missing it.
+
+Added the missing line, in the same position as the other 6 already-
+correct sites. Verified by direct code inspection (a one-line ordering
+fix matching an established, already-proven pattern used successfully 6
+other places in this codebase) plus a fresh `Hub`/`GeneratedMap` clean-
+load sanity check - a dynamic regression test that actually exercises
+`_enter()` was attempted but abandoned: `change_scene_to_file()` tore
+down the test's own node before the test script could inspect
+post-call state, which is itself consistent with the scene change now
+actually completing promptly rather than hanging.
+
+## 2026-08-30 — Main Menu: Fixed the Invisible Lightning Bug, Added Trees
+
+User reported "I haven't seen lightning flashes" on the Main Menu -
+turned out to be two real, compounding bugs, not just rare timing.
+
+- **Bug 1**: `night_sky.gdshader`'s flash blend was damped by
+  `clamp(dir.y * 0.5 + 0.6, 0.0, 1.0)`, weighted toward straight-up
+  (`dir.y` near 1) and weak near the horizon - exactly where
+  `MainMenuBackground`'s camera actually points (a near-flat forward
+  look, mountains filling most of the frame). The flash was real and
+  firing, just mostly happening off-screen above where the player could
+  see. Floored the falloff instead of scaling toward zero.
+- **Bug 2**: `_on_thunder_started()` only boosted the `DirectionalLight3D`'s
+  energy, but `MountainRange`/the new `TreeSilhouette` both use
+  `SHADING_MODE_UNSHADED` materials (a deliberate choice for the cheap
+  flat-silhouette trick) - unshaded materials ignore scene lighting
+  entirely, so the light boost never touched them. The flash was
+  sky-shader-only, and the sky is a thin band above a frame mostly full
+  of unlit mountain silhouette. `MainMenuBackground` now tracks every
+  registered silhouette material + its base color and lerps each one's
+  albedo directly during a flash, alongside the sky and the light.
+- Also tightened the thunder interval (14-32s → 6-16s, `ProceduralThunder`'s
+  class default) and added a quick second flicker ~0.12s after the first -
+  real lightning rarely reads as one clean fade.
+- **Added trees** (`TreeSilhouette.gd`, new, user request): a foreground
+  band of 22 procedural conifer silhouettes - trunk + 3 narrowing
+  triangular tiers, same `SurfaceTool` flat-facing-camera trick
+  `MountainRange` already uses, scaled/seeded per-tree for variety. Adds
+  a 3rd depth layer to the existing far/near mountain parallax.
+- Verified with a 50-check test: silhouette registration count (2
+  mountains + 22 trees), a full flash provably brightening every single
+  one of them (not just the sky), flash-intensity-0 restoring every
+  material to its EXACT original color (no drift), the tightened thunder
+  interval, and every tree's position landing inside its configured band -
+  all 50 passed. `MainMenu.tscn` still loads clean. Did not additionally
+  verify with a live screenshot this pass (a Godot editor session was
+  already open, which the established capture procedure needs to be the
+  only running instance) - the automated checks directly prove the
+  mechanism (materials actually change color, trees actually exist at
+  the right positions), but exact framing/scale is still worth a look
+  next session.
+
+## 2026-08-30 — Figments/Reality Engine: Rename, Selection UI, Drops, Empowering, Bosses, Figment Tree Scaffold
+
+## 2026-08-30 — Figments/Reality Engine: Rename, Selection UI, Drops, Empowering, Bosses, Figment Tree Scaffold
+
+User asked for a large bundle: rename "Map" items/device to "Figments"/
+"Reality Engine," make Figments selectable (not auto-roll-and-commit),
+droppable, craftable-to-be-harder, scaled, and give each a boss whose
+death "completes" it - plus a Figment Tree scaffold to spend completion
+points. None of this is doc-sourced (Section 24 doesn't even list an
+endgame loop as designed) - a from-scratch invented system throughout.
+
+- **Renamed for real**: `data/maps/map_item.gd`/`map_roller.gd` →
+  `data/figments/figment_item.gd`/`figment_roller.gd`
+  (`MapItem`→`FigmentItem`, `MapRoller`→`FigmentRoller`);
+  `entities/interactables/map_device/MapDevice.gd`/`.tscn` →
+  `entities/interactables/reality_engine/RealityEngine.gd`/`.tscn`
+  (`MapDevice`→`RealityEngine`). Real `git mv`s, not just new files -
+  history follows. `GameState.active_map` keeps its field name (still
+  means "the Map's active modifiers") but its type is now `FigmentItem`.
+  The unrelated `MapScreen`/`GeneratedMap`/`MapGraph` (the `M`-key
+  room-graph viewer and the dungeon-level generator) are untouched -
+  different "Map" meaning entirely, not what was asked to rename.
+- **Real selection UI**: the Reality Engine no longer auto-rolls and
+  commits on `E` - it opens a list (reuses `ShopScreen`, the exact same
+  generic list-purchase UI GearShop/SpellTestShop already share, plus one
+  small addition - an optional per-row `button_label` override so "Enter"
+  reads right instead of "Take") of every owned Figment, plus an
+  always-available free Tier 1 offer so there's never a hard floor on
+  playing before any Figment has dropped.
+- **Droppable**: `Enemy._maybe_drop_loot()` gained a 6% Figment roll
+  (`FigmentRoller.roll_for_drop()`, tier scaled near the killing Map's
+  own tier ± 1, clamped to a new `MAX_TIER` of 10) - reuses `_spawn_pickup()`
+  directly since `FigmentItem` already extends `Item`, no new pickup
+  field needed (unlike Slates, which needed one). `ItemSerializer` gained
+  a `FigmentItem` branch so dropped/owned Figments actually survive a
+  save/load, and `InventoryScreen._is_equippable()` now excludes
+  `FigmentItem` - without this it would have hit the exact same "click
+  silently clears your real equipment" bug the Brand/consumable pass
+  fixed two turns ago (`equip_slot` defaults to HELMET on every `Item`
+  subclass that doesn't set one).
+- **Craftable (harder)**: `CraftingSystem.empower_figment()` - a
+  dedicated action, not routed through the Brand/Cube system at all
+  (a Figment's affixes are enemy/loot multipliers, not the flat_<stat>/
+  damage-% pool Brands roll against, so the generic Cube path doesn't
+  apply semantically). `CraftingScreen` shows a Gold-gated "Empower"
+  button instead of the normal Cube UI when the selected item is a
+  Figment - raises tier by 1 and re-rolls/strengthens one affix via a new
+  `FigmentRoller.strengthen()`.
+- **Boss + completion**: `FigmentBoss` (new archetype, `entities/enemies/
+  figment_boss/`) - roughly an 8x-health/2.2x-damage/10x-reward
+  `HeavyHitter`, spawned in the Vault room's platform slot in place of the
+  old reward `GlassCannon` ("one Vault per Map" already guarantees
+  exactly one, so it's the natural home for the one guaranteed boss too,
+  zero extra map-generation plumbing needed). Its death fires a new
+  `EventBus.figment_completed` signal.
+- **Figment Tree scaffolding** (`systems/figment_tree/`, deliberately
+  NOT a full system per the request's own "prepare legs" framing):
+  `FigmentTreeNode` (Resource: id/name/cost/prerequisite/a stub
+  `effect_key`) + `FigmentTree` (5 hand-authored nodes, real
+  `can_unlock()`/`unlock()` validation against a new
+  `GameState.figment_tree_points` - `GameState._on_figment_completed()`
+  grants 1 point per completed Figment's tier). No UI screen exists yet,
+  and no node's `effect_key` is wired into anything mechanical - both
+  explicitly left for later.
+- Verified with a 52-check real scene-load test: the roller's tier/drop-
+  scaling/clamping, Empower's exact tier/affix effects, a full
+  `ItemSerializer` round-trip, the Reality Engine's entry-building logic,
+  a real `FigmentBoss` vs. a real `HeavyHitter`'s stats side by side, the
+  boss's death actually emitting `figment_completed` with the right
+  Figment attached, points accumulating by tier, the Tree's full unlock/
+  prerequisite/re-purchase-refusal logic, the Inventory equip-guard
+  regression check, and the Crafting screen's Empower button end-to-end
+  (Gold spent, tier raised) - all 52 passed. `Hub`/`TestArena`/
+  `GeneratedMap` all still load clean, including `GeneratedMap` now
+  spawning a real `FigmentBoss` in its Vault room.
+
+## 2026-08-30 — Crafting: Preview a Brand's Possible Rolls Before Committing
+
+User asked for it directly: clicking a Brand in the Crafting screen
+should show what it can actually roll, not just add it to the Cube
+blind. Added `CraftingScreen._show_brand_preview()`, wired into the
+existing click handler (still adds the Brand to the Cube too, unchanged) -
+for a Damage/Defensive/Umbrella Brand it lists every entry
+`ItemRoller._pool_for_brand_tag()` would actually draw from for the
+currently selected item (the exact same pool a real craft rolls against,
+so the preview can't promise something a craft wouldn't produce); for a
+Utility/Special Brand (Render, Cleave, Binder, ...) it shows the Brand's
+function description instead, since those don't roll from a pool at all.
+Verified with a 4-check test (real pool entries shown, a placeholder
+value not a fake rolled number, no leaked printf tokens, a Utility
+Brand's description shown instead) - all 4 passed.
+
+## 2026-08-30 — Tooltip UX Overhaul, Distinct Stat Cards, Stance Tuning
+
+User reported three UX issues in one pass: the Alt-hold advanced tooltip
+felt sticky/unintuitive, hover tooltips weren't fast enough, and Item/
+Slate/Ability cards were hard to tell apart at a glance. Asked
+specifically to check how Path of Exile 2 and Victoria 3 handle
+Alt-hold tooltips before redesigning - PoE2 confirmed via search: Alt is
+a genuine HOLD modifier (release it, the info goes away), not a
+click-to-pin toggle, which is what this project actually had.
+
+- **`AdvancedTooltip`/`ItemSlotButton` rewritten**: Alt press-while-
+  hovered still opens the card, but Alt release now closes it too -
+  unless the mouse has moved onto the card itself (so a player can still
+  one-handed-hold-Alt-then-mouse-onto-the-card to click through mod-tier
+  ranges/glossary links), in which case it closes once the mouse leaves
+  the card instead. The old version stayed pinned open until Esc/
+  outside-click regardless of Alt state - the actual "sticky" bug.
+- **Tooltip delay dropped from 0.15s to 0.03s** (`project.godot`,
+  `timers/tooltip_delay_sec`) for a near-instant feel.
+- **`ItemCard` gained a real type-distinction system**: Item/Slate/
+  Ability cards previously differed only by a rarity-colored border - a
+  Rare Item and a Rare Slate rendered with the literal same border color
+  (both rarity enums map RARE to yellow), user-caught. Now each type
+  layers 3 independent, asset-free cues: a colored type badge ("ITEM"/
+  "SLATE"/"SPELL", drawn first so it's the first thing seen), a distinct
+  corner-radius/border-width silhouette (Item sharp, Slate rounded +
+  thicker border, Ability the roundest of the three - no gear has soft
+  corners, only spells do), and a faint background tint. Slate's badge
+  uses a fixed color independent of the Slate's own rarity, so a Common
+  and a Mythic Slate both still read as "Slate" instantly. Ability cards
+  are now colored by the ability's own damage type instead of one flat
+  blue for every spell regardless of element - a free improvement beyond
+  what was asked: spells are now distinguishable from EACH OTHER too, not
+  just from items/Slates.
+- **`StanceComponent.apply_attack_stance_damage()` reduced by 80%**
+  (`ATTACK_STANCE_DAMAGE_MULTIPLIER = 0.2`) - user-reported: ordinary
+  attacks were depleting Stance so fast that Composure Break triggered
+  almost immediately, drowning out Parry's intended role as the primary
+  Stance-break tool (Section 07: "depleted primarily through successful
+  Parries"). `apply_parry_damage()` (used by real Parries) is untouched,
+  still full-strength.
+- Verified with a 16-check real scene-load test: the exact stance-
+  reduction math, Item vs. Slate cards sharing a rarity color but
+  differing in every other cue, an Ability card's border matching its own
+  damage type, each card's badge text/color, and the full Alt hold/
+  release/mouse-over-card state machine - all 16 passed. `TestArena`
+  still loads clean.
+---
+
+## 2026-08-30 — Design Patch v3.2: Ward/Resistance System Overhaul
+
+User dropped a new design doc (`Project_Aether_Patch_v3_2.docx`) into
+`documents/` as part of a larger request and asked for it to be read and
+applied. Extracted and read it in full before touching code (177 lines,
+short enough to read start to finish) - a complete revision of Ward,
+adds a real Resistance system, removes Scorch, adds Resistance Shred.
+
+- **`WardComponent` rewritten**: absorbs ALL damage types now (the old
+  Esoteric-only restriction is gone), no mitigation of its own (pure
+  buffer). Real regen for the first time ever - 2s delay after any hit
+  (reset by every subsequent hit), then 4% of max Ward/second, +5% on
+  kill (`Enemy._on_died()`), +15% on Parry (unchanged ratio, still
+  invented - no exact number given for Parry specifically even though
+  passive/on-kill are now doc-exact). Every restoration source scales by
+  a new `restoration_multiplier` (Enigma +1%/point, "Ward Restoration is
+  a unified stat").
+- **Ward pool size** now has a real formula (`Player._apply_derived_stats()`):
+  invented base + Enigma scaling landing baseline near the patch's "Low"
+  band, plus `flat_ward` gear affixes - which existed since early in this
+  project but were purely descriptive (README gap #18) until this patch
+  gave Ward a formula to feed.
+- **Resistance System** (new): `StatSheet.equipment_resistance` (Fire/
+  Cold/Lightning/Esoteric - the last unifying Aetheric/Entropic/Pale per
+  the patch), summed from 4 new `ItemRoller.AFFIX_POOL` entries
+  (doc-exact 11-27% range, matching the patch's own Ring implicits) and
+  reusing the Crafting system's existing `Temper` Brand category. Added
+  the 4 named Resistance Rings (Ember/Frost/Volt/Void) as real items.
+  `DamageCalculator.resistance_mitigation()` mirrors `physical_mitigation()`'s
+  role for Elemental/Esoteric damage - capped at 75% (this project's own
+  invented ceiling, the patch caps nothing explicitly) but with no floor,
+  so Resistance Shred can push it negative.
+- **Order of operations rewritten** in `Player.take_damage()`: Armor
+  (Physical) or Resistance (Elemental/Esoteric) mitigates first, then
+  Ward absorbs whatever's left regardless of type, then Health. Ignite's
+  existing Resilience mitigation (`StatusEffectComponent._tick_ignite()`)
+  now stacks with Fire Resistance automatically, for free - it already
+  routed through `take_damage()`.
+- **Resistance Shred** (new mechanic, `StatusEffectComponent`):
+  diminishing-returns stacking verified against the patch's own worked
+  example (20%/15%/10% -> 32.5%, confirmed each source beyond the first
+  contributes at half of its OWN value, not a compounding chain). Wired
+  into both `Player.take_damage()` and `Enemy.take_damage()` - enemies
+  have no Resistance stat of their own, but "0% base - shred%" is still
+  real negative Resistance, which is the patch's own primary framing for
+  the mechanic (shredding an enemy). No current applier exists - the
+  patch introduces it via a Throwable-focused Unique this project can't
+  build yet (no Throwable weapon category).
+- **Scorch**: the patch removes it as a universal status effect. Nothing
+  to remove in this project - Scorch was never implemented in the first
+  place (already scoped out of `StatusEffectComponent`'s original pass
+  as needing a Fire-channel mechanic that doesn't exist).
+- Verified with an 18-check real scene-load test: Ward absorbing every
+  damage category, regen's delay/rate timing, `set_max_ward()`'s
+  missing-value preservation, the resistance formula at its cap and past
+  zero, Shred's exact stacking math, a full `Player.take_damage()` pass
+  proving Resistance actually reduces what reaches Ward, a real `Enemy`
+  taking exactly 20% more Fire damage after a Shred application, and
+  gear affixes reaching both `compute_resistance_bonuses()` and
+  `compute_flat_ward_bonus()` - all 18 passed. `TestArena`/`Hub`/
+  `GeneratedMap` all still load clean.
+
 ## 2026-08-30 — Slate System Expansion: Real Stats, Mastery, Chain Damage, a Roller
 
 User asked to expand the Slate system; a survey turned up that placing

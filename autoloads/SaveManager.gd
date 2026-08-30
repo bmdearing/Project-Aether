@@ -5,15 +5,17 @@ extends Node
 ##
 ## Saves at every meaningful transition (scene change away from gameplay,
 ## quit) rather than on a timer - few enough call sites to enumerate
-## directly (PauseMenu, DeathScreen, MainMenu, MapDevice).
+## directly (PauseMenu, DeathScreen, MainMenu, RealityEngine).
 ##
 ## Saves: equipment loadout (incl. rolled/pathless items via
 ## ItemSerializer), owned loot, owned Slates (SlateSerializer, same
-## rationale), ability loadout + ranks, level/XP, gold, owned ability
-## ids, settings. NOT saved: Fate Board LAYOUT (which Slate sits where -
-## owning a Slate and having it placed are different things; only
-## ownership persists), current Health/Ward/Mana or player position
-## (always resume the Hub at full), GameState.active_map.
+## rationale), Fate Board LAYOUT (which Slate sits where + any Spell
+## Slate's designated ability - GameState.fate_board_placements, user-
+## reported fix 2026-08-30: "Slates do not persist between scenes, they
+## need to stay on the character" - previously only ownership persisted),
+## ability loadout + ranks, level/XP, gold, owned ability ids, settings.
+## NOT saved: current Health/Ward/Mana or player position (always resume
+## the Hub at full), GameState.active_map.
 
 const SAVE_PATH := "user://savegame.json"
 
@@ -46,6 +48,7 @@ func save_game() -> void:
 		"owned_ability_ids": GameState.owned_ability_ids,
 		"owned_loot": owned_loot_data,
 		"owned_slates": owned_slates_data,
+		"fate_board_placements": GameState.fate_board_placements,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -107,6 +110,14 @@ func load_game() -> void:
 				if slate:
 					slates.append(slate)
 		GameState.owned_slates = slates
+
+	var placements_raw = parsed.get("fate_board_placements", [])
+	if typeof(placements_raw) == TYPE_ARRAY:
+		var placements := []
+		for entry in placements_raw:
+			if typeof(entry) == TYPE_DICTIONARY:
+				placements.append(entry)
+		GameState.fate_board_placements = placements
 
 func delete_save() -> void:
 	if FileAccess.file_exists(SAVE_PATH):

@@ -112,6 +112,18 @@ func get_total_armor() -> float:
 	if offhand: total += offhand.armor_value
 	return total
 
+## Patch v3.2: "Ward pool size scales through gear rolls." flat_ward
+## affixes existed since ItemRoller.AFFIX_POOL's first pass but were
+## purely descriptive (README gap #18) until this patch gave Ward a real
+## formula to feed - see Player._apply_derived_stats().
+func compute_flat_ward_bonus() -> float:
+	var total := 0.0
+	for item in get_all_equipped_items():
+		for affix in item.affixes:
+			if affix.stat_key == "flat_ward":
+				total += affix.value
+	return total
+
 ## Restore-descriptor per equipped item for GameState.sync_equipment() -
 ## a resource_path String, or an ItemSerializer Dictionary for rolled
 ## items (no resource_path to save as a path).
@@ -141,6 +153,27 @@ func compute_stat_bonuses() -> Dictionary:
 			if AFFIX_STAT_KEYS.has(affix.stat_key):
 				var stat: Constants.Stat = AFFIX_STAT_KEYS[affix.stat_key]
 				totals[stat] = totals.get(stat, 0.0) + affix.value
+	return totals
+
+## Patch v3.2 "Revision - Resistance System": fire_resistance_pct/
+## cold_resistance_pct/lightning_resistance_pct/esoteric_resistance_pct
+## (ItemRoller.AFFIX_POOL) sum straight into a percent per type - keys
+## match StatSheet.resistance_key_for()'s own "fire"/"cold"/"lightning"/
+## "esoteric" strings.
+const RESISTANCE_AFFIX_KEYS := {
+	"fire_resistance_pct": "fire",
+	"cold_resistance_pct": "cold",
+	"lightning_resistance_pct": "lightning",
+	"esoteric_resistance_pct": "esoteric",
+}
+
+func compute_resistance_bonuses() -> Dictionary:
+	var totals := {}
+	for item in get_all_equipped_items():
+		for affix in item.affixes:
+			if RESISTANCE_AFFIX_KEYS.has(affix.stat_key):
+				var key: String = RESISTANCE_AFFIX_KEYS[affix.stat_key]
+				totals[key] = totals.get(key, 0.0) + affix.value
 	return totals
 
 func get_all_equipped_items() -> Array[Item]:

@@ -60,6 +60,19 @@ static func physical_mitigation(armor: float, hit_damage: float) -> float:
 		return 0.0
 	return armor / (armor + 6.0 * hit_damage)
 
+## Patch v3.2 "Revision - Resistance System" gives no explicit floor or
+## ceiling (only that Resistance Shred can push Resistance negative,
+## amplifying damage taken) - these two bounds are user-set directly
+## (2026-08-30), replacing this project's own earlier invented 75%-cap/
+## uncapped-floor placeholder. -200% floor still leaves heavily-shredded
+## Resistance able to roughly triple incoming damage of that type; 95%
+## ceiling guarantees at least 5% of every hit always gets through no
+## matter how much Resistance is stacked.
+const RESISTANCE_FLOOR := -200.0
+const RESISTANCE_CEILING := 95.0
+static func resistance_mitigation(resistance_percent: float) -> float:
+	return clamp(resistance_percent, RESISTANCE_FLOOR, RESISTANCE_CEILING) / 100.0
+
 ## Section 12: base crit chance is fixed per weapon/spell type (2%-8%);
 ## Instinct is a multiplicative "+3% increased" modifier on that base.
 static func get_crit_chance(base_crit_chance: float, instinct: float) -> float:

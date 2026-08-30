@@ -44,3 +44,4 @@ aether_cost = 8
 rarity = 4
 modifiers = Array[ExtResource("2")]([SubResource("SubResource_1"), SubResource("SubResource_2"), SubResource("SubResource_3"), SubResource("SubResource_4")])
 implicit_flavor_text = "It does not wait for permission."
+requires_spell_designation = true

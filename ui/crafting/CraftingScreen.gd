@@ -21,6 +21,15 @@ class_name CraftingScreen
 ## choose which modifier. Selecting one is harmless for every other
 ## Brand combination; CraftingSystem.gd ignores it unless it's actually
 ## needed.
+##
+## Clicking a Brand (still adds it to the Cube, unchanged) also shows a
+## preview of what it can actually do to the selected item - for a
+## Damage/Defensive/Umbrella Brand, the real list of modifiers
+## ItemRoller._pool_for_brand_tag() would draw from (the exact same pool
+## _add_weighted_affix() rolls against, so the preview can't drift from
+## what a craft actually produces); for a Utility/Special Brand, its
+## function description instead (no "pool" to preview - it does a fixed
+## action, not a weighted roll).
 
 const CUBE_CAPACITY := CraftingSystem.CUBE_CAPACITY
 const PANEL_BG := Color(0.1, 0.1, 0.12, 0.97)
@@ -38,8 +47,10 @@ var _root: Control
 var _items_list: VBoxContainer
 var _target_label: Label
 var _affix_list: VBoxContainer
+var _brand_preview_label: Label
 var _cube_row: HBoxContainer
 var _craft_button: Button
+var _empower_button: Button
 var _status_label: Label
 var _brands_list: VBoxContainer
 var _consumables_list: VBoxContainer
@@ -63,6 +74,7 @@ func open() -> void:
 	_cube_brands = []
 	_selected_affix_index = -1
 	_status_label.text = ""
+	_brand_preview_label.text = ""
 	_refresh()
 
 func close() -> void:
@@ -200,6 +212,14 @@ func _build_cube_column() -> PanelContainer:
 	_affix_list = VBoxContainer.new()
 	col.add_child(_affix_list)
 
+	var preview_header := Label.new()
+	preview_header.text = "Brand preview (click a Brand below)"
+	col.add_child(preview_header)
+	_brand_preview_label = Label.new()
+	_brand_preview_label.autowrap_mode = TextServer.AUTOWRAP_WORD
+	_brand_preview_label.add_theme_color_override("font_color", Color(0.75, 0.85, 0.75))
+	col.add_child(_brand_preview_label)
+
 	var cube_header := Label.new()
 	cube_header.text = "Cube slots (click a Brand to place, a slot to remove)"
 	col.add_child(cube_header)
@@ -211,6 +231,14 @@ func _build_cube_column() -> PanelContainer:
 	_craft_button.text = "Craft"
 	_craft_button.pressed.connect(_on_craft_pressed)
 	col.add_child(_craft_button)
+
+	## Figments don't take Brands - see CraftingSystem.empower_figment()'s
+	## own comment for why the generic Cube path doesn't apply to them.
+	_empower_button = Button.new()
+	_empower_button.text = "Empower Figment (%d Gold)" % CraftingSystem.EMPOWER_FIGMENT_GOLD_COST
+	_empower_button.visible = false
+	_empower_button.pressed.connect(_on_empower_pressed)
+	col.add_child(_empower_button)
 
 	_status_label = Label.new()
 	_status_label.autowrap_mode = TextServer.AUTOWRAP_WORD
@@ -244,9 +272,23 @@ func _refresh_target_panel() -> void:
 	if _target_item == null:
 		_target_label.text = "Select an item"
 		_craft_button.disabled = true
+		_empower_button.visible = false
 		return
 
 	_target_label.text = "%s%s" % [_target_item.display_name, " (uncraftable)" if not _target_item.is_craftable else ""]
+
+	if _target_item is FigmentItem:
+		_craft_button.disabled = true
+		_empower_button.visible = true
+		var figment := _target_item as FigmentItem
+		var info := Label.new()
+		info.text = "Tier %d Figment - Empowering raises its tier and strengthens its rolls." % figment.tier
+		info.autowrap_mode = TextServer.AUTOWRAP_WORD
+		_affix_list.add_child(info)
+		for affix in figment.affixes:
+			_affix_list.add_child(_make_row_button(affix.description, SLOT_EMPTY_COLOR))
+		return
+	_empower_button.visible = false
 	_craft_button.disabled = not _target_item.is_craftable or _cube_brands.is_empty()
 
 	for i in range(_target_item.affixes.size()):
@@ -332,6 +374,7 @@ func _on_item_selected(item: Item) -> void:
 	_cube_brands = []
 	_selected_affix_index = -1
 	_status_label.text = ""
+	_brand_preview_label.text = ""
 	_refresh_target_panel()
 
 func _on_affix_clicked(index: int) -> void:
@@ -339,6 +382,7 @@ func _on_affix_clicked(index: int) -> void:
 	_refresh_target_panel()
 
 func _on_brand_clicked(brand: Brand) -> void:
+	_show_brand_preview(brand)
 	if _target_item == null:
 		_status_label.text = "Select an item first."
 		return
@@ -354,6 +398,33 @@ func _on_brand_clicked(brand: Brand) -> void:
 		return
 	_cube_brands.append(brand)
 	_refresh_target_panel()
+
+## Category Brands (Damage/Defensive/Umbrella) roll from a real, fixed
+## pool - show exactly what's in it for the currently selected item, so
+## the preview can never promise something a craft wouldn't actually
+## produce. Utility/Special Brands (Render, Cleave, Binder, ...) don't
+## roll from a pool at all - show what they DO instead.
+func _show_brand_preview(brand: Brand) -> void:
+	if _target_item == null:
+		_brand_preview_label.text = "%s - select an item to preview its rolls." % brand.display_name
+		return
+	if brand.brand_function in [Brand.BrandFunction.DAMAGE_TYPE, Brand.BrandFunction.DEFENSIVE_TYPE, Brand.BrandFunction.UMBRELLA]:
+		var pool := ItemRoller._pool_for_brand_tag(_target_item, brand.category_tag)
+		if pool.is_empty():
+			_brand_preview_label.text = "%s: no modifier exists for this category on this item type." % brand.display_name
+			return
+		var lines := PackedStringArray(["%s can roll one of:" % brand.display_name])
+		for entry in pool:
+			lines.append("- %s" % _format_pool_entry_preview(entry))
+		_brand_preview_label.text = "\n".join(lines)
+	else:
+		_brand_preview_label.text = "%s: %s" % [brand.display_name, brand.flavor_text]
+
+## Pool entries carry a "%d"/"%d%%" printf-style template (e.g. "+%d
+## Vitality") meant for a real rolled value - substitute a placeholder
+## since this is a preview of what's POSSIBLE, not an actual roll.
+func _format_pool_entry_preview(entry: Dictionary) -> String:
+	return (entry["desc"] as String).replace("%d", "X").replace("%%", "%")
 
 func _on_cube_slot_clicked(index: int) -> void:
 	if index < 0 or index >= _cube_brands.size():
@@ -375,6 +446,18 @@ func _on_craft_pressed() -> void:
 			_target_item = null
 		_cube_brands = []
 		_selected_affix_index = -1
+	_refresh()
+
+func _on_empower_pressed() -> void:
+	if not (_target_item is FigmentItem):
+		return
+	if GameState.gold < CraftingSystem.EMPOWER_FIGMENT_GOLD_COST:
+		_status_label.text = "Need %d Gold." % CraftingSystem.EMPOWER_FIGMENT_GOLD_COST
+		return
+	var result := CraftingSystem.empower_figment(_target_item)
+	if result["success"]:
+		GameState.gold -= CraftingSystem.EMPOWER_FIGMENT_GOLD_COST
+	_status_label.text = result["message"]
 	_refresh()
 
 func _on_consumable_pressed(consumable: Item) -> void:

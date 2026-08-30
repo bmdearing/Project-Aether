@@ -37,6 +37,11 @@ const GLASS_CANNON_SCENE := preload("res://entities/enemies/glass_cannon/GlassCa
 const MOBILE_BRUISER_SCENE := preload("res://entities/enemies/mobile_bruiser/MobileBruiser.tscn")
 const HEAVY_HITTER_SCENE := preload("res://entities/enemies/heavy_hitter/HeavyHitter.tscn")
 const ENEMY_SCENES: Array[PackedScene] = [GLASS_CANNON_SCENE, MOBILE_BRUISER_SCENE, HEAVY_HITTER_SCENE]
+## Replaces the Vault platform's old GlassCannon reward-enemy - "one
+## Vault per Map" already guarantees exactly one of these per generated
+## Map, making it the natural, zero-extra-plumbing spot for the one
+## guaranteed Figment boss too (see FigmentBoss.gd).
+const FIGMENT_BOSS_SCENE := preload("res://entities/enemies/figment_boss/FigmentBoss.tscn")
 
 ## Added after _spawn_player() - Godot readies children before parents,
 ## so these would find no Player in their own _ready() otherwise.
@@ -119,7 +124,8 @@ func _random_floor_color() -> Color:
 
 ## Vault-only: splits the footprint along Z into a main floor and an
 ## elevated platform with a gap between them, plus a full safety floor
-## underneath. An enemy stands on the platform as the jump's payoff.
+## underneath. The Figment's boss stands on the platform as the jump's
+## payoff - killing it "completes" the Figment (EventBus.figment_completed).
 func _build_split_floor(origin: Vector3, room: MapGraph.RoomData) -> void:
 	_build_floor(origin, ROOM_FOOTPRINT, ROOM_FOOTPRINT, -SAFETY_FLOOR_DROP, VAULT_FLOOR_COLOR)
 
@@ -132,7 +138,7 @@ func _build_split_floor(origin: Vector3, room: MapGraph.RoomData) -> void:
 	_build_floor(origin + Vector3(0, 0, platform_center_z), ROOM_FOOTPRINT, JUMP_PLATFORM_DEPTH, JUMP_PLATFORM_HEIGHT, PLATFORM_COLOR)
 
 	var enemy_pos := origin + Vector3(0, JUMP_PLATFORM_HEIGHT + 0.95, platform_center_z)
-	_spawn_enemy_at(GLASS_CANNON_SCENE, enemy_pos)
+	_spawn_enemy_at(FIGMENT_BOSS_SCENE, enemy_pos)
 
 func _build_floor(center: Vector3, size_x: float, size_z: float, height: float, color: Color) -> void:
 	var body := StaticBody3D.new()

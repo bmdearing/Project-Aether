@@ -81,7 +81,7 @@ max_health = 150.0
 
 [node name="WardComponent" type="Node" parent="."]
 script = ExtResource("3")
-max_ward = 100.0
+max_ward = 0.0
 
 [node name="ManaComponent" type="Node" parent="."]
 script = ExtResource("12")

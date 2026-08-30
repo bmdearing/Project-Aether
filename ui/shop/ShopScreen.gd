@@ -97,7 +97,7 @@ func _build_row(entry: Dictionary) -> HBoxContainer:
 	row.add_child(cost_label)
 
 	var buy_button := Button.new()
-	buy_button.text = "Take" if cost <= 0 else "Buy"
+	buy_button.text = entry.get("button_label", "Take" if cost <= 0 else "Buy")
 	buy_button.pressed.connect(_on_buy_pressed.bind(entry, buy_button, cost_label))
 	row.add_child(buy_button)
 

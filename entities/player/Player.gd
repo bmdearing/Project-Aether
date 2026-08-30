@@ -120,13 +120,15 @@ func _ready() -> void:
 	EventBus.slate_removed.connect(func(_id, _pos): _apply_fate_board_bonuses())
 	_apply_saved_loadout()
 	_apply_saved_experience()
+	_apply_saved_fate_board()
 	_on_equipment_changed()  # applies stat bonuses + visuals for whatever _apply_saved_loadout() just equipped
-	_apply_fate_board_bonuses()  # empty board at boot, but keeps StatSheet's Slate fields consistent rather than left at their class defaults
+	_apply_fate_board_bonuses()  # re-derives StatSheet's Slate fields from whatever _apply_saved_fate_board() just restored (empty on a fresh character)
 
 ## Fires on every equip()/unequip(), not just at spawn - also covers a
 ## shield/weapon equipped into a previously-empty slot.
 func _on_equipment_changed() -> void:
 	stat_sheet.set_equipment_bonus(equipment.compute_stat_bonuses())
+	stat_sheet.set_equipment_resistance(equipment.compute_resistance_bonuses())
 	_apply_derived_stats()
 	_update_shield_mesh()
 	_update_active_weapon_visual()
@@ -164,14 +166,34 @@ const INTELLECT_MANA_REGEN_PER_POINT := 0.1
 ## always re-derived in _apply_derived_stats() like every other stat here.
 var resilience: float = 0.0
 
+## User direction (clarifying/overriding Patch v3.2's own "gear rolls and
+## Enigma investment" wording): Ward's BASE size comes from armor only -
+## flat_ward gear affixes, full stop, no baseline pool (an earlier pass
+## invented a flat 300 + 60/Enigma-point curve, which meant a fresh,
+## ungeared character started with 900 Ward out of nowhere - the bug
+## report this fixes). Enigma then applies as an INCREASED% multiplier on
+## top of that base, not its own flat contribution - zero armor still
+## means zero Ward regardless of Enigma, since a multiplier on 0 is 0.
+## No doc-exact rate exists for this specific multiplier (the patch's
+## only exact Enigma/Ward number is the restoration-rate one below, a
+## different mechanic) - invented, flagged.
+const WARD_INCREASED_PER_ENIGMA := 0.02
+## Patch v3.2: "Enigma scales it globally (+1% per Enigma point)" - Ward
+## Restoration is explicitly a unified stat covering every restoration
+## source (passive regen, on-kill, Parry, etc. - see WardComponent.restore()).
+const WARD_RESTORATION_PER_ENIGMA := 0.01
+
 func _apply_derived_stats() -> void:
 	var vitality := stat_sheet.get_stat(Constants.Stat.VITALITY)
 	var intellect := stat_sheet.get_stat(Constants.Stat.INTELLECT)
+	var enigma := stat_sheet.get_stat(Constants.Stat.ENIGMA)
 	health.set_max_health(_base_max_health + vitality * VITALITY_LIFE_PER_POINT)
 	health.regen_per_second = vitality * VITALITY_LIFE_REGEN_PER_POINT
 	resilience = vitality * VITALITY_RESILIENCE_PER_POINT
 	mana.max_mana = _base_max_mana + intellect * INTELLECT_MANA_PER_POINT
 	mana.regen_per_second = _base_mana_regen + intellect * INTELLECT_MANA_REGEN_PER_POINT
+	ward.set_max_ward(equipment.compute_flat_ward_bonus() * (1.0 + enigma * WARD_INCREASED_PER_ENIGMA))
+	ward.restoration_multiplier = 1.0 + enigma * WARD_RESTORATION_PER_ENIGMA
 
 func get_dot_mitigation() -> float:
 	return DamageCalculator.dot_mitigation(resilience)
@@ -208,6 +230,43 @@ func _apply_saved_loadout() -> void:
 			if ability:
 				ability_loadout.equip(ability, i)
 	_apply_saved_ability_ranks()
+
+## Re-places every layout entry GameState.fate_board_placements holds -
+## Player is a fresh instance every scene load same as _apply_saved_
+## loadout() above, and fate_board was just recreated empty a few lines up
+## in _ready(). place_slate() re-syncs GameState.fate_board_placements as
+## each entry goes back down, which just reproduces the same array it's
+## reading from here - harmless. A restore that legitimately can't
+## succeed (e.g. hand-edited/corrupted save data implying overlapping
+## cells) silently drops that one placement rather than failing the
+## whole restore - place_slate() already no-ops safely on failure.
+func _apply_saved_fate_board() -> void:
+	for entry in GameState.fate_board_placements:
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var slate := _resolve_slate_ref(entry.get("slate_ref"))
+		if slate == null:
+			continue
+		var origin_raw = entry.get("origin", [0, 0])
+		var origin := Vector2i(int(origin_raw[0]), int(origin_raw[1])) if origin_raw is Array and origin_raw.size() == 2 else Vector2i.ZERO
+		fate_board.place_slate(
+			slate, origin, int(entry.get("rotation_steps", 0)), bool(entry.get("flipped", false)),
+			str(entry.get("designated_ability_id", ""))
+		)
+
+## slate_ref is a resource_path String (hand-authored palette Slate) or an
+## index (int, or float once round-tripped through JSON) into
+## GameState.owned_slates (a rolled, single-use drop) - see GameState.
+## sync_fate_board()'s own doc comment for why owned Slates go by index
+## rather than full re-serialization.
+func _resolve_slate_ref(ref) -> Slate:
+	if ref is String and ref != "":
+		return load(ref) as Slate
+	if ref is int or ref is float:
+		var idx := int(ref)
+		if idx >= 0 and idx < GameState.owned_slates.size():
+			return GameState.owned_slates[idx]
+	return null
 
 func _apply_saved_ability_ranks() -> void:
 	if GameState.ability_ranks.is_empty():
@@ -300,14 +359,23 @@ func _unshaded_material(color: Color) -> StandardMaterial3D:
 func get_active_weapon() -> Weapon:
 	return equipment.primary_weapon
 
+## Patch v3.2 "Order of Operations - All Damage": mitigation (Armor for
+## Physical, Resistance for Elemental/Esoteric - Evasion isn't modeled,
+## no dodge/deflection mechanic exists in this project) applies first,
+## then Ward absorbs whatever's left regardless of type (the old Esoteric-
+## only restriction is gone), then Ward overflow hits Health.
 func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null) -> void:
 	if parry_handler and parry_handler.is_invulnerable:
 		return
 	var mitigated := amount * status_effects.get_damage_taken_multiplier(damage_type)
-	if Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.PHYSICAL:
+	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
+	if category == Constants.DamageCategory.PHYSICAL:
 		var armor := equipment.get_total_armor() if equipment else 0.0
 		mitigated *= (1.0 - DamageCalculator.physical_mitigation(armor, mitigated))
-	var overflow := ward.absorb(mitigated, damage_type)
+	elif category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC:
+		var resistance := stat_sheet.get_resistance(damage_type) - status_effects.get_resistance_shred()
+		mitigated *= (1.0 - DamageCalculator.resistance_mitigation(resistance))
+	var overflow := ward.absorb(mitigated)
 	health.apply_damage(overflow)
 	EventBus.damage_dealt.emit(source, self, mitigated, damage_type, false, false)
 

@@ -1,7 +1,7 @@
 [gd_scene load_steps=18 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
-[ext_resource type="PackedScene" path="res://entities/interactables/map_device/MapDevice.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://entities/interactables/reality_engine/RealityEngine.tscn" id="2"]
 [ext_resource type="PackedScene" path="res://ui/debug/DebugOverlay.tscn" id="3"]
 [ext_resource type="PackedScene" path="res://ui/pause_menu/PauseMenu.tscn" id="4"]
 [ext_resource type="PackedScene" path="res://ui/fate_board_editor/FateBoardEditor.tscn" id="5"]
@@ -56,7 +56,7 @@ surface_material_override/0 = SubResource("StandardMaterial3D_floor")
 [node name="Player" parent="." instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
 
-[node name="MapDevice" parent="." instance=ExtResource("2")]
+[node name="RealityEngine" parent="." instance=ExtResource("2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)
 
 [node name="GearShop" parent="." instance=ExtResource("13")]
