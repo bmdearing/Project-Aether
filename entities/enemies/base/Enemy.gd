@@ -29,6 +29,23 @@ class_name Enemy
 @export var xp_reward: float = 10.0
 @export var gold_reward: int = 5
 
+## User request (2026-08-31): "a health bar on enemies when I hover over
+## them... shows the enemy's name." No display-name concept existed
+## before this - archetype subclasses set their own readable string in
+## their own _ready() (before super._ready() per Godot's child-first
+## order isn't guaranteed for @export, so each subclass just sets this
+## directly); falls back to the node's own Godot name (e.g. "GlassCannon")
+## if never set, so nothing shows a blank label.
+@export var display_name: String = ""
+
+func get_display_name() -> String:
+	return display_name if display_name != "" else name
+
+## Implementation Brief v3.4 Section 3 (2026-08-31): "Every enemy has a
+## headshot zone. Hitting it applies 25% increased damage taken to that
+## hit only." Head only for now, per the brief's own scope limit.
+@export var critical_spot_multiplier: float = 1.25
+
 const TELEGRAPH_COLOR := Color(1.0, 0.95, 0.2)
 
 @onready var health: HealthComponent = $HealthComponent
@@ -56,11 +73,27 @@ var _riposte_indicator: MeshInstance3D
 var _riposte_blink_tween: Tween
 var _status_icons: Dictionary = {}  # effect_id -> MeshInstance3D
 
+## User request (2026-08-31): enemy health bars "hang while we're in
+## combat and disappear when they lose track of me/I am out of combat
+## for 5 seconds." "In combat" = within chase_range of the player (the
+## same distance _update_chase() already gates its own chase/attack
+## logic on - "losing track of me" IS leaving chase_range, no separate
+## concept needed) OR has taken damage recently - updated continuously
+## from real state rather than a parallel combat-state machine.
+const OUT_OF_COMBAT_GRACE_MSEC := 5000
+var _last_combat_msec: int = -OUT_OF_COMBAT_GRACE_MSEC - 1
+
+func is_in_combat() -> bool:
+	return Time.get_ticks_msec() - _last_combat_msec < OUT_OF_COMBAT_GRACE_MSEC
+
 func _ready() -> void:
 	if rank != Constants.EnemyRank.BOSS:
 		rank = _roll_rank()
 	health.died.connect(_on_died)
 	add_to_group("enemy")
+	var head_zone := get_node_or_null("HeadZone")
+	if head_zone:
+		head_zone.add_to_group("critical_spots")
 	_player = get_tree().get_first_node_in_group("player") as Player
 	_build_riposte_indicator()
 	_build_status_icons()
@@ -180,6 +213,9 @@ func _update_chase() -> void:
 	var to_player: Vector3 = _player.global_position - global_position
 	to_player.y = 0.0
 	var dist := to_player.length()
+
+	if dist <= chase_range:
+		_last_combat_msec = Time.get_ticks_msec()
 
 	if dist > chase_range or dist < 0.001:
 		velocity.x = 0.0
@@ -366,7 +402,22 @@ func _spawn_slate_pickup(slate: Slate) -> void:
 ## meaningful negative Resistance - this is the doc's own primary framing
 ## for the mechanic (shredding an ENEMY's Resistance), so it's wired even
 ## without a full enemy-side Resistance system to shred FROM.
+## Implementation Brief v3.4 Section 3 - the brief's own `is_critical_spot
+## (hit_position: Vector3)` doesn't fit this project's actual hit
+## detection (no bones, no precise hit point anywhere - melee/ranged hits
+## are both plain Area3D body-overlap checks). Adapted to area-overlap
+## instead: true if the attacking Area3D (a weapon's hitbox, or a
+## Projectile) is ALSO currently overlapping this enemy's own HeadZone at
+## the moment of the hit - same intent (did this specific attack catch
+## the head), different mechanism to match what this project actually has.
+func is_critical_spot_hit(attacking_area: Area3D) -> bool:
+	var head_zone := get_node_or_null("HeadZone") as Area3D
+	if head_zone == null or attacking_area == null:
+		return false
+	return attacking_area.overlaps_area(head_zone)
+
 func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false) -> void:
+	_last_combat_msec = Time.get_ticks_msec()
 	var multiplier := composure.get_damage_multiplier(is_spell) if composure else 1.0
 	var status_multiplier := status_effects.get_damage_taken_multiplier(damage_type) if status_effects else 1.0
 	var mitigated := amount * multiplier * status_multiplier

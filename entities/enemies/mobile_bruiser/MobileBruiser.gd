@@ -5,6 +5,7 @@ class_name MobileBruiser
 
 func _ready() -> void:
 	super._ready()
+	display_name = "Mobile Bruiser"
 	archetype = Constants.EnemyArchetype.MOBILE_BRUISER
 	move_speed = 4.5
 	stop_distance = 2.3  # just inside MeleeAttack.attack_range (2.5)

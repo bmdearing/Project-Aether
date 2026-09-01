@@ -40,9 +40,17 @@ func _process(delta: float) -> void:
 		if _invuln_timer <= 0.0:
 			is_invulnerable = false
 
+## Implementation Brief v3.3 Section 7: a weapon's active stance can widen
+## the parry window (Rapier's own rapier_stance.tres: 1.5x) - only the
+## window DURATION changes, damage/Ward restore/Composure damage from a
+## successful parry are unaffected, per the brief's own explicit scope.
 func start_parry_window() -> void:
+	var player := get_parent() as Player
+	var window_mult := 1.0
+	if player and player.weapon_stance and player.weapon_stance.is_active and player.weapon_stance.current_behavior:
+		window_mult = player.weapon_stance.current_behavior.parry_window_multiplier
 	_parry_active = true
-	_parry_timer = parry_window_seconds
+	_parry_timer = parry_window_seconds * window_mult
 
 ## Call when an incoming attack from `attacker` would land while the parry
 ## window is open. Returns true if the parry succeeded.

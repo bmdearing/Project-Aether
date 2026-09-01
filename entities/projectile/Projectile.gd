@@ -45,10 +45,17 @@ func _on_body_entered(body: Node3D) -> void:
 func _hit_enemy(enemy: Enemy) -> void:
 	if enemy == null:
 		return
-	enemy.take_damage(damage_amount, damage_type)
+	# Implementation Brief v3.4 Section 3 - this projectile IS the
+	# attacking Area3D resolving the hit, checked against the target's
+	# HeadZone for overlap (see Enemy.is_critical_spot_hit()'s own header).
+	var is_critical_spot := enemy.is_critical_spot_hit(self)
+	var final_amount := damage_amount * enemy.critical_spot_multiplier if is_critical_spot else damage_amount
+	enemy.take_damage(final_amount, damage_type)
 	if enemy.stance:
-		enemy.stance.apply_attack_stance_damage(damage_amount, damage_type)
-	EventBus.damage_dealt.emit(source, enemy, damage_amount, damage_type, false, is_critical)
+		enemy.stance.apply_attack_stance_damage(final_amount, damage_type)
+	EventBus.damage_dealt.emit(source, enemy, final_amount, damage_type, false, is_critical)
+	if source is Player:
+		EventBus.hit_landed.emit(is_critical, is_critical_spot, not enemy.health.is_alive())
 
 func _hit_player(player: Player) -> void:
 	if player == null:

@@ -8,7 +8,8 @@ extends Node
 ## directly (PauseMenu, DeathScreen, MainMenu, RealityEngine).
 ##
 ## Saves: equipment loadout (incl. rolled/pathless items via
-## ItemSerializer), owned loot, owned Slates (SlateSerializer, same
+## ItemSerializer), both weapon sets + which is active (2026-08-31,
+## Implementation Brief v3.4 Section 4), owned loot, owned Slates (SlateSerializer, same
 ## rationale), Fate Board LAYOUT (which Slate sits where + any Spell
 ## Slate's designated ability - GameState.fate_board_placements, user-
 ## reported fix 2026-08-30: "Slates do not persist between scenes, they
@@ -40,6 +41,8 @@ func save_game() -> void:
 		"master_volume": GameState.master_volume,
 		"fullscreen": GameState.fullscreen,
 		"equipment_refs": GameState.equipment_refs,
+		"weapon_set_refs": GameState.weapon_set_refs,
+		"active_weapon_set": GameState.active_weapon_set,
 		"ability_loadout_paths": GameState.ability_loadout_paths,
 		"ability_ranks": GameState.ability_ranks,
 		"player_level": GameState.player_level,
@@ -77,6 +80,13 @@ func load_game() -> void:
 	GameState.master_volume = parsed.get("master_volume", GameState.master_volume)
 	GameState.fullscreen = parsed.get("fullscreen", GameState.fullscreen)
 	GameState.equipment_refs = _to_ref_array(parsed.get("equipment_refs"), GameState.equipment_refs)
+	var weapon_sets_raw = parsed.get("weapon_set_refs")
+	if typeof(weapon_sets_raw) == TYPE_ARRAY and weapon_sets_raw.size() == 2:
+		GameState.weapon_set_refs = [
+			_to_ref_array(weapon_sets_raw[0], GameState.weapon_set_refs[0]),
+			_to_ref_array(weapon_sets_raw[1], GameState.weapon_set_refs[1]),
+		]
+	GameState.active_weapon_set = int(parsed.get("active_weapon_set", GameState.active_weapon_set))
 	GameState.ability_loadout_paths = _to_string_array(parsed.get("ability_loadout_paths"), GameState.ability_loadout_paths)
 	var ranks = parsed.get("ability_ranks", {})
 	if typeof(ranks) == TYPE_DICTIONARY:

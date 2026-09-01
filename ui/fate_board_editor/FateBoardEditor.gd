@@ -1,19 +1,11 @@
 extends CanvasLayer
 class_name FateBoardEditor
-## Vertical-slice Fate Board placement UI (Section 10). Renders
-## GameState.fate_board's live placements/Aether budget via FateBoardGrid,
-## and recomputes ChainCalculator results after every placement/removal.
+## Fate Board placement UI. Renders GameState.fate_board's live
+## placements/Aether budget via FateBoardGrid, and recomputes
+## ChainCalculator results after every placement/removal.
 ##
 ## Palette = only real SlateRoller drops (GameState.owned_slates) - placing
-## one removes it from the palette until it's removed from the board
-## again (see _is_slate_available()), same "you only have the one" rule
-## gear/Brands/consumables already follow elsewhere. User request
-## (2026-08-30): "the player starts with several slates... instead of
-## having to earn them" - this used to also freely list every hand-
-## authored data/slates/instances/ sample as an unlimited "owns one of
-## each" testing stand-in (the same pattern InventoryScreen's item catalog
-## had, fixed earlier the same day), which meant a fresh save effectively
-## started with the whole sample set already unlocked.
+## one removes it from the palette until it's removed from the board again.
 
 const SLATE_INSTANCES_DIR := "res://data/slates/instances/"
 const ABILITY_INSTANCE_DIR := "res://data/abilities/instances/"
@@ -46,6 +38,7 @@ func _ready() -> void:
 	add_to_group("fate_board_editor")
 	add_to_group("blocking_menu")
 	grid.cell_clicked.connect(_on_cell_clicked)
+	grid.drop_requested.connect(_on_drop_requested)
 	close_button.pressed.connect(close)
 	designate_option.item_selected.connect(_on_designate_option_selected)
 
@@ -143,6 +136,13 @@ func _refresh_designate_options(slate: Slate) -> void:
 
 func _on_designate_option_selected(index: int) -> void:
 	_pending_designated_ability_id = _designate_ability_ids[index] if index >= 0 and index < _designate_ability_ids.size() else ""
+
+func _on_drop_requested() -> void:
+	_selected_slate = null
+	grid.set_pending(null, 0, false)
+	selected_label.text = ""
+	status_label.text = ""
+	designate_option.visible = false
 
 func _on_cell_clicked(cell: Vector2i, button_index: int) -> void:
 	if button_index == MOUSE_BUTTON_RIGHT or _selected_slate == null:

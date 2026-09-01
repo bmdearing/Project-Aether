@@ -20,6 +20,9 @@ albedo_color = Color(0.75, 0.18, 0.18, 1)
 [sub_resource type="SphereShape3D" id="SphereShape3D_hitbox"]
 radius = 2.5
 
+[sub_resource type="SphereShape3D" id="SphereShape3D_headzone"]
+radius = 0.22
+
 [node name="Enemy" type="CharacterBody3D"]
 script = ExtResource("1")
 
@@ -53,3 +56,11 @@ monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="AttackHitbox"]
 shape = SubResource("SphereShape3D_hitbox")
+
+[node name="HeadZone" type="Area3D" parent="."]
+position = Vector3(0, 1.55, 0)
+monitoring = false
+monitorable = true
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HeadZone"]
+shape = SubResource("SphereShape3D_headzone")

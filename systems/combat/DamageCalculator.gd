@@ -1,8 +1,20 @@
 extends RefCounted
 class_name DamageCalculator
-## Section 11 damage formula: Final Damage = Base Weapon Damage x Motion
-## Value x (Scaling Grade x Mastery) x (1 + sum Increased%) x product(More).
-## Increased pools additively; More multipliers stack multiplicatively.
+## Implementation Brief v3.3 Section 1 damage formula (2026-08-31,
+## BREAKING CHANGE - replaces the old multiplicative one below):
+##   Attack Power = base_weapon_damage + (stat_value x grade_multiplier)
+##   Spell Power  = stat_value x grade_multiplier  (same formula with
+##     base_weapon_damage = 0 - a spell has no weapon; Ability._base_hit()
+##     passes 0.0, not the old 1.0 multiplicative-identity placeholder,
+##     since 1.0 would now silently add +1 flat damage to every spell)
+##   Final Damage = Power x Motion Value x (1 + sum Increased%) x
+##     product(More multipliers)
+## Old formula (removed): base_weapon_damage x motion_value x
+## (stat_value x grade_scale x (1 + mastery)) x increased x more - the
+## old grade "scale" was a fraction of stat_value multiplied INTO an
+## already-stat-scaled term, producing numbers in the thousands at level
+## 1. Increased%/More multiplier logic is UNCHANGED per the brief -
+## additive pool, multiplicative stack, same as always.
 
 class DamageResult:
 	var final_damage: float = 0.0
@@ -20,12 +32,18 @@ static func calculate(
 	more_multipliers: Array[float],     # each e.g. 1.3 for a 30% More multiplier
 	damage_type: Constants.DamageType
 ) -> DamageResult:
-	var range: Vector2 = Constants.SCALING_RANGES[scaling_grade]
+	var range: Vector2 = Constants.GRADE_MULTIPLIER_RANGES[scaling_grade]
 	# lerp() returns Variant (polymorphic) - explicit : float avoids inferring Variant.
-	var base_scale: float = lerp(range.x, range.y, clamp(grade_roll_t, 0.0, 1.0))
-	var effective_scale := base_scale * (1.0 + mastery_bonus)
+	var grade_multiplier: float = lerp(range.x, range.y, clamp(grade_roll_t, 0.0, 1.0))
+	# Mastery only affects the grade multiplier for matching tags, never
+	# universal - already scoped correctly since every caller only ever
+	# passes a tag-matched mastery_bonus in.
+	var effective_grade_multiplier := grade_multiplier * (1.0 + mastery_bonus)
 
-	var scaled_stat_damage := stat_value * effective_scale
+	# Attack Power (weapon calls, base_weapon_damage > 0) or Spell Power
+	# (spell calls, base_weapon_damage == 0) - same additive formula
+	# either way, see this file's own header for why spells pass 0 here.
+	var power := base_weapon_damage + (stat_value * effective_grade_multiplier)
 
 	var increased_sum := 0.0
 	for pct in increased_percents:
@@ -38,14 +56,14 @@ static func calculate(
 
 	var result := DamageResult.new()
 	result.damage_type = damage_type
-	result.final_damage = base_weapon_damage * motion_value * scaled_stat_damage * increased_multiplier * more_multiplier
+	result.final_damage = power * motion_value * increased_multiplier * more_multiplier
 	result.breakdown = {
 		"base_weapon_damage": base_weapon_damage,
 		"motion_value": motion_value,
-		"base_scale": base_scale,
+		"grade_multiplier": grade_multiplier,
 		"mastery_bonus": mastery_bonus,
-		"effective_scale": effective_scale,
-		"scaled_stat_damage": scaled_stat_damage,
+		"effective_grade_multiplier": effective_grade_multiplier,
+		"power": power,
 		"increased_multiplier": increased_multiplier,
 		"more_multiplier": more_multiplier,
 	}

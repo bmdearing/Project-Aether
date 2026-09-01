@@ -27,13 +27,10 @@ var _occupied_cells: Dictionary = {}
 ## placement_id (String, unique per placed instance) -> PlacedSlateData
 var placements: Dictionary = {}
 
-## User direction (2026-08-30): "Slates should have to connect with each
-## other, not be placed freely." The board otherwise has no fixed origin
-## (Section 10 calls it "effectively unlimited" - Aether is the only
-## constraint) so this one cell is always treated as already "placed" for
-## adjacency purposes, giving an empty board a legal first placement to
-## build outward from - invented, no doc-given board origin exists.
-const ANCHOR_CELL := Vector2i(16, 16)
+## Always treated as already "placed" for adjacency purposes, so an empty
+## board has a legal first placement to build outward from. Centered on
+## FateBoardGrid's own GRID_SIZE (150).
+const ANCHOR_CELL := Vector2i(75, 75)
 const _ADJACENT_DIRS := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 
 class PlacedSlateData:

@@ -8,12 +8,20 @@ const HUB_SCENE := "res://levels/hub/Hub.tscn"
 const MAP_SCENE := "res://levels/generated_map/GeneratedMap.tscn"
 const MAIN_MENU_SCENE := "res://ui/main_menu/MainMenu.tscn"
 
-## worn_pistol.tres isn't a default - it and crude_greatsword both target
-## PRIMARY_WEAPON now (see worn_pistol.tres), so listing both would just
-## have the second silently replace the first at boot.
+## Non-weapon defaults only - weapon-set slots (PRIMARY_WEAPON/SIDEARM_
+## WEAPON/OFFHAND) moved to DEFAULT_WEAPON_SET_0_PATHS below as of the
+## dual weapon-set system (2026-08-31, Implementation Brief v3.4 Section 4,
+## user-expanded scope), since equipment_refs/get_all_equipped_refs() no
+## longer cover weapon slots at all - see EquipmentComponent.WEAPON_SET_SLOTS.
 const DEFAULT_EQUIPMENT_PATHS: Array[String] = [
-	"res://data/weapons/instances/crude_greatsword.tres",
 	"res://data/armor/instances/padded_coat.tres",
+]
+## worn_pistol.tres isn't a default - it and crude_greatsword both target
+## PRIMARY_WEAPON (see worn_pistol.tres), so listing both would just have
+## the second silently replace the first at boot. Only weapon SET 0 gets
+## a starting weapon; set 1 starts empty.
+const DEFAULT_WEAPON_SET_0_PATHS: Array[String] = [
+	"res://data/weapons/instances/crude_greatsword.tres",
 ]
 ## Abilities aren't free-equipped by default - found via SkillTome drops
 ## or the Hub's SpellTestShop. Fixed-length-4 (not `[]`) since slot index
@@ -36,7 +44,19 @@ var fullscreen: bool = false
 ## Each entry is a resource_path String or a Dictionary
 ## (ItemSerializer.to_dict(), for rolled items with no path). Written by
 ## InventoryScreen via sync_equipment(), applied by Player._ready().
+## Weapon-set slots are NOT in here - see weapon_set_refs below.
 var equipment_refs: Array = DEFAULT_EQUIPMENT_PATHS.duplicate()
+
+## Two weapon sets (Implementation Brief v3.4 Section 4, user-expanded
+## scope) - weapon_set_refs[0]/[1], each the same ref-array shape
+## equipment_refs uses, but scoped to just that set's own primary/
+## sidearm/offhand (EquipmentComponent.get_weapon_set_refs()). Restored
+## explicitly by index in Player._apply_saved_loadout() rather than
+## folded into the generic equipment_refs loop, since which SET an item
+## belongs to isn't recoverable from the item itself the way which SLOT
+## it belongs to is.
+var weapon_set_refs: Array = [DEFAULT_WEAPON_SET_0_PATHS.duplicate(), []]
+var active_weapon_set: int = 0
 
 ## Slot index = the ability_N hotkey; "" marks an empty slot.
 var ability_loadout_paths: Array[String] = DEFAULT_ABILITY_LOADOUT_PATHS.duplicate()
@@ -104,6 +124,10 @@ func _on_figment_completed(figment: FigmentItem) -> void:
 func sync_equipment(equipment: EquipmentComponent) -> void:
 	equipment_refs = equipment.get_all_equipped_refs()
 
+func sync_weapon_sets(equipment: EquipmentComponent) -> void:
+	weapon_set_refs = [equipment.get_weapon_set_refs(0), equipment.get_weapon_set_refs(1)]
+	active_weapon_set = equipment.active_weapon_set
+
 func sync_ability_loadout(loadout: AbilityLoadoutComponent) -> void:
 	ability_loadout_paths = loadout.get_all_paths()
 
@@ -138,6 +162,8 @@ func sync_fate_board(board: FateBoard) -> void:
 
 func reset_to_defaults() -> void:
 	equipment_refs = DEFAULT_EQUIPMENT_PATHS.duplicate()
+	weapon_set_refs = [DEFAULT_WEAPON_SET_0_PATHS.duplicate(), []]
+	active_weapon_set = 0
 	ability_loadout_paths = DEFAULT_ABILITY_LOADOUT_PATHS.duplicate()
 	ability_ranks = {}
 	owned_ability_ids = []

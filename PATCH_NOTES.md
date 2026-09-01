@@ -7,6 +7,378 @@ there. Most recent first.
 
 ---
 
+## 2026-09-01 — Comment Trim, Navigable Fate Board, Clean Slate Shapes
+
+**Comment verbosity.** User: "I need you to work on not over-commenting a
+lot. Theres a LOT of line bloat from comments about how I've asked you to
+do this for a certain thing." Going forward, code comments explain what
+something does and how it works, not "user asked for X on date Y" - that
+history belongs here, not in the source.
+
+**Fate Board made large and navigable.** User: "Make the Fate Board large
+and navigable. Make it so that you can hold LMB to move it around and
+look around the board. And utilize RMB to 'drop' a slate from the held
+item so you aren't holding it for too long." `FateBoardGrid.GRID_SIZE`
+went from 32 to 150 (`ANCHOR_CELL` recentered to (75, 75) to match), and
+its `_gui_input()` gained click-vs-drag disambiguation: an LMB press
+records its start position, and if a subsequent motion event (with the
+left button in its `button_mask`) moves past a 6px threshold, the grid
+switches into panning the parent `ScrollContainer`'s scroll offset
+directly instead of ever firing `cell_clicked` on release. RMB drops the
+currently-held Slate (`drop_requested` signal, new) when one is pending,
+or falls back to its old remove-at-cell behavior when nothing is held.
+
+**Clean Slate shapes.** User: "any make it a clean shape for self
+contained slates, but show the walls for separate slates. As in if I put
+in one slate, its one solid shape instead of 7 squares in a shape."
+`_draw_walls()` now only draws a grid line on a cell edge when the two
+cells it separates belong to different placements (or one side is
+empty) - two cells from the same placed Slate read as one solid shape
+with no internal lines.
+
+Verified with a scratch scene-load test (`FateBoardGrid._gui_input()`
+called directly with synthetic `InputEventMouseButton`/`InputEventMouseMotion`
+objects) - caught two real GDScript gotchas along the way, both in the
+test harness rather than the actual code: lambda closures
+(`func(): flag = true`) capture local variables **by value**, not by
+reference, so a plain bool local never reflected a signal firing inside
+one - fixed by capturing a single-element array instead, which is a
+reference type. And an initial drag-pan check dragged in the direction
+that would push `scroll_horizontal` negative from its starting 0, which
+correctly clamps back to 0 and looked like a no-op - fixed by dragging
+the other way, which has room to move. All 7 checks pass; full headless
+regression sweep across `FateBoardEditor.tscn`, `Hub.tscn`,
+`TestArena.tscn`, and `PinnacleArena.tscn` came back clean.
+
+---
+
+## 2026-08-31 (even newer) — Damage-Trail Tween on Health Bars, Cleaner Boss Fill
+
+User: "tween with damage on the health bars, with the damaged portions
+being a lighter color" + "for the boss health bar... let's make the fill
+more clean." Both bars gained the classic WoW-style health bar behavior:
+the main fill drops instantly to the new (lower) value, while a wider,
+lighter "trailing" sliver stays behind at the OLD value and drains down
+to catch up over 0.45s - a heal snaps both together instead, since
+there's no damage to trail behind. `EnemyHealthBar` draws it as a second,
+wider rect underneath the main fill; `BossHealthBar` feeds a second
+`trailing_fraction` shader uniform. The boss bar's fill also dropped its
+blocky hash-noise "vein" texture (the actual "not clean" culprit) for a
+smooth vertical gradient - kept the pulsing glow at the fill edge, which
+read as a good "menacing" touch rather than noise.
+
+**A real, if inconclusive, bug hunt along the way:** the first
+implementation used a `Tween`/`tween_method()` for the drain animation
+(matching this project's existing XP-bar-fill pattern in `PlayerHUD.gd`).
+It silently never worked - the tween was created successfully, reported
+`is_valid() == true`, the `MethodTweener` came back non-null, yet its
+callback never fired even once across 400 headless frames, confirmed
+with a debug print. A minimal isolated diagnostic (a bare `Node`
+creating a tween in its own `_ready()`) worked perfectly in the same
+environment, so the issue was somehow specific to creating the tween
+inside a method call on a dynamically-instantiated `Control` rather than
+a scene-tree-rooted `Node`'s own `_ready()` - never fully root-caused.
+Not chased further because the fix was simpler than the investigation
+would have been: `_process(delta)`-driven linear interpolation, which is
+already this exact file set's own established pattern (`HitMarker.gd`
+right next to these two uses a timer in `_process()`, not a Tween).
+Verified with a scratch test - flagged one real timing-measurement
+lesson in the process: `SceneTreeTimer` waits and `_process(delta)`
+accumulation are both real-wall-clock-based and agree with each other
+given enough real elapsed time, but a short wait (0.5s) checked
+immediately on resume can read a still-mid-flight interpolation as
+"stuck" when it's actually just not finished yet - not a bug, just too
+tight a margin between two independently-real-time-based waits. Confirmed
+by widening the wait to 2s: the trail reached its exact target.
+
+---
+
+## 2026-08-31 (newest) — 8-State Hit Markers, Enemy Health Bars, Boss Bar
+
+**Hit marker redesign**, per a user reference image laying out the full
+state matrix (the old marker only had 3 states: white/gold/nothing).
+Color now encodes WHERE a non-kill hit landed (white = normal body, gold
+= weakpoint) - but a KILL is always red regardless of where, so red needs
+its own sub-encoding: a small perpendicular tick on each arm marks a roll
+crit (used by all 3 colors), and a wider gap right at the center marks a
+weakpoint (only shown on kills - white/gold already carry "weakpoint" via
+color for non-kills, so a non-kill weakpoint hit doesn't also need the
+gap). 8 total distinct glyphs, matching the reference image's own count
+exactly (2 white + 2 gold + 4 red). `EventBus.hit_landed` grew from one
+bool to three (`is_critical`, `is_critical_spot`, `is_kill`) - `is_kill`
+is computed at each real hit-resolution call site (`PlayerMeleeAttack.
+_deal_damage()`, its own Riposte branch, `Projectile._hit_enemy()`) by
+checking `target.health.is_alive()` immediately after `take_damage()`,
+since `HealthComponent.apply_damage()` updates `current_health`
+synchronously before returning - no separate "was this the killing blow"
+tracking needed.
+
+**Enemy health bars.** New `EnemyHealthBar.gd` - a floating world-
+projected bar + name label, shown per enemy when either the crosshair is
+aimed at them (a camera-forward raycast, same pattern `PlayerAbilityCast.
+_get_ground_target_point()` already uses) or they're "in combat"
+(`Enemy.is_in_combat()`, new: within `chase_range` of the player - the
+same distance the chase state machine already gates on, so "losing track
+of me" is just leaving that range, no separate concept invented - OR has
+taken damage in the last 5 seconds). Positioned every frame via
+`Camera3D.unproject_position()`, hidden via `is_position_behind()` -
+matches this project's established `_draw()`-based HUD convention
+(StatOrb/Crosshair/HitMarker) rather than a Label3D/SubViewport approach.
+Enemies never had a display name before this - `Enemy.display_name`
+(archetype subclasses set a readable string: "Glass Cannon"/"Mobile
+Bruiser"/"Heavy Hitter"/"Arator the Redeemer", falling back to the node's
+own Godot name if never set) plus `get_display_name()`.
+
+**Boss health bar.** Fixed top-center, wider, its own animated
+`canvas_item` shader (same technique `StatOrb.gd` established earlier
+this session) - a marbled/veined dark-red fill with a pulsing glow right
+at the fill edge, instead of `EnemyHealthBar`'s plain rect fill, since
+"stylized and menacing" is explicitly a visual-quality ask. Triggered by
+`Enemy.rank == Constants.EnemyRank.BOSS` - the only boss-tier concept
+that exists in this project (added 2026-08-30 for loot-level gating);
+"Pinnacle boss" and "uber boss" both read as that same rank for now, this
+project has nothing that distinguishes them from each other yet. Caught
+and fixed a real, previously-unnoticed bug while wiring this up:
+`FigmentBoss` (the one existing boss encounter, in the Figment Vault)
+never actually set `rank = BOSS` - it was silently getting a RANDOMLY
+ROLLED rank (Normal/Magic/Rare) like any other enemy ever since the rank
+system was added, meaning its loot was never actually dropping at the
+correct +5-level boss tier either. Fixed by setting `rank = 3` directly
+in `FigmentBoss.tscn` (before `_ready()` runs, same mechanism every other
+boss-flagged scene is meant to use) - a real correctness fix that had
+nothing to do with the health bar feature itself, just surfaced by
+building something that finally reads `rank` in a way where the bug was
+visible.
+
+All verified with a scratch test (7/7): display names resolve correctly,
+a fresh enemy starts out of combat, `take_damage()` marks it in-combat,
+the 5-second grace window correctly decays back out, `FigmentBoss` is now
+correctly BOSS-ranked with its name, and both bar classes compute/accept
+values without error. Visual confirmation of the on-screen appearance
+was NOT completed this pass - two attempts to screenshot the running game
+both failed to actually bring its window to the foreground (the first
+attempt accidentally captured this session's own chat window instead,
+deleted immediately without further action; the second confirmed via an
+explicit title check beforehand that focus had landed on an unrelated
+Chrome window instead, so no screenshot was taken at all that time). The
+underlying logic is verified, the pixels aren't - worth a real playtest.
+
+---
+
+## 2026-08-31 (later) — Implementation Brief v3.4: Crosshair, Critical Spots, Dual Weapon Sets, Stance Behaviors
+
+Second brief in a row with real mismatches against the actual codebase -
+same lesson as v3.3 (see README gap #34), applied again: researched
+before writing anything, found several concrete inaccuracies, presented
+them plainly, and got direction on the two that were genuine forks
+(weapon-swap scope, Conduit routing) rather than guessing.
+
+**What didn't match reality:** `ui/hud/HUD.tscn` doesn't exist (real path:
+`ui/player_hud/`). `DamageCalculator` has no `target`/`hit_position`
+concept - it's a stateless formula utility; real hit resolution (and the
+actual `target` reference) lives in `PlayerMeleeAttack._deal_damage()`/
+`Projectile._hit_enemy()`. No `hit_position` exists anywhere - melee and
+ranged hits are both plain Area3D body-overlap checks, not raycasts.
+Enemies are unshaped placeholder capsules with no bones/skeleton.
+"Shortbow"/"Longbow" don't exist in this project's weapon catalog at all
+(all-firearms-plus-Wand/Staff setting). No "weapon swap" feature or
+`weapon_swap` input action existed despite the brief calling it
+"existing." Section 7 re-introduced the dedicated Conduit-slot design the
+user explicitly rejected earlier this session ("Conduits are not a slot").
+
+**Crosshair + Hit Markers** (Sections 1-2): static always-on cross
+(`Crosshair.gd`) and a 3-state hit marker (`HitMarker.gd`, white/gold/
+nothing) built into `PlayerHUD.gd` at the real path. `EventBus.hit_landed`
+is emitted from the actual hit-resolution call sites instead of
+`DamageCalculator` (which can't see a target at all) - `PlayerMeleeAttack.
+_deal_damage()` for melee (including Riposte, always gold) and
+`Projectile._hit_enemy()` for ranged (player-sourced shots only).
+
+**Critical Spot System** (Section 3): adapted from the brief's
+`hit_position`-based check to an area-overlap one that actually fits this
+project - each `Enemy.tscn` gained a `HeadZone` Area3D (small sphere near
+the capsule's top), and `Enemy.is_critical_spot_hit(attacking_area)`
+checks whether the attacking hitbox/projectile is ALSO currently
+overlapping it. +25% damage, gold hit marker, same as a normal crit.
+Verified directly with a real `Area3D` probe positioned at the HeadZone
+(detected) and 50 units away (not detected).
+
+**Dual Weapon Sets + Tap/Hold X** (Section 4, user-expanded well beyond
+the brief's own ask): the brief assumed weapon-swap-on-tap already
+existed; it didn't, so this became real new functionality - "Let players
+have 2 sets of a main hand/off hand weapon... properly show which set is
+worn in the inventory screen." `EquipmentComponent.primary_weapon`/
+`sidearm_weapon`/`offhand` are now COMPUTED properties (get/set) over new
+`Array[Weapon]`/`Array[Shield]` backing fields of size 2, indexed by
+`active_weapon_set` - every existing caller (`get_active_weapon()`,
+`get_total_armor()`, `compute_ward_bonus()`, stat aggregation, visuals)
+kept working completely unchanged, since they were always just reading/
+writing "the field," which now transparently routes to whichever set is
+active. `equip()`/`unequip()`/`get_equipped()` gained an optional
+`weapon_set` param for targeting a specific set explicitly (InventoryScreen's
+new toggle button, and restoring a save's own two sets by index).
+`GameState.weapon_set_refs`/`active_weapon_set` persist both sets
+separately from the general `equipment_refs` (which now excludes weapon
+slots entirely - a flat "everything active" list can't represent an
+INACTIVE set's own items). Bound a real `weapon_swap` input action to X
+(wasn't in the Input Map before this). Tap swaps the active set; holding
+past 0.25s instead toggles the stance PAGE (Section 4's OTHER ask,
+`WeaponStance.toggle_stance_page()`, named that instead of the brief's
+own `toggle_stance()` since this file already overloads "stance" for the
+RMB-hold concept). InventoryScreen shows "Weapon Set: A/B (worn)" next to
+the existing paper-doll, which needed zero changes itself - it was always
+reading through `get_equipped()`, which now automatically reflects
+whichever set is active. Verified: two sets independently hold different
+weapons, the getter correctly follows the active index both directions,
+`get_all_equipped_refs()` no longer leaks weapon-slot items, and
+`get_weapon_set_refs()` returns the right ref per set.
+
+**Ranged/Melee Stance Behaviors** (Sections 5-6): `StanceBehavior` split
+into `RangedStanceBehavior`/`MeleeStanceBehavior` subclasses (each adding
+its own descriptive `stance_type` enum - not redeclaring
+`move_speed_multiplier` in the subclass despite the brief's own snippet
+doing so, since GDScript doesn't support a subclass re-declaring a
+parent's exported var). Melee: 9 real weapon types x 2 pages = 18 new
+`.tres` files, each weapon's page keyed by `weapon_type`/`weapon_type +
+"_b"` - `WeaponStance._resolve_behavior()` now takes the whole Weapon and
+checks the page-B key first. Ranged: the brief asks for one `.tres` per
+weapon LINE (not per bare type) - a single `weapon_type` dictionary key
+can't hold more than one behavior, so ranged instances store their real
+`base_line_id` (Section 25's own line identifier) in the inherited
+`weapon_type` field instead, and resolution tries the equipped weapon's
+own `base_line_id` before falling back to its plain type name. A small
+generator (`tools/generate_ranged_stances.gd`, same one-shot-tool
+convention as Section 25's own generator) scanned every real generated
+ranged weapon and produced 26 real per-line `.tres` files (Shortbow/
+Longbow's 2 dual-stance types skipped - they don't exist). Only Rapier
+(already real since v3.3, plus a new PARRY_READY page B at 2.0x window)
+and Cutlass's Water Slices got real behavioral logic, per the brief's own
+scope limit - Water Slices deals 40% of the hit's own damage again as a
+separate Cold instance while that stance page is active (exact formula
+the brief gave, `EventBus.damage_applied` doesn't exist in this project
+so reused the existing `damage_dealt` signal instead). Dagger's STEALTH
+page is data-only (no enemy-detection-radius hook exists to build a real
+stealth effect against, and the brief gave no formula for it unlike Water
+Slices) - flagged as a real gap, not silently dropped.
+
+**Section 7 (Caster page 2)**, per user direction ("route by weapon_type
+instead"): the toggle architecture (`active_page`, `toggle_stance_page()`,
+page-aware `_resolve_behavior()`) is generic enough to cover this without
+any Conduit-specific code at all - a future caster weapon's page-B
+`StanceBehavior` would just be authored as `"<WeaponType>_b"`, resolved
+by the same mechanism every melee weapon's page B already uses. No
+Conduit-slot/offhand-spell-page code was written, matching both the
+user's routing direction and the brief's own "spell page content is
+deferred" scope.
+
+All verified with a scratch test isolated from the real save file (11/11
+checks) plus a direct `Area3D` probe test for critical-spot overlap (2/2).
+One screenshot mid-verification accidentally captured this session's own
+chat window instead of the game (a foreground-focus mixup, not a game
+bug) - deleted immediately without further action, and visual
+confirmation of the crosshair/stance indicator's on-screen appearance was
+left incomplete as a result; the underlying logic is verified, the pixels
+weren't.
+
+---
+
+## 2026-08-31 — Implementation Brief v3.3: Damage Formula, Jab/Thrust/Charged Merge
+
+User provided a written design document ("Implementation Brief v3.3") with
+explicit "Files to Create/Modify/Leave Alone" lists. Before touching
+anything, checked the brief against the actual codebase - it describes
+`WeaponStance` and `PlayerMeleeAttack` as new/stub components to create at
+new paths (`entities/player/`), but both already exist, more developed
+than the brief assumes: `systems/combat/WeaponStance.gd` already has
+right-click stance, arm-pose integration, and ranged FOV zoom;
+`systems/combat/PlayerMeleeAttack.gd` already has a real Windup/Strike/
+Recovery state machine, per-weapon motion values/durations/intensities,
+and a combo-pose system the brief's own "DO NOT: add combo systems" line
+directly contradicts. Creating the brief's files at its literal paths
+would have hit a hard Godot conflict (two scripts both declaring
+`class_name WeaponStance`) and silently deleted real, screenshot-verified
+work from earlier passes. Asked the user how to reconcile it rather than
+picking a side - answer: merge the brief's new ideas into the EXISTING
+files, preserve arm-pose integration and per-weapon motion value
+architecture, but DO replace the combo-index cycling with the brief's
+literal 3-attack model (no attack chains).
+
+**Damage formula - BREAKING CHANGE, done exactly as specified.** Old
+formula multiplied a stat-scaled term into base_weapon_damage
+(`base_weapon_damage x motion_value x (stat_value x grade_scale x (1 +
+mastery)) x increased x more`), producing damage in the thousands at
+level 1. New formula is additive: `Attack Power = base_weapon_damage +
+(stat_value x grade_multiplier)`, `Spell Power` is the same formula with
+`base_weapon_damage = 0`. `Constants.SCALING_RANGES` renamed to
+`GRADE_MULTIPLIER_RANGES` with entirely new value ranges (S: 1.5-2.0 ->
+3.0-4.0, etc. - a different unit, not a tuning pass). One fix beyond the
+brief's own listed files: `Ability._base_hit()` used to pass `1.0` as
+`base_weapon_damage` (a multiplicative-identity placeholder under the old
+formula, since a spell has no weapon) - under the new ADDITIVE formula
+that would silently add +1 flat damage to every spell hit, so it now
+passes `0.0`. Verified via scratch test: a Grade C weapon with 10
+Strength now deals ~18.7 damage (sane), not thousands; Ice Pulse at 0
+Arcane deals exactly 0 (no leftover flat base).
+
+**Jab / standard thrust / charged thrust**, merged into the existing
+`PlayerMeleeAttack.gd`/`Player.gd` rather than replacing them:
+`Player._handle_attack_input()` tracks LMB hold time for melee weapons
+outside stance - release under 0.6s fires `try_light_jab()` (motion value
+x0.6), release at or past 0.6s fires `try_standard_thrust()` (x1.0, the
+same power/timing every attack already had before this brief - this
+"replaces" the old single attack in name only). Charged thrust (stance +
+LMB press, x1.8) is a rename of the pre-existing `try_special_attack()`,
+unchanged mechanically. All three multipliers apply on TOP of the
+existing per-weapon `WEAPON_TYPE_MOTION_VALUE` base (user direction -
+preserve that architecture) rather than replacing it, matching how the
+1.8x charged multiplier already worked before this brief. The old
+`_combo_index`-cycling `WEAPON_TYPE_COMBO_POSES` (repeated presses
+rotating through a weapon's pose list) is gone, per user direction to
+honor the brief's "no combo systems" line - each weapon's former 2-pose
+list is repurposed as a FIXED per-attack-type pose instead (`WEAPON_TYPE_
+JAB_POSE`/`WEAPON_TYPE_THRUST_POSE`, index 0/1 of the old list), so the
+per-weapon pose variety already authored survives, it just no longer
+cycles over time.
+
+**StanceBehavior resource** (`data/stance/StanceBehavior.gd`, brand new,
+matches the brief exactly) - `move_speed_multiplier`/`parry_window_
+multiplier`/an unused `stance_animation` slot, resolved by the active
+weapon's `weapon_type` from a dir-scanned `data/stance/instances/`
+(same convention `PlayerAbilityCast`/`TomeRoller` already use). Only
+`rapier_stance.tres` exists (0.8 move speed, 1.5x parry window), per the
+brief's own explicit scope - every other weapon type falls back to
+`WeaponStance`'s hardcoded 0.75 default. Wired into `Player._effective_
+speed()` (new multiplier source) and `ParryRiposteHandler.start_parry_
+window()` (window duration only - damage/Ward restore/Composure damage
+from a parry are unaffected, per the brief's own scope note).
+
+**Explicitly skipped: Section 6 (ArmRig placeholder animation methods).**
+The brief frames arm rig animation as unbuilt ("invisible - architecture
+only, no visible output yet") and asks for no-op `play_attack()`/
+`play_stance_enter()`/`play_stance_exit()` stubs. `PlayerArmRig.gd`
+already has real, working, screenshot-verified procedural animation
+(`play_attack_swing()`, `enter_ready_pose()`, `exit_ready_pose()`, a full
+3-bone shoulder/elbow/wrist chain) built over several earlier passes -
+adding no-op stubs with different names would just be dead code shadowing
+better functionality that already exists. Left `PlayerArmRig.gd`
+untouched.
+
+`melee_attack_executed` signal added to `EventBus.gd` per the brief's own
+file list, emitted from `PlayerMeleeAttack._deal_damage()` alongside (not
+instead of) the existing `damage_dealt` - carries `motion_value` so a
+future consumer can tell attack types apart, which `damage_dealt` alone
+can't do. Not consumed anywhere yet.
+
+Verified end to end with a scratch test (not just a headless load check):
+damage formula sanity, Spell Power's zero-base fix, the Grade Multiplier
+table's new values, `try_light_jab()`/`try_standard_thrust()` correctly
+setting attack type, Rapier's `StanceBehavior` resolving on stance entry,
+its 0.8 move-speed multiplier reading correctly, and its 1.5x parry
+window multiplier correctly widening `0.25s -> 0.375s`. All 8 checks
+passed clean.
+
+---
+
 ## 2026-08-30 (newest) — Leveling Is Actually Hard Now, Aether Per Level
 
 **XP curve steepened.** User: "experience requirement should increase the

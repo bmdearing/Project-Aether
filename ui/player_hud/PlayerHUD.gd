@@ -75,6 +75,14 @@ var _gold_label: Label
 var _last_gold: int = -1
 var _status_row: HBoxContainer
 var _status_chips: Dictionary = {}  # effect_id -> Label
+var _hit_marker: HitMarker
+
+## User request (2026-08-31): floating enemy health bars on hover/in-
+## combat, plus a special top-of-screen bar for boss-rank enemies.
+const ENEMY_HEALTH_BAR_HEIGHT_OFFSET := 2.2  # world-space Y above the enemy's own origin
+const ENEMY_HOVER_MAX_RANGE := 30.0
+var _enemy_bars: Dictionary = {}  # Enemy instance id (int) -> EnemyHealthBar
+var _boss_bar: BossHealthBar
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -88,6 +96,9 @@ func _ready() -> void:
 	_build_weapon_indicator()
 	_build_gold_label()
 	_build_status_row()
+	_build_crosshair()
+	_build_hit_marker()
+	_build_stance_indicator()
 
 	if is_instance_valid(_player):
 		_player.health.health_changed.connect(_on_health_changed)
@@ -97,7 +108,33 @@ func _ready() -> void:
 		EventBus.weapon_swapped.connect(_on_weapon_swapped)
 		EventBus.status_effect_applied.connect(_on_status_effect_applied)
 		EventBus.status_effect_expired.connect(_on_status_effect_expired)
+		EventBus.hit_landed.connect(_hit_marker.show_hit)
 		call_deferred("_initial_refresh")
+
+## Implementation Brief v3.4 Section 1: a CenterContainer holding the
+## static cross - full-rect anchored so its center always lands on
+## screen center regardless of resolution.
+func _build_crosshair() -> void:
+	var container := CenterContainer.new()
+	container.set_anchors_preset(Control.PRESET_FULL_RECT)
+	container.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var crosshair := Crosshair.new()
+	crosshair.custom_minimum_size = Vector2(40, 40)
+	container.add_child(crosshair)
+	add_child(container)
+
+func _build_hit_marker() -> void:
+	_hit_marker = HitMarker.new()
+	_hit_marker.set_anchors_preset(Control.PRESET_FULL_RECT)
+	add_child(_hit_marker)
+
+func _build_stance_indicator() -> void:
+	var indicator := StanceIndicator.new()
+	indicator.offset_left = 16.0
+	indicator.offset_bottom = -16.0
+	indicator.offset_top = -40.0
+	indicator.offset_right = 200.0
+	add_child(indicator)
 
 func _initial_refresh() -> void:
 	if not is_instance_valid(_player):
@@ -276,6 +313,77 @@ func _process(_delta: float) -> void:
 	if GameState.gold != _last_gold:
 		_last_gold = GameState.gold
 		_gold_label.text = "Gold: %d" % GameState.gold
+	_update_enemy_health_bars()
+
+## User request (2026-08-31): "a health bar on enemies when I hover over
+## them... hangs while we're in combat and disappears when they lose
+## track of me/I am out of combat for 5 seconds" - qualifying condition
+## is hover (crosshair raycast) OR Enemy.is_in_combat() (see that
+## function's own header). Boss-rank enemies get the special top-of-
+## screen BossHealthBar instead of a floating one, never both.
+func _update_enemy_health_bars() -> void:
+	if not is_instance_valid(_player) or _player.camera == null:
+		return
+	var camera := _player.camera
+	var hovered_id := _get_hovered_enemy_id(camera)
+
+	var seen_ids := {}
+	var active_boss: Enemy = null
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy == null or not enemy.health.is_alive():
+			continue
+		var id := enemy.get_instance_id()
+		if not (id == hovered_id or enemy.is_in_combat()):
+			continue
+		if enemy.rank == Constants.EnemyRank.BOSS:
+			if active_boss == null:
+				active_boss = enemy
+			continue
+		seen_ids[id] = true
+		var bar: EnemyHealthBar = _enemy_bars.get(id)
+		if bar == null:
+			bar = EnemyHealthBar.new()
+			add_child(bar)
+			_enemy_bars[id] = bar
+		bar.set_enemy_name(enemy.get_display_name())
+		bar.set_health(enemy.health.current_health, enemy.health.max_health)
+		var world_pos := enemy.global_position + Vector3(0, ENEMY_HEALTH_BAR_HEIGHT_OFFSET, 0)
+		if camera.is_position_behind(world_pos):
+			bar.visible = false
+		else:
+			bar.visible = true
+			bar.position = camera.unproject_position(world_pos) - bar.size / 2.0
+
+	for id in _enemy_bars.keys():
+		if not seen_ids.has(id):
+			_enemy_bars[id].queue_free()
+			_enemy_bars.erase(id)
+
+	_update_boss_bar(active_boss)
+
+func _update_boss_bar(boss: Enemy) -> void:
+	if boss == null:
+		if _boss_bar:
+			_boss_bar.visible = false
+		return
+	if _boss_bar == null:
+		_boss_bar = BossHealthBar.new()
+		add_child(_boss_bar)
+	_boss_bar.visible = true
+	_boss_bar.set_boss_name(boss.get_display_name())
+	_boss_bar.set_health(boss.health.current_health, boss.health.max_health)
+
+func _get_hovered_enemy_id(camera: Camera3D) -> int:
+	var origin := camera.global_position
+	var forward := -camera.global_transform.basis.z
+	var space_state := _player.get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + forward * ENEMY_HOVER_MAX_RANGE)
+	query.exclude = [_player.get_rid()]
+	var result := space_state.intersect_ray(query)
+	if result and result.get("collider") is Enemy:
+		return (result["collider"] as Enemy).get_instance_id()
+	return -1
 
 func _build_weapon_indicator() -> void:
 	_weapon_icon = ItemSlotButton.new()

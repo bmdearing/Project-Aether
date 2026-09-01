@@ -61,12 +61,21 @@ displacement so the target always stays in reach - a straight rotation-
 share was tried first and looked "awkward," like the off-hand let go of
 the sword, since two arms with different shoulder positions and bone
 lengths swing along different arcs even given identical rotations).
-Normal attacks cycle through per-weapon swing types
-(`WEAPON_TYPE_COMBO_POSES`) so repeated attacks read as a combo instead
-of the same cut every time - Greatsword alternates two horizontal sweeps
-only (no diagonal mixed in, so it reads as one consistent windmill, not
-two unrelated motions), anything else gets a 3-pose diagonal+horizontal
-mix. Swing timing/arc size are both per-weapon-type
+**Three distinct melee attacks** (Implementation Brief v3.3 Section 2,
+2026-08-31, merged into this existing system rather than a rewrite - see
+the flagged gap below): light jab (LMB tap, released under 0.6s hold,
+motion value x0.6, a quicker swing), standard thrust (LMB held >=0.6s
+then released, x1.0 - the same power/timing every attack already had
+before the brief), and charged thrust (stance + LMB press, x1.8,
+unchanged mechanically from the pre-brief "special attack," just renamed
+- see Weapon Stance below). All three multipliers apply on top of the
+existing per-weapon `WEAPON_TYPE_MOTION_VALUE` base. Replaces the old
+combo-index cycling (`WEAPON_TYPE_COMBO_POSES`, repeated presses rotating
+through a weapon's pose list) - the brief explicitly doesn't want a combo
+system, so each weapon's former pose list is now a FIXED pose per attack
+type instead (`WEAPON_TYPE_JAB_POSE`/`WEAPON_TYPE_THRUST_POSE` - Greatsword's
+two sweeps still exist, one's just always the jab and the other's always
+the thrust now, no alternation). Swing timing/arc size are both per-weapon-type
 (`WEAPON_TYPE_SWING_DURATION_MULT`/`WEAPON_TYPE_SWING_INTENSITY` in
 `PlayerMeleeAttack.gd`) - a Greatsword swings ~2.4x slower with a ~1.3x
 bigger arc than the baseline, a Dagger faster/tighter. Idle sway/bob, the
@@ -83,8 +92,9 @@ attack's own big windup pose at an even further boosted intensity, which
 swung the sword/arm ~114 degrees around the shoulder and off past the
 edge of the screen - user report, fixed by giving stance its own much
 smaller pose entirely rather than reusing an attack pose at any scale).
-Pressing Attack while active fires `PlayerMeleeAttack.try_special_attack()`
-instead of a normal swing - a bigger, slower, harder-hitting version of
+Pressing Attack while active fires `PlayerMeleeAttack.try_charged_thrust()`
+(renamed from `try_special_attack()`, 2026-08-31, same mechanic) instead
+of a normal swing - a bigger, slower, harder-hitting version of
 the swing (1.8x motion value, 1.4x duration, 1.1x arc) using a
 weapon-specific pose (`WEAPON_TYPE_SPECIAL_POSE`): Greatsword gets an
 exaggerated horizontal `BIG_SWEEP`, Dagger gets a `DASH_THRUST` that also
@@ -94,6 +104,18 @@ before the stab lands. Ranged weapons aim instead - the camera FOV zooms
 in while held, and firing while aimed deals 1.4x damage (no
 spread/accuracy system exists to tighten instead). `StanceComponent.gd`
 is unrelated - that's an enemy poise/posture bar, not this.
+
+**StanceBehavior** (`data/stance/StanceBehavior.gd`, Implementation Brief
+v3.3 Section 4, 2026-08-31): per-weapon-type stance tuning - a move speed
+multiplier while stance is active (new: `WeaponStance.get_move_speed_
+multiplier()`, now folded into `Player._effective_speed()`) and a parry
+window multiplier (new: `ParryRiposteHandler.start_parry_window()` reads
+it - only the window DURATION changes, not parry's damage/Ward restore/
+Composure effects). Resolved by the active weapon's `weapon_type` from a
+dir-scanned `data/stance/instances/`. Only `rapier_stance.tres` exists
+(0.8x move speed, 1.5x parry window) - every other weapon type falls back
+to a hardcoded 0.75x move speed and an unwidened parry window, per the
+brief's own explicit scope (no other weapon types get one yet).
 
 **Weapon base types** (`data/weapons/instances/*.tres`, dynamically
 scanned by `ItemRoller.BASE_ITEM_DIRS` for loot drops/Gear Shop stock -
@@ -115,7 +137,8 @@ Enigma that scales Esoteric spells - through the existing generic
 slot an item sits in, no new "conduit" mechanic needed). Every melee type
 now has a genuinely distinct swing/punch/thrust pose, not just a scaled
 copy of another weapon's motion (`PlayerMeleeAttack.
-WEAPON_TYPE_COMBO_POSES`/`WEAPON_TYPE_SPECIAL_POSE`), and ranged weapons
+WEAPON_TYPE_JAB_POSE`/`WEAPON_TYPE_THRUST_POSE`/`WEAPON_TYPE_SPECIAL_POSE`),
+and ranged weapons
 finally have a fire-reaction animation too (`PlayerRangedAttack.
 _play_fire_animation()`, cosmetic only - doesn't touch the instant-fire
 timing). Real 3D models exist for Greatsword/Dagger/Bow/Staff
@@ -168,9 +191,23 @@ the instant Strike - and while channeling Flame Jets (0.4x, see Abilities
 below) - both read through `Player._effective_speed()` the same way
 Instinct/status-effect speed modifiers already do.
 
-**Combat formula** (`systems/combat/DamageCalculator.gd`): implements the
-Section 11 formula (`Base Damage x Motion Value x Stat Value x Scaling-Grade
-Fraction x Mastery x Increased% x More multipliers`), now followed by a
+**Combat formula** (`systems/combat/DamageCalculator.gd`): rewritten
+2026-08-31 per Implementation Brief v3.3 Section 1 (BREAKING CHANGE) -
+the original Section 11 formula (`Base Damage x Motion Value x Stat Value
+x Scaling-Grade Fraction x Mastery x Increased% x More multipliers`)
+multiplied a stat-scaled term directly into base damage, producing
+numbers in the thousands at level 1. Replaced with an additive one:
+`Attack Power = base_weapon_damage + (stat_value x grade_multiplier x (1
++ mastery))`, `Spell Power` is the identical formula with
+`base_weapon_damage = 0` (a spell has no weapon - `Ability._base_hit()`
+now passes `0.0`, not the old `1.0` multiplicative-identity placeholder,
+which would otherwise silently add +1 flat damage to every spell under
+the new additive math), `Final Damage = Power x Motion Value x (1 + sum
+Increased%) x product(More multipliers)` - Increased%/More multiplier
+logic itself is unchanged. `Constants.SCALING_RANGES` renamed to
+`GRADE_MULTIPLIER_RANGES` with new, much larger ranges (S: 1.5-2.0 ->
+3.0-4.0, etc. - a different unit under the new formula, not a tuning
+pass on the old numbers). Followed by a
 **Critical Strike System** (also Section 11, doc-exact numbers): base crit
 chance is fixed per weapon/spell type (`Constants.WEAPON_BASE_CRIT_CHANCE`,
 2%-8%), multiplied by Instinct; a crit deals 150% damage, multiplied by
@@ -400,12 +437,19 @@ reality).
 **Fate Board** (`systems/fate_board/`, `ui/fate_board_editor/`, Section
 10): grid Slate placement gated by an Aether budget, flood-fill chain
 detection with tiered bonuses (`Constants.CHAIN_BONUS_TIERS`, doc-exact).
-UI is a bounded 32x32 window (not the doc's "effectively unlimited"
-board), opens with `P`. The palette shows the hand-authored
-`data/slates/instances/` samples (11 now - see below) as an always-
-available catalog, plus every real `SlateRoller` drop in
-`GameState.owned_slates` - those are finite: placing one removes it from
-the palette until it's pulled back off the board.
+UI is a 150x150 grid inside a `ScrollContainer` (2026-09-01, up from a
+bounded 32x32 window - much closer to the doc's "effectively unlimited"
+board, though still technically bounded), opens with `P`. Hold LMB and
+drag to pan around the board; a plain click (no drag) still places or
+removes a Slate. RMB drops the currently held Slate if one is pending,
+or removes whatever's at the clicked cell otherwise. Two cells that
+belong to the same placed Slate render with no line between them (one
+solid shape); a line is still drawn between different Slates, or against
+empty space. The palette shows the hand-authored `data/slates/instances/`
+samples (11 now - see below) as an always-available catalog, plus every
+real `SlateRoller` drop in `GameState.owned_slates` - those are finite:
+placing one removes it from the palette until it's pulled back off the
+board.
 
 **Layout now persists** (2026-08-30, user-reported: "Slates do not
 persist between scenes, they need to stay on the character") - Player is
@@ -889,9 +933,10 @@ None of the six have a `PauseMenu` button — hotkey-only.
    (17 now, including the 8 Section 26 additions from 2026-08-30) are
    invented (relative to each ability's described weight) — the doc gives
    the damage formula and flavor text but never per-ability numbers.
-5. **Fate Board UI is a bounded 32x32 window**, not the "effectively
-   unlimited" board Section 10 describes — a deliberate scope cut.
-   Revisit with real pan/zoom if a Slate loadout ever needs more room.
+5. **Fate Board UI is a bounded 150x150 grid with pan** (2026-09-01, up
+   from 32x32), not the doc's literal "effectively unlimited" board — a
+   deliberate scope cut, though large enough that hitting the edge in
+   practice is unlikely.
 6. **Inventory is a uniform 1x1 grid**, not the Tetris-footprint Satchel
    (Section 14) — `Item.gd` has no width/height field. Confirmed with the
    user as the right scope, not a silent guess.
@@ -1201,6 +1246,68 @@ None of the six have a `PauseMenu` button — hotkey-only.
     checked against the same concern and found already correctly earned-
     only (`GameState.owned_ability_ids` defaults empty) - no change
     needed there.
+34. **"Implementation Brief v3.3" (a written design doc the user provided
+    2026-08-31) described `WeaponStance`/`PlayerMeleeAttack` as new/stub
+    components to create at new paths, but both already existed, more
+    developed than the brief assumed** - see PATCH_NOTES.md's own entry
+    for the full reconciliation. Net result: the brief's new ideas (the
+    additive damage formula, `StanceBehavior`, jab/thrust/charged attack
+    types) are merged into the EXISTING files at their existing paths,
+    not the brief's literal new ones; the existing per-weapon motion
+    value/duration/intensity/arm-pose architecture and Windup/Strike/
+    Recovery state machine survived intact; the old combo-index cycling
+    did NOT survive (removed per user direction, honoring the brief's own
+    "no combo systems" line). The brief's Section 6 (ArmRig no-op
+    animation placeholder methods, framed as if arm animation were
+    unbuilt) was skipped entirely - real, working, screenshot-verified
+    procedural animation already exists on `PlayerArmRig.gd` from earlier
+    passes, so adding differently-named no-op stubs would just be dead
+    code. If a future brief/patch document arrives, check it against the
+    actual current file contents before implementing anything from it
+    verbatim - this is the second time in this project's history a
+    design document's assumptions about what already exists have turned
+    out to be stale (see gap #18's own Section 25 history for the first).
+35. **"Implementation Brief v3.4" (2026-08-31) had the same stale-
+    assumptions problem as v3.3, a third confirmation this is a real
+    pattern with these documents, not a one-off** - `ui/hud/HUD.tscn`
+    doesn't exist (real path `ui/player_hud/`), no `hit_position`/
+    `is_conduit`/weapon-swap input action/feature existed anywhere, and
+    "Shortbow"/"Longbow" aren't real weapon types in this project's
+    all-firearms-plus-Wand/Staff catalog. See PATCH_NOTES.md's own entry
+    for the full reconciliation - crosshair/hit markers/critical spots
+    (adapted to this project's actual Area3D-overlap hit detection, no
+    real hit_position anywhere to check a point against), dual weapon
+    sets (`EquipmentComponent.primary_weapon`/etc. are now computed
+    properties over a 2-element array, user-expanded well beyond the
+    brief's own ask once the "existing" swap feature turned out not to
+    exist), and per-line ranged/per-type melee `StanceBehavior` data.
+    Section 7 (Caster page 2) was rerouted by weapon_type per user
+    direction rather than the brief's own Conduit-slot design, which
+    conflicted with an explicit earlier decision this session ("Conduits
+    are not a slot"). Only Rapier and Cutlass's Water Slices got real
+    stance behavioral logic - everything else is data + an enum tag,
+    exactly the brief's own scope limit ("stub the behavior methods, full
+    implementation per stance is a separate pass"). Dagger's STEALTH page
+    is one exception to that limit worth calling out on its own - the
+    brief's wording allows it to have real logic, but gives no formula
+    for it (unlike Water Slices, which came with exact code), and no
+    enemy-detection-radius hook exists in this project to hang a real
+    stealth mechanic off of - left as data-only, a genuine gap rather
+    than an invented mechanic with no spec behind it.
+36. **Hit markers redesigned to an 8-state matrix, enemy health bars, and
+    a stylized boss health bar are all brand-new** (2026-08-31, user
+    reference image + request) - see PATCH_NOTES.md's own entry for the
+    full detail. `Enemy.is_in_combat()` (within `chase_range` OR damaged
+    in the last 5s) and `Enemy.display_name`/`get_display_name()` are new
+    concepts with no prior equivalent. The boss health bar keys off
+    `Constants.EnemyRank.BOSS` - "Pinnacle boss" and "uber boss" both read
+    as that one existing rank for now, nothing in this project
+    distinguishes them from each other yet. Building this surfaced a real,
+    unrelated pre-existing bug: `FigmentBoss` never actually set
+    `rank = BOSS` (fixed directly in `FigmentBoss.tscn`) - it had been
+    getting a randomly-rolled rank like any other enemy since the rank
+    system was added 2026-08-30, meaning its loot was silently never
+    dropping at the correct +5-level boss tier either.
 
 ## Explicitly not built yet (per Vertical Slice Brief scope)
 

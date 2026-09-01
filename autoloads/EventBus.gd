@@ -3,6 +3,24 @@ extends Node
 ## to each other - keeps FateBoard, Combat, and UI decoupled.
 
 signal damage_dealt(source: Node, target: Node, amount: float, damage_type: int, is_more_multiplier_applied: bool, is_critical: bool)
+## Implementation Brief v3.3 Section 5/"Files to Modify" - fired once per
+## landed melee hit alongside (not instead of) damage_dealt above; carries
+## motion_value so a future consumer (combat log, audio) can tell a light
+## jab apart from a charged thrust without re-deriving it from damage_dealt's
+## own amount, which damage_dealt alone can't do.
+signal melee_attack_executed(source: Node, final_damage: float, damage_type: int, motion_value: float)
+## Fired once per PLAYER-landed hit (melee or ranged), consumed by
+## PlayerHUD's HitMarker. Redesigned 2026-08-31 (user reference image) from
+## the original 2-bool "3 states only" version to carry all 3 independent
+## facts a marker needs to distinguish - is_critical (a roll crit),
+## is_critical_spot (a weakpoint/headshot hit), is_kill (this hit killed
+## the target) - see HitMarker.show_hit() for how they combine into 8
+## distinct glyphs.
+signal hit_landed(is_critical: bool, is_critical_spot: bool, is_kill: bool)
+## Implementation Brief v3.4 Section 4 - fired by WeaponStance.
+## toggle_stance_page() alongside its own local stance_page_changed signal,
+## for UI (StanceIndicator) that doesn't hold a direct WeaponStance reference.
+signal stance_page_changed(page: int)
 signal status_effect_applied(target: Node, effect_id: String, stacks: int)
 signal status_effect_expired(target: Node, effect_id: String)
 

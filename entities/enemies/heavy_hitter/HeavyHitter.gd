@@ -5,6 +5,7 @@ class_name HeavyHitter
 
 func _ready() -> void:
 	super._ready()
+	display_name = "Heavy Hitter"
 	archetype = Constants.EnemyArchetype.HEAVY_HITTER
 	move_speed = 1.8
 	stop_distance = 2.3  # just inside MeleeAttack.attack_range (2.5)

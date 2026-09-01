@@ -69,6 +69,7 @@ var _animation_locked: bool = false
 
 func _ready() -> void:
 	super._ready()
+	display_name = "Arator the Redeemer"
 	archetype = Constants.EnemyArchetype.HEAVY_HITTER  # closest fit - Lethal + Tanky, taken to an extreme
 	move_speed = 1.4
 	stop_distance = 2.6

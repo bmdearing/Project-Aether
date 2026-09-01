@@ -124,14 +124,21 @@ const DAMAGE_TYPE_MAIN_STAT := {
 
 enum ScalingGrade { S, A, B, C, D, E }
 
-# Base scaling ranges (min, max) as decimal fractions of stat value. Section 11.
-const SCALING_RANGES := {
-	ScalingGrade.S: Vector2(1.50, 2.00),
-	ScalingGrade.A: Vector2(1.06, 1.49),
-	ScalingGrade.B: Vector2(0.76, 1.05),
-	ScalingGrade.C: Vector2(0.56, 0.75),
-	ScalingGrade.D: Vector2(0.36, 0.55),
-	ScalingGrade.E: Vector2(0.20, 0.35),
+# Grade Multiplier ranges (min, max) - Implementation Brief v3.3 Section 1,
+# BREAKING CHANGE, replaces the old SCALING_RANGES entirely (2026-08-31).
+# The old formula treated this range as a fraction of stat value multiplied
+# into an already-stat-scaled damage term, producing numbers in the
+# thousands at level 1; the new one is a flat multiplier on stat_value
+# that's ADDED to base weapon damage (see DamageCalculator.calculate()) -
+# same enum, deliberately different value ranges/units, not a tuning pass
+# on the old numbers.
+const GRADE_MULTIPLIER_RANGES := {
+	ScalingGrade.S: Vector2(3.0, 4.0),
+	ScalingGrade.A: Vector2(2.0, 2.9),
+	ScalingGrade.B: Vector2(1.2, 1.9),
+	ScalingGrade.C: Vector2(0.7, 1.1),
+	ScalingGrade.D: Vector2(0.4, 0.6),
+	ScalingGrade.E: Vector2(0.2, 0.3),
 }
 
 # Chain Bonus System - Section 10. Tuple: (tile_range_start, tile_range_end, bonus_per_tile)

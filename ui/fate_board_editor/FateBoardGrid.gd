@@ -1,22 +1,22 @@
 extends Control
 class_name FateBoardGrid
-## Bounded 32x32-cell window into the Fate Board (Section 10 says the real
-## board is "effectively unlimited" - Aether is the constraint, not space -
-## so a fixed viewport is enough to place/remove Slates and see chain math
-## without building a pannable/infinite canvas). Pure rendering + input;
-## FateBoard.can_place()/place_slate() stay the source of truth.
+## Renders the Fate Board and handles placement input. Pure rendering +
+## input; FateBoard.can_place()/place_slate() stay the source of truth.
+## Sits inside a ScrollContainer (its parent) that clips/scrolls this
+## oversized Control - LMB-drag pans by driving that ScrollContainer's
+## scroll offset directly.
 
 signal cell_clicked(cell: Vector2i, button_index: int)
+signal drop_requested
 
-const GRID_SIZE := 32
+const GRID_SIZE := 150
 const CELL_PX := 20
 const GRID_LINE_COLOR := Color(1, 1, 1, 0.08)
 const VALID_PREVIEW_COLOR := Color(0.2, 0.9, 0.3, 0.55)
 const INVALID_PREVIEW_COLOR := Color(0.9, 0.2, 0.2, 0.55)
-## FateBoard.ANCHOR_CELL's on-grid marker color - the one cell every first
-## placement must touch now that Slates require connection (see FateBoard.gd).
 const ANCHOR_COLOR := Color(1.0, 1.0, 1.0, 0.35)
 const NEBULA_SHADER := preload("res://ui/fate_board_editor/slate_nebula.gdshader")
+const DRAG_THRESHOLD := 6.0
 
 var board: FateBoard
 var pending_slate: Slate
@@ -26,16 +26,16 @@ var pending_flipped: bool = false
 var _hover_cell: Vector2i = Vector2i(-1, -1)
 var _background: ColorRect
 var _cells_dirty: bool = true
+var _scroll_container: ScrollContainer
+var _lmb_press_pos: Vector2 = Vector2.ZERO
+var _lmb_dragging: bool = false
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(GRID_SIZE * CELL_PX, GRID_SIZE * CELL_PX)
 	mouse_filter = Control.MOUSE_FILTER_STOP
+	_scroll_container = get_parent() as ScrollContainer
 	_setup_background()
 
-## A dedicated ColorRect behind everything _draw() renders, carrying the
-## animated nebula shader - keeps the shader's per-pixel work off the
-## plain grid-line/preview drawing _draw() still does directly (see
-## slate_nebula.gdshader's header for why this needed a shader at all).
 func _setup_background() -> void:
 	_background = ColorRect.new()
 	_background.size = Vector2(GRID_SIZE * CELL_PX, GRID_SIZE * CELL_PX)
@@ -52,9 +52,6 @@ func set_board(b: FateBoard) -> void:
 	mark_cells_dirty()
 	queue_redraw()
 
-## Called by FateBoardEditor after every successful placement/removal -
-## rebuilding the cell texture on every hover-driven redraw would be
-## wasted work, since hovering never changes which cells are occupied.
 func mark_cells_dirty() -> void:
 	_cells_dirty = true
 
@@ -64,16 +61,44 @@ func set_pending(slate: Slate, rotation_steps: int, flipped: bool) -> void:
 	pending_flipped = flipped
 	queue_redraw()
 
+## LMB drag pans the view (via the parent ScrollContainer); a plain click
+## (press+release under DRAG_THRESHOLD movement) places/removes instead.
+## RMB drops the held Slate if one is selected, otherwise removes whatever
+## is at the clicked cell.
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		var cell := _pixel_to_cell(event.position)
 		if cell != _hover_cell:
 			_hover_cell = cell
 			queue_redraw()
-	elif event is InputEventMouseButton and event.pressed:
-		var cell := _pixel_to_cell(event.position)
-		if _in_bounds(cell):
-			cell_clicked.emit(cell, event.button_index)
+		if event.button_mask & MOUSE_BUTTON_MASK_LEFT:
+			if not _lmb_dragging and _lmb_press_pos.distance_to(event.position) > DRAG_THRESHOLD:
+				_lmb_dragging = true
+			if _lmb_dragging and _scroll_container:
+				_scroll_container.scroll_horizontal -= int(event.relative.x)
+				_scroll_container.scroll_vertical -= int(event.relative.y)
+		return
+
+	if not event is InputEventMouseButton:
+		return
+
+	if event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_lmb_press_pos = event.position
+			_lmb_dragging = false
+		else:
+			if not _lmb_dragging:
+				var cell := _pixel_to_cell(event.position)
+				if _in_bounds(cell):
+					cell_clicked.emit(cell, MOUSE_BUTTON_LEFT)
+			_lmb_dragging = false
+	elif event.button_index == MOUSE_BUTTON_RIGHT and event.pressed:
+		if pending_slate:
+			drop_requested.emit()
+		else:
+			var cell := _pixel_to_cell(event.position)
+			if _in_bounds(cell):
+				cell_clicked.emit(cell, MOUSE_BUTTON_RIGHT)
 
 func _pixel_to_cell(pos: Vector2) -> Vector2i:
 	return Vector2i(int(floor(pos.x / CELL_PX)), int(floor(pos.y / CELL_PX)))
@@ -86,12 +111,9 @@ func _draw() -> void:
 		_refresh_cell_background()
 		_cells_dirty = false
 
+	var occupied: Dictionary = board.get_occupied_cells() if board else {}
+	_draw_walls(occupied)
 	_draw_cell(FateBoard.ANCHOR_CELL, ANCHOR_COLOR)
-
-	for x in range(GRID_SIZE + 1):
-		draw_line(Vector2(x * CELL_PX, 0), Vector2(x * CELL_PX, GRID_SIZE * CELL_PX), GRID_LINE_COLOR)
-	for y in range(GRID_SIZE + 1):
-		draw_line(Vector2(0, y * CELL_PX), Vector2(GRID_SIZE * CELL_PX, y * CELL_PX), GRID_LINE_COLOR)
 
 	if board == null:
 		return
@@ -103,9 +125,24 @@ func _draw() -> void:
 		for local_cell in preview_cells:
 			_draw_cell(_hover_cell + local_cell, tint)
 
-## Rebuilds the shader background's cell_data texture from the board's
-## current occupied cells - alpha 0 (transparent black) for empty cells,
-## which slate_nebula.gdshader discards so grid lines show through.
+## Draws a line on a cell edge unless both sides belong to the same
+## placed Slate - same Slate reads as one solid shape, different Slates
+## (or empty space) still show a wall between them.
+func _draw_walls(occupied: Dictionary) -> void:
+	for x in range(GRID_SIZE + 1):
+		for y in range(GRID_SIZE):
+			if _is_wall(occupied, Vector2i(x - 1, y), Vector2i(x, y)):
+				draw_line(Vector2(x * CELL_PX, y * CELL_PX), Vector2(x * CELL_PX, (y + 1) * CELL_PX), GRID_LINE_COLOR)
+	for y in range(GRID_SIZE + 1):
+		for x in range(GRID_SIZE):
+			if _is_wall(occupied, Vector2i(x, y - 1), Vector2i(x, y)):
+				draw_line(Vector2(x * CELL_PX, y * CELL_PX), Vector2((x + 1) * CELL_PX, y * CELL_PX), GRID_LINE_COLOR)
+
+func _is_wall(occupied: Dictionary, a: Vector2i, b: Vector2i) -> bool:
+	var id_a: String = occupied.get(a, "")
+	var id_b: String = occupied.get(b, "")
+	return id_a == "" or id_a != id_b
+
 func _refresh_cell_background() -> void:
 	var img := Image.create(GRID_SIZE, GRID_SIZE, false, Image.FORMAT_RGBA8)
 	if board:

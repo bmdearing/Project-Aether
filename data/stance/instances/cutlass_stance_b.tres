@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="MeleeStanceBehavior" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/stance/MeleeStanceBehavior.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+weapon_type = "Cutlass_b"
+move_speed_multiplier = 0.8
+parry_window_multiplier = 1.6
+stance_animation = ""
+stance_type = 1

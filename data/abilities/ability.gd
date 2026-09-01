@@ -83,8 +83,13 @@ func _base_hit(stat_sheet: StatSheet) -> Dictionary:
 		stat_sheet.get_chain_bonus(damage_type) * 100.0,
 		stat_value,
 	]
+	# base_weapon_damage=0.0: a spell has no weapon, so Power reduces to
+	# pure Spell Power (stat_value x grade_multiplier) - Implementation
+	# Brief v3.3 Section 1. Used to be 1.0 (a multiplicative-identity
+	# placeholder under the old formula); under the new additive one that
+	# would silently add +1 flat damage to every spell hit instead.
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		1.0, get_effective_motion_value(), stat_value, scaling_grade,
+		0.0, get_effective_motion_value(), stat_value, scaling_grade,
 		0.5, mastery, increased, [], damage_type
 	)
 	return {

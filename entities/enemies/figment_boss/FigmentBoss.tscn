@@ -7,6 +7,7 @@
 
 [node name="FigmentBoss" instance=ExtResource("1")]
 script = ExtResource("2")
+rank = 3
 
 [node name="MeshInstance3D" parent="."]
 visible = false

@@ -71,6 +71,11 @@ const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
 @onready var slot_ring_tr: ItemSlotButton = $HBox/SidePanel/PaperDoll/RightColumn/RingTopRight
 @onready var slot_ring_br: ItemSlotButton = $HBox/SidePanel/PaperDoll/RightColumn/RingBottomRight
 
+@onready var side_panel: VBoxContainer = $HBox/SidePanel
+@onready var paper_doll: HBoxContainer = $HBox/SidePanel/PaperDoll
+var _weapon_set_label: Label
+var _weapon_set_button: Button
+
 var _is_open: bool = false
 var _equipment: EquipmentComponent
 var _owned_items: Array[Item] = []
@@ -122,7 +127,40 @@ func _ready() -> void:
 	]
 	for row in _doll_rows:
 		(row["button"] as ItemSlotButton).pressed.connect(_on_doll_slot_pressed.bind(row))
+	_build_weapon_set_indicator()
 	_scan_owned_items()
+
+## Implementation Brief v3.4 Section 4, user-expanded scope ("Properly
+## show which set is being worn in the inventory screen"). The paper-doll's
+## own weapon slots (Primary/Sidearm/Offhand) already show whichever set
+## is ACTIVE with zero changes needed - EquipmentComponent.get_equipped()
+## defaults to the active set - this just adds a label + a toggle button
+## next to the doll so the player can tell (and switch) directly from the
+## inventory instead of only via the in-game X-tap.
+func _build_weapon_set_indicator() -> void:
+	var row := HBoxContainer.new()
+	_weapon_set_label = Label.new()
+	_weapon_set_button = Button.new()
+	_weapon_set_button.text = "Swap Weapon Set (X)"
+	_weapon_set_button.pressed.connect(_on_weapon_set_toggle_pressed)
+	row.add_child(_weapon_set_label)
+	row.add_child(_weapon_set_button)
+	side_panel.add_child(row)
+	side_panel.move_child(row, paper_doll.get_index())
+
+func _refresh_weapon_set_label() -> void:
+	if _equipment == null or _weapon_set_label == null:
+		return
+	var set_name := "A" if _equipment.active_weapon_set == 0 else "B"
+	_weapon_set_label.text = "Weapon Set: %s (worn)" % set_name
+
+func _on_weapon_set_toggle_pressed() -> void:
+	if _equipment == null:
+		return
+	_equipment.toggle_weapon_set()
+	GameState.sync_weapon_sets(_equipment)
+	_refresh_doll()
+	_refresh_stats()
 
 func is_open() -> bool:
 	return _is_open
@@ -338,6 +376,7 @@ func _on_doll_slot_pressed(row: Dictionary) -> void:
 func _refresh_doll() -> void:
 	if _equipment == null:
 		return
+	_refresh_weapon_set_label()
 	for row in _doll_rows:
 		var ring_index: int = row.get("ring_index", 0)
 		var equipped: Item = _equipment.get_equipped(row["slot"], ring_index)

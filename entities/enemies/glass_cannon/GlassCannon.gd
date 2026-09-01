@@ -12,6 +12,7 @@ class_name GlassCannon
 
 func _ready() -> void:
 	super._ready()
+	display_name = "Glass Cannon"
 	archetype = Constants.EnemyArchetype.GLASS_CANNON
 	move_speed = 5.5
 	chase_range = 16.0

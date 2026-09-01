@@ -47,6 +47,23 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var status_effects: StatusEffectComponent = $StatusEffectComponent
 @onready var weapon_stance: WeaponStance = $WeaponStance
 
+## Implementation Brief v3.3 Section 2: distinguishes a light-jab tap from
+## a standard-thrust hold, tracked only while a melee weapon is active and
+## WeaponStance isn't (charged thrust owns LMB press while stance is
+## active, unchanged from before this brief - see _handle_attack_input()).
+const STANDARD_THRUST_HOLD_THRESHOLD := 0.6
+var _lmb_held_time: float = 0.0
+var _lmb_was_held: bool = false
+
+## Implementation Brief v3.4 Section 4 (2026-08-31), user-expanded scope:
+## tap X swaps active weapon SET (EquipmentComponent.toggle_weapon_set()),
+## hold X toggles the active stance PAGE (WeaponStance.toggle_stance_page())
+## instead - same tap-vs-hold shape as the LMB jab/thrust split above, just
+## a different threshold/key ("weapon_swap", bound to X).
+const WEAPON_SWAP_HOLD_THRESHOLD := 0.25
+var _x_held_time: float = 0.0
+var _x_triggered_hold: bool = false
+
 ## Real weapon models (assets/models/pack1/, a purchased low-poly pack) -
 ## keyed by Weapon.weapon_type, same string GearShop/DebugOverlay/
 ## Constants.WEAPON_BASE_CRIT_CHANCE already key off. Anything not listed
@@ -262,6 +279,15 @@ func _apply_saved_loadout() -> void:
 		var item: Item = load(ref) if ref is String and ref != "" else (ItemSerializer.from_dict(ref) if ref is Dictionary else null)
 		if item:
 			equipment.equip(item, true)
+	# Dual weapon sets (2026-08-31) - restored explicitly by index rather
+	# than through the generic loop above, see EquipmentComponent.
+	# get_weapon_set_refs()'s own header for why.
+	for set_index in range(GameState.weapon_set_refs.size()):
+		for ref in GameState.weapon_set_refs[set_index]:
+			var item: Item = load(ref) if ref is String and ref != "" else (ItemSerializer.from_dict(ref) if ref is Dictionary else null)
+			if item:
+				equipment.equip(item, true, set_index)
+	equipment.active_weapon_set = GameState.active_weapon_set
 	for i in range(GameState.ability_loadout_paths.size()):
 		var path: String = GameState.ability_loadout_paths[i]
 		if path != "":
@@ -494,21 +520,67 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("parry"):
 		parry_handler.start_parry_window()
 
+	_handle_attack_input(delta)
+	_handle_weapon_swap_input(delta)
+
+## Tap X (release before WEAPON_SWAP_HOLD_THRESHOLD) swaps the active
+## weapon set; holding past it toggles the stance page instead and the
+## eventual release doesn't ALSO swap sets (the "not _x_triggered_hold"
+## guard) - same tap-vs-hold split PlayerAbilityCast/melee-attack hold
+## detection already use elsewhere in this project.
+func _handle_weapon_swap_input(delta: float) -> void:
+	if Input.is_action_pressed("weapon_swap"):
+		_x_held_time += delta
+		if _x_held_time >= WEAPON_SWAP_HOLD_THRESHOLD and not _x_triggered_hold:
+			_x_triggered_hold = true
+			weapon_stance.toggle_stance_page()
+	elif _x_held_time > 0.0:
+		if not _x_triggered_hold:
+			equipment.toggle_weapon_set()
+			GameState.sync_weapon_sets(equipment)
+		_x_held_time = 0.0
+		_x_triggered_hold = false
+
+func _handle_attack_input(delta: float) -> void:
+	var active_weapon := get_active_weapon()
+	var is_melee := active_weapon != null and not active_weapon.is_ranged
+
+	# Implementation Brief v3.3 Section 2: light jab (release <0.6s hold)
+	# vs standard thrust (release at >=0.6s) - only tracked for melee
+	# weapons outside stance. Charged thrust (stance active) and ranged
+	# fire below are still edge-triggered on press, exactly as before this
+	# brief - holding LMB in stance or with a ranged weapon out never
+	# accumulated hold time to begin with, so resetting here on every
+	# frame that doesn't apply is a no-op for those cases, not a behavior
+	# change.
+	if is_melee and not weapon_stance.is_active:
+		if Input.is_action_pressed("attack"):
+			_lmb_held_time += delta
+			_lmb_was_held = true
+		elif _lmb_was_held:
+			_lmb_was_held = false
+			if _lmb_held_time >= STANDARD_THRUST_HOLD_THRESHOLD:
+				melee_attack.try_standard_thrust()
+			else:
+				melee_attack.try_light_jab()
+			_lmb_held_time = 0.0
+	else:
+		_lmb_held_time = 0.0
+		_lmb_was_held = false
+
 	if Input.is_action_just_pressed("attack"):
-		var active_weapon := get_active_weapon()
 		if active_weapon and active_weapon.is_ranged:
 			ranged_attack.try_attack(weapon_stance.is_active)
 		elif weapon_stance.is_active:
-			melee_attack.try_special_attack()
-		else:
-			melee_attack.try_attack()
+			melee_attack.try_charged_thrust()
 
 func get_move_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_stat(Constants.Stat.INSTINCT) * INSTINCT_MOVE_SPEED_PCT
 
 func _effective_speed(base: float) -> float:
 	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier() \
-		* melee_attack.get_move_speed_multiplier() * ability_cast.get_move_speed_multiplier()
+		* melee_attack.get_move_speed_multiplier() * ability_cast.get_move_speed_multiplier() \
+		* weapon_stance.get_move_speed_multiplier()
 
 func get_action_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_stat(Constants.Stat.INSTINCT) * INSTINCT_ACTION_SPEED_PCT
