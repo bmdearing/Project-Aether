@@ -17,8 +17,8 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 	_add(offense_list, "Enigma", "%.1f" % stats.get_stat(Constants.Stat.ENIGMA))
 	_add(offense_list, "Main Hand Damage", _predict_damage(player, Constants.EquipmentSlot.PRIMARY_WEAPON))
 	_add(offense_list, "Main Hand Crit", _crit_summary(player, Constants.EquipmentSlot.PRIMARY_WEAPON))
-	_add(offense_list, "Offhand Damage", _predict_damage(player, Constants.EquipmentSlot.SIDEARM_WEAPON))
-	_add(offense_list, "Offhand Crit", _crit_summary(player, Constants.EquipmentSlot.SIDEARM_WEAPON))
+	_add(offense_list, "Offhand Damage", _predict_damage(player, Constants.EquipmentSlot.OFFHAND))
+	_add(offense_list, "Offhand Crit", _crit_summary(player, Constants.EquipmentSlot.OFFHAND))
 
 	_add(defense_list, "Vitality", "%.1f" % stats.get_stat(Constants.Stat.VITALITY))
 	_add(defense_list, "Instinct", "%.1f" % stats.get_stat(Constants.Stat.INSTINCT))
@@ -46,14 +46,17 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 		if bonus != 0.0:
 			_add(misc_list, "%s Chain Bonus" % Constants.DAMAGE_TYPE_NAME.get(tag, "?"), "+%.1f%%" % (bonus * 100.0))
 
+## OFFHAND can hold a Shield (no damage - `as Weapon` returns null,
+## reading as "None equipped" below) or an offhand-type Weapon since
+## Patch v3.5 dropped Sidearm as its own slot.
 static func _weapon_in(player: Player, slot: Constants.EquipmentSlot) -> Weapon:
 	if player.equipment == null:
 		return null
-	return player.equipment.primary_weapon if slot == Constants.EquipmentSlot.PRIMARY_WEAPON else player.equipment.sidearm_weapon
+	return player.equipment.primary_weapon if slot == Constants.EquipmentSlot.PRIMARY_WEAPON else player.equipment.offhand as Weapon
 
 ## motion_value comes from whichever attack script would actually use
 ## this slot (melee vs ranged), matching Player's own dispatch by
-## Weapon.is_ranged rather than assuming Primary=melee/Sidearm=ranged.
+## Weapon.is_ranged rather than assuming Primary=melee/Offhand=ranged.
 ## Melee reads PlayerMeleeAttack._effective_motion_value(weapon) rather
 ## than its own flat base_motion_value now that motion value varies per
 ## weapon_type (2026-08-30) - README/this file's own convention is this

@@ -93,7 +93,7 @@ theme_override_constants/separation = 10
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="RingTopLeft" type="Button" parent="HBox/SidePanel/PaperDoll/LeftColumn"]
+[node name="RingLeft" type="Button" parent="HBox/SidePanel/PaperDoll/LeftColumn"]
 custom_minimum_size = Vector2(0, 48)
 clip_text = true
 script = ExtResource("2")
@@ -104,35 +104,9 @@ size_flags_vertical = 3
 clip_text = true
 script = ExtResource("2")
 
-[node name="RingBottomLeft" type="Button" parent="HBox/SidePanel/PaperDoll/LeftColumn"]
-custom_minimum_size = Vector2(0, 48)
-clip_text = true
-script = ExtResource("2")
-
 [node name="CenterColumn" type="VBoxContainer" parent="HBox/SidePanel/PaperDoll"]
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
-
-[node name="ExtraRow" type="HBoxContainer" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-theme_override_constants/separation = 6
-
-[node name="Sidearm" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn/ExtraRow"]
-custom_minimum_size = Vector2(0, 40)
-size_flags_horizontal = 3
-clip_text = true
-script = ExtResource("2")
-
-[node name="Conduit" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn/ExtraRow"]
-custom_minimum_size = Vector2(0, 40)
-size_flags_horizontal = 3
-clip_text = true
-script = ExtResource("2")
-
-[node name="Secondary" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn/ExtraRow"]
-custom_minimum_size = Vector2(0, 40)
-size_flags_horizontal = 3
-clip_text = true
-script = ExtResource("2")
 
 [node name="Helmet" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
 custom_minimum_size = Vector2(0, 48)
@@ -174,7 +148,7 @@ script = ExtResource("2")
 size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
-[node name="RingTopRight" type="Button" parent="HBox/SidePanel/PaperDoll/RightColumn"]
+[node name="RingRight" type="Button" parent="HBox/SidePanel/PaperDoll/RightColumn"]
 custom_minimum_size = Vector2(0, 48)
 clip_text = true
 script = ExtResource("2")
@@ -182,11 +156,6 @@ script = ExtResource("2")
 [node name="Offhand" type="Button" parent="HBox/SidePanel/PaperDoll/RightColumn"]
 custom_minimum_size = Vector2(0, 160)
 size_flags_vertical = 3
-clip_text = true
-script = ExtResource("2")
-
-[node name="RingBottomRight" type="Button" parent="HBox/SidePanel/PaperDoll/RightColumn"]
-custom_minimum_size = Vector2(0, 48)
 clip_text = true
 script = ExtResource("2")
 

@@ -7,6 +7,477 @@ there. Most recent first.
 
 ---
 
+## 2026-09-02 (newest) — Implementation Brief v3.7: Spell Power Floor, Cast Times, Damage Ranges
+
+User pasted "Implementation Brief v3.7" (7 priorities: spell damage fix,
+cast_type system, Cast Speed stat, a weapon-set persistence bug, damage
+roll ranges, load-time optimization, dynamic stat cards). Researched
+first, as established this session, and found the biggest reconciliation
+need yet - two of the seven priorities described bugs/premises that
+don't reproduce against the real code, and a third needed a materially
+different mechanism than specified to avoid a 15+-call-site refactor.
+All three were raised via AskUserQuestion before writing anything.
+
+**Priority 4 (weapon set persistence) - skipped, confirmed with the
+user.** `Player._apply_saved_loadout()` (Player.gd:304) already does
+`equipment.active_weapon_set = GameState.active_weapon_set`, positioned
+correctly after both weapon sets' items are equipped - this exact fix
+already exists, dated to the dual-weapon-set work in Patch v3.4/v3.5.
+`GameState.save_state()`/`restore_state()` and `EquipmentComponent.
+weapon_set_a`/`weapon_set_b` (the brief's own proposed fix target) don't
+exist in this codebase at all - the real persistence already runs
+through `sync_weapon_sets()`/`weapon_set_refs`/`active_weapon_set`,
+fully wired since Patch v3.5. User agreed to skip rather than build a
+fix for a bug that isn't there.
+
+**Priority 6 (ItemDatabase / lazy loading) - skipped, confirmed with the
+user.** The stated root cause ("640+ .tres files preloaded eagerly at
+startup") doesn't hold - zero `preload()` calls exist for any item
+resource anywhere in this project; items already load lazily via
+`load()`. The one real cost found (`ItemRoller` building its ~750-file
+metadata cache on first loot roll, not at startup) is a different,
+narrower thing than what was described. User agreed not to add a new
+autoload for a problem that isn't there.
+
+**Priority 1 (spell damage floor) - built with a lower-blast-radius
+mechanism than specified, confirmed with the user first.** The "single-
+digit spell damage" root cause is real and already documented in this
+codebase's own history: Implementation Brief v3.3 deliberately gave
+spells `base_weapon_damage = 0` in `DamageCalculator.calculate()` (no
+floor), and this brief's fix (a Conduit spell-power floor) is the right
+shape - but its own mechanism (`caster.get_active_conduit()`, threaded
+through every `Ability.predict_damage()`/`roll_damage()` call) would
+have touched 15+ call sites across `PlayerAbilityCast.gd` and 6
+`entities/effects/*_field/*.gd` scripts. Built instead as `StatSheet.
+conduit_spell_power`, recomputed by `Player._on_equipment_changed()`
+from `equipment.primary_weapon` (checked for `is_conduit`, per user
+direction - offhand Conduits don't contribute) - the same "cache on
+StatSheet, zero call-site changes" pattern `equipment_bonus`/
+`increased_damage_generic` already established. `Ability._base_hit()`
+now passes `stat_sheet.conduit_spell_power` instead of a hardcoded `0.0`
+into the unchanged, existing `DamageCalculator.calculate()` - the "More
+multiplier pipeline" stayed completely untouched, per the brief's own
+DO-NOT.
+
+**Priority 2 (cast_type system).** `Ability.gd` gained `cast_type`
+(INSTANT/CAST_TIME/CHANNELED)/`base_cast_time`/`base_recovery_time`/
+`channel_duration`. New `entities/player/CastTimeHandler.gd` component
+on Player, wired into `PlayerAbilityCast._try_cast()` at the one real
+choke point that function already has (after mana/cooldown checks pass,
+before the actual per-ability `_cast()` dispatch) - INSTANT and
+CHANNELED both complete synchronously with zero behavior change (several
+abilities, e.g. Flame Jets, already run their own bespoke channel loop
+entirely separately, untouched); only CAST_TIME abilities (Comet 1.2s,
+Winter's Eye 0.8s, Meteor 1.6s, Black Hole 1.0s - the 4 real matches from
+the brief's table that exist in this project; "purity_from_within"/
+"blinkstrike" don't) actually gain a real, interruptible windup.
+`Player.take_damage()` interrupts a CAST_TIME cast - `is_casting()` is
+only ever true mid-CAST_TIME by construction (INSTANT/CHANNELED never
+set it), so this can't accidentally interrupt either of those, no extra
+type check needed, satisfying the brief's own DO-NOT for free.
+
+**A real `@onready`-ordering bug, caught by the headless load check, not
+by reading the diff.** The first pass had `PlayerAbilityCast._ready()`
+connect to `_player.cast_time_handler.cast_completed` directly - crashed
+with "Invalid access... on a base object of type 'Nil'" on every scene
+load, since Godot calls a child's `_ready()` before its parent's, and
+`cast_time_handler` (a `Player` `@onready` var, PlayerAbilityCast's own
+sibling) isn't resolved yet when PlayerAbilityCast (a child of Player)
+runs its own `_ready()`. Exactly the "Godot @onready timing bugs" class
+this project has hit before - fixed by moving the connection into
+`Player._ready()` itself, which runs last (after every child's own
+`_ready()`), so both components are guaranteed live there.
+
+**Priority 3 (Cast Speed stat).** `StatSheet` gained `cast_speed_bonus`/
+`cooldown_recovery_rate` (both additive percentage pools, recalculated
+every stat refresh, never cached) plus `get_effective_cast_time()`/
+`get_effective_cooldown()`/`apply_cast_speed_to_cooldown_conversion()`.
+Divides by `(1.0 + bonus / 100.0)`, not the brief's own literal
+`(1.0 + cast_speed_bonus)` - that formula only works if the stat were a
+raw fraction (0.20), but `Constants.CAST_SPEED_TIERS` (added, 5 tiers)
+and the whole rest of this project treat percentage stats as raw numbers
+like 20.0 - another internal inconsistency in the brief itself, caught
+and fixed the same way DamageCalculator/every other percentage pool in
+this codebase already works. One new Slate Affix Pool stub added
+(`spell_cast_speed_to_cooldown_recovery.tres`, tag "spell") for the
+Cast Speed -> Cooldown Recovery conversion Slate mod - not wired to any
+consumer yet, same "data before mechanic" footing as every other Slate
+Affix Pool stub.
+
+**Priority 5 (damage roll ranges).** `Weapon.gd`'s single `base_damage`
+replaced with `base_damage_min`/`base_damage_max`/`rolled_base_damage`
+(`get_base_damage()` returns the rolled value if set, else the range's
+midpoint) - and the same pattern for a Conduit's `spell_power_min`/
+`spell_power_max`/`rolled_spell_power`/`get_spell_power()`. `ItemRoller.
+roll()` now rolls both on an actual drop. New `tools/
+repair_damage_ranges.gd` split every one of 651 real weapon `.tres`
+files' old `base_damage` into `±15%` min/max (Conduits got `spell_power_
+min`/`max` set from the same source value too, since Patch v3.6b's
+Conduit generator used `base_damage` to mean Spell Power before this
+field existed) - caught its own bug before running: 17 of 651 files had
+`base_damage` exactly matching the class's old default (10.0), which
+Godot never serializes, so "no `base_damage` line in the file" had to
+mean 10.0, not 0, or those 17 items would have silently ended up with a
+broken 0/0 range. `Weapon._base_hit()` now calls `get_base_damage()`
+instead of reading the removed field directly.
+
+**Priority 7 (dynamic stat cards).** `ItemCard.gd` (the real file - no
+`ItemTooltip.gd`/`BaseItem`/`ArmorItem` exist in this project) now shows
+the rolled damage/spell power value when one exists, falling back to the
+range display otherwise; implicits now render in their own section above
+the rolled-affix list, matching Section 18's own implicit/explicit
+distinction; the scaling grade line now also shows `primary_scaling_
+stat` (e.g. "A Instinct") using the existing `Constants.ScalingGrade.
+keys()[grade]` lookup rather than adding a redundant new `grade_to_
+letter()` function that would return the exact same letters. The brief's
+"must update on stat/equip changes via EventBus" turned out to already
+be satisfied by construction, not by wiring new signals - `ItemCard` is
+rebuilt fresh (`display_item()` called anew) every single hover via
+Godot's `_make_custom_tooltip()` hook, so it already reads live instance
+data on every show; no caching/staleness to fix.
+
+Verified with a scratch functional test (not just scene-load checks) -
+24/24 checks passed, covering the conduit spell-power floor, all three
+CastType behaviors (including the interrupt/no-interrupt distinction),
+Cast Speed's conversion math, the damage-range repair's real output, and
+ItemRoller's new rolling. Full headless regression sweep across `Hub`/
+`TestArena`/`PinnacleArena`/`InventoryScreen`/`CraftingScreen`/
+`FateBoardEditor` came back clean.
+
+---
+
+## 2026-09-02 (newer) — Implementation Brief v3.6b: Weapon Line Repair, Bows, Conduits, Ascendant
+
+User pasted "Implementation Brief v3.6b" - two systemic bugs across every
+Section-25-generated weapon (`scaling_grade` stuck at C regardless of
+line identity; implicits stored as inert `flavor_text` prose instead of
+real affixes), plus new Shortbow/Longbow/Conduit weapon lines and a new
+Tier-3 corruption outcome.
+
+**A real architecture question, asked before touching any of 500+
+files.** The brief's own repair table lists up to TWO (stat, grade) pairs
+per line (e.g. `rapier_line1: [("instinct", 1), ("strength", 3)]`), but
+`Weapon.scaling_grade` is a single field, and the stat it governs is
+derived from damage type (`Constants.DAMAGE_TYPE_MAIN_STAT`) - which
+doesn't even reach Instinct or Vitality at all today. Worse, the table's
+first-listed stat routinely DIDN'T match a line's real damage-type-implied
+stat (rapiers are native Piercing -> Strength, but the table leads with
+Instinct) - meaning the brief assumes a real per-weapon-line multi-stat
+scaling model this project doesn't have, and `DamageCalculator.gd` was
+explicitly off-limits to build one in. Asked rather than guessed, since
+getting this wrong would mean redoing the repair across every weapon
+file. User direction: only the FIRST tuple's grade sets the real
+`scaling_grade` field; every tuple's stat name becomes new, purely
+descriptive `Weapon.primary_scaling_stat`/`secondary_scaling_stat`
+metadata, not wired into damage calculation at all - multi-stat scaling
+stays a future system.
+
+**Repair script** (`tools/repair_weapon_lines.gd`, run via `tools/
+repair_weapon_lines.tscn`) - a GDScript tool script, not the brief's own
+"Python preferred," since this project has zero Python tooling and
+`ResourceSaver.save()`/`load()` can rewrite real `.tres` Resources
+directly rather than hand-parsing Godot's resource text format; same
+one-shot-generator convention as `tools/generate_base_types.gd`. Verified
+the brief's own 64-line table against every real `base_line_id` in
+`data/weapons/instances/*.tres` before running it (exact match, no
+missing/extra lines) and confirmed all 511 weapon files were clean in
+git before running, so a mistake would be trivially recoverable. Repaired
+504 files (the other 7 are hand-authored pre-Section-25 singles with no
+`base_line_id`, correctly skipped); an S-grade line (`grades[0][1] == 0`)
+gets its `flavor_text`'s `"- Implicit: ..."` suffix stripped and no affix
+added, everything else gets a real `ItemAffix` (`is_implicit = true`,
+`stat_key`/`value` from the table, `display_name` from the table's
+`rename` or a humanized `stat_key`) appended to `affixes`, with the same
+suffix stripped off `flavor_text` so the implicit isn't duplicated as
+both prose and data. Idempotent - safe to re-run.
+
+**Shortbow & Longbow** (`tools/generate_bow_lines.gd`, 32 new files: 16
+each, 2 lines × 8 tiers). Same field conventions as every other generated
+weapon - `base_damage` from the brief's own per-tier range averages
+(matching `generate_base_types.gd`'s own `_parse_range_avg()`),
+`native_damage_type` = Piercing (matching the existing hand-authored
+`worn_bow.tres`), `stat_requirement` = Strength at 0.5/item_level (the
+established formula, confirmed against real crossbow tier data before
+reuse). Tier display names are simple, shared placeholders - the brief
+explicitly scopes real naming to a separate pass.
+
+**Conduits** (`tools/generate_conduit_lines.gd`, 108 new files: 9 types
+× 2 lines × 6 tiers). `Weapon.gd` gained `is_conduit`/
+`conduit_stance_type`/`spell_page_tag`/`unleash_copy_count`. "Spell
+power" maps onto the existing `base_damage` field rather than a new one -
+Conduits are still real `Weapon` instances routed through the same equip
+system even though actual spellcasting is independent of the weapon slot
+(`WeaponStance.gd`'s own header already noted this). `native_damage_type`
+(Aetheric) and `is_two_handed` (true only for Staff) both follow the one
+real precedent already in the project (`worn_staff.tres`) rather than
+inventing a new scheme - every other Conduit type stays one-handed so a
+main-hand + offhand pair is actually equippable together, matching the
+whole point of having separate Rod/Grimoire/Tome/Talisman/Fetish offhand
+foci. Only Rod line 1 was explicitly called "lower spell power" in the
+brief - applied a 60% reduction (this project's own invented number,
+flagged as such) to just that one line, not the rest of the offhand
+types, since the brief didn't say to.
+
+**Ascendant** (new Tier-3/Major corruption outcome, `CorruptionOutcome.
+Ascendant`, registered in `CorruptionSystem._MAJOR`): upgrades a Weapon's
+`scaling_grade` by one step (B->A, etc.), near-misses (logged, not an
+error) on an already-S-grade Weapon or any non-Weapon Item, and emits
+the new `EventBus.grade_ascended` signal. The brief's own "pick one
+random scaling grade stat" reduces to "the only one there is" given this
+project's single-`scaling_grade`-field reality established above.
+
+Verified with a scratch functional test (not just scene-load checks) -
+23/23 checks passed on the first run, confirming the repair script's
+real output (grades, affixes, stripped flavor_text), all four new
+weapon families' field values, offhand-Conduit equip routing (Patch
+v3.5's `is_offhand` routing exercised against real new data), and
+Ascendant's upgrade/near-miss/signal behavior. Full headless regression
+sweep across `Hub`/`TestArena`/`PinnacleArena`/`InventoryScreen`/
+`CraftingScreen`/`FateBoardEditor` came back clean.
+
+---
+
+## 2026-09-02 — Implementation Brief v3.6: Slate Affix Pool, Cube Combinations, Shard of Tharsis Rework
+
+User pasted "Implementation Brief v3.6" (a new Slate affix pool, richer
+Cube Brand-combination logic, and a 4-tier Shard of Tharsis corruption
+model). Priorities 2 and 3 (the Cube, the Shard) turned out to already
+exist in full - `CraftingSystem.craft_cube()`/`corrupt()`, wired into a
+real, working `ui/crafting/CraftingScreen.gd` - using a materially
+different design (a single weighted category-tag pick instead of named
+brand-pair/triple combinations; a flat 8-outcome corruption list instead
+of a tiered, named-outcome one). The existing version's own comments
+already flagged itself as an "invented placeholder" pending exactly this
+kind of real design pass (Section 24 "Deferred Design"), so - confirmed
+via AskUserQuestion rather than assumed - this became a rewrite of that
+placeholder logic, not a second parallel system. Brief's own file names
+(`BaseItem`, a `brand_id`-string-keyed `CraftingCube`) didn't match this
+project's real classes (`Item`, `Brand.item_id`/`category_tag`) either,
+same reconciliation pattern as every brief before this one.
+
+**Slate Affix Pool** (Priority 1, genuinely new - no existing
+equivalent): `data/items/SlateAffix.gd` extends `ItemAffix` (tag/
+is_conditional/condition_description/is_behavior_modifier), and
+`systems/crafting/SlateAffixPool.gd` is a lazily-scanned static pool over
+`data/slates/affix_pool/*.tres` - same directory-scan-and-cache
+convention as `ItemRoller`/`BrandRoller`, not a true autoload (nothing
+here needs to be a persistent Node). 36 stub `.tres` files (3 per tag x
+12 tags: the 9 real `Constants.DamageType` values plus "spell"/"attack"/
+"generic", matching `Slate.category_tag_override`'s existing precedent
+for non-damage-type tags) generated via a new `tools/
+generate_slate_affix_stubs.gd` tool script, same one-shot-generator
+pattern as `tools/generate_base_types.gd`. `Constants.DAMAGE_TYPE_TAGS`
+added (lowercase string -> `DamageType` enum) since nothing mapped
+between the two before this. Not used by any real hand-authored Slate
+yet - those still carry their own fixed `SlateModifier` list; this is
+scaffolding for a future procedural Slate-affix roll.
+
+**The Cube** (Priority 2): new `systems/crafting/
+BrandCombinationResolver.gd`, keyed on real `Brand.item_id` (this
+project's 26 actual Brand instances), not the brief's own assumed
+`brand_id` values - "hollow_brand" doesn't exist, the real id is
+"hollow"; "distill"'s real `category_tag` is "resource" not "mana";
+"hone"/"inscribe" share the SAME real tag ("skills"), not separate
+"attack"/"spell" tags the brief assumed. Rather than inventing new
+"hybrid_armor_evasion"-style pool names with no real data behind them,
+every recognized combination resolves to a LIST of real
+`ItemRoller.AFFIX_POOL` tags to union-roll from instead - Anneal+
+Attenuate rolls from the combined armor+evasion pool, Calcine+Galvanic+
+Quench from fire+cold+lightning, etc. Same Brand x3 caps the roll at
+Tier 3-or-better (this project's Tier 1 is best, opposite the brief's
+own "T1-T3 floor" phrasing, which reads as a minimum in a
+higher-is-better scheme - translated to a cap, not a floor).
+Unrecognized combinations still fall back to the original weighted-
+any-present-tag pick, unchanged.
+
+Two of the brief's own Brand reassignments were NOT applied, deliberately:
+Refine (kept as its existing, doc-sourced "boost every affix's value"
+behavior, not repointed at a new `quality` field) and Rectify (kept as
+"reroll existing affix values," not repurposed into "upgrade one affix's
+tier"). Both are already doc-referenced, tested mechanics with real
+Brand `flavor_text` describing them to players - silently redefining an
+established identity is different from filling in a genuinely
+unspecified number, so these two were left alone. `Item.quality`
+(0-30) still got added as the brief asked, just left unwired to Refine -
+inert scaffolding for a future mechanic, not a redefinition of a working
+one.
+
+**Shard of Tharsis** (Priority 3): new `CorruptionSystem.gd`/
+`CorruptionOutcome.gd` replace the flat 8-outcome weighted list with the
+brief's 4-tier model (Minor 55% / Significant 30% / Major 12% / Extreme
+3%), all 22 named outcomes implemented as-listed (none added, matching
+the brief's own DO-NOT). `CraftingSystem.corrupt()` is now a thin
+wrapper delegating to `CorruptionSystem.corrupt()`, so `CraftingScreen.
+gd`'s existing Dictionary-shaped call site needed zero changes. The
+existing `Item.is_craftable`/`RETAIN_CRAFTABLE_CHANCE` gate (a SEPARATE
+restriction beyond "already corrupted," already wired into the Cube too)
+was kept alongside the new tier model rather than replaced - the brief's
+own `corrupt()` only checked `is_corrupted`, it didn't mention this gate
+at all, so dropping it would have been a real regression to already-
+working Cube behavior. Adapted field/API names throughout: `sockets` ->
+`max_sockets` (this project already uses that one field as both current
+and cap), `implicit_count()` -> `get_implicit_count()`, a 10-tier bound
+-> `ItemRoller.TIER_COUNT` (5, this project's real tier count).
+`Unmade`'s "elevated item level, capped at 91" turned out to already
+match this project's real generated-catalog ceiling exactly (`tools/
+generate_base_types.gd`'s highest tier) - not an arbitrary number
+carried over blind.
+
+`GearAffixPool` (the brief's own stub target for Convert/Aetheric Surge)
+was NOT built as a stub - a real, working equivalent already exists
+(`ItemRoller.AFFIX_POOL` + `_pool_for_brand_tag()`, the same pool the
+Cube's own category-Brand rolls already draw from), so those two outcomes
+call it directly instead of a no-op placeholder. `ImplicitPool`/
+`SpecialCorruptionPool`/`UniquePool` ARE genuinely new (no existing
+equivalent anywhere) and stayed real stubs per the brief - each logs a
+`push_warning()` and returns null/empty.
+
+**Veiltouch** (Major-tier outcome) is the one real gear/Slate crossover -
+pulls a random `SlateAffix` (falling back across `Constants.
+DAMAGE_TYPE_TAGS.keys()`, not `.values()` as the brief's own snippet
+had it - that would have passed a raw `DamageType` int where
+`SlateAffixPool.get_random_affix()` expects a string tag, a bug in the
+brief itself caught while translating it), duplicates it onto the item
+as a real explicit `ItemAffix`, and marks the item via `set_meta()` so it
+can only trigger once per item, exactly as specified.
+
+Verified with a scratch functional test (not just scene-load checks) -
+27/27 checks passed, catching one real bug along the way:
+`BrandCombinationResolver.resolve_tags()`'s declared `-> Array[String]`
+return type crashed at runtime on its own `Dictionary`-sourced return
+values, since a GDScript `const Dictionary`'s Array values are untyped
+`Array`, not `Array[String]`, even when every element inside is a
+String - fixed with an explicit copy-into-typed-array helper. Full
+headless regression sweep across `CraftingScreen`/`Hub`/`TestArena`/
+`PinnacleArena`/`InventoryScreen`/`FateBoardEditor` came back clean.
+
+---
+
+## 2026-09-01 (newer) — Implementation Brief v3.5: Slot Cuts, Throwable Stacks, Affix Scaffolding, Brand Rarity
+
+User pasted "Implementation Brief v3.5" (rings 4→2, cut Sidearm/Conduit/
+Secondary as equipment slots, throwables become inventory stacks, affix
+data-structure scaffolding, Brand rarity/drop weights). Like v3.3/v3.4
+before it, the brief's own file names and assumed slot model didn't match
+what's actually built here - researched first (as established this
+session), found two real reconciliation points, and used AskUserQuestion
+rather than guessing:
+
+1. **Sidearm isn't its own slot** - it's the 3rd slot inside the existing
+   two-full-weapon-SET system (tap X swaps Set A/B, each holding Primary/
+   Sidearm/Offhand, built per an earlier v3.4 user request). User
+   confirmed: collapse each set to just Primary+Offhand, keep the A/B
+   swap feature. Sidearm/Conduit weapon types now equip into Primary or
+   Offhand based on hand type, same as the brief asked.
+2. **`Affix.gd` would have duplicated the existing `ItemAffix`** class,
+   already used in 29 files (ItemRoller, EquipmentComponent, StatSheet,
+   CraftingSystem, tooltip UI, dozens of `.tres` instances). User
+   confirmed: extend `ItemAffix` in place instead of building a parallel
+   class and migrating everything to a 3-way array split.
+
+Also found, by actually checking file names/enum values/existing
+instances before writing anything: `EquipmentScreen.tscn` doesn't exist
+(the real screen is `ui/inventory/InventoryScreen.tscn`); `PlayerEquipment.
+gd` doesn't exist (`EquipmentComponent.gd`); `BaseItem.gd` doesn't exist
+(`Item`, in `item.gd`); Brands and the Cube/CraftingSystem already exist
+in full (the brief's own Brand list matches this project's `data/brands/
+instances/` almost exactly, only Brand rarity weighting was actually
+missing); zero Wand/Athame/Rod/Tome/Fetish/Charm/Grimoire/Talisman weapon
+instances exist yet (only a single hand-authored `worn_staff.tres`), so
+the brief's `is_main_hand`/`is_offhand` mapping had nothing real to touch
+beyond the field additions themselves; every existing weapon `.tres`
+already sat at `equip_slot = PRIMARY_WEAPON` regardless of type, so no
+data migration was needed for weapons at all.
+
+**Rings 4 → 2.** `EquipmentComponent.rings` shrank from a 4-slot array to
+2; `_equip_ring()` was already generic over `rings.size()`, no change
+needed there. `InventoryScreen`'s paper doll dropped `RingBottomLeft`/
+`RingBottomRight`, keeping `RingTopLeft`/`RingTopRight` (renamed to
+`RingLeft`/`RingRight`) - already symmetric, one per side, with zero
+layout changes needed.
+
+**Sidearm/Conduit/Secondary cut as slots.** `EquipmentComponent` lost
+`sidearm_weapons`, `conduit`, `secondary_throwable` entirely. `offhands`
+widened from `Array[Shield]` to `Array[Item]` so an offhand-type Weapon
+(a future Rod/Tome/etc.) can sit there alongside a Shield - `get_total_
+armor()`/`compute_ward_bonus()` guard with `is Shield` since a Weapon
+offhand item has no `armor_value`/`ward_value`. `Weapon` gained `is_main_
+hand`/`is_offhand`; `equip()` now special-cases `item is Weapon` and
+routes by those fields before falling through to the general `equip_slot`
+match (which still governs every non-weapon slot, unchanged).
+`InventoryScreen`'s `ExtraRow` (Sidearm/Conduit/Secondary buttons) is
+gone outright - equipping was already generic (`_on_item_selected()`
+calls `equipment.equip(item)` with no explicit target slot; doll buttons
+were always just display + unequip targets), so removing the row is the
+entire UI-side change.
+
+**A real bug caught by testing, not by reading the diff:** the first pass
+just deleted the 3 retired `Constants.EquipmentSlot` enum entries
+outright and let Godot renumber everything after them (OFFHAND 6→5,
+AMULET 9→6, BELT 10→7, RING 11→8). `Item.equip_slot` is stored as a raw
+int in every `.tres` file - Shields/Amulets/Belts/Rings included - so
+this silently repointed every one of those files' stored slot at whatever
+enum entry happened to land on that number now, without touching the
+files themselves. A scratch functional test (equip real rings through
+`EquipmentComponent`, not just load-check the scene) caught it
+immediately - rings stopped equipping at all, since their stored int (11)
+no longer matched any live enum value. Fixed by pinning every surviving
+entry to its ORIGINAL explicit int (`OFFHAND = 6`, `AMULET = 9`, etc.)
+instead of letting the enum renumber - `SIDEARM_WEAPON`(5)/`CONDUIT`(7)/
+`SECONDARY_THROWABLE`(8) are simply retired, not reassigned. Also
+incidentally found (not touched, out of scope): 15 pre-existing
+`data/items/instances/gen_grenade_*.tres` items authored at the old
+`SECONDARY_THROWABLE`(8) slot - now permanently unequippable, which is
+correct given throwables aren't equipment anymore, but they were never
+converted into real `ThrowableStack` instances either since the brief
+only asked for the resource shape, not a content migration.
+
+**Throwable stacks.** New `data/items/ThrowableStack.gd` exactly per the
+brief (quantity/max_stack/can_use()/consume()). `Player.active_throwable`
++ `use_throwable()`, bound to a new `throw_secondary` input action
+(middle mouse - no existing "secondary action" key actually existed in
+this project's input map to reuse, despite the brief's phrasing).
+`EventBus.throwable_used` fires on consume; `PlayerHUD` shows an icon +
+count in the top-right corner (mirroring the top-left status-effect row),
+showing "0" plainly rather than hiding. How a stack gets acquired or
+selected as active is explicitly out of scope here (no crafting/
+acquisition system invented, per the brief's own DO-NOT list) - starts
+null.
+
+**Affix scaffolding**, via the extend-in-place path: `ItemAffix` gained
+`affix_id`/`display_name`/`min_item_level`/`is_generic`/`damage_type`/
+`is_implicit`. `Item` gained `get_prefix_count()`/`get_suffix_count()`/
+`get_implicit_count()`/`can_add_prefix()`/`can_add_suffix()` (Rare+ gate
+for a 3rd prefix/suffix, matching the brief's own `rarity >= 2`) as
+filters over the existing single `affixes` array rather than a 3-way
+split - zero migration for the 29 files already reading `affixes`.
+`StatSheet` gained `apply_affix()` as a single dispatch point (reusing
+`EquipmentComponent.AFFIX_STAT_KEYS`/`RESISTANCE_AFFIX_KEYS` rather than
+duplicating those tables) plus new `increased_damage_generic`/
+`increased_damage_by_type` buckets, wired in additively alongside (not
+replacing) the existing `compute_stat_bonuses()`/`compute_resistance_
+bonuses()` pipeline - zero regression risk to the two stat categories
+that already worked, since nothing currently generates an
+`"increased_damage"`-keyed affix for the new buckets to consume yet
+anyway (`ItemRoller` affix generation is explicitly a separate pass, per
+the brief).
+
+**Brand rarity.** `Constants.BrandRarity`/`BRAND_RARITIES`/
+`BRAND_DROP_WEIGHTS` added, mapped 1:1 against the brief's own list minus
+Facsimile/Amalgam/Imbue (never implemented as real Brand instances in
+this project - see `Brand.gd`'s own header). `BrandRoller.roll()` now
+rolls a rarity tier weighted by `BRAND_DROP_WEIGHTS` first, then picks
+uniformly within that tier, replacing the previous fully-uniform pick
+across every Brand regardless of power.
+
+Verified with a scratch functional test exercising real `EquipmentComponent`/
+`StatSheet`/`Item`/`Player`/`BrandRoller` calls (not just scene-load
+checks) - 25/25 checks passed after the enum fix above. Full headless
+regression sweep across `Hub`/`TestArena`/`PinnacleArena`/
+`InventoryScreen`/`CraftingScreen`/`FateBoardEditor` came back clean.
+
+---
+
 ## 2026-09-01 — Comment Trim, Navigable Fate Board, Clean Slate Shapes
 
 **Comment verbosity.** User: "I need you to work on not over-commenting a

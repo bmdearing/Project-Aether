@@ -1,19 +1,31 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_y3v0o"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_6icur"]
 
+[sub_resource type="Resource" id="Resource_y3v0o"]
+script = ExtResource("1_y3v0o")
+description = "+6% Physical Damage"
+stat_key = "increased_physical_damage"
+value = 6.0
+is_implicit = true
+display_name = "Physical Damage"
+
 [resource]
 script = ExtResource("2_6icur")
 weapon_type = "Shortsword"
-base_damage = 41.0
-scaling_grade = 4
+base_damage_min = 34.0
+base_damage_max = 48.0
+scaling_grade = 2
 native_damage_type = 1
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_shortsword_soldiers_blade"
 display_name = "Soldier's Blade"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "Balanced - Implicit: +6% increased Physical damage"
+affixes = Array[ExtResource("1_y3v0o")]([SubResource("Resource_y3v0o")])
+flavor_text = "Balanced"
 item_level = 34
 base_line_id = "shortsword_line1"
 stat_requirement = 1

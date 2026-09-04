@@ -1,20 +1,31 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_4jnkd"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_a484w"]
 
+[sub_resource type="Resource" id="Resource_4jnkd"]
+script = ExtResource("1_4jnkd")
+description = "+16% Stagger Effect"
+stat_key = "increased_stagger_effect"
+value = 16.0
+is_implicit = true
+display_name = "Stagger Effect"
+
 [resource]
 script = ExtResource("2_a484w")
 weapon_type = "Battle Rifle"
-base_damage = 92.0
-scaling_grade = 4
+base_damage_min = 78.0
+base_damage_max = 106.0
+scaling_grade = 1
 is_two_handed = true
 is_ranged = true
+primary_scaling_stat = "strength"
 item_id = "gen_battle_rifle_obliterator_battle_rifle"
 display_name = "Obliterator Battle Rifle"
 equip_slot = 4
 max_sockets = 5
-flavor_text = "Stagger - Implicit: +16% increased Stagger effect on hit"
+affixes = Array[ExtResource("1_4jnkd")]([SubResource("Resource_4jnkd")])
+flavor_text = "Stagger"
 item_level = 91
 base_line_id = "battle_rifle_line3"
 stat_requirement = 1

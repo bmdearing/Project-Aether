@@ -187,6 +187,13 @@ func _try_cast(slot_index: int, cast_position: Vector3) -> void:
 	# PlayerRangedAttack give their own timings. get_final_cooldown() caps
 	# the combined reduction at Constants.MAX_COOLDOWN_REDUCTION.
 	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier())
+	# Patch v3.7 Section 2: routes through CastTimeHandler - INSTANT/
+	# CHANNELED abilities call _cast() back immediately (synchronously,
+	# via _on_cast_time_completed below), CAST_TIME ones only after their
+	# windup finishes (or not at all if interrupted by taking damage).
+	_player.cast_time_handler.try_cast(ability, cast_position)
+
+func _on_cast_time_completed(ability: Ability, cast_position: Vector3) -> void:
 	_cast(ability, cast_position)
 
 ## Each enemy rolls its own crit independently (roll_damage() per-target,

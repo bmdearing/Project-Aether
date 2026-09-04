@@ -69,9 +69,17 @@ func display_item(item: Item, advanced: bool = false) -> void:
 	_add_separator()
 	for line in _item_stat_lines(item):
 		_add_stat_line(line)
-	if item.affixes.size() > 0:
+	# Patch v3.7 Section 7: implicits shown separately, above the rolled
+	# affix list - same distinction Section 18 draws between the two.
+	var implicits := item.affixes.filter(func(a: ItemAffix): return a.is_implicit)
+	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
+	if implicits.size() > 0:
 		_add_separator()
-		for affix in item.affixes:
+		for affix in implicits:
+			_add_mod_line(affix.description, AFFIX_COLOR)
+	if explicits.size() > 0:
+		_add_separator()
+		for affix in explicits:
 			if advanced and affix.tier > 0:
 				_add_mod_line_advanced(affix)
 			else:
@@ -152,10 +160,27 @@ func _item_stat_lines(item: Item) -> Array[String]:
 	if item is Weapon:
 		var w := item as Weapon
 		var dtype_name: String = Constants.DAMAGE_TYPE_NAME.get(w.native_damage_type, "?")
-		lines.append("%s Damage: %.0f" % [dtype_name, w.base_damage])
+		# Patch v3.7 Section 7: read the live rolled value (a real drop),
+		# falling back to the base's own range display for anything not
+		# yet rolled (a base .tres, or a hand-authored single that never
+		# gets rolled at all) - never the flat base_damage field, which no
+		# longer exists.
+		if w.rolled_base_damage > 0.0:
+			lines.append("%s Damage: %.0f" % [dtype_name, w.rolled_base_damage])
+		else:
+			lines.append("%s Damage: %.0f - %.0f" % [dtype_name, w.base_damage_min, w.base_damage_max])
+		if w.is_conduit:
+			if w.rolled_spell_power > 0.0:
+				lines.append("Spell Power: %.0f" % w.rolled_spell_power)
+			else:
+				lines.append("Spell Power: %.0f - %.0f" % [w.spell_power_min, w.spell_power_max])
 		if w.infused_damage_type != -1:
 			lines.append("Infused: %s" % Constants.DAMAGE_TYPE_NAME.get(w.infused_damage_type, "?"))
-		lines.append("Scaling Grade: %s" % Constants.ScalingGrade.keys()[w.scaling_grade])
+		var grade_letter: String = Constants.ScalingGrade.keys()[w.scaling_grade]
+		if w.primary_scaling_stat != "":
+			lines.append("Scaling Grade: %s %s" % [grade_letter, w.primary_scaling_stat.capitalize()])
+		else:
+			lines.append("Scaling Grade: %s" % grade_letter)
 		lines.append("Base Crit Chance: %.0f%%" % (w.get_base_crit_chance() * 100.0))
 	elif item is Armor:
 		var a := item as Armor

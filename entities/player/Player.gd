@@ -32,7 +32,6 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var arm_rig: PlayerArmRig = $Head/Camera3D/WeaponSocket/ArmRig
 @onready var weapon_mesh: MeshInstance3D = $Head/Camera3D/WeaponSocket/ArmRig/Skeleton3D/HandAttachment/WeaponMesh
 @onready var attack_hitbox: Area3D = $Head/Camera3D/WeaponSocket/ArmRig/Skeleton3D/HandAttachment/WeaponMesh/AttackHitbox
-@onready var sidearm_mesh: MeshInstance3D = $Head/Camera3D/WeaponSocket/SidearmMesh
 @onready var shield_mesh: MeshInstance3D = $Head/Camera3D/ShieldSocket/ShieldMesh
 @onready var health: HealthComponent = $HealthComponent
 @onready var ward: WardComponent = $WardComponent
@@ -46,6 +45,7 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var experience: ExperienceComponent = $ExperienceComponent
 @onready var status_effects: StatusEffectComponent = $StatusEffectComponent
 @onready var weapon_stance: WeaponStance = $WeaponStance
+@onready var cast_time_handler: CastTimeHandler = $CastTimeHandler
 
 ## Implementation Brief v3.3 Section 2: distinguishes a light-jab tap from
 ## a standard-thrust hold, tracked only while a melee weapon is active and
@@ -79,6 +79,20 @@ const WEAPON_MODEL_SCENES := {
 }
 
 var fate_board: FateBoard
+
+## Patch v3.5 Section 3: throwables are a stackable inventory consumable,
+## not an equipment slot - just whichever stack is currently selected to
+## throw. How the player acquires/selects a stack is out of scope for
+## this pass (data architecture + input wiring only, per the brief) -
+## starts null until something else sets it.
+var active_throwable: ThrowableStack = null
+
+func use_throwable() -> void:
+	if active_throwable == null or not active_throwable.can_use():
+		return
+	active_throwable.consume()
+	EventBus.throwable_used.emit(active_throwable.throwable_type)
+
 var _last_active_weapon: Weapon = null
 var _weapon_model: Node3D
 var _placeholder_blade_mesh: Mesh
@@ -167,6 +181,13 @@ func _ready() -> void:
 	equipment.equipment_changed.connect(_on_equipment_changed)
 	EventBus.slate_placed.connect(func(_id, _pos): _apply_fate_board_bonuses())
 	EventBus.slate_removed.connect(func(_id, _pos): _apply_fate_board_bonuses())
+	# Wired here, not in either component's own _ready() - Godot calls a
+	# child's _ready() before its parent's, so PlayerAbilityCast._ready()
+	# connecting to cast_time_handler (a Player @onready var, another
+	# sibling child) would hit it before Player._ready() has resolved it.
+	# Player._ready() runs last, after every child's own _ready(), so
+	# both components are guaranteed live here.
+	cast_time_handler.cast_completed.connect(ability_cast._on_cast_time_completed)
 	_apply_saved_loadout()
 	_apply_saved_experience()
 	_apply_saved_fate_board()
@@ -178,6 +199,12 @@ func _ready() -> void:
 func _on_equipment_changed() -> void:
 	stat_sheet.set_equipment_bonus(equipment.compute_stat_bonuses())
 	stat_sheet.set_equipment_resistance(equipment.compute_resistance_bonuses())
+	stat_sheet.apply_equipment_affixes(equipment.get_all_equipped_items())
+	# Patch v3.7 Section 1: Conduit spell power floor, checked on the
+	# primary weapon only (an offhand-slot Conduit doesn't contribute -
+	# user direction, keeps this simple rather than summing both slots).
+	var primary := equipment.primary_weapon
+	stat_sheet.set_conduit_spell_power(primary.get_spell_power() if primary and primary.is_conduit else 0.0)
 	_apply_derived_stats()
 	_update_shield_mesh()
 	_update_active_weapon_visual()
@@ -381,24 +408,10 @@ func _update_weapon_model() -> void:
 		weapon_mesh.mesh = _placeholder_blade_mesh
 		weapon_mesh.material_override = _unshaded_material(Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE))
 
-func _update_sidearm_mesh_color() -> void:
-	_color_mesh_for_weapon(sidearm_mesh, equipment.sidearm_weapon)
-
-func _color_mesh_for_weapon(target_mesh: MeshInstance3D, weapon: Weapon) -> void:
-	if target_mesh == null:
-		return
-	if weapon == null:
-		target_mesh.visible = false
-		return
-	target_mesh.material_override = _unshaded_material(Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE))
-
 func _update_active_weapon_visual() -> void:
 	_update_weapon_model()
-	_update_sidearm_mesh_color()
 	if weapon_mesh:
 		weapon_mesh.visible = equipment.primary_weapon != null
-	if sidearm_mesh:
-		sidearm_mesh.visible = equipment.sidearm_weapon != null
 	# User request (2026-08-30): "Two handed weapons should clearly need
 	# two hands." primary_weapon rather than get_active_weapon() - a
 	# two-handed ranged weapon isn't a concept that exists (Service
@@ -412,12 +425,12 @@ func _update_active_weapon_visual() -> void:
 func _update_shield_mesh() -> void:
 	if shield_mesh == null:
 		return
-	var shield := equipment.offhand
-	if shield == null:
+	var offhand_item := equipment.offhand
+	if offhand_item == null:
 		shield_mesh.visible = false
 		return
 	shield_mesh.visible = true
-	shield_mesh.material_override = _unshaded_material(Constants.ITEM_RARITY_COLOR.get(shield.rarity, Color.WHITE))
+	shield_mesh.material_override = _unshaded_material(Constants.ITEM_RARITY_COLOR.get(offhand_item.rarity, Color.WHITE))
 
 func _unshaded_material(color: Color) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()
@@ -452,6 +465,12 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 	var overflow := ward.absorb(mitigated)
 	health.apply_damage(overflow)
 	EventBus.damage_dealt.emit(source, self, mitigated, damage_type, false, false)
+	# Patch v3.7 Section 2: taking damage interrupts a CAST_TIME windup.
+	# is_casting() is only ever true mid-CAST_TIME (INSTANT/CHANNELED
+	# both complete synchronously and never set it), so this can't
+	# accidentally interrupt either of those - no extra type check needed.
+	if cast_time_handler.is_casting():
+		cast_time_handler.interrupt()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
@@ -519,6 +538,9 @@ func _physics_process(delta: float) -> void:
 
 	if Input.is_action_just_pressed("parry"):
 		parry_handler.start_parry_window()
+
+	if Input.is_action_just_pressed("throw_secondary"):
+		use_throwable()
 
 	_handle_attack_input(delta)
 	_handle_weapon_swap_input(delta)

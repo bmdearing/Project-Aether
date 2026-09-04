@@ -6,15 +6,17 @@
 [resource]
 script = ExtResource("2_g66u1")
 weapon_type = "Bolt Action Rifle"
-base_damage = 78.0
-scaling_grade = 4
+base_damage_min = 66.0
+base_damage_max = 90.0
+scaling_grade = 0
 is_two_handed = true
 is_ranged = true
+primary_scaling_stat = "strength"
 item_id = "gen_bolt_action_rifle_sunder_bolt_rifle"
 display_name = "Sunder Bolt Rifle"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "Armor Penetration - Implicit: +25% Armor penetration on hits"
+flavor_text = "Armor Penetration"
 item_level = 53
 base_line_id = "bolt_action_rifle_line3"
 stat_requirement = 1

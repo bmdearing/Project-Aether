@@ -1,18 +1,29 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_3lmnf"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_001vl"]
 
+[sub_resource type="Resource" id="Resource_3lmnf"]
+script = ExtResource("1_3lmnf")
+description = "+24% Aoe Radius"
+stat_key = "increased_aoe_radius"
+value = 24.0
+is_implicit = true
+display_name = "Aoe Radius"
+
 [resource]
 script = ExtResource("2_001vl")
 weapon_type = "Whip"
-base_damage = 33.5
-scaling_grade = 4
+base_damage_min = 28.0
+base_damage_max = 39.0
+scaling_grade = 1
+primary_scaling_stat = "instinct"
 item_id = "gen_whip_cleaving_whip"
 display_name = "Cleaving Whip"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "AoE/Reach - Implicit: +24% increased AoE radius on attacks"
+affixes = Array[ExtResource("1_3lmnf")]([SubResource("Resource_3lmnf")])
+flavor_text = "AoE/Reach"
 item_level = 61
 base_line_id = "whip_line2"
 stat_requirement = 1

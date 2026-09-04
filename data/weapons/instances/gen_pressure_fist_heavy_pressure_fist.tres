@@ -6,13 +6,15 @@
 [resource]
 script = ExtResource("2_h1np8")
 weapon_type = "Pressure Fist"
-base_damage = 56.0
-scaling_grade = 4
+base_damage_min = 47.0
+base_damage_max = 65.0
+scaling_grade = 0
+primary_scaling_stat = "strength"
 item_id = "gen_pressure_fist_heavy_pressure_fist"
 display_name = "Heavy Pressure Fist"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "Explosive - Implicit: +20% increased Explosive damage"
+flavor_text = "Explosive"
 item_level = 53
 base_line_id = "pressure_fist_line1"
 stat_requirement = 1

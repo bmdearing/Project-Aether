@@ -1,21 +1,33 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_5msta"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_av2dy"]
 
+[sub_resource type="Resource" id="Resource_5msta"]
+script = ExtResource("1_5msta")
+description = "+18% Bleed"
+stat_key = "increased_bleed_damage"
+value = 18.0
+is_implicit = true
+display_name = "Bleed"
+
 [resource]
 script = ExtResource("2_av2dy")
 weapon_type = "Crossbow"
-base_damage = 73.0
-scaling_grade = 4
+base_damage_min = 62.0
+base_damage_max = 84.0
+scaling_grade = 2
 native_damage_type = 1
 is_two_handed = true
 is_ranged = true
+primary_scaling_stat = "instinct"
+secondary_scaling_stat = "strength"
 item_id = "gen_crossbow_wraiths_crossbow"
 display_name = "Wraith's Crossbow"
 equip_slot = 4
 max_sockets = 5
-flavor_text = "Mobility - Implicit: +18% increased Mobility utility effectiveness"
+affixes = Array[ExtResource("1_5msta")]([SubResource("Resource_5msta")])
+flavor_text = "Mobility"
 item_level = 76
 base_line_id = "crossbow_line3"
 stat_requirement = 1

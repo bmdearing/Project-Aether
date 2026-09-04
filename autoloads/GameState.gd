@@ -8,11 +8,11 @@ const HUB_SCENE := "res://levels/hub/Hub.tscn"
 const MAP_SCENE := "res://levels/generated_map/GeneratedMap.tscn"
 const MAIN_MENU_SCENE := "res://ui/main_menu/MainMenu.tscn"
 
-## Non-weapon defaults only - weapon-set slots (PRIMARY_WEAPON/SIDEARM_
-## WEAPON/OFFHAND) moved to DEFAULT_WEAPON_SET_0_PATHS below as of the
-## dual weapon-set system (2026-08-31, Implementation Brief v3.4 Section 4,
-## user-expanded scope), since equipment_refs/get_all_equipped_refs() no
-## longer cover weapon slots at all - see EquipmentComponent.WEAPON_SET_SLOTS.
+## Non-weapon defaults only - weapon-set slots (PRIMARY_WEAPON/OFFHAND)
+## moved to DEFAULT_WEAPON_SET_0_PATHS below as of the dual weapon-set
+## system (2026-08-31, Implementation Brief v3.4 Section 4, user-expanded
+## scope), since equipment_refs/get_all_equipped_refs() no longer cover
+## weapon slots at all - see EquipmentComponent.WEAPON_SET_SLOTS.
 const DEFAULT_EQUIPMENT_PATHS: Array[String] = [
 	"res://data/armor/instances/padded_coat.tres",
 ]
@@ -50,7 +50,7 @@ var equipment_refs: Array = DEFAULT_EQUIPMENT_PATHS.duplicate()
 ## Two weapon sets (Implementation Brief v3.4 Section 4, user-expanded
 ## scope) - weapon_set_refs[0]/[1], each the same ref-array shape
 ## equipment_refs uses, but scoped to just that set's own primary/
-## sidearm/offhand (EquipmentComponent.get_weapon_set_refs()). Restored
+## offhand (EquipmentComponent.get_weapon_set_refs()). Restored
 ## explicitly by index in Player._apply_saved_loadout() rather than
 ## folded into the generic equipment_refs loop, since which SET an item
 ## belongs to isn't recoverable from the item itself the way which SLOT

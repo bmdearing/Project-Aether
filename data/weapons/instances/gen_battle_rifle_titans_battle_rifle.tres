@@ -1,20 +1,32 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_rtjif"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_f75gs"]
 
+[sub_resource type="Resource" id="Resource_rtjif"]
+script = ExtResource("1_rtjif")
+description = "+11% Physical Damage"
+stat_key = "increased_physical_damage"
+value = 11.0
+is_implicit = true
+display_name = "Physical Damage"
+
 [resource]
 script = ExtResource("2_f75gs")
 weapon_type = "Battle Rifle"
-base_damage = 130.0
-scaling_grade = 4
+base_damage_min = 110.0
+base_damage_max = 150.0
+scaling_grade = 1
 is_two_handed = true
 is_ranged = true
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_battle_rifle_titans_battle_rifle"
 display_name = "Titan's Battle Rifle"
 equip_slot = 4
 max_sockets = 6
-flavor_text = "High Damage - Implicit: +11% increased Physical damage"
+affixes = Array[ExtResource("1_rtjif")]([SubResource("Resource_rtjif")])
+flavor_text = "High Damage"
 item_level = 79
 base_line_id = "battle_rifle_line1"
 stat_requirement = 1

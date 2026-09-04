@@ -1,19 +1,31 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_un1ba"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_ole4n"]
 
+[sub_resource type="Resource" id="Resource_un1ba"]
+script = ExtResource("1_un1ba")
+description = "+12% Riposte Damage"
+stat_key = "increased_riposte_damage"
+value = 12.0
+is_implicit = true
+display_name = "Riposte Damage"
+
 [resource]
 script = ExtResource("2_ole4n")
 weapon_type = "Rapier"
-base_damage = 62.0
-scaling_grade = 4
+base_damage_min = 52.0
+base_damage_max = 72.0
+scaling_grade = 1
 native_damage_type = 1
+primary_scaling_stat = "instinct"
+secondary_scaling_stat = "strength"
 item_id = "gen_rapier_parrying_foil"
 display_name = "Parrying Foil"
 equip_slot = 4
 max_sockets = 5
-flavor_text = "Duelist's Line (Riposte) - Implicit: +12% increased Riposte damage"
+affixes = Array[ExtResource("1_un1ba")]([SubResource("Resource_un1ba")])
+flavor_text = "Duelist's Line (Riposte)"
 item_level = 51
 base_line_id = "rapier_line1"
 stat_requirement = 1

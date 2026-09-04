@@ -6,14 +6,16 @@
 [resource]
 script = ExtResource("2_y2lnn")
 weapon_type = "War Pick"
-base_damage = 50.0
-scaling_grade = 4
+base_damage_min = 42.0
+base_damage_max = 58.0
+scaling_grade = 0
 native_damage_type = 1
+primary_scaling_stat = "strength"
 item_id = "gen_war_pick_ruin_pick"
 display_name = "Ruin Pick"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "Stagger - Implicit: +16% increased Stagger effect"
+flavor_text = "Stagger"
 item_level = 46
 base_line_id = "war_pick_line2"
 stat_requirement = 1

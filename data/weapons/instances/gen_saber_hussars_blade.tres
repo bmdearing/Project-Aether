@@ -1,18 +1,29 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_itht5"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_efdgk"]
 
+[sub_resource type="Resource" id="Resource_itht5"]
+script = ExtResource("1_itht5")
+description = "+14% Duelist"
+stat_key = "increased_parry_window_duration"
+value = 14.0
+is_implicit = true
+display_name = "Duelist"
+
 [resource]
 script = ExtResource("2_efdgk")
 weapon_type = "Saber"
-base_damage = 8.0
-scaling_grade = 4
+base_damage_min = 6.0
+base_damage_max = 10.0
+scaling_grade = 1
+primary_scaling_stat = "instinct"
 item_id = "gen_saber_hussars_blade"
 display_name = "Hussar's Blade"
 equip_slot = 4
 max_sockets = 2
-flavor_text = "Momentum - Implicit: +15% increased Momentum generation"
+affixes = Array[ExtResource("1_itht5")]([SubResource("Resource_itht5")])
+flavor_text = "Momentum"
 base_line_id = "saber_line2"
 stat_requirement = 1
 stat_requirement_value = 0.5

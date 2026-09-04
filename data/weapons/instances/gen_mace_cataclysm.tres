@@ -6,13 +6,15 @@
 [resource]
 script = ExtResource("2_uhc2j")
 weapon_type = "Mace"
-base_damage = 163.0
-scaling_grade = 4
+base_damage_min = 138.0
+base_damage_max = 188.0
+scaling_grade = 0
+primary_scaling_stat = "strength"
 item_id = "gen_mace_cataclysm"
 display_name = "Cataclysm"
 equip_slot = 4
 max_sockets = 6
-flavor_text = "High Damage - Implicit: +12% increased Physical damage"
+flavor_text = "High Damage"
 item_level = 91
 base_line_id = "mace_line2"
 stat_requirement = 1

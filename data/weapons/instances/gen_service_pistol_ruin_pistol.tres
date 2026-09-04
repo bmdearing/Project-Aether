@@ -1,19 +1,30 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_k7e7m"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_llxwe"]
 
+[sub_resource type="Resource" id="Resource_k7e7m"]
+script = ExtResource("1_k7e7m")
+description = "+18% Stagger Effect"
+stat_key = "increased_stagger_effect"
+value = 18.0
+is_implicit = true
+display_name = "Stagger Effect"
+
 [resource]
 script = ExtResource("2_llxwe")
 weapon_type = "Service Pistol"
-base_damage = 60.0
-scaling_grade = 4
+base_damage_min = 51.0
+base_damage_max = 69.0
+scaling_grade = 1
 is_ranged = true
+primary_scaling_stat = "strength"
 item_id = "gen_service_pistol_ruin_pistol"
 display_name = "Ruin Pistol"
 equip_slot = 4
 max_sockets = 5
-flavor_text = "Interrupt/Stagger - Implicit: +18% increased Stagger effect on hit"
+affixes = Array[ExtResource("1_k7e7m")]([SubResource("Resource_k7e7m")])
+flavor_text = "Interrupt/Stagger"
 item_level = 76
 base_line_id = "service_pistol_line3"
 stat_requirement = 1

@@ -6,14 +6,16 @@
 [resource]
 script = ExtResource("2_t7wux")
 weapon_type = "Dagger"
-base_damage = 5.0
-scaling_grade = 4
+base_damage_min = 4.0
+base_damage_max = 6.0
+scaling_grade = 0
 native_damage_type = 1
+primary_scaling_stat = "instinct"
 item_id = "gen_dagger_crude_knife"
 display_name = "Crude Knife"
 equip_slot = 4
 max_sockets = 2
-flavor_text = "Assassination (Crit) - Implicit: +15% increased Critical Strike Chance"
+flavor_text = "Assassination (Crit)"
 base_line_id = "dagger_line1"
 stat_requirement = 1
 stat_requirement_value = 0.5

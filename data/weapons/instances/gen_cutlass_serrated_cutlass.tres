@@ -1,18 +1,30 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_87xnr"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_bt4i2"]
 
+[sub_resource type="Resource" id="Resource_87xnr"]
+script = ExtResource("1_87xnr")
+description = "+18% Bleed Damage"
+stat_key = "increased_bleed_damage"
+value = 18.0
+is_implicit = true
+display_name = "Bleed Damage"
+
 [resource]
 script = ExtResource("2_bt4i2")
 weapon_type = "Cutlass"
-base_damage = 17.0
-scaling_grade = 4
+base_damage_min = 14.0
+base_damage_max = 20.0
+scaling_grade = 1
+primary_scaling_stat = "instinct"
+secondary_scaling_stat = "strength"
 item_id = "gen_cutlass_serrated_cutlass"
 display_name = "Serrated Cutlass"
 equip_slot = 4
 max_sockets = 3
-flavor_text = "Bleed - Implicit: +18% increased Bleed damage"
+affixes = Array[ExtResource("1_87xnr")]([SubResource("Resource_87xnr")])
+flavor_text = "Bleed"
 item_level = 16
 base_line_id = "cutlass_line2"
 stat_requirement = 1

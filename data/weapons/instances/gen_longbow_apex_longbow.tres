@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ouylj"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_inxt5"]
+
+[resource]
+script = ExtResource("2_inxt5")
+weapon_type = "Longbow"
+base_damage_min = 153.0
+base_damage_max = 207.0
+scaling_grade = 0
+native_damage_type = 1
+is_two_handed = true
+is_ranged = true
+primary_scaling_stat = "instinct"
+item_id = "gen_longbow_apex_longbow"
+display_name = "Apex Longbow"
+equip_slot = 4
+max_sockets = 6
+flavor_text = "Snipe"
+item_level = 84
+base_line_id = "longbow_line1"
+stat_requirement = 1
+stat_requirement_value = 42.0

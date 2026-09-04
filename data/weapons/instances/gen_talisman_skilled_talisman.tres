@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_l3r5b"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_1im85"]
+
+[sub_resource type="Resource" id="Resource_1t5hx"]
+script = ExtResource("1_l3r5b")
+description = "+12% Spell Damage In Stance"
+stat_key = "increased_spell_damage_in_stance"
+value = 12.0
+is_implicit = true
+display_name = "Spell Damage In Stance"
+
+[resource]
+script = ExtResource("2_1im85")
+weapon_type = "Talisman"
+base_damage_min = 33.0
+base_damage_max = 45.0
+spell_power_min = 33.0
+spell_power_max = 45.0
+scaling_grade = 1
+native_damage_type = 6
+is_main_hand = false
+is_offhand = true
+primary_scaling_stat = "arcane"
+is_conduit = true
+conduit_stance_type = "stance_buff"
+item_id = "gen_talisman_skilled_talisman"
+display_name = "Skilled Talisman"
+equip_slot = 4
+max_sockets = 3
+affixes = Array[ExtResource("1_l3r5b")]([SubResource("Resource_1t5hx")])
+flavor_text = "Talisman (Line 1)"
+item_level = 32
+base_line_id = "talisman_line1"
+stat_requirement = 1
+stat_requirement_value = 16.0

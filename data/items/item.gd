@@ -15,6 +15,14 @@ class_name Item
 @export var rarity: Constants.ItemRarity = Constants.ItemRarity.COMMON
 @export var equip_slot: Constants.EquipmentSlot
 @export var max_sockets: int = 0
+## Patch v3.6: 0-30. Not wired to anything yet - the brief that added
+## this field also wanted to repoint the Refine Brand at raising it
+## instead of its existing, doc-sourced "boost every existing affix's
+## value" behavior (Brand.BrandFunction.REFINE's own header comment).
+## Kept Refine's existing behavior as-is rather than silently overwriting
+## an already-doc-sourced mechanic and its real flavor_text - this field
+## is pure scaffolding until quality gets its own real mechanic.
+@export var quality: int = 0
 @export var affixes: Array[ItemAffix] = []
 @export var flavor_text: String = ""
 ## res:// path to a 64x64 icon (assets/sprites/) shown instead of the
@@ -63,3 +71,33 @@ class_name Item
 ## require). See EquipmentComponent._requirement_block_reason().
 @export var stat_requirement: Constants.Stat = -1
 @export var stat_requirement_value: float = 0.0
+
+## Patch v3.5 Section 4: prefix/suffix/implicit counts, read off the
+## single `affixes` array above (tagged by ItemAffix.is_prefix/
+## is_implicit) rather than three separate arrays - every existing
+## `affixes` reader (ItemRoller, EquipmentComponent, StatSheet,
+## CraftingSystem, tooltip UI, dozens of .tres instances) keeps working
+## unchanged. Data architecture only, per the brief - no crafting UI or
+## ItemRoller affix generation reads these yet.
+const MAX_PREFIXES := 3
+const MAX_SUFFIXES := 3
+const MAX_IMPLICITS := 3
+
+func get_all_affixes() -> Array[ItemAffix]:
+	return affixes
+
+func get_prefix_count() -> int:
+	return affixes.filter(func(a: ItemAffix): return a.is_prefix and not a.is_implicit).size()
+
+func get_suffix_count() -> int:
+	return affixes.filter(func(a: ItemAffix): return not a.is_prefix and not a.is_implicit).size()
+
+func get_implicit_count() -> int:
+	return affixes.filter(func(a: ItemAffix): return a.is_implicit).size()
+
+## Rare+ only for a 3rd prefix/suffix, matching the doc's own rarity gate.
+func can_add_prefix() -> bool:
+	return get_prefix_count() < MAX_PREFIXES and rarity >= Constants.ItemRarity.RARE
+
+func can_add_suffix() -> bool:
+	return get_suffix_count() < MAX_SUFFIXES and rarity >= Constants.ItemRarity.RARE

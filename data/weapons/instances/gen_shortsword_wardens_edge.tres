@@ -1,19 +1,30 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_x2p2q"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_l8j5k"]
 
+[sub_resource type="Resource" id="Resource_x2p2q"]
+script = ExtResource("1_x2p2q")
+description = "+12% Parry Effectiveness"
+stat_key = "increased_parry_effectiveness"
+value = 12.0
+is_implicit = true
+display_name = "Parry Effectiveness"
+
 [resource]
 script = ExtResource("2_l8j5k")
 weapon_type = "Shortsword"
-base_damage = 24.5
-scaling_grade = 4
+base_damage_min = 20.0
+base_damage_max = 29.0
+scaling_grade = 1
 native_damage_type = 1
+primary_scaling_stat = "instinct"
 item_id = "gen_shortsword_wardens_edge"
 display_name = "Warden's Edge"
 equip_slot = 4
 max_sockets = 3
-flavor_text = "Parry Line - Implicit: +12% increased Parry effectiveness"
+affixes = Array[ExtResource("1_x2p2q")]([SubResource("Resource_x2p2q")])
+flavor_text = "Parry Line"
 item_level = 27
 base_line_id = "shortsword_line2"
 stat_requirement = 1

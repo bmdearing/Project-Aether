@@ -1,20 +1,32 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_voq3r"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_g02hb"]
 
+[sub_resource type="Resource" id="Resource_voq3r"]
+script = ExtResource("1_voq3r")
+description = "+30% Attack Speed"
+stat_key = "increased_attack_speed"
+value = 30.0
+is_implicit = true
+display_name = "Attack Speed"
+
 [resource]
 script = ExtResource("2_g02hb")
 weapon_type = "Machine Gun"
-base_damage = 60.0
-scaling_grade = 4
+base_damage_min = 51.0
+base_damage_max = 69.0
+scaling_grade = 1
 is_two_handed = true
 is_ranged = true
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_machine_gun_assault_machine_gun"
 display_name = "Assault Machine Gun"
 equip_slot = 4
 max_sockets = 5
-flavor_text = "Volume Fire - Implicit: +30% increased Attack Speed"
+affixes = Array[ExtResource("1_voq3r")]([SubResource("Resource_voq3r")])
+flavor_text = "Volume Fire"
 item_level = 66
 base_line_id = "machine_gun_line1"
 stat_requirement = 1

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_wot0o"]
+
+[resource]
+script = ExtResource("1_wot0o")
+tag = "entropic"
+is_behavior_modifier = true
+description = "Entropic Shift (stub)"
+stat_key = "entropic_behavior_shift"
+value = 1.0
+value_min = 1.0
+value_max = 1.0
+tier = 1
+is_prefix = false
+affix_id = "entropic_behavior_shift"
+display_name = "Entropic Shift"
+damage_type = 7

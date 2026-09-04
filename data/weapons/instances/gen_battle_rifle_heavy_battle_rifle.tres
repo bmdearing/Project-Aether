@@ -1,20 +1,32 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ymnn3"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_m1n1t"]
 
+[sub_resource type="Resource" id="Resource_ymnn3"]
+script = ExtResource("1_ymnn3")
+description = "+11% Physical Damage"
+stat_key = "increased_physical_damage"
+value = 11.0
+is_implicit = true
+display_name = "Physical Damage"
+
 [resource]
 script = ExtResource("2_m1n1t")
 weapon_type = "Battle Rifle"
-base_damage = 67.0
-scaling_grade = 4
+base_damage_min = 56.0
+base_damage_max = 78.0
+scaling_grade = 1
 is_two_handed = true
 is_ranged = true
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_battle_rifle_heavy_battle_rifle"
 display_name = "Heavy Battle Rifle"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "High Damage - Implicit: +11% increased Physical damage"
+affixes = Array[ExtResource("1_ymnn3")]([SubResource("Resource_ymnn3")])
+flavor_text = "High Damage"
 item_level = 45
 base_line_id = "battle_rifle_line1"
 stat_requirement = 1

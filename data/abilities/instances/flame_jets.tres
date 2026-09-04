@@ -17,3 +17,4 @@ is_auto_cast_eligible = true
 applies_status_effects = Array[String](["ignite"])
 radius = 3.5
 base_crit_chance = 0.03
+cast_type = 2

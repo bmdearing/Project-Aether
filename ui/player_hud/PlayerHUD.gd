@@ -52,6 +52,11 @@ const STATUS_CHIP_MIN_WIDTH := 76.0
 const STATUS_CHIP_GAP := 6.0
 const XP_BAR_SHADER := preload("res://ui/player_hud/xp_bar.gdshader")
 
+## Patch v3.5 Section 3: small icon + quantity, top-right corner - shows
+## "0" plainly rather than hiding when empty.
+const THROWABLE_ICON_SIZE := 40.0
+const THROWABLE_MARGIN := 16.0
+
 ## User request (2026-08-30): "tween between the experience bar that they
 ## had to the experience that they end up at... show it filling up."
 const XP_FILL_TWEEN_DURATION := 0.5
@@ -76,6 +81,8 @@ var _last_gold: int = -1
 var _status_row: HBoxContainer
 var _status_chips: Dictionary = {}  # effect_id -> Label
 var _hit_marker: HitMarker
+var _throwable_icon: TextureRect
+var _throwable_count_label: Label
 
 ## User request (2026-08-31): floating enemy health bars on hover/in-
 ## combat, plus a special top-of-screen bar for boss-rank enemies.
@@ -99,6 +106,7 @@ func _ready() -> void:
 	_build_crosshair()
 	_build_hit_marker()
 	_build_stance_indicator()
+	_build_throwable_indicator()
 
 	if is_instance_valid(_player):
 		_player.health.health_changed.connect(_on_health_changed)
@@ -109,6 +117,7 @@ func _ready() -> void:
 		EventBus.status_effect_applied.connect(_on_status_effect_applied)
 		EventBus.status_effect_expired.connect(_on_status_effect_expired)
 		EventBus.hit_landed.connect(_hit_marker.show_hit)
+		EventBus.throwable_used.connect(_on_throwable_used)
 		call_deferred("_initial_refresh")
 
 ## Implementation Brief v3.4 Section 1: a CenterContainer holding the
@@ -136,6 +145,52 @@ func _build_stance_indicator() -> void:
 	indicator.offset_right = 200.0
 	add_child(indicator)
 
+func _build_throwable_indicator() -> void:
+	var root := Control.new()
+	root.anchor_left = 1.0
+	root.anchor_right = 1.0
+	root.offset_left = -THROWABLE_ICON_SIZE - THROWABLE_MARGIN
+	root.offset_right = -THROWABLE_MARGIN
+	root.offset_top = THROWABLE_MARGIN
+	root.offset_bottom = THROWABLE_MARGIN + THROWABLE_ICON_SIZE
+	root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(root)
+
+	var bg := ColorRect.new()
+	bg.color = EMPTY_BG_COLOR
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(bg)
+
+	_throwable_icon = TextureRect.new()
+	_throwable_icon.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_throwable_icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_throwable_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_throwable_icon)
+
+	_throwable_count_label = Label.new()
+	_throwable_count_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_throwable_count_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_throwable_count_label.vertical_alignment = VERTICAL_ALIGNMENT_BOTTOM
+	_throwable_count_label.add_theme_font_size_override("font_size", 14)
+	_throwable_count_label.add_theme_color_override("font_color", Color.WHITE)
+	_throwable_count_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
+	_throwable_count_label.add_theme_constant_override("outline_size", 3)
+	_throwable_count_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(_throwable_count_label)
+
+func _on_throwable_used(_throwable_type: String) -> void:
+	_refresh_throwable_indicator()
+
+func _refresh_throwable_indicator() -> void:
+	var stack: ThrowableStack = _player.active_throwable if is_instance_valid(_player) else null
+	if stack == null:
+		_throwable_icon.texture = null
+		_throwable_count_label.text = "0"
+		return
+	_throwable_icon.texture = stack.icon
+	_throwable_count_label.text = str(stack.quantity)
+
 func _initial_refresh() -> void:
 	if not is_instance_valid(_player):
 		return
@@ -144,6 +199,7 @@ func _initial_refresh() -> void:
 	_on_ward_changed(_player.ward.current_ward, _player.ward.max_ward)
 	_on_xp_changed(_player.experience.xp, _player.experience.xp_to_next_level())
 	_refresh_weapon_indicator()
+	_refresh_throwable_indicator()
 
 func _build_orb(color: Color, prefix: String, offset_left: float, offset_right: float) -> StatOrb:
 	var orb := StatOrb.new()

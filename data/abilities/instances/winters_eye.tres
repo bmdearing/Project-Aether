@@ -18,3 +18,5 @@ applies_status_effects = Array[String](["chill"])
 radius = 7.0
 base_crit_chance = 0.04
 is_ground_targeted = true
+cast_type = 1
+base_cast_time = 0.8

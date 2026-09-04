@@ -1,19 +1,31 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_p6mim"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_0obgr"]
 
+[sub_resource type="Resource" id="Resource_p6mim"]
+script = ExtResource("1_p6mim")
+description = "+12% Riposte Damage"
+stat_key = "increased_riposte_damage"
+value = 12.0
+is_implicit = true
+display_name = "Riposte Damage"
+
 [resource]
 script = ExtResource("2_0obgr")
 weapon_type = "Rapier"
-base_damage = 6.5
-scaling_grade = 4
+base_damage_min = 5.0
+base_damage_max = 8.0
+scaling_grade = 1
 native_damage_type = 1
+primary_scaling_stat = "instinct"
+secondary_scaling_stat = "strength"
 item_id = "gen_rapier_dueling_needle"
 display_name = "Dueling Needle"
 equip_slot = 4
 max_sockets = 2
-flavor_text = "Duelist's Line (Riposte) - Implicit: +12% increased Riposte damage"
+affixes = Array[ExtResource("1_p6mim")]([SubResource("Resource_p6mim")])
+flavor_text = "Duelist's Line (Riposte)"
 base_line_id = "rapier_line1"
 stat_requirement = 1
 stat_requirement_value = 0.5

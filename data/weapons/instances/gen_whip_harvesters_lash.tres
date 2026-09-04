@@ -1,18 +1,29 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_rk20l"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_6msqf"]
 
+[sub_resource type="Resource" id="Resource_rk20l"]
+script = ExtResource("1_rk20l")
+description = "+24% Aoe Radius"
+stat_key = "increased_aoe_radius"
+value = 24.0
+is_implicit = true
+display_name = "Aoe Radius"
+
 [resource]
 script = ExtResource("2_6msqf")
 weapon_type = "Whip"
-base_damage = 45.5
-scaling_grade = 4
+base_damage_min = 38.0
+base_damage_max = 53.0
+scaling_grade = 1
+primary_scaling_stat = "instinct"
 item_id = "gen_whip_harvesters_lash"
 display_name = "Harvester's Lash"
 equip_slot = 4
 max_sockets = 5
-flavor_text = "AoE/Reach - Implicit: +24% increased AoE radius on attacks"
+affixes = Array[ExtResource("1_rk20l")]([SubResource("Resource_rk20l")])
+flavor_text = "AoE/Reach"
 item_level = 76
 base_line_id = "whip_line2"
 stat_requirement = 1

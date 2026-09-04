@@ -1,18 +1,29 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_eycud"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_yvlqq"]
 
+[sub_resource type="Resource" id="Resource_eycud"]
+script = ExtResource("1_eycud")
+description = "+18% Stagger Effect"
+stat_key = "increased_stagger_effect"
+value = 18.0
+is_implicit = true
+display_name = "Stagger Effect"
+
 [resource]
 script = ExtResource("2_yvlqq")
 weapon_type = "Pressure Fist"
-base_damage = 19.5
-scaling_grade = 4
+base_damage_min = 16.0
+base_damage_max = 23.0
+scaling_grade = 1
+primary_scaling_stat = "strength"
 item_id = "gen_pressure_fist_breaker_fist"
 display_name = "Breaker Fist"
 equip_slot = 4
 max_sockets = 3
-flavor_text = "Stagger - Implicit: +18% increased Stagger effect"
+affixes = Array[ExtResource("1_eycud")]([SubResource("Resource_eycud")])
+flavor_text = "Stagger"
 item_level = 16
 base_line_id = "pressure_fist_line2"
 stat_requirement = 1

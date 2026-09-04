@@ -1,19 +1,30 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ryv76"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_11kmc"]
 
+[sub_resource type="Resource" id="Resource_ryv76"]
+script = ExtResource("1_ryv76")
+description = "+18% Attack Speed"
+stat_key = "increased_attack_speed"
+value = 18.0
+is_implicit = true
+display_name = "Attack Speed"
+
 [resource]
 script = ExtResource("2_11kmc")
 weapon_type = "Rapier"
-base_damage = 18.5
-scaling_grade = 4
+base_damage_min = 15.0
+base_damage_max = 22.0
+scaling_grade = 1
 native_damage_type = 1
+primary_scaling_stat = "instinct"
 item_id = "gen_rapier_dancers_blade"
 display_name = "Dancer's Blade"
 equip_slot = 4
 max_sockets = 3
-flavor_text = "Attack Speed Line - Implicit: +18% increased Attack Speed"
+affixes = Array[ExtResource("1_ryv76")]([SubResource("Resource_ryv76")])
+flavor_text = "Attack Speed Line"
 item_level = 31
 base_line_id = "rapier_line4"
 stat_requirement = 1

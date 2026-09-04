@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_805a1"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_sovhd"]
+
+[resource]
+script = ExtResource("2_sovhd")
+weapon_type = "Athame"
+base_damage_min = 17.0
+base_damage_max = 25.0
+spell_power_min = 17.0
+spell_power_max = 25.0
+scaling_grade = 0
+native_damage_type = 6
+primary_scaling_stat = "enigma"
+is_conduit = true
+conduit_stance_type = "spell_library"
+spell_page_tag = "esoteric"
+item_id = "gen_athame_adept_athame"
+display_name = "Adept Athame"
+equip_slot = 4
+max_sockets = 3
+flavor_text = "Athame (Line 1)"
+item_level = 16
+base_line_id = "athame_line1"
+stat_requirement = 1
+stat_requirement_value = 8.0

@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_vsi2r"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_pm4mi"]
+
+[sub_resource type="Resource" id="Resource_2ygfm"]
+script = ExtResource("1_vsi2r")
+description = "+16% Pale Damage"
+stat_key = "increased_pale_damage"
+value = 16.0
+is_implicit = true
+display_name = "Pale Damage"
+
+[resource]
+script = ExtResource("2_pm4mi")
+weapon_type = "Fetish"
+base_damage_min = 33.0
+base_damage_max = 45.0
+spell_power_min = 33.0
+spell_power_max = 45.0
+scaling_grade = 1
+native_damage_type = 6
+is_main_hand = false
+is_offhand = true
+primary_scaling_stat = "enigma"
+secondary_scaling_stat = "intellect"
+is_conduit = true
+conduit_stance_type = "spell_library"
+spell_page_tag = "esoteric"
+item_id = "gen_fetish_charged_fetish"
+display_name = "Charged Fetish"
+equip_slot = 4
+max_sockets = 3
+affixes = Array[ExtResource("1_vsi2r")]([SubResource("Resource_2ygfm")])
+flavor_text = "Fetish (Line 2)"
+item_level = 32
+base_line_id = "fetish_line2"
+stat_requirement = 1
+stat_requirement_value = 16.0

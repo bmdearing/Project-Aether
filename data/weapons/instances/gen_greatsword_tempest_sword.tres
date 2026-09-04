@@ -1,18 +1,29 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_w74mx"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_vcadf"]
 
+[sub_resource type="Resource" id="Resource_w74mx"]
+script = ExtResource("1_w74mx")
+description = "+13% Executioner"
+stat_key = "increased_damage_vs_broken"
+value = 13.0
+is_implicit = true
+display_name = "Executioner"
+
 [resource]
 script = ExtResource("2_vcadf")
-base_damage = 45.5
-scaling_grade = 4
+base_damage_min = 38.0
+base_damage_max = 53.0
+scaling_grade = 1
 is_two_handed = true
+primary_scaling_stat = "strength"
 item_id = "gen_greatsword_tempest_sword"
 display_name = "Tempest Sword"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "Momentum - Implicit: +16% increased Momentum generation"
+affixes = Array[ExtResource("1_w74mx")]([SubResource("Resource_w74mx")])
+flavor_text = "Momentum"
 item_level = 46
 base_line_id = "greatsword_line4"
 stat_requirement = 1

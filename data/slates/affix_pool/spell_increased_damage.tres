@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_ode74"]
+
+[resource]
+script = ExtResource("1_ode74")
+tag = "spell"
+description = "Spell Intensity (stub)"
+stat_key = "spell_increased_damage"
+value = 12.0
+value_min = 12.0
+value_max = 28.0
+tier = 1
+affix_id = "spell_increased_damage"
+display_name = "Spell Intensity"
+is_generic = true

@@ -1,20 +1,31 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_38r60"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_sp6gh"]
 
+[sub_resource type="Resource" id="Resource_38r60"]
+script = ExtResource("1_38r60")
+description = "+16% Reach"
+stat_key = "increased_damage_outside_melee_range"
+value = 16.0
+is_implicit = true
+display_name = "Reach"
+
 [resource]
 script = ExtResource("2_sp6gh")
 weapon_type = "Spear"
-base_damage = 28.0
-scaling_grade = 4
+base_damage_min = 23.0
+base_damage_max = 33.0
+scaling_grade = 1
 native_damage_type = 1
 is_two_handed = true
+primary_scaling_stat = "strength"
 item_id = "gen_spear_surge_spear"
 display_name = "Surge Spear"
 equip_slot = 4
 max_sockets = 3
-flavor_text = "Momentum - Implicit: +14% increased Momentum generation"
+affixes = Array[ExtResource("1_38r60")]([SubResource("Resource_38r60")])
+flavor_text = "Momentum"
 item_level = 31
 base_line_id = "spear_line3"
 stat_requirement = 1

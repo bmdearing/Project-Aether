@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_meps2"]
+
+[resource]
+script = ExtResource("1_meps2")
+tag = "aetheric"
+is_conditional = true
+condition_description = "Placeholder condition - not yet designed."
+description = "Aetheric Surge (stub)"
+stat_key = "aetheric_conditional_surge"
+value = 8.0
+value_min = 8.0
+value_max = 20.0
+tier = 1
+is_prefix = false
+affix_id = "aetheric_conditional_surge"
+display_name = "Aetheric Surge"
+damage_type = 6

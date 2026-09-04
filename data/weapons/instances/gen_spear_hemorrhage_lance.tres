@@ -1,20 +1,32 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_w8l2u"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_fe401"]
 
+[sub_resource type="Resource" id="Resource_w8l2u"]
+script = ExtResource("1_w8l2u")
+description = "+20% Bleed Damage"
+stat_key = "increased_bleed_damage"
+value = 20.0
+is_implicit = true
+display_name = "Bleed Damage"
+
 [resource]
 script = ExtResource("2_fe401")
 weapon_type = "Spear"
-base_damage = 73.0
-scaling_grade = 4
+base_damage_min = 62.0
+base_damage_max = 84.0
+scaling_grade = 2
 native_damage_type = 1
 is_two_handed = true
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_spear_hemorrhage_lance"
 display_name = "Hemorrhage Lance"
 equip_slot = 4
 max_sockets = 5
-flavor_text = "Bleed - Implicit: +20% increased Bleed damage"
+affixes = Array[ExtResource("1_w8l2u")]([SubResource("Resource_w8l2u")])
+flavor_text = "Bleed"
 item_level = 66
 base_line_id = "spear_line2"
 stat_requirement = 1

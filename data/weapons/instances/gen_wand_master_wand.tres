@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_rjiyp"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_3v3cu"]
+
+[resource]
+script = ExtResource("2_3v3cu")
+weapon_type = "Wand"
+base_damage_min = 85.0
+base_damage_max = 115.0
+spell_power_min = 85.0
+spell_power_max = 115.0
+scaling_grade = 0
+native_damage_type = 6
+primary_scaling_stat = "arcane"
+is_conduit = true
+conduit_stance_type = "spell_library"
+item_id = "gen_wand_master_wand"
+display_name = "Master Wand"
+equip_slot = 4
+max_sockets = 6
+flavor_text = "Wand (Line 1)"
+item_level = 68
+base_line_id = "wand_line1"
+stat_requirement = 1
+stat_requirement_value = 34.0

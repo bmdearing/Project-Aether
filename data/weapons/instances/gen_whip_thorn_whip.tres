@@ -1,18 +1,30 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_kvcu3"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_vxypq"]
 
+[sub_resource type="Resource" id="Resource_kvcu3"]
+script = ExtResource("1_kvcu3")
+description = "+22% Bleed Damage"
+stat_key = "increased_bleed_damage"
+value = 22.0
+is_implicit = true
+display_name = "Bleed Damage"
+
 [resource]
 script = ExtResource("2_vxypq")
 weapon_type = "Whip"
-base_damage = 32.0
-scaling_grade = 4
+base_damage_min = 27.0
+base_damage_max = 37.0
+scaling_grade = 2
+primary_scaling_stat = "instinct"
+secondary_scaling_stat = "strength"
 item_id = "gen_whip_thorn_whip"
 display_name = "Thorn Whip"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "Bleed - Implicit: +22% increased Bleed damage"
+affixes = Array[ExtResource("1_kvcu3")]([SubResource("Resource_kvcu3")])
+flavor_text = "Bleed"
 item_level = 40
 base_line_id = "whip_line1"
 stat_requirement = 1

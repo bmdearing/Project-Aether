@@ -1,0 +1,39 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_uix8a"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_euxhl"]
+
+[sub_resource type="Resource" id="Resource_an8f7"]
+script = ExtResource("1_uix8a")
+description = "+14% Elemental Damage"
+stat_key = "increased_elemental_damage"
+value = 14.0
+is_implicit = true
+display_name = "Elemental Damage"
+
+[resource]
+script = ExtResource("2_euxhl")
+weapon_type = "Tome"
+base_damage_min = 33.0
+base_damage_max = 45.0
+spell_power_min = 33.0
+spell_power_max = 45.0
+scaling_grade = 1
+native_damage_type = 6
+is_main_hand = false
+is_offhand = true
+primary_scaling_stat = "arcane"
+secondary_scaling_stat = "intellect"
+is_conduit = true
+conduit_stance_type = "spell_library"
+spell_page_tag = "elemental"
+item_id = "gen_tome_charged_tome"
+display_name = "Charged Tome"
+equip_slot = 4
+max_sockets = 3
+affixes = Array[ExtResource("1_uix8a")]([SubResource("Resource_an8f7")])
+flavor_text = "Tome (Line 2)"
+item_level = 32
+base_line_id = "tome_line2"
+stat_requirement = 1
+stat_requirement_value = 16.0

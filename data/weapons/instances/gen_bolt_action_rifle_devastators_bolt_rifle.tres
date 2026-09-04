@@ -1,20 +1,31 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_tfb3y"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_qn0gm"]
 
+[sub_resource type="Resource" id="Resource_tfb3y"]
+script = ExtResource("1_tfb3y")
+description = "+13% Physical Damage"
+stat_key = "increased_physical_damage"
+value = 13.0
+is_implicit = true
+display_name = "Physical Damage"
+
 [resource]
 script = ExtResource("2_qn0gm")
 weapon_type = "Bolt Action Rifle"
-base_damage = 164.0
-scaling_grade = 4
+base_damage_min = 139.0
+base_damage_max = 189.0
+scaling_grade = 1
 is_two_handed = true
 is_ranged = true
+primary_scaling_stat = "instinct"
 item_id = "gen_bolt_action_rifle_devastators_bolt_rifle"
 display_name = "Devastator's Bolt Rifle"
 equip_slot = 4
 max_sockets = 6
-flavor_text = "High Damage - Implicit: +13% increased Physical damage"
+affixes = Array[ExtResource("1_tfb3y")]([SubResource("Resource_tfb3y")])
+flavor_text = "High Damage"
 item_level = 79
 base_line_id = "bolt_action_rifle_line2"
 stat_requirement = 1

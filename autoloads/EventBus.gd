@@ -59,3 +59,26 @@ signal slate_dropped(slate: Slate, at_position: Vector3)
 signal slate_picked_up(slate: Slate)
 signal tome_picked_up(tome: SkillTome)
 signal gold_picked_up(amount: int)
+signal throwable_used(throwable_type: String)
+
+## Patch v3.6 - Cube/Corruption. Only signals with a real emit site are
+## added (CraftingSystem.gd/CorruptionSystem.gd) - the brief's own
+## *_selection_requested/item_reroll_requested signals assumed a signal-
+## driven UI flow that doesn't match this project's actual CraftingScreen
+## (which already handles affix selection directly via
+## _selected_affix_index, and rerolls in place rather than requesting one
+## asynchronously), so they're skipped as dead additions nothing would
+## ever listen to.
+signal brand_consumed(brand_id: String)
+signal item_quality_changed(item: Item)
+signal item_sockets_changed(item: Item)
+signal item_stats_changed(item: Item)
+signal affix_upgraded(item: Item, affix: ItemAffix)
+signal corruption_applied(item: Item, outcome_name: String, tier: int)
+signal item_transcended(item: Item)
+signal item_unmade(item: Item)
+signal grade_ascended(item: Item, stat: String, new_grade: int)
+
+## Patch v3.7 Section 2 - CastTimeHandler.
+signal cast_started(ability: Ability, cast_time: float)
+signal cast_interrupted()

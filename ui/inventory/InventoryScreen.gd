@@ -56,11 +56,7 @@ const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
 @onready var close_button: Button = $HBox/SidePanel/CloseButton
 
 @onready var slot_primary_weapon: ItemSlotButton = $HBox/SidePanel/PaperDoll/LeftColumn/PrimaryWeapon
-@onready var slot_ring_tl: ItemSlotButton = $HBox/SidePanel/PaperDoll/LeftColumn/RingTopLeft
-@onready var slot_ring_bl: ItemSlotButton = $HBox/SidePanel/PaperDoll/LeftColumn/RingBottomLeft
-@onready var slot_sidearm: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/ExtraRow/Sidearm
-@onready var slot_conduit: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/ExtraRow/Conduit
-@onready var slot_secondary: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/ExtraRow/Secondary
+@onready var slot_ring_left: ItemSlotButton = $HBox/SidePanel/PaperDoll/LeftColumn/RingLeft
 @onready var slot_helmet: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/Helmet
 @onready var slot_amulet: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/Amulet
 @onready var slot_body_armour: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/BodyArmour
@@ -68,8 +64,7 @@ const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
 @onready var slot_gloves: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/BottomRow/Gloves
 @onready var slot_boots: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/BottomRow/Boots
 @onready var slot_offhand: ItemSlotButton = $HBox/SidePanel/PaperDoll/RightColumn/Offhand
-@onready var slot_ring_tr: ItemSlotButton = $HBox/SidePanel/PaperDoll/RightColumn/RingTopRight
-@onready var slot_ring_br: ItemSlotButton = $HBox/SidePanel/PaperDoll/RightColumn/RingBottomRight
+@onready var slot_ring_right: ItemSlotButton = $HBox/SidePanel/PaperDoll/RightColumn/RingRight
 
 @onready var side_panel: VBoxContainer = $HBox/SidePanel
 @onready var paper_doll: HBoxContainer = $HBox/SidePanel/PaperDoll
@@ -114,16 +109,11 @@ func _ready() -> void:
 		{"button": slot_gloves, "slot": Constants.EquipmentSlot.GLOVES, "label": "Gloves"},
 		{"button": slot_boots, "slot": Constants.EquipmentSlot.BOOTS, "label": "Boots"},
 		{"button": slot_primary_weapon, "slot": Constants.EquipmentSlot.PRIMARY_WEAPON, "label": "Primary Weapon"},
-		{"button": slot_sidearm, "slot": Constants.EquipmentSlot.SIDEARM_WEAPON, "label": "Sidearm"},
 		{"button": slot_offhand, "slot": Constants.EquipmentSlot.OFFHAND, "label": "Offhand"},
-		{"button": slot_conduit, "slot": Constants.EquipmentSlot.CONDUIT, "label": "Conduit"},
-		{"button": slot_secondary, "slot": Constants.EquipmentSlot.SECONDARY_THROWABLE, "label": "Secondary"},
 		{"button": slot_amulet, "slot": Constants.EquipmentSlot.AMULET, "label": "Amulet"},
 		{"button": slot_belt, "slot": Constants.EquipmentSlot.BELT, "label": "Belt"},
-		{"button": slot_ring_tl, "slot": Constants.EquipmentSlot.RING, "ring_index": 0, "label": "Ring 1"},
-		{"button": slot_ring_bl, "slot": Constants.EquipmentSlot.RING, "ring_index": 1, "label": "Ring 2"},
-		{"button": slot_ring_tr, "slot": Constants.EquipmentSlot.RING, "ring_index": 2, "label": "Ring 3"},
-		{"button": slot_ring_br, "slot": Constants.EquipmentSlot.RING, "ring_index": 3, "label": "Ring 4"},
+		{"button": slot_ring_left, "slot": Constants.EquipmentSlot.RING, "ring_index": 0, "label": "Ring 1"},
+		{"button": slot_ring_right, "slot": Constants.EquipmentSlot.RING, "ring_index": 1, "label": "Ring 2"},
 	]
 	for row in _doll_rows:
 		(row["button"] as ItemSlotButton).pressed.connect(_on_doll_slot_pressed.bind(row))

@@ -49,6 +49,25 @@ const DAMAGE_TYPE_COLOR := {
 	DamageType.PALE: Color(0.85, 0.83, 0.75),
 }
 
+## Patch v3.6: lowercase tag string -> DamageType, for SlateAffixPool/
+## Brand-combination lookups that key on a string tag rather than the
+## enum directly. Only the 9 real damage types have an enum value -
+## "spell"/"attack"/"generic" (Section 10's own non-damage-type Slate
+## tags, see Slate.category_tag_override) are valid SlateAffix.tag
+## strings with no DamageType counterpart, so they're deliberately absent
+## here rather than mapped to a fake enum entry.
+const DAMAGE_TYPE_TAGS := {
+	"kinetic": DamageType.KINETIC,
+	"piercing": DamageType.PIERCING,
+	"explosive": DamageType.EXPLOSIVE,
+	"fire": DamageType.FIRE,
+	"cold": DamageType.COLD,
+	"lightning": DamageType.LIGHTNING,
+	"aetheric": DamageType.AETHERIC,
+	"entropic": DamageType.ENTROPIC,
+	"pale": DamageType.PALE,
+}
+
 enum Stat { VITALITY, STRENGTH, INSTINCT, ARCANE, ENIGMA, INTELLECT }
 
 # Display names - used by ItemCard's requirement line and EquipmentComponent's
@@ -164,11 +183,25 @@ const SLATE_RARITY_COLOR := {
 
 enum EnemyArchetype { GLASS_CANNON, MOBILE_BRUISER, HEAVY_HITTER }
 
-# Section 13 - Equipment Slots. OFFHAND covers a Shield in the offhand slot.
+# Section 13 - Equipment Slots. OFFHAND covers a Shield OR an offhand-type
+# Weapon (Weapon.is_offhand). Patch v3.5: Sidearm/Conduit/Secondary cut as
+# their own slots - a weapon now equips into PRIMARY_WEAPON or OFFHAND
+# based on Weapon.is_main_hand/is_offhand instead (see
+# EquipmentComponent.equip()). Throwables are inventory stacks now, not an
+# equipment slot at all (see ThrowableStack.gd).
+#
+# Every surviving entry keeps its ORIGINAL explicit int value (5/7/8 -
+# SIDEARM_WEAPON/CONDUIT/SECONDARY_THROWABLE - are simply retired, not
+# reassigned to anything else) rather than letting Godot renumber the
+# enum. Item.equip_slot is stored as a raw int in every existing .tres
+# file (Shields/Amulets/Belts/Rings included) - renumbering would silently
+# repoint OFFHAND=6/AMULET=9/BELT=10/RING=11's old stored ints at whatever
+# entry happens to occupy that number now, corrupting every one of those
+# files without touching them.
 enum EquipmentSlot {
-	HELMET, BODY_ARMOUR, GLOVES, BOOTS,
-	PRIMARY_WEAPON, SIDEARM_WEAPON, OFFHAND, CONDUIT, SECONDARY_THROWABLE,
-	AMULET, BELT, RING,
+	HELMET = 0, BODY_ARMOUR = 1, GLOVES = 2, BOOTS = 3,
+	PRIMARY_WEAPON = 4, OFFHAND = 6,
+	AMULET = 9, BELT = 10, RING = 11,
 }
 
 # Section 18 - Item Rarity & Affixes. Distinct scale from SlateRarity above
@@ -267,6 +300,63 @@ const ENEMY_RANK_SPAWN_WEIGHTS := {
 # an ability's cooldown can never drop below 25% of its authored
 # cooldown_seconds. See Ability.get_final_cooldown().
 const MAX_COOLDOWN_REDUCTION := 0.75
+
+## Patch v3.7 Section 3 - Cast Speed affix tiers (percent, T1 best).
+## min_item_level gates which tier a roll can reach, same shape as
+## ItemRoller's own tier system (though this table is consumed directly
+## by wherever Cast Speed affixes are authored/rolled, not through
+## ItemRoller.AFFIX_POOL's tier1_min/max + TIER_DECAY scheme).
+const CAST_SPEED_TIERS := [
+	{"min": 18.0, "max": 22.0, "item_level": 72},  # T1
+	{"min": 14.0, "max": 17.0, "item_level": 56},  # T2
+	{"min": 10.0, "max": 13.0, "item_level": 40},  # T3
+	{"min": 6.0,  "max": 9.0,  "item_level": 24},  # T4
+	{"min": 2.0,  "max": 5.0,  "item_level": 8},   # T5
+]
+
+## Section 20 Brand rarity (Patch v3.5) - gates drop frequency via
+## BrandRoller.roll(), which previously picked uniformly among every
+## Brand regardless of power. Only covers Brands that actually exist as
+## data/brands/instances/*.tres - Facsimile/Amalgam/Imbue are cut from
+## this project (see Brand.gd's own header), so they're left out here too
+## rather than pointing at nonexistent files.
+enum BrandRarity { COMMON, UNCOMMON, RARE, LEGENDARY }
+
+const BRAND_RARITIES := {
+	"distill": BrandRarity.COMMON,
+	"inscribe": BrandRarity.COMMON,
+	"hone": BrandRarity.COMMON,
+	"quicken": BrandRarity.COMMON,
+	"impel": BrandRarity.UNCOMMON,
+	"lancet": BrandRarity.UNCOMMON,
+	"deflagrate": BrandRarity.UNCOMMON,
+	"calcine": BrandRarity.UNCOMMON,
+	"quench": BrandRarity.UNCOMMON,
+	"galvanic": BrandRarity.UNCOMMON,
+	"invoke": BrandRarity.UNCOMMON,
+	"efface": BrandRarity.UNCOMMON,
+	"hollow": BrandRarity.UNCOMMON,
+	"anneal": BrandRarity.UNCOMMON,
+	"attenuate": BrandRarity.UNCOMMON,
+	"occlude": BrandRarity.UNCOMMON,
+	"temper": BrandRarity.UNCOMMON,
+	"inure": BrandRarity.UNCOMMON,
+	"render": BrandRarity.UNCOMMON,
+	"refine": BrandRarity.UNCOMMON,
+	"sever": BrandRarity.UNCOMMON,
+	"cleave": BrandRarity.RARE,
+	"excise": BrandRarity.RARE,
+	"bore": BrandRarity.RARE,
+	"binder": BrandRarity.RARE,
+	"rectify": BrandRarity.RARE,
+}
+
+const BRAND_DROP_WEIGHTS := {
+	BrandRarity.COMMON: 100,
+	BrandRarity.UNCOMMON: 35,
+	BrandRarity.RARE: 8,
+	BrandRarity.LEGENDARY: 1,
+}
 
 ## Picks readable text over an arbitrary background color set at
 ## runtime (item rarity/damage-type colors) - without this, buttons

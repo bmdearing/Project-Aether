@@ -114,3 +114,81 @@ func get_resistance(damage_type: Constants.DamageType) -> float:
 
 func set_equipment_resistance(resistance: Dictionary) -> void:
 	equipment_resistance = resistance
+
+## Patch v3.5 Section 4. Generic "increased damage" affixes (no damage
+## type) vs type-specific ones (Constants.DamageType -> float) - kept
+## separate since a generic bonus should apply on top of every damage
+## type, not get bucketed under one. Not consumed by DamageCalculator
+## yet (no ItemRoller affix generation produces "increased_damage" affixes
+## yet, that's a separate pass per the brief) - scaffolding only.
+var increased_damage_generic: float = 0.0
+var increased_damage_by_type: Dictionary = {}
+
+## Single dispatch point for a rolled ItemAffix - routes to whichever
+## bucket its stat_key means. Reuses EquipmentComponent's own stat_key
+## tables rather than duplicating them, so there's one source of truth
+## for what each key means.
+func apply_affix(affix: ItemAffix) -> void:
+	if EquipmentComponent.AFFIX_STAT_KEYS.has(affix.stat_key):
+		var stat: Constants.Stat = EquipmentComponent.AFFIX_STAT_KEYS[affix.stat_key]
+		equipment_bonus[stat] = equipment_bonus.get(stat, 0.0) + affix.value
+		return
+	if EquipmentComponent.RESISTANCE_AFFIX_KEYS.has(affix.stat_key):
+		var key: String = EquipmentComponent.RESISTANCE_AFFIX_KEYS[affix.stat_key]
+		equipment_resistance[key] = equipment_resistance.get(key, 0.0) + affix.value
+		return
+	if affix.stat_key == "increased_damage":
+		if affix.is_generic or affix.damage_type == -1:
+			increased_damage_generic += affix.value
+		else:
+			var dt: Constants.DamageType = affix.damage_type
+			increased_damage_by_type[dt] = increased_damage_by_type.get(dt, 0.0) + affix.value
+
+## Recomputes increased_damage_generic/increased_damage_by_type from every
+## equipped item's affixes - additive alongside set_equipment_bonus()/
+## set_equipment_resistance() above (Player._on_equipment_changed() calls
+## both), not a replacement for them.
+func apply_equipment_affixes(items: Array[Item]) -> void:
+	increased_damage_generic = 0.0
+	increased_damage_by_type = {}
+	for item in items:
+		for affix in item.affixes:
+			if affix.stat_key == "increased_damage":
+				apply_affix(affix)
+
+## Patch v3.7 Section 3. Additive pools, percentage totals (e.g. 20.0 for
+## +20%) - not @export'd/persisted, same "always re-derived from currently
+## equipped gear" footing as equipment_bonus/increased_damage_generic
+## above. Recalculated on every stat refresh, never cached across one.
+var cast_speed_bonus: float = 0.0
+var cooldown_recovery_rate: float = 0.0
+
+func get_effective_cast_time(base_cast_time: float) -> float:
+	return base_cast_time / (1.0 + cast_speed_bonus / 100.0)
+
+func get_effective_cooldown(base_cooldown: float) -> float:
+	return base_cooldown / (1.0 + cooldown_recovery_rate / 100.0)
+
+## Section 20 Slate affix: converts a fraction of the player's current
+## Cast Speed into Cooldown Recovery Rate. conversion_percent is 15-25
+## depending on the Slate's own tier. Recalculate on every stat refresh
+## alongside cast_speed_bonus itself - not cached, so a change in Cast
+## Speed from gear/Slates always propagates through immediately rather
+## than freezing whatever conversion applied last time this ran.
+func apply_cast_speed_to_cooldown_conversion(conversion_percent: float) -> void:
+	var converted := cast_speed_bonus * (conversion_percent / 100.0)
+	cooldown_recovery_rate += converted
+
+## Patch v3.7 Section 1: the equipped Conduit's own spell power - the
+## base floor Ability._base_hit() adds so spell damage doesn't collapse
+## to single digits at low stats/grades (Weapon.base_damage's role, but
+## for spells). Recomputed by Player._on_equipment_changed() from
+## equipment.primary_weapon.get_spell_power() when it's a Conduit, 0.0
+## otherwise - same "cache on StatSheet, no signature changes anywhere"
+## pattern as equipment_bonus, so every existing Ability.predict_damage()/
+## roll_damage() call site (15+ across PlayerAbilityCast.gd and several
+## entities/effects/*_field/*.gd scripts) needed zero changes.
+var conduit_spell_power: float = 0.0
+
+func set_conduit_spell_power(value: float) -> void:
+	conduit_spell_power = value

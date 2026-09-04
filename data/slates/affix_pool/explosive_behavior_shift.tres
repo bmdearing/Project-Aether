@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_vqhsx"]
+
+[resource]
+script = ExtResource("1_vqhsx")
+tag = "explosive"
+is_behavior_modifier = true
+description = "Explosive Shift (stub)"
+stat_key = "explosive_behavior_shift"
+value = 1.0
+value_min = 1.0
+value_max = 1.0
+tier = 1
+is_prefix = false
+affix_id = "explosive_behavior_shift"
+display_name = "Explosive Shift"
+damage_type = 2

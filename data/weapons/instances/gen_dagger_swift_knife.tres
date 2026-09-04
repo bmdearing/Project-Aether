@@ -1,19 +1,30 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_m76h2"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_tq04i"]
 
+[sub_resource type="Resource" id="Resource_m76h2"]
+script = ExtResource("1_m76h2")
+description = "+22% Attack Speed"
+stat_key = "increased_attack_speed"
+value = 22.0
+is_implicit = true
+display_name = "Attack Speed"
+
 [resource]
 script = ExtResource("2_tq04i")
 weapon_type = "Dagger"
-base_damage = 9.0
-scaling_grade = 4
+base_damage_min = 7.0
+base_damage_max = 11.0
+scaling_grade = 1
 native_damage_type = 1
+primary_scaling_stat = "instinct"
 item_id = "gen_dagger_swift_knife"
 display_name = "Swift Knife"
 equip_slot = 4
 max_sockets = 3
-flavor_text = "Speed Line - Implicit: +22% increased Attack Speed"
+affixes = Array[ExtResource("1_m76h2")]([SubResource("Resource_m76h2")])
+flavor_text = "Speed Line"
 item_level = 14
 base_line_id = "dagger_line3"
 stat_requirement = 1

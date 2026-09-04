@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_exo1h"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_dw34m"]
+
+[resource]
+script = ExtResource("2_dw34m")
+weapon_type = "Longbow"
+base_damage_min = 13.0
+base_damage_max = 19.0
+scaling_grade = 0
+native_damage_type = 1
+is_two_handed = true
+is_ranged = true
+primary_scaling_stat = "instinct"
+item_id = "gen_longbow_rough_longbow"
+display_name = "Rough Longbow"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Snipe"
+base_line_id = "longbow_line1"
+stat_requirement = 1
+stat_requirement_value = 0.5

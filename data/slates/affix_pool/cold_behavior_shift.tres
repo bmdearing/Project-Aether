@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_nf616"]
+
+[resource]
+script = ExtResource("1_nf616")
+tag = "cold"
+is_behavior_modifier = true
+description = "Cold Shift (stub)"
+stat_key = "cold_behavior_shift"
+value = 1.0
+value_min = 1.0
+value_max = 1.0
+tier = 1
+is_prefix = false
+affix_id = "cold_behavior_shift"
+display_name = "Cold Shift"
+damage_type = 4

@@ -1,20 +1,32 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_4afys"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_7lhej"]
 
+[sub_resource type="Resource" id="Resource_4afys"]
+script = ExtResource("1_4afys")
+description = "+20% Aoe Radius"
+stat_key = "increased_aoe_radius"
+value = 20.0
+is_implicit = true
+display_name = "Aoe Radius"
+
 [resource]
 script = ExtResource("2_7lhej")
 weapon_type = "Halberd"
-base_damage = 41.0
-scaling_grade = 4
+base_damage_min = 34.0
+base_damage_max = 48.0
+scaling_grade = 2
 native_damage_type = 1
 is_two_handed = true
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_halberd_reaping_halberd"
 display_name = "Reaping Halberd"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "Reach/AoE - Implicit: +20% increased AoE radius on attacks"
+affixes = Array[ExtResource("1_4afys")]([SubResource("Resource_4afys")])
+flavor_text = "Reach/AoE"
 item_level = 46
 base_line_id = "halberd_line3"
 stat_requirement = 1

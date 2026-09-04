@@ -1,0 +1,26 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_le0vg"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_ug1ku"]
+
+[resource]
+script = ExtResource("2_ug1ku")
+weapon_type = "Spell Gauntlet"
+base_damage_min = 56.0
+base_damage_max = 76.0
+spell_power_min = 56.0
+spell_power_max = 76.0
+scaling_grade = 0
+native_damage_type = 6
+primary_scaling_stat = "arcane"
+is_conduit = true
+conduit_stance_type = "mana_stars"
+item_id = "gen_spell_gauntlet_veteran_spell_gauntlet"
+display_name = "Veteran Spell Gauntlet"
+equip_slot = 4
+max_sockets = 5
+flavor_text = "Spell Gauntlet (Line 1)"
+item_level = 50
+base_line_id = "spell_gauntlet_line1"
+stat_requirement = 1
+stat_requirement_value = 25.0

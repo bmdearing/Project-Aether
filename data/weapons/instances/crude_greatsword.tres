@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="1"]
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="2"]
@@ -8,24 +8,17 @@ script = ExtResource("2")
 description = "+11% increased Physical damage (implicit)"
 stat_key = "physical_dmg_increased"
 value = 11.0
-value_min = 0.0
-value_max = 0.0
 is_prefix = false
 
 [resource]
 script = ExtResource("1")
+base_damage_min = 10.0
+base_damage_max = 14.0
+scaling_grade = 4
+is_two_handed = true
 item_id = "crude_greatsword"
 display_name = "Crude Greatsword"
-rarity = 0
 equip_slot = 4
 max_sockets = 6
 affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
-flavor_text = ""
 icon_path = "res://assets/sprites/Dark fantasy Asset Pack 2_weapons and shields/weapons/weapon_split/10_part_005.png"
-weapon_type = "Greatsword"
-base_damage = 12.0
-scaling_grade = 4
-native_damage_type = 0
-infused_damage_type = -1
-is_two_handed = true
-skill_ids = Array[String]([])

@@ -1,19 +1,31 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_3o78l"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_ahi3h"]
 
+[sub_resource type="Resource" id="Resource_3o78l"]
+script = ExtResource("1_3o78l")
+description = "+20% Bleed Duration"
+stat_key = "increased_bleed_duration"
+value = 20.0
+is_implicit = true
+display_name = "Bleed Duration"
+
 [resource]
 script = ExtResource("2_ahi3h")
 weapon_type = "Dagger"
-base_damage = 102.0
-scaling_grade = 4
+base_damage_min = 86.0
+base_damage_max = 118.0
+scaling_grade = 2
 native_damage_type = 1
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_dagger_exsanguinator"
 display_name = "Exsanguinator"
 equip_slot = 4
 max_sockets = 6
-flavor_text = "Bleed Line - Implicit: +20% increased Bleed duration"
+affixes = Array[ExtResource("1_3o78l")]([SubResource("Resource_3o78l")])
+flavor_text = "Bleed Line"
 item_level = 91
 base_line_id = "dagger_line2"
 stat_requirement = 1

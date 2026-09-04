@@ -1,20 +1,32 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_8i710"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_m0xtu"]
 
+[sub_resource type="Resource" id="Resource_8i710"]
+script = ExtResource("1_8i710")
+description = "+20% Aoe Radius"
+stat_key = "increased_aoe_radius"
+value = 20.0
+is_implicit = true
+display_name = "Aoe Radius"
+
 [resource]
 script = ExtResource("2_m0xtu")
 weapon_type = "Halberd"
-base_damage = 73.0
-scaling_grade = 4
+base_damage_min = 62.0
+base_damage_max = 84.0
+scaling_grade = 2
 native_damage_type = 1
 is_two_handed = true
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_halberd_harvester"
 display_name = "Harvester"
 equip_slot = 4
 max_sockets = 5
-flavor_text = "Reach/AoE - Implicit: +20% increased AoE radius on attacks"
+affixes = Array[ExtResource("1_8i710")]([SubResource("Resource_8i710")])
+flavor_text = "Reach/AoE"
 item_level = 76
 base_line_id = "halberd_line3"
 stat_requirement = 1

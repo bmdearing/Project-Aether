@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_w4jna"]
+
+[resource]
+script = ExtResource("1_w4jna")
+tag = "piercing"
+is_behavior_modifier = true
+description = "Piercing Shift (stub)"
+stat_key = "piercing_behavior_shift"
+value = 1.0
+value_min = 1.0
+value_max = 1.0
+tier = 1
+is_prefix = false
+affix_id = "piercing_behavior_shift"
+display_name = "Piercing Shift"
+damage_type = 1

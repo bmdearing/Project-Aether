@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_fdm5m"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_3wn2q"]
+
+[sub_resource type="Resource" id="Resource_vr26a"]
+script = ExtResource("1_fdm5m")
+description = "+12% Physical Damage Reach"
+stat_key = "increased_physical_damage_reach"
+value = 12.0
+is_implicit = true
+display_name = "Physical Damage Reach"
+
+[resource]
+script = ExtResource("2_3wn2q")
+weapon_type = "Staff"
+base_damage_min = 56.0
+base_damage_max = 76.0
+spell_power_min = 56.0
+spell_power_max = 76.0
+scaling_grade = 1
+native_damage_type = 6
+is_two_handed = true
+primary_scaling_stat = "arcane"
+secondary_scaling_stat = "strength"
+is_conduit = true
+conduit_stance_type = "battlemage"
+item_id = "gen_staff_empowered_staff"
+display_name = "Empowered Staff"
+equip_slot = 4
+max_sockets = 5
+affixes = Array[ExtResource("1_fdm5m")]([SubResource("Resource_vr26a")])
+flavor_text = "Staff (Line 2)"
+item_level = 50
+base_line_id = "staff_line2"
+stat_requirement = 1
+stat_requirement_value = 25.0

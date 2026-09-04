@@ -1,20 +1,32 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_qk2cv"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_rgvc0"]
 
+[sub_resource type="Resource" id="Resource_qk2cv"]
+script = ExtResource("1_qk2cv")
+description = "+18% Bleed Damage"
+stat_key = "increased_bleed_damage"
+value = 18.0
+is_implicit = true
+display_name = "Bleed Damage"
+
 [resource]
 script = ExtResource("2_rgvc0")
 weapon_type = "Halberd"
-base_damage = 31.5
-scaling_grade = 4
+base_damage_min = 26.0
+base_damage_max = 37.0
+scaling_grade = 2
 native_damage_type = 1
 is_two_handed = true
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_halberd_thorn_halberd"
 display_name = "Thorn Halberd"
 equip_slot = 4
 max_sockets = 3
-flavor_text = "Bleed/Pierce - Implicit: +18% increased Bleed damage"
+affixes = Array[ExtResource("1_qk2cv")]([SubResource("Resource_qk2cv")])
+flavor_text = "Bleed/Pierce"
 item_level = 27
 base_line_id = "halberd_line2"
 stat_requirement = 1

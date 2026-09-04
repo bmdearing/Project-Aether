@@ -15,6 +15,7 @@
 [ext_resource type="Script" path="res://entities/components/StatusEffectComponent.gd" id="16"]
 [ext_resource type="Script" path="res://entities/player/player_arm/PlayerArmRig.gd" id="17"]
 [ext_resource type="Script" path="res://systems/combat/WeaponStance.gd" id="18"]
+[ext_resource type="Script" path="res://entities/player/CastTimeHandler.gd" id="19"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_1"]
 radius = 0.4
@@ -30,9 +31,6 @@ radius = 0.55
 top_radius = 0.22
 bottom_radius = 0.22
 height = 0.06
-
-[sub_resource type="BoxMesh" id="BoxMesh_sidearm"]
-size = Vector3(0.1, 0.15, 0.25)
 
 [node name="Player" type="CharacterBody3D"]
 script = ExtResource("1")
@@ -67,10 +65,6 @@ monitorable = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Head/Camera3D/WeaponSocket/ArmRig/WeaponMesh/AttackHitbox"]
 shape = SubResource("SphereShape3D_hitbox")
-
-[node name="SidearmMesh" type="MeshInstance3D" parent="Head/Camera3D/WeaponSocket"]
-mesh = SubResource("BoxMesh_sidearm")
-visible = false
 
 [node name="ShieldSocket" type="Node3D" parent="Head/Camera3D"]
 position = Vector3(-0.25, -0.2, -0.6)
@@ -118,3 +112,6 @@ script = ExtResource("16")
 
 [node name="WeaponStance" type="Node" parent="."]
 script = ExtResource("18")
+
+[node name="CastTimeHandler" type="Node" parent="."]
+script = ExtResource("19")

@@ -18,9 +18,8 @@ class_name WeaponStance
 ## ability") are NOT wired up here - no equippable item in this project
 ## currently identifies as a caster weapon (spellcasting is entirely
 ## independent of the weapon slot, see PlayerAbilityCast.gd), so there is
-## nothing for a caster branch to key off yet. The `conduit` equipment
-## slot exists but nothing reads it. Add a Mode.CASTER branch here once a
-## real caster weapon item exists.
+## nothing for a caster branch to key off yet. Add a Mode.CASTER branch
+## here once a real caster weapon item exists.
 
 enum Mode { NONE, MELEE, RANGED }
 

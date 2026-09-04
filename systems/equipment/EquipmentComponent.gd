@@ -14,41 +14,36 @@ class_name EquipmentComponent
 @export var gloves: Armor
 @export var boots: Armor
 
-## Implementation Brief v3.4 Section 4, user-expanded scope beyond the
-## brief's own ask ("Also build a real tap X to swap to a second weapon
-## set. Let players have 2 sets of a main hand/off hand weapon."): two
-## full weapon sets (primary/sidearm/offhand each), index 0 or 1 per
-## slot - same small-fixed-array shape `rings` below already uses (4 ring
-## slots) rather than inventing a `_2`-suffixed duplicate field per slot.
-## primary_weapon/sidearm_weapon/offhand below are now COMPUTED properties
-## reading/writing whichever index active_weapon_set points at, so every
-## existing caller (get_active_weapon(), get_total_armor(),
-## compute_ward_bonus(), get_all_equipped_items(), equip()'s own two-
-## handed-conflict checks, etc.) keeps working unchanged - only the
-## ACTIVE set's weapons were ever meant to contribute to stats/visuals,
-## exactly what a plain field read already did before this, and still
-## does now via these getters.
+## Implementation Brief v3.4 Section 4, user-expanded scope ("build a real
+## tap X to swap to a second weapon set. Let players have 2 sets of a main
+## hand/off hand weapon."): two full weapon sets (primary/offhand each),
+## index 0 or 1 per slot - same small-fixed-array shape `rings` below
+## already uses rather than inventing a `_2`-suffixed duplicate field per
+## slot. primary_weapon/offhand below are COMPUTED properties reading/
+## writing whichever index active_weapon_set points at, so every existing
+## caller (get_active_weapon(), get_total_armor(), compute_ward_bonus(),
+## get_all_equipped_items(), equip()'s own two-handed-conflict checks,
+## etc.) keeps working unchanged.
+##
+## Patch v3.5: sidearm dropped from each set (was primary/sidearm/offhand,
+## now just primary/offhand) - Sidearm-typed weapons now equip into
+## Primary or Offhand like anything else, per Weapon.is_main_hand/
+## is_offhand. `offhands` holds either a Shield or an offhand-type Weapon
+## (Rod/Tome/etc.) - typed Item, not Shield, to allow both.
 @export var primary_weapons: Array[Weapon] = [null, null]
-@export var sidearm_weapons: Array[Weapon] = [null, null]
-@export var offhands: Array[Shield] = [null, null]
+@export var offhands: Array[Item] = [null, null]
 @export var active_weapon_set: int = 0
 
 var primary_weapon: Weapon:
 	get: return primary_weapons[active_weapon_set]
 	set(value): primary_weapons[active_weapon_set] = value
-var sidearm_weapon: Weapon:
-	get: return sidearm_weapons[active_weapon_set]
-	set(value): sidearm_weapons[active_weapon_set] = value
-var offhand: Shield:
+var offhand: Item:
 	get: return offhands[active_weapon_set]
 	set(value): offhands[active_weapon_set] = value
 
-@export var conduit: Weapon
-@export var secondary_throwable: Weapon
-
 @export var amulet: Item
 @export var belt: Item
-@export var rings: Array[Item] = [null, null, null, null]
+@export var rings: Array[Item] = [null, null]
 
 signal equip_failed(reason: String)
 ## Fired on every successful equip()/unequip() (not rejected paths) -
@@ -62,7 +57,6 @@ signal weapon_set_changed(new_set: int)
 
 const WEAPON_SET_SLOTS := [
 	Constants.EquipmentSlot.PRIMARY_WEAPON,
-	Constants.EquipmentSlot.SIDEARM_WEAPON,
 	Constants.EquipmentSlot.OFFHAND,
 ]
 
@@ -79,9 +73,11 @@ func toggle_weapon_set() -> void:
 ## real candidate today.
 @onready var _player: Player = get_parent()
 
-## Routes by item.equip_slot. Two-handed primary weapons clear the sidearm
-## and offhand slots per Section 13 ("Two-Handed Weapon occupies both
-## weapon slots"). RING uses the first open ring slot, or slot 0 if all full.
+## Non-weapon items route by item.equip_slot; a Weapon routes by its own
+## is_main_hand/is_offhand instead (Patch v3.5 - Sidearm/Conduit are gone
+## as separate slots). Two-handed primary weapons clear the offhand slot
+## per Section 13 ("Two-Handed Weapon occupies both weapon slots"). RING
+## uses the first open ring slot, or slot 0 if all full.
 ##
 ## bypass_requirements: true only for Player._apply_saved_loadout()
 ## restoring a previous session's save - a save should always restore
@@ -108,40 +104,42 @@ func equip(item: Item, bypass_requirements: bool = false, weapon_set: int = -1) 
 			equip_failed.emit(block_reason)
 			return
 	var set_index := active_weapon_set if weapon_set == -1 else weapon_set
+	if item is Weapon:
+		_equip_weapon(item as Weapon, set_index)
+		return
 	match item.equip_slot:
 		Constants.EquipmentSlot.HELMET: helmet = item as Armor
 		Constants.EquipmentSlot.BODY_ARMOUR: body_armour = item as Armor
 		Constants.EquipmentSlot.GLOVES: gloves = item as Armor
 		Constants.EquipmentSlot.BOOTS: boots = item as Armor
-		Constants.EquipmentSlot.PRIMARY_WEAPON:
-			var weapon := item as Weapon
-			primary_weapons[set_index] = weapon
-			if weapon and weapon.is_two_handed:
-				sidearm_weapons[set_index] = null
-				offhands[set_index] = null
-		Constants.EquipmentSlot.SIDEARM_WEAPON:
-			if primary_weapons[set_index] and primary_weapons[set_index].is_two_handed:
-				var reason := "Cannot equip a sidearm weapon while a two-handed weapon is equipped."
-				push_warning(reason)
-				equip_failed.emit(reason)
-				return
-			sidearm_weapons[set_index] = item as Weapon
 		Constants.EquipmentSlot.OFFHAND:
 			if primary_weapons[set_index] and primary_weapons[set_index].is_two_handed:
 				var reason := "Cannot equip an offhand while a two-handed weapon is equipped."
 				push_warning(reason)
 				equip_failed.emit(reason)
 				return
-			offhands[set_index] = item as Shield
-		Constants.EquipmentSlot.CONDUIT: conduit = item as Weapon
-		Constants.EquipmentSlot.SECONDARY_THROWABLE: secondary_throwable = item as Weapon
+			offhands[set_index] = item
 		Constants.EquipmentSlot.AMULET: amulet = item
 		Constants.EquipmentSlot.BELT: belt = item
 		Constants.EquipmentSlot.RING: _equip_ring(item)
 	equipment_changed.emit()
 
+func _equip_weapon(weapon: Weapon, set_index: int) -> void:
+	if weapon.is_offhand:
+		if primary_weapons[set_index] and primary_weapons[set_index].is_two_handed:
+			var reason := "Cannot equip an offhand while a two-handed weapon is equipped."
+			push_warning(reason)
+			equip_failed.emit(reason)
+			return
+		offhands[set_index] = weapon
+	else:
+		primary_weapons[set_index] = weapon
+		if weapon.is_two_handed:
+			offhands[set_index] = null
+	equipment_changed.emit()
+
 ## weapon_set: same meaning as equip()'s own param - which set's slot to
-## clear for PRIMARY_WEAPON/SIDEARM_WEAPON/OFFHAND, ignored otherwise.
+## clear for PRIMARY_WEAPON/OFFHAND, ignored otherwise.
 func unequip(slot: Constants.EquipmentSlot, ring_index: int = 0, weapon_set: int = -1) -> void:
 	var set_index := active_weapon_set if weapon_set == -1 else weapon_set
 	match slot:
@@ -150,10 +148,7 @@ func unequip(slot: Constants.EquipmentSlot, ring_index: int = 0, weapon_set: int
 		Constants.EquipmentSlot.GLOVES: gloves = null
 		Constants.EquipmentSlot.BOOTS: boots = null
 		Constants.EquipmentSlot.PRIMARY_WEAPON: primary_weapons[set_index] = null
-		Constants.EquipmentSlot.SIDEARM_WEAPON: sidearm_weapons[set_index] = null
 		Constants.EquipmentSlot.OFFHAND: offhands[set_index] = null
-		Constants.EquipmentSlot.CONDUIT: conduit = null
-		Constants.EquipmentSlot.SECONDARY_THROWABLE: secondary_throwable = null
 		Constants.EquipmentSlot.AMULET: amulet = null
 		Constants.EquipmentSlot.BELT: belt = null
 		Constants.EquipmentSlot.RING:
@@ -171,10 +166,7 @@ func get_equipped(slot: Constants.EquipmentSlot, ring_index: int = 0, weapon_set
 		Constants.EquipmentSlot.GLOVES: return gloves
 		Constants.EquipmentSlot.BOOTS: return boots
 		Constants.EquipmentSlot.PRIMARY_WEAPON: return primary_weapons[set_index]
-		Constants.EquipmentSlot.SIDEARM_WEAPON: return sidearm_weapons[set_index]
 		Constants.EquipmentSlot.OFFHAND: return offhands[set_index]
-		Constants.EquipmentSlot.CONDUIT: return conduit
-		Constants.EquipmentSlot.SECONDARY_THROWABLE: return secondary_throwable
 		Constants.EquipmentSlot.AMULET: return amulet
 		Constants.EquipmentSlot.BELT: return belt
 		Constants.EquipmentSlot.RING:
@@ -187,7 +179,7 @@ func get_total_armor() -> float:
 	if body_armour: total += body_armour.armor_value
 	if gloves: total += gloves.armor_value
 	if boots: total += boots.armor_value
-	if offhand: total += offhand.armor_value
+	if offhand is Shield: total += (offhand as Shield).armor_value
 	return total
 
 ## Patch v3.2: "Ward pool size scales through gear rolls." Two real
@@ -207,7 +199,7 @@ func compute_ward_bonus() -> float:
 	if body_armour: total += body_armour.ward_value
 	if gloves: total += gloves.ward_value
 	if boots: total += boots.ward_value
-	if offhand: total += offhand.ward_value
+	if offhand is Shield: total += (offhand as Shield).ward_value
 	for item in get_all_equipped_items():
 		for affix in item.affixes:
 			if affix.stat_key == "flat_ward":
@@ -216,23 +208,28 @@ func compute_ward_bonus() -> float:
 
 ## Restore-descriptor per equipped item for GameState.sync_equipment() -
 ## a resource_path String, or an ItemSerializer Dictionary for rolled
-## items (no resource_path to save as a path). Excludes WEAPON_SET_SLOTS -
-## a flat "everything currently equipped" list has no way to represent an
-## INACTIVE weapon set's own items, so those persist separately per set,
-## see get_weapon_set_refs()/GameState.weapon_set_refs.
+## items (no resource_path to save as a path). Excludes primary_weapon and
+## offhand (whichever ACTIVE set they belong to) - a flat "everything
+## currently equipped" list has no way to represent an INACTIVE weapon
+## set's own items, so both persist separately per set instead, see
+## get_weapon_set_refs()/GameState.weapon_set_refs. Checked by reference
+## (`==`), not equip_slot - a Weapon's equip_slot is no longer the routing
+## source of truth (see equip()'s own is_offhand check), so it can't be
+## trusted to reliably mark "this is set-tracked," and an offhand Shield
+## needs the same per-set treatment as an offhand Weapon.
 func get_all_equipped_refs() -> Array:
 	var refs: Array = []
 	for item in get_all_equipped_items():
-		if WEAPON_SET_SLOTS.has(item.equip_slot):
+		if item == primary_weapon or item == offhand:
 			continue
 		refs.append(_ref_for(item))
 	return refs
 
-## Refs for ONE weapon set's own primary/sidearm/offhand (nulls skipped) -
-## the counterpart get_all_equipped_refs() deliberately excludes, called
-## once per set index by GameState.sync_weapon_sets().
+## Refs for ONE weapon set's own primary/offhand (nulls skipped) - the
+## counterpart get_all_equipped_refs() deliberately excludes, called once
+## per set index by GameState.sync_weapon_sets().
 func get_weapon_set_refs(set_index: int) -> Array:
-	var items: Array = [primary_weapons[set_index], sidearm_weapons[set_index], offhands[set_index]]
+	var items: Array = [primary_weapons[set_index], offhands[set_index]]
 	var refs: Array = []
 	for item in items:
 		if item:
@@ -283,7 +280,7 @@ func compute_resistance_bonuses() -> Dictionary:
 	return totals
 
 func get_all_equipped_items() -> Array[Item]:
-	var items: Array[Item] = [helmet, body_armour, gloves, boots, primary_weapon, sidearm_weapon, offhand, conduit, secondary_throwable, amulet, belt]
+	var items: Array[Item] = [helmet, body_armour, gloves, boots, primary_weapon, offhand, amulet, belt]
 	items.append_array(rings)
 	items = items.filter(func(i): return i != null)
 	return items

@@ -26,6 +26,19 @@ class_name Ability
 ## each ability's flavor text.
 @export var radius: float = 5.0
 
+## Patch v3.7 Section 2. CAST_TIME abilities go through CastTimeHandler's
+## windup before actually casting (interruptible by taking damage);
+## INSTANT and CHANNELED both fire immediately - channeled cast-speed
+## interaction is explicitly deferred, so CHANNELED behaves like INSTANT
+## for now (several abilities, e.g. Flame Jets, already implement their
+## own bespoke channel duration/tick loop in PlayerAbilityCast.gd,
+## entirely separate from this).
+enum CastType { INSTANT, CAST_TIME, CHANNELED }
+@export var cast_type: CastType = CastType.INSTANT
+@export var base_cast_time: float = 0.0       # seconds - CAST_TIME only
+@export var base_recovery_time: float = 0.3   # fixed post-cast lockout - not yet consumed anywhere
+@export var channel_duration: float = 0.0     # seconds - CHANNELED only, not yet consumed anywhere
+
 ## Doc-sourced base crit chance is per "spell type"; abilities here have
 ## no such classification (all execute as a generic nova), so this is a
 ## thematic guess at which doc category fits each one.
@@ -83,13 +96,14 @@ func _base_hit(stat_sheet: StatSheet) -> Dictionary:
 		stat_sheet.get_chain_bonus(damage_type) * 100.0,
 		stat_value,
 	]
-	# base_weapon_damage=0.0: a spell has no weapon, so Power reduces to
-	# pure Spell Power (stat_value x grade_multiplier) - Implementation
-	# Brief v3.3 Section 1. Used to be 1.0 (a multiplicative-identity
-	# placeholder under the old formula); under the new additive one that
-	# would silently add +1 flat damage to every spell hit instead.
+	# Patch v3.7 Section 1: base_weapon_damage is the equipped Conduit's
+	# own Spell Power (StatSheet.conduit_spell_power, 0.0 if no Conduit is
+	# equipped) instead of a hardcoded 0.0 - the "single-digit damage at
+	# low stats/grade" bug was Spell Power having no base floor at all
+	# (Implementation Brief v3.3 Section 1's original formula), the same
+	# role base_damage already plays for a real weapon's Attack Power.
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		0.0, get_effective_motion_value(), stat_value, scaling_grade,
+		stat_sheet.conduit_spell_power, get_effective_motion_value(), stat_value, scaling_grade,
 		0.5, mastery, increased, [], damage_type
 	)
 	return {

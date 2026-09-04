@@ -1,20 +1,31 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ewc0j"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_kexkc"]
 
+[sub_resource type="Resource" id="Resource_ewc0j"]
+script = ExtResource("1_ewc0j")
+description = "+10% Physical Damage"
+stat_key = "increased_physical_damage"
+value = 10.0
+is_implicit = true
+display_name = "Physical Damage"
+
 [resource]
 script = ExtResource("2_kexkc")
 weapon_type = "Halberd"
-base_damage = 22.0
-scaling_grade = 4
+base_damage_min = 18.0
+base_damage_max = 26.0
+scaling_grade = 1
 native_damage_type = 1
 is_two_handed = true
+primary_scaling_stat = "strength"
 item_id = "gen_halberd_iron_halberd"
 display_name = "Iron Halberd"
 equip_slot = 4
 max_sockets = 3
-flavor_text = "High Damage - Implicit: +10% increased Physical damage"
+affixes = Array[ExtResource("1_ewc0j")]([SubResource("Resource_ewc0j")])
+flavor_text = "High Damage"
 item_level = 12
 base_line_id = "halberd_line1"
 stat_requirement = 1

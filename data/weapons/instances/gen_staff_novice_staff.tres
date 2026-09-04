@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_1gaux"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_b1fmj"]
+
+[resource]
+script = ExtResource("2_b1fmj")
+weapon_type = "Staff"
+base_damage_min = 8.0
+base_damage_max = 12.0
+spell_power_min = 8.0
+spell_power_max = 12.0
+scaling_grade = 0
+native_damage_type = 6
+is_two_handed = true
+primary_scaling_stat = "arcane"
+is_conduit = true
+conduit_stance_type = "unleash"
+unleash_copy_count = 3
+item_id = "gen_staff_novice_staff"
+display_name = "Novice Staff"
+equip_slot = 4
+max_sockets = 2
+flavor_text = "Staff (Line 1)"
+base_line_id = "staff_line1"
+stat_requirement = 1
+stat_requirement_value = 0.5

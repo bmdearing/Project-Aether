@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_3qkoi"]
+
+[resource]
+script = ExtResource("1_3qkoi")
+tag = "spell"
+is_behavior_modifier = true
+description = "Spell Shift (stub)"
+stat_key = "spell_behavior_shift"
+value = 1.0
+value_min = 1.0
+value_max = 1.0
+tier = 1
+is_prefix = false
+affix_id = "spell_behavior_shift"
+display_name = "Spell Shift"
+is_generic = true

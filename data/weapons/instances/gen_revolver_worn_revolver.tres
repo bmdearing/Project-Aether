@@ -1,19 +1,30 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_emy2j"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_j6rxw"]
 
+[sub_resource type="Resource" id="Resource_emy2j"]
+script = ExtResource("1_emy2j")
+description = "+11% Physical Damage"
+stat_key = "increased_physical_damage"
+value = 11.0
+is_implicit = true
+display_name = "Physical Damage"
+
 [resource]
 script = ExtResource("2_j6rxw")
 weapon_type = "Revolver"
-base_damage = 9.5
-scaling_grade = 4
+base_damage_min = 8.0
+base_damage_max = 11.0
+scaling_grade = 1
 is_ranged = true
+primary_scaling_stat = "instinct"
 item_id = "gen_revolver_worn_revolver"
 display_name = "Worn Revolver"
 equip_slot = 4
 max_sockets = 2
-flavor_text = "High Damage - Implicit: +11% increased Physical damage"
+affixes = Array[ExtResource("1_emy2j")]([SubResource("Resource_emy2j")])
+flavor_text = "High Damage"
 base_line_id = "revolver_line1"
 stat_requirement = 1
 stat_requirement_value = 0.5

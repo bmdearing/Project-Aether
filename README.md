@@ -278,6 +278,19 @@ Thunder Javelin, Thunder Sweep (Lightning), Black Hole (Entropic),
 Caltrops (Physical), Blink and Purge (Utility). Cast on `1`-`4`
 (`PlayerAbilityCast`), drawing from a Mana pool (`ManaComponent`).
 
+**Cast types** (Patch v3.7, `Ability.cast_type`): INSTANT (everything by
+default), CAST_TIME (Comet 1.2s/Winter's Eye 0.8s/Meteor 1.6s/Black Hole
+1.0s - a real, interruptible windup via `entities/player/
+CastTimeHandler.gd`, taking damage cancels it and refunds nothing), or
+CHANNELED (Flame Jets - already its own bespoke channel loop in
+`PlayerAbilityCast.gd`, untouched; the CastType exists for future use but
+currently behaves exactly like INSTANT, channeled cast-speed interaction
+is explicitly deferred). Cast Speed (`StatSheet.cast_speed_bonus`) speeds
+up a CAST_TIME windup; Cooldown Recovery Rate (`cooldown_recovery_rate`)
+speeds up cooldowns - deliberately separate pools, Cast Speed never
+touches cooldowns or weapon attack speed, only a Slate mod (stub, no real
+instance yet) can convert some Cast Speed into Cooldown Recovery.
+
 **Most abilities still execute as a self-centered damage nova** sized by
 `radius`, on press. **A growing set of exceptions now have their own real
 mechanic** (2026-08-30 pass, per the user's own description of each -
@@ -364,19 +377,33 @@ Scorch/Aetherburn/Pallid aren't modeled yet — see gaps below.
 
 **Equipment & Items** (`data/items/`, `data/armor/`, `data/shields/`,
 `data/weapons/`, `systems/equipment/EquipmentComponent.gd`): Section 13
-equip slots, two-handed-weapon-clears-sidearm/offhand rule enforced.
+equip slots (Helmet/Body Armour/Gloves/Boots/Primary Weapon/Offhand/
+Amulet/Belt/2 Rings), two-handed-weapon-clears-offhand rule enforced.
 `Weapon.is_ranged` decouples melee/ranged attack dispatch from equip slot,
 so a pistol (or any ranged weapon) equips to `PRIMARY_WEAPON` like a
-two-hander and naturally replaces one, rather than needing its own
-Sidearm-only slot. `ui/inventory/InventoryScreen.gd` (`B`) is a 3-column
-layout: a live stats column (left), a slot-grid inventory (center,
-excluding anything currently equipped), and a paper-doll equipment
-diagram (right, weapons flanking a center torso column). Items with a
+two-hander and naturally replaces one. Patch v3.5 (2026-09-01) cut
+Sidearm/Conduit/Secondary as their own slots - any weapon now routes into
+Primary or Offhand via `Weapon.is_main_hand`/`is_offhand` instead
+(`EquipmentComponent.equip()`), and rings dropped from 4 to 2. Throwables
+are no longer equipment at all - see the Throwable Stack entry below.
+`ui/inventory/InventoryScreen.gd` (`B`) is a 3-column layout: a live
+stats column (left), a slot-grid inventory (center, excluding anything
+currently equipped), and a paper-doll equipment diagram (right, weapons
+flanking a center torso column, one ring on each side). Items with a
 real `icon_path` (`assets/sprites/` - a purchased dark-fantasy icon
 pack) show that icon via `ItemSlotButton`; anything without one yet
 still falls back to a colored square (rarity or damage-type color).
 `worn_pistol` deliberately has no icon - no firearm exists in that
 asset pack.
+
+**Throwable Stacks** (`data/items/ThrowableStack.gd`, Patch v3.5 Section
+3): a stackable inventory consumable, not an equipment slot - `Player.
+active_throwable` holds the currently selected stack, `use_throwable()`
+(bound to middle-mouse, the new `throw_secondary` action) consumes one
+and fires `EventBus.throwable_used`. `PlayerHUD` shows an icon + count in
+the top-right corner, "0" shown plainly rather than hidden when empty.
+How a stack gets acquired/selected is out of scope for this pass (no
+crafting/acquisition system invented, per the brief) - starts null.
 
 **The inventory grid is rearrangeable** - drag a slot onto an EMPTY cell
 and it moves there, exactly, full stop; drag it onto an OCCUPIED cell and
@@ -725,15 +752,53 @@ Sever, combined with a category Brand, permanently seals that tag from
 ever rolling on the item again); Binder exempts every other Brand in the
 craft from consumption. **Infusion/Shrivening Stone**: reroll or clear a
 weapon's `infused_damage_type` (the field already existed, unused, before
-this). **Shard of Tharsis**: corrupts an item per Section 20's own
-"Possible Corruption Outcomes" list (new modifier, rerolled ranges,
-sockets added/removed, etc.) — every corruption attempt also rolls the
-doc's "chance to retain craftable/corruptible status," which can
-permanently lock an item out of any further Cube craft or corruption.
+this).
+
+**Named Brand combinations** (Patch v3.6, `systems/crafting/
+BrandCombinationResolver.gd`): placing specific Brand pairs/triples
+together now rolls from a deliberately combined pool instead of just
+diluting the odds between separately-weighted tags — Anneal+Attenuate
+pulls from the combined armor+evasion pool, Calcine+Galvanic+Quench from
+fire+cold+lightning, and so on for 7 pairs and 5 triples. Same Brand x3
+also caps the roll at Tier 3 or better (this project's Tier 1 is always
+best). Any other combination still falls back to the original weighted-
+any-present-tag pick, unchanged.
+
+**Shard of Tharsis** (Patch v3.6 rework, `systems/crafting/
+CorruptionSystem.gd`/`CorruptionOutcome.gd`): corrupts an item by rolling
+one of 4 severity tiers (Minor 55% / Significant 30% / Major 12% /
+Extreme 3%), then one of that tier's named outcomes (22 total — socket/
+implicit/tier changes at Minor, special affixes and defensive auras at
+Significant, item-defining outcomes like Hollow/Inversion/Veiltouch/
+**Ascendant** (Patch v3.6b - upgrades a Weapon's `scaling_grade` one step,
+e.g. B→A; near-misses, logged not erroring, on an already-S weapon or any
+non-Weapon item) at Major, run-defining ones like Transcendent/Unmade at
+Extreme). Replaces the previous flat 8-outcome weighted list. **Veiltouch**
+(Major) is the
+one real gear/Slate crossover in this project — pulls a random Slate
+Affix Pool entry (see below) and grafts it onto the item as a real
+explicit modifier, once per item. Every corruption attempt still also
+rolls the doc's "chance to retain craftable/corruptible status," which
+can permanently lock an item out of any further Cube craft or
+corruption — kept from the previous implementation alongside the new
+tier model, not replaced by it.
+
+**Slate Affix Pool** (Patch v3.6, new — `data/items/SlateAffix.gd`,
+`systems/crafting/SlateAffixPool.gd`, `data/slates/affix_pool/`): a
+tag-organized pool of rollable Slate modifiers, entirely separate from
+gear's own `ItemRoller.AFFIX_POOL` — the only crossover is Veiltouch
+above. Currently 36 hand-generated stubs (3 per tag × 12 tags: the 9 real
+damage types plus spell/attack/generic), not real design — scaffolding
+for a future procedural Slate-affix roll. Hand-authored Slates still use
+their own fixed `SlateModifier` list, untouched by any of this.
+
 Every probability/priority-order choice below the doc's own named
-mechanics is this project's invented placeholder (Section 24 explicitly
-defers "Cube combination rules," "Brand rarity tiers," and "Corruption
-probability distribution" to a future design pass) — see flagged gap.
+mechanics is still this project's invented placeholder (Section 24
+explicitly defers "Cube combination rules," "Brand rarity tiers," and
+"Corruption probability distribution" to a future design pass) — Patch
+v3.6 is exactly that pass for the Cube's own combination rules and
+Corruption's own outcome model specifically, everything else flagged
+below is still open.
 
 **Map screen** (`ui/map_screen/`, `M`): a top-down schematic of the
 current generated Map's room graph — start room green, Vault gold, your
@@ -1046,17 +1111,44 @@ None of the six have a `PauseMenu` button — hotkey-only.
     across their range); native_damage_type/is_two_handed/is_ranged per
     weapon type are an invented-but-consistent guess (the doc never pairs
     weapon type -> damage type anywhere) documented in the generator's
-    own `WEAPON_TYPE_META` table. Each tier's doc "Implicit" text is
-    folded into `flavor_text` as flavor rather than a real `ItemAffix` -
-    `ItemRoller.roll()` always wipes and re-rolls `affixes` on every roll
-    regardless of base, so a "persistent implicit" affix would never
-    survive a roll anyway (same pre-existing behavior every hand-authored
-    base's own implicit already had). `flat_<stat>` roll affixes are real
+    own `WEAPON_TYPE_META` table. Each tier's doc "Implicit" was
+    originally folded into `flavor_text` as flavor rather than a real
+    `ItemAffix` - Patch v3.6b's repair pass (`tools/repair_weapon_lines.
+    gd`) converted 504 weapon base files' implicits into real `ItemAffix`
+    entries (`is_implicit = true`), but this is still descriptive for
+    anything reached via a loot drop specifically: `ItemRoller.roll()`
+    always wipes and re-rolls `affixes` on every roll regardless of base
+    (see its own comment), so the base file's now-real implicit still
+    doesn't survive onto a rolled copy - same pre-existing behavior every
+    implicit already had, not a regression from the repair. It's real
+    data now, just not yet reachable through the one path (loot rolls)
+    that actually reaches the player. `flat_<stat>` roll affixes are real
     (summed into `StatSheet` - see the Player section above), and
     `flat_ward`/the 4 Resistance affixes joined them as of Patch v3.2, but
     the damage/armor increased-% affixes (`physical_dmg_increased`,
     `flat_armor`, etc.) are still descriptive-only — no aggregation of
-    those into the damage/armor formulas exists yet. The Crafting pass
+    those into the damage/armor formulas exists yet. Patch v3.6b also
+    fixed `scaling_grade` itself, which every one of those ~853 generated
+    weapons had stuck at C regardless of line identity - now set per-line
+    from Implementation Brief v3.6b's own table, real and consumed by
+    `DamageCalculator` exactly as before. That table listed up to two
+    (stat, grade) pairs per line, implying real per-weapon-line multi-
+    stat scaling - out of scope here (confirmed with the user first):
+    only the grade number is real, the stat names are stored as new,
+    purely descriptive `Weapon.primary_scaling_stat`/
+    `secondary_scaling_stat` fields, not wired into damage calculation.
+    Shortbow/Longbow (32 files) and 9 Conduit (caster weapon) types -
+    Wand/Staff/Athame/Spell Gauntlet main-hand, Rod/Grimoire/Tome/
+    Talisman/Fetish offhand (108 files, `Weapon.is_conduit`/
+    `conduit_stance_type`/`spell_page_tag`/`unleash_copy_count`) - were
+    generated the same way, extending this same catalog. Patch v3.7
+    replaced every weapon's single `base_damage` with a real roll range
+    (`base_damage_min`/`max`, `rolled_base_damage` set by `ItemRoller.
+    roll()` on an actual drop, `get_base_damage()` falls back to the
+    range's midpoint otherwise) - Conduits got the same treatment for
+    `spell_power_min`/`max`/`rolled_spell_power`, the base floor a
+    Conduit contributes to spell damage (`StatSheet.conduit_spell_power`,
+    recomputed whenever the equipped primary weapon changes). The Crafting pass
     (gap #25) extended this same pool with 4 more descriptive-only
     entries (Evasion/Resistance/Resilience/skill cooldown) so every Brand
     category has *something* real to roll - same gap, just wider now, not
@@ -1137,7 +1229,14 @@ None of the six have a `PauseMenu` button — hotkey-only.
     systems this pass touches. Vestiges (boss-exclusive mod pools) aren't
     modeled — this project has no boss encounters to drop one. Corruption
     and Bore both touch `Item.max_sockets`, but per gap #21 nothing can
-    actually be socketed into it yet.
+    actually be socketed into it yet. Brand rarity/drop weighting is real
+    now (Patch v3.5, `Constants.BrandRarity`/`BRAND_DROP_WEIGHTS`,
+    `BrandRoller.roll()`) — Brands used to drop uniformly regardless of
+    power. `ItemAffix` also grew prefix/suffix/implicit-count helpers and
+    `is_generic`/`damage_type` fields (`Item.get_prefix_count()` etc.,
+    `StatSheet.apply_affix()`) as pure data scaffolding for a future
+    Cube/`ItemRoller` pass — nothing generates or reads these new fields
+    yet, same "shape only" footing as the rest of this list.
 26. **Inventory slot arrangement doesn't survive a save/reload** -
     `InventoryScreen._slot_assignment` (which grid cell each item/Brand
     stack renders in) lives on the screen instance itself, not

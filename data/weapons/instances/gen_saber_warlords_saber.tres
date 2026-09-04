@@ -1,18 +1,30 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_o8147"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_fiajq"]
 
+[sub_resource type="Resource" id="Resource_o8147"]
+script = ExtResource("1_o8147")
+description = "+9% Physical Damage"
+stat_key = "increased_physical_damage"
+value = 9.0
+is_implicit = true
+display_name = "Physical Damage"
+
 [resource]
 script = ExtResource("2_fiajq")
 weapon_type = "Saber"
-base_damage = 121.5
-scaling_grade = 4
+base_damage_min = 103.0
+base_damage_max = 140.0
+scaling_grade = 2
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_saber_warlords_saber"
 display_name = "Warlord's Saber"
 equip_slot = 4
 max_sockets = 6
-flavor_text = "Slashing - Implicit: +9% increased Physical damage"
+affixes = Array[ExtResource("1_o8147")]([SubResource("Resource_o8147")])
+flavor_text = "Slashing"
 item_level = 79
 base_line_id = "saber_line1"
 stat_requirement = 1

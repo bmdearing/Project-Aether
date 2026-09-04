@@ -1,20 +1,32 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_vlftb"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_eew1t"]
 
+[sub_resource type="Resource" id="Resource_vlftb"]
+script = ExtResource("1_vlftb")
+description = "+20% Bleed Damage"
+stat_key = "increased_bleed_damage"
+value = 20.0
+is_implicit = true
+display_name = "Bleed Damage"
+
 [resource]
 script = ExtResource("2_eew1t")
 weapon_type = "Spear"
-base_damage = 114.0
-scaling_grade = 4
+base_damage_min = 96.0
+base_damage_max = 132.0
+scaling_grade = 2
 native_damage_type = 1
 is_two_handed = true
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "instinct"
 item_id = "gen_spear_exsanguinators_lance"
 display_name = "Exsanguinator's Lance"
 equip_slot = 4
 max_sockets = 6
-flavor_text = "Bleed - Implicit: +20% increased Bleed damage"
+affixes = Array[ExtResource("1_vlftb")]([SubResource("Resource_vlftb")])
+flavor_text = "Bleed"
 item_level = 91
 base_line_id = "spear_line2"
 stat_requirement = 1

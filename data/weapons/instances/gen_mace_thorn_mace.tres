@@ -1,18 +1,30 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_6ig7e"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_erfm4"]
 
+[sub_resource type="Resource" id="Resource_6ig7e"]
+script = ExtResource("1_6ig7e")
+description = "+20% Retaliation Damage"
+stat_key = "increased_retaliation_damage"
+value = 20.0
+is_implicit = true
+display_name = "Retaliation Damage"
+
 [resource]
 script = ExtResource("2_erfm4")
 weapon_type = "Mace"
-base_damage = 35.0
-scaling_grade = 4
+base_damage_min = 29.0
+base_damage_max = 41.0
+scaling_grade = 2
+primary_scaling_stat = "strength"
+secondary_scaling_stat = "vitality"
 item_id = "gen_mace_thorn_mace"
 display_name = "Thorn Mace"
 equip_slot = 4
 max_sockets = 3
-flavor_text = "Retaliation - Implicit: +20% increased Retaliation damage"
+affixes = Array[ExtResource("1_6ig7e")]([SubResource("Resource_6ig7e")])
+flavor_text = "Retaliation"
 item_level = 27
 base_line_id = "mace_line3"
 stat_requirement = 1

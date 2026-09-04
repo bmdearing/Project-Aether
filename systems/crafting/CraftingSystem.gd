@@ -2,14 +2,20 @@ extends RefCounted
 class_name CraftingSystem
 ## Section 20 - Crafting System. Three distinct methods per the doc: The
 ## Cube (Brand combinations - craft_cube() below), Infusion/Shrivening
-## Stone (infuse()/shrive()), and the Shard of Tharsis (corrupt(),
-## Section 20's own "Possible Corruption Outcomes" list). Section 24
-## ("Deferred Design") explicitly defers Cube combination rules, Brand
+## Stone (infuse()/shrive()), and the Shard of Tharsis (corrupt(), now a
+## thin wrapper around CorruptionSystem.gd - see its own header). Section
+## 24 ("Deferred Design") explicitly defers Cube combination rules, Brand
 ## rarity tiers, and Corruption probability distribution to a future
 ## design pass the doc itself hasn't done yet - every number/priority
 ## rule below is this project's own invented placeholder for those
 ## explicitly-deferred specifics, same convention as every other flagged
 ## gap in this project (see README).
+##
+## Patch v3.6: category-Brand combinations (craft_cube()'s own
+## _add_weighted_affix()) now consult BrandCombinationResolver.gd first
+## for named pair/triple combos before falling back to the original
+## weighted-any-present-tag pick - this is that "future design pass" for
+## the Cube's own combination rules specifically.
 
 const MAX_AFFIXES := 6  # Section 18's own "Rare: 0-6" ceiling, reused as the modifier cap Section 24 never pins down
 const CUBE_CAPACITY := 8  # 3x3 grid minus 1 cell for the target item - this project's inventory is uniform 1x1 (README gap #6), so any item costs exactly one cell
@@ -50,36 +56,21 @@ const FUNCTION_PRIORITY: Array[Brand.BrandFunction] = [
 
 ## Section 15's per-item-type socket cap ("Base Max Sockets" column) -
 ## Bore sets max_sockets straight to this. This project doesn't yet
-## distinguish One-Handed vs Two-Handed weapon socket caps (both weapon
-## slots share PRIMARY_WEAPON/SIDEARM_WEAPON's own entry below), so a
+## distinguish One-Handed vs Two-Handed weapon socket caps, so a
 ## two-handed weapon under-caps slightly relative to the doc's own table.
+## Patch v3.5 folded Sidearm/Conduit/Secondary into PRIMARY_WEAPON/OFFHAND.
 const SOCKET_CAP_BY_SLOT := {
 	Constants.EquipmentSlot.BODY_ARMOUR: 6,
 	Constants.EquipmentSlot.PRIMARY_WEAPON: 6,
-	Constants.EquipmentSlot.SIDEARM_WEAPON: 3,
 	Constants.EquipmentSlot.HELMET: 4,
 	Constants.EquipmentSlot.GLOVES: 4,
 	Constants.EquipmentSlot.BOOTS: 4,
 	Constants.EquipmentSlot.OFFHAND: 3,
-	Constants.EquipmentSlot.CONDUIT: 3,
-	Constants.EquipmentSlot.SECONDARY_THROWABLE: 3,
 	Constants.EquipmentSlot.BELT: 2,
 	Constants.EquipmentSlot.AMULET: 1,
 	Constants.EquipmentSlot.RING: 1,
 }
 
-## Section 20's own "Possible Corruption Outcomes" list, invented weights
-## (Section 24 explicitly defers "Corruption probability distribution").
-const CORRUPTION_OUTCOMES := [
-	{"weight": 30, "id": "nothing"},
-	{"weight": 15, "id": "implicit_added"},
-	{"weight": 15, "id": "ranges_changed"},
-	{"weight": 15, "id": "extra_explicit"},
-	{"weight": 8, "id": "extra_explicit_special"},
-	{"weight": 7, "id": "sockets_added"},
-	{"weight": 7, "id": "sockets_removed"},
-	{"weight": 3, "id": "extra_implicit"},
-]
 
 ## ---- The Cube --------------------------------------------------------
 
@@ -145,6 +136,8 @@ static func craft_cube(item: Item, brands: Array[Brand], power_level: int = 1, t
 				consumed.append(b)
 	else:
 		consumed = brands.duplicate()
+	for b in consumed:
+		EventBus.brand_consumed.emit(b.item_id)
 	return {"success": true, "message": message, "destroyed": destroyed, "consumed": consumed}
 
 static func _under_same_brand_limit(brands: Array[Brand]) -> bool:
@@ -162,11 +155,16 @@ static func _governing_utility_brand(brands: Array[Brand]) -> Brand:
 				return b
 	return null
 
-static func _random_affix_for(item: Item, pool: Array, power_level: int) -> ItemAffix:
+## tier_cap: -1 for no cap, otherwise the WORST tier the roll is allowed
+## to land on (Tier 1 is best in this project's convention) - Patch v3.6's
+## "same Brand x3" bonus via BrandCombinationResolver.same_brand_tier_cap().
+static func _random_affix_for(item: Item, pool: Array, power_level: int, tier_cap: int = -1) -> ItemAffix:
 	if pool.is_empty():
 		return null
 	var entry: Dictionary = pool[randi() % pool.size()]
 	var rolled_tier: int = ItemRoller._roll_tier(power_level)
+	if tier_cap != -1:
+		rolled_tier = min(rolled_tier, tier_cap)
 	var value_range: Vector2 = ItemRoller._tier_range(entry["tier1_min"], entry["tier1_max"], rolled_tier)
 	var value: float = randf_range(value_range.x, value_range.y)
 	var affix := ItemAffix.new()
@@ -185,26 +183,48 @@ static func _redescribe(affix: ItemAffix) -> void:
 			affix.description = "%s (Tier %d)" % [entry["desc"] % round(affix.value), affix.tier]
 			return
 
-## No utility/special Brand present - category Brands add ONE new affix,
-## weighted by which categories are present (a Brand placed twice just
-## doubles that category's odds - covers "max 2 of the same Brand"
-## without a separate stacking rule).
+## No utility/special Brand present - category Brands add ONE new affix.
+## Patch v3.6: a recognized combination (BrandCombinationResolver, e.g.
+## Calcine+Galvanic+Quench for an Elemental-mastery-flavored roll) draws
+## from the UNION of every tag in that combination instead of picking
+## just one; same Brand x3 also caps the roll at Tier 3 or better. Any
+## other combination falls back to the original behavior - weighted by
+## which categories are present, a Brand placed twice just doubles that
+## category's odds (covers "max 2 of the same Brand" without a separate
+## stacking rule).
 static func _add_weighted_affix(item: Item, category_brands: Array[Brand], power_level: int) -> String:
 	if item.affixes.size() >= MAX_AFFIXES:
 		return "Already at the maximum of %d modifiers - nothing added." % MAX_AFFIXES
+	var brand_ids: Array[String] = []
 	var weighted_tags: Array[String] = []
 	for b in category_brands:
+		brand_ids.append(b.item_id)
 		if b.category_tag != "" and not item.sealed_tags.has(b.category_tag):
 			weighted_tags.append(b.category_tag)
 	if weighted_tags.is_empty():
 		return "Every tag those Brands direct toward is sealed on this item - nothing added."
-	var tag: String = weighted_tags[randi() % weighted_tags.size()]
-	var pool := ItemRoller._pool_for_brand_tag(item, tag)
-	var affix := _random_affix_for(item, pool, power_level)
+
+	var tier_cap := BrandCombinationResolver.same_brand_tier_cap(brand_ids)
+	var combo_tags := BrandCombinationResolver.resolve_tags(brand_ids, weighted_tags)
+	var affix: ItemAffix
+	var combo_note := ""
+	if not combo_tags.is_empty():
+		var combo_pool: Array = []
+		for tag in combo_tags:
+			if not item.sealed_tags.has(tag):
+				combo_pool.append_array(ItemRoller._pool_for_brand_tag(item, tag))
+		affix = _random_affix_for(item, combo_pool, power_level, tier_cap)
+		combo_note = " (%s combination)" % " + ".join(combo_tags)
+	else:
+		var tag: String = weighted_tags[randi() % weighted_tags.size()]
+		var pool := ItemRoller._pool_for_brand_tag(item, tag)
+		affix = _random_affix_for(item, pool, power_level, tier_cap)
+
 	if affix == null:
 		return "No modifier exists for that category on this item type - nothing added."
 	item.affixes.append(affix)
-	return "Added: %s" % affix.description
+	EventBus.item_stats_changed.emit(item)
+	return "Added: %s%s" % [affix.description, combo_note]
 
 static func _render(item: Item, power_level: int) -> String:
 	if item.affixes.is_empty():
@@ -242,6 +262,7 @@ static func _excise(item: Item, target_affix_index: int) -> String:
 		return "Choose a modifier to Excise."
 	var removed: ItemAffix = item.affixes[target_affix_index]
 	item.affixes.remove_at(target_affix_index)
+	EventBus.item_stats_changed.emit(item)
 	return "Removed: %s" % removed.description
 
 static func _bore(item: Item) -> String:
@@ -251,6 +272,7 @@ static func _bore(item: Item) -> String:
 	if item.max_sockets >= cap:
 		return "Already at maximum sockets."
 	item.max_sockets = cap
+	EventBus.item_sockets_changed.emit(item)
 	return "Sockets increased to %d." % cap
 
 static func _cleave(item: Item, power_level: int, target_affix_index: int) -> Dictionary:
@@ -308,55 +330,16 @@ static func shrive(weapon: Weapon) -> Dictionary:
 
 ## ---- Shard of Tharsis (Corruption) --------------------------------
 
+## Patch v3.6: the real outcome logic now lives in CorruptionSystem.gd/
+## CorruptionOutcome.gd (a 4-tier x named-outcome model, replacing the
+## flat 8-outcome weighted list this used to roll directly) - this stays
+## a thin wrapper so CraftingScreen.gd's Dictionary-based call site
+## (result["success"]/["message"]) needs no changes.
 static func corrupt(item: Item, power_level: int = 1) -> Dictionary:
-	if item == null:
-		return {"success": false, "message": "Nothing to corrupt.", "destroyed": false}
+	var outcome := CorruptionSystem.corrupt(item, power_level)
+	if not outcome.success:
+		return {"success": false, "message": outcome.reason, "destroyed": false}
+	var message := "%s (Tier %d)" % [outcome.outcome_name, outcome.tier]
 	if not item.is_craftable:
-		return {"success": false, "message": "This item was already corrupted beyond further chaos.", "destroyed": false}
-
-	var outcome := _roll_corruption_outcome()
-	var message := ""
-	match outcome:
-		"nothing":
-			message = "The Shard is consumed. Nothing happens."
-		"implicit_added", "extra_implicit", "extra_explicit", "extra_explicit_special":
-			# No separate implicit-vs-explicit affix distinction exists in
-			# this project (ItemAffix has no is_implicit flag) - every one
-			# of these 4 outcomes is modeled the same way: another rolled
-			# affix, same pool the Cube's category-Brand add draws from.
-			if item.affixes.size() >= MAX_AFFIXES:
-				message = "Chaos finds nowhere to take hold. Nothing happens."
-			else:
-				var affix := _random_affix_for(item, ItemRoller._pool_for(item), power_level)
-				if affix:
-					item.affixes.append(affix)
-					message = "A new modifier burns itself into the item: %s" % affix.description
-				else:
-					message = "Chaos finds nowhere to take hold. Nothing happens."
-		"ranges_changed":
-			message = _refine(item) if not item.affixes.is_empty() else "Chaos finds nowhere to take hold. Nothing happens."
-		"sockets_added":
-			var cap: int = SOCKET_CAP_BY_SLOT.get(item.equip_slot, 0) + 1  # Corruption can exceed the base cap by 1, per the doc
-			item.max_sockets = min(item.max_sockets + randi_range(1, 2), cap)
-			message = "Sockets are torn open by chaos - now %d." % item.max_sockets
-		"sockets_removed":
-			item.max_sockets = max(0, item.max_sockets - randi_range(1, 2))
-			message = "Sockets collapse in on themselves - now %d." % item.max_sockets
-
-	item.is_corrupted = true
-	if randf() >= RETAIN_CRAFTABLE_CHANCE:
-		item.is_craftable = false
 		message += " This item can no longer be crafted or corrupted."
 	return {"success": true, "message": message, "destroyed": false}
-
-static func _roll_corruption_outcome() -> String:
-	var total := 0
-	for entry in CORRUPTION_OUTCOMES:
-		total += entry["weight"]
-	var roll := randi_range(1, total)
-	var cumulative := 0
-	for entry in CORRUPTION_OUTCOMES:
-		cumulative += entry["weight"]
-		if roll <= cumulative:
-			return entry["id"]
-	return "nothing"

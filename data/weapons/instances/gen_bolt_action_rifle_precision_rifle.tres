@@ -6,15 +6,17 @@
 [resource]
 script = ExtResource("2_r30j0")
 weapon_type = "Bolt Action Rifle"
-base_damage = 99.0
-scaling_grade = 4
+base_damage_min = 84.0
+base_damage_max = 114.0
+scaling_grade = 0
 is_two_handed = true
 is_ranged = true
+primary_scaling_stat = "instinct"
 item_id = "gen_bolt_action_rifle_precision_rifle"
 display_name = "Precision Rifle"
 equip_slot = 4
 max_sockets = 5
-flavor_text = "Critical Strike - Implicit: +14% increased Critical Strike Chance"
+flavor_text = "Critical Strike"
 item_level = 51
 base_line_id = "bolt_action_rifle_line1"
 stat_requirement = 1

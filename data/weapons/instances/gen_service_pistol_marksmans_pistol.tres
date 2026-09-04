@@ -6,14 +6,16 @@
 [resource]
 script = ExtResource("2_kc1nq")
 weapon_type = "Service Pistol"
-base_damage = 36.5
-scaling_grade = 4
+base_damage_min = 31.0
+base_damage_max = 42.0
+scaling_grade = 0
 is_ranged = true
+primary_scaling_stat = "instinct"
 item_id = "gen_service_pistol_marksmans_pistol"
 display_name = "Marksman's Pistol"
 equip_slot = 4
 max_sockets = 4
-flavor_text = "Critical Strike - Implicit: +12% increased Critical Strike Chance"
+flavor_text = "Critical Strike"
 item_level = 34
 base_line_id = "service_pistol_line1"
 stat_requirement = 1

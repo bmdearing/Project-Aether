@@ -1,20 +1,31 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_turrj"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_yhhu5"]
 
+[sub_resource type="Resource" id="Resource_turrj"]
+script = ExtResource("1_turrj")
+description = "+16% Reach"
+stat_key = "increased_damage_outside_melee_range"
+value = 16.0
+is_implicit = true
+display_name = "Reach"
+
 [resource]
 script = ExtResource("2_yhhu5")
 weapon_type = "Spear"
-base_damage = 8.0
-scaling_grade = 4
+base_damage_min = 6.0
+base_damage_max = 10.0
+scaling_grade = 1
 native_damage_type = 1
 is_two_handed = true
+primary_scaling_stat = "strength"
 item_id = "gen_spear_charging_spear"
 display_name = "Charging Spear"
 equip_slot = 4
 max_sockets = 2
-flavor_text = "Momentum - Implicit: +14% increased Momentum generation"
+affixes = Array[ExtResource("1_turrj")]([SubResource("Resource_turrj")])
+flavor_text = "Momentum"
 base_line_id = "spear_line3"
 stat_requirement = 1
 stat_requirement_value = 0.5

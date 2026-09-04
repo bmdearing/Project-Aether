@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_56cyt"]
+
+[resource]
+script = ExtResource("1_56cyt")
+tag = "pale"
+is_conditional = true
+condition_description = "Placeholder condition - not yet designed."
+description = "Pale Surge (stub)"
+stat_key = "pale_conditional_surge"
+value = 8.0
+value_min = 8.0
+value_max = 20.0
+tier = 1
+is_prefix = false
+affix_id = "pale_conditional_surge"
+display_name = "Pale Surge"
+damage_type = 8
