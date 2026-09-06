@@ -4,21 +4,25 @@ class_name SparkCrawler
 ## projectiles that crawl the ground and search for enemies." Each
 ## crawler re-targets the nearest living enemy every physics frame (no
 ## locked target - if its target dies or a closer one appears, it
-## redirects) and crawls toward it along the ground. Unlike PiercingBolt
-## (hits each enemy once, ever) a crawler can hit the SAME enemy
-## repeatedly while it lingers in contact, gated per-enemy by
+## redirects) and steers toward it via a lerped heading (Patch v3.8b:
+## instant snap-to-target replaced with TURN_SPEED-gated turning, so a
+## crawler visibly curves onto a target instead of teleporting its facing).
+## Unlike PiercingBolt (hits each enemy once, ever) a crawler can hit the
+## SAME enemy repeatedly while it lingers in contact, gated per-enemy by
 ## HIT_INTERVAL ("each spark projectile can hit the same enemy only once
 ## every .15 seconds") so continuous overlap doesn't melt a target in one
-## tick. With no enemy in SEARCH_RADIUS it just holds its current heading
-## (set by PlayerAbilityCast._fire_spark() to a spread of 3 directions in
-## front of the caster) and keeps crawling blind until one comes into
-## range or its lifetime runs out.
+## tick. With no enemy in SEEK_RADIUS it wanders (heading drifts by a
+## small random turn every WANDER_INTERVAL) instead of holding a fixed
+## heading, per Patch v3.8b: "wandering randomly if none in range."
 
-const SPEED := 6.0
+const MOVE_SPEED := 5.0
+const TURN_SPEED := 3.0  # rad/s
+const SEEK_RADIUS := 12.0
 const LIFETIME := 4.0
 const HIT_INTERVAL := 0.15
-const SEARCH_RADIUS := 15.0
 const HIT_RADIUS := 0.7
+const WANDER_INTERVAL := 0.4
+const WANDER_TURN_RANGE := 1.2  # max radians of random turn per wander tick
 
 var heading: Vector3 = Vector3.FORWARD
 var ability: Ability
@@ -27,6 +31,8 @@ var source: Node
 var damage_multiplier: float = 1.0
 
 var _hit_timers: Dictionary = {}  # Enemy -> float seconds remaining before it can be hit again
+var _wander_timer: float = 0.0
+var _wander_target: Vector3 = Vector3.FORWARD
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
@@ -45,13 +51,17 @@ func _physics_process(delta: float) -> void:
 		_hit_timers[enemy] = max(0.0, _hit_timers[enemy] - delta)
 
 	var target := _find_nearest_enemy()
+	var desired: Vector3 = heading
 	if target:
 		var to_target: Vector3 = target.global_position - global_position
 		to_target.y = 0.0
 		if to_target.length() > 0.05:
-			heading = to_target.normalized()
+			desired = to_target.normalized()
+	else:
+		desired = _tick_wander(delta)
+	heading = heading.lerp(desired, TURN_SPEED * delta).normalized()
 
-	global_position += heading * SPEED * delta
+	global_position += heading * MOVE_SPEED * delta
 	if heading.length() > 0.01:
 		look_at(global_position + heading, Vector3.UP)
 
@@ -76,7 +86,7 @@ func _physics_process(delta: float) -> void:
 
 func _find_nearest_enemy() -> Enemy:
 	var nearest: Enemy = null
-	var nearest_dist := SEARCH_RADIUS
+	var nearest_dist := SEEK_RADIUS
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
@@ -85,3 +95,13 @@ func _find_nearest_enemy() -> Enemy:
 			nearest_dist = dist
 			nearest = enemy
 	return nearest
+
+## Re-rolls a random wander target heading every WANDER_INTERVAL so the
+## crawler drifts instead of holding a single fixed direction forever.
+func _tick_wander(delta: float) -> Vector3:
+	_wander_timer -= delta
+	if _wander_timer <= 0.0:
+		_wander_timer = WANDER_INTERVAL
+		var turn := randf_range(-WANDER_TURN_RANGE, WANDER_TURN_RANGE)
+		_wander_target = heading.rotated(Vector3.UP, turn).normalized()
+	return _wander_target

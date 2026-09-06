@@ -12,16 +12,15 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 		return
 	var stats: StatSheet = player.stat_sheet
 
-	_add(offense_list, "Strength", "%.1f" % stats.get_stat(Constants.Stat.STRENGTH))
-	_add(offense_list, "Arcane", "%.1f" % stats.get_stat(Constants.Stat.ARCANE))
-	_add(offense_list, "Enigma", "%.1f" % stats.get_stat(Constants.Stat.ENIGMA))
+	_add(offense_list, "Prowess", "%.1f" % stats.get_stat(Constants.Stat.PROWESS))
+	_add(offense_list, "Attack Power", "%.1f" % stats.get_attack_power_from_stats())
 	_add(offense_list, "Main Hand Damage", _predict_damage(player, Constants.EquipmentSlot.PRIMARY_WEAPON))
 	_add(offense_list, "Main Hand Crit", _crit_summary(player, Constants.EquipmentSlot.PRIMARY_WEAPON))
 	_add(offense_list, "Offhand Damage", _predict_damage(player, Constants.EquipmentSlot.OFFHAND))
 	_add(offense_list, "Offhand Crit", _crit_summary(player, Constants.EquipmentSlot.OFFHAND))
 
-	_add(defense_list, "Vitality", "%.1f" % stats.get_stat(Constants.Stat.VITALITY))
-	_add(defense_list, "Instinct", "%.1f" % stats.get_stat(Constants.Stat.INSTINCT))
+	_add(defense_list, "Finesse", "%.1f" % stats.get_stat(Constants.Stat.FINESSE))
+	_add(defense_list, "Evasion Rating", "%.1f" % stats.get_evasion_from_stats())
 	_add(defense_list, "Max Health", "%.0f" % player.health.max_health)
 	_add(defense_list, "Life Regen", "%.1f/s" % player.health.regen_per_second)
 	_add(defense_list, "Max Ward", "%.0f" % player.ward.max_ward)
@@ -29,7 +28,8 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 
 	_add(misc_list, "Level", "%d" % player.experience.level)
 	_add(misc_list, "XP", "%.0f / %.0f" % [player.experience.xp, player.experience.xp_to_next_level()])
-	_add(misc_list, "Intellect", "%.1f" % stats.get_stat(Constants.Stat.INTELLECT))
+	_add(misc_list, "Resolve", "%.1f" % stats.get_stat(Constants.Stat.RESOLVE))
+	_add(misc_list, "Spell Power", "%.1f" % stats.get_spell_power_from_stats())
 	_add(misc_list, "Max Mana", "%.0f" % player.mana.max_mana)
 	_add(misc_list, "Mana Regen", "%.1f/s" % player.mana.regen_per_second)
 	_add(misc_list, "Move Speed", "%.1f m/s" % (player.move_speed * player.get_move_speed_multiplier()))
@@ -73,8 +73,8 @@ static func _crit_summary(player: Player, slot: Constants.EquipmentSlot) -> Stri
 	var weapon := _weapon_in(player, slot)
 	if weapon == null:
 		return "None equipped"
-	var chance := DamageCalculator.get_crit_chance(weapon.get_base_crit_chance(), player.stat_sheet.get_stat(Constants.Stat.INSTINCT))
-	var multiplier := DamageCalculator.get_crit_damage_multiplier(player.stat_sheet.get_stat(Constants.Stat.INTELLECT))
+	var chance := DamageCalculator.get_crit_chance(weapon.get_base_crit_chance(), player.stat_sheet.finesse_crit_bonus)
+	var multiplier := DamageCalculator.get_crit_damage_multiplier(player.stat_sheet.get_crit_damage_bonus())
 	return "%.0f%% chance / %.0f%% dmg" % [clamp(chance, 0.0, 1.0) * 100.0, multiplier * 100.0]
 
 static func _add(list: VBoxContainer, label_text: String, value_text: String) -> void:

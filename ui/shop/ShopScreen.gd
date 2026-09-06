@@ -28,9 +28,12 @@ func is_open() -> bool:
 	return _is_open
 
 ## entries: Array[Dictionary], each {label, cost (0 = free), color, on_buy,
-## item/ability (optional, for the ItemCard hover tooltip)}. action
-## (optional): {label, cost, on_action} - a single button above the list
-## for something that isn't "buy an item" (GearShop's "Reroll Stock").
+## item/ability (optional, for the ItemCard hover tooltip), repeatable
+## (optional, default false - Patch v3.8c: Brand Shop's unlimited-quantity
+## rows stay buyable after a purchase instead of permanently disabling,
+## unlike GearShop's one-of-each rolled stock)}. action (optional): {label,
+## cost, on_action} - a single button above the list for something that
+## isn't "buy an item" (GearShop's "Reroll Stock").
 func open_with(title: String, entries: Array, action: Dictionary = {}) -> void:
 	title_label.text = title
 	_is_open = true
@@ -114,8 +117,9 @@ func _on_buy_pressed(entry: Dictionary, buy_button: Button, cost_label: Label) -
 	if on_buy.is_valid():
 		on_buy.call()
 	_refresh_gold_label()
-	buy_button.disabled = true
-	buy_button.text = "Bought" if cost > 0 else "Taken"
+	if not entry.get("repeatable", false):
+		buy_button.disabled = true
+		buy_button.text = "Bought" if cost > 0 else "Taken"
 
 func _refresh_gold_label() -> void:
 	gold_label.text = "Your Gold: %d" % GameState.gold

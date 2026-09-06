@@ -75,31 +75,32 @@ func get_base_crit_chance() -> float:
 	return Constants.WEAPON_BASE_CRIT_CHANCE.get(weapon_type, Constants.DEFAULT_BASE_CRIT_CHANCE)
 
 ## Shared groundwork for predict_damage()/roll_damage().
+## Patch v3.8: Attack Power always comes from Prowess (stat_sheet.
+## get_attack_power_from_stats()) regardless of the weapon's own damage
+## type - the old per-damage-type main-stat lookup (DAMAGE_TYPE_MAIN_STAT)
+## is gone from this formula. The old "main_stat ALSO feeds the increased%
+## pool" double-dip is gone too - Prowess's entire damage contribution is
+## the Attack Power term now, nothing separate (see the new STAT_GLOSSARY
+## wording, which drops the old "+1% increased damage per point" line).
 func _base_hit(motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 	var damage_type: Constants.DamageType = infused_damage_type if infused_damage_type != -1 else native_damage_type
-	var main_stat: Constants.Stat = Constants.DAMAGE_TYPE_MAIN_STAT.get(damage_type, Constants.Stat.STRENGTH)
-	var stat_value: float = stat_sheet.get_stat(main_stat)
+	var stat_ap: float = stat_sheet.get_attack_power_from_stats()
 	var mastery: float = stat_sheet.get_mastery(damage_type)
 	# Section 10's Chain Bonus System (Mastery-amplified - see
 	# ChainCalculator.amplify_by_mastery()), stored as a raw fraction on
 	# StatSheet, converted to the percent-units DamageCalculator.calculate()
-	# expects (each entry "e.g. 8.0 for 8%"). Section 12's own Per-Point
-	# Values table separately gives main_stat itself "+1% increased
-	# <category> damage per point" - stacking on top of, not instead of,
-	# main_stat's existing role scaling stat_value above. stat_value is
-	# already in raw point units, which is 1:1 with percent at this rate.
+	# expects (each entry "e.g. 8.0 for 8%").
 	var increased: Array[float] = [
 		stat_sheet.get_chain_bonus(damage_type) * 100.0,
-		stat_value,
 	]
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		get_base_damage(), motion_value, stat_value, scaling_grade,
+		get_base_damage(), motion_value, stat_ap, scaling_grade,
 		0.5, mastery, increased, [], damage_type
 	)
 	return {
 		"base_damage": result.final_damage,
-		"crit_chance": DamageCalculator.get_crit_chance(get_base_crit_chance(), stat_sheet.get_stat(Constants.Stat.INSTINCT)),
-		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_stat(Constants.Stat.INTELLECT)),
+		"crit_chance": DamageCalculator.get_crit_chance(get_base_crit_chance(), stat_sheet.finesse_crit_bonus),
+		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus()),
 	}
 
 ## Expected-value blend (not a random roll) so the stat card shows one

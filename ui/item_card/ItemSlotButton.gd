@@ -1,9 +1,10 @@
 extends Button
 class_name ItemSlotButton
 ## Rich ItemCard hover tooltip via Godot's _make_custom_tooltip() hook
-## (positioning/delay/auto-hide all native). Holding Alt while hovered
-## instead opens AdvancedTooltip - a real popup with tier ranges and
-## clickable stat glossary links that doesn't auto-hide.
+## (positioning/delay/auto-hide all native). Holding Alt while the card
+## is showing swaps its OWN content to Alt Info in place (ItemCard.gd's
+## own _input() listens for Alt directly) - no second popup, matching
+## Patch v3.8 Section 5 ("must not spawn a second floating ItemCard").
 ##
 ## Used by InventoryScreen, FateBoardEditor, AbilitiesScreen, ShopScreen -
 ## set exactly one of item/slate/ability per button.
@@ -54,34 +55,6 @@ func _refresh_icon() -> void:
 		_icon_rect.visible = true
 	else:
 		_icon_rect.visible = false
-
-## Alt is a HOLD, not a toggle (matches Path of Exile's real behavior,
-## confirmed by request) - press while hovered shows the advanced card,
-## release notifies AdvancedTooltip to close it (unless the mouse has
-## moved onto the card itself - see AdvancedTooltip.on_alt_released()).
-## Release isn't gated on _is_hovered - the mouse may have already moved
-## onto the card by the time Alt comes up.
-func _input(event: InputEvent) -> void:
-	if not event is InputEventKey:
-		return
-	var key_event := event as InputEventKey
-	if key_event.keycode != KEY_ALT or key_event.echo:
-		return
-	if key_event.pressed:
-		if _is_hovered:
-			_show_advanced()
-	else:
-		AdvancedTooltip.on_alt_released()
-
-func _show_advanced() -> void:
-	var pos := get_global_mouse_position() + Vector2(16, 16)
-	if item:
-		AdvancedTooltip.show_for_item(item, pos)
-	elif slate:
-		AdvancedTooltip.show_for_slate(slate, pos)
-	elif ability:
-		var player := get_tree().get_first_node_in_group("player") as Player
-		AdvancedTooltip.show_for_ability(ability, player.stat_sheet if player else null, pos)
 
 ## Drag SOURCE: only a slot with a real item can be picked up (an empty
 ## padding slot has nothing to move). A small floating label following

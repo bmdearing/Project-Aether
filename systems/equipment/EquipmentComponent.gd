@@ -241,12 +241,9 @@ func get_weapon_set_refs(set_index: int) -> Array:
 ## stat_key. Together they're the only two (Section 12: gear + Slates,
 ## no level-up allocation).
 const AFFIX_STAT_KEYS := {
-	"flat_vitality": Constants.Stat.VITALITY,
-	"flat_strength": Constants.Stat.STRENGTH,
-	"flat_instinct": Constants.Stat.INSTINCT,
-	"flat_arcane": Constants.Stat.ARCANE,
-	"flat_enigma": Constants.Stat.ENIGMA,
-	"flat_intellect": Constants.Stat.INTELLECT,
+	"flat_prowess": Constants.Stat.PROWESS,
+	"flat_finesse": Constants.Stat.FINESSE,
+	"flat_resolve": Constants.Stat.RESOLVE,
 }
 
 func compute_stat_bonuses() -> Dictionary:
@@ -277,6 +274,26 @@ func compute_resistance_bonuses() -> Dictionary:
 			if RESISTANCE_AFFIX_KEYS.has(affix.stat_key):
 				var key: String = RESISTANCE_AFFIX_KEYS[affix.stat_key]
 				totals[key] = totals.get(key, 0.0) + affix.value
+	return totals
+
+## Patch v3.8 Section 2 "Removed expressions" - max_life/life_regen/
+## max_mana/mana_regen/resilience/cast_speed used to derive from a
+## character stat, now purely gear-affix-driven (same shape as
+## compute_resistance_bonuses() above, just a different key set). flat_
+## resilience already existed (pre-v3.8, previously descriptive-only);
+## the rest are new ItemRoller.AFFIX_POOL entries added alongside this.
+const MISC_BONUS_KEYS := [
+	"max_life", "life_regen", "max_mana", "mana_regen",
+	"flat_resilience", "cast_speed", "attack_speed", "move_speed",
+	"crit_damage",
+]
+
+func compute_misc_bonuses() -> Dictionary:
+	var totals := {}
+	for item in get_all_equipped_items():
+		for affix in item.affixes:
+			if MISC_BONUS_KEYS.has(affix.stat_key):
+				totals[affix.stat_key] = totals.get(affix.stat_key, 0.0) + affix.value
 	return totals
 
 func get_all_equipped_items() -> Array[Item]:

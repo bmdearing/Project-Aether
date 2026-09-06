@@ -43,11 +43,19 @@ const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.25  # "Increased Esoteric damage take
 const SLOW_DURATION := 0.75
 const SLOW_MOVE_SLOW_PERCENT := 0.35
 
-## Section 12: Intellect -> "+1.5% Debuff effectiveness" per point, keyed
-## off the APPLYING side's Intellect (source), extending non-DoT effect
-## durations. Vitality's Resilience/DoT mitigation is the DoT-side
-## counterpart - see Player.get_dot_mitigation(), applied in _tick_ignite().
-const DEBUFF_EFFECTIVENESS_PER_INTELLECT := 0.015
+## Patch v3.8b: Spark's new proc, replacing Electrocute on that ability only
+## (Thunder Javelin/Thunder Sweep keep Electrocute). Non-stacking, duration
+## refreshes on reapplication (same _apply_timed model as Electrocute/
+## Unraveling/Slow above) - does not stun/interrupt, unlike Electrocute.
+const SHOCK_DURATION := 4.0
+const SHOCK_DAMAGE_INCREASE := 0.20
+
+## Patch v3.8: Debuff Effectiveness is a "removed expression" - no longer
+## derived from a character stat (Intellect, its old source, is gone).
+## debuff_effectiveness exists as a real ItemRoller.AFFIX_POOL entry but
+## has no consumer wired up yet (same "real affix, no formula to feed it"
+## footing several other Patch v3.8 gear-only stats share) - this always
+## returns 1.0 (no bonus) until that wiring exists.
 
 ## Patch v3.2 ADDITION - Resistance Shred: "Temporarily reduces a target's
 ## Resistance values by a flat percentage for 8 seconds... Stacks from
@@ -123,6 +131,9 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 		"slow":
 			_apply_timed("slow", SLOW_DURATION, source)
 			_emit_applied("slow")
+		"shock":
+			_apply_timed("shock", SHOCK_DURATION, source)
+			_emit_applied("shock")
 
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
@@ -164,6 +175,15 @@ func get_action_speed_multiplier() -> float:
 func get_damage_taken_multiplier(damage_type: Constants.DamageType) -> float:
 	if has_effect("unraveling") and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.ESOTERIC:
 		return 1.0 + UNRAVELING_DAMAGE_TAKEN_PERCENT
+	return 1.0
+
+## Lightning damage only - applied on top of get_damage_taken_multiplier()
+## by the caller (Enemy.take_damage()), not folded into it, since that
+## method is category-keyed (Elemental/Esoteric) and Shock is a single-
+## damage-type effect.
+func get_shock_multiplier() -> float:
+	if has_effect("shock"):
+		return 1.0 + SHOCK_DAMAGE_INCREASE
 	return 1.0
 
 func _apply_timed(effect_id: String, base_duration: float, source: Node) -> void:
@@ -216,9 +236,7 @@ func _tick_ignite(delta: float) -> void:
 		_owner.take_damage(dmg, Constants.DamageType.FIRE, true)
 	EventBus.damage_dealt.emit(_ignite_source, _owner, dmg, Constants.DamageType.FIRE, false, false)
 
-func _debuff_effectiveness_multiplier(source: Node) -> float:
-	if source is Player:
-		return 1.0 + source.stat_sheet.get_stat(Constants.Stat.INTELLECT) * DEBUFF_EFFECTIVENESS_PER_INTELLECT
+func _debuff_effectiveness_multiplier(_source: Node) -> float:
 	return 1.0
 
 func _expire(effect_id: String) -> void:

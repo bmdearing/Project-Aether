@@ -26,7 +26,6 @@ Constants="*res://autoloads/Constants.gd"
 EventBus="*res://autoloads/EventBus.gd"
 GameState="*res://autoloads/GameState.gd"
 SaveManager="*res://autoloads/SaveManager.gd"
-AdvancedTooltip="*res://autoloads/AdvancedTooltip.gd"
 
 [display]
 

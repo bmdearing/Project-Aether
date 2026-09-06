@@ -147,21 +147,19 @@ var _dash_direction: Vector3 = Vector3.ZERO
 var _dash_speed_current: float = 0.0
 var _dash_cooldown_remaining: float = 0.0
 
-## Section 12: Instinct -> Action Speed, split by type ("1% Attack/Cast |
-## 0.7% Dodge | 0.5% Move" per point). No Dodge mechanic exists yet.
-const INSTINCT_MOVE_SPEED_PCT := 0.005
-const INSTINCT_ACTION_SPEED_PCT := 0.01
+## Patch v3.8: Move Speed/Attack Speed are "removed expressions" - no
+## longer derived from a character stat (Instinct, their old source, is
+## gone). Both stay real, actively-consumed multipliers (unlike several
+## other v3.8 gear-only stats with no consumer yet) - just gear-affix-
+## driven now instead of stat-driven, via StatSheet.misc_bonus.
 
 func _ready() -> void:
 	if stat_sheet == null:
 		# Fallback only - Player.tscn assigns player_baseline.tres normally.
 		stat_sheet = StatSheet.new()
-		stat_sheet.vitality = 10.0
-		stat_sheet.strength = 10.0
-		stat_sheet.instinct = 10.0
-		stat_sheet.arcane = 10.0
-		stat_sheet.enigma = 10.0
-		stat_sheet.intellect = 10.0
+		stat_sheet.prowess = 10.0
+		stat_sheet.finesse = 10.0
+		stat_sheet.resolve = 10.0
 	fate_board = FateBoard.new()
 	GameState.player_stat_sheet = stat_sheet
 	GameState.fate_board = fate_board
@@ -199,6 +197,7 @@ func _ready() -> void:
 func _on_equipment_changed() -> void:
 	stat_sheet.set_equipment_bonus(equipment.compute_stat_bonuses())
 	stat_sheet.set_equipment_resistance(equipment.compute_resistance_bonuses())
+	stat_sheet.set_misc_bonus(equipment.compute_misc_bonuses())
 	stat_sheet.apply_equipment_affixes(equipment.get_all_equipped_items())
 	# Patch v3.7 Section 1: Conduit spell power floor, checked on the
 	# primary weapon only (an offhand-slot Conduit doesn't contribute -
@@ -229,47 +228,44 @@ func _apply_fate_board_bonuses() -> void:
 	stat_sheet.set_chain_bonus_by_tag(ChainCalculator.amplify_by_mastery(chains, stat_sheet))
 	_apply_derived_stats()
 
-## Section 12 per-point values. Instinct's Stamina pool is still deferred -
-## no Stamina/dodge-roll mechanic exists.
-const VITALITY_LIFE_PER_POINT := 2.0
-const VITALITY_LIFE_REGEN_PER_POINT := 0.1
-const VITALITY_RESILIENCE_PER_POINT := 3.0
-const INTELLECT_MANA_PER_POINT := 2.0
-const INTELLECT_MANA_REGEN_PER_POINT := 0.1
-
 ## Section 12: "Resilience / DoT mitigation" - reduces StatusEffectComponent's
 ## Ignite ticks (DamageCalculator.dot_mitigation()). Not persisted/exported;
 ## always re-derived in _apply_derived_stats() like every other stat here.
+## Patch v3.8: gear-affix-only now (flat_resilience) - Vitality, its old
+## source, no longer exists.
 var resilience: float = 0.0
 
-## User direction (clarifying/overriding Patch v3.2's own "gear rolls and
-## Enigma investment" wording): Ward's BASE size comes from armor only -
-## flat_ward gear affixes, full stop, no baseline pool (an earlier pass
-## invented a flat 300 + 60/Enigma-point curve, which meant a fresh,
-## ungeared character started with 900 Ward out of nowhere - the bug
-## report this fixes). Enigma then applies as an INCREASED% multiplier on
-## top of that base, not its own flat contribution - zero armor still
-## means zero Ward regardless of Enigma, since a multiplier on 0 is 0.
-## No doc-exact rate exists for this specific multiplier (the patch's
-## only exact Enigma/Ward number is the restoration-rate one below, a
-## different mechanic) - invented, flagged.
-const WARD_INCREASED_PER_ENIGMA := 0.02
-## Patch v3.2: "Enigma scales it globally (+1% per Enigma point)" - Ward
-## Restoration is explicitly a unified stat covering every restoration
-## source (passive regen, on-kill, Parry, etc. - see WardComponent.restore()).
-const WARD_RESTORATION_PER_ENIGMA := 0.01
-
+## Patch v3.8: Ward's BASE size still comes from armor only (flat_ward
+## gear affixes, no baseline pool - see the ward bug fix this comment
+## used to describe). Resolve now applies the INCREASED% multiplier
+## Enigma used to (StatSheet.get_ward_increased_from_stats(), 0.5%/point
+## per the brief) - zero armor still means zero Ward, a multiplier on 0
+## is 0. Ward Restoration Rate is a "removed expression" now (no longer
+## stat-derived, Enigma is gone) - restoration_multiplier resets to a
+## flat 1.0 until/unless a gear affix drives it.
 func _apply_derived_stats() -> void:
-	var vitality := stat_sheet.get_stat(Constants.Stat.VITALITY)
-	var intellect := stat_sheet.get_stat(Constants.Stat.INTELLECT)
-	var enigma := stat_sheet.get_stat(Constants.Stat.ENIGMA)
-	health.set_max_health(_base_max_health + vitality * VITALITY_LIFE_PER_POINT)
-	health.regen_per_second = vitality * VITALITY_LIFE_REGEN_PER_POINT
-	resilience = vitality * VITALITY_RESILIENCE_PER_POINT
-	mana.max_mana = _base_max_mana + intellect * INTELLECT_MANA_PER_POINT
-	mana.regen_per_second = _base_mana_regen + intellect * INTELLECT_MANA_REGEN_PER_POINT
-	ward.set_max_ward(equipment.compute_ward_bonus() * (1.0 + enigma * WARD_INCREASED_PER_ENIGMA))
-	ward.restoration_multiplier = 1.0 + enigma * WARD_RESTORATION_PER_ENIGMA
+	# Life: Prowess-derived bonus + gear-affix-only max_life/life_regen
+	# ("removed expressions" - Vitality, their old source, is gone).
+	health.set_max_health(_base_max_health + stat_sheet.get_max_life_bonus() + stat_sheet.get_misc_bonus("max_life"))
+	health.regen_per_second = stat_sheet.get_misc_bonus("life_regen")
+	resilience = stat_sheet.get_misc_bonus("flat_resilience")
+
+	# Mana: purely gear-affix-only now too (Intellect, its old source, is gone).
+	mana.max_mana = _base_max_mana + stat_sheet.get_misc_bonus("max_mana")
+	mana.regen_per_second = _base_mana_regen + stat_sheet.get_misc_bonus("mana_regen")
+
+	# Evasion/Crit Chance from Finesse - stored on StatSheet for Weapon/
+	# Ability._base_hit() (crit) and a future mitigation formula (evasion,
+	# same "real value, no consumer yet" footing Evasion already had).
+	stat_sheet.stat_evasion_bonus = stat_sheet.get_evasion_from_stats()
+	stat_sheet.finesse_crit_bonus = stat_sheet.get_crit_chance_from_stats()
+
+	ward.set_max_ward(equipment.compute_ward_bonus() * (1.0 + stat_sheet.get_ward_increased_from_stats()))
+	ward.restoration_multiplier = 1.0  # no longer stat-driven - see header
+
+	# Cast Speed: gear-affix-only now too, feeds the same StatSheet pool
+	# Patch v3.7's CastTimeHandler already reads.
+	stat_sheet.cast_speed_bonus = stat_sheet.get_misc_bonus("cast_speed")
 
 func get_dot_mitigation() -> float:
 	return DamageCalculator.dot_mitigation(resilience)
@@ -597,7 +593,7 @@ func _handle_attack_input(delta: float) -> void:
 			melee_attack.try_charged_thrust()
 
 func get_move_speed_multiplier() -> float:
-	return 1.0 + stat_sheet.get_stat(Constants.Stat.INSTINCT) * INSTINCT_MOVE_SPEED_PCT
+	return 1.0 + stat_sheet.get_misc_bonus("move_speed") / 100.0
 
 func _effective_speed(base: float) -> float:
 	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier() \
@@ -605,7 +601,7 @@ func _effective_speed(base: float) -> float:
 		* weapon_stance.get_move_speed_multiplier()
 
 func get_action_speed_multiplier() -> float:
-	return 1.0 + stat_sheet.get_stat(Constants.Stat.INSTINCT) * INSTINCT_ACTION_SPEED_PCT
+	return 1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0
 
 func _start_dash(move_dir: Vector3) -> void:
 	_is_dashing = true

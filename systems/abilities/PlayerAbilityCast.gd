@@ -25,6 +25,7 @@ class_name PlayerAbilityCast
 const RANGE_EFFECT_SCENE := preload("res://entities/effects/ability_range_effect/AbilityRangeEffect.tscn")
 const MAX_TARGET_RANGE := 30.0
 const RETICLE_HEIGHT_OFFSET := 0.05
+const FLAME_WALL_RETICLE_HEIGHT := 0.05  # flat ground-plan slab, not the real wall's WALL_HEIGHT
 
 ## Ground-targeted abilities with a bespoke cast VFX instead of the
 ## generic ring - everything else still just uses RANGE_EFFECT_SCENE.
@@ -87,25 +88,46 @@ var _frost_armor_remaining: float = 0.0
 
 ## Flame Jets ("flamethrower type spell, slowing the character down and
 ## throwing flames at what the player is looking at" - user request,
-## 2026-08-30). A timed channel started on cast (resource_cost/cooldown
-## still spend/start once at press, same economy every other ability
-## uses - a true continuously-draining channel would be a bigger resource-
-## model change than this pass is taking on), re-aiming at the camera's
-## CURRENT forward direction every tick rather than locking direction at
-## cast time - "what the player is looking at" reads as continuous, not a
-## single snapshot. Player._effective_speed() reads get_move_speed_
-## multiplier() below every physics frame while this is active, same
-## pattern PlayerMeleeAttack's own attack-speed penalty already follows.
+## 2026-08-30). Re-aims at the camera's CURRENT forward direction every
+## tick rather than locking direction at cast time - "what the player is
+## looking at" reads as continuous, not a single snapshot. Player.
+## _effective_speed() reads get_move_speed_multiplier() below every
+## physics frame while this is active, same pattern PlayerMeleeAttack's
+## own attack-speed penalty already follows.
+##
+## Patch v3.8b: reworked into a real hold-to-channel spell. resource_cost/
+## cooldown still spend/start once at press (same economy every other
+## ability uses), but the channel itself now also drains Mana continuously
+## (CHANNEL_MANA_DRAIN_PERCENT of resource_cost every CHANNEL_MANA_DRAIN_
+## INTERVAL) and cuts off the instant the ability_N key releases or Mana
+## hits 0 - no grace tick either way. FLAME_JETS_DURATION is now a hard
+## cap (a held key can't channel forever), not the sole end condition.
+## Flame Jets is the only CHANNELED-cast_type ability in the project right
+## now, so this stays flame_jets-specific rather than a generic system -
+## CastTimeHandler.gd already fires CHANNELED abilities' _cast() the same
+## instant as INSTANT ones (no windup to interrupt), so "not interruptible
+## by damage" needs no separate change here.
 const FLAME_JETS_DURATION := 1.8
 const FLAME_JETS_TICK_INTERVAL := 0.15
 const FLAME_JETS_TICK_DAMAGE_PERCENT := 0.25
 const FLAME_JETS_RANGE := 6.0
 const FLAME_JETS_HALF_ANGLE_DEG := 20.0
 const FLAME_JETS_MOVE_SPEED_MULTIPLIER := 0.4
+const CHANNEL_MANA_DRAIN_INTERVAL := 0.15
+const CHANNEL_MANA_DRAIN_PERCENT := 0.08
 
 var _flame_jets_ability: Ability = null
 var _flame_jets_remaining: float = 0.0
 var _flame_jets_tick_timer: float = 0.0
+var _flame_jets_drain_timer: float = 0.0
+var _flame_jets_input_action: String = ""
+## false for a Slate auto-cast (The Unbound Chorus etc. - EXPLICITLY "no
+## resource cost", never calls ManaComponent.spend()) - the hold-to-
+## channel key check and continuous Mana drain below only apply to a real
+## player-held cast, or auto-cast Flame Jets would either drain Mana it's
+## documented never to cost, or get cut off instantly since no key is
+## actually being held for it.
+var _flame_jets_is_manual: bool = false
 
 var _cooldowns: Dictionary = {}  # Ability -> float seconds remaining
 var _player: Player
@@ -126,11 +148,21 @@ func _physics_process(delta: float) -> void:
 	if _frost_armor_remaining > 0.0:
 		_frost_armor_remaining = max(0.0, _frost_armor_remaining - delta)
 	if _flame_jets_remaining > 0.0:
-		_flame_jets_remaining = max(0.0, _flame_jets_remaining - delta)
-		_flame_jets_tick_timer -= delta
-		if _flame_jets_tick_timer <= 0.0:
-			_flame_jets_tick_timer += FLAME_JETS_TICK_INTERVAL
-			_tick_flame_jets()
+		if _flame_jets_is_manual and (not Input.is_action_pressed(_flame_jets_input_action) or _player.mana.current_mana <= 0.0):
+			_flame_jets_remaining = 0.0
+		else:
+			_flame_jets_remaining = max(0.0, _flame_jets_remaining - delta)
+			_flame_jets_tick_timer -= delta
+			if _flame_jets_tick_timer <= 0.0:
+				_flame_jets_tick_timer += FLAME_JETS_TICK_INTERVAL
+				_tick_flame_jets()
+			if _flame_jets_is_manual:
+				_flame_jets_drain_timer -= delta
+				if _flame_jets_drain_timer <= 0.0:
+					_flame_jets_drain_timer += CHANNEL_MANA_DRAIN_INTERVAL
+					_player.mana.spend(_flame_jets_ability.resource_cost * CHANNEL_MANA_DRAIN_PERCENT)
+					if _player.mana.current_mana <= 0.0:
+						_flame_jets_remaining = 0.0
 
 	for i in range(AbilityLoadoutComponent.SLOT_COUNT):
 		var action := "ability_%d" % (i + 1)
@@ -182,6 +214,9 @@ func _try_cast(slot_index: int, cast_position: Vector3) -> void:
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
 		return
 	_player.mana.spend(ability.resource_cost)
+	if ability.ability_id == "flame_jets":
+		_flame_jets_input_action = "ability_%d" % (slot_index + 1)
+		_flame_jets_is_manual = true
 	# Section 12: Instinct -> "+1% Attack/Cast speed per point" - divides
 	# the authored cooldown, same treatment PlayerMeleeAttack/
 	# PlayerRangedAttack give their own timings. get_final_cooldown() caps
@@ -223,6 +258,7 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		_flame_jets_ability = ability
 		_flame_jets_remaining = FLAME_JETS_DURATION
 		_flame_jets_tick_timer = 0.0  # ticks on the very next physics frame, not after a full interval's delay
+		_flame_jets_drain_timer = CHANNEL_MANA_DRAIN_INTERVAL
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	# Black Hole ("shouldn't be a DoT, but deals Entropic damage every
@@ -321,6 +357,8 @@ func _process_slate_autocasts() -> void:
 ## Riposte window/Composure damage (apply_composure=false).
 func _auto_cast(ability: Ability, slate: Slate) -> void:
 	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier())
+	if ability.ability_id == "flame_jets":
+		_flame_jets_is_manual = false
 	var damage_percent := _modifier_value(slate, "auto_cast_damage_percent", 100.0)
 	_cast(ability, _player.global_position, damage_percent / 100.0, false)
 
@@ -521,10 +559,16 @@ func _get_ground_target_point() -> Vector3:
 		return origin + direction * clamp(t, 0.0, MAX_TARGET_RANGE)
 	return origin + direction * MAX_TARGET_RANGE
 
+## Flame Wall is not circular AoE (Patch v3.8b) - its real shape, per
+## FlameWallField.gd, is a WALL_THICKNESS-deep rectangle spanning
+## max(radius, 1.5) * 2 in width, oriented perpendicular to the caster ->
+## cast-point line. The shared reticle swaps to a flat box matching that
+## exact footprint (reading FlameWallField's own WALL_THICKNESS constant
+## rather than duplicating the number) instead of the generic Torus used
+## by every other ground-targeted ability.
 func _show_reticle(ability: Ability) -> void:
 	if _reticle == null:
 		_reticle = MeshInstance3D.new()
-		_reticle.mesh = TorusMesh.new()
 		var mat := StandardMaterial3D.new()
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
@@ -532,9 +576,17 @@ func _show_reticle(ability: Ability) -> void:
 		_reticle.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		_player.get_tree().current_scene.add_child(_reticle)
 
-	var mesh: TorusMesh = _reticle.mesh
-	mesh.outer_radius = max(ability.radius, 0.2)
-	mesh.inner_radius = max(ability.radius - 0.15, 0.05)
+	if ability.ability_id == "flame_wall":
+		var box := BoxMesh.new()
+		var half_width: float = max(ability.radius, 1.5)
+		box.size = Vector3(half_width * 2.0, FLAME_WALL_RETICLE_HEIGHT, FlameWallField.WALL_THICKNESS)
+		_reticle.mesh = box
+	else:
+		var torus := TorusMesh.new()
+		torus.outer_radius = max(ability.radius, 0.2)
+		torus.inner_radius = max(ability.radius - 0.15, 0.05)
+		_reticle.mesh = torus
+
 	var mat: StandardMaterial3D = _reticle.material_override
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
 	color.a = 0.75
@@ -545,7 +597,17 @@ func _show_reticle(ability: Ability) -> void:
 func _update_reticle() -> void:
 	if _reticle == null:
 		return
-	_reticle.global_position = _get_ground_target_point() + Vector3(0, RETICLE_HEIGHT_OFFSET, 0)
+	var target_point := _get_ground_target_point()
+	_reticle.global_position = target_point + Vector3(0, RETICLE_HEIGHT_OFFSET, 0)
+	if _reticle.mesh is BoxMesh:
+		# Same orientation rule as FlameWallField.play(): look_at() points
+		# local -Z at the caster, which puts local X (the box's width axis)
+		# perpendicular to the caster->target line.
+		var flat_caster_pos := Vector3(_player.global_position.x, _reticle.global_position.y, _player.global_position.z)
+		if _reticle.global_position.distance_to(flat_caster_pos) > 0.01:
+			_reticle.look_at(flat_caster_pos, Vector3.UP)
+	else:
+		_reticle.rotation = Vector3.ZERO
 
 func _hide_reticle() -> void:
 	if _reticle:

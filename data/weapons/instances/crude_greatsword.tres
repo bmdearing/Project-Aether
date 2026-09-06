@@ -9,6 +9,7 @@ description = "+11% increased Physical damage (implicit)"
 stat_key = "physical_dmg_increased"
 value = 11.0
 is_prefix = false
+is_implicit = true
 
 [resource]
 script = ExtResource("1")

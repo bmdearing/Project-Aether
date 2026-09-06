@@ -32,7 +32,7 @@ const ITEM_LEVELS := [1, 16, 32, 50, 68, 84]
 const SPELL_POWER_RANGES := [[8, 12], [18, 24], [34, 44], [58, 74], [88, 112], [128, 160]]
 const LOWER_SPELL_POWER_FACTOR := 0.6
 const REQUIRED_STAT_PER_LEVEL := 0.5
-const ST_STRENGTH := 1  # Constants.Stat.STRENGTH - matches this project's one non-Arcane/Enigma requirement precedent isn't used here; see _requirement_stat_for()
+const ST_PROWESS := 0  # Constants.Stat.PROWESS (Patch v3.8: was STRENGTH=1, six-stat enum removed) - matches this project's one non-Arcane/Enigma requirement precedent isn't used here; see _requirement_stat_for()
 const DT_AETHERIC := 6  # Constants.DamageType.AETHERIC - matches worn_staff.tres precedent
 
 const LINE1_TIER_NAMES := ["Novice", "Adept", "Skilled", "Veteran", "Master", "Grand"]
@@ -121,7 +121,7 @@ func _write_tier(line: Dictionary, tier_index: int) -> void:
 	w.flavor_text = "%s (Line %d)" % [line["type"], line["line"]]
 	w.item_level = item_level
 	w.base_line_id = "%s_line%d" % [meta["suffix"], line["line"]]
-	w.stat_requirement = ST_STRENGTH
+	w.stat_requirement = ST_PROWESS
 	w.stat_requirement_value = item_level * REQUIRED_STAT_PER_LEVEL
 
 	if line["implicit_stat"] != null:

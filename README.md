@@ -130,9 +130,9 @@ Greatsword - and reuses `BIG_SWEEP` for its special), and **Gauntlet**
 (the fastest weapon in the game, always `JAB`s - an elbow-extension-
 driven punch, not a blade-swing pose at all - and doubles as this
 project's first conduit-flavored weapon: Aetheric damage instead of
-Kinetic, and a `flat_enigma` implicit instead of crit chance, so
+Kinetic, and a `flat_resolve` implicit instead of crit chance, so
 equipping it both hits harder for its own damage type AND raises the
-Enigma that scales Esoteric spells - through the existing generic
+Resolve that scales Esoteric spells - through the existing generic
 `flat_<stat>` affix system, which already sums from whichever weapon
 slot an item sits in, no new "conduit" mechanic needed). Every melee type
 now has a genuinely distinct swing/punch/thrust pose, not just a scaled
@@ -148,25 +148,28 @@ fall back to the tinted placeholder box. No caster weapon that gates an
 innate *ability* exists yet, and spellcasting itself remains entirely
 independent of the weapon slot - Gauntlet boosts spell damage by raising
 a stat, it doesn't grant or modify which spells you can cast. A `StatSheet`
-(Vitality/Strength/Instinct/Arcane/Enigma/Intellect) — **all six now drive
-something** (Section 12's Per-Point Values table): Strength/Arcane/Enigma
-scale Physical/Elemental/Esoteric damage two ways at once, both doc-sourced
-and both stacking — as the "Main Stat" (`Constants.DAMAGE_TYPE_MAIN_STAT`,
-Section 10), their raw point value multiplies directly into
-`DamageCalculator`'s Stat Scaling Grade term, **and** separately, per
-Section 12's own Per-Point Values table, each point is also worth a flat
-+1% increased damage of that same category (`Weapon`/`Ability._base_hit()`
-folds `stat_value` straight into the `increased_percents` pool at 1:1) —
-this second piece was documented in `Constants.STAT_GLOSSARY` from early
-on but never actually wired up until a user report that these stats
-weren't giving the "% increased damage… not a high amount" the doc
-describes (2026-08-30 fix). Vitality raises max Health + Life regen;
-Instinct raises Crit Chance + Attack/Cast/Move speed; Intellect raises
-Crit Damage + max Mana + Mana regen. Per Section 12 ("all stats come from
-gear... no manual allocation on level up"), stats only grow from equipped
-gear now — `EquipmentComponent.compute_stat_bonuses()` sums every equipped
-item's `flat_<stat>` affixes into `StatSheet.equipment_bonus`, recomputed
-on every equip/unequip.
+(Patch v3.8: **Prowess/Finesse/Resolve** — collapsed from the original six
+Vitality/Strength/Instinct/Arcane/Enigma/Intellect) drives Attack Power/
+Spell Power directly now: `Weapon`/`Ability._base_hit()` always scale off
+Prowess/Resolve respectively (`StatSheet.get_attack_power_from_stats()`/
+`get_spell_power_from_stats()`), regardless of the weapon/ability's own
+damage type — the old per-damage-type "which stat scales this" split
+(`Constants.DAMAGE_TYPE_MAIN_STAT`) no longer feeds the formula at all,
+only kept as directional metadata. Prowess also raises max Health;
+Finesse raises Evasion Rating and Crit Chance (now an ADDITIVE bonus on
+`base_crit_chance`, replacing the old multiplicative Instinct formula);
+Resolve raises Ward as an INCREASED% multiplier on gear's own Ward value.
+Several effects the old stats used to drive (max Life/Mana, their regen,
+Attack/Cast/Move Speed, Resilience) are gear-affix-only now (`StatSheet.
+misc_bonus`, `EquipmentComponent.compute_misc_bonuses()`) — no longer
+character-stat-derived at all; Crit Damage/Debuff Effectiveness/Stamina
+were added as real `ItemRoller.AFFIX_POOL` entries but have no consumer
+wired up yet, same "real affix, no formula to feed it yet" footing
+several older pool entries already had. Per Section 12 ("all stats come
+from gear... no manual allocation on level up"), stats only grow from
+equipped gear — `EquipmentComponent.compute_stat_bonuses()` sums every
+equipped item's `flat_<stat>` affixes into `StatSheet.equipment_bonus`,
+recomputed on every equip/unequip.
 
 **Crouch & Slide** (`entities/player/Player.gd`, `Ctrl`): both invented,
 no doc-sourced design exists for either. Hold Ctrl to crouch (shrinks the
@@ -305,13 +308,19 @@ see `PATCH_NOTES.md` for the full writeup of what changed and why):
   PIERCING bolt (`PiercingBolt`, new shared effect - unlike the ranged-
   weapon `Projectile.gd`, doesn't stop at its first hit) aimed at the
   camera's crosshair.
-- **Flame Jets** is a timed channel (not ground-targeted) that re-aims at
-  wherever the camera is CURRENTLY looking every tick and slows the
-  player to 0.4x movement speed for the channel's duration.
-- **Winter's Eye** launches a slow orb toward the target point that
-  ticks proximity Cold damage + Chill to nearby enemies as it travels
-  (an approximation of "a spiral of icicles" - ticks, not literal spawned
-  sub-projectiles), then detonates for a burst hit on arrival.
+- **Flame Jets** is a real hold-to-channel (not ground-targeted): re-aims
+  at wherever the camera is CURRENTLY looking every tick, slows the
+  player to 0.4x movement speed, and drains 8% of its Mana cost every
+  0.15s while held on top of its upfront cost - cuts off immediately (no
+  grace tick) the instant the key releases or Mana hits 0. Not
+  interruptible by taking damage (`CastTimeHandler` fires CHANNELED
+  abilities immediately, with no windup to interrupt).
+- **Winter's Eye** launches a fast orb toward the target point that ticks
+  proximity Cold damage + Chill to the nearest 3 enemies within range as
+  it travels (an approximation of "a spiral of icicles" - ticks, not
+  literal spawned sub-projectiles, spinning cosmetically as it goes),
+  then detonates for a burst hit on arrival or after 3s, whichever comes
+  first.
 - **Thunder Sweep** fires 8 `PiercingBolt`s radiating outward in a full
   circle from the player, flattened to the ground plane.
 - **Flame Wall** (new, invented - no Section 26 entry exists for it):
@@ -365,7 +374,11 @@ added 2026-08-30** for Caltrops specifically (-35% move/action speed,
 stacks multiplicatively with Chill if somehow both are active) - not
 doc-named, invented because reusing Chill for a Physical/Piercing effect
 would have been a thematic mismatch (Chill is explicitly Cold-flavored
-per `Constants.STATUS_EFFECT_DAMAGE_TYPE`). Vitality's Resilience/DoT
+per `Constants.STATUS_EFFECT_DAMAGE_TYPE`). **A 7th, `"shock"`, was added
+2026-09-06** for Spark specifically (Lightning, +20% Lightning damage
+taken for 4s, non-stacking/refresh-on-reapply, no stun) - Spark applies
+Shock instead of Electrocute now; Thunder Javelin/Thunder Sweep still
+apply Electrocute, unchanged. Vitality's Resilience/DoT
 mitigation and Intellect's Debuff effectiveness (Section 12) are wired
 through it too — Resilience reduces Ignite's tick damage, the applying
 side's Intellect extends Chill/Electrocute/Unraveling's duration. Stunned
@@ -446,20 +459,31 @@ colored by the ability's own damage type instead of one flat blue for
 every spell regardless of element - a spell's card is now recognizable
 both as "a spell" AND as "which element" on sight.
 
-Holding **Alt** while hovering opens an *advanced* card instead
-(`AdvancedTooltip.gd`) — a real HOLD now (matches Path of Exile's actual
-behavior, confirmed by request before redesigning this): release Alt and
-it closes, same as every other hold-modifier in this project, unless the
-mouse has moved onto the card itself (still reading/clicking through it),
-in which case it closes once the mouse leaves the card instead. The
-previous version stayed pinned open until Esc/outside-click regardless of
-Alt, which read as sticky/unintuitive - user-reported. Rolled affixes
-show their full tier range, and stat keywords are clickable, printing
-that stat's Section 12 per-point value inline. Weapon/ability cards
-include a live "Predicted Damage" number computed from the player's
-current stats (`Weapon.predict_damage()`/`Ability.predict_damage()` — the
-exact formula real attacks/casts use, so the number can't drift from
-reality).
+Holding **Alt** while a card is showing swaps its content to **Alt
+Info** in place (Patch v3.8, `ItemCard.gd`'s own `_input()`) - Scaling
+Grade, Primary/Secondary Scaling, Item Level, and stat requirement for a
+weapon; Scaling Grade and Motion Value for an ability. Release Alt and it
+swaps back to the normal card, same native tooltip window the whole time
+- no second popup, no click-to-pin, no clickable glossary links or full
+tier ranges anymore. Replaces the previous `AdvancedTooltip.gd` autoload
+(a real second `CanvasLayer` with its own floating card, deleted
+entirely) - that version's own "release Alt closes it, unless the mouse
+is over the card" hold behavior is gone along with it; Alt Info has
+nothing to hover onto since it's the same card, not a second window.
+
+**Weapon cards show a real Attack Power breakdown** (Patch v3.8) instead
+of a flat damage number - white base value + blue stat-derived bonus per
+damage type present (`ItemCard._build_attack_power_lines()`, mirrors
+`Weapon._base_hit()`'s own formula so it can't drift from a real swing).
+Scaling Grade moved to Alt Info; the old socket-count text line was
+replaced with real socket art (small filled/outline circles, `ItemCard.
+SocketRow`) - `Item.sockets` (Patch v3.8, how many of an item type's
+`max_sockets` a specific rolled instance actually has, rolled 0..
+max_sockets on drop) is genuinely new, `max_sockets` itself (the type's
+overall cap, raised by Bore/Corruption) is unchanged. **Ability cards**
+drop Motion Value and Predicted Damage entirely (never meant to be
+player-facing) and gain a Cast Type line (Patch v3.7's `Ability.
+cast_type` - "Instant"/"X.Xs Cast"/"Channeled").
 
 **Fate Board** (`systems/fate_board/`, `ui/fate_board_editor/`, Section
 10): grid Slate placement gated by an Aether budget, flood-fill chain
@@ -661,8 +685,9 @@ screen exists to spend points through yet, and no node's `effect_key`
 generation - both explicitly left for a future pass.
 
 **Shops** (`entities/interactables/gear_shop/`,
-`entities/interactables/spell_test_shop/`, `ui/shop/ShopScreen.gd`): two
-more Hub interactables, same walk-up-and-`E` pattern as the Reality Engine.
+`entities/interactables/spell_test_shop/`,
+`entities/interactables/brand_shop/`, `ui/shop/ShopScreen.gd`): three Hub
+interactables, same walk-up-and-`E` pattern as the Reality Engine.
 **GearShop** sells 6 `ItemRoller`-rolled items per Hub visit for Gold (a
 brand-new invented currency — see gap below), cost scaled by rolled
 rarity, plus a "Reroll Stock" action button (invented `15` Gold) to
@@ -670,10 +695,17 @@ refresh the offered items on demand without leaving. **SpellTestShop**
 lists every ability under `data/abilities/instances/` for free — an
 explicit testing/debug tool (user-requested), not a designed economy
 feature, so you can unlock everything without grinding Tome drops while
-testing other systems. Both share one generic `ShopScreen` (caller
-supplies the entries + a buy callback, plus an optional single "action"
-button for GearShop's reroll — same "one shared screen" shape `ItemCard`
-already uses for item/slate/ability display).
+testing other systems. **BrandShop** (2026-09-06, dev/testing convenience)
+sells all 26 real Brands (`Constants.BRAND_RARITIES`) for Gold, priced by
+rarity tier (Common 50/Uncommon 200/Rare 800), unlimited quantity — every
+row stays buyable after a purchase instead of the normal one-and-done
+disable, via a `"repeatable"` entry flag `ShopScreen` now supports. All
+three share one generic `ShopScreen` (caller supplies the entries + a buy
+callback, plus an optional single "action" button for GearShop's reroll —
+same "one shared screen" shape `ItemCard` already uses for item/slate/
+ability display). New-game starting Gold is 1,000,000 (2026-09-06, dev/
+testing convenience — `GameState.reset_to_defaults()`; Continue restores
+whatever a save actually has).
 
 **Loot generation** (`data/items/item_roller.gd`,
 `data/abilities/tome_roller.gd`, `entities/pickups/loot_pickup/`,
@@ -697,13 +729,13 @@ loosely modeled on the doc's own mod-tier tables' shape, e.g. Section
 16's Flat Armor Mod Tiers), gated by a `power_level` (the active Map's
 `tier`, or player level as a fallback for the Hub's GearShop) — higher
 power unlocks access to better tiers, not a guaranteed roll of one.
-`flat_<stat>` affixes (Vitality/Strength/Instinct/Arcane/Enigma/
-Intellect) are real now, not descriptive-only — they're the only source
-of stat growth in the game (see Player section above); `flat_ward` and
-the 4 `*_resistance_pct` affixes are real too as of Patch v3.2 (Ward
-pool size, Resistance mitigation - see the Combat formula section
-above); the damage/armor increased-% affixes are still descriptive-only
-(see flagged gap).
+`flat_<stat>` affixes (Prowess/Finesse/Resolve as of Patch v3.8, was
+Vitality/Strength/Instinct/Arcane/Enigma/Intellect) are real now, not
+descriptive-only — they're the only source of stat growth in the game
+(see Player section above); `flat_ward` and the 4 `*_resistance_pct`
+affixes are real too as of Patch v3.2 (Ward pool size, Resistance
+mitigation - see the Combat formula section above); the damage/armor
+increased-% affixes are still descriptive-only (see flagged gap).
 **Skill Tomes**: a separate, flat invented `8%` chance (not scaled by
 loot_quantity) rolls a `SkillTome` for a random ability the player
 doesn't already own (`TomeRoller.gd`) — per Patch v3.1's Skill System,
@@ -837,14 +869,15 @@ generation *algorithm* doesn't know or care what the rooms are made of.
     sends you there — `GameState.MAP_SCENE` now points at
     `GeneratedMap.tscn`.
 
-**Character Screen** (`ui/character_screen/`, `C`): all six `StatSheet`
-stats split into Offense/Defense/Misc, plus Predicted Main Hand/Offhand
-Damage and Crit Chance/Damage (crit-inclusive, keyed by equip slot so a
-ranged weapon in the main hand shows a real crit line), Life/Mana regen,
-Action/Move Speed, and current Level/XP — built via `StatSummaryBuilder.gd`,
-shared with the Inventory screen's own stats column. Read-only — stats
-only change by equipping different gear (Section 12), there's no
-allocation UI here.
+**Character Screen** (`ui/character_screen/`, `C`): a large PROWESS/
+FINESSE/RESOLVE row up top (PoE-style, always live), then all three
+`StatSheet` stats split into Offense/Defense/Misc, plus Predicted Main
+Hand/Offhand Damage and Crit Chance/Damage (crit-inclusive, keyed by
+equip slot so a ranged weapon in the main hand shows a real crit line),
+Life/Mana regen, Action/Move Speed, and current Level/XP — built via
+`StatSummaryBuilder.gd`, shared with the Inventory screen's own stats
+column. Read-only — stats only change by equipping different gear
+(Section 12), there's no allocation UI here.
 
 **Experience & Leveling** (`entities/components/ExperienceComponent.gd`):
 killing an enemy grants XP (`Enemy.xp_reward`, tuned per archetype).
@@ -922,9 +955,12 @@ portion (`xp_bar.gdshader`, 2026-08-30, replacing the previous static
 its old value to its new one on every XP gain instead of snapping
 (`PlayerHUD._on_xp_changed()`, 0.5s), and a level-up crossing plays the
 fill-to-full, snap-back-to-empty, fill-to-new-remainder sequence rather
-than jumping straight to a smaller-looking ratio - a Gold counter, and an
-active-weapon indicator that flashes whenever the equipped weapon
-changes),
+than jumping straight to a smaller-looking ratio. **2026-09-06:** a
+second, brighter trail layer (`_xp_trail_clip`) now snaps instantly to
+the new ratio on every gain while the main fill tweens up to meet it -
+inverse of the health bar's damage trail (main drops instantly, trail
+lingers) - a Gold counter, and an active-weapon indicator that flashes
+whenever the equipped weapon changes),
 `ui/debug/DebugOverlay.gd` (numeric
 readout of damage/chains/casts/parries — no art needed to validate
 formulas).
@@ -1042,9 +1078,9 @@ None of the six have a `PauseMenu` button — hotkey-only.
     increased damage against Chilled/Frozen enemies," Winter's Eye's
     traveling orb, Frost Armor's melee-retaliation trigger).
     `applies_status_effects` IS now wired though - see
-    `StatusEffectComponent` (Ignite/Chill/Freeze/Electrocute/Unraveling,
-    Section 09) - `PlayerAbilityCast._cast()` applies each ability's
-    listed effect(s) to every enemy it hits.
+    `StatusEffectComponent` (Ignite/Chill/Freeze/Electrocute/Unraveling/
+    Shock, Section 09) - `PlayerAbilityCast._cast()` applies each
+    ability's listed effect(s) to every enemy it hits.
 13. **Figments have no doc-sourced affix table** (none could exist - this
     whole system is invented, not doc content at all) — the affix pool
     and tier curve (`FigmentRoller.gd`) are invented throughout, including

@@ -77,13 +77,9 @@ func _reroll_and_reopen() -> void:
 	_roll_stock()
 	_open_shop()
 
-## Mirrors InventoryScreen._item_color() - weapons key off damage type,
-## everything else off rarity.
+## Mirrors InventoryScreen._item_color() - rarity for every item type
+## (Patch v3.8b: dropped weapons' damage-type exception).
 func _item_color(item: Item) -> Color:
-	if item is Weapon:
-		var weapon := item as Weapon
-		var dtype: int = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
-		return Constants.DAMAGE_TYPE_COLOR.get(dtype, Color.WHITE)
 	return Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 
 func _on_body_entered(body: Node3D) -> void:

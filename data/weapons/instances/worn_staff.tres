@@ -9,6 +9,7 @@ description = "+11% increased Esoteric damage (implicit)"
 stat_key = "esoteric_dmg_increased"
 value = 11.0
 is_prefix = false
+is_implicit = true
 
 [resource]
 script = ExtResource("1")

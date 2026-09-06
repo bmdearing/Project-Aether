@@ -4,9 +4,6 @@
 
 [resource]
 script = ExtResource("1")
-vitality = 10.0
-strength = 10.0
-instinct = 10.0
-arcane = 10.0
-enigma = 10.0
-intellect = 10.0
+prowess = 4.0
+finesse = 7.0
+resolve = 4.0

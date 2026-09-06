@@ -14,6 +14,6 @@ cooldown_seconds = 2.5
 resource_cost = 9.0
 can_trigger_riposte = false
 is_auto_cast_eligible = true
-applies_status_effects = Array[String](["electrocute"])
+applies_status_effects = Array[String](["shock"])
 radius = 15.0
 base_crit_chance = 0.06

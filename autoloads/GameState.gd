@@ -55,6 +55,16 @@ var equipment_refs: Array = DEFAULT_EQUIPMENT_PATHS.duplicate()
 ## folded into the generic equipment_refs loop, since which SET an item
 ## belongs to isn't recoverable from the item itself the way which SLOT
 ## it belongs to is.
+##
+## Patch v3.8b bug fix: InventoryScreen's equip/unequip handlers used to
+## call sync_equipment() only, never sync_weapon_sets() - get_all_
+## equipped_refs() (which feeds sync_equipment()) deliberately EXCLUDES
+## primary_weapon/offhand (see its own comment), so equipping a new
+## weapon into the already-active set never touched this array. It stayed
+## stale until the player explicitly toggled sets, so the next zone
+## transition's _apply_saved_loadout() re-equipped the OLD weapon - the
+## real cause of "weapon sets not persisting between zones." Both
+## InventoryScreen handlers now call sync_weapon_sets() too.
 var weapon_set_refs: Array = [DEFAULT_WEAPON_SET_0_PATHS.duplicate(), []]
 var active_weapon_set: int = 0
 
@@ -173,7 +183,7 @@ func reset_to_defaults() -> void:
 	owned_loot = []
 	owned_slates = []
 	fate_board_placements = []
-	gold = 0
+	gold = 1000000  # Patch v3.8c, user request - dev/testing convenience
 	figment_tree_points = 0
 	figment_tree_unlocked_nodes = []
 

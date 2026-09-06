@@ -1,11 +1,13 @@
 extends PanelContainer
 class_name ItemCard
 ## Rich stat card, built dynamically per call from whatever Item/Slate/
-## Ability is passed in. Two display modes: the normal one (used by
-## ItemSlotButton's native hover tooltip - auto-position/hide come from
-## Godot) and `advanced` (Alt-hover, via AdvancedTooltip.gd) which adds a
-## Close button, full tier ranges on rolled mods, and clickable stat
-## keywords that print their Section 12 per-point value inline.
+## Ability is passed in. `ItemSlotButton._make_custom_tooltip()` shows
+## this via Godot's native tooltip system (auto-position/hide/lifecycle
+## all native) - the card itself listens for Alt directly (Patch v3.8
+## Section 5) and swaps its OWN content between the normal card and Alt
+## Info in place while still showing, rather than a second floating card
+## (the previous AdvancedTooltip.gd autoload, removed) - release Alt and
+## it swaps back, no clicks/pinning/second window.
 ##
 ## The 3 card types are deliberately given a distinct silhouette so a
 ## player can tell which one they're looking at before reading a word of
@@ -25,14 +27,13 @@ class_name ItemCard
 ## regardless of element - a fix that also makes different spells
 ## distinguishable from EACH OTHER, not just from items/Slates.
 
-signal closed
-
 const AFFIX_COLOR := Color(0.45, 0.65, 0.95)
+const IMPLICIT_COLOR := Color(0.9, 0.75, 0.3)  # gold/yellow - Patch v3.8b: implicits are visually distinct from rolled explicit mods
 const MORE_MOD_COLOR := Color(0.85, 0.55, 0.95)
 const STAT_COLOR := Color(0.85, 0.85, 0.85)
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
 const FLAVOR_COLOR := Color(0.75, 0.65, 0.45)
-const GLOSSARY_COLOR := Color(0.6, 0.85, 0.6)
+const ATTACK_POWER_BONUS_COLOR := Color(0.4, 0.6, 1.0)
 const CARD_WIDTH := 260.0
 
 const SLATE_BADGE_COLOR := Color(0.55, 0.35, 0.85)  # fixed - independent of the Slate's own rarity color, shown on the border instead
@@ -48,18 +49,69 @@ const ITEM_BG := Color(0.08, 0.08, 0.10, 0.97)
 const SLATE_BG := Color(0.10, 0.08, 0.13, 0.97)
 const ABILITY_BG := Color(0.07, 0.09, 0.12, 0.97)
 
+## Which of these is non-null decides what Alt Info shows, and what a
+## post-Alt-release re-render falls back to.
+var _current_item: Item = null
+var _current_slate: Slate = null
+var _current_ability: Ability = null
+var _current_stat_sheet: StatSheet = null
+var _showing_alt: bool = false
+
 ## Not @onready - ItemSlotButton builds a card via instantiate() and
 ## calls display_item()/etc. on it immediately, before it's ever added
 ## to a SceneTree, so @onready (NOTIFICATION_READY) would still be null.
 func _content() -> VBoxContainer:
 	return $Margin/Content
 
-func display_item(item: Item, advanced: bool = false) -> void:
+func display_item(item: Item) -> void:
+	_current_item = item
+	_current_slate = null
+	_current_ability = null
+	_showing_alt = false
+	_render_item(item)
+
+func display_slate(slate: Slate) -> void:
+	_current_item = null
+	_current_slate = slate
+	_current_ability = null
+	_showing_alt = false
+	_render_slate(slate)
+
+func display_ability(ability: Ability, stat_sheet: StatSheet = null) -> void:
+	_current_item = null
+	_current_slate = null
+	_current_ability = ability
+	_current_stat_sheet = stat_sheet
+	_showing_alt = false
+	_render_ability(ability, stat_sheet)
+
+## Patch v3.8 Section 5: Alt is a HOLD - press while this card is showing
+## swaps to Alt Info in place, release swaps back. No second window, no
+## click-to-pin - matches this card's own native-tooltip lifecycle
+## exactly (Godot handles show/hide/position, this only ever changes
+## what's INSIDE it).
+func _input(event: InputEvent) -> void:
+	if not event is InputEventKey:
+		return
+	var key_event := event as InputEventKey
+	if key_event.keycode != KEY_ALT or key_event.echo:
+		return
+	if key_event.pressed and not _showing_alt:
+		_showing_alt = true
+		_render_alt_info()
+	elif not key_event.pressed and _showing_alt:
+		_showing_alt = false
+		if _current_item:
+			_render_item(_current_item)
+		elif _current_slate:
+			_render_slate(_current_slate)
+		elif _current_ability:
+			_render_ability(_current_ability, _current_stat_sheet)
+
+func _render_item(item: Item) -> void:
 	_clear()
 	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH)
-	if advanced:
-		_add_close_button()
 	_add_type_badge("ITEM", rarity_color)
 	if item.icon_path != "":
 		_add_title_with_icon(item.display_name, rarity_color, item.icon_path)
@@ -67,33 +119,32 @@ func display_item(item: Item, advanced: bool = false) -> void:
 		_add_title(item.display_name, rarity_color)
 	_add_subtitle(_item_type_line(item))
 	_add_separator()
+	if item is Weapon:
+		for line in _build_attack_power_lines(item as Weapon, _stat_sheet_for_card()):
+			_add_attack_power_line(line)
 	for line in _item_stat_lines(item):
 		_add_stat_line(line)
-	# Patch v3.7 Section 7: implicits shown separately, above the rolled
-	# affix list - same distinction Section 18 draws between the two.
+	if item.max_sockets > 0:
+		_add_socket_row(item.sockets, item.max_sockets)
+	# Patch v3.8b: implicits (gold) then explicits (blue), with the
+	# dividing line ONLY between the two groups - not shown at all if
+	# either group is empty, and never shown before implicits.
 	var implicits := item.affixes.filter(func(a: ItemAffix): return a.is_implicit)
 	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
-	if implicits.size() > 0:
+	for affix in implicits:
+		_add_mod_line(affix.description, IMPLICIT_COLOR)
+	if implicits.size() > 0 and explicits.size() > 0:
 		_add_separator()
-		for affix in implicits:
-			_add_mod_line(affix.description, AFFIX_COLOR)
-	if explicits.size() > 0:
-		_add_separator()
-		for affix in explicits:
-			if advanced and affix.tier > 0:
-				_add_mod_line_advanced(affix)
-			else:
-				_add_mod_line(affix.description, AFFIX_COLOR)
+	for affix in explicits:
+		_add_mod_line(affix.description, AFFIX_COLOR)
 	if item.flavor_text != "":
 		_add_separator()
 		_add_flavor(item.flavor_text)
 
-func display_slate(slate: Slate, advanced: bool = false) -> void:
+func _render_slate(slate: Slate) -> void:
 	_clear()
 	var rarity_color: Color = Constants.SLATE_RARITY_COLOR.get(slate.rarity, Color.WHITE)
 	_set_card_style(rarity_color, SLATE_BG, SLATE_CORNER_RADIUS, SLATE_BORDER_WIDTH)
-	if advanced:
-		_add_close_button()
 	_add_type_badge("SLATE", SLATE_BADGE_COLOR)
 	_add_title(slate.display_name, rarity_color)
 	var tag_name: String = slate.category_tag_override if slate.category_tag_override != "" else Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
@@ -112,31 +163,167 @@ func display_slate(slate: Slate, advanced: bool = false) -> void:
 		_add_separator()
 		_add_flavor(slate.implicit_flavor_text)
 
-## stat_sheet optional so callers without a live Player can still show
-## the card, just without the "Predicted Damage" line.
-func display_ability(ability: Ability, stat_sheet: StatSheet = null, advanced: bool = false) -> void:
+## Patch v3.8 Section 4: Motion Value/Predicted Damage/Scaling Grade
+## removed from the main card (Scaling Grade moved to Alt Info); Cast
+## Type added; status effects now show their real display name
+## (Constants.STATUS_EFFECT_NAME), not the raw id.
+func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 	_clear()
 	var element_color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, AFFIX_COLOR)
 	_set_card_style(element_color, ABILITY_BG, ABILITY_CORNER_RADIUS, ABILITY_BORDER_WIDTH)
-	if advanced:
-		_add_close_button()
 	_add_type_badge("SPELL", element_color)
 	_add_title(ability.display_name, element_color)
 	_add_subtitle("Ability - %s (Rank %d/%d)" % [Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "?"), ability.rank, Ability.MAX_RANK])
 	_add_separator()
+	_add_stat_line("Cast Type: %s" % _get_cast_type_label(ability))
 	_add_stat_line("Cooldown: %.1fs" % ability.get_effective_cooldown())
 	_add_stat_line("Mana Cost: %.0f" % ability.resource_cost)
 	_add_stat_line("Range: %.0fm" % ability.radius)
-	_add_stat_line("Motion Value: %.2f" % ability.get_effective_motion_value())
-	_add_stat_line("Scaling Grade: %s" % Constants.ScalingGrade.keys()[ability.scaling_grade])
 	_add_stat_line("Crit Chance: %.0f%%" % (ability.base_crit_chance * 100.0))
-	if stat_sheet:
-		_add_stat_line("Predicted Damage: %.1f" % ability.predict_damage(stat_sheet))
 	if ability.applies_status_effects.size() > 0:
-		_add_stat_line("Applies: %s" % ", ".join(ability.applies_status_effects))
+		var effect_names := ability.applies_status_effects.map(
+			func(id): return Constants.STATUS_EFFECT_NAME.get(id, id)
+		)
+		_add_stat_line("Applies: %s" % ", ".join(effect_names))
 	if ability.description != "":
 		_add_separator()
 		_add_flavor(ability.description)
+
+func _get_cast_type_label(ability: Ability) -> String:
+	match ability.cast_type:
+		Ability.CastType.INSTANT:
+			return "Instant"
+		Ability.CastType.CAST_TIME:
+			return "%.1fs Cast" % ability.base_cast_time
+		Ability.CastType.CHANNELED:
+			return "Channeled"
+	return "Instant"
+
+## Patch v3.8 Section 5. Replaces the whole card content in place - no
+## title/badge/border, just the requested lines, so it's visually obvious
+## this is a different mode, not a taller version of the normal card.
+func _render_alt_info() -> void:
+	_clear()
+	if _current_item is Weapon:
+		var w := _current_item as Weapon
+		_add_stat_line("Scaling Grade: %s" % Constants.grade_to_letter(w.scaling_grade))
+		if w.primary_scaling_stat != "":
+			_add_stat_line("Primary Scaling: %s" % w.primary_scaling_stat.capitalize())
+		if w.secondary_scaling_stat != "":
+			_add_stat_line("Secondary Scaling: %s" % w.secondary_scaling_stat.capitalize())
+		_add_stat_line("Item Level: %d" % w.item_level)
+		if w.stat_requirement != -1:
+			var stat_name: String = Constants.STAT_NAME.get(w.stat_requirement, "")
+			_add_stat_line("Requires: %.0f %s" % [w.stat_requirement_value, stat_name])
+	elif _current_item != null:
+		_add_stat_line("Item Level: %d" % _current_item.item_level)
+		if _current_item.stat_requirement != -1:
+			var stat_name: String = Constants.STAT_NAME.get(_current_item.stat_requirement, "")
+			_add_stat_line("Requires: %.0f %s" % [_current_item.stat_requirement_value, stat_name])
+	elif _current_ability != null:
+		_add_stat_line("Scaling Grade: %s" % Constants.grade_to_letter(_current_ability.scaling_grade))
+		_add_stat_line("Motion Value: %.2f" % _current_ability.get_effective_motion_value())
+
+func _stat_sheet_for_card() -> StatSheet:
+	var player := get_tree().get_first_node_in_group("player") as Player
+	return player.stat_sheet if player else null
+
+## Patch v3.8 Section 3: primary damage type Attack Power always shown;
+## additional lines only for a real "gain_as_damage" affix (damage
+## conversion/Gain As - no ItemRoller.AFFIX_POOL entry produces this yet,
+## pure forward-compat scaffolding, same footing as several other v3.8
+## gear-only stats with no real content behind them yet).
+func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
+	var lines := []
+	var base := weapon.get_base_damage()
+	var stat_contribution := _get_stat_contribution(weapon, stat_sheet)
+	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE)
+	lines.append({
+		"label": "%s Attack Power" % Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?"),
+		"base": base,
+		"bonus": stat_contribution,
+		"color": primary_color,
+	})
+	for affix in weapon.affixes:
+		if affix.stat_key == "gain_as_damage" and affix.damage_type != -1:
+			var bonus_base := base * (affix.value / 100.0)
+			var bonus_stat := stat_contribution * (affix.value / 100.0)
+			var color: Color = Constants.DAMAGE_TYPE_COLOR.get(affix.damage_type, Color.WHITE)
+			lines.append({
+				"label": "%s Attack Power" % Constants.DAMAGE_TYPE_NAME.get(affix.damage_type, "?"),
+				"base": snapped(bonus_base, 0.1),
+				"bonus": snapped(bonus_stat, 0.1),
+				"color": color,
+			})
+	return lines
+
+## Prowess's Attack Power contribution scaled by the weapon's own grade
+## multiplier AND Mastery (grade_roll_t = 0.5, matching DamageCalculator.
+## calculate()'s own convention everywhere else) - mirrors Weapon.
+## _base_hit()'s real formula (effective_grade_multiplier = grade_
+## multiplier * (1 + mastery_bonus)) so this can't drift from what a real
+## swing actually deals. Bug fix (2026-09-06, user-reported): Mastery was
+## missing entirely here, so the blue number under-stated the real
+## contribution - and never moved - whenever Mastery for the weapon's
+## damage type was nonzero (Fate Board Slates matching that tag).
+func _get_stat_contribution(weapon: Weapon, stat_sheet: StatSheet) -> float:
+	if stat_sheet == null:
+		return 0.0
+	var stat_ap := stat_sheet.get_attack_power_from_stats()
+	var grade_range: Vector2 = Constants.GRADE_MULTIPLIER_RANGES[weapon.scaling_grade]
+	var grade_mult: float = lerp(grade_range.x, grade_range.y, 0.5)
+	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	var mastery := stat_sheet.get_mastery(damage_type)
+	var effective_grade_mult := grade_mult * (1.0 + mastery)
+	return snapped(stat_ap * effective_grade_mult, 0.1)
+
+func _add_attack_power_line(line: Dictionary) -> void:
+	var rtl := RichTextLabel.new()
+	rtl.bbcode_enabled = true
+	rtl.fit_content = true
+	rtl.scroll_active = false
+	rtl.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	var label_color: Color = line["color"]
+	rtl.text = "[color=#%s]%s[/color]: %s + [color=#%s]%s[/color]" % [
+		label_color.to_html(false), line["label"],
+		_format_num(line["base"]),
+		ATTACK_POWER_BONUS_COLOR.to_html(false), _format_num(line["bonus"]),
+	]
+	_content().add_child(rtl)
+
+func _format_num(v: float) -> String:
+	return str(int(round(v))) if v == round(v) else "%.1f" % v
+
+## Bottom-of-card row of small circles - filled (solid) for `sockets`
+## (how many this specific rolled instance has, ItemRoller.roll()),
+## outline-only for the rest up to `max_sockets` (the item type's overall
+## cap - unaffected by this, still raised by Bore/Corruption exactly as
+## before). Replaces the old plain "Sockets: %d" text line.
+func _add_socket_row(sockets: int, max_sockets: int) -> void:
+	var row := SocketRow.new()
+	row.sockets = sockets
+	row.max_sockets = max_sockets
+	row.custom_minimum_size = Vector2(CARD_WIDTH, 24.0)
+	_content().add_child(row)
+
+class SocketRow extends Control:
+	var sockets: int = 0
+	var max_sockets: int = 0
+	const SOCKET_RADIUS := 6.0
+	const SOCKET_SPACING := 16.0
+	const FILLED_COLOR := Color(0.7, 0.7, 0.8)
+	const EMPTY_COLOR := Color(0.4, 0.4, 0.4)
+
+	func _draw() -> void:
+		var total_width: float = max_sockets * SOCKET_SPACING
+		var start_x: float = (size.x - total_width) / 2.0 + SOCKET_SPACING / 2.0
+		var y: float = size.y / 2.0
+		for i in range(max_sockets):
+			var center := Vector2(start_x + i * SOCKET_SPACING, y)
+			if i < sockets:
+				draw_circle(center, SOCKET_RADIUS, FILLED_COLOR)
+			else:
+				draw_arc(center, SOCKET_RADIUS, 0.0, TAU, 16, EMPTY_COLOR, 1.5)
 
 func _item_type_line(item: Item) -> String:
 	if item is Weapon:
@@ -155,20 +342,16 @@ func _item_type_line(item: Item) -> String:
 		return "Figment - Tier %d" % (item as FigmentItem).tier
 	return Constants.EquipmentSlot.keys()[item.equip_slot].capitalize()
 
+## Patch v3.8 Section 3: Scaling Grade and the raw damage/socket-count
+## text lines moved out of here (Scaling Grade -> Alt Info, damage -> the
+## new Attack Power lines built separately, sockets -> the socket row) -
+## this only covers what's left: Spell Power for a Conduit, Infused type,
+## Base Crit Chance, and the shared item-level/requirement lines every
+## item type shows.
 func _item_stat_lines(item: Item) -> Array[String]:
 	var lines: Array[String] = []
 	if item is Weapon:
 		var w := item as Weapon
-		var dtype_name: String = Constants.DAMAGE_TYPE_NAME.get(w.native_damage_type, "?")
-		# Patch v3.7 Section 7: read the live rolled value (a real drop),
-		# falling back to the base's own range display for anything not
-		# yet rolled (a base .tres, or a hand-authored single that never
-		# gets rolled at all) - never the flat base_damage field, which no
-		# longer exists.
-		if w.rolled_base_damage > 0.0:
-			lines.append("%s Damage: %.0f" % [dtype_name, w.rolled_base_damage])
-		else:
-			lines.append("%s Damage: %.0f - %.0f" % [dtype_name, w.base_damage_min, w.base_damage_max])
 		if w.is_conduit:
 			if w.rolled_spell_power > 0.0:
 				lines.append("Spell Power: %.0f" % w.rolled_spell_power)
@@ -176,11 +359,6 @@ func _item_stat_lines(item: Item) -> Array[String]:
 				lines.append("Spell Power: %.0f - %.0f" % [w.spell_power_min, w.spell_power_max])
 		if w.infused_damage_type != -1:
 			lines.append("Infused: %s" % Constants.DAMAGE_TYPE_NAME.get(w.infused_damage_type, "?"))
-		var grade_letter: String = Constants.ScalingGrade.keys()[w.scaling_grade]
-		if w.primary_scaling_stat != "":
-			lines.append("Scaling Grade: %s %s" % [grade_letter, w.primary_scaling_stat.capitalize()])
-		else:
-			lines.append("Scaling Grade: %s" % grade_letter)
 		lines.append("Base Crit Chance: %.0f%%" % (w.get_base_crit_chance() * 100.0))
 	elif item is Armor:
 		var a := item as Armor
@@ -202,8 +380,6 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		lines.append("Monster Life: %.0f%%" % (m.enemy_health_multiplier * 100.0))
 		lines.append("Item Quantity: %.0f%% (no loot system yet - inert)" % (m.loot_quantity_multiplier * 100.0))
 		lines.append("Item Rarity: %.0f%% (no loot system yet - inert)" % (m.loot_rarity_multiplier * 100.0))
-	if item.max_sockets > 0:
-		lines.append("Sockets: %d" % item.max_sockets)
 	if item.item_level > 1:
 		lines.append("Requires Level %d" % item.item_level)
 	if item.stat_requirement != -1:
@@ -240,18 +416,6 @@ func _add_type_badge(text: String, color: Color) -> void:
 	badge.add_theme_color_override("font_color", Constants.get_contrasting_text_color(color))
 	badge.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	_content().add_child(badge)
-
-func _add_close_button() -> void:
-	var row := HBoxContainer.new()
-	var spacer := Control.new()
-	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	row.add_child(spacer)
-	var button := Button.new()
-	button.text = "x"
-	button.custom_minimum_size = Vector2(22, 22)
-	button.pressed.connect(func(): closed.emit())
-	row.add_child(button)
-	_content().add_child(row)
 
 func _add_title(text: String, color: Color) -> void:
 	var label := Label.new()
@@ -301,42 +465,6 @@ func _add_mod_line(text: String, color: Color) -> void:
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
 	label.add_theme_color_override("font_color", color)
-	_content().add_child(label)
-
-## Advanced-only: shows the affix's full tier range and, for a
-## flat_<stat> affix, a clickable keyword that prints the stat's
-## Section 12 per-point value inline when clicked.
-func _add_mod_line_advanced(affix: ItemAffix) -> void:
-	var stat: int = EquipmentComponent.AFFIX_STAT_KEYS.get(affix.stat_key, -1)
-	var rtl := RichTextLabel.new()
-	rtl.bbcode_enabled = true
-	rtl.fit_content = true
-	rtl.scroll_active = false
-	rtl.custom_minimum_size = Vector2(CARD_WIDTH, 0)
-	var color_hex := AFFIX_COLOR.to_html(false)
-	var range_text := " (Tier %d, range %d-%d)" % [affix.tier, round(affix.value_min), round(affix.value_max)]
-	if stat != -1:
-		var stat_name: String = Constants.Stat.keys()[stat]
-		var linked_text: String = affix.description.replace(stat_name.capitalize(), "[url=stat:%d]%s[/url]" % [stat, stat_name.capitalize()])
-		rtl.text = "[color=#%s]%s%s[/color]" % [color_hex, linked_text, range_text]
-		rtl.meta_clicked.connect(_on_glossary_link_clicked)
-	else:
-		rtl.text = "[color=#%s]%s%s[/color]" % [color_hex, affix.description, range_text]
-	_content().add_child(rtl)
-
-func _on_glossary_link_clicked(meta: Variant) -> void:
-	var meta_str: String = str(meta)
-	if not meta_str.begins_with("stat:"):
-		return
-	var stat: int = int(meta_str.substr(5))
-	var definition: String = Constants.STAT_GLOSSARY.get(stat, "")
-	if definition == "":
-		return
-	var label := Label.new()
-	label.text = "%s: %s" % [Constants.Stat.keys()[stat].capitalize(), definition]
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
-	label.add_theme_color_override("font_color", GLOSSARY_COLOR)
 	_content().add_child(label)
 
 func _add_flavor(text: String) -> void:

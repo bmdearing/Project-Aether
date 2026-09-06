@@ -70,6 +70,11 @@ signal throwable_used(throwable_type: String)
 ## asynchronously), so they're skipped as dead additions nothing would
 ## ever listen to.
 signal brand_consumed(brand_id: String)
+## Patch v3.8c - Hub Brand Shop. No listener exists yet for either (same
+## "real emit site, no consumer required" footing brand_consumed itself
+## started from) - BrandShop.gd is the one real emit site for both.
+signal brand_purchased(brand_id: String)
+signal gold_spent(amount: int)
 signal item_quality_changed(item: Item)
 signal item_sockets_changed(item: Item)
 signal item_stats_changed(item: Item)

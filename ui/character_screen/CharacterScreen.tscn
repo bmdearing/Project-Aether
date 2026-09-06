@@ -23,9 +23,24 @@ theme_override_font_sizes/font_size = 22
 text = "Character"
 horizontal_alignment = 1
 
-[node name="HintLabel" type="Label" parent="CenterContainer/VBox"]
-autowrap_mode = 3
-text = "All six stats come from gear only (no allocation on level-up). Strength/Arcane/Enigma scale Physical/Elemental/Esoteric damage; Vitality raises Life + regen; Instinct raises Crit Chance + Attack/Cast/Move speed; Intellect raises Crit Damage + Mana + regen. Not yet wired: Vitality's DoT mitigation, Instinct's Stamina/dodge-roll, Intellect's Debuff effectiveness - no supporting systems exist for those yet. Predicted damage numbers already factor in crit and match exactly what attacking/casting deals."
+[node name="PrimaryStatsRow" type="HBoxContainer" parent="CenterContainer/VBox"]
+alignment = 1
+theme_override_constants/separation = 36
+
+[node name="ProwessLabel" type="Label" parent="CenterContainer/VBox/PrimaryStatsRow"]
+theme_override_font_sizes/font_size = 28
+text = "PROWESS: 0"
+horizontal_alignment = 1
+
+[node name="FinesseLabel" type="Label" parent="CenterContainer/VBox/PrimaryStatsRow"]
+theme_override_font_sizes/font_size = 28
+text = "FINESSE: 0"
+horizontal_alignment = 1
+
+[node name="ResolveLabel" type="Label" parent="CenterContainer/VBox/PrimaryStatsRow"]
+theme_override_font_sizes/font_size = 28
+text = "RESOLVE: 0"
+horizontal_alignment = 1
 
 [node name="Columns" type="HBoxContainer" parent="CenterContainer/VBox"]
 theme_override_constants/separation = 20

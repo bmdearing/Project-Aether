@@ -321,6 +321,7 @@ func _on_item_selected(item: Item) -> void:
 	status_label.text = ""
 	_equipment.equip(item)
 	GameState.sync_equipment(_equipment)
+	GameState.sync_weapon_sets(_equipment)
 	_refresh_doll()
 	_build_inventory_grid()
 	_refresh_stats()
@@ -358,6 +359,7 @@ func _on_doll_slot_pressed(row: Dictionary) -> void:
 	var ring_index: int = row.get("ring_index", 0)
 	_equipment.unequip(row["slot"], ring_index)
 	GameState.sync_equipment(_equipment)
+	GameState.sync_weapon_sets(_equipment)
 	status_label.text = ""
 	_refresh_doll()
 	_build_inventory_grid()
@@ -407,12 +409,12 @@ func _apply_button_color(button: Button, color: Color) -> void:
 	button.add_theme_color_override("font_pressed_color", text_color)
 	button.add_theme_color_override("font_disabled_color", text_color)
 
-## Weapons key off damage type; everything else off rarity.
+## Patch v3.8b: was weapons-key-off-damage-type, everything else off
+## rarity - a Magic-rarity weapon showed its (Lightning-yellow etc.) damage
+## color instead of blue. Every item slot now colors off rarity alone,
+## matching ItemCard's hover-tooltip border (Ability cards are the sole,
+## intentional exception - see ItemCard.gd's own header comment).
 func _item_color(item: Item) -> Color:
-	if item is Weapon:
-		var weapon := item as Weapon
-		var dtype: int = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
-		return Constants.DAMAGE_TYPE_COLOR.get(dtype, Color.WHITE)
 	return Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 
 func _on_equip_failed(reason: String) -> void:

@@ -559,9 +559,7 @@ func _apply_button_color(button: Button, color: Color) -> void:
 	button.add_theme_color_override("font_pressed_color", text_color)
 	button.add_theme_color_override("font_disabled_color", text_color)
 
+## Patch v3.8b: rarity for every item type, no damage-type exception for
+## weapons - see InventoryScreen._item_color()'s own comment.
 func _item_color(item: Item) -> Color:
-	if item is Weapon:
-		var weapon := item as Weapon
-		var dtype: int = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
-		return Constants.DAMAGE_TYPE_COLOR.get(dtype, Color.WHITE)
 	return Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)

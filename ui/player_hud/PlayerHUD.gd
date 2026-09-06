@@ -61,12 +61,20 @@ const THROWABLE_MARGIN := 16.0
 ## had to the experience that they end up at... show it filling up."
 const XP_FILL_TWEEN_DURATION := 0.5
 
+## Patch v3.8b: inverse of the health bar's damage trail - the trail here
+## shows the INCOMING gain instantly (bright), and the main fill tweens up
+## to meet it, rather than the main fill dropping instantly and a trail
+## lingering behind. A brighter/more saturated version of the shader's own
+## gold/amber, not a different hue.
+const XP_TRAIL_COLOR_MODULATE := Color(1.5, 1.25, 0.7)
+
 @onready var weapon_indicator: HBoxContainer = $WeaponIndicator
 
 var _player: Player
 var _life_orb: StatOrb
 var _mana_orb: StatOrb
 var _xp_fill_clip: Control
+var _xp_trail_clip: Control
 var _xp_label: Label
 var _xp_tween: Tween
 ## -1 = not yet initialized (the deferred startup call in _ready() should
@@ -240,6 +248,39 @@ func _build_xp_bar() -> void:
 	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	root.add_child(bg)
 
+	# The bar itself is now full-width (percentage-anchored, resolution-
+	# independent), so its rendered pixel width isn't known until runtime -
+	# computed here from the viewport rather than a compile-time constant.
+	var bar_width: float = get_viewport().get_visible_rect().size.x - XP_BAR_LEFT_MARGIN - XP_BAR_RIGHT_MARGIN
+
+	# Patch v3.8b: trail layer sits BEHIND the main fill and snaps its own
+	# clip window instantly to the new ratio on every XP gain - the main
+	# fill_clip below tweens up to meet it, so the gap between the two
+	# reads as a bright "incoming XP" sliver that shrinks as the real fill
+	# catches up (inverse of the health bar's damage-trail, which drops
+	# the main fill instantly and lets a trail linger behind instead).
+	var trail_clip := Control.new()
+	trail_clip.clip_contents = true
+	trail_clip.anchor_left = 0.0
+	trail_clip.anchor_top = 0.0
+	trail_clip.anchor_right = 0.0
+	trail_clip.anchor_bottom = 1.0
+	trail_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	root.add_child(trail_clip)
+	_xp_trail_clip = trail_clip
+
+	var trail_gradient_rect := ColorRect.new()
+	trail_gradient_rect.color = Color.WHITE
+	trail_gradient_rect.material = ShaderMaterial.new()
+	(trail_gradient_rect.material as ShaderMaterial).shader = XP_BAR_SHADER
+	trail_gradient_rect.modulate = XP_TRAIL_COLOR_MODULATE
+	trail_gradient_rect.anchor_left = 0.0
+	trail_gradient_rect.anchor_top = 0.0
+	trail_gradient_rect.anchor_bottom = 1.0
+	trail_gradient_rect.offset_right = bar_width
+	trail_gradient_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	trail_clip.add_child(trail_gradient_rect)
+
 	# A clip window whose anchor_right grows with fill fraction, over a
 	# FIXED-width gradient texture (not one that stretches to fit) - so
 	# filling the bar reveals more of the same spectrum instead of
@@ -254,10 +295,6 @@ func _build_xp_bar() -> void:
 	root.add_child(fill_clip)
 	_xp_fill_clip = fill_clip
 
-	# The bar itself is now full-width (percentage-anchored, resolution-
-	# independent), so its rendered pixel width isn't known until runtime -
-	# computed here from the viewport rather than a compile-time constant.
-	var bar_width: float = get_viewport().get_visible_rect().size.x - XP_BAR_LEFT_MARGIN - XP_BAR_RIGHT_MARGIN
 	var gradient_rect := ColorRect.new()
 	gradient_rect.color = Color.WHITE  # shader fully replaces this - just needs an opaque quad to shade
 	gradient_rect.material = ShaderMaterial.new()
@@ -487,6 +524,7 @@ func _on_xp_changed(current: float, needed: float) -> void:
 
 	if _xp_last_needed < 0.0:
 		_xp_fill_clip.anchor_right = target_ratio
+		_xp_trail_clip.anchor_right = target_ratio
 		_xp_last_needed = needed
 		return
 
@@ -494,9 +532,19 @@ func _on_xp_changed(current: float, needed: float) -> void:
 		_xp_tween.kill()
 	_xp_tween = create_tween()
 	if needed != _xp_last_needed:
+		# Old bar's trail leaps to full immediately (an "incoming" amount
+		# large enough to top it off); once the catch-up tween below
+		# finishes filling it, both layers reset to empty and the trail
+		# immediately shows the NEW target so the fill tween that follows
+		# has something to visibly catch up to, same as the normal case.
+		_xp_trail_clip.anchor_right = 1.0
 		_xp_tween.tween_property(_xp_fill_clip, "anchor_right", 1.0, XP_FILL_TWEEN_DURATION) \
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
-		_xp_tween.tween_callback(func(): _xp_fill_clip.anchor_right = 0.0)
+		_xp_tween.tween_callback(func():
+			_xp_fill_clip.anchor_right = 0.0
+			_xp_trail_clip.anchor_right = target_ratio)
+	else:
+		_xp_trail_clip.anchor_right = target_ratio
 	_xp_tween.tween_property(_xp_fill_clip, "anchor_right", target_ratio, XP_FILL_TWEEN_DURATION) \
 		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
 

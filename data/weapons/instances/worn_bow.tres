@@ -9,6 +9,7 @@ description = "+13% increased Critical Strike Chance (implicit)"
 stat_key = "crit_chance_increased"
 value = 13.0
 is_prefix = false
+is_implicit = true
 
 [resource]
 script = ExtResource("1")

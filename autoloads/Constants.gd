@@ -68,30 +68,36 @@ const DAMAGE_TYPE_TAGS := {
 	"pale": DamageType.PALE,
 }
 
-enum Stat { VITALITY, STRENGTH, INSTINCT, ARCANE, ENIGMA, INTELLECT }
+## Patch v3.8: six stats collapsed to three - Prowess (Attack Power/Life),
+## Finesse (Evasion/Crit Chance), Resolve (Spell Power/Ward). Every old
+## per-damage-type "which stat scales this" distinction is gone too -
+## Attack Power always comes from Prowess, Spell Power always from
+## Resolve, regardless of the weapon/ability's own damage type (DAMAGE_
+## TYPE_MAIN_STAT below still exists as directional metadata, but nothing
+## in the actual damage formula consults it anymore - see Weapon/Ability.
+## _base_hit()). Old-save/old-data migration (~850 already-generated
+## items' stat_requirement + primary/secondary_scaling_stat) maps
+## Vitality/Strength -> Prowess, Instinct -> Finesse, Arcane/Enigma/
+## Intellect -> Resolve - see tools/repair_stat_migration.gd.
+enum Stat { PROWESS, FINESSE, RESOLVE }
 
 # Display names - used by ItemCard's requirement line and EquipmentComponent's
 # equip-block reason (user request 2026-08-30: gate Section 25's items behind
 # a level + stat requirement) rather than each spot inventing its own
 # capitalization of the enum key.
 const STAT_NAME := {
-	Stat.VITALITY: "Vitality",
-	Stat.STRENGTH: "Strength",
-	Stat.INSTINCT: "Instinct",
-	Stat.ARCANE: "Arcane",
-	Stat.ENIGMA: "Enigma",
-	Stat.INTELLECT: "Intellect",
+	Stat.PROWESS: "Prowess",
+	Stat.FINESSE: "Finesse",
+	Stat.RESOLVE: "Resolve",
 }
 
-# Section 12 per-point values - shown in the advanced (Alt-hover) tooltip
-# when a mod line links to one of these stats.
+# Per-point values - shown in the advanced (Alt-hover) tooltip when a mod
+# line links to one of these stats. See StatSheet.gd's own derived-value
+# methods for the real formulas these describe.
 const STAT_GLOSSARY := {
-	Stat.VITALITY: "+2 Life, +0.1 Life regen/sec, +3 Resilience (DoT mitigation) per point.",
-	Stat.STRENGTH: "+1% increased Physical damage per point.",
-	Stat.INSTINCT: "+3% increased Crit Chance, +1% Attack/Cast speed, +0.5% Move speed per point.",
-	Stat.ARCANE: "+1% increased Elemental damage per point.",
-	Stat.ENIGMA: "+1% increased Esoteric damage per point.",
-	Stat.INTELLECT: "+1% increased Crit damage, +2 Mana, +0.1 Mana regen/sec, +1.5% Debuff effectiveness per point.",
+	Stat.PROWESS: "+2 Life, +1 Attack Power per point.",
+	Stat.FINESSE: "+2 Evasion Rating, +1% increased Critical Strike Chance per point.",
+	Stat.RESOLVE: "+1 Spell Power, +0.5% increased Ward per point.",
 }
 
 # Section 09 - Status Effects. Scope: the 5 effects that already have a
@@ -109,6 +115,7 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 	"electrocute": DamageType.LIGHTNING,
 	"unraveling": DamageType.ENTROPIC,
 	"slow": DamageType.PIERCING,  # Caltrops - a generic slow independent of Chill's Cold flavor, colored via its own Piercing source instead
+	"shock": DamageType.LIGHTNING,
 }
 
 ## Section 20's Infusion Stone/Shrivening Stone/Shard of Tharsis - fixed,
@@ -125,20 +132,24 @@ const STATUS_EFFECT_NAME := {
 	"electrocute": "Electrocute",
 	"unraveling": "Unraveling",
 	"slow": "Slowed",
+	"shock": "Shocked",
 }
 
-# Section 10 - Main Stat by Tag. Drives which stat DamageCalculator scales
-# an attack against, keyed by the attack's damage type.
+# Patch v3.8: directional metadata only now - Weapon._base_hit()/Ability.
+# _base_hit() no longer branch on this at all (Attack Power is always
+# Prowess, Spell Power is always Resolve, regardless of damage type), but
+# it's kept updated/accurate for anything else that wants "which stat
+# does this damage type thematically belong to."
 const DAMAGE_TYPE_MAIN_STAT := {
-	DamageType.KINETIC: Stat.STRENGTH,
-	DamageType.PIERCING: Stat.STRENGTH,
-	DamageType.EXPLOSIVE: Stat.STRENGTH,
-	DamageType.FIRE: Stat.ARCANE,
-	DamageType.COLD: Stat.ARCANE,
-	DamageType.LIGHTNING: Stat.ARCANE,
-	DamageType.AETHERIC: Stat.ENIGMA,
-	DamageType.ENTROPIC: Stat.ENIGMA,
-	DamageType.PALE: Stat.ENIGMA,
+	DamageType.KINETIC: Stat.PROWESS,
+	DamageType.PIERCING: Stat.PROWESS,
+	DamageType.EXPLOSIVE: Stat.PROWESS,
+	DamageType.FIRE: Stat.RESOLVE,
+	DamageType.COLD: Stat.RESOLVE,
+	DamageType.LIGHTNING: Stat.RESOLVE,
+	DamageType.AETHERIC: Stat.RESOLVE,
+	DamageType.ENTROPIC: Stat.RESOLVE,
+	DamageType.PALE: Stat.RESOLVE,
 }
 
 enum ScalingGrade { S, A, B, C, D, E }
@@ -357,6 +368,17 @@ const BRAND_DROP_WEIGHTS := {
 	BrandRarity.RARE: 8,
 	BrandRarity.LEGENDARY: 1,
 }
+
+## Patch v3.8 Section 5 - ItemCard's Alt Info panel.
+static func grade_to_letter(grade: int) -> String:
+	match grade:
+		0: return "S"
+		1: return "A"
+		2: return "B"
+		3: return "C"
+		4: return "D"
+		5: return "E"
+	return "?"
 
 ## Picks readable text over an arbitrary background color set at
 ## runtime (item rarity/damage-type colors) - without this, buttons

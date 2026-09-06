@@ -91,14 +91,22 @@ const RESISTANCE_CEILING := 95.0
 static func resistance_mitigation(resistance_percent: float) -> float:
 	return clamp(resistance_percent, RESISTANCE_FLOOR, RESISTANCE_CEILING) / 100.0
 
-## Section 12: base crit chance is fixed per weapon/spell type (2%-8%);
-## Instinct is a multiplicative "+3% increased" modifier on that base.
-static func get_crit_chance(base_crit_chance: float, instinct: float) -> float:
-	return base_crit_chance * (1.0 + instinct * 0.03)
+## Patch v3.8: base crit chance is fixed per weapon/spell type (2%-8%);
+## Finesse's crit-chance contribution (StatSheet.get_crit_chance_from_
+## stats(), a flat fraction) now adds directly on top instead of scaling
+## it multiplicatively - the old Instinct-based "x(1 + instinct*0.03)"
+## formula is gone along with Instinct itself.
+static func get_crit_chance(base_crit_chance: float, finesse_crit_bonus: float) -> float:
+	return base_crit_chance + finesse_crit_bonus
 
-## Base Critical Strike Damage multiplier 150%; Intellect +1%/point, multiplicative.
-static func get_crit_damage_multiplier(intellect: float) -> float:
-	return 1.5 * (1.0 + intellect * 0.01)
+## Base Critical Strike Damage multiplier 150%, flat - no longer stat-
+## derived (Intellect, its old source, is gone; "crit_damage" is a
+## gear-affix-only "removed expression" per Patch v3.8 Section 2).
+## bonus_fraction defaults to 0.0 - no consumer sums a crit_damage affix
+## into this yet, same "real value, no formula to feed it" footing as
+## several other gear-affix-only stats this patch introduced.
+static func get_crit_damage_multiplier(bonus_fraction: float = 0.0) -> float:
+	return 1.5 * (1.0 + bonus_fraction)
 
 ## Section 12: "Resilience Mitigation % = Resilience / (Resilience + 2,000).
 ## Soft cap at 50% DoT mitigation." Reduces StatusEffectComponent's Ignite

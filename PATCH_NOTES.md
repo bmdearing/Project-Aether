@@ -7,6 +7,399 @@ there. Most recent first.
 
 ---
 
+## 2026-09-06 — Bug Fix: Item Card's Attack Power Bonus Missing Mastery
+
+User-reported: "the blue number on the item card isn't being properly
+updated with how much damage you get from your Attack Power." `ItemCard.
+_get_stat_contribution()` (the blue bonus number next to a weapon's
+Attack Power line) computed `stat_ap * grade_mult` only - `Weapon.
+_base_hit()`'s real formula (`DamageCalculator.calculate()`) applies
+Mastery on top: `effective_grade_multiplier = grade_multiplier * (1.0 +
+mastery_bonus)`. The card's number was correct at zero Mastery for the
+weapon's damage type, but understated the real contribution - and never
+moved - once Fate Board Slates gave that tag any Mastery. Fixed by
+resolving the weapon's effective damage type (infused if set, else
+native, same as `_base_hit()`) and folding `stat_sheet.get_mastery()`
+into the multiplier the same way. Verified with a scratch test: a
+weapon with 0.5 Mastery on its damage type now shows the same number the
+real formula independently computes (13.5, not the pre-fix 9.0).
+
+## 2026-09-06 — Implementation Brief v3.8c: Crit Damage Fix, Starting Gold, Brand Shop
+
+Third stat-system bug report in a row - researched against the real code
+first, as always. Almost the entire "Constants.gd stat system fix"
+priority turned out to already be correct (done in v3.8, verified again
+in v3.8b): the enum, `STAT_NAME`/`STAT_GLOSSARY`/`DAMAGE_TYPE_MAIN_STAT`,
+`get_attack_power_from_stats()`/`get_spell_power_from_stats()`/`get_crit_
+chance_from_stats()`, `Weapon`/`Ability._base_hit()`, `Player._apply_
+derived_stats()`, and `player_baseline.tres` all already matched the
+brief's own proposed code byte-for-byte in most cases. A repo-wide grep
+for every old `Stat.*` enum reference found zero live hits - two comment-
+only mentions in one-shot, already-run generator scripts (`generate_bow_
+lines.gd`, `generate_conduit_lines.gd`) were renamed for cleanliness, no
+behavior change.
+
+**The one real bug**: gear's `crit_damage` affix (rolled by `ItemRoller`,
+"+15-20% increased Critical Strike Damage") was never actually applied.
+`EquipmentComponent.MISC_BONUS_KEYS` didn't include `"crit_damage"`, so
+`compute_misc_bonuses()` silently dropped every such affix, and all 3
+call sites of `DamageCalculator.get_crit_damage_multiplier()` (`ability.
+gd`, `weapon.gd`, `StatSummaryBuilder.gd`) called it with no argument,
+always taking its default 0.0 bonus. Fixed by adding `"crit_damage"` to
+`MISC_BONUS_KEYS`, adding `StatSheet.get_crit_damage_bonus()` (converts
+the summed percent-unit affix total to a fraction), and passing it at all
+3 call sites. Did NOT adopt the brief's own proposed `get_crit_damage_
+bonus()` body (`equipment_bonus.get("crit_damage", 0.0)`) - `equipment_
+bonus` is keyed by `Constants.Stat` enum for the 3 core stats only,
+`crit_damage` lives in the separate `misc_bonus` dict alongside max_life/
+attack_speed/etc.; the brief's version would have compiled fine and
+silently kept the bug alive. Verified with a scratch test: a `+18%`
+`crit_damage` affix now correctly yields a `1.77` multiplier
+(`1.5 * 1.18`) instead of a flat `1.5`.
+
+**Starting Gold.** `GameState.reset_to_defaults()` (the real new-game
+initializer, called from `MainMenu._on_new_game_pressed()` - no separate
+`_initialize_new_game()` exists) now sets `gold = 1000000` instead of `0`.
+`SaveManager.load_game()` (Continue) already restores `gold` from the
+save JSON and never touches `reset_to_defaults()`, so the brief's own
+"don't reset gold when continuing" caveat needed no change.
+
+**Brand Shop.** New Hub interactable (`entities/interactables/brand_shop/
+BrandShop.gd`+`.tscn`), same proximity-and-`E` pattern as `GearShop`/
+`SpellTestShop`, placed at `(0, 0, -8)`. Reuses the Hub's existing shared
+`ShopScreen` via `open_with()` rather than building a second shop UI from
+scratch (`ShopScreen` already handles the gold check/deduct/button-
+disable/ItemCard-hover-tooltip machinery both other shops use) - added
+one small extension, an optional `"repeatable"` entry flag, so Brand
+rows stay buyable after a purchase instead of `ShopScreen`'s normal
+permanent post-purchase disable (GearShop/SpellTestShop entries don't set
+it, so their behavior is unchanged). Sources its brand list from the real
+`Constants.BRAND_RARITIES` (26 ids, one per `data/brands/instances/
+*.tres`) instead of the brief's own hardcoded price table, which named 2
+brands that don't exist in this project at all (`amalgam`, `facsimile`/
+`imbue` - explicitly cut per `Brand.gd`'s own header, no `BrandRarity.
+LEGENDARY` entries exist to price) and one with a wrong id (`hollow_brand`
+vs the real `hollow`) - deriving the list from `Constants` means it can
+never drift from what's actually purchasable. Price by `BrandRarity` tier
+(Common 50/Uncommon 200/Rare 800/Legendary 5000, per the brief) - a real
+Legendary Brand would price correctly if one is ever added back. Also
+skipped the brief's proposed `ItemAffix`-based grant (`is_brand = true`
+on a new `ItemAffix`) - real Brands are `Item` subclasses (`Brand extends
+Item`, loaded from their own `.tres` files), not affixes; `ItemAffix.
+is_brand` exists but nothing in the project reads it. `_buy()` instead
+`load()`s and `duplicate()`s the real Brand resource and appends it to
+`GameState.owned_loot`, the same mechanism `LootPickup`/`GearShop` already
+use. Added `EventBus.brand_purchased(brand_id)`/`gold_spent(amount)` per
+the brief, emitted from `_buy()` - no consumer yet, same "real emit site,
+no listener required" footing `brand_consumed` already had. Verified with
+a scratch test: purchase grants a correctly-typed, independently-
+duplicated `Brand` instance and fires both signals; all 26
+`BRAND_RARITIES` ids resolve to a real file.
+
+## 2026-09-06 — Implementation Brief v3.8b: Post-v3.8 Bug Sweep + Channel/Spark/Winter's Eye Reworks
+
+Follow-up brief framed as bug reports against what v3.8 just shipped, plus
+several new mechanics. Researched every claim against the real code before
+touching anything (this session's standing rule) - three of the brief's
+own root-cause claims turned out wrong or already-fixed, one bug was real
+but mis-located, and one investigation surfaced a second, more systemic
+bug the brief didn't know about.
+
+**Priority 1 - stat bugs.**
+- **1a "Prowess not providing Attack Power"** - `Weapon._base_hit()` /
+  `StatSheet.get_attack_power_from_stats()` were already correct. The
+  real cause was 1c below: gear implicits granting Prowess/Finesse/
+  Resolve were silently non-functional, which reads the same as "my
+  stat isn't doing anything."
+- **1b starting stats** - `data/stats/instances/player_baseline.tres`
+  had `prowess=finesse=resolve=10` (a v3.8 placeholder) instead of the
+  intended `prowess=4, finesse=7, resolve=4`. Fixed.
+- **1c/1d stale implicit stat keys + names, and a second bug found
+  underneath.** v3.8's own `repair_stat_migration.gd` only remapped
+  `Item.stat_requirement`/`Weapon.scaling_stat` - it never touched
+  `ItemAffix.stat_key`/`description` on hand-authored implicits (Frayed
+  Belt, Vitality Pendant, Tarnished Ring, Worn Gauntlet still read
+  `flat_strength`/`flat_vitality`/`flat_instinct`/`flat_enigma`, which
+  `EquipmentComponent.AFFIX_STAT_KEYS` no longer recognizes - contributed
+  nothing while still showing old text). While fixing this, found that
+  **all 14** hand-authored items with a single affix (those 4 plus the 5
+  named rings and 5 starter weapons) never actually set `ItemAffix.
+  is_implicit = true` on it, despite their own description text saying
+  "(implicit)" - `is_implicit` defaulted to `false`, so ItemCard's
+  implicit/explicit split (which reads the flag, not the string) rendered
+  every one of them as an explicit mod. New `tools/repair_implicit_
+  affixes.gd` (same one-shot pattern as `repair_weapon_lines.gd`) fixed
+  both across all 4 item directories: 14 affixes flagged `is_implicit`,
+  4 stat keys remapped (value preserved, per the brief - except Tarnished
+  Ring, see Priority 4), 2 display names renamed (Vitality Pendant ->
+  Prowess Pendant; a `gen_rune_shield_arcane_rune_shield.tres` surfaced by
+  the same scan, "Arcane Rune Shield" -> "Resolve Rune Shield", same old-
+  stat-name pattern).
+
+**Priority 2 - weapon set persistence, real root cause found via data-flow
+tracing (not guessing, as the brief demanded).** `EquipmentComponent.
+get_all_equipped_refs()` (feeds `GameState.equipment_refs` via `sync_
+equipment()`) deliberately excludes `primary_weapon`/`offhand` - those
+live only in `GameState.weapon_set_refs`, written only by `sync_weapon_
+sets()`. That call existed at exactly two places: the Set A/B toggle
+button and the in-game tap-X-to-swap handler - **never** on a plain
+equip/unequip. So equipping a new weapon into the currently-active set
+(the common case) updated the live `EquipmentComponent` correctly but
+never touched `GameState.weapon_set_refs`; the next zone transition's
+`Player._apply_saved_loadout()` read the stale array and re-equipped the
+OLD weapon. Confirmed with a real scratch test (equip -> sync_equipment
+only -> stale; add sync_weapon_sets -> correct; fresh EquipmentComponent
+restored from GameState -> weapon survives) before and after the fix.
+Fixed by having `InventoryScreen._on_item_selected()`/`_on_doll_slot_
+pressed()` also call `GameState.sync_weapon_sets()`. This is also why the
+same symptom kept getting reported as "already fixed" in earlier
+patches - every previous investigation checked whether `_apply_saved_
+loadout()` correctly READ `weapon_set_refs` (it does) without checking
+whether ordinary equipping ever WROTE to it (it didn't).
+
+**Priority 3 - item border color, real bug found in 3 places, none of
+them ItemCard.gd.** `ItemCard._render_item()`'s border was already
+correctly rarity-based. The actual bug (weapon slot buttons coloring by
+damage type instead of rarity) was duplicated in `InventoryScreen.
+_item_color()`, `CraftingScreen._item_color()`, and `GearShop.
+_item_color()` - all three fixed to rarity-only. Left `ItemCard.
+_render_ability()`'s damage-type border alone - that one is intentional
+(v3.8's own design rationale: distinguishing spells by element), and the
+brief's examples were all item types, not abilities.
+
+**Priority 4 - ring implicits.** All 5 rings already carry an implicit
+(4 resistance, 1 stat) once the Priority 1c `is_implicit` fix above
+landed - "Tarnished Ring has no implicit" was the same bug as 1c, not a
+missing implicit. Its value (18, calibrated for the old 6-stat system) was
+still out of range for the brief's new ring-implicit tiers, so it was
+re-rolled fresh under that spec instead of just remapped: item_level 1 ->
+Low tier -> +4 Finesse (implicit).
+
+**Priority 5 - ItemCard mod ordering/coloring.** `_render_item()` now
+places sockets before implicits, implicits in gold (`IMPLICIT_COLOR`)
+instead of blue, and the dividing line only between implicit and explicit
+groups when both are non-empty (never before implicits, never at all if
+either group is empty).
+
+**Priority 6 - Character Screen.** Removed the stale six-stat `HintLabel`
+paragraph; added a `PrimaryStatsRow` of large PROWESS/FINESSE/RESOLVE
+labels above the columns. The existing column labels (Prowess/Attack
+Power/Main Hand Damage/Main Hand Crit, Finesse/Evasion/Max Health/Life
+Regen/Max Ward/Armor, Resolve/Spell Power/Max Mana/Mana Regen/Move+Sprint+
+Action Speed) already matched the brief's spec exactly - no relabeling
+needed. "Live on gear equip/unequip" is automatic since `PauseMenu.
+_toggle_screen()` never allows this screen and InventoryScreen open at
+the same time.
+
+**Priority 7 - XP bar trail.** Added a second shader-material layer
+(`_xp_trail_clip`, brightened `modulate`) behind the existing fill that
+snaps instantly to the new ratio on every XP gain, while the existing
+fill tweens up to meet it - inverse of the health bar's damage trail, as
+specified.
+
+**Priority 8 - Flame Jets channel rework.** Was a fixed-duration channel
+started on cast (deliberately, per v3.8's own comment, to avoid a bigger
+resource-model change). Now genuinely hold-to-channel: cuts off
+immediately (no grace tick) on key release or Mana hitting 0, and drains
+`CHANNEL_MANA_DRAIN_PERCENT` (8%) of its resource cost every `CHANNEL_
+MANA_DRAIN_INTERVAL` (0.15s) while held, on top of the existing upfront
+cost. Scoped to real player-held casts only - Slate auto-cast Flame Jets
+(explicitly zero-resource-cost) skips both the hold-check and the drain.
+`CastTimeHandler` already fires CHANNELED abilities' `_cast()` immediately
+with no interruptible windup, so "not interruptible by damage" needed no
+change.
+
+**Priority 9 - Winter's Eye.** Already had a working periodic-tick-while-
+traveling architecture (contrary to the brief's "deals burst damage on
+arrival" framing) - updated to the brief's new constants (`ORB_SPEED` 8.0,
+`SHARD_RADIUS` 6.0, `MAX_DURATION` 3.0), capped each tick to the `MAX_
+SHARDS_PER_TICK` (3) nearest enemies instead of hitting everyone in
+radius, and added a cosmetic spin while traveling.
+
+**Priority 10 - Spark rework + Shock.** New non-stacking Shock status
+effect (`StatusEffectComponent`, same `_apply_timed()` pattern as
+Electrocute/Unraveling/Slow): +20% Lightning damage taken, 4s, refresh-
+on-reapply, no stun. Wired into `Enemy.take_damage()` via `get_shock_
+multiplier()`. `spark.tres` now applies `"shock"` instead of
+`"electrocute"` - Thunder Javelin/Thunder Sweep keep Electrocute,
+unchanged. `SparkCrawler` already had working nearest-enemy seeking
+(contrary to the brief's "moves randomly" framing) - reworked from an
+instant heading-snap to a lerped `TURN_SPEED`-gated turn, and added
+random wandering when no enemy is in range (previously held a fixed
+heading).
+
+**Priority 11 - Flame Wall reticle.** The shared aiming reticle was one
+reusable circular Torus mesh for every ground-targeted ability, including
+Flame Wall - which is actually a `BoxMesh` wall (width x `WALL_THICKNESS`,
+oriented perpendicular to the caster->target line, per `FlameWallField.
+gd`). `PlayerAbilityCast._show_reticle()`/`_update_reticle()` now swap in
+a matching flat rectangle (reading `FlameWallField.WALL_THICKNESS`
+directly rather than duplicating it) with the same `look_at()` orientation
+FlameWallField itself uses, for Flame Wall specifically.
+
+**Priority 12 - Shock in Constants.** Added `"shock": DamageType.
+LIGHTNING` to `STATUS_EFFECT_DAMAGE_TYPE` and `"shock": "Shocked"` to
+`STATUS_EFFECT_NAME`.
+
+## 2026-09-06 — Implementation Brief v3.8: Six Stats to Three, Weapon/Spell Card Redesign
+
+User pasted "Implementation Brief v3.8" (a zone-transition performance
+fix, collapsing the six-stat system to three, weapon/spell card
+redesigns, and an Alt-hold revision). The stat rewrite alone touched 13
+`.gd` files plus a ~1000-file data migration - the largest single brief
+this project has taken on. Researched first, as established this
+session, and found the brief's own Priority 1 root cause disproven by a
+direct empirical test - flagged before writing any code, alongside two
+real architectural questions the stat rewrite raised.
+
+**Priority 1 (ItemRoller autoload) - skipped, confirmed with the user.**
+The claimed root cause ("static vars reset every scene change in
+Godot") was tested directly: a static var on a `class_name RefCounted`
+script, bumped in one scene, checked in a second after a real
+`get_tree().change_scene_to_file()` call - it persisted correctly (1,
+not reset to 0). `ItemRoller._candidate_meta_cache` is a `Dictionary`
+guarded by `if _candidate_meta_cache.is_empty(): _build_candidate_meta_
+cache()`, and nothing anywhere clears it, so it already only builds once
+per process lifetime. Third brief in a row with a disproven root-cause
+claim (weapon-set persistence in v3.6b, ItemDatabase eager-loading in
+v3.7, this one) - user agreed to skip rather than build a fix for a bug
+that isn't there.
+
+**Priority 2 (six stats to three) - two real forks, confirmed with the
+user before touching ~1000 files.** Vitality/Strength/Instinct/Arcane/
+Enigma/Intellect collapse to Prowess/Finesse/Resolve. The brief's own
+per-line damage formula snippets turned out to be exactly what
+`DamageCalculator.calculate()` already computes internally (`power :=
+base + stat_value * effective_grade_multiplier`) - "DO NOT change
+calculate()'s signature" reconciles cleanly once read that way: only
+what `Weapon._base_hit()`/`Ability._base_hit()` pass AS `stat_value`
+changes (now `get_attack_power_from_stats()`/`get_spell_power_from_
+stats()`, always Prowess/Resolve regardless of damage type - a real
+simplification versus the old per-damage-type stat lookup), `calculate()`
+itself is untouched.
+
+1. **Data migration.** Every already-generated item's `stat_requirement`
+   (an int under the OLD 6-value enum, silently reinterpreted as a
+   different stat under a 3-value one - the exact class of bug already
+   caught once with `EquipmentSlot` in Patch v3.5) and every weapon's
+   `primary_scaling_stat`/`secondary_scaling_stat` (Patch v3.6b strings
+   like "instinct," now naming stats that don't exist) needed a real
+   remap, not just renumbering. Proposed and got sign-off on: Vitality/
+   Strength -> Prowess, Instinct -> Finesse, Arcane/Enigma/Intellect ->
+   Resolve - mirrors the brief's own damage-type reassignment for the 4
+   stats it covers. New `tools/repair_stat_migration.gd` ran across all
+   4 item directories - 1004 items scanned, 913 `stat_requirement` values
+   and 644 scaling-stat strings remapped. Unlike Patch v3.7's
+   `base_damage` repair, `stat_requirement`'s field name/type didn't
+   change, so a plain `load()`/re-save sufficed - Godot doesn't validate
+   an enum-typed property's stored int against the enum's current range,
+   so the OLD value round-trips through `load()` intact to remap.
+2. **Crit chance/damage formula.** `DamageCalculator.get_crit_chance()`/
+   `get_crit_damage_multiplier()` had their own hardcoded per-point
+   formulas separate from `calculate()` (which the brief protects), and
+   Intellect (crit damage's old source) isn't a stat anymore at all.
+   Confirmed: crit chance becomes additive (`base_crit_chance +
+   StatSheet.get_crit_chance_from_stats()`, replacing the old `x(1 +
+   instinct*0.03)` multiplicative one), crit damage multiplier drops to a
+   flat 1.5x with an optional bonus-fraction param defaulting to 0.0 -
+   purely gear-affix-driven going forward (`crit_damage` is a "removed
+   expression" per the brief's own list), no consumer wired to it yet.
+
+**"Removed expressions" (max_life, life_regen, max_mana, mana_regen,
+attack_speed, cast_speed, move_speed, crit_damage, debuff_effectiveness,
+resilience, stamina) - real, judgment-scoped wiring, not blanket
+"add and forget."** `EquipmentComponent.compute_misc_bonuses()` (new,
+mirrors `compute_resistance_bonuses()`) sums these into `StatSheet.
+misc_bonus`. Six got REAL consumers because something already,
+actively depended on their old stat-derived value and would otherwise
+have silently broken: `max_life`/`life_regen` (Health), `max_mana`/
+`mana_regen` (Mana), `flat_resilience` (already existed, pre-v3.8,
+previously fully decorative - now real, replacing Vitality's DoT-
+mitigation role), and `attack_speed`/`move_speed` (`Player.get_action_
+speed_multiplier()`/`get_move_speed_multiplier()`, both load-bearing
+multipliers used throughout combat/movement that would have been left
+calling a compile-broken `Constants.Stat.INSTINCT` otherwise - found
+these two only because the FIRST headless compile check after editing
+`Constants.gd` surfaced them as real "Cannot find member INSTINCT"
+parse errors, not because a grep caught them ahead of time). `cast_speed`
+feeds Patch v3.7's existing `StatSheet.cast_speed_bonus` field directly.
+`crit_damage`/`debuff_effectiveness`/`stamina` (and `move_speed`'s own
+pool entry once attack/move speed's split was decided) stay descriptive-
+only in `ItemRoller.AFFIX_POOL` - same "real affix, no formula to feed
+it yet" footing every other under-specified pool entry in this project
+already has (flat_evasion, the 4 resistance affixes, skill_cooldown_
+reduced). `StatusEffectComponent._debuff_effectiveness_multiplier()` now
+returns a flat 1.0 (was Intellect-derived) since debuff_effectiveness
+has no wired consumer.
+
+**A real bug caught only by the headless compile check, not a grep.**
+Two live, load-bearing references to `Constants.Stat.INSTINCT` in
+`Player.gd` (`get_move_speed_multiplier()`/`get_action_speed_multiplier()`)
+weren't in the brief's own suggested `grep -rn "VITALITY\|STRENGTH\|..."`
+research pass results the FIRST time through, since they were further
+down the file than the block already fixed - the first post-edit
+headless load surfaced them immediately as parse errors ("Cannot find
+member INSTINCT"), cascading into ~20 unrelated-looking compile failures
+across the whole dependency graph until traced back to the two real
+lines. A second full-project grep (this time for bare `.vitality`/
+`.strength`/etc. field access, not just `Constants.Stat.X`) caught one
+more real one - `Player._ready()`'s own fallback `StatSheet.new()`
+default-value block - before the migration script ran.
+
+**Priority 3 (Weapon card redesign).** Border-color-by-rarity turned out
+to already be true for the Item card type (`display_item()` already used
+`Constants.ITEM_RARITY_COLOR`, not damage type - only the Ability card
+uses an element color, and Priority 4 doesn't ask to change that) - no
+change needed there. New Attack Power display (white base + blue stat
+bonus, `_build_attack_power_lines()`/`_get_stat_contribution()` mirroring
+`Weapon._base_hit()`'s own formula so the card can't drift from a real
+swing) replaces the old flat damage line. Scaling Grade moved to Alt
+Info. Socket count text replaced with real socket art (`SocketRow`, an
+inner `Control` subclass with its own `_draw()`) - required a genuine
+new `Item.sockets` field (Patch v3.6b's `max_sockets`-does-double-duty
+model couldn't represent "filled vs. empty" at all): `max_sockets` stays
+the item type's overall CAP (raised by Bore/Corruption, completely
+unchanged), `sockets` is how many of those a specific rolled instance
+actually has (`ItemRoller.roll()`, 0 to `max_sockets` inclusive, same
+"the base sets a ceiling, the roll picks a point under it" shape affix
+tiers already use) - chosen specifically because it coexists with the
+existing Bore/Corruption code with zero changes there, instead of
+re-plumbing a tested system for a UI-only requirement.
+
+**Priority 4 (Spell card redesign).** Motion Value and Predicted Damage
+removed from the main ability card (Scaling Grade moved to Alt Info
+too); Cast Type added (reusing Patch v3.7's `Ability.cast_type`); status
+effects now show their real display name (`Constants.STATUS_EFFECT_
+NAME`) instead of the raw id, which the card was silently doing wrong
+before this pass touched it.
+
+**Priority 5 (Alt Info revision) - a real behavioral removal, not just a
+content change.** The old Alt-hold system (`autoloads/AdvancedTooltip.gd`,
+a whole second `CanvasLayer` with its own floating `ItemCard` instance,
+click-to-pin, full tier ranges, clickable stat glossary links) is gone
+entirely - deleted, unregistered from `project.godot`'s autoload list.
+`ItemCard.gd` now listens for Alt directly via its own `_input()` while
+Godot's native tooltip system is already showing it, and swaps its OWN
+content between the normal card and a new, much narrower Alt Info panel
+(Scaling Grade, Primary/Secondary Scaling, Item Level, stat requirement)
+in place - no second window, no clicks, release Alt and it swaps back.
+Caught and fixed a bug in the brief's own Alt Info snippet along the way:
+`if item.stat_requirement > 0` would silently skip the line for a
+Prowess (0) requirement - fixed to `!= -1`, matching the "-1 means no
+requirement" sentinel already used everywhere else in this project.
+
+Verified with a scratch functional test (not just scene-load checks) -
+26/26 checks passed, covering the new derived-stat formulas, the crit
+formula, real damage rolls end-to-end through both Weapon and Ability,
+the data migration's actual output, `compute_misc_bonuses()`, the socket
+roll, `ItemCard` building real content for both an item and an ability,
+the Alt Info in-place swap, and `AdvancedTooltip`'s full removal. Full
+headless regression sweep across `Hub`/`TestArena`/`PinnacleArena`/
+`InventoryScreen`/`CraftingScreen`/`FateBoardEditor`/`CharacterScreen`/
+`AbilitiesScreen` came back clean.
+
+---
+
 ## 2026-09-02 (newest) — Implementation Brief v3.7: Spell Power Floor, Cast Times, Damage Ranges
 
 User pasted "Implementation Brief v3.7" (7 priorities: spell damage fix,

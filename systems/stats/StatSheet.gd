@@ -1,27 +1,26 @@
 extends Resource
 class_name StatSheet
-## The six baseline stats (Section 12 Stat System). Per Section 12: "All
-## stats come from gear, Slates, Jewels, and infusions — no manual
-## allocation on level up." The raw fields below are the character's
-## permanently-fixed baseline (player_baseline.tres, 10.0 flat - an
-## invented vertical-slice testing value, no doc-sourced baseline exists);
-## equipment_bonus and slate_bonus are what grow a stat past that - gear
-## (EquipmentComponent.compute_stat_bonuses()) and placed Slates
-## (FateBoard.compute_stat_bonuses()) respectively. Player.gd pushes a
-## fresh total into each on every equip/unequip or Slate placement/
-## removal. Neither is persisted separately - equipment_bonus is
-## re-derived from GameState.equipment_refs (already saved) on every
-## load; slate_bonus would need Fate Board LAYOUT to be saved to survive
-## a reload the same way, which it isn't yet (README flagged gap) - so
-## it's always just re-derived from whatever's currently placed, same as
-## equipment_bonus, no separate save/load path needed for either.
+## Patch v3.8: three stats (Prowess/Finesse/Resolve), replacing the
+## original six (Vitality/Strength/Instinct/Arcane/Enigma/Intellect).
+## "All stats come from gear, Slates, Jewels, and infusions — no manual
+## allocation on level up" still holds. The raw fields below are the
+## character's permanently-fixed baseline (player_baseline.tres, 10.0
+## flat each - an invented vertical-slice testing value, no doc-sourced
+## baseline exists); equipment_bonus and slate_bonus are what grow a stat
+## past that - gear (EquipmentComponent.compute_stat_bonuses()) and
+## placed Slates (FateBoard.compute_stat_bonuses()) respectively.
+## Player.gd pushes a fresh total into each on every equip/unequip or
+## Slate placement/removal. Neither is persisted separately - equipment_
+## bonus is re-derived from GameState.equipment_refs (already saved) on
+## every load; slate_bonus would need Fate Board LAYOUT to be saved to
+## survive a reload the same way, which it isn't yet (README flagged
+## gap) - so it's always just re-derived from whatever's currently
+## placed, same as equipment_bonus, no separate save/load path needed
+## for either.
 
-@export var vitality: float = 0.0
-@export var strength: float = 0.0
-@export var instinct: float = 0.0
-@export var arcane: float = 0.0
-@export var enigma: float = 0.0
-@export var intellect: float = 0.0
+@export var prowess: float = 0.0
+@export var finesse: float = 0.0
+@export var resolve: float = 0.0
 
 @export var supercharged_stat: Constants.Stat = -1  # -1 = none declared
 const SUPERCHARGE_MULTIPLIER := 1.25
@@ -68,12 +67,9 @@ var equipment_resistance: Dictionary = {}
 func get_stat(stat: Constants.Stat) -> float:
 	var base := 0.0
 	match stat:
-		Constants.Stat.VITALITY: base = vitality
-		Constants.Stat.STRENGTH: base = strength
-		Constants.Stat.INSTINCT: base = instinct
-		Constants.Stat.ARCANE: base = arcane
-		Constants.Stat.ENIGMA: base = enigma
-		Constants.Stat.INTELLECT: base = intellect
+		Constants.Stat.PROWESS: base = prowess
+		Constants.Stat.FINESSE: base = finesse
+		Constants.Stat.RESOLVE: base = resolve
 	base += equipment_bonus.get(stat, 0.0)
 	base += slate_bonus.get(stat, 0.0)
 	if stat == supercharged_stat:
@@ -85,6 +81,32 @@ func set_equipment_bonus(bonus: Dictionary) -> void:
 
 func set_slate_bonus(bonus: Dictionary) -> void:
 	slate_bonus = bonus
+
+## Derived values - callers should always go through these, never read
+## prowess/finesse/resolve directly for a gameplay effect (matches the
+## brief's own "call these, don't read raw stats" framing).
+func get_max_life_bonus() -> float:
+	return get_stat(Constants.Stat.PROWESS) * 2.0
+
+func get_attack_power_from_stats() -> float:
+	return get_stat(Constants.Stat.PROWESS) * 1.0
+
+func get_evasion_from_stats() -> float:
+	return get_stat(Constants.Stat.FINESSE) * 2.0
+
+## A flat, additive fraction (e.g. 0.10 for +10%) - added directly to a
+## weapon/ability's own base_crit_chance, replacing the old multiplicative
+## "x(1 + instinct*0.03)" formula (DamageCalculator.get_crit_chance()).
+func get_crit_chance_from_stats() -> float:
+	return get_stat(Constants.Stat.FINESSE) * 0.01
+
+func get_spell_power_from_stats() -> float:
+	return get_stat(Constants.Stat.RESOLVE) * 1.0
+
+## A flat fraction (e.g. 0.05 for +5%) - applied as an INCREASED%
+## multiplier on top of gear's own Ward value, not an additive flat bonus.
+func get_ward_increased_from_stats() -> float:
+	return get_stat(Constants.Stat.RESOLVE) * 0.005
 
 func get_mastery(tag: Constants.DamageType) -> float:
 	return mastery_by_tag.get(tag, 0.0)
@@ -192,3 +214,41 @@ var conduit_spell_power: float = 0.0
 
 func set_conduit_spell_power(value: float) -> void:
 	conduit_spell_power = value
+
+## Patch v3.8 Section 2. Player._apply_derived_stats() computes these from
+## Finesse and stores them here (same "Player pushes a fresh total in"
+## convention as equipment_bonus/conduit_spell_power) - Evasion has no
+## mitigation formula anywhere in this project yet (README-flagged gap,
+## unchanged by this patch), so stat_evasion_bonus is descriptive-only
+## for now; finesse_crit_bonus is real, read by Weapon/Ability._base_hit()
+## as an additive fraction on top of base_crit_chance.
+var stat_evasion_bonus: float = 0.0
+var finesse_crit_bonus: float = 0.0
+
+## Patch v3.8 Section 2 "Removed expressions": max_life/life_regen/
+## max_mana/mana_regen/resilience/cast_speed used to derive from a
+## character stat (Vitality/Intellect) - now purely gear-affix-driven.
+## String stat_key -> summed float, recomputed by EquipmentComponent.
+## compute_misc_bonuses() alongside equipment_bonus/equipment_resistance.
+## attack_speed/move_speed/crit_damage/debuff_effectiveness/stamina are
+## also in the pool but have no consumer yet (same "real affix, no
+## formula to feed it into yet" gap flat_evasion/flat_resistance/flat_
+## resilience/skill_cooldown_reduced already had before this patch).
+var misc_bonus: Dictionary = {}
+
+func get_misc_bonus(key: String) -> float:
+	return misc_bonus.get(key, 0.0)
+
+## Patch v3.8c bug fix: ItemRoller.AFFIX_POOL's "crit_damage" entry (+15-20%
+## increased Critical Strike Damage) rolled onto gear but was never summed
+## anywhere - EquipmentComponent.MISC_BONUS_KEYS didn't include it, so
+## DamageCalculator.get_crit_damage_multiplier() was always called with its
+## default 0.0 bonus regardless of equipped gear. misc_bonus stores the
+## raw percent-unit affix total (same units the "+%d%%" affix description
+## uses) - divided by 100 here so the caller gets a fraction to add
+## directly to get_crit_damage_multiplier()'s base 1.5x.
+func get_crit_damage_bonus() -> float:
+	return get_misc_bonus("crit_damage") / 100.0
+
+func set_misc_bonus(bonus: Dictionary) -> void:
+	misc_bonus = bonus

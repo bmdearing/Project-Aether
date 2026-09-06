@@ -5,24 +5,32 @@ class_name WintersEyeOrb
 ## spiral of icicles at nearby enemies as it travels. Detonates at end of
 ## duration, dealing burst Cold damage. Applies Chill on icicle hits.")
 ##
-## "Icicles" are approximated as periodic proximity damage+Chill ticks to
+## "Shards" are approximated as periodic proximity damage+Chill ticks to
 ## enemies near the orb's CURRENT position while it travels, not literal
 ## spawned sub-projectiles - a scoped-down interpretation given the size
 ## of everything else in this pass, not a doc-accuracy compromise (the
-## doc doesn't specify icicles as separate physical projectiles either,
+## doc doesn't specify shards as separate physical projectiles either,
 ## just "fires... at nearby enemies").
+##
+## Patch v3.8b: faster/shorter/wider-reaching per the brief's own new
+## constants (was TRAVEL_SPEED 3.5/ICICLE_RADIUS 3.0/MAX_LIFETIME 6.0,
+## unbounded hits per tick) - also caps each tick to the MAX_SHARDS_PER_
+## TICK nearest enemies instead of hitting every enemy in radius at once,
+## and spins the mesh while traveling for a visible "spiral" read.
 
-const TRAVEL_SPEED := 3.5
-const ICICLE_TICK_INTERVAL := 0.3
-const ICICLE_RADIUS := 3.0
+const ORB_SPEED := 8.0
+const SHARD_INTERVAL := 0.3
+const SHARD_RADIUS := 6.0
+const MAX_SHARDS_PER_TICK := 3
 const ICICLE_DAMAGE_PERCENT := 0.2
-const MAX_LIFETIME := 6.0  # safety net if travel somehow never reaches _target
+const MAX_DURATION := 3.0  # also a safety net if travel somehow never reaches _target
+const SPIN_SPEED := 12.0  # rad/s, purely cosmetic
 
 var _target: Vector3
 var _ability: Ability
 var _stat_sheet: StatSheet
 var _source: Node
-var _icicle_ticker: float = 0.0
+var _shard_ticker: float = 0.0
 var _elapsed: float = 0.0
 var _detonated: bool = false
 
@@ -44,22 +52,26 @@ func _physics_process(delta: float) -> void:
 	_elapsed += delta
 	var to_target: Vector3 = _target - global_position
 	var dist := to_target.length()
-	if dist < 0.3 or _elapsed >= MAX_LIFETIME:
+	if dist < 0.3 or _elapsed >= MAX_DURATION:
 		_detonate()
 		return
-	global_position += to_target.normalized() * min(TRAVEL_SPEED * delta, dist)
+	global_position += to_target.normalized() * min(ORB_SPEED * delta, dist)
+	mesh.rotate_y(SPIN_SPEED * delta)
 
-	_icicle_ticker -= delta
-	if _icicle_ticker <= 0.0:
-		_icicle_ticker += ICICLE_TICK_INTERVAL
-		_fire_icicles()
+	_shard_ticker -= delta
+	if _shard_ticker <= 0.0:
+		_shard_ticker += SHARD_INTERVAL
+		_fire_shards()
 
-func _fire_icicles() -> void:
+func _fire_shards() -> void:
+	var candidates: Array[Enemy] = []
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if global_position.distance_to(enemy.global_position) > ICICLE_RADIUS:
-			continue
+		if global_position.distance_to(enemy.global_position) <= SHARD_RADIUS:
+			candidates.append(enemy)
+	candidates.sort_custom(func(a: Enemy, b: Enemy): return global_position.distance_to(a.global_position) < global_position.distance_to(b.global_position))
+	for enemy in candidates.slice(0, MAX_SHARDS_PER_TICK):
 		var hit := _ability.roll_damage(_stat_sheet)
 		var damage: float = hit["final_damage"] * ICICLE_DAMAGE_PERCENT
 		enemy.take_damage(damage, _ability.damage_type)

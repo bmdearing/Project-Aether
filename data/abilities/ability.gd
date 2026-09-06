@@ -80,21 +80,19 @@ func get_upgrade_cost() -> int:
 
 ## Shared groundwork for predict_damage()/roll_damage() - see
 ## Weapon.gd's own _base_hit() for the same split rationale.
+## Patch v3.8: Spell Power always comes from Resolve (stat_sheet.
+## get_spell_power_from_stats()) regardless of the ability's own damage
+## type - the old per-damage-type main-stat lookup is gone from this
+## formula, same change as Weapon._base_hit()'s own Attack Power.
 func _base_hit(stat_sheet: StatSheet) -> Dictionary:
-	var main_stat: Constants.Stat = Constants.DAMAGE_TYPE_MAIN_STAT.get(damage_type, Constants.Stat.ARCANE)
-	var stat_value: float = stat_sheet.get_stat(main_stat)
+	var stat_sp: float = stat_sheet.get_spell_power_from_stats()
 	var mastery: float = stat_sheet.get_mastery(damage_type)
 	# Section 10's Chain Bonus System (Mastery-amplified - see
 	# ChainCalculator.amplify_by_mastery()), stored as a raw fraction on
 	# StatSheet, converted to the percent-units DamageCalculator.calculate()
-	# expects (each entry "e.g. 8.0 for 8%"). Section 12's own Per-Point
-	# Values table separately gives main_stat itself "+1% increased
-	# <category> damage per point" - stacking on top of, not instead of,
-	# main_stat's existing role scaling stat_value above. stat_value is
-	# already in raw point units, which is 1:1 with percent at this rate.
+	# expects (each entry "e.g. 8.0 for 8%").
 	var increased: Array[float] = [
 		stat_sheet.get_chain_bonus(damage_type) * 100.0,
-		stat_value,
 	]
 	# Patch v3.7 Section 1: base_weapon_damage is the equipped Conduit's
 	# own Spell Power (StatSheet.conduit_spell_power, 0.0 if no Conduit is
@@ -103,13 +101,13 @@ func _base_hit(stat_sheet: StatSheet) -> Dictionary:
 	# (Implementation Brief v3.3 Section 1's original formula), the same
 	# role base_damage already plays for a real weapon's Attack Power.
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		stat_sheet.conduit_spell_power, get_effective_motion_value(), stat_value, scaling_grade,
+		stat_sheet.conduit_spell_power, get_effective_motion_value(), stat_sp, scaling_grade,
 		0.5, mastery, increased, [], damage_type
 	)
 	return {
 		"base_damage": result.final_damage,
-		"crit_chance": DamageCalculator.get_crit_chance(base_crit_chance, stat_sheet.get_stat(Constants.Stat.INSTINCT)),
-		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_stat(Constants.Stat.INTELLECT)),
+		"crit_chance": DamageCalculator.get_crit_chance(base_crit_chance, stat_sheet.finesse_crit_bonus),
+		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus()),
 	}
 
 ## Expected-value blend (not a random roll) - matches PlayerAbilityCast's

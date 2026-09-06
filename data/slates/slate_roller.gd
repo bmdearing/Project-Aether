@@ -136,7 +136,7 @@ static func _pick_shape_template(bracket: Dictionary) -> Array:
 static func _roll_modifiers(tag: Constants.DamageType, tile_count: int, power_level: int) -> Array[SlateModifier]:
 	var modifiers: Array[SlateModifier] = []
 	if tile_count >= 5:
-		modifiers.append(_stat_modifier(Constants.DAMAGE_TYPE_MAIN_STAT.get(tag, Constants.Stat.STRENGTH), tile_count * MAIN_STAT_PER_TILE, "Main Stat"))
+		modifiers.append(_stat_modifier(Constants.DAMAGE_TYPE_MAIN_STAT.get(tag, Constants.Stat.PROWESS), tile_count * MAIN_STAT_PER_TILE, "Main Stat"))
 		var random_stat: Constants.Stat = Constants.Stat.values()[randi() % Constants.Stat.values().size()]
 		modifiers.append(_stat_modifier(random_stat, tile_count * RANDOM_STAT_PER_TILE, "Random Stat"))
 		if randf() < BIG_SLATE_MASTERY_CHANCE:

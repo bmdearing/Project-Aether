@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" path="res://entities/interactables/gear_shop/GearShop.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://entities/interactables/spell_test_shop/SpellTestShop.tscn" id="14"]
 [ext_resource type="PackedScene" path="res://ui/crafting/CraftingScreen.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://entities/interactables/brand_shop/BrandShop.tscn" id="16"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(40, 1, 40)
@@ -64,6 +65,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -3)
 
 [node name="SpellTestShop" parent="." instance=ExtResource("14")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -3)
+
+[node name="BrandShop" parent="." instance=ExtResource("16")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -8)
 
 [node name="DebugOverlay" parent="." instance=ExtResource("3")]
 

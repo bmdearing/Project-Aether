@@ -54,12 +54,10 @@ const TIER_DECAY := 0.8
 ## aggregated into a formula), so their 4 entries below just extend that
 ## same existing gap rather than opening a new one.
 const AFFIX_POOL := [
-	{"stat_key": "flat_vitality", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Vitality", "applies_to": [], "brand_tags": []},
-	{"stat_key": "flat_strength", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Strength", "applies_to": [], "brand_tags": ["kinetic", "piercing", "explosive"]},
-	{"stat_key": "flat_instinct", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Instinct", "applies_to": [], "brand_tags": ["movement"]},
-	{"stat_key": "flat_arcane", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Arcane", "applies_to": [], "brand_tags": ["fire", "cold", "lightning"]},
-	{"stat_key": "flat_enigma", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Enigma", "applies_to": [], "brand_tags": ["aetheric", "entropic", "pale"]},
-	{"stat_key": "flat_intellect", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Intellect", "applies_to": [], "brand_tags": ["resource"]},
+	# Patch v3.8: six stats collapsed to three.
+	{"stat_key": "flat_prowess", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Prowess", "applies_to": [], "brand_tags": ["kinetic", "piercing", "explosive"]},
+	{"stat_key": "flat_finesse", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Finesse", "applies_to": [], "brand_tags": ["movement", "evasion"]},
+	{"stat_key": "flat_resolve", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Resolve", "applies_to": [], "brand_tags": ["fire", "cold", "lightning", "aetheric", "entropic", "pale"]},
 	{"stat_key": "physical_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Physical damage", "applies_to": ["weapon"], "brand_tags": ["kinetic", "piercing", "explosive"]},
 	{"stat_key": "elemental_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Elemental damage", "applies_to": ["weapon"], "brand_tags": ["fire", "cold", "lightning"]},
 	{"stat_key": "esoteric_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Esoteric damage", "applies_to": ["weapon"], "brand_tags": ["aetheric", "entropic", "pale"]},
@@ -77,6 +75,27 @@ const AFFIX_POOL := [
 	{"stat_key": "esoteric_resistance_pct", "tier1_min": 11.0, "tier1_max": 27.0, "desc": "+%d%% Esoteric Resistance", "applies_to": [], "brand_tags": ["resistance", "aetheric", "entropic", "pale"]},
 	{"stat_key": "flat_resilience", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Resilience", "applies_to": [], "brand_tags": ["resilience"]},
 	{"stat_key": "skill_cooldown_reduced", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% reduced skill cooldowns", "applies_to": [], "brand_tags": ["skills"]},
+	# Patch v3.8 Section 2 "Removed expressions" - max_life/life_regen/
+	# max_mana/mana_regen/attack_speed/cast_speed/move_speed used to
+	# derive from a character stat (Vitality/Instinct/Intellect), now
+	# purely gear-affix-driven; crit_damage/debuff_effectiveness/stamina
+	# never had a stat source. attack_speed/move_speed/cast_speed are
+	# real, consumed bonuses (EquipmentComponent.compute_misc_bonuses(),
+	# Player.get_action_speed_multiplier()/get_move_speed_multiplier(),
+	# StatSheet.cast_speed_bonus); the rest are descriptive-only for now,
+	# same "real affix, no formula to feed it yet" footing flat_evasion/
+	# the 4 resistance entries/flat_resilience/skill_cooldown_reduced
+	# already had before this patch.
+	{"stat_key": "max_life", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Life", "applies_to": [], "brand_tags": []},
+	{"stat_key": "life_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Life Regeneration per second", "applies_to": [], "brand_tags": []},
+	{"stat_key": "max_mana", "tier1_min": 15.0, "tier1_max": 20.0, "desc": "+%d Mana", "applies_to": [], "brand_tags": ["resource"]},
+	{"stat_key": "mana_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Mana Regeneration per second", "applies_to": [], "brand_tags": ["resource"]},
+	{"stat_key": "attack_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Attack Speed", "applies_to": ["weapon"], "brand_tags": ["skills"]},
+	{"stat_key": "cast_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Cast Speed", "applies_to": [], "brand_tags": ["skills"]},
+	{"stat_key": "move_speed", "tier1_min": 4.0, "tier1_max": 8.0, "desc": "+%d%% increased Move Speed", "applies_to": [], "brand_tags": ["movement"]},
+	{"stat_key": "crit_damage", "tier1_min": 15.0, "tier1_max": 20.0, "desc": "+%d%% increased Critical Strike Damage", "applies_to": [], "brand_tags": []},
+	{"stat_key": "debuff_effectiveness", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% Debuff Effectiveness", "applies_to": [], "brand_tags": ["skills"]},
+	{"stat_key": "stamina", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Stamina", "applies_to": [], "brand_tags": []},
 ]
 
 ## power_level: the active Map's tier, or player level as a fallback in
@@ -97,6 +116,13 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 		weapon.rolled_base_damage = randf_range(weapon.base_damage_min, weapon.base_damage_max)
 		if weapon.is_conduit:
 			weapon.rolled_spell_power = randf_range(weapon.spell_power_min, weapon.spell_power_max)
+
+	# Patch v3.8 Section 3: how many of the base's own max_sockets this
+	# specific drop actually has - 0 to max_sockets inclusive, same "the
+	# base sets a ceiling, the roll picks a point under it" shape as
+	# affix tiers. max_sockets itself is untouched (still the item type's
+	# overall cap, raised by Bore/Corruption exactly as before).
+	item.sockets = randi() % (item.max_sockets + 1)
 
 	var rarity_roll := randf() * loot_rarity_multiplier
 	var affix_count := 0

@@ -14,7 +14,15 @@ class_name Item
 @export var display_name: String
 @export var rarity: Constants.ItemRarity = Constants.ItemRarity.COMMON
 @export var equip_slot: Constants.EquipmentSlot
+## max_sockets is the item's overall CAP (SOCKET_CAP_BY_SLOT-derived,
+## raised by Bore/Corruption exactly as before - see CraftingSystem._bore()/
+## CorruptionOutcome.AddSocket/RemoveSocket/AddExtraSocket, none of which
+## changed for this). sockets (Patch v3.8) is how many of those slots
+## this specific rolled instance actually has - rolled 0..max_sockets on
+## drop (ItemRoller.roll()), independent of max_sockets, which is what
+## ItemCard's new socket art (Section 3) actually draws filled vs. empty.
 @export var max_sockets: int = 0
+@export var sockets: int = 0
 ## Patch v3.6: 0-30. Not wired to anything yet - the brief that added
 ## this field also wanted to repoint the Refine Brand at raising it
 ## instead of its existing, doc-sourced "boost every existing affix's

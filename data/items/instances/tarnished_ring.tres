@@ -1,24 +1,21 @@
-[gd_resource type="Resource" script_class="Item" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://data/items/item.gd" id="1"]
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="2"]
 
 [sub_resource type="Resource" id="SubResource_1"]
 script = ExtResource("2")
-description = "+18 Instinct (implicit)"
-stat_key = "flat_instinct"
-value = 18.0
-value_min = 0.0
-value_max = 0.0
+description = "+4 Finesse (implicit)"
+stat_key = "flat_finesse"
+value = 4.0
 is_prefix = false
+is_implicit = true
 
 [resource]
 script = ExtResource("1")
 item_id = "tarnished_ring"
 display_name = "Tarnished Ring"
-rarity = 0
 equip_slot = 11
 max_sockets = 1
 affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
-flavor_text = ""
 icon_path = "res://assets/sprites/Dark fantasy Asset Pack V2.0/rings/rings_split/rings_part_001.png"
