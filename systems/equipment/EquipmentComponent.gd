@@ -260,12 +260,29 @@ func compute_stat_bonuses() -> Dictionary:
 ## (ItemRoller.AFFIX_POOL) sum straight into a percent per type - keys
 ## match StatSheet.resistance_key_for()'s own "fire"/"cold"/"lightning"/
 ## "esoteric" strings.
+## Patch v4.0 added a second, "_pct"-less naming for the same 4 resistance
+## buckets (fire_resistance vs the original fire_resistance_pct, etc.) as
+## part of its Defensive Mod Pool - both map to the same "fire"/"cold"/
+## "lightning"/"esoteric" keys rather than the new names replacing the
+## old ones outright, so the 4 existing named rings' hand-authored
+## implicits (still using the old "_pct" keys) don't need a risky data
+## migration to keep working.
 const RESISTANCE_AFFIX_KEYS := {
 	"fire_resistance_pct": "fire",
 	"cold_resistance_pct": "cold",
 	"lightning_resistance_pct": "lightning",
 	"esoteric_resistance_pct": "esoteric",
+	"fire_resistance": "fire",
+	"cold_resistance": "cold",
+	"lightning_resistance": "lightning",
+	"esoteric_resistance": "esoteric",
 }
+
+## Patch v4.0 "+% to all Elemental Resistances" - Elemental means Fire/
+## Cold/Lightning only (Constants.DamageCategory.ELEMENTAL), NOT Esoteric,
+## so this adds to all three of those buckets at once rather than being a
+## 1:1 RESISTANCE_AFFIX_KEYS entry.
+const ALL_ELEMENTAL_RESISTANCE_KEY := "all_elemental_resistance"
 
 func compute_resistance_bonuses() -> Dictionary:
 	var totals := {}
@@ -274,6 +291,9 @@ func compute_resistance_bonuses() -> Dictionary:
 			if RESISTANCE_AFFIX_KEYS.has(affix.stat_key):
 				var key: String = RESISTANCE_AFFIX_KEYS[affix.stat_key]
 				totals[key] = totals.get(key, 0.0) + affix.value
+			elif affix.stat_key == ALL_ELEMENTAL_RESISTANCE_KEY:
+				for key in ["fire", "cold", "lightning"]:
+					totals[key] = totals.get(key, 0.0) + affix.value
 	return totals
 
 ## Patch v3.8 Section 2 "Removed expressions" - max_life/life_regen/
@@ -282,10 +302,74 @@ func compute_resistance_bonuses() -> Dictionary:
 ## compute_resistance_bonuses() above, just a different key set). flat_
 ## resilience already existed (pre-v3.8, previously descriptive-only);
 ## the rest are new ItemRoller.AFFIX_POOL entries added alongside this.
+## Patch v4.0 "Full Mod Pool Framework" - every new stat_key routes
+## through this SAME existing misc_bonus mechanism rather than ~50 new
+## individual StatSheet fields (the brief's own literal ask) - several of
+## its own listed stat_keys (attack_speed, cast_speed, cooldown_recovery_
+## rate, flat_armor, flat_evasion, flat_ward) are ALREADY real, working
+## keys under this exact mechanism; adding parallel dedicated fields for
+## those would either silently double-count them or fork into two
+## divergent, easy-to-desync code paths for the same effect. See
+## StatSheet.gd's own new v4.0 section for the few stat_keys needing
+## real combination logic (per-ailment, per-damage-type, resistance
+## unification) - those get thin getter methods instead of bespoke fields.
+## Section 09-style status effect ids and the 9 damage types, spelled out
+## directly below (Ailment Build's 8 x 3 per-ailment keys, Amulet
+## Exclusive's 9 x 2 per-damage-type skill_level keys) - GDScript consts
+## can't be built by calling a function, so no programmatic loop here.
+const AILMENT_IDS := ["bleed", "ignite", "chill", "electrocute", "shock", "aetherburn", "unraveling", "pallid"]
+const V40_DAMAGE_TYPE_KEYS := ["kinetic", "piercing", "explosive", "fire", "cold", "lightning", "aetheric", "entropic", "pale"]
+
 const MISC_BONUS_KEYS := [
 	"max_life", "life_regen", "max_mana", "mana_regen",
 	"flat_resilience", "cast_speed", "attack_speed", "move_speed",
 	"crit_damage",
+	# Patch v4.0 Ailment Build Mod Pool
+	"dot_multiplier", "ailment_tick_rate", "ailment_ignore_chance",
+	"ailment_chance_bleed", "increased_ailment_damage_bleed", "increased_ailment_duration_bleed",
+	"ailment_chance_ignite", "increased_ailment_damage_ignite", "increased_ailment_duration_ignite",
+	"ailment_chance_chill", "increased_ailment_damage_chill", "increased_ailment_duration_chill",
+	"ailment_chance_electrocute", "increased_ailment_damage_electrocute", "increased_ailment_duration_electrocute",
+	"ailment_chance_shock", "increased_ailment_damage_shock", "increased_ailment_duration_shock",
+	"ailment_chance_aetherburn", "increased_ailment_damage_aetherburn", "increased_ailment_duration_aetherburn",
+	"ailment_chance_unraveling", "increased_ailment_damage_unraveling", "increased_ailment_duration_unraveling",
+	"ailment_chance_pallid", "increased_ailment_damage_pallid", "increased_ailment_duration_pallid",
+	# Patch v4.0 Physical Hit Build Mod Pool
+	"increased_physical_damage", "crit_chance_increased", "crit_damage_increased",
+	# Patch v4.0 Spell Hit Build Mod Pool
+	"increased_spell_damage", "skill_effect_duration", "mana_cost_reduction", "cooldown_recovery_rate",
+	# Patch v4.0 Ranged Build Mod Pool
+	"increased_aoe_radius", "increased_area_damage", "projectile_speed", "reduced_projectile_speed",
+	# Patch v4.0 Parry/Riposte Build Mod Pool
+	"parry_window_duration", "ward_on_parry", "increased_riposte_damage", "riposte_crit_chance",
+	# Patch v4.0 Healing/Sustain Mod Pool
+	"life_regen_flat", "life_regen_increased", "flat_life", "life_increased",
+	"mana_regen_increased", "flat_mana", "mana_increased", "ward_recovery_increased",
+	# Patch v4.0 Offensive Mod Pool
+	"fire_penetration", "cold_penetration", "lightning_penetration", "elemental_penetration", "physical_shred",
+	# Patch v4.0 Retaliation Mod Pool
+	"increased_retaliation_damage", "retaliate_on_block",
+	# Patch v4.0 Defensive Mod Pool
+	"reduced_physical_taken", "reduced_elemental_taken", "reduced_esoteric_taken", "ward_delay_reduction",
+	"armor_to_elemental", "evasion_to_spells", "dash_speed", "damage_from_mana",
+	"phys_as_fire", "phys_as_cold", "phys_as_lightning",
+	# fire_resistance/cold_resistance/lightning_resistance/esoteric_resistance/
+	# all_elemental_resistance are NOT here - they route through
+	# RESISTANCE_AFFIX_KEYS/compute_resistance_bonuses() below, the
+	# existing dedicated resistance mechanism, not misc_bonus.
+	# Patch v4.0 Armor Base Specific Mods (flat_ward/flat_armor/flat_evasion already existed pre-v4.0)
+	"increased_ward", "increased_armor", "increased_evasion", "hybrid_defense_life",
+	# Patch v4.0 Amulet Exclusive Mod Pool
+	"flat_aether", "skill_level_all", "skill_level_spells",
+	"skill_level_kinetic", "skill_level_spell_kinetic",
+	"skill_level_piercing", "skill_level_spell_piercing",
+	"skill_level_explosive", "skill_level_spell_explosive",
+	"skill_level_fire", "skill_level_spell_fire",
+	"skill_level_cold", "skill_level_spell_cold",
+	"skill_level_lightning", "skill_level_spell_lightning",
+	"skill_level_aetheric", "skill_level_spell_aetheric",
+	"skill_level_entropic", "skill_level_spell_entropic",
+	"skill_level_pale", "skill_level_spell_pale",
 ]
 
 func compute_misc_bonuses() -> Dictionary:

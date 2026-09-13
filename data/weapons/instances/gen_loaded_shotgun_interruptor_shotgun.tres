@@ -21,3 +21,5 @@ item_level = 31
 base_line_id = "loaded_shotgun_line2"
 stat_requirement = 0
 stat_requirement_value = 15.5
+level_requirement = 24
+prowess_requirement = 18

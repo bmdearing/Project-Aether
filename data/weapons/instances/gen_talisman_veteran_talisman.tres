@@ -35,3 +35,5 @@ item_level = 50
 base_line_id = "talisman_line1"
 stat_requirement = 0
 stat_requirement_value = 25.0
+level_requirement = 34
+resolve_requirement = 28

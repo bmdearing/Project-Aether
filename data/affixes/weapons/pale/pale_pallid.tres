@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_8p0hd"]
+
+[resource]
+script = ExtResource("1_8p0hd")
+description = "%d%% increased Pale damage"
+stat_key = "pale_pallid"
+value = 46.0
+value_min = 46.0
+value_max = 50.0
+affix_id = "pale_pallid"
+display_name = "Pallid"
+min_item_level = 80
+damage_type = 8

@@ -227,5 +227,6 @@ func _spawn_enemies() -> void:
 
 func _spawn_enemy_at(scene: PackedScene, pos: Vector3) -> void:
 	var enemy: Enemy = scene.instantiate()
+	EnemyRarityComponent.roll_and_attach(enemy)
 	add_child(enemy)
 	enemy.global_position = pos

@@ -440,6 +440,8 @@ func _update_enemy_health_bars() -> void:
 			add_child(bar)
 			_enemy_bars[id] = bar
 		bar.set_enemy_name(enemy.get_display_name())
+		var rarity_component := enemy.get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
+		bar.set_name_color(rarity_component.get_name_color() if rarity_component else Color.WHITE)
 		bar.set_health(enemy.health.current_health, enemy.health.max_health)
 		var world_pos := enemy.global_position + Vector3(0, ENEMY_HEALTH_BAR_HEIGHT_OFFSET, 0)
 		if camera.is_position_behind(world_pos):

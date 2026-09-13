@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ydd2i"]
+
+[resource]
+script = ExtResource("1_ydd2i")
+description = "%d%% chance to Stagger on hit"
+stat_key = "kinetic_concussive"
+value = 22.0
+value_min = 22.0
+value_max = 26.0
+affix_id = "kinetic_concussive"
+display_name = "Concussive"
+min_item_level = 72
+damage_type = 0

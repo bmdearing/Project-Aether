@@ -34,3 +34,5 @@ item_level = 68
 base_line_id = "spell_gauntlet_line2"
 stat_requirement = 0
 stat_requirement_value = 34.0
+level_requirement = 56
+resolve_requirement = 55

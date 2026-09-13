@@ -30,3 +30,5 @@ item_level = 56
 base_line_id = "shortsword_line1"
 stat_requirement = 0
 stat_requirement_value = 28.0
+level_requirement = 44
+prowess_requirement = 40

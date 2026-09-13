@@ -1,16 +1,15 @@
-[gd_resource type="Resource" script_class="Shield" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://data/shields/shield.gd" id="1"]
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_xqyy1"]
 
 [resource]
 script = ExtResource("1")
-item_id = "guardians_kite_shield"
-display_name = "Guardian's Kite Shield"
-rarity = 0
-equip_slot = 6
-max_sockets = 3
-flavor_text = ""
-icon_path = "res://assets/sprites/Dark fantasy Asset Pack 2_weapons and shields/shields/shield_split/10_part_001.png"
 block_chance = 0.17
 block_threshold = 140.0
 armor_value = 15.0
+item_id = "guardians_kite_shield"
+display_name = "Guardian's Kite Shield"
+equip_slot = 6
+max_sockets = 3
+icon_path = "res://assets/sprites/Dark fantasy Asset Pack 2_weapons and shields/shields/shield_split/10_part_001.png"

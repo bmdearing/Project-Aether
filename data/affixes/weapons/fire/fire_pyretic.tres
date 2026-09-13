@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_a8y1j"]
+
+[resource]
+script = ExtResource("1_a8y1j")
+description = "%d%% increased damage against Ignited enemies"
+stat_key = "fire_pyretic"
+value = 34.0
+value_min = 34.0
+value_max = 40.0
+affix_id = "fire_pyretic"
+display_name = "Pyretic"
+min_item_level = 74
+damage_type = 3

@@ -11,3 +11,4 @@ equip_slot = 8
 flavor_text = "Stagger - Implicit: +22% increased Stagger effect Base Damage: 95-115."
 item_level = 91
 base_line_id = "impact_hatchet_line1"
+level_requirement = 92

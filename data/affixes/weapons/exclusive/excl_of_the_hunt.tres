@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_e6iw0"]
+
+[resource]
+script = ExtResource("1_e6iw0")
+description = "%d%% increased damage vs full-health enemies (ranged only)"
+stat_key = "excl_of_the_hunt"
+value = 54.0
+value_min = 54.0
+value_max = 64.0
+is_prefix = false
+affix_id = "excl_of_the_hunt"
+display_name = "of the Hunt"
+min_item_level = 70
+weapon_type_filter = Array[String](["shortbow", "longbow", "service_pistol", "revolver", "machine_pistol", "submachine_gun", "lever_action_rifle", "bolt_action_rifle", "crossbow", "loaded_shotgun", "pump_action_shotgun", "machine_gun", "battle_rifle"])

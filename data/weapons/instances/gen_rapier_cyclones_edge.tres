@@ -29,3 +29,6 @@ item_level = 91
 base_line_id = "rapier_line4"
 stat_requirement = 0
 stat_requirement_value = 45.5
+level_requirement = 92
+prowess_requirement = 69
+finesse_requirement = 115

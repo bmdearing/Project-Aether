@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_l521q"]
+
+[resource]
+script = ExtResource("1_l521q")
+description = "%d%% reduced skill cooldowns"
+stat_key = "explosive_of_detonation"
+value = 14.0
+value_min = 14.0
+value_max = 18.0
+is_prefix = false
+affix_id = "explosive_of_detonation"
+display_name = "of Detonation"
+damage_type = 2

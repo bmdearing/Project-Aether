@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_l4ksq"]
+
+[resource]
+script = ExtResource("1_l4ksq")
+description = "%d Ward on Pallid application"
+stat_key = "pale_of_the_threshold"
+value = 18.0
+value_min = 18.0
+value_max = 24.0
+is_prefix = false
+affix_id = "pale_of_the_threshold"
+display_name = "of the Threshold"
+damage_type = 8

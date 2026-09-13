@@ -37,3 +37,12 @@ class_name ItemAffix
 ## Brand.gd) - is_brand is never actually set or read anywhere.
 @export var is_fractured: bool = false
 @export var is_brand: bool = false
+
+## Patch v3.9 Weapon Affix Library - empty means "rolls on any weapon
+## type" (every damage-type/generic affix); non-empty restricts to those
+## base-type keys only (base_line_id stripped of its "_lineN" suffix, or
+## Weapon.weapon_type normalized to snake_case for the 7 hand-authored
+## weapons with no base_line_id - same type-key resolution tools/
+## repair_item_requirements.gd already uses). Checked by ItemRoller
+## against the rolling item's own resolved type key.
+@export var weapon_type_filter: Array[String] = []

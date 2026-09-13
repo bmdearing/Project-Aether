@@ -22,3 +22,5 @@ item_level = 23
 base_line_id = "longbow_line1"
 stat_requirement = 0
 stat_requirement_value = 11.5
+level_requirement = 16
+finesse_requirement = 10

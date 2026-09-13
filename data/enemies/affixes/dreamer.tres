@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyAffix.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+affix_id = "dreamer"
+display_name = "Dreamer"
+category = 1
+description = "Converts all damage to Entropic. All drops are Figments."
+item_rarity_bonus = 0.0
+item_quantity_bonus = 0.0
+converts_drops = true
+drop_conversion_type = "figments"
+converts_damage = true
+damage_conversion_type = 7

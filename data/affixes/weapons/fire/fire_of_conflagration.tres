@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_0wylq"]
+
+[resource]
+script = ExtResource("1_0wylq")
+description = "%d%% increased Cast Speed"
+stat_key = "fire_of_conflagration"
+value = 18.0
+value_min = 18.0
+value_max = 22.0
+is_prefix = false
+affix_id = "fire_of_conflagration"
+display_name = "of Conflagration"
+damage_type = 3

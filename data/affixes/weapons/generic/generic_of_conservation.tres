@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_aebgg"]
+
+[resource]
+script = ExtResource("1_aebgg")
+description = "Skills cost %d%% less Mana"
+stat_key = "generic_of_conservation"
+value = 12.0
+value_min = 12.0
+value_max = 14.0
+is_prefix = false
+affix_id = "generic_of_conservation"
+display_name = "of Conservation"
+is_generic = true

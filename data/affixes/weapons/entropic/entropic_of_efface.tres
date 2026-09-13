@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_wkfoi"]
+
+[resource]
+script = ExtResource("1_wkfoi")
+description = "+%d Resolve"
+stat_key = "entropic_of_efface"
+value = 24.0
+value_min = 24.0
+value_max = 30.0
+is_prefix = false
+affix_id = "entropic_of_efface"
+display_name = "of Efface"
+damage_type = 7

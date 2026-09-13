@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_hslmb"]
+
+[resource]
+script = ExtResource("1_hslmb")
+description = "%d Ward gained on Chill application"
+stat_key = "cold_of_the_frost"
+value = 16.0
+value_min = 16.0
+value_max = 22.0
+is_prefix = false
+affix_id = "cold_of_the_frost"
+display_name = "of the Frost"
+damage_type = 4

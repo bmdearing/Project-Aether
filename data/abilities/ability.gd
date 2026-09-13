@@ -104,6 +104,16 @@ func _base_hit(stat_sheet: StatSheet) -> Dictionary:
 		stat_sheet.conduit_spell_power, get_effective_motion_value(), stat_sp, scaling_grade,
 		0.5, mastery, increased, [], damage_type
 	)
+	# Patch v4.0 Amulet Exclusive "Skill Level" - each level is +8%
+	# effectiveness (brief's own invented value, "subject to balance
+	# tuning"), applied as a multiplier on the WHOLE result rather than on
+	# stat_sp alone (calculate()'s own signature/internals are off limits
+	# per this patch's "Files to Leave Alone" - scaling final_damage is
+	# mathematically identical to scaling the "power" term calculate()
+	# computes internally, since power is a pure linear factor in its own
+	# final_damage formula).
+	var skill_level_mult := 1.0 + stat_sheet.get_skill_level_bonus(damage_type) * 0.08
+	result.final_damage *= skill_level_mult
 	return {
 		"base_damage": result.final_damage,
 		"crit_chance": DamageCalculator.get_crit_chance(base_crit_chance, stat_sheet.finesse_crit_bonus),

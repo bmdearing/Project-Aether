@@ -11,3 +11,4 @@ equip_slot = 8
 flavor_text = "Elemental/Esoteric Damage - Implicit: +18% increased Elemental and Esoteric damage Base Damage: 103-125."
 item_level = 91
 base_line_id = "infusion_grenade_line1"
+level_requirement = 92

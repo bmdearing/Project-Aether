@@ -11,3 +11,4 @@ equip_slot = 8
 flavor_text = "Critical Strike Base Damage: 17-22."
 item_level = 46
 base_line_id = "throwing_knives_line2"
+level_requirement = 34

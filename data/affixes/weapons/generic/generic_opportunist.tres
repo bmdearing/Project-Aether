@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_4wgh6"]
+
+[resource]
+script = ExtResource("1_4wgh6")
+description = "%d%% increased damage vs full-health enemies (first hit only per enemy)"
+stat_key = "generic_opportunist"
+value = 44.0
+value_min = 44.0
+value_max = 52.0
+affix_id = "generic_opportunist"
+display_name = "Opportunist"
+min_item_level = 70
+is_generic = true

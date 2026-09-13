@@ -17,3 +17,6 @@ item_level = 91
 base_line_id = "spiked_shield_line2"
 stat_requirement = 0
 stat_requirement_value = 45.5
+level_requirement = 92
+prowess_requirement = 115
+finesse_requirement = 69

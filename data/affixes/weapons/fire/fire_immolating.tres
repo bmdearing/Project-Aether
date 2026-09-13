@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_qebmv"]
+
+[resource]
+script = ExtResource("1_qebmv")
+description = "%d%% chance to Ignite on hit"
+stat_key = "fire_immolating"
+value = 28.0
+value_min = 28.0
+value_max = 34.0
+affix_id = "fire_immolating"
+display_name = "Immolating"
+min_item_level = 70
+damage_type = 3

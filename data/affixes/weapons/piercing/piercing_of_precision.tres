@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_43tu6"]
+
+[resource]
+script = ExtResource("1_43tu6")
+description = "+%.1f%% Critical Strike Chance"
+stat_key = "piercing_of_precision"
+value = 3.5
+value_min = 3.5
+value_max = 4.5
+is_prefix = false
+affix_id = "piercing_of_precision"
+display_name = "of Precision"
+damage_type = 1

@@ -471,9 +471,11 @@ entirely) - that version's own "release Alt closes it, unless the mouse
 is over the card" hold behavior is gone along with it; Alt Info has
 nothing to hover onto since it's the same card, not a second window.
 
-**Weapon cards show a real Attack Power breakdown** (Patch v3.8) instead
-of a flat damage number - white base value + blue stat-derived bonus per
-damage type present (`ItemCard._build_attack_power_lines()`, mirrors
+**Weapon cards show a real Damage breakdown** (Patch v3.8, labeled
+"Attack Power" through v3.8c, renamed to "Damage" in v3.8d - "X Damage:
+base + bonus") instead of a flat number - white base value + blue stat-
+derived bonus (Prowess and Mastery both folded in, Patch v3.8d bug fix)
+per damage type present (`ItemCard._build_attack_power_lines()`, mirrors
 `Weapon._base_hit()`'s own formula so it can't drift from a real swing).
 Scaling Grade moved to Alt Info; the old socket-count text line was
 replaced with real socket art (small filled/outline circles, `ItemCard.
@@ -674,6 +676,27 @@ hitting, and more rewarding (XP/Gold scale too). Invented growth curve
 (+15% health/+10% damage/+20% XP+Gold per tier above 1) — not doc-
 sourced, Section 24 defers Map/tier balance entirely.
 
+**Enemy Rarity** (`entities/components/EnemyRarityComponent.gd`,
+`data/enemies/EnemyAffix.gd`, Patch v3.9, 2026-09-06): a SECOND, fully
+independent tier axis from `Constants.EnemyRank` above — Rank still
+drives loot item-level exactly as before; Rarity (`NORMAL`/`ELITE`/
+`CHAMPION`/`ASCENDANT`, spawn-weighted via `Constants.
+ENEMY_RARITY_SPAWN_WEIGHTS`, rolled by `GeneratedMap._spawn_enemy_at()`)
+drives health/damage multipliers (invented: 1.5x/1.2x, 3.0x/1.6x,
+8.0x/2.4x for Elite/Champion/Ascendant), name color on the floating
+health bar (blue/yellow/orange), and rolled `EnemyAffix` .tres resources
+(`data/enemies/affixes/` — 4 starters seeded: `dreamer`, `pack_aggressive`,
+`champion_aura_damage`, `ascendant_resilient`). Stat scaling is applied
+from `Enemy._apply_map_modifiers()`/`get_outgoing_damage_multiplier()`,
+not the component's own `_ready()` — the exact same child-before-parent
+`_ready()` ordering bug this project has been bitten by before would
+otherwise apply. Champion auras and drop-conversion tier/count scaling
+are visual-placeholder/stub only; Ascendant still uses the regular
+floating health bar, not the Boss-style one the doc describes (a real
+gap, flagged in `PATCH_NOTES.md` — routing a non-Boss-rank enemy through
+the singleton `BossHealthBar` slot needs a real answer for what happens
+if a real Boss is also in combat, which nothing has specified yet).
+
 **Figment Tree** (`systems/figment_tree/`) - scaffolding only, per direct
 request ("prepare legs for a Figment Tree ... not "build it"). A real,
 tested data model (`FigmentTreeNode`) and unlock/validation logic
@@ -729,6 +752,16 @@ loosely modeled on the doc's own mod-tier tables' shape, e.g. Section
 16's Flat Armor Mod Tiers), gated by a `power_level` (the active Map's
 `tier`, or player level as a fallback for the Hub's GearShop) — higher
 power unlocks access to better tiers, not a guaranteed roll of one.
+**Weapons roll from a separate, real affix library as of Patch v3.9**
+(`data/affixes/weapons/<type>/*.tres`, 96 files across the 9 damage types
++ generic + base-type-exclusive, `ItemAffix.weapon_type_filter` gates the
+exclusives — transcribed directly from the Patch v3.9 doc's own Tier-1
+tables) instead of the generic `AFFIX_POOL` below for Rare weapons
+specifically — split into real prefix/suffix pools (max 3 each, no
+duplicate `stat_key`s), still scaled through the exact same tier-decay
+mechanism as everything else since the doc never gives tiers past T1.
+Every other item category (Armor/Shield/accessories) still rolls from
+`AFFIX_POOL` unchanged.
 `flat_<stat>` affixes (Prowess/Finesse/Resolve as of Patch v3.8, was
 Vitality/Strength/Instinct/Arcane/Enigma/Intellect) are real now, not
 descriptive-only — they're the only source of stat growth in the game
@@ -784,7 +817,13 @@ Sever, combined with a category Brand, permanently seals that tag from
 ever rolling on the item again); Binder exempts every other Brand in the
 craft from consumption. **Infusion/Shrivening Stone**: reroll or clear a
 weapon's `infused_damage_type` (the field already existed, unused, before
-this).
+this). **Rarity now updates live as you craft** (Patch v3.9,
+`CraftingSystem._update_item_rarity()`, called once per successful
+`craft_cube()`) — 0 affixes white/Common, 1-2 blue/Uncommon, 3+ yellow/
+Rare, recomputed after every add/remove/reroll; Unique/Mythic/corrupted
+items never reclassify. `EventBus.item_rarity_changed` keeps a hovered
+item's `ItemCard` border/title color live through the craft instead of
+only updating on the next hover.
 
 **Named Brand combinations** (Patch v3.6, `systems/crafting/
 BrandCombinationResolver.gd`): placing specific Brand pairs/triples
@@ -1367,6 +1406,18 @@ None of the six have a `PauseMenu` button — hotkey-only.
     would otherwise block it). The ~14 pre-Section-25 hand-authored items
     were left untouched (`stat_requirement == -1`, `item_level` defaults
     to 1) - trivially satisfied either way, not worth a retrofit.
+    **2026-09-06 (Patch v3.8d):** a SECOND, parallel requirement system
+    was added on top - `Item.level_requirement`/`prowess_requirement`/
+    `finesse_requirement`/`resolve_requirement`, populated by `tools/
+    repair_item_requirements.gd` from a more lenient level-bracket table
+    and (unlike the field above) able to require two stats on the same
+    item. Display-only for now (shown on `ItemCard`, red when unmet) -
+    the ORIGINAL `stat_requirement`/`item_level` pair above is still the
+    only one `EquipmentComponent._requirement_block_reason()` actually
+    enforces, and the two systems' numbers genuinely disagree for most
+    generated items (e.g. `item_level` 84 blocks equipping below character
+    level 84; the new field displays "Requires Level 80") until a future
+    pass repoints enforcement at the new fields.
 33. **The "own one of everything" debug/testing catalogs (Inventory
     and Fate Board) now only cover the ORIGINAL small hand-authored sets,
     not Section 25's generated catalog** - user report (2026-08-30):

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_q7gld"]
+
+[resource]
+script = ExtResource("1_q7gld")
+description = "%d%% chance to apply Aetherburn on hit"
+stat_key = "aetheric_devouring"
+value = 22.0
+value_min = 22.0
+value_max = 28.0
+affix_id = "aetheric_devouring"
+display_name = "Devouring"
+min_item_level = 70
+damage_type = 6

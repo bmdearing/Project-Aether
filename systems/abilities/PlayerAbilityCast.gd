@@ -447,7 +447,11 @@ func trigger_frost_armor_retaliation(attacker: Enemy) -> void:
 	if not has_frost_armor() or _frost_armor_ability == null or attacker == null:
 		return
 	var hit := _frost_armor_ability.roll_damage(_player.stat_sheet)
-	var damage: float = hit["final_damage"]
+	# Patch v4.0 "Increased Retaliation Damage" - the only real retaliation
+	# trigger in this project right now (a general passive-block-triggers-
+	# a-counterattack mechanic doesn't exist to hook "Retaliate on Passive
+	# Block" into - see PATCH_NOTES.md for that gap).
+	var damage: float = hit["final_damage"] * (1.0 + _player.stat_sheet.get_misc_bonus("increased_retaliation_damage") / 100.0)
 	attacker.take_damage(damage, _frost_armor_ability.damage_type)
 	if attacker.stance:
 		attacker.stance.apply_attack_stance_damage(damage, _frost_armor_ability.damage_type)

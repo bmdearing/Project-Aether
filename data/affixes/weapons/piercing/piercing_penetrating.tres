@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_qmubr"]
+
+[resource]
+script = ExtResource("1_qmubr")
+description = "Piercing attacks ignore %d%% of enemy Armor"
+stat_key = "piercing_penetrating"
+value = 30.0
+value_min = 30.0
+value_max = 35.0
+affix_id = "piercing_penetrating"
+display_name = "Penetrating"
+min_item_level = 76
+damage_type = 1

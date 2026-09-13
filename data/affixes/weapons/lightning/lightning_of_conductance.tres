@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_v6gos"]
+
+[resource]
+script = ExtResource("1_v6gos")
+description = "%d Mana on Electrocute application"
+stat_key = "lightning_of_conductance"
+value = 10.0
+value_min = 10.0
+value_max = 14.0
+is_prefix = false
+affix_id = "lightning_of_conductance"
+display_name = "of Conductance"
+damage_type = 5

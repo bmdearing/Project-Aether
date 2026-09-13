@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_5cqqb"]
+
+[resource]
+script = ExtResource("1_5cqqb")
+description = "%d%% increased damage against unaware enemies (Dagger only)"
+stat_key = "excl_assassins_mark"
+value = 64.0
+value_min = 64.0
+value_max = 76.0
+affix_id = "excl_assassins_mark"
+display_name = "Assassin's Mark"
+min_item_level = 74
+weapon_type_filter = Array[String](["dagger"])

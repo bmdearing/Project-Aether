@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_18dtb"]
+
+[resource]
+script = ExtResource("1_18dtb")
+description = "%d%% increased Attack Speed"
+stat_key = "lightning_of_static"
+value = 14.0
+value_min = 14.0
+value_max = 16.0
+is_prefix = false
+affix_id = "lightning_of_static"
+display_name = "of Static"
+damage_type = 5

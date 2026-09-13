@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_jy6an"]
+
+[resource]
+script = ExtResource("1_jy6an")
+description = "%d%% increased Ward Threshold"
+stat_key = "pale_of_fading"
+value = 18.0
+value_min = 18.0
+value_max = 22.0
+is_prefix = false
+affix_id = "pale_of_fading"
+display_name = "of Fading"
+damage_type = 8

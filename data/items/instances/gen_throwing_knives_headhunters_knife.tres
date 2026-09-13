@@ -11,3 +11,4 @@ equip_slot = 8
 flavor_text = "Critical Strike - Implicit: +18% increased Critical Strike Chance Base Damage: 44-55."
 item_level = 91
 base_line_id = "throwing_knives_line2"
+level_requirement = 92

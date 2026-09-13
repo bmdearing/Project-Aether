@@ -29,3 +29,6 @@ item_level = 45
 base_line_id = "saber_line1"
 stat_requirement = 0
 stat_requirement_value = 22.5
+level_requirement = 34
+prowess_requirement = 17
+finesse_requirement = 28

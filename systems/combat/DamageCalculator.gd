@@ -91,13 +91,47 @@ const RESISTANCE_CEILING := 95.0
 static func resistance_mitigation(resistance_percent: float) -> float:
 	return clamp(resistance_percent, RESISTANCE_FLOOR, RESISTANCE_CEILING) / 100.0
 
+## Patch v4.0 Offensive Mod Pool - Penetration/Physical Shred. Real,
+## reusable functions per this patch's own "Files to Modify" list, but
+## NOT yet called from Enemy.take_damage() - Enemy.gd has no Armor or
+## Resistance value of its own anywhere in this project (only Resistance
+## SHRED exists enemy-side, applied as a bonus damage-taken multiplier,
+## not a real mitigatable base value), and Enemy.gd is explicitly on this
+## same patch's "Files to Leave Alone" list. Giving enemies a real Armor/
+## Resistance stat to Penetrate/Shred is a bigger, separate change than
+## this patch's own stated scope - flagged in PATCH_NOTES.md rather than
+## either silently doing nothing or touching an excluded file.
+##
+## Doc: "Penetration reduces enemy resistance before mitigation... stacks
+## with Resistance Shred but calculated separately - Penetration applies
+## first, then Resistance Shred." attacker_stats is nullable so a caller
+## with no live StatSheet (a non-Player attacker) degrades to 0 penetration.
+static func get_effective_resistance(base_resistance: float, damage_type: Constants.DamageType, attacker_stats: StatSheet, resistance_shred: float = 0.0) -> float:
+	var pen: float = attacker_stats.get_penetration(damage_type) if attacker_stats else 0.0
+	var after_penetration: float = max(-200.0, base_resistance - pen)
+	return after_penetration - resistance_shred
+
+## Doc: "Physical Shred reduces enemy Armor value directly - same
+## mechanic as Resistance Shred targeting Armor." Multiplies the ARMOR
+## VALUE itself (not the mitigation percentage physical_mitigation()
+## derives from it) - per this patch's own DO NOT.
+static func get_effective_armor(base_armor: float, attacker_stats: StatSheet) -> float:
+	var shred_percent: float = attacker_stats.get_physical_shred() if attacker_stats else 0.0
+	return base_armor * (1.0 - shred_percent)
+
 ## Patch v3.8: base crit chance is fixed per weapon/spell type (2%-8%);
 ## Finesse's crit-chance contribution (StatSheet.get_crit_chance_from_
 ## stats(), a flat fraction) now adds directly on top instead of scaling
 ## it multiplicatively - the old Instinct-based "x(1 + instinct*0.03)"
 ## formula is gone along with Instinct itself.
+## Bug fix (2026-09-07, user-reported): Finesse is "increased Critical
+## Strike Chance," a multiplier on the weapon/ability's own base_crit_
+## chance - not flat additive percentage points. finesse_crit_bonus keeps
+## meaning exactly what StatSheet.get_crit_chance_from_stats() already
+## computes (Finesse * 0.01, e.g. 0.07 for 7 Finesse) - only how it
+## combines with base_crit_chance changed here.
 static func get_crit_chance(base_crit_chance: float, finesse_crit_bonus: float) -> float:
-	return base_crit_chance + finesse_crit_bonus
+	return base_crit_chance * (1.0 + finesse_crit_bonus)
 
 ## Base Critical Strike Damage multiplier 150%, flat - no longer stat-
 ## derived (Intellect, its old source, is gone; "crit_damage" is a

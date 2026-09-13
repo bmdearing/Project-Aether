@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_fmtjf"]
+
+[resource]
+script = ExtResource("1_fmtjf")
+description = "%d%% reduced Mana cost of spells (Conduit only)"
+stat_key = "excl_of_the_weave"
+value = 16.0
+value_min = 16.0
+value_max = 20.0
+is_prefix = false
+affix_id = "excl_of_the_weave"
+display_name = "of the Weave"
+min_item_level = 70
+weapon_type_filter = Array[String](["wand", "staff", "athame", "spell_gauntlet", "gauntlet", "rod", "grimoire", "tome", "talisman", "fetish"])

@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="EnemyAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyAffix.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+affix_id = "ascendant_resilient"
+display_name = "Unyielding"
+category = 2
+description = "Regenerates a portion of maximum health per second."
+item_rarity_bonus = 50.0
+item_quantity_bonus = 30.0

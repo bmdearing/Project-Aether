@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_on1f1"]
+
+[resource]
+script = ExtResource("1_on1f1")
+description = "Gain %d Mana on Ignite application"
+stat_key = "fire_of_the_pyre"
+value = 8.0
+value_min = 8.0
+value_max = 12.0
+is_prefix = false
+affix_id = "fire_of_the_pyre"
+display_name = "of the Pyre"
+damage_type = 3

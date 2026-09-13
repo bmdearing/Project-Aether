@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_eskq7"]
+
+[resource]
+script = ExtResource("1_eskq7")
+description = "%d%% chance to apply Shock on hit"
+stat_key = "lightning_discharging"
+value = 28.0
+value_min = 28.0
+value_max = 34.0
+affix_id = "lightning_discharging"
+display_name = "Discharging"
+min_item_level = 68
+damage_type = 5

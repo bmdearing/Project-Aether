@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_v4lcu"]
+
+[resource]
+script = ExtResource("1_v4lcu")
+description = "%d%% increased Critical Strike damage (ranged only)"
+stat_key = "excl_marksmans"
+value = 54.0
+value_min = 54.0
+value_max = 64.0
+affix_id = "excl_marksmans"
+display_name = "Marksman's"
+min_item_level = 74
+weapon_type_filter = Array[String](["shortbow", "longbow", "service_pistol", "revolver", "machine_pistol", "submachine_gun", "lever_action_rifle", "bolt_action_rifle", "crossbow", "loaded_shotgun", "pump_action_shotgun", "machine_gun", "battle_rifle"])

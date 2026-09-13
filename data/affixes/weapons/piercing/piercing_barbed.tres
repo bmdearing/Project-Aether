@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_x45wi"]
+
+[resource]
+script = ExtResource("1_x45wi")
+description = "%d%% increased Bleed duration"
+stat_key = "piercing_barbed"
+value = 38.0
+value_min = 38.0
+value_max = 44.0
+affix_id = "piercing_barbed"
+display_name = "Barbed"
+min_item_level = 72
+damage_type = 1

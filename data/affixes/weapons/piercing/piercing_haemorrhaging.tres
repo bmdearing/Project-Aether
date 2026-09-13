@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_rs4wg"]
+
+[resource]
+script = ExtResource("1_rs4wg")
+description = "%d%% chance to apply Bleed on hit"
+stat_key = "piercing_haemorrhaging"
+value = 28.0
+value_min = 28.0
+value_max = 34.0
+affix_id = "piercing_haemorrhaging"
+display_name = "Haemorrhaging"
+min_item_level = 70
+damage_type = 1

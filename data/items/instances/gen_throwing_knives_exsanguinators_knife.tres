@@ -11,3 +11,4 @@ equip_slot = 8
 flavor_text = "Bleed - Implicit: +24% increased Bleed damage Base Damage: 68-83."
 item_level = 91
 base_line_id = "throwing_knives_line1"
+level_requirement = 92

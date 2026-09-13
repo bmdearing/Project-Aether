@@ -258,14 +258,28 @@ func _apply_derived_stats() -> void:
 	# Ability._base_hit() (crit) and a future mitigation formula (evasion,
 	# same "real value, no consumer yet" footing Evasion already had).
 	stat_sheet.stat_evasion_bonus = stat_sheet.get_evasion_from_stats()
-	stat_sheet.finesse_crit_bonus = stat_sheet.get_crit_chance_from_stats()
+	# Patch v4.0: gear's own "increased Critical Strike Chance" (crit_
+	# chance_increased) combines into the same multiplicative bracket as
+	# Finesse's contribution, not a separate additive bonus - see
+	# DamageCalculator.get_crit_chance()'s 2026-09-07 fix.
+	stat_sheet.finesse_crit_bonus = stat_sheet.get_crit_chance_from_stats() + stat_sheet.get_gear_crit_chance_bonus()
 
 	ward.set_max_ward(equipment.compute_ward_bonus() * (1.0 + stat_sheet.get_ward_increased_from_stats()))
 	ward.restoration_multiplier = 1.0  # no longer stat-driven - see header
+	# Patch v4.0 Faster Ward Delay - WardComponent has no StatSheet
+	# reference of its own, so this is pushed in the same way every other
+	# derived value on this component already is.
+	ward.regen_delay_reduction = stat_sheet.get_ward_delay_reduction()
 
 	# Cast Speed: gear-affix-only now too, feeds the same StatSheet pool
 	# Patch v3.7's CastTimeHandler already reads.
 	stat_sheet.cast_speed_bonus = stat_sheet.get_misc_bonus("cast_speed")
+	# Patch v4.0 "Increased Cooldown Efficiency" - direct assignment, not
+	# apply_cast_speed_to_cooldown_conversion()'s += (that Slate-side
+	# conversion path has no caller anywhere in the project - dead code,
+	# out of scope for this patch - so there's nothing else contributing
+	# to this field to preserve).
+	stat_sheet.cooldown_recovery_rate = stat_sheet.get_misc_bonus("cooldown_recovery_rate")
 
 func get_dot_mitigation() -> float:
 	return DamageCalculator.dot_mitigation(resilience)
@@ -450,14 +464,53 @@ func get_active_weapon() -> Weapon:
 func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null) -> void:
 	if parry_handler and parry_handler.is_invulnerable:
 		return
+	# Patch v4.0 Defensive Mod Pool - % Physical Damage taken as Elemental
+	# shifts BEFORE mitigation, per damage type, splitting one hit into
+	# several smaller ones the rest of this function then processes
+	# independently (each gets its own mitigation/Ward/Health treatment).
+	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
+	if category == Constants.DamageCategory.PHYSICAL:
+		var shifts: Array = stat_sheet.get_phys_damage_shift()
+		if not shifts.is_empty():
+			var remaining := amount
+			for shift in shifts:
+				var shifted_amount: float = amount * shift[0]
+				remaining -= shifted_amount
+				_take_damage_single(shifted_amount, shift[1], source)
+			_take_damage_single(remaining, damage_type, source)
+			return
+	_take_damage_single(amount, damage_type, source)
+
+func _take_damage_single(amount: float, damage_type: Constants.DamageType, source: Node = null) -> void:
 	var mitigated := amount * status_effects.get_damage_taken_multiplier(damage_type)
 	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
 	if category == Constants.DamageCategory.PHYSICAL:
 		var armor := equipment.get_total_armor() if equipment else 0.0
 		mitigated *= (1.0 - DamageCalculator.physical_mitigation(armor, mitigated))
+		mitigated *= (1.0 - stat_sheet.get_reduced_damage_taken(Constants.DamageCategory.PHYSICAL))
 	elif category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC:
 		var resistance := stat_sheet.get_resistance(damage_type) - status_effects.get_resistance_shred()
 		mitigated *= (1.0 - DamageCalculator.resistance_mitigation(resistance))
+		# Patch v4.0 "% of Armor applies to Elemental" - Elemental only,
+		# per the doc's own Item Slots note (Body Armour/Helmet/Amulet,
+		# same slots the doc scopes every Elemental-flavored defensive mod
+		# to) - a portion of the player's real Armor value applied through
+		# the SAME physical_mitigation curve, as bonus Elemental mitigation
+		# on top of Resistance.
+		if category == Constants.DamageCategory.ELEMENTAL:
+			var armor_to_elemental_pct := stat_sheet.get_misc_bonus("armor_to_elemental") / 100.0
+			if armor_to_elemental_pct > 0.0 and equipment:
+				var bonus_armor := equipment.get_total_armor() * armor_to_elemental_pct
+				mitigated *= (1.0 - DamageCalculator.physical_mitigation(bonus_armor, mitigated))
+		mitigated *= (1.0 - stat_sheet.get_reduced_damage_taken(category))
+	# Patch v4.0 "% of Damage from Mana before Life" - drains Mana for a
+	# portion of the mitigated hit before Ward/Health ever see it.
+	var mana_shield_pct := stat_sheet.get_damage_from_mana_percent()
+	if mana_shield_pct > 0.0 and mana and mana.current_mana > 0.0:
+		var mana_portion := mitigated * mana_shield_pct
+		var actual_drain: float = min(mana_portion, mana.current_mana)
+		mana.spend(actual_drain)
+		mitigated -= actual_drain
 	var overflow := ward.absorb(mitigated)
 	health.apply_damage(overflow)
 	EventBus.damage_dealt.emit(source, self, mitigated, damage_type, false, false)

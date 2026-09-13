@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_w3x7a"]
+
+[resource]
+script = ExtResource("1_w3x7a")
+description = "%d%% increased damage vs Pallid enemies"
+stat_key = "pale_threshold"
+value = 38.0
+value_min = 38.0
+value_max = 44.0
+affix_id = "pale_threshold"
+display_name = "Threshold"
+min_item_level = 76
+damage_type = 8

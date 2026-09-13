@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_f0fjg"]
+
+[resource]
+script = ExtResource("1_f0fjg")
+description = "Explosions leave a Bleed zone for 2 seconds (%d%% per second)"
+stat_key = "explosive_shrapnel"
+value = 18.0
+value_min = 18.0
+value_max = 22.0
+affix_id = "explosive_shrapnel"
+display_name = "Shrapnel"
+min_item_level = 74
+damage_type = 2

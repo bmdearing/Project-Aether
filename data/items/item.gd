@@ -77,8 +77,26 @@ class_name Item
 ## stat_requirement is -1 for "none" (every pre-Section-25 hand-authored
 ## item, and every generated throwable - no single governing stat to
 ## require). See EquipmentComponent._requirement_block_reason().
+##
+## STILL the real, ENFORCED equip gate - unchanged by the 4 fields below.
 @export var stat_requirement: Constants.Stat = -1
 @export var stat_requirement_value: float = 0.0
+
+## Patch v3.8d, DISPLAY ONLY for now (explicitly not wired into
+## EquipmentComponent._requirement_block_reason() this pass - "enforcement
+## is a separate pass" per the brief). A second, more lenient level gate
+## plus up to two simultaneous stat gates (item_level/stat_requirement
+## above can only express ONE stat) - tools/repair_item_requirements.gd
+## populates these from item_level via the brief's own tier tables.
+## level_requirement intentionally reads LOWER than item_level for every
+## bracket except the last (item_level 91 -> level_requirement 92, per the
+## brief's own table) - the two numbers are independent and will keep
+## disagreeing with whatever EquipmentComponent actually enforces until a
+## future pass repoints enforcement at these fields (flagged to the user).
+@export var level_requirement: int = 1
+@export var prowess_requirement: int = 0
+@export var finesse_requirement: int = 0
+@export var resolve_requirement: int = 0
 
 ## Patch v3.5 Section 4: prefix/suffix/implicit counts, read off the
 ## single `affixes` array above (tagged by ItemAffix.is_prefix/

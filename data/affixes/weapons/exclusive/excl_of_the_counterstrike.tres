@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_s3vaj"]
+
+[resource]
+script = ExtResource("1_s3vaj")
+description = "Riposte deals bonus damage equal to %d%% of triggering hit (Rapier/Saber only)"
+stat_key = "excl_of_the_counterstrike"
+value = 18.0
+value_min = 18.0
+value_max = 22.0
+is_prefix = false
+affix_id = "excl_of_the_counterstrike"
+display_name = "of the Counterstrike"
+min_item_level = 72
+weapon_type_filter = Array[String](["rapier", "saber"])

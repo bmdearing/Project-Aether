@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_asdg6"]
+
+[resource]
+script = ExtResource("1_asdg6")
+description = "%d%% increased Kinetic damage"
+stat_key = "increased_kinetic_damage"
+value = 46.0
+value_min = 46.0
+value_max = 50.0
+affix_id = "increased_kinetic_damage"
+display_name = "Impacting"
+min_item_level = 80
+damage_type = 0

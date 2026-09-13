@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_edfxr"]
+
+[resource]
+script = ExtResource("1_edfxr")
+description = "%d%% increased Bleed damage"
+stat_key = "piercing_serrated"
+value = 38.0
+value_min = 38.0
+value_max = 44.0
+affix_id = "piercing_serrated"
+display_name = "Serrated"
+min_item_level = 76
+damage_type = 1

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_cmw0d"]
+
+[resource]
+script = ExtResource("1_cmw0d")
+description = "Staggered enemies take %d%% increased damage (Mace/War Pick/Pressure Fist only)"
+stat_key = "excl_of_the_colossus"
+value = 28.0
+value_min = 28.0
+value_max = 34.0
+is_prefix = false
+affix_id = "excl_of_the_colossus"
+display_name = "of the Colossus"
+min_item_level = 72
+weapon_type_filter = Array[String](["mace", "war_pick", "pressure_fist"])

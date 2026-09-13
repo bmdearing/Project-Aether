@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_0dppf"]
+
+[resource]
+script = ExtResource("1_0dppf")
+description = "Gain %d Life on hit"
+stat_key = "kinetic_of_the_bruiser"
+value = 14.0
+value_min = 14.0
+value_max = 18.0
+is_prefix = false
+affix_id = "kinetic_of_the_bruiser"
+display_name = "of the Bruiser"
+damage_type = 0

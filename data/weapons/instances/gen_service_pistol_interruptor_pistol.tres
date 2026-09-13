@@ -29,3 +29,5 @@ item_level = 31
 base_line_id = "service_pistol_line3"
 stat_requirement = 0
 stat_requirement_value = 15.5
+level_requirement = 24
+finesse_requirement = 18

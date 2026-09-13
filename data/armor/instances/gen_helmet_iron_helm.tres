@@ -14,3 +14,4 @@ item_level = 12
 base_line_id = "helmet_line1"
 stat_requirement = 0
 stat_requirement_value = 6.0
+level_requirement = 8

@@ -31,3 +31,6 @@ item_level = 53
 base_line_id = "shock_lance_line1"
 stat_requirement = 2
 stat_requirement_value = 26.5
+level_requirement = 44
+finesse_requirement = 40
+resolve_requirement = 24

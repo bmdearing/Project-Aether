@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_an1tm"]
+
+[resource]
+script = ExtResource("1_an1tm")
+description = "%d%% increased Spell damage (Conduit only)"
+stat_key = "excl_channelers"
+value = 34.0
+value_min = 34.0
+value_max = 40.0
+affix_id = "excl_channelers"
+display_name = "Channeler's"
+min_item_level = 76
+weapon_type_filter = Array[String](["wand", "staff", "athame", "spell_gauntlet", "gauntlet", "rod", "grimoire", "tome", "talisman", "fetish"])

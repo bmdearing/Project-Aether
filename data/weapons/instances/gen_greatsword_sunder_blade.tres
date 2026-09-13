@@ -28,3 +28,5 @@ item_level = 27
 base_line_id = "greatsword_line2"
 stat_requirement = 0
 stat_requirement_value = 13.5
+level_requirement = 16
+prowess_requirement = 10

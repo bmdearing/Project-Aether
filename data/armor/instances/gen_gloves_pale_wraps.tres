@@ -15,3 +15,4 @@ item_level = 27
 base_line_id = "gloves_line3"
 stat_requirement = 0
 stat_requirement_value = 13.5
+level_requirement = 16

@@ -1,16 +1,13 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="1"]
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_s5uys"]
 
 [resource]
 script = ExtResource("1")
+armor_value = 10.0
 item_id = "worn_gauntlets"
 display_name = "Worn Gauntlets"
-rarity = 0
 equip_slot = 2
 max_sockets = 2
-flavor_text = ""
 icon_path = "res://assets/sprites/gear sets-1/1_part_002.png"
-armor_value = 10.0
-evasion_value = 0.0
-ward_value = 0.0

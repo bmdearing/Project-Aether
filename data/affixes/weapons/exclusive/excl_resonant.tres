@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_e2b7j"]
+
+[resource]
+script = ExtResource("1_e2b7j")
+description = "+%d%% Cooldown Recovery Rate (Conduit only)"
+stat_key = "excl_resonant"
+value = 18.0
+value_min = 18.0
+value_max = 22.0
+affix_id = "excl_resonant"
+display_name = "Resonant"
+min_item_level = 72
+weapon_type_filter = Array[String](["wand", "staff", "athame", "spell_gauntlet", "gauntlet", "rod", "grimoire", "tome", "talisman", "fetish"])

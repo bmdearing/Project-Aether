@@ -76,6 +76,7 @@ signal brand_consumed(brand_id: String)
 signal brand_purchased(brand_id: String)
 signal gold_spent(amount: int)
 signal item_quality_changed(item: Item)
+signal item_rarity_changed(item: Item)  # Patch v3.9 - fired by CraftingSystem._update_item_rarity() when affix-count-driven rarity actually changes
 signal item_sockets_changed(item: Item)
 signal item_stats_changed(item: Item)
 signal affix_upgraded(item: Item, affix: ItemAffix)

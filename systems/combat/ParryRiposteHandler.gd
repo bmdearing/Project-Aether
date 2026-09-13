@@ -49,6 +49,12 @@ func start_parry_window() -> void:
 	var window_mult := 1.0
 	if player and player.weapon_stance and player.weapon_stance.is_active and player.weapon_stance.current_behavior:
 		window_mult = player.weapon_stance.current_behavior.parry_window_multiplier
+	# Patch v4.0 "Increased Parry Window Duration" - stacks multiplicatively
+	# alongside the existing stance-based window_mult above (a rapier
+	# stance and a gear roll both widening the window compounds, same as
+	# every other "increased%" gear stat in this project).
+	if player and player.stat_sheet:
+		window_mult *= 1.0 + player.stat_sheet.get_misc_bonus("parry_window_duration") / 100.0
 	_parry_active = true
 	_parry_timer = parry_window_seconds * window_mult
 
@@ -65,6 +71,14 @@ func attempt_parry(attacker: Node, ward: WardComponent) -> bool:
 
 	if ward:
 		ward.restore_on_parry_success()
+		# Patch v4.0 "Ward Restored on Successful Parry" - additional Ward
+		# on top of the existing fixed PARRY_RESTORE_PERCENT baseline
+		# above, not a replacement for it.
+		var player := get_parent() as Player
+		if player and player.stat_sheet:
+			var ward_on_parry_pct := player.stat_sheet.get_misc_bonus("ward_on_parry") / 100.0
+			if ward_on_parry_pct > 0.0:
+				ward.restore(ward.max_ward * ward_on_parry_pct)
 
 	EventBus.parry_successful.emit(get_parent(), attacker)
 	return true
@@ -82,8 +96,20 @@ func execute_riposte(target: Enemy, weapon: Weapon, base_motion_value: float, da
 	if not can_riposte(target):
 		return
 	var player: Player = get_parent()
+	# Patch v4.0 "Riposte has Increased Critical Strike Chance" - a
+	# temporary bump to finesse_crit_bonus for just this one roll (roll_
+	# damage() has no per-call crit-chance-override param, and adding one
+	# would ripple into every other caller of Weapon.roll_damage() for a
+	# bonus that's Riposte-specific), restored immediately after.
+	var riposte_crit_bonus := player.stat_sheet.get_misc_bonus("riposte_crit_chance") / 100.0
+	var original_crit_bonus := player.stat_sheet.finesse_crit_bonus
+	if riposte_crit_bonus > 0.0:
+		player.stat_sheet.finesse_crit_bonus = original_crit_bonus * (1.0 + riposte_crit_bonus)
 	var hit := weapon.roll_damage(base_motion_value * RIPOSTE_MOTION_VALUE_MULTIPLIER, player.stat_sheet)
-	var final_damage: float = hit["final_damage"]
+	player.stat_sheet.finesse_crit_bonus = original_crit_bonus
+
+	# Patch v4.0 "Increased Riposte Damage" - flat % on top of the whole roll.
+	var final_damage: float = hit["final_damage"] * (1.0 + player.stat_sheet.get_misc_bonus("increased_riposte_damage") / 100.0)
 
 	target.take_damage(final_damage, damage_type)
 	EventBus.damage_dealt.emit(player, target, final_damage, damage_type, false, hit["is_critical"])

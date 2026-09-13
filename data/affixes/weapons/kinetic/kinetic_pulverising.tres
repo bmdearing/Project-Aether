@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_3gci3"]
+
+[resource]
+script = ExtResource("1_3gci3")
+description = "%d%% increased Armor Shred effectiveness"
+stat_key = "kinetic_pulverising"
+value = 38.0
+value_min = 38.0
+value_max = 44.0
+affix_id = "kinetic_pulverising"
+display_name = "Pulverising"
+min_item_level = 76
+damage_type = 0

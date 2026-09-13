@@ -55,6 +55,12 @@ func _ready() -> void:
 func set_enemy_name(text: String) -> void:
 	_name_label.text = text
 
+## Patch v3.9 "Enemy Rarity System" - doc-exact: "Name shown in blue/
+## yellow/orange" for Elite/Champion/Ascendant. Defaults to White
+## (Control's own theme default) for a Normal-rarity or rarity-less enemy.
+func set_name_color(color: Color) -> void:
+	_name_label.add_theme_color_override("font_color", color)
+
 func set_health(current: float, max_value: float) -> void:
 	var new_fraction: float = clamp(current / max_value, 0.0, 1.0) if max_value > 0.0 else 0.0
 	if new_fraction < _fraction:

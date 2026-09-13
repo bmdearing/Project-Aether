@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_oync4"]
+
+[resource]
+script = ExtResource("1_oync4")
+description = "%d%% increased Retaliation damage (Spiked Shield and Buckler only)"
+stat_key = "excl_retaliating"
+value = 44.0
+value_min = 44.0
+value_max = 52.0
+affix_id = "excl_retaliating"
+display_name = "Retaliating"
+min_item_level = 70
+weapon_type_filter = Array[String](["spiked_shield", "buckler"])

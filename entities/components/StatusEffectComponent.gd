@@ -71,6 +71,10 @@ var _chill_stacks: int = 0
 var _ignite_ticker: float = 0.0
 var _ignite_tick_damage: float = 0.0
 var _ignite_source: Node
+## Patch v4.0 Faster Ailment Tick Rate - per-application, since the
+## caster's tick-rate bonus can change between one Ignite application and
+## the next (unlike IGNITE_TICK_INTERVAL, which was always a fixed constant).
+var _ignite_tick_interval: float = IGNITE_TICK_INTERVAL
 var _resistance_shred_sources: Array = []  # each {"value": float, "remaining": float}
 
 @onready var _owner: Node = get_parent()
@@ -211,11 +215,28 @@ func _apply_chill(source: Node) -> void:
 ## Re-applying Ignite refreshes it (new tick damage/duration/source) rather
 ## than stacking independent instances - simplest behavior the doc doesn't
 ## specify either way.
+##
+## Patch v4.0 Ailment Build Mod Pool - Increased Ailment Damage/DoT
+## Multiplier/Faster Tick Rate all come from the CASTER's own gear
+## (source's StatSheet, not this component's owner - a Player casting
+## Ignite onto an Enemy scales it by the Player's own stats, not the
+## Enemy's, and Enemy has no StatSheet to read regardless). Faster Tick
+## Rate preserves total damage and shortens the interval, per the doc:
+## "same total damage, faster delivery."
 func _apply_ignite(source: Node, hit_damage: float) -> void:
 	_ignite_source = source
-	var ticks := IGNITE_DURATION / IGNITE_TICK_INTERVAL
-	_ignite_tick_damage = hit_damage * IGNITE_DAMAGE_PERCENT / ticks
-	_ignite_ticker = IGNITE_TICK_INTERVAL
+	var source_stats: StatSheet = source.stat_sheet if source is Player else null
+	var total_damage := hit_damage * IGNITE_DAMAGE_PERCENT
+	if source_stats:
+		total_damage *= 1.0 + source_stats.get_ailment_damage_bonus("ignite")
+		total_damage *= 1.0 + source_stats.get_dot_multiplier()
+	var tick_interval := IGNITE_TICK_INTERVAL
+	if source_stats:
+		tick_interval /= 1.0 + source_stats.get_ailment_tick_rate_bonus()
+	var ticks := IGNITE_DURATION / tick_interval
+	_ignite_tick_damage = total_damage / ticks
+	_ignite_ticker = tick_interval
+	_ignite_tick_interval = tick_interval
 	_timers["ignite"] = IGNITE_DURATION
 	_emit_applied("ignite")
 
@@ -223,7 +244,7 @@ func _tick_ignite(delta: float) -> void:
 	_ignite_ticker -= delta
 	if _ignite_ticker > 0.0:
 		return
-	_ignite_ticker += IGNITE_TICK_INTERVAL
+	_ignite_ticker += _ignite_tick_interval
 	var dmg := _ignite_tick_damage
 	if _owner is Player:
 		dmg *= 1.0 - _owner.get_dot_mitigation()

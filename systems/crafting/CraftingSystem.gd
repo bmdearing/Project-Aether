@@ -138,7 +138,38 @@ static func craft_cube(item: Item, brands: Array[Brand], power_level: int = 1, t
 		consumed = brands.duplicate()
 	for b in consumed:
 		EventBus.brand_consumed.emit(b.item_id)
+	if not destroyed:
+		_update_item_rarity(item)
 	return {"success": true, "message": message, "destroyed": destroyed, "consumed": consumed}
+
+## Patch v3.9 - rarity tracks affix count (Section 18: Common 0, Uncommon
+## 1-2, Rare 3+ - reusing the same 0/1-2/3+ bands ItemRoller.roll()'s own
+## affix_count-by-rarity-roll already uses, just inverted). Called once
+## per successful craft_cube() (covers every affix add/remove/reroll
+## uniformly - _bore()/_sever() don't change affix count, but recomputing
+## is a harmless no-op for them) rather than from each individual _render/
+## _rectify/_excise/_cleave/_add_weighted_affix helper. Unique/Mythic
+## items and anything still `is_corrupted` never get reclassified.
+static func _update_item_rarity(item: Item) -> void:
+	if item.rarity == Constants.ItemRarity.UNIQUE:
+		return
+	if item.rarity == Constants.ItemRarity.MYTHIC:
+		return
+	if item.is_corrupted:
+		return
+
+	var affix_count := item.get_prefix_count() + item.get_suffix_count()
+	var new_rarity: Constants.ItemRarity
+	if affix_count == 0:
+		new_rarity = Constants.ItemRarity.COMMON
+	elif affix_count <= 2:
+		new_rarity = Constants.ItemRarity.UNCOMMON
+	else:
+		new_rarity = Constants.ItemRarity.RARE
+
+	if new_rarity != item.rarity:
+		item.rarity = new_rarity
+		EventBus.item_rarity_changed.emit(item)
 
 static func _under_same_brand_limit(brands: Array[Brand]) -> bool:
 	var counts := {}
@@ -158,10 +189,16 @@ static func _governing_utility_brand(brands: Array[Brand]) -> Brand:
 ## tier_cap: -1 for no cap, otherwise the WORST tier the roll is allowed
 ## to land on (Tier 1 is best in this project's convention) - Patch v3.6's
 ## "same Brand x3" bonus via BrandCombinationResolver.same_brand_tier_cap().
-static func _random_affix_for(item: Item, pool: Array, power_level: int, tier_cap: int = -1) -> ItemAffix:
-	if pool.is_empty():
+## exclude_keys: stat_keys already on the item (or already picked earlier
+## in the same batch, for _render()'s full-reroll case) - bug fix
+## (2026-09-07, user-reported): this had no duplicate-avoidance at all,
+## so both a single Cube add and a full Render reroll could put the same
+## stat_key on an item twice (e.g. three separate "+Prowess" rolls).
+static func _random_affix_for(item: Item, pool: Array, power_level: int, tier_cap: int = -1, exclude_keys: Array = []) -> ItemAffix:
+	var candidates: Array = pool.filter(func(entry): return not exclude_keys.has(entry["stat_key"]))
+	if candidates.is_empty():
 		return null
-	var entry: Dictionary = pool[randi() % pool.size()]
+	var entry: Dictionary = candidates[randi() % candidates.size()]
 	var rolled_tier: int = ItemRoller._roll_tier(power_level)
 	if tier_cap != -1:
 		rolled_tier = min(rolled_tier, tier_cap)
@@ -206,6 +243,7 @@ static func _add_weighted_affix(item: Item, category_brands: Array[Brand], power
 
 	var tier_cap := BrandCombinationResolver.same_brand_tier_cap(brand_ids)
 	var combo_tags := BrandCombinationResolver.resolve_tags(brand_ids, weighted_tags)
+	var existing_keys: Array = item.affixes.map(func(a: ItemAffix): return a.stat_key)
 	var affix: ItemAffix
 	var combo_note := ""
 	if not combo_tags.is_empty():
@@ -213,15 +251,15 @@ static func _add_weighted_affix(item: Item, category_brands: Array[Brand], power
 		for tag in combo_tags:
 			if not item.sealed_tags.has(tag):
 				combo_pool.append_array(ItemRoller._pool_for_brand_tag(item, tag))
-		affix = _random_affix_for(item, combo_pool, power_level, tier_cap)
+		affix = _random_affix_for(item, combo_pool, power_level, tier_cap, existing_keys)
 		combo_note = " (%s combination)" % " + ".join(combo_tags)
 	else:
 		var tag: String = weighted_tags[randi() % weighted_tags.size()]
 		var pool := ItemRoller._pool_for_brand_tag(item, tag)
-		affix = _random_affix_for(item, pool, power_level, tier_cap)
+		affix = _random_affix_for(item, pool, power_level, tier_cap, existing_keys)
 
 	if affix == null:
-		return "No modifier exists for that category on this item type - nothing added."
+		return "No modifier exists for that category on this item type (or every eligible one is already on it) - nothing added."
 	item.affixes.append(affix)
 	EventBus.item_stats_changed.emit(item)
 	return "Added: %s%s" % [affix.description, combo_note]
@@ -231,10 +269,12 @@ static func _render(item: Item, power_level: int) -> String:
 		return "This item has no modifiers to reroll."
 	var pool := ItemRoller._pool_for(item)
 	var new_affixes: Array[ItemAffix] = []
+	var used_keys: Array = []
 	for i in range(item.affixes.size()):
-		var affix := _random_affix_for(item, pool, power_level)
+		var affix := _random_affix_for(item, pool, power_level, -1, used_keys)
 		if affix:
 			new_affixes.append(affix)
+			used_keys.append(affix.stat_key)
 	item.affixes = new_affixes
 	return "Rerolled all %d modifier(s)." % new_affixes.size()
 

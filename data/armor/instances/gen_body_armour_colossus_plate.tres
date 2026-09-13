@@ -15,3 +15,4 @@ item_level = 79
 base_line_id = "body_armour_line1"
 stat_requirement = 0
 stat_requirement_value = 39.5
+level_requirement = 68

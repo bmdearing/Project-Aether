@@ -31,3 +31,6 @@ item_level = 31
 base_line_id = "halberd_line3"
 stat_requirement = 0
 stat_requirement_value = 15.5
+level_requirement = 24
+prowess_requirement = 18
+finesse_requirement = 11

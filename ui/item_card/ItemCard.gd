@@ -29,6 +29,7 @@ class_name ItemCard
 
 const AFFIX_COLOR := Color(0.45, 0.65, 0.95)
 const IMPLICIT_COLOR := Color(0.9, 0.75, 0.3)  # gold/yellow - Patch v3.8b: implicits are visually distinct from rolled explicit mods
+const REQUIREMENT_UNMET_COLOR := Color(0.9, 0.25, 0.25)  # Patch v3.8d - border/title/bottom-text when the player doesn't meet an item's requirements
 const MORE_MOD_COLOR := Color(0.85, 0.55, 0.95)
 const STAT_COLOR := Color(0.85, 0.85, 0.85)
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
@@ -68,7 +69,16 @@ func display_item(item: Item) -> void:
 	_current_slate = null
 	_current_ability = null
 	_showing_alt = false
+	if not EventBus.item_rarity_changed.is_connected(_on_item_rarity_changed):
+		EventBus.item_rarity_changed.connect(_on_item_rarity_changed)
 	_render_item(item)
+
+## Patch v3.9 - keeps a showing card's border/title color live if the
+## item's rarity changes underneath it (e.g. a Cube craft while its
+## hover tooltip is still up), instead of only updating on the next hover.
+func _on_item_rarity_changed(item: Item) -> void:
+	if item == _current_item and not _showing_alt:
+		_render_item(item)
 
 func display_slate(slate: Slate) -> void:
 	_current_item = null
@@ -110,7 +120,8 @@ func _input(event: InputEvent) -> void:
 
 func _render_item(item: Item) -> void:
 	_clear()
-	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
+	var requirements_met := _check_requirements_met(item)
+	var rarity_color: Color = REQUIREMENT_UNMET_COLOR if not requirements_met else Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH)
 	_add_type_badge("ITEM", rarity_color)
 	if item.icon_path != "":
@@ -140,6 +151,13 @@ func _render_item(item: Item) -> void:
 	if item.flavor_text != "":
 		_add_separator()
 		_add_flavor(item.flavor_text)
+	# Patch v3.8d: requirements only ever appear on the main card when
+	# UNMET - nothing is shown here at all if the player already meets
+	# them (see _render_alt_info() for the always-shown version).
+	if not requirements_met:
+		_add_separator()
+		for line in _requirement_lines(item):
+			_add_mod_line(line, REQUIREMENT_UNMET_COLOR)
 
 func _render_slate(slate: Slate) -> void:
 	_clear()
@@ -212,21 +230,80 @@ func _render_alt_info() -> void:
 		if w.secondary_scaling_stat != "":
 			_add_stat_line("Secondary Scaling: %s" % w.secondary_scaling_stat.capitalize())
 		_add_stat_line("Item Level: %d" % w.item_level)
-		if w.stat_requirement != -1:
-			var stat_name: String = Constants.STAT_NAME.get(w.stat_requirement, "")
-			_add_stat_line("Requires: %.0f %s" % [w.stat_requirement_value, stat_name])
+		for line in _requirement_lines(w):
+			_add_stat_line(line)
 	elif _current_item != null:
 		_add_stat_line("Item Level: %d" % _current_item.item_level)
-		if _current_item.stat_requirement != -1:
-			var stat_name: String = Constants.STAT_NAME.get(_current_item.stat_requirement, "")
-			_add_stat_line("Requires: %.0f %s" % [_current_item.stat_requirement_value, stat_name])
+		for line in _requirement_lines(_current_item):
+			_add_stat_line(line)
 	elif _current_ability != null:
 		_add_stat_line("Scaling Grade: %s" % Constants.grade_to_letter(_current_ability.scaling_grade))
 		_add_stat_line("Motion Value: %.2f" % _current_ability.get_effective_motion_value())
 
+## Bug fix (2026-09-06, user-reported): returned null whenever no Player
+## node is in the scene tree at hover time, leaving the blue stat
+## contribution number blank/zero. GameState.player_stat_sheet is the same
+## StatSheet instance Player.gd assigns itself to at boot (autoloads/
+## GameState.gd:31) - a reliable fallback for exactly this gap.
+## Patch v3.8d, display-only - deliberately separate from EquipmentComponent.
+## _requirement_block_reason()'s real equip gate (item_level/stat_
+## requirement, unchanged this pass - see Item.gd's own comment). Sourced
+## from GameState the same way _stat_sheet_for_card() is (GameState.
+## player_level, kept live-synced by Player._on_leveled_up()) rather than
+## a live Player reference, so shop/menu contexts get a real answer
+## instead of unconditionally "met."
+func _check_requirements_met(item: Item) -> bool:
+	var stat_sheet := _stat_sheet_for_card()
+	if stat_sheet == null:
+		return true
+	if GameState.player_level < item.level_requirement:
+		return false
+	if stat_sheet.get_stat(Constants.Stat.PROWESS) < item.prowess_requirement:
+		return false
+	if stat_sheet.get_stat(Constants.Stat.FINESSE) < item.finesse_requirement:
+		return false
+	if stat_sheet.get_stat(Constants.Stat.RESOLVE) < item.resolve_requirement:
+		return false
+	return true
+
+## Shared between the Alt Info panel (always shown) and the main card
+## (shown only when unmet, in red - see _render_item()) - "Requires Level
+## N" first, then a single combined "Requires X / Y / Z" line for
+## whichever of Prowess/Finesse/Resolve are actually non-zero.
+func _requirement_lines(item: Item) -> Array[String]:
+	var lines: Array[String] = []
+	if item.level_requirement > 1:
+		lines.append("Requires Level %d" % item.level_requirement)
+	var stat_parts: Array[String] = []
+	if item.prowess_requirement > 0:
+		stat_parts.append("%d Prowess" % item.prowess_requirement)
+	if item.finesse_requirement > 0:
+		stat_parts.append("%d Finesse" % item.finesse_requirement)
+	if item.resolve_requirement > 0:
+		stat_parts.append("%d Resolve" % item.resolve_requirement)
+	if stat_parts.size() > 0:
+		lines.append("Requires %s" % " / ".join(stat_parts))
+	return lines
+
+## Bug fix (2026-09-06, user-reported): returned null whenever no Player
+## node is in the scene tree at hover time, leaving the blue stat
+## contribution number blank/zero. The real trigger turned out to be
+## narrower than "shop/menu contexts" - ItemSlotButton._make_custom_
+## tooltip() calls display_item() on a freshly-instantiate()'d ItemCard
+## BEFORE returning it, i.e. before Godot's tooltip system ever adds the
+## card to the SceneTree, so get_tree() itself is null at that exact
+## moment for EVERY hover, not just ones with no Player. Guarding only
+## "is player null" (the brief's own proposed fix) still crashes on the
+## unconditional get_tree() call before ever reaching that check - the
+## tree itself has to be checked first. GameState.player_stat_sheet is
+## the same StatSheet instance Player.gd assigns itself to at boot
+## (autoloads/GameState.gd:31), a reliable fallback either way.
 func _stat_sheet_for_card() -> StatSheet:
-	var player := get_tree().get_first_node_in_group("player") as Player
-	return player.stat_sheet if player else null
+	var tree := get_tree()
+	var player: Player = (tree.get_first_node_in_group("player") as Player) if tree else null
+	if player:
+		return player.stat_sheet
+	return GameState.player_stat_sheet as StatSheet
 
 ## Patch v3.8 Section 3: primary damage type Attack Power always shown;
 ## additional lines only for a real "gain_as_damage" affix (damage
@@ -239,7 +316,7 @@ func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
 	var stat_contribution := _get_stat_contribution(weapon, stat_sheet)
 	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE)
 	lines.append({
-		"label": "%s Attack Power" % Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?"),
+		"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?"),
 		"base": base,
 		"bonus": stat_contribution,
 		"color": primary_color,
@@ -250,7 +327,7 @@ func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
 			var bonus_stat := stat_contribution * (affix.value / 100.0)
 			var color: Color = Constants.DAMAGE_TYPE_COLOR.get(affix.damage_type, Color.WHITE)
 			lines.append({
-				"label": "%s Attack Power" % Constants.DAMAGE_TYPE_NAME.get(affix.damage_type, "?"),
+				"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(affix.damage_type, "?"),
 				"base": snapped(bonus_base, 0.1),
 				"bonus": snapped(bonus_stat, 0.1),
 				"color": color,

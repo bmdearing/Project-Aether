@@ -32,3 +32,5 @@ item_level = 76
 base_line_id = "crossbow_line3"
 stat_requirement = 0
 stat_requirement_value = 38.0
+level_requirement = 68
+finesse_requirement = 72

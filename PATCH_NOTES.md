@@ -7,6 +7,331 @@ there. Most recent first.
 
 ---
 
+## 2026-09-07 — Implementation Brief v4.0: Full Mod Pool Framework
+
+Extracted the real Patch v4.0 doc (`documents/Project_Aether_Patch_v4_0.docx`)
+rather than trust the brief's paraphrase - it changed the scope
+significantly. Researched every guessed file/method name via a background
+agent before touching anything (several were wrong, consistent with this
+whole session's pattern): `WardComponent` has no `Constants.WARD_REGEN_
+DELAY` or `_get_effective_delay()` and no link to a StatSheet at all;
+`Ability.gd` has no `is_spell` field; `Player.take_damage()`'s third arg
+is `source: Node`, not `is_spell`; `HealthComponent` has no `take_damage()`
+(real name `apply_damage()`); `Weapon.gd` has no `secondary_scaling_grade`.
+`ParryRiposteHandler.gd` was the one file name the brief got exactly right.
+
+**Priority 6 (Alt Info restore) needed nothing** - it was never removed.
+Confirmed by reading `ItemCard._input()`/`_render_alt_info()` directly:
+hold-to-show, release-to-hide, inline content swap, no second card,
+exactly as the brief itself describes as the desired end state. Skipped
+entirely rather than touch already-correct code.
+
+**Priority 1 - Ward Delay.** `WardComponent.REGEN_DELAY_SECONDS` (2.0) ->
+`BASE_REGEN_DELAY_SECONDS` (4.0) + `REGEN_DELAY_FLOOR_SECONDS` (2.0),
+`regen_delay_reduction` pushed in by `Player._apply_derived_stats()` the
+same way `restoration_multiplier` already is (WardComponent has no
+StatSheet reference of its own to read directly). Verified: 0 reduction
+-> 4.0s, 1.0 reduction -> 3.0s, 10.0 reduction -> clamps to the 2.0s floor.
+
+**Priorities 2/3 - ~50 new stat_keys, architectural deviation from the
+brief's own literal ask.** Did NOT add ~50 individual `var` fields to
+StatSheet.gd. Routed almost everything through `misc_bonus` instead - the
+SAME existing Dictionary mechanism this project already uses for exactly
+this shape of stat (`max_life`/`attack_speed`/`crit_damage`/etc.), extended
+via `EquipmentComponent.MISC_BONUS_KEYS`. Several of the brief's own
+listed stat_keys (`attack_speed`, `cast_speed`, `cooldown_recovery_rate`,
+`flat_armor`, `flat_evasion`, `flat_ward`) turned out to be ALREADY real
+and working under those exact names - adding parallel dedicated fields
+for those would have silently double-counted them or forked into two
+divergent code paths for the same effect. Added thin getter methods to
+StatSheet.gd (`get_penetration()`, `get_physical_shred()`, `get_phys_
+damage_shift()`, `get_skill_level_bonus()`, `get_ailment_*_bonus()`, etc.)
+only where real combination logic was needed, matching the file's own
+existing `get_crit_damage_bonus()` precedent.
+
+**v3.9/v4.0 stat_key overlaps, resolved per "v4.0 supersedes on
+conflict."** The doc's own "Physical Hit Build Mod Pool" restates 3 of
+Patch v3.9's already-generated weapon affixes under new canonical names
+with the same T1 values (`kinetic_impacting`/`piercing_lancing`/
+`explosive_detonating` -> `increased_kinetic_damage`/`increased_piercing_
+damage`/`increased_explosive_damage`) - renamed those 3 `.tres` files'
+`stat_key`/`affix_id` rather than creating duplicates. Removed the old
+v3.8-era generic `physical_dmg_increased` AFFIX_POOL entry (superseded by
+the new doc-exact `increased_physical_damage`, 28-34% vs its own invented
+16-20%). The 4 resistance affixes got a SECOND, "_pct"-less naming
+(`fire_resistance` alongside `fire_resistance_pct`) - both now map into
+the same `EquipmentComponent.RESISTANCE_AFFIX_KEYS` bucket rather than
+migrating the 4 named rings' hand-authored implicits to the new name (a
+real, unnecessary risk for zero benefit - both spellings already work).
+New `all_elemental_resistance` (Fire/Cold/Lightning only, not Esoteric)
+adds to all three buckets at once. `crit_damage_increased` (v4.0) and
+the pre-existing `crit_damage` (v3.8c) both feed `get_crit_damage_bonus()`
+now, treated as synonyms.
+
+**Wired into real game systems** (verified via scratch tests, not just
+code reading): Penetration/Physical Shred as real `DamageCalculator.
+get_effective_resistance()`/`get_effective_armor()` functions (see gap
+below for why they're not live-called yet); Player's own damage intake
+(`take_damage()`) now handles % Physical damage taken as Elemental
+(splits one hit into several typed sub-hits before mitigation), % Damage
+from Mana before Life, reduced-damage-taken per category, and % of Armor
+applying to Elemental hits; Ward on Parry and Increased Parry Window
+Duration in `ParryRiposteHandler.gd` (window duration compounds with the
+existing stance-based multiplier); Increased/Critical-Chance Riposte via
+a temporary `finesse_crit_bonus` bump around one `roll_damage()` call
+(no signature change needed anywhere); Skill Level scaling in `Ability.
+_base_hit()` as a final-damage multiplier (8%/level, invented per the
+brief's own "subject to balance tuning") rather than touching
+`DamageCalculator.calculate()`'s signature; DoT Multiplier + Faster
+Ailment Tick Rate in `StatusEffectComponent._apply_ignite()`, reading the
+CASTER's StatSheet (not the DoT-carrier's - Enemies have no StatSheet to
+read regardless), preserving total DoT damage while shortening the
+interval per the doc; Increased Retaliation Damage in the one real
+retaliation trigger that exists (`trigger_frost_armor_retaliation()`).
+
+**Affix pool**: ~90 new AFFIX_POOL entries covering every remaining v4.0
+mod pool (Ailment/Physical Hit/Spell Hit/Ranged/Parry/Healing/Offensive/
+Retaliation/Defensive/Armor Base/Amulet Exclusive), doc-exact T1 values,
+`_pool_for()` extended with new optional `slots` (Constants.EquipmentSlot
+array) and `weapon_kind` ("melee"/"ranged"/"conduit", via `Weapon.
+is_ranged`/`is_conduit`) filters - the granular slot-eligibility gating
+`_pool_for()` never had before this patch.
+
+**Real, honest gaps left open rather than forced or silently dropped**:
+- **Penetration/Physical Shred have no live caller.** Enemy.gd has NO
+  Armor or Resistance value anywhere in this project (only Resistance
+  SHRED, a bonus damage-taken multiplier, not a mitigatable base value) -
+  and Enemy files are explicitly on this same patch's own "Files to Leave
+  Alone" list. The functions are real and tested; wiring them in requires
+  giving enemies a real Armor/Resistance stat first, a bigger change than
+  this patch's stated scope.
+- **`evasion_to_spells` is inert.** This project's Evasion has no
+  mitigation formula anywhere yet (a pre-existing, long-flagged gap) -
+  there's nothing for this mod to redirect a percentage FROM.
+- **Ailment application is still unconditional**, not chance-based.
+  Every `applies_status_effects` hit in this project already applies
+  100% of the time - `ailment_chance_[type]`/`ailment_ignore_chance` are
+  real, queryable data, but the doc's own "Design Principles" describes a
+  genuinely different application model (crits auto-apply, non-crits need
+  invested chance) that would change how EVERY existing ability with
+  `applies_status_effects` behaves - a real redesign, not a stat-wiring
+  task, left for a dedicated pass.
+- **`retaliate_on_block` has no consumer.** No general "passive block
+  triggers a counterattack" mechanic exists to hook a binary mod into -
+  the only retaliation trigger in this project is Frost Armor's own
+  spell-bound one, which doesn't involve blocking at all.
+- **New general-pool weapon mods (ailment/physical-hit/parry/etc.) are
+  reachable via Cube crafting but not initial loot rolls.** `ItemRoller.
+  roll()` still routes ALL weapon rolls through the Patch v3.9 damage-
+  type-specific `.tres` library exclusively (`_roll_weapon_affixes()`),
+  never the general `AFFIX_POOL` these new entries live in - only Cube
+  crafting's `_pool_for_brand_tag()` path reaches them for weapons.
+  Integrating the two weapon-affix sources at initial-roll time is a real
+  follow-up, not attempted here given the added complexity to the
+  existing prefix/suffix-cap logic.
+
+Verified via 3 separate scratch tests (Ward delay/floor, misc_bonus
+routing for a representative sample of new keys, penetration/shred
+functions, resistance key unification, Ignite DoT-multiplier/tick-rate
+math) plus headless loads of MainMenu/Hub/GeneratedMap - all clean.
+
+## 2026-09-07 — Bug Fix: Finesse Crit Chance Should Be Multiplicative, Not Flat Additive
+
+User-reported: Finesse's "+1% increased Critical Strike Chance per point"
+was being applied as flat additive percentage points instead. The
+addition itself doesn't happen where the user pointed - `StatSheet.
+get_crit_chance_from_stats()` never took `base_crit_chance` as an input
+at all, it only ever returned the raw Finesse fraction (`Finesse * 0.01`).
+The actual `base + bonus` combination lives in `DamageCalculator.
+get_crit_chance(base_crit_chance, finesse_crit_bonus)`, so that's where
+the fix went: `base_crit_chance * (1.0 + finesse_crit_bonus)` instead of
+`base_crit_chance + finesse_crit_bonus`. `finesse_crit_bonus` itself is
+unchanged (still `Finesse * 0.01`, still pushed once per equipment change
+via `Player._apply_derived_stats()`) - only how it combines with a
+weapon/ability's own base crit chance changed. Verified with a scratch
+test: 5% base + 7 Finesse now yields 5.35% (`0.05 * 1.07`), not the old
+12% (`0.05 + 0.07`).
+
+## 2026-09-07 — Bug Fixes: Duplicate Affix stat_keys, Unformatted Affix Descriptions
+
+Two user-reported bugs from screenshots, both traced to real code before
+fixing.
+
+**Duplicate stat_keys.** Not actually in `ItemRoller.roll()` (verified via
+its own earlier scratch test - already correct by construction, pool
+entries are taken from a shuffled array without replacement, can't repeat
+within one call). The real bug was in `CraftingSystem._random_affix_for()`
+(used by both a single Cube add, `_add_weighted_affix()`, and a full
+reroll, `_render()`) - it picked `pool[randi() % pool.size()]` with zero
+awareness of what was already on the item, so casting the same category
+Brand repeatedly (or a `_render()` reroll landing on the same stat_key
+twice across different slots) could put e.g. three separate "+Prowess"
+affixes on one item, exactly as the reported screenshots showed. Fixed by
+adding an `exclude_keys` param that filters the pool before picking;
+`_add_weighted_affix()` passes every `stat_key` already on the item,
+`_render()` accumulates keys as it rebuilds the affix list slot by slot.
+Verified with a scratch test: 40 repeated Cube crafts against the same
+weapon with the same Brand produced exactly 2 affixes (the only 2
+eligible for that category) and stopped cleanly instead of duplicating.
+
+**Unformatted affix descriptions.** The Patch v3.9 weapon affix `.tres`
+files' `description` field (`tools/generate_weapon_affixes.gd`) was
+plain descriptive text with no value placeholder at all (e.g. "% increased
+Kinetic damage") - `ItemRoller._roll_weapon_affixes()` then appended
+"(Tier N)" onto that verbatim, so the card only ever showed the tier
+label with no actual rolled number, exactly as reported. The OLD
+`AFFIX_POOL` system never had this bug - its own `desc` entries always
+carried a real `%d`/`%s` placeholder, substituted via `entry["desc"] %
+round(value)` before the tier suffix is appended; the new weapon pool's
+generator just never gave its descriptions the same placeholder. Fixed
+both sides: regenerated all 96 `.tres` files with a real `%d%%`/`+%d`/
+`%.1f%%` placeholder per affix (matching each one's actual doc-given
+unit - flat stat/resource affixes get `+%d`, percentages get `%d%%`, the
+2 Critical Strike Chance affixes keep the doc's own decimal precision via
+`%.1f%%`), and `_roll_weapon_affixes()` now substitutes the rolled value
+before appending the tier suffix, identical to the old system's own
+pattern. Verified with a scratch test: sampled rolled descriptions now
+read "28% increased Spell damage (Tier 2)" etc., not "(Tier 2)" alone.
+
+## 2026-09-06 — Implementation Brief v3.9: Crafting Rarity, Weapon Affix Library, Enemy Rarity System
+
+Extracted the real Patch v3.9 design doc (`documents/Project_Aether_Patch_v3_9.docx`) rather than trusting the brief's own paraphrase, since two things in it turned out incomplete or in conflict with the live codebase - flagged both to the user via AskUserQuestion before writing any code, per this session's standing rule.
+
+**Priority 1 - Crafting Rarity Update.** `CraftingSystem._update_item_rarity(item)` (the brief's own file guess, `CraftingCube.gd`, doesn't exist - `CraftingSystem.gd` is the real one) recomputes rarity from `get_prefix_count() + get_suffix_count()` after every successful `craft_cube()` call (one funnel point covers every add/remove/reroll operation - `_add_weighted_affix()`/`_render()`/`_rectify()`/`_excise()`/`_cleave()`/`_sever()` all dispatch through it) - 0 affixes -> Common, 1-2 -> Uncommon, 3+ -> Rare, matching both the brief's own snippet and the doc's exact table. Unique/Mythic/`is_corrupted` items are never reclassified. New `EventBus.item_rarity_changed(item)` fires only when the rarity actually changes; `ItemCard.display_item()` now connects to it and re-renders (skipped while Alt Info is showing) so a card left open through a craft stays visually current instead of only updating on the next hover. Verified with a scratch test: 3 affixes added directly -> Common to Rare, signal fires with the new value.
+
+**Priority 2 - Weapon Affix Library, 96 new `.tres` files.** The doc gives every affix's Tier-1 value range and Tier-1 item level, but never T2 and up for any of them - asked the user how to handle that gap rather than fabricating a table under "do not invent values." Per their direction: `data/affixes/weapons/<type>/*.tres` (9 damage types + generic + base-type-exclusive, `tools/generate_weapon_affixes.gd`, one-shot generator matching this project's established pattern for bulk `.tres` content) store ONLY the doc's real Tier-1 `value_min`/`value_max`/`min_item_level` - `ItemRoller`'s existing `TIER_DECAY`/`_tier_range()` scaling (the same mechanism every pre-existing `AFFIX_POOL` entry already relies on for exactly this "doc gives Tier 1 only" situation) derives weaker rolls at lower item levels, no invented numbers stored anywhere. `ItemAffix` gained `weapon_type_filter: Array[String]` (empty = universal). `ItemRoller.roll()` now branches: Weapons pull from this new pool (generic + damage-type-matching + base-type-exclusive, split into real prefix/suffix pools capped at 3 each, no duplicate `stat_key`s, gated by `min_item_level <= power_level`); every other item category keeps using the untouched original `AFFIX_POOL` path. Two corrections to the brief's own reading of the doc: "Conduit Only"/"Ranged Only" exclusives aren't tied to a fixed base-type list the way Rapier/Saber etc. are, so their `weapon_type_filter` uses the real conduit/ranged type keys already established in `tools/repair_item_requirements.gd`'s `WEAPON_STAT_MAP`. Verified with a scratch test across 400 rolls: 65 Rare weapons, 191 affixes total, zero duplicate keys, zero prefix/suffix-cap violations, correct tier-decay scaling on sampled values.
+
+**Priority 3 - Enemy Rarity System, built alongside the existing `EnemyRank`, per user direction.** The brief's `EnemyRarity { NORMAL, ELITE, CHAMPION, ASCENDANT }` looked, at first read, like it might duplicate `Constants.EnemyRank { NORMAL, MAGIC, RARE, BOSS }` (already real, already spawn-weighted, already driving loot item-level) - asked the user rather than guessing whether to merge or separate them. Per their answer: `EnemyRank` is completely untouched (still drives loot item-level exactly as before); the new `EnemyRarity` is an independent second axis added via `EnemyRarityComponent` (`entities/components/`) and `EnemyAffix` (`data/enemies/`) - an enemy can be e.g. both `EnemyRank.MAGIC` and `EnemyRarity.ELITE` at once, the two never interact.
+- **Stat scaling deliberately isn't in `EnemyRarityComponent._ready()`** the way the brief's own snippet does it - this project has a well-documented recurring bug where a CHILD node's `_ready()` runs before its PARENT's, and `Enemy.gd` already works around it for its own map-tier health scaling via a `call_deferred("_apply_map_modifiers")` specifically "so archetype subclasses' own health.max_health isn't overwritten." The component instead exposes pure query methods (`get_health_multiplier()`/`get_damage_multiplier()`); `Enemy._apply_map_modifiers()`/`get_outgoing_damage_multiplier()` call them at the already-correct, already-deferred time, and no longer early-return when there's no active Map (rarity scaling should still apply in the Hub). Values: Elite 1.5x/1.2x, Champion 3.0x/1.6x, Ascendant 8.0x/2.4x health/damage - invented (the doc names no numbers, Section 24-style deferred balance, same footing as every other invented growth curve already in this file).
+- **A second, real timing bug caught by actually running it, not just reasoning about it**: the aura placeholder's `get_parent().add_child(light)`, called from `EnemyRarityComponent._ready()` while its parent Enemy was still mid-`add_child()` in `GeneratedMap._spawn_enemy_at()`, threw "Parent node is busy setting up children" on every single spawn in a real headless run of `GeneratedMap.tscn`. Fixed with `add_child.call_deferred(light)`.
+- Spawn weights (`Constants.ENEMY_RARITY_SPAWN_WEIGHTS`, 75/20/4/1) live in `Constants.gd` as the brief's own "read from config, not hardcoded" ask - same role `ENEMY_RANK_SPAWN_WEIGHTS` already plays for the other axis. `GeneratedMap._spawn_enemy_at()` calls `EnemyRarityComponent.roll_and_attach(enemy)` before `add_child(enemy)`.
+- 4 starter `EnemyAffix` .tres seeded exactly as specified: `dreamer` (Champion, Entropic damage + Figment drop conversion), `pack_aggressive` (Elite/Pack), `champion_aura_damage` (Champion), `ascendant_resilient` (Ascendant). Champion/Ascendant roll 1-2 from their own pool, Elite rolls 1 from the Pack pool, Normal rolls none - verified over 120 real spawns (weights 75/20/4/1): all 4 tiers observed, health/damage multipliers and name colors matched Constants exactly for every tier.
+- Name color wired into the REAL enemy nameplate system, `ui/player_hud/EnemyHealthBar.gd`/`PlayerHUD.gd` (no `HealthBarUI` node exists on Enemy itself - health bars are pooled, PlayerHUD-owned Controls positioned every frame, not per-enemy children, per that file's own header). New `EnemyHealthBar.set_name_color()`; `PlayerHUD._update_enemy_health_bars()` reads the enemy's `EnemyRarityComponent` (if any) and applies it.
+- Drop conversion is a real, wired stub, not fully implemented, per the brief's own DO NOT: `Enemy._maybe_drop_loot()` checks for a `converts_drops` affix first and short-circuits the entire normal cascade (all-or-nothing, matching the doc) into `_drop_converted()`, which for `"figments"` reuses the existing, already-working `FigmentRoller.roll_for_drop()` rather than half-building a second Figment-rolling path - Item Rarity/Quantity bonus is real, aggregated data (`EnemyRarityComponent.get_effective_rarity_bonus()/get_effective_quantity_bonus()`) but not yet fed into that roll.
+- **Left as a known gap, not implemented this pass**: the doc's "Ascendant... Boss-style health bar with damage trail" - Ascendant enemies still get the regular floating `EnemyHealthBar` (now correctly colored orange), not `BossHealthBar`. The existing boss-bar is a `EnemyRank.BOSS`-gated singleton (one at a time, top-of-screen); routing Ascendant-rarity-but-not-Boss-rank enemies through the same slot raises a real question (what happens if both are in combat at once) the doc/brief don't resolve, so it was left alone rather than rushed.
+- Champion aura mechanics and drop-conversion tier/count scaling remain visual-placeholder/stub only, per the brief's own explicit DO NOT list.
+
+## 2026-09-06 — Bug Fix: Weapons Silently Destroyed on Every Save
+
+User-reported: "Inventory is not persisting between saves — items are
+being lost on save/load." Diagnosed with real logging first, not a guess
+- added `[SAVE]`/`[LOAD]`/`[APPLY]` instrumentation to `SaveManager.
+save_game()`/`load_game()` and `InventoryScreen._build_stack_entries()`,
+then reproduced with a real `ItemRoller`-rolled weapon + a ring in
+`GameState.owned_loot` through an actual `save_game()` -> `load_game()`
+round trip.
+
+**Root cause, found from the logs, not guessed**: `data/items/item_
+serializer.gd:54` (`to_dict()`) read `item.base_damage` on a `Weapon` -
+a field that hasn't existed since `Weapon.gd` split it into `base_damage_
+min`/`base_damage_max`/`rolled_base_damage` (`get_base_damage()` as the
+accessor) in an earlier patch; `item_serializer.gd` was never updated to
+match. The property access throws a runtime error that ABORTS the rest
+of `to_dict()` and returns `{}` (Dictionary's default) instead of the
+dict built so far - confirmed directly in the logs: `[SAVE]` still
+reported "2 dicts serialized" (the empty dict still got appended), and
+the saved JSON held a literal `{}` in the weapon's slot. On load, `from_
+dict({})` hits its own `if d.is_empty(): return null` guard immediately,
+and the null gets filtered out before reconstruction - the weapon is
+gone. Same stale field on the read side too (`item.base_damage = d.get
+(...)`), though in practice it's never reached since `to_dict()` never
+produces real weapon data to begin with.
+
+**Scope**: every Weapon in `owned_loot` on every save, 100% reproducible,
+not intermittent. Every other item type (Armor/Shield/Brand/FigmentItem/
+plain Item) round-trips fine - they never touch this code path. This is
+likely also why armor/shield-only inventories "worked" while anyone
+carrying a spare weapon in their bag would silently lose it.
+
+**Fix**: `to_dict()` now writes `base_damage_min`/`base_damage_max`/
+`rolled_base_damage`; `from_dict()` restores all three (`get_base_
+damage()` already exists as the accessor everywhere downstream needs the
+effective value - no new field needed). Verified with a second real
+round trip: a rolled weapon's `base_damage_min`/`max`/`rolled_base_
+damage`/`get_base_damage()` all match exactly before and after. Removed
+the diagnostic logging once the round trip passed clean, per the user's
+own "keep it until it passes" instruction.
+
+## 2026-09-06 — Implementation Brief v3.8d: Requirements Display, Damage Label, Card Null Fix
+
+**Priority 1 - `_stat_sheet_for_card()` null fix, root cause narrower than
+reported.** Not really "player node not in the scene tree (shop, menu
+contexts)" - `ItemSlotButton._make_custom_tooltip()` calls `display_item()`
+on a freshly-`instantiate()`'d `ItemCard` BEFORE returning it, i.e. before
+Godot's tooltip system ever adds the card to the SceneTree - so
+`get_tree()` itself is null at that exact moment for EVERY hover, not
+just ones with no Player. The brief's own proposed fix (`get_tree().
+get_first_node_in_group("player")`, then check if `player` is null) still
+crashes on that unconditional `get_tree()` call before ever reaching its
+own null check - confirmed by reproducing the exact crash in a scratch
+test. Fixed by checking `get_tree()` itself first, then falling back to
+`GameState.player_stat_sheet` (the same instance `Player.gd` assigns
+itself to at boot) exactly as the brief intended. Verified: a Worn Rapier
+against a fresh 4-Prowess baseline now correctly shows a 3.6 stat
+contribution with zero Player node anywhere in the tree.
+
+**Priorities 2/3 - Level & Stat Requirements, added alongside (not
+replacing) the existing system.** `Item.gd` already had a REAL, ENFORCED
+requirement gate (`stat_requirement`/`stat_requirement_value`, one stat
+only, checked by `EquipmentComponent._requirement_block_reason()` on
+every `equip()`) using `item_level` itself as the level gate at full 1:1
+scaling - not missing, as the brief assumed. What that system genuinely
+can't do is gate on TWO stats at once (several weapon types here need a
+primary + secondary), which the brief's 3 separate `prowess_requirement`/
+`finesse_requirement`/`resolve_requirement` int fields do support. Added
+those plus `level_requirement` to `Item.gd`, explicitly marked display-
+only and left the old fields and `_requirement_block_reason()` completely
+untouched, per the brief's own "enforcement is a separate pass" DO NOT.
+**Flagging for the user**: the new `level_requirement` table is
+deliberately more lenient than raw `item_level` (e.g. item_level 84 ->
+`level_requirement` 80, but the ACTIVE gate still checks the real
+`item_level` of 84) - until a future pass repoints enforcement at the new
+fields, the card's displayed requirement and the actual equip-block will
+disagree for roughly 750 of the ~1000 generated items (every one with
+`item_level > 10`). This mismatch is an inherent, known consequence of a
+deliberate two-pass rollout the brief itself describes, not a bug in this
+pass - flagging the size of it since it's larger than "temporary rough
+edge" might suggest.
+
+New `tools/repair_item_requirements.gd` (GDScript + `ResourceSaver`, same
+pattern as every other `repair_*.gd` here - not the brief's own "Python,
+batch approach" snippet, which has no way to read/write a `.tres`
+Resource at all) populated all 1004 items: 751 weapons/shields got real
+stat requirements (0 unmapped - every real weapon/shield type resolved),
+253 armor/accessories got `level_requirement` only. Two corrections to
+the brief's own `WEAPON_STAT_MAP`: **(1)** "gauntlet" - Worn Gauntlet's
+own weapon type - is missing from every one of the brief's lists
+entirely; mapped to single Resolve, matching its established v3.8
+identity as this project's first conduit-flavored weapon (Aetheric
+damage, `flat_resolve` implicit), consistent with every other main-hand
+conduit (wand/staff/athame/spell_gauntlet) already being single-Resolve.
+**(2)** the brief's prose calls out "battle_rifle (high damage line)" and
+"crossbow (bleed line)" as Prowess+Finesse dual-stat, contradicting its
+own single-Prowess/single-Finesse entries for those same two ids in its
+own executable `WEAPON_STAT_MAP` - no per-line table exists to actually
+tell which specific lines would differ (unlike `repair_weapon_lines.gd`'s
+real per-line table), so the repair script follows the brief's own
+literal, executable dict: both stay single-stat across every line.
+
+**Priority 4 - weapon card label.** "X Attack Power" -> "X Damage" in
+both `_build_attack_power_lines()` label lines (the primary line and the
+scaffolding-only "gain_as_damage" conversion line).
+
+**Priority 5 - requirement display.** Alt Info panel now shows "Requires
+Level N" / "Requires A Prowess / B Finesse / ..." (only non-zero stats
+listed) for both Weapon and generic Item, replacing the old single-stat
+"Requires: N StatName" line that read off the OLD `stat_requirement`
+field (kept `Item Level: N` as-is - distinct concept, tier/roll context,
+not the same number as the new `level_requirement`). Main card shows the
+same two lines in red at the bottom, AND tints the border/badge/title
+red, but only when `_check_requirements_met()` returns false - nothing
+shown at all when requirements are met. That check reads `GameState.
+player_level` (kept live-synced by `Player._on_leveled_up()`, so this
+still gives a real answer in the same shop/menu contexts Priority 1's fix
+targets) and the same `_stat_sheet_for_card()` used everywhere else on
+this card, rather than requiring a live `Player` reference the way the
+brief's own snippet did.
+
 ## 2026-09-06 — Bug Fix: Item Card's Attack Power Bonus Missing Mastery
 
 User-reported: "the blue number on the item card isn't being properly

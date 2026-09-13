@@ -173,19 +173,37 @@ const TIER_HEALTH_GROWTH_PER_TIER := 0.15
 const TIER_DAMAGE_GROWTH_PER_TIER := 0.10
 const TIER_REWARD_GROWTH_PER_TIER := 0.20
 
+## Patch v3.9: also applies EnemyRarityComponent's health multiplier, if
+## one was attached at spawn time - independent of GameState.active_map
+## (rarity scaling still applies in the Hub/anywhere with no active Map),
+## so this can no longer just early-return when active_map is null.
 func _apply_map_modifiers() -> void:
+	var rarity_mult := 1.0
+	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
+	if rarity_component:
+		rarity_mult = rarity_component.get_health_multiplier()
 	if GameState.active_map == null:
+		if rarity_mult != 1.0:
+			health.max_health *= rarity_mult
+			health.current_health = health.max_health
 		return
 	var tier_bonus := 1.0 + (GameState.active_map.tier - 1) * TIER_REWARD_GROWTH_PER_TIER
-	health.max_health *= GameState.active_map.enemy_health_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_HEALTH_GROWTH_PER_TIER)
+	health.max_health *= GameState.active_map.enemy_health_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_HEALTH_GROWTH_PER_TIER) * rarity_mult
 	health.current_health = health.max_health
 	xp_reward *= tier_bonus
 	gold_reward = int(gold_reward * tier_bonus)
 
+## Patch v3.9: also applies EnemyRarityComponent's damage multiplier, if
+## one was attached at spawn time - same active_map-independence as
+## _apply_map_modifiers() above.
 func get_outgoing_damage_multiplier() -> float:
+	var rarity_mult := 1.0
+	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
+	if rarity_component:
+		rarity_mult = rarity_component.get_damage_multiplier()
 	if GameState.active_map == null:
-		return 1.0
-	return GameState.active_map.enemy_damage_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_DAMAGE_GROWTH_PER_TIER)
+		return rarity_mult
+	return GameState.active_map.enemy_damage_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_DAMAGE_GROWTH_PER_TIER) * rarity_mult
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
@@ -336,7 +354,17 @@ func _drop_gold() -> void:
 	get_parent().add_child(pickup)
 	pickup.global_position = global_position + Vector3(randf_range(-0.3, 0.3), 0.1, randf_range(-0.3, 0.3))
 
+## Patch v3.9 "Enemy Rarity System" - doc: "Certain affixes convert all
+## drops from that enemy into a specific category... all-or-nothing."
+## Short-circuits the entire cascade below when present, matching that.
 func _maybe_drop_loot() -> void:
+	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
+	if rarity_component:
+		var conversion_affix := rarity_component.get_drop_conversion_affix()
+		if conversion_affix:
+			_drop_converted(conversion_affix)
+			return
+
 	if randf() <= TOME_DROP_CHANCE:
 		var tome := TomeRoller.roll_for_unowned(GameState.owned_ability_ids)
 		if tome:
@@ -377,6 +405,23 @@ func _maybe_drop_loot() -> void:
 	if item == null:
 		return
 	_spawn_pickup(item)
+
+## Stub only (brief's own DO NOT: "Implement Figment drop conversion
+## fully - stub only. Full Figment drop logic is a separate pass") -
+## reuses the existing, already-working FigmentRoller.roll_for_drop()
+## rather than half-building a second Figment-rolling path. Item Rarity/
+## Quantity bonuses (EnemyRarityComponent.get_effective_rarity_bonus()/
+## get_effective_quantity_bonus()) are real, aggregated data but not yet
+## fed into the roll - that's the deferred "separate pass."
+func _drop_converted(affix: EnemyAffix) -> void:
+	match affix.drop_conversion_type:
+		"figments":
+			var power_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
+			var figment := FigmentRoller.roll_for_drop(power_level)
+			if figment:
+				_spawn_pickup(figment)
+		_:
+			pass  # other conversion types ("brands", etc.) have no seeded affix yet to reach this
 
 func _roll_crafting_consumable() -> Item:
 	var id: String = Constants.CRAFTING_CONSUMABLE_IDS[randi() % Constants.CRAFTING_CONSUMABLE_IDS.size()]

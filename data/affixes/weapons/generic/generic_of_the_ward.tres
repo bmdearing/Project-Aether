@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_rsrin"]
+
+[resource]
+script = ExtResource("1_rsrin")
+description = "Gain %d Ward on hit"
+stat_key = "generic_of_the_ward"
+value = 18.0
+value_min = 18.0
+value_max = 24.0
+is_prefix = false
+affix_id = "generic_of_the_ward"
+display_name = "of the Ward"
+is_generic = true

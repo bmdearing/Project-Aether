@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_tnwnf"]
+
+[resource]
+script = ExtResource("1_tnwnf")
+description = "%d%% increased Chill effect magnitude"
+stat_key = "cold_biting"
+value = 34.0
+value_min = 34.0
+value_max = 40.0
+affix_id = "cold_biting"
+display_name = "Biting"
+min_item_level = 74
+damage_type = 4

@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyAffix.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+affix_id = "champion_aura_damage"
+display_name = "Warlord's Presence"
+category = 1
+description = "Nearby enemies deal increased damage."
+item_rarity_bonus = 25.0
+item_quantity_bonus = 15.0
+has_aura = true
+aura_radius = 10.0
+aura_stat_key = "increased_damage"
+aura_value = 0.3

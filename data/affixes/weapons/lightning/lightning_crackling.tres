@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_q8sxk"]
+
+[resource]
+script = ExtResource("1_q8sxk")
+description = "%d%% increased Electrocute duration"
+stat_key = "lightning_crackling"
+value = 38.0
+value_min = 38.0
+value_max = 44.0
+affix_id = "lightning_crackling"
+display_name = "Crackling"
+min_item_level = 74
+damage_type = 5

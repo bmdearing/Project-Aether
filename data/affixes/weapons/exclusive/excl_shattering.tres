@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_7e0ab"]
+
+[resource]
+script = ExtResource("1_7e0ab")
+description = "%d%% increased Stagger effect (Mace/War Pick/Pressure Fist only)"
+stat_key = "excl_shattering"
+value = 44.0
+value_min = 44.0
+value_max = 52.0
+affix_id = "excl_shattering"
+display_name = "Shattering"
+min_item_level = 74
+weapon_type_filter = Array[String](["mace", "war_pick", "pressure_fist"])

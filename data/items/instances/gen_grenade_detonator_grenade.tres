@@ -11,3 +11,4 @@ equip_slot = 8
 flavor_text = "AoE Base Damage: 23-33."
 item_level = 31
 base_line_id = "grenade_line2"
+level_requirement = 24

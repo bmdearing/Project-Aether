@@ -305,6 +305,58 @@ const ENEMY_RANK_SPAWN_WEIGHTS := {
 	EnemyRank.RARE: 4.0,
 }
 
+## Patch v3.9 "Enemy Rarity System" - a SEPARATE axis from EnemyRank
+## above, per user direction (2026-09-06): EnemyRank keeps driving loot
+## item-level exactly as before (untouched by this patch); EnemyRarity
+## drives stat multipliers, affixes, auras, and drop conversion instead.
+## An enemy carries both simultaneously - e.g. a MAGIC-rank Elite is a
+## perfectly normal combination, the two systems don't interact.
+enum EnemyRarity { NORMAL, ELITE, CHAMPION, ASCENDANT }
+
+const ENEMY_RARITY_NAME := {
+	EnemyRarity.NORMAL: "Normal",
+	EnemyRarity.ELITE: "Elite",
+	EnemyRarity.CHAMPION: "Champion",
+	EnemyRarity.ASCENDANT: "Ascendant",
+}
+
+## Doc-exact: "Name shown in blue/yellow/orange."
+const ENEMY_RARITY_NAME_COLOR := {
+	EnemyRarity.NORMAL: Color.WHITE,
+	EnemyRarity.ELITE: Color(0.4, 0.6, 1.0),
+	EnemyRarity.CHAMPION: Color(1.0, 0.85, 0.0),
+	EnemyRarity.ASCENDANT: Color(1.0, 0.5, 0.0),
+}
+
+## Doc-exact stat-scaling multipliers are never given a number by the doc
+## itself (Section 24-style deferred balance) - these are this project's
+## own invented placeholder curve, same footing as TIER_HEALTH_GROWTH_
+## PER_TIER/ENEMY_RANK_SPAWN_WEIGHTS above. health/damage are multipliers
+## (1.0 = no change); NORMAL is intentionally absent (no scaling at all).
+const ENEMY_RARITY_HEALTH_MULT := {
+	EnemyRarity.ELITE: 1.5,
+	EnemyRarity.CHAMPION: 3.0,
+	EnemyRarity.ASCENDANT: 8.0,
+}
+const ENEMY_RARITY_DAMAGE_MULT := {
+	EnemyRarity.ELITE: 1.2,
+	EnemyRarity.CHAMPION: 1.6,
+	EnemyRarity.ASCENDANT: 2.4,
+}
+
+## Placeholder spawn-weight "config" (brief's own words: "Placeholder
+## weights for testing... do not hardcode, read from spawn configuration")
+## - this table IS that configuration (same role ENEMY_RANK_SPAWN_WEIGHTS
+## already plays for the other axis) rather than a literal inline dict in
+## the spawner script itself, so a future real config resource can replace
+## just this table without touching spawn-site code.
+const ENEMY_RARITY_SPAWN_WEIGHTS := {
+	EnemyRarity.NORMAL: 75.0,
+	EnemyRarity.ELITE: 20.0,
+	EnemyRarity.CHAMPION: 4.0,
+	EnemyRarity.ASCENDANT: 1.0,
+}
+
 # Cooldown Reduction cap (user request 2026-08-30): across every source that
 # reduces an ability's cooldown at cast time - Ability.rank's own -4%/rank
 # and Instinct's Action/Cast Speed (Player.get_action_speed_multiplier()) -

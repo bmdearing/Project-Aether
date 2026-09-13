@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_2gk4w"]
+
+[resource]
+script = ExtResource("1_2gk4w")
+description = "%d%% increased Lightning damage"
+stat_key = "lightning_arcing"
+value = 46.0
+value_min = 46.0
+value_max = 50.0
+affix_id = "lightning_arcing"
+display_name = "Arcing"
+min_item_level = 80
+damage_type = 5

@@ -35,3 +35,5 @@ item_level = 32
 base_line_id = "staff_line2"
 stat_requirement = 0
 stat_requirement_value = 16.0
+level_requirement = 24
+resolve_requirement = 18

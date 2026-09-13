@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_0lebk"]
+
+[resource]
+script = ExtResource("1_0lebk")
+description = "Pallid enemies take %d%% increased damage from all sources"
+stat_key = "pale_withering"
+value = 12.0
+value_min = 12.0
+value_max = 16.0
+affix_id = "pale_withering"
+display_name = "Withering"
+min_item_level = 74
+damage_type = 8

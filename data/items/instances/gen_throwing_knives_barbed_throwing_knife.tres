@@ -11,3 +11,4 @@ equip_slot = 8
 flavor_text = "Bleed Base Damage: 20-27."
 item_level = 40
 base_line_id = "throwing_knives_line1"
+level_requirement = 24

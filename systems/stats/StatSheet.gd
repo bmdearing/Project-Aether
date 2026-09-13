@@ -247,8 +247,116 @@ func get_misc_bonus(key: String) -> float:
 ## raw percent-unit affix total (same units the "+%d%%" affix description
 ## uses) - divided by 100 here so the caller gets a fraction to add
 ## directly to get_crit_damage_multiplier()'s base 1.5x.
+## Patch v4.0 "Increased Critical Strike Bonus" (crit_damage_increased) is
+## the same effect as the pre-existing v3.8c "crit_damage" key under a new
+## name - summed together rather than treated as a second, separate bonus.
 func get_crit_damage_bonus() -> float:
-	return get_misc_bonus("crit_damage") / 100.0
+	return (get_misc_bonus("crit_damage") + get_misc_bonus("crit_damage_increased")) / 100.0
 
 func set_misc_bonus(bonus: Dictionary) -> void:
 	misc_bonus = bonus
+
+## --- Patch v4.0 "Full Mod Pool Framework" -------------------------------
+## Everything below reads from misc_bonus (see EquipmentComponent.
+## MISC_BONUS_KEYS' own v4.0 comment for why no new dedicated fields were
+## added for most of these) - grouped by the doc's own mod pool sections.
+
+## Gear's own "increased Critical Strike Chance" - combined with Finesse's
+## contribution the same multiplicative way (DamageCalculator.
+## get_crit_chance()'s 2026-09-07 fix), not added on top separately.
+func get_gear_crit_chance_bonus() -> float:
+	return get_misc_bonus("crit_chance_increased") / 100.0
+
+## Ailment Build Mod Pool - ailment_id matches StatusEffectComponent's own
+## effect_id strings ("bleed"/"ignite"/"chill"/"electrocute"/"shock"/
+## "aetherburn"/"unraveling"/"pallid").
+func get_ailment_chance_bonus(ailment_id: String) -> float:
+	return get_misc_bonus("ailment_chance_%s" % ailment_id) / 100.0
+
+func get_ailment_damage_bonus(ailment_id: String) -> float:
+	return get_misc_bonus("increased_ailment_damage_%s" % ailment_id) / 100.0
+
+func get_ailment_duration_bonus(ailment_id: String) -> float:
+	return get_misc_bonus("increased_ailment_duration_%s" % ailment_id) / 100.0
+
+func get_dot_multiplier() -> float:
+	return get_misc_bonus("dot_multiplier") / 100.0
+
+func get_ailment_tick_rate_bonus() -> float:
+	return get_misc_bonus("ailment_tick_rate") / 100.0
+
+func get_ailment_ignore_chance() -> float:
+	return get_misc_bonus("ailment_ignore_chance") / 100.0
+
+## Offensive Mod Pool - Penetration. Elemental Penetration applies to all
+## three Elemental types on top of that type's own specific Penetration
+## (additive, per the doc: "Stacks additively with other Penetration
+## sources"). Esoteric/Physical have no Penetration mods in this patch.
+func get_penetration(damage_type: Constants.DamageType) -> float:
+	match damage_type:
+		Constants.DamageType.FIRE:
+			return get_misc_bonus("fire_penetration") + get_misc_bonus("elemental_penetration")
+		Constants.DamageType.COLD:
+			return get_misc_bonus("cold_penetration") + get_misc_bonus("elemental_penetration")
+		Constants.DamageType.LIGHTNING:
+			return get_misc_bonus("lightning_penetration") + get_misc_bonus("elemental_penetration")
+	return 0.0
+
+func get_physical_shred() -> float:
+	return get_misc_bonus("physical_shred") / 100.0
+
+## Defensive Mod Pool - % Physical Damage taken as Elemental (Helmet/Body
+## Armour/Amulet only per the doc, not enforced here - that's an item-
+## slot-eligibility concern for the affix pool, this just reads whatever
+## ended up in misc_bonus). Returns [[fraction, DamageType], ...] for
+## each nonzero shift.
+func get_phys_damage_shift() -> Array:
+	var shifts := []
+	if get_misc_bonus("phys_as_fire") > 0.0:
+		shifts.append([get_misc_bonus("phys_as_fire") / 100.0, Constants.DamageType.FIRE])
+	if get_misc_bonus("phys_as_cold") > 0.0:
+		shifts.append([get_misc_bonus("phys_as_cold") / 100.0, Constants.DamageType.COLD])
+	if get_misc_bonus("phys_as_lightning") > 0.0:
+		shifts.append([get_misc_bonus("phys_as_lightning") / 100.0, Constants.DamageType.LIGHTNING])
+	return shifts
+
+func get_damage_from_mana_percent() -> float:
+	return get_misc_bonus("damage_from_mana") / 100.0
+
+func get_reduced_damage_taken(category: Constants.DamageCategory) -> float:
+	match category:
+		Constants.DamageCategory.PHYSICAL:
+			return get_misc_bonus("reduced_physical_taken") / 100.0
+		Constants.DamageCategory.ELEMENTAL:
+			return get_misc_bonus("reduced_elemental_taken") / 100.0
+		Constants.DamageCategory.ESOTERIC:
+			return get_misc_bonus("reduced_esoteric_taken") / 100.0
+	return 0.0
+
+func get_ward_delay_reduction() -> float:
+	return get_misc_bonus("ward_delay_reduction")
+
+## Amulet Exclusive Mod Pool - Skill Level. Doc: "applies to active bar
+## skills and Slate auto-casts only - not passives" (this project has no
+## passive-Ability system for a gear-rolled Ability to accidentally match,
+## so every Ability object already qualifies). is_spell is effectively
+## always true for this project's Ability objects (they ARE this
+## project's "spells" - weapon melee/ranged attacks are a separate,
+## unrelated damage path with no Ability involved), so skill_level_spells/
+## skill_level_spell_[type] apply unconditionally rather than needing a
+## real is_spell flag Ability.gd doesn't have.
+const _V40_DAMAGE_TYPE_KEYS := {
+	Constants.DamageType.KINETIC: "kinetic", Constants.DamageType.PIERCING: "piercing",
+	Constants.DamageType.EXPLOSIVE: "explosive", Constants.DamageType.FIRE: "fire",
+	Constants.DamageType.COLD: "cold", Constants.DamageType.LIGHTNING: "lightning",
+	Constants.DamageType.AETHERIC: "aetheric", Constants.DamageType.ENTROPIC: "entropic",
+	Constants.DamageType.PALE: "pale",
+}
+
+func get_skill_level_bonus(damage_type: Constants.DamageType) -> int:
+	var bonus: int = int(get_misc_bonus("skill_level_all")) + int(get_misc_bonus("skill_level_spells"))
+	var type_key: String = _V40_DAMAGE_TYPE_KEYS.get(damage_type, "")
+	if type_key != "":
+		bonus += int(get_misc_bonus("skill_level_%s" % type_key))
+		bonus += int(get_misc_bonus("skill_level_spell_%s" % type_key))
+	return bonus
