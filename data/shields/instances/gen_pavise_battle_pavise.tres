@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_r22nb")
-block_chance = 0.27
-block_threshold = 772.0
+block_chance = 0.19
 armor_value = 91.0
 item_id = "gen_pavise_battle_pavise"
 display_name = "Battle Pavise"

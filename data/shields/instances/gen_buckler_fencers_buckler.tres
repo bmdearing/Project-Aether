@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_b0nsf")
-block_chance = 0.11
+block_chance = 0.19
 evasion_value = 74.0
 item_id = "gen_buckler_fencers_buckler"
 display_name = "Fencer's Buckler"

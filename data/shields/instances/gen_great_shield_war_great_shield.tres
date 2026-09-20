@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_wt504")
-block_chance = 0.27
-block_threshold = 637.0
+block_chance = 0.17
 armor_value = 72.0
 item_id = "gen_great_shield_war_great_shield"
 display_name = "War Great Shield"

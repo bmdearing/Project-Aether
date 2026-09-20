@@ -95,3 +95,6 @@ signal reload_started(weapon: Weapon)
 signal reload_finished(weapon: Weapon)
 signal reload_interrupted(weapon: Weapon)
 signal ammo_changed(ammo_type: int, reserve_count: int)
+
+## Patch v4.3 - a melee hit stopped by the defender's shield.
+signal hit_blocked(defender: Node)

@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("1")
-block_chance = 0.17
-block_threshold = 140.0
+block_chance = 0.15
 armor_value = 15.0
 item_id = "guardians_kite_shield"
 display_name = "Guardian's Kite Shield"

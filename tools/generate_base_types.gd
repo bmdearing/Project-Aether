@@ -276,6 +276,7 @@ func _emit_weapon(type_name: String, headers: Array[String], row: Array[String],
 	for k in range(3, headers.size()):
 		if headers[k] == "Base Damage":
 			w.base_damage = _parse_range_avg(row[k])
+	w.max_sockets = mini(w.max_sockets, ItemRoller.get_socket_cap(w))  # Patch v4.3 category ceiling
 	var path := "res://data/weapons/instances/%s.tres" % item_id
 	if ResourceSaver.save(w, path) == OK:
 		_counts["weapon"] += 1
@@ -295,6 +296,7 @@ func _emit_armor(type_name: String, headers: Array[String], row: Array[String], 
 	a.stat_requirement = ST_VITALITY
 	a.stat_requirement_value = tier_level * REQUIRED_STAT_PER_LEVEL
 	_apply_defensive_columns(a, headers, row)
+	a.max_sockets = mini(a.max_sockets, ItemRoller.get_socket_cap(a))  # Patch v4.3 category ceiling
 	var path := "res://data/armor/instances/%s.tres" % item_id
 	if ResourceSaver.save(a, path) == OK:
 		_counts["armor"] += 1
@@ -314,6 +316,7 @@ func _emit_shield(type_name: String, headers: Array[String], row: Array[String],
 	s.stat_requirement = ST_VITALITY
 	s.stat_requirement_value = tier_level * REQUIRED_STAT_PER_LEVEL
 	_apply_defensive_columns(s, headers, row)
+	s.max_sockets = mini(s.max_sockets, ItemRoller.get_socket_cap(s))  # Patch v4.3 category ceiling
 	var path := "res://data/shields/instances/%s.tres" % item_id
 	if ResourceSaver.save(s, path) == OK:
 		_counts["shield"] += 1
@@ -358,8 +361,6 @@ func _apply_defensive_columns(target: Object, headers: Array[String], row: Array
 			target.ward_value = _parse_range_avg(raw)
 		elif label == "Block Chance" and "block_chance" in target:
 			target.block_chance = _parse_percent(raw) / 100.0
-		elif label == "Block Threshold" and "block_threshold" in target:
-			target.block_threshold = _parse_range_avg(raw)
 
 func _parse_range_avg(s: String) -> float:
 	var t := s.strip_edges()

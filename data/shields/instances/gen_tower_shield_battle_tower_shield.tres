@@ -5,14 +5,13 @@
 
 [resource]
 script = ExtResource("2_kgpev")
-block_chance = 0.25
-block_threshold = 772.0
+block_chance = 0.19
 armor_value = 81.0
 item_id = "gen_tower_shield_battle_tower_shield"
 display_name = "Battle Tower Shield"
 equip_slot = 6
 max_sockets = 2
-flavor_text = "Maximum Block Threshold"
+flavor_text = "Maximum Block Chance"
 item_level = 40
 base_line_id = "tower_shield_line1"
 stat_requirement = 0

@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_dqxet")
-block_chance = 0.25
-block_threshold = 557.0
+block_chance = 0.21
 armor_value = 69.0
 item_id = "gen_spiked_shield_heavy_spiked_shield"
 display_name = "Heavy Spiked Shield"

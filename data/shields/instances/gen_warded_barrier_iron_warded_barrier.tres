@@ -6,7 +6,6 @@
 [resource]
 script = ExtResource("2_x43at")
 block_chance = 0.15
-block_threshold = 154.0
 ward_value = 44.0
 item_id = "gen_warded_barrier_iron_warded_barrier"
 display_name = "Iron Warded Barrier"

@@ -9,5 +9,5 @@ armor_value = 35.0
 item_id = "padded_coat"
 display_name = "Padded Coat"
 equip_slot = 1
-max_sockets = 6
+max_sockets = 4
 icon_path = "res://assets/sprites/gear sets-1/1_part_003.png"

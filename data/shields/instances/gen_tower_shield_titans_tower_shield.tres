@@ -5,13 +5,13 @@
 
 [resource]
 script = ExtResource("2_h83nr")
-block_chance = 0.31
+block_chance = 0.28
 armor_value = 198.0
 item_id = "gen_tower_shield_titans_tower_shield"
 display_name = "Titan's Tower Shield"
 equip_slot = 6
 max_sockets = 3
-flavor_text = "Maximum Block Threshold"
+flavor_text = "Maximum Block Chance"
 item_level = 79
 base_line_id = "tower_shield_line1"
 stat_requirement = 0

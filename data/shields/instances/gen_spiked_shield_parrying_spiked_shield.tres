@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_hgdab")
-block_chance = 0.25
-block_threshold = 342.0
+block_chance = 0.21
 armor_value = 52.0
 item_id = "gen_spiked_shield_parrying_spiked_shield"
 display_name = "Parrying Spiked Shield"

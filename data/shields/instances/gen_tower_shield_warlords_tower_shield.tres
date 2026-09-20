@@ -5,13 +5,13 @@
 
 [resource]
 script = ExtResource("2_eb54x")
-block_chance = 0.29
+block_chance = 0.24
 armor_value = 153.0
 item_id = "gen_tower_shield_warlords_tower_shield"
 display_name = "Warlord's Tower Shield"
 equip_slot = 6
 max_sockets = 3
-flavor_text = "Maximum Block Threshold"
+flavor_text = "Maximum Block Chance"
 item_level = 66
 base_line_id = "tower_shield_line1"
 stat_requirement = 0

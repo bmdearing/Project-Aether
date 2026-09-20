@@ -161,7 +161,7 @@ const SECTIONS := [
 		["excl_of_the_shadow", "of the Shadow", "%d%% increased Stealth duration (Dagger only)", false, 44.0, 52.0, 68, ["dagger"]],
 		["excl_shattering", "Shattering", "%d%% increased Stagger effect (Mace/War Pick/Pressure Fist only)", true, 44.0, 52.0, 74, ["mace", "war_pick", "pressure_fist"]],
 		["excl_of_the_colossus", "of the Colossus", "Staggered enemies take %d%% increased damage (Mace/War Pick/Pressure Fist only)", false, 28.0, 34.0, 72, ["mace", "war_pick", "pressure_fist"]],
-		["excl_of_warding", "of Warding", "%d%% increased Block Threshold (all shields)", false, 28.0, 34.0, 74, ["tower_shield", "great_shield", "kite_shield", "pavise", "rune_shield", "warded_barrier", "buckler", "spiked_shield"]],
+		["excl_of_steadying", "of Steadying", "+%d%% increased Block Chance (all shields)", false, 8.0, 10.0, 74, ["tower_shield", "great_shield", "kite_shield", "pavise", "rune_shield", "warded_barrier", "buckler", "spiked_shield"]],
 		["excl_retaliating", "Retaliating", "%d%% increased Retaliation damage (Spiked Shield and Buckler only)", true, 44.0, 52.0, 70, ["spiked_shield", "buckler"]],
 		["excl_channelers", "Channeler's", "%d%% increased Spell damage (Conduit only)", true, 34.0, 40.0, 76, CONDUIT_TYPES],
 		["excl_of_the_weave", "of the Weave", "%d%% reduced Mana cost of spells (Conduit only)", false, 16.0, 20.0, 70, CONDUIT_TYPES],

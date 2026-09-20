@@ -360,3 +360,9 @@ func get_skill_level_bonus(damage_type: Constants.DamageType) -> int:
 		bonus += int(get_misc_bonus("skill_level_%s" % type_key))
 		bonus += int(get_misc_bonus("skill_level_spell_%s" % type_key))
 	return bonus
+
+## Patch v4.3 - "of Steadying" shield affix ("block_chance_bonus", in whole
+## percent points) as a fraction, added flat to the equipped shield's own
+## block_chance in Player.try_block_melee_hit().
+func get_block_chance_bonus() -> float:
+	return get_misc_bonus("block_chance_bonus") / 100.0

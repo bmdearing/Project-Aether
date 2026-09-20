@@ -7,6 +7,35 @@ there. Most recent first.
 
 ---
 
+## 2026-09-20 — Implementation Brief v4.3: Bug Fix Pass
+
+Every file the brief named was read first; where its names or premises didn't match, the behavior was adapted rather than the code copied.
+
+**Block chance / Block Threshold**
+- `Shield.block_chance` (a fraction) existed but nothing read it. Block is rolled in the new `Player.try_block_melee_hit()`, called from `EnemyMeleeAttack._resolve_hit()` after the parry check. Not inside `Player.take_damage()`: that function has no `is_spell`/`is_dot` (the brief's signature doesn't exist) and is also the entry for projectiles and DoT ticks, which must not block. Melee is the only path that calls it. A blocked hit deals no damage and skips Frost Armor retaliation, like a parry. Cap 75%; `hit_blocked(defender)` added to `EventBus`.
+- `equipment.get_offhand()` doesn't exist; it's `equipment.offhand as Shield`. "of Steadying" (`block_chance_bonus`, whole percent points) routes through the `misc_bonus` mechanism like the v4.0 mods, via `StatSheet.get_block_chance_bonus()`.
+- **Block Threshold** existed only in `Shield.gd`, `ItemSerializer`, the shield card, 54 shield `.tres` and the base-type generator. `StatSheet`, `DamageCalculator`, `ItemRoller`, `Constants` and `StatSummaryBuilder` had nothing to remove. 18 shields' flavor text also said "Block Threshold" (reworded to Block Chance). The shield card printed `block_chance` with `%.0f%%` of the raw fraction (0.08 -> "0%"); now x100.
+- **"of Warding"** was not on shields: it was a v3.9 `data/affixes/weapons/exclusive/` file that only `Weapon` rolls read, so it never rolled on anything. Replaced by `excl_of_steadying.tres` and a real `AFFIX_POOL` entry (that's the path shields actually roll from). The brief's per-tier table (T1 8-10, T2 6-7, T3 4-5, T4 2-3, gated at ilvl 74/56/38/20) can't be expressed: the project deliberately uses one global 5-tier decay curve and has no per-affix tier tables. It uses T1 8-10 and the standard decay.
+- Baseline `block_chance` was set from the brief's item-level table on all 100 shields. **That flattens the doc-sourced per-line values** (Buckler 0.08 ... Pavise 0.33) into 15-28%.
+
+**Throwables:** `EXCLUDED_ITEM_TYPES` applied when `ItemRoller` builds its candidate cache. The brief's `item_type` field doesn't exist; matching is on `base_line_id` ("throwing_knives_line1", "grenade_line1"...). The shop stocks via `ItemRoller.roll()`, so it needed no separate filter. 0 throwables in 6000 rolls; `.tres` files untouched.
+
+**Sockets:** one existing system already capped sockets: `CraftingSystem.SOCKET_CAP_BY_SLOT` (per equip slot, doc Section 15; body armour 6, amulet 1, weapons 6 regardless of hand count, its own comment admitted the gap). Replaced by `Constants.MAX_SOCKETS_BY_CATEGORY` + `ItemRoller.get_socket_category()/get_socket_cap()`, used by the roll, Bore, and Corruption's add-socket outcomes. **The brief's values differ from the Section 15 table** (body armour 6 -> 4, amulet 1 -> 2, ...). It is a ceiling only: each base's own tier-scaled `max_sockets` is kept (low-tier bases still roll fewer sockets), which is why `roll()` clamps `item.max_sockets` rather than rolling from the category table. A two-handed Staff is a conduit, so it takes the conduit cap (3), following the brief's category function. `tools/repair_v43_shields_sockets.gd` capped 216 socket fields across the base files (never raised); `generate_base_types.gd` now applies the cap so regeneration doesn't bring it back.
+
+**Item card:** the "(Tier N)" is baked into `ItemAffix.description` at roll time (`ItemRoller` x2, `CraftingSystem` x2), not built by the card, and `ItemAffix.display_name` is the affix name, not its value line. The main view strips the suffix at display time (so already-saved items are fixed too); Alt Info now lists affixes with tiers. Implicits never show one.
+
+**Fate Board:** a `ScrollContainer` around a fixed-size Control, no camera. Scaling that Control would leave the scroll range wrong (containers size from minimum size, not scale), so zoom resizes the cells (`_cell_px = 20 * zoom`, default 1.5, 0.5-3.0, cursor-anchored). The board opens centred on the anchor cell (`FateBoard.ANCHOR_CELL` 75,75).
+
+**Debug overlay:** `Label` -> scrolling `RichTextLabel` (`add_text`, not `append_text`, because "[CRIT]" would parse as BBCode); oldest lines dropped past 200 instead of clearing everything; names via `get_display_name()`, the player stays "YOU" (the log's existing convention); stance handler removed; blocked hits logged. Wheel scrolling needs the mouse released (Esc), as before.
+
+**Ammo drops (item 8):** already in `Enemy._maybe_drop_loot()` since v4.2 and working, so nothing was added. Measured over 1500 kills: 137 ammo pickups (about 15% of the kills that reach that roll, since tome/brand/consumable/slate/figment rolls come first), all the equipped weapon's type. The existing `_get_preferred_ammo_type()` (which also checks the other weapon set) was kept over the brief's simpler one.
+
+**Cast failure:** `ability_cast_failed` reasons are display strings ("Not enough Mana", "On cooldown"), not the brief's keys, so they're shown as-is. `CastTimeHandler.interrupt()` did not emit it; now emits "Interrupted". A second silent failure found: casting while already winding up spent mana and started the cooldown, then `try_cast()` refused. Now refused up front with "Already casting". The slot flash and reason text are in `AbilityBar` (it owns the slot controls; the brief's `PlayerHUD.ability_slots` doesn't exist).
+
+**Character screen:** `StatSummaryBuilder` (shared with the Inventory stats column) gets four resistance rows via `StatSheet.get_resistance()` (already includes gear and all-elemental; the brief's `*_resistance_bonus` fields don't exist) and the listed tooltips, used verbatim as the brief required. Some describe things the game doesn't do: Evasion has no mitigation formula anywhere in this project, and resistances don't scale Chill/Freeze/Electrocute.
+
+**Also fixed (v4.0 bug):** `retaliate_on_block`'s description has no `%d`; formatting it is a script error that aborted the whole `ItemRoller.roll()` (a shield rolling it produced no item). Found by rolling 6000 items. `ItemRoller.format_desc()` now guards all three formatting sites.
+
 ## 2026-09-20 — Implementation Brief v4.2: Ranged Ammo, Magazines, Fire Modes, SFX
 
 **Brief assumptions that didn't match the project:**

@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_apxfq")
-block_chance = 0.25
-block_threshold = 416.0
+block_chance = 0.15
 armor_value = 44.0
 item_id = "gen_great_shield_iron_great_shield"
 display_name = "Iron Great Shield"

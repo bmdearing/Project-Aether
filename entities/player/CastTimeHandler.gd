@@ -42,6 +42,10 @@ func try_cast(ability: Ability, cast_position: Vector3) -> bool:
 
 func interrupt() -> void:
 	if _casting:
+		# Patch v4.3: the player gets told (AbilityBar flashes the slot and
+		# shows the reason) - the mana and cooldown are already spent.
+		if _current_ability:
+			EventBus.ability_cast_failed.emit(_player, _current_ability, "Interrupted")
 		_casting = false
 		_current_ability = null
 		_cast_timer = 0.0

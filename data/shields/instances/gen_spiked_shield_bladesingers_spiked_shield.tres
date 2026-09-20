@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_6ag0c")
-block_chance = 0.31
-block_threshold = 837.0
+block_chance = 0.28
 armor_value = 130.0
 item_id = "gen_spiked_shield_bladesingers_spiked_shield"
 display_name = "Bladesinger's Spiked Shield"

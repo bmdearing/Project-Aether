@@ -5,14 +5,13 @@
 
 [resource]
 script = ExtResource("2_rcto2")
-block_chance = 0.23
-block_threshold = 537.0
+block_chance = 0.17
 armor_value = 54.0
 item_id = "gen_tower_shield_war_tower_shield"
 display_name = "War Tower Shield"
 equip_slot = 6
 max_sockets = 2
-flavor_text = "Maximum Block Threshold"
+flavor_text = "Maximum Block Chance"
 item_level = 27
 base_line_id = "tower_shield_line1"
 stat_requirement = 0

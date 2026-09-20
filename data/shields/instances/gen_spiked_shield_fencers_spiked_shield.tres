@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_ojb3s")
-block_chance = 0.23
-block_threshold = 236.0
+block_chance = 0.19
 armor_value = 34.0
 item_id = "gen_spiked_shield_fencers_spiked_shield"
 display_name = "Fencer's Spiked Shield"

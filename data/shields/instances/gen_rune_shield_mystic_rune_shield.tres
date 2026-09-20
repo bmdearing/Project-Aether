@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_hqr1w")
-block_chance = 0.19
-block_threshold = 154.0
+block_chance = 0.17
 ward_value = 27.0
 item_id = "gen_rune_shield_mystic_rune_shield"
 display_name = "Mystic Rune Shield"

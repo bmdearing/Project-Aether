@@ -4,6 +4,31 @@ class_name StatSummaryBuilder
 ## stats column (equipping gear there now updates stats live in place).
 ## One source of truth so both stay in sync.
 
+## Hover text per stat row, keyed by the row's label (Patch v4.3). Rows not
+## listed here get no tooltip.
+const STAT_TOOLTIPS := {
+	"Prowess": "+2 Life and +1 Attack Power per point. All from gear.",
+	"Attack Power": "Base damage added to weapon hits from Prowess investment.",
+	"Main Hand Damage": "Estimated damage range for your main hand weapon.",
+	"Finesse": "+2 Evasion Rating and +1% increased Critical Strike Chance per point.",
+	"Evasion Rating": "Reduces chance of being hit by attacks.",
+	"Max Health": "Total Life pool. Depleted by incoming damage.",
+	"Life Regen": "Life recovered per second passively.",
+	"Max Ward": "Secondary buffer that absorbs all damage before Health.",
+	"Armor": "Reduces Physical damage taken.",
+	"Resolve": "+1 Spell Power and +0.5% increased Ward per point.",
+	"Spell Power": "Base damage added to spell hits from Resolve investment.",
+	"Max Mana": "Resource pool for casting spells.",
+	"Mana Regen": "Mana recovered per second passively.",
+	"Move Speed": "Base movement speed in meters per second.",
+	"Sprint Speed": "Movement speed while sprinting.",
+	"Action Speed": "Multiplier applied to attack speed and cast speed.",
+	"Fire Resistance": "Reduces Fire damage and Ignite tick damage taken.",
+	"Cold Resistance": "Reduces Cold damage and Chill/Freeze effects.",
+	"Lightning Resistance": "Reduces Lightning damage and Electrocute.",
+	"Esoteric Resistance": "Reduces Aetheric, Entropic, and Pale damage taken.",
+}
+
 static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, misc_list: VBoxContainer, player: Player) -> void:
 	_clear(offense_list)
 	_clear(defense_list)
@@ -25,6 +50,12 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 	_add(defense_list, "Life Regen", "%.1f/s" % player.health.regen_per_second)
 	_add(defense_list, "Max Ward", "%.0f" % player.ward.max_ward)
 	_add(defense_list, "Armor", "%.0f" % (player.equipment.get_total_armor() if player.equipment else 0.0))
+	# StatSheet.get_resistance() already includes gear and the all-elemental
+	# bonus; Esoteric is one shared bucket, so any of its 3 damage types reads it.
+	_add(defense_list, "Fire Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.FIRE)))
+	_add(defense_list, "Cold Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.COLD)))
+	_add(defense_list, "Lightning Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.LIGHTNING)))
+	_add(defense_list, "Esoteric Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.AETHERIC)))
 
 	_add(misc_list, "Level", "%d" % player.experience.level)
 	_add(misc_list, "XP", "%.0f / %.0f" % [player.experience.xp, player.experience.xp_to_next_level()])
@@ -79,6 +110,8 @@ static func _crit_summary(player: Player, slot: Constants.EquipmentSlot) -> Stri
 
 static func _add(list: VBoxContainer, label_text: String, value_text: String) -> void:
 	var row := HBoxContainer.new()
+	row.tooltip_text = STAT_TOOLTIPS.get(label_text, "")
+	row.mouse_filter = Control.MOUSE_FILTER_STOP  # a tooltip needs a Control that receives the mouse
 	var label := Label.new()
 	label.text = label_text
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL

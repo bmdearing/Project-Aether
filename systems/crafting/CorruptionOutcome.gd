@@ -5,7 +5,7 @@ class_name CorruptionOutcome
 ## removed). Adapted to this project's real Item/ItemAffix shape rather
 ## than the brief's own BaseItem: `sockets` -> `max_sockets` (this
 ## project already uses max_sockets as both current and cap - see
-## CraftingSystem.SOCKET_CAP_BY_SLOT/_bore()), `implicit_count()` ->
+## ItemRoller.get_socket_cap()/CraftingSystem._bore()), `implicit_count()` ->
 ## `get_implicit_count()`, tier bounds use ItemRoller.TIER_COUNT (5, not
 ## the brief's assumed 10) since Tier 1 is already this project's best
 ## tier. `GearAffixPool` calls route through the REAL existing gear pool
@@ -46,7 +46,7 @@ class RerandomizeValues extends CorruptionOutcome:
 
 class AddSocket extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
-		var max_s: int = CraftingSystem.SOCKET_CAP_BY_SLOT.get(item.equip_slot, 0)
+		var max_s: int = ItemRoller.get_socket_cap(item)
 		if item.max_sockets < max_s:
 			item.max_sockets += 1
 			EventBus.item_sockets_changed.emit(item)
@@ -93,7 +93,7 @@ class AddSpecialAffix extends CorruptionOutcome:
 class AddExtraSocket extends CorruptionOutcome:
 	## Adds a socket beyond the base cap - up to +1 over.
 	func apply(item: Item, _power_level: int) -> void:
-		var max_s: int = CraftingSystem.SOCKET_CAP_BY_SLOT.get(item.equip_slot, 0)
+		var max_s: int = ItemRoller.get_socket_cap(item)
 		if item.max_sockets <= max_s:
 			item.max_sockets += 1
 			EventBus.item_sockets_changed.emit(item)

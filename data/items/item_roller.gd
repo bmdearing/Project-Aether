@@ -34,6 +34,51 @@ const BASE_ITEM_DIRS := [
 	"res://data/items/instances/",
 ]
 
+## Base lines that are throwables, not gear (Patch v4.3): their old .tres
+## bases sit in data/items/instances/ and were being rolled as rings with
+## garbled stats. Matched as substrings of Item.base_line_id ("grenade"
+## also covers "infusion_grenade"). Excluded from loot/shop rolls only -
+## the files stay, for a future throwable consumable system.
+const EXCLUDED_ITEM_TYPES := ["throwing_knife", "impact_hatchet", "pressure_javelin", "grenade", "infusion_grenade"]
+
+static func _is_excluded_line(base_line_id: String) -> bool:
+	for excluded in EXCLUDED_ITEM_TYPES:
+		if base_line_id.contains(excluded):
+			return true
+	return false
+
+## Fills a pool entry's "%d" placeholder. A binary mod ("Triggers Retaliation
+## on Block") has none, and formatting it anyway is a script error that aborts
+## the whole roll - Patch v4.0 shipped that bug for retaliate_on_block.
+static func format_desc(desc: String, value: float) -> String:
+	return desc % round(value) if "%" in desc else desc
+
+## Which Constants.MAX_SOCKETS_BY_CATEGORY row an item falls in.
+static func get_socket_category(item: Item) -> String:
+	if item is Weapon:
+		var weapon := item as Weapon
+		if weapon.is_conduit:
+			return "conduit_offhand" if weapon.is_offhand else "conduit_main_hand"
+		if weapon.is_ranged:
+			return "two_handed_ranged" if weapon.is_two_handed else "one_handed_ranged"
+		return "two_handed_melee" if weapon.is_two_handed else "one_handed_melee"
+	if item is Shield:
+		return "shield"
+	match item.equip_slot:
+		Constants.EquipmentSlot.BODY_ARMOUR: return "body_armour"
+		Constants.EquipmentSlot.HELMET: return "helmet"
+		Constants.EquipmentSlot.GLOVES: return "gloves"
+		Constants.EquipmentSlot.BOOTS: return "boots"
+		Constants.EquipmentSlot.RING: return "ring"
+		Constants.EquipmentSlot.AMULET: return "amulet"
+		Constants.EquipmentSlot.BELT: return "belt"
+		Constants.EquipmentSlot.OFFHAND: return "shield"
+	return ""
+
+## 0 for anything with no socket category (throwables, currency).
+static func get_socket_cap(item: Item) -> int:
+	return Constants.MAX_SOCKETS_BY_CATEGORY.get(get_socket_category(item), 0)
+
 ## 5 tiers per affix, Tier 1 best - the doc's own tier counts vary per
 ## mod (5 to 11+); this project picks one consistent count for every affix.
 const TIER_COUNT := 5
@@ -178,6 +223,9 @@ const AFFIX_POOL := [
 
 	# Patch v4.0 Retaliation Mod Pool
 	{"stat_key": "increased_retaliation_damage", "tier1_min": 54.0, "tier1_max": 64.0, "desc": "+%d%% increased Retaliation damage", "applies_to": ["weapon", "shield", "armor"], "slots": [1, 2], "brand_tags": []},
+	# Patch v4.3: replaces the never-implemented "of Warding" (Block Threshold). Flat
+	# points added to the shield's own block chance (see StatSheet.get_block_chance_bonus()).
+	{"stat_key": "block_chance_bonus", "tier1_min": 8.0, "tier1_max": 10.0, "desc": "+%d%% increased Block Chance", "applies_to": ["shield"], "brand_tags": []},
 	{"stat_key": "retaliate_on_block", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "Triggers Retaliation on Block", "applies_to": ["shield"], "brand_tags": []},
 
 	# Patch v4.0 Defensive Mod Pool
@@ -255,6 +303,9 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 	# base sets a ceiling, the roll picks a point under it" shape as
 	# affix tiers. max_sockets itself is untouched (still the item type's
 	# overall cap, raised by Bore/Corruption exactly as before).
+	# Patch v4.3: never past the item category's ceiling, whatever an old
+	# base .tres or a saved copy says.
+	item.max_sockets = mini(item.max_sockets, get_socket_cap(item))
 	item.sockets = randi() % (item.max_sockets + 1)
 
 	var rarity_roll := randf() * loot_rarity_multiplier
@@ -287,7 +338,7 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 			affix.value_min = value_range.x
 			affix.value_max = value_range.y
 			affix.tier = rolled_tier
-			affix.description = "%s (Tier %d)" % [entry["desc"] % round(value), rolled_tier]
+			affix.description = "%s (Tier %d)" % [format_desc(entry["desc"], value), rolled_tier]
 			affix.is_prefix = i % 2 == 0
 			item.affixes.append(affix)
 
@@ -477,7 +528,7 @@ static func _build_candidate_meta_cache() -> void:
 			if file_name.ends_with(".tres"):
 				var path: String = dir_path + file_name
 				var item := load(path) as Item
-				if item:
+				if item and not _is_excluded_line(item.base_line_id):
 					_candidate_meta_cache[path] = {"item_level": item.item_level, "base_line_id": item.base_line_id}
 			file_name = dir.get_next()
 		dir.list_dir_end()

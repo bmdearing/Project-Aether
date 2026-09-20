@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_cjp3r")
-block_chance = 0.19
-block_threshold = 92.0
+block_chance = 0.15
 armor_value = 10.0
 item_id = "gen_spiked_shield_duelists_spiked_shield"
 display_name = "Duelist's Spiked Shield"

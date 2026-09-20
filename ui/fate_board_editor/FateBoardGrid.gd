@@ -10,7 +10,16 @@ signal cell_clicked(cell: Vector2i, button_index: int)
 signal drop_requested
 
 const GRID_SIZE := 150
-const CELL_PX := 20
+## Zoom (Patch v4.3): scroll wheel resizes the cells themselves rather than
+## scaling the Control - a ScrollContainer sizes its scroll range from the
+## child's minimum size (ignoring scale), so scaling would leave the scroll
+## range and clip rect wrong. Everything that used the old fixed cell-size constant now reads
+## _cell_px = BASE_CELL_PX * _zoom.
+const BASE_CELL_PX := 20.0
+const ZOOM_STEP := 0.15
+const ZOOM_MIN := 0.5
+const ZOOM_MAX := 3.0
+const DEFAULT_ZOOM := 1.5
 const GRID_LINE_COLOR := Color(1, 1, 1, 0.08)
 const VALID_PREVIEW_COLOR := Color(0.2, 0.9, 0.3, 0.55)
 const INVALID_PREVIEW_COLOR := Color(0.9, 0.2, 0.2, 0.55)
@@ -29,16 +38,55 @@ var _cells_dirty: bool = true
 var _scroll_container: ScrollContainer
 var _lmb_press_pos: Vector2 = Vector2.ZERO
 var _lmb_dragging: bool = false
+var _zoom: float = DEFAULT_ZOOM
+var _cell_px: float = BASE_CELL_PX * DEFAULT_ZOOM
 
 func _ready() -> void:
-	custom_minimum_size = Vector2(GRID_SIZE * CELL_PX, GRID_SIZE * CELL_PX)
 	mouse_filter = Control.MOUSE_FILTER_STOP
 	_scroll_container = get_parent() as ScrollContainer
 	_setup_background()
+	_apply_zoom()
+
+## Resizes the grid for the current _zoom.
+func _apply_zoom() -> void:
+	_cell_px = BASE_CELL_PX * _zoom
+	var extent := Vector2(GRID_SIZE * _cell_px, GRID_SIZE * _cell_px)
+	custom_minimum_size = extent
+	if _background:
+		_background.size = extent
+	queue_redraw()
+
+## Wheel zoom that keeps the point under the cursor fixed. The scroll offset
+## is set a frame later, once the ScrollContainer has re-measured the resized
+## grid - setting it immediately would clamp to the old, smaller scroll range.
+func _zoom_at(mouse_pos: Vector2, zoom_in: bool) -> void:
+	var new_zoom: float = clamp(_zoom + (ZOOM_STEP if zoom_in else -ZOOM_STEP), ZOOM_MIN, ZOOM_MAX)
+	if is_equal_approx(new_zoom, _zoom):
+		return
+	var cell_under_mouse := mouse_pos / _cell_px
+	_zoom = new_zoom
+	_apply_zoom()
+	if _scroll_container == null:
+		return
+	var new_pos := cell_under_mouse * _cell_px
+	var shift := new_pos - mouse_pos
+	await get_tree().process_frame
+	_scroll_container.scroll_horizontal += int(shift.x)
+	_scroll_container.scroll_vertical += int(shift.y)
+
+## Scrolls so the anchor cell (where the first Slate must attach) sits at the
+## middle of the visible area. Called by FateBoardEditor.open().
+func center_on_anchor() -> void:
+	if _scroll_container == null:
+		return
+	await get_tree().process_frame  # the editor was just made visible - wait for real sizes
+	var anchor_center := (Vector2(FateBoard.ANCHOR_CELL) + Vector2(0.5, 0.5)) * _cell_px
+	_scroll_container.scroll_horizontal = int(anchor_center.x - _scroll_container.size.x / 2.0)
+	_scroll_container.scroll_vertical = int(anchor_center.y - _scroll_container.size.y / 2.0)
 
 func _setup_background() -> void:
 	_background = ColorRect.new()
-	_background.size = Vector2(GRID_SIZE * CELL_PX, GRID_SIZE * CELL_PX)
+	_background.size = Vector2(GRID_SIZE * _cell_px, GRID_SIZE * _cell_px)
 	_background.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var mat := ShaderMaterial.new()
 	mat.shader = NEBULA_SHADER
@@ -82,6 +130,12 @@ func _gui_input(event: InputEvent) -> void:
 	if not event is InputEventMouseButton:
 		return
 
+	if event.button_index == MOUSE_BUTTON_WHEEL_UP or event.button_index == MOUSE_BUTTON_WHEEL_DOWN:
+		if event.pressed:
+			_zoom_at(event.position, event.button_index == MOUSE_BUTTON_WHEEL_UP)
+		accept_event()  # otherwise the ScrollContainer also scrolls vertically
+		return
+
 	if event.button_index == MOUSE_BUTTON_LEFT:
 		if event.pressed:
 			_lmb_press_pos = event.position
@@ -101,7 +155,7 @@ func _gui_input(event: InputEvent) -> void:
 				cell_clicked.emit(cell, MOUSE_BUTTON_RIGHT)
 
 func _pixel_to_cell(pos: Vector2) -> Vector2i:
-	return Vector2i(int(floor(pos.x / CELL_PX)), int(floor(pos.y / CELL_PX)))
+	return Vector2i(int(floor(pos.x / _cell_px)), int(floor(pos.y / _cell_px)))
 
 func _in_bounds(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.x < GRID_SIZE and cell.y >= 0 and cell.y < GRID_SIZE
@@ -132,11 +186,11 @@ func _draw_walls(occupied: Dictionary) -> void:
 	for x in range(GRID_SIZE + 1):
 		for y in range(GRID_SIZE):
 			if _is_wall(occupied, Vector2i(x - 1, y), Vector2i(x, y)):
-				draw_line(Vector2(x * CELL_PX, y * CELL_PX), Vector2(x * CELL_PX, (y + 1) * CELL_PX), GRID_LINE_COLOR)
+				draw_line(Vector2(x * _cell_px, y * _cell_px), Vector2(x * _cell_px, (y + 1) * _cell_px), GRID_LINE_COLOR)
 	for y in range(GRID_SIZE + 1):
 		for x in range(GRID_SIZE):
 			if _is_wall(occupied, Vector2i(x, y - 1), Vector2i(x, y)):
-				draw_line(Vector2(x * CELL_PX, y * CELL_PX), Vector2((x + 1) * CELL_PX, y * CELL_PX), GRID_LINE_COLOR)
+				draw_line(Vector2(x * _cell_px, y * _cell_px), Vector2((x + 1) * _cell_px, y * _cell_px), GRID_LINE_COLOR)
 
 func _is_wall(occupied: Dictionary, a: Vector2i, b: Vector2i) -> bool:
 	var id_a: String = occupied.get(a, "")
@@ -161,5 +215,5 @@ func _refresh_cell_background() -> void:
 func _draw_cell(cell: Vector2i, color: Color) -> void:
 	if not _in_bounds(cell):
 		return
-	var rect := Rect2(cell.x * CELL_PX + 1, cell.y * CELL_PX + 1, CELL_PX - 2, CELL_PX - 2)
+	var rect := Rect2(cell.x * _cell_px + 1, cell.y * _cell_px + 1, _cell_px - 2, _cell_px - 2)
 	draw_rect(rect, color)

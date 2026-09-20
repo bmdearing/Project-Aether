@@ -14,7 +14,7 @@ class_name Item
 @export var display_name: String
 @export var rarity: Constants.ItemRarity = Constants.ItemRarity.COMMON
 @export var equip_slot: Constants.EquipmentSlot
-## max_sockets is the item's overall CAP (SOCKET_CAP_BY_SLOT-derived,
+## max_sockets is the item's overall CAP (Constants.MAX_SOCKETS_BY_CATEGORY-capped,
 ## raised by Bore/Corruption exactly as before - see CraftingSystem._bore()/
 ## CorruptionOutcome.AddSocket/RemoveSocket/AddExtraSocket, none of which
 ## changed for this). sockets (Patch v3.8) is how many of those slots

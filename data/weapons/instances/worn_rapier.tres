@@ -20,5 +20,5 @@ native_damage_type = 1
 item_id = "worn_rapier"
 display_name = "Worn Rapier"
 equip_slot = 4
-max_sockets = 4
+max_sockets = 3
 affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])

@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_cs2pg")
-block_chance = 0.25
-block_threshold = 837.0
+block_chance = 0.28
 ward_value = 264.0
 item_id = "gen_warded_barrier_titans_warded_barrier"
 display_name = "Titan's Warded Barrier"

@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_f0sqc")
-block_chance = 0.27
-block_threshold = 642.0
+block_chance = 0.28
 ward_value = 115.0
 item_id = "gen_rune_shield_threshold_rune_shield"
 display_name = "Threshold Rune Shield"

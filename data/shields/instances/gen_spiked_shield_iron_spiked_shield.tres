@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_lgvjd")
-block_chance = 0.19
-block_threshold = 181.0
+block_chance = 0.15
 armor_value = 24.0
 item_id = "gen_spiked_shield_iron_spiked_shield"
 display_name = "Iron Spiked Shield"

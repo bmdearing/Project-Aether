@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_ve0sa")
-block_chance = 0.17
-block_threshold = 109.0
+block_chance = 0.15
 armor_value = 13.0
 item_id = "gen_spiked_shield_crude_spiked_shield"
 display_name = "Crude Spiked Shield"

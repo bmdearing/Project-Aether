@@ -146,11 +146,11 @@ func _render_item(item: Item) -> void:
 	var implicits := item.affixes.filter(func(a: ItemAffix): return a.is_implicit)
 	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
 	for affix in implicits:
-		_add_mod_line(affix.description, IMPLICIT_COLOR)
+		_add_mod_line(_affix_text(affix, false), IMPLICIT_COLOR)
 	if implicits.size() > 0 and explicits.size() > 0:
 		_add_separator()
 	for affix in explicits:
-		_add_mod_line(affix.description, AFFIX_COLOR)
+		_add_mod_line(_affix_text(affix, false), AFFIX_COLOR)
 	if item.flavor_text != "":
 		_add_separator()
 		_add_flavor(item.flavor_text)
@@ -223,6 +223,30 @@ func _get_cast_type_label(ability: Ability) -> String:
 ## Patch v3.8 Section 5. Replaces the whole card content in place - no
 ## title/badge/border, just the requested lines, so it's visually obvious
 ## this is a different mode, not a taller version of the normal card.
+## Roll-time code (ItemRoller/CraftingSystem) bakes " (Tier N)" into
+## ItemAffix.description, so the main card can't just print it as-is: the
+## main view strips the suffix, Alt Info restores it from affix.tier. Done
+## here at display time rather than at the source so items already saved
+## with the suffix are handled too. Implicits never carry a tier.
+const TIER_SUFFIX := " (Tier "
+
+func _affix_text(affix: ItemAffix, show_tier: bool) -> String:
+	var text := affix.description
+	var tier_at := text.rfind(TIER_SUFFIX)
+	if tier_at != -1 and text.ends_with(")"):
+		text = text.substr(0, tier_at)
+	if show_tier and not affix.is_implicit and affix.tier > 0:
+		text += " (Tier %d)" % affix.tier
+	return text
+
+func _add_alt_affix_tiers(item: Item) -> void:
+	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
+	if explicits.is_empty():
+		return
+	_add_separator()
+	for affix in explicits:
+		_add_mod_line(_affix_text(affix, true), AFFIX_COLOR)
+
 func _render_alt_info() -> void:
 	_clear()
 	if _current_item is Weapon:
@@ -235,10 +259,12 @@ func _render_alt_info() -> void:
 		_add_stat_line("Item Level: %d" % w.item_level)
 		for line in _requirement_lines(w):
 			_add_stat_line(line)
+		_add_alt_affix_tiers(w)
 	elif _current_item != null:
 		_add_stat_line("Item Level: %d" % _current_item.item_level)
 		for line in _requirement_lines(_current_item):
 			_add_stat_line(line)
+		_add_alt_affix_tiers(_current_item)
 	elif _current_ability != null:
 		_add_stat_line("Scaling Grade: %s" % Constants.grade_to_letter(_current_ability.scaling_grade))
 		_add_stat_line("Motion Value: %.2f" % _current_ability.get_effective_motion_value())
@@ -480,8 +506,7 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		var s := item as Shield
 		if s.armor_value > 0.0:
 			lines.append("Armour: %.0f" % s.armor_value)
-		lines.append("Block Chance: %.0f%%" % s.block_chance)
-		lines.append("Block Threshold: %.0f" % s.block_threshold)
+		lines.append("Block Chance: %.0f%%" % (s.block_chance * 100.0))
 	elif item is FigmentItem:
 		var m := item as FigmentItem
 		lines.append("Monster Damage: %.0f%%" % (m.enemy_damage_multiplier * 100.0))

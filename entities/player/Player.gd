@@ -521,6 +521,24 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 	if cast_time_handler.is_casting():
 		cast_time_handler.interrupt()
 
+const BLOCK_CHANCE_CAP := 0.75
+
+## Patch v4.3. Rolls the equipped shield's block chance (plus any "of
+## Steadying" bonus, hard-capped at 75%) against one incoming MELEE hit.
+## Deliberately not inside take_damage(): that function is also the entry
+## for spells, projectiles and DoT ticks, none of which may be blocked, and
+## it has no way to tell them apart - the one melee call site
+## (EnemyMeleeAttack._resolve_hit()) asks this instead.
+func try_block_melee_hit() -> bool:
+	var shield := equipment.offhand as Shield if equipment else null
+	if shield == null:
+		return false
+	var chance: float = min(shield.block_chance + stat_sheet.get_block_chance_bonus(), BLOCK_CHANCE_CAP)
+	if randf() < chance:
+		EventBus.hit_blocked.emit(self)
+		return true
+	return false
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		rotate_y(-event.relative.x * mouse_sensitivity)

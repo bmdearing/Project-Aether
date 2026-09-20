@@ -117,6 +117,11 @@ func is_attacking() -> bool:
 
 func _resolve_hit(player: Player) -> void:
 	var parried: bool = player.parry_handler and player.parry_handler.attempt_parry(_enemy, player.ward)
+	# Patch v4.3: a shield can block a melee hit that wasn't parried - no
+	# damage, no Frost Armor retaliation (same as a parried hit).
+	if not parried and player.try_block_melee_hit():
+		EventBus.enemy_attack_resolved.emit(_enemy, player, false, false)
+		return
 	if not parried:
 		player.take_damage(damage_amount * _enemy.get_outgoing_damage_multiplier(), damage_type, _enemy)
 		# Frost Armor: "Enemies that strike in melee range trigger a

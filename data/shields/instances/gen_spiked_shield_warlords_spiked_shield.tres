@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_ifd2p")
-block_chance = 0.27
-block_threshold = 742.0
+block_chance = 0.24
 armor_value = 88.0
 item_id = "gen_spiked_shield_warlords_spiked_shield"
 display_name = "Warlord's Spiked Shield"

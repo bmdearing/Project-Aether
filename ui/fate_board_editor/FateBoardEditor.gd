@@ -54,6 +54,7 @@ func open() -> void:
 	if _board and not _board.placement_failed.is_connected(_on_placement_failed):
 		_board.placement_failed.connect(_on_placement_failed)
 	grid.set_board(_board)
+	grid.center_on_anchor()
 	_populate_palette()
 	_refresh_aether()
 	_refresh_chains()

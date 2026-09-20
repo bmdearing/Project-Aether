@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_h5rb7")
-block_chance = 0.17
-block_threshold = 92.0
+block_chance = 0.15
 ward_value = 15.0
 item_id = "gen_rune_shield_occult_rune_shield"
 display_name = "Occult Rune Shield"

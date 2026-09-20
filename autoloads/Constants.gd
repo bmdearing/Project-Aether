@@ -135,6 +135,27 @@ enum AmmoType { PISTOL, REVOLVER, SHOTGUN, RIFLE, AUTOMATIC, CROSSBOW_BOLT, ARRO
 ## crossbow): a Weapon.cycle_time delay between shots.
 enum FireMode { SEMI_AUTO, FULL_AUTO, BOLT_ACTION, LEVER_ACTION, PUMP_ACTION, SINGLE_ACTION }
 
+## Implementation Brief v4.3 - hard socket ceiling per item category (see
+## ItemRoller.get_socket_category()). A ceiling only: a base's own max_sockets
+## (tier-scaled by tools/generate_base_types.gd) is never raised to it, and
+## Bore/Corruption never take an item past it (bar Corruption's +1 "extra").
+const MAX_SOCKETS_BY_CATEGORY := {
+	"one_handed_melee": 3,
+	"two_handed_melee": 6,
+	"one_handed_ranged": 3,   # pistols, revolvers, machine pistols
+	"two_handed_ranged": 6,   # rifles, bows, shotguns, SMG, machine gun
+	"conduit_main_hand": 3,
+	"conduit_offhand": 3,
+	"shield": 3,
+	"body_armour": 4,
+	"helmet": 3,
+	"gloves": 2,
+	"boots": 2,
+	"ring": 1,
+	"amulet": 2,
+	"belt": 2,
+}
+
 ## Ammo pickup Item ids (data/consumables/instances/) - see AmmoPack.
 const AMMO_TYPE_PICKUP_ID := {
 	AmmoType.PISTOL: "ammo_pistol",

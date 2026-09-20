@@ -5,13 +5,13 @@
 
 [resource]
 script = ExtResource("2_mvro6")
-block_chance = 0.33
+block_chance = 0.28
 armor_value = 249.0
 item_id = "gen_tower_shield_colossus_tower_shield"
 display_name = "Colossus Tower Shield"
 equip_slot = 6
 max_sockets = 3
-flavor_text = "Maximum Block Threshold - Implicit: +18% increased Block Threshold"
+flavor_text = "Maximum Block Chance - Implicit: +18% increased Block Chance"
 item_level = 91
 base_line_id = "tower_shield_line1"
 stat_requirement = 0

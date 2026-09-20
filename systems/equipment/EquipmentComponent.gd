@@ -321,6 +321,7 @@ const AILMENT_IDS := ["bleed", "ignite", "chill", "electrocute", "shock", "aethe
 const V40_DAMAGE_TYPE_KEYS := ["kinetic", "piercing", "explosive", "fire", "cold", "lightning", "aetheric", "entropic", "pale"]
 
 const MISC_BONUS_KEYS := [
+	"block_chance_bonus",
 	"max_life", "life_regen", "max_mana", "mana_regen",
 	"flat_resilience", "cast_speed", "attack_speed", "move_speed",
 	"crit_damage",

@@ -75,7 +75,6 @@ static func to_dict(item: Item) -> Dictionary:
 		d["ward_value"] = item.ward_value
 	elif item is Shield:
 		d["block_chance"] = item.block_chance
-		d["block_threshold"] = item.block_threshold
 		d["armor_value"] = item.armor_value
 	return d
 
@@ -160,7 +159,6 @@ static func from_dict(d: Dictionary) -> Item:
 		item.ward_value = d.get("ward_value", 0.0)
 	elif item is Shield:
 		item.block_chance = d.get("block_chance", 0.0)
-		item.block_threshold = d.get("block_threshold", 0.0)
 		item.armor_value = d.get("armor_value", 0.0)
 
 	return item

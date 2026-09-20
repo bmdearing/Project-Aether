@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_txcie")
-block_chance = 0.25
-block_threshold = 537.0
+block_chance = 0.17
 armor_value = 61.0
 item_id = "gen_pavise_war_pavise"
 display_name = "War Pavise"

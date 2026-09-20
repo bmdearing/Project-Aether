@@ -54,23 +54,6 @@ const FUNCTION_PRIORITY: Array[Brand.BrandFunction] = [
 	Brand.BrandFunction.BORE,
 ]
 
-## Section 15's per-item-type socket cap ("Base Max Sockets" column) -
-## Bore sets max_sockets straight to this. This project doesn't yet
-## distinguish One-Handed vs Two-Handed weapon socket caps, so a
-## two-handed weapon under-caps slightly relative to the doc's own table.
-## Patch v3.5 folded Sidearm/Conduit/Secondary into PRIMARY_WEAPON/OFFHAND.
-const SOCKET_CAP_BY_SLOT := {
-	Constants.EquipmentSlot.BODY_ARMOUR: 6,
-	Constants.EquipmentSlot.PRIMARY_WEAPON: 6,
-	Constants.EquipmentSlot.HELMET: 4,
-	Constants.EquipmentSlot.GLOVES: 4,
-	Constants.EquipmentSlot.BOOTS: 4,
-	Constants.EquipmentSlot.OFFHAND: 3,
-	Constants.EquipmentSlot.BELT: 2,
-	Constants.EquipmentSlot.AMULET: 1,
-	Constants.EquipmentSlot.RING: 1,
-}
-
 
 ## ---- The Cube --------------------------------------------------------
 
@@ -210,14 +193,14 @@ static func _random_affix_for(item: Item, pool: Array, power_level: int, tier_ca
 	affix.value_min = value_range.x
 	affix.value_max = value_range.y
 	affix.tier = rolled_tier
-	affix.description = "%s (Tier %d)" % [entry["desc"] % round(value), rolled_tier]
+	affix.description = "%s (Tier %d)" % [ItemRoller.format_desc(entry["desc"], value), rolled_tier]
 	affix.is_prefix = item.affixes.size() % 2 == 0
 	return affix
 
 static func _redescribe(affix: ItemAffix) -> void:
 	for entry in ItemRoller.AFFIX_POOL:
 		if entry["stat_key"] == affix.stat_key:
-			affix.description = "%s (Tier %d)" % [entry["desc"] % round(affix.value), affix.tier]
+			affix.description = "%s (Tier %d)" % [ItemRoller.format_desc(entry["desc"], affix.value), affix.tier]
 			return
 
 ## No utility/special Brand present - category Brands add ONE new affix.
@@ -306,7 +289,7 @@ static func _excise(item: Item, target_affix_index: int) -> String:
 	return "Removed: %s" % removed.description
 
 static func _bore(item: Item) -> String:
-	var cap: int = SOCKET_CAP_BY_SLOT.get(item.equip_slot, 0)
+	var cap: int = ItemRoller.get_socket_cap(item)
 	if cap <= 0:
 		return "This item type has no sockets to Bore."
 	if item.max_sockets >= cap:

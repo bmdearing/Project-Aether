@@ -213,6 +213,12 @@ func _try_cast(slot_index: int, cast_position: Vector3) -> void:
 	if _player.mana.current_mana < ability.resource_cost:
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
 		return
+	# Patch v4.3: CastTimeHandler.try_cast() refuses while a cast is winding
+	# up - which used to happen AFTER mana was spent and the cooldown started,
+	# silently eating both.
+	if _player.cast_time_handler.is_casting():
+		EventBus.ability_cast_failed.emit(_player, ability, "Already casting")
+		return
 	_player.mana.spend(ability.resource_cost)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_input_action = "ability_%d" % (slot_index + 1)

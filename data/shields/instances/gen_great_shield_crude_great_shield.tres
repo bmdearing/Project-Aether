@@ -5,8 +5,7 @@
 
 [resource]
 script = ExtResource("2_io40x")
-block_chance = 0.23
-block_threshold = 249.0
+block_chance = 0.15
 armor_value = 24.0
 item_id = "gen_great_shield_crude_great_shield"
 display_name = "Crude Great Shield"

@@ -17,6 +17,16 @@ const COOLDOWN_OVERLAY_COLOR := Color(0, 0, 0, 0.75)
 
 @onready var slot_row: HBoxContainer = $SlotRow
 
+## Cast-failure feedback (Patch v4.3): the failing slot flashes red and the
+## reason ("Not enough Mana", "On cooldown", "Interrupted"...) fades in above
+## the bar. Lives here rather than in PlayerHUD because this is the node that
+## owns the slot controls.
+const ERROR_FLASH_COLOR := Color(1.0, 0.25, 0.25)
+const ERROR_TEXT_HOLD_SEC := 1.0
+const ERROR_TEXT_FADE_SEC := 0.5
+var _cast_error_label: Label
+var _cast_error_tween: Tween
+
 var _player: Player
 var _slot_icons: Array[ItemSlotButton] = []
 var _slot_overlays: Array[ColorRect] = []
@@ -30,7 +40,48 @@ func _ready() -> void:
 		_build_slot(i + 1)
 	if is_instance_valid(_player):
 		_player.ability_loadout.loadout_changed.connect(_refresh_all_slots)
+	_build_cast_error_label()
+	EventBus.ability_cast_failed.connect(_on_ability_cast_failed)
 	_refresh_all_slots()
+
+func _build_cast_error_label() -> void:
+	_cast_error_label = Label.new()
+	_cast_error_label.anchor_left = 0.5
+	_cast_error_label.anchor_right = 0.5
+	_cast_error_label.anchor_top = 1.0
+	_cast_error_label.anchor_bottom = 1.0
+	_cast_error_label.offset_left = -200.0
+	_cast_error_label.offset_right = 200.0
+	_cast_error_label.offset_top = -118.0
+	_cast_error_label.offset_bottom = -90.0
+	_cast_error_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_cast_error_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_cast_error_label.add_theme_font_size_override("font_size", 18)
+	_cast_error_label.add_theme_color_override("font_color", ERROR_FLASH_COLOR)
+	_cast_error_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
+	_cast_error_label.add_theme_constant_override("outline_size", 5)
+	_cast_error_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_cast_error_label.visible = false
+	add_child(_cast_error_label)
+
+func _on_ability_cast_failed(caster: Node, ability: Ability, reason: String) -> void:
+	if not caster is Player or not is_instance_valid(_player):
+		return
+	var slot_index := _player.ability_loadout.slots.find(ability)
+	if slot_index >= 0 and slot_index < slot_row.get_child_count():
+		var slot_node := slot_row.get_child(slot_index)
+		var flash := create_tween()
+		flash.tween_property(slot_node, "modulate", ERROR_FLASH_COLOR, 0.1)
+		flash.tween_property(slot_node, "modulate", Color.WHITE, 0.2)
+	if _cast_error_tween:
+		_cast_error_tween.kill()
+	_cast_error_label.text = reason
+	_cast_error_label.modulate.a = 1.0
+	_cast_error_label.visible = true
+	_cast_error_tween = create_tween()
+	_cast_error_tween.tween_interval(ERROR_TEXT_HOLD_SEC)
+	_cast_error_tween.tween_property(_cast_error_label, "modulate:a", 0.0, ERROR_TEXT_FADE_SEC)
+	_cast_error_tween.tween_callback(func(): _cast_error_label.visible = false)
 
 func _build_slot(key_number: int) -> void:
 	var slot := Control.new()

@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_733wg")
-block_chance = 0.27
+block_chance = 0.28
 ward_value = 198.0
 item_id = "gen_rune_shield_titans_rune_shield"
 display_name = "Titan's Rune Shield"

@@ -4,13 +4,13 @@
 
 [resource]
 script = ExtResource("1_dwgyh")
-description = "%d%% increased Block Threshold (all shields)"
-stat_key = "excl_of_warding"
-value = 28.0
-value_min = 28.0
-value_max = 34.0
+description = "+%d%% increased Block Chance (all shields)"
+stat_key = "block_chance_bonus"
+value = 8.0
+value_min = 8.0
+value_max = 10.0
 is_prefix = false
-affix_id = "excl_of_warding"
-display_name = "of Warding"
+affix_id = "excl_of_steadying"
+display_name = "of Steadying"
 min_item_level = 74
 weapon_type_filter = Array[String](["tower_shield", "great_shield", "kite_shield", "pavise", "rune_shield", "warded_barrier", "buckler", "spiked_shield"])
