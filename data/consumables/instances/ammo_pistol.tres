@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="AmmoPack" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/consumables/AmmoPack.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+item_id = "ammo_pistol"
+display_name = "Pistol Rounds"
+rarity = 0
+equip_slot = 0
+max_sockets = 0
+flavor_text = "+24 Pistol rounds."
+icon_path = ""
+is_craftable = false
+ammo_type = 0
+amount = 24

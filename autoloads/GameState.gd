@@ -186,6 +186,7 @@ func reset_to_defaults() -> void:
 	gold = 1000000  # Patch v3.8c, user request - dev/testing convenience
 	figment_tree_points = 0
 	figment_tree_unlocked_nodes = []
+	AmmoInventory.reset()
 
 ## Scans the whole instances directory (not a fixed list) since a Tome-
 ## found ability from a previous session still needs its rank reset.

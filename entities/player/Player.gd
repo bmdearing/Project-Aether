@@ -644,6 +644,12 @@ func _handle_attack_input(delta: float) -> void:
 			ranged_attack.try_attack(weapon_stance.is_active)
 		elif weapon_stance.is_active:
 			melee_attack.try_charged_thrust()
+	# Full-auto weapons fire every frame the button is held (they ignore
+	# try_attack() above); every other fire mode returns immediately.
+	if Input.is_action_pressed("attack") and active_weapon and active_weapon.is_ranged:
+		ranged_attack.try_attack_held(weapon_stance.is_active)
+	if Input.is_action_just_pressed("reload") and active_weapon and active_weapon.is_ranged:
+		ranged_attack.try_manual_reload()
 
 func get_move_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_misc_bonus("move_speed") / 100.0

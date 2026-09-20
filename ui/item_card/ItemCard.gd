@@ -32,6 +32,7 @@ const IMPLICIT_COLOR := Color(0.9, 0.75, 0.3)  # gold/yellow - Patch v3.8b: impl
 const REQUIREMENT_UNMET_COLOR := Color(0.9, 0.25, 0.25)  # Patch v3.8d - border/title/bottom-text when the player doesn't meet an item's requirements
 const MORE_MOD_COLOR := Color(0.85, 0.55, 0.95)
 const STAT_COLOR := Color(0.85, 0.85, 0.85)
+const AMMO_INFO_COLOR := SUBTITLE_COLOR  # Magazine/Reload lines on ranged weapons - dimmer than the stat lines around them
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
 const FLAVOR_COLOR := Color(0.75, 0.65, 0.45)
 const ATTACK_POWER_BONUS_COLOR := Color(0.4, 0.6, 1.0)
@@ -133,6 +134,8 @@ func _render_item(item: Item) -> void:
 	if item is Weapon:
 		for line in _build_attack_power_lines(item as Weapon, _stat_sheet_for_card()):
 			_add_attack_power_line(line)
+		for line in _ranged_info_lines(item as Weapon):
+			_add_ammo_info_line(line)
 	for line in _item_stat_lines(item):
 		_add_stat_line(line)
 	if item.max_sockets > 0:
@@ -332,6 +335,12 @@ func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
 				"bonus": snapped(bonus_stat, 0.1),
 				"color": color,
 			})
+	# Shotguns: show what ONE pellet hits for, times the pellet count.
+	if weapon.is_ranged and weapon.pellet_count > 1:
+		for line in lines:
+			line["base"] = line["base"] / weapon.pellet_count
+			line["bonus"] = line["bonus"] / weapon.pellet_count
+			line["pellets"] = weapon.pellet_count
 	return lines
 
 ## Prowess's Attack Power contribution scaled by the weapon's own grade
@@ -366,7 +375,29 @@ func _add_attack_power_line(line: Dictionary) -> void:
 		_format_num(line["base"]),
 		ATTACK_POWER_BONUS_COLOR.to_html(false), _format_num(line["bonus"]),
 	]
+	if line.has("pellets"):
+		rtl.text += " x%d" % line["pellets"]
 	_content().add_child(rtl)
+
+## Magazine ("current / reserve") and Reload lines for firearms. Bows (ARROW)
+## have no magazine and unlimited arrows, so they get neither; a weapon with
+## no reload time (the crossbow - its delay is its shot cycle) skips Reload.
+func _ranged_info_lines(weapon: Weapon) -> Array[String]:
+	var lines: Array[String] = []
+	if not weapon.is_ranged or weapon.ammo_type == Constants.AmmoType.ARROW or weapon.magazine_size <= 0:
+		return lines
+	lines.append("Magazine: %d / %d" % [weapon.get_current_magazine(), AmmoInventory.get_reserve(weapon.ammo_type)])
+	if weapon.reload_per_shell:
+		lines.append("Reload: per shell")
+	elif weapon.reload_time > 0.0:
+		lines.append("Reload: %ss" % _format_num(weapon.reload_time))
+	return lines
+
+func _add_ammo_info_line(text: String) -> void:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_color_override("font_color", AMMO_INFO_COLOR)
+	_content().add_child(label)
 
 func _format_num(v: float) -> String:
 	return str(int(round(v))) if v == round(v) else "%.1f" % v

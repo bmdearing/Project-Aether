@@ -59,6 +59,15 @@ static func to_dict(item: Item) -> Dictionary:
 		d["infused_damage_type"] = item.infused_damage_type
 		d["is_two_handed"] = item.is_two_handed
 		d["is_ranged"] = item.is_ranged
+		d["ammo_type"] = item.ammo_type
+		d["magazine_size"] = item.magazine_size
+		d["fire_mode"] = item.fire_mode
+		d["pellet_count"] = item.pellet_count
+		d["pellet_spread_degrees"] = item.pellet_spread_degrees
+		d["fire_rate"] = item.fire_rate
+		d["cycle_time"] = item.cycle_time
+		d["reload_time"] = item.reload_time
+		d["reload_per_shell"] = item.reload_per_shell
 		d["skill_ids"] = item.skill_ids
 	elif item is Armor:
 		d["armor_value"] = item.armor_value
@@ -129,6 +138,18 @@ static func from_dict(d: Dictionary) -> Item:
 		item.infused_damage_type = d.get("infused_damage_type", -1)
 		item.is_two_handed = d.get("is_two_handed", false)
 		item.is_ranged = d.get("is_ranged", false)
+		if d.has("magazine_size"):
+			item.ammo_type = d.get("ammo_type", 0)
+			item.magazine_size = d.get("magazine_size", 12)
+			item.fire_mode = d.get("fire_mode", 0)
+			item.pellet_count = d.get("pellet_count", 1)
+			item.pellet_spread_degrees = d.get("pellet_spread_degrees", 0.0)
+			item.fire_rate = d.get("fire_rate", 0.0)
+			item.cycle_time = d.get("cycle_time", 0.0)
+			item.reload_time = d.get("reload_time", 1.4)
+			item.reload_per_shell = d.get("reload_per_shell", false)
+		elif item.is_ranged:
+			item.apply_ranged_profile()  # save from before the ammo fields existed
 		var ids: Array[String] = []
 		for s in d.get("skill_ids", []):
 			ids.append(str(s))

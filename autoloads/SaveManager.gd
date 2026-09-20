@@ -52,6 +52,7 @@ func save_game() -> void:
 		"owned_loot": owned_loot_data,
 		"owned_slates": owned_slates_data,
 		"fate_board_placements": GameState.fate_board_placements,
+		"ammo_reserves": AmmoInventory.serialize(),
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -120,6 +121,10 @@ func load_game() -> void:
 				if slate:
 					slates.append(slate)
 		GameState.owned_slates = slates
+
+	var ammo_raw = parsed.get("ammo_reserves")
+	if typeof(ammo_raw) == TYPE_DICTIONARY:
+		AmmoInventory.deserialize(ammo_raw)
 
 	var placements_raw = parsed.get("fate_board_placements", [])
 	if typeof(placements_raw) == TYPE_ARRAY:

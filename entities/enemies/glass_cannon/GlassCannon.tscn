@@ -1,11 +1,13 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/enemies/base/Enemy.tscn" id="1"]
 [ext_resource type="Script" path="res://entities/enemies/glass_cannon/GlassCannon.gd" id="2"]
 [ext_resource type="Script" path="res://systems/combat/EnemyRangedAttack.gd" id="3"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/glass_cannon.tres" id="4"]
 
 [node name="GlassCannon" instance=ExtResource("1")]
 script = ExtResource("2")
+definition = ExtResource("4")
 
 [node name="RangedAttack" type="Node" parent="."]
 script = ExtResource("3")

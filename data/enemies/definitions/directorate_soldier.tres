@@ -1,0 +1,25 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyDefinition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Directorate Soldier"
+faction = "directorate"
+base_health = 120.0
+base_damage = 12.0
+move_speed = 3.5
+chase_range = 16.0
+stop_distance = 2.0
+retreat_distance = 0.0
+attack_range = 2.0
+attack_cooldown = 1.2
+xp_reward = 14.0
+gold_reward_min = 5
+gold_reward_max = 12
+pack_size_min = 1
+pack_size_max = 3
+weight_normal = 78
+weight_elite = 18
+weight_champion = 3
+weight_ascendant = 1

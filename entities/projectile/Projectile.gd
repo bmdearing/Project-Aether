@@ -36,6 +36,7 @@ func _physics_process(delta: float) -> void:
 	global_position += -global_transform.basis.z * speed * delta
 
 func _on_body_entered(body: Node3D) -> void:
+	AudioManager.play_at(SoundLib.get_impact_sound(_get_surface_type(body)), global_position, -3.0)
 	if source is Player:
 		_hit_enemy(body as Enemy)
 	else:
@@ -64,3 +65,14 @@ func _hit_player(player: Player) -> void:
 	if not parried:
 		player.take_damage(damage_amount, damage_type, source)
 	EventBus.enemy_attack_resolved.emit(source, player, true, parried)
+
+## Which impact sound set to use. Enemies/the player are "flesh"; any
+## other body can opt in by joining a "surface_metal"/"surface_wood" group,
+## and everything else (level geometry) defaults to stone.
+func _get_surface_type(body: Node) -> String:
+	if body is Enemy or body is Player:
+		return "flesh"
+	for surface in ["metal", "wood"]:
+		if body.is_in_group("surface_" + surface):
+			return surface
+	return "stone"

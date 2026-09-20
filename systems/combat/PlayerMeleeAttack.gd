@@ -305,6 +305,26 @@ func _enter_windup() -> void:
 	_state = State.WINDUP
 	_timer = _effective_duration(windup_duration)
 	_play_swing()
+	_play_swing_sound()
+
+## Weapon types by swing sound family. Anything unlisted (staves, casting
+## foci) stays silent rather than borrowing a mismatched sound.
+const SWING_BLADE_TYPES := ["Greatsword", "Claymore", "Rapier", "Dagger", "Saber", "Cutlass", "Shortsword", "Whip"]
+const SWING_BLUNT_TYPES := ["Mace", "War Pick", "Pressure Fist", "Gauntlet"]
+const SWING_PIERCE_TYPES := ["Spear", "Halberd", "Shock Lance"]
+
+func _play_swing_sound() -> void:
+	var weapon := _player.get_active_weapon()
+	if weapon == null:
+		return
+	var snd: AudioStream
+	if SWING_BLADE_TYPES.has(weapon.weapon_type):
+		snd = SoundLib.pick_random(SoundLib.library.swing_blade)
+	elif SWING_BLUNT_TYPES.has(weapon.weapon_type):
+		snd = SoundLib.pick_random(SoundLib.library.swing_blunt)
+	elif SWING_PIERCE_TYPES.has(weapon.weapon_type):
+		snd = SoundLib.pick_random(SoundLib.library.swing_pierce)
+	AudioManager.play_at(snd, _player.global_position)
 
 func _enter_strike() -> void:
 	_state = State.STRIKE

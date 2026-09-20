@@ -38,6 +38,15 @@ class_name Enemy
 ## if never set, so nothing shows a blank label.
 @export var display_name: String = ""
 
+## Data-driven override of the stats/visuals above (Implementation Brief
+## v4.1). Applied at the start of _ready(); null keeps whatever this
+## enemy's own scene/subclass sets, so archetypes migrate one at a time.
+@export var definition: EnemyDefinition = null
+
+var faction: String = ""
+var armor_value: float = 0.0    # stored from the definition; enemies have no mitigation model yet (see Player.take_damage() for the player-side one)
+var evasion_value: float = 0.0
+
 func get_display_name() -> String:
 	return display_name if display_name != "" else name
 
@@ -73,6 +82,20 @@ var _riposte_indicator: MeshInstance3D
 var _riposte_blink_tween: Tween
 var _status_icons: Dictionary = {}  # effect_id -> MeshInstance3D
 
+## Set by _apply_model() when the definition supplies a real model.
+var _anim_controller: EnemyAnimationController
+var _model_root: Node3D
+var _model_meshes: Array[MeshInstance3D] = []
+var _last_hit_react_msec: int = 0
+const HIT_REACT_MIN_INTERVAL_MSEC := 600   # a flinch on every hit would keep a fast attacker locked in HitReact
+const MODEL_TURN_SPEED := 8.0
+const DEATH_LINGER_SEC := 1.5              # corpse stays after the death clip ends
+## Yaw (radians) added when turning the model toward the player. 0.0 =
+## the model's local +Z is its front (glTF/UAL convention, so rotating by
+## atan2(dir.x, dir.z) points it at the player); a model whose front is
+## another axis sets the difference (Arator's front is +X: -PI/2).
+var model_forward_yaw_offset: float = 0.0
+
 ## User request (2026-08-31): enemy health bars "hang while we're in
 ## combat and disappear when they lose track of me/I am out of combat
 ## for 5 seconds." "In combat" = within chase_range of the player (the
@@ -87,6 +110,7 @@ func is_in_combat() -> bool:
 	return Time.get_ticks_msec() - _last_combat_msec < OUT_OF_COMBAT_GRACE_MSEC
 
 func _ready() -> void:
+	_apply_definition()
 	if rank != Constants.EnemyRank.BOSS:
 		rank = _roll_rank()
 	health.died.connect(_on_died)
@@ -101,9 +125,79 @@ func _ready() -> void:
 	composure.broken_state_ended.connect(_on_broken_state_ended)
 	status_effects.effect_applied.connect(_on_status_effect_changed)
 	status_effects.effect_expired.connect(_on_status_effect_changed)
+	_apply_model()
 	# Deferred so archetype subclasses' own health.max_health (set after
 	# super._ready()) isn't overwritten by this.
 	call_deferred("_apply_map_modifiers")
+
+## Copies an EnemyDefinition's stats onto this enemy and its attack
+## component (if any). Runs first in _ready(), so anything a subclass sets
+## after super._ready() still wins - a definition-driven subclass simply
+## doesn't set those values itself.
+func _apply_definition() -> void:
+	if definition == null:
+		return
+	display_name = definition.display_name
+	faction = definition.faction
+	move_speed = definition.move_speed
+	chase_range = definition.chase_range
+	stop_distance = definition.stop_distance
+	retreat_distance = definition.retreat_distance
+	armor_value = definition.armor_value
+	evasion_value = definition.evasion_value
+	health.max_health = definition.base_health
+	health.current_health = definition.base_health
+	xp_reward = definition.xp_reward
+	gold_reward = randi_range(definition.gold_reward_min, definition.gold_reward_max)
+
+	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
+	if melee:
+		melee.damage_amount = definition.base_damage
+		melee.damage_type = definition.damage_type
+		melee.attack_range = definition.attack_range
+		melee.recovery_duration = definition.attack_cooldown
+	var ranged := get_node_or_null("RangedAttack") as EnemyRangedAttack
+	if ranged:
+		ranged.damage_amount = definition.base_damage
+		ranged.damage_type = definition.damage_type
+		ranged.fire_range = definition.attack_range
+		ranged.cooldown_duration = definition.attack_cooldown
+
+## Replaces the placeholder capsule with the definition's model and, if the
+## model carries an "AnimationTree" node and the definition an AnimationSet,
+## drives it through an EnemyAnimationController.
+func _apply_model() -> void:
+	if definition == null or definition.model_scene == null:
+		return
+	var placeholder := get_node_or_null("MeshInstance3D")
+	if placeholder:
+		placeholder.queue_free()
+	var model := definition.model_scene.instantiate() as Node3D
+	add_child(model)
+	model.scale = Vector3.ONE * definition.scale_modifier
+	_model_root = model
+	for mesh in model.find_children("*", "MeshInstance3D"):
+		_model_meshes.append(mesh)
+	var anim_tree := model.get_node_or_null("AnimationTree") as AnimationTree
+	if anim_tree and definition.animation_set:
+		var controller := EnemyAnimationController.new()
+		add_child(controller)
+		controller.setup(anim_tree, definition.animation_set)
+		_anim_controller = controller
+
+## Turns the model (not the body - collision/hitboxes stay symmetric) toward
+## the player, and feeds ground speed to the animation tree.
+func _update_model(delta: float) -> void:
+	if _model_root == null or not health.is_alive():
+		return
+	if is_instance_valid(_player):
+		var to_player := _player.global_position - global_position
+		to_player.y = 0.0
+		if to_player.length() > 0.1 and to_player.length() <= chase_range:
+			var target_yaw := atan2(to_player.x, to_player.z) + model_forward_yaw_offset - global_rotation.y
+			_model_root.rotation.y = lerp_angle(_model_root.rotation.y, target_yaw, clamp(MODEL_TURN_SPEED * delta, 0.0, 1.0))
+	if _anim_controller:
+		_anim_controller.set_speed(Vector2(velocity.x, velocity.z).length())
 
 func _build_status_icons() -> void:
 	for i in range(STATUS_EFFECT_IDS.size()):
@@ -148,6 +242,8 @@ func _build_riposte_indicator() -> void:
 	add_child(_riposte_indicator)
 
 func _on_broken_state_started() -> void:
+	if _anim_controller:
+		_anim_controller.play_stagger()
 	_riposte_indicator.visible = true
 	if _riposte_blink_tween:
 		_riposte_blink_tween.kill()
@@ -210,6 +306,7 @@ func _physics_process(delta: float) -> void:
 		velocity.y -= _gravity * delta
 	_update_chase()
 	move_and_slide()
+	_update_model(delta)
 
 func _update_chase() -> void:
 	if not is_instance_valid(_player):
@@ -337,6 +434,7 @@ const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPicku
 const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
 
 func _on_died() -> void:
+	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.enemy_death), global_position)
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player and player.experience:
 		player.experience.add_xp(xp_reward)
@@ -344,6 +442,26 @@ func _on_died() -> void:
 		player.ward.restore_on_kill()  # Patch v3.2: "On kill: 5% Ward Restoration baseline"
 	_drop_gold()
 	_maybe_drop_loot()
+	if _anim_controller:
+		_play_death_then_free()
+		return
+	queue_free()
+
+## Definition-driven enemies with a death clip linger on it instead of
+## vanishing. Leaves the "enemy" group and drops collision immediately so
+## the corpse can't be targeted, hit, or counted as alive meanwhile.
+func _play_death_then_free() -> void:
+	remove_from_group("enemy")
+	collision_layer = 0
+	velocity = Vector3.ZERO
+	var head_zone := get_node_or_null("HeadZone") as Area3D
+	if head_zone:
+		head_zone.set_deferred("monitorable", false)
+	_riposte_indicator.visible = false
+	for icon in _status_icons.values():
+		icon.visible = false
+	_anim_controller.play_death()
+	await get_tree().create_timer(_anim_controller.get_death_duration() + DEATH_LINGER_SEC).timeout
 	queue_free()
 
 func _drop_gold() -> void:
@@ -397,6 +515,12 @@ func _maybe_drop_loot() -> void:
 			_spawn_pickup(figment)
 			return
 
+	if randf() <= AMMO_DROP_CHANCE:
+		var ammo := _roll_ammo_drop()
+		if ammo:
+			_spawn_pickup(ammo)
+			return
+
 	var quantity_mult: float = GameState.active_map.loot_quantity_multiplier if GameState.active_map else 1.0
 	if randf() > BASE_LOOT_DROP_CHANCE * quantity_mult:
 		return
@@ -405,6 +529,42 @@ func _maybe_drop_loot() -> void:
 	if item == null:
 		return
 	_spawn_pickup(item)
+
+## Implementation Brief v4.2: ammo drops prefer the ammo type the player's
+## ranged weapon actually uses. Rolled independently of (and just before)
+## the gear roll below, so it doesn't change any earlier drop's odds.
+const AMMO_DROP_CHANCE := 0.15
+
+func _roll_ammo_drop() -> Item:
+	var player := get_tree().get_first_node_in_group("player") as Player
+	if player == null:
+		return null
+	var ammo_type := _get_preferred_ammo_type(player)
+	if ammo_type == Constants.AmmoType.ARROW:
+		return null  # arrows are infinite, never drop
+	var ammo_id: String = Constants.AMMO_TYPE_PICKUP_ID.get(ammo_type, "")
+	if ammo_id.is_empty():
+		return null
+	var base := load(CRAFTING_CONSUMABLE_DIR + ammo_id + ".tres") as Item
+	return base.duplicate(true) as Item if base else null
+
+## Ammo type of the first non-bow ranged weapon in the active weapon set,
+## then the inactive one. Bows-only returns ARROW (no drop); no ranged
+## weapon at all rolls a random firearm type.
+func _get_preferred_ammo_type(player: Player) -> Constants.AmmoType:
+	var equipment := player.equipment
+	var weapons: Array = [player.get_active_weapon(), equipment.primary_weapons[1 - equipment.active_weapon_set]]
+	var saw_bow := false
+	for weapon in weapons:
+		if weapon is Weapon and weapon.is_ranged:
+			if weapon.ammo_type == Constants.AmmoType.ARROW:
+				saw_bow = true
+			else:
+				return weapon.ammo_type
+	if saw_bow:
+		return Constants.AmmoType.ARROW
+	var types := [Constants.AmmoType.PISTOL, Constants.AmmoType.RIFLE, Constants.AmmoType.SHOTGUN, Constants.AmmoType.AUTOMATIC]
+	return types[randi() % types.size()]
 
 ## Stub only (brief's own DO NOT: "Implement Figment drop conversion
 ## fully - stub only. Full Figment drop logic is a separate pass") -
@@ -474,6 +634,10 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		if shred > 0.0:
 			mitigated *= (1.0 - DamageCalculator.resistance_mitigation(-shred))
 	health.apply_damage(mitigated)
+	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), global_position, -2.0)
+	if _anim_controller and health.is_alive() and Time.get_ticks_msec() - _last_hit_react_msec >= HIT_REACT_MIN_INTERVAL_MSEC:
+		_last_hit_react_msec = Time.get_ticks_msec()
+		_anim_controller.play_hit_react()
 
 ## Never returns BOSS - a boss encounter's own scene/script sets `rank`
 ## to BOSS directly (see _ready()'s own guard), it doesn't come from this
@@ -507,6 +671,8 @@ func _set_placeholder_color(c: Color) -> void:
 
 func begin_attack_telegraph() -> void:
 	_apply_mesh_color(TELEGRAPH_COLOR)
+	if _anim_controller:
+		_anim_controller.play_attack()  # at windup start, so the clip's release lines up with the strike/shot
 
 ## progress: 0.0 (just telegraphed) -> 1.0 (about to strike).
 func update_attack_telegraph(progress: float) -> void:
@@ -516,6 +682,17 @@ func end_attack_telegraph() -> void:
 	_apply_mesh_color(_base_color)
 
 func _apply_mesh_color(c: Color) -> void:
+	if not _model_meshes.is_empty():
+		# Real model: the telegraph flash tints it flat, and "back to base
+		# color" removes the tint rather than painting the placeholder color on.
+		var restore := c.is_equal_approx(_base_color)
+		var flash: StandardMaterial3D = null
+		if not restore:
+			flash = StandardMaterial3D.new()
+			flash.albedo_color = c
+		for m in _model_meshes:
+			m.material_override = flash
+		return
 	var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
 	if mesh:
 		var mat := StandardMaterial3D.new()

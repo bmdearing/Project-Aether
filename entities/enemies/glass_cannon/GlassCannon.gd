@@ -10,15 +10,10 @@ class_name GlassCannon
 ## the three archetypes distinct by engagement style, not just numbers -
 ## HeavyHitter/MobileBruiser stay melee brawlers.
 
+## Stats, model and animations come from data/enemies/definitions/
+## glass_cannon.tres (Enemy._apply_definition()/_apply_model()) - the first
+## archetype on the EnemyDefinition + UAL animation pipeline.
 func _ready() -> void:
 	super._ready()
-	display_name = "Glass Cannon"
 	archetype = Constants.EnemyArchetype.GLASS_CANNON
-	move_speed = 5.5
-	chase_range = 16.0
-	stop_distance = 7.0       # holds near EnemyRangedAttack.fire_range (9.0)
-	retreat_distance = 4.5    # backs off if the player closes inside this
-	health.max_health = 60.0
-	xp_reward = 12.0
-	gold_reward = 6
-	_set_placeholder_color(Color(0.95, 0.85, 0.2))  # yellow - fast/fragile
+	_set_placeholder_color(Color(0.95, 0.85, 0.2))  # flash-restore reference color only - the real model is never painted with it

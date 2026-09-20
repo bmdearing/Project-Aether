@@ -55,6 +55,11 @@ func _on_body_entered(body: Node3D) -> void:
 		return
 	if item == null:
 		return
+	if item is AmmoPack:
+		var pack := item as AmmoPack
+		AmmoInventory.add(pack.ammo_type, pack.amount)
+		queue_free()
+		return
 	if item is SkillTome:
 		var tome := item as SkillTome
 		if not GameState.owned_ability_ids.has(tome.ability_id):

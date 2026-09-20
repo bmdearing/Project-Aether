@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/animations/Universal Animation Library[Standard]/Unreal-Godot/UAL1_Standard.glb" id="1"]
+[ext_resource type="PackedScene" path="res://entities/enemies/base/HumanoidAnimTree.tscn" id="2"]
+
+[node name="UALHumanoidModel" type="Node3D"]
+
+[node name="Model" parent="." instance=ExtResource("1")]
+
+[node name="AnimationTree" parent="." instance=ExtResource("2")]
+anim_player = NodePath("../Model/AnimationPlayer")

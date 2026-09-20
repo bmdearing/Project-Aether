@@ -7,6 +7,37 @@ there. Most recent first.
 
 ---
 
+## 2026-09-20 — Implementation Brief v4.2: Ranged Ammo, Magazines, Fire Modes, SFX
+
+**Brief assumptions that didn't match the project:**
+- **Save/load lives in `SaveManager`** (JSON), not `GameState`. Ammo reserves are saved there; JSON stringifies the enum keys, so `AmmoInventory.deserialize()` converts them back and keeps starting amounts for any type an older save lacks. `GameState.reset_to_defaults()` (New Game) resets ammo.
+- **Rolled weapons are rebuilt field by field** by `ItemSerializer`, so the new fields would have been lost on every save/load (a rolled shotgun coming back as a default semi-auto pistol). Added them to the serializer, plus a fallback for saves that predate them: the brief's table now lives in `Weapon.RANGED_PROFILES` and `apply_ranged_profile()` fills the fields from `weapon_type`. `tools/apply_ranged_weapon_stats.gd` reads the same table.
+- **No weapon-equipped hook and no reload key existed.** The brief's `_on_weapon_equipped` (refill the magazine on equip) would have been a free refill by swapping weapon sets, and contradicts its own "no auto-reload on swap". The loaded count is `Weapon.current_magazine` (runtime only; -1 reads as full, so a fresh weapon starts loaded), swapping cancels a reload in progress and touches nothing else. Reload is a new `reload` input on R; R is also `fate_board_rotate`, which is safe because that editor pauses the tree.
+- **The brief's `_fire_one` consumed reserve ammo per shot AND reload consumed it again**, and its own DO NOT says not to gate fire on reserve. Firing spends only the magazine; reloading pulls from the reserve.
+- **Autoload scripts can't share a `class_name` with their singleton** (`AmmoInventory`, `AudioManager`, `SoundLib` have none). Bows have `magazine_size = 0`, which the brief's code would have treated as permanently empty; they're special-cased.
+- **The brief's weapon keys (`service_pistol`...) map to the real `weapon_type` strings** ("Service Pistol"...). 236 files updated (all ranged weapons); the one legacy `worn_bow` ("Bow") isn't in the table and takes the Shortbow row.
+- `player.equipment.get_weapon_set_b_primary()` doesn't exist; the other set is `primary_weapons[1 - active_weapon_set]`. Bows-only loadouts drop no ammo; a bow in one set and a firearm in the other drops the firearm's type.
+- Ammo pickups are a new `AmmoPack` item; `LootPickup` adds them straight to `AmmoInventory` instead of the inventory. The 15% ammo roll sits just before the gear roll, so no earlier drop's odds changed.
+
+**Behavior:** pump shotgun reloads one shell per `cycle_time` and firing mid-reload stops it (needs a loaded shell); full auto fires from a held-input path; bolt/lever/revolver/crossbow/pump block on `cycle_time`; a full magazine won't reload; empty with no reserve plays the dry click and never the fire sound. Spread is sampled inside an ellipse (full width sideways, half up/down), so no pellet exceeds the stated half-angle; aiming halves it. Damage of one shot is split across pellets, each rolling its own crit.
+
+**Sound:** `AudioManager` (8-player pool), `SoundLib`, `SoundLibrary` resource (all slots empty - the game is silent until `data/sound/sound_library.tres` is populated). Wired: fire, dry click, reload/cycle/shell insert, projectile impact (flesh for Enemy/Player, else stone; join group `surface_metal`/`surface_wood` to change), melee swing (Whip added to blade; Gauntlet to blunt; Shock Lance to pierce - the brief's lists missed them), enemy hit and death.
+
+**Verified** with a scratch scene (deleted): magazine/reserve accounting, auto-reload, partial reload, dry fire, 10-pellet pump with shell-by-shell reload and interrupt, ~10 shots/s SMG, bolt cycle, bow (infinite, no magazine), swap cancelling a reload, ammo JSON round trip, serializer round trip and old-save fallback, smart drop type, pickup, HUD text, spread cone (max 12.0 deg of 16, aimed 7.2 of 8). Not verified: anything by ear or by eye - no audio exists, and the HUD layout and fire animations at full-auto rate haven't been looked at in a window.
+
+## 2026-09-20 — Implementation Brief v4.1: Enemy Animation Pipeline
+
+**Brief assumptions that didn't match the project:**
+- **Arator's "broken textures / wrong animation"** was already solved in code: `FigmentBoss.gd` builds ORM materials per geoset and drives idle/walk/attack/death from real combat state. Rendered in a window to confirm both. Not done: material extraction and an import post-script (the script's `scale = 0.01` would have double-shrunk him, since the exporter already bakes 0.02). The one real problem was orientation, and it wasn't an import issue - **no enemy in the project ever turned toward the player**.
+- **UAL clip names** in the brief (`Punching`, `HitReact`, `Stagger`, `Dying`, `Run`) don't exist. Real UAL1 names: `Idle`, `Walk`, `Jog_Fwd`, `Punch_Jab`, `Punch_Cross`, `Hit_Chest`, `Hit_Head`, `Death01`, `Spell_Simple_Shoot`. UAL has no dedicated stagger clip (UAL2 has `Hit_Knockback`); `Hit_Head` stands in. Clips must be read with the 4.7.1 binary - 4.5.1 imports 0 animations from these files.
+- Godot's state machine has no "Any" state and transitions can't read a float `speed`, so `HumanoidAnimTree.tscn` (generated by `tools/generate_humanoid_anim_tree.gd`) has one condition-gated transition per source state, and `EnemyAnimationController.set_speed()` converts speed to `moving/stopped/running/walking` booleans. The tree's state machine resource is shared between scene instances, so the controller duplicates it per enemy.
+
+**Added:** `AnimationSet`, `EnemyDefinition`, `EnemyAnimationController`, `HumanoidAnimTree.tscn`, `UALHumanoidModel.tscn`, three definitions (`glass_cannon`, `hollowed_shambler`, `directorate_soldier`), two animation sets (`ual_humanoid`, `ual_humanoid_ranged`). `Enemy.gd` gained `_apply_definition()`, `_apply_model()`, model turning toward the player (`model_forward_yaw_offset`: 0 for glTF/UAL +Z models, -PI/2 for Arator, whose front is his local +X. My first pass judged this from renders and used PI, which was wrong; the nose-bone direction measured against the direction to the player in a running scene is within 1-4 degrees at -PI/2), hit-react (throttled to 600ms), stagger on composure break, attack clip at telegraph start, and a death clip with a 1.5s linger (corpse leaves the `enemy` group and drops collision immediately). GlassCannon is fully definition-driven and uses `ual_humanoid_ranged` (a ranged enemy punching looked wrong).
+
+**Camera/HUD:** `CameraSway` (roll/pitch lag + walking bob) on the player camera; bob uses `v_offset`/`h_offset` rather than `position` because `PlayerMeleeAttack`'s hit-shake tweens `position` from a captured start value and would fight a per-frame write. Vignette in `PlayerHUD`: off at full health in normal play (brief's DO NOT, which contradicts its own "normal = 0.3" line - flip `VIGNETTE_NORMAL_INTENSITY` to change), 0.35 in a Figment, ramps to 0.6 and red below 30% life, 0.5 flash on damage.
+
+**Not wired:** definition fields `armor_value`/`evasion_value` (enemies have no mitigation model), spawn fields and rarity weights (no spawner reads them; `EnemyRarityComponent` rolls its own), the two faction definitions have no model yet.
+
 ## 2026-09-07 — Implementation Brief v4.0: Full Mod Pool Framework
 
 Extracted the real Patch v4.0 doc (`documents/Project_Aether_Patch_v4_0.docx`)

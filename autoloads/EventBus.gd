@@ -88,3 +88,10 @@ signal grade_ascended(item: Item, stat: String, new_grade: int)
 ## Patch v3.7 Section 2 - CastTimeHandler.
 signal cast_started(ability: Ability, cast_time: float)
 signal cast_interrupted()
+
+## Implementation Brief v4.2 - ranged ammo/reload. ammo_changed fires on any
+## reserve change AND after every shot (the HUD re-reads the magazine then).
+signal reload_started(weapon: Weapon)
+signal reload_finished(weapon: Weapon)
+signal reload_interrupted(weapon: Weapon)
+signal ammo_changed(ammo_type: int, reserve_count: int)

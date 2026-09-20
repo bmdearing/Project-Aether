@@ -79,6 +79,11 @@ func _ready() -> void:
 	_setup_arator_visual()  # must run before _set_placeholder_color() below, which immediately triggers _apply_mesh_color() and expects _arator_meshes to already be populated
 	_set_placeholder_color(Color(0.25, 0.04, 0.35))  # only used as _base_color bookkeeping now (see _apply_mesh_color() override) - never actually painted onto the real model
 	_setup_animation_player()
+	# Nothing turned enemies toward the player before. Arator's front is his
+	# local +X (measured: nose-bone direction vs. direction to the player, with
+	# the boss running in a scene), and +Z-front models use 0, so -PI/2.
+	_model_root = get_node_or_null("ArorModel")
+	model_forward_yaw_offset = -PI / 2.0
 
 	var melee: EnemyMeleeAttack = get_node_or_null("MeleeAttack")
 	if melee:

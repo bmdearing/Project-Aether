@@ -52,6 +52,34 @@ const STATUS_CHIP_MIN_WIDTH := 76.0
 const STATUS_CHIP_GAP := 6.0
 const XP_BAR_SHADER := preload("res://ui/player_hud/xp_bar.gdshader")
 
+## Screen-edge vignette (Implementation Brief v4.1). Invisible at full health
+## in normal play (the brief's DO NOT) - it only shows in a Figment, below
+## LOW_HEALTH_FRACTION life, or as a brief flash on taking damage.
+const VIGNETTE_SHADER := preload("res://assets/shaders/vignette.gdshader")
+const VIGNETTE_NORMAL_INTENSITY := 0.0
+const VIGNETTE_FIGMENT_INTENSITY := 0.35
+const VIGNETTE_LOW_HEALTH_INTENSITY := 0.6
+const VIGNETTE_DAMAGE_FLASH_INTENSITY := 0.5
+const VIGNETTE_LOW_HEALTH_FRACTION := 0.3
+const VIGNETTE_LOW_HEALTH_COLOR := Color(0.55, 0.0, 0.02)
+const VIGNETTE_FLASH_DECAY_PER_SEC := 2.5
+const VIGNETTE_BLEND_SPEED := 6.0
+## Ammo counter above the weapon indicator (Implementation Brief v4.2):
+## magazine large, reserve small, "RELOADING" while a reload runs. Hidden
+## unless a ranged weapon is equipped; bows show an infinity sign (arrows
+## are unlimited and have no magazine).
+const AMMO_BOX_WIDTH := 160.0
+const AMMO_EMPTY_COLOR := Color(1.0, 0.2, 0.2)
+var _ammo_box: VBoxContainer
+var _magazine_label: Label
+var _reserve_label: Label
+var _reload_label: Label
+var _vignette: ColorRect
+var _vignette_material: ShaderMaterial
+var _vignette_intensity: float = 0.0
+var _vignette_flash: float = 0.0
+var _vignette_last_health: float = -1.0
+
 ## Patch v3.5 Section 3: small icon + quantity, top-right corner - shows
 ## "0" plainly rather than hiding when empty.
 const THROWABLE_ICON_SIZE := 40.0
@@ -107,6 +135,8 @@ func _ready() -> void:
 	_life_orb.ward_color = WARD_COLOR
 	_mana_orb = _build_orb(MANA_COLOR, "Mana", ABILITY_BAR_HALF_WIDTH + ORB_GAP, ABILITY_BAR_HALF_WIDTH + ORB_GAP + ORB_HEIGHT)
 
+	_build_vignette()
+	_build_ammo_display()
 	_build_xp_bar()
 	_build_weapon_indicator()
 	_build_gold_label()
@@ -118,6 +148,11 @@ func _ready() -> void:
 
 	if is_instance_valid(_player):
 		_player.health.health_changed.connect(_on_health_changed)
+		_player.health.health_changed.connect(_update_vignette_on_health_changed)
+		EventBus.reload_started.connect(_on_reload_started)
+		EventBus.reload_finished.connect(_on_reload_finished)
+		EventBus.reload_interrupted.connect(_on_reload_finished)
+		EventBus.ammo_changed.connect(_on_ammo_changed)
 		_player.mana.mana_changed.connect(_on_mana_changed)
 		_player.ward.ward_changed.connect(_on_ward_changed)
 		_player.experience.xp_changed.connect(_on_xp_changed)
@@ -407,6 +442,7 @@ func _process(_delta: float) -> void:
 		_last_gold = GameState.gold
 		_gold_label.text = "Gold: %d" % GameState.gold
 	_update_enemy_health_bars()
+	_update_vignette(_delta)
 
 ## User request (2026-08-31): "a health bar on enemies when I hover over
 ## them... hangs while we're in combat and disappears when they lose
@@ -492,6 +528,97 @@ func _build_weapon_indicator() -> void:
 	_weapon_name_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	weapon_indicator.add_child(_weapon_name_label)
 
+func _build_ammo_display() -> void:
+	_ammo_box = VBoxContainer.new()
+	_ammo_box.anchor_left = 1.0
+	_ammo_box.anchor_right = 1.0
+	_ammo_box.anchor_top = 1.0
+	_ammo_box.anchor_bottom = 1.0
+	_ammo_box.offset_left = -AMMO_BOX_WIDTH - 20.0
+	_ammo_box.offset_right = -20.0
+	_ammo_box.offset_top = -196.0
+	_ammo_box.offset_bottom = -92.0
+	_ammo_box.grow_horizontal = Control.GROW_DIRECTION_BEGIN
+	_ammo_box.grow_vertical = Control.GROW_DIRECTION_BEGIN
+	_ammo_box.alignment = BoxContainer.ALIGNMENT_END
+	_ammo_box.add_theme_constant_override("separation", -4)
+	_ammo_box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ammo_box.visible = false
+	add_child(_ammo_box)
+	_magazine_label = _make_ammo_label(44)
+	_reserve_label = _make_ammo_label(20)
+	_reload_label = _make_ammo_label(14)
+	_reload_label.text = "RELOADING"
+	_reload_label.visible = false
+
+func _make_ammo_label(font_size: int) -> Label:
+	var label := Label.new()
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
+	label.add_theme_constant_override("outline_size", 5)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ammo_box.add_child(label)
+	return label
+
+func _update_ammo_display(weapon: Weapon) -> void:
+	if weapon == null or not weapon.is_ranged:
+		_ammo_box.visible = false
+		return
+	_ammo_box.visible = true
+	var magazine := _player.ranged_attack.get_current_magazine()
+	if magazine < 0:  # no magazine: bows
+		_magazine_label.text = "∞"
+		_reserve_label.text = ""
+		_magazine_label.modulate = Color.WHITE
+		return
+	_magazine_label.text = str(magazine)
+	_reserve_label.text = "/ %d" % AmmoInventory.get_reserve(weapon.ammo_type)
+	_magazine_label.modulate = AMMO_EMPTY_COLOR if magazine == 0 else Color.WHITE
+
+func _on_reload_started(_weapon: Weapon) -> void:
+	_reload_label.visible = true
+
+func _on_reload_finished(_weapon: Weapon) -> void:
+	_reload_label.visible = false
+	_update_ammo_display(_player.get_active_weapon())
+
+func _on_ammo_changed(ammo_type: int, _reserve: int) -> void:
+	var weapon: Weapon = _player.get_active_weapon()
+	if weapon and weapon.ammo_type == ammo_type:
+		_update_ammo_display(weapon)
+
+## Full-screen ColorRect behind every other HUD element (added first).
+func _build_vignette() -> void:
+	_vignette = ColorRect.new()
+	_vignette.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_vignette.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_vignette_material = ShaderMaterial.new()
+	_vignette_material.shader = VIGNETTE_SHADER
+	_vignette_material.set_shader_parameter("intensity", 0.0)
+	_vignette.material = _vignette_material
+	add_child(_vignette)
+	move_child(_vignette, 0)
+
+func _update_vignette_on_health_changed(current: float, _max_value: float) -> void:
+	if _vignette_last_health >= 0.0 and current < _vignette_last_health:
+		_vignette_flash = VIGNETTE_DAMAGE_FLASH_INTENSITY
+	_vignette_last_health = current
+
+func _update_vignette(delta: float) -> void:
+	var base := VIGNETTE_FIGMENT_INTENSITY if GameState.active_map != null else VIGNETTE_NORMAL_INTENSITY
+	var color := Color.BLACK
+	if is_instance_valid(_player) and _player.health.max_health > 0.0:
+		var fraction: float = _player.health.current_health / _player.health.max_health
+		if fraction < VIGNETTE_LOW_HEALTH_FRACTION:
+			var danger: float = 1.0 - fraction / VIGNETTE_LOW_HEALTH_FRACTION
+			base = lerpf(base, VIGNETTE_LOW_HEALTH_INTENSITY, danger)
+			color = Color.BLACK.lerp(VIGNETTE_LOW_HEALTH_COLOR, danger)
+	_vignette_flash = move_toward(_vignette_flash, 0.0, VIGNETTE_FLASH_DECAY_PER_SEC * delta)
+	_vignette_intensity = lerpf(_vignette_intensity, max(base, _vignette_flash), clamp(VIGNETTE_BLEND_SPEED * delta, 0.0, 1.0))
+	_vignette_material.set_shader_parameter("intensity", _vignette_intensity)
+	_vignette_material.set_shader_parameter("vignette_color", color)
+
 func _on_health_changed(current: float, max_value: float) -> void:
 	_life_orb.set_value(current, max_value)
 
@@ -560,6 +687,8 @@ func _on_weapon_swapped(player: Node) -> void:
 
 func _refresh_weapon_indicator() -> void:
 	var weapon: Weapon = _player.get_active_weapon()
+	_update_ammo_display(weapon)
+	_reload_label.visible = _player.ranged_attack.is_reloading()
 	_weapon_icon.item = weapon
 	var box := StyleBoxFlat.new()
 	box.set_corner_radius_all(4)

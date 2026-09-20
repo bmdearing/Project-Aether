@@ -1,0 +1,4 @@
+[gd_scene load_steps=2 format=3]
+[ext_resource type="Script" path="res://tools/generate_humanoid_anim_tree.gd" id="1"]
+[node name="Gen" type="Node"]
+script = ExtResource("1")

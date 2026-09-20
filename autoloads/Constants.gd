@@ -125,6 +125,26 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 ## live in exactly one place.
 const CRAFTING_CONSUMABLE_IDS := ["infusion_stone", "shrivening_stone", "shard_of_tharsis"]
 
+## Implementation Brief v4.2 - ranged weapon ammo. ARROW is infinite (never
+## tracked, never dropped); every other type has a persistent reserve in
+## the AmmoInventory autoload.
+enum AmmoType { PISTOL, REVOLVER, SHOTGUN, RIFLE, AUTOMATIC, CROSSBOW_BOLT, ARROW }
+
+## SEMI_AUTO: one shot per click. FULL_AUTO: fires while held (Weapon.
+## fire_rate). BOLT/LEVER/PUMP_ACTION and SINGLE_ACTION (revolver hammer,
+## crossbow): a Weapon.cycle_time delay between shots.
+enum FireMode { SEMI_AUTO, FULL_AUTO, BOLT_ACTION, LEVER_ACTION, PUMP_ACTION, SINGLE_ACTION }
+
+## Ammo pickup Item ids (data/consumables/instances/) - see AmmoPack.
+const AMMO_TYPE_PICKUP_ID := {
+	AmmoType.PISTOL: "ammo_pistol",
+	AmmoType.REVOLVER: "ammo_revolver",
+	AmmoType.SHOTGUN: "ammo_shotgun",
+	AmmoType.RIFLE: "ammo_rifle",
+	AmmoType.AUTOMATIC: "ammo_automatic",
+	AmmoType.CROSSBOW_BOLT: "ammo_crossbow",
+}
+
 const STATUS_EFFECT_NAME := {
 	"ignite": "Ignite",
 	"chill": "Chill",
