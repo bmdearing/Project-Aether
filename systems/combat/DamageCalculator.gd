@@ -78,6 +78,31 @@ static func physical_mitigation(armor: float, hit_damage: float) -> float:
 		return 0.0
 	return armor / (armor + 6.0 * hit_damage)
 
+## Patch v4.4 Evasion (design doc, Master v3.0). Dodge: an attack hit
+## deals nothing. Deflection: the hit lands but is reduced by
+## deflection_mitigation(). Caps are hard ceilings on the curves.
+const DODGE_CHANCE_DIVISOR := 3800.0
+const DODGE_CHANCE_CAP := 0.65
+const DEFLECTION_CHANCE_DIVISOR := 2333.0
+const DEFLECTION_CHANCE_CAP := 0.75
+const DEFLECTION_MITIGATION_DIVISOR := 13000.0
+const DEFLECTION_MITIGATION_CAP := 0.35
+
+static func dodge_chance(evasion: float) -> float:
+	if evasion <= 0.0:
+		return 0.0
+	return min(evasion / (evasion + DODGE_CHANCE_DIVISOR), DODGE_CHANCE_CAP)
+
+static func deflection_chance(evasion: float) -> float:
+	if evasion <= 0.0:
+		return 0.0
+	return min(evasion / (evasion + DEFLECTION_CHANCE_DIVISOR), DEFLECTION_CHANCE_CAP)
+
+static func deflection_mitigation(evasion: float) -> float:
+	if evasion <= 0.0:
+		return 0.0
+	return min(evasion / (evasion + DEFLECTION_MITIGATION_DIVISOR), DEFLECTION_MITIGATION_CAP)
+
 ## Patch v3.2 "Revision - Resistance System" gives no explicit floor or
 ## ceiling (only that Resistance Shred can push Resistance negative,
 ## amplifying damage taken) - these two bounds are user-set directly

@@ -17,12 +17,13 @@ class_name ParryRiposteHandler
 
 @export var parry_window_seconds: float = 0.25
 @export var parry_stance_damage: float = 25.0
-## Riposte's motion-value multiplier on top of the weapon's normal swing -
-## "a large amount of damage," invented, not doc-sourced with an exact
-## number. Riposte damage also inherits ComposureComponent's existing
-## "damage taken while broken" multiplier for free, since the target is
-## still broken at the moment the hit lands (end_broken_state() runs after).
-const RIPOSTE_MOTION_VALUE_MULTIPLIER := 3.0
+## Riposte's motion-value multiplier on top of the weapon's normal swing
+## (already the full charged MV when riposting off a charged thrust) -
+## invented, not doc-sourced with an exact number. Riposte damage also
+## inherits ComposureComponent's existing "damage taken while broken"
+## multiplier for free, since the target is still broken at the moment the
+## hit lands (end_broken_state() runs after). Never evadable.
+const RIPOSTE_MOTION_VALUE_MULTIPLIER := 1.4
 @export var riposte_invuln_duration: float = 1.0
 
 var is_invulnerable: bool = false

@@ -257,7 +257,7 @@ func _apply_derived_stats() -> void:
 	# Evasion/Crit Chance from Finesse - stored on StatSheet for Weapon/
 	# Ability._base_hit() (crit) and a future mitigation formula (evasion,
 	# same "real value, no consumer yet" footing Evasion already had).
-	stat_sheet.stat_evasion_bonus = stat_sheet.get_evasion_from_stats()
+	stat_sheet.stat_evasion_bonus = stat_sheet.get_total_evasion(equipment)
 	# Patch v4.0: gear's own "increased Critical Strike Chance" (crit_
 	# chance_increased) combines into the same multiplicative bracket as
 	# Finesse's contribution, not a separate additive bonus - see
@@ -456,14 +456,33 @@ func _unshaded_material(color: Color) -> StandardMaterial3D:
 func get_active_weapon() -> Weapon:
 	return equipment.primary_weapon
 
-## Patch v3.2 "Order of Operations - All Damage": mitigation (Armor for
-## Physical, Resistance for Elemental/Esoteric - Evasion isn't modeled,
-## no dodge/deflection mechanic exists in this project) applies first,
+## What delivered a hit, for Evasion (Patch v4.4). ATTACK (melee swings and
+## projectiles - the default, so callers that don't say are treated as
+## attacks) can be Dodged and Deflected; SPELL can only be Deflected; DOT
+## (ignite ticks) is neither - evasion is for hit events only. The brief's
+## "source is Ability" test can't work: Ability is a Resource and `source`
+## is a Node, so the caller says what it is instead.
+enum HitKind { ATTACK, SPELL, DOT }
+
+## Patch v3.2 "Order of Operations - All Damage": Evasion (Patch v4.4:
+## Dodge, then Deflection - see DamageCalculator) rolls first, then
+## mitigation (Armor for Physical, Resistance for Elemental/Esoteric) applies,
 ## then Ward absorbs whatever's left regardless of type (the old Esoteric-
 ## only restriction is gone), then Ward overflow hits Health.
-func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null) -> void:
+func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null, hit_kind: HitKind = HitKind.ATTACK) -> void:
 	if parry_handler and parry_handler.is_invulnerable:
 		return
+	# Patch v4.4 Evasion: Dodge (attacks only) negates the hit entirely and
+	# never interrupts a cast; Deflection (attacks and spells) reduces it.
+	if hit_kind != HitKind.DOT:
+		var evasion := stat_sheet.get_total_evasion(equipment)
+		if evasion > 0.0:
+			if hit_kind == HitKind.ATTACK and randf() < DamageCalculator.dodge_chance(evasion):
+				EventBus.hit_dodged.emit(self)
+				return
+			if randf() < DamageCalculator.deflection_chance(evasion):
+				amount *= 1.0 - DamageCalculator.deflection_mitigation(evasion)
+				EventBus.hit_deflected.emit(self)
 	# Patch v4.0 Defensive Mod Pool - % Physical Damage taken as Elemental
 	# shifts BEFORE mitigation, per damage type, splitting one hit into
 	# several smaller ones the rest of this function then processes

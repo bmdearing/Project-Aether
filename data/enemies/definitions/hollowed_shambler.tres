@@ -6,8 +6,13 @@
 script = ExtResource("1")
 display_name = "Hollowed Shambler"
 faction = "hollowed"
+mob_level = 1
+archetype_category = "standard"
+ward_percent = 0.1
 base_health = 80.0
 base_damage = 8.0
+armor_value = 80.0
+evasion_value = 80.0
 move_speed = 2.5
 chase_range = 12.0
 stop_distance = 1.8

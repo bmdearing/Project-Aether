@@ -98,3 +98,11 @@ signal ammo_changed(ammo_type: int, reserve_count: int)
 
 ## Patch v4.3 - a melee hit stopped by the defender's shield.
 signal hit_blocked(defender: Node)
+
+## Patch v4.6 - a player weapon attack fully avoided by an enemy's evasion_value.
+signal enemy_hit_dodged(enemy: Node)
+
+## Patch v4.4 - Evasion. Dodged: an attack hit fully negated. Deflected: a hit
+## reduced by Deflection Mitigation (still lands).
+signal hit_dodged(defender: Node)
+signal hit_deflected(defender: Node)

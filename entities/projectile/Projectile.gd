@@ -18,6 +18,10 @@ class_name Projectile
 var damage_amount: float = 0.0
 var damage_type: Constants.DamageType = Constants.DamageType.KINETIC
 var source: Node
+## True for a projectile that is a spell rather than an attack (Evasion:
+## spells can't be Dodged, only Deflected). Nothing sets it yet - enemies
+## have no spells, only the ranged attack, which spawns attack projectiles.
+var is_spell_projectile: bool = false
 var is_critical: bool = false  # set by PlayerRangedAttack._fire() - enemy-fired shots leave this false
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
@@ -51,7 +55,8 @@ func _hit_enemy(enemy: Enemy) -> void:
 	# HeadZone for overlap (see Enemy.is_critical_spot_hit()'s own header).
 	var is_critical_spot := enemy.is_critical_spot_hit(self)
 	var final_amount := damage_amount * enemy.critical_spot_multiplier if is_critical_spot else damage_amount
-	enemy.take_damage(final_amount, damage_type)
+	if not enemy.take_damage(final_amount, damage_type, false, true):
+		return  # dodged
 	if enemy.stance:
 		enemy.stance.apply_attack_stance_damage(final_amount, damage_type)
 	EventBus.damage_dealt.emit(source, enemy, final_amount, damage_type, false, is_critical)
@@ -63,7 +68,7 @@ func _hit_player(player: Player) -> void:
 		return
 	var parried: bool = player.parry_handler and player.parry_handler.attempt_parry(source, player.ward)
 	if not parried:
-		player.take_damage(damage_amount, damage_type, source)
+		player.take_damage(damage_amount, damage_type, source, Player.HitKind.SPELL if is_spell_projectile else Player.HitKind.ATTACK)
 	EventBus.enemy_attack_resolved.emit(source, player, true, parried)
 
 ## Which impact sound set to use. Enemies/the player are "flesh"; any

@@ -7,6 +7,44 @@ there. Most recent first.
 
 ---
 
+## 2026-09-22 — Implementation Brief v4.6: Damage Scaling Rebalance + Enemy Mitigation
+
+Grade multipliers cut about 2.5x (S 1.2–1.6 … E 0.07–0.12). Greatsword MV 1.35 → 1.1, charged multiplier 1.8 → 1.6, Riposte multiplier 3.0 → 1.4. A Greatsword Riposte at S grade, 60 stat and 140 base now rolls about 552 (it was about 1633). Mob curve: growth 0.12 → 0.15, base health light/standard/heavy/boss 55/100/200/3000 (it was 80/150/280/2000), and Map tier now adds +2 mob levels per tier instead of +1. Enemies now have Ward (`EnemyDefinition.ward_percent` of max health, set at spawn, no regen, rescaled when tier or rarity changes max health), armor, and evasion.
+
+**Where the brief didn't match the code:**
+- `mob_level`/`archetype_category`, the `MOB_*` constants and the level helpers already existed from v4.5. The values were updated in place instead of adding duplicates.
+- Enemy armor uses a flat `armor / (armor + 1000)` (user decision), not the player's hit-size-dependent `physical_mitigation(armor, hit)`. The brief's call `physical_mitigation(armor_value)` didn't match that function's signature, and at first the player curve was tried: it cut small hits much harder than the brief's 3%/7%/17% targets (a Glass Cannon jab needed about 9.6 hits instead of about 7). The flat curve gives 2.9% / 7.4% / 16.7% for 30 / 80 / 200 armor.
+- **Evasion is opt-in (`take_damage(..., can_evade = true)`)** and doesn't key off `not is_spell`. Most ability callers (BlackHole, Caltrops, PiercingBolt, Frost Armor retaliation, etc.) never pass `is_spell`, so following the brief literally would let enemies dodge spells. Only the melee swing (`PlayerMeleeAttack._deal_damage`) and player projectiles pass `true`. Ripostes, Water Slices riders and DoT ticks can't be dodged. `take_damage()` now returns `false` on a dodge, so those two callers skip stance damage, `damage_dealt`, hit markers and hitstop. `DebugOverlay` logs dodges.
+- A hit fully absorbed by Ward plays the quieter hit sound and no hit-react.
+
+**Verified** (headless, 4.7.1): health 55/100/260, Ward 0/10/39, dodge 61/17/0 per 1000 (formula 5%/2%/0%). Spells and non-evadable hits were never dodged, Fire ignores armor, and Ward absorbs before health. A tier-3 Soldier (level 7) has 380 HP and 57 Ward. `GeneratedMap.tscn` loads with no errors.
+
+**Known gaps:** there's no enemy Ward UI, so the health bar doesn't show the pool. Armor penetration and Physical Shred (`get_effective_armor()`) aren't applied against enemies because `take_damage()` has no attacker stats. Only Glass Cannon uses a definition, so Shambler and Soldier values are data only (as in v4.5).
+
+## 2026-09-22 — Implementation Brief v4.5: Shop Standalone Fix + Mob Level Scaling
+
+Shop: `GearShop._roll_stock()` now floors its `ItemRoller.roll()` item level at `MIN_SHOP_ITEM_LEVEL` (5) instead of using `GameState.player_level` directly, so a standalone/level-1 session doesn't get an empty pool. `GameState.initialize_standalone()` (called from `GeneratedMap._ready()` for a direct F6 launch) sets `player_level = 5`, `gold = 1000000`; the floor matches that so standalone-shop items are never above what the player can equip. `flat_armor` was rolling onto gear and doing nothing (not in `MISC_BONUS_KEYS`, same bug `flat_evasion` had in v4.4); `EquipmentComponent.get_total_armor()` now sums it the same way.
+
+Mob level: `EnemyDefinition` gained `mob_level`/`archetype_category`; `Enemy._apply_definition()` derives health/damage from `Constants.MOB_BASE_HEALTH`/`MOB_BASE_DAMAGE` by category x `(1 + growth * (level - 1))` instead of the definition's raw `base_health`/`base_damage`. In a Figment, `_apply_map_modifiers()` re-derives health from `definition.mob_level + tier - 1` and applies `enemy_health_multiplier` (a Figment affix roll) on top — `TIER_HEALTH_GROWTH_PER_TIER` was removed (user decision) since the level curve already grows health per tier; keeping both would have double-counted it. Damage/reward have no level-curve counterpart yet, so `TIER_DAMAGE_GROWTH_PER_TIER`/`TIER_REWARD_GROWTH_PER_TIER` are unchanged.
+
+**Known gaps (user-acknowledged, not fixed here):**
+- Only `GlassCannon.tscn` actually references an `EnemyDefinition` (`glass_cannon.tres`). `HeavyHitter` and `MobileBruiser` have no definition and keep their own hardcoded health/damage, unaffected by the mob level curve or its tier scaling — pending an `EnemyDefinition` wiring pass for those two archetypes.
+- `hollowed_shambler.tres` and `directorate_soldier.tres` (both updated with `mob_level`/`archetype_category`) exist as data but aren't referenced by any scene yet, so nothing in the live game reads them.
+
+## 2026-09-20 — Implementation Brief v4.4: Evasion
+
+Dodge (`evasion / (evasion + 3800)`, cap 65%), Deflection chance (`/ (+ 2333)`, cap 75%) and Deflection mitigation (`/ (+ 13000)`, cap 35%) added to `DamageCalculator` exactly as specified, and rolled at the top of `Player.take_damage()` (after the parry-invulnerability early-out, before the Physical->Elemental shift): Dodge negates an attack hit (and can't interrupt a cast); otherwise Deflection may reduce it.
+
+**Where the brief didn't match the code:**
+- `flat_evasion` was NOT "already summed": it wasn't in `MISC_BONUS_KEYS`, so it rolled onto gear and did nothing (v4.0's comment calling it "already real" was wrong; `flat_armor` is in the same state and is untouched here). It's now in the list; `increased_evasion` was listed but unread. `EquipmentComponent.get_total_evasion()` = (sum of `evasion_value` on helmet/body/gloves/boots/shield + flat) x (1 + increased). `EquipmentComponent` has no `stat_sheet`, so it reads its own `compute_misc_bonuses()` instead of the brief's `stat_sheet.get_misc_bonus()`. Finesse's +2/point is added after the gear multiplier (`StatSheet.get_total_evasion(equipment)`), as specified.
+- **`source is Ability` can never be true** (`source` is a Node, Ability is a Resource), and `source` can't distinguish a DoT tick from an attack either: ignite ticks call `Player.take_damage(..., _ignite_source)` with the attacking enemy as source, so they'd have been evaded, violating the DO NOT. `take_damage()` now takes a `hit_kind` (`Player.HitKind` ATTACK/SPELL/DOT), default ATTACK so `EnemyMeleeAttack` needed no edit; `StatusEffectComponent`'s Player tick passes DOT, and `Projectile.is_spell_projectile` selects SPELL. **Nothing sets `is_spell_projectile` yet and enemies have no spells**, so the spell branch is correct but not reachable in the live game. Any future caller that doesn't pass a kind is treated as an attack.
+- The Evasion display/tooltip lives in `StatSummaryBuilder` (shared with the Inventory stats column), not `CharacterScreen.gd`. It shows the live total and a tooltip with the derived Dodge/Deflection percentages. The brief's item 8 (an "evasion tooltip on the item card") has no counterpart: no such tooltip exists, so nothing further was done.
+- `evasion_to_spells` (v4.0, still unwired) is left as is; spells already get the full Deflection roll, so it has nothing to add.
+
+**Known side effects (not changed - `EnemyMeleeAttack` was off-limits):** Frost Armor retaliation and the debug log's "attack landed" line still fire on a melee hit that was Dodged, since `_resolve_hit()` can't see the dodge. Blocks and dodges don't stack in the log.
+
+**Verified** (2000 hits each, 0 / 1900 / 3800 evasion): dodge 0% / 34.3% / 49.9% (formula 33.3% / 50%); spells never dodged, deflected 44.7% / 64.5% (formula 44.9% / 62%); DoT never touched; attack deflection is rolled only on non-dodged hits (30% / 31%); caps 0.65 / 0.75 / 0.35 at 1e9 evasion; gear (100 + 50 flat) x 1.2 = 180.
+
 ## 2026-09-20 — Implementation Brief v4.3: Bug Fix Pass
 
 Every file the brief named was read first; where its names or premises didn't match, the behavior was adapted rather than the code copied.

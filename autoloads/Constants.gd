@@ -202,14 +202,14 @@ enum ScalingGrade { S, A, B, C, D, E }
 # thousands at level 1; the new one is a flat multiplier on stat_value
 # that's ADDED to base weapon damage (see DamageCalculator.calculate()) -
 # same enum, deliberately different value ranges/units, not a tuning pass
-# on the old numbers.
+# on the old numbers. v4.6 reduced every grade roughly 2.5x.
 const GRADE_MULTIPLIER_RANGES := {
-	ScalingGrade.S: Vector2(3.0, 4.0),
-	ScalingGrade.A: Vector2(2.0, 2.9),
-	ScalingGrade.B: Vector2(1.2, 1.9),
-	ScalingGrade.C: Vector2(0.7, 1.1),
-	ScalingGrade.D: Vector2(0.4, 0.6),
-	ScalingGrade.E: Vector2(0.2, 0.3),
+	ScalingGrade.S: Vector2(1.2, 1.6),
+	ScalingGrade.A: Vector2(0.8, 1.1),
+	ScalingGrade.B: Vector2(0.5, 0.75),
+	ScalingGrade.C: Vector2(0.28, 0.42),
+	ScalingGrade.D: Vector2(0.15, 0.25),
+	ScalingGrade.E: Vector2(0.07, 0.12),
 }
 
 # Chain Bonus System - Section 10. Tuple: (tile_range_start, tile_range_end, bonus_per_tile)
@@ -383,6 +383,27 @@ const ENEMY_RARITY_DAMAGE_MULT := {
 	EnemyRarity.ELITE: 1.2,
 	EnemyRarity.CHAMPION: 1.6,
 	EnemyRarity.ASCENDANT: 2.4,
+}
+
+## Mob level curve (EnemyDefinition.mob_level / archetype_category), invented
+## placeholder values pending playtest balance:
+##   health = MOB_BASE_HEALTH[category] * (1 + MOB_HEALTH_GROWTH_PER_LEVEL * (level - 1))
+##   damage = MOB_BASE_DAMAGE[category] * (1 + MOB_DAMAGE_GROWTH_PER_LEVEL * (level - 1))
+const MOB_HEALTH_GROWTH_PER_LEVEL := 0.15
+const MOB_DAMAGE_GROWTH_PER_LEVEL := 0.08
+const MOB_BASE_HEALTH := {
+	"light": 55.0,
+	"standard": 100.0,
+	"heavy": 200.0,
+	"elite": 500.0,
+	"boss": 3000.0,
+}
+const MOB_BASE_DAMAGE := {
+	"light": 6.0,
+	"standard": 10.0,
+	"heavy": 16.0,
+	"elite": 28.0,
+	"boss": 50.0,
 }
 
 ## Placeholder spawn-weight "config" (brief's own words: "Placeholder

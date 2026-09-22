@@ -37,11 +37,18 @@ func _get_shop_screen() -> ShopScreen:
 		_shop_screen = get_tree().get_first_node_in_group("shop_screen")
 	return _shop_screen
 
-## No Map-tier context in the Hub - player level stands in instead.
+## No Map-tier context in the Hub - player level stands in instead, floored
+## at MIN_SHOP_ITEM_LEVEL so a level-1/standalone session (Hub launched
+## directly, no save) still gets a full pool instead of 0-2 items. Matches
+## GameState.initialize_standalone()'s player_level so standalone-shop
+## items are never above what the player can actually equip.
+const MIN_SHOP_ITEM_LEVEL := 5
+
 func _roll_stock() -> void:
 	_stock = []
+	var shop_item_level := maxi(GameState.player_level, MIN_SHOP_ITEM_LEVEL)
 	for i in range(STOCK_SIZE):
-		var item := ItemRoller.roll(GameState.player_level, 1.0)
+		var item := ItemRoller.roll(shop_item_level, 1.0)
 		if item:
 			_stock.append(item)
 

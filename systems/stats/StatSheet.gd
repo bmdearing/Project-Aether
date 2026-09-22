@@ -94,6 +94,14 @@ func get_attack_power_from_stats() -> float:
 func get_evasion_from_stats() -> float:
 	return get_stat(Constants.Stat.FINESSE) * 2.0
 
+## Patch v4.4. Total Evasion Rating: gear (base + flat affixes, times
+## increased%) plus Finesse's +2 per point, added after that multiplier.
+## Fed to DamageCalculator.dodge_chance()/deflection_chance()/
+## deflection_mitigation().
+func get_total_evasion(equipment: EquipmentComponent) -> float:
+	var gear_base := equipment.get_total_evasion() if equipment else 0.0
+	return gear_base + get_evasion_from_stats()
+
 ## A flat, additive fraction (e.g. 0.10 for +10%) - added directly to a
 ## weapon/ability's own base_crit_chance, replacing the old multiplicative
 ## "x(1 + instinct*0.03)" formula (DamageCalculator.get_crit_chance()).
@@ -218,10 +226,12 @@ func set_conduit_spell_power(value: float) -> void:
 ## Patch v3.8 Section 2. Player._apply_derived_stats() computes these from
 ## Finesse and stores them here (same "Player pushes a fresh total in"
 ## convention as equipment_bonus/conduit_spell_power) - Evasion has no
-## mitigation formula anywhere in this project yet (README-flagged gap,
-## unchanged by this patch), so stat_evasion_bonus is descriptive-only
-## for now; finesse_crit_bonus is real, read by Weapon/Ability._base_hit()
-## as an additive fraction on top of base_crit_chance.
+## mitigation formula anywhere in this project until Patch v4.4:
+## stat_evasion_bonus is now the real total Evasion Rating (gear + Finesse,
+## see get_total_evasion()), refreshed here for display; the hit roll in
+## Player.take_damage() reads get_total_evasion() live. finesse_crit_bonus
+## is real, read by Weapon/Ability._base_hit() as an additive fraction on
+## top of base_crit_chance.
 var stat_evasion_bonus: float = 0.0
 var finesse_crit_bonus: float = 0.0
 

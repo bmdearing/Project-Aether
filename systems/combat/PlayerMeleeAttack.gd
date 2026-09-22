@@ -25,7 +25,7 @@ class_name PlayerMeleeAttack
 ## per-weapon pose variety already authored survives, it just no longer
 ## cycles. Per-weapon MOTION VALUE/duration/intensity tables (WEAPON_TYPE_
 ## MOTION_VALUE etc.) are preserved unchanged, per user direction - the
-## brief's own 0.6/1.0/1.8 jab/thrust/charged values are applied as
+## brief's own 0.6/1.0/1.6 jab/thrust/charged values are applied as
 ## MULTIPLIERS on top of that per-weapon base, not a replacement of it.
 
 enum State { IDLE, WINDUP, STRIKE, RECOVERY }
@@ -59,7 +59,7 @@ enum State { IDLE, WINDUP, STRIKE, RECOVERY }
 ## back to base_motion_value.
 const WEAPON_TYPE_MOTION_VALUE := {
 	"Dagger": 0.65,
-	"Greatsword": 1.35,
+	"Greatsword": 1.1,
 	"Rapier": 0.55,
 	"Staff": 1.0,
 	"Gauntlet": 0.5,
@@ -141,7 +141,7 @@ const WEAPON_TYPE_SPECIAL_POSE := {
 	"Staff": PlayerArmRig.PoseSet.BIG_SWEEP,
 	"Gauntlet": PlayerArmRig.PoseSet.JAB,
 }
-const SPECIAL_MOTION_VALUE_MULTIPLIER := 1.8
+const SPECIAL_MOTION_VALUE_MULTIPLIER := 1.6
 const SPECIAL_DURATION_MULTIPLIER := 1.4
 ## User feedback (2026-08-30, second follow-up): this stacked with
 ## WEAPON_TYPE_SWING_INTENSITY (1.3 for Greatsword) on top of BIG_SWEEP's
@@ -155,7 +155,7 @@ const SPECIAL_INTENSITY_MULTIPLIER := 1.1
 ## quicker swing) and standard thrust (x1.0 - a no-op, i.e. identical
 ## timing/power to what a plain attack always did) - multipliers on top
 ## of the existing per-weapon WEAPON_TYPE_MOTION_VALUE base, same pattern
-## SPECIAL_MOTION_VALUE_MULTIPLIER (1.8, "charged thrust" in the brief's
+## SPECIAL_MOTION_VALUE_MULTIPLIER (1.6, "charged thrust" in the brief's
 ## terms) already established for the stance special.
 const JAB_MOTION_VALUE_MULTIPLIER := 0.6
 const THRUST_MOTION_VALUE_MULTIPLIER := 1.0
@@ -393,7 +393,7 @@ func _effective_motion_value(weapon: Weapon) -> float:
 	return WEAPON_TYPE_MOTION_VALUE.get(weapon.weapon_type, base_motion_value)
 
 ## Implementation Brief v3.3 Section 2's jab/thrust/charged motion values
-## (0.6/1.0/1.8) as multipliers on the per-weapon base above - see this
+## (0.6/1.0/1.6) as multipliers on the per-weapon base above - see this
 ## file's own header for why they're multipliers, not a replacement.
 func _attack_type_motion_multiplier() -> float:
 	match _attack_type:
@@ -442,7 +442,8 @@ func _deal_damage(target: Enemy) -> void:
 	if is_counter:
 		final_damage *= COUNTER_DAMAGE_MULTIPLIER
 
-	target.take_damage(final_damage, damage_type)
+	if not target.take_damage(final_damage, damage_type, false, true):
+		return  # dodged - no stance damage, riders, or hit feedback
 	if target.stance:
 		target.stance.apply_attack_stance_damage(final_damage, damage_type)
 	EventBus.damage_dealt.emit(_player, target, final_damage, damage_type, false, is_critical)

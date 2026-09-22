@@ -188,6 +188,16 @@ func reset_to_defaults() -> void:
 	figment_tree_unlocked_nodes = []
 	AmmoInventory.reset()
 
+## Called when a map scene launches without going through the main menu.
+## Sets enough state for the scene to function without a full new_game() call.
+## active_map stays null - map scenes that need it set it themselves.
+func initialize_standalone() -> void:
+	if game_started:
+		return
+	player_level = 5
+	gold = 1000000
+	game_started = true
+
 ## Scans the whole instances directory (not a fixed list) since a Tome-
 ## found ability from a previous session still needs its rank reset.
 func _reset_all_ability_ranks() -> void:

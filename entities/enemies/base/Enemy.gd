@@ -44,8 +44,11 @@ class_name Enemy
 @export var definition: EnemyDefinition = null
 
 var faction: String = ""
-var armor_value: float = 0.0    # stored from the definition; enemies have no mitigation model yet (see Player.take_damage() for the player-side one)
-var evasion_value: float = 0.0
+var armor_value: float = 0.0    # flat Physical mitigation in take_damage(): armor / (armor + 1000)
+var evasion_value: float = 0.0  # dodge chance vs player weapon attacks only (take_damage()'s can_evade)
+# Flat damage-absorb pool set at spawn from definition.ward_percent; no regen.
+var _ward_pool: float = 0.0
+var _ward_current: float = 0.0
 
 func get_display_name() -> String:
 	return display_name if display_name != "" else name
@@ -145,23 +148,44 @@ func _apply_definition() -> void:
 	retreat_distance = definition.retreat_distance
 	armor_value = definition.armor_value
 	evasion_value = definition.evasion_value
-	health.max_health = definition.base_health
-	health.current_health = definition.base_health
+	var scaled_health := _level_scaled_health(definition.mob_level)
+	var scaled_damage := _level_scaled_damage(definition.mob_level)
+	health.max_health = scaled_health
+	health.current_health = scaled_health
+	_reset_ward()
 	xp_reward = definition.xp_reward
 	gold_reward = randi_range(definition.gold_reward_min, definition.gold_reward_max)
 
 	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
 	if melee:
-		melee.damage_amount = definition.base_damage
+		melee.damage_amount = scaled_damage
 		melee.damage_type = definition.damage_type
 		melee.attack_range = definition.attack_range
 		melee.recovery_duration = definition.attack_cooldown
 	var ranged := get_node_or_null("RangedAttack") as EnemyRangedAttack
 	if ranged:
-		ranged.damage_amount = definition.base_damage
+		ranged.damage_amount = scaled_damage
 		ranged.damage_type = definition.damage_type
 		ranged.fire_range = definition.attack_range
 		ranged.cooldown_duration = definition.attack_cooldown
+
+## Level curve from Constants.MOB_*: base at level 1 for the definition's
+## archetype_category, growing linearly per level above 1.
+func _level_scaled_health(level: int) -> float:
+	var base_h: float = Constants.MOB_BASE_HEALTH.get(definition.archetype_category, 150.0)
+	return base_h * (1.0 + Constants.MOB_HEALTH_GROWTH_PER_LEVEL * (level - 1))
+
+func _level_scaled_damage(level: int) -> float:
+	var base_d: float = Constants.MOB_BASE_DAMAGE.get(definition.archetype_category, 10.0)
+	return base_d * (1.0 + Constants.MOB_DAMAGE_GROWTH_PER_LEVEL * (level - 1))
+
+## Refills the Ward pool to definition.ward_percent of current max health.
+## Called whenever max health is (re)derived, so it tracks tier/rarity scaling.
+func _reset_ward() -> void:
+	if definition == null or definition.ward_percent <= 0.0:
+		return
+	_ward_pool = health.max_health * definition.ward_percent
+	_ward_current = _ward_pool
 
 ## Replaces the placeholder capsule with the definition's model and, if the
 ## model carries an "AnimationTree" node and the definition an AnimationSet,
@@ -265,9 +289,18 @@ func _on_broken_state_ended() -> void:
 ## Tier itself always makes enemies tougher, harder-hitting, and more
 ## rewarding. Invented growth curve, not doc-sourced - Section 24 defers
 ## Map/tier balance entirely (same convention as every other flagged gap).
-const TIER_HEALTH_GROWTH_PER_TIER := 0.15
+##
+## v4.5: TIER_HEALTH_GROWTH_PER_TIER removed (user decision, 2026-09-22) -
+## the mob level curve (definition.mob_level + MOB_LEVELS_PER_TIER per tier
+## above 1, see _apply_map_modifiers() below) already grows health per tier for
+## definition-driven enemies; keeping both double-counted tier's health
+## contribution. Health at tier now comes from the level curve x
+## enemy_health_multiplier (Figment affix roll) only. Damage/reward have no
+## level-curve counterpart yet, so their own deterministic per-tier growth
+## is unchanged.
 const TIER_DAMAGE_GROWTH_PER_TIER := 0.10
 const TIER_REWARD_GROWTH_PER_TIER := 0.20
+const MOB_LEVELS_PER_TIER := 2
 
 ## Patch v3.9: also applies EnemyRarityComponent's health multiplier, if
 ## one was attached at spawn time - independent of GameState.active_map
@@ -282,10 +315,18 @@ func _apply_map_modifiers() -> void:
 		if rarity_mult != 1.0:
 			health.max_health *= rarity_mult
 			health.current_health = health.max_health
+			_reset_ward()
 		return
 	var tier_bonus := 1.0 + (GameState.active_map.tier - 1) * TIER_REWARD_GROWTH_PER_TIER
-	health.max_health *= GameState.active_map.enemy_health_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_HEALTH_GROWTH_PER_TIER) * rarity_mult
+	# A definition-driven enemy's mob level rises with Map tier (tier 1 =
+	# definition.mob_level, tier 5 = +8), so the level curve is the base the
+	# multipliers below apply to. Scene-only enemies keep their own health.
+	var base_health: float = health.max_health
+	if definition:
+		base_health = _level_scaled_health(definition.mob_level + (GameState.active_map.tier - 1) * MOB_LEVELS_PER_TIER)
+	health.max_health = base_health * GameState.active_map.enemy_health_multiplier * rarity_mult
 	health.current_health = health.max_health
+	_reset_ward()
 	xp_reward *= tier_bonus
 	gold_reward = int(gold_reward * tier_bonus)
 
@@ -621,23 +662,41 @@ func is_critical_spot_hit(attacking_area: Area3D) -> bool:
 		return false
 	return attacking_area.overlaps_area(head_zone)
 
-func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false) -> void:
+## can_evade: true only for player weapon attack hits (melee swing, ranged
+## projectile). Spells, DoT ticks, riders and ripostes leave it false.
+## Returns false if the hit was dodged (caller should skip its on-hit
+## follow-ups), true otherwise - including a hit fully absorbed by Ward.
+func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false) -> bool:
 	_last_combat_msec = Time.get_ticks_msec()
+	if can_evade and not is_spell and evasion_value > 0.0:
+		if randf() < DamageCalculator.dodge_chance(evasion_value):
+			EventBus.enemy_hit_dodged.emit(self)
+			return false
 	var multiplier := composure.get_damage_multiplier(is_spell) if composure else 1.0
 	var status_multiplier := status_effects.get_damage_taken_multiplier(damage_type) if status_effects else 1.0
 	if status_effects and damage_type == Constants.DamageType.LIGHTNING:
 		status_multiplier *= status_effects.get_shock_multiplier()
 	var mitigated := amount * multiplier * status_multiplier
 	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
+	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0:
+		mitigated *= (1.0 - armor_value / (armor_value + 1000.0))
 	if status_effects and (category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC):
 		var shred := status_effects.get_resistance_shred()
 		if shred > 0.0:
 			mitigated *= (1.0 - DamageCalculator.resistance_mitigation(-shred))
+	if _ward_current > 0.0:
+		var absorbed: float = min(_ward_current, mitigated)
+		_ward_current -= absorbed
+		mitigated -= absorbed
+		if mitigated <= 0.0:
+			AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), global_position, -4.0)
+			return true
 	health.apply_damage(mitigated)
 	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), global_position, -2.0)
 	if _anim_controller and health.is_alive() and Time.get_ticks_msec() - _last_hit_react_msec >= HIT_REACT_MIN_INTERVAL_MSEC:
 		_last_hit_react_msec = Time.get_ticks_msec()
 		_anim_controller.play_hit_react()
+	return true
 
 ## Never returns BOSS - a boss encounter's own scene/script sets `rank`
 ## to BOSS directly (see _ready()'s own guard), it doesn't come from this

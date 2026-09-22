@@ -23,6 +23,7 @@ func _ready() -> void:
 	EventBus.status_effect_expired.connect(_on_status_effect_expired)
 	EventBus.enemy_attack_resolved.connect(_on_enemy_attack_resolved)
 	EventBus.hit_blocked.connect(_on_hit_blocked)
+	EventBus.enemy_hit_dodged.connect(_on_enemy_hit_dodged)
 	EventBus.ability_cast.connect(_on_ability_cast)
 	EventBus.ability_cast_failed.connect(_on_ability_cast_failed)
 	EventBus.loot_dropped.connect(_on_loot_dropped)
@@ -91,6 +92,9 @@ func _on_enemy_attack_resolved(enemy: Node, target: Node, hit: bool, parried: bo
 
 func _on_hit_blocked(defender: Node) -> void:
 	_append_line("%s blocked a hit" % _get_display_name(defender))
+
+func _on_enemy_hit_dodged(enemy: Node) -> void:
+	_append_line("%s dodged" % _get_display_name(enemy))
 
 func _on_ability_cast(caster: Node, ability: Ability) -> void:
 	var caster_name: String = _get_display_name(caster)

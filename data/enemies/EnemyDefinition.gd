@@ -14,6 +14,13 @@ class_name EnemyDefinition
 @export var animation_set: AnimationSet = null
 @export var scale_modifier: float = 1.0
 
+# Level scaling - health/damage come from Constants.MOB_BASE_* by category
+# and this level (see Enemy._apply_definition()); base_health/base_damage
+# below are no longer read by Enemy.
+@export var mob_level: int = 1
+@export var archetype_category: String = "standard"  # "light", "standard", "heavy", "elite", "boss"
+@export var ward_percent: float = 0.0  # spawn Ward pool as a fraction of max health; 0 = none, never regenerates
+
 # Stats
 @export var base_health: float = 100.0
 @export var base_damage: float = 10.0

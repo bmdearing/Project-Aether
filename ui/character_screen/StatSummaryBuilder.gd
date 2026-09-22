@@ -11,7 +11,7 @@ const STAT_TOOLTIPS := {
 	"Attack Power": "Base damage added to weapon hits from Prowess investment.",
 	"Main Hand Damage": "Estimated damage range for your main hand weapon.",
 	"Finesse": "+2 Evasion Rating and +1% increased Critical Strike Chance per point.",
-	"Evasion Rating": "Reduces chance of being hit by attacks.",
+	# "Evasion Rating" is built live in _evasion_tooltip() - it shows the derived percentages.
 	"Max Health": "Total Life pool. Depleted by incoming damage.",
 	"Life Regen": "Life recovered per second passively.",
 	"Max Ward": "Secondary buffer that absorbs all damage before Health.",
@@ -45,7 +45,8 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 	_add(offense_list, "Offhand Crit", _crit_summary(player, Constants.EquipmentSlot.OFFHAND))
 
 	_add(defense_list, "Finesse", "%.1f" % stats.get_stat(Constants.Stat.FINESSE))
-	_add(defense_list, "Evasion Rating", "%.1f" % stats.get_evasion_from_stats())
+	var evasion := stats.get_total_evasion(player.equipment)
+	_add(defense_list, "Evasion Rating", "%.1f" % evasion, _evasion_tooltip(evasion))
 	_add(defense_list, "Max Health", "%.0f" % player.health.max_health)
 	_add(defense_list, "Life Regen", "%.1f/s" % player.health.regen_per_second)
 	_add(defense_list, "Max Ward", "%.0f" % player.ward.max_ward)
@@ -108,9 +109,17 @@ static func _crit_summary(player: Player, slot: Constants.EquipmentSlot) -> Stri
 	var multiplier := DamageCalculator.get_crit_damage_multiplier(player.stat_sheet.get_crit_damage_bonus())
 	return "%.0f%% chance / %.0f%% dmg" % [clamp(chance, 0.0, 1.0) * 100.0, multiplier * 100.0]
 
-static func _add(list: VBoxContainer, label_text: String, value_text: String) -> void:
+## Patch v4.4: Evasion's tooltip states what the rating actually means.
+static func _evasion_tooltip(evasion: float) -> String:
+	return "Evasion Rating: Reduces chance of being hit by attacks.\nDodge Chance: %.1f%% (cap %d%%) - fully negates an attack hit.\nDeflection Chance: %.1f%% (cap %d%%) - reduces attack and spell damage by %.1f%%." % [
+		DamageCalculator.dodge_chance(evasion) * 100.0, int(DamageCalculator.DODGE_CHANCE_CAP * 100.0),
+		DamageCalculator.deflection_chance(evasion) * 100.0, int(DamageCalculator.DEFLECTION_CHANCE_CAP * 100.0),
+		DamageCalculator.deflection_mitigation(evasion) * 100.0,
+	]
+
+static func _add(list: VBoxContainer, label_text: String, value_text: String, tooltip_override: String = "") -> void:
 	var row := HBoxContainer.new()
-	row.tooltip_text = STAT_TOOLTIPS.get(label_text, "")
+	row.tooltip_text = tooltip_override if tooltip_override != "" else STAT_TOOLTIPS.get(label_text, "")
 	row.mouse_filter = Control.MOUSE_FILTER_STOP  # a tooltip needs a Control that receives the mouse
 	var label := Label.new()
 	label.text = label_text

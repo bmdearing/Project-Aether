@@ -6,8 +6,13 @@
 script = ExtResource("1")
 display_name = "Directorate Soldier"
 faction = "directorate"
+mob_level = 3
+archetype_category = "heavy"
+ward_percent = 0.15
 base_health = 120.0
 base_damage = 12.0
+armor_value = 200.0
+evasion_value = 0.0
 move_speed = 3.5
 chase_range = 16.0
 stop_distance = 2.0

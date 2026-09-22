@@ -248,7 +248,7 @@ func _tick_ignite(delta: float) -> void:
 	var dmg := _ignite_tick_damage
 	if _owner is Player:
 		dmg *= 1.0 - _owner.get_dot_mitigation()
-		_owner.take_damage(dmg, Constants.DamageType.FIRE, _ignite_source)
+		_owner.take_damage(dmg, Constants.DamageType.FIRE, _ignite_source, Player.HitKind.DOT)  # ticks are never evaded
 	elif _owner is Enemy:
 		# is_spell=true: Ignite only ever comes from a spell hit (Inferno/
 		# Cinder Lance), and Section 07 excludes spells from the Composure

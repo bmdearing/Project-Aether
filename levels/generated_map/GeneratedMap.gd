@@ -66,6 +66,8 @@ var graph: MapGraph
 var last_player_spawn: Vector3
 
 func _ready() -> void:
+	# Standalone (F6) launch: no MainMenu/save ran, so GameState is still defaults.
+	GameState.initialize_standalone()
 	graph = MapGraph.generate()
 	for cell in graph.rooms:
 		_build_room(graph.rooms[cell])

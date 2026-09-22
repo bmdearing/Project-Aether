@@ -173,6 +173,8 @@ func get_equipped(slot: Constants.EquipmentSlot, ring_index: int = 0, weapon_set
 			return rings[ring_index] if ring_index >= 0 and ring_index < rings.size() else null
 	return null
 
+## Same shape as get_total_evasion(): base armor_value per slot, plus
+## flat_armor affixes from any equipped item, times any increased_armor.
 func get_total_armor() -> float:
 	var total := 0.0
 	if helmet: total += helmet.armor_value
@@ -180,7 +182,26 @@ func get_total_armor() -> float:
 	if gloves: total += gloves.armor_value
 	if boots: total += boots.armor_value
 	if offhand is Shield: total += (offhand as Shield).armor_value
-	return total
+	var affixes := compute_misc_bonuses()
+	var flat: float = affixes.get("flat_armor", 0.0)
+	var increased: float = affixes.get("increased_armor", 0.0) / 100.0
+	return (total + flat) * (1.0 + increased)
+
+## Patch v4.4. Gear's Evasion: every equipped Armor/Shield's evasion_value,
+## plus flat_evasion affixes from any equipped item, times any
+## increased_evasion. Finesse's own +2 per point is NOT here - it's added
+## after the gear multiplier in StatSheet.get_total_evasion().
+func get_total_evasion() -> float:
+	var base := 0.0
+	if helmet: base += helmet.evasion_value
+	if body_armour: base += body_armour.evasion_value
+	if gloves: base += gloves.evasion_value
+	if boots: base += boots.evasion_value
+	if offhand is Shield: base += (offhand as Shield).evasion_value
+	var affixes := compute_misc_bonuses()
+	var flat: float = affixes.get("flat_evasion", 0.0)
+	var increased: float = affixes.get("increased_evasion", 0.0) / 100.0
+	return (base + flat) * (1.0 + increased)
 
 ## Patch v3.2: "Ward pool size scales through gear rolls." Two real
 ## sources sum together: each equipped Armor/Shield's own base
@@ -322,6 +343,8 @@ const V40_DAMAGE_TYPE_KEYS := ["kinetic", "piercing", "explosive", "fire", "cold
 
 const MISC_BONUS_KEYS := [
 	"block_chance_bonus",
+	"flat_armor",  # see get_total_armor() - had to be listed here or compute_misc_bonuses() dropped it, same as flat_evasion
+	"flat_evasion",  # Patch v4.4 - see get_total_evasion(). NOT summed anywhere before this: v4.0's note calling it "already real" was wrong
 	"max_life", "life_regen", "max_mana", "mana_regen",
 	"flat_resilience", "cast_speed", "attack_speed", "move_speed",
 	"crit_damage",
