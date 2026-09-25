@@ -24,33 +24,15 @@ const SIZE_BRACKETS := [
 	{"min_tiles": 10, "max_tiles": 11, "rarities": [Constants.SlateRarity.COMMON]},
 ]
 
-## Section 10 "Stats Per Tile" - doc-exact, deterministic (not rolled in
-## a range like gear affix tiers): a fixed formula off tile_count alone.
-## Main Stat is keyed by tag via the same Constants.DAMAGE_TYPE_MAIN_STAT
-## table Weapon/Ability damage already scales against; Random Stat picks
-## uniformly among all 6 core stats (may coincidentally match Main Stat -
-## doc doesn't say to exclude that case).
-const MAIN_STAT_PER_TILE := 1.7
-const RANDOM_STAT_PER_TILE := 0.8
-
-## Mastery has no doc-sourced per-tile/per-roll formula (Section 10 names
-## the mechanic and its effects, not its acquisition curve) - this range
-## is this project's own invented placeholder, widening slightly with
-## power_level same spirit as ItemRoller's tier gating.
-const MASTERY_MIN := 0.15
-const MASTERY_MAX := 0.35
-const MASTERY_POWER_SCALE := 0.05
-## Small (2-4 tile) Slates are "pure modifier expression, no stat
-## contribution" per the doc - modeled here as a stronger Mastery roll
-## instead of a stat line, since Mastery is tag-specific like a Slate
-## itself and isn't the "stat contribution" formula the doc is
-## contrasting against. An invented reading where the doc doesn't specify
-## what a small Slate's modifier actually IS beyond "powerful."
-const SMALL_SLATE_MASTERY_MULTIPLIER := 1.6
-## 5+ tile Slates additionally get a Mastery modifier this often, on top
-## of their guaranteed stat lines - gives rolled loot a real, if
-## occasional, path to Mastery too, not just small Slates.
-const BIG_SLATE_MASTERY_CHANCE := 0.2
+## Section 10 "Stats Per Tile" - deterministic (not rolled in a range like
+## gear affix tiers): a fixed formula off tile_count alone. v4.9 cut these
+## from 1.7/0.8 since placed stat lines are now amplified by their chain's
+## bonus (ChainCalculator.slate_stat_bonuses()). Main Stat is keyed by tag
+## via Constants.DAMAGE_TYPE_MAIN_STAT; Random Stat picks uniformly among
+## the 3 core stats (may coincidentally match Main Stat - doc doesn't say
+## to exclude that case).
+const MAIN_STAT_PER_TILE := 0.6
+const RANDOM_STAT_PER_TILE := 0.3
 
 const HYBRID_CHANCE := 0.15
 
@@ -92,8 +74,8 @@ const SHAPE_TEMPLATES := [
 ]
 
 ## power_level: the active Map's tier, or player level as a fallback in
-## the Hub - same signal ItemRoller/FigmentRoller already use, here only
-## widening the Mastery roll's range slightly.
+## the Hub - same signal ItemRoller/FigmentRoller already use. Currently
+## unused (nothing rolled here scales with it anymore).
 static func roll(power_level: int = 1) -> Slate:
 	var bracket: Dictionary = SIZE_BRACKETS[randi() % SIZE_BRACKETS.size()]
 	var template := _pick_shape_template(bracket)
@@ -133,16 +115,14 @@ static func _pick_shape_template(bracket: Dictionary) -> Array:
 		return []
 	return candidates[randi() % candidates.size()]
 
-static func _roll_modifiers(tag: Constants.DamageType, tile_count: int, power_level: int) -> Array[SlateModifier]:
+## Small (2-4 tile) Slates get no modifier lines - "no stat contribution"
+## per Section 10 - they only contribute to chains.
+static func _roll_modifiers(tag: Constants.DamageType, tile_count: int, _power_level: int) -> Array[SlateModifier]:
 	var modifiers: Array[SlateModifier] = []
 	if tile_count >= 5:
-		modifiers.append(_stat_modifier(Constants.DAMAGE_TYPE_MAIN_STAT.get(tag, Constants.Stat.PROWESS), tile_count * MAIN_STAT_PER_TILE, "Main Stat"))
+		modifiers.append(_stat_modifier(Constants.DAMAGE_TYPE_MAIN_STAT.get(tag, Constants.Stat.STRENGTH), tile_count * MAIN_STAT_PER_TILE, "Main Stat"))
 		var random_stat: Constants.Stat = Constants.Stat.values()[randi() % Constants.Stat.values().size()]
 		modifiers.append(_stat_modifier(random_stat, tile_count * RANDOM_STAT_PER_TILE, "Random Stat"))
-		if randf() < BIG_SLATE_MASTERY_CHANCE:
-			modifiers.append(_mastery_modifier(tag, power_level, 1.0))
-	else:
-		modifiers.append(_mastery_modifier(tag, power_level, SMALL_SLATE_MASTERY_MULTIPLIER))
 	return modifiers
 
 static func _stat_modifier(stat: Constants.Stat, value: float, label: String) -> SlateModifier:
@@ -151,12 +131,4 @@ static func _stat_modifier(stat: Constants.Stat, value: float, label: String) ->
 	modifier.stat_key = stat_key
 	modifier.value = value
 	modifier.description = "+%.1f %s (%s)" % [value, Constants.Stat.keys()[stat].capitalize(), label]
-	return modifier
-
-static func _mastery_modifier(tag: Constants.DamageType, power_level: int, multiplier: float) -> SlateModifier:
-	var value: float = randf_range(MASTERY_MIN, MASTERY_MAX) * (1.0 + power_level * MASTERY_POWER_SCALE) * multiplier
-	var modifier := SlateModifier.new()
-	modifier.stat_key = "mastery"
-	modifier.value = value
-	modifier.description = "+%.2f %s Mastery" % [value, Constants.DAMAGE_TYPE_NAME.get(tag, "?")]
 	return modifier

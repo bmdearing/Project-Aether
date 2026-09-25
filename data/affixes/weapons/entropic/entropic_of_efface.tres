@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_wkfoi")
-description = "+%d Resolve"
+description = "+%d Intellect"
 stat_key = "entropic_of_efface"
 value = 24.0
 value_min = 24.0

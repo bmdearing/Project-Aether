@@ -17,4 +17,4 @@ base_line_id = "warded_barrier_line1"
 stat_requirement = 0
 stat_requirement_value = 33.0
 level_requirement = 56
-prowess_requirement = 55
+strength_requirement = 55

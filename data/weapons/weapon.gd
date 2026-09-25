@@ -122,11 +122,9 @@ func get_current_magazine() -> int:
 
 ## Patch v3.6b: per-line scaling metadata (Constants.Stat name as a
 ## lowercase string, e.g. "instinct") - user direction (2026-09-02):
-## descriptive only, NOT read by damage calculation. scaling_grade above
-## stays the only field DamageCalculator/_base_hit() actually consume,
-## still resolved via Constants.DAMAGE_TYPE_MAIN_STAT off native_
-## damage_type exactly as before - a real per-weapon-line stat override
-## is a future system. secondary_scaling_stat is "" for single-stat lines.
+## descriptive only, NOT read by damage calculation (weapons scale with
+## Strength regardless - see _base_hit()). secondary_scaling_stat is ""
+## for single-stat lines.
 @export var primary_scaling_stat: String = ""
 @export var secondary_scaling_stat: String = ""
 
@@ -144,27 +142,24 @@ func get_base_crit_chance() -> float:
 	return Constants.WEAPON_BASE_CRIT_CHANCE.get(weapon_type, Constants.DEFAULT_BASE_CRIT_CHANCE)
 
 ## Shared groundwork for predict_damage()/roll_damage().
-## Patch v3.8: Attack Power always comes from Prowess (stat_sheet.
-## get_attack_power_from_stats()) regardless of the weapon's own damage
-## type - the old per-damage-type main-stat lookup (DAMAGE_TYPE_MAIN_STAT)
-## is gone from this formula. The old "main_stat ALSO feeds the increased%
-## pool" double-dip is gone too - Prowess's entire damage contribution is
-## the Attack Power term now, nothing separate (see the new STAT_GLOSSARY
-## wording, which drops the old "+1% increased damage per point" line).
+## v4.8: damage = base x (1 + Strength%) x MV x increased x more, for every
+## damage type.
 func _base_hit(motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 	var damage_type: Constants.DamageType = infused_damage_type if infused_damage_type != -1 else native_damage_type
-	var stat_ap: float = stat_sheet.get_attack_power_from_stats()
-	var mastery: float = stat_sheet.get_mastery(damage_type)
-	# Section 10's Chain Bonus System (Mastery-amplified - see
-	# ChainCalculator.amplify_by_mastery()), stored as a raw fraction on
-	# StatSheet, converted to the percent-units DamageCalculator.calculate()
-	# expects (each entry "e.g. 8.0 for 8%").
+	var boosted_base := get_base_damage() * (1.0 + stat_sheet.get_strength_weapon_multiplier())
+	# Section 10's Chain Bonus System, stored as a raw fraction on StatSheet,
+	# converted to the percent-units DamageCalculator.calculate() expects
+	# (each entry "e.g. 8.0 for 8%").
 	var increased: Array[float] = [
 		stat_sheet.get_chain_bonus(damage_type) * 100.0,
 	]
+	# scaling_grade is passed but has no effect on weapon damage since
+	# stat_value = 0.0 (Strength is applied as a % multiplier on base_damage
+	# before this call). Grade only affects spell damage via ability._base_hit().
+	# Grade is shown in Alt info and can be degraded by Shard of Tharsis.
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		get_base_damage(), motion_value, stat_ap, scaling_grade,
-		0.5, mastery, increased, [], damage_type
+		boosted_base, motion_value, 0.0, scaling_grade,
+		0.5, increased, [], damage_type
 	)
 	return {
 		"base_damage": result.final_damage,

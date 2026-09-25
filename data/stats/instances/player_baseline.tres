@@ -4,6 +4,6 @@
 
 [resource]
 script = ExtResource("1")
-prowess = 4.0
-finesse = 7.0
-resolve = 4.0
+strength = 4.0
+agility = 7.0
+intellect = 4.0

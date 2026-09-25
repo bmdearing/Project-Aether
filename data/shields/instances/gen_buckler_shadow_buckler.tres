@@ -17,4 +17,4 @@ base_line_id = "buckler_line1"
 stat_requirement = 0
 stat_requirement_value = 26.5
 level_requirement = 44
-finesse_requirement = 40
+agility_requirement = 40

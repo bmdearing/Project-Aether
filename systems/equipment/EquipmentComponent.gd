@@ -189,9 +189,9 @@ func get_total_armor() -> float:
 
 ## Patch v4.4. Gear's Evasion: every equipped Armor/Shield's evasion_value,
 ## plus flat_evasion affixes from any equipped item, times any
-## increased_evasion. Finesse's own +2 per point is NOT here - it's added
-## after the gear multiplier in StatSheet.get_total_evasion().
-func get_total_evasion() -> float:
+## increased_evasion. extra_increased is Agility's +1%/point (a fraction,
+## passed in by StatSheet.get_total_evasion()) - same increased% bracket.
+func get_total_evasion(extra_increased: float = 0.0) -> float:
 	var base := 0.0
 	if helmet: base += helmet.evasion_value
 	if body_armour: base += body_armour.evasion_value
@@ -200,7 +200,7 @@ func get_total_evasion() -> float:
 	if offhand is Shield: base += (offhand as Shield).evasion_value
 	var affixes := compute_misc_bonuses()
 	var flat: float = affixes.get("flat_evasion", 0.0)
-	var increased: float = affixes.get("increased_evasion", 0.0) / 100.0
+	var increased: float = affixes.get("increased_evasion", 0.0) / 100.0 + extra_increased
 	return (base + flat) * (1.0 + increased)
 
 ## Patch v3.2: "Ward pool size scales through gear rolls." Two real
@@ -259,12 +259,11 @@ func get_weapon_set_refs(set_index: int) -> Array:
 
 ## Not the only source of stat growth anymore - FateBoard.
 ## compute_stat_bonuses() reuses this same dict for Slate modifiers'
-## stat_key. Together they're the only two (Section 12: gear + Slates,
-## no level-up allocation).
+## stat_key (plus the level bonus, see StatSheet.level_bonus).
 const AFFIX_STAT_KEYS := {
-	"flat_prowess": Constants.Stat.PROWESS,
-	"flat_finesse": Constants.Stat.FINESSE,
-	"flat_resolve": Constants.Stat.RESOLVE,
+	"flat_strength": Constants.Stat.STRENGTH,
+	"flat_agility": Constants.Stat.AGILITY,
+	"flat_intellect": Constants.Stat.INTELLECT,
 }
 
 func compute_stat_bonuses() -> Dictionary:

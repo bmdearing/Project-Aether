@@ -1,4 +1,7 @@
 extends Node
+## ALREADY APPLIED (v3.8) - historical record only. Do NOT re-run: it assumes
+## the pre-v3.8 six-stat data and targets the since-renamed Prowess/Finesse/
+## Resolve names. The v4.8 rename is tools/repair_v48_stat_rename.gd.
 ## One-shot data migration (Patch v3.8b Priority 1c/4) - run headlessly via
 ## tools/repair_implicit_affixes.tscn, not part of the game itself.
 ##

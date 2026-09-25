@@ -11,6 +11,30 @@ class_name ItemSerializer
 ## GDScript static funcs aren't polymorphic, so a single loader needs to
 ## branch on type to know which subclass to instantiate.
 
+## v4.8 stat rename (Prowess/Finesse/Resolve -> Strength/Agility/Intellect)
+## for saves written before it. Used by from_dict() here and by
+## SlateSerializer. Keys are exact matches; text replaces whole capitalized
+## words only, so verbs like "resolved" are untouched.
+const STAT_KEY_RENAMES := {
+	"flat_prowess": "flat_strength",
+	"flat_finesse": "flat_agility",
+	"flat_resolve": "flat_intellect",
+	"generic_of_prowess": "generic_of_strength",
+	"generic_of_finesse": "generic_of_agility",
+	"generic_of_resolve": "generic_of_intellect",
+}
+const STAT_WORD_RENAMES := {"Prowess": "Strength", "Finesse": "Agility", "Resolve": "Intellect"}
+
+static func migrate_stat_key(key: String) -> String:
+	return STAT_KEY_RENAMES.get(key, key)
+
+static func migrate_stat_text(text: String) -> String:
+	for old_word in STAT_WORD_RENAMES:
+		if text.contains(old_word):
+			var regex := RegEx.create_from_string("\\b%s\\b" % old_word)
+			text = regex.sub(text, STAT_WORD_RENAMES[old_word], true)
+	return text
+
 static func to_dict(item: Item) -> Dictionary:
 	if item == null:
 		return {}
@@ -108,8 +132,8 @@ static func from_dict(d: Dictionary) -> Item:
 	var affixes: Array[ItemAffix] = []
 	for a in d.get("affixes", []):
 		var affix := ItemAffix.new()
-		affix.description = a.get("description", "")
-		affix.stat_key = a.get("stat_key", "")
+		affix.description = migrate_stat_text(a.get("description", ""))
+		affix.stat_key = migrate_stat_key(a.get("stat_key", ""))
 		affix.value = a.get("value", 0.0)
 		affix.value_min = a.get("value_min", 0.0)
 		affix.value_max = a.get("value_max", 0.0)

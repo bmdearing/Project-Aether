@@ -12,8 +12,8 @@ is_more_multiplier = false
 
 [sub_resource type="Resource" id="SubResource_2"]
 script = ExtResource("2")
-description = "+4.8 Vitality (Random Stat)"
-stat_key = "flat_vitality"
+description = "+4.8 Strength (Random Stat)"
+stat_key = "flat_strength"
 value = 4.8
 is_more_multiplier = false
 

@@ -4,12 +4,12 @@
 
 [resource]
 script = ExtResource("1_uctyt")
-description = "+%d Finesse"
-stat_key = "generic_of_finesse"
+description = "+%d Agility"
+stat_key = "generic_of_agility"
 value = 24.0
 value_min = 24.0
 value_max = 30.0
 is_prefix = false
-affix_id = "generic_of_finesse"
-display_name = "of Finesse"
+affix_id = "generic_of_agility"
+display_name = "of Agility"
 is_generic = true

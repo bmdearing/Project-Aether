@@ -4,8 +4,7 @@ class_name ChainCalculator
 ## four-tier table in Constants.CHAIN_BONUS_TIERS.
 ##
 ## Interpretation flagged for design review: chains are computed per tag
-## (same-tag adjacency), since Mastery is tag-specific and Hybrid Slates
-## "bridge two chains" - implying chains are tag-scoped, not one
+## (same-tag adjacency), since Hybrid Slates "bridge two chains" - implying chains are tag-scoped, not one
 ## board-wide connectivity graph.
 
 class ChainResult:
@@ -66,19 +65,34 @@ static func _flood_fill(board: FateBoard, start_cell: Vector2i, tag: Constants.D
 
 	return result
 
-## Section 10/23: "Mastery... multiplying the per-tile chain bonus rate."
-## Takes compute_chains()'s raw per-chain results and amplifies each by
-## (1 + that chain's tag's Mastery) - kept as a separate pass (rather than
-## folded into compute_chains() itself) so the raw board geometry stays
-## testable/displayable without a StatSheet dependency (FateBoardEditor's
-## own chain_label still shows the unamplified per-tag numbers). Two
-## disconnected same-tag chains both contribute, summed per tag.
-static func amplify_by_mastery(chains: Array[ChainResult], stat_sheet: StatSheet) -> Dictionary:
+## Sums compute_chains()'s per-chain results per tag - two disconnected
+## same-tag chains both contribute.
+static func bonus_by_tag(chains: Array[ChainResult]) -> Dictionary:
 	var totals: Dictionary = {}
 	for result in chains:
-		var mastery: float = stat_sheet.get_mastery(result.tag) if stat_sheet else 0.0
-		var amplified: float = result.bonus_percent * (1.0 + mastery)
-		totals[result.tag] = totals.get(result.tag, 0.0) + amplified
+		totals[result.tag] = totals.get(result.tag, 0.0) + result.bonus_percent
+	return totals
+
+## v4.9: Constants.Stat -> float, every placed Slate's flat_<stat>
+## modifiers (EquipmentComponent.AFFIX_STAT_KEYS) scaled by (1 + the bonus
+## of the chain that Slate sits in). Only stat keys are amplified - every
+## other modifier (damage%, ailment chance, auto-cast...) is read elsewhere
+## at its face value. A lone Slate is its own chain (its own tile count),
+## same as for the damage chain bonus. Replaces FateBoard.
+## compute_stat_bonuses() (unamplified) as Player's source for slate_bonus.
+static func slate_stat_bonuses(board: FateBoard, chains: Array[ChainResult]) -> Dictionary:
+	var chain_bonus_by_placement := {}
+	for result in chains:
+		for placement_id in result.placement_ids:
+			chain_bonus_by_placement[placement_id] = max(chain_bonus_by_placement.get(placement_id, 0.0), result.bonus_percent)
+	var totals := {}
+	for placement_id in board.placements:
+		var data: FateBoard.PlacedSlateData = board.placements[placement_id]
+		var amplifier: float = 1.0 + chain_bonus_by_placement.get(placement_id, 0.0)
+		for modifier in data.slate.modifiers:
+			if EquipmentComponent.AFFIX_STAT_KEYS.has(modifier.stat_key):
+				var stat: Constants.Stat = EquipmentComponent.AFFIX_STAT_KEYS[modifier.stat_key]
+				totals[stat] = totals.get(stat, 0.0) + modifier.value * amplifier
 	return totals
 
 static func _bonus_for_tile_count(tile_count: int) -> float:

@@ -7,17 +7,17 @@ class_name StatSummaryBuilder
 ## Hover text per stat row, keyed by the row's label (Patch v4.3). Rows not
 ## listed here get no tooltip.
 const STAT_TOOLTIPS := {
-	"Prowess": "+2 Life and +1 Attack Power per point. From gear, Slates, and +0.6 per level.",
-	"Attack Power": "Base damage added to weapon hits from Prowess investment.",
+	"Strength": "+1% increased Weapon Damage, +4 Life per point.",
+	"Weapon Damage": "Increased weapon base damage from Strength.",
 	"Main Hand Damage": "Estimated damage range for your main hand weapon.",
-	"Finesse": "+2 Evasion Rating and +1% increased Critical Strike Chance per point.",
+	"Agility": "+1% increased Attack Speed, Evasion, and Critical Strike Chance per point.",
 	# "Evasion Rating" is built live in _evasion_tooltip() - it shows the derived percentages.
 	"Max Health": "Total Life pool. Depleted by incoming damage.",
 	"Life Regen": "Life recovered per second passively.",
 	"Max Ward": "Secondary buffer that absorbs all damage before Health.",
 	"Armor": "Reduces Physical damage taken.",
-	"Resolve": "+1 Spell Power and +0.5% increased Ward per point.",
-	"Spell Power": "Base damage added to spell hits from Resolve investment.",
+	"Intellect": "+1% increased Spell Damage and Ward, +3 Mana per point.",
+	"Spell Damage": "Increased Conduit spell power from Intellect.",
 	"Max Mana": "Resource pool for casting spells.",
 	"Mana Regen": "Mana recovered per second passively.",
 	"Move Speed": "Base movement speed in meters per second.",
@@ -37,14 +37,14 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 		return
 	var stats: StatSheet = player.stat_sheet
 
-	_add(offense_list, "Prowess", "%.1f" % stats.get_stat(Constants.Stat.PROWESS))
-	_add(offense_list, "Attack Power", "%.1f" % stats.get_attack_power_from_stats())
+	_add(offense_list, "Strength", "%.1f" % stats.get_stat(Constants.Stat.STRENGTH))
+	_add(offense_list, "Weapon Damage", "+%.0f%%" % (stats.get_strength_weapon_multiplier() * 100.0))
 	_add(offense_list, "Main Hand Damage", _predict_damage(player, Constants.EquipmentSlot.PRIMARY_WEAPON))
 	_add(offense_list, "Main Hand Crit", _crit_summary(player, Constants.EquipmentSlot.PRIMARY_WEAPON))
 	_add(offense_list, "Offhand Damage", _predict_damage(player, Constants.EquipmentSlot.OFFHAND))
 	_add(offense_list, "Offhand Crit", _crit_summary(player, Constants.EquipmentSlot.OFFHAND))
 
-	_add(defense_list, "Finesse", "%.1f" % stats.get_stat(Constants.Stat.FINESSE))
+	_add(defense_list, "Agility", "%.1f" % stats.get_stat(Constants.Stat.AGILITY))
 	var evasion := stats.get_total_evasion(player.equipment)
 	_add(defense_list, "Evasion Rating", "%.1f" % evasion, _evasion_tooltip(evasion))
 	_add(defense_list, "Max Health", "%.0f" % player.health.max_health)
@@ -60,19 +60,13 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 
 	_add(misc_list, "Level", "%d" % player.experience.level)
 	_add(misc_list, "XP", "%.0f / %.0f" % [player.experience.xp, player.experience.xp_to_next_level()])
-	_add(misc_list, "Resolve", "%.1f" % stats.get_stat(Constants.Stat.RESOLVE))
-	_add(misc_list, "Spell Power", "%.1f" % stats.get_spell_power_from_stats())
+	_add(misc_list, "Intellect", "%.1f" % stats.get_stat(Constants.Stat.INTELLECT))
+	_add(misc_list, "Spell Damage", "+%.0f%%" % (stats.get_spell_power_from_stats() * 100.0))
 	_add(misc_list, "Max Mana", "%.0f" % player.mana.max_mana)
 	_add(misc_list, "Mana Regen", "%.1f/s" % player.mana.regen_per_second)
 	_add(misc_list, "Move Speed", "%.1f m/s" % (player.move_speed * player.get_move_speed_multiplier()))
 	_add(misc_list, "Sprint Speed", "%.1f m/s" % (player.sprint_speed * player.get_move_speed_multiplier()))
 	_add(misc_list, "Action Speed", "%.0f%%" % (player.get_action_speed_multiplier() * 100.0))
-	if stats.supercharged_stat != -1:
-		_add(misc_list, "Supercharged", Constants.Stat.keys()[stats.supercharged_stat])
-	for tag in stats.mastery_by_tag:
-		var value: float = stats.mastery_by_tag[tag]
-		if value != 0.0:
-			_add(misc_list, "%s Mastery" % Constants.DAMAGE_TYPE_NAME.get(tag, "?"), "+%.2f" % value)
 	for tag in stats.chain_bonus_by_tag:
 		var bonus: float = stats.chain_bonus_by_tag[tag]
 		if bonus != 0.0:

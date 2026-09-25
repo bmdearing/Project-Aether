@@ -7,6 +7,89 @@ there. Most recent first.
 
 ---
 
+## 2026-09-24 — Implementation Brief v4.9: Post-Rewrite Cleanup + Slate Chain Stat Amplification
+
+Much of this brief was written against the pre-v4.8 code and had already been applied:
+- Item 1 (grade ranges, mob health x1.5) was the v4.8 follow-up retune.
+- Item 4 (`get_attack_power_from_stats()`) was already deleted and its callers updated.
+- The StatSheet/StatSummaryBuilder/ItemCard/SlateRoller Mastery code and the `DAMAGE_TYPE_MAIN_STAT` fallback were already done.
+
+**Done here:**
+- **`DamageCalculator.calculate()` lost its `mastery_bonus` parameter** (the brief now allows the signature change). `power = base + stat_value x grade_multiplier`. `mastery_bonus`/`effective_grade_multiplier` were dropped from `breakdown` (nothing read them); `DamageResult` is unchanged. Both callers (`Weapon`/`Ability._base_hit()`) were updated. The file header now describes how weapons and spells use the two halves of the power term.
+- **Supercharge removed:** `StatSheet.supercharged_stat`/`SUPERCHARGE_MULTIPLIER`, the `get_stat()` branch, and the character screen row. No `.tres` set it.
+- **Slate stats:** `MAIN_STAT_PER_TILE` 1.7 -> 0.6 and `RANDOM_STAT_PER_TILE` 0.8 -> 0.3. The new `ChainCalculator.slate_stat_bonuses(board, chains)` gives `Player` its `slate_bonus`. Each placed Slate's `flat_strength/agility/intellect` lines are multiplied by (1 + the bonus of the chain it's in), and every other modifier is untouched. The chain formula and `compute_chains()`/`bonus_by_tag()` output are unchanged.
+- **A lone Slate is its own chain.** The chain formula counts a Slate's own tiles, so an unconnected 11-tile Slate gets 11% (6.6 x 1.11 = 7.33), not the 0% the brief's second example assumed. This is kept consistent with the damage chain bonus, which has always counted lone Slates. To exempt unconnected Slates from stat amplification, add a `placement_ids.size() >= 2` check in `slate_stat_bonuses()`.
+- **Existing Slates keep their old values:** the per-tile cut only affects newly rolled Slates. The 7 hand-authored palette Slates (`.tres`, left alone per the brief) and Slates already in saves keep their 1.7/0.8-era values and now also get chain amplification on top.
+- `FateBoard.compute_stat_bonuses()` (unamplified) is now unused. It was left in place because the brief puts `FateBoard.gd` off-limits.
+- Weapon `_base_hit()` has the brief's scaling_grade comment; the `DAMAGE_TYPE_MAIN_STAT` mention in `weapon.gd` is gone.
+- **README** was updated: the stat section, per-point values, both damage formulas, Mastery/Supercharge removal, and Slate chain amplification. Several passages that had been stale since v3.8 were also fixed: Resilience is gear-only, and Debuff effectiveness is a flat 1.0 with no stat behind it.
+
+**Greps:**
+- Supercharge: 0.
+- `get_attack_power_from_stats`: 0.
+- Mastery: only `SlateSerializer`'s old-save drop of "mastery" modifiers, which is required.
+- prowess/finesse/resolve: only the `ItemSerializer` save-migration map, which is required. The rest are the verb "resolve" (`_resolved_this_swing`, `enemy_attack_resolved`, `resolve_tags`...), which the brief's exclusion list doesn't catch.
+
+**Verified** (headless, 12 checks):
+- New grade ranges and mob health.
+- Supercharge/Mastery/attack-power members gone.
+- `calculate()` gives base + stat x grade.
+- A lone 11-tile Slate gives 7.326 Agility.
+- A 7-tile Slate in a 40-tile Piercing chain: the chain bonus is 35%, stat = 5.67, the special modifier isn't in `slate_bonus`, and the damage chain bonus is unchanged at 0.35.
+- The character screen renders with no Supercharged/Mastery/Attack Power rows.
+- Hub loads clean.
+
+## 2026-09-24 — Implementation Brief v4.8: Stat Rename + Weapon/Spell Formula Rewrite
+
+Prowess/Finesse/Resolve were renamed Strength/Agility/Intellect everywhere: the enum, StatSheet fields, requirements, affix keys, UI, and data. Every stat effect is now a percentage: Strength gives +1% weapon base damage and +4 Life per point; Agility gives +1% increased Attack Speed, Evasion and Crit Chance; Intellect gives +1% spell damage and Ward, plus +3 Mana.
+
+**Formulas:**
+- Weapons: `base x (1 + Str%) x MV x increased x more`. `calculate()` gets `stat_value = 0.0`, so `scaling_grade` no longer affects weapon damage (it's still shown in Alt info).
+- Spells: `Conduit SP x (1 + Int%) x grade x MV x increased x more` (user choice, overriding the brief's section 4). This is done by passing the boosted spell power to `calculate()` as `stat_value` with a base of 0, so the grade multiplies it. With no Conduit equipped, spells deal 0 damage, as intended (user decision).
+- **Mastery was removed entirely (user decision):** `StatSheet.mastery_by_tag`/`get_mastery()`, `FateBoard.compute_mastery_bonuses()`, SlateRoller's Mastery modifiers, and the Mastery rows on the character screen. `ChainCalculator.amplify_by_mastery()` became `bonus_by_tag()` (a plain per-tag sum). `calculate()` keeps its `mastery_bonus` parameter; every caller passes 0.0. Small (2-4 tile) rolled Slates used to get only a Mastery modifier, so they now have no modifier lines and serve purely as chain links.
+- Agility's attack speed feeds `Player.get_action_speed_multiplier()` directly (same bracket as gear `attack_speed`), not through a cached `agility_attack_speed_bonus` field. That multiplier also scales ability cooldowns, as gear attack speed already did.
+- `get_attack_power_from_stats()` was deleted rather than left returning 0.0; all its callers were updated.
+
+**Data** (`tools/repair_v48_stat_rename.gd`, idempotent, 754 files changed):
+- 776 requirement fields.
+- 864 `primary/secondary_scaling_stat` values.
+- All `flat_*`/`generic_of_*` stat keys and affix ids.
+- `player_baseline.tres` (4 Strength / 7 Agility / 4 Intellect; it lives in `data/stats/instances/`, not the path the brief gave).
+- "+N Prowess" descriptions, plus "Prowess Pendant" -> "Strength Pendant" and "Resolve Rune Shield" -> "Intellect Rune Shield".
+- The three `generic_of_*` affix files were renamed with `git mv`.
+- 3 Mastery modifiers were stripped from palette Slates.
+- **All 7 hand-authored palette Slates still used pre-v3.8 six-stat keys** (`flat_vitality`/`instinct`/`arcane`/`enigma`), which `repair_stat_migration.gd` had missed, so they gave no stats. After this rename, their `flat_strength`/`flat_intellect` keys would have gone live and the rest stayed dead, so all of them were mapped with v3.8's own rule (Vitality->Strength, Instinct->Agility, Arcane/Enigma->Intellect). **The palette Slates now grant stats**; e.g. Aetheric Conduit gives +12.5 Intellect.
+- Old saves are migrated on load (`ItemSerializer.migrate_stat_key()`/`migrate_stat_text()`, reused by `SlateSerializer`, which also drops "mastery" modifiers). Verified against the real save: 47 items and 4 Slates came through clean.
+- Re-runnable tools (`repair_item_requirements`, `generate_weapon_affixes`, the bow/conduit line generators) were updated. `repair_stat_migration.gd`/`repair_implicit_affixes.gd` are already-applied six-stat migrations and now carry a "do not re-run" header; they keep the old names as a historical record.
+
+**Also fixed:** `SlateSerializer.from_dict()`'s empty-shape fallback assigned an untyped `[Vector2i.ZERO]` to a typed array, which throws. It's latent (real saves always have shapes); the test hit it.
+
+**Brief's grep report:** checks 2 and 3 (`.tres` requirement fields and `flat_*` keys) have 0 hits. Check 1 (`.gd`) is 0 in game code. The only remaining hits are intentional: the save-migration maps, the v4.8 repair tool's rename tables, and the two historical tools. `finesse_crit_bonus` keeps its name, per the brief. The verb "resolve" (`_resolve_hit`, `BrandCombinationResolver`, etc.) matches that grep but is unrelated and untouched.
+
+**Balance impact (flagged, not changed):**
+- The grade ranges were tuned in v4.6 as a coefficient on a stat value. As a direct multiplier on spell power, they cut most spells hard. The mid-range multipliers are A 0.95 / B 0.63 / C 0.35 / D 0.20 / E 0.10, and 13 of 20 abilities are C or below. For example, a D-grade spell on a 21 SP Conduit with 14 Intellect did 21 + 14 x 0.2 = 23.8 power before and does 21 x 1.14 x 0.2 = 4.8 now (-80%). An A-grade spell goes up slightly.
+- Weapons move less, since the grade is gone from the formula. The Crude Greatsword (D grade, 12 base) at 85 Strength goes from 12 + 85 x 0.2 = 29 to 12 x 1.85 = 22.1. B-grade weapons at the same Strength lose about 66%. Mob health from v4.6 was balanced against the old numbers.
+
+**Follow-up retune (user decision), in response to the above:**
+- `GRADE_MULTIPLIER_RANGES` is now a pure spell-quality multiplier: S 1.4-1.8, A 1.1-1.4, B 0.85-1.1, C 0.65-0.85, D 0.45-0.65, E 0.25-0.45. Mid-range values are 1.6 / 1.25 / 0.975 / 0.75 / 0.55 / 0.35. The earlier D-grade example becomes 21 x 1.14 x 0.55 = 13.2 (was 23.8 before v4.8, 4.8 right after it).
+- `MOB_BASE_HEALTH` x1.5: light 83 (82.5 rounded up), standard 150, heavy 300, elite 750, boss 4500. The mob level curve (growth per level, +2 levels per tier) and tier scaling are unchanged. This also makes enemies tougher against weapons, which lost damage in v4.8 rather than gaining it.
+
+**Not updated:** `README.md` still describes Prowess/Finesse/Resolve and Mastery (24 mentions).
+
+**Verified** (headless, 4.7.1, 24 checks inside `GeneratedMap` with the real save loaded):
+- Renamed baseline/enum.
+- Save migration.
+- Life = base + 4/Str; Mana = base + 3/Int.
+- Action speed, Evasion, crit and Ward include the stats.
+- Weapon damage matches `base x (1+Str%) x MV x chain` exactly, and changing the grade has no effect.
+- A spell with no Conduit does 0; a spell with a Conduit matches `SP x (1+Int%) x grade x MV` exactly.
+- Rolled items and Slates only use new keys.
+- A placed palette Slate grants Intellect.
+- Requirements load and display.
+- The weapon card shows "12 → 22.1".
+- The character screen shows STRENGTH/AGILITY/INTELLECT with Weapon/Spell Damage rows and no Mastery.
+- Hub loads clean.
+
 ## 2026-09-24 — Implementation Brief v4.7: Bug Fix Pass
 
 Items 1-10 were done; item 11 was dropped (see below). Where the brief's approach didn't fit the code, the goal was kept and the method adapted.

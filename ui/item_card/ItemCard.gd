@@ -36,7 +36,7 @@ const STAT_COLOR := Color(0.85, 0.85, 0.85)
 const AMMO_INFO_COLOR := SUBTITLE_COLOR  # Magazine/Reload lines on ranged weapons - dimmer than the stat lines around them
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
 const FLAVOR_COLOR := Color(0.75, 0.65, 0.45)
-const ATTACK_POWER_BONUS_COLOR := Color(0.4, 0.6, 1.0)
+const WEAPON_DAMAGE_VALUE_COLOR := Color(0.6, 0.6, 0.6)  # both numbers of "base → boosted" - darker than the white stat text
 const CARD_WIDTH := 260.0
 
 const SLATE_BADGE_COLOR := Color(0.55, 0.35, 0.85)  # fixed - independent of the Slate's own rarity color, shown on the border instead
@@ -290,29 +290,29 @@ func _check_requirements_met(item: Item) -> bool:
 		return true
 	if GameState.player_level < item.level_requirement:
 		return false
-	if stat_sheet.get_stat(Constants.Stat.PROWESS) < item.prowess_requirement:
+	if stat_sheet.get_stat(Constants.Stat.STRENGTH) < item.strength_requirement:
 		return false
-	if stat_sheet.get_stat(Constants.Stat.FINESSE) < item.finesse_requirement:
+	if stat_sheet.get_stat(Constants.Stat.AGILITY) < item.agility_requirement:
 		return false
-	if stat_sheet.get_stat(Constants.Stat.RESOLVE) < item.resolve_requirement:
+	if stat_sheet.get_stat(Constants.Stat.INTELLECT) < item.intellect_requirement:
 		return false
 	return true
 
 ## Shared between the Alt Info panel (always shown) and the main card
 ## (shown only when unmet, in red - see _render_item()) - "Requires Level
 ## N" first, then a single combined "Requires X / Y / Z" line for
-## whichever of Prowess/Finesse/Resolve are actually non-zero.
+## whichever of Strength/Agility/Intellect are actually non-zero.
 func _requirement_lines(item: Item) -> Array[String]:
 	var lines: Array[String] = []
 	if item.level_requirement > 1:
 		lines.append("Requires Level %d" % item.level_requirement)
 	var stat_parts: Array[String] = []
-	if item.prowess_requirement > 0:
-		stat_parts.append("%d Prowess" % item.prowess_requirement)
-	if item.finesse_requirement > 0:
-		stat_parts.append("%d Finesse" % item.finesse_requirement)
-	if item.resolve_requirement > 0:
-		stat_parts.append("%d Resolve" % item.resolve_requirement)
+	if item.strength_requirement > 0:
+		stat_parts.append("%d Strength" % item.strength_requirement)
+	if item.agility_requirement > 0:
+		stat_parts.append("%d Agility" % item.agility_requirement)
+	if item.intellect_requirement > 0:
+		stat_parts.append("%d Intellect" % item.intellect_requirement)
 	if stat_parts.size() > 0:
 		lines.append("Requires %s" % " / ".join(stat_parts))
 	return lines
@@ -337,60 +337,42 @@ func _stat_sheet_for_card() -> StatSheet:
 		return player.stat_sheet
 	return GameState.player_stat_sheet as StatSheet
 
-## Patch v3.8 Section 3: primary damage type Attack Power always shown;
-## additional lines only for a real "gain_as_damage" affix (damage
-## conversion/Gain As - no ItemRoller.AFFIX_POOL entry produces this yet,
-## pure forward-compat scaffolding, same footing as several other v3.8
-## gear-only stats with no real content behind them yet).
+## v4.8: "<Type> Damage: base -> boosted" - the weapon's own base damage,
+## then that base with the current Strength multiplier applied (Weapon.
+## _base_hit()'s boosted_base), both in WEAPON_DAMAGE_VALUE_COLOR. Primary damage type always shown;
+## extra lines only for a "gain_as_damage" affix (forward-compat - no
+## ItemRoller.AFFIX_POOL entry produces one yet).
 func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
 	var lines := []
 	var base := weapon.get_base_damage()
-	var stat_contribution := _get_stat_contribution(weapon, stat_sheet)
+	var str_mult := 1.0 + (stat_sheet.get_strength_weapon_multiplier() if stat_sheet else 0.0)
 	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE)
 	lines.append({
 		"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?"),
 		"base": base,
-		"bonus": stat_contribution,
+		"boosted": base * str_mult,
 		"color": primary_color,
 	})
 	for affix in weapon.affixes:
 		if affix.stat_key == "gain_as_damage" and affix.damage_type != -1:
 			var bonus_base := base * (affix.value / 100.0)
-			var bonus_stat := stat_contribution * (affix.value / 100.0)
 			var color: Color = Constants.DAMAGE_TYPE_COLOR.get(affix.damage_type, Color.WHITE)
 			lines.append({
 				"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(affix.damage_type, "?"),
-				"base": snapped(bonus_base, 0.1),
-				"bonus": snapped(bonus_stat, 0.1),
+				"base": bonus_base,
+				"boosted": bonus_base * str_mult,
 				"color": color,
 			})
 	# Shotguns: show what ONE pellet hits for, times the pellet count.
 	if weapon.is_ranged and weapon.pellet_count > 1:
 		for line in lines:
 			line["base"] = line["base"] / weapon.pellet_count
-			line["bonus"] = line["bonus"] / weapon.pellet_count
+			line["boosted"] = line["boosted"] / weapon.pellet_count
 			line["pellets"] = weapon.pellet_count
+	for line in lines:
+		line["base"] = snapped(line["base"], 0.1)
+		line["boosted"] = snapped(line["boosted"], 0.1)
 	return lines
-
-## Prowess's Attack Power contribution scaled by the weapon's own grade
-## multiplier AND Mastery (grade_roll_t = 0.5, matching DamageCalculator.
-## calculate()'s own convention everywhere else) - mirrors Weapon.
-## _base_hit()'s real formula (effective_grade_multiplier = grade_
-## multiplier * (1 + mastery_bonus)) so this can't drift from what a real
-## swing actually deals. Bug fix (2026-09-06, user-reported): Mastery was
-## missing entirely here, so the blue number under-stated the real
-## contribution - and never moved - whenever Mastery for the weapon's
-## damage type was nonzero (Fate Board Slates matching that tag).
-func _get_stat_contribution(weapon: Weapon, stat_sheet: StatSheet) -> float:
-	if stat_sheet == null:
-		return 0.0
-	var stat_ap := stat_sheet.get_attack_power_from_stats()
-	var grade_range: Vector2 = Constants.GRADE_MULTIPLIER_RANGES[weapon.scaling_grade]
-	var grade_mult: float = lerp(grade_range.x, grade_range.y, 0.5)
-	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
-	var mastery := stat_sheet.get_mastery(damage_type)
-	var effective_grade_mult := grade_mult * (1.0 + mastery)
-	return snapped(stat_ap * effective_grade_mult, 0.1)
 
 func _add_attack_power_line(line: Dictionary) -> void:
 	var rtl := RichTextLabel.new()
@@ -399,13 +381,13 @@ func _add_attack_power_line(line: Dictionary) -> void:
 	rtl.scroll_active = false
 	rtl.custom_minimum_size = Vector2(CARD_WIDTH, 0)
 	var label_color: Color = line["color"]
-	rtl.text = "[color=#%s]%s[/color]: %s + [color=#%s]%s[/color]" % [
-		label_color.to_html(false), line["label"],
-		_format_num(line["base"]),
-		ATTACK_POWER_BONUS_COLOR.to_html(false), _format_num(line["bonus"]),
-	]
+	var values := "%s → %s" % [_format_num(line["base"]), _format_num(line["boosted"])]
 	if line.has("pellets"):
-		rtl.text += " x%d" % line["pellets"]
+		values += " x%d" % line["pellets"]
+	rtl.text = "[color=#%s]%s[/color]: [color=#%s]%s[/color]" % [
+		label_color.to_html(false), line["label"],
+		WEAPON_DAMAGE_VALUE_COLOR.to_html(false), values,
+	]
 	_content().add_child(rtl)
 
 ## Magazine ("current / reserve") and Reload lines for firearms; bows get a
@@ -485,7 +467,7 @@ func _item_type_line(item: Item) -> String:
 
 ## Patch v3.8 Section 3: Scaling Grade and the raw damage/socket-count
 ## text lines moved out of here (Scaling Grade -> Alt Info, damage -> the
-## new Attack Power lines built separately, sockets -> the socket row) -
+## weapon damage lines built separately, sockets -> the socket row) -
 ## this only covers what's left: Spell Power for a Conduit, Infused type,
 ## Base Crit Chance, and the shared item-level/requirement lines every
 ## item type shows.

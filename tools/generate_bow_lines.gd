@@ -15,7 +15,7 @@ const OUT_DIR := "res://data/weapons/instances/"
 const ITEM_LEVELS := [1, 12, 23, 34, 46, 58, 72, 84]
 const REQUIRED_STAT_PER_LEVEL := 0.5
 const SOCKET_CAP := 6
-const ST_PROWESS := 0  # Constants.Stat.PROWESS (Patch v3.8: was STRENGTH=1, six-stat enum removed)
+const ST_STRENGTH := 0  # Constants.Stat.STRENGTH (pre-v3.8 six-stat STRENGTH was 1)
 const DT_PIERCING := 1  # Constants.DamageType.PIERCING
 
 const LINES := [
@@ -82,7 +82,7 @@ func _write_tier(line: Dictionary, tier_index: int) -> void:
 	w.flavor_text = line["flavor_text"]
 	w.item_level = item_level
 	w.base_line_id = line["base_line_id"]
-	w.stat_requirement = ST_PROWESS
+	w.stat_requirement = ST_STRENGTH
 	w.stat_requirement_value = item_level * REQUIRED_STAT_PER_LEVEL
 
 	if line["implicit_stat"] != null:

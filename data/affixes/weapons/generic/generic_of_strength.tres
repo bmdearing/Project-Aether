@@ -4,12 +4,12 @@
 
 [resource]
 script = ExtResource("1_46xt7")
-description = "+%d Prowess"
-stat_key = "generic_of_prowess"
+description = "+%d Strength"
+stat_key = "generic_of_strength"
 value = 24.0
 value_min = 24.0
 value_max = 30.0
 is_prefix = false
-affix_id = "generic_of_prowess"
-display_name = "of Prowess"
+affix_id = "generic_of_strength"
+display_name = "of Strength"
 is_generic = true

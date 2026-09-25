@@ -100,10 +100,10 @@ const TIER_DECAY := 0.8
 ## aggregated into a formula), so their 4 entries below just extend that
 ## same existing gap rather than opening a new one.
 const AFFIX_POOL := [
-	# Patch v3.8: six stats collapsed to three.
-	{"stat_key": "flat_prowess", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Prowess", "applies_to": [], "brand_tags": ["kinetic", "piercing", "explosive"]},
-	{"stat_key": "flat_finesse", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Finesse", "applies_to": [], "brand_tags": ["movement", "evasion"]},
-	{"stat_key": "flat_resolve", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Resolve", "applies_to": [], "brand_tags": ["fire", "cold", "lightning", "aetheric", "entropic", "pale"]},
+	# Patch v3.8: six stats collapsed to three (renamed in v4.8).
+	{"stat_key": "flat_strength", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Strength", "applies_to": [], "brand_tags": ["kinetic", "piercing", "explosive"]},
+	{"stat_key": "flat_agility", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Agility", "applies_to": [], "brand_tags": ["movement", "evasion"]},
+	{"stat_key": "flat_intellect", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Intellect", "applies_to": [], "brand_tags": ["fire", "cold", "lightning", "aetheric", "entropic", "pale"]},
 	# physical_dmg_increased removed (Patch v4.0) - superseded by the new
 	# "increased_physical_damage" entry below, doc-exact value (28-34%,
 	# was this entry's own invented 16-20%).

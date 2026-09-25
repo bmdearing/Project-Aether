@@ -94,9 +94,9 @@ class_name Item
 ## disagreeing with whatever EquipmentComponent actually enforces until a
 ## future pass repoints enforcement at these fields (flagged to the user).
 @export var level_requirement: int = 1
-@export var prowess_requirement: int = 0
-@export var finesse_requirement: int = 0
-@export var resolve_requirement: int = 0
+@export var strength_requirement: int = 0
+@export var agility_requirement: int = 0
+@export var intellect_requirement: int = 0
 
 ## Patch v3.5 Section 4: prefix/suffix/implicit counts, read off the
 ## single `affixes` array above (tagged by ItemAffix.is_prefix/

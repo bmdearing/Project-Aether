@@ -4,12 +4,12 @@
 
 [resource]
 script = ExtResource("1_wnbsc")
-description = "+%d Resolve"
-stat_key = "generic_of_resolve"
+description = "+%d Intellect"
+stat_key = "generic_of_intellect"
 value = 24.0
 value_min = 24.0
 value_max = 30.0
 is_prefix = false
-affix_id = "generic_of_resolve"
-display_name = "of Resolve"
+affix_id = "generic_of_intellect"
+display_name = "of Intellect"
 is_generic = true

@@ -29,8 +29,8 @@ extends Node
 ## weapon_type_filter for the two exclusive categories not tied to a
 ## specific base-type list (Conduit Only, Ranged Only) uses the real
 ## conduit/ranged weapon type keys already established in tools/
-## repair_item_requirements.gd's WEAPON_STAT_MAP (single-Resolve entries
-## for conduits, single-Finesse gun/bow entries for ranged) rather than
+## repair_item_requirements.gd's WEAPON_STAT_MAP (single-Intellect entries
+## for conduits, single-Agility gun/bow entries for ranged) rather than
 ## inventing a new boolean-property filter mechanism ItemAffix doesn't have.
 
 const OUT_ROOT := "res://data/affixes/weapons/"
@@ -46,7 +46,7 @@ const RANGED_TYPES := ["shortbow", "longbow", "service_pistol", "revolver", "mac
 ## items were showing "(Tier N)" with no actual number at all) - exactly
 ## one %d or %.1f placeholder, substituted with the rolled value by
 ## ItemRoller._roll_weapon_affixes() the same way the OLD AFFIX_POOL's
-## own "desc" dict entries already work ("+%d Prowess" % round(value)).
+## own "desc" dict entries already work ("+%d Strength" % round(value)).
 ## %.1f only for the two Critical Strike Chance affixes (3.5-4.5%%, doc-
 ## exact decimal precision); every other value rounds to a whole number,
 ## matching this project's existing display convention everywhere else.
@@ -57,7 +57,7 @@ const SECTIONS := [
 		["kinetic_forceful", "Forceful", "Adds %d flat Kinetic damage to attacks", true, 28.0, 42.0, 78, []],
 		["kinetic_hammering", "Hammering", "%d%% increased damage against Staggered enemies", true, 34.0, 40.0, 74, []],
 		["kinetic_concussive", "Concussive", "%d%% chance to Stagger on hit", true, 22.0, 26.0, 72, []],
-		["kinetic_of_the_ironhand", "of the Ironhand", "+%d Prowess", false, 24.0, 30.0, 1, []],
+		["kinetic_of_the_ironhand", "of the Ironhand", "+%d Strength", false, 24.0, 30.0, 1, []],
 		["kinetic_of_rending", "of Rending", "%d%% increased Attack Speed", false, 14.0, 16.0, 1, []],
 		["kinetic_of_the_bruiser", "of the Bruiser", "Gain %d Life on hit", false, 14.0, 18.0, 1, []],
 	]},
@@ -67,7 +67,7 @@ const SECTIONS := [
 		["piercing_barbed", "Barbed", "%d%% increased Bleed duration", true, 38.0, 44.0, 72, []],
 		["piercing_penetrating", "Penetrating", "Piercing attacks ignore %d%% of enemy Armor", true, 30.0, 35.0, 76, []],
 		["piercing_haemorrhaging", "Haemorrhaging", "%d%% chance to apply Bleed on hit", true, 28.0, 34.0, 70, []],
-		["piercing_of_the_duelist", "of the Duelist", "+%d Finesse", false, 24.0, 30.0, 1, []],
+		["piercing_of_the_duelist", "of the Duelist", "+%d Agility", false, 24.0, 30.0, 1, []],
 		["piercing_of_precision", "of Precision", "+%.1f%% Critical Strike Chance", false, 3.5, 4.5, 1, []],
 		["piercing_of_the_bleeder", "of the Bleeder", "Bleed deals damage %d%% faster", false, 34.0, 40.0, 1, []],
 	]},
@@ -77,7 +77,7 @@ const SECTIONS := [
 		["explosive_volatile", "Volatile", "Explosions have %d%% chance to Stun", true, 22.0, 28.0, 72, []],
 		["explosive_shrapnel", "Shrapnel", "Explosions leave a Bleed zone for 2 seconds (%d%% per second)", true, 18.0, 22.0, 74, []],
 		["explosive_incendiary", "Incendiary", "Explosions apply Ignite (%d%% chance)", true, 28.0, 34.0, 70, []],
-		["explosive_of_the_wrecker", "of the Wrecker", "+%d Prowess", false, 24.0, 30.0, 1, []],
+		["explosive_of_the_wrecker", "of the Wrecker", "+%d Strength", false, 24.0, 30.0, 1, []],
 		["explosive_of_detonation", "of Detonation", "%d%% reduced skill cooldowns", false, 14.0, 18.0, 1, []],
 		["explosive_of_impact", "of Impact", "%d Ward gained on kill", false, 22.0, 28.0, 1, []],
 	]},
@@ -87,7 +87,7 @@ const SECTIONS := [
 		["fire_kindling", "Kindling", "%d%% increased Ignite duration", true, 38.0, 44.0, 70, []],
 		["fire_pyretic", "Pyretic", "%d%% increased damage against Ignited enemies", true, 34.0, 40.0, 74, []],
 		["fire_immolating", "Immolating", "%d%% chance to Ignite on hit", true, 28.0, 34.0, 70, []],
-		["fire_of_the_calcine", "of the Calcine", "+%d Resolve", false, 24.0, 30.0, 1, []],
+		["fire_of_the_calcine", "of the Calcine", "+%d Intellect", false, 24.0, 30.0, 1, []],
 		["fire_of_conflagration", "of Conflagration", "%d%% increased Cast Speed", false, 18.0, 22.0, 1, []],
 		["fire_of_the_pyre", "of the Pyre", "Gain %d Mana on Ignite application", false, 8.0, 12.0, 1, []],
 	]},
@@ -97,7 +97,7 @@ const SECTIONS := [
 		["cold_crystallising", "Crystallising", "%d%% reduced Freeze threshold", true, 28.0, 34.0, 78, []],
 		["cold_brittle", "Brittle", "%d%% increased damage against Chilled enemies", true, 34.0, 40.0, 74, []],
 		["cold_freezing", "Freezing", "%d%% chance to apply Chill on hit", true, 34.0, 40.0, 68, []],
-		["cold_of_the_quench", "of the Quench", "+%d Resolve", false, 24.0, 30.0, 1, []],
+		["cold_of_the_quench", "of the Quench", "+%d Intellect", false, 24.0, 30.0, 1, []],
 		["cold_of_permafrost", "of Permafrost", "%d%% increased Chill duration", false, 38.0, 44.0, 1, []],
 		["cold_of_the_frost", "of the Frost", "%d Ward gained on Chill application", false, 16.0, 22.0, 1, []],
 	]},
@@ -107,7 +107,7 @@ const SECTIONS := [
 		["lightning_galvanised", "Galvanised", "%d%% increased Shock damage bonus (more effective)", true, 34.0, 40.0, 72, []],
 		["lightning_conducting", "Conducting", "%d%% increased damage against Shocked enemies", true, 34.0, 40.0, 74, []],
 		["lightning_discharging", "Discharging", "%d%% chance to apply Shock on hit", true, 28.0, 34.0, 68, []],
-		["lightning_of_the_galvanic", "of the Galvanic", "+%d Resolve", false, 24.0, 30.0, 1, []],
+		["lightning_of_the_galvanic", "of the Galvanic", "+%d Intellect", false, 24.0, 30.0, 1, []],
 		["lightning_of_static", "of Static", "%d%% increased Attack Speed", false, 14.0, 16.0, 1, []],
 		["lightning_of_conductance", "of Conductance", "%d Mana on Electrocute application", false, 10.0, 14.0, 1, []],
 	]},
@@ -117,7 +117,7 @@ const SECTIONS := [
 		["aetheric_consuming", "Consuming", "Hits drain %d%% of target's max Ward on hit", true, 8.0, 10.0, 74, []],
 		["aetheric_eroding", "Eroding", "%d%% increased damage vs Aetherburn enemies", true, 34.0, 40.0, 72, []],
 		["aetheric_devouring", "Devouring", "%d%% chance to apply Aetherburn on hit", true, 22.0, 28.0, 70, []],
-		["aetheric_of_the_invoke", "of the Invoke", "+%d Resolve", false, 24.0, 30.0, 1, []],
+		["aetheric_of_the_invoke", "of the Invoke", "+%d Intellect", false, 24.0, 30.0, 1, []],
 		["aetheric_of_the_veil", "of the Veil", "%d%% of max Ward restored on kill", false, 6.0, 8.0, 1, []],
 		["aetheric_of_resonance", "of Resonance", "%d%% increased Aether capacity", false, 18.0, 22.0, 1, []],
 	]},
@@ -127,7 +127,7 @@ const SECTIONS := [
 		["entropic_decaying", "Decaying", "%d%% increased damage vs Unraveled enemies", true, 38.0, 44.0, 76, []],
 		["entropic_dissolving", "Dissolving", "Unraveled enemies deal %d%% reduced damage", true, 12.0, 16.0, 74, []],
 		["entropic_fraying", "Fraying", "%d%% chance to apply Unraveling on hit", true, 22.0, 28.0, 68, []],
-		["entropic_of_efface", "of Efface", "+%d Resolve", false, 24.0, 30.0, 1, []],
+		["entropic_of_efface", "of Efface", "+%d Intellect", false, 24.0, 30.0, 1, []],
 		["entropic_of_collapse", "of Collapse", "%d%% increased Critical Strike damage", false, 38.0, 44.0, 1, []],
 		["entropic_of_dissolution", "of Dissolution", "%d Mana gained on kill", false, 14.0, 18.0, 1, []],
 	]},
@@ -137,7 +137,7 @@ const SECTIONS := [
 		["pale_threshold", "Threshold", "%d%% increased damage vs Pallid enemies", true, 38.0, 44.0, 76, []],
 		["pale_withering", "Withering", "Pallid enemies take %d%% increased damage from all sources", true, 12.0, 16.0, 74, []],
 		["pale_draining", "Draining", "%d%% chance to apply Pallid on hit", true, 22.0, 28.0, 68, []],
-		["pale_of_the_hollow", "of the Hollow", "+%d Resolve", false, 24.0, 30.0, 1, []],
+		["pale_of_the_hollow", "of the Hollow", "+%d Intellect", false, 24.0, 30.0, 1, []],
 		["pale_of_fading", "of Fading", "%d%% increased Ward Threshold", false, 18.0, 22.0, 1, []],
 		["pale_of_the_threshold", "of the Threshold", "%d Ward on Pallid application", false, 18.0, 24.0, 1, []],
 	]},
@@ -147,9 +147,9 @@ const SECTIONS := [
 		["generic_fluid", "Fluid", "%d%% increased Attack Speed", true, 14.0, 16.0, 74, []],
 		["generic_opportunist", "Opportunist", "%d%% increased damage vs full-health enemies (first hit only per enemy)", true, 44.0, 52.0, 70, []],
 		["generic_relentless", "Relentless", "%d%% increased damage vs enemies below 35%% health", true, 34.0, 40.0, 72, []],
-		["generic_of_prowess", "of Prowess", "+%d Prowess", false, 24.0, 30.0, 1, []],
-		["generic_of_finesse", "of Finesse", "+%d Finesse", false, 24.0, 30.0, 1, []],
-		["generic_of_resolve", "of Resolve", "+%d Resolve", false, 24.0, 30.0, 1, []],
+		["generic_of_strength", "of Strength", "+%d Strength", false, 24.0, 30.0, 1, []],
+		["generic_of_agility", "of Agility", "+%d Agility", false, 24.0, 30.0, 1, []],
+		["generic_of_intellect", "of Intellect", "+%d Intellect", false, 24.0, 30.0, 1, []],
 		["generic_of_the_sharp", "of the Sharp", "+%.1f%% Critical Strike Chance", false, 3.5, 4.5, 1, []],
 		["generic_of_conservation", "of Conservation", "Skills cost %d%% less Mana", false, 12.0, 14.0, 1, []],
 		["generic_of_the_ward", "of the Ward", "Gain %d Ward on hit", false, 18.0, 24.0, 1, []],

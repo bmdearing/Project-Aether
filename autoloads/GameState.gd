@@ -77,7 +77,7 @@ var ability_ranks: Dictionary = {}
 var player_level: int = 1
 var player_xp: float = 0.0
 
-## v4.7: every level above 1 grants this much Prowess, Finesse and Resolve.
+## v4.7: every level above 1 grants this much Strength, Agility and Intellect.
 ## Derived from player_level rather than accumulated, so it needs no save
 ## field and can't drift from the level.
 const STAT_GAIN_PER_LEVEL := 0.6

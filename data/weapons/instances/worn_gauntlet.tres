@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="SubResource_1"]
 script = ExtResource("2")
-description = "+18 Resolve (implicit)"
-stat_key = "flat_resolve"
+description = "+18 Intellect (implicit)"
+stat_key = "flat_intellect"
 value = 18.0
 is_prefix = false
 is_implicit = true

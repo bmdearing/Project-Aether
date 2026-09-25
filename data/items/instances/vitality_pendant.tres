@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="SubResource_1"]
 script = ExtResource("2")
-description = "+23 Prowess (implicit)"
-stat_key = "flat_prowess"
+description = "+23 Strength (implicit)"
+stat_key = "flat_strength"
 value = 23.0
 is_prefix = false
 is_implicit = true
@@ -14,7 +14,7 @@ is_implicit = true
 [resource]
 script = ExtResource("1")
 item_id = "vitality_pendant"
-display_name = "Prowess Pendant"
+display_name = "Strength Pendant"
 equip_slot = 9
 max_sockets = 1
 affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])

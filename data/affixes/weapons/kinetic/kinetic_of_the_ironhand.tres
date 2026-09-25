@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_i4v7q")
-description = "+%d Prowess"
+description = "+%d Strength"
 stat_key = "kinetic_of_the_ironhand"
 value = 24.0
 value_min = 24.0

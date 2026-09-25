@@ -139,21 +139,6 @@ func compute_stat_bonuses() -> Dictionary:
 				totals[stat] = totals.get(stat, 0.0) + modifier.value
 	return totals
 
-## Section 10/23: Mastery is granted by a Slate's "mastery" modifier,
-## applied to that Slate's own (primary) tag - a Hybrid Slate's mastery
-## modifier only benefits its dominant tag, not both (Hybrid's "full
-## bonus to both" wording in Section 10 describes chain-EXTENSION
-## specifically, not a Slate's own static modifier lines - an invented
-## simplification where the doc doesn't say either way).
-func compute_mastery_bonuses() -> Dictionary:
-	var totals := {}
-	for placement_id in placements:
-		var data: PlacedSlateData = placements[placement_id]
-		for modifier in data.slate.modifiers:
-			if modifier.stat_key == "mastery":
-				totals[data.slate.tag] = totals.get(data.slate.tag, 0.0) + modifier.value
-	return totals
-
 func _world_cells(slate: Slate, origin: Vector2i, rotation_steps: int, flipped: bool) -> Array[Vector2i]:
 	var local := slate.get_transformed_shape(rotation_steps, flipped)
 	var world: Array[Vector2i] = []

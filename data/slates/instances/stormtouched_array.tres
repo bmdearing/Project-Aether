@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="SubResource_1"]
 script = ExtResource("2")
-description = "+15.3 Arcane (Main Stat)"
-stat_key = "flat_arcane"
+description = "+15.3 Intellect (Main Stat)"
+stat_key = "flat_intellect"
 value = 15.3
 is_more_multiplier = false
 

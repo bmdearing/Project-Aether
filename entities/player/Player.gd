@@ -147,19 +147,16 @@ var _dash_direction: Vector3 = Vector3.ZERO
 var _dash_speed_current: float = 0.0
 var _dash_cooldown_remaining: float = 0.0
 
-## Patch v3.8: Move Speed/Attack Speed are "removed expressions" - no
-## longer derived from a character stat (Instinct, their old source, is
-## gone). Both stay real, actively-consumed multipliers (unlike several
-## other v3.8 gear-only stats with no consumer yet) - just gear-affix-
-## driven now instead of stat-driven, via StatSheet.misc_bonus.
+## Move Speed is gear-affix-only (StatSheet.misc_bonus). Attack Speed is
+## gear + Agility (v4.8) - see get_action_speed_multiplier().
 
 func _ready() -> void:
 	if stat_sheet == null:
 		# Fallback only - Player.tscn assigns player_baseline.tres normally.
 		stat_sheet = StatSheet.new()
-		stat_sheet.prowess = 10.0
-		stat_sheet.finesse = 10.0
-		stat_sheet.resolve = 10.0
+		stat_sheet.strength = 10.0
+		stat_sheet.agility = 10.0
+		stat_sheet.intellect = 10.0
 	fate_board = FateBoard.new()
 	GameState.player_stat_sheet = stat_sheet
 	GameState.fate_board = fate_board
@@ -169,7 +166,7 @@ func _ready() -> void:
 	add_to_group("player")
 	health.died.connect(_on_died)
 	# Captured before any gear bonus applies - the .tscn's static values
-	# are the class baseline Vitality/Intellect add on top of.
+	# are the class baseline Strength/Intellect add on top of.
 	_base_max_health = health.max_health
 	_base_max_mana = mana.max_mana
 	_base_mana_regen = mana.regen_per_second
@@ -215,18 +212,16 @@ func _on_equipment_changed() -> void:
 
 ## Fires on every FateBoard.place_slate()/remove_slate() (EventBus.
 ## slate_placed/slate_removed, both already emitted there - this is the
-## only listener). Section 10's Slate stat contribution, Mastery, and the
-## Mastery-amplified Chain Bonus System all flow through here into
-## StatSheet, then _apply_derived_stats() re-runs so Vitality/Intellect
-## gained from a placed Slate immediately affects max Health/Mana too,
-## same as an equipment change already does.
+## only listener). Section 10's Slate stat contribution and the Chain Bonus
+## System flow through here into StatSheet, then _apply_derived_stats()
+## re-runs so Strength/Intellect gained from a placed Slate immediately
+## affects max Life/Mana too, same as an equipment change already does.
 func _apply_fate_board_bonuses() -> void:
 	if fate_board == null:
 		return
-	stat_sheet.set_slate_bonus(fate_board.compute_stat_bonuses())
-	stat_sheet.mastery_by_tag = fate_board.compute_mastery_bonuses()
 	var chains := ChainCalculator.compute_chains(fate_board)
-	stat_sheet.set_chain_bonus_by_tag(ChainCalculator.amplify_by_mastery(chains, stat_sheet))
+	stat_sheet.set_slate_bonus(ChainCalculator.slate_stat_bonuses(fate_board, chains))
+	stat_sheet.set_chain_bonus_by_tag(ChainCalculator.bonus_by_tag(chains))
 	_apply_derived_stats()
 
 ## Section 12: "Resilience / DoT mitigation" - reduces StatusEffectComponent's
@@ -238,30 +233,27 @@ var resilience: float = 0.0
 
 ## Patch v3.8: Ward's BASE size still comes from armor only (flat_ward
 ## gear affixes, no baseline pool - see the ward bug fix this comment
-## used to describe). Resolve now applies the INCREASED% multiplier
-## Enigma used to (StatSheet.get_ward_increased_from_stats(), 0.5%/point
-## per the brief) - zero armor still means zero Ward, a multiplier on 0
-## is 0. Ward Restoration Rate is a "removed expression" now (no longer
-## stat-derived, Enigma is gone) - restoration_multiplier resets to a
-## flat 1.0 until/unless a gear affix drives it.
+## used to describe). Intellect applies an INCREASED% multiplier on it
+## (StatSheet.get_ward_increased_from_stats(), 1%/point) - zero armor
+## still means zero Ward, a multiplier on 0 is 0. Ward Restoration Rate
+## is a "removed expression" (not stat-derived) - restoration_multiplier
+## resets to a flat 1.0 until/unless a gear affix drives it.
 func _apply_derived_stats() -> void:
-	# Life: Prowess-derived bonus + gear-affix-only max_life/life_regen
-	# ("removed expressions" - Vitality, their old source, is gone).
+	# Life: Strength's +4/point + gear-affix max_life/life_regen.
 	health.set_max_health(_base_max_health + stat_sheet.get_max_life_bonus() + stat_sheet.get_misc_bonus("max_life"))
 	health.regen_per_second = stat_sheet.get_misc_bonus("life_regen")
 	resilience = stat_sheet.get_misc_bonus("flat_resilience")
 
-	# Mana: purely gear-affix-only now too (Intellect, its old source, is gone).
-	mana.max_mana = _base_max_mana + stat_sheet.get_misc_bonus("max_mana")
+	# Mana: Intellect's +3/point + gear-affix max_mana/mana_regen.
+	mana.max_mana = _base_max_mana + stat_sheet.get_mana_from_stats() + stat_sheet.get_misc_bonus("max_mana")
 	mana.regen_per_second = _base_mana_regen + stat_sheet.get_misc_bonus("mana_regen")
 
-	# Evasion/Crit Chance from Finesse - stored on StatSheet for Weapon/
-	# Ability._base_hit() (crit) and a future mitigation formula (evasion,
-	# same "real value, no consumer yet" footing Evasion already had).
+	# Evasion (gear x Agility's increased%) - refreshed here for display;
+	# take_damage() reads it live.
 	stat_sheet.stat_evasion_bonus = stat_sheet.get_total_evasion(equipment)
 	# Patch v4.0: gear's own "increased Critical Strike Chance" (crit_
 	# chance_increased) combines into the same multiplicative bracket as
-	# Finesse's contribution, not a separate additive bonus - see
+	# Agility's contribution, not a separate additive bonus - see
 	# DamageCalculator.get_crit_chance()'s 2026-09-07 fix.
 	stat_sheet.finesse_crit_bonus = stat_sheet.get_crit_chance_from_stats() + stat_sheet.get_gear_crit_chance_bonus()
 
@@ -734,8 +726,9 @@ func _effective_speed(base: float) -> float:
 		* melee_attack.get_move_speed_multiplier() * ability_cast.get_move_speed_multiplier() \
 		* weapon_stance.get_move_speed_multiplier()
 
+## Gear attack_speed + Agility's +1%/point, one increased% bracket.
 func get_action_speed_multiplier() -> float:
-	return 1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0
+	return 1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0 + stat_sheet.get_attack_speed_from_stats()
 
 func _start_dash(move_dir: Vector3) -> void:
 	_is_dashing = true

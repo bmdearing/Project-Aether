@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_rbt8w")
-description = "+%d Finesse"
+description = "+%d Agility"
 stat_key = "piercing_of_the_duelist"
 value = 24.0
 value_min = 24.0

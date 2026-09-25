@@ -1,20 +1,15 @@
 extends RefCounted
 class_name DamageCalculator
-## Implementation Brief v3.3 Section 1 damage formula (2026-08-31,
-## BREAKING CHANGE - replaces the old multiplicative one below):
-##   Attack Power = base_weapon_damage + (stat_value x grade_multiplier)
-##   Spell Power  = stat_value x grade_multiplier  (same formula with
-##     base_weapon_damage = 0 - a spell has no weapon; Ability._base_hit()
-##     passes 0.0, not the old 1.0 multiplicative-identity placeholder,
-##     since 1.0 would now silently add +1 flat damage to every spell)
+## Damage formula:
+##   Power = base_weapon_damage + (stat_value x grade_multiplier)
 ##   Final Damage = Power x Motion Value x (1 + sum Increased%) x
 ##     product(More multipliers)
-## Old formula (removed): base_weapon_damage x motion_value x
-## (stat_value x grade_scale x (1 + mastery)) x increased x more - the
-## old grade "scale" was a fraction of stat_value multiplied INTO an
-## already-stat-scaled term, producing numbers in the thousands at level
-## 1. Increased%/More multiplier logic is UNCHANGED per the brief -
-## additive pool, multiplicative stack, same as always.
+## Since v4.8 the two callers use opposite halves of the power term:
+##   Weapon._base_hit(): base = weapon base x (1 + Str%), stat_value 0.0 -
+##     the grade drops out entirely.
+##   Ability._base_hit(): base 0.0, stat_value = Conduit spell power x
+##     (1 + Int%) - so power = spell power x grade.
+## Increased% is an additive pool, More multipliers stack multiplicatively.
 
 class DamageResult:
 	var final_damage: float = 0.0
@@ -27,7 +22,6 @@ static func calculate(
 	stat_value: float,
 	scaling_grade: Constants.ScalingGrade,
 	grade_roll_t: float,          # 0.0-1.0 position within the grade's range
-	mastery_bonus: float,         # e.g. 0.5 for +0.5 Mastery
 	increased_percents: Array[float],   # additive pool, each e.g. 8.0 for 8%
 	more_multipliers: Array[float],     # each e.g. 1.3 for a 30% More multiplier
 	damage_type: Constants.DamageType
@@ -35,15 +29,9 @@ static func calculate(
 	var range: Vector2 = Constants.GRADE_MULTIPLIER_RANGES[scaling_grade]
 	# lerp() returns Variant (polymorphic) - explicit : float avoids inferring Variant.
 	var grade_multiplier: float = lerp(range.x, range.y, clamp(grade_roll_t, 0.0, 1.0))
-	# Mastery only affects the grade multiplier for matching tags, never
-	# universal - already scoped correctly since every caller only ever
-	# passes a tag-matched mastery_bonus in.
-	var effective_grade_multiplier := grade_multiplier * (1.0 + mastery_bonus)
 
-	# Attack Power (weapon calls, base_weapon_damage > 0) or Spell Power
-	# (spell calls, base_weapon_damage == 0) - same additive formula
-	# either way, see this file's own header for why spells pass 0 here.
-	var power := base_weapon_damage + (stat_value * effective_grade_multiplier)
+	# See this file's header for how weapons vs spells use each half.
+	var power := base_weapon_damage + (stat_value * grade_multiplier)
 
 	var increased_sum := 0.0
 	for pct in increased_percents:
@@ -61,8 +49,6 @@ static func calculate(
 		"base_weapon_damage": base_weapon_damage,
 		"motion_value": motion_value,
 		"grade_multiplier": grade_multiplier,
-		"mastery_bonus": mastery_bonus,
-		"effective_grade_multiplier": effective_grade_multiplier,
 		"power": power,
 		"increased_multiplier": increased_multiplier,
 		"more_multiplier": more_multiplier,
@@ -145,21 +131,21 @@ static func get_effective_armor(base_armor: float, attacker_stats: StatSheet) ->
 	return base_armor * (1.0 - shred_percent)
 
 ## Patch v3.8: base crit chance is fixed per weapon/spell type (2%-8%);
-## Finesse's crit-chance contribution (StatSheet.get_crit_chance_from_
+## Agility's crit-chance contribution (StatSheet.get_crit_chance_from_
 ## stats(), a flat fraction) now adds directly on top instead of scaling
 ## it multiplicatively - the old Instinct-based "x(1 + instinct*0.03)"
 ## formula is gone along with Instinct itself.
-## Bug fix (2026-09-07, user-reported): Finesse is "increased Critical
+## Bug fix (2026-09-07, user-reported): Agility is "increased Critical
 ## Strike Chance," a multiplier on the weapon/ability's own base_crit_
 ## chance - not flat additive percentage points. finesse_crit_bonus keeps
 ## meaning exactly what StatSheet.get_crit_chance_from_stats() already
-## computes (Finesse * 0.01, e.g. 0.07 for 7 Finesse) - only how it
+## computes (Agility * 0.01, e.g. 0.07 for 7 Agility) - only how it
 ## combines with base_crit_chance changed here.
 static func get_crit_chance(base_crit_chance: float, finesse_crit_bonus: float) -> float:
 	return base_crit_chance * (1.0 + finesse_crit_bonus)
 
 ## Base Critical Strike Damage multiplier 150%, flat - no longer stat-
-## derived (Intellect, its old source, is gone; "crit_damage" is a
+## derived (the pre-v3.8 Intellect used to feed it; "crit_damage" is a
 ## gear-affix-only "removed expression" per Patch v3.8 Section 2).
 ## bonus_fraction defaults to 0.0 - no consumer sums a crit_damage affix
 ## into this yet, same "real value, no formula to feed it" footing as

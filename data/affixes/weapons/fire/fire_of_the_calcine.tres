@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_uwxn4")
-description = "+%d Resolve"
+description = "+%d Intellect"
 stat_key = "fire_of_the_calcine"
 value = 24.0
 value_min = 24.0

@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_uyjsl")
-description = "+%d Resolve"
+description = "+%d Intellect"
 stat_key = "lightning_of_the_galvanic"
 value = 24.0
 value_min = 24.0

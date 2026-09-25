@@ -130,9 +130,9 @@ Greatsword - and reuses `BIG_SWEEP` for its special), and **Gauntlet**
 (the fastest weapon in the game, always `JAB`s - an elbow-extension-
 driven punch, not a blade-swing pose at all - and doubles as this
 project's first conduit-flavored weapon: Aetheric damage instead of
-Kinetic, and a `flat_resolve` implicit instead of crit chance, so
+Kinetic, and a `flat_intellect` implicit instead of crit chance, so
 equipping it both hits harder for its own damage type AND raises the
-Resolve that scales Esoteric spells - through the existing generic
+Intellect that scales spells - through the existing generic
 `flat_<stat>` affix system, which already sums from whichever weapon
 slot an item sits in, no new "conduit" mechanic needed). Every melee type
 now has a genuinely distinct swing/punch/thrust pose, not just a scaled
@@ -148,28 +148,30 @@ fall back to the tinted placeholder box. No caster weapon that gates an
 innate *ability* exists yet, and spellcasting itself remains entirely
 independent of the weapon slot - Gauntlet boosts spell damage by raising
 a stat, it doesn't grant or modify which spells you can cast. A `StatSheet`
-(Patch v3.8: **Prowess/Finesse/Resolve** — collapsed from the original six
-Vitality/Strength/Instinct/Arcane/Enigma/Intellect) drives Attack Power/
-Spell Power directly now: `Weapon`/`Ability._base_hit()` always scale off
-Prowess/Resolve respectively (`StatSheet.get_attack_power_from_stats()`/
-`get_spell_power_from_stats()`), regardless of the weapon/ability's own
-damage type — the old per-damage-type "which stat scales this" split
-(`Constants.DAMAGE_TYPE_MAIN_STAT`) no longer feeds the formula at all,
-only kept as directional metadata. Prowess also raises max Health;
-Finesse raises Evasion Rating and Crit Chance (now an ADDITIVE bonus on
-`base_crit_chance`, replacing the old multiplicative Instinct formula);
-Resolve raises Ward as an INCREASED% multiplier on gear's own Ward value.
-Several effects the old stats used to drive (max Life/Mana, their regen,
-Attack/Cast/Move Speed, Resilience) are gear-affix-only now (`StatSheet.
-misc_bonus`, `EquipmentComponent.compute_misc_bonuses()`) — no longer
-character-stat-derived at all; Crit Damage/Debuff Effectiveness/Stamina
-were added as real `ItemRoller.AFFIX_POOL` entries but have no consumer
-wired up yet, same "real affix, no formula to feed it yet" footing
-several older pool entries already had. Per Section 12 ("all stats come
-from gear... no manual allocation on level up"), stats only grow from
-equipped gear — `EquipmentComponent.compute_stat_bonuses()` sums every
-equipped item's `flat_<stat>` affixes into `StatSheet.equipment_bonus`,
-recomputed on every equip/unequip.
+has three stats, **Strength/Agility/Intellect** (v4.8; Prowess/Finesse/
+Resolve before that, and the original six Vitality/Strength/Instinct/
+Arcane/Enigma/Intellect before v3.8). Every stat effect is a percentage,
+regardless of the weapon/ability's own damage type:
+- **Strength**: +1% increased weapon base damage and +4 Life per point.
+- **Agility**: +1% increased Attack Speed, Evasion and Critical Strike
+  Chance per point (each in the same increased% bracket as gear's own
+  bonus; attack speed also shortens ability cooldowns via
+  `Player.get_action_speed_multiplier()`).
+- **Intellect**: +1% increased spell damage (a multiplier on Conduit spell
+  power) and Ward, plus +3 Mana per point.
+
+`Constants.DAMAGE_TYPE_MAIN_STAT` doesn't feed damage; it only picks a
+rolled Slate's Main Stat line. **Mastery and Supercharge were removed**
+(v4.8/v4.9). Regen, cast/move speed and Resilience are gear-affix-only
+(`StatSheet.misc_bonus`, `EquipmentComponent.compute_misc_bonuses()`);
+Crit Damage/Debuff Effectiveness/Stamina are real `ItemRoller.AFFIX_POOL`
+entries with no consumer wired up yet. There's no manual allocation on
+level up. Stats come from four sources summed in `StatSheet.get_stat()`:
+the fixed baseline (`player_baseline.tres`), +0.6 each per level above 1
+(`GameState.get_level_stat_bonus()`), gear `flat_<stat>` affixes
+(`EquipmentComponent.compute_stat_bonuses()`), and placed Slates' stat
+lines, each amplified by `(1 + its chain's bonus)` (`ChainCalculator.
+slate_stat_bonuses()`).
 
 **Crouch & Slide** (`entities/player/Player.gd`, `Ctrl`): both invented,
 no doc-sourced design exists for either. Hold Ctrl to crouch (shrinks the
@@ -194,27 +196,24 @@ the instant Strike - and while channeling Flame Jets (0.4x, see Abilities
 below) - both read through `Player._effective_speed()` the same way
 Instinct/status-effect speed modifiers already do.
 
-**Combat formula** (`systems/combat/DamageCalculator.gd`): rewritten
-2026-08-31 per Implementation Brief v3.3 Section 1 (BREAKING CHANGE) -
-the original Section 11 formula (`Base Damage x Motion Value x Stat Value
-x Scaling-Grade Fraction x Mastery x Increased% x More multipliers`)
-multiplied a stat-scaled term directly into base damage, producing
-numbers in the thousands at level 1. Replaced with an additive one:
-`Attack Power = base_weapon_damage + (stat_value x grade_multiplier x (1
-+ mastery))`, `Spell Power` is the identical formula with
-`base_weapon_damage = 0` (a spell has no weapon - `Ability._base_hit()`
-now passes `0.0`, not the old `1.0` multiplicative-identity placeholder,
-which would otherwise silently add +1 flat damage to every spell under
-the new additive math), `Final Damage = Power x Motion Value x (1 + sum
-Increased%) x product(More multipliers)` - Increased%/More multiplier
-logic itself is unchanged. `Constants.SCALING_RANGES` renamed to
-`GRADE_MULTIPLIER_RANGES` with new, much larger ranges (S: 1.5-2.0 ->
-3.0-4.0, etc. - a different unit under the new formula, not a tuning
-pass on the old numbers). Followed by a
+**Combat formula** (`systems/combat/DamageCalculator.gd`, v4.8):
+- **Weapons:** `base x (1 + Str%) x Motion Value x (1 + sum Increased%)
+  x product(More)`. `scaling_grade` has no effect on weapon damage; it's
+  shown in Alt info and can be degraded by the Shard of Tharsis.
+- **Spells:** `Conduit spell power x (1 + Int%) x grade multiplier x
+  Motion Value x (1 + sum Increased%) x product(More)`. With no Conduit
+  equipped, spells deal 0 damage.
+
+`calculate()` computes `power = base + stat_value x grade_multiplier`:
+weapons pass their Strength-boosted base with `stat_value = 0.0`, spells
+pass base 0 with the Intellect-boosted spell power as `stat_value`.
+`GRADE_MULTIPLIER_RANGES` is therefore a spell-quality multiplier (S
+1.4-1.8 down to E 0.25-0.45). Increased% is one additive pool (the Chain
+Bonus feeds it per damage tag); More multipliers stack. Followed by a
 **Critical Strike System** (also Section 11, doc-exact numbers): base crit
 chance is fixed per weapon/spell type (`Constants.WEAPON_BASE_CRIT_CHANCE`,
-2%-8%), multiplied by Instinct; a crit deals 150% damage, multiplied by
-Intellect. `Weapon`/`Ability` each expose `predict_damage()` (an
+2%-8%), multiplied by (1 + Agility% + gear increased crit); a crit deals
+150% damage plus gear crit damage. `Weapon`/`Ability` each expose `predict_damage()` (an
 expected-value blend for stat-card display, doesn't jitter between hover
 peeks) and `roll_damage()` (an actual random crit roll, used by real
 attacks/casts). Order of operations (Patch v3.2, superseding the Master
@@ -378,10 +377,10 @@ per `Constants.STATUS_EFFECT_DAMAGE_TYPE`). **A 7th, `"shock"`, was added
 2026-09-06** for Spark specifically (Lightning, +20% Lightning damage
 taken for 4s, non-stacking/refresh-on-reapply, no stun) - Spark applies
 Shock instead of Electrocute now; Thunder Javelin/Thunder Sweep still
-apply Electrocute, unchanged. Vitality's Resilience/DoT
-mitigation and Intellect's Debuff effectiveness (Section 12) are wired
-through it too — Resilience reduces Ignite's tick damage, the applying
-side's Intellect extends Chill/Electrocute/Unraveling's duration. Stunned
+apply Electrocute, unchanged. Resilience (gear-affix-only, `flat_
+resilience`) reduces Ignite's tick damage; Debuff effectiveness has a
+hook (`StatusEffectComponent._debuff_effectiveness_multiplier()`) but is
+a flat 1.0 since no stat drives it anymore. Stunned
 targets have their `EnemyMeleeAttack`/`EnemyRangedAttack` state machine
 paused (Enemy side) or lose jump/parry/attack input (Player side). Active
 effects show as a colored chip row top-left on `PlayerHUD` and as small
@@ -471,11 +470,10 @@ entirely) - that version's own "release Alt closes it, unless the mouse
 is over the card" hold behavior is gone along with it; Alt Info has
 nothing to hover onto since it's the same card, not a second window.
 
-**Weapon cards show a real Damage breakdown** (Patch v3.8, labeled
-"Attack Power" through v3.8c, renamed to "Damage" in v3.8d - "X Damage:
-base + bonus") instead of a flat number - white base value + blue stat-
-derived bonus (Prowess and Mastery both folded in, Patch v3.8d bug fix)
-per damage type present (`ItemCard._build_attack_power_lines()`, mirrors
+**Weapon cards show a real Damage breakdown** ("X Damage: base →
+boosted", v4.8) instead of a flat number - base value, then the value
+with the current Strength multiplier applied, both in the same darker
+grey, per damage type present (`ItemCard._build_attack_power_lines()`, mirrors
 `Weapon._base_hit()`'s own formula so it can't drift from a real swing).
 Scaling Grade moved to Alt Info; the old socket-count text line was
 replaced with real socket art (small filled/outline circles, `ItemCard.
@@ -571,31 +569,25 @@ could have with a designated spell (buff it, retrigger it on some other
 condition, modify it) would need their own concrete Slate designs to
 build against, same as this one did - none exist in the doc yet.
 
-**Slates now do something** - three real, mechanical pathways out of the
-Fate Board, all landing on `StatSheet` and consumed by the existing
-damage formula with no changes needed there:
-1. **Stat contribution** (Section 10's "Stats Per Tile" - doc-exact: 1.7
-   Main Stat/tile keyed by the Slate's tag via the same
-   `Constants.DAMAGE_TYPE_MAIN_STAT` table weapons/abilities already
-   scale against, 0.8 Random Stat/tile, 5+ tile Slates only) sums across
-   every PLACED Slate into `StatSheet.slate_bonus`, same channel gear's
-   `flat_<stat>` affixes already use.
-2. **Mastery** (Section 10/23: "tag-specific... multiplying weapon
-   scaling grade effectiveness for that tag") is granted by a Slate's own
-   "mastery" modifier. `StatSheet.mastery_by_tag` existed and was already
-   read by `Weapon`/`Ability` damage rolls since early in this project -
-   nothing had ever populated it until now.
-3. **Chain Bonus** amplifies by Mastery (`ChainCalculator.
-   amplify_by_mastery()` - "Mastery... multiplying the per-tile chain
-   bonus rate") and the result feeds `Weapon`/`Ability._base_hit()`'s
-   `increased_percents` as real "increased damage" for that tag's
-   category - the same formula parameter every damage roll already
-   accepted but nothing had ever passed anything into before this.
+**Slates now do something** - two mechanical pathways out of the Fate
+Board, both landing on `StatSheet`:
+1. **Stat contribution** (Section 10's "Stats Per Tile": 0.6 Main
+   Stat/tile keyed by the Slate's tag via `Constants.
+   DAMAGE_TYPE_MAIN_STAT`, 0.3 Random Stat/tile, 5+ tile Slates only -
+   v4.9 cut these from 1.7/0.8) sums across every PLACED Slate into
+   `StatSheet.slate_bonus`, same channel gear's `flat_<stat>` affixes
+   use. Since v4.9 each Slate's stat lines are multiplied by (1 + the
+   bonus of the chain it sits in) (`ChainCalculator.
+   slate_stat_bonuses()`); non-stat modifiers are never amplified. A
+   lone Slate counts as its own chain (its own tile count).
+2. **Chain Bonus** (`ChainCalculator.bonus_by_tag()`) feeds `Weapon`/
+   `Ability._base_hit()`'s `increased_percents` as real "increased
+   damage" for that tag's category.
 
-Whether a Slate's own stat rolls should ALSO be chain-amplified is
-explicitly unresolved in Section 10 itself ("deferred pending balance
-evaluation") - not implemented, matching that stated deferral rather
-than guessing. **`SlateRoller`** (mirrors `ItemRoller`/`BrandRoller`)
+Mastery (a third pathway, amplifying scaling grade and chain bonus) was
+removed in v4.8. Section 10 itself leaves chain amplification of stat
+rolls "deferred pending balance evaluation"; v4.9 implements it as a
+design decision. **`SlateRoller`** (mirrors `ItemRoller`/`BrandRoller`)
 rolls all five of Section 10's axes - Tag, Shape (from a small invented
 template pool, freely rotated/flipped at placement), Size (the doc's own
 2-4/5-9/10-11 tile brackets, each with its own rarity band and design
@@ -762,10 +754,9 @@ duplicate `stat_key`s), still scaled through the exact same tier-decay
 mechanism as everything else since the doc never gives tiers past T1.
 Every other item category (Armor/Shield/accessories) still rolls from
 `AFFIX_POOL` unchanged.
-`flat_<stat>` affixes (Prowess/Finesse/Resolve as of Patch v3.8, was
-Vitality/Strength/Instinct/Arcane/Enigma/Intellect) are real now, not
-descriptive-only — they're the only source of stat growth in the game
-(see Player section above); `flat_ward` and the 4 `*_resistance_pct`
+`flat_<stat>` affixes (`flat_strength`/`flat_agility`/`flat_intellect`)
+are real, not descriptive-only — gear's stat source (see Player section
+above); `flat_ward` and the 4 `*_resistance_pct`
 affixes are real too as of Patch v3.2 (Ward pool size, Resistance
 mitigation - see the Combat formula section above); the damage/armor
 increased-% affixes are still descriptive-only (see flagged gap).
@@ -908,8 +899,8 @@ generation *algorithm* doesn't know or care what the rooms are made of.
     sends you there — `GameState.MAP_SCENE` now points at
     `GeneratedMap.tscn`.
 
-**Character Screen** (`ui/character_screen/`, `C`): a large PROWESS/
-FINESSE/RESOLVE row up top (PoE-style, always live), then all three
+**Character Screen** (`ui/character_screen/`, `C`): a large STRENGTH/
+AGILITY/INTELLECT row up top (PoE-style, always live), then all three
 `StatSheet` stats split into Offense/Defense/Misc, plus Predicted Main
 Hand/Offhand Damage and Crit Chance/Damage (crit-inclusive, keyed by
 equip slot so a ranged weapon in the main hand shows a real crit line),
@@ -1127,17 +1118,13 @@ None of the six have a `PauseMenu` button — hotkey-only.
     (`CraftingSystem.EMPOWER_FIGMENT_GOLD_COST`). Selection/inspection UI
     is real now (see the Hub section above) - this gap is narrower than
     it used to be.
-14. **Vitality's Resilience/DoT mitigation and Intellect's Debuff
-    effectiveness are now wired** (`Player.get_dot_mitigation()` /
-    `DamageCalculator.dot_mitigation()`, and
-    `StatusEffectComponent._debuff_effectiveness_multiplier()`
-    respectively - see `StatusEffectComponent`), now that a real DoT/
-    debuff system (status effects) exists for them to modify. **Instinct's
-    Stamina pool + dodge-roll/Active-Blocking is still NOT wired** - no
-    Stamina/dodge/block-charge mechanic exists. Strength's Stagger
-    effect/Stun Recovery are similarly unwired - no stagger/stun-duration
-    mechanic exists (Electrocute/Freeze's stun is currently a flat,
-    invented duration, not modified by either stat).
+14. **Resilience/DoT mitigation is wired, Debuff effectiveness isn't**
+    (`Player.get_dot_mitigation()`/`DamageCalculator.dot_mitigation()`
+    from gear `flat_resilience`; `StatusEffectComponent.
+    _debuff_effectiveness_multiplier()` is a flat 1.0 - the old six-stat
+    Intellect that drove it is gone). A Stamina pool/dodge-roll, Stagger
+    and Stun Recovery are also unwired - no such mechanics exist
+    (Electrocute/Freeze's stun is a flat, invented duration).
 15. **Critical Strike System's per-ability base crit chance is thematic
     guesswork, not a real mechanical distinction** — the doc keys base
     crit chance off "spell type" (single target/AoE/channeled/etc.),
@@ -1326,20 +1313,15 @@ None of the six have a `PauseMenu` button — hotkey-only.
     guessed at.
 27. **The Slate System's numeric/probabilistic choices beyond Section
     10's own doc-exact numbers are invented** - the Chain Bonus tiers,
-    Stats Per Tile formula (1.7/0.8/2.5), Main Stat by Tag table, and
-    Slate Size/Rarity brackets are all doc-exact and transcribed
-    verbatim; everything `SlateRoller` decides beyond those (which shape
-    template within a size bracket, Hybrid chance, Mastery's value range
-    and how often a 5+ tile Slate additionally rolls one, Aether cost)
-    has no doc-sourced formula - Section 10 states the mechanics and
-    axes, not their exact acquisition curve, same "Deferred Design"
-    pattern as Crafting (gap #25). Two specific interpretive calls worth
-    flagging on their own: **(a)** a Slate's own "mastery" modifier grants
-    Mastery to its primary tag only, even on a Hybrid Slate - the doc's
-    "full bonus to both" wording for Hybrids describes chain-EXTENSION
-    specifically (Section 10), not a Slate's own static modifier lines,
-    which the doc doesn't address either way. **(b)** Chain Bonus's own
-    output (after Mastery amplification) is treated as "increased damage"
+    Main Stat by Tag table, and Slate Size/Rarity brackets are doc-exact
+    and transcribed verbatim; the Stats Per Tile values were doc-exact
+    (1.7/0.8) until v4.9 cut them to 0.6/0.3 to pair with chain
+    amplification. Everything `SlateRoller` decides beyond those (which
+    shape template within a size bracket, Hybrid chance, Aether cost) has
+    no doc-sourced formula - Section 10 states the mechanics and axes,
+    not their exact acquisition curve, same "Deferred Design" pattern as
+    Crafting (gap #25). One interpretive call worth flagging on its own:
+    Chain Bonus's output is treated as "increased damage"
     for that tag's category, feeding the same `increased_percents` slot
     every damage roll already accepted - the doc names the Chain Bonus
     System and gives its numbers but never states what the resulting
@@ -1407,8 +1389,8 @@ None of the six have a `PauseMenu` button — hotkey-only.
     were left untouched (`stat_requirement == -1`, `item_level` defaults
     to 1) - trivially satisfied either way, not worth a retrofit.
     **2026-09-06 (Patch v3.8d):** a SECOND, parallel requirement system
-    was added on top - `Item.level_requirement`/`prowess_requirement`/
-    `finesse_requirement`/`resolve_requirement`, populated by `tools/
+    was added on top - `Item.level_requirement`/`strength_requirement`/
+    `agility_requirement`/`intellect_requirement`, populated by `tools/
     repair_item_requirements.gd` from a more lenient level-bracket table
     and (unlike the field above) able to require two stats on the same
     item. Display-only for now (shown on `ItemCard`, red when unmet) -

@@ -1,4 +1,7 @@
 extends Node
+## ALREADY APPLIED (v3.8) - historical record only. Do NOT re-run: it assumes
+## the pre-v3.8 six-stat data and targets the since-renamed Prowess/Finesse/
+## Resolve names. The v4.8 rename is tools/repair_v48_stat_rename.gd.
 ## One-shot data migration (Patch v3.8 Section 2) - remaps every already-
 ## generated item's `stat_requirement` (an int under the OLD 6-value
 ## Constants.Stat enum, silently reinterpreted as a different stat under

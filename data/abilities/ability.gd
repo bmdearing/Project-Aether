@@ -80,34 +80,28 @@ func get_upgrade_cost() -> int:
 
 ## Shared groundwork for predict_damage()/roll_damage() - see
 ## Weapon.gd's own _base_hit() for the same split rationale.
-## Patch v3.8: Spell Power always comes from Resolve (stat_sheet.
-## get_spell_power_from_stats()) regardless of the ability's own damage
-## type - the old per-damage-type main-stat lookup is gone from this
-## formula, same change as Weapon._base_hit()'s own Attack Power.
+## v4.8: damage = Conduit spell power x (1 + Intellect%) x grade multiplier
+## x MV x increased x more, for every damage type. No Conduit equipped
+## (conduit_spell_power 0.0) means 0 spell damage - intended (user decision).
 func _base_hit(stat_sheet: StatSheet) -> Dictionary:
-	var stat_sp: float = stat_sheet.get_spell_power_from_stats()
-	var mastery: float = stat_sheet.get_mastery(damage_type)
-	# Section 10's Chain Bonus System (Mastery-amplified - see
-	# ChainCalculator.amplify_by_mastery()), stored as a raw fraction on
-	# StatSheet, converted to the percent-units DamageCalculator.calculate()
-	# expects (each entry "e.g. 8.0 for 8%").
+	# Section 10's Chain Bonus System, stored as a raw fraction on StatSheet,
+	# converted to the percent-units DamageCalculator.calculate() expects
+	# (each entry "e.g. 8.0 for 8%").
 	var increased: Array[float] = [
 		stat_sheet.get_chain_bonus(damage_type) * 100.0,
 	]
-	# Patch v3.7 Section 1: base_weapon_damage is the equipped Conduit's
-	# own Spell Power (StatSheet.conduit_spell_power, 0.0 if no Conduit is
-	# equipped) instead of a hardcoded 0.0 - the "single-digit damage at
-	# low stats/grade" bug was Spell Power having no base floor at all
-	# (Implementation Brief v3.3 Section 1's original formula), the same
-	# role base_damage already plays for a real weapon's Attack Power.
+	# calculate()'s power term is base + stat_value x grade. Feeding the
+	# boosted spell power in as stat_value (base 0.0) makes it spell power x
+	# grade - the grade multiplies spell power rather than adding to it.
+	var boosted_spell_power := stat_sheet.conduit_spell_power * (1.0 + stat_sheet.get_spell_power_from_stats())
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		stat_sheet.conduit_spell_power, get_effective_motion_value(), stat_sp, scaling_grade,
-		0.5, mastery, increased, [], damage_type
+		0.0, get_effective_motion_value(), boosted_spell_power, scaling_grade,
+		0.5, increased, [], damage_type
 	)
 	# Patch v4.0 Amulet Exclusive "Skill Level" - each level is +8%
 	# effectiveness (brief's own invented value, "subject to balance
 	# tuning"), applied as a multiplier on the WHOLE result rather than on
-	# stat_sp alone (calculate()'s own signature/internals are off limits
+	# spell power alone (calculate()'s own signature/internals are off limits
 	# per this patch's "Files to Leave Alone" - scaling final_damage is
 	# mathematically identical to scaling the "power" term calculate()
 	# computes internally, since power is a pure linear factor in its own

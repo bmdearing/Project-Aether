@@ -1,29 +1,23 @@
 extends Resource
 class_name StatSheet
-## Patch v3.8: three stats (Prowess/Finesse/Resolve), replacing the
-## original six (Vitality/Strength/Instinct/Arcane/Enigma/Intellect).
+## Three stats - Strength/Agility/Intellect (v4.8 rename of Prowess/
+## Finesse/Resolve). Every stat effect is a percentage (see the derived
+## getters below), except Strength's Life and Intellect's Mana.
 ## No manual allocation on level up, but v4.7 adds a fixed +0.6 to each
 ## stat per level (level_bonus below). The raw fields below are the
 ## character's permanently-fixed baseline (player_baseline.tres, 10.0
 ## flat each - an invented vertical-slice testing value, no doc-sourced
 ## baseline exists); equipment_bonus and slate_bonus are what grow a stat
 ## past that - gear (EquipmentComponent.compute_stat_bonuses()) and
-## placed Slates (FateBoard.compute_stat_bonuses()) respectively.
+## placed Slates (ChainCalculator.slate_stat_bonuses()) respectively.
 ## Player.gd pushes a fresh total into each on every equip/unequip or
-## Slate placement/removal. Neither is persisted separately - equipment_
-## bonus is re-derived from GameState.equipment_refs (already saved) on
-## every load; slate_bonus would need Fate Board LAYOUT to be saved to
-## survive a reload the same way, which it isn't yet (README flagged
-## gap) - so it's always just re-derived from whatever's currently
-## placed, same as equipment_bonus, no separate save/load path needed
-## for either.
+## Slate placement/removal. Neither is persisted separately - both are
+## re-derived from saved state (equipment_refs, fate_board_placements) on
+## every load.
 
-@export var prowess: float = 0.0
-@export var finesse: float = 0.0
-@export var resolve: float = 0.0
-
-@export var supercharged_stat: Constants.Stat = -1  # -1 = none declared
-const SUPERCHARGE_MULTIPLIER := 1.25
+@export var strength: float = 0.0
+@export var agility: float = 0.0
+@export var intellect: float = 0.0
 
 ## Constants.Stat -> float, recomputed whenever equipment changes (see
 ## Player.gd). Not @export'd/persisted - always re-derived from currently
@@ -32,12 +26,11 @@ var equipment_bonus: Dictionary = {}
 
 ## Constants.Stat -> float, recomputed whenever the Fate Board changes
 ## (Player._apply_fate_board_bonuses()) - the Slate-system counterpart to
-## equipment_bonus, summing every PLACED Slate's flat_<stat> modifiers
-## (FateBoard.compute_stat_bonuses(), Section 10's "Main Stat"/"Random
-## Stat" per-tile formula, 5+ tile Slates only). Not persisted separately,
-## same reasoning as equipment_bonus - Fate Board layout itself isn't
-## saved yet either (README flagged gap), so there's nothing to re-derive
-## FROM across a reload regardless.
+## equipment_bonus, summing every PLACED Slate's flat_<stat> modifiers,
+## each amplified by (1 + its chain's bonus) since v4.9 (ChainCalculator.
+## slate_stat_bonuses(); Section 10's "Main Stat"/"Random Stat" per-tile
+## formula, 5+ tile Slates only). Not persisted - re-derived from the
+## saved Fate Board layout on every load.
 var slate_bonus: Dictionary = {}
 
 ## v4.7: flat bonus to all three stats from character level
@@ -46,19 +39,10 @@ var slate_bonus: Dictionary = {}
 ## values and must never be mutated.
 var level_bonus: float = 0.0
 
-## Mastery: DamageType -> float bonus (e.g. 0.5 for "+0.5 Cold Mastery").
-## Never universal - keyed per tag per Section 10. Sourced entirely from
-## placed Slates' "mastery" modifiers (FateBoard.compute_mastery_bonuses())
-## - already consumed by DamageCalculator.calculate()'s mastery_bonus
-## param via Weapon/Ability._base_hit(), which read this dict but nothing
-## populated it before the Slate-system stat wiring pass.
-var mastery_by_tag: Dictionary = {}
-
-## Section 10/23: "Mastery... multiplying the per-tile chain bonus rate."
 ## DamageType -> float fraction (e.g. 0.2375 for +23.75%), the Chain Bonus
-## System's own output (ChainCalculator.amplify_by_mastery()) after
-## Mastery amplification - fed into Weapon/Ability._base_hit()'s
-## increased_percents pool as real "increased <category> damage".
+## System's per-tag total (ChainCalculator.bonus_by_tag()) - fed into
+## Weapon/Ability._base_hit()'s increased_percents pool as real "increased
+## <category> damage".
 var chain_bonus_by_tag: Dictionary = {}
 
 ## Patch v3.2 "Revision - Resistance System": String key ("fire"/"cold"/
@@ -73,14 +57,12 @@ var equipment_resistance: Dictionary = {}
 func get_stat(stat: Constants.Stat) -> float:
 	var base := 0.0
 	match stat:
-		Constants.Stat.PROWESS: base = prowess
-		Constants.Stat.FINESSE: base = finesse
-		Constants.Stat.RESOLVE: base = resolve
+		Constants.Stat.STRENGTH: base = strength
+		Constants.Stat.AGILITY: base = agility
+		Constants.Stat.INTELLECT: base = intellect
 	base += level_bonus
 	base += equipment_bonus.get(stat, 0.0)
 	base += slate_bonus.get(stat, 0.0)
-	if stat == supercharged_stat:
-		base *= SUPERCHARGE_MULTIPLIER
 	return base
 
 func set_equipment_bonus(bonus: Dictionary) -> void:
@@ -90,44 +72,50 @@ func set_slate_bonus(bonus: Dictionary) -> void:
 	slate_bonus = bonus
 
 ## Derived values - callers should always go through these, never read
-## prowess/finesse/resolve directly for a gameplay effect (matches the
-## brief's own "call these, don't read raw stats" framing).
+## strength/agility/intellect directly for a gameplay effect. Every
+## "increased" getter returns a fraction (0.01 per point).
+
+## Strength: +4 Life per point.
 func get_max_life_bonus() -> float:
-	return get_stat(Constants.Stat.PROWESS) * 2.0
+	return get_stat(Constants.Stat.STRENGTH) * 4.0
 
-func get_attack_power_from_stats() -> float:
-	return get_stat(Constants.Stat.PROWESS) * 1.0
+## Strength: +1% increased weapon base damage per point (Weapon._base_hit()).
+func get_strength_weapon_multiplier() -> float:
+	return get_stat(Constants.Stat.STRENGTH) * 0.01
 
+## Agility: +1% increased Evasion per point, in the same increased% bracket
+## as gear's increased_evasion.
 func get_evasion_from_stats() -> float:
-	return get_stat(Constants.Stat.FINESSE) * 2.0
+	return get_stat(Constants.Stat.AGILITY) * 0.01
 
-## Patch v4.4. Total Evasion Rating: gear (base + flat affixes, times
-## increased%) plus Finesse's +2 per point, added after that multiplier.
-## Fed to DamageCalculator.dodge_chance()/deflection_chance()/
-## deflection_mitigation().
+## Patch v4.4. Total Evasion Rating: (gear base + flat affixes) x (1 +
+## gear increased% + Agility's increased%). Fed to DamageCalculator.
+## dodge_chance()/deflection_chance()/deflection_mitigation().
 func get_total_evasion(equipment: EquipmentComponent) -> float:
-	var gear_base := equipment.get_total_evasion() if equipment else 0.0
-	return gear_base + get_evasion_from_stats()
+	return equipment.get_total_evasion(get_evasion_from_stats()) if equipment else 0.0
 
-## A flat, additive fraction (e.g. 0.10 for +10%) - added directly to a
-## weapon/ability's own base_crit_chance, replacing the old multiplicative
-## "x(1 + instinct*0.03)" formula (DamageCalculator.get_crit_chance()).
+## Agility: +1% increased Critical Strike Chance per point - multiplicative
+## on the weapon/ability's base crit (DamageCalculator.get_crit_chance()).
 func get_crit_chance_from_stats() -> float:
-	return get_stat(Constants.Stat.FINESSE) * 0.01
+	return get_stat(Constants.Stat.AGILITY) * 0.01
 
+## Agility: +1% increased Attack Speed per point, summed with gear's
+## attack_speed in Player.get_action_speed_multiplier().
+func get_attack_speed_from_stats() -> float:
+	return get_stat(Constants.Stat.AGILITY) * 0.01
+
+## Intellect: +1% increased spell damage per point - multiplies Conduit
+## spell power in Ability._base_hit().
 func get_spell_power_from_stats() -> float:
-	return get_stat(Constants.Stat.RESOLVE) * 1.0
+	return get_stat(Constants.Stat.INTELLECT) * 0.01
 
-## A flat fraction (e.g. 0.05 for +5%) - applied as an INCREASED%
-## multiplier on top of gear's own Ward value, not an additive flat bonus.
+## Intellect: +3 Mana per point.
+func get_mana_from_stats() -> float:
+	return get_stat(Constants.Stat.INTELLECT) * 3.0
+
+## Intellect: +1% increased Ward per point, multiplying gear's Ward value.
 func get_ward_increased_from_stats() -> float:
-	return get_stat(Constants.Stat.RESOLVE) * 0.005
-
-func get_mastery(tag: Constants.DamageType) -> float:
-	return mastery_by_tag.get(tag, 0.0)
-
-func set_mastery(tag: Constants.DamageType, value: float) -> void:
-	mastery_by_tag[tag] = value
+	return get_stat(Constants.Stat.INTELLECT) * 0.01
 
 func get_chain_bonus(tag: Constants.DamageType) -> float:
 	return chain_bonus_by_tag.get(tag, 0.0)
@@ -230,15 +218,14 @@ var conduit_spell_power: float = 0.0
 func set_conduit_spell_power(value: float) -> void:
 	conduit_spell_power = value
 
-## Patch v3.8 Section 2. Player._apply_derived_stats() computes these from
-## Finesse and stores them here (same "Player pushes a fresh total in"
-## convention as equipment_bonus/conduit_spell_power) - Evasion has no
-## mitigation formula anywhere in this project until Patch v4.4:
-## stat_evasion_bonus is now the real total Evasion Rating (gear + Finesse,
-## see get_total_evasion()), refreshed here for display; the hit roll in
-## Player.take_damage() reads get_total_evasion() live. finesse_crit_bonus
-## is real, read by Weapon/Ability._base_hit() as an additive fraction on
-## top of base_crit_chance.
+## Player._apply_derived_stats() computes these from Agility and gear and
+## stores them here (same "Player pushes a fresh total in" convention as
+## equipment_bonus/conduit_spell_power). stat_evasion_bonus is the total
+## Evasion Rating (see get_total_evasion()), refreshed for display; the hit
+## roll in Player.take_damage() reads get_total_evasion() live.
+## finesse_crit_bonus (name kept from before the v4.8 rename) is Agility's +
+## gear's increased crit fraction, read by Weapon/Ability._base_hit() as a
+## multiplier on base_crit_chance.
 var stat_evasion_bonus: float = 0.0
 var finesse_crit_bonus: float = 0.0
 
@@ -278,7 +265,7 @@ func set_misc_bonus(bonus: Dictionary) -> void:
 ## MISC_BONUS_KEYS' own v4.0 comment for why no new dedicated fields were
 ## added for most of these) - grouped by the doc's own mod pool sections.
 
-## Gear's own "increased Critical Strike Chance" - combined with Finesse's
+## Gear's own "increased Critical Strike Chance" - combined with Agility's
 ## contribution the same multiplicative way (DamageCalculator.
 ## get_crit_chance()'s 2026-09-07 fix), not added on top separately.
 func get_gear_crit_chance_bonus() -> float:

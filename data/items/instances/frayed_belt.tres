@@ -5,8 +5,8 @@
 
 [sub_resource type="Resource" id="SubResource_1"]
 script = ExtResource("2")
-description = "+18 Prowess (implicit)"
-stat_key = "flat_prowess"
+description = "+18 Strength (implicit)"
+stat_key = "flat_strength"
 value = 18.0
 is_prefix = false
 is_implicit = true

@@ -68,36 +68,33 @@ const DAMAGE_TYPE_TAGS := {
 	"pale": DamageType.PALE,
 }
 
-## Patch v3.8: six stats collapsed to three - Prowess (Attack Power/Life),
-## Finesse (Evasion/Crit Chance), Resolve (Spell Power/Ward). Every old
-## per-damage-type "which stat scales this" distinction is gone too -
-## Attack Power always comes from Prowess, Spell Power always from
-## Resolve, regardless of the weapon/ability's own damage type (DAMAGE_
-## TYPE_MAIN_STAT below still exists as directional metadata, but nothing
-## in the actual damage formula consults it anymore - see Weapon/Ability.
-## _base_hit()). Old-save/old-data migration (~850 already-generated
-## items' stat_requirement + primary/secondary_scaling_stat) maps
-## Vitality/Strength -> Prowess, Instinct -> Finesse, Arcane/Enigma/
-## Intellect -> Resolve - see tools/repair_stat_migration.gd.
-enum Stat { PROWESS, FINESSE, RESOLVE }
+## Three stats. v4.8 renamed them (Prowess -> Strength, Finesse -> Agility,
+## Resolve -> Intellect) and made every stat effect a percentage:
+## Strength multiplies weapon base damage, Intellect multiplies Conduit
+## spell power, regardless of the weapon/ability's own damage type
+## (DAMAGE_TYPE_MAIN_STAT below is directional metadata only - see
+## Weapon/Ability._base_hit()). Old saves are migrated on load by
+## ItemSerializer.migrate_stat_key()/migrate_stat_text(); data files by
+## tools/repair_v48_stat_rename.gd.
+enum Stat { STRENGTH, AGILITY, INTELLECT }
 
 # Display names - used by ItemCard's requirement line and EquipmentComponent's
 # equip-block reason (user request 2026-08-30: gate Section 25's items behind
 # a level + stat requirement) rather than each spot inventing its own
 # capitalization of the enum key.
 const STAT_NAME := {
-	Stat.PROWESS: "Prowess",
-	Stat.FINESSE: "Finesse",
-	Stat.RESOLVE: "Resolve",
+	Stat.STRENGTH: "Strength",
+	Stat.AGILITY: "Agility",
+	Stat.INTELLECT: "Intellect",
 }
 
 # Per-point values - shown in the advanced (Alt-hover) tooltip when a mod
 # line links to one of these stats. See StatSheet.gd's own derived-value
 # methods for the real formulas these describe.
 const STAT_GLOSSARY := {
-	Stat.PROWESS: "+2 Life, +1 Attack Power per point.",
-	Stat.FINESSE: "+2 Evasion Rating, +1% increased Critical Strike Chance per point.",
-	Stat.RESOLVE: "+1 Spell Power, +0.5% increased Ward per point.",
+	Stat.STRENGTH: "+1% increased Weapon Damage, +4 Life per point.",
+	Stat.AGILITY: "+1% increased Attack Speed, +1% increased Evasion, +1% increased Critical Strike Chance per point.",
+	Stat.INTELLECT: "+1% increased Spell Damage, +3 Mana, +1% increased Ward per point.",
 }
 
 # Section 09 - Status Effects. Scope: the 5 effects that already have a
@@ -177,39 +174,36 @@ const STATUS_EFFECT_NAME := {
 }
 
 # Patch v3.8: directional metadata only now - Weapon._base_hit()/Ability.
-# _base_hit() no longer branch on this at all (Attack Power is always
-# Prowess, Spell Power is always Resolve, regardless of damage type), but
-# it's kept updated/accurate for anything else that wants "which stat
-# does this damage type thematically belong to."
+# _base_hit() no longer branch on this at all (weapons always scale with
+# Strength, spells with Intellect, regardless of damage type), but it's
+# kept accurate for anything else that wants "which stat does this damage
+# type thematically belong to" (SlateRoller's Main Stat line).
 const DAMAGE_TYPE_MAIN_STAT := {
-	DamageType.KINETIC: Stat.PROWESS,
-	DamageType.PIERCING: Stat.PROWESS,
-	DamageType.EXPLOSIVE: Stat.PROWESS,
-	DamageType.FIRE: Stat.RESOLVE,
-	DamageType.COLD: Stat.RESOLVE,
-	DamageType.LIGHTNING: Stat.RESOLVE,
-	DamageType.AETHERIC: Stat.RESOLVE,
-	DamageType.ENTROPIC: Stat.RESOLVE,
-	DamageType.PALE: Stat.RESOLVE,
+	DamageType.KINETIC: Stat.STRENGTH,
+	DamageType.PIERCING: Stat.STRENGTH,
+	DamageType.EXPLOSIVE: Stat.STRENGTH,
+	DamageType.FIRE: Stat.INTELLECT,
+	DamageType.COLD: Stat.INTELLECT,
+	DamageType.LIGHTNING: Stat.INTELLECT,
+	DamageType.AETHERIC: Stat.INTELLECT,
+	DamageType.ENTROPIC: Stat.INTELLECT,
+	DamageType.PALE: Stat.INTELLECT,
 }
 
 enum ScalingGrade { S, A, B, C, D, E }
 
-# Grade Multiplier ranges (min, max) - Implementation Brief v3.3 Section 1,
-# BREAKING CHANGE, replaces the old SCALING_RANGES entirely (2026-08-31).
-# The old formula treated this range as a fraction of stat value multiplied
-# into an already-stat-scaled damage term, producing numbers in the
-# thousands at level 1; the new one is a flat multiplier on stat_value
-# that's ADDED to base weapon damage (see DamageCalculator.calculate()) -
-# same enum, deliberately different value ranges/units, not a tuning pass
-# on the old numbers. v4.6 reduced every grade roughly 2.5x.
+# Grade Multiplier ranges (min, max). Since v4.8 the grade is purely a spell
+# quality multiplier: Ability._base_hit() computes Conduit spell power x
+# (1 + Int%) x grade. Weapons ignore it entirely (they pass stat_value 0.0
+# to DamageCalculator.calculate()). v4.8 follow-up retuned these for that
+# role - B is roughly neutral (~1.0x), S boosts, E cuts.
 const GRADE_MULTIPLIER_RANGES := {
-	ScalingGrade.S: Vector2(1.2, 1.6),
-	ScalingGrade.A: Vector2(0.8, 1.1),
-	ScalingGrade.B: Vector2(0.5, 0.75),
-	ScalingGrade.C: Vector2(0.28, 0.42),
-	ScalingGrade.D: Vector2(0.15, 0.25),
-	ScalingGrade.E: Vector2(0.07, 0.12),
+	ScalingGrade.S: Vector2(1.4, 1.8),
+	ScalingGrade.A: Vector2(1.1, 1.4),
+	ScalingGrade.B: Vector2(0.85, 1.1),
+	ScalingGrade.C: Vector2(0.65, 0.85),
+	ScalingGrade.D: Vector2(0.45, 0.65),
+	ScalingGrade.E: Vector2(0.25, 0.45),
 }
 
 # Chain Bonus System - Section 10. Tuple: (tile_range_start, tile_range_end, bonus_per_tile)
@@ -392,11 +386,13 @@ const ENEMY_RARITY_DAMAGE_MULT := {
 const MOB_HEALTH_GROWTH_PER_LEVEL := 0.15
 const MOB_DAMAGE_GROWTH_PER_LEVEL := 0.08
 const MOB_BASE_HEALTH := {
-	"light": 55.0,
-	"standard": 100.0,
-	"heavy": 200.0,
-	"elite": 500.0,
-	"boss": 3000.0,
+	# v4.8 follow-up: x1.5 across the board (light rounded 82.5 -> 83) to
+	# offset the retuned spell grade multipliers.
+	"light": 83.0,
+	"standard": 150.0,
+	"heavy": 300.0,
+	"elite": 750.0,
+	"boss": 4500.0,
 }
 const MOB_BASE_DAMAGE := {
 	"light": 6.0,

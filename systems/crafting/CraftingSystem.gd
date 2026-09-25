@@ -179,7 +179,7 @@ static func _governing_utility_brand(brands: Array[Brand]) -> Brand:
 ## in the same batch, for _render()'s full-reroll case) - bug fix
 ## (2026-09-07, user-reported): this had no duplicate-avoidance at all,
 ## so both a single Cube add and a full Render reroll could put the same
-## stat_key on an item twice (e.g. three separate "+Prowess" rolls).
+## stat_key on an item twice (e.g. three separate "+Strength" rolls).
 static func _random_affix_for(item: Item, pool: Array, power_level: int, tier_cap: int = -1, exclude_keys: Array = []) -> ItemAffix:
 	var candidates: Array = pool.filter(func(entry): return not exclude_keys.has(entry["stat_key"]))
 	if candidates.is_empty():
@@ -208,7 +208,7 @@ static func _redescribe(affix: ItemAffix) -> void:
 
 ## No utility/special Brand present - category Brands add ONE new affix.
 ## Patch v3.6: a recognized combination (BrandCombinationResolver, e.g.
-## Calcine+Galvanic+Quench for an Elemental-mastery-flavored roll) draws
+## Calcine+Galvanic+Quench for an Elemental-flavored roll) draws
 ## from the UNION of every tag in that combination instead of picking
 ## just one; same Brand x3 also caps the roll at Tier 3 or better. Any
 ## other combination falls back to the original behavior - weighted by

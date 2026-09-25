@@ -52,13 +52,17 @@ static func from_dict(d: Dictionary) -> Slate:
 	for cell in d.get("shape_cells", []):
 		if cell is Array and cell.size() == 2:
 			shape.append(Vector2i(int(cell[0]), int(cell[1])))
-	slate.shape_cells = shape if not shape.is_empty() else [Vector2i.ZERO]
+	if shape.is_empty():
+		shape.append(Vector2i.ZERO)  # appended, not a [..] literal - that's an untyped Array and fails the typed assignment
+	slate.shape_cells = shape
 
 	var modifiers: Array[SlateModifier] = []
 	for m in d.get("modifiers", []):
+		if m.get("stat_key", "") == "mastery":
+			continue  # Mastery was removed in v4.8 - drop it from old saves
 		var modifier := SlateModifier.new()
-		modifier.description = m.get("description", "")
-		modifier.stat_key = m.get("stat_key", "")
+		modifier.description = ItemSerializer.migrate_stat_text(m.get("description", ""))
+		modifier.stat_key = ItemSerializer.migrate_stat_key(m.get("stat_key", ""))
 		modifier.value = m.get("value", 0.0)
 		modifier.value_min = m.get("value_min", 0.0)
 		modifier.value_max = m.get("value_max", 0.0)

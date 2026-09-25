@@ -17,4 +17,4 @@ base_line_id = "rune_shield_line1"
 stat_requirement = 0
 stat_requirement_value = 26.5
 level_requirement = 44
-prowess_requirement = 40
+strength_requirement = 40

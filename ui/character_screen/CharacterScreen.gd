@@ -1,10 +1,10 @@
 extends CanvasLayer
 class_name CharacterScreen
-## Read-only character sheet (`C`). All 3 stats now come from gear only
-## (Section 12 - see StatSheet.gd), so this just displays live totals via
+## Read-only character sheet (`C`). All 3 stats come from gear, Slates and level
+## (see StatSheet.gd), so this just displays live totals via
 ## StatSummaryBuilder (shared with InventoryScreen's own stats column).
 ##
-## Patch v3.8b: PrimaryStatsRow's 3 large PROWESS/FINESSE/RESOLVE labels are
+## Patch v3.8b: PrimaryStatsRow's 3 large STRENGTH/AGILITY/INTELLECT labels are
 ## a PoE-style "the 3 stats that matter" header, always freshly computed
 ## in _refresh() - "live on gear equip/unequip" is automatic since
 ## PauseMenu._toggle_screen() never lets this and InventoryScreen be open
@@ -14,9 +14,9 @@ class_name CharacterScreen
 @onready var defense_list: VBoxContainer = $CenterContainer/VBox/Columns/DefenseColumn/DefenseList
 @onready var misc_list: VBoxContainer = $CenterContainer/VBox/Columns/MiscColumn/MiscList
 @onready var close_button: Button = $CenterContainer/VBox/CloseButton
-@onready var prowess_label: Label = $CenterContainer/VBox/PrimaryStatsRow/ProwessLabel
-@onready var finesse_label: Label = $CenterContainer/VBox/PrimaryStatsRow/FinesseLabel
-@onready var resolve_label: Label = $CenterContainer/VBox/PrimaryStatsRow/ResolveLabel
+@onready var strength_label: Label = $CenterContainer/VBox/PrimaryStatsRow/StrengthLabel
+@onready var agility_label: Label = $CenterContainer/VBox/PrimaryStatsRow/AgilityLabel
+@onready var intellect_label: Label = $CenterContainer/VBox/PrimaryStatsRow/IntellectLabel
 
 var _is_open: bool = false
 
@@ -56,6 +56,6 @@ func _refresh() -> void:
 	if player == null:
 		return
 	var stats: StatSheet = player.stat_sheet
-	prowess_label.text = "PROWESS: %d" % round(stats.get_stat(Constants.Stat.PROWESS))
-	finesse_label.text = "FINESSE: %d" % round(stats.get_stat(Constants.Stat.FINESSE))
-	resolve_label.text = "RESOLVE: %d" % round(stats.get_stat(Constants.Stat.RESOLVE))
+	strength_label.text = "STRENGTH: %d" % round(stats.get_stat(Constants.Stat.STRENGTH))
+	agility_label.text = "AGILITY: %d" % round(stats.get_stat(Constants.Stat.AGILITY))
+	intellect_label.text = "INTELLECT: %d" % round(stats.get_stat(Constants.Stat.INTELLECT))

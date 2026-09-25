@@ -5,15 +5,15 @@
 
 [sub_resource type="Resource" id="SubResource_1"]
 script = ExtResource("2")
-description = "+13.6 Arcane (Main Stat)"
-stat_key = "flat_arcane"
+description = "+13.6 Intellect (Main Stat)"
+stat_key = "flat_intellect"
 value = 13.6
 is_more_multiplier = false
 
 [sub_resource type="Resource" id="SubResource_2"]
 script = ExtResource("2")
-description = "+6.4 Vitality (Random Stat)"
-stat_key = "flat_vitality"
+description = "+6.4 Strength (Random Stat)"
+stat_key = "flat_strength"
 value = 6.4
 is_more_multiplier = false
 

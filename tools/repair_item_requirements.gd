@@ -7,7 +7,7 @@ extends Node
 ## Resource at all.
 ##
 ## Populates the 4 new DISPLAY-ONLY fields added to Item.gd this patch
-## (level_requirement, prowess/finesse/resolve_requirement) from each
+## (level_requirement, strength/agility/intellect_requirement) from each
 ## item's own item_level, via the brief's own tier tables. Does NOT touch
 ## the pre-existing stat_requirement/stat_requirement_value pair, which
 ## remains the actual ENFORCED equip gate (EquipmentComponent.
@@ -23,17 +23,17 @@ extends Node
 ##
 ## Two corrections to the brief's own WEAPON_STAT_MAP: (1) "gauntlet" is
 ## missing from every one of the brief's lists entirely - mapped here to
-## single Resolve, matching Worn Gauntlet's own established v3.8 identity
+## single Intellect, matching Worn Gauntlet's own established v3.8 identity
 ## as this project's first conduit-flavored weapon (Aetheric damage,
 ## flat_resolve implicit) and consistent with every other main-hand
 ## conduit (wand/staff/athame/spell_gauntlet) already being single-
-## Resolve. (2) the brief's prose calls out "battle_rifle (high damage
-## line)" and "crossbow (bleed line)" as Prowess+Finesse dual, contradicting
-## its own single-Prowess/single-Finesse WEAPON_STAT_MAP entries for the
+## Intellect. (2) the brief's prose calls out "battle_rifle (high damage
+## line)" and "crossbow (bleed line)" as Strength+Agility dual, contradicting
+## its own single-Strength/single-Agility WEAPON_STAT_MAP entries for the
 ## same two ids - no per-line table exists to actually resolve which
 ## specific lines would differ (unlike repair_weapon_lines.gd's real
 ## LINES table), so this follows the brief's own literal, executable
-## dict: battle_rifle stays single Prowess, crossbow stays single Finesse,
+## dict: battle_rifle stays single Strength, crossbow stays single Agility,
 ## uniformly across every line of each.
 
 const ITEM_DIRS := [
@@ -59,35 +59,35 @@ const TIERS := [
 
 ## base_line_id/weapon_type key -> [primary_stat, secondary_stat] ("" = none).
 const WEAPON_STAT_MAP := {
-	# Single Prowess
-	"greatsword": ["prowess", ""], "claymore": ["prowess", ""], "mace": ["prowess", ""],
-	"war_pick": ["prowess", ""], "pressure_fist": ["prowess", ""], "shortsword": ["prowess", ""],
-	"loaded_shotgun": ["prowess", ""], "pump_action_shotgun": ["prowess", ""],
-	"machine_gun": ["prowess", ""], "battle_rifle": ["prowess", ""],
-	# Single Finesse
-	"dagger": ["finesse", ""], "whip": ["finesse", ""], "service_pistol": ["finesse", ""],
-	"revolver": ["finesse", ""], "machine_pistol": ["finesse", ""], "submachine_gun": ["finesse", ""],
-	"shortbow": ["finesse", ""], "longbow": ["finesse", ""], "bow": ["finesse", ""],
-	"lever_action_rifle": ["finesse", ""], "bolt_action_rifle": ["finesse", ""], "crossbow": ["finesse", ""],
-	# Single Resolve (main-hand conduits + gauntlet, see header note)
-	"wand": ["resolve", ""], "staff": ["resolve", ""], "athame": ["resolve", ""],
-	"spell_gauntlet": ["resolve", ""], "gauntlet": ["resolve", ""],
-	# Single Resolve (offhand conduits)
-	"rod": ["resolve", ""], "grimoire": ["resolve", ""], "tome": ["resolve", ""],
-	"talisman": ["resolve", ""], "fetish": ["resolve", ""],
-	# Finesse primary + Prowess secondary
-	"rapier": ["finesse", "prowess"], "saber": ["finesse", "prowess"],
-	# Prowess primary + Finesse secondary
-	"cutlass": ["prowess", "finesse"], "halberd": ["prowess", "finesse"], "spear": ["prowess", "finesse"],
-	# Finesse primary + Resolve secondary
-	"shock_lance": ["finesse", "resolve"],
-	# Shields - single Prowess
-	"tower_shield": ["prowess", ""], "great_shield": ["prowess", ""], "kite_shield": ["prowess", ""],
-	"pavise": ["prowess", ""], "rune_shield": ["prowess", ""], "warded_barrier": ["prowess", ""],
-	# Shields - single Finesse
-	"buckler": ["finesse", ""],
-	# Shields - Prowess primary + Finesse secondary
-	"spiked_shield": ["prowess", "finesse"],
+	# Single Strength
+	"greatsword": ["strength", ""], "claymore": ["strength", ""], "mace": ["strength", ""],
+	"war_pick": ["strength", ""], "pressure_fist": ["strength", ""], "shortsword": ["strength", ""],
+	"loaded_shotgun": ["strength", ""], "pump_action_shotgun": ["strength", ""],
+	"machine_gun": ["strength", ""], "battle_rifle": ["strength", ""],
+	# Single Agility
+	"dagger": ["agility", ""], "whip": ["agility", ""], "service_pistol": ["agility", ""],
+	"revolver": ["agility", ""], "machine_pistol": ["agility", ""], "submachine_gun": ["agility", ""],
+	"shortbow": ["agility", ""], "longbow": ["agility", ""], "bow": ["agility", ""],
+	"lever_action_rifle": ["agility", ""], "bolt_action_rifle": ["agility", ""], "crossbow": ["agility", ""],
+	# Single Intellect (main-hand conduits + gauntlet, see header note)
+	"wand": ["intellect", ""], "staff": ["intellect", ""], "athame": ["intellect", ""],
+	"spell_gauntlet": ["intellect", ""], "gauntlet": ["intellect", ""],
+	# Single Intellect (offhand conduits)
+	"rod": ["intellect", ""], "grimoire": ["intellect", ""], "tome": ["intellect", ""],
+	"talisman": ["intellect", ""], "fetish": ["intellect", ""],
+	# Agility primary + Strength secondary
+	"rapier": ["agility", "strength"], "saber": ["agility", "strength"],
+	# Strength primary + Agility secondary
+	"cutlass": ["strength", "agility"], "halberd": ["strength", "agility"], "spear": ["strength", "agility"],
+	# Agility primary + Intellect secondary
+	"shock_lance": ["agility", "intellect"],
+	# Shields - single Strength
+	"tower_shield": ["strength", ""], "great_shield": ["strength", ""], "kite_shield": ["strength", ""],
+	"pavise": ["strength", ""], "rune_shield": ["strength", ""], "warded_barrier": ["strength", ""],
+	# Shields - single Agility
+	"buckler": ["agility", ""],
+	# Shields - Strength primary + Agility secondary
+	"spiked_shield": ["strength", "agility"],
 }
 
 var _scanned := 0
@@ -145,9 +145,9 @@ func _repair_file(path: String) -> void:
 
 func _set_stat_requirement(item: Item, stat_name: String, value: int) -> void:
 	match stat_name:
-		"prowess": item.prowess_requirement = value
-		"finesse": item.finesse_requirement = value
-		"resolve": item.resolve_requirement = value
+		"strength": item.strength_requirement = value
+		"agility": item.agility_requirement = value
+		"intellect": item.intellect_requirement = value
 
 ## base_line_id (stripped of its trailing "_lineN") first, then weapon_type
 ## normalized to snake_case, then an item_id substring match against every
