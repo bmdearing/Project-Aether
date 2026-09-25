@@ -16,8 +16,9 @@ class_name ItemRoller
 ## plus every untagged standalone base. See Enemy._compute_item_level()
 ## for how a kill's own power_level is derived from area level + rank.
 ##
-## Rarity -> affix count matches Section 18 (Common 0, Uncommon 0-2, Rare
-## 0-6 - rarity is determined by base quality, not affix count). Affix
+## Rarity -> affix count (Common 0, Uncommon 1-2, Rare 1-6 - v4.7 raised
+## the minimum from Section 18's 0 so a colored drop always has a mod;
+## rarity is determined by base quality, not affix count). Affix
 ## values roll in tiers (TIER_COUNT bands, Tier 1 best) gated by
 ## `power_level`. flat_<stat> affixes are the only source of stat growth
 ## in this project (Section 12: gear only) - summed into StatSheet by
@@ -310,12 +311,14 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 
 	var rarity_roll := randf() * loot_rarity_multiplier
 	var affix_count := 0
+	# v4.7: an Uncommon/Rare roll always gets at least one affix (it used to
+	# roll 0, e.g. a mod-less "magic" Crude Machine Gun).
 	if rarity_roll >= 1.4:
 		item.rarity = Constants.ItemRarity.RARE
-		affix_count = randi_range(0, 6)
+		affix_count = randi_range(1, 6)
 	elif rarity_roll >= 0.9:
 		item.rarity = Constants.ItemRarity.UNCOMMON
-		affix_count = randi_range(0, 2)
+		affix_count = randi_range(1, 2)
 	else:
 		item.rarity = Constants.ItemRarity.COMMON
 
@@ -341,6 +344,11 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 			affix.description = "%s (Tier %d)" % [format_desc(entry["desc"], value), rolled_tier]
 			affix.is_prefix = i % 2 == 0
 			item.affixes.append(affix)
+
+	# An empty eligible pool (low power_level, narrow base) can still leave
+	# nothing rolled - such an item is Common, not a mod-less Uncommon/Rare.
+	if not item.affixes.any(func(a: ItemAffix): return not a.is_implicit):
+		item.rarity = Constants.ItemRarity.COMMON
 
 	return item
 

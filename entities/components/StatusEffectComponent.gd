@@ -253,8 +253,8 @@ func _tick_ignite(delta: float) -> void:
 		# is_spell=true: Ignite only ever comes from a spell hit (Inferno/
 		# Cinder Lance), and Section 07 excludes spells from the Composure
 		# Break damage bonus - the DoT tick should follow the same rule as
-		# the hit that applied it.
-		_owner.take_damage(dmg, Constants.DamageType.FIRE, true)
+		# the hit that applied it. is_dot: no floating damage number per tick.
+		_owner.take_damage(dmg, Constants.DamageType.FIRE, true, false, true)
 	EventBus.damage_dealt.emit(_ignite_source, _owner, dmg, Constants.DamageType.FIRE, false, false)
 
 func _debuff_effectiveness_multiplier(_source: Node) -> float:

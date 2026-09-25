@@ -21,7 +21,7 @@ class_name InventoryScreen
 ## (`_slot_assignment`, keyed per entry - see below) since a plain ordered
 ## list (which is all GameState.owned_loot ever was) can't represent "my
 ## armor sits in the far corner with empty cells before it." Position is
-## session-local, not persisted (README flagged gap) - GameState.owned_loot
+## saved with the game (v4.7) - GameState.owned_loot
 ## itself is untouched by dragging, only which grid cell each entry
 ## RENDERS in. Only real owned_loot entries are draggable - the
 ## directory-scanned "one of each base" catalog always sits first and
@@ -90,8 +90,12 @@ var _stack_entries: Array[Dictionary] = []
 ## _draggable_start_index's own cell) - relative so the whole region can
 ## slide as a block if the catalog's shown count changes (equipping/
 ## unequipping a catalog item) without invalidating every stored position.
-## Session-local only - never saved, reset on scene reload.
-var _slot_assignment: Dictionary = {}
+## Lives in GameState.inventory_slot_assignment (saved by SaveManager) so
+## the arrangement survives scene changes and reloads; this is a property
+## so every existing read/write here goes straight to it.
+var _slot_assignment: Dictionary:
+	get:
+		return GameState.inventory_slot_assignment
 ## slot_index (absolute grid index) -> entry dict, from the most recent
 ## build - lets _on_item_drag_dropped look up what (if anything) already
 ## occupies the drop target.
@@ -255,18 +259,27 @@ func _build_inventory_grid() -> void:
 ## crafting currency, not unique rolled gear) - grouped into one entry
 ## with a count instead of one slot per drop, keyed "brand:<item_id>" so
 ## every duplicate of the same Brand always merges into that one entry.
-## Everything else keys off its own Resource instance id, since item_id
-## alone isn't unique per-instance for non-rolled items (e.g. two
-## separately-dropped Infusion Stones both have item_id "infusion_stone"
-## but must NOT merge into one slot the way Brands do).
+## Everything else is keyed "item:<item_id>#<n>" (n = its occurrence among
+## same-item_id owned_loot entries), since item_id alone isn't unique for
+## non-rolled items (two separately-dropped Infusion Stones must NOT merge
+## the way Brands do). Keys are saved (GameState.inventory_slot_assignment),
+## so they can't use instance ids, which change on every load; owned_loot is
+## never reordered, so the occurrence index is stable. Counted over ALL of
+## owned_loot, equipped included, so equipping one copy doesn't renumber the
+## rest.
 func _build_stack_entries(equipped: Array[Item]) -> Array[Dictionary]:
 	var entries: Array[Dictionary] = []
 	var stack_slot_by_key: Dictionary = {}  # key -> index into `entries`
+	var seen_ids: Dictionary = {}  # item_id -> occurrences so far
+	var live_keys: Dictionary = {}  # every owned item's key, equipped included
 	for i in range(GameState.owned_loot.size()):
 		var item: Item = GameState.owned_loot[i]
+		var occurrence: int = seen_ids.get(item.item_id, 0)
+		seen_ids[item.item_id] = occurrence + 1
+		var key: String = "brand:%s" % item.item_id if item is Brand else "item:%s#%d" % [item.item_id, occurrence]
+		live_keys[key] = true
 		if equipped.has(item):
 			continue
-		var key: String = "brand:%s" % item.item_id if item is Brand else "obj:%d" % item.get_instance_id()
 		if stack_slot_by_key.has(key):
 			var entry: Dictionary = entries[stack_slot_by_key[key]]
 			entry["count"] += 1
@@ -274,6 +287,9 @@ func _build_stack_entries(equipped: Array[Item]) -> Array[Dictionary]:
 		else:
 			stack_slot_by_key[key] = entries.size()
 			entries.append({"item": item, "count": 1, "loot_indices": [i], "key": key})
+	for key in _slot_assignment.keys():
+		if not live_keys.has(key):
+			_slot_assignment.erase(key)  # sold/consumed/destroyed - don't grow the save forever
 	return entries
 
 ## Resolves each _stack_entries entry to an absolute grid slot: its
@@ -336,8 +352,8 @@ func _on_non_equippable_selected(item: Item) -> void:
 ## else - no compacting, no shifting (the bug report this fixes: dropping
 ## on empty space was instead appending to the end of a dense list,
 ## dragging every later item along with it). Dropping on an OCCUPIED cell
-## swaps the two. Only ever touches _slot_assignment (a session-local
-## rendering position) - GameState.owned_loot itself is never reordered,
+## swaps the two. Only ever touches _slot_assignment (a rendering
+## position) - GameState.owned_loot itself is never reordered,
 ## so nothing here can perturb equipped-item bookkeeping or the save data.
 func _on_item_drag_dropped(source_grid_index: int, target_grid_index: int) -> void:
 	if source_grid_index == target_grid_index or source_grid_index < _draggable_start_index:

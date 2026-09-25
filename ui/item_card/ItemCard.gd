@@ -31,6 +31,7 @@ const AFFIX_COLOR := Color(0.45, 0.65, 0.95)
 const IMPLICIT_COLOR := Color(0.9, 0.75, 0.3)  # gold/yellow - Patch v3.8b: implicits are visually distinct from rolled explicit mods
 const REQUIREMENT_UNMET_COLOR := Color(0.9, 0.25, 0.25)  # Patch v3.8d - border/title/bottom-text when the player doesn't meet an item's requirements
 const MORE_MOD_COLOR := Color(0.85, 0.55, 0.95)
+const CORRUPTED_BADGE_COLOR := Color(0.6, 0.2, 0.8)
 const STAT_COLOR := Color(0.85, 0.85, 0.85)
 const AMMO_INFO_COLOR := SUBTITLE_COLOR  # Magazine/Reload lines on ranged weapons - dimmer than the stat lines around them
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
@@ -124,7 +125,9 @@ func _render_item(item: Item) -> void:
 	var requirements_met := _check_requirements_met(item)
 	var rarity_color: Color = REQUIREMENT_UNMET_COLOR if not requirements_met else Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH)
-	_add_type_badge("ITEM", rarity_color)
+	var badge_row := _add_type_badge("ITEM", rarity_color)
+	if item.is_corrupted:
+		badge_row.add_child(_make_badge("CORRUPTED", CORRUPTED_BADGE_COLOR))
 	if item.icon_path != "":
 		_add_title_with_icon(item.display_name, rarity_color, item.icon_path)
 	else:
@@ -405,11 +408,15 @@ func _add_attack_power_line(line: Dictionary) -> void:
 		rtl.text += " x%d" % line["pellets"]
 	_content().add_child(rtl)
 
-## Magazine ("current / reserve") and Reload lines for firearms. Bows (ARROW)
-## have no magazine and unlimited arrows, so they get neither; a weapon with
+## Magazine ("current / reserve") and Reload lines for firearms; bows get a
+## single Draw line instead (v4.7), since they have no magazine and
+## unlimited arrows. A weapon with
 ## no reload time (the crossbow - its delay is its shot cycle) skips Reload.
 func _ranged_info_lines(weapon: Weapon) -> Array[String]:
 	var lines: Array[String] = []
+	if weapon.get_draw_time() > 0.0:
+		lines.append("Draw: %ss" % _format_num(weapon.get_draw_time()))
+		return lines
 	if not weapon.is_ranged or weapon.ammo_type == Constants.AmmoType.ARROW or weapon.magazine_size <= 0:
 		return lines
 	lines.append("Magazine: %d / %d" % [weapon.get_current_magazine(), AmmoInventory.get_reserve(weapon.ammo_type)])
@@ -534,7 +541,16 @@ func _set_card_style(border_color: Color, bg_color: Color, corner_radius: int, b
 ## The first thing drawn in the card - a small colored pill naming the
 ## card's TYPE (not its rarity/element), so recognition doesn't depend on
 ## reading the subtitle line underneath it.
-func _add_type_badge(text: String, color: Color) -> void:
+## Returns the row the badge sits in, so a second badge (CORRUPTED) can sit
+## beside it.
+func _add_type_badge(text: String, color: Color) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 6)
+	row.add_child(_make_badge(text, color))
+	_content().add_child(row)
+	return row
+
+func _make_badge(text: String, color: Color) -> Label:
 	var badge := Label.new()
 	badge.text = text
 	badge.add_theme_font_size_override("font_size", 11)
@@ -548,7 +564,7 @@ func _add_type_badge(text: String, color: Color) -> void:
 	badge.add_theme_stylebox_override("normal", box)
 	badge.add_theme_color_override("font_color", Constants.get_contrasting_text_color(color))
 	badge.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	_content().add_child(badge)
+	return badge
 
 func _add_title(text: String, color: Color) -> void:
 	var label := Label.new()

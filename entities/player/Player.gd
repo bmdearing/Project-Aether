@@ -179,6 +179,7 @@ func _ready() -> void:
 	equipment.equipment_changed.connect(_on_equipment_changed)
 	EventBus.slate_placed.connect(func(_id, _pos): _apply_fate_board_bonuses())
 	EventBus.slate_removed.connect(func(_id, _pos): _apply_fate_board_bonuses())
+	EventBus.item_stats_changed.connect(_on_item_stats_changed)
 	# Wired here, not in either component's own _ready() - Godot calls a
 	# child's _ready() before its parent's, so PlayerAbilityCast._ready()
 	# connecting to cast_time_handler (a Player @onready var, another
@@ -293,12 +294,14 @@ func _apply_saved_experience() -> void:
 	# restored at - independent of _apply_saved_fate_board()'s own restore
 	# order, see place_slate()'s bypass_budget comment for why that matters.
 	fate_board.aether_capacity = FateBoard.capacity_for_level(GameState.player_level)
+	stat_sheet.level_bonus = GameState.get_level_stat_bonus()
 
-## Section 12: leveling grants no stat points (gear-only), but user
-## request (2026-08-30) gives leveling a real Fate Board effect: "gain 2
-## points of Aether... every time you level up."
+## Leveling grants +2 Aether (user request, 2026-08-30) and, since v4.7,
+## +0.6 to each stat (GameState.get_level_stat_bonus()).
 func _on_leveled_up(new_level: int) -> void:
 	GameState.player_level = new_level
+	stat_sheet.level_bonus = GameState.get_level_stat_bonus()
+	_apply_derived_stats()
 	fate_board.aether_capacity = FateBoard.capacity_for_level(new_level)
 	EventBus.aether_budget_changed.emit(fate_board.aether_used, fate_board.aether_capacity)
 	EventBus.player_leveled_up.emit(new_level)
@@ -312,8 +315,9 @@ func _on_died() -> void:
 ## Re-applies GameState's equipment/ability loadout - Player is a fresh
 ## instance every scene load, so this runs every time, not just at boot.
 func _apply_saved_loadout() -> void:
+	var claimed: Array[Item] = []
 	for ref in GameState.equipment_refs:
-		var item: Item = load(ref) if ref is String and ref != "" else (ItemSerializer.from_dict(ref) if ref is Dictionary else null)
+		var item := _resolve_equipment_ref(ref, claimed)
 		if item:
 			equipment.equip(item, true)
 	# Dual weapon sets (2026-08-31) - restored explicitly by index rather
@@ -321,7 +325,7 @@ func _apply_saved_loadout() -> void:
 	# get_weapon_set_refs()'s own header for why.
 	for set_index in range(GameState.weapon_set_refs.size()):
 		for ref in GameState.weapon_set_refs[set_index]:
-			var item: Item = load(ref) if ref is String and ref != "" else (ItemSerializer.from_dict(ref) if ref is Dictionary else null)
+			var item := _resolve_equipment_ref(ref, claimed)
 			if item:
 				equipment.equip(item, true, set_index)
 	equipment.active_weapon_set = GameState.active_weapon_set
@@ -332,6 +336,40 @@ func _apply_saved_loadout() -> void:
 			if ability:
 				ability_loadout.equip(ability, i)
 	_apply_saved_ability_ranks()
+
+## A rolled item's ref is a serialized snapshot. Equipping a fresh
+## from_dict() copy would detach it from its GameState.owned_loot entry, so
+## later crafts (which act on owned_loot) would never reach the equipped
+## item - reuse the matching owned_loot instance instead. Both sides are
+## normalized through to_dict() since a JSON-loaded ref has floats where a
+## live to_dict() has ints. `claimed` keeps two identical rolls distinct.
+func _resolve_equipment_ref(ref, claimed: Array[Item]) -> Item:
+	if ref is String:
+		return load(ref) if ref != "" else null
+	if not (ref is Dictionary):
+		return null
+	var snapshot := ItemSerializer.from_dict(ref)
+	if snapshot == null:
+		return null
+	var key := ItemSerializer.to_dict(snapshot)
+	for owned in GameState.owned_loot:
+		if owned.resource_path == "" and not claimed.has(owned) and ItemSerializer.to_dict(owned) == key:
+			claimed.append(owned)
+			return owned
+	return snapshot
+
+## Crafting changed an item in place. If it's equipped, re-run the equip
+## path so StatSheet picks up the new affixes, and re-snapshot the refs so
+## the next scene load/save doesn't restore the pre-craft version.
+func _on_item_stats_changed(item: Item) -> void:
+	var equipped: Array = equipment.get_all_equipped_items()
+	equipped.append_array(equipment.primary_weapons)
+	equipped.append_array(equipment.offhands)
+	if not equipped.has(item):
+		return
+	_on_equipment_changed()
+	GameState.sync_equipment(equipment)
+	GameState.sync_weapon_sets(equipment)
 
 ## Re-places every layout entry GameState.fate_board_placements holds -
 ## Player is a fresh instance every scene load same as _apply_saved_

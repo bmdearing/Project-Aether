@@ -69,10 +69,20 @@ const RANGED_PROFILES := {
 	"Battle Rifle": [Constants.AmmoType.RIFLE, 20, Constants.FireMode.SEMI_AUTO, 1, 0.5, 0.0, 0.0, 2.0, false],
 	"Machine Gun": [Constants.AmmoType.AUTOMATIC, 60, Constants.FireMode.FULL_AUTO, 1, 4.0, 15.0, 0.0, 3.5, false],
 	"Crossbow": [Constants.AmmoType.CROSSBOW_BOLT, 1, Constants.FireMode.SINGLE_ACTION, 1, 0.0, 0.0, 2.5, 0.0, false],
-	"Shortbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.0, 0.0, false],
-	"Bow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.0, 0.0, false],
-	"Longbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 0.0, 0.0, 0.0, 0.0, false],
+	# v4.7: bow cycle = draw time between shots (0.6s / 1.0s Longbow).
+	"Shortbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.6, 0.0, false],
+	"Bow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.6, 0.0, false],
+	"Longbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 0.0, 0.0, 1.0, 0.0, false],
 }
+
+## Bow draw time (0 for everything else). Read from RANGED_PROFILES, not
+## cycle_time: the bow base .tres files bake cycle_time = 0 from before
+## bows had a draw, and the profile table is the source of truth.
+func get_draw_time() -> float:
+	if not is_ranged or ammo_type != Constants.AmmoType.ARROW:
+		return 0.0
+	var row: Array = RANGED_PROFILES.get(weapon_type, [])
+	return row[6] if not row.is_empty() else cycle_time
 
 ## Sets the ammo/fire fields above from RANGED_PROFILES for this weapon_type.
 ## Used by ItemSerializer for rolled weapons saved before these fields

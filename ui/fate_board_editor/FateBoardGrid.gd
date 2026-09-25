@@ -154,6 +154,23 @@ func _gui_input(event: InputEvent) -> void:
 			if _in_bounds(cell):
 				cell_clicked.emit(cell, MOUSE_BUTTON_RIGHT)
 
+## v4.7: hovering a placed Slate shows its ItemCard, same custom-tooltip hook
+## ItemSlotButton uses for the palette. The grid is one Control, so the
+## tooltip text is the hovered placement_id - Godot re-shows the tooltip
+## whenever it changes, i.e. when the cursor moves onto a different Slate.
+## Suppressed while a Slate is held for placement.
+func _get_tooltip(at_position: Vector2) -> String:
+	if board == null or pending_slate:
+		return ""
+	return board.get_occupied_cells().get(_pixel_to_cell(at_position), "")
+
+func _make_custom_tooltip(for_text: String) -> Object:
+	if board == null or not board.placements.has(for_text):
+		return null
+	var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+	card.display_slate(board.placements[for_text].slate)
+	return card
+
 func _pixel_to_cell(pos: Vector2) -> Vector2i:
 	return Vector2i(int(floor(pos.x / _cell_px)), int(floor(pos.y / _cell_px)))
 

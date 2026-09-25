@@ -7,7 +7,7 @@ class_name StatSummaryBuilder
 ## Hover text per stat row, keyed by the row's label (Patch v4.3). Rows not
 ## listed here get no tooltip.
 const STAT_TOOLTIPS := {
-	"Prowess": "+2 Life and +1 Attack Power per point. All from gear.",
+	"Prowess": "+2 Life and +1 Attack Power per point. From gear, Slates, and +0.6 per level.",
 	"Attack Power": "Base damage added to weapon hits from Prowess investment.",
 	"Main Hand Damage": "Estimated damage range for your main hand weapon.",
 	"Finesse": "+2 Evasion Rating and +1% increased Critical Strike Chance per point.",

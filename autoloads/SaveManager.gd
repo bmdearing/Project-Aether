@@ -51,6 +51,7 @@ func save_game() -> void:
 		"owned_ability_ids": GameState.owned_ability_ids,
 		"owned_loot": owned_loot_data,
 		"owned_slates": owned_slates_data,
+		"inventory_slot_assignment": GameState.inventory_slot_assignment,
 		"fate_board_placements": GameState.fate_board_placements,
 		"ammo_reserves": AmmoInventory.serialize(),
 	}
@@ -121,6 +122,9 @@ func load_game() -> void:
 				if slate:
 					slates.append(slate)
 		GameState.owned_slates = slates
+
+	var slots_raw = parsed.get("inventory_slot_assignment", {})
+	GameState.inventory_slot_assignment = slots_raw if typeof(slots_raw) == TYPE_DICTIONARY else {}
 
 	var ammo_raw = parsed.get("ammo_reserves")
 	if typeof(ammo_raw) == TYPE_DICTIONARY:

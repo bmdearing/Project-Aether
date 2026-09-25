@@ -7,6 +7,37 @@ there. Most recent first.
 
 ---
 
+## 2026-09-24 — Implementation Brief v4.7: Bug Fix Pass
+
+Items 1-10 were done; item 11 was dropped (see below). Where the brief's approach didn't fit the code, the goal was kept and the method adapted.
+
+**Where the brief didn't match the code:**
+- **Level stats (1):** +0.6 Prowess/Finesse/Resolve per level above 1, from `GameState.get_level_stat_bonus()` = `(player_level - 1) x 0.6`, and not from saved `base_prowess`-style counters. It's derived, so there's no save field, it can't drift from the level, and existing saves get their bonus right away (level 17 = +9.6). It goes into a new `StatSheet.level_bonus`, which `get_stat()` adds, and not into `stat_sheet.prowess += ...`. That field belongs to the shared `player_baseline.tres`, and `_apply_derived_stats()` runs on every equip, so the brief's version would have stacked the bonus again each time. The character screen already shows `get_stat()`, so its totals include the level bonus with no further change.
+- **Aggro (2):** enemies have no state machine and no aggro method, only a distance check in `_update_chase()`. `take_damage()` already marked combat (`_last_combat_msec`) before its dodge roll. The chase gate ignored that, so any hit from outside `chase_range`, landed or dodged, never pulled the enemy. The chase (and model facing) now also runs while `is_in_combat()` (the existing 5 s grace). Side effect: an enemy now keeps chasing for up to 5 s after the player leaves its range.
+- **Crafting refresh (3):** the root cause was object identity, not a missing signal. `_apply_saved_loadout()` rebuilt every equipped rolled item from its saved dict (`from_dict`) on each scene load, so after one Hub/Map transition the equipped copy and its `owned_loot` twin were different objects. The Cube crafts the twin and never touched the equipped copy. `_resolve_equipment_ref()` now reuses the matching `owned_loot` instance (both sides compared through `to_dict()`). `item_stats_changed` already existed but had no listener; `craft_cube`, `corrupt`, `infuse` and `shrive` now emit it. If the item is equipped, Player re-runs `_on_equipment_changed()` and re-syncs `equipment_refs`, so the saved snapshot isn't stale either. `is_item_equipped()`/`refresh_item_stats()` don't exist; the existing equip path is reused.
+- **Corruption (4):** a CORRUPTED badge sits beside the ITEM badge. The Shard's result message already showed in the Cube's status label. `ItemRoller` rolled Uncommon 0-2 and Rare 0-6 affixes, so a colored item with no mods was possible. The minimum is now 1, and if the eligible pool comes up empty the item falls back to Common.
+- **Crosshair (5):** hidden whenever the mouse isn't captured, and not through `ui_opened`/`ui_closed` signals with an open-panel count. All ~10 panels (inventory, character, Fate Board, crafting, abilities, map, shop, pause, death) already release the mouse on open and recapture it on close, so capture state is the shared signal. That needed no per-panel edits and there's no count to desync. `Crosshair` runs with `PROCESS_MODE_ALWAYS` because panels pause the tree.
+- **Inventory arrangement (6):** grid keys were `obj:<instance_id>`, which change on every load, so saving them as the brief suggested would never restore anything. Keys are now `item:<item_id>#<n>` (n = occurrence among same-id `owned_loot` entries, which is never reordered) plus the existing `brand:<id>`. `_slot_assignment` is now a property backed by `GameState.inventory_slot_assignment`, which is saved and reset on New Game. Keys for items no longer owned are pruned on each build.
+- **Slate tooltips (7):** `FateBoardGrid` draws every cell itself, with no per-cell nodes, so the tooltip uses the grid's own `_get_tooltip()` (returns the hovered `placement_id`) and `_make_custom_tooltip()` (the same ItemCard the palette uses). It's hidden while a Slate is held for placement.
+- **Mob counter (8):** `enemy_died` is new and fires from `health.died` directly, so `FigmentBoss` (which awaits its death animation before `super._on_died()`) still counts immediately. `GeneratedMap` tracks what it spawned. The label is top-left under the status chips (top-center is the boss bar, top-right the debug overlay). It shows once `GeneratedMap` reports a count, not when `active_map != null`: a standalone (F6) map has no `active_map` but should still show it, and the Hub never reports.
+- **Bow draw (9):** bow base `.tres` files bake `cycle_time = 0` and were off-limits, so `RANGED_PROFILES` alone would have done nothing. The new `Weapon.get_draw_time()` reads the profile (Shortbow/Bow 0.6 s, Longbow 1.0 s) for ARROW weapons only. `PlayerRangedAttack` applies it for SEMI_AUTO, and the item card shows "Draw: Xs".
+- **Damage numbers (10):** new `ui/damage_number/`. `take_damage()` gained `is_dot`, passed only by the Ignite tick (the only DoT). Ward-absorbed amounts show at half alpha, slightly higher. Crit is always false for now, as the brief allows. Ground effects (Flame Wall, Caltrops, etc.) are direct hits and do show numbers on each tick.
+- **Figments in inventory (11): not changed (user decision).** Figments reach `owned_loot` on purpose (6% enemy drop plus boss drops; the Reality Engine and Cube Empower use them), and players should be able to store and view them in the inventory. They stay in the grid, draggable like any other entry, and clicking one still gives the "used at the Reality Engine" message.
+
+**Verified** (headless, 4.7.1, scene-load test inside `GeneratedMap`, 35 checks):
+- Level-up adds exactly +0.6 to each stat and +1.2 max life; the baseline resource is untouched.
+- The counter reads 11/11, then 10/11 after a kill.
+- An enemy outside chase range stays idle, then chases after a dodged hit.
+- A direct hit spawns a number; a DoT tick doesn't; numbers free themselves.
+- Adding +7 Prowess to an equipped helm updates stats and `equipment_refs`, and refs resolve to the owned instance both in-session and after a JSON round-trip.
+- The badge shows only when the item is corrupted, and 0 of 1657 colored rolls had no mods.
+- Draw times are 0.6/1.0/0.6/0; a bow shot starts a 0.6 s draw that then ends; a pistol is unaffected; the card shows "Draw: 1s".
+- The Slate tooltip returns the placement id and an ItemCard.
+- Keys are stable, and a dragged slot survives a rebuild and a JSON round-trip.
+- Hub and GeneratedMap load with no errors.
+
+**Not verified:** the crosshair toggle. Headless mode can't capture the mouse (mouse mode stays VISIBLE), so only the hidden state was seen.
+
 ## 2026-09-22 — Implementation Brief v4.6: Damage Scaling Rebalance + Enemy Mitigation
 
 Grade multipliers cut about 2.5x (S 1.2–1.6 … E 0.07–0.12). Greatsword MV 1.35 → 1.1, charged multiplier 1.8 → 1.6, Riposte multiplier 3.0 → 1.4. A Greatsword Riposte at S grade, 60 stat and 140 base now rolls about 552 (it was about 1633). Mob curve: growth 0.12 → 0.15, base health light/standard/heavy/boss 55/100/200/3000 (it was 80/150/280/2000), and Map tier now adds +2 mob levels per tier instead of +1. Enemies now have Ward (`EnemyDefinition.ward_percent` of max health, set at spawn, no regen, rescaled when tier or rarity changes max health), armor, and evasion.

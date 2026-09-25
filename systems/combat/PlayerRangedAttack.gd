@@ -134,6 +134,11 @@ func _fire_one(weapon: Weapon, aimed: bool) -> void:
 			if weapon.cycle_time > 0.0:
 				_is_cycling = true
 				_cycle_timer = weapon.cycle_time
+		Constants.FireMode.SEMI_AUTO:
+			var draw := weapon.get_draw_time()  # bows only - 0 for semi-auto guns
+			if draw > 0.0:
+				_is_cycling = true
+				_cycle_timer = draw
 
 	if _uses_magazine(weapon) and weapon.get_current_magazine() <= 0:
 		_start_reload(weapon)

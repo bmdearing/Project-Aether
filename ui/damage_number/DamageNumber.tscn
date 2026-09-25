@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://ui/damage_number/DamageNumber.gd" id="1"]
+
+[node name="DamageNumber" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Label3D" type="Label3D" parent="."]
+pixel_size = 0.004
+billboard = 1
+no_depth_test = true
+render_priority = 10
+outline_render_priority = 9
+font_size = 36
+outline_size = 10

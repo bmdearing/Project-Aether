@@ -65,9 +65,15 @@ var graph: MapGraph
 ## math in the test script.
 var last_player_spawn: Vector3
 
+## v4.7 HUD mob counter: every enemy this map spawned (instance id -> true)
+## until it dies, plus the total ever spawned.
+var _living_enemies: Dictionary = {}
+var _enemies_total: int = 0
+
 func _ready() -> void:
 	# Standalone (F6) launch: no MainMenu/save ran, so GameState is still defaults.
 	GameState.initialize_standalone()
+	EventBus.enemy_died.connect(_on_enemy_died)
 	graph = MapGraph.generate()
 	for cell in graph.rooms:
 		_build_room(graph.rooms[cell])
@@ -75,6 +81,14 @@ func _ready() -> void:
 	_spawn_player()
 	_spawn_enemies()
 	_spawn_ui()
+	_emit_enemy_count()  # HUD is up now (added by _spawn_ui())
+
+func _on_enemy_died(enemy: Node) -> void:
+	if _living_enemies.erase(enemy.get_instance_id()):
+		_emit_enemy_count()
+
+func _emit_enemy_count() -> void:
+	EventBus.enemy_count_changed.emit(_living_enemies.size(), _enemies_total)
 
 ## Rooms (13m footprint) sit CELL_SIZE (16m) apart, so each doorway
 ## needs a floor bridge closing the 3m gap. Each connection is processed
@@ -232,3 +246,5 @@ func _spawn_enemy_at(scene: PackedScene, pos: Vector3) -> void:
 	EnemyRarityComponent.roll_and_attach(enemy)
 	add_child(enemy)
 	enemy.global_position = pos
+	_living_enemies[enemy.get_instance_id()] = true
+	_enemies_total += 1

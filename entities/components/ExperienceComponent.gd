@@ -1,8 +1,8 @@
 extends Node
 class_name ExperienceComponent
-## Player-only progression: kill enemies for XP, level up. Per Section 12,
-## stats come only from gear/Slates/Jewels/infusions, not level-up growth
-## - leveling here doesn't touch StatSheet directly.
+## Player-only progression: kill enemies for XP, level up. Doesn't touch
+## StatSheet itself - Player._on_leveled_up() applies the per-level stat
+## gain (GameState.get_level_stat_bonus()).
 ##
 ## Player is a fresh instance every Hub<->Map transition, so Player.gd
 ## reads GameState.player_level/player_xp at _ready() and writes back on

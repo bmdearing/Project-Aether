@@ -77,6 +77,14 @@ var ability_ranks: Dictionary = {}
 var player_level: int = 1
 var player_xp: float = 0.0
 
+## v4.7: every level above 1 grants this much Prowess, Finesse and Resolve.
+## Derived from player_level rather than accumulated, so it needs no save
+## field and can't drift from the level.
+const STAT_GAIN_PER_LEVEL := 0.6
+
+func get_level_stat_bonus() -> float:
+	return (player_level - 1) * STAT_GAIN_PER_LEVEL
+
 ## Rolled loot picked up this session - persisted by SaveManager via
 ## ItemSerializer (full data, since rolled items have no resource_path).
 var owned_loot: Array[Item] = []
@@ -87,6 +95,10 @@ var owned_loot: Array[Item] = []
 ## still always-available in FateBoardEditor's palette on top of these -
 ## this array is additive, not a replacement for that starter pool.
 var owned_slates: Array[Slate] = []
+
+## InventoryScreen grid arrangement: stack key -> relative slot index (see
+## InventoryScreen._build_stack_entries() for the key format). Saved.
+var inventory_slot_assignment: Dictionary = {}
 
 ## Fate Board LAYOUT - which Slate sits where, plus its designated ability
 ## for Spell Slates (see Slate.requires_spell_designation). User-reported
@@ -182,6 +194,7 @@ func reset_to_defaults() -> void:
 	player_xp = 0.0
 	owned_loot = []
 	owned_slates = []
+	inventory_slot_assignment = {}
 	fate_board_placements = []
 	gold = 1000000  # Patch v3.8c, user request - dev/testing convenience
 	figment_tree_points = 0

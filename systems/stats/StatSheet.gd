@@ -2,8 +2,8 @@ extends Resource
 class_name StatSheet
 ## Patch v3.8: three stats (Prowess/Finesse/Resolve), replacing the
 ## original six (Vitality/Strength/Instinct/Arcane/Enigma/Intellect).
-## "All stats come from gear, Slates, Jewels, and infusions — no manual
-## allocation on level up" still holds. The raw fields below are the
+## No manual allocation on level up, but v4.7 adds a fixed +0.6 to each
+## stat per level (level_bonus below). The raw fields below are the
 ## character's permanently-fixed baseline (player_baseline.tres, 10.0
 ## flat each - an invented vertical-slice testing value, no doc-sourced
 ## baseline exists); equipment_bonus and slate_bonus are what grow a stat
@@ -40,6 +40,12 @@ var equipment_bonus: Dictionary = {}
 ## FROM across a reload regardless.
 var slate_bonus: Dictionary = {}
 
+## v4.7: flat bonus to all three stats from character level
+## (GameState.get_level_stat_bonus()), pushed in by Player.gd. Separate from
+## the baseline fields above, which are the shared player_baseline.tres
+## values and must never be mutated.
+var level_bonus: float = 0.0
+
 ## Mastery: DamageType -> float bonus (e.g. 0.5 for "+0.5 Cold Mastery").
 ## Never universal - keyed per tag per Section 10. Sourced entirely from
 ## placed Slates' "mastery" modifiers (FateBoard.compute_mastery_bonuses())
@@ -70,6 +76,7 @@ func get_stat(stat: Constants.Stat) -> float:
 		Constants.Stat.PROWESS: base = prowess
 		Constants.Stat.FINESSE: base = finesse
 		Constants.Stat.RESOLVE: base = resolve
+	base += level_bonus
 	base += equipment_bonus.get(stat, 0.0)
 	base += slate_bonus.get(stat, 0.0)
 	if stat == supercharged_stat:

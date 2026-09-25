@@ -102,6 +102,11 @@ signal hit_blocked(defender: Node)
 ## Patch v4.6 - a player weapon attack fully avoided by an enemy's evasion_value.
 signal enemy_hit_dodged(enemy: Node)
 
+## Patch v4.7 - Figment mob counter. enemy_died fires from Enemy._on_died();
+## GeneratedMap counts spawns/deaths and emits enemy_count_changed for the HUD.
+signal enemy_died(enemy: Node)
+signal enemy_count_changed(remaining: int, total: int)
+
 ## Patch v4.4 - Evasion. Dodged: an attack hit fully negated. Deflected: a hit
 ## reduced by Deflection Mitigation (still lands).
 signal hit_dodged(defender: Node)

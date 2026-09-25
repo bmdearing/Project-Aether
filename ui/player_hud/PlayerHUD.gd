@@ -119,6 +119,7 @@ var _status_chips: Dictionary = {}  # effect_id -> Label
 var _hit_marker: HitMarker
 var _throwable_icon: TextureRect
 var _throwable_count_label: Label
+var _enemy_counter_label: Label
 
 ## User request (2026-08-31): floating enemy health bars on hover/in-
 ## combat, plus a special top-of-screen bar for boss-rank enemies.
@@ -145,6 +146,8 @@ func _ready() -> void:
 	_build_hit_marker()
 	_build_stance_indicator()
 	_build_throwable_indicator()
+	_build_enemy_counter()
+	EventBus.enemy_count_changed.connect(_on_enemy_count_changed)
 
 	if is_instance_valid(_player):
 		_player.health.health_changed.connect(_on_health_changed)
@@ -412,6 +415,24 @@ func _build_status_row() -> void:
 	_status_row.add_theme_constant_override("separation", STATUS_CHIP_GAP)
 	_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_status_row)
+
+## v4.7: "Enemies: remaining / total", top-left under the status chips (top-
+## center is the boss bar, top-right the debug overlay). Hidden until
+## GeneratedMap reports a count, so it never shows in the Hub.
+func _build_enemy_counter() -> void:
+	_enemy_counter_label = Label.new()
+	_enemy_counter_label.offset_left = STATUS_ROW_LEFT_MARGIN
+	_enemy_counter_label.offset_top = STATUS_ROW_TOP_MARGIN + STATUS_CHIP_HEIGHT + 8.0
+	_enemy_counter_label.add_theme_font_size_override("font_size", 16)
+	_enemy_counter_label.add_theme_color_override("font_outline_color", Color.BLACK)
+	_enemy_counter_label.add_theme_constant_override("outline_size", 4)
+	_enemy_counter_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_enemy_counter_label.visible = false
+	add_child(_enemy_counter_label)
+
+func _on_enemy_count_changed(remaining: int, total: int) -> void:
+	_enemy_counter_label.text = "Enemies: %d / %d" % [remaining, total]
+	_enemy_counter_label.visible = true
 
 func _on_status_effect_applied(target: Node, effect_id: String, _stacks: int) -> void:
 	if target != _player or _status_chips.has(effect_id):

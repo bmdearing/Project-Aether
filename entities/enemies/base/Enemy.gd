@@ -117,6 +117,9 @@ func _ready() -> void:
 	if rank != Constants.EnemyRank.BOSS:
 		rank = _roll_rank()
 	health.died.connect(_on_died)
+	# Separate from _on_died() so it fires at the moment of death even when a
+	# subclass override (FigmentBoss) awaits a death animation before super.
+	health.died.connect(func(): EventBus.enemy_died.emit(self))
 	add_to_group("enemy")
 	var head_zone := get_node_or_null("HeadZone")
 	if head_zone:
@@ -217,7 +220,7 @@ func _update_model(delta: float) -> void:
 	if is_instance_valid(_player):
 		var to_player := _player.global_position - global_position
 		to_player.y = 0.0
-		if to_player.length() > 0.1 and to_player.length() <= chase_range:
+		if to_player.length() > 0.1 and (to_player.length() <= chase_range or is_in_combat()):
 			var target_yaw := atan2(to_player.x, to_player.z) + model_forward_yaw_offset - global_rotation.y
 			_model_root.rotation.y = lerp_angle(_model_root.rotation.y, target_yaw, clamp(MODEL_TURN_SPEED * delta, 0.0, 1.0))
 	if _anim_controller:
@@ -373,7 +376,10 @@ func _update_chase() -> void:
 	if dist <= chase_range:
 		_last_combat_msec = Time.get_ticks_msec()
 
-	if dist > chase_range or dist < 0.001:
+	# A hit from outside chase_range (landed or dodged - take_damage() marks
+	# combat before its dodge roll) still pulls the enemy in, for the same
+	# grace window the health bar uses.
+	if (dist > chase_range and not is_in_combat()) or dist < 0.001:
 		velocity.x = 0.0
 		velocity.z = 0.0
 		return
@@ -666,8 +672,10 @@ func is_critical_spot_hit(attacking_area: Area3D) -> bool:
 ## projectile). Spells, DoT ticks, riders and ripostes leave it false.
 ## Returns false if the hit was dodged (caller should skip its on-hit
 ## follow-ups), true otherwise - including a hit fully absorbed by Ward.
-func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false) -> bool:
+## is_dot: a damage-over-time tick - no floating damage number.
+func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false, is_dot: bool = false) -> bool:
 	_last_combat_msec = Time.get_ticks_msec()
+	var show_number := not is_dot and health.is_alive()
 	if can_evade and not is_spell and evasion_value > 0.0:
 		if randf() < DamageCalculator.dodge_chance(evasion_value):
 			EventBus.enemy_hit_dodged.emit(self)
@@ -688,15 +696,33 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		var absorbed: float = min(_ward_current, mitigated)
 		_ward_current -= absorbed
 		mitigated -= absorbed
+		if show_number:
+			_spawn_damage_number(absorbed, damage_type, DamageNumber.WARD_ALPHA, WARD_NUMBER_EXTRA_HEIGHT)
 		if mitigated <= 0.0:
 			AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), global_position, -4.0)
 			return true
 	health.apply_damage(mitigated)
+	if show_number:
+		_spawn_damage_number(mitigated, damage_type)
 	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), global_position, -2.0)
 	if _anim_controller and health.is_alive() and Time.get_ticks_msec() - _last_hit_react_msec >= HIT_REACT_MIN_INTERVAL_MSEC:
 		_last_hit_react_msec = Time.get_ticks_msec()
 		_anim_controller.play_hit_react()
 	return true
+
+const DAMAGE_NUMBER_SCENE := preload("res://ui/damage_number/DamageNumber.tscn")
+const DAMAGE_NUMBER_HEIGHT := 1.8
+const WARD_NUMBER_EXTRA_HEIGHT := 0.35  # Ward numbers sit a little above health numbers
+
+## Crit is always false for now: take_damage() has no crit info (callers
+## hold it in their roll_damage() result but don't pass it through).
+func _spawn_damage_number(amount: float, damage_type: Constants.DamageType, alpha: float = 1.0, extra_height: float = 0.0) -> void:
+	if amount <= 0.0 or not is_inside_tree():
+		return
+	var number: DamageNumber = DAMAGE_NUMBER_SCENE.instantiate()
+	get_tree().current_scene.add_child(number)
+	number.global_position = global_position + Vector3(randf_range(-0.3, 0.3), DAMAGE_NUMBER_HEIGHT + extra_height, randf_range(-0.3, 0.3))
+	number.setup(amount, damage_type, false, alpha)
 
 ## Never returns BOSS - a boss encounter's own scene/script sets `rank`
 ## to BOSS directly (see _ready()'s own guard), it doesn't come from this

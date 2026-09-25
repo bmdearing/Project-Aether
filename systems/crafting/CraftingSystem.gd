@@ -123,6 +123,9 @@ static func craft_cube(item: Item, brands: Array[Brand], power_level: int = 1, t
 		EventBus.brand_consumed.emit(b.item_id)
 	if not destroyed:
 		_update_item_rarity(item)
+		# One refresh for every Brand path (a few also emit internally; the
+		# listener is idempotent). Player re-applies it if the item is equipped.
+		EventBus.item_stats_changed.emit(item)
 	return {"success": true, "message": message, "destroyed": destroyed, "consumed": consumed}
 
 ## Patch v3.9 - rarity tracks affix count (Section 18: Common 0, Uncommon
@@ -340,6 +343,7 @@ static func infuse(weapon: Weapon) -> Dictionary:
 		return {"success": false, "message": "Choose a weapon to infuse."}
 	var options: Array = Constants.DamageType.values().filter(func(t): return t != weapon.native_damage_type)
 	weapon.infused_damage_type = options[randi() % options.size()]
+	EventBus.item_stats_changed.emit(weapon)
 	return {"success": true, "message": "Infused with %s." % Constants.DAMAGE_TYPE_NAME.get(weapon.infused_damage_type, "?")}
 
 static func shrive(weapon: Weapon) -> Dictionary:
@@ -349,6 +353,7 @@ static func shrive(weapon: Weapon) -> Dictionary:
 		return {"success": false, "message": "This weapon has no infusion to remove."}
 	var native_name: String = Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?")
 	weapon.infused_damage_type = -1
+	EventBus.item_stats_changed.emit(weapon)
 	return {"success": true, "message": "The infusion is stripped away - back to native %s." % native_name}
 
 ## ---- Shard of Tharsis (Corruption) --------------------------------
@@ -365,4 +370,5 @@ static func corrupt(item: Item, power_level: int = 1) -> Dictionary:
 	var message := "%s (Tier %d)" % [outcome.outcome_name, outcome.tier]
 	if not item.is_craftable:
 		message += " This item can no longer be crafted or corrupted."
+	EventBus.item_stats_changed.emit(item)
 	return {"success": true, "message": message, "destroyed": false}
