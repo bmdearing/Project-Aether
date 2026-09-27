@@ -365,6 +365,8 @@ static func _roll_tier(power_level: int) -> int:
 ## same way every OTHER AFFIX_POOL entry already is, via _tier_range()/
 ## _roll_tier() below, rather than a bespoke per-affix tier table.
 const WEAPON_AFFIX_DIR := "res://data/affixes/weapons/"
+## v4.10 local mods that belong on Conduits (every other local is martial).
+const CONDUIT_LOCAL_KEYS := ["local_increased_spell_damage", "local_increased_cast_speed"]
 static var _weapon_affix_cache: Array[ItemAffix] = []
 
 static func _build_weapon_affix_cache() -> void:
@@ -414,6 +416,11 @@ static func _eligible_weapon_affixes(weapon: Weapon, power_level: int, want_pref
 		if affix.is_prefix != want_prefix:
 			continue
 		if power_level < affix.min_item_level:
+			continue
+		# Local mods: caster ones only on real Conduits, the rest only on
+		# martial weapons - by is_conduit, not type key (worn_staff is a melee
+		# "staff" that shares the Conduit staff line's key).
+		if affix.is_local and weapon.is_conduit != CONDUIT_LOCAL_KEYS.has(affix.stat_key):
 			continue
 		var matches := affix.is_generic
 		if not matches and affix.weapon_type_filter.is_empty():
@@ -470,6 +477,7 @@ static func _roll_weapon_affixes(weapon: Weapon, affix_count: int, power_level: 
 		affix.is_prefix = source.is_prefix
 		affix.damage_type = source.damage_type
 		affix.is_generic = source.is_generic
+		affix.is_local = source.is_local
 		# Bug fix (2026-09-07, user-reported): source.description is a
 		# template (one %d or %.1f placeholder) - the rolled value must be
 		# substituted in, same as the OLD AFFIX_POOL's own "desc" dict

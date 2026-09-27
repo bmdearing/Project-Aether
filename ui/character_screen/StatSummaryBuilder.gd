@@ -100,7 +100,7 @@ static func _crit_summary(player: Player, slot: Constants.EquipmentSlot) -> Stri
 	var weapon := _weapon_in(player, slot)
 	if weapon == null:
 		return "None equipped"
-	var chance := DamageCalculator.get_crit_chance(weapon.get_base_crit_chance(), player.stat_sheet.finesse_crit_bonus)
+	var chance := DamageCalculator.get_crit_chance(weapon.get_local_crit_chance(), player.stat_sheet.finesse_crit_bonus)
 	var multiplier := DamageCalculator.get_crit_damage_multiplier(player.stat_sheet.get_crit_damage_bonus())
 	return "%.0f%% chance / %.0f%% dmg" % [clamp(chance, 0.0, 1.0) * 100.0, multiplier * 100.0]
 

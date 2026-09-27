@@ -36,7 +36,7 @@ const STAT_COLOR := Color(0.85, 0.85, 0.85)
 const AMMO_INFO_COLOR := SUBTITLE_COLOR  # Magazine/Reload lines on ranged weapons - dimmer than the stat lines around them
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
 const FLAVOR_COLOR := Color(0.75, 0.65, 0.45)
-const WEAPON_DAMAGE_VALUE_COLOR := Color(0.6, 0.6, 0.6)  # both numbers of "base → boosted" - darker than the white stat text
+const MODIFIED_VALUE_COLOR := Color(0.4, 0.6, 1.0)  # "base → modified" values changed by stats/local mods (v4.10)
 const CARD_WIDTH := 260.0
 
 const SLATE_BADGE_COLOR := Color(0.55, 0.35, 0.85)  # fixed - independent of the Slate's own rarity color, shown on the border instead
@@ -137,6 +137,7 @@ func _render_item(item: Item) -> void:
 	if item is Weapon:
 		for line in _build_attack_power_lines(item as Weapon, _stat_sheet_for_card()):
 			_add_attack_power_line(line)
+		_add_weapon_value_lines(item as Weapon)
 		for line in _ranged_info_lines(item as Weapon):
 			_add_ammo_info_line(line)
 	for line in _item_stat_lines(item):
@@ -226,7 +227,7 @@ func _add_spell_damage_line(ability: Ability, stat_sheet: StatSheet) -> void:
 		_add_mod_line("%s: requires a Conduit" % label, REQUIREMENT_UNMET_COLOR)
 		return
 	var range := ability.predict_damage_range(stat_sheet)
-	_add_attack_power_line({"label": label, "min": range.x, "max": range.y, "color": color})
+	_add_attack_power_line({"label": label, "lo": range.x, "hi": range.y, "color": color})
 
 func _get_cast_type_label(ability: Ability) -> String:
 	match ability.cast_type:
@@ -346,26 +347,32 @@ func _requirement_lines(item: Item) -> Array[String]:
 ## the same StatSheet instance Player.gd assigns itself to at boot
 ## (autoloads/GameState.gd:31), a reliable fallback either way.
 func _stat_sheet_for_card() -> StatSheet:
-	var tree := get_tree()
+	# is_inside_tree() first: get_tree() on a node outside the tree returns
+	# null but also prints an engine error with a backtrace - on every
+	# tooltip build, since tooltip cards are built before being added.
+	var tree := get_tree() if is_inside_tree() else null
 	var player: Player = (tree.get_first_node_in_group("player") as Player) if tree else null
 	if player:
 		return player.stat_sheet
 	return GameState.player_stat_sheet as StatSheet
 
-## "<Type> Damage: min to max" - the per-hit base damage range with the
-## current Strength multiplier applied (what Weapon.roll_damage() rolls
-## within, before motion value/chain bonus/crit). Primary damage type
-## always shown; extra lines only for a "gain_as_damage" affix (forward-
-## compat - no ItemRoller.AFFIX_POOL entry produces one yet).
+## "<Type> Damage: lo to hi -> boosted_lo to boosted_hi" - the weapon's raw
+## per-hit base range (white), then that range with Strength and its local
+## increased Weapon Damage applied (blue) - exactly what Weapon.
+## roll_damage() rolls within, before motion value/chain bonus/crit.
+## Primary damage type always shown; extra lines only for a
+## "gain_as_damage" affix (forward-compat - no ItemRoller.AFFIX_POOL entry
+## produces one yet).
 func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
 	var lines := []
 	var str_mult := 1.0 + (stat_sheet.get_strength_weapon_multiplier() if stat_sheet else 0.0)
-	var range := weapon.get_damage_range() * str_mult
+	var total_mult := str_mult * weapon.get_local_multiplier("local_increased_weapon_damage")
+	var range := weapon.get_damage_range()
 	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE)
 	lines.append({
 		"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?"),
-		"min": range.x,
-		"max": range.y,
+		"lo": range.x,
+		"hi": range.y,
 		"color": primary_color,
 	})
 	for affix in weapon.affixes:
@@ -373,33 +380,61 @@ func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
 			var color: Color = Constants.DAMAGE_TYPE_COLOR.get(affix.damage_type, Color.WHITE)
 			lines.append({
 				"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(affix.damage_type, "?"),
-				"min": range.x * (affix.value / 100.0),
-				"max": range.y * (affix.value / 100.0),
+				"lo": range.x * (affix.value / 100.0),
+				"hi": range.y * (affix.value / 100.0),
 				"color": color,
 			})
+	for line in lines:
+		line["boosted_lo"] = line["lo"] * total_mult
+		line["boosted_hi"] = line["hi"] * total_mult
 	# Shotguns: show what ONE pellet hits for, times the pellet count.
 	if weapon.is_ranged and weapon.pellet_count > 1:
 		for line in lines:
-			line["min"] = line["min"] / weapon.pellet_count
-			line["max"] = line["max"] / weapon.pellet_count
+			for key in ["lo", "hi", "boosted_lo", "boosted_hi"]:
+				line[key] = line[key] / weapon.pellet_count
 			line["pellets"] = weapon.pellet_count
 	return lines
 
 func _add_attack_power_line(line: Dictionary) -> void:
+	var suffix := " x%d" % line["pellets"] if line.has("pellets") else ""
+	var base_text := "%.0f to %.0f%s" % [line["lo"], line["hi"], suffix]
+	var modified_text := ""
+	if line.has("boosted_lo"):
+		modified_text = "%.0f to %.0f%s" % [line["boosted_lo"], line["boosted_hi"], suffix]
+	_add_value_line(line["label"], line["color"], base_text, modified_text)
+
+## "Label: base" in white, plus " -> modified" in blue when modified_text is
+## non-empty and actually differs (an affix or stat changes this value).
+func _add_value_line(label: String, label_color: Color, base_text: String, modified_text: String = "") -> void:
 	var rtl := RichTextLabel.new()
 	rtl.bbcode_enabled = true
 	rtl.fit_content = true
 	rtl.scroll_active = false
 	rtl.custom_minimum_size = Vector2(CARD_WIDTH, 0)
-	var label_color: Color = line["color"]
-	var values := "%.0f to %.0f" % [line["min"], line["max"]]
-	if line.has("pellets"):
-		values += " x%d" % line["pellets"]
 	rtl.text = "[color=#%s]%s[/color]: [color=#%s]%s[/color]" % [
-		label_color.to_html(false), line["label"],
-		WEAPON_DAMAGE_VALUE_COLOR.to_html(false), values,
+		label_color.to_html(false), label, STAT_COLOR.to_html(false), base_text,
 	]
+	if modified_text != "" and modified_text != base_text:
+		rtl.text += " → [color=#%s]%s[/color]" % [MODIFIED_VALUE_COLOR.to_html(false), modified_text]
 	_content().add_child(rtl)
+
+## Crit Chance, Spell Power, and Attack/Cast Speed, each with its local mod
+## (v4.10) shown as a blue modified value. Local weapon damage and crit are
+## real (Weapon._base_hit()); local spell damage, attack speed and cast
+## speed are display-only for now.
+func _add_weapon_value_lines(w: Weapon) -> void:
+	if w.is_conduit:
+		var spell_mult := w.get_local_multiplier("local_increased_spell_damage")
+		_add_value_line("Spell Power", STAT_COLOR, "%.0f to %.0f" % [w.spell_power_min, w.spell_power_max],
+			"%.0f to %.0f" % [w.spell_power_min * spell_mult, w.spell_power_max * spell_mult])
+	_add_value_line("Crit Chance", STAT_COLOR, "%s%%" % _format_num(snapped(w.get_base_crit_chance() * 100.0, 0.1)),
+		"%s%%" % _format_num(snapped(w.get_local_crit_chance() * 100.0, 0.1)))
+	var attack_speed := w.get_local_multiplier("local_increased_attack_speed")
+	if attack_speed > 1.0:
+		_add_value_line("Attack Speed", STAT_COLOR, "1.00", "%.2f" % attack_speed)
+	var cast_speed := w.get_local_multiplier("local_increased_cast_speed")
+	if cast_speed > 1.0:
+		_add_value_line("Cast Speed", STAT_COLOR, "1.00", "%.2f" % cast_speed)
 
 ## Magazine ("current / reserve") and Reload lines for firearms; bows get a
 ## single Draw line instead (v4.7), since they have no magazine and
@@ -478,19 +513,16 @@ func _item_type_line(item: Item) -> String:
 
 ## Patch v3.8 Section 3: Scaling Grade and the raw damage/socket-count
 ## text lines moved out of here (Scaling Grade -> Alt Info, damage -> the
-## weapon damage lines built separately, sockets -> the socket row) -
-## this only covers what's left: Spell Power for a Conduit, Infused type,
-## Base Crit Chance, and the shared item-level/requirement lines every
-## item type shows.
+## weapon damage lines built separately, sockets -> the socket row;
+## Spell Power/Crit Chance/speeds -> _add_weapon_value_lines(), v4.10) -
+## this only covers what's left: Infused type and the shared item-level/
+## requirement lines every item type shows.
 func _item_stat_lines(item: Item) -> Array[String]:
 	var lines: Array[String] = []
 	if item is Weapon:
 		var w := item as Weapon
-		if w.is_conduit:
-			lines.append("Spell Power: %.0f to %.0f" % [w.spell_power_min, w.spell_power_max])
 		if w.infused_damage_type != -1:
 			lines.append("Infused: %s" % Constants.DAMAGE_TYPE_NAME.get(w.infused_damage_type, "?"))
-		lines.append("Base Crit Chance: %.0f%%" % (w.get_base_crit_chance() * 100.0))
 	elif item is Armor:
 		var a := item as Armor
 		if a.armor_value > 0.0:

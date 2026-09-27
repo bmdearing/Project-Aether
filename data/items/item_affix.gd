@@ -46,3 +46,10 @@ class_name ItemAffix
 ## repair_item_requirements.gd already uses). Checked by ItemRoller
 ## against the rolling item's own resolved type key.
 @export var weapon_type_filter: Array[String] = []
+
+## v4.10 local weapon mods (stat_key "local_*"): modify only the weapon
+## they're on, never the global StatSheet pools. A generic local mod
+## (empty weapon_type_filter) rolls on martial weapons only; conduit locals
+## are gated by weapon_type_filter. Only read at roll time - rolled/saved
+## affixes are recognized by their "local_" stat_key.
+@export var is_local: bool = false
