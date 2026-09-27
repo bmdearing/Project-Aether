@@ -7,6 +7,44 @@ there. Most recent first.
 
 ---
 
+## 2026-09-27 — Implementation Brief v4.10: Local Weapon Mods + Item Card + Fate Board Polish + Tooltip
+
+**1. `_get_stat_contribution()`:** already gone. It was deleted in v4.8, and the card has shown ranges since the per-hit range change. Nothing to fix.
+
+**2. Local weapon mods:**
+- `ItemAffix.is_local` was added, and 5 affix files were created:
+  - `generic/`: `local_increased_weapon_damage` (prefix, 10-24%), `local_increased_attack_speed` (suffix, 8-18%), `local_increased_crit_chance` (suffix, 10-30%).
+  - `conduit/`: `local_increased_spell_damage` (prefix, 10-24%), `local_increased_cast_speed` (suffix, 8-18%), filtered to the 9 Conduit type keys.
+- Tier-1 values as specified; the existing tier decay applies.
+- **Eligibility uses `Weapon.is_conduit`, not the type key:** Conduit locals only roll on real Conduits and the others only on martial weapons (`ItemRoller.CONDUIT_LOCAL_KEYS`). The brief's filter-only rule let Conduit locals roll on `worn_staff.tres`, a melee "Staff" that shares the Conduit staff line's key; the test caught it.
+- One of each per weapon is already guaranteed by the no-duplicate pick.
+- Rolled and saved affixes are recognized by their `local_` stat key. `is_local` is only read at roll time; `ItemSerializer` doesn't save it and doesn't need to.
+- **Local Weapon Damage and local Crit apply to the weapon's own hits (user decision):** `Weapon._base_hit()` multiplies by `get_local_multiplier("local_increased_weapon_damage")`, and crit rolls against `get_local_crit_chance()`. Neither ever touches the global StatSheet pools. Local Attack Speed, Spell Damage and Cast Speed are display-only, per the brief.
+
+**3/4. Item card:**
+- Weapon damage: "Kinetic Damage: 10 to 14 → 21 to 29" — the raw range in white, then blue with Strength x local Weapon Damage.
+- Crit Chance, Spell Power, and (only when a local mod exists) Attack Speed and Cast Speed use the same white → blue line via the new `_add_value_line()`/`_add_weapon_value_lines()`. They moved out of the plain-string `_item_stat_lines()`.
+- "Base Crit Chance" is now "Crit Chance"; there were no other "Base " labels.
+- This replaces the single darker-grey range from the 2026-09-27 color request. The brief specifies white base + blue modified.
+- The Attack Speed line appears only when modified. Weapons have no attack speed stat, so a "1.00" line on every card would carry no information.
+- Spell cards keep their single per-cast range line.
+- The character screen's crit summary uses the local crit chance too.
+
+**5. Fate Board:**
+- There was no background grid shader to change. The shader already discards empty cells, and `_draw_walls()` already skips same-Slate edges. The visible lines inside Slates came from the nebula shader: each cell sampled noise in its own local UV with a random per-cell phase (a seam at every cell edge), plus a per-cell edge vignette.
+- Noise and stars are now sampled in board space, and the vignette only darkens edges whose neighbor isn't the same color, so each Slate reads as one shape.
+- `DEFAULT_ZOOM` 1.5 -> 2.2 and `ZOOM_MAX` 3.0 -> 4.0.
+- Checked in a real window: two saved Slates render seamlessly, and the grid shows only on empty cells.
+
+**6. Tooltip (profiled, per the brief):** `display_item()` took 8.9 ms per card. `_stat_sheet_for_card()` called `get_tree()` on the not-yet-in-tree tooltip card, which returns null but prints an engine error with a GDScript backtrace, twice per build and on every hover. Guarding with `is_inside_tree()` brought it to **1.5 ms per card (6x faster)**. Instantiating the card itself costs 0.03 ms. Caching wasn't changed: Godot frees the tooltip node on hide, as the brief noted, and a 1.5 ms build doesn't need it.
+
+**Verified:**
+- 6000 random drops: all 5 locals roll, none on the wrong weapon class, no duplicates, descriptions formatted. 400 Worn Staff rolls had no Conduit locals.
+- +20% local damage scales the hit range by exactly 1.2.
+- +50% local crit makes crit chance exactly 1.5x base before Agility/gear.
+- Local spell damage doesn't change spell damage.
+- Both cards and the Fate Board were checked in a real window. Hub loads clean.
+
 ## 2026-09-27 — Per-hit damage ranges (user request)
 
 Weapon and spell damage is now a real "min to max" range rolled on every hit, instead of one fixed number:

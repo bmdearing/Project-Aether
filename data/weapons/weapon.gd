@@ -140,13 +140,28 @@ func get_current_magazine() -> int:
 func get_base_crit_chance() -> float:
 	return Constants.WEAPON_BASE_CRIT_CHANCE.get(weapon_type, Constants.DEFAULT_BASE_CRIT_CHANCE)
 
+## v4.10 local mods: 1 + (this weapon's own "local_*" affix value)% for
+## stat_key (e.g. "local_increased_weapon_damage"). Never enters the global
+## StatSheet pools - only this weapon's own numbers.
+func get_local_multiplier(stat_key: String) -> float:
+	var mult := 1.0
+	for affix in affixes:
+		if affix.stat_key == stat_key:
+			mult += affix.value / 100.0
+	return mult
+
+## Base crit with this weapon's local increased crit applied - what the
+## card shows and what _base_hit() rolls against (before Agility/gear).
+func get_local_crit_chance() -> float:
+	return get_base_crit_chance() * get_local_multiplier("local_increased_crit_chance")
+
 ## Shared groundwork for predict_damage()/roll_damage(), for one base
 ## damage value within the weapon's range.
 ## v4.8: damage = base x (1 + Strength%) x MV x increased x more, for every
-## damage type.
+## damage type. v4.10: x this weapon's local increased Weapon Damage too.
 func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 	var damage_type: Constants.DamageType = infused_damage_type if infused_damage_type != -1 else native_damage_type
-	var boosted_base := base * (1.0 + stat_sheet.get_strength_weapon_multiplier())
+	var boosted_base := base * (1.0 + stat_sheet.get_strength_weapon_multiplier()) * get_local_multiplier("local_increased_weapon_damage")
 	# Section 10's Chain Bonus System, stored as a raw fraction on StatSheet,
 	# converted to the percent-units DamageCalculator.calculate() expects
 	# (each entry "e.g. 8.0 for 8%").
@@ -163,7 +178,7 @@ func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dicti
 	)
 	return {
 		"base_damage": result.final_damage,
-		"crit_chance": DamageCalculator.get_crit_chance(get_base_crit_chance(), stat_sheet.finesse_crit_bonus),
+		"crit_chance": DamageCalculator.get_crit_chance(get_local_crit_chance(), stat_sheet.finesse_crit_bonus),
 		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus()),
 	}
 

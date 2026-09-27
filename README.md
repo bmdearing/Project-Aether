@@ -476,9 +476,15 @@ cast rolls the equipped Conduit's spell power within
 `spell_power_min`..`spell_power_max` (`Weapon`/`Ability.roll_damage()`);
 stats, motion value, chain bonus and crit apply on top. The old single
 per-drop roll (`rolled_base_damage`/`rolled_spell_power`) is unused.
-Weapon cards show "X Damage: min to max" (the range with the current
-Strength multiplier, in a darker grey, per damage type present -
-`ItemCard._build_attack_power_lines()`); spell cards show the same for a
+Weapon cards show "X Damage: min to max → boosted min to max" per damage
+type present - the raw range in white, then (blue) with Strength and the
+weapon's local increased Weapon Damage applied (`ItemCard.
+_build_attack_power_lines()`). Crit Chance/Spell Power/Attack Speed/Cast
+Speed use the same white → blue pattern when a **local mod** changes them
+(v4.10, `local_*` stat keys in `data/affixes/weapons/generic|conduit/`:
+local Weapon Damage and Crit apply to that weapon's own hits via
+`Weapon._base_hit()`; local Attack Speed/Spell Damage/Cast Speed are
+display-only so far). Spell cards show the same for a
 cast (`Ability.predict_damage_range()`), or "requires a Conduit"; the
 character screen's Main Hand/Offhand Damage shows the per-hit range at
 that weapon's motion value.

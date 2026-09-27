@@ -49,36 +49,50 @@ float fbm(vec2 p) {
 	return total;
 }
 
+// True if the neighboring cell at `offset` (in cells) holds the same Slate
+// color - i.e. this edge is interior to a Slate (or a same-tag neighbor,
+// which FateBoardGrid._draw_walls() still separates with a wall line).
+bool same_neighbor(vec2 cell_id, vec2 offset, vec3 rgb) {
+	vec4 n = texture(cell_data, (cell_id + offset + 0.5) / grid_size);
+	return n.a >= 0.5 && distance(n.rgb, rgb) < 0.01;
+}
+
 void fragment() {
 	vec4 cell = texture(cell_data, UV);
 	if (cell.a < 0.5) {
 		discard;
 	}
 
-	vec2 cell_id = floor(UV * grid_size);
-	vec2 cell_uv = fract(UV * grid_size);
-	// Per-cell phase offset so a run of same-tag Slates doesn't scroll as
-	// one flat blob - each cell's nebula drifts on its own cycle.
-	float phase = hash21(cell_id) * 20.0;
-	vec2 flow_a = vec2(TIME * scroll_speed + phase, -TIME * scroll_speed * 0.7 + phase);
-	vec2 flow_b = vec2(-TIME * scroll_speed * 0.5 - phase, TIME * scroll_speed * 0.9 - phase);
+	// v4.10: noise and stars are sampled in board-space coordinates (not
+	// per-cell local UV with a per-cell phase), so the nebula flows
+	// continuously across a Slate's cells instead of showing a seam - the
+	// "grid lines inside a Slate".
+	vec2 board_pos = UV * grid_size;
+	vec2 cell_id = floor(board_pos);
+	vec2 cell_uv = fract(board_pos);
+	vec2 flow_a = vec2(TIME * scroll_speed, -TIME * scroll_speed * 0.7);
+	vec2 flow_b = vec2(-TIME * scroll_speed * 0.5, TIME * scroll_speed * 0.9);
 
-	float n1 = fbm(cell_uv * 3.2 + flow_a);
-	float n2 = fbm(cell_uv * 5.0 + flow_b);
+	float n1 = fbm(board_pos * 3.2 + flow_a);
+	float n2 = fbm(board_pos * 5.0 + flow_b);
 	float nebula = clamp(mix(n1, n2, 0.5), 0.0, 1.0);
 
 	vec3 base = cell.rgb;
 	vec3 shade = base * (0.5 + 0.75 * nebula);
 
-	// Soft per-cell vignette so individual tiles read distinctly even
-	// when several of the same tag sit edge to edge.
-	float edge_dist = min(min(cell_uv.x, 1.0 - cell_uv.x), min(cell_uv.y, 1.0 - cell_uv.y));
+	// Soft vignette on the Slate's OUTER border only - edges shared with a
+	// same-colored neighbor get none, so a Slate reads as one shape.
+	float edge_dist = 1.0;
+	if (!same_neighbor(cell_id, vec2(-1.0, 0.0), base)) edge_dist = min(edge_dist, cell_uv.x);
+	if (!same_neighbor(cell_id, vec2(1.0, 0.0), base)) edge_dist = min(edge_dist, 1.0 - cell_uv.x);
+	if (!same_neighbor(cell_id, vec2(0.0, -1.0), base)) edge_dist = min(edge_dist, cell_uv.y);
+	if (!same_neighbor(cell_id, vec2(0.0, 1.0), base)) edge_dist = min(edge_dist, 1.0 - cell_uv.y);
 	shade *= mix(0.55, 1.0, smoothstep(0.0, 0.18, edge_dist));
 
 	// Sparse twinkling stars, per user reference image's starfield.
-	vec2 star_grid = cell_uv * 8.0 + cell_id * 3.7;
+	vec2 star_grid = board_pos * 8.0;
 	vec2 star_cell = floor(star_grid);
-	float star_seed = hash21(star_cell + cell_id);
+	float star_seed = hash21(star_cell);
 	float star_present = step(0.93, star_seed);
 	float twinkle = 0.5 + 0.5 * sin(TIME * 2.5 + star_seed * 60.0);
 	vec2 star_local = fract(star_grid) - 0.5;
