@@ -199,6 +199,7 @@ func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 	_add_title(ability.display_name, element_color)
 	_add_subtitle("Ability - %s (Rank %d/%d)" % [Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "?"), ability.rank, Ability.MAX_RANK])
 	_add_separator()
+	_add_spell_damage_line(ability, stat_sheet if stat_sheet else _stat_sheet_for_card())
 	_add_stat_line("Cast Type: %s" % _get_cast_type_label(ability))
 	_add_stat_line("Cooldown: %.1fs" % ability.get_effective_cooldown())
 	_add_stat_line("Mana Cost: %.0f" % ability.resource_cost)
@@ -212,6 +213,20 @@ func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 	if ability.description != "":
 		_add_separator()
 		_add_flavor(ability.description)
+
+## "<Type> Damage: min to max" per cast (non-crit) from the equipped
+## Conduit's spell power range - Ability.predict_damage_range(). Skipped for
+## non-damaging abilities (motion value 0, e.g. Blink/Purge).
+func _add_spell_damage_line(ability: Ability, stat_sheet: StatSheet) -> void:
+	if ability.motion_value <= 0.0 or stat_sheet == null:
+		return
+	var label := "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "?")
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+	if stat_sheet.conduit_spell_power_range.y <= 0.0:
+		_add_mod_line("%s: requires a Conduit" % label, REQUIREMENT_UNMET_COLOR)
+		return
+	var range := ability.predict_damage_range(stat_sheet)
+	_add_attack_power_line({"label": label, "min": range.x, "max": range.y, "color": color})
 
 func _get_cast_type_label(ability: Ability) -> String:
 	match ability.cast_type:
@@ -337,41 +352,37 @@ func _stat_sheet_for_card() -> StatSheet:
 		return player.stat_sheet
 	return GameState.player_stat_sheet as StatSheet
 
-## v4.8: "<Type> Damage: base -> boosted" - the weapon's own base damage,
-## then that base with the current Strength multiplier applied (Weapon.
-## _base_hit()'s boosted_base), both in WEAPON_DAMAGE_VALUE_COLOR. Primary damage type always shown;
-## extra lines only for a "gain_as_damage" affix (forward-compat - no
-## ItemRoller.AFFIX_POOL entry produces one yet).
+## "<Type> Damage: min to max" - the per-hit base damage range with the
+## current Strength multiplier applied (what Weapon.roll_damage() rolls
+## within, before motion value/chain bonus/crit). Primary damage type
+## always shown; extra lines only for a "gain_as_damage" affix (forward-
+## compat - no ItemRoller.AFFIX_POOL entry produces one yet).
 func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
 	var lines := []
-	var base := weapon.get_base_damage()
 	var str_mult := 1.0 + (stat_sheet.get_strength_weapon_multiplier() if stat_sheet else 0.0)
+	var range := weapon.get_damage_range() * str_mult
 	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE)
 	lines.append({
 		"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?"),
-		"base": base,
-		"boosted": base * str_mult,
+		"min": range.x,
+		"max": range.y,
 		"color": primary_color,
 	})
 	for affix in weapon.affixes:
 		if affix.stat_key == "gain_as_damage" and affix.damage_type != -1:
-			var bonus_base := base * (affix.value / 100.0)
 			var color: Color = Constants.DAMAGE_TYPE_COLOR.get(affix.damage_type, Color.WHITE)
 			lines.append({
 				"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(affix.damage_type, "?"),
-				"base": bonus_base,
-				"boosted": bonus_base * str_mult,
+				"min": range.x * (affix.value / 100.0),
+				"max": range.y * (affix.value / 100.0),
 				"color": color,
 			})
 	# Shotguns: show what ONE pellet hits for, times the pellet count.
 	if weapon.is_ranged and weapon.pellet_count > 1:
 		for line in lines:
-			line["base"] = line["base"] / weapon.pellet_count
-			line["boosted"] = line["boosted"] / weapon.pellet_count
+			line["min"] = line["min"] / weapon.pellet_count
+			line["max"] = line["max"] / weapon.pellet_count
 			line["pellets"] = weapon.pellet_count
-	for line in lines:
-		line["base"] = snapped(line["base"], 0.1)
-		line["boosted"] = snapped(line["boosted"], 0.1)
 	return lines
 
 func _add_attack_power_line(line: Dictionary) -> void:
@@ -381,7 +392,7 @@ func _add_attack_power_line(line: Dictionary) -> void:
 	rtl.scroll_active = false
 	rtl.custom_minimum_size = Vector2(CARD_WIDTH, 0)
 	var label_color: Color = line["color"]
-	var values := "%s → %s" % [_format_num(line["base"]), _format_num(line["boosted"])]
+	var values := "%.0f to %.0f" % [line["min"], line["max"]]
 	if line.has("pellets"):
 		values += " x%d" % line["pellets"]
 	rtl.text = "[color=#%s]%s[/color]: [color=#%s]%s[/color]" % [
@@ -476,10 +487,7 @@ func _item_stat_lines(item: Item) -> Array[String]:
 	if item is Weapon:
 		var w := item as Weapon
 		if w.is_conduit:
-			if w.rolled_spell_power > 0.0:
-				lines.append("Spell Power: %.0f" % w.rolled_spell_power)
-			else:
-				lines.append("Spell Power: %.0f - %.0f" % [w.spell_power_min, w.spell_power_max])
+			lines.append("Spell Power: %.0f to %.0f" % [w.spell_power_min, w.spell_power_max])
 		if w.infused_damage_type != -1:
 			lines.append("Infused: %s" % Constants.DAMAGE_TYPE_NAME.get(w.infused_damage_type, "?"))
 		lines.append("Base Crit Chance: %.0f%%" % (w.get_base_crit_chance() * 100.0))

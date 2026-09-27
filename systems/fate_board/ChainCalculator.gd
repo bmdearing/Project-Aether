@@ -78,8 +78,8 @@ static func bonus_by_tag(chains: Array[ChainResult]) -> Dictionary:
 ## of the chain that Slate sits in). Only stat keys are amplified - every
 ## other modifier (damage%, ailment chance, auto-cast...) is read elsewhere
 ## at its face value. A lone Slate is its own chain (its own tile count),
-## same as for the damage chain bonus. Replaces FateBoard.
-## compute_stat_bonuses() (unamplified) as Player's source for slate_bonus.
+## same as for the damage chain bonus - intended (user decision). Player's
+## only source for StatSheet.slate_bonus.
 static func slate_stat_bonuses(board: FateBoard, chains: Array[ChainResult]) -> Dictionary:
 	var chain_bonus_by_placement := {}
 	for result in chains:

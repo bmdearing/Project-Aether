@@ -78,12 +78,13 @@ func can_upgrade() -> bool:
 func get_upgrade_cost() -> int:
 	return UPGRADE_BASE_COST + rank * UPGRADE_COST_PER_RANK
 
-## Shared groundwork for predict_damage()/roll_damage() - see
-## Weapon.gd's own _base_hit() for the same split rationale.
+## Shared groundwork for predict_damage()/roll_damage(), for one spell
+## power value within the equipped Conduit's range (StatSheet.
+## conduit_spell_power_range) - see Weapon.gd's own _base_hit().
 ## v4.8: damage = Conduit spell power x (1 + Intellect%) x grade multiplier
 ## x MV x increased x more, for every damage type. No Conduit equipped
-## (conduit_spell_power 0.0) means 0 spell damage - intended (user decision).
-func _base_hit(stat_sheet: StatSheet) -> Dictionary:
+## (range 0-0) means 0 spell damage - intended (user decision).
+func _base_hit(spell_power: float, stat_sheet: StatSheet) -> Dictionary:
 	# Section 10's Chain Bonus System, stored as a raw fraction on StatSheet,
 	# converted to the percent-units DamageCalculator.calculate() expects
 	# (each entry "e.g. 8.0 for 8%").
@@ -93,7 +94,7 @@ func _base_hit(stat_sheet: StatSheet) -> Dictionary:
 	# calculate()'s power term is base + stat_value x grade. Feeding the
 	# boosted spell power in as stat_value (base 0.0) makes it spell power x
 	# grade - the grade multiplies spell power rather than adding to it.
-	var boosted_spell_power := stat_sheet.conduit_spell_power * (1.0 + stat_sheet.get_spell_power_from_stats())
+	var boosted_spell_power := spell_power * (1.0 + stat_sheet.get_spell_power_from_stats())
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
 		0.0, get_effective_motion_value(), boosted_spell_power, scaling_grade,
 		0.5, increased, [], damage_type
@@ -114,17 +115,26 @@ func _base_hit(stat_sheet: StatSheet) -> Dictionary:
 		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus()),
 	}
 
-## Expected-value blend (not a random roll) - matches PlayerAbilityCast's
-## actual cast exactly, so the stat card can't drift from reality.
+## Expected-value blend (not a random roll): the spell power range's
+## midpoint (exact - damage is linear in it) with crit.
 func predict_damage(stat_sheet: StatSheet) -> float:
 	if stat_sheet == null:
 		return 0.0
-	var hit := _base_hit(stat_sheet)
+	var r := stat_sheet.conduit_spell_power_range
+	var hit := _base_hit((r.x + r.y) / 2.0, stat_sheet)
 	return DamageCalculator.get_expected_damage(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
 
-## Real-cast counterpart to predict_damage() - actually rolls crit.
+## Non-crit (min, max) a cast can deal - for cards.
+func predict_damage_range(stat_sheet: StatSheet) -> Vector2:
+	if stat_sheet == null:
+		return Vector2.ZERO
+	var r := stat_sheet.conduit_spell_power_range
+	return Vector2(_base_hit(r.x, stat_sheet)["base_damage"], _base_hit(r.y, stat_sheet)["base_damage"])
+
+## A real cast: rolls spell power within the Conduit's range, then crit.
 func roll_damage(stat_sheet: StatSheet) -> Dictionary:
 	if stat_sheet == null:
 		return {"final_damage": 0.0, "is_critical": false}
-	var hit := _base_hit(stat_sheet)
+	var r := stat_sheet.conduit_spell_power_range
+	var hit := _base_hit(randf_range(r.x, r.y), stat_sheet)
 	return DamageCalculator.apply_crit(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])

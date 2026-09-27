@@ -201,7 +201,7 @@ func _on_equipment_changed() -> void:
 	# primary weapon only (an offhand-slot Conduit doesn't contribute -
 	# user direction, keeps this simple rather than summing both slots).
 	var primary := equipment.primary_weapon
-	stat_sheet.set_conduit_spell_power(primary.get_spell_power() if primary and primary.is_conduit else 0.0)
+	stat_sheet.set_conduit_spell_power_range(primary.get_spell_power_range() if primary and primary.is_conduit else Vector2.ZERO)
 	_apply_derived_stats()
 	_update_shield_mesh()
 	_update_active_weapon_visual()

@@ -7,33 +7,32 @@ class_name Weapon
 
 @export var weapon_type: String = "Greatsword"
 
-## Patch v3.7 Section 5: a damage ROLL RANGE per base, not one fixed
-## number - rolled_base_damage is 0.0 until ItemRoller.roll() rolls a
-## real value within [base_damage_min, base_damage_max] on drop;
-## get_base_damage() falls back to the range's midpoint for anything not
-## yet rolled (a base .tres loaded directly, or a hand-authored single).
+## Per-hit damage range: every hit rolls its base damage uniformly within
+## [base_damage_min, base_damage_max] (roll_damage()). rolled_base_damage
+## (a single per-drop roll, Patch v3.7) is no longer used for damage -
+## kept only so older saves/.tres still load.
 @export var base_damage_min: float = 0.0
 @export var base_damage_max: float = 0.0
 @export var rolled_base_damage: float = 0.0
 
+func get_damage_range() -> Vector2:
+	return Vector2(base_damage_min, base_damage_max)
+
+## Average base damage (the range midpoint).
 func get_base_damage() -> float:
-	if rolled_base_damage > 0.0:
-		return rolled_base_damage
 	return (base_damage_min + base_damage_max) / 2.0
 
-## Same roll-range pattern, for a Conduit's "Spell Power" - the base
-## floor Ability._base_hit() adds to spell damage via StatSheet.
-## conduit_spell_power (see Player._on_equipment_changed()). Only
-## meaningful when is_conduit is true; 0/0 (and get_spell_power() ->
-## 0.0) for every non-Conduit weapon.
+## Same per-cast range for a Conduit's spell power, pushed into
+## StatSheet.conduit_spell_power_range by Player._on_equipment_changed()
+## and rolled per cast in Ability.roll_damage(). Only meaningful when
+## is_conduit is true; 0/0 for every non-Conduit weapon. rolled_spell_power
+## is unused, like rolled_base_damage.
 @export var spell_power_min: float = 0.0
 @export var spell_power_max: float = 0.0
 @export var rolled_spell_power: float = 0.0
 
-func get_spell_power() -> float:
-	if rolled_spell_power > 0.0:
-		return rolled_spell_power
-	return (spell_power_min + spell_power_max) / 2.0
+func get_spell_power_range() -> Vector2:
+	return Vector2(spell_power_min, spell_power_max)
 
 @export var scaling_grade: Constants.ScalingGrade = Constants.ScalingGrade.C
 @export var native_damage_type: Constants.DamageType = Constants.DamageType.KINETIC
@@ -141,12 +140,13 @@ func get_current_magazine() -> int:
 func get_base_crit_chance() -> float:
 	return Constants.WEAPON_BASE_CRIT_CHANCE.get(weapon_type, Constants.DEFAULT_BASE_CRIT_CHANCE)
 
-## Shared groundwork for predict_damage()/roll_damage().
+## Shared groundwork for predict_damage()/roll_damage(), for one base
+## damage value within the weapon's range.
 ## v4.8: damage = base x (1 + Strength%) x MV x increased x more, for every
 ## damage type.
-func _base_hit(motion_value: float, stat_sheet: StatSheet) -> Dictionary:
+func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 	var damage_type: Constants.DamageType = infused_damage_type if infused_damage_type != -1 else native_damage_type
-	var boosted_base := get_base_damage() * (1.0 + stat_sheet.get_strength_weapon_multiplier())
+	var boosted_base := base * (1.0 + stat_sheet.get_strength_weapon_multiplier())
 	# Section 10's Chain Bonus System, stored as a raw fraction on StatSheet,
 	# converted to the percent-units DamageCalculator.calculate() expects
 	# (each entry "e.g. 8.0 for 8%").
@@ -167,17 +167,25 @@ func _base_hit(motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus()),
 	}
 
-## Expected-value blend (not a random roll) so the stat card shows one
-## stable number instead of jittering on every hover.
+## Expected-value blend (not a random roll): the range midpoint (exact,
+## since damage is linear in base and the roll is uniform) with crit.
 func predict_damage(motion_value: float, stat_sheet: StatSheet) -> float:
 	if stat_sheet == null:
 		return 0.0
-	var hit := _base_hit(motion_value, stat_sheet)
+	var hit := _base_hit(get_base_damage(), motion_value, stat_sheet)
 	return DamageCalculator.get_expected_damage(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
 
-## Real-hit counterpart to predict_damage() - actually rolls crit.
+## Non-crit (min, max) a hit can deal at this motion value - for cards.
+func predict_damage_range(motion_value: float, stat_sheet: StatSheet) -> Vector2:
+	if stat_sheet == null:
+		return Vector2.ZERO
+	var r := get_damage_range()
+	return Vector2(_base_hit(r.x, motion_value, stat_sheet)["base_damage"], _base_hit(r.y, motion_value, stat_sheet)["base_damage"])
+
+## A real hit: rolls base damage within the range, then crit.
 func roll_damage(motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 	if stat_sheet == null:
 		return {"final_damage": 0.0, "is_critical": false}
-	var hit := _base_hit(motion_value, stat_sheet)
+	var r := get_damage_range()
+	var hit := _base_hit(randf_range(r.x, r.y), motion_value, stat_sheet)
 	return DamageCalculator.apply_crit(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])

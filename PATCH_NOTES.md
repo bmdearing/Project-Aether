@@ -7,6 +7,28 @@ there. Most recent first.
 
 ---
 
+## 2026-09-27 — Per-hit damage ranges (user request)
+
+Weapon and spell damage is now a real "min to max" range rolled on every hit, instead of one fixed number:
+- **Weapons:** `Weapon.roll_damage()` rolls the base damage uniformly within `base_damage_min`..`base_damage_max` each hit.
+- **Spells:** `Ability.roll_damage()` rolls the equipped Conduit's spell power within `spell_power_min`..`spell_power_max` each cast. `StatSheet.conduit_spell_power` became `conduit_spell_power_range` (a Vector2).
+- Stats, motion value, grade, chain bonus and crit apply on top as before.
+- `predict_damage()` uses the range midpoint. That's the exact average, since damage is linear in the base and the roll is uniform. The new `predict_damage_range()` returns the non-crit min/max for display.
+- **The per-drop roll is gone:** `ItemRoller` no longer rolls `rolled_base_damage`/`rolled_spell_power`. The fields stay only so older saves and `.tres` files still load. Two drops of the same base now share the same range; affixes differentiate them. Data check: all 651 weapons have min < max, and every Conduit has a spell power range.
+
+**Display:**
+- Weapon cards: "Kinetic Damage: 18 to 25" (the range x Strength, whole numbers, both in the grey from the earlier color change). This replaces "base → boosted".
+- Conduit cards: always "Spell Power: X to Y".
+- Spell cards get a damage line for the first time: "Cold Damage: 46 to 67" (per cast, non-crit, with the equipped Conduit), or "requires a Conduit". Non-damaging abilities (Blink, Purge) get none.
+- Character screen: Main Hand/Offhand Damage is now a range at that weapon's motion value.
+
+**Verified** (headless, 9 checks):
+- 3000 Greatsword hits span the full 17.5-24.5 range and stay inside it.
+- `predict_damage_range` matches.
+- Card text for the weapon, Conduit, spell with and without a Conduit, and Blink.
+- Spell casts never fall below the range minimum.
+- The character screen shows a range.
+
 ## 2026-09-24 — Implementation Brief v4.9: Post-Rewrite Cleanup + Slate Chain Stat Amplification
 
 Much of this brief was written against the pre-v4.8 code and had already been applied:
@@ -18,9 +40,9 @@ Much of this brief was written against the pre-v4.8 code and had already been ap
 - **`DamageCalculator.calculate()` lost its `mastery_bonus` parameter** (the brief now allows the signature change). `power = base + stat_value x grade_multiplier`. `mastery_bonus`/`effective_grade_multiplier` were dropped from `breakdown` (nothing read them); `DamageResult` is unchanged. Both callers (`Weapon`/`Ability._base_hit()`) were updated. The file header now describes how weapons and spells use the two halves of the power term.
 - **Supercharge removed:** `StatSheet.supercharged_stat`/`SUPERCHARGE_MULTIPLIER`, the `get_stat()` branch, and the character screen row. No `.tres` set it.
 - **Slate stats:** `MAIN_STAT_PER_TILE` 1.7 -> 0.6 and `RANDOM_STAT_PER_TILE` 0.8 -> 0.3. The new `ChainCalculator.slate_stat_bonuses(board, chains)` gives `Player` its `slate_bonus`. Each placed Slate's `flat_strength/agility/intellect` lines are multiplied by (1 + the bonus of the chain it's in), and every other modifier is untouched. The chain formula and `compute_chains()`/`bonus_by_tag()` output are unchanged.
-- **A lone Slate is its own chain.** The chain formula counts a Slate's own tiles, so an unconnected 11-tile Slate gets 11% (6.6 x 1.11 = 7.33), not the 0% the brief's second example assumed. This is kept consistent with the damage chain bonus, which has always counted lone Slates. To exempt unconnected Slates from stat amplification, add a `placement_ids.size() >= 2` check in `slate_stat_bonuses()`.
+- **A lone Slate is its own chain.** The chain formula counts a Slate's own tiles, so an unconnected 11-tile Slate gets 11% (6.6 x 1.11 = 7.33), not the 0% the brief's second example assumed. This is kept consistent with the damage chain bonus, which has always counted lone Slates. **Confirmed as intended (user decision).**
 - **Existing Slates keep their old values:** the per-tile cut only affects newly rolled Slates. The 7 hand-authored palette Slates (`.tres`, left alone per the brief) and Slates already in saves keep their 1.7/0.8-era values and now also get chain amplification on top.
-- `FateBoard.compute_stat_bonuses()` (unamplified) is now unused. It was left in place because the brief puts `FateBoard.gd` off-limits.
+- `FateBoard.compute_stat_bonuses()` (unamplified) was left unused at first because the brief put `FateBoard.gd` off-limits. **Follow-up (user decision): deleted as dead code.**
 - Weapon `_base_hit()` has the brief's scaling_grade comment; the `DAMAGE_TYPE_MAIN_STAT` mention in `weapon.gd` is gone.
 - **README** was updated: the stat section, per-point values, both damage formulas, Mastery/Supercharge removal, and Slate chain amplification. Several passages that had been stale since v3.8 were also fixed: Resilience is gear-only, and Debuff effectiveness is a flat 1.0 with no stat behind it.
 

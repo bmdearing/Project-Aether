@@ -3,11 +3,10 @@ class_name EquipmentComponent
 ## Holds a full gear loadout per Section 13 Equipment Slots. Attach to
 ## Player (or any future equippable actor) - same pattern as
 ## HealthComponent/WardComponent. compute_stat_bonuses() aggregates
-## flat_<stat> affixes (see ItemRoller.gd) into the six core stats per
-## Section 12 ("all stats come from gear..."). Slate stat contributions
-## now sum in too - see FateBoard.compute_stat_bonuses(), which reuses
-## AFFIX_STAT_KEYS below so a Slate modifier's stat_key means exactly
-## what a gear affix's does.
+## flat_<stat> affixes (see ItemRoller.gd) into the three core stats.
+## Slate stat contributions sum in separately - see ChainCalculator.
+## slate_stat_bonuses(), which reuses AFFIX_STAT_KEYS below so a Slate
+## modifier's stat_key means exactly what a gear affix's does.
 
 @export var helmet: Armor
 @export var body_armour: Armor

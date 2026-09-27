@@ -290,14 +290,8 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 	var item: Item = base.duplicate(true)
 	item.item_id = "%s_rolled_%d" % [base.item_id, randi()]
 
-	# Patch v3.7 Section 5: roll a real value within the base's own damage/
-	# spell power range, same "the base is a range, the drop is a point
-	# within it" pattern affix values already use.
-	if item is Weapon:
-		var weapon := item as Weapon
-		weapon.rolled_base_damage = randf_range(weapon.base_damage_min, weapon.base_damage_max)
-		if weapon.is_conduit:
-			weapon.rolled_spell_power = randf_range(weapon.spell_power_min, weapon.spell_power_max)
+	# No per-drop damage/spell power roll: a weapon's base range is rolled
+	# per hit instead (Weapon.roll_damage()/Ability.roll_damage()).
 
 	# Patch v3.8 Section 3: how many of the base's own max_sockets this
 	# specific drop actually has - 0 to max_sockets inclusive, same "the

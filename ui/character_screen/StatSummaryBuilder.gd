@@ -93,7 +93,8 @@ static func _predict_damage(player: Player, slot: Constants.EquipmentSlot) -> St
 	if weapon == null:
 		return "None equipped"
 	var motion_value: float = player.ranged_attack.base_motion_value if weapon.is_ranged else player.melee_attack._effective_motion_value(weapon)
-	return "%.1f" % weapon.predict_damage(motion_value, player.stat_sheet)
+	var range := weapon.predict_damage_range(motion_value, player.stat_sheet)
+	return "%.0f to %.0f" % [range.x, range.y]
 
 static func _crit_summary(player: Player, slot: Constants.EquipmentSlot) -> String:
 	var weapon := _weapon_in(player, slot)

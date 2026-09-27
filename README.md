@@ -470,11 +470,18 @@ entirely) - that version's own "release Alt closes it, unless the mouse
 is over the card" hold behavior is gone along with it; Alt Info has
 nothing to hover onto since it's the same card, not a second window.
 
-**Weapon cards show a real Damage breakdown** ("X Damage: base →
-boosted", v4.8) instead of a flat number - base value, then the value
-with the current Strength multiplier applied, both in the same darker
-grey, per damage type present (`ItemCard._build_attack_power_lines()`, mirrors
-`Weapon._base_hit()`'s own formula so it can't drift from a real swing).
+**Damage is a per-hit range.** Every weapon hit rolls its base damage
+uniformly within `base_damage_min`..`base_damage_max`, and every spell
+cast rolls the equipped Conduit's spell power within
+`spell_power_min`..`spell_power_max` (`Weapon`/`Ability.roll_damage()`);
+stats, motion value, chain bonus and crit apply on top. The old single
+per-drop roll (`rolled_base_damage`/`rolled_spell_power`) is unused.
+Weapon cards show "X Damage: min to max" (the range with the current
+Strength multiplier, in a darker grey, per damage type present -
+`ItemCard._build_attack_power_lines()`); spell cards show the same for a
+cast (`Ability.predict_damage_range()`), or "requires a Conduit"; the
+character screen's Main Hand/Offhand Damage shows the per-hit range at
+that weapon's motion value.
 Scaling Grade moved to Alt Info; the old socket-count text line was
 replaced with real socket art (small filled/outline circles, `ItemCard.
 SocketRow`) - `Item.sockets` (Patch v3.8, how many of an item type's
