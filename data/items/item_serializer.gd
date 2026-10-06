@@ -40,15 +40,7 @@ static func to_dict(item: Item) -> Dictionary:
 		return {}
 	var affixes := []
 	for affix in item.affixes:
-		affixes.append({
-			"description": affix.description,
-			"stat_key": affix.stat_key,
-			"value": affix.value,
-			"value_min": affix.value_min,
-			"value_max": affix.value_max,
-			"tier": affix.tier,
-			"is_prefix": affix.is_prefix,
-		})
+		affixes.append(affix_to_dict(affix))
 	var d := {
 		"class": _class_tag(item),
 		"item_id": item.item_id,
@@ -59,14 +51,21 @@ static func to_dict(item: Item) -> Dictionary:
 		"flavor_text": item.flavor_text,
 		"icon_path": item.icon_path,
 		"affixes": affixes,
-		"cleave_count": item.cleave_count,
-		"sealed_tags": item.sealed_tags,
 		"is_corrupted": item.is_corrupted,
 		"is_craftable": item.is_craftable,
+		"sockets": item.sockets,
+		"sockets_rolled": item.sockets_rolled,
+		"quality": item.quality,
+		"tolerance": item.tolerance,
+		"tolerance_max": item.tolerance_max,
+		"active_edict": String(item.active_edict.id) if item.active_edict else "",
 	}
-	if item is Brand:
-		d["brand_function"] = item.brand_function
-		d["category_tag"] = item.category_tag
+	if item is SkillTome:
+		d["ability_id"] = item.ability_id
+		d["ability_path"] = item.ability_path
+	elif item is AmmoPack:
+		d["ammo_type"] = item.ammo_type
+		d["amount"] = item.amount
 	elif item is FigmentItem:
 		d["tier"] = item.tier
 		d["enemy_damage_multiplier"] = item.enemy_damage_multiplier
@@ -111,8 +110,9 @@ static func from_dict(d: Dictionary) -> Item:
 		"Weapon": item = Weapon.new()
 		"Armor": item = Armor.new()
 		"Shield": item = Shield.new()
-		"Brand": item = Brand.new()
 		"FigmentItem": item = FigmentItem.new()
+		"SkillTome": item = SkillTome.new()
+		"AmmoPack": item = AmmoPack.new()
 		_: item = Item.new()
 
 	item.item_id = d.get("item_id", "")
@@ -122,30 +122,24 @@ static func from_dict(d: Dictionary) -> Item:
 	item.max_sockets = d.get("max_sockets", 0)
 	item.flavor_text = d.get("flavor_text", "")
 	item.icon_path = d.get("icon_path", "")
-	item.cleave_count = d.get("cleave_count", 0)
-	var sealed: Array[String] = []
-	for tag in d.get("sealed_tags", []):
-		sealed.append(str(tag))
-	item.sealed_tags = sealed
 	item.is_corrupted = d.get("is_corrupted", false)
 	item.is_craftable = d.get("is_craftable", true)
 
 	var affixes: Array[ItemAffix] = []
 	for a in d.get("affixes", []):
-		var affix := ItemAffix.new()
-		affix.description = migrate_stat_text(a.get("description", ""))
-		affix.stat_key = migrate_stat_key(a.get("stat_key", ""))
-		affix.value = a.get("value", 0.0)
-		affix.value_min = a.get("value_min", 0.0)
-		affix.value_max = a.get("value_max", 0.0)
-		affix.tier = a.get("tier", 0)
-		affix.is_prefix = a.get("is_prefix", true)
-		affixes.append(affix)
+		affixes.append(affix_from_dict(a))
 	item.affixes = affixes
+	item.sockets = d.get("sockets", 0)
+	item.sockets_rolled = d.get("sockets_rolled", false)
+	item.quality = d.get("quality", 0)
+	read_craft_state(item, d)
 
-	if item is Brand:
-		item.brand_function = d.get("brand_function", 0)
-		item.category_tag = d.get("category_tag", "")
+	if item is SkillTome:
+		item.ability_id = d.get("ability_id", "")
+		item.ability_path = d.get("ability_path", "")
+	elif item is AmmoPack:
+		item.ammo_type = int(d.get("ammo_type", 0))
+		item.amount = int(d.get("amount", 0))
 	elif item is FigmentItem:
 		item.tier = d.get("tier", 1)
 		item.enemy_damage_multiplier = d.get("enemy_damage_multiplier", 1.0)
@@ -190,14 +184,87 @@ static func from_dict(d: Dictionary) -> Item:
 	return item
 
 static func _class_tag(item: Item) -> String:
+	if item is SkillTome:
+		return "SkillTome"
+	if item is AmmoPack:
+		return "AmmoPack"
 	if item is Weapon:
 		return "Weapon"
 	if item is Armor:
 		return "Armor"
 	if item is Shield:
 		return "Shield"
-	if item is Brand:
-		return "Brand"
 	if item is FigmentItem:
 		return "FigmentItem"
 	return "Item"
+
+## Orb-crafting fields shared with SlateSerializer. Saves from before
+## tolerance existed get a fresh roll.
+static func read_craft_state(target: Resource, d: Dictionary) -> void:
+	if d.has("tolerance"):
+		target.tolerance = d["tolerance"]
+		target.tolerance_max = d.get("tolerance_max", d["tolerance"])
+	else:
+		CraftingResolver.roll_tolerance(target)
+	var edict_id: String = d.get("active_edict", "")
+	if edict_id != "" and ResourceLoader.exists(CraftingResolver.EDICTS_DIR + edict_id + ".tres"):
+		target.active_edict = load(CraftingResolver.EDICTS_DIR + edict_id + ".tres")
+
+static func affix_to_dict(affix: ItemAffix) -> Dictionary:
+	return {
+		"description": affix.description,
+		"stat_key": affix.stat_key,
+		"value": affix.value,
+		"value_min": affix.value_min,
+		"value_max": affix.value_max,
+		"tier": affix.tier,
+		"is_prefix": affix.is_prefix,
+		"modifier_id": String(affix.modifier_id),
+		"group": String(affix.group),
+		"anchored": affix.anchored,
+		"affix_id": affix.affix_id,
+		"damage_type": affix.damage_type,
+		"is_generic": affix.is_generic,
+		"is_local": affix.is_local,
+		"is_implicit": affix.is_implicit,
+	}
+
+static func affix_from_dict(a: Dictionary) -> ItemAffix:
+	var affix := ItemAffix.new()
+	affix.description = migrate_stat_text(a.get("description", ""))
+	affix.stat_key = migrate_stat_key(a.get("stat_key", ""))
+	affix.value = a.get("value", 0.0)
+	affix.value_min = a.get("value_min", 0.0)
+	affix.value_max = a.get("value_max", 0.0)
+	affix.tier = a.get("tier", 0)
+	affix.is_prefix = a.get("is_prefix", true)
+	affix.modifier_id = StringName(a.get("modifier_id", ""))
+	affix.group = StringName(a.get("group", ""))
+	affix.anchored = a.get("anchored", false)
+	affix.affix_id = a.get("affix_id", "")
+	affix.damage_type = int(a.get("damage_type", -1))
+	affix.is_generic = a.get("is_generic", false)
+	affix.is_local = a.get("is_local", false)
+	affix.is_implicit = a.get("is_implicit", false)
+	affix.def = CraftingResolver.find_def(affix.modifier_id)
+	return affix
+
+## Old Cube Brand (removed in Rev2) item_id -> the currency it becomes when
+## a save holding one loads.
+const LEGACY_BRAND_CURRENCY := {
+	"impel": &"brand_kinetic", "lancet": &"brand_piercing", "deflagrate": &"brand_explosive",
+	"calcine": &"brand_fire", "quench": &"brand_cold", "galvanic": &"brand_lightning",
+	"invoke": &"brand_aetheric", "efface": &"brand_entropic", "hollow": &"brand_pale",
+	"anneal": &"brand_armor", "attenuate": &"brand_evasion", "occlude": &"brand_ward",
+	"temper": &"brand_resistance", "inure": &"brand_resilience",
+	"distill": &"brand_mana", "inscribe": &"brand_spell", "hone": &"brand_attack", "quicken": &"brand_speed",
+	"render": &"recasting", "refine": &"tempering", "cleave": &"anchoring", "excise": &"severance",
+	"bore": &"opening", "rectify": &"reckoning", "sever": &"absolution", "binder": &"brand_preservation",
+}
+
+## True if this saved item is an old Cube Brand (see legacy_brand_currency()).
+static func is_legacy_brand(d: Dictionary) -> bool:
+	return d.get("class", "") == "Brand"
+
+static func legacy_brand_currency(d: Dictionary) -> StringName:
+	return LEGACY_BRAND_CURRENCY.get(d.get("item_id", ""), &"")

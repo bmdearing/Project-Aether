@@ -20,6 +20,9 @@ const BOB_HEIGHT := 0.15
 ## gear - see Slate.gd), so it needs its own field rather than reusing
 ## `item`. Set exactly one of `item`/`slate` per pickup.
 @export var slate: Slate
+## Crafting currency (Orb/Brand/Edict id) and how many; set instead of item/slate.
+@export var currency_id: StringName = &""
+@export var currency_count: int = 1
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
@@ -31,6 +34,8 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	if item:
 		_apply_color(Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE))
+	elif currency_id != &"":
+		_apply_color(InventoryGridView.CURRENCY_COLOR)
 	elif slate:
 		_apply_color(Constants.SLATE_RARITY_COLOR.get(slate.rarity, Color.WHITE))
 
@@ -48,8 +53,18 @@ func _process(delta: float) -> void:
 func _on_body_entered(body: Node3D) -> void:
 	if not (body is Player):
 		return
+	if currency_id != &"":
+		var leftover := GameState.inventory.add(currency_id, currency_count)
+		if leftover > 0:
+			currency_count = leftover
+			EventBus.inventory_full.emit(null)
+			return
+		queue_free()
+		return
 	if slate:
-		GameState.owned_slates.append(slate)
+		if not GameState.add_to_inventory(slate):
+			EventBus.inventory_full.emit(slate)
+			return
 		EventBus.slate_picked_up.emit(slate)
 		queue_free()
 		return
@@ -66,6 +81,8 @@ func _on_body_entered(body: Node3D) -> void:
 			GameState.owned_ability_ids.append(tome.ability_id)
 		EventBus.tome_picked_up.emit(tome)
 	else:
-		GameState.owned_loot.append(item)
+		if not GameState.add_to_inventory(item):
+			EventBus.inventory_full.emit(item)
+			return
 		EventBus.loot_picked_up.emit(item)
 	queue_free()

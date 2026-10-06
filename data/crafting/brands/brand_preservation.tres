@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="BrandDef" format=3]
+
+[ext_resource type="Script" path="res://data/crafting/brand_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"brand_preservation"
+tags = Array[StringName]([])
+positional = 0
+is_preservation = true

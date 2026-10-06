@@ -31,6 +31,25 @@ class_name Slate
 ## prompts for which owned Ability to bind before allowing placement.
 @export var requires_spell_designation: bool = false
 
+## Orb crafting state - same meaning as the matching Item fields. modifiers
+## above are the tile-derived lines; explicits are the crafted ones.
+@export var explicits: Array[ItemAffix] = []
+@export var tolerance: int = 0
+@export var tolerance_max: int = 0
+@export var active_edict: EdictDef
+@export var is_corrupted: bool = false
+
+## Lowercase tag names the Orb crafting system matches Category Brands against.
+func get_slate_tags() -> Array[StringName]:
+	var tags: Array[StringName] = []
+	if category_tag_override != "":
+		tags.append(StringName(category_tag_override.to_lower()))
+	else:
+		tags.append(StringName(Constants.DAMAGE_TYPE_NAME.get(tag, "").to_lower()))
+	if is_hybrid:
+		tags.append(StringName(Constants.DAMAGE_TYPE_NAME.get(secondary_tag, "").to_lower()))
+	return tags
+
 func get_size() -> int:
 	return shape_cells.size()
 

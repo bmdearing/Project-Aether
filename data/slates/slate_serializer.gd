@@ -17,6 +17,9 @@ static func to_dict(slate: Slate) -> Dictionary:
 			"value_max": modifier.value_max,
 			"is_more_multiplier": modifier.is_more_multiplier,
 		})
+	var explicits := []
+	for affix in slate.explicits:
+		explicits.append(ItemSerializer.affix_to_dict(affix))
 	var shape := []
 	for cell in slate.shape_cells:
 		shape.append([cell.x, cell.y])
@@ -32,6 +35,11 @@ static func to_dict(slate: Slate) -> Dictionary:
 		"rarity": slate.rarity,
 		"implicit_flavor_text": slate.implicit_flavor_text,
 		"modifiers": modifiers,
+		"explicits": explicits,
+		"is_corrupted": slate.is_corrupted,
+		"tolerance": slate.tolerance,
+		"tolerance_max": slate.tolerance_max,
+		"active_edict": String(slate.active_edict.id) if slate.active_edict else "",
 	}
 
 static func from_dict(d: Dictionary) -> Slate:
@@ -69,5 +77,12 @@ static func from_dict(d: Dictionary) -> Slate:
 		modifier.is_more_multiplier = m.get("is_more_multiplier", false)
 		modifiers.append(modifier)
 	slate.modifiers = modifiers
+
+	var explicits: Array[ItemAffix] = []
+	for a in d.get("explicits", []):
+		explicits.append(ItemSerializer.affix_from_dict(a))
+	slate.explicits = explicits
+	slate.is_corrupted = d.get("is_corrupted", false)
+	ItemSerializer.read_craft_state(slate, d)
 
 	return slate

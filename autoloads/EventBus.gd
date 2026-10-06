@@ -55,28 +55,18 @@ signal figment_completed(figment: FigmentItem)
 
 signal loot_dropped(item: Item, at_position: Vector3)
 signal loot_picked_up(item: Item)
+## A pickup stayed on the ground because the carried inventory had no room.
+signal inventory_full(content: Resource)
 signal slate_dropped(slate: Slate, at_position: Vector3)
 signal slate_picked_up(slate: Slate)
 signal tome_picked_up(tome: SkillTome)
 signal gold_picked_up(amount: int)
 signal throwable_used(throwable_type: String)
 
-## Patch v3.6 - Cube/Corruption. Only signals with a real emit site are
-## added (CraftingSystem.gd/CorruptionSystem.gd) - the brief's own
-## *_selection_requested/item_reroll_requested signals assumed a signal-
-## driven UI flow that doesn't match this project's actual CraftingScreen
-## (which already handles affix selection directly via
-## _selected_affix_index, and rerolls in place rather than requesting one
-## asynchronously), so they're skipped as dead additions nothing would
-## ever listen to.
-signal brand_consumed(brand_id: String)
-## Patch v3.8c - Hub Brand Shop. No listener exists yet for either (same
-## "real emit site, no consumer required" footing brand_consumed itself
-## started from) - BrandShop.gd is the one real emit site for both.
-signal brand_purchased(brand_id: String)
+## Crafting and corruption.
 signal gold_spent(amount: int)
 signal item_quality_changed(item: Item)
-signal item_rarity_changed(item: Item)  # Patch v3.9 - fired by CraftingSystem._update_item_rarity() when affix-count-driven rarity actually changes
+signal item_rarity_changed(item: Item)  # an Orb changed an item's rarity (CraftingResolver.apply())
 signal item_sockets_changed(item: Item)
 signal item_stats_changed(item: Item)
 signal affix_upgraded(item: Item, affix: ItemAffix)
@@ -111,3 +101,12 @@ signal enemy_count_changed(remaining: int, total: int)
 ## reduced by Deflection Mitigation (still lands).
 signal hit_dodged(defender: Node)
 signal hit_deflected(defender: Node)
+
+## Orb crafting (CraftingResolver). item is an Item or a Slate.
+signal craft_completed(item: Resource, result: CraftResult)
+signal craft_failed(item: Resource, error: int, message: String)
+
+## Portals (GeneratedMap). opened: the T-key portal appeared in a map;
+## returned: the player came back into a saved map through the Hub portal.
+signal portal_opened(position: Vector3)
+signal portal_returned

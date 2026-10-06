@@ -133,7 +133,7 @@ func _scan_behaviors() -> void:
 	dir.list_dir_end()
 
 func _physics_process(_delta: float) -> void:
-	if Input.is_action_just_pressed("stance"):
+	if Input.is_action_just_pressed("stance") and not _player.is_input_blocked():
 		_enter_stance()
 	elif Input.is_action_just_released("stance"):
 		_exit_stance()

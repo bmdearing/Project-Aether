@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="EdictDef" format=3]
+
+[ext_resource type="Script" path="res://data/crafting/edict_def.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"edict_prefix"
+locks = 1
+excludes_tags = Array[StringName]([])

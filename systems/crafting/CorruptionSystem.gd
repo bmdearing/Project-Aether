@@ -43,17 +43,9 @@ static func corrupt(item: Item, power_level: int = 1) -> CorruptionOutcome:
 	var tier := _roll_tier()
 	var outcome := _roll_outcome(tier, item, power_level)
 	item.is_corrupted = true
-	# Section 20 Shard of Tharsis: "Every corruption attempt has an
-	# independent % chance to retain craftable/corruptible status" - this
-	# existing gate (Item.is_craftable, already wired into the Cube too)
-	# stays alongside the brief's own tiered-outcome model rather than
-	# being replaced by it; the brief's own corrupt() only checked
-	# is_corrupted, not this separate, already-integrated restriction.
-	# Referenced inline (not a top-level const) to avoid a circular
-	# const-evaluation dependency with CraftingSystem.gd, which now calls
-	# into this class too.
-	if randf() >= CraftingSystem.RETAIN_CRAFTABLE_CHANCE:
-		item.is_craftable = false
+	# Rev2: a corrupted item can't be crafted further (Orbs gate on
+	# is_corrupted; the legacy Cube gates on is_craftable).
+	item.is_craftable = false
 	EventBus.corruption_applied.emit(item, outcome.outcome_name, outcome.tier)
 	return outcome
 

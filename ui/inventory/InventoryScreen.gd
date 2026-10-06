@@ -1,49 +1,10 @@
 extends CanvasLayer
 class_name InventoryScreen
-## Slot-based grid inventory (uniform 1x1 cells, not the Tetris Satchel -
-## see README) + paper-doll equipment diagram + a live stats column
-## (StatSummaryBuilder, shared with CharacterScreen) so equipping
-## something visibly changes stats in place. Placeholder-art: every slot
-## is a colored square, not an icon - hovering shows a stat card
-## (ItemSlotButton), holding Alt shows an advanced one (AdvancedTooltip).
-##
-## "Owned" items are directory-scanned from data/{armor,shields,weapons,
-## items}/instances/ once at _ready() (as if the player owns one of
-## each hand-authored base) plus GameState.owned_loot (real rolled
-## drops), rebuilt every time this screen opens since loot can arrive
-## mid-session. Anything currently equipped is excluded from the grid -
-## it shows on the paper-doll instead, not in both places.
-##
-## The grid is rearrangeable: dragging a slot onto an EMPTY slot moves it
-## to that exact cell, full stop - every other item stays exactly where
-## it was (no compacting, no shifting). Dragging onto an OCCUPIED slot
-## swaps the two. This needs real per-cell position tracking
-## (`_slot_assignment`, keyed per entry - see below) since a plain ordered
-## list (which is all GameState.owned_loot ever was) can't represent "my
-## armor sits in the far corner with empty cells before it." Position is
-## saved with the game (v4.7) - GameState.owned_loot
-## itself is untouched by dragging, only which grid cell each entry
-## RENDERS in. Only real owned_loot entries are draggable - the
-## directory-scanned "one of each base" catalog always sits first and
-## can't be picked up or targeted, since its scan order isn't something
-## the player actually owns to rearrange. Brand stacks (identical Brand
-## duplicates - fungible crafting currency, not unique rolled gear) show
-## as one slot with a count and drag/drop as a whole group.
-##
-## Brands and the 3 crafting consumables (data/consumables/) aren't
-## equippable - clicking one shows a status message instead of trying to
-## equip it (equip_slot on those is a meaningless leftover default, same
-## as FigmentItem's own doc comment already notes for Maps).
-
-const ITEM_INSTANCE_DIRS := [
-	"res://data/armor/instances/",
-	"res://data/shields/instances/",
-	"res://data/weapons/instances/",
-	"res://data/items/instances/",
-]
-
-const GRID_COLUMNS := 5
-const GRID_MIN_CAPACITY := 35  # pads with empty cells so it reads as a real inventory, not an exact-fit list
+## Footprint-grid inventory (GameState.inventory, see GridInventory) +
+## paper-doll equipment diagram + a live stats column (StatSummaryBuilder,
+## shared with CharacterScreen). Clicking an item equips it; clicking a
+## paper-doll slot unequips into the grid if there's room. Equipped items
+## live on EquipmentComponent, not in the grid. Doesn't pause the game.
 
 const EMPTY_SLOT_COLOR := Color(0.25, 0.25, 0.28)
 const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
@@ -51,7 +12,8 @@ const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
 @onready var offense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/OffenseList
 @onready var defense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/DefenseList
 @onready var misc_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/MiscList
-@onready var inventory_grid: GridContainer = $HBox/InventoryPanel/InventoryScroll/InventoryGrid
+@onready var inventory_grid: InventoryGridView = $HBox/InventoryPanel/InventoryScroll/InventoryGrid
+@onready var inventory_panel: VBoxContainer = $HBox/InventoryPanel
 @onready var status_label: Label = $HBox/SidePanel/StatusLabel
 @onready var close_button: Button = $HBox/SidePanel/CloseButton
 
@@ -73,33 +35,9 @@ var _weapon_set_button: Button
 
 var _is_open: bool = false
 var _equipment: EquipmentComponent
-var _owned_items: Array[Item] = []
 var _doll_rows: Array[Dictionary] = []
 
-## Grid indices >= this are real GameState.owned_loot entries (draggable/
-## droppable); below it is the fixed hand-authored catalog. Populated by
-## the most recent _build_inventory_grid() call.
-var _draggable_start_index: int = 0
-## One entry per owned_loot-backed stack from the most recent build -
-## {"item": Item, "count": int, "loot_indices": Array[int], "key": String}.
-## loot_indices holds every GameState.owned_loot array index this stack
-## represents (a Brand stack has more than one; everything else has
-## exactly one) - informational only now, not used for ordering.
-var _stack_entries: Array[Dictionary] = []
-## entry["key"] -> RELATIVE slot index within the real-items region (0 =
-## _draggable_start_index's own cell) - relative so the whole region can
-## slide as a block if the catalog's shown count changes (equipping/
-## unequipping a catalog item) without invalidating every stored position.
-## Lives in GameState.inventory_slot_assignment (saved by SaveManager) so
-## the arrangement survives scene changes and reloads; this is a property
-## so every existing read/write here goes straight to it.
-var _slot_assignment: Dictionary:
-	get:
-		return GameState.inventory_slot_assignment
-## slot_index (absolute grid index) -> entry dict, from the most recent
-## build - lets _on_item_drag_dropped look up what (if anything) already
-## occupies the drop target.
-var _entry_at_slot: Dictionary = {}
+var _ammo_label: Label
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -122,7 +60,11 @@ func _ready() -> void:
 	for row in _doll_rows:
 		(row["button"] as ItemSlotButton).pressed.connect(_on_doll_slot_pressed.bind(row))
 	_build_weapon_set_indicator()
-	_scan_owned_items()
+	inventory_grid.cell_size = 52
+	inventory_grid.entry_clicked.connect(_on_entry_clicked)
+	inventory_grid.drop_failed.connect(func(): status_label.text = "That doesn't fit there.")
+	_ammo_label = Label.new()
+	inventory_panel.add_child(_ammo_label)
 
 ## Implementation Brief v3.4 Section 4, user-expanded scope ("Properly
 ## show which set is being worn in the inventory screen"). The paper-doll's
@@ -162,7 +104,6 @@ func is_open() -> bool:
 func open() -> void:
 	_is_open = true
 	visible = true
-	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_equipment = GameState.player_equipment
 	if _equipment and not _equipment.equip_failed.is_connected(_on_equip_failed):
@@ -175,7 +116,6 @@ func open() -> void:
 func close() -> void:
 	_is_open = false
 	visible = false
-	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -185,198 +125,88 @@ func _unhandled_input(event: InputEvent) -> void:
 		close()
 		get_viewport().set_input_as_handled()
 
-## User request (2026-08-30): "let's not add all of the new high level
-## items to the player's inventory at the start." Section 25's generator
-## (tools/generate_base_types.gd) grew these 4 directories from ~14 hand-
-## authored bases to ~867 files (real tiered items up to level 91) - this
-## scan's own "as if the player owns one of each hand-authored base" intent
-## (a testing convenience predating Section 25) never meant to include
-## that whole catalog, just the original small set. base_line_id (empty
-## only for the pre-Section-25 hand-authored singles, real for every
-## generated tier) is exactly the tag needed to keep the old behavior
-## without also keeping up with however large the generated catalog grows.
-func _scan_owned_items() -> void:
-	for dir_path in ITEM_INSTANCE_DIRS:
-		var dir := DirAccess.open(dir_path)
-		if dir == null:
-			continue
-		dir.list_dir_begin()
-		var file_name := dir.get_next().trim_suffix(".remap")
-		while file_name != "":
-			if file_name.ends_with(".tres"):
-				var item: Item = load(dir_path + file_name) as Item
-				if item and item.base_line_id == "":
-					_owned_items.append(item)
-			file_name = dir.get_next().trim_suffix(".remap")
-		dir.list_dir_end()
-
-## Anything currently equipped is excluded - it's shown on the paper-doll,
-## not duplicated in the grid too. Catalog entries come first (fixed,
-## not draggable), then one cell per owned_loot entry/Brand stack, each
-## resolved to its own real grid position (see _resolve_slots()).
 func _build_inventory_grid() -> void:
-	for child in inventory_grid.get_children():
-		child.queue_free()
-	var equipped: Array[Item] = _equipment.get_all_equipped_items() if _equipment else []
-	var shown_catalog: Array[Item] = []
-	for item in _owned_items:
-		if not equipped.has(item):
-			shown_catalog.append(item)
-	_stack_entries = _build_stack_entries(equipped)
-	_draggable_start_index = shown_catalog.size()
-	_entry_at_slot = _resolve_slots()
-
-	var max_slot := _draggable_start_index - 1
-	for slot in _entry_at_slot:
-		max_slot = max(max_slot, slot)
-	var capacity: int = max(GRID_MIN_CAPACITY, max_slot + 1)
-	capacity += (GRID_COLUMNS - capacity % GRID_COLUMNS) % GRID_COLUMNS  # round up to a full row
-
-	for i in range(capacity):
-		var button := ItemSlotButton.new()
-		button.custom_minimum_size = Vector2(64, 64)
-		button.clip_text = true
-		button.draggable = i >= _draggable_start_index
-		button.item_drag_dropped.connect(_on_item_drag_dropped)
-		if i < shown_catalog.size():
-			var item := shown_catalog[i]
-			_style_slot_button(button, item)
-			button.pressed.connect(_on_item_selected.bind(item))
-		elif _entry_at_slot.has(i):
-			var entry: Dictionary = _entry_at_slot[i]
-			var item: Item = entry["item"]
-			_style_slot_button(button, item, entry["count"])
-			if _is_equippable(item):
-				button.pressed.connect(_on_item_selected.bind(item))
-			else:
-				button.pressed.connect(_on_non_equippable_selected.bind(item))
-		else:
-			_style_empty_button(button, "")
-			button.disabled = true
-		inventory_grid.add_child(button)
-
-## Brands stack by item_id (identical Brand duplicates are fungible
-## crafting currency, not unique rolled gear) - grouped into one entry
-## with a count instead of one slot per drop, keyed "brand:<item_id>" so
-## every duplicate of the same Brand always merges into that one entry.
-## Everything else is keyed "item:<item_id>#<n>" (n = its occurrence among
-## same-item_id owned_loot entries), since item_id alone isn't unique for
-## non-rolled items (two separately-dropped Infusion Stones must NOT merge
-## the way Brands do). Keys are saved (GameState.inventory_slot_assignment),
-## so they can't use instance ids, which change on every load; owned_loot is
-## never reordered, so the occurrence index is stable. Counted over ALL of
-## owned_loot, equipped included, so equipping one copy doesn't renumber the
-## rest.
-func _build_stack_entries(equipped: Array[Item]) -> Array[Dictionary]:
-	var entries: Array[Dictionary] = []
-	var stack_slot_by_key: Dictionary = {}  # key -> index into `entries`
-	var seen_ids: Dictionary = {}  # item_id -> occurrences so far
-	var live_keys: Dictionary = {}  # every owned item's key, equipped included
-	for i in range(GameState.owned_loot.size()):
-		var item: Item = GameState.owned_loot[i]
-		var occurrence: int = seen_ids.get(item.item_id, 0)
-		seen_ids[item.item_id] = occurrence + 1
-		var key: String = "brand:%s" % item.item_id if item is Brand else "item:%s#%d" % [item.item_id, occurrence]
-		live_keys[key] = true
-		if equipped.has(item):
-			continue
-		if stack_slot_by_key.has(key):
-			var entry: Dictionary = entries[stack_slot_by_key[key]]
-			entry["count"] += 1
-			(entry["loot_indices"] as Array).append(i)
-		else:
-			stack_slot_by_key[key] = entries.size()
-			entries.append({"item": item, "count": 1, "loot_indices": [i], "key": key})
-	for key in _slot_assignment.keys():
-		if not live_keys.has(key):
-			_slot_assignment.erase(key)  # sold/consumed/destroyed - don't grow the save forever
-	return entries
-
-## Resolves each _stack_entries entry to an absolute grid slot: its
-## previously dragged-to position (_slot_assignment, stored relative to
-## _draggable_start_index) if that cell is still free, otherwise the
-## lowest free cell in entry order - so a never-touched item just fills
-## in left-to-right/top-to-bottom like before, and a dragged one stays
-## exactly where the player put it. Resolved positions are written back
-## to _slot_assignment so an auto-placed item keeps its spot too.
-func _resolve_slots() -> Dictionary:
-	var slot_for_key: Dictionary = {}
-	var claimed: Dictionary = {}
-	var unresolved: Array[Dictionary] = []
-	for entry in _stack_entries:
-		var key: String = entry["key"]
-		if _slot_assignment.has(key):
-			var slot: int = _draggable_start_index + int(_slot_assignment[key])
-			if not claimed.has(slot):
-				claimed[slot] = true
-				slot_for_key[key] = slot
-				continue
-		unresolved.append(entry)
-
-	var next_free := _draggable_start_index
-	for entry in unresolved:
-		while claimed.has(next_free):
-			next_free += 1
-		claimed[next_free] = true
-		slot_for_key[entry["key"]] = next_free
-		next_free += 1
-
-	var entry_at_slot: Dictionary = {}
-	for entry in _stack_entries:
-		var slot: int = slot_for_key[entry["key"]]
-		_slot_assignment[entry["key"]] = slot - _draggable_start_index
-		entry_at_slot[slot] = entry
-	return entry_at_slot
+	inventory_grid.set_inventory(GameState.inventory)
+	var ammo: Array[String] = []
+	for type in Constants.AmmoType.values():
+		if type != Constants.AmmoType.ARROW:
+			ammo.append("%s %d" % [Constants.AmmoType.keys()[type].capitalize(), AmmoInventory.get_reserve(type)])
+	_ammo_label.text = "Ammo: " + "   ".join(ammo)
 
 func _is_equippable(item: Item) -> bool:
-	return not (item is Brand) and not (item is FigmentItem) and not Constants.CRAFTING_CONSUMABLE_IDS.has(item.item_id)
+	return not (item is FigmentItem) and not Constants.CRAFTING_CONSUMABLE_IDS.has(item.item_id)
 
-func _on_item_selected(item: Item) -> void:
+func _on_entry_clicked(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
+	status_label.text = ""
+	if entry.is_currency():
+		status_label.text = "%s is crafting currency." % CurrencyText.name_of(entry.content)
+	elif entry.content is Slate:
+		status_label.text = "Slates are placed from the Fate Board."
+	elif _is_equippable(entry.content):
+		_equip_from_inventory(entry)
+	elif entry.content is FigmentItem:
+		status_label.text = "%s is used at the Reality Engine, not equipped." % entry.content.display_name
+	else:
+		status_label.text = "%s is used from the Crafting screen (K), not equipped." % entry.content.display_name
+
+## Moves an item from the grid onto the paper doll. Whatever it displaces
+## goes back into the grid; if that doesn't fit, the swap is undone.
+func _equip_from_inventory(entry: GridInventory.Entry) -> void:
 	if _equipment == null:
 		return
-	status_label.text = ""
+	var item: Item = entry.content
+	var old_position := entry.position
+	var before := _equipment.get_all_equipped_items()
 	_equipment.equip(item)
-	GameState.sync_equipment(_equipment)
-	GameState.sync_weapon_sets(_equipment)
-	_refresh_doll()
-	_build_inventory_grid()
-	_refresh_stats()
+	var after := _equipment.get_all_equipped_items()
+	if not after.has(item):
+		return  # equip_failed already reported why
+	GameState.remove_from_inventory(item)
 
-func _on_non_equippable_selected(item: Item) -> void:
-	if item is FigmentItem:
-		status_label.text = "%s is used at the Reality Engine, not equipped." % item.display_name
-	else:
-		status_label.text = "%s is used from the Crafting screen (K), not equipped." % item.display_name
-
-## Dropping on an EMPTY cell moves the dragged stack there and nothing
-## else - no compacting, no shifting (the bug report this fixes: dropping
-## on empty space was instead appending to the end of a dense list,
-## dragging every later item along with it). Dropping on an OCCUPIED cell
-## swaps the two. Only ever touches _slot_assignment (a rendering
-## position) - GameState.owned_loot itself is never reordered,
-## so nothing here can perturb equipped-item bookkeeping or the save data.
-func _on_item_drag_dropped(source_grid_index: int, target_grid_index: int) -> void:
-	if source_grid_index == target_grid_index or source_grid_index < _draggable_start_index:
-		return
-	if not _entry_at_slot.has(source_grid_index):
-		return
-	var source_key: String = _entry_at_slot[source_grid_index]["key"]
-	var target_entry: Dictionary = _entry_at_slot.get(target_grid_index, {})
-
-	_slot_assignment[source_key] = target_grid_index - _draggable_start_index
-	if not target_entry.is_empty():
-		_slot_assignment[target_entry["key"]] = source_grid_index - _draggable_start_index
-
-	_build_inventory_grid()
+	var stored: Array[Item] = []
+	var displaced := before.filter(func(i): return not after.has(i))
+	for old in displaced:
+		var copy := _inventory_copy(old)
+		if GameState.add_to_inventory(copy):
+			stored.append(copy)
+			continue
+		for s in stored:
+			GameState.remove_from_inventory(s)
+		for d in displaced:
+			_equipment.equip(d, true)
+		GameState.inventory.place(item, old_position)
+		status_label.text = "No room in your inventory for what that would replace."
+		break
+	_after_equipment_change()
 
 func _on_doll_slot_pressed(row: Dictionary) -> void:
 	if _equipment == null:
 		return
 	var ring_index: int = row.get("ring_index", 0)
+	var item := _equipment.get_equipped(row["slot"], ring_index)
+	if item == null:
+		return
+	var copy := _inventory_copy(item)
+	if not GameState.add_to_inventory(copy):
+		status_label.text = "No room in your inventory."
+		return
 	_equipment.unequip(row["slot"], ring_index)
+	status_label.text = ""
+	_after_equipment_change()
+
+## Hand-authored bases are shared load()-cached Resources; the grid gets its
+## own copy so crafting it can't change every other reference.
+func _inventory_copy(item: Item) -> Item:
+	if item.resource_path == "":
+		return item
+	var copy := item.duplicate(true) as Item
+	if copy.tolerance_max == 0:
+		CraftingResolver.roll_tolerance(copy)
+	return copy
+
+func _after_equipment_change() -> void:
 	GameState.sync_equipment(_equipment)
 	GameState.sync_weapon_sets(_equipment)
-	status_label.text = ""
 	_refresh_doll()
 	_build_inventory_grid()
 	_refresh_stats()

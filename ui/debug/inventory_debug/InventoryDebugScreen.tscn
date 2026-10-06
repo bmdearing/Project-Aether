@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/debug/inventory_debug/InventoryDebugScreen.gd" id="1"]
+
+[node name="InventoryDebugScreen" type="CanvasLayer"]
+script = ExtResource("1")

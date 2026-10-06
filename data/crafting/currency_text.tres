@@ -1,0 +1,79 @@
+[gd_resource type="Resource" script_class="CurrencyText" format=3]
+
+[ext_resource type="Script" path="res://data/crafting/currency_text.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+names = {
+"absolution": "Orb of Absolution",
+"anchoring": "Orb of Anchoring",
+"ascendant": "Ascendant Orb",
+"brand_aetheric": "Aetheric Brand",
+"brand_armor": "Armor Brand",
+"brand_attack": "Attack Brand",
+"brand_cold": "Cold Brand",
+"brand_entropic": "Entropic Brand",
+"brand_evasion": "Evasion Brand",
+"brand_explosive": "Explosive Brand",
+"brand_fire": "Fire Brand",
+"brand_kinetic": "Kinetic Brand",
+"brand_lightning": "Lightning Brand",
+"brand_mana": "Mana Brand",
+"brand_pale": "Pale Brand",
+"brand_piercing": "Piercing Brand",
+"brand_prefix": "Prefix Brand",
+"brand_preservation": "Preservation Brand",
+"brand_resilience": "Resilience Brand",
+"brand_resistance": "Resistance Brand",
+"brand_speed": "Speed Brand",
+"brand_spell": "Spell Brand",
+"brand_suffix": "Suffix Brand",
+"brand_ward": "Ward Brand",
+"edict_attack": "Attack Edict",
+"edict_prefix": "Prefix Edict",
+"edict_spell": "Spell Edict",
+"edict_suffix": "Suffix Edict",
+"elevation": "Orb of Elevation",
+"forging": "Orb of Forging",
+"grafting": "Orb of Grafting",
+"opening": "Orb of Opening",
+"quickening": "Orb of Quickening",
+"recasting": "Orb of Recasting",
+"reckoning": "Orb of Reckoning",
+"severance": "Orb of Severance",
+"tempering": "Orb of Tempering"
+}
+descriptions = {
+"absolution": "Removes all modifiers that aren't anchored. The item returns to Common, or to Uncommon if an anchored modifier remains.",
+"anchoring": "Permanently locks one random modifier on an item with at least 3 modifiers.",
+"ascendant": "Adds one modifier to a Rare item.",
+"brand_prefix": "The next Orb adds or removes only a prefix.",
+"brand_preservation": "Every other Brand used on the next Orb is kept.",
+"brand_suffix": "The next Orb adds or removes only a suffix.",
+"edict_attack": "Attack modifiers can't roll on this item's next craft.",
+"edict_prefix": "Prefixes can't be removed or changed by this item's next craft.",
+"edict_spell": "Spell modifiers can't roll on this item's next craft.",
+"edict_suffix": "Suffixes can't be removed or changed by this item's next craft.",
+"elevation": "Upgrades an Uncommon item to Rare and adds one modifier.",
+"forging": "Upgrades a Common item to Rare and adds four modifiers (three or four on a Slate).",
+"grafting": "Adds one modifier to an Uncommon item.",
+"opening": "Rolls sockets on an item with none. Works once per item.",
+"quickening": "Upgrades a Common item to Uncommon and adds one modifier.",
+"recasting": "Removes one random modifier from a Rare item, then adds one.",
+"reckoning": "Rerolls every modifier's value within its current tier.",
+"severance": "Removes one random modifier.",
+"tempering": "Adds 2 to 4 quality to armour or a weapon, up to 20."
+}
+errors = {
+"ALREADY_ANCHORED": "This item already has an anchored modifier.",
+"CORRUPTED": "Corrupted items can only take an Orb of Opening or an Orb of Tempering.",
+"INVALID_TARGET": "That can't be used on this item.",
+"MISSING_CURRENCY": "You don't have that currency.",
+"NOTHING_TO_REMOVE": "There's no modifier that can be removed.",
+"NO_OPEN_AFFIX": "There's no open prefix or suffix.",
+"NO_TOLERANCE": "This item has no Aether Tolerance left.",
+"NO_VALID_OUTCOME": "No modifier fits every active Brand and Edict.",
+"QUALITY_CAPPED": "This item is already at maximum quality.",
+"SOCKETS_ALREADY_ROLLED": "This item's sockets have already been rolled.",
+"TOO_FEW_MODIFIERS": "This item doesn't have enough modifiers."
+}

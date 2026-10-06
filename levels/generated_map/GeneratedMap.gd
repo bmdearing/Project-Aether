@@ -1,7 +1,9 @@
 extends Node3D
 class_name GeneratedMap
-## Builds a Map from MapGraph's room-connection graph - rebuilt fresh
-## every scene load (no fixed seed). Geometry stays simple BoxMesh/PlaneMesh
+## Builds a Map from MapGraph's room-connection graph. Generation runs off
+## the global RNG seeded with map_seed, so the same seed rebuilds the same
+## layout and enemy spawns - that's how a map left through a portal comes
+## back (capture_state()/_apply_restore()). Geometry stays simple BoxMesh/PlaneMesh
 ## pieces; the Figment's MapTileset style supplies their materials, the
 ## atmosphere, and the doodads RoomDresser places in each room.
 ##
@@ -44,6 +46,7 @@ const UI_SCENES: Array[PackedScene] = [
 	preload("res://ui/debug/DebugOverlay.tscn"),
 	preload("res://ui/fate_board_editor/FateBoardEditor.tscn"),
 	preload("res://ui/inventory/InventoryScreen.tscn"),
+	preload("res://ui/debug/inventory_debug/InventoryDebugScreen.tscn"),
 	preload("res://ui/crafting/CraftingScreen.tscn"),
 	preload("res://ui/abilities/AbilitiesScreen.tscn"),
 	preload("res://ui/character_screen/CharacterScreen.tscn"),
@@ -70,10 +73,29 @@ var _floor_mat: Material
 var _wall_mat: Material
 var _dresser: RoomDresser
 
+var map_seed: int
+var tileset_id: String = ""
+## Enemies are identified across a portal trip by spawn order.
+var _next_spawn_index := 0
+var _dead_spawn_indices: Array[int] = []
+var _portal: Portal
+var _portal_player_position: Vector3
+var _portal_player_yaw: float
+
 func _ready() -> void:
 	# Standalone (F6) launch: no MainMenu/save ran, so GameState is still defaults.
 	GameState.initialize_standalone()
-	_apply_tileset(_pick_tileset())
+	var restore: Dictionary = GameState.portal_map_state if GameState.returning_through_portal else {}
+	GameState.returning_through_portal = false
+	if restore.is_empty():
+		GameState.portal_map_state = {}
+		GameState.portals_opened = 0
+	elif restore.get("figment", {}) is Dictionary and not restore.get("figment", {}).is_empty():
+		GameState.active_map = ItemSerializer.from_dict(restore["figment"]) as FigmentItem
+
+	map_seed = int(restore.get("seed", randi()))
+	seed(map_seed)
+	_apply_tileset(_pick_tileset(restore.get("tileset_id", "")))
 	EventBus.enemy_died.connect(_on_enemy_died)
 	graph = MapGraph.generate()
 	for cell in graph.rooms:
@@ -81,14 +103,152 @@ func _ready() -> void:
 	_build_doorway_bridges()
 	_spawn_player()
 	_spawn_enemies()
+	randomize()
+	if not restore.is_empty():
+		_apply_restore(restore)
 	_spawn_ui()
 	_emit_enemy_count()  # HUD is up now (added by _spawn_ui())
+	if not restore.is_empty():
+		EventBus.portal_returned.emit()
 
 ## The active Figment's rolled style; a random one for Figments rolled
 ## before styles existed, or a standalone launch.
-func _pick_tileset() -> MapTileset:
-	var style := MapTileset.load_style(GameState.active_map.tileset_id if GameState.active_map else "")
-	return style if style else MapTileset.load_style(MapTileset.random_id())
+func _pick_tileset(saved_id: String = "") -> MapTileset:
+	tileset_id = saved_id
+	if tileset_id == "":
+		tileset_id = GameState.active_map.tileset_id if GameState.active_map else ""
+	var style := MapTileset.load_style(tileset_id)
+	if style == null:
+		tileset_id = MapTileset.random_id()
+		style = MapTileset.load_style(tileset_id)
+	return style
+
+## ---- Portals -----------------------------------------------------------
+
+## Opens (or moves) the portal to the Hub in front of the player.
+func open_portal() -> bool:
+	if Constants.MAX_PORTALS >= 0 and GameState.portals_opened >= Constants.MAX_PORTALS:
+		return false
+	var player := get_tree().get_first_node_in_group("player") as Player
+	if player == null:
+		return false
+	var forward := -player.global_transform.basis.z
+	forward.y = 0.0
+	forward = forward.normalized() if forward.length() > 0.01 else Vector3.FORWARD
+	if is_instance_valid(_portal):
+		_portal.queue_free()
+	_portal_player_position = player.global_position
+	_portal_player_yaw = player.rotation.y
+	var pos := player.global_position + forward * PORTAL_DISTANCE
+	pos.y = player.global_position.y - 1.0
+	_portal = _add_portal(pos)
+	GameState.portals_opened += 1
+	EventBus.portal_opened.emit(pos)
+	return true
+
+const PORTAL_DISTANCE := 2.5
+
+func _add_portal(pos: Vector3) -> Portal:
+	var portal := Portal.new()
+	portal.destination = Portal.Destination.HUB
+	portal.taken.connect(leave_through_portal)
+	add_child(portal)
+	portal.global_position = pos
+	return portal
+
+## Saves this map's state and goes to the Hub.
+func leave_through_portal() -> void:
+	GameState.portal_map_state = capture_state()
+	SaveManager.save_game()
+	get_tree().paused = false
+	get_tree().change_scene_to_file(GameState.HUB_SCENE)
+
+## JSON-safe snapshot: the seed rebuilds the layout and spawns; on top of
+## that go the defeated enemies, the loot on the ground, and the portal.
+func capture_state() -> Dictionary:
+	var loot := []
+	for child in get_children():
+		if child.is_queued_for_deletion():
+			continue
+		if child is LootPickup:
+			var pos: Vector3 = child.position
+			pos.y = child._base_y
+			if child.currency_id != &"":
+				loot.append({"currency": String(child.currency_id), "count": child.currency_count, "pos": _vec_to_array(pos)})
+			elif child.slate:
+				loot.append({"slate": SlateSerializer.to_dict(child.slate), "pos": _vec_to_array(pos)})
+			elif child.item:
+				var ref = child.item.resource_path if child.item.resource_path != "" else ItemSerializer.to_dict(child.item)
+				loot.append({"item": ref, "pos": _vec_to_array(pos)})
+		elif child is GoldPickup:
+			var pos: Vector3 = child.position
+			pos.y = child._base_y
+			loot.append({"gold": child.amount, "pos": _vec_to_array(pos)})
+	var portal_pos: Vector3 = _portal.global_position if is_instance_valid(_portal) else last_player_spawn
+	var player_pos: Vector3 = _portal_player_position if is_instance_valid(_portal) else last_player_spawn
+	return {
+		"seed": map_seed,
+		"tileset_id": tileset_id,
+		"figment": ItemSerializer.to_dict(GameState.active_map) if GameState.active_map else {},
+		"dead": _dead_spawn_indices.duplicate(),
+		"loot": loot,
+		"portal": _vec_to_array(portal_pos),
+		"player": _vec_to_array(player_pos),
+		"player_yaw": _portal_player_yaw,
+	}
+
+func _apply_restore(state: Dictionary) -> void:
+	var dead := {}
+	for i in state.get("dead", []):
+		dead[int(i)] = true
+	for child in get_children():
+		if child is Enemy and dead.has(int(child.get_meta(&"spawn_index", -1))):
+			_living_enemies.erase(child.get_instance_id())
+			_dead_spawn_indices.append(int(child.get_meta(&"spawn_index")))
+			remove_child(child)
+			child.queue_free()
+
+	for entry in state.get("loot", []):
+		var pos := _array_to_vec(entry.get("pos", []))
+		if entry.has("gold"):
+			var gold: GoldPickup = GOLD_PICKUP_SCENE.instantiate()
+			gold.amount = int(entry["gold"])
+			gold.position = pos
+			add_child(gold)
+			continue
+		var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()
+		if entry.has("currency"):
+			pickup.currency_id = StringName(entry["currency"])
+			pickup.currency_count = int(entry.get("count", 1))
+		elif entry.get("item") is Dictionary and ItemSerializer.is_legacy_brand(entry["item"]):
+			pickup.currency_id = ItemSerializer.legacy_brand_currency(entry["item"])
+			if pickup.currency_id == &"":
+				pickup.free()
+				continue
+		elif entry.has("slate"):
+			pickup.slate = SlateSerializer.from_dict(entry["slate"])
+		else:
+			var ref = entry.get("item")
+			pickup.item = (load(ref) as Item).duplicate(true) if ref is String else ItemSerializer.from_dict(ref)
+		pickup.position = pos
+		add_child(pickup)
+
+	var player := get_tree().get_first_node_in_group("player") as Player
+	if player:
+		player.global_position = _array_to_vec(state.get("player", []))
+		player.rotation.y = float(state.get("player_yaw", 0.0))
+	_portal_player_position = _array_to_vec(state.get("player", []))
+	_portal_player_yaw = float(state.get("player_yaw", 0.0))
+	_portal = _add_portal(_array_to_vec(state.get("portal", [])))
+
+const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPickup.tscn")
+const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
+
+static func _vec_to_array(v: Vector3) -> Array:
+	return [v.x, v.y, v.z]
+
+static func _array_to_vec(a: Array) -> Vector3:
+	return Vector3(float(a[0]), float(a[1]), float(a[2])) if a.size() == 3 else Vector3.ZERO
 
 func _apply_tileset(style: MapTileset) -> void:
 	tileset = style
@@ -104,6 +264,8 @@ func _apply_tileset(style: MapTileset) -> void:
 	_dresser = RoomDresser.new(style, self, ROOM_FOOTPRINT, WALL_THICKNESS, DOORWAY_WIDTH)
 
 func _on_enemy_died(enemy: Node) -> void:
+	if enemy.has_meta(&"spawn_index"):
+		_dead_spawn_indices.append(int(enemy.get_meta(&"spawn_index")))
 	if _living_enemies.erase(enemy.get_instance_id()):
 		_emit_enemy_count()
 
@@ -295,6 +457,8 @@ func _spawn_pack(unit_ids: Array[String], center: Vector3) -> void:
 
 func _spawn_enemy(enemy: Enemy, pos: Vector3) -> void:
 	EnemyRarityComponent.roll_and_attach(enemy)
+	enemy.set_meta(&"spawn_index", _next_spawn_index)
+	_next_spawn_index += 1
 	add_child(enemy)
 	enemy.global_position = pos
 	_living_enemies[enemy.get_instance_id()] = true

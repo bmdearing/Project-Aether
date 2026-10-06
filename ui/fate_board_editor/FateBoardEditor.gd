@@ -4,8 +4,8 @@ class_name FateBoardEditor
 ## placements/Aether budget via FateBoardGrid, and recomputes
 ## ChainCalculator results after every placement/removal.
 ##
-## Palette = only real SlateRoller drops (GameState.owned_slates) - placing
-## one removes it from the palette until it's removed from the board again.
+## Palette = Slates in the carried inventory. Placing one moves it out of the
+## inventory onto the board; removing it puts it back (if there's room).
 
 const SLATE_INSTANCES_DIR := "res://data/slates/instances/"
 const ABILITY_INSTANCE_DIR := "res://data/abilities/instances/"
@@ -81,9 +81,9 @@ func _unhandled_input(event: InputEvent) -> void:
 func _populate_palette() -> void:
 	for child in palette_list.get_children():
 		child.queue_free()
-	for slate in GameState.owned_slates:
-		if _is_slate_available(slate):
-			_add_palette_entry(slate)
+	for content in GameState.get_inventory_items():
+		if content is Slate:
+			_add_palette_entry(content)
 
 func _add_palette_entry(slate: Slate) -> void:
 	var tag_name: String = slate.category_tag_override if slate.category_tag_override != "" else Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
@@ -149,6 +149,12 @@ func _on_cell_clicked(cell: Vector2i, button_index: int) -> void:
 	if button_index == MOUSE_BUTTON_RIGHT or _selected_slate == null:
 		var occupied := _board.get_occupied_cells()
 		if occupied.has(cell):
+			var removed: Slate = _board.placements[occupied[cell]].slate
+			if removed.resource_path != "":
+				removed = removed.duplicate(true)
+			if not GameState.add_to_inventory(removed):
+				status_label.text = "No room in your inventory for that Slate."
+				return
 			_board.remove_slate(occupied[cell])
 			grid.mark_cells_dirty()
 			grid.queue_redraw()
@@ -169,6 +175,8 @@ func _on_cell_clicked(cell: Vector2i, button_index: int) -> void:
 				return
 		var id := _board.place_slate(_selected_slate, cell, _rotation_steps, _flipped, designated_ability_id)
 		if id != "":
+			GameState.remove_from_inventory(_selected_slate)
+			_on_drop_requested()
 			status_label.text = ""
 			grid.mark_cells_dirty()
 			grid.queue_redraw()
@@ -176,17 +184,8 @@ func _on_cell_clicked(cell: Vector2i, button_index: int) -> void:
 			_refresh_chains()
 			_populate_palette()
 
-## Hand-authored data/slates/instances/ samples are unlimited (the
-## existing "owns one of each" stand-in); a real SlateRoller drop
-## (GameState.owned_slates) is single-use until it's removed from the
-## board again.
 func _is_slate_available(slate: Slate) -> bool:
-	if not GameState.owned_slates.has(slate):
-		return true
-	for placement_id in _board.placements:
-		if _board.placements[placement_id].slate == slate:
-			return false
-	return true
+	return GameState.inventory.has_content(slate)
 
 const _FAILURE_MESSAGES := {
 	"insufficient_aether": "Can't place: not enough Aether.",

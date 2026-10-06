@@ -29,15 +29,6 @@ class_name ItemAffix
 @export var is_generic: bool = false
 @export var damage_type: Constants.DamageType = -1  # -1 = no damage type
 
-## Patch v3.6: is_fractured marks an affix locked by Cleave (CraftingSystem.
-## _cleave()) - excluded from Render/Sever/corruption rerolls that would
-## otherwise touch it. is_brand exists for API completeness with the
-## brief's own ItemAffix-based Brand check, but this project's real Brand
-## check is `item is Brand` (Brand extends Item, not ItemAffix - see
-## Brand.gd) - is_brand is never actually set or read anywhere.
-@export var is_fractured: bool = false
-@export var is_brand: bool = false
-
 ## Patch v3.9 Weapon Affix Library - empty means "rolls on any weapon
 ## type" (every damage-type/generic affix); non-empty restricts to those
 ## base-type keys only (base_line_id stripped of its "_lineN" suffix, or
@@ -53,3 +44,15 @@ class_name ItemAffix
 ## are gated by weapon_type_filter. Only read at roll time - rolled/saved
 ## affixes are recognized by their "local_" stat_key.
 @export var is_local: bool = false
+
+## Orb crafting. def is null for legacy AFFIX_POOL/weapon-library affixes;
+## group falls back to affix_id, then stat_key, for those (see get_group()).
+@export var def: ModifierDef
+@export var modifier_id: StringName = &""
+@export var group: StringName = &""
+@export var anchored: bool = false
+
+func get_group() -> StringName:
+	if group != &"":
+		return group
+	return StringName(affix_id) if affix_id != "" else StringName(stat_key)

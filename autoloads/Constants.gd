@@ -460,50 +460,6 @@ const CAST_SPEED_TIERS := [
 	{"min": 2.0,  "max": 5.0,  "item_level": 8},   # T5
 ]
 
-## Section 20 Brand rarity (Patch v3.5) - gates drop frequency via
-## BrandRoller.roll(), which previously picked uniformly among every
-## Brand regardless of power. Only covers Brands that actually exist as
-## data/brands/instances/*.tres - Facsimile/Amalgam/Imbue are cut from
-## this project (see Brand.gd's own header), so they're left out here too
-## rather than pointing at nonexistent files.
-enum BrandRarity { COMMON, UNCOMMON, RARE, LEGENDARY }
-
-const BRAND_RARITIES := {
-	"distill": BrandRarity.COMMON,
-	"inscribe": BrandRarity.COMMON,
-	"hone": BrandRarity.COMMON,
-	"quicken": BrandRarity.COMMON,
-	"impel": BrandRarity.UNCOMMON,
-	"lancet": BrandRarity.UNCOMMON,
-	"deflagrate": BrandRarity.UNCOMMON,
-	"calcine": BrandRarity.UNCOMMON,
-	"quench": BrandRarity.UNCOMMON,
-	"galvanic": BrandRarity.UNCOMMON,
-	"invoke": BrandRarity.UNCOMMON,
-	"efface": BrandRarity.UNCOMMON,
-	"hollow": BrandRarity.UNCOMMON,
-	"anneal": BrandRarity.UNCOMMON,
-	"attenuate": BrandRarity.UNCOMMON,
-	"occlude": BrandRarity.UNCOMMON,
-	"temper": BrandRarity.UNCOMMON,
-	"inure": BrandRarity.UNCOMMON,
-	"render": BrandRarity.UNCOMMON,
-	"refine": BrandRarity.UNCOMMON,
-	"sever": BrandRarity.UNCOMMON,
-	"cleave": BrandRarity.RARE,
-	"excise": BrandRarity.RARE,
-	"bore": BrandRarity.RARE,
-	"binder": BrandRarity.RARE,
-	"rectify": BrandRarity.RARE,
-}
-
-const BRAND_DROP_WEIGHTS := {
-	BrandRarity.COMMON: 100,
-	BrandRarity.UNCOMMON: 35,
-	BrandRarity.RARE: 8,
-	BrandRarity.LEGENDARY: 1,
-}
-
 ## Patch v3.8 Section 5 - ItemCard's Alt Info panel.
 static func grade_to_letter(grade: int) -> String:
 	match grade:
@@ -522,3 +478,95 @@ static func grade_to_letter(grade: int) -> String:
 static func get_contrasting_text_color(bg: Color) -> Color:
 	var luminance := 0.299 * bg.r + 0.587 * bg.g + 0.114 * bg.b
 	return Color(0.05, 0.05, 0.05) if luminance > 0.6 else Color(0.95, 0.95, 0.95)
+
+## ---- Orb crafting (Crafting & Inventory Rev2) ----------------------------
+
+## Max prefixes (x) / suffixes (y) per rarity. Unique/Mythic aren't Orb-craftable.
+const AFFIX_LIMITS_GEAR := {
+	ItemRarity.COMMON: Vector2i(0, 0),
+	ItemRarity.UNCOMMON: Vector2i(1, 1),
+	ItemRarity.RARE: Vector2i(3, 3),
+}
+const AFFIX_LIMITS_SLATE := {
+	ItemRarity.COMMON: Vector2i(0, 0),
+	ItemRarity.UNCOMMON: Vector2i(1, 1),
+	ItemRarity.RARE: Vector2i(2, 2),
+}
+
+const ORB_IDS: Array[StringName] = [
+	&"quickening", &"grafting", &"elevation", &"forging", &"ascendant", &"recasting",
+	&"severance", &"absolution", &"anchoring", &"tempering", &"opening", &"reckoning",
+]
+
+## Placeholder tolerance cost per Orb use, rolled uniformly in [x, y].
+const TOLERANCE_COST := {
+	&"quickening": Vector2i(2, 4),
+	&"grafting": Vector2i(3, 6),
+	&"elevation": Vector2i(4, 8),
+	&"forging": Vector2i(10, 16),
+	&"ascendant": Vector2i(6, 10),
+	&"recasting": Vector2i(6, 12),
+	&"severance": Vector2i(3, 6),
+	&"absolution": Vector2i(8, 14),
+	&"anchoring": Vector2i(10, 18),
+	&"tempering": Vector2i(1, 3),
+	&"opening": Vector2i(4, 8),
+	&"reckoning": Vector2i(4, 8),
+}
+
+## Placeholder starting tolerance range by item type (Item.get_item_type()),
+## falling back to the default.
+const STARTING_TOLERANCE_DEFAULT := Vector2i(40, 60)
+const STARTING_TOLERANCE_BY_ITEM_TYPE := {
+	&"slate": Vector2i(30, 50),
+}
+
+const QUALITY_CAP := 20
+const TEMPERING_QUALITY_GAIN := Vector2i(2, 4)
+const FORGING_MODIFIERS_GEAR := 4
+const FORGING_MODIFIERS_SLATE := Vector2i(3, 4)
+const ANCHORING_MIN_MODIFIERS := 3
+const MAX_ANCHORED_MODIFIERS := 1
+## Slate size (tile count) -> best tier it may roll. Empty = no cap.
+const SLATE_TIER_CAP_BY_SIZE := {}
+
+## ---- Inventory & stash (placeholder sizes) -------------------------------
+const INVENTORY_SIZE := Vector2i(12, 6)
+const MAX_STACK := 100
+const STASH_TAB_COUNT := 4
+const STASH_TAB_SIZE := Vector2i(12, 12)
+const STASH_CURRENCY_TAB_SIZE := Vector2i(12, 8)
+const STASH_SLATE_TAB_SIZE := Vector2i(12, 12)
+
+## ---- Portals ---------------------------------------------------------------
+## Portals per map run; -1 = unlimited.
+const MAX_PORTALS := -1
+## Placeholder Orb roll weight per gear tier (index 0 = Tier 1, the rarest).
+const GEAR_TIER_WEIGHTS: Array[int] = [4, 10, 20, 30, 36]
+## Placeholder Orb roll weight per Slate tier (index 0 = Tier 1).
+const SLATE_TIER_WEIGHTS: Array[int] = [10, 30, 60]
+
+## Placeholder drop weights for crafting currency (Enemy._maybe_drop_loot()).
+const CURRENCY_DROP_WEIGHTS := {
+	&"quickening": 120, &"grafting": 100, &"severance": 60, &"reckoning": 50, &"tempering": 60,
+	&"elevation": 40, &"recasting": 35, &"ascendant": 25, &"absolution": 20, &"opening": 20,
+	&"forging": 10, &"anchoring": 6,
+	&"brand_kinetic": 12, &"brand_piercing": 12, &"brand_explosive": 12, &"brand_fire": 12,
+	&"brand_cold": 12, &"brand_lightning": 12, &"brand_aetheric": 12, &"brand_entropic": 12,
+	&"brand_pale": 12, &"brand_armor": 12, &"brand_evasion": 12, &"brand_ward": 12,
+	&"brand_resistance": 12, &"brand_resilience": 12, &"brand_mana": 12, &"brand_spell": 12,
+	&"brand_attack": 12, &"brand_speed": 12, &"brand_prefix": 10, &"brand_suffix": 10,
+	&"brand_preservation": 3,
+	&"edict_prefix": 6, &"edict_suffix": 6, &"edict_spell": 6, &"edict_attack": 6,
+}
+
+static func roll_currency_drop() -> StringName:
+	var total := 0
+	for w in CURRENCY_DROP_WEIGHTS.values():
+		total += w
+	var roll := randi_range(0, total - 1)
+	for id in CURRENCY_DROP_WEIGHTS:
+		roll -= CURRENCY_DROP_WEIGHTS[id]
+		if roll < 0:
+			return id
+	return &"quickening"

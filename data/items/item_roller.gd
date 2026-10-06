@@ -91,9 +91,9 @@ const TIER_DECAY := 0.8
 ## are derived via _tier_range(). "applies_to": [] means any base item
 ## type; otherwise a list of category strings (see _pool_for()).
 ##
-## "brand_tags": which Brand.category_tag value(s) (Section 20) a Cube
-## craft's Damage Type/Defensive Type/Umbrella Brand can draw this entry
-## from - see _pool_for_brand_tag(), used by CraftingSystem.gd. Evasion/
+## "brand_tags": the category tags this entry carries. GearModifierPool turns
+## them into ModifierDef tags (what Rev2 Category Brands filter on), and
+## Shard of Tharsis outcomes use _pool_for_brand_tag(). Evasion/
 ## Resistance/Resilience/Skills have no other stat anywhere in this
 ## project to hang a REAL affix off yet (same as flat_armor/flat_ward
 ## already were before this - README gap #18: descriptive-only, not
@@ -302,6 +302,7 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 	# base .tres or a saved copy says.
 	item.max_sockets = mini(item.max_sockets, get_socket_cap(item))
 	item.sockets = randi() % (item.max_sockets + 1)
+	CraftingResolver.roll_tolerance(item)
 
 	var rarity_roll := randf() * loot_rarity_multiplier
 	var affix_count := 0
@@ -573,9 +574,8 @@ static func _pool_for(item: Item) -> Array:
 		result.append(entry)
 	return result
 
-## Used by CraftingSystem.gd (Section 20's Cube) - same item-type
-## filtering as _pool_for(), further narrowed to entries whose brand_tags
-## include the Brand.category_tag driving the craft.
+## _pool_for() narrowed to entries carrying the given brand tag (Shard of
+## Tharsis outcomes).
 static func _pool_for_brand_tag(item: Item, tag: String) -> Array:
 	var result := []
 	for entry in _pool_for(item):

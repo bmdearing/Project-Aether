@@ -69,7 +69,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if show_return_to_hub and event.is_action_pressed("return_to_hub"):
 		get_viewport().set_input_as_handled()
-		_on_return_to_hub_pressed()
+		var map := get_tree().current_scene as GeneratedMap
+		if map:
+			map.open_portal()
+		else:
+			_on_return_to_hub_pressed()
 		return
 
 	# Other menu screens also listen for ui_cancel globally - don't toggle
@@ -114,6 +118,12 @@ func close() -> void:
 ## SceneTree-level flag that otherwise carries over and leaves the next
 ## scene's Player/Enemies frozen.
 func _on_return_to_hub_pressed() -> void:
+	var map := get_tree().current_scene as GeneratedMap
+	if map:
+		# Same as stepping through a portal on the spot - the map stays open.
+		map.open_portal()
+		map.leave_through_portal()
+		return
 	SaveManager.save_game()
 	get_tree().paused = false
 	get_tree().change_scene_to_file(GameState.HUB_SCENE)

@@ -1,0 +1,46 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://entities/interactables/stash_chest/StashChest.gd" id="1"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_chest"]
+size = Vector3(1.4, 0.9, 0.9)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_chest"]
+albedo_color = Color(0.3, 0.22, 0.12, 1)
+metallic = 0.3
+roughness = 0.6
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_chest"]
+size = Vector3(1.4, 0.9, 0.9)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_proximity"]
+radius = 3.0
+
+[node name="StashChest" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Chest" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Chest"]
+position = Vector3(0, 0.45, 0)
+mesh = SubResource("BoxMesh_chest")
+surface_material_override/0 = SubResource("StandardMaterial3D_chest")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Chest"]
+position = Vector3(0, 0.45, 0)
+shape = SubResource("BoxShape3D_chest")
+
+[node name="ProximityArea" type="Area3D" parent="."]
+monitoring = true
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ProximityArea"]
+position = Vector3(0, 1.0, 0)
+shape = SubResource("SphereShape3D_proximity")
+
+[node name="PromptLabel" type="Label3D" parent="."]
+position = Vector3(0, 1.8, 0)
+billboard = 1
+font_size = 42
+outline_size = 8
+text = "Press E to open Stash"

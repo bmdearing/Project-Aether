@@ -4,12 +4,12 @@ class_name RealityEngine
 ## stand in its ProximityArea and press `interact` (E) to open a
 ## selection list (reuses ShopScreen, same generic list-purchase UI
 ## GearShop/SpellTestShop already share) of every owned Figment
-## (GameState.owned_loot, dropped by enemies or empowered via the
+## (the carried inventory, dropped by enemies or empowered via the
 ## Crafting screen - see CraftingSystem.empower_figment()), plus a
 ## free Tier 1 offer that's always available so there's never a hard
 ## floor on entering a Map even before any Figment has dropped.
 ## Choosing a row consumes that Figment (if it was a real owned one - the
-## free offer doesn't touch owned_loot) and leaves the Hub for
+## free offer doesn't touch the inventory) and leaves the Hub for
 ## GameState.MAP_SCENE with its modifiers active for everything spawned
 ## there (Enemy.gd's _apply_map_modifiers()).
 
@@ -42,7 +42,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _open_selection() -> void:
 	var entries: Array = []
-	for item in GameState.owned_loot:
+	for item in GameState.get_inventory_items():
 		if item is FigmentItem:
 			entries.append(_entry_for(item as FigmentItem))
 	_get_shop_screen().open_with("Reality Engine", entries, {
@@ -70,7 +70,7 @@ func _entry_for(figment: FigmentItem) -> Dictionary:
 ## already follow for their own scene changes.
 func _enter(figment: FigmentItem, owned: bool = false) -> void:
 	if owned:
-		GameState.owned_loot.erase(figment)
+		GameState.remove_from_inventory(figment)
 	GameState.active_map = figment
 	SaveManager.save_game()
 	get_tree().paused = false

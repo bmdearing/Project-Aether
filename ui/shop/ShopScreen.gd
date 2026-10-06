@@ -29,7 +29,7 @@ func is_open() -> bool:
 
 ## entries: Array[Dictionary], each {label, cost (0 = free), color, on_buy,
 ## item/ability (optional, for the ItemCard hover tooltip), repeatable
-## (optional, default false - Patch v3.8c: Brand Shop's unlimited-quantity
+## (optional, default false - unlimited-quantity
 ## rows stay buyable after a purchase instead of permanently disabling,
 ## unlike GearShop's one-of-each rolled stock)}. action (optional): {label,
 ## cost, on_action} - a single button above the list for something that
@@ -114,8 +114,12 @@ func _on_buy_pressed(entry: Dictionary, buy_button: Button, cost_label: Label) -
 	if cost > 0:
 		GameState.gold -= cost
 	var on_buy: Callable = entry.get("on_buy", Callable())
-	if on_buy.is_valid():
-		on_buy.call()
+	# An on_buy that returns false (e.g. no inventory room) is refunded.
+	if on_buy.is_valid() and on_buy.call() == false:
+		GameState.gold += cost
+		cost_label.text = "No room"
+		_refresh_gold_label()
+		return
 	_refresh_gold_label()
 	if not entry.get("repeatable", false):
 		buy_button.disabled = true

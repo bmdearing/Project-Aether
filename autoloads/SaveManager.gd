@@ -19,6 +19,8 @@ extends Node
 ## the Hub at full), GameState.active_map.
 
 const SAVE_PATH := "user://savegame.json"
+## 2: loot moved from owned_loot/owned_slates into the footprint grid.
+const INVENTORY_VERSION := 2
 
 func _ready() -> void:
 	load_game()
@@ -29,12 +31,6 @@ func has_save() -> bool:
 func save_game() -> void:
 	if not GameState.game_started:
 		return
-	var owned_loot_data := []
-	for item in GameState.owned_loot:
-		owned_loot_data.append(ItemSerializer.to_dict(item))
-	var owned_slates_data := []
-	for slate in GameState.owned_slates:
-		owned_slates_data.append(SlateSerializer.to_dict(slate))
 	var data := {
 		"game_started": GameState.game_started,
 		"mouse_sensitivity": GameState.mouse_sensitivity,
@@ -49,11 +45,13 @@ func save_game() -> void:
 		"player_xp": GameState.player_xp,
 		"gold": GameState.gold,
 		"owned_ability_ids": GameState.owned_ability_ids,
-		"owned_loot": owned_loot_data,
-		"owned_slates": owned_slates_data,
-		"inventory_slot_assignment": GameState.inventory_slot_assignment,
 		"fate_board_placements": GameState.fate_board_placements,
 		"ammo_reserves": AmmoInventory.serialize(),
+		"inventory_version": INVENTORY_VERSION,
+		"grid_inventory": GameState.inventory.to_dict(),
+		"stash": GameState.stash.to_dict(),
+		"portal_map_state": GameState.portal_map_state,
+		"portals_opened": GameState.portals_opened,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -103,28 +101,15 @@ func load_game() -> void:
 			typed_ids.append(str(id))
 		GameState.owned_ability_ids = typed_ids
 
-	var loot_raw = parsed.get("owned_loot", [])
-	if typeof(loot_raw) == TYPE_ARRAY:
-		var loot: Array[Item] = []
-		for entry in loot_raw:
-			if typeof(entry) == TYPE_DICTIONARY:
-				var item := ItemSerializer.from_dict(entry)
-				if item:
-					loot.append(item)
-		GameState.owned_loot = loot
-
-	var slates_raw = parsed.get("owned_slates", [])
-	if typeof(slates_raw) == TYPE_ARRAY:
-		var slates: Array[Slate] = []
-		for entry in slates_raw:
-			if typeof(entry) == TYPE_DICTIONARY:
-				var slate := SlateSerializer.from_dict(entry)
-				if slate:
-					slates.append(slate)
-		GameState.owned_slates = slates
-
-	var slots_raw = parsed.get("inventory_slot_assignment", {})
-	GameState.inventory_slot_assignment = slots_raw if typeof(slots_raw) == TYPE_DICTIONARY else {}
+	var grid_raw = parsed.get("grid_inventory")
+	if typeof(grid_raw) == TYPE_DICTIONARY:
+		GameState.inventory = GridInventory.from_dict(grid_raw)
+	var portal_raw = parsed.get("portal_map_state")
+	GameState.portal_map_state = portal_raw if typeof(portal_raw) == TYPE_DICTIONARY else {}
+	GameState.portals_opened = int(parsed.get("portals_opened", 0))
+	var stash_raw = parsed.get("stash")
+	if typeof(stash_raw) == TYPE_DICTIONARY:
+		GameState.stash = Stash.from_dict(stash_raw)
 
 	var ammo_raw = parsed.get("ammo_reserves")
 	if typeof(ammo_raw) == TYPE_DICTIONARY:
@@ -137,6 +122,9 @@ func load_game() -> void:
 			if typeof(entry) == TYPE_DICTIONARY:
 				placements.append(entry)
 		GameState.fate_board_placements = placements
+
+	if int(parsed.get("inventory_version", 1)) < INVENTORY_VERSION:
+		_migrate_legacy_inventory(parsed)
 
 func delete_save() -> void:
 	if FileAccess.file_exists(SAVE_PATH):
@@ -161,3 +149,63 @@ func _to_ref_array(value, fallback: Array) -> Array:
 		if typeof(v) == TYPE_STRING or typeof(v) == TYPE_DICTIONARY:
 			result.append(v)
 	return result
+
+## Moves a pre-grid save's owned_loot/owned_slates into the grid (overflow
+## goes to the stash). Equipped items used to sit in owned_loot as well;
+## they're matched against the equipment refs and skipped. Placed Slates
+## were saved as owned_slates indices and now carry their full data.
+func _migrate_legacy_inventory(parsed: Dictionary) -> void:
+	var equipped_keys := []
+	var refs: Array = GameState.equipment_refs.duplicate()
+	for set_refs in GameState.weapon_set_refs:
+		refs.append_array(set_refs)
+	for ref in refs:
+		if ref is Dictionary:
+			equipped_keys.append(_legacy_key(ref))
+	for entry in parsed.get("owned_loot", []):
+		if typeof(entry) != TYPE_DICTIONARY:
+			continue
+		var key := _legacy_key(entry)
+		if equipped_keys.has(key):
+			equipped_keys.erase(key)
+			continue
+		if ItemSerializer.is_legacy_brand(entry):
+			var currency := ItemSerializer.legacy_brand_currency(entry)
+			if currency != &"":
+				_store_migrated(currency)
+			continue
+		var item := ItemSerializer.from_dict(entry)
+		if item:
+			_store_migrated(item)
+
+	var slates: Array[Slate] = []
+	for entry in parsed.get("owned_slates", []):
+		if typeof(entry) == TYPE_DICTIONARY:
+			slates.append(SlateSerializer.from_dict(entry))
+	var placed := {}
+	for placement in GameState.fate_board_placements:
+		var ref = placement.get("slate_ref")
+		if ref is float or ref is int:
+			var idx := int(ref)
+			if idx >= 0 and idx < slates.size():
+				placement["slate_ref"] = SlateSerializer.to_dict(slates[idx])
+				placed[idx] = true
+	for i in slates.size():
+		if not placed.has(i):
+			_store_migrated(slates[i])
+
+## Item data with the fields a load may fill in randomly removed, so a
+## loot entry and its equipment ref compare equal.
+func _legacy_key(d: Dictionary) -> Dictionary:
+	var key := ItemSerializer.to_dict(ItemSerializer.from_dict(d))
+	key.erase("tolerance")
+	key.erase("tolerance_max")
+	return key
+
+func _store_migrated(content) -> void:
+	if GameState.inventory.add(content) == 0:
+		return
+	for tab in GameState.stash.tabs:
+		if tab.add(content) == 0:
+			return
+	push_warning("SaveManager: no room to migrate %s" % (content if content is StringName else content.display_name))

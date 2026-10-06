@@ -41,7 +41,7 @@ class AddImplicit extends CorruptionOutcome:
 class RerandomizeValues extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
 		for affix in item.affixes:
-			if not affix.is_implicit and not affix.is_fractured and affix.value_max > affix.value_min:
+			if not affix.is_implicit and not affix.anchored and affix.value_max > affix.value_min:
 				affix.value = randf_range(affix.value_min, affix.value_max)
 
 class AddSocket extends CorruptionOutcome:

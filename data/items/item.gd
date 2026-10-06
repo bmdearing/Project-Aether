@@ -23,14 +23,17 @@ class_name Item
 ## ItemCard's new socket art (Section 3) actually draws filled vs. empty.
 @export var max_sockets: int = 0
 @export var sockets: int = 0
-## Patch v3.6: 0-30. Not wired to anything yet - the brief that added
-## this field also wanted to repoint the Refine Brand at raising it
-## instead of its existing, doc-sourced "boost every existing affix's
-## value" behavior (Brand.BrandFunction.REFINE's own header comment).
-## Kept Refine's existing behavior as-is rather than silently overwriting
-## an already-doc-sourced mechanic and its real flavor_text - this field
-## is pure scaffolding until quality gets its own real mechanic.
+## 0 to Constants.QUALITY_CAP, raised by the Orb of Tempering. Not yet
+## applied to modifier values.
 @export var quality: int = 0
+## Orb crafting state (see CraftingResolver). sockets_rolled marks the one
+## Orb of Opening use; tolerance is the lifetime crafting budget, rolled on drop.
+@export var sockets_rolled: bool = false
+@export var tolerance: int = 0
+@export var tolerance_max: int = 0
+@export var active_edict: EdictDef
+## Overrides the derived type key (see get_item_type()).
+@export var item_type: StringName = &""
 @export var affixes: Array[ItemAffix] = []
 @export var flavor_text: String = ""
 ## res:// path to a 64x64 icon (assets/sprites/) shown instead of the
@@ -40,19 +43,9 @@ class_name Item
 ## the color square exactly as before.
 @export var icon_path: String = ""
 
-## Section 20 Crafting. Cleave's "second application risks destroying the
-## item" needs a use-count; Sever's tag-sealing needs to persist which
-## damage-type/defensive/umbrella category_tags (Brand.category_tag) are
-## permanently blocked from rolling again. Both no-ops until CraftingSystem
-## touches an item - 0/empty for everything else.
-@export var cleave_count: int = 0
-@export var sealed_tags: Array[String] = []
-
-## Section 20: Shard of Tharsis. "Every corruption attempt has an
-## independent % chance to retain craftable/corruptible status regardless
-## of outcome" - is_corrupted just records that a Shard was used;
-## is_craftable is what that retain-chance roll actually gates (false
-## permanently blocks any further Cube craft or Corruption attempt).
+## Shard of Tharsis. is_corrupted records that a Shard was used (Orbs then
+## only allow Opening and Tempering); is_craftable goes false with it and
+## blocks a second corruption.
 @export var is_corrupted: bool = false
 @export var is_craftable: bool = true
 
@@ -121,9 +114,32 @@ func get_suffix_count() -> int:
 func get_implicit_count() -> int:
 	return affixes.filter(func(a: ItemAffix): return a.is_implicit).size()
 
-## Rare+ only for a 3rd prefix/suffix, matching the doc's own rarity gate.
 func can_add_prefix() -> bool:
-	return get_prefix_count() < MAX_PREFIXES and rarity >= Constants.ItemRarity.RARE
+	var limits: Vector2i = Constants.AFFIX_LIMITS_GEAR.get(rarity, Vector2i.ZERO)
+	return get_prefix_count() < limits.x
 
 func can_add_suffix() -> bool:
-	return get_suffix_count() < MAX_SUFFIXES and rarity >= Constants.ItemRarity.RARE
+	var limits: Vector2i = Constants.AFFIX_LIMITS_GEAR.get(rarity, Vector2i.ZERO)
+	return get_suffix_count() < limits.y
+
+## snake_case type key used by modifier item_types, tolerance ranges and
+## inventory footprints: weapon_type for weapons, the base line for
+## shields, the slot for everything else.
+func get_item_type() -> StringName:
+	if item_type != &"":
+		return item_type
+	if self is Weapon:
+		return StringName(String(get("weapon_type")).to_lower().replace(" ", "_"))
+	if self is Shield and base_line_id != "":
+		var regex := RegEx.create_from_string("_line\\d+$")
+		return StringName(regex.sub(base_line_id, ""))
+	match equip_slot:
+		Constants.EquipmentSlot.HELMET: return &"helmet"
+		Constants.EquipmentSlot.BODY_ARMOUR: return &"body_armour"
+		Constants.EquipmentSlot.GLOVES: return &"gloves"
+		Constants.EquipmentSlot.BOOTS: return &"boots"
+		Constants.EquipmentSlot.AMULET: return &"amulet"
+		Constants.EquipmentSlot.BELT: return &"belt"
+		Constants.EquipmentSlot.RING: return &"ring"
+		Constants.EquipmentSlot.OFFHAND: return &"shield"
+	return &""

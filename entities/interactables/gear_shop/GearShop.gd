@@ -74,9 +74,11 @@ func _open_shop() -> void:
 		"on_action": func(): _reroll_and_reopen(),
 	})
 
-func _buy(item: Item) -> void:
-	GameState.owned_loot.append(item)
+func _buy(item: Item) -> bool:
+	if not GameState.add_to_inventory(item):
+		return false
 	_stock.erase(item)
+	return true
 
 ## Re-opens rather than refreshes, so stock/button/Gold label all update
 ## through the same open_with() path a normal open uses.

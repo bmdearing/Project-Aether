@@ -85,20 +85,11 @@ const STAT_GAIN_PER_LEVEL := 0.6
 func get_level_stat_bonus() -> float:
 	return (player_level - 1) * STAT_GAIN_PER_LEVEL
 
-## Rolled loot picked up this session - persisted by SaveManager via
-## ItemSerializer (full data, since rolled items have no resource_path).
-var owned_loot: Array[Item] = []
-
-## Rolled Slates picked up this session (SlateRoller drops) - persisted
-## by SaveManager via SlateSerializer, same full-data rationale as
-## owned_loot. The 2 hand-authored data/slates/instances/ samples are
-## still always-available in FateBoardEditor's palette on top of these -
-## this array is additive, not a replacement for that starter pool.
-var owned_slates: Array[Slate] = []
-
-## InventoryScreen grid arrangement: stack key -> relative slot index (see
-## InventoryScreen._build_stack_entries() for the key format). Saved.
-var inventory_slot_assignment: Dictionary = {}
+## Footprint-grid carried inventory and Hub stash (Rev2). Holds every
+## unequipped item, unplaced Slate and crafting currency the player owns;
+## equipped gear lives on EquipmentComponent and placed Slates on the Fate Board.
+var inventory: GridInventory = GridInventory.new()
+var stash: Stash = Stash.create_default()
 
 ## Fate Board LAYOUT - which Slate sits where, plus its designated ability
 ## for Spell Slates (see Slate.requires_spell_designation). User-reported
@@ -112,7 +103,7 @@ var inventory_slot_assignment: Dictionary = {}
 ## same as everything else here - the older "only ownership persists, not
 ## layout" design note in SaveManager.gd is superseded by this.
 ## Each entry: {"slate_ref": String resource_path (hand-authored palette
-## Slate) or int (index into owned_slates, a rolled single-use drop),
+## Slate) or Dictionary (SlateSerializer data for a rolled drop),
 ## "origin": [x,y], "rotation_steps": int, "flipped": bool,
 ## "designated_ability_id": String ("" if none)}.
 var fate_board_placements: Array = []
@@ -139,6 +130,7 @@ var figment_tree_unlocked_nodes: Array[String] = []
 
 func _ready() -> void:
 	EventBus.figment_completed.connect(_on_figment_completed)
+	EventBus.player_died.connect(_on_player_died)
 
 func _on_figment_completed(figment: FigmentItem) -> void:
 	figment_tree_points += figment.tier if figment else 1
@@ -156,11 +148,8 @@ func sync_ability_loadout(loadout: AbilityLoadoutComponent) -> void:
 ## Called by FateBoard itself on every place_slate()/remove_slate() -
 ## snapshots its live placements into fate_board_placements so they
 ## survive the next scene reload/save. A palette Slate (loaded from
-## data/slates/instances/) keeps its resource_path; a rolled owned_slates
-## drop has none, so it's referenced by array index instead - preserves
-## the same object identity FateBoardEditor's single-use-ownership check
-## (_is_slate_available()) already relies on, rather than reconstructing
-## a duplicate Slate that would silently double an owned copy.
+## data/slates/instances/) keeps its resource_path; a rolled drop is saved
+## in full, since a placed Slate is no longer in the inventory.
 func sync_fate_board(board: FateBoard) -> void:
 	var data := []
 	for placement_id in board.placements:
@@ -169,10 +158,7 @@ func sync_fate_board(board: FateBoard) -> void:
 		if p.slate.resource_path != "":
 			slate_ref = p.slate.resource_path
 		else:
-			var idx := owned_slates.find(p.slate)
-			if idx == -1:
-				continue  # a placed Slate is always either palette or owned - shouldn't happen
-			slate_ref = idx
+			slate_ref = SlateSerializer.to_dict(p.slate)
 		data.append({
 			"slate_ref": slate_ref,
 			"origin": [p.origin.x, p.origin.y],
@@ -192,13 +178,15 @@ func reset_to_defaults() -> void:
 	_reset_all_ability_ranks()
 	player_level = 1
 	player_xp = 0.0
-	owned_loot = []
-	owned_slates = []
-	inventory_slot_assignment = {}
 	fate_board_placements = []
+	inventory = GridInventory.new()
+	stash = Stash.create_default()
 	gold = 1000000  # Patch v3.8c, user request - dev/testing convenience
 	figment_tree_points = 0
 	figment_tree_unlocked_nodes = []
+	portal_map_state = {}
+	portals_opened = 0
+	returning_through_portal = false
 	AmmoInventory.reset()
 
 ## Called when a map scene launches without going through the main menu.
@@ -231,3 +219,30 @@ func _reset_all_ability_ranks() -> void:
 ## Set by RealityEngine.gd right before loading MAP_SCENE - Enemy.gd reads
 ## this to scale itself. Null means no modifiers (e.g. TestArena).
 var active_map: FigmentItem = null
+
+## Adds to the carried inventory; false if it (or some of a currency
+## stack) didn't fit.
+func add_to_inventory(content, count: int = 1) -> bool:
+	return inventory.add(content, count) == 0
+
+func remove_from_inventory(content) -> bool:
+	return inventory.remove_content(content)
+
+## Every non-currency item and Slate in the carried inventory.
+func get_inventory_items() -> Array:
+	var items := []
+	for entry in inventory.get_entries():
+		if not entry.is_currency():
+			items.append(entry.content)
+	return items
+
+## The map left through a portal (GeneratedMap.capture_state()), restored
+## when the player takes the Hub's return portal. Empty when no run is
+## open. Saved, so a run survives quitting from the Hub.
+var portal_map_state: Dictionary = {}
+var portals_opened: int = 0
+## Set by the Hub return portal just before loading MAP_SCENE.
+var returning_through_portal: bool = false
+
+func _on_player_died() -> void:
+	portal_map_state = {}

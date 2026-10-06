@@ -458,10 +458,10 @@ func _floor_height_at(space_state: PhysicsDirectSpaceState3D, pos: Vector3):
 ## Invented drop rates - no doc-sourced table exists.
 const BASE_LOOT_DROP_CHANCE := 0.35
 const TOME_DROP_CHANCE := 0.08  # flat, independent of the gear roll below
-## Section 20: Brands "dropped as loot only" - same flat, independent
-## treatment as Tomes. Stones/Shard are rarer (one flat roll picks
-## between the 3, not 3 independent rolls).
-const BRAND_DROP_CHANCE := 0.12
+## Crafting currency (Orbs, Brands, Edicts) drops as loot only, picked by
+## Constants.CURRENCY_DROP_WEIGHTS. Stones/Shard are rarer (one flat roll
+## picks between the 3, not 3 independent rolls).
+const CURRENCY_DROP_CHANCE := 0.12
 const CRAFTING_CONSUMABLE_DROP_CHANCE := 0.03
 const CRAFTING_CONSUMABLE_DIR := "res://data/consumables/instances/"
 const SLATE_DROP_CHANCE := 0.10
@@ -528,11 +528,9 @@ func _maybe_drop_loot() -> void:
 			_spawn_pickup(tome)
 			return  # one drop max per kill
 
-	if randf() <= BRAND_DROP_CHANCE:
-		var brand := BrandRoller.roll()
-		if brand:
-			_spawn_pickup(brand)
-			return
+	if randf() <= CURRENCY_DROP_CHANCE:
+		_spawn_currency_pickup(Constants.roll_currency_drop())
+		return
 
 	if randf() <= CRAFTING_CONSUMABLE_DROP_CHANCE:
 		var consumable := _roll_crafting_consumable()
@@ -633,6 +631,12 @@ func _spawn_pickup(item: Item) -> void:
 	get_parent().add_child(pickup)
 	pickup.global_position = global_position
 	EventBus.loot_dropped.emit(item, global_position)
+
+func _spawn_currency_pickup(currency_id: StringName) -> void:
+	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()
+	pickup.currency_id = currency_id
+	get_parent().add_child(pickup)
+	pickup.global_position = global_position
 
 func _spawn_slate_pickup(slate: Slate) -> void:
 	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()

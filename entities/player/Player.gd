@@ -307,9 +307,8 @@ func _on_died() -> void:
 ## Re-applies GameState's equipment/ability loadout - Player is a fresh
 ## instance every scene load, so this runs every time, not just at boot.
 func _apply_saved_loadout() -> void:
-	var claimed: Array[Item] = []
 	for ref in GameState.equipment_refs:
-		var item := _resolve_equipment_ref(ref, claimed)
+		var item := _resolve_equipment_ref(ref)
 		if item:
 			equipment.equip(item, true)
 	# Dual weapon sets (2026-08-31) - restored explicitly by index rather
@@ -317,10 +316,13 @@ func _apply_saved_loadout() -> void:
 	# get_weapon_set_refs()'s own header for why.
 	for set_index in range(GameState.weapon_set_refs.size()):
 		for ref in GameState.weapon_set_refs[set_index]:
-			var item := _resolve_equipment_ref(ref, claimed)
+			var item := _resolve_equipment_ref(ref)
 			if item:
 				equipment.equip(item, true, set_index)
 	equipment.active_weapon_set = GameState.active_weapon_set
+	# Re-snapshot so refs from older saves pick up fields added since.
+	GameState.sync_equipment(equipment)
+	GameState.sync_weapon_sets(equipment)
 	for i in range(GameState.ability_loadout_paths.size()):
 		var path: String = GameState.ability_loadout_paths[i]
 		if path != "":
@@ -329,26 +331,14 @@ func _apply_saved_loadout() -> void:
 				ability_loadout.equip(ability, i)
 	_apply_saved_ability_ranks()
 
-## A rolled item's ref is a serialized snapshot. Equipping a fresh
-## from_dict() copy would detach it from its GameState.owned_loot entry, so
-## later crafts (which act on owned_loot) would never reach the equipped
-## item - reuse the matching owned_loot instance instead. Both sides are
-## normalized through to_dict() since a JSON-loaded ref has floats where a
-## live to_dict() has ints. `claimed` keeps two identical rolls distinct.
-func _resolve_equipment_ref(ref, claimed: Array[Item]) -> Item:
+## A rolled item's ref is a serialized snapshot; equipped items aren't in
+## the inventory, so the restored copy is the only instance.
+func _resolve_equipment_ref(ref) -> Item:
 	if ref is String:
 		return load(ref) if ref != "" else null
 	if not (ref is Dictionary):
 		return null
-	var snapshot := ItemSerializer.from_dict(ref)
-	if snapshot == null:
-		return null
-	var key := ItemSerializer.to_dict(snapshot)
-	for owned in GameState.owned_loot:
-		if owned.resource_path == "" and not claimed.has(owned) and ItemSerializer.to_dict(owned) == key:
-			claimed.append(owned)
-			return owned
-	return snapshot
+	return ItemSerializer.from_dict(ref)
 
 ## Crafting changed an item in place. If it's equipped, re-run the equip
 ## path so StatSheet picks up the new affixes, and re-snapshot the refs so
@@ -386,18 +376,13 @@ func _apply_saved_fate_board() -> void:
 			str(entry.get("designated_ability_id", "")), true
 		)
 
-## slate_ref is a resource_path String (hand-authored palette Slate) or an
-## index (int, or float once round-tripped through JSON) into
-## GameState.owned_slates (a rolled, single-use drop) - see GameState.
-## sync_fate_board()'s own doc comment for why owned Slates go by index
-## rather than full re-serialization.
+## slate_ref is a resource_path String (hand-authored Slate) or full
+## SlateSerializer data (a rolled drop).
 func _resolve_slate_ref(ref) -> Slate:
 	if ref is String and ref != "":
 		return load(ref) as Slate
-	if ref is int or ref is float:
-		var idx := int(ref)
-		if idx >= 0 and idx < GameState.owned_slates.size():
-			return GameState.owned_slates[idx]
+	if ref is Dictionary:
+		return SlateSerializer.from_dict(ref)
 	return null
 
 func _apply_saved_ability_ranks() -> void:
@@ -595,6 +580,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		var clamped_x: float = clamp(head.rotation.x, deg_to_rad(-max_look_up_deg), deg_to_rad(max_look_up_deg))
 		head.rotation.x = clamped_x
 
+## Non-pausing menus (the inventory) show the cursor; combat input is
+## ignored while they do, movement isn't.
+func is_input_blocked() -> bool:
+	return Input.mouse_mode != Input.MOUSE_MODE_CAPTURED
+
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		var gravity_scale := FALL_GRAVITY_MULTIPLIER if velocity.y < 0.0 else 1.0
@@ -649,7 +639,7 @@ func _physics_process(delta: float) -> void:
 	_update_crouch_visual(delta)
 	move_and_slide()
 
-	if stunned:
+	if stunned or is_input_blocked():
 		return
 
 	if Input.is_action_just_pressed("parry"):

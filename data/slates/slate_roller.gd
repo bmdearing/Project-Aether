@@ -10,8 +10,7 @@ class_name SlateRoller
 ## Scope: only the 9 real Constants.DamageType tags are rolled (Section
 ## 10's "Armor/Evasion/Ward/Resistance/Resilience -> relevant defensive
 ## stat" row for non-damage-type tags isn't modeled - those 5 stats
-## aren't uniformly wired anywhere else in this project either, same
-## scope cut BrandRoller already made for defensive Brands).
+## aren't uniformly wired anywhere else in this project either).
 
 ## Section 10 "Slate Sizes & Rarity" - doc-exact size brackets and rarity
 ## bands. Picked uniformly (not power_level-gated) since size/rarity is a
@@ -98,11 +97,15 @@ static func roll(power_level: int = 1) -> Slate:
 	if slate.is_hybrid:
 		var others := REAL_DAMAGE_TYPES.filter(func(t): return t != slate.tag)
 		slate.secondary_tag = others[randi() % others.size()]
-	slate.rarity = bracket["rarities"][randi() % bracket["rarities"].size()]
+	# Rev2: rarity comes from crafted modifiers, so every drop starts Common.
+	# The size bracket still sets the drop's Aether cost, unchanged.
+	var bracket_rarity: Constants.SlateRarity = bracket["rarities"][randi() % bracket["rarities"].size()]
+	slate.rarity = Constants.SlateRarity.COMMON
 	slate.display_name = "%s Slate" % Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
 
 	slate.modifiers = _roll_modifiers(slate.tag, tile_count, power_level)
-	slate.aether_cost = tile_count + RARITY_AETHER_BONUS.get(slate.rarity, 0)
+	slate.aether_cost = tile_count + RARITY_AETHER_BONUS.get(bracket_rarity, 0)
+	CraftingResolver.roll_tolerance(slate)
 	return slate
 
 static func _pick_shape_template(bracket: Dictionary) -> Array:

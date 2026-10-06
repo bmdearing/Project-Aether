@@ -461,30 +461,7 @@ the top-right corner, "0" shown plainly rather than hidden when empty.
 How a stack gets acquired/selected is out of scope for this pass (no
 crafting/acquisition system invented, per the brief) - starts null.
 
-**The inventory grid is rearrangeable** - drag a slot onto an EMPTY cell
-and it moves there, exactly, full stop; drag it onto an OCCUPIED cell and
-the two swap (native Godot `Control` drag-and-drop, `ItemSlotButton.
-draggable` opt-in so Fate Board/Abilities/Shop's own buttons are
-unaffected). Real per-cell positioning (`InventoryScreen._slot_assignment`),
-not a reordered list - two earlier versions got this wrong (insert-before-
-target bumped every later slot down by one; a naive "empty means append"
-fallback dragged every item between the source and the actual empty cell
-along with it) before landing on real per-cell placement, both caught by
-the user in play. Position is session-local (not saved - only ownership
-is; a flagged gap, revisit if this needs to survive a reload).
-`GameState.owned_loot`'s own array order is never touched by dragging at
-all now - only which grid cell each entry renders in changes.
-Only real drops are draggable - the directory-scanned "one of each base"
-catalog always sits first and can't be picked up or targeted, since its
-scan order isn't something the player actually owns to rearrange. **Brand
-stacks**: identical Brands (fungible crafting currency, not unique rolled
-gear - see Crafting above) group into one slot with a count ("Impel x3")
-instead of one slot per drop, and drag as a whole block. Clicking a Brand
-or crafting consumable in the grid no longer tries to equip it (both have
-a meaningless leftover `equip_slot` default that, before this, silently
-cleared whatever was actually equipped in that slot - a real bug, not
-just a missing feature) - it shows a status message pointing at the
-Crafting screen instead.
+**Inventory**: see "Crafting, inventory, stash & portals" below.
 
 **Stat cards** (`ui/item_card/`): hovering any item, Slate, or ability
 anywhere in the UI shows a rich PoE-style card (stats, affixes, flavor
@@ -645,7 +622,7 @@ Board, both landing on `StatSheet`:
 Mastery (a third pathway, amplifying scaling grade and chain bonus) was
 removed in v4.8. Section 10 itself leaves chain amplification of stat
 rolls "deferred pending balance evaluation"; v4.9 implements it as a
-design decision. **`SlateRoller`** (mirrors `ItemRoller`/`BrandRoller`)
+design decision. **`SlateRoller`** (mirrors `ItemRoller`)
 rolls all five of Section 10's axes - Tag, Shape (from a small invented
 template pool, freely rotated/flipped at placement), Size (the doc's own
 2-4/5-9/10-11 tile brackets, each with its own rarity band and design
@@ -746,12 +723,8 @@ cost; short on Gold buys nothing. **SpellTestShop**
 lists every ability under `data/abilities/instances/` for free — an
 explicit testing/debug tool (user-requested), not a designed economy
 feature, so you can unlock everything without grinding Tome drops while
-testing other systems. **BrandShop** (2026-09-06, dev/testing convenience)
-sells all 26 real Brands (`Constants.BRAND_RARITIES`) for Gold, priced by
-rarity tier (Common 50/Uncommon 200/Rare 800), unlimited quantity — every
-row stays buyable after a purchase instead of the normal one-and-done
-disable, via a `"repeatable"` entry flag `ShopScreen` now supports. All
-three share one generic `ShopScreen` (caller supplies the entries + a buy
+testing other systems. (The old BrandShop was removed with the Cube in
+Rev2 - Brands drop as loot only.) The shops share one generic `ShopScreen` (caller supplies the entries + a buy
 callback, plus an optional single "action" button for GearShop's reroll —
 same "one shared screen" shape `ItemCard` already uses for item/slate/
 ability display). New-game starting Gold is 1,000,000 (2026-09-06, dev/
@@ -803,64 +776,55 @@ abilities are no longer freely available, they have to be found this way
 (or granted by the SpellTestShop). Gear/Tomes both spawn as a
 `LootPickup` — a floating/bobbing placeholder sphere colored by rarity,
 auto-picked-up on touch (a judgment call, see gap below). Gear lands in
-`GameState.owned_loot` (persisted, including full data for pathless
-rolled items — see Save/Load below) and shows up in `InventoryScreen`'s
-grid, fully equippable and now safe to keep equipped across scene
-transitions/saves; a Tome unlocks its ability into
+the footprint grid (`GameState.inventory`, persisted in full) and is
+equippable from `InventoryScreen`, or stays on the ground if there's no room; a Tome unlocks its ability into
 `GameState.owned_ability_ids` and shows up in `AbilitiesScreen`.
 
-**Crafting** (`systems/crafting/CraftingSystem.gd`, `ui/crafting/`,
-`data/brands/`, `K`, Section 20): the doc's three distinct crafting
-methods, all real. **The Cube**: place one owned item + up to 8 Brands
-(this project's uniform 1x1 inventory means every item costs exactly one
-of the 3x3 grid's 9 cells), hit Craft. **Can't queue more of a Brand than
-you actually own** (2026-08-30 bug fix, user report: "I only have one of
-a brand but I can add it multiple times") - the palette's one button per
-Brand type used to queue the SAME representative owned object on every
-click, which let `CraftingSystem.MAX_SAME_BRAND`'s per-craft cap of 2
-silently over-consume (crafting with "2 queued" while only 1 was ever
-actually owned, since the second reference never matched a second real
-object at consumption time) - fixed by queuing genuinely distinct owned
-objects instead. **Owned Items and Consumables now show a real hover
-card** too (2026-08-30, user-reported gap) - both were previously either
-a plain `Button`/`Label` with no tooltip at all, now `ItemSlotButton`
-like everywhere else in this project's UI. 24 of the doc's ~29 named Brands
-exist (all 9 Damage Type, all 5 Defensive Type, all 4 Umbrella, all 6
-Crafting Utility, plus Binder/Rectify from Special/Rare — Facsimile/
-Amalgam/Imbue are cut, see gap below), dropped as loot only
-(`BrandRoller.gd`, same flat-chance convention as Skill Tomes). A Damage/
-Defensive/Umbrella Brand alone adds one new modifier weighted toward its
-category (reusing `ItemRoller.AFFIX_POOL`, now tagged per category — see
-gap below for which categories are still descriptive-only). **Clicking
-any Brand previews what it can actually do** to the selected item before
-you commit it to the Cube - for a category Brand, the real list pulled
-from `ItemRoller._pool_for_brand_tag()` (the exact pool a craft would
-roll against, so the preview can never promise something a craft
-wouldn't produce); for a Utility/Special Brand (no pool to roll from,
-just a fixed action), its function description instead. Render/
-Refine/Cleave/Excise/Bore/Sever do their doc-described thing for real
-(Cleave locks one modifier and risks destroying the item on a second use;
-Sever, combined with a category Brand, permanently seals that tag from
-ever rolling on the item again); Binder exempts every other Brand in the
-craft from consumption. **Infusion/Shrivening Stone**: reroll or clear a
-weapon's `infused_damage_type` (the field already existed, unused, before
-this). **Rarity now updates live as you craft** (Patch v3.9,
-`CraftingSystem._update_item_rarity()`, called once per successful
-`craft_cube()`) — 0 affixes white/Common, 1-2 blue/Uncommon, 3+ yellow/
-Rare, recomputed after every add/remove/reroll; Unique/Mythic/corrupted
-items never reclassify. `EventBus.item_rarity_changed` keeps a hovered
-item's `ItemCard` border/title color live through the craft instead of
-only updating on the next hover.
+**Crafting, inventory, stash & portals** (Crafting & Inventory Rev2,
+`documents/Aether_Crafting_Inventory_Rev2.docx`; replaces Section 20's Cube).
+- **Orbs** (`systems/crafting/CraftingResolver.gd`): Quickening, Grafting,
+  Elevation, Forging, Ascendant, Recasting, Severance, Absolution, Anchoring,
+  Tempering, Opening, Reckoning. `preview()` has no side effects and gives
+  every possible modifier/tier with its exact chance; `apply()` validates
+  first, so a failed craft consumes nothing. Rarity limits: gear 1/1
+  Uncommon, 3/3 Rare; Slates 1/1, 2/2. Unique/Mythic aren't Orb-craftable;
+  corrupted items only take Opening and Tempering.
+- **Modifier pools**: real gear rolls from `GearModifierPool` (built from
+  `ItemRoller.AFFIX_POOL` and the weapon affix library with the same
+  eligibility rules drops use, 5 tiers gated by item level); Slates from
+  `SlateModifierPool` (their own tags plus generic/spell/attack). Gear and
+  Slate pools never mix. Test content can register its own pools.
+- **Aether Tolerance**: every item and Slate rolls a crafting budget on
+  drop; each Orb spends a random amount; at 0 the item is finished.
+- **Brands & Edicts** (`data/crafting/brands/`, `edicts/`): 18 tag Brands,
+  Prefix/Suffix, Preservation, and Vestige support; tags combine (Fire +
+  Cold needs both). Brands must be carried and activated
+  (`ActiveBrands`); Edicts sit on the item until its next resolved craft.
+  All player-facing names/errors live in `data/crafting/currency_text.tres`.
+- **Crafting screen (K)**: pick a carried/equipped item or Slate, select an
+  Orb to see its preview, Use it; click Brands to activate them; Apply
+  Edicts; the Infusion/Shrivening Stone, Shard of Tharsis and Figment
+  empowering live here too. Currency drops from enemies as loot pickups.
+- **Inventory (B)**: a 12x6 footprint grid (`GridInventory`,
+  `GameState.inventory`), no rotation; currency stacks to 100 per cell.
+  Click to equip (displaced gear goes back into the grid, or the swap is
+  undone if it can't fit), click the paper doll to unequip. Doesn't pause
+  the game; combat input is ignored while the cursor is showing. Full
+  inventory leaves pickups on the ground ("Inventory full" on the HUD).
+- **Stash**: the chest in the Hub (E) opens 4 general tabs plus Currency and
+  Slate tabs; drag between sides or right-click to send. Orbs work on
+  stash items; Brands must be carried. F6 opens a debug grid view with
+  test-loot buttons.
+- **Portals**: T opens a portal in a generated map; walking in saves the
+  map (seed, defeated enemies, loot on the ground, portal spot, Figment)
+  to `GameState.portal_map_state` and the save file, and the Hub's return
+  portal rebuilds it exactly. Unlimited (`Constants.MAX_PORTALS = -1`).
+  The run ends on death or when a new map is entered.
+- **Throwables** are on hold (Rev2): `ThrowableStack.gd`, the Player/HUD
+  throwable hooks and the throwable item data are still present but unused.
 
-**Named Brand combinations** (Patch v3.6, `systems/crafting/
-BrandCombinationResolver.gd`): placing specific Brand pairs/triples
-together now rolls from a deliberately combined pool instead of just
-diluting the odds between separately-weighted tags — Anneal+Attenuate
-pulls from the combined armor+evasion pool, Calcine+Galvanic+Quench from
-fire+cold+lightning, and so on for 7 pairs and 5 triples. Same Brand x3
-also caps the roll at Tier 3 or better (this project's Tier 1 is always
-best). Any other combination still falls back to the original weighted-
-any-present-tag pick, unchanged.
+**Infusion/Shrivening Stone** reroll or clear a weapon's
+`infused_damage_type`.
 
 **Shard of Tharsis** (Patch v3.6 rework, `systems/crafting/
 CorruptionSystem.gd`/`CorruptionOutcome.gd`): corrupts an item by rolling
@@ -875,11 +839,8 @@ Extreme). Replaces the previous flat 8-outcome weighted list. **Veiltouch**
 (Major) is the
 one real gear/Slate crossover in this project — pulls a random Slate
 Affix Pool entry (see below) and grafts it onto the item as a real
-explicit modifier, once per item. Every corruption attempt still also
-rolls the doc's "chance to retain craftable/corruptible status," which
-can permanently lock an item out of any further Cube craft or
-corruption — kept from the previous implementation alongside the new
-tier model, not replaced by it.
+explicit modifier, once per item. A corrupted item can't be corrupted again, and Orbs only allow Opening
+and Tempering on it (Rev2).
 
 **Slate Affix Pool** (Patch v3.6, new — `data/items/SlateAffix.gd`,
 `systems/crafting/SlateAffixPool.gd`, `data/slates/affix_pool/`): a
@@ -889,14 +850,6 @@ above. Currently 36 hand-generated stubs (3 per tag × 12 tags: the 9 real
 damage types plus spell/attack/generic), not real design — scaffolding
 for a future procedural Slate-affix roll. Hand-authored Slates still use
 their own fixed `SlateModifier` list, untouched by any of this.
-
-Every probability/priority-order choice below the doc's own named
-mechanics is still this project's invented placeholder (Section 24
-explicitly defers "Cube combination rules," "Brand rarity tiers," and
-"Corruption probability distribution" to a future design pass) — Patch
-v3.6 is exactly that pass for the Cube's own combination rules and
-Corruption's own outcome model specifically, everything else flagged
-below is still open.
 
 **Map screen** (`ui/map_screen/`, `M`): a top-down schematic of the
 current generated Map's room graph — start room green, Vault gold, your
@@ -1057,17 +1010,18 @@ formulas).
 | Attack (melee or ranged, depending on active weapon) | Left Mouse |
 | Weapon stance (hold) - preps a special melee attack or aims (ranged) | Right Mouse |
 | Cast equipped ability (slot 1-4) - hold + release to aim for Comet/Inferno/Stormcall | 1 / 2 / 3 / 4 |
-| Pause menu (Resume / Return to Hub / Quit) | Esc |
-| Return to Hub directly (no pause menu needed) | T |
+| Pause menu (Resume / Return to Hub through a portal / Quit) | Esc |
+| Open a portal to the Hub (generated maps; elsewhere returns directly) | T |
 | Open Fate Board directly | P |
 | Open Inventory directly | B |
 | Open Abilities (equip/upgrade) directly | N |
 | Open Character Screen directly | C |
 | Open Map Screen directly | M |
-| Open Crafting (The Cube) directly | K |
+| Open Crafting directly | K |
 | Rotate pending Slate *(Fate Board editor only)* | R |
 | Flip pending Slate *(Fate Board editor only)* | Q |
-| Interact *(Reality Engine, Hub only)* | E |
+| Interact *(Reality Engine, shops, Stash chest - Hub only)* | E |
+| Debug grid inventory / stash view | F6 |
 
 P/B/N/C/M/K work from anywhere — gameplay, the pause menu, or another such
 screen — and jump straight to their target, closing whatever else was
@@ -1117,9 +1071,10 @@ None of the six have a `PauseMenu` button — hotkey-only.
    from 32x32), not the doc's literal "effectively unlimited" board — a
    deliberate scope cut, though large enough that hitting the edge in
    practice is unlikely.
-6. **Inventory is a uniform 1x1 grid**, not the Tetris-footprint Satchel
-   (Section 14) — `Item.gd` has no width/height field. Confirmed with the
-   user as the right scope, not a silent guess.
+6. **Inventory footprints come from a data table**
+   (`data/inventory/footprints.tres`); Crossbow, Bow and Gauntlet aren't
+   in the doc's table, so they're guessed (3x2, 3x2, 2x2). Anything not in
+   the table (Figments, Tomes, consumables, currency) is 1x1.
 7. **Armor mitigation applies one formula to all Physical damage types**:
    Section 16 says Kinetic gets it "full," Piercing "partial," Explosive
    a "flat reduction," but gives no ratio for the latter two.
@@ -1328,44 +1283,27 @@ None of the six have a `PauseMenu` button — hotkey-only.
     taken) is invented — the doc names each effect and its qualitative
     behavior only, no numbers, same as every other unspecified-tuning gap
     on this list.
-25. **Crafting's Cube combination rules and Corruption probabilities are
-    entirely invented** — Section 24 ("Deferred Design") explicitly says
-    so itself ("Cube combination rules — how many Brands per combination,
-    fixed vs variable slots," "Corruption probability distribution —
-    outcome weightings," "Maximum modifier count per item — balance
-    dependent" are all listed there as not yet designed, not just missed
-    by this project). `CraftingSystem.FUNCTION_PRIORITY` (which Brand
-    function governs a craft when several are placed together),
-    `MAX_AFFIXES` (6, reusing Section 18's own "Rare: 0-6" ceiling),
-    `CLEAVE_DESTROY_CHANCE`/`SEVER_UNDO_CHANCE`/`REFINE_BOOST_PERCENT`/
-    `RETAIN_CRAFTABLE_CHANCE`, and `CORRUPTION_OUTCOMES`' weights are all
-    this project's own placeholders for those specific gaps. Facsimile
-    (item duplication), Amalgam (merging two items' mods), and Imbue (a
-    new "powerful implicit" pool) are cut from the Special/Rare Brand
-    list — each is its own separate mechanic with no natural home in the
-    systems this pass touches. Vestiges (boss-exclusive mod pools) aren't
-    modeled — this project has no boss encounters to drop one. Corruption
-    and Bore both touch `Item.max_sockets`, but per gap #21 nothing can
-    actually be socketed into it yet. Brand rarity/drop weighting is real
-    now (Patch v3.5, `Constants.BrandRarity`/`BRAND_DROP_WEIGHTS`,
-    `BrandRoller.roll()`) — Brands used to drop uniformly regardless of
-    power. `ItemAffix` also grew prefix/suffix/implicit-count helpers and
-    `is_generic`/`damage_type` fields (`Item.get_prefix_count()` etc.,
-    `StatSheet.apply_affix()`) as pure data scaffolding for a future
-    Cube/`ItemRoller` pass — nothing generates or reads these new fields
-    yet, same "shape only" footing as the rest of this list.
-26. **Inventory slot arrangement doesn't survive a save/reload** -
-    `InventoryScreen._slot_assignment` (which grid cell each item/Brand
-    stack renders in) lives on the screen instance itself, not
-    `GameState`, so it resets whenever the scene reloads (returning to
-    Hub, entering a Map, loading a save). `GameState.owned_loot` - actual
-    *ownership* - is unaffected and still persists exactly as before;
-    only the player's chosen layout is session-local. Not requested, and
-    keying a persistent version to something stable across a save's
-    item-reconstruction (`ItemSerializer.from_dict()` builds fresh
-    Resource objects with new instance ids every load) would need a real
-    per-item save-stable id that doesn't exist yet - flagged rather than
-    guessed at.
+25. **Orb crafting numbers are placeholders** (Crafting & Inventory Rev2
+    leaves them open): Aether Tolerance starting ranges and per-Orb cost
+    ranges (`Constants.STARTING_TOLERANCE_*`, `TOLERANCE_COST`), Orb tier
+    roll weights (`GEAR_TIER_WEIGHTS`/`SLATE_TIER_WEIGHTS`), currency drop
+    weights (`CURRENCY_DROP_WEIGHTS`, 12% per kill), inventory/stash sizes,
+    and the quality cap of 20. Defaults taken for the doc's open questions:
+    no Slate tier cap by size (`SLATE_TIER_CAP_BY_SIZE` empty), the Shard of
+    Tharsis spends no tolerance, one anchored modifier per item. Judgment
+    calls: AFFIX_POOL entries have no prefix/suffix of their own, so
+    `GearModifierPool.SUFFIX_KEYWORDS` decides; Reckoning rerolls anchored
+    modifiers too; Absolution under a positional Brand or Edict removes only
+    what's allowed and drops to the lowest rarity that still fits; several
+    active Vestiges combine their pools; Preservation is only consumed when
+    another Brand applied. Quality doesn't raise modifier values yet. Slate
+    modifiers (`data/slates/affix_pool/`) are still stubs, so crafted Slate
+    modifiers don't feed any stat. No real Vestiges exist yet (no boss pools).
+    Old Cube Brands in a save convert on load
+    (`ItemSerializer.LEGACY_BRAND_CURRENCY`; e.g. Calcine -> Fire Brand,
+    Cleave -> Orb of Anchoring, Binder -> Preservation Brand, Sever -> Orb of
+    Absolution). Corruption outcome probabilities are still invented.
+26. *(Resolved in Rev2: the inventory layout is saved with the footprint grid.)*
 27. **The Slate System's numeric/probabilistic choices beyond Section
     10's own doc-exact numbers are invented** - the Chain Bonus tiers,
     Main Stat by Tag table, and Slate Size/Rarity brackets are doc-exact
@@ -1543,9 +1481,8 @@ Board above), pathfinding/
 navigation for enemies (fine today — every generated room is an open box,
 nothing to path around within one). A status-effect system now exists
 (`StatusEffectComponent`, flagged gap #24) but only for 5 of Section 09's
-11 effects. Crafting (`CraftingSystem`, flagged gap #25) now exists too -
-The Cube, Infusion/Shrivening Stone, and Shard of Tharsis are all real,
-minus Facsimile/Amalgam/Imbue and Vestiges (no boss encounters to drop one).
+11 effects. Crafting now runs on Orbs, Brands and Edicts (Crafting &
+Inventory Rev2, see "Crafting, inventory, stash & portals" above).
 
 ## Opening this project
 

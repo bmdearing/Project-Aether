@@ -166,7 +166,7 @@ func _physics_process(delta: float) -> void:
 
 	for i in range(AbilityLoadoutComponent.SLOT_COUNT):
 		var action := "ability_%d" % (i + 1)
-		if Input.is_action_just_pressed(action):
+		if Input.is_action_just_pressed(action) and not _player.is_input_blocked():
 			_on_ability_pressed(i)
 		elif i == _targeting_slot and Input.is_action_just_released(action):
 			_release_targeted_cast()

@@ -148,6 +148,8 @@ func _ready() -> void:
 	_build_throwable_indicator()
 	_build_enemy_counter()
 	EventBus.enemy_count_changed.connect(_on_enemy_count_changed)
+	_build_inventory_full_label()
+	EventBus.inventory_full.connect(_on_inventory_full)
 
 	if is_instance_valid(_player):
 		_player.health.health_changed.connect(_on_health_changed)
@@ -402,6 +404,29 @@ func _build_gold_label() -> void:
 	_gold_label.add_theme_color_override("font_color", Color(0.95, 0.85, 0.3))
 	_gold_label.text = "Gold: %d" % GameState.gold
 	weapon_indicator.add_child(_gold_label)
+
+var _inventory_full_label: Label
+var _inventory_full_tween: Tween
+
+func _build_inventory_full_label() -> void:
+	_inventory_full_label = Label.new()
+	_inventory_full_label.text = "Inventory full"
+	_inventory_full_label.add_theme_font_size_override("font_size", 22)
+	_inventory_full_label.add_theme_color_override("font_color", Color(0.95, 0.45, 0.35))
+	_inventory_full_label.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	_inventory_full_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
+	_inventory_full_label.position.y += 80
+	_inventory_full_label.modulate.a = 0.0
+	_inventory_full_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_inventory_full_label)
+
+func _on_inventory_full(_content: Resource) -> void:
+	if _inventory_full_tween:
+		_inventory_full_tween.kill()
+	_inventory_full_label.modulate.a = 1.0
+	_inventory_full_tween = create_tween()
+	_inventory_full_tween.tween_interval(1.5)
+	_inventory_full_tween.tween_property(_inventory_full_label, "modulate:a", 0.0, 0.5)
 
 ## Top-left row of colored chips, one per active status effect (Section
 ## 09) - built/removed live via EventBus.status_effect_applied/_expired,

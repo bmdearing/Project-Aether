@@ -1,7 +1,8 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://ui/inventory/InventoryScreen.gd" id="1"]
 [ext_resource type="Script" path="res://ui/item_card/ItemSlotButton.gd" id="2"]
+[ext_resource type="Script" path="res://ui/inventory/InventoryGridView.gd" id="3"]
 
 [node name="InventoryScreen" type="CanvasLayer"]
 script = ExtResource("1")
@@ -65,10 +66,8 @@ text = "Inventory"
 [node name="InventoryScroll" type="ScrollContainer" parent="HBox/InventoryPanel"]
 size_flags_vertical = 3
 
-[node name="InventoryGrid" type="GridContainer" parent="HBox/InventoryPanel/InventoryScroll"]
-columns = 5
-theme_override_constants/h_separation = 6
-theme_override_constants/v_separation = 6
+[node name="InventoryGrid" type="Control" parent="HBox/InventoryPanel/InventoryScroll"]
+script = ExtResource("3")
 
 [node name="SidePanel" type="VBoxContainer" parent="HBox"]
 custom_minimum_size = Vector2(420, 0)
