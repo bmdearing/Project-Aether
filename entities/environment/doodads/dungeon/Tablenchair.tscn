@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_7wodl"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_tableandchair_diffuse.dds" id="2_wff7i"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_tableandchair_normal.dds" id="3_lww5w"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_tableandchair_orm.dds" id="4_t6d2m"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/tablenchair.glb" id="5_548of"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0x12n"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wff7i")
+orm_texture = ExtResource("4_t6d2m")
+normal_enabled = true
+normal_texture = ExtResource("3_lww5w")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_v8td2"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wff7i")
+orm_texture = ExtResource("4_t6d2m")
+normal_enabled = true
+normal_texture = ExtResource("3_lww5w")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_hfmt7"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wff7i")
+orm_texture = ExtResource("4_t6d2m")
+normal_enabled = true
+normal_texture = ExtResource("3_lww5w")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_paygp"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wff7i")
+orm_texture = ExtResource("4_t6d2m")
+normal_enabled = true
+normal_texture = ExtResource("3_lww5w")
+
+[node name="Tablenchair" type="Node3D" unique_id=1630879515]
+script = ExtResource("1_7wodl")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_0x12n"),
+1: SubResource("ORMMaterial3D_v8td2"),
+2: SubResource("ORMMaterial3D_hfmt7"),
+3: SubResource("ORMMaterial3D_paygp")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1948233209 instance=ExtResource("5_548of")]

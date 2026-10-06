@@ -1,0 +1,125 @@
+{
+  "source": "cactus6.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.176017349243164,
+      -0.03664079904556274,
+      -1.476266418457031
+    ],
+    "max": [
+      1.2706793975830077,
+      2.7714778747558593,
+      1.0989540252685546
+    ],
+    "height": 2.808118673801422
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Cactus9_geo5",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_cactus_diffuse.dds",
+        "normal": "br_environment_cactus_normal.dds",
+        "orm": "br_environment_cactus_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Cactus8_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_cactus_diffuse.dds",
+        "normal": "br_environment_cactus_normal.dds",
+        "orm": "br_environment_cactus_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Cactus9_geo4",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_cactus_diffuse.dds",
+        "normal": "br_environment_cactus_normal.dds",
+        "orm": "br_environment_cactus_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Cactus9_geo3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_cactus_diffuse.dds",
+        "normal": "br_environment_cactus_normal.dds",
+        "orm": "br_environment_cactus_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/Cactus/BR_Environment_Cactus_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

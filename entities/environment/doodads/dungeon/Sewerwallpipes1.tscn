@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_lm71e"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_sewerwallpipes_v1_v3_diffuse.dds" id="2_b6nw5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_sewerwallpipes_v1_v3_normal.dds" id="3_y3itn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_sewerwallpipes_v1_v3_orm.dds" id="4_xdxp8"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/sewerwallpipes1.glb" id="5_0h4fi"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0dqo1"]
+albedo_texture = ExtResource("2_b6nw5")
+orm_texture = ExtResource("4_xdxp8")
+normal_enabled = true
+normal_texture = ExtResource("3_y3itn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_luwti"]
+albedo_texture = ExtResource("2_b6nw5")
+orm_texture = ExtResource("4_xdxp8")
+normal_enabled = true
+normal_texture = ExtResource("3_y3itn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_533dm"]
+albedo_texture = ExtResource("2_b6nw5")
+orm_texture = ExtResource("4_xdxp8")
+normal_enabled = true
+normal_texture = ExtResource("3_y3itn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_a6gy4"]
+albedo_texture = ExtResource("2_b6nw5")
+orm_texture = ExtResource("4_xdxp8")
+normal_enabled = true
+normal_texture = ExtResource("3_y3itn")
+
+[node name="Sewerwallpipes1" type="Node3D" unique_id=1835275766]
+script = ExtResource("1_lm71e")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_0dqo1"),
+1: SubResource("ORMMaterial3D_luwti"),
+2: SubResource("ORMMaterial3D_533dm"),
+3: SubResource("ORMMaterial3D_a6gy4")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=764201457 instance=ExtResource("5_0h4fi")]

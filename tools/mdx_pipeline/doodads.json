@@ -1,0 +1,92 @@
+{
+  "_comment": "Tileset doodad kits for extract_doodads.js. Each family's models are pulled from the wc3_install named in models.json into dir, with their textures, and converted at scale. Roles decide placement in GeneratedMap: archway = every doorway, wall = against a wall facing in, floor = loose in the room, cluster = corners and edges, light = wall-mounted light source, support = along walls (corridor beams).",
+  "families": {
+    "dungeon": {
+      "dir": "assets/models/doodads/dungeon",
+      "scale": 0.018,
+      "roles": {
+        "archway": ["doodads/dungeon/structures/dungeonarchway1/dungeonarchway1.mdx"],
+        "support": ["doodads/underground/terrain/supportbeam/supportbeam.mdx"],
+        "wall": [
+          "doodads/dungeon/props/bookshelfwall/bookshelfwall.mdx",
+          "doodads/dungeon/props/bookshelf/bookshelf.mdx",
+          "doodads/dungeon/props/ironmaiden/ironmaiden.mdx",
+          "doodads/dungeon/props/sewerwallpipes/sewerwallpipes0.mdx",
+          "doodads/dungeon/props/sewerwallpipes/sewerwallpipes1.mdx",
+          "doodads/dungeon/props/bench/bench.mdx",
+          "doodads/dungeon/props/chainpost/chainpost.mdx",
+          "doodads/dungeon/props/dungeonobilisk/dungeonobilisk.mdx"
+        ],
+        "floor": [
+          "doodads/dungeon/props/table/table.mdx",
+          "doodads/dungeon/props/tablenchair/tablenchair.mdx",
+          "doodads/dungeon/props/chair/chair.mdx",
+          "doodads/dungeon/props/torturetable/torturetable.mdx",
+          "doodads/dungeon/props/minecart/minecart.mdx",
+          "doodads/dungeon/props/junkpile/junkpile0.mdx",
+          "doodads/dungeon/props/junkpile/junkpile1.mdx",
+          "doodads/dungeon/props/treasurepile/treasurepile0.mdx",
+          "doodads/dungeon/props/chain/chain0.mdx",
+          "doodads/dungeon/rocks/cave_fierycrator/cave_fierycrator.mdx"
+        ],
+        "cluster": [
+          "doodads/dungeon/rocks/dungeonrock/dungeonrock0.mdx",
+          "doodads/dungeon/rocks/dungeonrock/dungeonrock3.mdx",
+          "doodads/dungeon/rocks/dungeonrock/dungeonrock6.mdx",
+          "doodads/dungeon/rocks/dungeonstalagmite/dungeonstalagmite0.mdx",
+          "doodads/dungeon/rocks/dungeonstalagmite/dungeonstalagmite2.mdx"
+        ],
+        "light": [
+          "doodads/lordaeronsummer/props/torchhuman/torchhuman0.mdx",
+          "doodads/ruins/props/brazier/brazier0.mdx"
+        ]
+      }
+    },
+    "desert": {
+      "dir": "assets/models/doodads/desert",
+      "scale": 0.018,
+      "roles": {
+        "archway": [
+          "doodads/barrens/structures/ruinedarch/ruinedarch0.mdx",
+          "doodads/barrens/structures/brockarch/brockarch.mdx"
+        ],
+        "wall": [
+          "doodads/barrens/structures/ruinedwall/ruinedwall.mdx",
+          "doodads/barrens/structures/ruinedchunk/ruinedchunk0.mdx",
+          "doodads/barrens/rocks/rockpillar/rockpillar0.mdx",
+          "doodads/barrens/rocks/barrens_spires/barrens_spires0.mdx",
+          "doodads/barrens/rocks/barrens_spires/barrens_spires3.mdx"
+        ],
+        "floor": [
+          "doodads/barrens/props/barrens_bones/barrens_bones0.mdx",
+          "doodads/barrens/props/barrens_bones/barrens_bones4.mdx",
+          "doodads/barrens/plants/cactus/cactus0.mdx",
+          "doodads/barrens/plants/cactus/cactus3.mdx",
+          "doodads/barrens/plants/cactus/cactus6.mdx",
+          "doodads/barrens/structures/ruinedchunk/ruinedchunk1.mdx"
+        ],
+        "cluster": [
+          "doodads/barrens/rocks/barrens_rocks/barrens_rocks0.mdx",
+          "doodads/barrens/rocks/barrens_rocks/barrens_rocks4.mdx",
+          "doodads/barrens/rocks/barrens_rocks/barrens_rocks7.mdx",
+          "doodads/barrens/rocks/barrens_spiressmall/barrens_spiressmall0.mdx",
+          "doodads/barrens/rocks/barrens_spiressmall/barrens_spiressmall4.mdx",
+          "doodads/barrens/plants/barrensthorns/barrensthorns5.mdx",
+          "doodads/barrens/plants/barrenstallgrass/barrenstallgrass0.mdx",
+          "doodads/barrens/plants/barrenstallgrass/barrenstallgrass2.mdx"
+        ]
+      }
+    }
+  },
+  "grounds": {
+    "_comment": "Ground textures per family (diffuse/normal/orm), copied into <family dir>/ground/. wide = 2048-wide sheet with 16 variants in its right half; narrow = 1024 transition sheet, only cells 0 and 15 are full.",
+    "dungeon": {
+      "wide": ["dungeon/cave_brick", "dungeon/cave_dirt", "dungeon/cave_greystones", "dungeon/cave_lavacracks", "dungeon2/gbrick", "dungeon2/gdirt", "dungeon2/ggreystones", "dungeon2/glavacracks"],
+      "narrow": ["dungeon/cave_squaretiles", "dungeon/cave_darkrocks", "dungeon/cave_redstones", "dungeon2/gsquaretiles", "dungeon2/gdarkrocks"]
+    },
+    "desert": {
+      "wide": ["barrens/barrens_desert", "barrens/barrens_desertdark", "barrens/barrens_dirt", "barrens/barrens_grass"],
+      "narrow": ["barrens/barrens_rock", "barrens/barrens_pebbles", "barrens/barrens_dirtrough", "barrens/barrens_dirtgrass"]
+    }
+  }
+}

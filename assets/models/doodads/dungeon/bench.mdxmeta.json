@@ -1,0 +1,125 @@
+{
+  "source": "bench.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.3389058036804199,
+      -0.017544599533081053,
+      -1.0809521713256836
+    ],
+    "max": [
+      0.2614338054656982,
+      0.710730010986328,
+      1.196769561767578
+    ],
+    "height": 0.7282746105194091
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DG_Pops_Bench",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_bench_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Bench/DG_Props_Bench_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DG_Pops_Bench_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_bench_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Bench/DG_Props_Bench_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DG_Pops_Bench_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_bench_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Bench/DG_Props_Bench_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DG_Pops_Bench_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_bench_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Bench/DG_Props_Bench_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

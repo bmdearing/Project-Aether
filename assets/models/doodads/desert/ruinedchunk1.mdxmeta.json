@@ -1,0 +1,53 @@
+{
+  "source": "ruinedchunk1.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand",
+  "bounds": {
+    "min": [
+      -0.8183016128540038,
+      -0.008904600262641907,
+      -0.9049608078002929
+    ],
+    "max": [
+      0.5493942031860352,
+      0.7684703750610351,
+      0.7956035842895507
+    ],
+    "height": 0.777374975323677
+  },
+  "sequences": [
+    {
+      "name": "Stand",
+      "start": 33,
+      "end": 6667,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BR_Structures_RuinedChunks_V2_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_structures_ruinedchunks_v2_diffuse.dds",
+        "normal": "br_structures_ruinedchunks_v2_normal.dds",
+        "orm": "br_structures_ruinedchunks_v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Structures/RuinedChunk/BR_Structures_RuinedChunks_V2_Diffuse.tif",
+        "normal": "Doodads/Barrens/Structures/RuinedChunk/BR_Structures_RuinedChunks_V2_Normal.tif",
+        "orm": "Doodads/Barrens/Structures/RuinedChunk/BR_Structures_RuinedChunks_V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand": true
+      }
+    }
+  ]
+}

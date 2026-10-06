@@ -1,0 +1,125 @@
+{
+  "source": "chainpost.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6435107803344726,
+      -0.003630600035190582,
+      -0.9554273986816405
+    ],
+    "max": [
+      0.8360261993408202,
+      2.518631927490234,
+      0.5403312034606933
+    ],
+    "height": 2.5222625275254247
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 6700,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DG_Props_ChainPost_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_chainpost_diffuse.dds",
+        "normal": "dg_props_chainpost_normal.dds",
+        "orm": "dg_props_chainpost_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DG_Props_ChainPost_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_chainpost_diffuse.dds",
+        "normal": "dg_props_chainpost_normal.dds",
+        "orm": "dg_props_chainpost_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DG_Props_ChainPost_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_chainpost_diffuse.dds",
+        "normal": "dg_props_chainpost_normal.dds",
+        "orm": "dg_props_chainpost_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DG_Props_ChainPost_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_chainpost_diffuse.dds",
+        "normal": "dg_props_chainpost_normal.dds",
+        "orm": "dg_props_chainpost_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/ChainPost/DG_Props_ChainPost_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

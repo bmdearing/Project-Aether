@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_ioujk"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_chair_diffuse.dds" id="2_knfwy"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_chair_normal.dds" id="3_yxtcu"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_chair_orm.dds" id="4_fqhhc"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/chair.glb" id="5_hhve4"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_1ow4n"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_knfwy")
+orm_texture = ExtResource("4_fqhhc")
+normal_enabled = true
+normal_texture = ExtResource("3_yxtcu")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_qee1r"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_knfwy")
+orm_texture = ExtResource("4_fqhhc")
+normal_enabled = true
+normal_texture = ExtResource("3_yxtcu")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_wyw8b"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_knfwy")
+orm_texture = ExtResource("4_fqhhc")
+normal_enabled = true
+normal_texture = ExtResource("3_yxtcu")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ex5u6"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_knfwy")
+orm_texture = ExtResource("4_fqhhc")
+normal_enabled = true
+normal_texture = ExtResource("3_yxtcu")
+
+[node name="Chair" type="Node3D" unique_id=1261041462]
+script = ExtResource("1_ioujk")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_1ow4n"),
+1: SubResource("ORMMaterial3D_qee1r"),
+2: SubResource("ORMMaterial3D_wyw8b"),
+3: SubResource("ORMMaterial3D_ex5u6")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=100248314 instance=ExtResource("5_hhve4")]

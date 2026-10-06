@@ -22,3 +22,6 @@ class_name FigmentItem
 @export var enemy_health_multiplier: float = 1.0
 @export var loot_quantity_multiplier: float = 1.0
 @export var loot_rarity_multiplier: float = 1.0
+## MapTileset style id (data/tilesets/styles/) the generated Map is built in;
+## rolled at random. Empty = GeneratedMap picks one on entry.
+@export var tileset_id: String = ""

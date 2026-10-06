@@ -1,0 +1,125 @@
+{
+  "source": "ironmaiden.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.28984680175781247,
+      0.006751799762248992,
+      -0.8190306243896484
+    ],
+    "max": [
+      0.12682079887390135,
+      1.7008614349365234,
+      0.8190306243896484
+    ],
+    "height": 1.6941096351742744
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 967,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "IronMaiden_Spike_low",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_ironmaiden_diffuse.dds",
+        "normal": "dg_props_ironmaiden_normal.dds",
+        "orm": "dg_props_ironmaiden_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "IronMaiden_Spike_low_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_ironmaiden_diffuse.dds",
+        "normal": "dg_props_ironmaiden_normal.dds",
+        "orm": "dg_props_ironmaiden_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "IronMaiden_Spike_low_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_ironmaiden_diffuse.dds",
+        "normal": "dg_props_ironmaiden_normal.dds",
+        "orm": "dg_props_ironmaiden_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "IronMaiden_Spike_low_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_ironmaiden_diffuse.dds",
+        "normal": "dg_props_ironmaiden_normal.dds",
+        "orm": "dg_props_ironmaiden_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/IronMaiden/DG_Props_IronMaiden_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

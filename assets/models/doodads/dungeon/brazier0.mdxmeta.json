@@ -1,0 +1,135 @@
+{
+  "source": "brazier0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.813259780883789,
+      -0.0017388000637292862,
+      -0.813259780883789
+    ],
+    "max": [
+      0.813259780883789,
+      1.2155597534179687,
+      0.813259780883789
+    ],
+    "height": 1.217298553481698
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 12100,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 12133,
+      "end": 13133,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "SR_Props_RuinsBrazier_V0_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "sr_props_ruinsbrazier_v1_diffuse.dds",
+        "normal": "sr_props_ruinsbrazier_v1_normal.dds",
+        "orm": "sr_props_ruinsbrazier_v1_orm.dds",
+        "emissive": "sr_props_ruinsbrazier_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Diffuse.tif",
+        "normal": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Normal.tif",
+        "orm": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_ORM.tif",
+        "emissive": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "SR_Props_RuinsBrazier_V0_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "sr_props_ruinsbrazier_v1_diffuse.dds",
+        "normal": "sr_props_ruinsbrazier_v1_normal.dds",
+        "orm": "sr_props_ruinsbrazier_v1_orm.dds",
+        "emissive": "sr_props_ruinsbrazier_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Diffuse.tif",
+        "normal": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Normal.tif",
+        "orm": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_ORM.tif",
+        "emissive": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "SR_Props_RuinsBrazier_V0_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "sr_props_ruinsbrazier_v1_diffuse.dds",
+        "normal": "sr_props_ruinsbrazier_v1_normal.dds",
+        "orm": "sr_props_ruinsbrazier_v1_orm.dds",
+        "emissive": "sr_props_ruinsbrazier_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Diffuse.tif",
+        "normal": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Normal.tif",
+        "orm": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_ORM.tif",
+        "emissive": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "SR_Props_RuinsBrazier_V0_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "sr_props_ruinsbrazier_v1_diffuse.dds",
+        "normal": "sr_props_ruinsbrazier_v1_normal.dds",
+        "orm": "sr_props_ruinsbrazier_v1_orm.dds",
+        "emissive": "sr_props_ruinsbrazier_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Diffuse.tif",
+        "normal": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Normal.tif",
+        "orm": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_ORM.tif",
+        "emissive": "Doodads/Ruins/Props/Brazier/SR_Props_RuinsBrazier_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_qg3y6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_rocks_diffuse.dds" id="2_1e1ie"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_rocks_normal.dds" id="3_novep"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_rocks_orm.dds" id="4_4rgnm"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/dungeonrock3.glb" id="5_wfoxw"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6hol5"]
+albedo_texture = ExtResource("2_1e1ie")
+orm_texture = ExtResource("4_4rgnm")
+normal_enabled = true
+normal_texture = ExtResource("3_novep")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3kspn"]
+albedo_texture = ExtResource("2_1e1ie")
+orm_texture = ExtResource("4_4rgnm")
+normal_enabled = true
+normal_texture = ExtResource("3_novep")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_50c5j"]
+albedo_texture = ExtResource("2_1e1ie")
+orm_texture = ExtResource("4_4rgnm")
+normal_enabled = true
+normal_texture = ExtResource("3_novep")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_tgwos"]
+albedo_texture = ExtResource("2_1e1ie")
+orm_texture = ExtResource("4_4rgnm")
+normal_enabled = true
+normal_texture = ExtResource("3_novep")
+
+[node name="Dungeonrock3" type="Node3D" unique_id=830880013]
+script = ExtResource("1_qg3y6")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_6hol5"),
+1: SubResource("ORMMaterial3D_3kspn"),
+2: SubResource("ORMMaterial3D_50c5j"),
+3: SubResource("ORMMaterial3D_tgwos")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=368350359 instance=ExtResource("5_wfoxw")]

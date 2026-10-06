@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_ym3w3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structure_rockarchway_diffuse.dds" id="2_1ppq2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structure_rockarchway_normal.dds" id="3_i6v42"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structure_rockarchway_orm.dds" id="4_idcob"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/brockarch.glb" id="5_kavr5"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_u4sje"]
+albedo_texture = ExtResource("2_1ppq2")
+orm_texture = ExtResource("4_idcob")
+normal_enabled = true
+normal_texture = ExtResource("3_i6v42")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4mxk0"]
+albedo_texture = ExtResource("2_1ppq2")
+orm_texture = ExtResource("4_idcob")
+normal_enabled = true
+normal_texture = ExtResource("3_i6v42")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_k1bpj"]
+albedo_texture = ExtResource("2_1ppq2")
+orm_texture = ExtResource("4_idcob")
+normal_enabled = true
+normal_texture = ExtResource("3_i6v42")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_1bfsj"]
+albedo_texture = ExtResource("2_1ppq2")
+orm_texture = ExtResource("4_idcob")
+normal_enabled = true
+normal_texture = ExtResource("3_i6v42")
+
+[node name="Brockarch" type="Node3D" unique_id=1978877359]
+script = ExtResource("1_ym3w3")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_u4sje"),
+1: SubResource("ORMMaterial3D_4mxk0"),
+2: SubResource("ORMMaterial3D_k1bpj"),
+3: SubResource("ORMMaterial3D_1bfsj")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1724138926 instance=ExtResource("5_kavr5")]

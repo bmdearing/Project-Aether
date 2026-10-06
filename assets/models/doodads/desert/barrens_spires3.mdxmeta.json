@@ -1,0 +1,125 @@
+{
+  "source": "barrens_spires3.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.1019578857421872,
+      -0.01017900037765503,
+      -3.444606079101562
+    ],
+    "max": [
+      2.9730599670410154,
+      4.962329956054687,
+      3.3430141296386715
+    ],
+    "height": 4.972508956432343
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 967,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BR_Environment_RockSpires_V4_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rockspires_v4_diffuse.dds",
+        "normal": "br_environment_rockspires_v4_normal.dds",
+        "orm": "br_environment_rockspires_v4_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BR_Environment_RockSpires_V4_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rockspires_v4_diffuse.dds",
+        "normal": "br_environment_rockspires_v4_normal.dds",
+        "orm": "br_environment_rockspires_v4_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "BR_Environment_RockSpires_V4_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rockspires_v4_diffuse.dds",
+        "normal": "br_environment_rockspires_v4_normal.dds",
+        "orm": "br_environment_rockspires_v4_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "BR_Environment_RockSpires_V4_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rockspires_v4_diffuse.dds",
+        "normal": "br_environment_rockspires_v4_normal.dds",
+        "orm": "br_environment_rockspires_v4_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_Spires/BR_Environment_RockSpires_V4_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

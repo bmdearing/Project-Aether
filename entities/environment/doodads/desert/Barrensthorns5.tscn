@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_7wyrn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_vinesthorny_v5_diffuse.dds" id="2_bv73q"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_vinesthorny_v5_normal.dds" id="3_1svfi"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_vinesthorny_v5_orm.dds" id="4_y4icv"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/barrensthorns5.glb" id="5_xgpnq"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_m53sj"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_bv73q")
+orm_texture = ExtResource("4_y4icv")
+normal_enabled = true
+normal_texture = ExtResource("3_1svfi")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ssvmp"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_bv73q")
+orm_texture = ExtResource("4_y4icv")
+normal_enabled = true
+normal_texture = ExtResource("3_1svfi")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_i5u60"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_bv73q")
+orm_texture = ExtResource("4_y4icv")
+normal_enabled = true
+normal_texture = ExtResource("3_1svfi")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_pjx36"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_bv73q")
+orm_texture = ExtResource("4_y4icv")
+normal_enabled = true
+normal_texture = ExtResource("3_1svfi")
+
+[node name="Barrensthorns5" type="Node3D" unique_id=1746937243]
+script = ExtResource("1_7wyrn")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_m53sj"),
+1: SubResource("ORMMaterial3D_ssvmp"),
+2: SubResource("ORMMaterial3D_i5u60"),
+3: SubResource("ORMMaterial3D_pjx36")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1891161439 instance=ExtResource("5_xgpnq")]

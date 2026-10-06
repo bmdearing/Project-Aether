@@ -1,0 +1,60 @@
+[gd_resource type="Resource" script_class="MapTileset" load_steps=23 format=3]
+
+[ext_resource type="Script" path="res://data/tilesets/MapTileset.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_desert_diffuse.dds" id="2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_desert_normal.dds" id="3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_desert_orm.dds" id="4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_desertdark_diffuse.dds" id="5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_desertdark_normal.dds" id="6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_desertdark_orm.dds" id="7"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_rock_diffuse.dds" id="8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_rock_normal.dds" id="9"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_rock_orm.dds" id="10"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/Ruinedarch0.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/Ruinedwall.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/Ruinedchunk0.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/BarrensSpires0.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/Cactus0.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/Cactus3.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/Cactus6.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/BarrensBones0.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/BarrensRocks0.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/BarrensRocks4.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/Barrenstallgrass0.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/desert/Barrensthorns5.tscn" id="22"]
+
+[resource]
+script = ExtResource("1")
+id = "desert_dunes"
+display_name = "Dunes"
+family = "desert"
+floor_albedo = ExtResource("2")
+floor_normal = ExtResource("3")
+floor_orm = ExtResource("4")
+floor_wide = true
+patch_albedo = ExtResource("5")
+patch_normal = ExtResource("6")
+patch_orm = ExtResource("7")
+patch_wide = true
+patch_amount = 0.35
+wall_albedo = ExtResource("8")
+wall_normal = ExtResource("9")
+wall_orm = ExtResource("10")
+wall_wide = false
+archways = Array[PackedScene]([ExtResource("11")])
+wall_props = Array[PackedScene]([ExtResource("12"), ExtResource("13"), ExtResource("14")])
+floor_props = Array[PackedScene]([ExtResource("15"), ExtResource("16"), ExtResource("17"), ExtResource("18")])
+clusters = Array[PackedScene]([ExtResource("19"), ExtResource("20"), ExtResource("21"), ExtResource("22")])
+wall_lights = Array[PackedScene]([])
+lights_per_room = 0
+background_color = Color(0.78, 0.66, 0.5, 1)
+ambient_color = Color(0.85, 0.75, 0.62, 1)
+ambient_energy = 0.6
+sun_energy = 1.4
+sun_color = Color(1, 0.92, 0.78, 1)
+fog_color = Color(0.82, 0.7, 0.52, 1)
+fog_density = 0.006
+light_color = Color(1, 1, 1, 1)
+light_energy = 0
+light_range = 8
+room_light_energy = 0

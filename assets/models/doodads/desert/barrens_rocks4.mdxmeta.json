@@ -1,0 +1,125 @@
+{
+  "source": "barrens_rocks4.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.24976513671875,
+      -0.07871220016479491,
+      -1.329485366821289
+    ],
+    "max": [
+      1.2649464569091795,
+      1.9203119659423826,
+      1.3441878204345703
+    ],
+    "height": 1.9990241661071775
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Lords_Rock_V5_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rocks_diffuse.dds",
+        "normal": "br_environment_rocks_normal.dds",
+        "orm": "br_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Lords_Rock_V5_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rocks_diffuse.dds",
+        "normal": "br_environment_rocks_normal.dds",
+        "orm": "br_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Lords_Rock_V5_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rocks_diffuse.dds",
+        "normal": "br_environment_rocks_normal.dds",
+        "orm": "br_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Lords_Rock_V5_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rocks_diffuse.dds",
+        "normal": "br_environment_rocks_normal.dds",
+        "orm": "br_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_Rocks/BR_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

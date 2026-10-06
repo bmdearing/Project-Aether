@@ -1,9 +1,9 @@
 extends Node3D
 class_name GeneratedMap
 ## Builds a Map from MapGraph's room-connection graph - rebuilt fresh
-## every scene load (no fixed seed). Placeholder BoxMesh/PlaneMesh
-## primitives, colored per room - separated from MapGraph.gd so a later
-## asset pass only touches mesh/material creation here, not layout.
+## every scene load (no fixed seed). Geometry stays simple BoxMesh/PlaneMesh
+## pieces; the Figment's MapTileset style supplies their materials, the
+## atmosphere, and the doodads RoomDresser places in each room.
 ##
 ## Player/enemies are spawned in code (positions depend on the generated
 ## layout, unknown until _ready()); the UI suite is static-equivalent,
@@ -22,6 +22,7 @@ const JUMP_PLATFORM_DEPTH := 4.0
 const JUMP_GAP_DEPTH := 3.0
 const SAFETY_FLOOR_DROP := 0.5
 
+## Fallback colours, used only when no MapTileset style loads.
 const ROOM_FLOOR_COLORS := [
 	Color(0.16, 0.14, 0.12),
 	Color(0.14, 0.16, 0.15),
@@ -64,9 +65,15 @@ var last_player_spawn: Vector3
 var _living_enemies: Dictionary = {}
 var _enemies_total: int = 0
 
+var tileset: MapTileset
+var _floor_mat: Material
+var _wall_mat: Material
+var _dresser: RoomDresser
+
 func _ready() -> void:
 	# Standalone (F6) launch: no MainMenu/save ran, so GameState is still defaults.
 	GameState.initialize_standalone()
+	_apply_tileset(_pick_tileset())
 	EventBus.enemy_died.connect(_on_enemy_died)
 	graph = MapGraph.generate()
 	for cell in graph.rooms:
@@ -76,6 +83,25 @@ func _ready() -> void:
 	_spawn_enemies()
 	_spawn_ui()
 	_emit_enemy_count()  # HUD is up now (added by _spawn_ui())
+
+## The active Figment's rolled style; a random one for Figments rolled
+## before styles existed, or a standalone launch.
+func _pick_tileset() -> MapTileset:
+	var style := MapTileset.load_style(GameState.active_map.tileset_id if GameState.active_map else "")
+	return style if style else MapTileset.load_style(MapTileset.random_id())
+
+func _apply_tileset(style: MapTileset) -> void:
+	tileset = style
+	if style == null:
+		return
+	_floor_mat = style.make_floor_material()
+	_wall_mat = style.make_wall_material()
+	$WorldEnvironment.environment = style.make_environment()
+	var sun: DirectionalLight3D = $DirectionalLight3D
+	sun.visible = style.sun_energy > 0.0
+	sun.light_energy = style.sun_energy
+	sun.light_color = style.sun_color
+	_dresser = RoomDresser.new(style, self, ROOM_FOOTPRINT, WALL_THICKNESS, DOORWAY_WIDTH)
 
 func _on_enemy_died(enemy: Node) -> void:
 	if _living_enemies.erase(enemy.get_instance_id()):
@@ -125,9 +151,17 @@ func _build_room(room: MapGraph.RoomData) -> void:
 	else:
 		_build_floor(origin, ROOM_FOOTPRINT, ROOM_FOOTPRINT, 0.0, _random_floor_color())
 
+	var open_sides: Array = []
 	for dir in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
 		var neighbor: Vector2i = room.cell + dir
-		_build_wall_side(origin, dir, room.connections.has(neighbor))
+		var connected: bool = room.connections.has(neighbor)
+		_build_wall_side(origin, dir, connected)
+		if connected:
+			open_sides.append(dir)
+	if _dresser:
+		# The Vault keeps its dressing on the main floor, off the jump gap and platform.
+		var max_z := -ROOM_FOOTPRINT / 2.0 + (ROOM_FOOTPRINT - JUMP_PLATFORM_DEPTH - JUMP_GAP_DEPTH) - 0.3 if room.has_jump_platform else INF
+		_dresser.dress(origin, open_sides, -INF, max_z)
 
 func _random_floor_color() -> Color:
 	return ROOM_FLOOR_COLORS[randi() % ROOM_FLOOR_COLORS.size()]
@@ -159,10 +193,13 @@ func _build_floor(center: Vector3, size_x: float, size_z: float, height: float, 
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(size_x, size_z)
 	mesh_instance.mesh = plane
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
-	mat.roughness = 0.9
-	mesh_instance.material_override = mat
+	if _floor_mat:
+		mesh_instance.material_override = _floor_mat
+	else:
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = color
+		mat.roughness = 0.9
+		mesh_instance.material_override = mat
 	body.add_child(mesh_instance)
 
 	var collision := CollisionShape3D.new()
@@ -205,9 +242,12 @@ func _add_wall_segment(center: Vector3, length: float, horizontal: bool) -> void
 	var box := BoxMesh.new()
 	box.size = size
 	mesh_instance.mesh = box
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = WALL_COLOR
-	mesh_instance.material_override = mat
+	if _wall_mat:
+		mesh_instance.material_override = _wall_mat
+	else:
+		var mat := StandardMaterial3D.new()
+		mat.albedo_color = WALL_COLOR
+		mesh_instance.material_override = mat
 	body.add_child(mesh_instance)
 
 	var collision := CollisionShape3D.new()

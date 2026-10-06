@@ -1,0 +1,221 @@
+{
+  "source": "barrenstallgrass0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6426324234008789,
+      -0.042595200061798094,
+      -0.7266654052734375
+    ],
+    "max": [
+      0.6426324234008789,
+      1.9453139648437499,
+      0.7266654052734375
+    ],
+    "height": 1.987909164905548
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "riverrushes0_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "barrenstallgrass_diffuse.dds",
+        "normal": "barrenstallgrass_normal.dds",
+        "orm": "barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "riverrushes0_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "barrenstallgrass_diffuse.dds",
+        "normal": "barrenstallgrass_normal.dds",
+        "orm": "barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "riverrushes0_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "barrenstallgrass_diffuse.dds",
+        "normal": "barrenstallgrass_normal.dds",
+        "orm": "barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "riverrushes0_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "barrenstallgrass_diffuse.dds",
+        "normal": "barrenstallgrass_normal.dds",
+        "orm": "barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "riverrushes0_Reverse_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "barrenstallgrass_diffuse.dds",
+        "normal": "barrenstallgrass_normal.dds",
+        "orm": "barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "riverrushes0_Reverse_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "barrenstallgrass_diffuse.dds",
+        "normal": "barrenstallgrass_normal.dds",
+        "orm": "barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "riverrushes0_Reverse_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "barrenstallgrass_diffuse.dds",
+        "normal": "barrenstallgrass_normal.dds",
+        "orm": "barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "riverrushes0_Reverse_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "barrenstallgrass_diffuse.dds",
+        "normal": "barrenstallgrass_normal.dds",
+        "orm": "barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensTallGrass/BarrensTallGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

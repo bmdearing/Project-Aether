@@ -164,6 +164,13 @@ function buildGeometry(model, gltf, buffers, bufferViews, accessors) {
           joints[v * 4 + c] = valid ? joint : 0;
           weights[v * 4 + c] = valid ? weight : 0;
         }
+        // Static v1800 doodads carry all-zero skin weights and fall back to
+        // classic matrix groups: bind the vertex fully to its group's first node.
+        if (weights[v * 4] + weights[v * 4 + 1] + weights[v * 4 + 2] + weights[v * 4 + 3] === 0) {
+          const group = geoset.Groups[geoset.VertexGroup && geoset.VertexGroup.length > v ? geoset.VertexGroup[v] : 0];
+          joints[v * 4] = group && group.length ? group[0] : 0;
+          weights[v * 4] = 255;
+        }
       }
     }
 
@@ -424,6 +431,7 @@ function buildAnimations(model, skeleton, gltfNodes, buffers, bufferViews, acces
 
 function convert(mdxPath, outPath, scale = 1.0, bakeAnimations = true) {
   const model = loadModel(mdxPath);
+  if (model.Geosets.length === 0) throw new Error(`${mdxPath} has no geometry (placeholder model)`);
 
   const buffers = new BufferBuilder();
   const bufferViews = [];

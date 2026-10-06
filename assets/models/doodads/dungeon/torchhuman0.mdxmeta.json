@@ -1,0 +1,135 @@
+{
+  "source": "torchhuman0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.1201517972946167,
+      0,
+      -0.11540699958801269
+    ],
+    "max": [
+      0.12046679592132567,
+      1.1344319686889648,
+      0.11540699958801269
+    ],
+    "height": 1.1344319686889648
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 1133,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 1167,
+      "end": 1333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "LS_props_torchHuman_rig:TorchHuman_00",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_torch_v1_v3_diffuse.dds",
+        "normal": "ls_props_torch_v1_v3_normal.dds",
+        "orm": "ls_props_torch_v1_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "LS_props_torchHuman_rigTorchHuman_00_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_torch_v1_v3_diffuse.dds",
+        "normal": "ls_props_torch_v1_v3_normal.dds",
+        "orm": "ls_props_torch_v1_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "LS_props_torchHuman_rigTorchHuman_00_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_torch_v1_v3_diffuse.dds",
+        "normal": "ls_props_torch_v1_v3_normal.dds",
+        "orm": "ls_props_torch_v1_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "LS_props_torchHuman_rigTorchHuman_00_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_torch_v1_v3_diffuse.dds",
+        "normal": "ls_props_torch_v1_v3_normal.dds",
+        "orm": "ls_props_torch_v1_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/TorchHuman/LS_Props_Torch_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_mq48r"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_craterfiery_diffuse.dds" id="2_2grqj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_craterfiery_emissive.dds" id="3_x1vim"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_craterfiery_normal.dds" id="4_632da"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_craterfiery_orm.dds" id="5_txpse"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/cave_fierycrator.glb" id="6_js2kw"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ysxhj"]
+albedo_texture = ExtResource("2_2grqj")
+orm_texture = ExtResource("5_txpse")
+emission_enabled = true
+emission_texture = ExtResource("3_x1vim")
+normal_enabled = true
+normal_texture = ExtResource("4_632da")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0fa5w"]
+albedo_texture = ExtResource("2_2grqj")
+orm_texture = ExtResource("5_txpse")
+emission_enabled = true
+emission_texture = ExtResource("3_x1vim")
+normal_enabled = true
+normal_texture = ExtResource("4_632da")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_37jb4"]
+albedo_texture = ExtResource("2_2grqj")
+orm_texture = ExtResource("5_txpse")
+emission_enabled = true
+emission_texture = ExtResource("3_x1vim")
+normal_enabled = true
+normal_texture = ExtResource("4_632da")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0ib0m"]
+albedo_texture = ExtResource("2_2grqj")
+orm_texture = ExtResource("5_txpse")
+emission_enabled = true
+emission_texture = ExtResource("3_x1vim")
+normal_enabled = true
+normal_texture = ExtResource("4_632da")
+
+[node name="CaveFierycrator" type="Node3D" unique_id=1894347367]
+script = ExtResource("1_mq48r")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_ysxhj"),
+1: SubResource("ORMMaterial3D_0fa5w"),
+2: SubResource("ORMMaterial3D_37jb4"),
+3: SubResource("ORMMaterial3D_0ib0m")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=48234955 instance=ExtResource("6_js2kw")]

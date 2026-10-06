@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_d3lpt"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_cactus_diffuse.dds" id="2_t8wos"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_cactus_normal.dds" id="3_onx0e"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_cactus_orm.dds" id="4_t4if2"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/cactus6.glb" id="5_gej8j"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_b1m40"]
+albedo_texture = ExtResource("2_t8wos")
+orm_texture = ExtResource("4_t4if2")
+normal_enabled = true
+normal_texture = ExtResource("3_onx0e")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_f2qio"]
+albedo_texture = ExtResource("2_t8wos")
+orm_texture = ExtResource("4_t4if2")
+normal_enabled = true
+normal_texture = ExtResource("3_onx0e")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_l3le4"]
+albedo_texture = ExtResource("2_t8wos")
+orm_texture = ExtResource("4_t4if2")
+normal_enabled = true
+normal_texture = ExtResource("3_onx0e")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ov7r8"]
+albedo_texture = ExtResource("2_t8wos")
+orm_texture = ExtResource("4_t4if2")
+normal_enabled = true
+normal_texture = ExtResource("3_onx0e")
+
+[node name="Cactus6" type="Node3D" unique_id=1129401025]
+script = ExtResource("1_d3lpt")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_b1m40"),
+1: SubResource("ORMMaterial3D_f2qio"),
+2: SubResource("ORMMaterial3D_l3le4"),
+3: SubResource("ORMMaterial3D_ov7r8")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=910047829 instance=ExtResource("5_gej8j")]

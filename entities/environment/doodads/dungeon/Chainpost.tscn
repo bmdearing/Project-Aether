@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_goxkl"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_chainpost_diffuse.dds" id="2_g0tbq"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_chainpost_normal.dds" id="3_td48y"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_chainpost_orm.dds" id="4_38e0j"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/chainpost.glb" id="5_um1d4"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_c85gy"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_g0tbq")
+orm_texture = ExtResource("4_38e0j")
+normal_enabled = true
+normal_texture = ExtResource("3_td48y")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_2koie"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_g0tbq")
+orm_texture = ExtResource("4_38e0j")
+normal_enabled = true
+normal_texture = ExtResource("3_td48y")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_djj4j"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_g0tbq")
+orm_texture = ExtResource("4_38e0j")
+normal_enabled = true
+normal_texture = ExtResource("3_td48y")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ax7fb"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_g0tbq")
+orm_texture = ExtResource("4_38e0j")
+normal_enabled = true
+normal_texture = ExtResource("3_td48y")
+
+[node name="Chainpost" type="Node3D" unique_id=856482714]
+script = ExtResource("1_goxkl")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_c85gy"),
+1: SubResource("ORMMaterial3D_2koie"),
+2: SubResource("ORMMaterial3D_djj4j"),
+3: SubResource("ORMMaterial3D_ax7fb")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1296824085 instance=ExtResource("5_um1d4")]

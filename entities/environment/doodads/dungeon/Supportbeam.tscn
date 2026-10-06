@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_g4gsj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_destructibles_supportcolumn_diffuse.dds" id="2_gdpf5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_destructibles_supportcolumn_normal.dds" id="3_6ala8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_destructibles_supportcolumn_orm.dds" id="4_rahnn"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/supportbeam.glb" id="5_mji3v"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_im5bg"]
+albedo_texture = ExtResource("2_gdpf5")
+orm_texture = ExtResource("4_rahnn")
+normal_enabled = true
+normal_texture = ExtResource("3_6ala8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ukv60"]
+albedo_texture = ExtResource("2_gdpf5")
+orm_texture = ExtResource("4_rahnn")
+normal_enabled = true
+normal_texture = ExtResource("3_6ala8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5uels"]
+albedo_texture = ExtResource("2_gdpf5")
+orm_texture = ExtResource("4_rahnn")
+normal_enabled = true
+normal_texture = ExtResource("3_6ala8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_schs7"]
+albedo_texture = ExtResource("2_gdpf5")
+orm_texture = ExtResource("4_rahnn")
+normal_enabled = true
+normal_texture = ExtResource("3_6ala8")
+
+[node name="Supportbeam" type="Node3D" unique_id=1611395038]
+script = ExtResource("1_g4gsj")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_im5bg"),
+1: SubResource("ORMMaterial3D_ukv60"),
+2: SubResource("ORMMaterial3D_5uels"),
+3: SubResource("ORMMaterial3D_schs7")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1525306027 instance=ExtResource("5_mji3v")]

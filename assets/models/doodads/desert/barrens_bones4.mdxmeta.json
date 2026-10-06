@@ -1,0 +1,125 @@
+{
+  "source": "barrens_bones4.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.8654363937377929,
+      -0.04297500085830688,
+      -1.5094871520996092
+    ],
+    "max": [
+      1.124107223510742,
+      0.8667504272460936,
+      1.3665743865966795
+    ],
+    "height": 0.9097254281044006
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BR_Props_Bones_V04_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_props_bones_v05_diffuse.dds",
+        "normal": "br_props_bones_v05_normal.dds",
+        "orm": "br_props_bones_v05_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_Diffuse.tif",
+        "normal": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_Normal.tif",
+        "orm": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BR_Props_Bones_V04_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_props_bones_v05_diffuse.dds",
+        "normal": "br_props_bones_v05_normal.dds",
+        "orm": "br_props_bones_v05_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_Diffuse.tif",
+        "normal": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_Normal.tif",
+        "orm": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "BR_Props_Bones_V04_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_props_bones_v05_diffuse.dds",
+        "normal": "br_props_bones_v05_normal.dds",
+        "orm": "br_props_bones_v05_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_Diffuse.tif",
+        "normal": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_Normal.tif",
+        "orm": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "BR_Props_Bones_V04_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_props_bones_v05_diffuse.dds",
+        "normal": "br_props_bones_v05_normal.dds",
+        "orm": "br_props_bones_v05_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_Diffuse.tif",
+        "normal": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_Normal.tif",
+        "orm": "Doodads/Barrens/Props/Barrens_Bones/BR_Props_Bones_V05_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

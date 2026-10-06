@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_6xkyl"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structures_ruinedchunks_v2_diffuse.dds" id="2_k8vw3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structures_ruinedchunks_v2_normal.dds" id="3_j0e80"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structures_ruinedchunks_v2_orm.dds" id="4_pt8ct"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/ruinedchunk1.glb" id="5_8bqfe"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xdhms"]
+albedo_texture = ExtResource("2_k8vw3")
+orm_texture = ExtResource("4_pt8ct")
+normal_enabled = true
+normal_texture = ExtResource("3_j0e80")
+
+[node name="Ruinedchunk1" type="Node3D" unique_id=1315000694]
+script = ExtResource("1_6xkyl")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_xdhms")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand"
+
+[node name="Model" type="Node3D" parent="." unique_id=765765871 instance=ExtResource("5_8bqfe")]

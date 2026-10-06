@@ -73,6 +73,7 @@ static func to_dict(item: Item) -> Dictionary:
 		d["enemy_health_multiplier"] = item.enemy_health_multiplier
 		d["loot_quantity_multiplier"] = item.loot_quantity_multiplier
 		d["loot_rarity_multiplier"] = item.loot_rarity_multiplier
+		d["tileset_id"] = item.tileset_id
 	elif item is Weapon:
 		d["weapon_type"] = item.weapon_type
 		d["base_damage_min"] = item.base_damage_min
@@ -151,6 +152,7 @@ static func from_dict(d: Dictionary) -> Item:
 		item.enemy_health_multiplier = d.get("enemy_health_multiplier", 1.0)
 		item.loot_quantity_multiplier = d.get("loot_quantity_multiplier", 1.0)
 		item.loot_rarity_multiplier = d.get("loot_rarity_multiplier", 1.0)
+		item.tileset_id = d.get("tileset_id", "")
 	elif item is Weapon:
 		item.weapon_type = d.get("weapon_type", "")
 		item.base_damage_min = d.get("base_damage_min", 0.0)

@@ -540,6 +540,9 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		lines.append("Block Chance: %.0f%%" % (s.block_chance * 100.0))
 	elif item is FigmentItem:
 		var m := item as FigmentItem
+		var style := MapTileset.load_style(m.tileset_id)
+		if style:
+			lines.append("Area: %s (%s)" % [style.display_name, style.family.capitalize()])
 		lines.append("Monster Damage: %.0f%%" % (m.enemy_damage_multiplier * 100.0))
 		lines.append("Monster Life: %.0f%%" % (m.enemy_health_multiplier * 100.0))
 		lines.append("Item Quantity: %.0f%% (no loot system yet - inert)" % (m.loot_quantity_multiplier * 100.0))

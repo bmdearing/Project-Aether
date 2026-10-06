@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_y707f"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_minecart_main_diffuse.dds" id="2_pp1lk"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_minecart_main_emissive.dds" id="3_fd53p"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_minecart_main_normal.dds" id="4_xne5n"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_minecart_main_orm.dds" id="5_ypnb8"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/minecart.glb" id="6_mtsee"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_tgnkr"]
+albedo_texture = ExtResource("2_pp1lk")
+orm_texture = ExtResource("5_ypnb8")
+emission_enabled = true
+emission_texture = ExtResource("3_fd53p")
+normal_enabled = true
+normal_texture = ExtResource("4_xne5n")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6l4jl"]
+albedo_texture = ExtResource("2_pp1lk")
+orm_texture = ExtResource("5_ypnb8")
+emission_enabled = true
+emission_texture = ExtResource("3_fd53p")
+normal_enabled = true
+normal_texture = ExtResource("4_xne5n")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vhjxf"]
+albedo_texture = ExtResource("2_pp1lk")
+orm_texture = ExtResource("5_ypnb8")
+emission_enabled = true
+emission_texture = ExtResource("3_fd53p")
+normal_enabled = true
+normal_texture = ExtResource("4_xne5n")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_orfiq"]
+albedo_texture = ExtResource("2_pp1lk")
+orm_texture = ExtResource("5_ypnb8")
+emission_enabled = true
+emission_texture = ExtResource("3_fd53p")
+normal_enabled = true
+normal_texture = ExtResource("4_xne5n")
+
+[node name="Minecart" type="Node3D" unique_id=2062976391]
+script = ExtResource("1_y707f")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_tgnkr"),
+1: SubResource("ORMMaterial3D_6l4jl"),
+2: SubResource("ORMMaterial3D_vhjxf"),
+3: SubResource("ORMMaterial3D_orfiq")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1046195619 instance=ExtResource("6_mtsee")]

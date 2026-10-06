@@ -1,0 +1,125 @@
+{
+  "source": "barrensthorns5.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9027539978027344,
+      -0.04744259977340698,
+      -0.925061393737793
+    ],
+    "max": [
+      0.8300861663818359,
+      0.4255775985717773,
+      0.5521014060974121
+    ],
+    "height": 0.4730201983451843
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "NR_Environment_VinesThorny_V5",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_vinesthorny_v5_diffuse.dds",
+        "normal": "br_environment_vinesthorny_v5_normal.dds",
+        "orm": "br_environment_vinesthorny_v5_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "NR_Environment_VinesThorny_V5_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_vinesthorny_v5_diffuse.dds",
+        "normal": "br_environment_vinesthorny_v5_normal.dds",
+        "orm": "br_environment_vinesthorny_v5_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "NR_Environment_VinesThorny_V5_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_vinesthorny_v5_diffuse.dds",
+        "normal": "br_environment_vinesthorny_v5_normal.dds",
+        "orm": "br_environment_vinesthorny_v5_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "NR_Environment_VinesThorny_V5_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_vinesthorny_v5_diffuse.dds",
+        "normal": "br_environment_vinesthorny_v5_normal.dds",
+        "orm": "br_environment_vinesthorny_v5_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_Diffuse.tif",
+        "normal": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_Normal.tif",
+        "orm": "Doodads/Barrens/Plants/BarrensThorns/BR_Environment_VinesThorny_V5_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

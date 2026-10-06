@@ -1,0 +1,155 @@
+{
+  "source": "supportbeam.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.9605059967041014,
+      0.0006462000086903571,
+      -1.8345779571533203
+    ],
+    "max": [
+      1.9726920318603514,
+      5.982786254882812,
+      1.838033981323242
+    ],
+    "height": 5.9821400548741215
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 333,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 333,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 367,
+      "end": 4533,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Alternate 1",
+      "start": 4567,
+      "end": 5233,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "LS_des_supportColumn_rig:LS_Des_SupportColumn_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_supportcolumn_diffuse.dds",
+        "normal": "ls_destructibles_supportcolumn_normal.dds",
+        "orm": "ls_destructibles_supportcolumn_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_Diffuse.tif",
+        "normal": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_Normal.tif",
+        "orm": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Stand Alternate 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "LS_des_supportColumn_rigLS_Des_SupportColumn_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_supportcolumn_diffuse.dds",
+        "normal": "ls_destructibles_supportcolumn_normal.dds",
+        "orm": "ls_destructibles_supportcolumn_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_Diffuse.tif",
+        "normal": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_Normal.tif",
+        "orm": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Stand Alternate 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "LS_des_supportColumn_rigLS_Des_SupportColumn_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_supportcolumn_diffuse.dds",
+        "normal": "ls_destructibles_supportcolumn_normal.dds",
+        "orm": "ls_destructibles_supportcolumn_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_Diffuse.tif",
+        "normal": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_Normal.tif",
+        "orm": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Stand Alternate 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "LS_des_supportColumn_rigLS_Des_SupportColumn_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_supportcolumn_diffuse.dds",
+        "normal": "ls_destructibles_supportcolumn_normal.dds",
+        "orm": "ls_destructibles_supportcolumn_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_Diffuse.tif",
+        "normal": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_Normal.tif",
+        "orm": "Doodads/Underground/Terrain/SupportBeam/LS_Destructibles_SupportColumn_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Stand Alternate 1": true
+      }
+    }
+  ]
+}

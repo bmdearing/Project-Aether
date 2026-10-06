@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_5mr7p"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_stalagmite_v1_diffuse.dds" id="2_bhko8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_stalagmite_v1_normal.dds" id="3_cslmj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_environment_stalagmite_v1_orm.dds" id="4_krvnq"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/dungeonstalagmite0.glb" id="5_fdkyh"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_av82t"]
+albedo_texture = ExtResource("2_bhko8")
+orm_texture = ExtResource("4_krvnq")
+normal_enabled = true
+normal_texture = ExtResource("3_cslmj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4ntka"]
+albedo_texture = ExtResource("2_bhko8")
+orm_texture = ExtResource("4_krvnq")
+normal_enabled = true
+normal_texture = ExtResource("3_cslmj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ejkbr"]
+albedo_texture = ExtResource("2_bhko8")
+orm_texture = ExtResource("4_krvnq")
+normal_enabled = true
+normal_texture = ExtResource("3_cslmj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_addgy"]
+albedo_texture = ExtResource("2_bhko8")
+orm_texture = ExtResource("4_krvnq")
+normal_enabled = true
+normal_texture = ExtResource("3_cslmj")
+
+[node name="Dungeonstalagmite0" type="Node3D" unique_id=953763523]
+script = ExtResource("1_5mr7p")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_av82t"),
+1: SubResource("ORMMaterial3D_4ntka"),
+2: SubResource("ORMMaterial3D_ejkbr"),
+3: SubResource("ORMMaterial3D_addgy")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1359706826 instance=ExtResource("5_fdkyh")]

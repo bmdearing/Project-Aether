@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_jj1gf"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_bench_diffuse.dds" id="2_yo5fc"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/normal.dds" id="3_k324w"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/orm.dds" id="4_y6qbx"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/bench.glb" id="5_njb6v"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_r64ju"]
+albedo_texture = ExtResource("2_yo5fc")
+orm_texture = ExtResource("4_y6qbx")
+normal_enabled = true
+normal_texture = ExtResource("3_k324w")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lpvad"]
+albedo_texture = ExtResource("2_yo5fc")
+orm_texture = ExtResource("4_y6qbx")
+normal_enabled = true
+normal_texture = ExtResource("3_k324w")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5mx0f"]
+albedo_texture = ExtResource("2_yo5fc")
+orm_texture = ExtResource("4_y6qbx")
+normal_enabled = true
+normal_texture = ExtResource("3_k324w")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_wuvnj"]
+albedo_texture = ExtResource("2_yo5fc")
+orm_texture = ExtResource("4_y6qbx")
+normal_enabled = true
+normal_texture = ExtResource("3_k324w")
+
+[node name="Bench" type="Node3D" unique_id=175766447]
+script = ExtResource("1_jj1gf")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_r64ju"),
+1: SubResource("ORMMaterial3D_lpvad"),
+2: SubResource("ORMMaterial3D_5mx0f"),
+3: SubResource("ORMMaterial3D_wuvnj")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1143038088 instance=ExtResource("5_njb6v")]

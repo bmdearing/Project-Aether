@@ -1,0 +1,125 @@
+{
+  "source": "cave_fierycrator.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.6843787841796873,
+      -0.10244520092010498,
+      -1.8259200439453123
+    ],
+    "max": [
+      1.7903825683593748,
+      0.933906623840332,
+      1.7105579681396483
+    ],
+    "height": 1.0363518247604369
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DG_Environment_CraterFiery_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_environment_craterfiery_diffuse.dds",
+        "normal": "dg_environment_craterfiery_normal.dds",
+        "orm": "dg_environment_craterfiery_orm.dds",
+        "emissive": "dg_environment_craterfiery_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Normal.tif",
+        "orm": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_ORM.tif",
+        "emissive": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DG_Environment_CraterFiery_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_environment_craterfiery_diffuse.dds",
+        "normal": "dg_environment_craterfiery_normal.dds",
+        "orm": "dg_environment_craterfiery_orm.dds",
+        "emissive": "dg_environment_craterfiery_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Normal.tif",
+        "orm": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_ORM.tif",
+        "emissive": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DG_Environment_CraterFiery_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_environment_craterfiery_diffuse.dds",
+        "normal": "dg_environment_craterfiery_normal.dds",
+        "orm": "dg_environment_craterfiery_orm.dds",
+        "emissive": "dg_environment_craterfiery_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Normal.tif",
+        "orm": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_ORM.tif",
+        "emissive": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DG_Environment_CraterFiery_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_environment_craterfiery_diffuse.dds",
+        "normal": "dg_environment_craterfiery_normal.dds",
+        "orm": "dg_environment_craterfiery_orm.dds",
+        "emissive": "dg_environment_craterfiery_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Normal.tif",
+        "orm": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_ORM.tif",
+        "emissive": "Doodads/Dungeon/Rocks/Cave_FieryCrator/DG_Environment_CraterFiery_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

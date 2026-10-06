@@ -1,0 +1,125 @@
+{
+  "source": "torturetable.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.0324980010986327,
+      0.0004211999885737896,
+      -1.469665832519531
+    ],
+    "max": [
+      1.078149627685547,
+      1.32310986328125,
+      1.2216671905517578
+    ],
+    "height": 1.3226886632926762
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DG_Props_TableTorture",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_tabletorture_diffuse.dds",
+        "normal": "dg_props_tabletorture_normal.dds",
+        "orm": "dg_props_tabletorture_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DG_Props_TableTorture_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_tabletorture_diffuse.dds",
+        "normal": "dg_props_tabletorture_normal.dds",
+        "orm": "dg_props_tabletorture_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DG_Props_TableTorture_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_tabletorture_diffuse.dds",
+        "normal": "dg_props_tabletorture_normal.dds",
+        "orm": "dg_props_tabletorture_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DG_Props_TableTorture_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_tabletorture_diffuse.dds",
+        "normal": "dg_props_tabletorture_normal.dds",
+        "orm": "dg_props_tabletorture_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/TortureTable/DG_Props_TableTorture_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

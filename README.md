@@ -703,7 +703,7 @@ sourced, Section 24 defers Map/tier balance entirely.
 independent tier axis from `Constants.EnemyRank` above — Rank still
 drives loot item-level exactly as before; Rarity (`NORMAL`/`ELITE`/
 `CHAMPION`/`ASCENDANT`, spawn-weighted via `Constants.
-ENEMY_RARITY_SPAWN_WEIGHTS`, rolled by `GeneratedMap._spawn_enemy_at()`)
+ENEMY_RARITY_SPAWN_WEIGHTS`, rolled by `GeneratedMap._spawn_enemy()`)
 drives health/damage multipliers (invented: 1.5x/1.2x, 3.0x/1.6x,
 8.0x/2.4x for Elite/Champion/Ascendant), name color on the floating
 health bar (blue/yellow/orange), and rolled `EnemyAffix` .tres resources
@@ -911,10 +911,9 @@ every time you enter one — no fixed seed. Split into two layers on
 purpose: `MapGraph.gd` is pure data (no `Node3D`, no geometry) — a
 randomized spanning-tree room-and-corridor layout on a 5x5 grid,
 guaranteeing every room is reachable from the start room. `GeneratedMap.gd`
-turns that graph into actual walls/floors (`BoxMesh`/`PlaneMesh`
-placeholder primitives, no real art yet). This separation means a later
-asset-import pass only has to change the geometry builder — the
-generation *algorithm* doesn't know or care what the rooms are made of.
+turns that graph into actual walls/floors (simple `BoxMesh`/`PlaneMesh`
+pieces), dressed by the Figment's tileset style (below). The generation
+*algorithm* doesn't know or care what the rooms are made of.
   - **Walls**: every room boundary is either solid or has a doorway gap
     where a connection exists, built from real `StaticBody3D` collision,
     not just open floor. Every doorway also gets a floor bridge closing
@@ -927,9 +926,23 @@ generation *algorithm* doesn't know or care what the rooms are made of.
     reach an elevated platform. A full-footprint safety floor sits a
     shallow 0.5m below the whole room, so a missed jump is a small
     stumble, never a fall through the world.
-  - **"Interesting things that pop up"**: the Vault room gets 3 enemies
-    instead of 1, plus one more standing on the jump platform — a
-    real risk/reward set-piece, not just a random room like the rest.
+  - **Vault**: an elite pack on the main floor and the FigmentBoss on the
+    jump platform.
+  - **Tilesets** (`data/tilesets/`, plan: the Tileset Plan doc): each
+    Figment rolls a random `MapTileset` style (`FigmentItem.tileset_id`,
+    named "<Style> Figment"; older Figments get a random one on entry).
+    Built so far: Dungeon (Cellblock, Undercroft, Mine, Foundry Pit) and
+    Desert (Dunes, Badlands). A style sets the floor and wall WC3 ground
+    textures (`shaders/wc3_ground.gdshader` picks one of the sheet's
+    variant tiles per 2.3 m cell, with noise patches of a second ground),
+    the doodads, and the light, fog and sun. `RoomDresser` places an arch
+    fitted to every doorway, props backed against walls clear of doorways,
+    torches/braziers with a `FlickerLight`, corner clusters, and floor
+    props off the central cross paths; the Vault keeps them off its gap.
+    Doodads are WC3 models extracted by `tools/mdx_pipeline/
+    extract_doodads.js` (`doodads.json`) into `assets/models/doodads/`,
+    with wrappers in `entities/environment/doodads/`. Beach/Shore/Strand
+    and the other coastal Desert styles need water and aren't built.
   - `levels/test_arena/TestArena.tscn` still exists as a static hand-built
     sandbox for direct-from-editor testing, but the Reality Engine no longer
     sends you there — `GameState.MAP_SCENE` now points at

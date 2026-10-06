@@ -1,0 +1,96 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_003gq"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/barrenstallgrass_diffuse.dds" id="2_l06il"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/barrenstallgrass_normal.dds" id="3_wkob2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/barrenstallgrass_orm.dds" id="4_sg8p4"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/barrenstallgrass0.glb" id="5_4j1s0"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uylkn"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_l06il")
+orm_texture = ExtResource("4_sg8p4")
+normal_enabled = true
+normal_texture = ExtResource("3_wkob2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_unkgy"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_l06il")
+orm_texture = ExtResource("4_sg8p4")
+normal_enabled = true
+normal_texture = ExtResource("3_wkob2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gikdf"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_l06il")
+orm_texture = ExtResource("4_sg8p4")
+normal_enabled = true
+normal_texture = ExtResource("3_wkob2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lmhj3"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_l06il")
+orm_texture = ExtResource("4_sg8p4")
+normal_enabled = true
+normal_texture = ExtResource("3_wkob2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_b5lxl"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_l06il")
+orm_texture = ExtResource("4_sg8p4")
+normal_enabled = true
+normal_texture = ExtResource("3_wkob2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_duc2v"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_l06il")
+orm_texture = ExtResource("4_sg8p4")
+normal_enabled = true
+normal_texture = ExtResource("3_wkob2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_v0ams"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_l06il")
+orm_texture = ExtResource("4_sg8p4")
+normal_enabled = true
+normal_texture = ExtResource("3_wkob2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_qk1i3"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_l06il")
+orm_texture = ExtResource("4_sg8p4")
+normal_enabled = true
+normal_texture = ExtResource("3_wkob2")
+
+[node name="Barrenstallgrass0" type="Node3D" unique_id=2081091711]
+script = ExtResource("1_003gq")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_uylkn"),
+1: SubResource("ORMMaterial3D_unkgy"),
+2: SubResource("ORMMaterial3D_gikdf"),
+3: SubResource("ORMMaterial3D_lmhj3"),
+4: SubResource("ORMMaterial3D_b5lxl"),
+5: SubResource("ORMMaterial3D_duc2v"),
+6: SubResource("ORMMaterial3D_v0ams"),
+7: SubResource("ORMMaterial3D_qk1i3")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1586099007 instance=ExtResource("5_4j1s0")]

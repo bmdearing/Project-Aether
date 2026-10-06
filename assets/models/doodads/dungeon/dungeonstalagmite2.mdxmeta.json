@@ -1,0 +1,125 @@
+{
+  "source": "dungeonstalagmite2.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.1198969879150389,
+      -0.1487790012359619,
+      -1.2739806518554686
+    ],
+    "max": [
+      1.487014205932617,
+      3.00769189453125,
+      1.4746896057128904
+    ],
+    "height": 3.1564708957672116
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DG_Environment_Stalagmite_V3_stone_01_low",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_environment_stalagmite_v3_diffuse.dds",
+        "normal": "dg_environment_stalagmite_v3_normal.dds",
+        "orm": "dg_environment_stalagmite_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DG_Environment_Stalagmite_V3_stone_01_low_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_environment_stalagmite_v3_diffuse.dds",
+        "normal": "dg_environment_stalagmite_v3_normal.dds",
+        "orm": "dg_environment_stalagmite_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DG_Environment_Stalagmite_V3_stone_01_low_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_environment_stalagmite_v3_diffuse.dds",
+        "normal": "dg_environment_stalagmite_v3_normal.dds",
+        "orm": "dg_environment_stalagmite_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DG_Environment_Stalagmite_V3_stone_01_low_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_environment_stalagmite_v3_diffuse.dds",
+        "normal": "dg_environment_stalagmite_v3_normal.dds",
+        "orm": "dg_environment_stalagmite_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Rocks/DungeonStalagmite/DG_Environment_Stalagmite_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

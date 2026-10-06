@@ -7,6 +7,20 @@ there. Most recent first.
 
 ---
 
+## 2026-10-06 — Dungeon and Desert tilesets (user request)
+
+Built the first two families from the Tileset Plan doc: Dungeon (Cellblock, Undercroft, Mine, Foundry Pit, one palette each, per the user's decision) and Desert (Dunes, Badlands). A Figment rolls its style at random.
+- **Kits:** `tools/mdx_pipeline/doodads.json` lists each family's doodads by placement role (archway, wall, floor, cluster, light, support) and its ground textures. `extract_doodads.js` pulls only those from the local WC3 install (48 models + textures, 26 ground sheets). The build wrapper tool now also writes doodad wrappers (no AnimationTree).
+- **Converter fixes found on the way:**
+  - The doodads are a newer MDX revision (v1800). Their light records carry 28 extra bytes (v1200's carried 4), so the loader now drops everything up to the first animation keyword. A camera chunk also broke `war3-model`; cameras are dropped before parsing.
+  - v1800 static doodads store all-zero skin weights and rely on classic matrix groups. Every vertex collapsed and nothing rendered. Zero-weight vertices now bind fully to their group's first node.
+  - `barrensthorns0.mdx` in the game data is an empty placeholder; the converter now refuses geometry-less models.
+- **Ground shader:** 2048-wide WC3 sheets hold 16 full variants in their right half; 1024 transition sheets only have cells 0 and 15 full (measured by alpha coverage). One variant per world cell, with textureGrad to avoid mip seams. Walls reuse it with axis projection; the first pass smeared wall tops until they got their own top-down projection.
+- **Look checks:** windowed first-person and room shots of all six styles. The first Dungeon pass was too dark to fight in; ambient and light energies were raised. WC3 standing torches are about 1.1 m at unit scale, so wall lights are scaled 1.8x. Their fire was WC3 particles, which don't convert, so a flickering omni light stands in.
+- **Figments:** `FigmentItem.tileset_id` is rolled, saved and shown on the card ("Area: Cellblock (Dungeon)"). Figments are now named "<Style> Figment"; the old "Tier N Figment" name went stale when empowered.
+- **Size:** the two kits add about 356 MB, mostly 4K-ish textures. Downscaling stand-in textures is a cheap later option.
+- Verified: `tests/test_roster_ammo.gd` now also checks every style and its doodads, rolled Figments' styles and save/load, and a dressed map in each style. 1041 checks, 0 failed.
+
 ## 2026-10-06 — Animation-only attack telegraphs (user request)
 
 The yellow wind-up flash (and the Lord's element-tinted flash) is gone; attacks read from the animation.

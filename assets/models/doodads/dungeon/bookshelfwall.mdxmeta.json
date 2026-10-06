@@ -1,0 +1,149 @@
+{
+  "source": "bookshelfwall.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9165204162597655,
+      -0.0207810001373291,
+      -3.6041220703124996
+    ],
+    "max": [
+      0.867232795715332,
+      2.887523986816406,
+      2.4598800659179685
+    ],
+    "height": 2.908304986953735
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BookshelfWall_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_bookshelf_v3_diffuse.dds",
+        "normal": "dg_props_bookshelf_v3_normal.dds",
+        "orm": "dg_props_bookshelf_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BookshelfWall_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_bookshelf_v3_diffuse.dds",
+        "normal": "dg_props_bookshelf_v3_normal.dds",
+        "orm": "dg_props_bookshelf_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "BookshelfWall_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_bookshelf_v3_diffuse.dds",
+        "normal": "dg_props_bookshelf_v3_normal.dds",
+        "orm": "dg_props_bookshelf_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "BookshelfWall_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_bookshelf_v3_diffuse.dds",
+        "normal": "dg_props_bookshelf_v3_normal.dds",
+        "orm": "dg_props_bookshelf_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "BookshelfWall_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_bookshelf_v3_diffuse.dds",
+        "normal": "dg_props_bookshelf_v3_normal.dds",
+        "orm": "dg_props_bookshelf_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/BookshelfWall/DG_Props_Bookshelf_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_rfexk"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structures_ruinedwall_diffuse.dds" id="2_lk08a"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structures_ruinedwall_normal.dds" id="3_131l8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structures_ruinedwall_orm.dds" id="4_68v73"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/ruinedwall.glb" id="5_e0nfp"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_pf0gu"]
+albedo_texture = ExtResource("2_lk08a")
+orm_texture = ExtResource("4_68v73")
+normal_enabled = true
+normal_texture = ExtResource("3_131l8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_kml0v"]
+albedo_texture = ExtResource("2_lk08a")
+orm_texture = ExtResource("4_68v73")
+normal_enabled = true
+normal_texture = ExtResource("3_131l8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lb5jq"]
+albedo_texture = ExtResource("2_lk08a")
+orm_texture = ExtResource("4_68v73")
+normal_enabled = true
+normal_texture = ExtResource("3_131l8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_oo50g"]
+albedo_texture = ExtResource("2_lk08a")
+orm_texture = ExtResource("4_68v73")
+normal_enabled = true
+normal_texture = ExtResource("3_131l8")
+
+[node name="Ruinedwall" type="Node3D" unique_id=1986944766]
+script = ExtResource("1_rfexk")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_pf0gu"),
+1: SubResource("ORMMaterial3D_kml0v"),
+2: SubResource("ORMMaterial3D_lb5jq"),
+3: SubResource("ORMMaterial3D_oo50g")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1567069175 instance=ExtResource("5_e0nfp")]

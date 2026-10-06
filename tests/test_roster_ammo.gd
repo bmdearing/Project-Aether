@@ -1,5 +1,5 @@
 extends SceneTree
-## Headless checks for the enemy roster and the Hub AmmoStore.
+## Headless checks for the enemy roster, map tilesets and the Hub AmmoStore.
 ## Run: Godot --headless --path . --script res://tests/test_roster_ammo.gd
 ## Exits 0 when every check passes. Custom classes are only touched through
 ## runtime load() and untyped locals: in --script mode a typed local or a
@@ -42,6 +42,7 @@ func _run() -> void:
 	_game_state.active_map = null
 	await _test_definitions_and_units()
 	await _test_generated_maps()
+	await _test_tilesets()
 	await _test_ammo_store()
 	_test_no_retired_references()
 	print("%d checks, %d failed" % [_checks, _failures])
@@ -132,6 +133,51 @@ func _test_generated_maps() -> void:
 		_check(bosses == 1, "map %d has exactly one FigmentBoss (%d)" % [run, bosses])
 		map.queue_free()
 		await _frames(2)
+
+func _test_tilesets() -> void:
+	var tileset_script = load("res://data/tilesets/MapTileset.gd")
+	var ids: PackedStringArray = tileset_script.all_ids()
+	_check(ids.size() >= 6, "at least 6 tileset styles (%d)" % ids.size())
+	for id in ids:
+		var style = tileset_script.load_style(id)
+		_check(style != null and style.id == id, "%s loads with matching id" % id)
+		if style == null:
+			continue
+		for tex in ["floor_albedo", "floor_normal", "floor_orm", "wall_albedo", "wall_normal", "wall_orm"]:
+			_check(style.get(tex) != null, "%s %s set" % [id, tex])
+		_check(not style.archways.is_empty() and not style.wall_props.is_empty() and not style.clusters.is_empty(), "%s has arches, wall props and clusters" % id)
+		for list in [style.archways, style.wall_props, style.floor_props, style.clusters, style.wall_lights]:
+			for scene in list:
+				_check(scene != null and scene.can_instantiate(), "%s doodad scene instantiable" % id)
+
+	var roller = load("res://data/figments/figment_roller.gd")
+	var serializer = load("res://data/items/item_serializer.gd")
+	for i in 10:
+		var fig = roller.roll(randi_range(1, 5))
+		_check(fig.tileset_id in ids, "rolled Figment tileset '%s' is a real style" % fig.tileset_id)
+		_check(fig.display_name.ends_with(" Figment"), "Figment named by style (%s)" % fig.display_name)
+		var copy = serializer.from_dict(serializer.to_dict(fig))
+		_check(copy.tileset_id == fig.tileset_id, "tileset_id survives save/load")
+
+	var map_scene = load("res://levels/generated_map/GeneratedMap.tscn")
+	var mdx_model_script = load("res://entities/enemies/models/MdxModel.gd")
+	for id in ids:
+		var fig = load("res://data/figments/figment_item.gd").new()
+		fig.tileset_id = id
+		_game_state.active_map = fig
+		var map = map_scene.instantiate()
+		root.add_child(map)
+		await _frames(2)
+		_check(map.tileset != null and map.tileset.id == id, "map built in style %s" % id)
+		var doodads := 0
+		for c in map.get_children():
+			if c.get_script() == mdx_model_script:
+				doodads += 1
+		_check(doodads >= map.graph.rooms.size() * 2, "%s map dressed (%d doodads, %d rooms)" % [id, doodads, map.graph.rooms.size()])
+		_check(get_nodes_in_group("enemy").size() >= map.graph.rooms.size(), "%s map spawned enemies" % id)
+		map.queue_free()
+		await _frames(2)
+	_game_state.active_map = null
 
 func _test_ammo_store() -> void:
 	var player = load("res://entities/player/Player.tscn").instantiate()

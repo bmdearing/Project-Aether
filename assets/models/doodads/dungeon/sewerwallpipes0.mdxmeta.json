@@ -1,0 +1,125 @@
+{
+  "source": "sewerwallpipes0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.5509890060424805,
+      0.48805739593505854,
+      -0.42530400466918944
+    ],
+    "max": [
+      0.8233757858276367,
+      2.112335952758789,
+      0.4218246002197265
+    ],
+    "height": 1.6242785568237303
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 6700,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DG_Props_SewerWallpipes_V1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_sewerwallpipes_v1_v3_diffuse.dds",
+        "normal": "dg_props_sewerwallpipes_v1_v3_normal.dds",
+        "orm": "dg_props_sewerwallpipes_v1_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DG_Props_SewerWallpipes_V1_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_sewerwallpipes_v1_v3_diffuse.dds",
+        "normal": "dg_props_sewerwallpipes_v1_v3_normal.dds",
+        "orm": "dg_props_sewerwallpipes_v1_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DG_Props_SewerWallpipes_V1_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_sewerwallpipes_v1_v3_diffuse.dds",
+        "normal": "dg_props_sewerwallpipes_v1_v3_normal.dds",
+        "orm": "dg_props_sewerwallpipes_v1_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DG_Props_SewerWallpipes_V1_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_sewerwallpipes_v1_v3_diffuse.dds",
+        "normal": "dg_props_sewerwallpipes_v1_v3_normal.dds",
+        "orm": "dg_props_sewerwallpipes_v1_v3_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/SewerWallpipes/DG_Props_SewerWallpipes_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

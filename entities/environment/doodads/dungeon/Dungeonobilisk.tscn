@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_qdhx5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_obelisk_diffuse.dds" id="2_68x82"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_obelisk_normal.dds" id="3_oglsm"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_obelisk_orm.dds" id="4_xqycf"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/dungeonobilisk.glb" id="5_iuf1v"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_j10lk"]
+albedo_texture = ExtResource("2_68x82")
+orm_texture = ExtResource("4_xqycf")
+normal_enabled = true
+normal_texture = ExtResource("3_oglsm")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3bj71"]
+albedo_texture = ExtResource("2_68x82")
+orm_texture = ExtResource("4_xqycf")
+normal_enabled = true
+normal_texture = ExtResource("3_oglsm")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_nh72o"]
+albedo_texture = ExtResource("2_68x82")
+orm_texture = ExtResource("4_xqycf")
+normal_enabled = true
+normal_texture = ExtResource("3_oglsm")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_an12s"]
+albedo_texture = ExtResource("2_68x82")
+orm_texture = ExtResource("4_xqycf")
+normal_enabled = true
+normal_texture = ExtResource("3_oglsm")
+
+[node name="Dungeonobilisk" type="Node3D" unique_id=1784251556]
+script = ExtResource("1_qdhx5")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_j10lk"),
+1: SubResource("ORMMaterial3D_3bj71"),
+2: SubResource("ORMMaterial3D_nh72o"),
+3: SubResource("ORMMaterial3D_an12s")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1208934864 instance=ExtResource("5_iuf1v")]

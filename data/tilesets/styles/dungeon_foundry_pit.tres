@@ -1,0 +1,58 @@
+[gd_resource type="Resource" script_class="MapTileset" load_steps=21 format=3]
+
+[ext_resource type="Script" path="res://data/tilesets/MapTileset.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ground/cave_lavacracks_diffuse.dds" id="2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ground/cave_lavacracks_normal.dds" id="3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ground/cave_lavacracks_orm.dds" id="4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ground/cave_redstones_diffuse.dds" id="5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ground/cave_redstones_normal.dds" id="6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ground/cave_redstones_orm.dds" id="7"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ground/cave_brick_diffuse.dds" id="8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ground/cave_brick_normal.dds" id="9"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ground/cave_brick_orm.dds" id="10"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/Dungeonarchway1.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/Sewerwallpipes0.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/Sewerwallpipes1.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/Chainpost.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/Ironmaiden.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/CaveFierycrator.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/Junkpile1.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/Dungeonrock0.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/Dungeonrock6.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/dungeon/Brazier0.tscn" id="20"]
+
+[resource]
+script = ExtResource("1")
+id = "dungeon_foundry_pit"
+display_name = "Foundry Pit"
+family = "dungeon"
+floor_albedo = ExtResource("2")
+floor_normal = ExtResource("3")
+floor_orm = ExtResource("4")
+floor_wide = true
+patch_albedo = ExtResource("5")
+patch_normal = ExtResource("6")
+patch_orm = ExtResource("7")
+patch_wide = false
+patch_amount = 0.3
+wall_albedo = ExtResource("8")
+wall_normal = ExtResource("9")
+wall_orm = ExtResource("10")
+wall_wide = true
+archways = Array[PackedScene]([ExtResource("11")])
+wall_props = Array[PackedScene]([ExtResource("12"), ExtResource("13"), ExtResource("14"), ExtResource("15")])
+floor_props = Array[PackedScene]([ExtResource("16"), ExtResource("17")])
+clusters = Array[PackedScene]([ExtResource("18"), ExtResource("19")])
+wall_lights = Array[PackedScene]([ExtResource("20")])
+lights_per_room = 2
+background_color = Color(0.04, 0.01, 0.005, 1)
+ambient_color = Color(0.6, 0.3, 0.2, 1)
+ambient_energy = 0.7
+sun_energy = 0
+sun_color = Color(1, 1, 1, 1)
+fog_color = Color(0.15, 0.04, 0.02, 1)
+fog_density = 0.025
+light_color = Color(1, 0.42, 0.18, 1)
+light_energy = 3.6
+light_range = 9
+room_light_energy = 1.1

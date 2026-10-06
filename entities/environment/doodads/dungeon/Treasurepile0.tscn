@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_mfl1e"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_props_pileoftreasure_v1_diffuse.dds" id="2_e8w6e"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_props_pileoftreasure_v1_normal.dds" id="3_e181o"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_props_pileoftreasure_v1_orm.dds" id="4_i8hdt"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/treasurepile0.glb" id="5_1wiqm"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ajy0v"]
+albedo_texture = ExtResource("2_e8w6e")
+orm_texture = ExtResource("4_i8hdt")
+normal_enabled = true
+normal_texture = ExtResource("3_e181o")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_323lr"]
+albedo_texture = ExtResource("2_e8w6e")
+orm_texture = ExtResource("4_i8hdt")
+normal_enabled = true
+normal_texture = ExtResource("3_e181o")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_b5vq4"]
+albedo_texture = ExtResource("2_e8w6e")
+orm_texture = ExtResource("4_i8hdt")
+normal_enabled = true
+normal_texture = ExtResource("3_e181o")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_jc0y0"]
+albedo_texture = ExtResource("2_e8w6e")
+orm_texture = ExtResource("4_i8hdt")
+normal_enabled = true
+normal_texture = ExtResource("3_e181o")
+
+[node name="Treasurepile0" type="Node3D" unique_id=792200482]
+script = ExtResource("1_mfl1e")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_ajy0v"),
+1: SubResource("ORMMaterial3D_323lr"),
+2: SubResource("ORMMaterial3D_b5vq4"),
+3: SubResource("ORMMaterial3D_jc0y0")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=342332251 instance=ExtResource("5_1wiqm")]

@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_sc8jj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_props_pileofjunk_v2_diffuse.dds" id="2_wh0oj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_props_pileofjunk_v2_normal.dds" id="3_l7ck3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_props_pileofjunk_v2_orm.dds" id="4_dqvnm"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/junkpile1.glb" id="5_ejw1d"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xadii"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wh0oj")
+orm_texture = ExtResource("4_dqvnm")
+normal_enabled = true
+normal_texture = ExtResource("3_l7ck3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_yhq88"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wh0oj")
+orm_texture = ExtResource("4_dqvnm")
+normal_enabled = true
+normal_texture = ExtResource("3_l7ck3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_i62qu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wh0oj")
+orm_texture = ExtResource("4_dqvnm")
+normal_enabled = true
+normal_texture = ExtResource("3_l7ck3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6ebv3"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wh0oj")
+orm_texture = ExtResource("4_dqvnm")
+normal_enabled = true
+normal_texture = ExtResource("3_l7ck3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_h2abq"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wh0oj")
+orm_texture = ExtResource("4_dqvnm")
+normal_enabled = true
+normal_texture = ExtResource("3_l7ck3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gbmtu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wh0oj")
+orm_texture = ExtResource("4_dqvnm")
+normal_enabled = true
+normal_texture = ExtResource("3_l7ck3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_p0opr"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wh0oj")
+orm_texture = ExtResource("4_dqvnm")
+normal_enabled = true
+normal_texture = ExtResource("3_l7ck3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_f50fs"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_wh0oj")
+orm_texture = ExtResource("4_dqvnm")
+normal_enabled = true
+normal_texture = ExtResource("3_l7ck3")
+
+[node name="Junkpile1" type="Node3D" unique_id=1141564216]
+script = ExtResource("1_sc8jj")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_xadii"),
+1: SubResource("ORMMaterial3D_yhq88"),
+2: SubResource("ORMMaterial3D_i62qu"),
+3: SubResource("ORMMaterial3D_6ebv3"),
+4: SubResource("ORMMaterial3D_h2abq"),
+5: SubResource("ORMMaterial3D_gbmtu"),
+6: SubResource("ORMMaterial3D_p0opr"),
+7: SubResource("ORMMaterial3D_f50fs")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=81202891 instance=ExtResource("5_ejw1d")]

@@ -1,0 +1,125 @@
+{
+  "source": "brockarch.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.2652180175781247,
+      -5.728284118652343,
+      -9.558918457031249
+    ],
+    "max": [
+      2.5271279296875,
+      7.502670043945312,
+      9.437363525390625
+    ],
+    "height": 13.230954162597655
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 6700,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BRockArch_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_structure_rockarchway_diffuse.dds",
+        "normal": "br_structure_rockarchway_normal.dds",
+        "orm": "br_structure_rockarchway_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_Diffuse.tif",
+        "normal": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_Normal.tif",
+        "orm": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BRockArch_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_structure_rockarchway_diffuse.dds",
+        "normal": "br_structure_rockarchway_normal.dds",
+        "orm": "br_structure_rockarchway_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_Diffuse.tif",
+        "normal": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_Normal.tif",
+        "orm": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "BRockArch_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_structure_rockarchway_diffuse.dds",
+        "normal": "br_structure_rockarchway_normal.dds",
+        "orm": "br_structure_rockarchway_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_Diffuse.tif",
+        "normal": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_Normal.tif",
+        "orm": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "BRockArch_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_structure_rockarchway_diffuse.dds",
+        "normal": "br_structure_rockarchway_normal.dds",
+        "orm": "br_structure_rockarchway_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_Diffuse.tif",
+        "normal": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_Normal.tif",
+        "orm": "Doodads/Barrens/Structures/BRockArch/BR_Structure_RockArchway_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

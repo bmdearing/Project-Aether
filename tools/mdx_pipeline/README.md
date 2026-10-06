@@ -165,6 +165,15 @@ Godot --headless --path . res://tools/build_mdx_wrappers.tscn --quit-after 400
   because Godot's default emission operator adds the color to the texture.
   It prints every untextured geoset.
 
+## Tileset doodads (Stage 4, 2026-10-06)
+
+`doodads.json` lists each tileset family's doodads by placement role plus
+its ground textures; `node extract_doodads.js [family ...]` extracts them
+into `assets/models/doodads/<family>/` (models converted at 0.018, ground
+sheets under `ground/`). Then rerun the wrapper build. Doodads are a newer
+MDX revision (v1800): see `mdx_load.js` for the light/camera fix-ups and
+`mdx_to_gltf.js` for the zero-weight fallback to classic matrix groups.
+
 ## Not yet implemented
 
 - WC3 Hermite/Bezier interpolation is approximated as linear;

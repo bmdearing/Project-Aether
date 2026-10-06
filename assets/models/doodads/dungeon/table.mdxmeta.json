@@ -1,0 +1,125 @@
+{
+  "source": "table.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9667440032958984,
+      -0.05794740056991577,
+      -1.2902291564941406
+    ],
+    "max": [
+      1.0240775985717772,
+      0.668453384399414,
+      1.145170829772949
+    ],
+    "height": 0.7264007849693298
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DG_Props_Table_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_table_diffuse.dds",
+        "normal": "dg_props_table_normal.dds",
+        "orm": "dg_props_table_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Table/DG_Props_Table_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/Table/DG_Props_Table_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/Table/DG_Props_Table_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DG_Props_Table_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_table_diffuse.dds",
+        "normal": "dg_props_table_normal.dds",
+        "orm": "dg_props_table_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Table/DG_Props_Table_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/Table/DG_Props_Table_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/Table/DG_Props_Table_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DG_Props_Table_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_table_diffuse.dds",
+        "normal": "dg_props_table_normal.dds",
+        "orm": "dg_props_table_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Table/DG_Props_Table_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/Table/DG_Props_Table_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/Table/DG_Props_Table_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DG_Props_Table_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_table_diffuse.dds",
+        "normal": "dg_props_table_normal.dds",
+        "orm": "dg_props_table_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Table/DG_Props_Table_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/Table/DG_Props_Table_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/Table/DG_Props_Table_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

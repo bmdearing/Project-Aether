@@ -1,0 +1,125 @@
+{
+  "source": "barrens_spiressmall0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9244710159301757,
+      -0.028481399059295653,
+      -1.0221858215332031
+    ],
+    "max": [
+      0.9753119659423828,
+      2.041001998901367,
+      0.7958033981323241
+    ],
+    "height": 2.0694833979606626
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 967,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BR_Environment_RockSpiresSmall_V1_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rockspiresmall_v1_diffuse.dds",
+        "normal": "br_environment_rockspiresmall_v1_normal.dds",
+        "orm": "br_environment_rockspiresmall_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BR_Environment_RockSpiresSmall_V1_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rockspiresmall_v1_diffuse.dds",
+        "normal": "br_environment_rockspiresmall_v1_normal.dds",
+        "orm": "br_environment_rockspiresmall_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "BR_Environment_RockSpiresSmall_V1_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rockspiresmall_v1_diffuse.dds",
+        "normal": "br_environment_rockspiresmall_v1_normal.dds",
+        "orm": "br_environment_rockspiresmall_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "BR_Environment_RockSpiresSmall_V1_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "br_environment_rockspiresmall_v1_diffuse.dds",
+        "normal": "br_environment_rockspiresmall_v1_normal.dds",
+        "orm": "br_environment_rockspiresmall_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_Diffuse.tif",
+        "normal": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_Normal.tif",
+        "orm": "Doodads/Barrens/Rocks/Barrens_SpiresSmall/BR_Environment_RockSpireSmall_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

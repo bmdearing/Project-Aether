@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_18y1y"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_rockspires_v1_diffuse.dds" id="2_hr6ua"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_rockspires_v1_normal.dds" id="3_071o8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_rockspires_v1_orm.dds" id="4_cohkp"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/barrens_spires0.glb" id="5_tu6vb"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_p6x8i"]
+albedo_texture = ExtResource("2_hr6ua")
+orm_texture = ExtResource("4_cohkp")
+normal_enabled = true
+normal_texture = ExtResource("3_071o8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uiph7"]
+albedo_texture = ExtResource("2_hr6ua")
+orm_texture = ExtResource("4_cohkp")
+normal_enabled = true
+normal_texture = ExtResource("3_071o8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_s7usy"]
+albedo_texture = ExtResource("2_hr6ua")
+orm_texture = ExtResource("4_cohkp")
+normal_enabled = true
+normal_texture = ExtResource("3_071o8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_okplh"]
+albedo_texture = ExtResource("2_hr6ua")
+orm_texture = ExtResource("4_cohkp")
+normal_enabled = true
+normal_texture = ExtResource("3_071o8")
+
+[node name="BarrensSpires0" type="Node3D" unique_id=508114860]
+script = ExtResource("1_18y1y")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_p6x8i"),
+1: SubResource("ORMMaterial3D_uiph7"),
+2: SubResource("ORMMaterial3D_s7usy"),
+3: SubResource("ORMMaterial3D_okplh")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=527897889 instance=ExtResource("5_tu6vb")]

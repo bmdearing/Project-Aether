@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_5c1b1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_bookshelf_diffuse.dds" id="2_wxg3q"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_bookshelf_normal.dds" id="3_xajpq"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/dg_props_bookshelf_orm.dds" id="4_ndioa"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/bookshelf.glb" id="5_xca5v"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_divx5"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wxg3q")
+orm_texture = ExtResource("4_ndioa")
+normal_enabled = true
+normal_texture = ExtResource("3_xajpq")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_to6yy"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wxg3q")
+orm_texture = ExtResource("4_ndioa")
+normal_enabled = true
+normal_texture = ExtResource("3_xajpq")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uypgr"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wxg3q")
+orm_texture = ExtResource("4_ndioa")
+normal_enabled = true
+normal_texture = ExtResource("3_xajpq")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_txn3j"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wxg3q")
+orm_texture = ExtResource("4_ndioa")
+normal_enabled = true
+normal_texture = ExtResource("3_xajpq")
+
+[node name="Bookshelf" type="Node3D" unique_id=841604660]
+script = ExtResource("1_5c1b1")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_divx5"),
+1: SubResource("ORMMaterial3D_to6yy"),
+2: SubResource("ORMMaterial3D_uypgr"),
+3: SubResource("ORMMaterial3D_txn3j")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=534505466 instance=ExtResource("5_xca5v")]

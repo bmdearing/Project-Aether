@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_0h3tn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_props_bones_v01_diffuse.dds" id="2_utuhk"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_props_bones_v01_normal.dds" id="3_1xg11"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_props_bones_v01_orm.dds" id="4_qg88a"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/barrens_bones0.glb" id="5_1ny02"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_bmlxi"]
+albedo_texture = ExtResource("2_utuhk")
+orm_texture = ExtResource("4_qg88a")
+normal_enabled = true
+normal_texture = ExtResource("3_1xg11")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lcoa6"]
+albedo_texture = ExtResource("2_utuhk")
+orm_texture = ExtResource("4_qg88a")
+normal_enabled = true
+normal_texture = ExtResource("3_1xg11")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_772p8"]
+albedo_texture = ExtResource("2_utuhk")
+orm_texture = ExtResource("4_qg88a")
+normal_enabled = true
+normal_texture = ExtResource("3_1xg11")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ri6l3"]
+albedo_texture = ExtResource("2_utuhk")
+orm_texture = ExtResource("4_qg88a")
+normal_enabled = true
+normal_texture = ExtResource("3_1xg11")
+
+[node name="BarrensBones0" type="Node3D" unique_id=1790161915]
+script = ExtResource("1_0h3tn")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_bmlxi"),
+1: SubResource("ORMMaterial3D_lcoa6"),
+2: SubResource("ORMMaterial3D_772p8"),
+3: SubResource("ORMMaterial3D_ri6l3")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=156663274 instance=ExtResource("5_1ny02")]

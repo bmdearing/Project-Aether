@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_j3byp"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_props_torch_v1_v3_diffuse.dds" id="2_4ua4s"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_props_torch_v1_v3_normal.dds" id="3_wmr25"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/ls_props_torch_v1_v3_orm.dds" id="4_4cukm"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/dungeon/torchhuman0.glb" id="5_dxcfd"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_jojrn"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_4ua4s")
+orm_texture = ExtResource("4_4cukm")
+normal_enabled = true
+normal_texture = ExtResource("3_wmr25")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_q01xl"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_4ua4s")
+orm_texture = ExtResource("4_4cukm")
+normal_enabled = true
+normal_texture = ExtResource("3_wmr25")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_y65a3"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_4ua4s")
+orm_texture = ExtResource("4_4cukm")
+normal_enabled = true
+normal_texture = ExtResource("3_wmr25")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_nug7r"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_4ua4s")
+orm_texture = ExtResource("4_4cukm")
+normal_enabled = true
+normal_texture = ExtResource("3_wmr25")
+
+[node name="Torchhuman0" type="Node3D" unique_id=1150564720]
+script = ExtResource("1_j3byp")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_jojrn"),
+1: SubResource("ORMMaterial3D_q01xl"),
+2: SubResource("ORMMaterial3D_y65a3"),
+3: SubResource("ORMMaterial3D_nug7r")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=978421153 instance=ExtResource("5_dxcfd")]

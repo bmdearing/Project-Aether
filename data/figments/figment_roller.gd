@@ -24,7 +24,9 @@ static func roll(tier: int) -> FigmentItem:
 	var figment := FigmentItem.new()
 	figment.item_id = "rolled_figment_t%d_%d" % [tier, randi()]
 	figment.tier = clamp(tier, 1, MAX_TIER)
-	figment.display_name = "Tier %d Figment" % figment.tier
+	figment.tileset_id = MapTileset.random_id()
+	var style := MapTileset.load_style(figment.tileset_id)
+	figment.display_name = "%s Figment" % style.display_name if style else "Tier %d Figment" % figment.tier
 	figment.flavor_text = "Reality bends where the Engine points it."
 
 	var affix_count: int = clamp(1 + figment.tier / 2, 1, AFFIX_POOL.size())

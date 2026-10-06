@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_sssin"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_rockpillar_v1_diffuse.dds" id="2_ueshj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_rockpillar_v1_normal.dds" id="3_76n3p"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_environment_rockpillar_v1_orm.dds" id="4_qgvuj"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/rockpillar0.glb" id="5_br3tr"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_afpm7"]
+albedo_texture = ExtResource("2_ueshj")
+orm_texture = ExtResource("4_qgvuj")
+normal_enabled = true
+normal_texture = ExtResource("3_76n3p")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_83x5v"]
+albedo_texture = ExtResource("2_ueshj")
+orm_texture = ExtResource("4_qgvuj")
+normal_enabled = true
+normal_texture = ExtResource("3_76n3p")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_a13g3"]
+albedo_texture = ExtResource("2_ueshj")
+orm_texture = ExtResource("4_qgvuj")
+normal_enabled = true
+normal_texture = ExtResource("3_76n3p")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5piim"]
+albedo_texture = ExtResource("2_ueshj")
+orm_texture = ExtResource("4_qgvuj")
+normal_enabled = true
+normal_texture = ExtResource("3_76n3p")
+
+[node name="Rockpillar0" type="Node3D" unique_id=3221617]
+script = ExtResource("1_sssin")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_afpm7"),
+1: SubResource("ORMMaterial3D_83x5v"),
+2: SubResource("ORMMaterial3D_a13g3"),
+3: SubResource("ORMMaterial3D_5piim")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=262810410 instance=ExtResource("5_br3tr")]

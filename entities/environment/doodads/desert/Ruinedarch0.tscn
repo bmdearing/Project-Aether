@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_0vdhy"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structures_ruinedarch_v1_diffuse.dds" id="2_gh1c0"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structures_ruinedarch_v1_normal.dds" id="3_ejuu8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/br_structures_ruinedarch_v1_orm.dds" id="4_qq1uk"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/desert/ruinedarch0.glb" id="5_facbb"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gtjfb"]
+albedo_texture = ExtResource("2_gh1c0")
+orm_texture = ExtResource("4_qq1uk")
+normal_enabled = true
+normal_texture = ExtResource("3_ejuu8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_m5msl"]
+albedo_texture = ExtResource("2_gh1c0")
+orm_texture = ExtResource("4_qq1uk")
+normal_enabled = true
+normal_texture = ExtResource("3_ejuu8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_m14au"]
+albedo_texture = ExtResource("2_gh1c0")
+orm_texture = ExtResource("4_qq1uk")
+normal_enabled = true
+normal_texture = ExtResource("3_ejuu8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6i03k"]
+albedo_texture = ExtResource("2_gh1c0")
+orm_texture = ExtResource("4_qq1uk")
+normal_enabled = true
+normal_texture = ExtResource("3_ejuu8")
+
+[node name="Ruinedarch0" type="Node3D" unique_id=2016505671]
+script = ExtResource("1_0vdhy")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_gtjfb"),
+1: SubResource("ORMMaterial3D_m5msl"),
+2: SubResource("ORMMaterial3D_m14au"),
+3: SubResource("ORMMaterial3D_6i03k")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=2048755796 instance=ExtResource("5_facbb")]

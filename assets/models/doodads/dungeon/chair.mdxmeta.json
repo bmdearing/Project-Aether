@@ -1,0 +1,125 @@
+{
+  "source": "chair.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.43303680038452147,
+      -0.05241959953308105,
+      -0.3851549835205078
+    ],
+    "max": [
+      0.2887470016479492,
+      1.1512854080200194,
+      1.1345039978027343
+    ],
+    "height": 1.2037050075531004
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DG_Prop_Chair",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_chair_diffuse.dds",
+        "normal": "dg_props_chair_normal.dds",
+        "orm": "dg_props_chair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DG_Prop_Chair_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_chair_diffuse.dds",
+        "normal": "dg_props_chair_normal.dds",
+        "orm": "dg_props_chair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DG_Prop_Chair_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_chair_diffuse.dds",
+        "normal": "dg_props_chair_normal.dds",
+        "orm": "dg_props_chair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DG_Prop_Chair_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dg_props_chair_diffuse.dds",
+        "normal": "dg_props_chair_normal.dds",
+        "orm": "dg_props_chair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_Diffuse.tif",
+        "normal": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_Normal.tif",
+        "orm": "Doodads/Dungeon/Props/Chair/DG_Props_Chair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}
