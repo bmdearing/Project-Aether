@@ -342,6 +342,17 @@ func _build_decor() -> void:
 ## ---- Void --------------------------------------------------------------------
 
 func _build_void() -> void:
+	var sky := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 700.0
+	sphere.height = 1400.0
+	sky.mesh = sphere
+	var sky_mat := ShaderMaterial.new()
+	sky_mat.shader = load("res://shaders/nexus_nebula.gdshader")
+	sky.material_override = sky_mat
+	sky.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(sky)
+
 	var sea := MeshInstance3D.new()
 	var plane := PlaneMesh.new()
 	plane.size = Vector2(1400, 1400)

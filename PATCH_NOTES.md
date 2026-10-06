@@ -7,6 +7,14 @@ there. Most recent first.
 
 ---
 
+## 2026-10-06 — v4.17: Storm title background, Hub nebula sky (user request)
+
+- Title background rebuilt (`MainMenuBackground.gd` + `menu_*` shaders): storm sky with warped clouds, silver-lined edges and a haloed moon (beams toned down on request); layered ridges with moonlit rims and mist; a lake with a glittering moon path and rain ripples; a Dalaran spire on a crag; two rain layers; forked lightning bolts synced to the thunder that light the clouds, lake and ridges; slow camera drift.
+- Bolt was invisible at range: the sky sphere used `depth_draw_never`, which moves a material into the transparent pass, where the sphere (centred near the camera) sorted after the bolt and painted over it. The sky now uses normal depth.
+- Hub: `nexus_nebula.gdshader` on a sky sphere - a nebula band (3D noise, no seams) arcing across the void with dust lanes and bright cores, a second violet cloud, and stars crowding into the band.
+
+---
+
 ## 2026-10-06 — v4.16: Main menu overhaul (user request)
 
 Left-column title screen over the animated background: dark gradient, large gold title, text buttons that turn gold and slide on hover with a staggered fade-in, fade from black, gold-framed Settings/About panels, version tag. Menu and Hub music raised from -10 to -5 dB.
