@@ -1,0 +1,477 @@
+{
+  "source": "banditspearthrower.mdx",
+  "version": 1000,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.5070353507995605,
+      -0.003997800081968307,
+      -1.3108554382324218
+    ],
+    "max": [
+      0.24166761589050292,
+      2.4507899780273434,
+      0.7088130340576171
+    ],
+    "height": 2.4547877781093117
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 1633,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 1667,
+      "end": 5133,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 5167,
+      "end": 7767,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 7800,
+      "end": 8800,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 8833,
+      "end": 9633,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Defend 1",
+      "start": 9667,
+      "end": 11167,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Defend 1",
+      "start": 11200,
+      "end": 12300,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 12333,
+      "end": 15367,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 15400,
+      "end": 75400,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Defend 1",
+      "start": 75433,
+      "end": 76433,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death Fire 1",
+      "start": 12333,
+      "end": 15367,
+      "duplicate_of": "Death 1"
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 0,
+      "end": 1633,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Decay Bone",
+      "start": 76467,
+      "end": 136467,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 136500,
+      "end": 138000,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BanditSpearThrower_rig_cin:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_banditspearthrower_body_diffuse.dds",
+        "normal": "neutral_banditspearthrower_body_normal.dds",
+        "orm": "neutral_banditspearthrower_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Diffuse.tif",
+        "normal": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Normal.tif",
+        "orm": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BanditSpearThrower_rig_cin:main_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_banditspearthrower_body_diffuse.dds",
+        "normal": "neutral_banditspearthrower_body_normal.dds",
+        "orm": "neutral_banditspearthrower_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Diffuse.tif",
+        "normal": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Normal.tif",
+        "orm": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "BanditSpearThrower_rig_cin:spear_geo",
+      "material_id": 2,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_banditspearthrower_weapon01_diffuse.dds",
+        "normal": "neutral_banditspearthrower_weapon01_normal.dds",
+        "orm": "neutral_banditspearthrower_weapon01_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Weapon01_Diffuse.tif",
+        "normal": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Weapon01_Normal.tif",
+        "orm": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Weapon01_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "BanditSpearThrower_rig_cin:basket_geo",
+      "material_id": 3,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_banditspearthrower_body_diffuse.dds",
+        "normal": "neutral_banditspearthrower_body_normal.dds",
+        "orm": "neutral_banditspearthrower_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Diffuse.tif",
+        "normal": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Normal.tif",
+        "orm": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "BanditSpearThrower_rig_cin:basket_geo",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_banditspearthrower_body_diffuse.dds",
+        "normal": "neutral_banditspearthrower_body_normal.dds",
+        "orm": "neutral_banditspearthrower_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Diffuse.tif",
+        "normal": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Normal.tif",
+        "orm": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "BanditSpearThrower_rig_cin:basketSpear_geo",
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_banditspearthrower_weapon01_diffuse.dds",
+        "normal": "neutral_banditspearthrower_weapon01_normal.dds",
+        "orm": "neutral_banditspearthrower_weapon01_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Weapon01_Diffuse.tif",
+        "normal": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Weapon01_Normal.tif",
+        "orm": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Weapon01_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "BanditSpearThrower_rig_cin:sword_geo",
+      "material_id": 3,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_banditspearthrower_body_diffuse.dds",
+        "normal": "neutral_banditspearthrower_body_normal.dds",
+        "orm": "neutral_banditspearthrower_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Diffuse.tif",
+        "normal": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_Normal.tif",
+        "orm": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "BanditSpearThrower_rig_cin:skeleton_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_ride_corpse_diffuse.dds",
+        "normal": "bandit_ride_corpse_normal.dds",
+        "orm": "bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_ride_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_ride_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_ride_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": false,
+        "Attack 1": false,
+        "Walk 1": false,
+        "Stand Defend 1": false,
+        "Walk Defend 1": true,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Attack Defend 1": false,
+        "Death Fire 1": false,
+        "Stand Hit 1": true,
+        "Decay Bone": true,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 8,
+      "name": "BanditSpearThrower_rig_cin:organs_geo",
+      "material_id": 7,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_ride_corpse_diffuse.dds",
+        "normal": "bandit_ride_corpse_normal.dds",
+        "orm": "bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_ride_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_ride_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_ride_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": false,
+        "Attack 1": false,
+        "Walk 1": false,
+        "Stand Defend 1": false,
+        "Walk Defend 1": true,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Attack Defend 1": false,
+        "Death Fire 1": false,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 9,
+      "name": "BanditSpearThrower_rig_cin:shield_geo",
+      "material_id": 8,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_banditspearthrower_weapon02_diffuse.dds",
+        "normal": "neutral_banditspearthrower_weapon02_normal.dds",
+        "orm": "neutral_banditspearthrower_weapon02_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Weapon02_Diffuse.tif",
+        "normal": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Weapon02_Normal.tif",
+        "orm": "Units/Creeps/BanditSpearThrower/Neutral_BanditSpearThrower_Weapon02_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    }
+  ]
+}

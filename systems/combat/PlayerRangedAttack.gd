@@ -83,6 +83,15 @@ func _on_weapon_swapped(_player_node: Node) -> void:
 	_cycle_timer = 0.0
 	_reload_weapon = null
 
+## Stops a reload in progress on this weapon (e.g. its magazine was filled
+## another way). The HUD hides its RELOADING label via reload_interrupted.
+func cancel_reload(weapon: Weapon) -> void:
+	if not _is_reloading or _reload_weapon != weapon:
+		return
+	_is_reloading = false
+	_reload_weapon = null
+	EventBus.reload_interrupted.emit(weapon)
+
 func try_attack(aimed: bool = false) -> void:
 	var weapon: Weapon = _player.get_active_weapon()
 	if weapon == null or not weapon.is_ranged:

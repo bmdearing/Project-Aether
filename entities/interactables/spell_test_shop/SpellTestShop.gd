@@ -36,7 +36,7 @@ func _open_shop() -> void:
 	var dir := DirAccess.open(ABILITY_DIR)
 	if dir:
 		dir.list_dir_begin()
-		var file_name := dir.get_next()
+		var file_name := dir.get_next().trim_suffix(".remap")
 		while file_name != "":
 			if file_name.ends_with(".tres"):
 				var ability: Ability = load(ABILITY_DIR + file_name) as Ability
@@ -48,7 +48,7 @@ func _open_shop() -> void:
 						"ability": ability,
 						"on_buy": func(): _grant(ability.ability_id),
 					})
-			file_name = dir.get_next()
+			file_name = dir.get_next().trim_suffix(".remap")
 		dir.list_dir_end()
 	_get_shop_screen().open_with("Spell Testing Shop (Free - Debug)", entries)
 

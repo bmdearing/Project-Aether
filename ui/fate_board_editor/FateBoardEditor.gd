@@ -124,14 +124,14 @@ func _refresh_designate_options(slate: Slate) -> void:
 	var dir := DirAccess.open(ABILITY_INSTANCE_DIR)
 	if dir:
 		dir.list_dir_begin()
-		var file_name := dir.get_next()
+		var file_name := dir.get_next().trim_suffix(".remap")
 		while file_name != "":
 			if file_name.ends_with(".tres"):
 				var ability: Ability = load(ABILITY_INSTANCE_DIR + file_name) as Ability
 				if ability and GameState.owned_ability_ids.has(ability.ability_id):
 					designate_option.add_item(ability.display_name)
 					_designate_ability_ids.append(ability.ability_id)
-			file_name = dir.get_next()
+			file_name = dir.get_next().trim_suffix(".remap")
 		dir.list_dir_end()
 	designate_option.select(0)
 

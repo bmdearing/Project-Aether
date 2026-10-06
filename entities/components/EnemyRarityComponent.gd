@@ -83,13 +83,13 @@ static func _build_affix_cache() -> void:
 	if dir == null:
 		return
 	dir.list_dir_begin()
-	var file_name := dir.get_next()
+	var file_name := dir.get_next().trim_suffix(".remap")
 	while file_name != "":
 		if file_name.ends_with(".tres"):
 			var affix: EnemyAffix = load(AFFIX_DIR + file_name)
 			if affix:
 				_affix_cache.append(affix)
-		file_name = dir.get_next()
+		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 
 static func _affixes_for_category(category: EnemyAffix.AffixCategory) -> Array[EnemyAffix]:

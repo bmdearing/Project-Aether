@@ -385,13 +385,13 @@ func _resolve_ability_by_id(ability_id: String) -> Ability:
 		var dir := DirAccess.open("res://data/abilities/instances/")
 		if dir:
 			dir.list_dir_begin()
-			var file_name := dir.get_next()
+			var file_name := dir.get_next().trim_suffix(".remap")
 			while file_name != "":
 				if file_name.ends_with(".tres"):
 					var ability: Ability = load("res://data/abilities/instances/" + file_name) as Ability
 					if ability:
 						_ability_by_id_cache[ability.ability_id] = ability
-				file_name = dir.get_next()
+				file_name = dir.get_next().trim_suffix(".remap")
 			dir.list_dir_end()
 	return _ability_by_id_cache.get(ability_id)
 

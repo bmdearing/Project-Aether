@@ -39,14 +39,9 @@
 
 const fs = require("fs");
 const path = require("path");
-const war3 = require("war3-model");
 const { mat4, quat } = require("gl-matrix");
-
-function loadModel(mdxPath) {
-  const buffer = fs.readFileSync(mdxPath);
-  const arrayBuffer = buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength);
-  return war3.parseMDX(arrayBuffer);
-}
+const { loadModel } = require("./mdx_load");
+const { buildSidecar } = require("./mdx_sidecar");
 
 // WC3/MDX is Z-up, right-handed. glTF is Y-up, right-handed, -Z forward.
 // Standard Z-up -> Y-up conversion preserving handedness: (x,y,z) -> (x,z,-y).
@@ -120,6 +115,7 @@ function buildGeometry(model, gltf, buffers, bufferViews, accessors) {
   for (let gi = 0; gi < model.Geosets.length; ++gi) {
     const geoset = model.Geosets[gi];
     const vertCount = geoset.Vertices.length / 3;
+    if (vertCount === 0 || geoset.Faces.length === 0) continue; // glTF rejects empty accessors
 
     // Positions/normals - axis-converted per-vertex (Float32).
     const positions = new Float32Array(vertCount * 3);
@@ -160,8 +156,13 @@ function buildGeometry(model, gltf, buffers, bufferViews, accessors) {
       weights = new Uint8Array(vertCount * 4);
       for (let v = 0; v < vertCount; ++v) {
         for (let c = 0; c < 4; ++c) {
-          joints[v * 4 + c] = geoset.SkinWeights[v * 8 + c];
-          weights[v * 4 + c] = geoset.SkinWeights[v * 8 + 4 + c];
+          const joint = geoset.SkinWeights[v * 8 + c];
+          const weight = geoset.SkinWeights[v * 8 + 4 + c];
+          // Unused slots can carry padding indices (e.g. 255) past the
+          // skeleton, which Godot rejects even at zero weight.
+          const valid = weight > 0 && joint < model.Nodes.length;
+          joints[v * 4 + c] = valid ? joint : 0;
+          weights[v * 4 + c] = valid ? weight : 0;
         }
       }
     }
@@ -273,6 +274,9 @@ function buildSkeleton(model, gltfNodes) {
 // separate "always playing" track, out of scope for a first pass. No
 // doc/spec need was established for this project specifically.
 const SAMPLE_RATE_HZ = 30;
+// Corpse-decay (60 s each) and portrait/cinematic sequences have no gameplay
+// use and would dominate file size, so they are not baked.
+const SKIPPED_SEQUENCE_PATTERN = /^(Decay|Cinematic)/i;
 const DEFAULT_TRANSLATION = [0, 0, 0];
 const DEFAULT_ROTATION = [0, 0, 0, 1];
 const DEFAULT_SCALE = [1, 1, 1];
@@ -352,6 +356,7 @@ function buildAnimations(model, skeleton, gltfNodes, buffers, bufferViews, acces
   }
 
   for (const seq of model.Sequences) {
+    if (SKIPPED_SEQUENCE_PATTERN.test(seq.Name)) continue;
     const startMs = seq.Interval[0];
     const endMs = seq.Interval[1];
     const durationMs = Math.max(endMs - startMs, 1);
@@ -381,8 +386,11 @@ function buildAnimations(model, skeleton, gltfNodes, buffers, bufferViews, acces
         const frameMs = Math.min(startMs + i * stepMs, endMs);
         const local = bakeLocalMatrix(node, frameMs);
         const t = mat4.getTranslation([0, 0, 0], local);
-        const r = mat4.getRotation([0, 0, 0, 1], local);
-        const s = mat4.getScaling([0, 0, 0], local);
+        // Linear part is exactly R*S, so R and S are taken from the
+        // evaluated channels rather than decomposed - decomposing a
+        // zero-scale key (WC3's way of hiding a bone) yields NaN rotations.
+        const r = quat.normalize([0, 0, 0, 1], evalQuat(node.Rotation, frameMs, DEFAULT_ROTATION));
+        const s = evalVec3(node.Scaling, frameMs, DEFAULT_SCALE);
         translations.set(convertVec3(t), i * 3);
         rotations.set(convertQuat(r), i * 4);
         scales.set(convertScale(s), i * 3);
@@ -445,7 +453,9 @@ function convert(mdxPath, outPath, scale = 1.0, bakeAnimations = true) {
   const meshNodeIndices = [];
   const meshNodesStart = gltfNodes.length;
   meshes.forEach((mesh, mi) => {
-    gltfNodes.push({ name: mesh.name, mesh: mi, skin: 0 });
+    // Index-based node name so Godot-side material/visibility lookups
+    // (the sidecar JSON) don't depend on geoset names, which repeat or are blank.
+    gltfNodes.push({ name: `Geoset_${mesh.extras.mdxGeosetIndex}`, mesh: mi, skin: 0 });
     meshNodeIndices.push(meshNodesStart + mi);
   });
 
@@ -497,6 +507,11 @@ function convert(mdxPath, outPath, scale = 1.0, bakeAnimations = true) {
 
   writeGLB(gltf, buffers.toArrayBuffer(), outPath);
   console.log(`Wrote ${outPath}`);
+  const sidecar = buildSidecar(model, mdxPath, scale);
+  const sidecarPath = outPath.replace(/\.glb$/i, ".mdxmeta.json");
+  fs.writeFileSync(sidecarPath, JSON.stringify(sidecar, null, 2));
+  console.log(`Wrote ${sidecarPath}`);
+  console.log(`  height ${sidecar.bounds.height.toFixed(3)} m at scale ${scale}`);
   console.log(`  ${meshes.length} meshes, ${jointCount} joints, ${buffers.byteLength} bytes of buffer data`);
   if (animations.length > 0) {
     console.log(`  ${animations.length} animations: ${animations.map((a) => a.name).join(", ")}`);

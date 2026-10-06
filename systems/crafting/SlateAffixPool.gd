@@ -49,7 +49,7 @@ static func _ensure_scanned() -> void:
 	if dir == null:
 		return
 	dir.list_dir_begin()
-	var file_name := dir.get_next()
+	var file_name := dir.get_next().trim_suffix(".remap")
 	while file_name != "":
 		if file_name.ends_with(".tres"):
 			var affix := load(POOL_DIR + file_name) as SlateAffix
@@ -57,5 +57,5 @@ static func _ensure_scanned() -> void:
 				if not _pool.has(affix.tag):
 					_pool[affix.tag] = []
 				_pool[affix.tag].append(affix)
-		file_name = dir.get_next()
+		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()

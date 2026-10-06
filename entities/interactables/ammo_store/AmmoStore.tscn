@@ -1,0 +1,45 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://entities/interactables/ammo_store/AmmoStore.gd" id="1"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_crate"]
+size = Vector3(1.4, 0.9, 0.9)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_crate"]
+albedo_color = Color(0.28, 0.32, 0.2, 1)
+roughness = 0.8
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_crate"]
+size = Vector3(1.4, 0.9, 0.9)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_proximity"]
+radius = 3.0
+
+[node name="AmmoStore" type="Node3D"]
+script = ExtResource("1")
+
+[node name="Crate" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Crate"]
+position = Vector3(0, 0.45, 0)
+mesh = SubResource("BoxMesh_crate")
+surface_material_override/0 = SubResource("StandardMaterial3D_crate")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Crate"]
+position = Vector3(0, 0.45, 0)
+shape = SubResource("BoxShape3D_crate")
+
+[node name="ProximityArea" type="Area3D" parent="."]
+monitoring = true
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ProximityArea"]
+position = Vector3(0, 1.0, 0)
+shape = SubResource("SphereShape3D_proximity")
+
+[node name="PromptLabel" type="Label3D" parent="."]
+position = Vector3(0, 2.0, 0)
+billboard = 1
+font_size = 42
+outline_size = 8
+text = "Press E to Resupply"

@@ -380,13 +380,13 @@ static func _build_weapon_affix_cache() -> void:
 			var dir := DirAccess.open(WEAPON_AFFIX_DIR + subdir + "/")
 			if dir:
 				dir.list_dir_begin()
-				var file_name := dir.get_next()
+				var file_name := dir.get_next().trim_suffix(".remap")
 				while file_name != "":
 					if file_name.ends_with(".tres"):
 						var affix: ItemAffix = load(WEAPON_AFFIX_DIR + subdir + "/" + file_name)
 						if affix:
 							_weapon_affix_cache.append(affix)
-					file_name = dir.get_next()
+					file_name = dir.get_next().trim_suffix(".remap")
 				dir.list_dir_end()
 		subdir = root.get_next()
 	root.list_dir_end()
@@ -533,14 +533,14 @@ static func _build_candidate_meta_cache() -> void:
 		if dir == null:
 			continue
 		dir.list_dir_begin()
-		var file_name := dir.get_next()
+		var file_name := dir.get_next().trim_suffix(".remap")
 		while file_name != "":
 			if file_name.ends_with(".tres"):
 				var path: String = dir_path + file_name
 				var item := load(path) as Item
 				if item and not _is_excluded_line(item.base_line_id):
 					_candidate_meta_cache[path] = {"item_level": item.item_level, "base_line_id": item.base_line_id}
-			file_name = dir.get_next()
+			file_name = dir.get_next().trim_suffix(".remap")
 		dir.list_dir_end()
 
 ## Patch v4.0: "slots" (optional, Array[Constants.EquipmentSlot]) and

@@ -16,13 +16,13 @@ static func roll_for_unowned(owned_ability_ids: Array) -> SkillTome:
 	if dir == null:
 		return null
 	dir.list_dir_begin()
-	var file_name := dir.get_next()
+	var file_name := dir.get_next().trim_suffix(".remap")
 	while file_name != "":
 		if file_name.ends_with(".tres"):
 			var ability: Ability = load(ABILITY_DIR + file_name) as Ability
 			if ability and not owned_ability_ids.has(ability.ability_id):
 				candidates.append(ABILITY_DIR + file_name)
-		file_name = dir.get_next()
+		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 	if candidates.is_empty():
 		return null

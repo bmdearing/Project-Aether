@@ -201,13 +201,13 @@ func _scan_owned_items() -> void:
 		if dir == null:
 			continue
 		dir.list_dir_begin()
-		var file_name := dir.get_next()
+		var file_name := dir.get_next().trim_suffix(".remap")
 		while file_name != "":
 			if file_name.ends_with(".tres"):
 				var item: Item = load(dir_path + file_name) as Item
 				if item and item.base_line_id == "":
 					_owned_items.append(item)
-			file_name = dir.get_next()
+			file_name = dir.get_next().trim_suffix(".remap")
 		dir.list_dir_end()
 
 ## Anything currently equipped is excluded - it's shown on the paper-doll,

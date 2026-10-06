@@ -1,12 +1,11 @@
 extends CharacterBody3D
 class_name Enemy
-## Base enemy per the Trinity Rule (Section 21) - archetype subclasses
-## tune exported values rather than duplicate component wiring. Chase
-## movement lives here; attacking is an optional child component
-## (EnemyMeleeAttack/EnemyRangedAttack) that drives the telegraph calls
-## below - chasing and attacking are decoupled.
+## Base enemy. Regular units are MeleeUnit/RangedUnit scenes driven by an
+## EnemyDefinition (see EnemyRoster); bosses subclass this and tune values
+## directly. Chase movement lives here; attacking is an optional child
+## component (EnemyMeleeAttack/EnemyRangedAttack) that drives the telegraph
+## calls below - chasing and attacking are decoupled.
 
-@export var archetype: Constants.EnemyArchetype
 ## User request (2026-08-30): White/Blue/Rare/Boss rank, gating which item-
 ## level tier of loot this enemy can drop (see _compute_item_level()).
 ## Left at NORMAL here and rolled randomly in _ready() unless a scene
@@ -21,21 +20,14 @@ class_name Enemy
 @export var stop_distance: float = 2.3
 ## >0 backs away once the player is closer than this (kiting).
 @export var retreat_distance: float = 0.0
-## Tuned to clear the Vault's gap (3m) + platform rise (1.2m) at this
-## archetype's move_speed - HeavyHitter (1.8 move_speed) still can't
-## make it, correctly walled off by its own slowness.
+## Tuned to clear the Vault's gap (3m) + platform rise (1.2m) at faster
+## move speeds - slow units are walled off by their own slowness.
 @export var jump_velocity: float = 7.0
-## Invented, scaled by archetype toughness.
+## Invented placeholder; definitions override it.
 @export var xp_reward: float = 10.0
 @export var gold_reward: int = 5
 
-## User request (2026-08-31): "a health bar on enemies when I hover over
-## them... shows the enemy's name." No display-name concept existed
-## before this - archetype subclasses set their own readable string in
-## their own _ready() (before super._ready() per Godot's child-first
-## order isn't guaranteed for @export, so each subclass just sets this
-## directly); falls back to the node's own Godot name (e.g. "GlassCannon")
-## if never set, so nothing shows a blank label.
+## Name on the hover health bar; falls back to the node's own name.
 @export var display_name: String = ""
 
 ## Data-driven override of the stats/visuals above (Implementation Brief
@@ -58,7 +50,6 @@ func get_display_name() -> String:
 ## hit only." Head only for now, per the brief's own scope limit.
 @export var critical_spot_multiplier: float = 1.25
 
-const TELEGRAPH_COLOR := Color(1.0, 0.95, 0.2)
 
 @onready var health: HealthComponent = $HealthComponent
 @onready var stance: StanceComponent = $StanceComponent
@@ -78,7 +69,6 @@ const STATUS_ICON_SPACING := 0.22
 const STATUS_EFFECT_IDS := ["ignite", "chill", "freeze", "electrocute", "unraveling", "slow"]
 
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
-var _base_color: Color = Color.WHITE
 var _player: Player
 var _gap_jumping: bool = false
 var _riposte_indicator: MeshInstance3D
@@ -88,7 +78,6 @@ var _status_icons: Dictionary = {}  # effect_id -> MeshInstance3D
 ## Set by _apply_model() when the definition supplies a real model.
 var _anim_controller: EnemyAnimationController
 var _model_root: Node3D
-var _model_meshes: Array[MeshInstance3D] = []
 var _last_hit_react_msec: int = 0
 const HIT_REACT_MIN_INTERVAL_MSEC := 600   # a flinch on every hit would keep a fast attacker locked in HitReact
 const MODEL_TURN_SPEED := 8.0
@@ -196,20 +185,23 @@ func _reset_ward() -> void:
 func _apply_model() -> void:
 	if definition == null or definition.model_scene == null:
 		return
+	_install_model(definition.model_scene, definition.animation_set, definition.scale_modifier, definition.model_yaw_offset)
+
+func _install_model(model_scene: PackedScene, anim_set: AnimationSet, model_scale: float, yaw_offset: float) -> void:
 	var placeholder := get_node_or_null("MeshInstance3D")
 	if placeholder:
 		placeholder.queue_free()
-	var model := definition.model_scene.instantiate() as Node3D
+	var model := model_scene.instantiate() as Node3D
 	add_child(model)
-	model.scale = Vector3.ONE * definition.scale_modifier
+	model.scale = Vector3.ONE * model_scale
+	model.rotation.y = yaw_offset
+	model_forward_yaw_offset = yaw_offset
 	_model_root = model
-	for mesh in model.find_children("*", "MeshInstance3D"):
-		_model_meshes.append(mesh)
 	var anim_tree := model.get_node_or_null("AnimationTree") as AnimationTree
-	if anim_tree and definition.animation_set:
+	if anim_tree and anim_set:
 		var controller := EnemyAnimationController.new()
 		add_child(controller)
-		controller.setup(anim_tree, definition.animation_set)
+		controller.setup(anim_tree, anim_set)
 		_anim_controller = controller
 
 ## Turns the model (not the body - collision/hitboxes stay symmetric) toward
@@ -750,36 +742,8 @@ func _compute_item_level() -> int:
 	var area_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
 	return area_level + Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
 
-func _set_placeholder_color(c: Color) -> void:
-	_base_color = c
-	_apply_mesh_color(c)
-
-func begin_attack_telegraph() -> void:
-	_apply_mesh_color(TELEGRAPH_COLOR)
+## The attack animation is the telegraph: started at wind-up begin and
+## timed so its hit frame lands when the wind-up ends (windup_sec later).
+func begin_attack_telegraph(windup_sec: float) -> void:
 	if _anim_controller:
-		_anim_controller.play_attack()  # at windup start, so the clip's release lines up with the strike/shot
-
-## progress: 0.0 (just telegraphed) -> 1.0 (about to strike).
-func update_attack_telegraph(progress: float) -> void:
-	_apply_mesh_color(TELEGRAPH_COLOR.lerp(_base_color, clamp(progress, 0.0, 1.0)))
-
-func end_attack_telegraph() -> void:
-	_apply_mesh_color(_base_color)
-
-func _apply_mesh_color(c: Color) -> void:
-	if not _model_meshes.is_empty():
-		# Real model: the telegraph flash tints it flat, and "back to base
-		# color" removes the tint rather than painting the placeholder color on.
-		var restore := c.is_equal_approx(_base_color)
-		var flash: StandardMaterial3D = null
-		if not restore:
-			flash = StandardMaterial3D.new()
-			flash.albedo_color = c
-		for m in _model_meshes:
-			m.material_override = flash
-		return
-	var mesh: MeshInstance3D = get_node_or_null("MeshInstance3D")
-	if mesh:
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = c
-		mesh.set_surface_override_material(0, mat)
+		_anim_controller.play_attack(windup_sec)

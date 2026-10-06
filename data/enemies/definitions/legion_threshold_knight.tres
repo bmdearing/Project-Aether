@@ -1,0 +1,35 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyDefinition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://entities/enemies/models/LegionThresholdKnightModel.tscn" id="2"]
+[ext_resource type="Resource" path="res://data/enemies/animation_sets/legion_threshold_knight.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Legion Threshold Knight"
+faction = "karvis_legion"
+lore_description = "A Karvis Legion officer stabilized at the threshold between life and death. Commands Hollowed and has not stopped marching."
+model_scene = ExtResource("2")
+animation_set = ExtResource("3")
+scale_modifier = 1.0
+model_yaw_offset = -1.5707964
+mob_level = 5
+archetype_category = "elite"
+ward_percent = 0.2
+damage_type = 8
+move_speed = 4
+chase_range = 15.0
+stop_distance = 2.3
+retreat_distance = 0
+is_ranged = false
+attack_range = 2.6
+attack_cooldown = 1.5
+xp_reward = 80.0
+gold_reward_min = 30
+gold_reward_max = 45
+pack_size_min = 1
+pack_size_max = 1
+weight_normal = 75
+weight_elite = 20
+weight_champion = 4
+weight_ascendant = 1

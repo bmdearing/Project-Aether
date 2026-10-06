@@ -1,0 +1,531 @@
+{
+  "source": "banditrouge_dualwield.mdx",
+  "version": 1000,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.7010766677856445,
+      -0.013676400303840637,
+      -1.027222915649414
+    ],
+    "max": [
+      0.45591840362548824,
+      1.8015839538574216,
+      0.7292375793457031
+    ],
+    "height": 1.8152603541612624
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 300,
+      "end": 3300,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 3600,
+      "end": 6700,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 7000,
+      "end": 9166,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 9466,
+      "end": 10466,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 10766,
+      "end": 11766,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 12066,
+      "end": 12866,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Defend 1",
+      "start": 13166,
+      "end": 14166,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Defend 1",
+      "start": 14466,
+      "end": 15566,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 15866,
+      "end": 18166,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 18466,
+      "end": 78466,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Defend 1",
+      "start": 78766,
+      "end": 79766,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death Fire 1",
+      "start": 80066,
+      "end": 82366,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 82666,
+      "end": 85666,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Bone",
+      "start": 85966,
+      "end": 145966,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 146266,
+      "end": 147266,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BanditRogue_rig_cin:axe_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "banditrogue_weapon_diffuse.dds",
+        "normal": "banditrogue_weapon_normal.dds",
+        "orm": "banditrogue_weapon_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditRogue/BanditRogue_weapon_Diffuse.tif",
+        "normal": "Units/Creeps/BanditRogue/BanditRogue_weapon_Normal.tif",
+        "orm": "Units/Creeps/BanditRogue/BanditRogue_weapon_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BanditRogue_rig_cin:organs_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_ride_corpse_diffuse.dds",
+        "normal": "bandit_ride_corpse_normal.dds",
+        "orm": "bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_ride_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_ride_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_ride_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand Victory 1": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Walk 1": false,
+        "Stand Defend 1": false,
+        "Walk Defend 1": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Attack Defend 1": false,
+        "Death Fire 1": false,
+        "Stand Hit 1": false,
+        "Decay Bone": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "BanditRogue_rig_cin:skeleton_geo",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_ride_corpse_diffuse.dds",
+        "normal": "bandit_ride_corpse_normal.dds",
+        "orm": "bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_ride_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_ride_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_ride_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand Victory 1": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Walk 1": false,
+        "Stand Defend 1": false,
+        "Walk Defend 1": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Attack Defend 1": false,
+        "Death Fire 1": false,
+        "Stand Hit 1": false,
+        "Decay Bone": true,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "BanditRogue_rig_cin:pauldron_geo",
+      "material_id": 3,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "banditrogue_main_diffuse.dds",
+        "normal": "banditrogue_main_normal.dds",
+        "orm": "banditrogue_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditRogue/BanditRogue_Main_Diffuse.tif",
+        "normal": "Units/Creeps/BanditRogue/BanditRogue_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditRogue/BanditRogue_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "BanditRogue_rig_cin:pauldron_geo",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "banditrogue_main_diffuse.dds",
+        "normal": "banditrogue_main_normal.dds",
+        "orm": "banditrogue_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditRogue/BanditRogue_Main_Diffuse.tif",
+        "normal": "Units/Creeps/BanditRogue/BanditRogue_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditRogue/BanditRogue_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "BanditRogue_rig_cin:main_geo",
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "banditrogue_main_diffuse.dds",
+        "normal": "banditrogue_main_normal.dds",
+        "orm": "banditrogue_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditRogue/BanditRogue_Main_Diffuse.tif",
+        "normal": "Units/Creeps/BanditRogue/BanditRogue_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditRogue/BanditRogue_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "BanditRogue_rig_cin:main_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "banditrogue_main_diffuse.dds",
+        "normal": "banditrogue_main_normal.dds",
+        "orm": "banditrogue_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditRogue/BanditRogue_Main_Diffuse.tif",
+        "normal": "Units/Creeps/BanditRogue/BanditRogue_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditRogue/BanditRogue_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "BanditRogue_rig_cin:shield_geo",
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "banditrogue_weapon1_diffuse.dds",
+        "normal": "banditrogue_weapon1_normal.dds",
+        "orm": "banditrogue_weapon1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditRogue/BanditRogue_weapon1_Diffuse.tif",
+        "normal": "Units/Creeps/BanditRogue/BanditRogue_weapon1_Normal.tif",
+        "orm": "Units/Creeps/BanditRogue/BanditRogue_weapon1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "BanditRogue_rig_cin:shield_geo",
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "banditrogue_weapon1_diffuse.dds",
+        "normal": "banditrogue_weapon1_normal.dds",
+        "orm": "banditrogue_weapon1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditRogue/BanditRogue_weapon1_Diffuse.tif",
+        "normal": "Units/Creeps/BanditRogue/BanditRogue_weapon1_Normal.tif",
+        "orm": "Units/Creeps/BanditRogue/BanditRogue_weapon1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "BanditRogue_rig_cin:axe_geo",
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "banditrogue_weapon_diffuse.dds",
+        "normal": "banditrogue_weapon_normal.dds",
+        "orm": "banditrogue_weapon_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditRogue/BanditRogue_weapon_Diffuse.tif",
+        "normal": "Units/Creeps/BanditRogue/BanditRogue_weapon_Normal.tif",
+        "orm": "Units/Creeps/BanditRogue/BanditRogue_weapon_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "BanditRogue_rig_cin:axe_geo",
+      "material_id": 10,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "banditrogue_weapon_diffuse.dds",
+        "normal": "banditrogue_weapon_normal.dds",
+        "orm": "banditrogue_weapon_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditRogue/BanditRogue_weapon_Diffuse.tif",
+        "normal": "Units/Creeps/BanditRogue/BanditRogue_weapon_Normal.tif",
+        "orm": "Units/Creeps/BanditRogue/BanditRogue_weapon_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    }
+  ]
+}

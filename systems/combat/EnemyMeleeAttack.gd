@@ -57,8 +57,6 @@ func _physics_process(delta: float) -> void:
 				_enter_telegraph()
 		State.TELEGRAPH:
 			_timer -= delta
-			var progress := 1.0 - (_timer / telegraph_duration) if telegraph_duration > 0.0 else 1.0
-			_enemy.update_attack_telegraph(progress)
 			if _timer <= 0.0:
 				_enter_strike()
 		State.STRIKE:
@@ -74,13 +72,12 @@ func _physics_process(delta: float) -> void:
 func _enter_telegraph() -> void:
 	_state = State.TELEGRAPH
 	_timer = telegraph_duration
-	_enemy.begin_attack_telegraph()
+	_enemy.begin_attack_telegraph(telegraph_duration)
 	EventBus.enemy_attack_telegraphed.emit(_enemy)
 
 func _enter_strike() -> void:
 	_state = State.STRIKE
 	_timer = strike_duration
-	_enemy.end_attack_telegraph()
 	_resolved_this_strike = false
 	if _hitbox:
 		_hitbox.monitoring = true

@@ -12,6 +12,9 @@ class_name AnimationSet
 @export var attack_light: String = "Punch_Jab"
 @export var attack_heavy: String = "Punch_Cross"
 @export var attack_special: String = ""
+## Point in attack_light (0-1) where the blow lands; EnemyAnimationController
+## times the clip so this frame meets the end of the wind-up.
+@export_range(0.05, 0.95) var attack_hit_fraction: float = 0.45
 @export var hit_reaction: String = "Hit_Chest"
 @export var stagger: String = "Hit_Head"
 @export var death: String = "Death01"

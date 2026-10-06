@@ -34,6 +34,7 @@ func setup(tree: AnimationTree, anim_set: AnimationSet) -> void:
 	if _player:
 		_tree.anim_player = _tree.get_path_to(_player)
 	_apply_animation_set()
+	_apply_loop_modes()
 	_tree.active = true
 	_state_machine = _tree.get("parameters/playback")
 
@@ -55,6 +56,33 @@ func _apply_animation_set() -> void:
 	_set_anim("Stagger", animation_set.stagger, hit)
 	_set_anim("Death", animation_set.death, animation_set.idle)
 
+## Imported clips (MDX-converted .glb) default to LOOP_NONE: locomotion must
+## loop, one-shot states must not, or Attack/HitReact never reach their end
+## transition back to Idle. Set on the shared Animation resource, so every
+## enemy using the model agrees.
+const LOOPING_STATES := ["Idle", "Walk", "Run"]
+const ONE_SHOT_STATES := ["Attack", "HitReact", "Stagger", "Death"]
+
+func _apply_loop_modes() -> void:
+	if _player == null:
+		return
+	for state in LOOPING_STATES + ONE_SHOT_STATES:
+		var node := _tree.tree_root.get_node(state) as AnimationNodeAnimation
+		if node == null or not _player.has_animation(node.animation):
+			continue
+		var looping: bool = state in LOOPING_STATES
+		# A one-shot state can fall back to the idle clip; leave that one looping.
+		if not looping and _is_locomotion_clip(node.animation):
+			continue
+		_player.get_animation(node.animation).loop_mode = Animation.LOOP_LINEAR if looping else Animation.LOOP_NONE
+
+func _is_locomotion_clip(clip: StringName) -> bool:
+	for state in LOOPING_STATES:
+		var node := _tree.tree_root.get_node(state) as AnimationNodeAnimation
+		if node and node.animation == clip:
+			return true
+	return false
+
 func _set_anim(node_name: String, anim_name: String, fallback: String) -> void:
 	var chosen := anim_name if not anim_name.is_empty() else fallback
 	if _player and not _player.has_animation(chosen):
@@ -64,14 +92,38 @@ func _set_anim(node_name: String, anim_name: String, fallback: String) -> void:
 	if node:
 		node.animation = chosen
 
-func play_attack() -> void:
-	_pulse("attack_triggered")
+## Attack playback speed is clamped so very short or long wind-ups don't
+## turn the swing into a blur or a crawl.
+const MIN_ATTACK_SPEED := 0.4
+const MAX_ATTACK_SPEED := 2.0
 
+## Stretches the Attack clip so its hit frame (AnimationSet.attack_hit_fraction)
+## lands windup_sec from now, then plays it - restarting it if a previous
+## swing's follow-through is still playing.
+func play_attack(windup_sec: float) -> void:
+	if _tree == null or _dead:
+		return
+	var node := _tree.tree_root.get_node("Attack") as AnimationNodeAnimation
+	if node and _player and _player.has_animation(node.animation) and windup_sec > 0.0:
+		var length := _player.get_animation(node.animation).length
+		var speed := clampf(length * animation_set.attack_hit_fraction / windup_sec, MIN_ATTACK_SPEED, MAX_ATTACK_SPEED)
+		node.use_custom_timeline = true
+		node.stretch_time_scale = true
+		node.timeline_length = length / speed
+	if _state_machine and _state_machine.get_current_node() == &"Attack":
+		_state_machine.start(&"Attack", true)
+	else:
+		_pulse("attack_triggered")
+
+## No-ops when the set has no clip for them: the idle fallback loops, so the
+## state would never reach its end transition back to Idle.
 func play_hit_react() -> void:
-	_pulse("hit_triggered")
+	if animation_set and not animation_set.hit_reaction.is_empty():
+		_pulse("hit_triggered")
 
 func play_stagger() -> void:
-	_pulse("stagger_triggered")
+	if animation_set and not (animation_set.stagger.is_empty() and animation_set.hit_reaction.is_empty()):
+		_pulse("stagger_triggered")
 
 func play_death() -> void:
 	if _tree == null or _dead:

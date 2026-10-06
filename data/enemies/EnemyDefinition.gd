@@ -13,6 +13,8 @@ class_name EnemyDefinition
 @export var model_scene: PackedScene = null
 @export var animation_set: AnimationSet = null
 @export var scale_modifier: float = 1.0
+## Yaw (radians) between the model's front and +Z - see Enemy.model_forward_yaw_offset.
+@export var model_yaw_offset: float = 0.0
 
 # Level scaling - health/damage come from Constants.MOB_BASE_* by category
 # and this level (see Enemy._apply_definition()); base_health/base_damage
@@ -33,6 +35,7 @@ class_name EnemyDefinition
 @export var retreat_distance: float = 0.0
 
 # Combat
+@export var is_ranged: bool = false  # spawned on RangedUnit.tscn instead of MeleeUnit.tscn (EnemyRoster)
 @export var attack_range: float = 2.0
 @export var attack_cooldown: float = 1.5
 @export var xp_reward: float = 10.0

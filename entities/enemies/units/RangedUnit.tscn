@@ -1,0 +1,11 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="PackedScene" path="res://entities/enemies/base/Enemy.tscn" id="1"]
+[ext_resource type="Script" path="res://systems/combat/EnemyRangedAttack.gd" id="2"]
+
+[node name="RangedUnit" instance=ExtResource("1")]
+
+[node name="RangedAttack" type="Node" parent="."]
+script = ExtResource("2")
+windup_duration = 0.5
+projectile_speed = 18.0

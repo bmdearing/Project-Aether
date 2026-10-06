@@ -123,13 +123,13 @@ func _scan_behaviors() -> void:
 	if dir == null:
 		return
 	dir.list_dir_begin()
-	var file_name := dir.get_next()
+	var file_name := dir.get_next().trim_suffix(".remap")
 	while file_name != "":
 		if file_name.ends_with(".tres"):
 			var behavior: StanceBehavior = load(STANCE_INSTANCES_DIR + file_name) as StanceBehavior
 			if behavior:
 				_behavior_by_weapon_type[behavior.weapon_type] = behavior
-		file_name = dir.get_next()
+		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 
 func _physics_process(_delta: float) -> void:

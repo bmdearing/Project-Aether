@@ -219,13 +219,13 @@ func _reset_all_ability_ranks() -> void:
 	if dir == null:
 		return
 	dir.list_dir_begin()
-	var file_name := dir.get_next()
+	var file_name := dir.get_next().trim_suffix(".remap")
 	while file_name != "":
 		if file_name.ends_with(".tres"):
 			var ability: Ability = load(dir_path + file_name) as Ability
 			if ability:
 				ability.rank = 0
-		file_name = dir.get_next()
+		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 
 ## Set by RealityEngine.gd right before loading MAP_SCENE - Enemy.gd reads

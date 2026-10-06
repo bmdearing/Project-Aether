@@ -1,0 +1,319 @@
+{
+  "source": "Progenitor1.mdx",
+  "version": 1200,
+  "scale": 0.033,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.9065321235656738,
+      -1.1251580772399903,
+      -3.4899478912353517
+    ],
+    "max": [
+      1.100283073425293,
+      4.8940647583007815,
+      3.543473945617676
+    ],
+    "height": 6.019222835540772
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 100,
+      "end": 1967,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 2067,
+      "end": 7267,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 7367,
+      "end": 8634,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 8734,
+      "end": 10068,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 11000,
+      "end": 12067,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 12167,
+      "end": 13800,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 15333,
+      "end": 17200,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 17500,
+      "end": 19367,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "undead_SylvanasBanshee_rig:cloth_geo",
+      "material_id": 0,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Progenitor_Stars_Diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "orm.dds",
+        "emissive": "Progenitor_Stars_Diffuse.dds"
+      },
+      "sources": {
+        "diffuse": "Progenitor_Stars_Diffuse.dds",
+        "normal": "textures/normal.dds",
+        "orm": "Textures\\orm.dds",
+        "emissive": "Progenitor_Stars_Diffuse.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Spell 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": null,
+        "normal": "Progenit_Main_Normal.dds",
+        "orm": "orm.dds",
+        "emissive": "Progenitor_Main_Emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Textures\\Black32.dds",
+        "normal": "Progenit_Main_Normal.dds",
+        "orm": "Textures\\orm.dds",
+        "emissive": "Progenitor_Main_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Spell 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "undead_SylvanasBanshee_rig:cloth_geo",
+      "material_id": 2,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Progenitor_Stars_Diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "orm.dds",
+        "emissive": "Progenitor_Stars_Diffuse.dds"
+      },
+      "sources": {
+        "diffuse": "Progenitor_Stars_Diffuse.dds",
+        "normal": "textures/normal.dds",
+        "orm": "Textures\\orm.dds",
+        "emissive": "Progenitor_Stars_Diffuse.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Spell 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "BansheeGhost_rig:main_geo",
+      "material_id": 3,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Progenitor_Stars_Diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "orm.dds",
+        "emissive": "Progenitor_Stars_Diffuse.dds"
+      },
+      "sources": {
+        "diffuse": "Progenitor_Stars_Diffuse.dds",
+        "normal": "textures/normal.dds",
+        "orm": "Textures\\orm.dds",
+        "emissive": "Progenitor_Stars_Diffuse.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Spell 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "BansheeGhost_rig:main_geo",
+      "material_id": 4,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Progenitor_Stars_Diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "orm.dds",
+        "emissive": "Progenitor_Stars_Diffuse.dds"
+      },
+      "sources": {
+        "diffuse": "Progenitor_Stars_Diffuse.dds",
+        "normal": "textures/normal.dds",
+        "orm": "Textures\\orm.dds",
+        "emissive": "Progenitor_Stars_Diffuse.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Spell 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "neutral_fallenPriest_lvl_1_rig:sphere_geo",
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_nagabuildup_water_diffuse.dds",
+        "normal": "neutral_nagabuildup_water_normal.dds",
+        "orm": "neutral_nagabuildup_water_orm.dds",
+        "emissive": "neutral_nagabuildup_water_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "buildings\\naga\\nagabirth\\neutral_nagabuildup_water_diffuse.dds",
+        "normal": "buildings\\naga\\nagabirth\\neutral_nagabuildup_water_normal.dds",
+        "orm": "buildings\\naga\\nagabirth\\neutral_nagabuildup_water_Orm.dds",
+        "emissive": "buildings\\naga\\nagabirth\\neutral_nagabuildup_water_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Spell 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "neutral_fallenPriest_lvl_1_rig:sphere_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "g_blight_diffuse.dds",
+        "normal": "north_blight_normal.dds",
+        "orm": "Progenitor_Planets_Orm.dds",
+        "emissive": "g_blight_diffuse.dds"
+      },
+      "sources": {
+        "diffuse": "terrainart\\blight\\g_blight_diffuse.dds",
+        "normal": "terrainart\\blight\\north_blight_normal.dds",
+        "orm": "Progenitor_Planets_Orm.dds",
+        "emissive": "terrainart\\blight\\g_blight_diffuse.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Spell 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "neutral_fallenPriest_lvl_1_rig:sphere_geo",
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "outland_blight_diffuse.dds",
+        "normal": "outland_blight_normal.dds",
+        "orm": "Progenitor_Planets_Orm.dds",
+        "emissive": "outland_blight_diffuse.dds"
+      },
+      "sources": {
+        "diffuse": "terrainart\\blight\\outland_blight_diffuse.dds",
+        "normal": "terrainart\\blight\\outland_blight_normal.dds",
+        "orm": "Progenitor_Planets_Orm.dds",
+        "emissive": "terrainart\\blight\\outland_blight_diffuse.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Spell 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": false
+      }
+    }
+  ]
+}

@@ -1,9 +1,17 @@
-[gd_scene load_steps=20 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
-[ext_resource type="PackedScene" path="res://entities/enemies/glass_cannon/GlassCannon.tscn" id="2"]
-[ext_resource type="PackedScene" path="res://entities/enemies/mobile_bruiser/MobileBruiser.tscn" id="3"]
-[ext_resource type="PackedScene" path="res://entities/enemies/heavy_hitter/HeavyHitter.tscn" id="4"]
+[ext_resource type="PackedScene" path="res://entities/enemies/units/MeleeUnit.tscn" id="2"]
+[ext_resource type="PackedScene" path="res://entities/enemies/units/RangedUnit.tscn" id="3"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/unchartered_cutthroat.tres" id="def_0"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/unchartered_javelineer.tres" id="def_1"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/unchartered_brigand.tres" id="def_2"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/unchartered_enforcer.tres" id="def_3"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/unchartered_chieftain.tres" id="def_4"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/directorate_adjudicator.tres" id="def_5"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/synod_vindicator.tres" id="def_6"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/synod_exarch.tres" id="def_7"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/legion_threshold_knight.tres" id="def_8"]
 [ext_resource type="PackedScene" path="res://ui/debug/DebugOverlay.tscn" id="5"]
 [ext_resource type="PackedScene" path="res://ui/pause_menu/PauseMenu.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://ui/fate_board_editor/FateBoardEditor.tscn" id="7"]
@@ -59,14 +67,41 @@ surface_material_override/0 = SubResource("StandardMaterial3D_floor")
 [node name="Player" parent="." instance=ExtResource("1")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
 
-[node name="GlassCannon" parent="." instance=ExtResource("2")]
+[node name="UncharteredCutthroat" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -6)
+definition = ExtResource("def_0")
+
+[node name="UncharteredJavelineer" parent="." instance=ExtResource("3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9, 0, -6)
+definition = ExtResource("def_1")
+
+[node name="UncharteredBrigand" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -6)
+definition = ExtResource("def_2")
+
+[node name="UncharteredEnforcer" parent="." instance=ExtResource("2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -6)
+definition = ExtResource("def_3")
 
-[node name="MobileBruiser" parent="." instance=ExtResource("3")]
+[node name="UncharteredChieftain" parent="." instance=ExtResource("2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6)
+definition = ExtResource("def_4")
 
-[node name="HeavyHitter" parent="." instance=ExtResource("4")]
+[node name="DirectorateAdjudicator" parent="." instance=ExtResource("2")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -6)
+definition = ExtResource("def_5")
+
+[node name="SynodVindicator" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -6)
+definition = ExtResource("def_6")
+
+[node name="SynodExarch" parent="." instance=ExtResource("3")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, -6)
+definition = ExtResource("def_7")
+
+[node name="LegionThresholdKnight" parent="." instance=ExtResource("2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, -6)
+definition = ExtResource("def_8")
 
 [node name="DebugOverlay" parent="." instance=ExtResource("5")]
 

@@ -163,6 +163,16 @@ const AMMO_TYPE_PICKUP_ID := {
 	AmmoType.CROSSBOW_BOLT: "ammo_crossbow",
 }
 
+## Placeholder Gold per round at the Hub AmmoStore.
+const AMMO_ROUND_COST := {
+	AmmoType.PISTOL: 1,
+	AmmoType.AUTOMATIC: 1,
+	AmmoType.REVOLVER: 2,
+	AmmoType.CROSSBOW_BOLT: 2,
+	AmmoType.SHOTGUN: 3,
+	AmmoType.RIFLE: 3,
+}
+
 const STATUS_EFFECT_NAME := {
 	"ignite": "Ignite",
 	"chill": "Chill",
@@ -226,8 +236,6 @@ const SLATE_RARITY_COLOR := {
 	SlateRarity.UNIQUE: Color(0.9, 0.55, 0.15),
 	SlateRarity.MYTHIC: Color(0.98, 0.75, 0.75),
 }
-
-enum EnemyArchetype { GLASS_CANNON, MOBILE_BRUISER, HEAVY_HITTER }
 
 # Section 13 - Equipment Slots. OFFHAND covers a Shield OR an offhand-type
 # Weapon (Weapon.is_offhand). Patch v3.5: Sidearm/Conduit/Secondary cut as
@@ -309,7 +317,7 @@ const WEAPON_BASE_CRIT_CHANCE := {
 const DEFAULT_BASE_CRIT_CHANCE := 0.05
 
 ## Enemy rarity rank (invented - no doc-sourced enemy rank system exists,
-## same footing as EnemyArchetype above). User request (2026-08-30):
+## same footing as other invented enemy tuning). User request (2026-08-30):
 ## drives which item-level tier of Section 25's real base types a kill
 ## can drop - "White mobs are the area level, blue mobs are the area +1,
 ## rare mobs are the area + 2 levels, bosses are the area + 5 levels."
@@ -414,6 +422,23 @@ const ENEMY_RARITY_SPAWN_WEIGHTS := {
 	EnemyRarity.CHAMPION: 4.0,
 	EnemyRarity.ASCENDANT: 1.0,
 }
+
+## Placeholder pack tables for GeneratedMap, rolled by EnemyRoster.roll_pack().
+## Each unit entry is [unit_id or Array of unit_ids, min, max] - an Array
+## picks a random id per unit. Unit ids are data/enemies/definitions/ files.
+const UNCHARTERED_RAIDERS := ["unchartered_cutthroat", "unchartered_javelineer", "unchartered_brigand"]
+const ENEMY_PACKS_NORMAL := [
+	{"weight": 1.0, "units": [["unchartered_brigand", 1, 1], ["unchartered_javelineer", 1, 2]]},
+	{"weight": 1.0, "units": [["unchartered_enforcer", 1, 1], ["unchartered_cutthroat", 1, 2]]},
+	{"weight": 1.0, "units": [[UNCHARTERED_RAIDERS, 2, 3]]},
+]
+## The Vault's elite pack, spawned alongside its FigmentBoss.
+const ENEMY_PACKS_VAULT_ELITE := [
+	{"weight": 1.0, "units": [["unchartered_chieftain", 1, 1], [UNCHARTERED_RAIDERS, 2, 3]]},
+	{"weight": 1.0, "units": [["directorate_adjudicator", 1, 1]]},
+	{"weight": 1.0, "units": [["synod_vindicator", 1, 1], ["synod_exarch", 1, 1]]},
+	{"weight": 1.0, "units": [["legion_threshold_knight", 1, 1]]},
+]
 
 # Cooldown Reduction cap (user request 2026-08-30): across every source that
 # reduces an ability's cooldown at cast time - Ability.rank's own -4%/rank

@@ -33,14 +33,8 @@ const WALL_COLOR := Color(0.22, 0.2, 0.19)
 const PLATFORM_COLOR := Color(0.5, 0.4, 0.15)
 
 const PLAYER_SCENE := preload("res://entities/player/Player.tscn")
-const GLASS_CANNON_SCENE := preload("res://entities/enemies/glass_cannon/GlassCannon.tscn")
-const MOBILE_BRUISER_SCENE := preload("res://entities/enemies/mobile_bruiser/MobileBruiser.tscn")
-const HEAVY_HITTER_SCENE := preload("res://entities/enemies/heavy_hitter/HeavyHitter.tscn")
-const ENEMY_SCENES: Array[PackedScene] = [GLASS_CANNON_SCENE, MOBILE_BRUISER_SCENE, HEAVY_HITTER_SCENE]
-## Replaces the Vault platform's old GlassCannon reward-enemy - "one
-## Vault per Map" already guarantees exactly one of these per generated
-## Map, making it the natural, zero-extra-plumbing spot for the one
-## guaranteed Figment boss too (see FigmentBoss.gd).
+## "One Vault per Map" guarantees exactly one Figment boss per Map, on the
+## Vault's platform (see FigmentBoss.gd).
 const FIGMENT_BOSS_SCENE := preload("res://entities/enemies/figment_boss/FigmentBoss.tscn")
 
 ## Added after _spawn_player() - Godot readies children before parents,
@@ -154,7 +148,7 @@ func _build_split_floor(origin: Vector3, room: MapGraph.RoomData) -> void:
 	_build_floor(origin + Vector3(0, 0, platform_center_z), ROOM_FOOTPRINT, JUMP_PLATFORM_DEPTH, JUMP_PLATFORM_HEIGHT, PLATFORM_COLOR)
 
 	var enemy_pos := origin + Vector3(0, JUMP_PLATFORM_HEIGHT + 0.95, platform_center_z)
-	_spawn_enemy_at(FIGMENT_BOSS_SCENE, enemy_pos)
+	_spawn_enemy(FIGMENT_BOSS_SCENE.instantiate(), enemy_pos)
 
 func _build_floor(center: Vector3, size_x: float, size_z: float, height: float, color: Color) -> void:
 	var body := StaticBody3D.new()
@@ -229,20 +223,37 @@ func _spawn_player() -> void:
 	player.global_position = spawn
 	last_player_spawn = spawn
 
+## Packs stand in a ring this far from their own center.
+const PACK_RING_RADIUS := 1.8
+const PACK_CENTER_JITTER := 2.5
+
+## One pack per non-start room; the Vault's elite pack holds its main floor
+## (the boss already owns the platform, see _build_split_floor()).
 func _spawn_enemies() -> void:
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
 		if room.is_start:
 			continue
-		var origin := _cell_to_world(cell)
-		var count := 3 if room.is_vault else 1
-		for i in range(count):
-			var offset := Vector3(randf_range(-4.0, 4.0), 0, randf_range(-4.0, 4.0))
-			var scene: PackedScene = ENEMY_SCENES[randi() % ENEMY_SCENES.size()]
-			_spawn_enemy_at(scene, origin + offset)
+		var center := _cell_to_world(cell)
+		var table: Array = Constants.ENEMY_PACKS_NORMAL
+		if room.is_vault:
+			var main_depth := ROOM_FOOTPRINT - JUMP_PLATFORM_DEPTH - JUMP_GAP_DEPTH
+			center += Vector3(0, 0, -ROOM_FOOTPRINT / 2.0 + main_depth / 2.0)
+			table = Constants.ENEMY_PACKS_VAULT_ELITE
+		else:
+			center += Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))
+		_spawn_pack(EnemyRoster.roll_pack(table), center)
 
-func _spawn_enemy_at(scene: PackedScene, pos: Vector3) -> void:
-	var enemy: Enemy = scene.instantiate()
+func _spawn_pack(unit_ids: Array[String], center: Vector3) -> void:
+	var start_angle := randf() * TAU
+	for i in unit_ids.size():
+		var offset := Vector3.ZERO
+		if unit_ids.size() > 1:
+			var angle := start_angle + TAU * i / unit_ids.size()
+			offset = Vector3(cos(angle), 0, sin(angle)) * PACK_RING_RADIUS
+		_spawn_enemy(EnemyRoster.create_unit(unit_ids[i]), center + offset)
+
+func _spawn_enemy(enemy: Enemy, pos: Vector3) -> void:
 	EnemyRarityComponent.roll_and_attach(enemy)
 	add_child(enemy)
 	enemy.global_position = pos

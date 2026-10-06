@@ -1,0 +1,690 @@
+{
+  "source": "BanditLord.mdx",
+  "version": 1000,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.2441365661621093,
+      -0.000014399999636225402,
+      -0.6911963882446288
+    ],
+    "max": [
+      1.3243554382324219,
+      2.881378784179687,
+      0.6833423309326171
+    ],
+    "height": 2.8813931841793234
+  },
+  "sequences": [
+    {
+      "name": "Walk 1",
+      "start": 0,
+      "end": 567,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 600,
+      "end": 3433,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 3467,
+      "end": 5367,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 5400,
+      "end": 9067,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 4",
+      "start": 9100,
+      "end": 12433,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 12467,
+      "end": 13567,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 13600,
+      "end": 14667,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 14700,
+      "end": 17667,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 17700,
+      "end": 77700,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 77733,
+      "end": 80567,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 80600,
+      "end": 83433,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Bone",
+      "start": 83467,
+      "end": 143467,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Bandit_Lord_rig_cin:mount_main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_mount_diffuse.dds",
+        "normal": "bandit_lord_mount_normal.dds",
+        "orm": "bandit_lord_mount_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Mount_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "Bandit_Lord_rig_cin:mount_armpad_geo",
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_mount_diffuse.dds",
+        "normal": "bandit_lord_mount_normal.dds",
+        "orm": "bandit_lord_mount_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Mount_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "Bandit_Lord_rig_cin:mount_helmet_geo",
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_mount_diffuse.dds",
+        "normal": "bandit_lord_mount_normal.dds",
+        "orm": "bandit_lord_mount_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Mount_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "Bandit_Lord_rig_cin:mount_skeleton_geo",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_mount_corpse_diffuse.dds",
+        "normal": "bandit_mount_corpse_normal.dds",
+        "orm": "bandit_mount_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_mount_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_mount_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_mount_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Stand 4": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "Bandit_Lord_rig_cin:mount_organs_geo",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_mount_corpse_diffuse.dds",
+        "normal": "bandit_mount_corpse_normal.dds",
+        "orm": "bandit_mount_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_mount_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_mount_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_mount_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Stand 4": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "Bandit_Lord_rig_cin:rider_armpad_geo",
+      "material_id": 4,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_rider_main_diffuse.dds",
+        "normal": "bandit_lord_rider_main_normal.dds",
+        "orm": "bandit_lord_rider_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "Bandit_Lord_rig_cin:rider_pauldron_geo",
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_rider_main_diffuse.dds",
+        "normal": "bandit_lord_rider_main_normal.dds",
+        "orm": "bandit_lord_rider_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "Bandit_Lord_rig_cin:rider_helmet_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_rider_main_diffuse.dds",
+        "normal": "bandit_lord_rider_main_normal.dds",
+        "orm": "bandit_lord_rider_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 8,
+      "name": "Bandit_Lord_rig_cin:rider_hair_geo",
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_rider_fur_diffuse.dds",
+        "normal": "bandit_lord_rider_fur_normal.dds",
+        "orm": "bandit_lord_rider_fur_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Fur_diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Fur_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Fur_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 9,
+      "name": "Bandit_Lord_rig_cin:ride_organs_geo",
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_ride_corpse_diffuse.dds",
+        "normal": "bandit_ride_corpse_normal.dds",
+        "orm": "bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_ride_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_ride_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_ride_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Stand 4": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 10,
+      "name": "Bandit_Lord_rig_cin:rider_axe_geo",
+      "material_id": 9,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_rider_attachment_diffuse.dds",
+        "normal": "bandit_lord_rider_attachment_normal.dds",
+        "orm": "bandit_lord_rider_attachment_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Attachment_diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Attachment_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Attachment_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 11,
+      "name": "Bandit_Lord_rig_cin:rider_skeleton_geo",
+      "material_id": 10,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_ride_corpse_diffuse.dds",
+        "normal": "bandit_ride_corpse_normal.dds",
+        "orm": "bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_ride_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_ride_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_ride_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Stand 4": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "Bandit_Lord_rig_cin:rider_main_geo",
+      "material_id": 11,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_rider_main_diffuse.dds",
+        "normal": "bandit_lord_rider_main_normal.dds",
+        "orm": "bandit_lord_rider_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 13,
+      "name": "Bandit_Lord_rig_cin:rider_main_geo",
+      "material_id": 12,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_rider_main_diffuse.dds",
+        "normal": "bandit_lord_rider_main_normal.dds",
+        "orm": "bandit_lord_rider_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 14,
+      "name": "Bandit_Lord_rig_cin:mount_pauldron_geo",
+      "material_id": 13,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_mount_diffuse.dds",
+        "normal": "bandit_lord_mount_normal.dds",
+        "orm": "bandit_lord_mount_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Mount_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 15,
+      "name": "Bandit_Lord_rig_cin:mount_pauldron_geo",
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_mount_diffuse.dds",
+        "normal": "bandit_lord_mount_normal.dds",
+        "orm": "bandit_lord_mount_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Mount_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Mount_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 16,
+      "name": "Bandit_Lord_rig_cin:rider_axe_geo",
+      "material_id": 14,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_lord_rider_attachment_diffuse.dds",
+        "normal": "bandit_lord_rider_attachment_normal.dds",
+        "orm": "bandit_lord_rider_attachment_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Attachment_diffuse.tif",
+        "normal": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Attachment_Normal.tif",
+        "orm": "Units/Creeps/BanditLord/Bandit_Lord_Rider_Attachment_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 4": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Decay Bone": false
+      }
+    }
+  ]
+}

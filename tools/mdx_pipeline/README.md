@@ -114,17 +114,60 @@ runtime by whatever wires these up (see `FigmentBoss.gd`'s own
 `_setup_animation_player()` for the convention: loop the idle/walk clips,
 leave attack/death one-shot).
 
+## Batch conversion and materials (Stage 3, 2026-10-05)
+
+`models.json` lists every converted model with its scale (MDX units ->
+metres, tuned by eye against the 1.8 m player). Convert all of them, or
+only the named units:
+
+```
+node convert_all.js [unit_id ...]
+node fix_dds_headers.js <dir> [--dry-run]
+Godot --headless --path . res://tools/build_mdx_wrappers.tscn --quit-after 400
+```
+
+- Each `.glb` is written next to its `.mdx`, with a sidecar
+  `<name>.mdxmeta.json`: per geoset, the resolved diffuse/normal/ORM/
+  emissive `.dds` files (by basename, from the model's own folder), blend
+  mode (`FilterMode`), two-sided/unshaded flags, missing base-game
+  textures, and visibility per sequence (from geoset alpha, which glTF
+  can't carry). It also records idle-pose bounds and duplicate sequences.
+- Mesh nodes are named `Geoset_<index>` so Godot can match them to the
+  sidecar. Empty geosets are skipped.
+- Both material layouts are read: v1000 (one texture per layer in slot
+  order diffuse/normal/ORM/emissive) and v1200 (explicit IDs on one layer).
+- `Decay*` (60 s corpse rot) and `Cinematic*` sequences aren't baked.
+- Rotation and scale keys are taken from the evaluated channels instead of
+  decomposing the baked matrix: decomposing a zero-scale key (WC3's way of
+  hiding a bone) gave NaN rotations.
+- `mdx_load.js` strips 4 extra bytes from Reforged light records that
+  `war3-model` 4.0.1 rejects (`heropaladin.mdx`). Lights aren't exported.
+- Base-game textures (`Units/...`, `Textures/...` paths a model references
+  but doesn't ship) are pulled from a local Warcraft III Reforged install by
+  `wc3_textures.js`, which `convert_all.js` runs first when `models.json`
+  names a `wc3_install`. Only referenced files are extracted, as `.dds` next
+  to the `.mdx`; already-present files are skipped. `casc_reader.js` is a
+  minimal read-only CASC/TVFS reader (local storage only, no encryption)
+  written for this, since CascLib's Node bindings need a C++ toolchain.
+  Lookup tries the exact path in the `_hd`/`_de` mods first, then the same
+  file name elsewhere (e.g. `Textures/Bandit_ride_Corpse_*` lives under
+  `units/creeps/brigand/`).
+- Zero-weight skin influences are written as joint 0: the Brigand pads them
+  with index 255, past its 144 bones, which Godot rejects.
+- `fix_dds_headers.js` rewrites a wrong linear-size header field in
+  block-compressed `.dds` files, which Godot 4.7 refuses to load (the
+  Omniknight pack's files). Pixel data is untouched.
+- `tools/build_mdx_wrappers.gd` builds `entities/enemies/models/<Unit>Model.tscn`
+  per model: the `.glb` + a `HumanoidAnimTree`, rooted on `MdxModel.gd`,
+  with an `ORMMaterial3D` (or `StandardMaterial3D` without an ORM map) per
+  geoset. Geosets without a shipped diffuse get flat gray; untextured
+  blend/additive effect geosets are hidden. Emission uses a black color,
+  because Godot's default emission operator adds the color to the texture.
+  It prints every untextured geoset.
+
 ## Not yet implemented
 
-- **Materials/textures.** Deliberately left out of the `.glb` (glTF's
-  texture model expects PNG/JPEG, not `.dds`, and Godot already imports
-  `.dds` natively) - each exported mesh carries `extras.mdxMaterialId`
-  linking back to `model.Materials[id]`/`model.Textures[]` so a Godot-side
-  script can build `ORMMaterial3D` resources (a literal match for this
-  asset's Diffuse/Normal/Emissive/ORM texture packing) and assign them by
-  geoset. Not written yet. Only 4 of this model's 9 materials reference
-  textures actually present in `assets/models/Arator the Redeemer/` - the
-  other 5 geosets belong to other base Reforged rigs merged into this one
-  (Anasterian Sunstrider, High Elf Archmage, High Elf Runner) and will stay
-  untextured, same placeholder-art treatment the rest of this project
-  already gives missing art.
+- WC3 Hermite/Bezier interpolation is approximated as linear;
+  `GlobalSeqId` tracks are still scoped out.
+- Normal maps are used as-is (no green-channel flip). They look right in
+  screenshots, but the convention wasn't checked against a reference.

@@ -7,6 +7,53 @@ there. Most recent first.
 
 ---
 
+## 2026-10-06 — Animation-only attack telegraphs (user request)
+
+The yellow wind-up flash (and the Lord's element-tinted flash) is gone; attacks read from the animation.
+- `Enemy.begin_attack_telegraph(windup_sec)` now only starts the attack clip. `update_attack_telegraph()`, `end_attack_telegraph()`, `_apply_mesh_color()`, `_set_placeholder_color()`, `telegraph_color` and `_model_meshes` were removed, along with their calls in `EnemyMeleeAttack`/`EnemyRangedAttack`.
+- `EnemyAnimationController.play_attack(windup_sec)` stretches the Attack state's clip (`use_custom_timeline` + `stretch_time_scale`) so the frame at `AnimationSet.attack_hit_fraction` lands when the wind-up ends - the moment the melee strike resolves or the projectile fires. Speed is clamped to 0.4x-2x.
+- If a previous swing's follow-through is still playing, the Attack state restarts instead of pulsing: there's no Attack -> Attack transition, so a pulse could be missed.
+- Hit fractions were checked by rendering every model frozen at that frame: 0.45 lands on contact for most; the Javelineer's throw and the Brigand's stab release at 0.4.
+- Test: each unit's hit frame lands within 0.01 s of its wind-up end and no material override is applied (876 checks, 0 failed).
+
+## 2026-10-05 — Enemy Roster v1 + Ammo Store (Claude Code brief)
+
+Brief: `documents/Aether_EnemyRoster_AmmoStore_ClaudeCode_Brief.md`; unit data from *Enemy Roster & Factions*.
+
+**Models (`tools/mdx_pipeline/`):**
+- All 10 models are converted through `models.json` + `convert_all.js`. Scales: bandits 0.018 (1.8-2.9 m, the Chieftain is mounted), Exarch 0.018, Adjudicator/Vindicator/Knight 0.02, Lord 0.033 (6 m). Every model's front is +X, so every definition uses `model_yaw_offset` -PI/2 (checked visually).
+- `heropaladin.mdx` didn't parse: `war3-model` rejects its Reforged light record (4 extra bytes). `mdx_load.js` strips them; lights aren't exported.
+- Import found NaN quaternions: baking decomposed zero-scale keys (WC3 hides bones that way). R and S now come straight from the evaluated channels. Empty geosets (Teron) are skipped.
+- The Brigand's sword geoset pads unused skin slots with joint 255 (skeleton has 144 bones). That triggered Godot's `bs > sbs` error every frame; unused slots are now written as joint 0.
+- `Decay*`/`Cinematic*` sequences aren't baked anymore (bandit .glb 17-29 MB -> 3-6 MB).
+- WC3 hides corpse/alternate geosets through geoset alpha. The sidecar records visibility per clip and `MdxModel.gd` applies it, or corpses would render on every live bandit.
+
+**Textures:**
+- Each conversion writes a `.mdxmeta.json` sidecar (geoset -> textures, blend mode, visibility). `tools/build_mdx_wrappers.tscn` builds the 10 wrapper scenes and their materials from it. Arator now goes through the same path; its hardcoded geoset table is gone.
+- Godot 4.7.1 loads the .dds files natively, including the BC5 normals and ORM maps. 12 Omniknight files had a wrong DDS linear-size header field and were refused; `fix_dds_headers.js` repaired them in place (user choice). Pixel data is untouched.
+- First renders showed the Vindicator/Exarch blown-out white: Godot's default emission operator adds the emission color to the texture, so the color must be black.
+- The bandits, the Chieftain, much of Teron and parts of Arator/Candace/Progenitor referenced base-game Reforged textures that weren't shipped. CascLib's Node bindings couldn't build (no C++ toolchain), so `casc_reader.js` is a small read-only CASC/TVFS reader. `wc3_textures.js` uses it to pull only the referenced files from the local install (142 files, none missing). `convert_all.js` does this automatically, so future stand-in models need no manual texture work. **No untextured geosets remain.**
+- Duplicate clips in the source models: Vindicator `Attack 2` = `Attack 1` (and `Base`, `Stand 3` = `Stand 1`); Javelineer/Brigand/Enforcer `Stand Hit 1` = `Stand 1` and `Death Fire 1` = `Death 1`. The Javelineer has no `Attack 2`, so it matches the Brigand's assumed clip set. Adjudicator clips: Stand 1-3, Walk 1, Attack 1/2, Spell 1, Death 1, Dissipate; it has no hit or channel clip.
+
+**Code:**
+- `EnemyDefinition.model_yaw_offset` / `is_ranged`. `Enemy._install_model()` was split out of `_apply_model()` so FigmentBoss can reuse the Chieftain definition's model at 1.5x.
+- `EnemyAnimationController._apply_loop_modes()` loops idle/walk/run and plays one-shots once. Hit/stagger are no-ops without a clip: the idle fallback loops, so the HitReact state never reached its end transition and the unit got stuck in it.
+- Retired GlassCannon/MobileBruiser/HeavyHitter, `glass_cannon.tres`, `Constants.EnemyArchetype` and `Enemy.archetype`. FigmentBoss keeps its old effective numbers as constants (1760 HP, 61.6 dmg, 250 XP, 120 Gold).
+- Packs: `Constants.ENEMY_PACKS_NORMAL` / `ENEMY_PACKS_VAULT_ELITE`, rolled by `EnemyRoster.roll_pack()`.
+- Lord of the Elements: Fire -> Cold -> Lightning per attack, with the flash tinted through the new `Enemy.telegraph_color`. PinnacleArena spawns Player + boss + UI (F6-testable).
+- AmmoStore (Hub): one press = full resupply. It cancels a reload via the new `PlayerRangedAttack.cancel_reload()` and emits `ammo_changed` so the HUD re-reads the magazine.
+- Now-unreferenced UAL resources (kept): `UALHumanoidModel.tscn`, `ual_humanoid.tres`, `ual_humanoid_ranged.tres`, and `UAL1_Standard.glb` through that wrapper.
+
+**Verified:** `tests/test_roster_ammo.gd` (`--headless --script`): 853 checks, 0 failed. It covers definition health/damage scaling, both unit scenes x 10 definitions (model, AnimationTree, AnimationSet, every clip name, loop modes), the Lord's element cycle, 20 GeneratedMap runs (all roster enemies plus exactly one FigmentBoss, no engine errors), the 4 ammo-store cases plus reload cancel, and no references to the retired names. Windowed screenshots: every model idle and mid-attack next to a 1.8 m capsule, TestArena with all 9 units, the Pinnacle Arena with the Lord, and the FigmentBoss.
+
+## 2026-09-27 — Item card shows one value, item mods only (user feedback)
+
+The v4.10 card showed two values, "base → modified" (e.g. Flicker Knife "Piercing Damage: 2 to 5 → 3 to 8"). The modified range also included the character's Strength, so it turned blue even on an item with no mods. Now:
+- Every value line shows one value: the item's own number in white, or in blue when a mod on the item changes it. The modified value replaces the base one; it doesn't sit next to it.
+- The damage line no longer applies Strength; only the item's local increased Weapon Damage.
+- Real per-hit damage with Strength is still on the character screen (Main Hand/Offhand Damage). Combat is unchanged: Strength and local mods both still apply to hits.
+- Verified: an unmodded Flicker Knife reads "2 to 5" / "8%" in white; with +50% local damage/crit it reads "3 to 8" / "12%" in blue.
+
 ## 2026-09-27 — Implementation Brief v4.10: Local Weapon Mods + Item Card + Fate Board Polish + Tooltip
 
 **1. `_get_stat_contribution()`:** already gone. It was deleted in v4.8, and the card has shown ranges since the per-hit range change. Nothing to fix.

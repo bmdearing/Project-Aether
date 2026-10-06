@@ -1,0 +1,842 @@
+{
+  "source": "heropaladin.mdx",
+  "version": 1200,
+  "scale": 0.02,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.5474602127075195,
+      -0.4717563247680664,
+      -0.8732098388671875
+    ],
+    "max": [
+      0.4967775344848633,
+      2.9011004638671873,
+      0.873934326171875
+    ],
+    "height": 3.372856788635254
+  },
+  "sequences": [
+    {
+      "name": "Attack 1",
+      "start": 41,
+      "end": 1041,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 1042,
+      "end": 1207,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 1208,
+      "end": 2908,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 3075,
+      "end": 5342,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 5508,
+      "end": 7975,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 8142,
+      "end": 10309,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 10476,
+      "end": 13143,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 13309,
+      "end": 18576,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 18743,
+      "end": 26576,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 26742,
+      "end": 27509,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "divine_anvil_arms_color_png_c69820d5.dds",
+        "normal": "divine_anvil_arms_normal_png_5b738531.dds",
+        "orm": "divine_anvil_arms_detailmask_png_ca04f7b1_orm_832090020.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\divine_anvil_arms_color_png_c69820d5.dds",
+        "normal": "units\\human\\heropaladin\\divine_anvil_arms_normal_png_5b738531.dds",
+        "orm": "units\\human\\heropaladin\\divine_anvil_arms_detailmask_png_ca04f7b1_orm_832090020.dds",
+        "emissive": "Textures\\Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Spell 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "divine_anvil_back_color_png_da9174de.dds",
+        "normal": "divine_anvil_back_normal_png_a528d5d7.dds",
+        "orm": "divine_anvil_back_detailmask_tga_36deb52c_orm_4233872629.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\divine_anvil_back_color_png_da9174de.dds",
+        "normal": "units\\human\\heropaladin\\divine_anvil_back_normal_png_a528d5d7.dds",
+        "orm": "units\\human\\heropaladin\\divine_anvil_back_detailmask_tga_36deb52c_orm_4233872629.dds",
+        "emissive": "Textures\\Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Spell 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "divine_anvil_back_color_png_da9174de.dds",
+        "normal": "divine_anvil_back_normal_png_a528d5d7.dds",
+        "orm": "divine_anvil_back_detailmask_tga_36deb52c_orm_4233872629.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\divine_anvil_back_color_png_da9174de.dds",
+        "normal": "units\\human\\heropaladin\\divine_anvil_back_normal_png_a528d5d7.dds",
+        "orm": "units\\human\\heropaladin\\divine_anvil_back_detailmask_tga_36deb52c_orm_4233872629.dds",
+        "emissive": "Textures\\Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Spell 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "",
+      "material_id": 2,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "divine_anvil_head_color_png_2cbec194.dds",
+        "normal": "divine_anvil_head_normal_png_73afaa34.dds",
+        "orm": "divine_anvil_head_detailmask_tga_7c37daa_orm_499478046.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\divine_anvil_head_color_png_2cbec194.dds",
+        "normal": "units\\human\\heropaladin\\divine_anvil_head_normal_png_73afaa34.dds",
+        "orm": "units\\human\\heropaladin\\divine_anvil_head_detailmask_tga_7c37daa_orm_499478046.dds",
+        "emissive": "Textures\\Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Spell 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "",
+      "material_id": 3,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "divine_anvil_shoulder_color_png_6015ab1f.dds",
+        "normal": "divine_anvil_shoulder_normal_png_bf47ab9c.dds",
+        "orm": "divine_anvil_shoulder_detailmask_png_251a3047_orm_2249743001.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\divine_anvil_shoulder_color_png_6015ab1f.dds",
+        "normal": "units\\human\\heropaladin\\divine_anvil_shoulder_normal_png_bf47ab9c.dds",
+        "orm": "units\\human\\heropaladin\\divine_anvil_shoulder_detailmask_png_251a3047_orm_2249743001.dds",
+        "emissive": "Textures\\Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Spell 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "",
+      "material_id": 4,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "omniknight_color_psd_1ba581be.dds",
+        "normal": "omniknight_normal_psd_c2c3348d.dds",
+        "orm": "omniknight_metalnessmask_psd_7484b259_orm_3960110746.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\omniknight_color_psd_1ba581be.dds",
+        "normal": "units\\human\\heropaladin\\omniknight_normal_psd_c2c3348d.dds",
+        "orm": "units\\human\\heropaladin\\omniknight_metalnessmask_psd_7484b259_orm_3960110746.dds",
+        "emissive": "Textures\\Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Spell 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "",
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "head_color_psd_402ce21a.dds",
+        "normal": "head_normal_psd_9220fb83.dds",
+        "orm": "head_selfillummask_tga_baa53ee7_orm_4011428001.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\head_color_psd_402ce21a.dds",
+        "normal": "units\\human\\heropaladin\\head_normal_psd_9220fb83.dds",
+        "orm": "units\\human\\heropaladin\\head_selfillummask_tga_baa53ee7_orm_4011428001.dds",
+        "emissive": "Textures\\Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Spell 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "",
+      "material_id": 6,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "divine_anvil_weapon_color_png_5c56a265.dds",
+        "normal": "divine_anvil_weapon_normal_png_5fa50bdb.dds",
+        "orm": "divine_anvil_weapon_detailmask_tga_81d282c4_orm_344678382.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\divine_anvil_weapon_color_png_5c56a265.dds",
+        "normal": "units\\human\\heropaladin\\divine_anvil_weapon_normal_png_5fa50bdb.dds",
+        "orm": "units\\human\\heropaladin\\divine_anvil_weapon_detailmask_tga_81d282c4_orm_344678382.dds",
+        "emissive": "Textures\\Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Spell 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "",
+      "material_id": 6,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "divine_anvil_weapon_color_png_5c56a265.dds",
+        "normal": "divine_anvil_weapon_normal_png_5fa50bdb.dds",
+        "orm": "divine_anvil_weapon_detailmask_tga_81d282c4_orm_344678382.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\divine_anvil_weapon_color_png_5c56a265.dds",
+        "normal": "units\\human\\heropaladin\\divine_anvil_weapon_normal_png_5fa50bdb.dds",
+        "orm": "units\\human\\heropaladin\\divine_anvil_weapon_detailmask_tga_81d282c4_orm_344678382.dds",
+        "emissive": "Textures\\Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Spell 1": true,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "Divine Ivory Core",
+      "material_id": 7,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_core_v18.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_core_v18.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_core_v18.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_core_v18.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": true,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 10,
+      "name": "Divine Spinning Currents",
+      "material_id": 8,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_currents.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_currents.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_currents.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_currents.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": true,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 11,
+      "name": "Divine Outer Mist",
+      "material_id": 9,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_halo.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_halo.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": true,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 12,
+      "name": "Divine Wind Trails",
+      "material_id": 10,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_currents.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_currents.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_currents.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_currents.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": true,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 13,
+      "name": "Divine Close Vortex",
+      "material_id": 11,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_ivory.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_ivory.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_ivory.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_ivory.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": true,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 14,
+      "name": "Divine Outer Breeze",
+      "material_id": 12,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_currents.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_currents.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_currents.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_currents.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": true,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 15,
+      "name": "Stand3 Sky Envelope 1",
+      "material_id": 13,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_halo.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_halo.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 16,
+      "name": "Stand3 Sky Envelope 2",
+      "material_id": 14,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_halo.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_halo.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 17,
+      "name": "Stand3 Sky Envelope 3",
+      "material_id": 15,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_halo.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_halo.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 18,
+      "name": "Stand3 Ground Radiance",
+      "material_id": 16,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_halo.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_halo.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": true,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 19,
+      "name": "Stand3 Sky Core 1",
+      "material_id": 17,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_halo.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_halo.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": true,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 20,
+      "name": "Stand3 Sky Core 2",
+      "material_id": 18,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_halo.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_halo.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": true,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 21,
+      "name": "Stand3 Sky Core 3",
+      "material_id": 19,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_halo.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_halo.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": true,
+        "Walk 1": false
+      }
+    },
+    {
+      "index": 22,
+      "name": "Stand3 Linking Light Mist",
+      "material_id": 20,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "OmniDivine_divine_halo.dds",
+        "normal": "OmniDivine_neutral_normal.dds",
+        "orm": "OmniDivine_neutral_orm.dds",
+        "emissive": "OmniDivine_divine_halo.dds"
+      },
+      "sources": {
+        "diffuse": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds",
+        "normal": "units\\human\\heropaladin\\OmniDivine_neutral_normal.dds",
+        "orm": "units\\human\\heropaladin\\OmniDivine_neutral_orm.dds",
+        "emissive": "units\\human\\heropaladin\\OmniDivine_divine_halo.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": false,
+        "Stand Ready 1": false,
+        "Attack 2": false,
+        "Death 1": false,
+        "Dissipate": false,
+        "Spell 1": false,
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk 1": false
+      }
+    }
+  ]
+}

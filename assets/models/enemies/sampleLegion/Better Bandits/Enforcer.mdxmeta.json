@@ -1,0 +1,379 @@
+{
+  "source": "Enforcer.mdx",
+  "version": 1000,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6721110076904296,
+      -0.007183800101280212,
+      -0.719071174621582
+    ],
+    "max": [
+      0.8122427902221679,
+      1.9239120483398435,
+      0.9086796112060547
+    ],
+    "height": 1.9310958484411238
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3000,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 3033,
+      "end": 6067,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 6100,
+      "end": 8233,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 8267,
+      "end": 9267,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 9300,
+      "end": 10300,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 10333,
+      "end": 11133,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Defend 1",
+      "start": 11167,
+      "end": 12167,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Defend 1",
+      "start": 12200,
+      "end": 13300,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 13333,
+      "end": 16367,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 16400,
+      "end": 76400,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Defend 1",
+      "start": 76433,
+      "end": 77433,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death Fire 1",
+      "start": 13333,
+      "end": 16367,
+      "duplicate_of": "Death 1"
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 0,
+      "end": 3000,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Decay Bone",
+      "start": 77467,
+      "end": 137467,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 137500,
+      "end": 138500,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Bandit_Enforcer_rig_cin:skeleton_geo",
+      "material_id": 0,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_ride_corpse_diffuse.dds",
+        "normal": "bandit_ride_corpse_normal.dds",
+        "orm": "bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_ride_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_ride_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_ride_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand Victory 1": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Walk 1": false,
+        "Stand Defend 1": false,
+        "Walk Defend 1": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Attack Defend 1": false,
+        "Death Fire 1": false,
+        "Stand Hit 1": false,
+        "Decay Bone": true,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "Bandit_Enforcer_rig_cin:organs_geo",
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_ride_corpse_diffuse.dds",
+        "normal": "bandit_ride_corpse_normal.dds",
+        "orm": "bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Bandit_ride_Corpse_Diffuse.tif",
+        "normal": "Textures/Bandit_ride_Corpse_Normal.tif",
+        "orm": "Textures/Bandit_ride_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Stand Victory 1": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Walk 1": false,
+        "Stand Defend 1": false,
+        "Walk Defend 1": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Attack Defend 1": false,
+        "Death Fire 1": false,
+        "Stand Hit 1": false,
+        "Decay Bone": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "Bandit_Enforcer_rig_cin:axe_geo",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_enforcer_weapon_diffuse.dds",
+        "normal": "bandit_enforcer_weapon_normal.dds",
+        "orm": "bandit_enforcer_weapon_rom.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Weapon_Diffuse.tif",
+        "normal": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Weapon_Normal.tif",
+        "orm": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Weapon_ROM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Bandit_Enforcer_rig_cin:pauldron_geo",
+      "material_id": 3,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_enforcer_main_diffuse.dds",
+        "normal": "bandit_enforcer_main_normal.dds",
+        "orm": "bandit_enforcer_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Main_Diffuse.tif",
+        "normal": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "Bandit_Enforcer_rig_cin:main_geo",
+      "material_id": 4,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_enforcer_main_diffuse.dds",
+        "normal": "bandit_enforcer_main_normal.dds",
+        "orm": "bandit_enforcer_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Main_Diffuse.tif",
+        "normal": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "Bandit_Enforcer_rig_cin:main_geo",
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_enforcer_main_diffuse.dds",
+        "normal": "bandit_enforcer_main_normal.dds",
+        "orm": "bandit_enforcer_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Main_Diffuse.tif",
+        "normal": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Main_Normal.tif",
+        "orm": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "Bandit_Enforcer_rig_cin:shield_geo",
+      "material_id": 6,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bandit_enforcer_weapon_diffuse.dds",
+        "normal": "bandit_enforcer_weapon_normal.dds",
+        "orm": "bandit_enforcer_weapon_rom.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Weapon_Diffuse.tif",
+        "normal": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Weapon_Normal.tif",
+        "orm": "Units/Creeps/BanditEnforcer/Bandit_Enforcer_Weapon_ROM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Defend 1": true,
+        "Walk Defend 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Attack Defend 1": true,
+        "Death Fire 1": true,
+        "Stand Hit 1": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true
+      }
+    }
+  ]
+}

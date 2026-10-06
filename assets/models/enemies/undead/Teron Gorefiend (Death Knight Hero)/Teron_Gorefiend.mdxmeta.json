@@ -1,0 +1,2300 @@
+{
+  "source": "Teron_Gorefiend.mdx",
+  "version": 1200,
+  "scale": 0.02,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9653368377685547,
+      -0.0021559999883174895,
+      -1.0964456939697267
+    ],
+    "max": [
+      1.4815005493164062,
+      2.2395199584960936,
+      0.8663700103759766
+    ],
+    "height": 2.2416759584844113
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 300,
+      "end": 3300,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 3600,
+      "end": 6600,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 6900,
+      "end": 9900,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 10200,
+      "end": 11867,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 12167,
+      "end": 13167,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 13467,
+      "end": 14467,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 14767,
+      "end": 16433,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 16733,
+      "end": 18899,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 19199,
+      "end": 22199,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 22499,
+      "end": 26165,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 26465,
+      "end": 27231,
+      "duplicate_of": null
+    },
+    {
+      "name": "Channel",
+      "start": 27531,
+      "end": 29697,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "human_MagrothTheDefender_rig:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_main_diffuse.dds",
+        "normal": "human_magroththedefender_main_normal.dds",
+        "orm": "human_magroththedefender_main_orm.dds",
+        "emissive": "human_magroththedefender_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "gorefiend_main_diffuse.dds",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_ORM.tif",
+        "emissive": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "human_MagrothTheDefender_rig:cloak_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "human_MagrothTheDefender_rigmain_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_main_diffuse.dds",
+        "normal": "human_magroththedefender_main_normal.dds",
+        "orm": "human_magroththedefender_main_orm.dds",
+        "emissive": "human_magroththedefender_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "gorefiend_main_diffuse.dds",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_ORM.tif",
+        "emissive": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD1",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD1",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD2",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD2",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD3",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD3",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "footman:main_geo",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "footman:main_geo",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "footman:organs_geo",
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_male_corpse_diffuse.dds",
+        "normal": "human_male_corpse_normal.dds",
+        "orm": "human_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Male_Corpse_Normal.tif",
+        "orm": "Textures/Human_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "footman:skeleton_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_male_corpse_diffuse.dds",
+        "normal": "human_male_corpse_normal.dds",
+        "orm": "human_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Male_Corpse_Normal.tif",
+        "orm": "Textures/Human_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "footmanmain_geo_LOD1",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "footmanmain_geo_LOD1",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "footmanmain_geo_LOD2",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 16,
+      "name": "footmanmain_geo_LOD2",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 17,
+      "name": "footmanmain_geo_LOD3",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "footmanmain_geo_LOD3",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_body1_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "footmanhelmet_geo_LOD1",
+      "material_id": 7,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_helmet_diffuse.dds",
+        "normal": "human_footman_helmet_normal.dds",
+        "orm": "human_footman_helmet_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Helmet_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Helmet_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Helmet_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "footmanhelmet_geo_LOD2",
+      "material_id": 7,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_helmet_diffuse.dds",
+        "normal": "human_footman_helmet_normal.dds",
+        "orm": "human_footman_helmet_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Helmet_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Helmet_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Helmet_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "footmanhelmet_geo_LOD3",
+      "material_id": 7,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_helmet_diffuse.dds",
+        "normal": "human_footman_helmet_normal.dds",
+        "orm": "human_footman_helmet_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Helmet_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Helmet_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Helmet_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "footmanpauldron_geo_LOD1",
+      "material_id": 8,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "human_footman_pauldron_normal.dds",
+        "orm": "human_footman_pauldron_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Pauldron_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Pauldron_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 23,
+      "name": "footmanpauldron_geo_LOD2",
+      "material_id": 8,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "human_footman_pauldron_normal.dds",
+        "orm": "human_footman_pauldron_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Pauldron_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Pauldron_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 24,
+      "name": "footmanpauldron_geo_LOD3",
+      "material_id": 8,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "human_footman_pauldron_normal.dds",
+        "orm": "human_footman_pauldron_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Pauldron_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Pauldron_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 25,
+      "name": "footmanorgans_geo_LOD1",
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_male_corpse_diffuse.dds",
+        "normal": "human_male_corpse_normal.dds",
+        "orm": "human_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Male_Corpse_Normal.tif",
+        "orm": "Textures/Human_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 26,
+      "name": "footmanorgans_geo_LOD2",
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_male_corpse_diffuse.dds",
+        "normal": "human_male_corpse_normal.dds",
+        "orm": "human_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Male_Corpse_Normal.tif",
+        "orm": "Textures/Human_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 27,
+      "name": "footmanorgans_geo_LOD3",
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_male_corpse_diffuse.dds",
+        "normal": "human_male_corpse_normal.dds",
+        "orm": "human_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Male_Corpse_Normal.tif",
+        "orm": "Textures/Human_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 28,
+      "name": "footmanskeleton_geo_LOD1",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_male_corpse_diffuse.dds",
+        "normal": "human_male_corpse_normal.dds",
+        "orm": "human_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Male_Corpse_Normal.tif",
+        "orm": "Textures/Human_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 29,
+      "name": "footmanskeleton_geo_LOD2",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_male_corpse_diffuse.dds",
+        "normal": "human_male_corpse_normal.dds",
+        "orm": "human_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Male_Corpse_Normal.tif",
+        "orm": "Textures/Human_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 30,
+      "name": "footmanskeleton_geo_LOD3",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_male_corpse_diffuse.dds",
+        "normal": "human_male_corpse_normal.dds",
+        "orm": "human_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Male_Corpse_Normal.tif",
+        "orm": "Textures/Human_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 31,
+      "name": "human_HalahkTheLifebringer_rig:main_geo",
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_hood_diffuse.dds",
+        "normal": "human_halahkthelifebringer_main_normal.dds",
+        "orm": "human_halahkthelifebringer_main_orm.dds",
+        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "gorefiend_hood_diffuse.dds",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 32,
+      "name": "human_HalahkTheLifebringer_rig:main_geo",
+      "material_id": 10,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_hood_diffuse.dds",
+        "normal": "human_halahkthelifebringer_main_normal.dds",
+        "orm": "human_halahkthelifebringer_main_orm.dds",
+        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "gorefiend_hood_diffuse.dds",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 33,
+      "name": "human_MagrothTheDefender_rig:cloak_geo",
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 34,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD1",
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 35,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD1",
+      "material_id": 12,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 36,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD2",
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 37,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD2",
+      "material_id": 12,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 38,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD3",
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 39,
+      "name": "human_MagrothTheDefender_rigcloak_geo_LOD3",
+      "material_id": 12,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_cloak_diffuse.dds",
+        "normal": "human_magroththedefender_cloak_normal.dds",
+        "orm": "human_magroththedefender_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 40,
+      "name": "",
+      "material_id": 13,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "teron_blade_colorsDDS1.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "teron_blade_colorsDDS1.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 41,
+      "name": "",
+      "material_id": 14,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "satyrsoulstealer_main_diffuse.dds",
+        "normal": "satyrsoulstealer_main_normal.dds",
+        "orm": "satyrsoulstealer_main_orm.dds",
+        "emissive": "satyrsoulstealer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/SatyrSoulstealer/SatyrSoulstealer_Main_Diffuse.tif",
+        "normal": "Units/Creeps/SatyrSoulstealer/SatyrSoulstealer_Main_Normal.tif",
+        "orm": "Units/Creeps/SatyrSoulstealer/SatyrSoulstealer_Main_ORM.tif",
+        "emissive": "Units/Creeps/SatyrSoulstealer/SatyrSoulstealer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 42,
+      "name": "",
+      "material_id": 15,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "satyrsoulstealer_main_diffuse.dds",
+        "normal": "satyrsoulstealer_main_normal.dds",
+        "orm": "satyrsoulstealer_main_orm.dds",
+        "emissive": "satyrsoulstealer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/SatyrSoulstealer/SatyrSoulstealer_Main_Diffuse.tif",
+        "normal": "Units/Creeps/SatyrSoulstealer/SatyrSoulstealer_Main_Normal.tif",
+        "orm": "Units/Creeps/SatyrSoulstealer/SatyrSoulstealer_Main_ORM.tif",
+        "emissive": "Units/Creeps/SatyrSoulstealer/SatyrSoulstealer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 43,
+      "name": "",
+      "material_id": 16,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_giantskeletonwarrior_main_diffuse.dds",
+        "normal": "undead_giantskeletonwarrior_main_normal.dds",
+        "orm": "undead_giantskeletonwarrior_main_orm.dds",
+        "emissive": "undead_giantskeletonwarrior_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Main_Diffuse.tif",
+        "normal": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Main_Normal.tif",
+        "orm": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Main_ORM.tif",
+        "emissive": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 44,
+      "name": "",
+      "material_id": 17,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_giantskeletonwarrior_hammer_diffuse.dds",
+        "normal": "undead_giantskeletonwarrior_hammer_normal.dds",
+        "orm": "undead_giantskeletonwarrior_hammer_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Hammer_Diffuse.tif",
+        "normal": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Hammer_Normal.tif",
+        "orm": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Hammer_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 45,
+      "name": "",
+      "material_id": 18,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_giantskeletonwarrior_hammer_diffuse.dds",
+        "normal": "undead_giantskeletonwarrior_hammer_normal.dds",
+        "orm": "undead_giantskeletonwarrior_hammer_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Hammer_Diffuse.tif",
+        "normal": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Hammer_Normal.tif",
+        "orm": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Hammer_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 46,
+      "name": "human_HalahkTheLifebringer_rig:main_geo",
+      "material_id": 19,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_hood_diffuse.dds",
+        "normal": "human_halahkthelifebringer_main_normal.dds",
+        "orm": "human_halahkthelifebringer_main_orm.dds",
+        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "gorefiend_hood_diffuse.dds",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 47,
+      "name": "",
+      "material_id": 20,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_boots_diffuse.dds",
+        "normal": "undead_arthasevil_main_normal.dds",
+        "orm": "undead_arthasevil_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_boots_diffuse.dds",
+        "normal": "Units/Undead/EvilArthas/Undead_ArthasEvil_Main_Normal.tif",
+        "orm": "Units/Undead/EvilArthas/Undead_ArthasEvil_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 48,
+      "name": "",
+      "material_id": 21,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_boots_diffuse.dds",
+        "normal": "undead_arthasevil_main_normal.dds",
+        "orm": "undead_arthasevil_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_boots_diffuse.dds",
+        "normal": "Units/Undead/EvilArthas/Undead_ArthasEvil_Main_Normal.tif",
+        "orm": "Units/Undead/EvilArthas/Undead_ArthasEvil_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 49,
+      "name": "",
+      "material_id": 22,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_giantskeletonwarrior_armor_diffuse.dds",
+        "normal": "undead_giantskeletonwarrior_armor_normal.dds",
+        "orm": "undead_giantskeletonwarrior_armor_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Armor_Diffuse.tif",
+        "normal": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Armor_Normal.tif",
+        "orm": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Armor_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 50,
+      "name": "",
+      "material_id": 23,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_pauldronORN_diffuse.dds",
+        "normal": "undead_arthasevil_pauldron_normal.dds",
+        "orm": "undead_arthasevil_pauldron_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_pauldronORN_diffuse.dds",
+        "normal": "Units/Undead/EvilArthas/Undead_ArthasEvil_Pauldron_Normal.tif",
+        "orm": "Units/Undead/EvilArthas/Undead_ArthasEvil_Pauldron_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 51,
+      "name": "",
+      "material_id": 24,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_giantskeletonwarrior_armor_diffuse.dds",
+        "normal": "undead_giantskeletonwarrior_armor_normal.dds",
+        "orm": "undead_giantskeletonwarrior_armor_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Armor_Diffuse.tif",
+        "normal": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Armor_Normal.tif",
+        "orm": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Armor_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 52,
+      "name": "",
+      "material_id": 25,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "human_footman_pauldron_normal.dds",
+        "orm": "human_footman_pauldron_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Pauldron_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Pauldron_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 53,
+      "name": "",
+      "material_id": 26,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_giantskeletonwarrior_armor_diffuse.dds",
+        "normal": "undead_giantskeletonwarrior_armor_normal.dds",
+        "orm": "undead_giantskeletonwarrior_armor_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Armor_Diffuse.tif",
+        "normal": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Armor_Normal.tif",
+        "orm": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Armor_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 54,
+      "name": "",
+      "material_id": 27,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_giantskeletonwarrior_main_diffuse.dds",
+        "normal": "undead_giantskeletonwarrior_main_normal.dds",
+        "orm": "undead_giantskeletonwarrior_main_orm.dds",
+        "emissive": "undead_giantskeletonwarrior_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Main_Diffuse.tif",
+        "normal": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Main_Normal.tif",
+        "orm": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Main_ORM.tif",
+        "emissive": "Units/Undead/GiantSkeletonWarrior/Undead_GiantSkeletonWarrior_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 55,
+      "name": "",
+      "material_id": 28,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_pauldronORN_diffuse.dds",
+        "normal": "undead_arthasevil_pauldron_normal.dds",
+        "orm": "undead_arthasevil_pauldron_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_pauldronORN_diffuse.dds",
+        "normal": "Units/Undead/EvilArthas/Undead_ArthasEvil_Pauldron_Normal.tif",
+        "orm": "Units/Undead/EvilArthas/Undead_ArthasEvil_Pauldron_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 56,
+      "name": "",
+      "material_id": 29,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "human_footman_pauldron_normal.dds",
+        "orm": "human_footman_pauldron_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorefiend_pauldron_diffuse.dds",
+        "normal": "Units/Human/Footman/Human_Footman_Pauldron_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Pauldron_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 57,
+      "name": "human_HalahkTheLifebringer_rig:main_geo",
+      "material_id": 30,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "human_halahkthelifebringer_main_normal.dds",
+        "orm": "human_halahkthelifebringer_main_orm.dds",
+        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 58,
+      "name": "human_HalahkTheLifebringer_rigmain_geo_LOD1",
+      "material_id": 30,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "human_halahkthelifebringer_main_normal.dds",
+        "orm": "human_halahkthelifebringer_main_orm.dds",
+        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 59,
+      "name": "human_HalahkTheLifebringer_rigmain_geo_LOD2",
+      "material_id": 30,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "human_halahkthelifebringer_main_normal.dds",
+        "orm": "human_halahkthelifebringer_main_orm.dds",
+        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 60,
+      "name": "human_HalahkTheLifebringer_rigmain_geo_LOD3",
+      "material_id": 30,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "human_halahkthelifebringer_main_normal.dds",
+        "orm": "human_halahkthelifebringer_main_orm.dds",
+        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 61,
+      "name": "",
+      "material_id": 31,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gorfiendshielddds.dds",
+        "normal": "gorfiendshielddds_Normal.dds",
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "gorfiendshielddds.dds",
+        "normal": "gorfiendshielddds_Normal.dds",
+        "orm": "Textures/Black32.blp",
+        "emissive": "ReplaceableTextures/EnvironmentMap.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    },
+    {
+      "index": 62,
+      "name": "",
+      "material_id": 32,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_felorcwarlock_weapon_diffuse.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Demon/ChaosWarlock/Orc_FelOrcWarlock_Weapon_Diffuse.tif",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Channel": true
+      }
+    }
+  ]
+}

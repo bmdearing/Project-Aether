@@ -1,0 +1,425 @@
+{
+  "source": "Arator_Midnights.mdx",
+  "version": 1200,
+  "scale": 0.02,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.3421860122680664,
+      -0.005522582530975342,
+      -0.8669599151611328
+    ],
+    "max": [
+      1.6148269653320313,
+      2.2708557128906253,
+      0.8669599151611328
+    ],
+    "height": 2.2763782954216003
+  },
+  "sequences": [
+    {
+      "name": "Attack 1",
+      "start": 9200,
+      "end": 10433,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 9200,
+      "end": 10433,
+      "duplicate_of": "Attack 1"
+    },
+    {
+      "name": "Base",
+      "start": 9200,
+      "end": 10433,
+      "duplicate_of": "Attack 1"
+    },
+    {
+      "name": "Stand 1",
+      "start": 10533,
+      "end": 13200,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 10533,
+      "end": 13200,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand 2",
+      "start": 13300,
+      "end": 17033,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 17133,
+      "end": 18499,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 18599,
+      "end": 20099,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 20199,
+      "end": 23332,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 23432,
+      "end": 25599,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 25699,
+      "end": 27366,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 27466,
+      "end": 29466,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 29566,
+      "end": 30332,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "human_HalahkTheLifebringer_rig:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Arator_Main_Diffuse.dds",
+        "normal": "Arator_Main_Normal.dds",
+        "orm": "Arator_Main_Orm.dds",
+        "emissive": "Arator_Main_Emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Arator_Main_Diffuse.dds",
+        "normal": "Arator_Main_Normal.dds",
+        "orm": "Arator_Main_Orm.dds",
+        "emissive": "Arator_Main_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Base": true,
+        "Stand 1": true,
+        "Stand 3": true,
+        "Stand 2": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "material_id": 1,
+      "filter_mode": 3,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Arator_Armor_Diffuse.dds",
+        "normal": "Arator_Armor_Normal.dds",
+        "orm": "Arator_Armor_Orm.dds",
+        "emissive": "Arator_Armor_Emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Arator_Armor_Diffuse.dds",
+        "normal": "Arator_Armor_Normal.dds",
+        "orm": "Arator_Armor_Orm.dds",
+        "emissive": "Arator_Armor_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Base": true,
+        "Stand 1": true,
+        "Stand 3": true,
+        "Stand 2": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Arator_Armor_Diffuse.dds",
+        "normal": "Arator_Armor_Normal.dds",
+        "orm": "Arator_Armor_Orm.dds",
+        "emissive": "Arator_Armor_Emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Arator_Armor_Diffuse.dds",
+        "normal": "Arator_Armor_Normal.dds",
+        "orm": "Arator_Armor_Orm.dds",
+        "emissive": "Arator_Armor_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Base": true,
+        "Stand 1": true,
+        "Stand 3": true,
+        "Stand 2": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Arator_Armor_Diffuse.dds",
+        "normal": "Arator_Armor_Normal.dds",
+        "orm": "Arator_Armor_Orm.dds",
+        "emissive": "Arator_Armor_Emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Arator_Armor_Diffuse.dds",
+        "normal": "Arator_Armor_Normal.dds",
+        "orm": "Arator_Armor_Orm.dds",
+        "emissive": "Arator_Armor_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Base": true,
+        "Stand 1": true,
+        "Stand 3": true,
+        "Stand 2": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "neutral_AnasterianSunstrider_rig:main_geo",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_anasteriansunstrider_main_diffuse.dds",
+        "normal": "neutral_anasteriansunstrider_main_normal.dds",
+        "orm": "neutral_anasteriansunstrider_main_orm.dds",
+        "emissive": "neutral_anasteriansunstrider_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Other/AnasterianSunstrider/Neutral_AnasterianSunstrider_Main_Diffuse.tif",
+        "normal": "Units/Other/AnasterianSunstrider/Neutral_AnasterianSunstrider_Main_Normal.tif",
+        "orm": "Units/Other/AnasterianSunstrider/Neutral_AnasterianSunstrider_Main_ORM.tif",
+        "emissive": "Units/Other/AnasterianSunstrider/Neutral_AnasterianSunstrider_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Base": true,
+        "Stand 1": true,
+        "Stand 3": true,
+        "Stand 2": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "neutral_highElfArchmage_rig:main_geo",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_highelfarchmage_main_diffuse.dds",
+        "normal": "neutral_highelfarchmage_main_normal.dds",
+        "orm": "neutral_highelfarchmage_main_orm.dds",
+        "emissive": "neutral_highelfarchmage_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Other/HighElfArchMage/Neutral_HighElfArchmage_Main_Diffuse.tif",
+        "normal": "Units/Other/HighElfArchMage/Neutral_HighElfArchmage_Main_Normal.tif",
+        "orm": "Units/Other/HighElfArchMage/Neutral_HighElfArchmage_Main_ORM.tif",
+        "emissive": "Units/Other/HighElfArchMage/Neutral_HighElfArchmage_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Base": true,
+        "Stand 1": true,
+        "Stand 3": true,
+        "Stand 2": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "",
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Arator_Weapon_Diffuse.dds",
+        "normal": "Arator_Weapon_Normal.dds",
+        "orm": "Arator_Weapon_Orm.dds",
+        "emissive": "Arator_Weapon_Emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Arator_Weapon_Diffuse.dds",
+        "normal": "Arator_Weapon_Normal.dds",
+        "orm": "Arator_Weapon_Orm.dds",
+        "emissive": "Arator_Weapon_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Base": true,
+        "Stand 1": true,
+        "Stand 3": true,
+        "Stand 2": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "neutral_highElfRunner_rig:hair_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Arator_Hair_Diffuse.dds",
+        "normal": "neutral_highelfrunner_hair_normal.dds",
+        "orm": "neutral_highelfrunner_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Arator_Hair_Diffuse.dds",
+        "normal": "Units/Other/HighElfRunner/Neutral_HighElfRunner_Hair_Normal.tif",
+        "orm": "Units/Other/HighElfRunner/Neutral_HighElfRunner_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Base": true,
+        "Stand 1": true,
+        "Stand 3": true,
+        "Stand 2": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "neutral_AnasterianSunstrider_rig:hair_geo",
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Arator_Main_Diffuse.dds",
+        "normal": "neutral_anasteriansunstrider_hair_normal.dds",
+        "orm": "neutral_anasteriansunstrider_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Arator_Main_Diffuse.dds",
+        "normal": "Units/Other/AnasterianSunstrider/Neutral_AnasterianSunstrider_Hair_Normal.tif",
+        "orm": "Units/Other/AnasterianSunstrider/Neutral_AnasterianSunstrider_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Base": true,
+        "Stand 1": true,
+        "Stand 3": true,
+        "Stand 2": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    }
+  ]
+}

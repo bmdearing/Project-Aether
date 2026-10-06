@@ -1,9 +1,9 @@
 extends Node
 class_name HealthComponent
 ## HealthComponent is a CHILD of Enemy, and children ready before parents -
-## archetype subclasses (HeavyHitter etc.) set max_health in their own
-## _ready(), which runs after this one, so current_health initialization
-## is deferred via call_deferred to see the real archetype value.
+## Enemy subclasses (bosses) set max_health in their own _ready(), which
+## runs after this one, so current_health initialization is deferred via
+## call_deferred to see the real value.
 
 signal died
 signal health_changed(current: float, max: float)

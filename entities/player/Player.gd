@@ -408,13 +408,13 @@ func _apply_saved_ability_ranks() -> void:
 	if dir == null:
 		return
 	dir.list_dir_begin()
-	var file_name := dir.get_next()
+	var file_name := dir.get_next().trim_suffix(".remap")
 	while file_name != "":
 		if file_name.ends_with(".tres"):
 			var ability: Ability = load(dir_path + file_name) as Ability
 			if ability and GameState.ability_ranks.has(ability.ability_id):
 				ability.rank = GameState.ability_ranks[ability.ability_id]
-		file_name = dir.get_next()
+		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 
 ## A weapon with a real model (WEAPON_MODEL_SCENES) shows that model

@@ -1,0 +1,16 @@
+{
+  "_comment": "Batch conversion manifest for convert_all.js. Paths are relative to the project root; each .glb + .mdxmeta.json is written next to its .mdx. scale is the converter's ModelRoot scale (MDX units -> metres), tuned by eye against the 1.8 m player. wc3_install (optional) is a local Warcraft III Reforged install; base-game textures a model references but doesn't ship are extracted from it next to the .mdx before conversion.",
+  "wc3_install": "S:/battle.net/Warcraft III",
+  "models": [
+    { "unit": "unchartered_cutthroat", "mdx": "assets/models/enemies/sampleLegion/Better Bandits/banditrouge_dualwield.mdx", "scale": 0.018 },
+    { "unit": "unchartered_javelineer", "mdx": "assets/models/enemies/sampleLegion/Better Bandits/banditspearthrower.mdx", "scale": 0.018 },
+    { "unit": "unchartered_brigand", "mdx": "assets/models/enemies/sampleLegion/Better Bandits/brigand.mdx", "scale": 0.018 },
+    { "unit": "unchartered_enforcer", "mdx": "assets/models/enemies/sampleLegion/Better Bandits/Enforcer.mdx", "scale": 0.018 },
+    { "unit": "unchartered_chieftain", "mdx": "assets/models/enemies/sampleLegion/Better Bandits/BanditLord.mdx", "scale": 0.018 },
+    { "unit": "directorate_adjudicator", "mdx": "assets/models/enemies/sampleLegion/Omniknight Godhammer/heropaladin.mdx", "scale": 0.02 },
+    { "unit": "synod_vindicator", "mdx": "assets/models/Arator the Redeemer/Arator_Midnights.mdx", "scale": 0.02 },
+    { "unit": "synod_exarch", "mdx": "assets/models/enemies/sampleLegion/Candace Icemoon/Candace Icemoon/ExarchCandace.mdx", "scale": 0.018 },
+    { "unit": "legion_threshold_knight", "mdx": "assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/Teron_Gorefiend.mdx", "scale": 0.02 },
+    { "unit": "lord_of_the_elements", "mdx": "assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/Progenitor1.mdx", "scale": 0.033 }
+  ]
+}

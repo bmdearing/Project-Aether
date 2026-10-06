@@ -36,7 +36,7 @@ const STAT_COLOR := Color(0.85, 0.85, 0.85)
 const AMMO_INFO_COLOR := SUBTITLE_COLOR  # Magazine/Reload lines on ranged weapons - dimmer than the stat lines around them
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
 const FLAVOR_COLOR := Color(0.75, 0.65, 0.45)
-const MODIFIED_VALUE_COLOR := Color(0.4, 0.6, 1.0)  # "base → modified" values changed by stats/local mods (v4.10)
+const MODIFIED_VALUE_COLOR := Color(0.4, 0.6, 1.0)  # a card value changed by a mod on the item itself (v4.10)
 const CARD_WIDTH := 260.0
 
 const SLATE_BADGE_COLOR := Color(0.55, 0.35, 0.85)  # fixed - independent of the Slate's own rarity color, shown on the border instead
@@ -135,7 +135,7 @@ func _render_item(item: Item) -> void:
 	_add_subtitle(_item_type_line(item))
 	_add_separator()
 	if item is Weapon:
-		for line in _build_attack_power_lines(item as Weapon, _stat_sheet_for_card()):
+		for line in _build_attack_power_lines(item as Weapon):
 			_add_attack_power_line(line)
 		_add_weapon_value_lines(item as Weapon)
 		for line in _ranged_info_lines(item as Weapon):
@@ -356,17 +356,16 @@ func _stat_sheet_for_card() -> StatSheet:
 		return player.stat_sheet
 	return GameState.player_stat_sheet as StatSheet
 
-## "<Type> Damage: lo to hi -> boosted_lo to boosted_hi" - the weapon's raw
-## per-hit base range (white), then that range with Strength and its local
-## increased Weapon Damage applied (blue) - exactly what Weapon.
-## roll_damage() rolls within, before motion value/chain bonus/crit.
-## Primary damage type always shown; extra lines only for a
+## "<Type> Damage: lo to hi" - the item's own per-hit range: raw in white,
+## or with this item's local increased Weapon Damage applied in blue. The
+## character's Strength is deliberately NOT included - the card shows the
+## item, the character screen shows damage with stats. Primary damage type
+## always shown; extra lines only for a
 ## "gain_as_damage" affix (forward-compat - no ItemRoller.AFFIX_POOL entry
 ## produces one yet).
-func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
+func _build_attack_power_lines(weapon: Weapon) -> Array:
 	var lines := []
-	var str_mult := 1.0 + (stat_sheet.get_strength_weapon_multiplier() if stat_sheet else 0.0)
-	var total_mult := str_mult * weapon.get_local_multiplier("local_increased_weapon_damage")
+	var local_mult := weapon.get_local_multiplier("local_increased_weapon_damage")
 	var range := weapon.get_damage_range()
 	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE)
 	lines.append({
@@ -385,8 +384,8 @@ func _build_attack_power_lines(weapon: Weapon, stat_sheet: StatSheet) -> Array:
 				"color": color,
 			})
 	for line in lines:
-		line["boosted_lo"] = line["lo"] * total_mult
-		line["boosted_hi"] = line["hi"] * total_mult
+		line["boosted_lo"] = line["lo"] * local_mult
+		line["boosted_hi"] = line["hi"] * local_mult
 	# Shotguns: show what ONE pellet hits for, times the pellet count.
 	if weapon.is_ranged and weapon.pellet_count > 1:
 		for line in lines:
@@ -403,19 +402,22 @@ func _add_attack_power_line(line: Dictionary) -> void:
 		modified_text = "%.0f to %.0f%s" % [line["boosted_lo"], line["boosted_hi"], suffix]
 	_add_value_line(line["label"], line["color"], base_text, modified_text)
 
-## "Label: base" in white, plus " -> modified" in blue when modified_text is
-## non-empty and actually differs (an affix or stat changes this value).
+## "Label: value" - one value only. When modified_text is non-empty and
+## differs from base_text (a mod on this item changes it), the modified
+## value replaces the base one and is shown in blue; otherwise the base
+## value in white.
 func _add_value_line(label: String, label_color: Color, base_text: String, modified_text: String = "") -> void:
 	var rtl := RichTextLabel.new()
 	rtl.bbcode_enabled = true
 	rtl.fit_content = true
 	rtl.scroll_active = false
 	rtl.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	var is_modified := modified_text != "" and modified_text != base_text
 	rtl.text = "[color=#%s]%s[/color]: [color=#%s]%s[/color]" % [
-		label_color.to_html(false), label, STAT_COLOR.to_html(false), base_text,
+		label_color.to_html(false), label,
+		(MODIFIED_VALUE_COLOR if is_modified else STAT_COLOR).to_html(false),
+		modified_text if is_modified else base_text,
 	]
-	if modified_text != "" and modified_text != base_text:
-		rtl.text += " → [color=#%s]%s[/color]" % [MODIFIED_VALUE_COLOR.to_html(false), modified_text]
 	_content().add_child(rtl)
 
 ## Crit Chance, Spell Power, and Attack/Cast Speed, each with its local mod

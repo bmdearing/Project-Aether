@@ -1,15 +1,9 @@
 extends Node3D
 class_name PinnacleArena
-## First Pinnacle boss arena (user request 2026-08-30): "A Diablo 3 Belial
-## style arena where its a crescent shape and the boss stands in the
-## center of the crescent. Build an invisible wall so that players cannot
-## fall off. Build the arena first, and then we'll figure out how to get
-## there." Scoped to exactly that - the arena, its boundary, and
-## atmosphere. No boss encounter/spawn logic lives here yet - BossSpawn
-## is just a Marker3D a future boss scene can read, and no Player/enemy
-## instances are placed here (nothing wires this scene into the game's
-## normal flow yet, by design, per the user's own "we'll figure out how
-## to get there" - a job for a later pass).
+## First Pinnacle boss arena: a crescent with the boss in its belly and an
+## invisible boundary wall. Spawns the Player, the Lord of the Elements and
+## the UI suite itself (same order as GeneratedMap), so it runs standalone
+## (F6). Nothing in the game routes here yet.
 ##
 ## Built procedurally in code rather than hand-authored in the .tscn -
 ## same convention GeneratedMap.gd already uses for its own floor/wall
@@ -52,6 +46,9 @@ const BOSS_SPAWN_LOCAL := Vector3(0, 0.05, -(OUTER_RADIUS - CUT_OFFSET * 0.5))
 ## for whenever this arena gets wired into the game's actual flow.
 const PLAYER_SPAWN_LOCAL := Vector3(OUTER_RADIUS * 0.6, 0.1, -OUTER_RADIUS * 0.55)
 
+const PLAYER_SCENE := preload("res://entities/player/Player.tscn")
+const BOSS_SCENE := preload("res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn")
+
 const FLOOR_SHADER_CODE := """
 shader_type spatial;
 render_mode cull_back, diffuse_burley, specular_schlick_ggx;
@@ -93,12 +90,32 @@ void fragment() {
 """
 
 func _ready() -> void:
+	GameState.initialize_standalone()
 	_build_environment()
 	_build_lighting()
 	_build_floor()
 	_build_boundary_walls()
 	_build_spawn_markers()
 	_build_embers()
+	_spawn_player()
+	_spawn_boss()
+	_spawn_ui()  # after the Player, so the UI's player-group lookups succeed
+
+func _spawn_player() -> void:
+	var player: Player = PLAYER_SCENE.instantiate()
+	add_child(player)
+	player.global_position = $PlayerSpawnPoint.global_position
+	player.look_at(Vector3(BOSS_SPAWN_LOCAL.x, player.global_position.y, BOSS_SPAWN_LOCAL.z))
+
+func _spawn_boss() -> void:
+	var boss: Enemy = BOSS_SCENE.instantiate()
+	boss.rank = Constants.EnemyRank.BOSS
+	add_child(boss)
+	boss.global_position = $BossSpawnPoint.global_position
+
+func _spawn_ui() -> void:
+	for scene in GeneratedMap.UI_SCENES:
+		add_child(scene.instantiate())
 
 func _build_environment() -> void:
 	# First pass at this was unplayably dark (verified by screenshot, not

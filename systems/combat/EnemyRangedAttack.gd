@@ -48,8 +48,6 @@ func _physics_process(delta: float) -> void:
 				_enter_windup()
 		State.WINDUP:
 			_timer -= delta
-			var progress := 1.0 - (_timer / windup_duration) if windup_duration > 0.0 else 1.0
-			_enemy.update_attack_telegraph(progress)
 			if _timer <= 0.0:
 				_fire()
 		State.COOLDOWN:
@@ -60,11 +58,10 @@ func _physics_process(delta: float) -> void:
 func _enter_windup() -> void:
 	_state = State.WINDUP
 	_timer = windup_duration
-	_enemy.begin_attack_telegraph()
+	_enemy.begin_attack_telegraph(windup_duration)
 	EventBus.enemy_attack_telegraphed.emit(_enemy)
 
 func _fire() -> void:
-	_enemy.end_attack_telegraph()
 	_state = State.COOLDOWN
 	_timer = cooldown_duration
 	if not is_instance_valid(_player):
