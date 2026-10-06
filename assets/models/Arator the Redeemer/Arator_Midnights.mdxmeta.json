@@ -144,7 +144,8 @@
         "Stand Channel 1": true,
         "Dissipate": true,
         "Walk 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 1,
@@ -180,7 +181,8 @@
         "Stand Channel 1": true,
         "Dissipate": true,
         "Walk 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 2,
@@ -216,7 +218,8 @@
         "Stand Channel 1": true,
         "Dissipate": true,
         "Walk 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 3,
@@ -252,7 +255,8 @@
         "Stand Channel 1": true,
         "Dissipate": true,
         "Walk 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 4,
@@ -288,7 +292,8 @@
         "Stand Channel 1": true,
         "Dissipate": true,
         "Walk 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 5,
@@ -324,7 +329,8 @@
         "Stand Channel 1": true,
         "Dissipate": true,
         "Walk 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 6,
@@ -360,7 +366,8 @@
         "Stand Channel 1": true,
         "Dissipate": true,
         "Walk 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 7,
@@ -396,7 +403,8 @@
         "Stand Channel 1": true,
         "Dissipate": true,
         "Walk 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 8,
@@ -432,7 +440,8 @@
         "Stand Channel 1": true,
         "Dissipate": true,
         "Walk 1": true
-      }
+      },
+      "lod": 0
     }
   ]
 }

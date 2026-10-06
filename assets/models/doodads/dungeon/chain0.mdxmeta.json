@@ -21,7 +21,8 @@
       "name": "Stand 1",
       "start": 0,
       "end": 3333,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     }
   ],
   "geosets": [
@@ -47,7 +48,8 @@
       "missing": [],
       "visibility": {
         "Stand 1": true
-      }
+      },
+      "lod": 0
     }
   ]
 }

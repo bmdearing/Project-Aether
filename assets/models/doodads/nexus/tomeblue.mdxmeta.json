@@ -1,0 +1,290 @@
+{
+  "source": "tomeblue.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6115014266967773,
+      -0.23861339950561522,
+      -0.452430004119873
+    ],
+    "max": [
+      0.6172686309814452,
+      0.2444076061248779,
+      0.44112239456176755
+    ],
+    "height": 0.4830210056304931
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 3700,
+      "end": 4700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 4733,
+      "end": 5733,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 5767,
+      "end": 9433,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 0,
+      "end": 3667,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "item_tomeBlue_rig:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "item_tomeblue_diffuse.dds",
+        "normal": "item_tomeblue_normal.dds",
+        "orm": "item_tomeblue_orm.dds",
+        "emissive": "item_tomeblue_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Diffuse.tif",
+        "normal": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Normal.tif",
+        "orm": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_ORM.tif",
+        "emissive": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Stand 3": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "item_tomeBlue_rig:main_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "item_tomeblue_diffuse.dds",
+        "normal": "item_tomeblue_normal.dds",
+        "orm": "item_tomeblue_orm.dds",
+        "emissive": "item_tomeblue_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Diffuse.tif",
+        "normal": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Normal.tif",
+        "orm": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_ORM.tif",
+        "emissive": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Stand 3": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 2,
+      "name": "item_tomeBlue_rigmain_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "item_tomeblue_diffuse.dds",
+        "normal": "item_tomeblue_normal.dds",
+        "orm": "item_tomeblue_orm.dds",
+        "emissive": "item_tomeblue_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Diffuse.tif",
+        "normal": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Normal.tif",
+        "orm": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_ORM.tif",
+        "emissive": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Stand 3": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 3,
+      "name": "item_tomeBlue_rigmain_geo_LOD1",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "item_tomeblue_diffuse.dds",
+        "normal": "item_tomeblue_normal.dds",
+        "orm": "item_tomeblue_orm.dds",
+        "emissive": "item_tomeblue_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Diffuse.tif",
+        "normal": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Normal.tif",
+        "orm": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_ORM.tif",
+        "emissive": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Stand 3": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 4,
+      "name": "item_tomeBlue_rigmain_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "item_tomeblue_diffuse.dds",
+        "normal": "item_tomeblue_normal.dds",
+        "orm": "item_tomeblue_orm.dds",
+        "emissive": "item_tomeblue_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Diffuse.tif",
+        "normal": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Normal.tif",
+        "orm": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_ORM.tif",
+        "emissive": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Stand 3": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 5,
+      "name": "item_tomeBlue_rigmain_geo_LOD2",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "item_tomeblue_diffuse.dds",
+        "normal": "item_tomeblue_normal.dds",
+        "orm": "item_tomeblue_orm.dds",
+        "emissive": "item_tomeblue_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Diffuse.tif",
+        "normal": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Normal.tif",
+        "orm": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_ORM.tif",
+        "emissive": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Stand 3": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 6,
+      "name": "item_tomeBlue_rigmain_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "item_tomeblue_diffuse.dds",
+        "normal": "item_tomeblue_normal.dds",
+        "orm": "item_tomeblue_orm.dds",
+        "emissive": "item_tomeblue_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Diffuse.tif",
+        "normal": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Normal.tif",
+        "orm": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_ORM.tif",
+        "emissive": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Stand 3": true
+      },
+      "lod": 3
+    },
+    {
+      "index": 7,
+      "name": "item_tomeBlue_rigmain_geo_LOD3",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "item_tomeblue_diffuse.dds",
+        "normal": "item_tomeblue_normal.dds",
+        "orm": "item_tomeblue_orm.dds",
+        "emissive": "item_tomeblue_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Diffuse.tif",
+        "normal": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Normal.tif",
+        "orm": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_ORM.tif",
+        "emissive": "Objects/InventoryItems/tomeBlue/Item_TomeBlue_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Stand 3": true
+      },
+      "lod": 3
+    }
+  ]
+}

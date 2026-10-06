@@ -1,0 +1,174 @@
+{
+  "source": "magicvault.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.300525985717773,
+      0,
+      -2.2881420593261717
+    ],
+    "max": [
+      2.273273986816406,
+      3.1811039428710934,
+      2.285676040649414
+    ],
+    "height": 3.1811039428710934
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 3033,
+      "end": 3867,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 3900,
+      "end": 63900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 3000,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Birth",
+      "start": 63933,
+      "end": 124767,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "human_magicVault_rig_default:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magicvault_diffuse.dds",
+        "normal": "human_magicvault_normal.dds",
+        "orm": "human_magicvault_orm.dds",
+        "emissive": "human_magicvault_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MagicVault/Human_MagicVault_Diffuse.tif",
+        "normal": "Buildings/Other/MagicVault/Human_MagicVault_Normal.tif",
+        "orm": "Buildings/Other/MagicVault/Human_MagicVault_ORM.tif",
+        "emissive": "Buildings/Other/MagicVault/Human_MagicVault_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": false,
+        "Decay": false,
+        "Stand 2": true,
+        "Birth": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "human_magicVault_rig_defaultmain_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magicvault_diffuse.dds",
+        "normal": "human_magicvault_normal.dds",
+        "orm": "human_magicvault_orm.dds",
+        "emissive": "human_magicvault_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MagicVault/Human_MagicVault_Diffuse.tif",
+        "normal": "Buildings/Other/MagicVault/Human_MagicVault_Normal.tif",
+        "orm": "Buildings/Other/MagicVault/Human_MagicVault_ORM.tif",
+        "emissive": "Buildings/Other/MagicVault/Human_MagicVault_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": false,
+        "Decay": false,
+        "Stand 2": true,
+        "Birth": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 2,
+      "name": "human_magicVault_rig_defaultmain_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magicvault_diffuse.dds",
+        "normal": "human_magicvault_normal.dds",
+        "orm": "human_magicvault_orm.dds",
+        "emissive": "human_magicvault_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MagicVault/Human_MagicVault_Diffuse.tif",
+        "normal": "Buildings/Other/MagicVault/Human_MagicVault_Normal.tif",
+        "orm": "Buildings/Other/MagicVault/Human_MagicVault_ORM.tif",
+        "emissive": "Buildings/Other/MagicVault/Human_MagicVault_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": false,
+        "Decay": false,
+        "Stand 2": true,
+        "Birth": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 3,
+      "name": "human_magicVault_rig_defaultmain_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magicvault_diffuse.dds",
+        "normal": "human_magicvault_normal.dds",
+        "orm": "human_magicvault_orm.dds",
+        "emissive": "human_magicvault_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MagicVault/Human_MagicVault_Diffuse.tif",
+        "normal": "Buildings/Other/MagicVault/Human_MagicVault_Normal.tif",
+        "orm": "Buildings/Other/MagicVault/Human_MagicVault_ORM.tif",
+        "emissive": "Buildings/Other/MagicVault/Human_MagicVault_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": false,
+        "Decay": false,
+        "Stand 2": true,
+        "Birth": true
+      },
+      "lod": 3
+    }
+  ]
+}

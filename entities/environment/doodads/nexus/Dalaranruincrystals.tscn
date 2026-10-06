@@ -1,0 +1,65 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_cbcaw"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dlr_props_ruinedcrystaltower_diffuse.dds" id="2_lmneu"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dlr_props_ruinedcrystaltower_emissive.dds" id="3_j3acm"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dlr_props_ruinedcrystaltower_normal.dds" id="4_5ddne"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dlr_props_ruinedcrystaltower_orm.dds" id="5_e8133"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/dalaranruincrystals.glb" id="6_61qfn"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gjjuu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_lmneu")
+orm_texture = ExtResource("5_e8133")
+emission_enabled = true
+emission_texture = ExtResource("3_j3acm")
+normal_enabled = true
+normal_texture = ExtResource("4_5ddne")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_tppiv"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_lmneu")
+orm_texture = ExtResource("5_e8133")
+emission_enabled = true
+emission_texture = ExtResource("3_j3acm")
+normal_enabled = true
+normal_texture = ExtResource("4_5ddne")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_yb42c"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_lmneu")
+orm_texture = ExtResource("5_e8133")
+emission_enabled = true
+emission_texture = ExtResource("3_j3acm")
+normal_enabled = true
+normal_texture = ExtResource("4_5ddne")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_53dt3"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_lmneu")
+orm_texture = ExtResource("5_e8133")
+emission_enabled = true
+emission_texture = ExtResource("3_j3acm")
+normal_enabled = true
+normal_texture = ExtResource("4_5ddne")
+
+[node name="Dalaranruincrystals" type="Node3D" unique_id=2057387913]
+script = ExtResource("1_cbcaw")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_gjjuu"),
+1: SubResource("ORMMaterial3D_tppiv"),
+2: SubResource("ORMMaterial3D_yb42c"),
+3: SubResource("ORMMaterial3D_53dt3")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1742327086 instance=ExtResource("6_61qfn")]

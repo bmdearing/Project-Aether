@@ -1,0 +1,352 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_mxvli"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/ls_destructibles_crates_v1-v2_diffuse.dds" id="2_20sa0"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/ls_destructibles_crates_v1-v2_normal.dds" id="3_ojjhe"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/ls_destructibles_crates_v1-v2_orm.dds" id="4_nbg7p"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/cratesunit.glb" id="5_nipjb"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_w2m62"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_g553v"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_r8oh2"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_nr4mo"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0fptb"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_fkx3w"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3mco3"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0n8vk"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_jthoo"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_juqkn"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_byeof"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lvb57"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_odcvl"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vm5l2"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7b771"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_mhxgh"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ymogg"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_y81ys"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vgutv"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_cnagu"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_igo3a"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7fe4h"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_o6fct"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_pdigr"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_1ryl1"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_goc56"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7xbwf"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0dfnu"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5hlx6"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ju6ch"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_m07s2"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_jajpn"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_agjmt"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_idl8u"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4toj6"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5l66f"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_wo0yv"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_apqbc"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_urjko"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_t4kap"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lylaq"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_yf4w3"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_nvk1t"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_37qjm"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ume24"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_607ra"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_e4myi"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_sn77t"]
+albedo_texture = ExtResource("2_20sa0")
+orm_texture = ExtResource("4_nbg7p")
+normal_enabled = true
+normal_texture = ExtResource("3_ojjhe")
+
+[node name="Cratesunit" type="Node3D" unique_id=1607182210]
+script = ExtResource("1_mxvli")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_w2m62"),
+1: SubResource("ORMMaterial3D_g553v"),
+2: SubResource("ORMMaterial3D_r8oh2"),
+3: SubResource("ORMMaterial3D_nr4mo"),
+4: SubResource("ORMMaterial3D_0fptb"),
+5: SubResource("ORMMaterial3D_fkx3w"),
+6: SubResource("ORMMaterial3D_3mco3"),
+7: SubResource("ORMMaterial3D_0n8vk"),
+8: SubResource("ORMMaterial3D_jthoo"),
+9: SubResource("ORMMaterial3D_juqkn"),
+10: SubResource("ORMMaterial3D_byeof"),
+11: SubResource("ORMMaterial3D_lvb57"),
+12: SubResource("ORMMaterial3D_odcvl"),
+13: SubResource("ORMMaterial3D_vm5l2"),
+14: SubResource("ORMMaterial3D_7b771"),
+15: SubResource("ORMMaterial3D_mhxgh"),
+16: SubResource("ORMMaterial3D_ymogg"),
+17: SubResource("ORMMaterial3D_y81ys"),
+18: SubResource("ORMMaterial3D_vgutv"),
+19: SubResource("ORMMaterial3D_cnagu"),
+20: SubResource("ORMMaterial3D_igo3a"),
+21: SubResource("ORMMaterial3D_7fe4h"),
+22: SubResource("ORMMaterial3D_o6fct"),
+23: SubResource("ORMMaterial3D_pdigr"),
+24: SubResource("ORMMaterial3D_1ryl1"),
+25: SubResource("ORMMaterial3D_goc56"),
+26: SubResource("ORMMaterial3D_7xbwf"),
+27: SubResource("ORMMaterial3D_0dfnu"),
+28: SubResource("ORMMaterial3D_5hlx6"),
+29: SubResource("ORMMaterial3D_ju6ch"),
+30: SubResource("ORMMaterial3D_m07s2"),
+31: SubResource("ORMMaterial3D_jajpn"),
+32: SubResource("ORMMaterial3D_agjmt"),
+33: SubResource("ORMMaterial3D_idl8u"),
+34: SubResource("ORMMaterial3D_4toj6"),
+35: SubResource("ORMMaterial3D_5l66f"),
+36: SubResource("ORMMaterial3D_wo0yv"),
+37: SubResource("ORMMaterial3D_apqbc"),
+38: SubResource("ORMMaterial3D_urjko"),
+39: SubResource("ORMMaterial3D_t4kap"),
+40: SubResource("ORMMaterial3D_lylaq"),
+41: SubResource("ORMMaterial3D_yf4w3"),
+42: SubResource("ORMMaterial3D_nvk1t"),
+43: SubResource("ORMMaterial3D_37qjm"),
+44: SubResource("ORMMaterial3D_ume24"),
+45: SubResource("ORMMaterial3D_607ra"),
+46: SubResource("ORMMaterial3D_e4myi"),
+47: SubResource("ORMMaterial3D_sn77t")
+}
+always_hidden = PackedInt32Array(12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=503951853 instance=ExtResource("5_nipjb")]

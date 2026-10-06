@@ -40,7 +40,7 @@ orm_texture = ExtResource("4_5gnee")
 normal_enabled = true
 normal_texture = ExtResource("3_gdq4g")
 
-[node name="Bookshelfwall" type="Node3D" unique_id=597017274]
+[node name="Bookshelfwall" type="Node3D" unique_id=400492196]
 script = ExtResource("1_hh7oh")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_cyiqa"),
@@ -49,7 +49,7 @@ geoset_materials = {
 3: SubResource("ORMMaterial3D_ryk6x"),
 4: SubResource("ORMMaterial3D_advi1")
 }
-always_hidden = PackedInt32Array()
+always_hidden = PackedInt32Array(2, 3, 4)
 idle_clip = "Stand 1"
 
 [node name="Model" type="Node3D" parent="." unique_id=698516278 instance=ExtResource("5_xcs8p")]

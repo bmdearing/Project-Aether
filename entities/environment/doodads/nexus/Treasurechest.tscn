@@ -1,0 +1,40 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_b6xw8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/treasurechest_diffuse.dds" id="2_em2ts"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/treasurechest_emissive.dds" id="3_8x58y"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/treasurechest_normal.dds" id="4_jdgb1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/treasurechest_orm.dds" id="5_t8vs6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/treasurechest_glow_diffuse.dds" id="6_b25md"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/treasurechest_glow_emissive.dds" id="7_ywa71"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/treasurechest_glow_normal.dds" id="8_p3eqj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/treasurechest_glow_orm.dds" id="9_t2c63"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/treasurechest.glb" id="10_l6my0"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vfp8a"]
+albedo_texture = ExtResource("2_em2ts")
+orm_texture = ExtResource("5_t8vs6")
+emission_enabled = true
+emission_texture = ExtResource("3_8x58y")
+normal_enabled = true
+normal_texture = ExtResource("4_jdgb1")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_rusta"]
+transparency = 1
+albedo_texture = ExtResource("6_b25md")
+orm_texture = ExtResource("9_t2c63")
+emission_enabled = true
+emission_texture = ExtResource("7_ywa71")
+normal_enabled = true
+normal_texture = ExtResource("8_p3eqj")
+
+[node name="Treasurechest" type="Node3D" unique_id=925068605]
+script = ExtResource("1_b6xw8")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_vfp8a"),
+1: SubResource("ORMMaterial3D_rusta")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=4137652 instance=ExtResource("10_l6my0")]

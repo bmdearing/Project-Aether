@@ -1,0 +1,117 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_1fu5x"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/item_tomeblue_diffuse.dds" id="2_i7f10"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/item_tomeblue_emissive.dds" id="3_xi7wl"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/item_tomeblue_normal.dds" id="4_umbc8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/item_tomeblue_orm.dds" id="5_qfy74"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/tomeblue.glb" id="6_tb4d3"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_x36p4"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_i7f10")
+orm_texture = ExtResource("5_qfy74")
+emission_enabled = true
+emission_texture = ExtResource("3_xi7wl")
+normal_enabled = true
+normal_texture = ExtResource("4_umbc8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_2lqjt"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_i7f10")
+orm_texture = ExtResource("5_qfy74")
+emission_enabled = true
+emission_texture = ExtResource("3_xi7wl")
+normal_enabled = true
+normal_texture = ExtResource("4_umbc8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7fbvx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_i7f10")
+orm_texture = ExtResource("5_qfy74")
+emission_enabled = true
+emission_texture = ExtResource("3_xi7wl")
+normal_enabled = true
+normal_texture = ExtResource("4_umbc8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_omfrx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_i7f10")
+orm_texture = ExtResource("5_qfy74")
+emission_enabled = true
+emission_texture = ExtResource("3_xi7wl")
+normal_enabled = true
+normal_texture = ExtResource("4_umbc8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_8boqo"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_i7f10")
+orm_texture = ExtResource("5_qfy74")
+emission_enabled = true
+emission_texture = ExtResource("3_xi7wl")
+normal_enabled = true
+normal_texture = ExtResource("4_umbc8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5dkkg"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_i7f10")
+orm_texture = ExtResource("5_qfy74")
+emission_enabled = true
+emission_texture = ExtResource("3_xi7wl")
+normal_enabled = true
+normal_texture = ExtResource("4_umbc8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_1q648"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_i7f10")
+orm_texture = ExtResource("5_qfy74")
+emission_enabled = true
+emission_texture = ExtResource("3_xi7wl")
+normal_enabled = true
+normal_texture = ExtResource("4_umbc8")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_mth3i"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_i7f10")
+orm_texture = ExtResource("5_qfy74")
+emission_enabled = true
+emission_texture = ExtResource("3_xi7wl")
+normal_enabled = true
+normal_texture = ExtResource("4_umbc8")
+
+[node name="Tomeblue" type="Node3D" unique_id=819942926]
+script = ExtResource("1_1fu5x")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_x36p4"),
+1: SubResource("ORMMaterial3D_2lqjt"),
+2: SubResource("ORMMaterial3D_7fbvx"),
+3: SubResource("ORMMaterial3D_omfrx"),
+4: SubResource("ORMMaterial3D_8boqo"),
+5: SubResource("ORMMaterial3D_5dkkg"),
+6: SubResource("ORMMaterial3D_1q648"),
+7: SubResource("ORMMaterial3D_mth3i")
+}
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=288813217 instance=ExtResource("6_tb4d3")]

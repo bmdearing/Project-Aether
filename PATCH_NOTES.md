@@ -7,6 +7,43 @@ there. Most recent first.
 
 ---
 
+## 2026-10-06 — v4.15: Memory Nexus Hub, LOD fix (user request)
+
+The user asked whether the Hub could look like Path of Exile's Synthesis
+Memory Nexus (three reference screenshots) and then to "make this the best
+looking piece possible."
+
+- Built `levels/hub/MemoryNexus.gd` + five shaders (`nexus_*`). The key
+  look - platform edges dissolving into blue-bordered flakes over a void -
+  is a signed-distance union of circles/capsules evaluated in the floor
+  shader, the same shapes the collision uses. Renderer is GL
+  Compatibility, so no volumetrics: depth comes from fog matched to the
+  background colour, glow, CPU particles and additive shafts.
+- Props: a new "nexus" doodad kit (Circle of Power, Waygate, Arcane
+  Vault, Magic Vault, treasure chest, crates, tome, crystal lamp, Dalaran
+  ruin crystals, colonnade, broken columns, Icecrown crystals, Violet
+  Hold spires) plus Dalaran marble grounds, pulled from the local WC3
+  install. Iterated through in-engine viewport snapshots; tuning passes
+  dimmed the far void plane (it read as a blue floor), shrank particles,
+  softened the parquet contrast, warmed the floor.
+- The Arcane Observatory centrepiece looked broken. Root cause was
+  general: Reforged models carry LOD 1-3 copies of every mesh and the
+  wrappers drew all of them stacked (z-fighting). The sidecar now records
+  each geoset's `LevelOfDetail` (`patch_sidecars.js` back-filled all 94)
+  and `build_mdx_wrappers.gd` hides LOD > 0. This also fixes Teron
+  (Threshold Knight), the Zombie Footman and most dungeon/desert doodads.
+  The user then asked to drop the observatory anyway; a floating crystal
+  formation replaced it.
+- Screenshot method changed: one desktop capture grabbed the user's screen
+  instead of the game window (it was deleted right away). Snapshots now come from
+  `get_viewport().get_texture()` inside Godot - no desktop access at all.
+- KillBox: no Life penalty outside a map (detected via the new
+  "generated_map" group instead of `current_scene`).
+- Tests: Hub checks added to `tests/v414/` (solid ground at spawn, every
+  interactable and the dais; the void is open).
+
+---
+
 ## 2026-10-06 — v4.14: spell levels, map layouts, new enemies, combat fixes (user request)
 
 A batch request covering enemy feel, melee hitboxes, settings, portals, a

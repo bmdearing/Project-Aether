@@ -1,0 +1,174 @@
+{
+  "source": "arcanevault.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.8404538879394527,
+      -2.0935979461669922,
+      -2.7568081054687497
+    ],
+    "max": [
+      2.8404538879394527,
+      5.619582092285156,
+      2.7454139099121093
+    ],
+    "height": 7.713180038452148
+  },
+  "sequences": [
+    {
+      "name": "Birth",
+      "start": 0,
+      "end": 60000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 60033,
+      "end": 62700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 60033,
+      "end": 62700,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 62733,
+      "end": 64400,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 64433,
+      "end": 124433,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "arcaneVault:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcanevault_diffuse.dds",
+        "normal": "human_arcanevault_normal.dds",
+        "orm": "human_arcanevault_orm.dds",
+        "emissive": "human_arcanevault_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Diffuse.tif",
+        "normal": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Normal.tif",
+        "orm": "Buildings/Human/ArcaneVault/Human_ArcaneVault_ORM.tif",
+        "emissive": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "arcaneVaultmain_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcanevault_diffuse.dds",
+        "normal": "human_arcanevault_normal.dds",
+        "orm": "human_arcanevault_orm.dds",
+        "emissive": "human_arcanevault_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Diffuse.tif",
+        "normal": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Normal.tif",
+        "orm": "Buildings/Human/ArcaneVault/Human_ArcaneVault_ORM.tif",
+        "emissive": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      },
+      "lod": 1
+    },
+    {
+      "index": 2,
+      "name": "arcaneVaultmain_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcanevault_diffuse.dds",
+        "normal": "human_arcanevault_normal.dds",
+        "orm": "human_arcanevault_orm.dds",
+        "emissive": "human_arcanevault_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Diffuse.tif",
+        "normal": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Normal.tif",
+        "orm": "Buildings/Human/ArcaneVault/Human_ArcaneVault_ORM.tif",
+        "emissive": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      },
+      "lod": 2
+    },
+    {
+      "index": 3,
+      "name": "arcaneVaultmain_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcanevault_diffuse.dds",
+        "normal": "human_arcanevault_normal.dds",
+        "orm": "human_arcanevault_orm.dds",
+        "emissive": "human_arcanevault_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Diffuse.tif",
+        "normal": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Normal.tif",
+        "orm": "Buildings/Human/ArcaneVault/Human_ArcaneVault_ORM.tif",
+        "emissive": "Buildings/Human/ArcaneVault/Human_ArcaneVault_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      },
+      "lod": 3
+    }
+  ]
+}

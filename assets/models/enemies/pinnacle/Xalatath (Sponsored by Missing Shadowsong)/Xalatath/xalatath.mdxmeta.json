@@ -112,7 +112,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 1,
@@ -144,7 +145,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 2,
@@ -176,7 +178,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 3,
@@ -208,7 +211,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 4,
@@ -240,7 +244,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 5,
@@ -272,7 +277,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 6,
@@ -304,7 +310,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 7,
@@ -336,7 +343,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 8,
@@ -368,7 +376,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 9,
@@ -400,7 +409,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 10,
@@ -432,7 +442,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 11,
@@ -464,7 +475,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 12,
@@ -496,7 +508,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 13,
@@ -528,7 +541,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 14,
@@ -560,7 +574,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 15,
@@ -592,7 +607,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 16,
@@ -624,7 +640,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 17,
@@ -656,7 +673,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 18,
@@ -688,7 +706,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 19,
@@ -720,7 +739,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 20,
@@ -752,7 +772,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 21,
@@ -784,7 +805,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 22,
@@ -816,7 +838,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 23,
@@ -848,7 +871,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 24,
@@ -880,7 +904,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 25,
@@ -912,7 +937,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 26,
@@ -944,7 +970,8 @@
         "Stand Channel 1": true,
         "Stand Ready 1": true,
         "Dissipate": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 27,
@@ -976,7 +1003,8 @@
         "Stand Channel 1": false,
         "Stand Ready 1": false,
         "Dissipate": false
-      }
+      },
+      "lod": 0
     }
   ]
 }

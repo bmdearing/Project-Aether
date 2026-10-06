@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_h0ugy"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_structures_violetholdspire_diffuse.dds" id="2_niu1s"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_structures_violetholdspire_emissive.dds" id="3_jctki"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_structures_violetholdspire_normal.dds" id="4_uxejj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_structures_violetholdspire_orm.dds" id="5_0ydaf"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/dalaranvioletholdspire.glb" id="6_nb620"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gn0ml"]
+albedo_texture = ExtResource("2_niu1s")
+orm_texture = ExtResource("5_0ydaf")
+emission_enabled = true
+emission_texture = ExtResource("3_jctki")
+normal_enabled = true
+normal_texture = ExtResource("4_uxejj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_auvn4"]
+albedo_texture = ExtResource("2_niu1s")
+orm_texture = ExtResource("5_0ydaf")
+emission_enabled = true
+emission_texture = ExtResource("3_jctki")
+normal_enabled = true
+normal_texture = ExtResource("4_uxejj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_be534"]
+albedo_texture = ExtResource("2_niu1s")
+orm_texture = ExtResource("5_0ydaf")
+emission_enabled = true
+emission_texture = ExtResource("3_jctki")
+normal_enabled = true
+normal_texture = ExtResource("4_uxejj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_pi3it"]
+albedo_texture = ExtResource("2_niu1s")
+orm_texture = ExtResource("5_0ydaf")
+emission_enabled = true
+emission_texture = ExtResource("3_jctki")
+normal_enabled = true
+normal_texture = ExtResource("4_uxejj")
+
+[node name="Dalaranvioletholdspire" type="Node3D" unique_id=1496669481]
+script = ExtResource("1_h0ugy")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_gn0ml"),
+1: SubResource("ORMMaterial3D_auvn4"),
+2: SubResource("ORMMaterial3D_be534"),
+3: SubResource("ORMMaterial3D_pi3it")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=790807120 instance=ExtResource("6_nb620")]

@@ -30,7 +30,7 @@ orm_texture = ExtResource("4_t4if2")
 normal_enabled = true
 normal_texture = ExtResource("3_onx0e")
 
-[node name="Cactus6" type="Node3D" unique_id=1129401025]
+[node name="Cactus6" type="Node3D" unique_id=72368089]
 script = ExtResource("1_d3lpt")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_b1m40"),

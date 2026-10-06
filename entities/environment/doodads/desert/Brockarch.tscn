@@ -30,7 +30,7 @@ orm_texture = ExtResource("4_idcob")
 normal_enabled = true
 normal_texture = ExtResource("3_i6v42")
 
-[node name="Brockarch" type="Node3D" unique_id=1978877359]
+[node name="Brockarch" type="Node3D" unique_id=1680219302]
 script = ExtResource("1_ym3w3")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_u4sje"),
@@ -38,7 +38,7 @@ geoset_materials = {
 2: SubResource("ORMMaterial3D_k1bpj"),
 3: SubResource("ORMMaterial3D_1bfsj")
 }
-always_hidden = PackedInt32Array()
+always_hidden = PackedInt32Array(1, 2, 3)
 idle_clip = "Stand 1"
 
 [node name="Model" type="Node3D" parent="." unique_id=1724138926 instance=ExtResource("5_kavr5")]

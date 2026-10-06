@@ -72,6 +72,8 @@ func _build_wrapper(label: String, mdx_path: String, out_path: String, with_anim
 			if filter >= Filter.BLEND:
 				always_hidden.append(index)  # an effect card with no texture renders as a solid sheet
 			untextured.append("%d%s" % [index, " (hidden fx)" if filter >= Filter.BLEND else ""])
+		if int(g.get("lod", 0)) > 0:
+			always_hidden.append(index)
 		materials[index] = _build_material(dir, g, black)
 		for clip in g["visibility"]:
 			if not g["visibility"][clip]:

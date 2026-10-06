@@ -144,7 +144,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 1,
@@ -180,7 +181,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 2,
@@ -216,7 +218,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 3,
@@ -252,7 +255,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 4,
@@ -288,7 +292,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 5,
@@ -324,7 +329,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 6,
@@ -360,7 +366,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 7,
@@ -396,7 +403,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 8,
@@ -432,7 +440,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 9,
@@ -468,7 +477,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 10,
@@ -504,7 +514,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 11,
@@ -540,7 +551,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 12,
@@ -576,7 +588,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 13,
@@ -612,7 +625,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 14,
@@ -648,7 +662,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 15,
@@ -684,7 +699,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 16,
@@ -720,7 +736,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 17,
@@ -756,7 +773,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 18,
@@ -792,7 +810,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 19,
@@ -828,7 +847,8 @@
         "Attack 2": true,
         "Cinematic Stand": true,
         "Cinematic Walk One": true
-      }
+      },
+      "lod": 0
     }
   ]
 }

@@ -30,7 +30,7 @@ orm_texture = ExtResource("4_xqycf")
 normal_enabled = true
 normal_texture = ExtResource("3_oglsm")
 
-[node name="Dungeonobilisk" type="Node3D" unique_id=1784251556]
+[node name="Dungeonobilisk" type="Node3D" unique_id=137753318]
 script = ExtResource("1_qdhx5")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_j10lk"),
@@ -38,7 +38,7 @@ geoset_materials = {
 2: SubResource("ORMMaterial3D_nh72o"),
 3: SubResource("ORMMaterial3D_an12s")
 }
-always_hidden = PackedInt32Array()
+always_hidden = PackedInt32Array(1, 2, 3)
 idle_clip = "Stand 1"
 
 [node name="Model" type="Node3D" parent="." unique_id=1208934864 instance=ExtResource("5_iuf1v")]

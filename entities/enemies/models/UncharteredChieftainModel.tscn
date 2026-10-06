@@ -22,7 +22,7 @@
 [ext_resource type="PackedScene" path="res://assets/models/enemies/sampleLegion/Better Bandits/BanditLord.glb" id="20_axetc"]
 [ext_resource type="PackedScene" path="res://entities/enemies/base/HumanoidAnimTree.tscn" id="21_gjiu3"]
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0jow2"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ue7dv"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -32,19 +32,19 @@ orm_texture = ExtResource("4_we6q0")
 normal_enabled = true
 normal_texture = ExtResource("3_5b7ml")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_8e8dn"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_olfb0"]
 albedo_texture = ExtResource("2_olfb0")
 orm_texture = ExtResource("4_we6q0")
 normal_enabled = true
 normal_texture = ExtResource("3_5b7ml")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_hxdgl"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5b7ml"]
 albedo_texture = ExtResource("2_olfb0")
 orm_texture = ExtResource("4_we6q0")
 normal_enabled = true
 normal_texture = ExtResource("3_5b7ml")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ci15j"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_we6q0"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -53,7 +53,7 @@ orm_texture = ExtResource("7_uml0j")
 normal_enabled = true
 normal_texture = ExtResource("6_a81o3")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ir8pu"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ltnt5"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -62,13 +62,13 @@ orm_texture = ExtResource("7_uml0j")
 normal_enabled = true
 normal_texture = ExtResource("6_a81o3")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7n5gp"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_a81o3"]
 albedo_texture = ExtResource("8_kpdfo")
 orm_texture = ExtResource("10_modn1")
 normal_enabled = true
 normal_texture = ExtResource("9_0fl8c")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5ka1d"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uml0j"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -77,7 +77,7 @@ orm_texture = ExtResource("10_modn1")
 normal_enabled = true
 normal_texture = ExtResource("9_0fl8c")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_v24oo"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_kpdfo"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -86,7 +86,7 @@ orm_texture = ExtResource("10_modn1")
 normal_enabled = true
 normal_texture = ExtResource("9_0fl8c")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_bf63r"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0fl8c"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -95,7 +95,7 @@ orm_texture = ExtResource("13_i5tdu")
 normal_enabled = true
 normal_texture = ExtResource("12_6crmv")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_sqj0e"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_modn1"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -104,14 +104,14 @@ orm_texture = ExtResource("16_vxu7s")
 normal_enabled = true
 normal_texture = ExtResource("15_2lxfd")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_woujl"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_tetxa"]
 cull_mode = 2
 albedo_texture = ExtResource("17_nmpvy")
 orm_texture = ExtResource("19_lbc47")
 normal_enabled = true
 normal_texture = ExtResource("18_panv6")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_o03q4"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6crmv"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -120,13 +120,13 @@ orm_texture = ExtResource("16_vxu7s")
 normal_enabled = true
 normal_texture = ExtResource("15_2lxfd")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_urm16"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_i5tdu"]
 albedo_texture = ExtResource("8_kpdfo")
 orm_texture = ExtResource("10_modn1")
 normal_enabled = true
 normal_texture = ExtResource("9_0fl8c")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_iowl2"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_42xvd"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -136,7 +136,7 @@ orm_texture = ExtResource("10_modn1")
 normal_enabled = true
 normal_texture = ExtResource("9_0fl8c")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7e770"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_2lxfd"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -146,13 +146,13 @@ orm_texture = ExtResource("4_we6q0")
 normal_enabled = true
 normal_texture = ExtResource("3_5b7ml")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_b27k1"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vxu7s"]
 albedo_texture = ExtResource("2_olfb0")
 orm_texture = ExtResource("4_we6q0")
 normal_enabled = true
 normal_texture = ExtResource("3_5b7ml")
 
-[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4setf"]
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_nmpvy"]
 transparency = 2
 alpha_scissor_threshold = 0.5
 alpha_antialiasing_mode = 0
@@ -343,26 +343,26 @@ states/Walk/node = SubResource("AnimationNodeAnimation_xo6c6")
 states/Walk/position = Vector2(200, 0)
 transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_tola0"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_4g1jm"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_317bp"), "Walk", "Run", SubResource("AnimationNodeStateMachineTransition_c5h2g"), "Run", "Walk", SubResource("AnimationNodeStateMachineTransition_a37j7"), "Idle", "Attack", SubResource("AnimationNodeStateMachineTransition_ipoep"), "Walk", "Attack", SubResource("AnimationNodeStateMachineTransition_i60ko"), "Run", "Attack", SubResource("AnimationNodeStateMachineTransition_nhync"), "HitReact", "Attack", SubResource("AnimationNodeStateMachineTransition_pduiw"), "Stagger", "Attack", SubResource("AnimationNodeStateMachineTransition_c46fj"), "Idle", "HitReact", SubResource("AnimationNodeStateMachineTransition_mot78"), "Walk", "HitReact", SubResource("AnimationNodeStateMachineTransition_d0m3f"), "Run", "HitReact", SubResource("AnimationNodeStateMachineTransition_28hg5"), "Attack", "HitReact", SubResource("AnimationNodeStateMachineTransition_xxwru"), "Stagger", "HitReact", SubResource("AnimationNodeStateMachineTransition_o3hln"), "Idle", "Stagger", SubResource("AnimationNodeStateMachineTransition_sylrt"), "Walk", "Stagger", SubResource("AnimationNodeStateMachineTransition_uhnpq"), "Run", "Stagger", SubResource("AnimationNodeStateMachineTransition_3blcx"), "Attack", "Stagger", SubResource("AnimationNodeStateMachineTransition_0ieg5"), "HitReact", "Stagger", SubResource("AnimationNodeStateMachineTransition_vde4t"), "Idle", "Death", SubResource("AnimationNodeStateMachineTransition_gkawd"), "Walk", "Death", SubResource("AnimationNodeStateMachineTransition_cgh1m"), "Run", "Death", SubResource("AnimationNodeStateMachineTransition_pld0m"), "Attack", "Death", SubResource("AnimationNodeStateMachineTransition_wr1x7"), "HitReact", "Death", SubResource("AnimationNodeStateMachineTransition_jypwp"), "Stagger", "Death", SubResource("AnimationNodeStateMachineTransition_gnvh3"), "Attack", "Idle", SubResource("AnimationNodeStateMachineTransition_7m1o2"), "HitReact", "Idle", SubResource("AnimationNodeStateMachineTransition_g1woi"), "Stagger", "Idle", SubResource("AnimationNodeStateMachineTransition_a1ugo")]
 
-[node name="UncharteredChieftainModel" type="Node3D" unique_id=1563389717]
+[node name="UncharteredChieftainModel" type="Node3D" unique_id=430520010]
 script = ExtResource("1_ue7dv")
 geoset_materials = {
-0: SubResource("ORMMaterial3D_0jow2"),
-1: SubResource("ORMMaterial3D_8e8dn"),
-2: SubResource("ORMMaterial3D_hxdgl"),
-3: SubResource("ORMMaterial3D_ci15j"),
-4: SubResource("ORMMaterial3D_ir8pu"),
-5: SubResource("ORMMaterial3D_7n5gp"),
-6: SubResource("ORMMaterial3D_5ka1d"),
-7: SubResource("ORMMaterial3D_v24oo"),
-8: SubResource("ORMMaterial3D_bf63r"),
-9: SubResource("ORMMaterial3D_sqj0e"),
-10: SubResource("ORMMaterial3D_woujl"),
-11: SubResource("ORMMaterial3D_o03q4"),
-12: SubResource("ORMMaterial3D_urm16"),
-13: SubResource("ORMMaterial3D_iowl2"),
-14: SubResource("ORMMaterial3D_7e770"),
-15: SubResource("ORMMaterial3D_b27k1"),
-16: SubResource("ORMMaterial3D_4setf")
+0: SubResource("ORMMaterial3D_ue7dv"),
+1: SubResource("ORMMaterial3D_olfb0"),
+2: SubResource("ORMMaterial3D_5b7ml"),
+3: SubResource("ORMMaterial3D_we6q0"),
+4: SubResource("ORMMaterial3D_ltnt5"),
+5: SubResource("ORMMaterial3D_a81o3"),
+6: SubResource("ORMMaterial3D_uml0j"),
+7: SubResource("ORMMaterial3D_kpdfo"),
+8: SubResource("ORMMaterial3D_0fl8c"),
+9: SubResource("ORMMaterial3D_modn1"),
+10: SubResource("ORMMaterial3D_tetxa"),
+11: SubResource("ORMMaterial3D_6crmv"),
+12: SubResource("ORMMaterial3D_i5tdu"),
+13: SubResource("ORMMaterial3D_42xvd"),
+14: SubResource("ORMMaterial3D_2lxfd"),
+15: SubResource("ORMMaterial3D_vxu7s"),
+16: SubResource("ORMMaterial3D_nmpvy")
 }
 hidden_geosets = {
 "Attack 1": PackedInt32Array(3, 4, 9, 11),

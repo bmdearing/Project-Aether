@@ -1,0 +1,125 @@
+{
+  "source": "treasurechest.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.0401444168090819,
+      -0.0017208000272512436,
+      -1.0401444168090819
+    ],
+    "max": [
+      1.0401444168090819,
+      1.1870819549560545,
+      1.0401444168090819
+    ],
+    "height": 1.1888027549833058
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Birth",
+      "start": 3367,
+      "end": 4367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 4400,
+      "end": 4900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand 4",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "treasureChest_rig:main_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "treasurechest_diffuse.dds",
+        "normal": "treasurechest_normal.dds",
+        "orm": "treasurechest_orm.dds",
+        "emissive": "treasurechest_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/TreasureChest/treasureChest_Diffuse.tif",
+        "normal": "Objects/InventoryItems/TreasureChest/treasureChest_Normal.tif",
+        "orm": "Objects/InventoryItems/TreasureChest/treasureChest_ORM.tif",
+        "emissive": "Objects/InventoryItems/TreasureChest/treasureChest_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 3": true,
+        "Stand 4": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "treasureChest_rig:glow",
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "treasurechest_glow_diffuse.dds",
+        "normal": "treasurechest_glow_normal.dds",
+        "orm": "treasurechest_glow_orm.dds",
+        "emissive": "treasurechest_glow_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Objects/InventoryItems/TreasureChest/treasureChest_glow_Diffuse.tif",
+        "normal": "Objects/InventoryItems/TreasureChest/treasureChest_glow_normal.tif",
+        "orm": "Objects/InventoryItems/TreasureChest/treasureChest_glow_orm.tif",
+        "emissive": "Objects/InventoryItems/TreasureChest/treasureChest_glow_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 3": true,
+        "Stand 4": true
+      },
+      "lod": 0
+    }
+  ]
+}

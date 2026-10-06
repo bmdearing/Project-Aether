@@ -21,7 +21,8 @@
       "name": "Stand",
       "start": 33,
       "end": 6667,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     }
   ],
   "geosets": [
@@ -47,7 +48,8 @@
       "missing": [],
       "visibility": {
         "Stand": true
-      }
+      },
+      "lod": 0
     }
   ]
 }

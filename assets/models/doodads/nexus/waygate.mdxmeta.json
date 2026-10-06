@@ -1,0 +1,185 @@
+{
+  "source": "waygate.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -4.7851561889648435,
+      -1.9468619384765624,
+      -3.9315599670410153
+    ],
+    "max": [
+      4.776479736328125,
+      6.311826232910156,
+      3.9305700988769527
+    ],
+    "height": 8.258688171386718
+  },
+  "sequences": [
+    {
+      "name": "Birth",
+      "start": 0,
+      "end": 60000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 60033,
+      "end": 61700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Alternate 1",
+      "start": 61733,
+      "end": 63400,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 60033,
+      "end": 61700,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 63433,
+      "end": 65767,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 65800,
+      "end": 125800,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "neutral_waygate_rig:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_waygate_diffuse.dds",
+        "normal": "neutral_waygate_normal.dds",
+        "orm": "neutral_waygate_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/Waygate/Neutral_WayGate_Diffuse.tif",
+        "normal": "Buildings/Other/Waygate/Neutral_WayGate_Normal.tif",
+        "orm": "Buildings/Other/Waygate/Neutral_WayGate_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Stand Alternate 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "neutral_waygate_rigmain_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_waygate_diffuse.dds",
+        "normal": "neutral_waygate_normal.dds",
+        "orm": "neutral_waygate_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/Waygate/Neutral_WayGate_Diffuse.tif",
+        "normal": "Buildings/Other/Waygate/Neutral_WayGate_Normal.tif",
+        "orm": "Buildings/Other/Waygate/Neutral_WayGate_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Stand Alternate 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 2,
+      "name": "neutral_waygate_rigmain_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_waygate_diffuse.dds",
+        "normal": "neutral_waygate_normal.dds",
+        "orm": "neutral_waygate_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/Waygate/Neutral_WayGate_Diffuse.tif",
+        "normal": "Buildings/Other/Waygate/Neutral_WayGate_Normal.tif",
+        "orm": "Buildings/Other/Waygate/Neutral_WayGate_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Stand Alternate 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 3,
+      "name": "neutral_waygate_rigmain_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_waygate_diffuse.dds",
+        "normal": "neutral_waygate_normal.dds",
+        "orm": "neutral_waygate_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/Waygate/Neutral_WayGate_Diffuse.tif",
+        "normal": "Buildings/Other/Waygate/Neutral_WayGate_Normal.tif",
+        "orm": "Buildings/Other/Waygate/Neutral_WayGate_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Stand Alternate 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      },
+      "lod": 3
+    }
+  ]
+}

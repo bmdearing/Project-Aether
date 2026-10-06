@@ -1,0 +1,130 @@
+{
+  "source": "dalaranvioletholdspire_small.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.713661193847656,
+      -0.0003744000010192394,
+      -1.6876278533935545
+    ],
+    "max": [
+      1.713661193847656,
+      13.407030395507812,
+      1.6876278533935545
+    ],
+    "height": 13.40740479550883
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 967,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DalaranVioletHoldSpire_Small",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_dalaranwall_diffuse.dds",
+        "normal": "dl_dalaranwall_normal.dds",
+        "orm": "dl_dalaranwall_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_Diffuse.tif",
+        "normal": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_Normal.tif",
+        "orm": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "DalaranVioletHoldSpire_Small_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_dalaranwall_diffuse.dds",
+        "normal": "dl_dalaranwall_normal.dds",
+        "orm": "dl_dalaranwall_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_Diffuse.tif",
+        "normal": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_Normal.tif",
+        "orm": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 2,
+      "name": "DalaranVioletHoldSpire_Small_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_dalaranwall_diffuse.dds",
+        "normal": "dl_dalaranwall_normal.dds",
+        "orm": "dl_dalaranwall_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_Diffuse.tif",
+        "normal": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_Normal.tif",
+        "orm": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 3,
+      "name": "DalaranVioletHoldSpire_Small_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_dalaranwall_diffuse.dds",
+        "normal": "dl_dalaranwall_normal.dds",
+        "orm": "dl_dalaranwall_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_Diffuse.tif",
+        "normal": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_Normal.tif",
+        "orm": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire_Small/DL_DalaranWall_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 3
+    }
+  ]
+}

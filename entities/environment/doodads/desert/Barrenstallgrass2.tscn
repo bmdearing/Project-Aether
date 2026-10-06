@@ -42,7 +42,7 @@ orm_texture = ExtResource("4_4jrw8")
 normal_enabled = true
 normal_texture = ExtResource("3_nn1qy")
 
-[node name="Barrenstallgrass2" type="Node3D" unique_id=858969288]
+[node name="Barrenstallgrass2" type="Node3D" unique_id=1422232409]
 script = ExtResource("1_41jp2")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_66whv"),
@@ -53,7 +53,7 @@ geoset_materials = {
 hidden_geosets = {
 "Stand 1": PackedInt32Array(0, 1, 2, 3)
 }
-always_hidden = PackedInt32Array()
+always_hidden = PackedInt32Array(1, 2, 3)
 idle_clip = "Stand 1"
 
 [node name="Model" type="Node3D" parent="." unique_id=1152212706 instance=ExtResource("5_lp55f")]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=21 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://entities/interactables/reality_engine/RealityEngine.tscn" id="2"]
@@ -21,16 +21,7 @@
 [ext_resource type="PackedScene" path="res://entities/interactables/stash_chest/StashChest.tscn" id="20"]
 [ext_resource type="PackedScene" path="res://ui/stash/StashScreen.tscn" id="21"]
 [ext_resource type="Script" path="res://entities/interactables/portal/HubPortalSpot.gd" id="22"]
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(40, 1, 40)
-
-[sub_resource type="PlaneMesh" id="PlaneMesh_floor"]
-size = Vector2(40, 40)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
-albedo_color = Color(0.12, 0.13, 0.15, 1)
-roughness = 0.9
+[ext_resource type="Script" path="res://levels/hub/MemoryNexus.gd" id="23"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -49,36 +40,29 @@ transform = Transform3D(0.8, -0.35, 0.5, 0, 0.82, 0.58, -0.6, -0.46, 0.66, 0, 8,
 light_energy = 0.9
 shadow_enabled = true
 
-[node name="Floor" type="StaticBody3D" parent="."]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
-shape = SubResource("BoxShape3D_floor")
-position = Vector3(0, -0.5, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
-mesh = SubResource("PlaneMesh_floor")
-surface_material_override/0 = SubResource("StandardMaterial3D_floor")
+[node name="MemoryNexus" type="Node3D" parent="."]
+script = ExtResource("23")
 
 [node name="Player" parent="." instance=ExtResource("1")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 6)
 
 [node name="RealityEngine" parent="." instance=ExtResource("2")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.2, -13.5)
 
 [node name="GearShop" parent="." instance=ExtResource("13")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.5, 0, -7.5)
 
 [node name="SpellTestShop" parent="." instance=ExtResource("14")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 0, -7.5)
 
 [node name="AmmoStore" parent="." instance=ExtResource("17")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.5, 0, -0.5)
 
 [node name="StashChest" parent="." instance=ExtResource("20")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 0, -0.5)
 
 [node name="HubPortalSpot" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 14.5)
 script = ExtResource("22")
 
 [node name="MusicPlayer" type="AudioStreamPlayer" parent="."]

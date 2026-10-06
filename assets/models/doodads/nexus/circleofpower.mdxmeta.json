@@ -1,0 +1,692 @@
+{
+  "source": "circleofpower.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.7591479187011716,
+      0.01139579951763153,
+      -2.737223876953125
+    ],
+    "max": [
+      2.7407521362304688,
+      0.781698600769043,
+      2.762675903320312
+    ],
+    "height": 0.7703028012514114
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 3367,
+      "end": 6700,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "main_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "rune2_diffuse.dds",
+        "normal": "rune2_normal.dds",
+        "orm": "rune2_orm.dds",
+        "emissive": "rune2_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/Rune2_Diffuse.tif",
+        "normal": "Buildings/Other/CircleOfPower/Rune2_Normal.tif",
+        "orm": "Buildings/Other/CircleOfPower/Rune2_ORM.tif",
+        "emissive": "Buildings/Other/CircleOfPower/Rune2_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "aura_01_geo",
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "aurarune8_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "aurarune8_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/AuraRune8_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/AuraRune8_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 2,
+      "name": "aura_02_geo",
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "aurarune8_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "aurarune8_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/AuraRune8_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/AuraRune8_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 3,
+      "name": "glow_01_geo",
+      "material_id": 3,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 4,
+      "name": "glow_02_geo",
+      "material_id": 4,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 5,
+      "name": "glow_03_geo",
+      "material_id": 5,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 6,
+      "name": "main_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "rune2_diffuse.dds",
+        "normal": "rune2_normal.dds",
+        "orm": "rune2_orm.dds",
+        "emissive": "rune2_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/Rune2_Diffuse.tif",
+        "normal": "Buildings/Other/CircleOfPower/Rune2_Normal.tif",
+        "orm": "Buildings/Other/CircleOfPower/Rune2_ORM.tif",
+        "emissive": "Buildings/Other/CircleOfPower/Rune2_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false
+      },
+      "lod": 1
+    },
+    {
+      "index": 7,
+      "name": "main_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "rune2_diffuse.dds",
+        "normal": "rune2_normal.dds",
+        "orm": "rune2_orm.dds",
+        "emissive": "rune2_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/Rune2_Diffuse.tif",
+        "normal": "Buildings/Other/CircleOfPower/Rune2_Normal.tif",
+        "orm": "Buildings/Other/CircleOfPower/Rune2_ORM.tif",
+        "emissive": "Buildings/Other/CircleOfPower/Rune2_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false
+      },
+      "lod": 2
+    },
+    {
+      "index": 8,
+      "name": "main_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "rune2_diffuse.dds",
+        "normal": "rune2_normal.dds",
+        "orm": "rune2_orm.dds",
+        "emissive": "rune2_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/Rune2_Diffuse.tif",
+        "normal": "Buildings/Other/CircleOfPower/Rune2_Normal.tif",
+        "orm": "Buildings/Other/CircleOfPower/Rune2_ORM.tif",
+        "emissive": "Buildings/Other/CircleOfPower/Rune2_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false
+      },
+      "lod": 3
+    },
+    {
+      "index": 9,
+      "name": "aura_01_geo_LOD1",
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "aurarune8_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "aurarune8_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/AuraRune8_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/AuraRune8_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 10,
+      "name": "aura_01_geo_LOD2",
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "aurarune8_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "aurarune8_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/AuraRune8_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/AuraRune8_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 11,
+      "name": "aura_01_geo_LOD3",
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "aurarune8_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "aurarune8_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/AuraRune8_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/AuraRune8_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 3
+    },
+    {
+      "index": 12,
+      "name": "aura_02_geo_LOD1",
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "aurarune8_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "aurarune8_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/AuraRune8_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/AuraRune8_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 13,
+      "name": "aura_02_geo_LOD2",
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "aurarune8_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "aurarune8_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/AuraRune8_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/AuraRune8_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 14,
+      "name": "aura_02_geo_LOD3",
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "aurarune8_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "aurarune8_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/AuraRune8_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/AuraRune8_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 3
+    },
+    {
+      "index": 15,
+      "name": "glow_01_geo_LOD1",
+      "material_id": 3,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 16,
+      "name": "glow_01_geo_LOD2",
+      "material_id": 3,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 17,
+      "name": "glow_01_geo_LOD3",
+      "material_id": 3,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 3
+    },
+    {
+      "index": 18,
+      "name": "glow_02_geo_LOD1",
+      "material_id": 4,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 19,
+      "name": "glow_02_geo_LOD2",
+      "material_id": 4,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 20,
+      "name": "glow_02_geo_LOD3",
+      "material_id": 4,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 3
+    },
+    {
+      "index": 21,
+      "name": "glow_03_geo_LOD1",
+      "material_id": 5,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 22,
+      "name": "glow_03_geo_LOD2",
+      "material_id": 5,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 23,
+      "name": "glow_03_geo_LOD3",
+      "material_id": 5,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "tc_glow_diffuse.dds",
+        "normal": "normal.dds",
+        "orm": "tc_glow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CircleOfPower/TC_Glow_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Buildings/Other/CircleOfPower/TC_Glow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true
+      },
+      "lod": 3
+    }
+  ]
+}

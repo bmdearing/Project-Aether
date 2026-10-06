@@ -120,7 +120,8 @@
         "Spell 1": true,
         "Decay Flesh": true,
         "Decay Bone": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 1,
@@ -153,7 +154,8 @@
         "Spell 1": false,
         "Decay Flesh": false,
         "Decay Bone": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 2,
@@ -186,7 +188,8 @@
         "Spell 1": true,
         "Decay Flesh": true,
         "Decay Bone": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 3,
@@ -219,7 +222,8 @@
         "Spell 1": true,
         "Decay Flesh": true,
         "Decay Bone": true
-      }
+      },
+      "lod": -1
     },
     {
       "index": 4,
@@ -252,7 +256,8 @@
         "Spell 1": true,
         "Decay Flesh": true,
         "Decay Bone": true
-      }
+      },
+      "lod": -1
     }
   ]
 }

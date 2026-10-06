@@ -136,7 +136,8 @@
         "Death 1": true,
         "Decay": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 1,
@@ -171,7 +172,8 @@
         "Death 1": true,
         "Decay": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 2,
@@ -206,7 +208,8 @@
         "Death 1": true,
         "Decay": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 3,
@@ -241,7 +244,8 @@
         "Death 1": true,
         "Decay": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 4,
@@ -276,7 +280,8 @@
         "Death 1": true,
         "Decay": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 5,
@@ -311,7 +316,8 @@
         "Death 1": true,
         "Decay": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 6,
@@ -346,7 +352,8 @@
         "Death 1": true,
         "Decay": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 7,
@@ -381,7 +388,8 @@
         "Death 1": true,
         "Decay": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 8,
@@ -416,7 +424,8 @@
         "Death 1": true,
         "Decay": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     }
   ]
 }

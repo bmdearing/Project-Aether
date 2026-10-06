@@ -82,7 +82,7 @@ orm_texture = ExtResource("4_dqvnm")
 normal_enabled = true
 normal_texture = ExtResource("3_l7ck3")
 
-[node name="Junkpile1" type="Node3D" unique_id=1141564216]
+[node name="Junkpile1" type="Node3D" unique_id=1345496639]
 script = ExtResource("1_sc8jj")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_xadii"),
@@ -94,7 +94,7 @@ geoset_materials = {
 6: SubResource("ORMMaterial3D_p0opr"),
 7: SubResource("ORMMaterial3D_f50fs")
 }
-always_hidden = PackedInt32Array()
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
 idle_clip = "Stand 1"
 
 [node name="Model" type="Node3D" parent="." unique_id=81202891 instance=ExtResource("5_ejw1d")]

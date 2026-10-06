@@ -100,6 +100,8 @@ function buildSidecar(model, mdxPath, scale) {
     return {
       index: gi,
       name: g.Name || "",
+      // Reforged ships LOD 1-3 copies of each mesh; only LOD 0 is drawn.
+      lod: g.LevelOfDetail || 0,
       material_id: g.MaterialID,
       filter_mode: layer0.FilterMode || 0,
       two_sided: !!((layer0.Shading || 0) & 16),

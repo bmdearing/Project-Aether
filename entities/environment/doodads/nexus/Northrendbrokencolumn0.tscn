@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_sno1m"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_diffuse.dds" id="2_uqirh"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_normal.dds" id="3_xbmdf"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_orm.dds" id="4_cafr7"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/northrendbrokencolumn0.glb" id="5_tr2o2"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_hqo07"]
+albedo_texture = ExtResource("2_uqirh")
+orm_texture = ExtResource("4_cafr7")
+normal_enabled = true
+normal_texture = ExtResource("3_xbmdf")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_8fmfk"]
+albedo_texture = ExtResource("2_uqirh")
+orm_texture = ExtResource("4_cafr7")
+normal_enabled = true
+normal_texture = ExtResource("3_xbmdf")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_maibg"]
+albedo_texture = ExtResource("2_uqirh")
+orm_texture = ExtResource("4_cafr7")
+normal_enabled = true
+normal_texture = ExtResource("3_xbmdf")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_p7nfu"]
+albedo_texture = ExtResource("2_uqirh")
+orm_texture = ExtResource("4_cafr7")
+normal_enabled = true
+normal_texture = ExtResource("3_xbmdf")
+
+[node name="Northrendbrokencolumn0" type="Node3D" unique_id=607208855]
+script = ExtResource("1_sno1m")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_hqo07"),
+1: SubResource("ORMMaterial3D_8fmfk"),
+2: SubResource("ORMMaterial3D_maibg"),
+3: SubResource("ORMMaterial3D_p7nfu")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1485527799 instance=ExtResource("5_tr2o2")]

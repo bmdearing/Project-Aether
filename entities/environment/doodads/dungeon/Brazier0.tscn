@@ -39,7 +39,7 @@ emission_texture = ExtResource("3_0kibi")
 normal_enabled = true
 normal_texture = ExtResource("4_42nty")
 
-[node name="Brazier0" type="Node3D" unique_id=968252410]
+[node name="Brazier0" type="Node3D" unique_id=788750933]
 script = ExtResource("1_wbfhx")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_po8on"),
@@ -47,7 +47,7 @@ geoset_materials = {
 2: SubResource("ORMMaterial3D_dl5jp"),
 3: SubResource("ORMMaterial3D_hoob5")
 }
-always_hidden = PackedInt32Array()
+always_hidden = PackedInt32Array(1, 2, 3)
 idle_clip = "Stand 1"
 
 [node name="Model" type="Node3D" parent="." unique_id=683157214 instance=ExtResource("6_nyneg")]

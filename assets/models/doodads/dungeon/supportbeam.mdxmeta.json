@@ -21,25 +21,29 @@
       "name": "Stand 1",
       "start": 0,
       "end": 333,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand 2",
       "start": 0,
       "end": 333,
-      "duplicate_of": "Stand 1"
+      "duplicate_of": "Stand 1",
+      "move_speed": 0
     },
     {
       "name": "Death 1",
       "start": 367,
       "end": 4533,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Alternate 1",
       "start": 4567,
       "end": 5233,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     }
   ],
   "geosets": [
@@ -68,7 +72,8 @@
         "Stand 2": true,
         "Death 1": true,
         "Stand Alternate 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 1,
@@ -95,7 +100,8 @@
         "Stand 2": true,
         "Death 1": true,
         "Stand Alternate 1": true
-      }
+      },
+      "lod": 1
     },
     {
       "index": 2,
@@ -122,7 +128,8 @@
         "Stand 2": true,
         "Death 1": true,
         "Stand Alternate 1": true
-      }
+      },
+      "lod": 2
     },
     {
       "index": 3,
@@ -149,7 +156,8 @@
         "Stand 2": true,
         "Death 1": true,
         "Stand Alternate 1": true
-      }
+      },
+      "lod": 3
     }
   ]
 }

@@ -1,0 +1,130 @@
+{
+  "source": "dalaranvioletholdspire.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.4089480285644527,
+      -0.04465260028839111,
+      -3.4089480285644527
+    ],
+    "max": [
+      3.4089480285644527,
+      24.083459472656248,
+      3.4089480285644527
+    ],
+    "height": 24.12811207294464
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 967,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "VioletHoldSpire_geo",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_structures_violetholdspire_diffuse.dds",
+        "normal": "dl_structures_violetholdspire_normal.dds",
+        "orm": "dl_structures_violetholdspire_orm.dds",
+        "emissive": "dl_structures_violetholdspire_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Diffuse.tif",
+        "normal": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Normal.tif",
+        "orm": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_ORM.tif",
+        "emissive": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "VioletHoldSpire_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_structures_violetholdspire_diffuse.dds",
+        "normal": "dl_structures_violetholdspire_normal.dds",
+        "orm": "dl_structures_violetholdspire_orm.dds",
+        "emissive": "dl_structures_violetholdspire_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Diffuse.tif",
+        "normal": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Normal.tif",
+        "orm": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_ORM.tif",
+        "emissive": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 2,
+      "name": "VioletHoldSpire_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_structures_violetholdspire_diffuse.dds",
+        "normal": "dl_structures_violetholdspire_normal.dds",
+        "orm": "dl_structures_violetholdspire_orm.dds",
+        "emissive": "dl_structures_violetholdspire_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Diffuse.tif",
+        "normal": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Normal.tif",
+        "orm": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_ORM.tif",
+        "emissive": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 3,
+      "name": "VioletHoldSpire_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_structures_violetholdspire_diffuse.dds",
+        "normal": "dl_structures_violetholdspire_normal.dds",
+        "orm": "dl_structures_violetholdspire_orm.dds",
+        "emissive": "dl_structures_violetholdspire_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Diffuse.tif",
+        "normal": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Normal.tif",
+        "orm": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_ORM.tif",
+        "emissive": "Doodads/Dalaran/Structures/DalaranVioletHoldSpire/DL_Structures_VioletHoldSpire_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 3
+    }
+  ]
+}

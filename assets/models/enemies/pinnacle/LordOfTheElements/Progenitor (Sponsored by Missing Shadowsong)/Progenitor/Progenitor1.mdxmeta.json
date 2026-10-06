@@ -104,7 +104,8 @@
         "Death 1": true,
         "Stand Channel 1": true,
         "Dissipate": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 1,
@@ -135,7 +136,8 @@
         "Death 1": true,
         "Stand Channel 1": true,
         "Dissipate": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 2,
@@ -166,7 +168,8 @@
         "Death 1": true,
         "Stand Channel 1": true,
         "Dissipate": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 3,
@@ -197,7 +200,8 @@
         "Death 1": true,
         "Stand Channel 1": true,
         "Dissipate": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 4,
@@ -228,7 +232,8 @@
         "Death 1": true,
         "Stand Channel 1": true,
         "Dissipate": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 5,
@@ -259,7 +264,8 @@
         "Death 1": true,
         "Stand Channel 1": true,
         "Dissipate": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 6,
@@ -290,7 +296,8 @@
         "Death 1": true,
         "Stand Channel 1": true,
         "Dissipate": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 7,
@@ -321,7 +328,8 @@
         "Death 1": true,
         "Stand Channel 1": true,
         "Dissipate": false
-      }
+      },
+      "lod": 0
     }
   ]
 }

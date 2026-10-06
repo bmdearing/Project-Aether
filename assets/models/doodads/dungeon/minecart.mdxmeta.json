@@ -21,19 +21,22 @@
       "name": "Stand Wounded 1",
       "start": 0,
       "end": 1200,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Spell 1",
       "start": 1233,
       "end": 4567,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand 1",
       "start": 4600,
       "end": 18833,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     }
   ],
   "geosets": [
@@ -61,7 +64,8 @@
         "Stand Wounded 1": true,
         "Spell 1": true,
         "Stand 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 1,
@@ -87,7 +91,8 @@
         "Stand Wounded 1": true,
         "Spell 1": true,
         "Stand 1": true
-      }
+      },
+      "lod": 1
     },
     {
       "index": 2,
@@ -113,7 +118,8 @@
         "Stand Wounded 1": true,
         "Spell 1": true,
         "Stand 1": true
-      }
+      },
+      "lod": 2
     },
     {
       "index": 3,
@@ -139,7 +145,8 @@
         "Stand Wounded 1": true,
         "Spell 1": true,
         "Stand 1": true
-      }
+      },
+      "lod": 3
     }
   ]
 }

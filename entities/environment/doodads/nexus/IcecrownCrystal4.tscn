@@ -1,0 +1,101 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_gjlsj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/icg_environment_crystal_v1_v9_diffuse.dds" id="2_5xwxm"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/icg_environment_crystal_v1_v9_emissive.dds" id="3_qwmuq"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/icg_environment_crystal_v1_v9_normal.dds" id="4_hjdy1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/icg_environment_crystal_v1_v9_orm.dds" id="5_5f0al"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/icecrown_crystal4.glb" id="6_b08jq"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_st4xb"]
+albedo_texture = ExtResource("2_5xwxm")
+orm_texture = ExtResource("5_5f0al")
+emission_enabled = true
+emission_texture = ExtResource("3_qwmuq")
+normal_enabled = true
+normal_texture = ExtResource("4_hjdy1")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_x70os"]
+albedo_texture = ExtResource("2_5xwxm")
+orm_texture = ExtResource("5_5f0al")
+emission_enabled = true
+emission_texture = ExtResource("3_qwmuq")
+normal_enabled = true
+normal_texture = ExtResource("4_hjdy1")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_byg4q"]
+albedo_texture = ExtResource("2_5xwxm")
+orm_texture = ExtResource("5_5f0al")
+emission_enabled = true
+emission_texture = ExtResource("3_qwmuq")
+normal_enabled = true
+normal_texture = ExtResource("4_hjdy1")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0xvkf"]
+albedo_texture = ExtResource("2_5xwxm")
+orm_texture = ExtResource("5_5f0al")
+emission_enabled = true
+emission_texture = ExtResource("3_qwmuq")
+normal_enabled = true
+normal_texture = ExtResource("4_hjdy1")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_j0ttl"]
+albedo_texture = ExtResource("2_5xwxm")
+orm_texture = ExtResource("5_5f0al")
+emission_enabled = true
+emission_texture = ExtResource("3_qwmuq")
+normal_enabled = true
+normal_texture = ExtResource("4_hjdy1")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4e6cx"]
+albedo_texture = ExtResource("2_5xwxm")
+orm_texture = ExtResource("5_5f0al")
+emission_enabled = true
+emission_texture = ExtResource("3_qwmuq")
+normal_enabled = true
+normal_texture = ExtResource("4_hjdy1")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_17qu6"]
+albedo_texture = ExtResource("2_5xwxm")
+orm_texture = ExtResource("5_5f0al")
+emission_enabled = true
+emission_texture = ExtResource("3_qwmuq")
+normal_enabled = true
+normal_texture = ExtResource("4_hjdy1")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_bti8m"]
+albedo_texture = ExtResource("2_5xwxm")
+orm_texture = ExtResource("5_5f0al")
+emission_enabled = true
+emission_texture = ExtResource("3_qwmuq")
+normal_enabled = true
+normal_texture = ExtResource("4_hjdy1")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_l6fcd"]
+albedo_texture = ExtResource("2_5xwxm")
+orm_texture = ExtResource("5_5f0al")
+emission_enabled = true
+emission_texture = ExtResource("3_qwmuq")
+normal_enabled = true
+normal_texture = ExtResource("4_hjdy1")
+
+[node name="IcecrownCrystal4" type="Node3D" unique_id=680722335]
+script = ExtResource("1_gjlsj")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_st4xb"),
+1: SubResource("ORMMaterial3D_x70os"),
+2: SubResource("ORMMaterial3D_byg4q"),
+3: SubResource("ORMMaterial3D_0xvkf"),
+4: SubResource("ORMMaterial3D_j0ttl"),
+5: SubResource("ORMMaterial3D_4e6cx"),
+6: SubResource("ORMMaterial3D_17qu6"),
+7: SubResource("ORMMaterial3D_bti8m"),
+8: SubResource("ORMMaterial3D_l6fcd")
+}
+hidden_geosets = {
+"Stand 1": PackedInt32Array(0, 1, 2, 3, 5, 6, 7, 8)
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=2112691615 instance=ExtResource("6_b08jq")]

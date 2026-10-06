@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_uj2ti"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_citycolumnruined_diffuse.dds" id="2_0msap"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_citycolumnruined_normal.dds" id="3_e0qok"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_citycolumnruined_orm.dds" id="4_gd503"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/city_columnsingle1_ruined.glb" id="5_o2uls"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_fxr4q"]
+albedo_texture = ExtResource("2_0msap")
+orm_texture = ExtResource("4_gd503")
+normal_enabled = true
+normal_texture = ExtResource("3_e0qok")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ki6wf"]
+albedo_texture = ExtResource("2_0msap")
+orm_texture = ExtResource("4_gd503")
+normal_enabled = true
+normal_texture = ExtResource("3_e0qok")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7vssb"]
+albedo_texture = ExtResource("2_0msap")
+orm_texture = ExtResource("4_gd503")
+normal_enabled = true
+normal_texture = ExtResource("3_e0qok")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ktwp1"]
+albedo_texture = ExtResource("2_0msap")
+orm_texture = ExtResource("4_gd503")
+normal_enabled = true
+normal_texture = ExtResource("3_e0qok")
+
+[node name="CityColumnsingle1Ruined" type="Node3D" unique_id=247229336]
+script = ExtResource("1_uj2ti")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_fxr4q"),
+1: SubResource("ORMMaterial3D_ki6wf"),
+2: SubResource("ORMMaterial3D_7vssb"),
+3: SubResource("ORMMaterial3D_ktwp1")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=920891935 instance=ExtResource("5_o2uls")]

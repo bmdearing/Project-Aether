@@ -90,6 +90,7 @@ var _portal_player_position: Vector3
 var _portal_player_yaw: float
 
 func _ready() -> void:
+	add_to_group("generated_map")
 	# Standalone (F6) launch: no MainMenu/save ran, so GameState is still defaults.
 	GameState.initialize_standalone()
 	var restore: Dictionary = GameState.portal_map_state if GameState.returning_through_portal else {}

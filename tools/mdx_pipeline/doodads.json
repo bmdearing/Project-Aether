@@ -5,8 +5,12 @@
       "dir": "assets/models/doodads/dungeon",
       "scale": 0.018,
       "roles": {
-        "archway": ["doodads/dungeon/structures/dungeonarchway1/dungeonarchway1.mdx"],
-        "support": ["doodads/underground/terrain/supportbeam/supportbeam.mdx"],
+        "archway": [
+          "doodads/dungeon/structures/dungeonarchway1/dungeonarchway1.mdx"
+        ],
+        "support": [
+          "doodads/underground/terrain/supportbeam/supportbeam.mdx"
+        ],
         "wall": [
           "doodads/dungeon/props/bookshelfwall/bookshelfwall.mdx",
           "doodads/dungeon/props/bookshelf/bookshelf.mdx",
@@ -76,17 +80,81 @@
           "doodads/barrens/plants/barrenstallgrass/barrenstallgrass2.mdx"
         ]
       }
+    },
+    "nexus": {
+      "dir": "assets/models/doodads/nexus",
+      "scale": 0.018,
+      "roles": {
+        "landmark": [
+          "buildings/other/circleofpower/circleofpower.mdx",
+          "buildings/other/waygate/waygate.mdx",
+          "doodads/dalaran/structures/dalaranvioletholdspire_small/dalaranvioletholdspire_small.mdx",
+          "doodads/dalaran/structures/dalaranvioletholdspire/dalaranvioletholdspire.mdx"
+        ],
+        "vendor": [
+          "buildings/human/arcanevault/arcanevault.mdx",
+          "buildings/other/magicvault/magicvault.mdx",
+          "objects/inventoryitems/treasurechest/treasurechest.mdx",
+          "buildings/other/cratesunit/cratesunit.mdx",
+          "objects/inventoryitems/tomeblue/tomeblue.mdx"
+        ],
+        "decor": [
+          "doodads/cityscape/props/crystallamp/crystallamp.mdx",
+          "doodads/ruins/props/dalaranruincrystals/dalaranruincrystals.mdx",
+          "doodads/cityscape/structures/city_columnsemicircle/city_columnsemicircle.mdx",
+          "doodads/cityscape/structures/city_columnsingle1_ruined/city_columnsingle1_ruined.mdx",
+          "doodads/northrend/props/northrendbrokencolumn/northrendbrokencolumn0.mdx"
+        ],
+        "crystal": [
+          "doodads/icecrown/rocks/icecrown_crystal/icecrown_crystal0.mdx",
+          "doodads/icecrown/rocks/icecrown_crystal/icecrown_crystal2.mdx",
+          "doodads/icecrown/rocks/icecrown_crystal/icecrown_crystal4.mdx",
+          "doodads/icecrown/rocks/icecrown_crystal/icecrown_crystal6.mdx"
+        ]
+      }
     }
   },
   "grounds": {
     "_comment": "Ground textures per family (diffuse/normal/orm), copied into <family dir>/ground/. wide = 2048-wide sheet with 16 variants in its right half; narrow = 1024 transition sheet, only cells 0 and 15 are full.",
     "dungeon": {
-      "wide": ["dungeon/cave_brick", "dungeon/cave_dirt", "dungeon/cave_greystones", "dungeon/cave_lavacracks", "dungeon2/gbrick", "dungeon2/gdirt", "dungeon2/ggreystones", "dungeon2/glavacracks"],
-      "narrow": ["dungeon/cave_squaretiles", "dungeon/cave_darkrocks", "dungeon/cave_redstones", "dungeon2/gsquaretiles", "dungeon2/gdarkrocks"]
+      "wide": [
+        "dungeon/cave_brick",
+        "dungeon/cave_dirt",
+        "dungeon/cave_greystones",
+        "dungeon/cave_lavacracks",
+        "dungeon2/gbrick",
+        "dungeon2/gdirt",
+        "dungeon2/ggreystones",
+        "dungeon2/glavacracks"
+      ],
+      "narrow": [
+        "dungeon/cave_squaretiles",
+        "dungeon/cave_darkrocks",
+        "dungeon/cave_redstones",
+        "dungeon2/gsquaretiles",
+        "dungeon2/gdarkrocks"
+      ]
     },
     "desert": {
-      "wide": ["barrens/barrens_desert", "barrens/barrens_desertdark", "barrens/barrens_dirt", "barrens/barrens_grass"],
-      "narrow": ["barrens/barrens_rock", "barrens/barrens_pebbles", "barrens/barrens_dirtrough", "barrens/barrens_dirtgrass"]
+      "wide": [
+        "barrens/barrens_desert",
+        "barrens/barrens_desertdark",
+        "barrens/barrens_dirt",
+        "barrens/barrens_grass"
+      ],
+      "narrow": [
+        "barrens/barrens_rock",
+        "barrens/barrens_pebbles",
+        "barrens/barrens_dirtrough",
+        "barrens/barrens_dirtgrass"
+      ]
+    },
+    "nexus": {
+      "wide": [],
+      "narrow": [
+        "dalaran/dalaran_whitemarble",
+        "dalaran/dalaran_blackmarble"
+      ]
     }
   }
 }

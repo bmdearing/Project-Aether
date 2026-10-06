@@ -30,7 +30,7 @@ orm_texture = ExtResource("4_lkret")
 normal_enabled = true
 normal_texture = ExtResource("3_dcrpb")
 
-[node name="BarrensRocks4" type="Node3D" unique_id=197475489]
+[node name="BarrensRocks4" type="Node3D" unique_id=57839916]
 script = ExtResource("1_wr1bs")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_bmev8"),
@@ -38,7 +38,7 @@ geoset_materials = {
 2: SubResource("ORMMaterial3D_6ybwd"),
 3: SubResource("ORMMaterial3D_qdhff")
 }
-always_hidden = PackedInt32Array()
+always_hidden = PackedInt32Array(1, 2, 3)
 idle_clip = "Stand 1"
 
 [node name="Model" type="Node3D" parent="." unique_id=944762011 instance=ExtResource("5_xbnvg")]

@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_4jihg"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/human_magicvault_diffuse.dds" id="2_e2b8n"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/human_magicvault_emissive.dds" id="3_vo7ml"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/human_magicvault_normal.dds" id="4_tascl"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/human_magicvault_orm.dds" id="5_2y2ls"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/magicvault.glb" id="6_0gnh3"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_r31ro"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_e2b8n")
+orm_texture = ExtResource("5_2y2ls")
+emission_enabled = true
+emission_texture = ExtResource("3_vo7ml")
+normal_enabled = true
+normal_texture = ExtResource("4_tascl")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_swxjk"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_e2b8n")
+orm_texture = ExtResource("5_2y2ls")
+emission_enabled = true
+emission_texture = ExtResource("3_vo7ml")
+normal_enabled = true
+normal_texture = ExtResource("4_tascl")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5kxd2"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_e2b8n")
+orm_texture = ExtResource("5_2y2ls")
+emission_enabled = true
+emission_texture = ExtResource("3_vo7ml")
+normal_enabled = true
+normal_texture = ExtResource("4_tascl")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_j5uja"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_e2b8n")
+orm_texture = ExtResource("5_2y2ls")
+emission_enabled = true
+emission_texture = ExtResource("3_vo7ml")
+normal_enabled = true
+normal_texture = ExtResource("4_tascl")
+
+[node name="Magicvault" type="Node3D" unique_id=2107442234]
+script = ExtResource("1_4jihg")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_r31ro"),
+1: SubResource("ORMMaterial3D_swxjk"),
+2: SubResource("ORMMaterial3D_5kxd2"),
+3: SubResource("ORMMaterial3D_j5uja")
+}
+hidden_geosets = {
+"Death 1": PackedInt32Array(0, 1, 2, 3),
+"Decay": PackedInt32Array(0, 1, 2, 3)
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=30913678 instance=ExtResource("6_0gnh3")]

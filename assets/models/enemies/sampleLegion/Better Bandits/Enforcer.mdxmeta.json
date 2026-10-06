@@ -160,7 +160,8 @@
         "Stand Hit 1": false,
         "Decay Bone": true,
         "Stand Ready 1": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 1,
@@ -198,7 +199,8 @@
         "Stand Hit 1": false,
         "Decay Bone": false,
         "Stand Ready 1": false
-      }
+      },
+      "lod": 0
     },
     {
       "index": 2,
@@ -236,7 +238,8 @@
         "Stand Hit 1": true,
         "Decay Bone": false,
         "Stand Ready 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 3,
@@ -274,7 +277,8 @@
         "Stand Hit 1": true,
         "Decay Bone": false,
         "Stand Ready 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 4,
@@ -312,7 +316,8 @@
         "Stand Hit 1": true,
         "Decay Bone": false,
         "Stand Ready 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 5,
@@ -350,7 +355,8 @@
         "Stand Hit 1": true,
         "Decay Bone": false,
         "Stand Ready 1": true
-      }
+      },
+      "lod": 0
     },
     {
       "index": 6,
@@ -388,7 +394,8 @@
         "Stand Hit 1": true,
         "Decay Bone": false,
         "Stand Ready 1": true
-      }
+      },
+      "lod": 0
     }
   ]
 }

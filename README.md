@@ -671,6 +671,26 @@ identity), Modifier Count, and Modifier Values (the stat formula above is
 deterministic per tile count, not randomized) - and drops as loot (10%
 chance per kill, same flat-independent-roll convention as Tomes/Brands).
 
+**The Hub is a Memory Nexus** (`levels/hub/MemoryNexus.gd`, built in code
+at load, modelled on Path of Exile's Synthesis hub): marble platforms in
+a black void. The walkable area is one signed-distance shape (`CIRCLES`
++ `BRIDGES`) shared by the collision and `shaders/nexus_floor.gdshader`:
+two-tone Dalaran marble parquet with gold inlay rings inside, breaking
+into Voronoi flakes with glowing blue borders toward the edge. Centre:
+the Circle of Power waypoint (spawn). North: a stepped dais (one smooth
+convex collider under the visible steps) with the Reality Engine on a
+broken column, under a floating, turning crystal formation and rune
+ring. West/east "stabiliser" platforms with rotating rune circles
+(`nexus_runes.gdshader`) and colonnades hold the vendors and stash,
+dressed with WC3 models (Arcane Vault, crates, Magic Vault with a
+floating tome, treasure chest). South: the Waygate, where the return
+portal opens. The void has glowing-crack platform undersides
+(`nexus_crust.gdshader`), drifting islands and Dalaran spires, light
+shafts, rising motes and flakes peeling off the edges, over a faint
+far-below web (`nexus_void_sea.gdshader`). Falling off just returns you
+to the last solid ground (no penalty in the Hub). Props are the "nexus"
+kit in `tools/mdx_pipeline/doodads.json`.
+
 **Hub, Figments, and the Reality Engine** (`levels/hub/`,
 `entities/interactables/reality_engine/`, `data/figments/`): `MainMenu.tscn`
 (project's main scene) leads to `Hub.tscn`, a non-combat room. This whole

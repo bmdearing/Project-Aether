@@ -1,0 +1,130 @@
+{
+  "source": "city_columnsemicircle.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.6496799011230467,
+      0.0006984000205993652,
+      -5.986457885742187
+    ],
+    "max": [
+      3.0214080505371093,
+      7.986635925292968,
+      6.115715881347656
+    ],
+    "height": 7.9859375252723686
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "ColumnSemiCircle",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_columnsemicircle_diffuse.dds",
+        "normal": "cs_structures_columnsemicircle_normal.dds",
+        "orm": "cs_structures_columnsemicircle_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "ColumnSemiCircle_LOD1",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_columnsemicircle_diffuse.dds",
+        "normal": "cs_structures_columnsemicircle_normal.dds",
+        "orm": "cs_structures_columnsemicircle_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 2,
+      "name": "ColumnSemiCircle_LOD2",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_columnsemicircle_diffuse.dds",
+        "normal": "cs_structures_columnsemicircle_normal.dds",
+        "orm": "cs_structures_columnsemicircle_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 3,
+      "name": "ColumnSemiCircle_LOD3",
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_columnsemicircle_diffuse.dds",
+        "normal": "cs_structures_columnsemicircle_normal.dds",
+        "orm": "cs_structures_columnsemicircle_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/City_ColumnSemiCircle/CS_Structures_ColumnSemiCircle_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      },
+      "lod": 3
+    }
+  ]
+}

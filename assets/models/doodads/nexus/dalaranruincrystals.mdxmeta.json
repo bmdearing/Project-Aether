@@ -1,0 +1,163 @@
+{
+  "source": "dalaranruincrystals.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.758715881347656,
+      -0.40989420318603514,
+      -2.6831700439453123
+    ],
+    "max": [
+      2.625138061523437,
+      1.8392579956054687,
+      2.7607318725585936
+    ],
+    "height": 2.2491521987915037
+  },
+  "sequences": [
+    {
+      "name": "Birth",
+      "start": 0,
+      "end": 60000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 60033,
+      "end": 63367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 63400,
+      "end": 70067,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 70100,
+      "end": 130100,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DLR_props_dalaranRuinsCrystals_rig:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dlr_props_ruinedcrystaltower_diffuse.dds",
+        "normal": "dlr_props_ruinedcrystaltower_normal.dds",
+        "orm": "dlr_props_ruinedcrystaltower_orm.dds",
+        "emissive": "dlr_props_ruinedcrystaltower_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Diffuse.tif",
+        "normal": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Normal.tif",
+        "orm": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_ORM.tif",
+        "emissive": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true
+      },
+      "lod": 0
+    },
+    {
+      "index": 1,
+      "name": "DLR_props_dalaranRuinsCrystals_rigmain_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dlr_props_ruinedcrystaltower_diffuse.dds",
+        "normal": "dlr_props_ruinedcrystaltower_normal.dds",
+        "orm": "dlr_props_ruinedcrystaltower_orm.dds",
+        "emissive": "dlr_props_ruinedcrystaltower_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Diffuse.tif",
+        "normal": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Normal.tif",
+        "orm": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_ORM.tif",
+        "emissive": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true
+      },
+      "lod": 1
+    },
+    {
+      "index": 2,
+      "name": "DLR_props_dalaranRuinsCrystals_rigmain_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dlr_props_ruinedcrystaltower_diffuse.dds",
+        "normal": "dlr_props_ruinedcrystaltower_normal.dds",
+        "orm": "dlr_props_ruinedcrystaltower_orm.dds",
+        "emissive": "dlr_props_ruinedcrystaltower_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Diffuse.tif",
+        "normal": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Normal.tif",
+        "orm": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_ORM.tif",
+        "emissive": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true
+      },
+      "lod": 2
+    },
+    {
+      "index": 3,
+      "name": "DLR_props_dalaranRuinsCrystals_rigmain_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dlr_props_ruinedcrystaltower_diffuse.dds",
+        "normal": "dlr_props_ruinedcrystaltower_normal.dds",
+        "orm": "dlr_props_ruinedcrystaltower_orm.dds",
+        "emissive": "dlr_props_ruinedcrystaltower_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Diffuse.tif",
+        "normal": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Normal.tif",
+        "orm": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_ORM.tif",
+        "emissive": "Doodads/Ruins/Props/DalaranRuinCrystals/DLR_Props_RuinedCrystalTower_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true
+      },
+      "lod": 3
+    }
+  ]
+}

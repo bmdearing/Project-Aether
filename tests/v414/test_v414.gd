@@ -11,7 +11,7 @@ const ABILITY_DIR := "res://data/abilities/instances/"
 var _checks := 0
 var _failures := 0
 var _finished := 0
-const TEST_COUNT := 6
+const TEST_COUNT := 7
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -35,6 +35,7 @@ func _run() -> void:
 	await _test_melee_splash()
 	await _test_attack_lock()
 	await _test_kill_box_and_portal()
+	await _test_hub()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("v4.14 tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -292,5 +293,28 @@ func _test_kill_box_and_portal() -> void:
 	_check(not floor_hit.is_empty() and absf(floor_hit["position"].y - portal.global_position.y) < 0.05, "portal stands on the floor")
 	map.queue_free()
 	GameState.active_map = null
+	await _frames(2)
+	_finished += 1
+
+## The Memory Nexus Hub: spawn, every interactable and the dais top stand on
+## solid collision, and its props loaded (no missing scenes).
+func _test_hub() -> void:
+	var hub: Node3D = load("res://levels/hub/Hub.tscn").instantiate()
+	add_child(hub)
+	await _frames(6)
+	var spots := {"spawn": Vector3(0, 0, 6), "dais top": Vector3(0, 1.2, -17), "bridge west": Vector3(-9.5, 0, -3), "south landing": Vector3(0, 0, 15)}
+	for node_name in ["GearShop", "AmmoStore", "SpellTestShop", "StashChest", "RealityEngine", "HubPortalSpot"]:
+		var n := hub.get_node_or_null(node_name) as Node3D
+		_check(n != null, "hub has %s" % node_name)
+		if n:
+			spots[node_name] = n.global_position + Vector3(1.6, 0, 0) if node_name != "HubPortalSpot" else n.global_position
+	for spot_name in spots:
+		var hit := _ray_down(hub, spots[spot_name] + Vector3.UP * 2.0)
+		_check(not hit.is_empty(), "hub: solid ground at %s" % spot_name)
+	var nexus := hub.get_node_or_null("MemoryNexus")
+	_check(nexus != null and nexus.get_child_count() > 50, "Memory Nexus built (%d nodes)" % (nexus.get_child_count() if nexus else 0))
+	var void_hit := _ray_down(hub, Vector3(40, 2, 40))
+	_check(void_hit.is_empty() or void_hit["position"].y < -2.0, "the void beyond the platforms is open")
+	hub.queue_free()
 	await _frames(2)
 	_finished += 1
