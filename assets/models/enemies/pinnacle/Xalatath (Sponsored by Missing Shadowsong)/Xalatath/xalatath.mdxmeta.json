@@ -1,0 +1,982 @@
+{
+  "source": "xalatath.mdx",
+  "version": 1000,
+  "scale": 0.031,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.1751235427856446,
+      -0.004407643154263496,
+      -1.4239818496704102
+    ],
+    "max": [
+      0.3613071794509888,
+      3.232432098388672,
+      1.4460319099426269
+    ],
+    "height": 3.2368397415429353
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 300,
+      "end": 1800,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Spell 1",
+      "start": 2100,
+      "end": 3634,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 3934,
+      "end": 4934,
+      "move_speed": 8.37,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 5234,
+      "end": 8734,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 9034,
+      "end": 14734,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 15034,
+      "end": 16901,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 17201,
+      "end": 18701,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 19001,
+      "end": 20501,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 20801,
+      "end": 80801,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "sorceress:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_head_diffuse.dds",
+        "normal": "xalatath_head_normal.dds",
+        "orm": "xalatath_head_orm.dds",
+        "emissive": "xalatath_head_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_head_diffuse.dds",
+        "normal": "xalatath_head_normal.dds",
+        "orm": "xalatath_head_orm.dds",
+        "emissive": "xalatath_head_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "sorceress:hair_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_eyebrow_diffuse.dds",
+        "normal": "human_sorceress_hair_normal.dds",
+        "orm": "human_sorceress_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "xalatath_eyebrow_diffuse.dds",
+        "normal": "Units/Human/Sorceress/Human_Sorceress_Hair_Normal.tif",
+        "orm": "Units/Human/Sorceress/Human_Sorceress_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "nightElf_warden_rig:main_geo",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_main_diffuse.dds",
+        "normal": "xalatath_main_normal.dds",
+        "orm": "nightelf_warden_main_orm.dds",
+        "emissive": "nightelf_warden_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_main_diffuse.dds",
+        "normal": "xalatath_main_normal.dds",
+        "orm": "Units/Creeps/Assassin/NightElf_Warden_Main_ORM.tif",
+        "emissive": "Units/Creeps/Assassin/NightElf_Warden_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "nightElf_warden_rig:main_geo",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_main_diffuse.dds",
+        "normal": "xalatath_main_normal.dds",
+        "orm": "nightelf_warden_main_orm.dds",
+        "emissive": "nightelf_warden_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_main_diffuse.dds",
+        "normal": "xalatath_main_normal.dds",
+        "orm": "Units/Creeps/Assassin/NightElf_Warden_Main_ORM.tif",
+        "emissive": "Units/Creeps/Assassin/NightElf_Warden_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "nightElf_Naisha_rig:main_geo",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_hand_diffuse.dds",
+        "normal": "xalatath_hand_normal.dds",
+        "orm": "nightelf_naisha_main_orm.dds",
+        "emissive": "nightelf_naisha_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_hand_diffuse.dds",
+        "normal": "xalatath_hand_normal.dds",
+        "orm": "Units/NightElf/Naisha/NightElf_Naisha_Main_ORM.tif",
+        "emissive": "Units/NightElf/Naisha/NightElf_Naisha_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "HumanMage_rig_cin:main_geo",
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_belt_diffuse.dds",
+        "normal": "unit_apprentice_witzard_main_normal.dds",
+        "orm": "unit_apprentice_witzard_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "xalatath_belt_diffuse.dds",
+        "normal": "Units/Creeps/HumanMage/Unit_Apprentice_Witzard_Main_Normal.tif",
+        "orm": "Units/Creeps/HumanMage/Unit_Apprentice_Witzard_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "human_hydromancer_rig:ride_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_hydromancer_ride_diffuse.dds",
+        "normal": "human_hydromancer_ride_normal.dds",
+        "orm": "human_hydromancer_ride_orm.dds",
+        "emissive": "human_hydromancer_ride_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Hydromancer/Human_Hydromancer_Ride_Diffuse.tif",
+        "normal": "Units/Creeps/Hydromancer/Human_Hydromancer_Ride_Normal.tif",
+        "orm": "Units/Creeps/Hydromancer/Human_Hydromancer_Ride_ORM.tif",
+        "emissive": "Units/Creeps/Hydromancer/Human_Hydromancer_Ride_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "human_kael_rig:armor_geo",
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_orb_diffuse.dds",
+        "normal": "human_kaelthas_armor_normal.dds",
+        "orm": "human_kaelthas_armor_orm.dds",
+        "emissive": "xalatath_orb_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_orb_diffuse.dds",
+        "normal": "Units/Human/Kael/Human_KaelThas_Armor_Normal.tif",
+        "orm": "Units/Human/Kael/Human_KaelThas_Armor_ORM.tif",
+        "emissive": "xalatath_orb_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "DragonSpawnOverseer_rig_cin:shoulder_geo",
+      "material_id": 8,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dragonspawnoverseer_diffuse.dds",
+        "normal": "dragonspawnoverseer_normal.dds",
+        "orm": "dragonspawnoverseer_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/DragonSpawnOverseer/DragonSpawnOverseer_diffuse.tif",
+        "normal": "Units/Creeps/DragonSpawnOverseer/DragonSpawnOverseer_normal.tif",
+        "orm": "Units/Creeps/DragonSpawnOverseer/DragonSpawnOverseer_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "nightElf_archer_rig:hair_geo",
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_hair_diffuse.dds",
+        "normal": "nightelf_archernightelf_hair_normal.dds",
+        "orm": "nightelf_archernightelf_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "xalatath_hair_diffuse.dds",
+        "normal": "Units/NightElf/Archer/NightElf_ArcherNightElf_Hair_Normal.tif",
+        "orm": "Units/NightElf/Archer/NightElf_ArcherNightElf_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "human_arthas_rig_cin:hairSoft_geo",
+      "material_id": 10,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_softhair_diffuse.dds",
+        "normal": "human_arthasmenethilfrost_hair_normal.dds",
+        "orm": "human_arthasmenethilfrost_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "xalatath_softhair_diffuse.dds",
+        "normal": "Units/Human/ArthaswithSword/Human_ArthasMenethilFrost_Hair_Normal.tif",
+        "orm": "Units/Human/ArthaswithSword/Human_ArthasMenethilFrost_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "nightElf_warden_rig:cloak_geo",
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_pauldron_diffuse.dds",
+        "normal": "nightelf_warden_cloak_normal.dds",
+        "orm": "nightelf_warden_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "xalatath_pauldron_diffuse.dds",
+        "normal": "Units/Creeps/Assassin/NightElf_Warden_Cloak_Normal.tif",
+        "orm": "Units/Creeps/Assassin/NightElf_Warden_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "nightElf_warden_rig:cloak_geo",
+      "material_id": 12,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_pauldron_diffuse.dds",
+        "normal": "nightelf_warden_cloak_normal.dds",
+        "orm": "nightelf_warden_cloak_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "xalatath_pauldron_diffuse.dds",
+        "normal": "Units/Creeps/Assassin/NightElf_Warden_Cloak_Normal.tif",
+        "orm": "Units/Creeps/Assassin/NightElf_Warden_Cloak_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "nightElf_archer_rig:main_geo",
+      "material_id": 13,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_boot_diffuse.dds",
+        "normal": "nightelf_shandris_main_normal.dds",
+        "orm": "nightelf_shandris_main_orm.dds",
+        "emissive": "nightelf_shandris_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_boot_diffuse.dds",
+        "normal": "Units/NightElf/Shandris/NightElf_Shandris_Main_Normal.tif",
+        "orm": "Units/NightElf/Shandris/NightElf_Shandris_Main_ORM.tif",
+        "emissive": "Units/NightElf/Shandris/NightElf_Shandris_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "nightElf_Tyrande_rig:main_geo",
+      "material_id": 14,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_leg_diffuse.dds",
+        "normal": "xalatath_leg_normal.dds",
+        "orm": "nightelf_tyrande_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "xalatath_leg_diffuse.dds",
+        "normal": "xalatath_leg_normal.dds",
+        "orm": "Units/NightElf/Tyrande/NightElf_Tyrande_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "sorceress:main_geo",
+      "material_id": 15,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_head_diffuse.dds",
+        "normal": "xalatath_head_normal.dds",
+        "orm": "xalatath_head_orm.dds",
+        "emissive": "xalatath_head_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_head_diffuse.dds",
+        "normal": "xalatath_head_normal.dds",
+        "orm": "xalatath_head_orm.dds",
+        "emissive": "xalatath_head_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 16,
+      "name": "LordGarithos_cin_rig:rider_pauldron_geo",
+      "material_id": 16,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_cloth_diffuse.dds",
+        "normal": "unit_lord_garithos_rider_pauldron_normal.dds",
+        "orm": "unit_lord_garithos_rider_pauldron_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "xalatath_cloth_diffuse.dds",
+        "normal": "Units/Creeps/LordGarithos/Unit_Lord_Garithos_rider_pauldron_normal.tif",
+        "orm": "Units/Creeps/LordGarithos/Unit_Lord_Garithos_rider_pauldron_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 17,
+      "name": "LordGarithos_cin_rig:mount_main_geo",
+      "material_id": 17,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_skirt_diffuse.dds",
+        "normal": "unit_lord_garithos_mount_main_normal.dds",
+        "orm": "unit_lord_garithos_mount_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "xalatath_skirt_diffuse.dds",
+        "normal": "Units/Creeps/LordGarithos/Unit_Lord_Garithos_mount_main_normal.tif",
+        "orm": "Units/Creeps/LordGarithos/Unit_Lord_Garithos_mount_main_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "nightElf_Naisha_rig:main_geo",
+      "material_id": 18,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_hand_diffuse.dds",
+        "normal": "xalatath_hand_normal.dds",
+        "orm": "nightelf_naisha_main_orm.dds",
+        "emissive": "nightelf_naisha_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_hand_diffuse.dds",
+        "normal": "xalatath_hand_normal.dds",
+        "orm": "Units/NightElf/Naisha/NightElf_Naisha_Main_ORM.tif",
+        "emissive": "Units/NightElf/Naisha/NightElf_Naisha_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "nightElf_warden_rig:main_geo",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_main_diffuse.dds",
+        "normal": "xalatath_main_normal.dds",
+        "orm": "nightelf_warden_main_orm.dds",
+        "emissive": "nightelf_warden_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_main_diffuse.dds",
+        "normal": "xalatath_main_normal.dds",
+        "orm": "Units/Creeps/Assassin/NightElf_Warden_Main_ORM.tif",
+        "emissive": "Units/Creeps/Assassin/NightElf_Warden_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "main_geo",
+      "material_id": 19,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "warlock_main_diffuse.dds",
+        "normal": "warlock_main_normal.dds",
+        "orm": "warlock_main_orm.dds",
+        "emissive": "warlock_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/Warlock/Warlock_Main_Diffuse.tif",
+        "normal": "Units/Demon/Warlock/Warlock_Main_Normal.tif",
+        "orm": "Units/Demon/Warlock/Warlock_Main_ORM.tif",
+        "emissive": "Units/Demon/Warlock/Warlock_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "human_jaina_rig_ingame:weapon_geo",
+      "material_id": 20,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_jewel_diffuse.dds",
+        "normal": "human_jainaproudmoore_weapon_normal.dds",
+        "orm": "human_jainaproudmoore_weapon_orm.dds",
+        "emissive": "xalatath_jewel_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_jewel_diffuse.dds",
+        "normal": "Units/Human/Jaina/Human_JainaProudmoore_Weapon_Normal.tif",
+        "orm": "Units/Human/Jaina/Human_JainaProudmoore_Weapon_ORM.tif",
+        "emissive": "xalatath_jewel_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "Antonidas:main_geo",
+      "material_id": 21,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_antonidas_main_diffuse.dds",
+        "normal": "human_antonidas_main_normal.dds",
+        "orm": "human_antonidas_main_orm.dds",
+        "emissive": "human_antonidas_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/Antonidas/Human_Antonidas_Main_Diffuse.tif",
+        "normal": "Units/Human/Antonidas/Human_Antonidas_Main_Normal.tif",
+        "orm": "Units/Human/Antonidas/Human_Antonidas_Main_ORM.tif",
+        "emissive": "Units/Human/Antonidas/Human_Antonidas_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 23,
+      "name": "nightElf_heroWarden_rig:main_geo",
+      "material_id": 22,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nightelf_herowarden_main_diffuse.dds",
+        "normal": "nightelf_herowarden_main_normal.dds",
+        "orm": "nightelf_herowarden_main_orm.dds",
+        "emissive": "nightelf_herowarden_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/NightElf/HeroWarden/NightElf_HeroWarden_Main_Diffuse.tif",
+        "normal": "Units/NightElf/HeroWarden/NightElf_HeroWarden_Main_Normal.tif",
+        "orm": "Units/NightElf/HeroWarden/NightElf_HeroWarden_Main_ORM.tif",
+        "emissive": "Units/NightElf/HeroWarden/NightElf_HeroWarden_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 24,
+      "name": "sorceress:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_head_diffuse.dds",
+        "normal": "xalatath_head_normal.dds",
+        "orm": "xalatath_head_orm.dds",
+        "emissive": "xalatath_head_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_head_diffuse.dds",
+        "normal": "xalatath_head_normal.dds",
+        "orm": "xalatath_head_orm.dds",
+        "emissive": "xalatath_head_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 25,
+      "name": "human_captain_rig:main_geo",
+      "material_id": 23,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_cape_diffuse.dds",
+        "normal": "xalatath_cape_normal.dds",
+        "orm": "xalatath_cape_orm.dds",
+        "emissive": "xalatath_cape_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_cape_diffuse.dds",
+        "normal": "xalatath_cape_normal.dds",
+        "orm": "xalatath_cape_orm.dds",
+        "emissive": "xalatath_cape_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 26,
+      "name": "human_captain_rig:main_geo",
+      "material_id": 23,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "xalatath_cape_diffuse.dds",
+        "normal": "xalatath_cape_normal.dds",
+        "orm": "xalatath_cape_orm.dds",
+        "emissive": "xalatath_cape_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "xalatath_cape_diffuse.dds",
+        "normal": "xalatath_cape_normal.dds",
+        "orm": "xalatath_cape_orm.dds",
+        "emissive": "xalatath_cape_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 27,
+      "name": "neutral_shrineOfAzshara_rig:main_geo",
+      "material_id": 24,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": null,
+        "normal": "neutral_shrineofazshara_normal.dds",
+        "orm": "neutral_shrineofazshara_orm.dds",
+        "emissive": "xalatath_ball_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Textures/Black32.blp",
+        "normal": "Buildings/Naga/ShrineOfAshjara/Neutral_ShrineOfAzshara_Normal.tif",
+        "orm": "Buildings/Naga/ShrineOfAshjara/Neutral_ShrineOfAzshara_ORM.tif",
+        "emissive": "xalatath_ball_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Attack Spell 1": false,
+        "Walk 1": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Death 1": false,
+        "Stand Channel 1": false,
+        "Stand Ready 1": false,
+        "Dissipate": false
+      }
+    }
+  ]
+}

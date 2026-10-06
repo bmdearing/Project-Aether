@@ -1,0 +1,454 @@
+{
+  "source": "POTDV2.mdx",
+  "version": 1000,
+  "scale": 0.013,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6896980934143067,
+      -0.25919337654113767,
+      -1.0166441955566405
+    ],
+    "max": [
+      0.1481584005355835,
+      1.9395870666503905,
+      1.0166441955566405
+    ],
+    "height": 2.198780443191528
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 1167,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 1200,
+      "end": 3200,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 3233,
+      "end": 4833,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 5",
+      "start": 134000,
+      "end": 137800,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 4867,
+      "end": 7333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 7367,
+      "end": 8500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 8533,
+      "end": 9533,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 9567,
+      "end": 10400,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 10433,
+      "end": 11567,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Slam 1",
+      "start": 11600,
+      "end": 12733,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 12767,
+      "end": 13900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 4",
+      "start": 134000,
+      "end": 137800,
+      "move_speed": 0,
+      "duplicate_of": "Stand 5"
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 137833,
+      "end": 138833,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 139133,
+      "end": 141633,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DemonessBlue_rig:wings_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "queenofsuffering_wings_diffuse.dds",
+        "normal": "queenofsuffering_wings_normal.dds",
+        "orm": "queenofsuffering_wings_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Demon/QueenOfSuffering/QueenOfSuffering_Wings_Diffuse.tif",
+        "normal": "Units/Demon/QueenOfSuffering/QueenOfSuffering_Wings_Normal.tif",
+        "orm": "Units/Demon/QueenOfSuffering/QueenOfSuffering_Wings_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 5": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Spell Slam 1": true,
+        "Spell 1": true,
+        "Stand 4": true,
+        "Stand Channel 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DemonessBlue_rig:wings_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "queenofsuffering_wings_diffuse.dds",
+        "normal": "queenofsuffering_wings_normal.dds",
+        "orm": "queenofsuffering_wings_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Demon/QueenOfSuffering/QueenOfSuffering_Wings_Diffuse.tif",
+        "normal": "Units/Demon/QueenOfSuffering/QueenOfSuffering_Wings_Normal.tif",
+        "orm": "Units/Demon/QueenOfSuffering/QueenOfSuffering_Wings_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 5": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Spell Slam 1": true,
+        "Spell 1": true,
+        "Stand 4": true,
+        "Stand Channel 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DemonessBlue_rig:main_geo",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "PODMD2.dds",
+        "normal": "queenofsuffering_main_normal.dds",
+        "orm": "queenofsuffering_main_orm.dds",
+        "emissive": "PODMO.dds"
+      },
+      "sources": {
+        "diffuse": "PODMD2.dds",
+        "normal": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_Normal.tif",
+        "orm": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_ORM.tif",
+        "emissive": "PODMO.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 5": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Spell Slam 1": true,
+        "Spell 1": true,
+        "Stand 4": true,
+        "Stand Channel 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DemonessBlue_rig:main_geo",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "PODMD2.dds",
+        "normal": "queenofsuffering_main_normal.dds",
+        "orm": "queenofsuffering_main_orm.dds",
+        "emissive": "PODMO.dds"
+      },
+      "sources": {
+        "diffuse": "PODMD2.dds",
+        "normal": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_Normal.tif",
+        "orm": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_ORM.tif",
+        "emissive": "PODMO.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 5": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Spell Slam 1": true,
+        "Spell 1": true,
+        "Stand 4": true,
+        "Stand Channel 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "human_captain_rig:pauldron_geo",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_captain_main_diffuse.dds",
+        "normal": "human_captain_main_normal.dds",
+        "orm": "human_captain_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/TheCaptain/Human_Captain_Main_Diffuse.tif",
+        "normal": "Units/Human/TheCaptain/Human_Captain_Main_Normal.tif",
+        "orm": "Units/Human/TheCaptain/Human_Captain_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 5": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Spell Slam 1": true,
+        "Spell 1": true,
+        "Stand 4": true,
+        "Stand Channel 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "human_HalahkTheLifebringer_rig:main_geo",
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "human_halahkthelifebringer_main_normal.dds",
+        "orm": "human_halahkthelifebringer_main_orm.dds",
+        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 5": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Spell Slam 1": true,
+        "Spell 1": true,
+        "Stand 4": true,
+        "Stand Channel 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "human_HalahkTheLifebringer_rig:weapon_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_halahkthelifebringer_weapon_diffuse.dds",
+        "normal": "human_halahkthelifebringer_weapon_normal.dds",
+        "orm": "human_halahkthelifebringer_weapon_orm.dds",
+        "emissive": "human_halahkthelifebringer_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Weapon_Diffuse.tif",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Weapon_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Weapon_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 5": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Spell Slam 1": true,
+        "Spell 1": true,
+        "Stand 4": true,
+        "Stand Channel 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "human_DagrenOrcslayer_rig:main_geo",
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_dagrenorcslayer_main_diffuse.dds",
+        "normal": "human_dagrenorcslayer_main_normal.dds",
+        "orm": "human_dagrenorcslayer_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroDagren/Human_DagrenOrcslayer_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroDagren/Human_DagrenOrcslayer_Main_Normal.tif",
+        "orm": "Units/Human/HeroDagren/Human_DagrenOrcslayer_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 5": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Spell Slam 1": true,
+        "Spell 1": true,
+        "Stand 4": true,
+        "Stand Channel 1": true,
+        "Dissipate": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "weapon_geo",
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "felguard_weapon_diffuse.dds",
+        "normal": "felguard_weapon_normal.dds",
+        "orm": "felguard_weapon_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Demon/Felgaurd/Felguard_Weapon_Diffuse.tif",
+        "normal": "Units/Demon/Felgaurd/Felguard_Weapon_Normal.tif",
+        "orm": "Units/Demon/Felgaurd/Felguard_Weapon_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand 5": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Spell Slam 1": true,
+        "Spell 1": true,
+        "Stand 4": true,
+        "Stand Channel 1": true,
+        "Dissipate": true
+      }
+    }
+  ]
+}

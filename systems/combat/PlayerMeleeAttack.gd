@@ -1,8 +1,8 @@
 extends Node
 class_name PlayerMeleeAttack
 ## Player-driven melee attack: Idle -> Windup -> Strike -> Recovery.
-## Hit detection is a real Area3D (Player.attack_hitbox, sweeps with the
-## blade mesh) - body_entered against the "enemy" group. Swing is a
+## Hit detection sweeps a per-weapon arc in front of the camera every
+## Strike frame (SWING_SHAPES) and can hit several enemies per swing. Swing is a
 ## procedural Tween driving PlayerArmRig's bone poses (see _play_swing());
 ## camera shake is a separate procedural Tween on camera.position. Neither
 ## is baked Animation data. try_charged_thrust() (driven by WeaponStance's
@@ -188,8 +188,34 @@ var _state: State = State.IDLE
 var _timer: float = 0.0
 var _player: Player
 var _hitbox: Area3D
-var _resolved_this_swing: bool = false
 var _attack_type: AttackType = AttackType.THRUST
+## instance id -> true for every enemy this swing already hit.
+var _hit_this_swing: Dictionary = {}
+
+## Swing hit volume per weapon family: reach (m from the camera), half-angle
+## of the horizontal arc, damage share for every target after the first, and
+## a target cap. Thrusts reach far in a narrow line; heavy weapons cleave.
+const SWING_SHAPES := {
+	"thrust": {"reach": 3.2, "half_angle": 18.0, "splash": 0.5, "max_targets": 3},
+	"slash": {"reach": 2.7, "half_angle": 50.0, "splash": 0.6, "max_targets": 4},
+	"heavy": {"reach": 3.2, "half_angle": 70.0, "splash": 0.75, "max_targets": 6},
+	"whip": {"reach": 4.2, "half_angle": 30.0, "splash": 0.5, "max_targets": 3},
+	"fist": {"reach": 2.1, "half_angle": 30.0, "splash": 0.4, "max_targets": 2},
+}
+const WEAPON_SWING_FAMILY := {
+	"Dagger": "thrust", "Rapier": "thrust", "Spear": "thrust", "Shock Lance": "thrust",
+	"Shortsword": "slash", "Saber": "slash", "Cutlass": "slash",
+	"Claymore": "heavy", "Greatsword": "heavy", "Halberd": "heavy", "Mace": "heavy", "War Pick": "heavy", "Staff": "heavy",
+	"Whip": "whip",
+	"Pressure Fist": "fist", "Gauntlet": "fist",
+}
+const DEFAULT_SWING_FAMILY := "slash"
+const CHARGED_REACH_BONUS := 0.6
+const CHARGED_ANGLE_BONUS := 15.0
+const CHARGED_SPLASH := 1.0
+const SWING_VERTICAL_HALF_ANGLE := 50.0
+const ENEMY_BODY_RADIUS := 0.5
+const ENEMY_AIM_HEIGHT := 1.0
 
 func _ready() -> void:
 	_player = get_parent()
@@ -249,13 +275,14 @@ func try_charged_thrust() -> void:
 	_attack_type = AttackType.CHARGED
 	_enter_windup()
 
+## The blade's own Area3D is only used for the headshot check now; swing
+## hits come from _sweep_strike().
 func _ensure_hitbox_connected() -> void:
 	if _hitbox != null:
 		return
 	_hitbox = _player.attack_hitbox
 	if _hitbox:
 		_hitbox.monitoring = false
-		_hitbox.body_entered.connect(_on_hitbox_body_entered)
 
 func get_special_pose_set() -> PlayerArmRig.PoseSet:
 	var weapon := _player.get_active_weapon()
@@ -272,6 +299,7 @@ func _physics_process(delta: float) -> void:
 				_enter_strike()
 		State.STRIKE:
 			_timer -= delta
+			_sweep_strike()
 			if _timer <= 0.0:
 				_end_strike()
 		State.RECOVERY:
@@ -329,7 +357,7 @@ func _play_swing_sound() -> void:
 func _enter_strike() -> void:
 	_state = State.STRIKE
 	_timer = _effective_duration(strike_duration)
-	_resolved_this_swing = false
+	_hit_this_swing = {}
 	if _hitbox:
 		_hitbox.monitoring = true
 
@@ -378,16 +406,61 @@ func _play_swing() -> void:
 		intensity
 	)
 
-func _on_hitbox_body_entered(body: Node3D) -> void:
-	if _state != State.STRIKE or _resolved_this_swing:
+func get_swing_shape() -> Dictionary:
+	var weapon := _player.get_active_weapon()
+	var family: String = WEAPON_SWING_FAMILY.get(weapon.weapon_type, DEFAULT_SWING_FAMILY) if weapon else DEFAULT_SWING_FAMILY
+	var shape: Dictionary = SWING_SHAPES[family].duplicate()
+	if _attack_type == AttackType.CHARGED:
+		shape["reach"] += CHARGED_REACH_BONUS
+		shape["half_angle"] += CHARGED_ANGLE_BONUS
+		shape["splash"] = CHARGED_SPLASH
+		shape["max_targets"] += 2
+	return shape
+
+## Every physics frame of Strike: enemies inside the weapon's arc, in clear
+## line of sight, not yet hit this swing. The one nearest the crosshair is
+## the primary target; the rest take the splash share.
+func _sweep_strike() -> void:
+	var shape := get_swing_shape()
+	if _hit_this_swing.size() >= int(shape["max_targets"]):
 		return
-	var enemy := body as Enemy
-	if enemy == null:
-		return
-	_resolved_this_swing = true
-	if _hitbox:
-		_hitbox.set_deferred("monitoring", false)  # can't set monitoring synchronously from inside body_entered
-	_deal_damage(enemy)
+	var origin := _player.camera.global_position
+	var forward := -_player.camera.global_transform.basis.z
+	var flat_forward := Vector3(forward.x, 0.0, forward.z).normalized()
+	var candidates: Array = []
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy == null or _hit_this_swing.has(enemy.get_instance_id()) or not enemy.health.is_alive():
+			continue
+		var aim_point := enemy.global_position + Vector3(0, ENEMY_AIM_HEIGHT, 0)
+		var to_enemy := aim_point - origin
+		var flat := Vector3(to_enemy.x, 0.0, to_enemy.z)
+		if flat.length() - ENEMY_BODY_RADIUS > float(shape["reach"]):
+			continue
+		var yaw_angle := rad_to_deg(flat_forward.angle_to(flat.normalized())) if flat.length() > 0.05 else 0.0
+		# Up close the body fills more of the view, so widen the arc by its radius.
+		var radius_slack := rad_to_deg(atan2(ENEMY_BODY_RADIUS, maxf(flat.length(), 0.1)))
+		if yaw_angle > float(shape["half_angle"]) + radius_slack:
+			continue
+		var pitch := rad_to_deg(atan2(to_enemy.y, maxf(flat.length(), 0.1)))
+		if absf(pitch) > SWING_VERTICAL_HALF_ANGLE + radius_slack:
+			continue
+		if not _has_line_of_sight(origin, aim_point, enemy):
+			continue
+		candidates.append({"enemy": enemy, "angle": yaw_angle})
+	candidates.sort_custom(func(a, b): return a["angle"] < b["angle"])
+	for entry in candidates:
+		if _hit_this_swing.size() >= int(shape["max_targets"]):
+			break
+		var is_primary := _hit_this_swing.is_empty()
+		_hit_this_swing[entry["enemy"].get_instance_id()] = true
+		_deal_damage(entry["enemy"], 1.0 if is_primary else float(shape["splash"]), is_primary)
+
+func _has_line_of_sight(from: Vector3, to: Vector3, target: Enemy) -> bool:
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.exclude = [_player.get_rid(), target.get_rid()]
+	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
+	return hit.is_empty() or not (hit["collider"] is StaticBody3D)
 
 func _effective_motion_value(weapon: Weapon) -> float:
 	return WEAPON_TYPE_MOTION_VALUE.get(weapon.weapon_type, base_motion_value)
@@ -404,7 +477,7 @@ func _attack_type_motion_multiplier() -> float:
 		_:
 			return THRUST_MOTION_VALUE_MULTIPLIER
 
-func _deal_damage(target: Enemy) -> void:
+func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = true) -> void:
 	var weapon: Weapon = _player.get_active_weapon()
 	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
 	var motion_value := _effective_motion_value(weapon) * _attack_type_motion_multiplier()
@@ -412,7 +485,7 @@ func _deal_damage(target: Enemy) -> void:
 	# A melee hit on an already-broken enemy is a Riposte, not a normal
 	# swing - big bonus damage + a moment of player invulnerability,
 	# handled entirely by ParryRiposteHandler.
-	if _player.parry_handler and _player.parry_handler.can_riposte(target):
+	if is_primary and _player.parry_handler and _player.parry_handler.can_riposte(target):
 		var riposte_is_critical_spot := target.is_critical_spot_hit(_hitbox)
 		_player.parry_handler.execute_riposte(target, weapon, motion_value, damage_type)
 		_trigger_hit_feedback(true)
@@ -420,7 +493,7 @@ func _deal_damage(target: Enemy) -> void:
 		return
 
 	var hit := weapon.roll_damage(motion_value, _player.stat_sheet)
-	var final_damage: float = hit["final_damage"]
+	var final_damage: float = hit["final_damage"] * damage_scale
 	var is_critical: bool = hit["is_critical"]
 
 	# Implementation Brief v3.4 Section 3 - the weapon's own hitbox is
@@ -428,7 +501,7 @@ func _deal_damage(target: Enemy) -> void:
 	# against the target's HeadZone for overlap - see Enemy.
 	# is_critical_spot_hit()'s own header for why this replaces the
 	# brief's hit_position-based check.
-	var is_critical_spot := target.is_critical_spot_hit(_hitbox)
+	var is_critical_spot := is_primary and target.is_critical_spot_hit(_hitbox)
 	if is_critical_spot:
 		final_damage *= target.critical_spot_multiplier
 
@@ -453,7 +526,8 @@ func _deal_damage(target: Enemy) -> void:
 		EventBus.counter_hit.emit(_player, target)
 	_apply_water_slices(weapon, target, final_damage)
 
-	_trigger_hit_feedback(false)
+	if is_primary:
+		_trigger_hit_feedback(false)
 
 ## Implementation Brief v3.4 Section 6's one fully-specified stance
 ## behavior (exact formula given, unlike every other stance in this

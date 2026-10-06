@@ -38,7 +38,10 @@ var _inside: Array[Enemy] = []
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 @onready var area: Area3D = $Area3D
 
+var _duration: float = DURATION
+
 func play(radius: float, color: Color, ability: Ability, stat_sheet: StatSheet, source: Node, caster_position: Vector3) -> void:
+	_duration = DURATION * ability.get_duration_multiplier(stat_sheet)
 	_half_width = max(radius, 1.5)
 	_ability = ability
 	_stat_sheet = stat_sheet
@@ -85,7 +88,7 @@ func _on_body_exited(body: Node3D) -> void:
 
 func _physics_process(delta: float) -> void:
 	_elapsed += delta
-	if _elapsed >= DURATION:
+	if _elapsed >= _duration:
 		queue_free()
 		return
 	_ticker -= delta

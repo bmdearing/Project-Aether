@@ -13,6 +13,8 @@ const PROJECTILE_SCENE := preload("res://entities/projectile/Projectile.tscn")
 enum State { IDLE, WINDUP, COOLDOWN }
 
 @export var fire_range: float = 9.0
+## Holds fire while the player is closer than this (leaves close range to a melee attack).
+@export var min_range: float = 0.0
 @export var windup_duration: float = 0.5
 @export var cooldown_duration: float = 1.3
 @export var damage_amount: float = 18.0
@@ -44,7 +46,8 @@ func _physics_process(delta: float) -> void:
 
 	match _state:
 		State.IDLE:
-			if _enemy.global_position.distance_to(_player.global_position) <= fire_range:
+			var dist := _enemy.global_position.distance_to(_player.global_position)
+			if dist <= fire_range and dist >= min_range and not _sibling_attacking():
 				_enter_windup()
 		State.WINDUP:
 			_timer -= delta
@@ -54,6 +57,10 @@ func _physics_process(delta: float) -> void:
 			_timer -= delta
 			if _timer <= 0.0:
 				_state = State.IDLE
+
+func _sibling_attacking() -> bool:
+	var melee := _enemy.get_node_or_null("MeleeAttack") as EnemyMeleeAttack
+	return melee != null and melee.is_attacking()
 
 func _enter_windup() -> void:
 	_state = State.WINDUP

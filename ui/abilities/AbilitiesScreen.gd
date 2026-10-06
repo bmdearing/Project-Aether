@@ -2,7 +2,7 @@ extends CanvasLayer
 class_name AbilitiesScreen
 ## Ability equip/upgrade menu - opens via the `open_abilities` hotkey (N),
 ## hotkey-only like Inventory (B)/Fate Board (P). List-based, not a grid
-## like InventoryScreen - each ability needs an Upgrade button and rank
+## like InventoryScreen - each ability needs a Level Up button and level
 ## readout alongside it.
 ##
 ## "Owned" abilities are directory-scanned from data/abilities/instances/,
@@ -11,9 +11,8 @@ class_name AbilitiesScreen
 ## since ownership can change mid-session. Clicking an owned ability
 ## equips it into the first open slot.
 ##
-## Upgrading costs Gold, scaling per rank (Ability.get_upgrade_cost()) and
-## rank-capped at Ability.MAX_RANK - the button also disables when the
-## player can't afford the next rank, not just when maxed.
+## Leveling a spell costs Gold + Crystallized Aether (Ability.
+## get_upgrade_gold_cost()/get_upgrade_aether_cost()), up to Ability.MAX_LEVEL.
 
 const ABILITY_INSTANCE_DIR := "res://data/abilities/instances/"
 
@@ -24,9 +23,10 @@ const ABILITY_INSTANCE_DIR := "res://data/abilities/instances/"
 var _is_open: bool = false
 var _ability_loadout: AbilityLoadoutComponent
 var _owned_abilities: Array[Ability] = []
-var _rank_labels: Array[Label] = []
+var _level_labels: Array[Label] = []
 var _upgrade_buttons: Array[Button] = []
 var _equipped_buttons: Array[ItemSlotButton] = []
+var _aether_label: Label
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -35,6 +35,9 @@ func _ready() -> void:
 	add_to_group("blocking_menu")
 	close_button.pressed.connect(close)
 	_build_equipped_row()
+	_aether_label = Label.new()
+	equipped_row.get_parent().add_child(_aether_label)
+	equipped_row.get_parent().move_child(_aether_label, equipped_row.get_index() + 1)
 
 func is_open() -> bool:
 	return _is_open
@@ -82,7 +85,7 @@ func _scan_owned_abilities() -> void:
 func _build_owned_list() -> void:
 	for child in owned_list.get_children():
 		child.queue_free()
-	_rank_labels = []
+	_level_labels = []
 	_upgrade_buttons = []
 	_scan_owned_abilities()
 	for ability in _owned_abilities:
@@ -108,10 +111,10 @@ func _build_owned_list() -> void:
 		icon.pressed.connect(_on_owned_ability_pressed.bind(ability))
 		row.add_child(icon)
 
-		var rank_label := Label.new()
-		rank_label.custom_minimum_size = Vector2(70, 0)
-		row.add_child(rank_label)
-		_rank_labels.append(rank_label)
+		var level_label := Label.new()
+		level_label.custom_minimum_size = Vector2(90, 0)
+		row.add_child(level_label)
+		_level_labels.append(level_label)
 
 		var upgrade_button := Button.new()
 		upgrade_button.pressed.connect(_on_upgrade_pressed.bind(ability))
@@ -135,13 +138,17 @@ func _on_owned_ability_pressed(ability: Ability) -> void:
 		_ability_loadout.equip_first_open(ability)
 		GameState.sync_ability_loadout(_ability_loadout)
 
+func _can_afford(ability: Ability) -> bool:
+	return GameState.gold >= ability.get_upgrade_gold_cost() 		and GameState.inventory.count_of(Ability.AETHER_CURRENCY) >= ability.get_upgrade_aether_cost()
+
 func _on_upgrade_pressed(ability: Ability) -> void:
-	if ability.can_upgrade() and GameState.gold >= ability.get_upgrade_cost():
-		GameState.gold -= ability.get_upgrade_cost()
-		ability.rank += 1
-		GameState.ability_ranks[ability.ability_id] = ability.rank
+	if ability.can_upgrade() and _can_afford(ability):
+		GameState.gold -= ability.get_upgrade_gold_cost()
+		GameState.inventory.remove_currency(Ability.AETHER_CURRENCY, ability.get_upgrade_aether_cost())
+		ability.level += 1
+		GameState.ability_levels[ability.ability_id] = ability.level
 	_refresh_owned_list()
-	_refresh_equipped_row()  # equipped copies share the Resource, but the bar's readouts depend on rank too
+	_refresh_equipped_row()  # equipped copies share the Resource, but the bar's readouts depend on level too
 
 func _on_equipped_slot_pressed(slot_index: int) -> void:
 	if _ability_loadout:
@@ -151,14 +158,16 @@ func _on_equipped_slot_pressed(slot_index: int) -> void:
 func _refresh_owned_list() -> void:
 	for i in range(_owned_abilities.size()):
 		var ability := _owned_abilities[i]
-		_rank_labels[i].text = "Rank %d/%d" % [ability.rank, Ability.MAX_RANK]
+		_level_labels[i].text = "Level %d/%d" % [ability.level, Ability.MAX_LEVEL]
 		var button := _upgrade_buttons[i]
 		if ability.can_upgrade():
-			button.text = "Upgrade (%d Gold)" % ability.get_upgrade_cost()
-			button.disabled = GameState.gold < ability.get_upgrade_cost()
+			button.text = "Level Up (%d Gold, %d %s)" % [ability.get_upgrade_gold_cost(), ability.get_upgrade_aether_cost(), CurrencyText.name_of(Ability.AETHER_CURRENCY)]
+			button.disabled = not _can_afford(ability)
 		else:
-			button.text = "Max Rank"
+			button.text = "Max Level"
 			button.disabled = true
+	if _aether_label:
+		_aether_label.text = "Gold: %d    %s: %d" % [GameState.gold, CurrencyText.name_of(Ability.AETHER_CURRENCY), GameState.inventory.count_of(Ability.AETHER_CURRENCY)]
 
 func _refresh_equipped_row() -> void:
 	if _ability_loadout == null:

@@ -15,6 +15,11 @@ class_name AnimationSet
 ## Point in attack_light (0-1) where the blow lands; EnemyAnimationController
 ## times the clip so this frame meets the end of the wind-up.
 @export_range(0.05, 0.95) var attack_hit_fraction: float = 0.45
+## Ground speed (m/s at scale 1) the walk/run clips are authored for, so
+## playback can be matched to actual movement. 0 = take it from the model
+## (MdxModel.clip_move_speeds); still 0 there = play at 1x.
+@export var walk_clip_speed: float = 0.0
+@export var run_clip_speed: float = 0.0
 @export var hit_reaction: String = "Hit_Chest"
 @export var stagger: String = "Hit_Head"
 @export var death: String = "Death01"

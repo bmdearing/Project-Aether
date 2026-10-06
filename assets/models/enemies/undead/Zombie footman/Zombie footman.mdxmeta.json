@@ -1,0 +1,951 @@
+{
+  "source": "Zombie footman.mdx",
+  "version": 1000,
+  "scale": 0.017,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.401806287765503,
+      -0.014813799977302552,
+      -0.8321601943969728
+    ],
+    "max": [
+      0.2931567134857178,
+      1.8811178588867188,
+      0.8321601943969728
+    ],
+    "height": 1.8959316588640214
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 1500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 1533,
+      "end": 2167,
+      "move_speed": 4.590000000000001,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 2200,
+      "end": 5467,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 5500,
+      "end": 6500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 6533,
+      "end": 8033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 8067,
+      "end": 10400,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 10433,
+      "end": 70433,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Bone",
+      "start": 70467,
+      "end": 130467,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Morph",
+      "start": 130500,
+      "end": 131933,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 131967,
+      "end": 133467,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "undead_zombie:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_main_diffuse.dds",
+        "normal": "undead_zombie_main_normal.dds",
+        "orm": "undead_zombie_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Main_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Main_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "undead_zombie:main_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_main_diffuse.dds",
+        "normal": "undead_zombie_main_normal.dds",
+        "orm": "undead_zombie_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Main_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Main_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "undead_zombie:organs_geo",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_male_corpse_diffuse.dds",
+        "normal": "undead_male_corpse_normal.dds",
+        "orm": "undead_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Male_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand 2": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Birth": false,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "undead_zombie:skeleton_geo",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_male_corpse_diffuse.dds",
+        "normal": "undead_male_corpse_normal.dds",
+        "orm": "undead_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Male_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand 2": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Birth": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "undead_zombiemain_geo_LOD1",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_main_diffuse.dds",
+        "normal": "undead_zombie_main_normal.dds",
+        "orm": "undead_zombie_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Main_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Main_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "undead_zombiemain_geo_LOD1",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_main_diffuse.dds",
+        "normal": "undead_zombie_main_normal.dds",
+        "orm": "undead_zombie_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Main_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Main_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "undead_zombiemain_geo_LOD2",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_main_diffuse.dds",
+        "normal": "undead_zombie_main_normal.dds",
+        "orm": "undead_zombie_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Main_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Main_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "undead_zombiemain_geo_LOD2",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_main_diffuse.dds",
+        "normal": "undead_zombie_main_normal.dds",
+        "orm": "undead_zombie_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Main_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Main_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "undead_zombiemain_geo_LOD3",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_main_diffuse.dds",
+        "normal": "undead_zombie_main_normal.dds",
+        "orm": "undead_zombie_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Main_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Main_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "undead_zombiemain_geo_LOD3",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_main_diffuse.dds",
+        "normal": "undead_zombie_main_normal.dds",
+        "orm": "undead_zombie_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Main_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Main_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "undead_zombiehair_geo_LOD1",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_hair_diffuse.dds",
+        "normal": "undead_zombie_hair_normal.dds",
+        "orm": "undead_zombie_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Hair_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Hair_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "undead_zombiehair_geo_LOD2",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_hair_diffuse.dds",
+        "normal": "undead_zombie_hair_normal.dds",
+        "orm": "undead_zombie_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Hair_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Hair_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "undead_zombiehair_geo_LOD3",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_zombie_hair_diffuse.dds",
+        "normal": "undead_zombie_hair_normal.dds",
+        "orm": "undead_zombie_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Zombie/Undead_Zombie_Hair_Diffuse.tif",
+        "normal": "Units/Creeps/Zombie/Undead_Zombie_Hair_Normal.tif",
+        "orm": "Units/Creeps/Zombie/Undead_Zombie_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "undead_zombieorgans_geo_LOD1",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_male_corpse_diffuse.dds",
+        "normal": "undead_male_corpse_normal.dds",
+        "orm": "undead_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Male_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand 2": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Birth": false,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 14,
+      "name": "undead_zombieorgans_geo_LOD2",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_male_corpse_diffuse.dds",
+        "normal": "undead_male_corpse_normal.dds",
+        "orm": "undead_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Male_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand 2": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Birth": false,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 15,
+      "name": "undead_zombieorgans_geo_LOD3",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_male_corpse_diffuse.dds",
+        "normal": "undead_male_corpse_normal.dds",
+        "orm": "undead_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Male_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand 2": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Birth": false,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 16,
+      "name": "undead_zombieskeleton_geo_LOD1",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_male_corpse_diffuse.dds",
+        "normal": "undead_male_corpse_normal.dds",
+        "orm": "undead_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Male_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand 2": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Birth": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 17,
+      "name": "undead_zombieskeleton_geo_LOD2",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_male_corpse_diffuse.dds",
+        "normal": "undead_male_corpse_normal.dds",
+        "orm": "undead_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Male_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand 2": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Birth": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 18,
+      "name": "undead_zombieskeleton_geo_LOD3",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_male_corpse_diffuse.dds",
+        "normal": "undead_male_corpse_normal.dds",
+        "orm": "undead_male_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Male_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Male_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Male_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand 2": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Birth": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": false,
+        "Stand Ready 1": false
+      }
+    },
+    {
+      "index": 19,
+      "name": "footman:main_geo",
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_main_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Main_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "footman:hair_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_hair_diffuse.dds",
+        "normal": "human_footman_hair_normal.dds",
+        "orm": "human_footman_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Hair_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Hair_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "footman:helmet_geo",
+      "material_id": 7,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_helmet_diffuse.dds",
+        "normal": "human_footman_helmet_normal.dds",
+        "orm": "human_footman_helmet_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Helmet_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Helmet_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Helmet_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "footman:pauldron_geo",
+      "material_id": 8,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_pauldron_diffuse.dds",
+        "normal": "human_footman_pauldron_normal.dds",
+        "orm": "human_footman_pauldron_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Pauldron_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Pauldron_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Pauldron_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 23,
+      "name": "footman:sword_geo",
+      "material_id": 9,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_sword_diffuse.dds",
+        "normal": "human_footman_sword_normal.dds",
+        "orm": "human_footman_sword_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Sword_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Sword_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Sword_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 24,
+      "name": "footman:shield_geo",
+      "material_id": 10,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_shield_diffuse.dds",
+        "normal": "human_footman_shield_normal.dds",
+        "orm": "human_footman_shield_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Shield_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Shield_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Shield_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    },
+    {
+      "index": 25,
+      "name": "footman:main_geo",
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_main_diffuse.dds",
+        "normal": "human_footman_main_normal.dds",
+        "orm": "human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Main_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand 2": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": true,
+        "Stand Ready 1": true
+      }
+    }
+  ]
+}

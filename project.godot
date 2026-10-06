@@ -29,6 +29,7 @@ GameState="*res://autoloads/GameState.gd"
 SaveManager="*res://autoloads/SaveManager.gd"
 AudioManager="*res://systems/audio/AudioManager.gd"
 SoundLib="*res://systems/audio/SoundLib.gd"
+KillBox="*res://autoloads/KillBox.gd"
 
 [display]
 

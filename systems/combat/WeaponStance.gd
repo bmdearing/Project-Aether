@@ -72,7 +72,6 @@ var current_behavior: StanceBehavior = null
 
 var _player: Player
 var _mode: Mode = Mode.NONE
-var _base_fov: float = 80.0
 var _fov_tween: Tween
 ## weapon_type -> StanceBehavior, lazily scanned once from
 ## STANCE_INSTANCES_DIR - same dir-scan-and-cache convention as
@@ -81,8 +80,6 @@ var _behavior_by_weapon_type: Dictionary = {}
 
 func _ready() -> void:
 	_player = get_parent()
-	if _player.camera:
-		_base_fov = _player.camera.fov
 
 ## User request (2026-08-31): "Apply movement speed penalty while active
 ## (read from StanceBehavior resource)." Consumed by Player._effective_
@@ -171,7 +168,7 @@ func _exit_stance() -> void:
 	current_behavior = null
 	stance_exited.emit()
 	if _mode == Mode.RANGED:
-		_tween_fov(_base_fov)
+		_tween_fov(GameState.field_of_view)
 	elif _mode == Mode.MELEE and _player.melee_attack.is_idle() and _player.arm_rig:
 		# Only reset the pose if no swing is in progress - a special attack
 		# already owns the arm rig's tween via its own windup/strike/

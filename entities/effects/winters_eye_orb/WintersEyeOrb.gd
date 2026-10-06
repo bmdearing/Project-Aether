@@ -83,7 +83,7 @@ func _detonate() -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if global_position.distance_to(enemy.global_position) > _ability.radius:
+		if global_position.distance_to(enemy.global_position) > _ability.get_radius(_stat_sheet):
 			continue
 		var hit := _ability.roll_damage(_stat_sheet)
 		var damage: float = hit["final_damage"]

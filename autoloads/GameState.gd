@@ -40,6 +40,8 @@ var game_started: bool = false
 var mouse_sensitivity: float = 0.0035
 var master_volume: float = 1.0
 var fullscreen: bool = false
+var field_of_view: float = 80.0
+var vsync: bool = true
 
 ## Each entry is a resource_path String or a Dictionary
 ## (ItemSerializer.to_dict(), for rolled items with no path). Written by
@@ -72,7 +74,7 @@ var active_weapon_set: int = 0
 var ability_loadout_paths: Array[String] = DEFAULT_ABILITY_LOADOUT_PATHS.duplicate()
 
 ## ability_id -> rank, for every ability ever upgraded.
-var ability_ranks: Dictionary = {}
+var ability_levels: Dictionary = {}
 
 var player_level: int = 1
 var player_xp: float = 0.0
@@ -173,9 +175,9 @@ func reset_to_defaults() -> void:
 	weapon_set_refs = [DEFAULT_WEAPON_SET_0_PATHS.duplicate(), []]
 	active_weapon_set = 0
 	ability_loadout_paths = DEFAULT_ABILITY_LOADOUT_PATHS.duplicate()
-	ability_ranks = {}
+	ability_levels = {}
 	owned_ability_ids = []
-	_reset_all_ability_ranks()
+	_reset_all_ability_levels()
 	player_level = 1
 	player_xp = 0.0
 	fate_board_placements = []
@@ -200,8 +202,8 @@ func initialize_standalone() -> void:
 	game_started = true
 
 ## Scans the whole instances directory (not a fixed list) since a Tome-
-## found ability from a previous session still needs its rank reset.
-func _reset_all_ability_ranks() -> void:
+## found ability from a previous session still needs its level reset.
+func _reset_all_ability_levels() -> void:
 	var dir_path := "res://data/abilities/instances/"
 	var dir := DirAccess.open(dir_path)
 	if dir == null:
@@ -212,7 +214,7 @@ func _reset_all_ability_ranks() -> void:
 		if file_name.ends_with(".tres"):
 			var ability: Ability = load(dir_path + file_name) as Ability
 			if ability:
-				ability.rank = 0
+				ability.level = 1
 		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 

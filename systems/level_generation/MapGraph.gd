@@ -28,15 +28,46 @@ class RoomData:
 var rooms: Dictionary = {}  # Vector2i -> RoomData
 var start_cell: Vector2i
 var vault_cell: Vector2i
+var grid_size: int = GRID_SIZE
+var branch_stop_chance: float = BRANCH_STOP_CHANCE
 
-static func generate(room_count: int = -1) -> MapGraph:
+static func generate(room_count: int = -1, size: int = GRID_SIZE, count_range: Vector2i = Vector2i(ROOM_COUNT_MIN, ROOM_COUNT_MAX), branch_stop: float = BRANCH_STOP_CHANCE) -> MapGraph:
 	var graph := MapGraph.new()
+	graph.grid_size = size
+	graph.branch_stop_chance = branch_stop
 	if room_count <= 0:
-		room_count = randi_range(ROOM_COUNT_MIN, ROOM_COUNT_MAX)
-	room_count = min(room_count, GRID_SIZE * GRID_SIZE)
-	graph.start_cell = Vector2i(GRID_SIZE / 2, GRID_SIZE / 2)
+		room_count = randi_range(count_range.x, count_range.y)
+	room_count = min(room_count, size * size)
+	graph.start_cell = Vector2i(size / 2, size / 2)
 	graph._carve(room_count)
 	graph._assign_special_rooms()
+	return graph
+
+## Every cell of a size x size grid, each joined to all its neighbours - one
+## open area. Start is the middle of a random edge, so the far side is the Vault.
+static func generate_full_grid(size: int) -> MapGraph:
+	var graph := MapGraph.new()
+	graph.grid_size = size
+	for x in size:
+		for y in size:
+			var room := RoomData.new()
+			room.cell = Vector2i(x, y)
+			graph.rooms[room.cell] = room
+	for cell in graph.rooms:
+		for dir in [Vector2i.RIGHT, Vector2i.DOWN]:
+			var n: Vector2i = cell + dir
+			if graph.rooms.has(n):
+				graph.rooms[cell].connections.append(n)
+				graph.rooms[n].connections.append(cell)
+	var edges := [Vector2i(size / 2, 0), Vector2i(size / 2, size - 1), Vector2i(0, size / 2), Vector2i(size - 1, size / 2)]
+	graph.start_cell = edges[randi() % edges.size()]
+	graph.rooms[graph.start_cell].is_start = true
+	# Grid distance from the start (BFS == Manhattan here).
+	for cell in graph.rooms:
+		var d: Vector2i = cell - graph.start_cell
+		graph.rooms[cell].distance_from_start = absi(d.x) + absi(d.y)
+	graph._assign_special_rooms()
+	graph.rooms[graph.vault_cell].has_jump_platform = false
 	return graph
 
 ## Named has_connection(), not is_connected() - Object already declares a
@@ -81,14 +112,14 @@ func _carve(room_count: int) -> void:
 		room.connections.append(current)
 		frontier.append(next)
 
-		if randf() < BRANCH_STOP_CHANCE:
+		if randf() < branch_stop_chance:
 			frontier.remove_at(idx)
 
 func _unvisited_neighbors(cell: Vector2i) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	for dir in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
 		var n: Vector2i = cell + dir
-		if n.x >= 0 and n.x < GRID_SIZE and n.y >= 0 and n.y < GRID_SIZE and not rooms.has(n):
+		if n.x >= 0 and n.x < grid_size and n.y >= 0 and n.y < grid_size and not rooms.has(n):
 			result.append(n)
 	return result
 

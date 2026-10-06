@@ -11,6 +11,9 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 @export var id: String = ""
 @export var display_name: String = ""
 @export var family: String = ""
+## Map layout rules for this Figment type - see MapLayout ("rooms",
+## "open_field", "canyon").
+@export var layout: String = "rooms"
 
 @export_group("Ground")
 @export var floor_albedo: Texture2D

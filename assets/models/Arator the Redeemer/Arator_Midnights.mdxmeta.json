@@ -21,79 +21,92 @@
       "name": "Attack 1",
       "start": 9200,
       "end": 10433,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Attack 2",
       "start": 9200,
       "end": 10433,
-      "duplicate_of": "Attack 1"
+      "duplicate_of": "Attack 1",
+      "move_speed": 0
     },
     {
       "name": "Base",
       "start": 9200,
       "end": 10433,
-      "duplicate_of": "Attack 1"
+      "duplicate_of": "Attack 1",
+      "move_speed": 0
     },
     {
       "name": "Stand 1",
       "start": 10533,
       "end": 13200,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand 3",
       "start": 10533,
       "end": 13200,
-      "duplicate_of": "Stand 1"
+      "duplicate_of": "Stand 1",
+      "move_speed": 0
     },
     {
       "name": "Stand 2",
       "start": 13300,
       "end": 17033,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Ready 1",
       "start": 17133,
       "end": 18499,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Death 1",
       "start": 18599,
       "end": 20099,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Victory 1",
       "start": 20199,
       "end": 23332,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Spell 1",
       "start": 23432,
       "end": 25599,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Channel 1",
       "start": 25699,
       "end": 27366,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Dissipate",
       "start": 27466,
       "end": 29466,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Walk 1",
       "start": 29566,
       "end": 30332,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 5.4
     }
   ],
   "geosets": [

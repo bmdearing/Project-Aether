@@ -35,6 +35,7 @@ func setup(tree: AnimationTree, anim_set: AnimationSet) -> void:
 		_tree.anim_player = _tree.get_path_to(_player)
 	_apply_animation_set()
 	_apply_loop_modes()
+	_read_clip_speeds()
 	_tree.active = true
 	_state_machine = _tree.get("parameters/playback")
 
@@ -142,6 +143,51 @@ func set_speed(speed: float) -> void:
 	_tree.set(CONDITION_PATH + "stopped", not moving)
 	_tree.set(CONDITION_PATH + "running", running)
 	_tree.set(CONDITION_PATH + "walking", not running)
+	if moving:
+		_match_playback_speed("Run" if running else "Walk", speed)
+
+## Locomotion playback rate is ground speed / the clip's authored speed, so
+## feet keep pace with the ground instead of sliding.
+const MIN_LOCOMOTION_RATE := 0.35
+const MAX_LOCOMOTION_RATE := 2.5
+const RATE_CHANGE_THRESHOLD := 0.08  # retiming restarts the cycle's phase mapping, so skip tiny changes
+
+var _clip_speeds: Dictionary = {}   # state -> m/s the clip is authored for
+var _clip_rates: Dictionary = {}    # state -> playback rate currently applied
+
+func _read_clip_speeds() -> void:
+	var model := _tree.get_parent() as Node3D
+	var model_scale: float = model.scale.x if model else 1.0
+	for state in ["Walk", "Run"]:
+		var node := _tree.tree_root.get_node(state) as AnimationNodeAnimation
+		if node == null:
+			continue
+		var authored: float = animation_set.walk_clip_speed if state == "Walk" else animation_set.run_clip_speed
+		if authored <= 0.0 and model and model.has_method("get_clip_move_speed"):
+			authored = model.get_clip_move_speed(String(node.animation))
+		if authored > 0.0:
+			_clip_speeds[state] = authored * model_scale
+
+func _match_playback_speed(state: String, speed: float) -> void:
+	var authored: float = _clip_speeds.get(state, 0.0)
+	if authored <= 0.0 or _player == null:
+		return
+	var node := _tree.tree_root.get_node(state) as AnimationNodeAnimation
+	if node == null or not _player.has_animation(node.animation):
+		return
+	var rate := clampf(speed / authored, MIN_LOCOMOTION_RATE, MAX_LOCOMOTION_RATE)
+	var current: float = _clip_rates.get(state, 1.0)
+	if _clip_rates.has(state) and absf(rate - current) / current < RATE_CHANGE_THRESHOLD:
+		return
+	_clip_rates[state] = rate
+	node.use_custom_timeline = true
+	node.stretch_time_scale = true
+	node.loop_mode = Animation.LOOP_LINEAR
+	node.timeline_length = _player.get_animation(node.animation).length / rate
+
+## True from the attack's wind-up until its clip finishes.
+func is_playing_attack() -> bool:
+	return _state_machine != null and _state_machine.get_current_node() == &"Attack"
 
 func is_playing_death() -> bool:
 	return _state_machine != null and _state_machine.get_current_node() == "Death"

@@ -164,7 +164,7 @@ func _apply_definition() -> void:
 ## Level curve from Constants.MOB_*: base at level 1 for the definition's
 ## archetype_category, growing linearly per level above 1.
 func _level_scaled_health(level: int) -> float:
-	var base_h: float = Constants.MOB_BASE_HEALTH.get(definition.archetype_category, 150.0)
+	var base_h: float = Constants.MOB_BASE_HEALTH.get(definition.archetype_category, 55.0)
 	return base_h * (1.0 + Constants.MOB_HEALTH_GROWTH_PER_LEVEL * (level - 1))
 
 func _level_scaled_damage(level: int) -> float:
@@ -365,6 +365,12 @@ func _update_chase() -> void:
 	to_player.y = 0.0
 	var dist := to_player.length()
 
+	if is_attack_locked():
+		velocity.x = 0.0
+		velocity.z = 0.0
+		_last_combat_msec = Time.get_ticks_msec()
+		return
+
 	if dist <= chase_range:
 		_last_combat_msec = Time.get_ticks_msec()
 
@@ -458,6 +464,9 @@ func _floor_height_at(space_state: PhysicsDirectSpaceState3D, pos: Vector3):
 ## Invented drop rates - no doc-sourced table exists.
 const BASE_LOOT_DROP_CHANCE := 0.35
 const TOME_DROP_CHANCE := 0.08  # flat, independent of the gear roll below
+## Spell upgrade material: its own roll, on top of whatever else drops.
+const AETHER_DROP_CHANCE := 0.18
+const AETHER_DROP_COUNT := Vector2i(1, 3)
 ## Crafting currency (Orbs, Brands, Edicts) drops as loot only, picked by
 ## Constants.CURRENCY_DROP_WEIGHTS. Stones/Shard are rarer (one flat roll
 ## picks between the 3, not 3 independent rolls).
@@ -522,6 +531,7 @@ func _maybe_drop_loot() -> void:
 			_drop_converted(conversion_affix)
 			return
 
+	_maybe_drop_aether()
 	if randf() <= TOME_DROP_CHANCE:
 		var tome := TomeRoller.roll_for_unowned(GameState.owned_ability_ids)
 		if tome:
@@ -632,9 +642,17 @@ func _spawn_pickup(item: Item) -> void:
 	pickup.global_position = global_position
 	EventBus.loot_dropped.emit(item, global_position)
 
-func _spawn_currency_pickup(currency_id: StringName) -> void:
+func _maybe_drop_aether() -> void:
+	var rank_bonus: int = Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
+	if randf() > AETHER_DROP_CHANCE * (1.0 + rank_bonus * 0.5):
+		return
+	var tier: int = GameState.active_map.tier if GameState.active_map else 1
+	_spawn_currency_pickup(Ability.AETHER_CURRENCY, randi_range(AETHER_DROP_COUNT.x, AETHER_DROP_COUNT.y) + rank_bonus + (tier - 1))
+
+func _spawn_currency_pickup(currency_id: StringName, count: int = 1) -> void:
 	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()
 	pickup.currency_id = currency_id
+	pickup.currency_count = count
 	get_parent().add_child(pickup)
 	pickup.global_position = global_position
 
@@ -745,6 +763,14 @@ func _roll_rank() -> Constants.EnemyRank:
 func _compute_item_level() -> int:
 	var area_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
 	return area_level + Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
+
+## Rooted in place from an attack's wind-up until its animation finishes.
+func is_attack_locked() -> bool:
+	for path in ["MeleeAttack", "RangedAttack"]:
+		var attack := get_node_or_null(path)
+		if attack and attack.has_method("is_attacking") and attack.is_attacking():
+			return true
+	return _anim_controller != null and _anim_controller.is_playing_attack()
 
 ## The attack animation is the telegraph: started at wind-up begin and
 ## timed so its hit frame lands when the wind-up ends (windup_sec later).

@@ -58,6 +58,13 @@ const UI_SCENES: Array[PackedScene] = [
 ]
 
 var graph: MapGraph
+var layout: MapLayout
+## Metres between cell centres - CELL_SIZE for rooms, wider for open layouts.
+var cell_size: float = CELL_SIZE
+## Walls built inside the playable area (room walls); 0 for open layouts.
+var interior_wall_count := 0
+var _boss: Enemy
+var _terrain: TerrainBuilder
 ## Populated as rooms are spawned - used by tests to sanity-check spawn
 ## positions against actual room bounds without duplicating the layout
 ## math in the test script.
@@ -97,10 +104,10 @@ func _ready() -> void:
 	seed(map_seed)
 	_apply_tileset(_pick_tileset(restore.get("tileset_id", "")))
 	EventBus.enemy_died.connect(_on_enemy_died)
-	graph = MapGraph.generate()
-	for cell in graph.rooms:
-		_build_room(graph.rooms[cell])
-	_build_doorway_bridges()
+	layout = MapLayout.for_tileset(tileset)
+	cell_size = layout.cell_size
+	graph = layout.generate_graph()
+	_build_layout()
 	_spawn_player()
 	_spawn_enemies()
 	randomize()
@@ -113,6 +120,33 @@ func _ready() -> void:
 
 ## The active Figment's rolled style; a random one for Figments rolled
 ## before styles existed, or a standalone launch.
+func _build_layout() -> void:
+	match layout.kind:
+		MapLayout.Kind.ROOMS:
+			for cell in graph.rooms:
+				_build_room(graph.rooms[cell])
+			_build_doorway_bridges()
+		MapLayout.Kind.OPEN_FIELD:
+			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
+			_terrain.build_open_field(graph, cell_size)
+			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
+			_spawn_vault_boss(_terrain.build_dais(_cell_to_world(graph.vault_cell), 1.6, _floor_mat))
+		MapLayout.Kind.CANYON:
+			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
+			_terrain.build_canyon(graph, cell_size)
+			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
+			_spawn_vault_boss(_terrain.build_dais(_cell_to_world(graph.vault_cell), 2.0, _wall_mat))
+
+func _spawn_vault_boss(pos: Vector3) -> void:
+	_boss = FIGMENT_BOSS_SCENE.instantiate()
+	_spawn_enemy(_boss, pos)
+
+func get_living_enemy_count() -> int:
+	return _living_enemies.size()
+
+func has_boss() -> bool:
+	return is_instance_valid(_boss)
+
 func _pick_tileset(saved_id: String = "") -> MapTileset:
 	tileset_id = saved_id
 	if tileset_id == "":
@@ -139,14 +173,27 @@ func open_portal() -> bool:
 		_portal.queue_free()
 	_portal_player_position = player.global_position
 	_portal_player_yaw = player.rotation.y
-	var pos := player.global_position + forward * PORTAL_DISTANCE
-	pos.y = player.global_position.y - 1.0
+	var pos := _ground_point(player.global_position + forward * PORTAL_DISTANCE, player.global_position.y)
 	_portal = _add_portal(pos)
 	GameState.portals_opened += 1
 	EventBus.portal_opened.emit(pos)
 	return true
 
 const PORTAL_DISTANCE := 2.5
+const GROUND_PROBE_UP := 2.0
+const GROUND_PROBE_DOWN := 6.0
+
+## Floor height under pos (probing from above it, so a raised floor is found
+## too); fallback_y when there's no floor there, e.g. at a ledge.
+func _ground_point(pos: Vector3, fallback_y: float) -> Vector3:
+	var query := PhysicsRayQueryParameters3D.create(pos + Vector3.UP * GROUND_PROBE_UP, pos + Vector3.DOWN * GROUND_PROBE_DOWN)
+	query.collision_mask = 1
+	var player := get_tree().get_first_node_in_group("player") as Player
+	if player:
+		query.exclude = [player.get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	pos.y = hit["position"].y if hit else fallback_y
+	return pos
 
 func _add_portal(pos: Vector3) -> Portal:
 	var portal := Portal.new()
@@ -304,7 +351,7 @@ func _spawn_ui() -> void:
 		add_child(scene.instantiate())
 
 func _cell_to_world(cell: Vector2i) -> Vector3:
-	return Vector3(cell.x * CELL_SIZE, 0.0, cell.y * CELL_SIZE)
+	return Vector3(cell.x * cell_size, 0.0, cell.y * cell_size)
 
 func _build_room(room: MapGraph.RoomData) -> void:
 	var origin := _cell_to_world(room.cell)
@@ -343,8 +390,7 @@ func _build_split_floor(origin: Vector3, room: MapGraph.RoomData) -> void:
 	var platform_center_z := half - JUMP_PLATFORM_DEPTH / 2.0
 	_build_floor(origin + Vector3(0, 0, platform_center_z), ROOM_FOOTPRINT, JUMP_PLATFORM_DEPTH, JUMP_PLATFORM_HEIGHT, PLATFORM_COLOR)
 
-	var enemy_pos := origin + Vector3(0, JUMP_PLATFORM_HEIGHT + 0.95, platform_center_z)
-	_spawn_enemy(FIGMENT_BOSS_SCENE.instantiate(), enemy_pos)
+	_spawn_vault_boss(origin + Vector3(0, JUMP_PLATFORM_HEIGHT + 0.05, platform_center_z))
 
 func _build_floor(center: Vector3, size_x: float, size_z: float, height: float, color: Color) -> void:
 	var body := StaticBody3D.new()
@@ -394,6 +440,7 @@ func _build_wall_side(origin: Vector3, dir: Vector2i, connected: bool) -> void:
 	_add_wall_segment(origin + side_offset + along * reach, segment_length, horizontal)
 
 func _add_wall_segment(center: Vector3, length: float, horizontal: bool) -> void:
+	interior_wall_count += 1
 	var body := StaticBody3D.new()
 	body.position = center + Vector3(0, WALL_HEIGHT / 2.0, 0)
 	add_child(body)
@@ -432,6 +479,9 @@ const PACK_CENTER_JITTER := 2.5
 ## One pack per non-start room; the Vault's elite pack holds its main floor
 ## (the boss already owns the platform, see _build_split_floor()).
 func _spawn_enemies() -> void:
+	if layout.kind != MapLayout.Kind.ROOMS:
+		_spawn_enemies_open()
+		return
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
 		if room.is_start:
@@ -445,6 +495,25 @@ func _spawn_enemies() -> void:
 		else:
 			center += Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))
 		_spawn_pack(EnemyRoster.roll_pack(table), center)
+
+## Open layouts: packs_per_cell packs near each cell's centre; the Vault's
+## elite pack waits between the boss dais and the way in.
+const OPEN_PACK_SPREAD := 0.2
+const VAULT_PACK_OFFSET := 9.0
+
+func _spawn_enemies_open() -> void:
+	for cell in graph.rooms:
+		var room: MapGraph.RoomData = graph.rooms[cell]
+		if room.is_start:
+			continue
+		var center := _cell_to_world(cell)
+		if room.is_vault:
+			var toward_start := (_cell_to_world(graph.start_cell) - center).normalized()
+			_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_VAULT_ELITE), center + toward_start * VAULT_PACK_OFFSET)
+			continue
+		for i in randi_range(layout.packs_per_cell.x, layout.packs_per_cell.y):
+			var offset := Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)) * cell_size * OPEN_PACK_SPREAD
+			_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_NORMAL), center + offset)
 
 func _spawn_pack(unit_ids: Array[String], center: Vector3) -> void:
 	var start_angle := randf() * TAU

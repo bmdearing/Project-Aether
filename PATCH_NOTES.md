@@ -7,6 +7,97 @@ there. Most recent first.
 
 ---
 
+## 2026-10-06 — v4.14: spell levels, map layouts, new enemies, combat fixes (user request)
+
+A batch request covering enemy feel, melee hitboxes, settings, portals, a
+balance pass, new enemy models, a kill box, a spell overhaul and new map
+layouts per Figment type.
+
+**Enemies**
+- Attack lock: enemies were sliding into the player during their own
+  wind-up. `Enemy.is_attack_locked()` roots them from the wind-up start
+  (melee telegraph/strike, ranged windup) until the Attack animation
+  state ends, so the follow-through doesn't slide either.
+- Foot sliding: WC3 walk clips are authored for a ground speed (the MDX
+  sequence `MoveSpeed`, e.g. 270 units/s = 4.86 m/s for the bandits) while
+  our units move at 2.5-4 m/s, so legs cycled ~40% too fast. The sidecar
+  now records `move_speed` per sequence (`mdx_sidecar.js`; existing
+  sidecars patched by `patch_sidecar_speeds.js` without reconverting), the
+  wrapper builder writes it to `MdxModel.clip_move_speeds`, and
+  `EnemyAnimationController` stretches the Walk/Run node timeline to
+  actual speed / authored speed. Retiming is skipped for <8% changes
+  since it remaps the cycle's phase. Models without MoveSpeed (golems,
+  Mindbender, Priestess) use `AnimationSet.walk_clip_speed` (270 x scale).
+- New models converted and set up (heights tuned against the 1.8 m player
+  via the sidecar bounds): Zombie Footman became the existing, model-less
+  Hollowed Shambler; Nathrezim -> Legion Dreadknight; the three Arcane
+  Golems -> Synod Warden/Ember/Aether Golems; Mindbender and Priestess of
+  the Damned -> a new Veilborne faction (the roster doc lists the
+  Veilborne Choir as "without models this round"); Xalatath -> a second
+  Pinnacle boss (melee + Entropic bolts beyond 5 m). Faction/stat choices
+  are judgment calls. Melee and ranged components on one enemy no longer
+  start attacks while the other is mid-attack.
+- The wrapper rebuild re-saved every doodad wrapper with new
+  `unique_id`s only; those were reverted to keep the diff clean.
+
+**Player combat**
+- Melee used one small sphere on the blade and resolved the first body it
+  touched. It now sweeps a per-weapon-family arc in front of the camera
+  every Strike frame (reach, half-angle, splash share, target cap), with
+  a line-of-sight ray that only walls block. Primary target (nearest the
+  crosshair) takes full damage and gets Riposte/headshot/hit feedback;
+  others take 40-75% splash (100% on a charged attack).
+- Casting is only interrupted by a stun now (`StatusEffectComponent`
+  `is_stunned()` on effect applied), not by any damage taken.
+
+**Spells**
+- Ranks (0-5, gold) replaced by levels 1-20 costing gold + Crystallized
+  Aether (2 Aether at level 1, 120 for 19 -> 20, curve exponent 1.6;
+  gold 20 x level^1.4). Old saves' ranks convert to level rank + 1.
+- Each spell has its own level-1 damage range (hand-tuned against the new
+  mob health; DoT/field spells per tick) growing 9.5%/level. Conduit
+  `spell_power_min/max` removed from the script and all 108 Conduit
+  `.tres` files; a Conduit's local increased Spell damage still applies.
+  The "requires a Conduit" card line is gone - cards state the damage.
+- Tags (Area, Projectile, Duration, Limit, Channelling, Movement,
+  Utility + Spell + damage type) gate modifiers that were previously
+  summed but never read: increased Area damage, AoE radius, Skill Effect
+  Duration (field spells and Frost Armor), Projectile Speed (bolts), Mana
+  cost reduction, Cooldown Recovery. Levels past 20 (from gear's
+  existing "+N to level of Spells" affixes, which used to give +8%
+  effectiveness each) grant over-cap bonuses per tag.
+- Crystallized Aether drops on its own 18% roll per kill; the Hub's
+  Spell Testing Shop hands out 100 for testing.
+
+**Maps** - only Dungeon keeps the room grid. New `MapLayout` rules per
+Figment type: Dunes is one open field (no interior walls) with dune
+mounds, a ridge boundary and a boss dune crest; Badlands is a canyon of
+basins joined by narrow passes between jagged cliffs, with a boss mesa.
+Both still produce a `MapGraph`, so spawning, the Map screen and portals
+work unchanged. Boss spawn height was 0.95 m above its platform (carried
+over from the Vault code; enemy origins are at the feet) - fixed for
+every layout after the user spotted it in a screenshot.
+
+**Other fixes**
+- Portal appeared half-sunk: it was placed at the player's feet minus
+  1 m. Now ray-cast onto the floor under the spot.
+- Settings: the pause menu had none. A shared `SettingsPanel` (title
+  screen + pause menu) adds Field of View and V-Sync and saves to
+  `user://settings.cfg`, so New Game no longer wipes settings.
+- Kill box autoload: fallen enemies die, a fallen player is returned to
+  the last solid ground with a 15% Life penalty (killing the player for a
+  geometry gap felt wrong).
+- Balance: mob health was still x1.5 from the old conduit spell tuning;
+  a level-1 standard mob took ~16 s to kill with the starter weapon.
+  Health table cut to 30/55/110/280/1600, damage trimmed slightly,
+  FigmentBoss 1760 -> 700 Life (now +35% per tier, previously no tier
+  scaling at all) and 61.6 -> 40 per hit.
+
+Tests: new `tests/v414/` (77 checks); roster test extended to the new
+units; all existing suites pass.
+
+---
+
 ## 2026-10-06 — Crafting, Inventory, Stash & Portals Rev2 (Claude Code brief)
 
 Built the three-phase brief from `documents/Aether_Crafting_Inventory_Rev2.docx`. Rev2 replaces Section 20's Cube with Orbs (do the operation), Brands (steer it) and Edicts (restrict it), and adds a footprint inventory, a Hub stash and portals.

@@ -28,6 +28,7 @@ script = ExtResource("1")
 id = "desert_dunes"
 display_name = "Dunes"
 family = "desert"
+layout = "open_field"
 floor_albedo = ExtResource("2")
 floor_normal = ExtResource("3")
 floor_orm = ExtResource("4")

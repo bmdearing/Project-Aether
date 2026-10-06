@@ -9,6 +9,9 @@ class_name MdxModel
 @export var hidden_geosets: Dictionary = {}     # clip name -> PackedInt32Array
 @export var always_hidden: PackedInt32Array = []
 @export var idle_clip: String = ""
+## Clip name -> ground speed (m/s, at this wrapper's unit scale) the clip is
+## authored for; from the MDX sequence MoveSpeed. Missing = unknown.
+@export var clip_move_speeds: Dictionary = {}
 
 var _geosets: Dictionary = {}  # geoset index -> MeshInstance3D
 var _tree: AnimationTree
@@ -43,6 +46,9 @@ func get_current_clip() -> String:
 		return idle_clip
 	var node := sm.get_node(state) as AnimationNodeAnimation
 	return String(node.animation) if node else idle_clip
+
+func get_clip_move_speed(clip: String) -> float:
+	return float(clip_move_speeds.get(clip, 0.0))
 
 func _apply_visibility(clip: String) -> void:
 	_shown_clip = clip

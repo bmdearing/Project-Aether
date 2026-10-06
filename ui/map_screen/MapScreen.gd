@@ -57,7 +57,7 @@ func _refresh() -> void:
 	var player_cell := Vector2i(-999, -999)
 	if player:
 		player_cell = Vector2i(
-			roundi(player.global_position.x / map.CELL_SIZE),
-			roundi(player.global_position.z / map.CELL_SIZE),
+			roundi(player.global_position.x / map.cell_size),
+			roundi(player.global_position.z / map.cell_size),
 		)
 	view.render(map.graph, player_cell)

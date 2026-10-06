@@ -9,6 +9,8 @@ const UNIT_IDS := [
 	"unchartered_cutthroat", "unchartered_javelineer", "unchartered_brigand",
 	"unchartered_enforcer", "unchartered_chieftain", "directorate_adjudicator",
 	"synod_vindicator", "synod_exarch", "legion_threshold_knight", "lord_of_the_elements",
+	"hollowed_shambler", "legion_dreadknight", "synod_warden_golem", "synod_ember_golem",
+	"synod_aether_golem", "veilborne_mindbender", "veilborne_cantor", "xalatath",
 ]
 const UNIT_SCENES := ["res://entities/enemies/units/MeleeUnit.tscn", "res://entities/enemies/units/RangedUnit.tscn"]
 const MAP_RUNS := 20

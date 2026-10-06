@@ -198,14 +198,20 @@ func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 	_set_card_style(element_color, ABILITY_BG, ABILITY_CORNER_RADIUS, ABILITY_BORDER_WIDTH)
 	_add_type_badge("SPELL", element_color)
 	_add_title(ability.display_name, element_color)
-	_add_subtitle("Ability - %s (Rank %d/%d)" % [Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "?"), ability.rank, Ability.MAX_RANK])
+	var sheet := stat_sheet if stat_sheet else _stat_sheet_for_card()
+	_add_subtitle(_spell_level_text(ability, sheet))
+	_add_mod_line(", ".join(ability.get_tag_names()), TAG_COLOR)
 	_add_separator()
-	_add_spell_damage_line(ability, stat_sheet if stat_sheet else _stat_sheet_for_card())
+	_add_spell_damage_line(ability, sheet)
 	_add_stat_line("Cast Type: %s" % _get_cast_type_label(ability))
-	_add_stat_line("Cooldown: %.1fs" % ability.get_effective_cooldown())
-	_add_stat_line("Mana Cost: %.0f" % ability.resource_cost)
-	_add_stat_line("Range: %.0fm" % ability.radius)
+	_add_stat_line("Cooldown: %.1fs" % ability.get_effective_cooldown(sheet))
+	_add_stat_line("Mana Cost: %.0f" % ability.get_mana_cost(sheet))
+	if ability.get_radius(sheet) > 0.0:
+		_add_stat_line("Range: %.1fm" % ability.get_radius(sheet))
+	if ability.has_tag(Ability.TAG_LIMIT):
+		_add_stat_line("Limit: %d" % ability.get_limit(sheet))
 	_add_stat_line("Crit Chance: %.0f%%" % (ability.base_crit_chance * 100.0))
+	_add_overcap_lines(ability, sheet)
 	if ability.applies_status_effects.size() > 0:
 		var effect_names := ability.applies_status_effects.map(
 			func(id): return Constants.STATUS_EFFECT_NAME.get(id, id)
@@ -215,19 +221,50 @@ func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 		_add_separator()
 		_add_flavor(ability.description)
 
-## "<Type> Damage: min to max" per cast (non-crit) from the equipped
-## Conduit's spell power range - Ability.predict_damage_range(). Skipped for
-## non-damaging abilities (motion value 0, e.g. Blink/Purge).
+const TAG_COLOR := Color(0.62, 0.66, 0.74)
+const OVERCAP_COLOR := Color(1.0, 0.78, 0.35)
+
+## "Level 7" or "Level 22 (20 +2)" when gear adds levels.
+func _spell_level_text(ability: Ability, stat_sheet: StatSheet) -> String:
+	var effective := ability.get_effective_level(stat_sheet)
+	if effective == ability.level:
+		return "Level %d" % ability.level
+	return "Level %d (%d %+d)" % [effective, ability.level, effective - ability.level]
+
+## "<Type> Damage: min to max" - the spell's own base damage at its current
+## level; the value turns blue when stats/gear modify it. Skipped for
+## non-damaging spells (Blink, Purge).
 func _add_spell_damage_line(ability: Ability, stat_sheet: StatSheet) -> void:
-	if ability.motion_value <= 0.0 or stat_sheet == null:
+	if not ability.deals_damage():
 		return
 	var label := "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "?")
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
-	if stat_sheet.conduit_spell_power_range.y <= 0.0:
-		_add_mod_line("%s: requires a Conduit" % label, REQUIREMENT_UNMET_COLOR)
+	var base := ability.get_base_damage_range(stat_sheet)
+	var line := {"label": label, "lo": base.x, "hi": base.y, "color": color}
+	if stat_sheet:
+		var boosted := ability.predict_damage_range(stat_sheet)
+		if not boosted.is_equal_approx(base):
+			line["boosted_lo"] = boosted.x
+			line["boosted_hi"] = boosted.y
+	_add_attack_power_line(line)
+
+func _add_overcap_lines(ability: Ability, stat_sheet: StatSheet) -> void:
+	var over := ability.get_levels_over_cap(stat_sheet)
+	if over <= 0:
 		return
-	var range := ability.predict_damage_range(stat_sheet)
-	_add_attack_power_line({"label": label, "lo": range.x, "hi": range.y, "color": color})
+	_add_separator()
+	_add_mod_line("Beyond level %d (+%d):" % [Ability.MAX_LEVEL, over], OVERCAP_COLOR)
+	if ability.deals_damage():
+		_add_mod_line("%d%% more Damage" % roundi(over * Ability.OVERCAP_MORE_DAMAGE * 100.0), OVERCAP_COLOR)
+	_add_mod_line("%d%% reduced Cooldown" % roundi(over * Ability.OVERCAP_COOLDOWN_REDUCTION * 100.0), OVERCAP_COLOR)
+	if ability.has_tag(Ability.TAG_AREA):
+		_add_mod_line("%d%% increased Area" % roundi(over * Ability.OVERCAP_AREA * 100.0), OVERCAP_COLOR)
+	if ability.has_tag(Ability.TAG_DURATION):
+		_add_mod_line("%d%% increased Duration" % roundi(over * Ability.OVERCAP_DURATION * 100.0), OVERCAP_COLOR)
+	if ability.has_tag(Ability.TAG_PROJECTILE):
+		_add_mod_line("%d%% increased Projectile Speed" % roundi(over * Ability.OVERCAP_PROJECTILE_SPEED * 100.0), OVERCAP_COLOR)
+	if ability.has_tag(Ability.TAG_LIMIT) and over / Ability.OVERCAP_LEVELS_PER_LIMIT > 0:
+		_add_mod_line("+%d to Limit" % (over / Ability.OVERCAP_LEVELS_PER_LIMIT), OVERCAP_COLOR)
 
 func _get_cast_type_label(ability: Ability) -> String:
 	match ability.cast_type:
@@ -285,8 +322,10 @@ func _render_alt_info() -> void:
 			_add_stat_line(line)
 		_add_alt_affix_tiers(_current_item)
 	elif _current_ability != null:
-		_add_stat_line("Scaling Grade: %s" % Constants.grade_to_letter(_current_ability.scaling_grade))
-		_add_stat_line("Motion Value: %.2f" % _current_ability.get_effective_motion_value())
+		var base := _current_ability.get_base_damage_range()
+		_add_stat_line("Level 1 Damage: %.0f to %.0f" % [_current_ability.base_damage_min, _current_ability.base_damage_max])
+		_add_stat_line("Level %d Base Damage: %.0f to %.0f" % [_current_ability.level, base.x, base.y])
+		_add_stat_line("Damage Growth: +%.1f%% per level" % (Ability.DAMAGE_GROWTH_PER_LEVEL * 100.0))
 
 ## Bug fix (2026-09-06, user-reported): returned null whenever no Player
 ## node is in the scene tree at hover time, leaving the blue stat
@@ -425,10 +464,8 @@ func _add_value_line(label: String, label_color: Color, base_text: String, modif
 ## real (Weapon._base_hit()); local spell damage, attack speed and cast
 ## speed are display-only for now.
 func _add_weapon_value_lines(w: Weapon) -> void:
-	if w.is_conduit:
-		var spell_mult := w.get_local_multiplier("local_increased_spell_damage")
-		_add_value_line("Spell Power", STAT_COLOR, "%.0f to %.0f" % [w.spell_power_min, w.spell_power_max],
-			"%.0f to %.0f" % [w.spell_power_min * spell_mult, w.spell_power_max * spell_mult])
+	if w.is_conduit and w.get_conduit_spell_damage_bonus() > 0.0:
+		_add_value_line("Spell Damage", STAT_COLOR, "+%.0f%%" % w.get_conduit_spell_damage_bonus())
 	_add_value_line("Crit Chance", STAT_COLOR, "%s%%" % _format_num(snapped(w.get_base_crit_chance() * 100.0, 0.1)),
 		"%s%%" % _format_num(snapped(w.get_local_crit_chance() * 100.0, 0.1)))
 	var attack_speed := w.get_local_multiplier("local_increased_attack_speed")

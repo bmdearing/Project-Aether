@@ -17,3 +17,6 @@ is_auto_cast_eligible = true
 applies_status_effects = Array[String](["ignite"])
 radius = 4.5
 base_crit_chance = 0.04
+base_damage_min = 18.0
+base_damage_max = 27.0
+tags = Array[StringName]([&"projectile"])

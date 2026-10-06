@@ -1,0 +1,342 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_6wcab"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/wargolem_main_diffuse.dds" id="2_l5wao"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/wargolem_main_emissive.dds" id="3_o0yqg"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/wargolem_main_normal.dds" id="4_bukcu"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/wargolem_main_orm.dds" id="5_2sify"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/hegolem_body_diffuse.dds" id="6_vnufa"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/hegolem_body_emissive.dds" id="7_fd7v3"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_bloodelflieutenant_main_normal.dds" id="8_x70yx"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_bloodelflieutenant_main_orm.dds" id="9_sv252"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/hegolem_main_diffuse.dds" id="10_rqg7f"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/hegolem_main_emissive.dds" id="11_7oj4l"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/bloodfiend_main_normal.dds" id="12_6shkq"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/bloodfiend_main_orm.dds" id="13_psflw"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_bouldertower_diffuse.dds" id="14_1fggj"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_bouldertower_emissive.dds" id="15_pptel"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_bouldertower_normal.dds" id="16_co6gj"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_bouldertower_orm.dds" id="17_ydec2"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/sm_silvermoonwall_diffuse.dds" id="18_ukhpg"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/sm_silvermoonwall_emissive.dds" id="19_r4nir"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/sm_silvermoonwall_normal.dds" id="20_glopd"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/sm_silvermoonwall_orm.dds" id="21_edm1i"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_highelfdragonhawkrider_rider_diffuse.dds" id="22_pvkbq"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_highelfdragonhawkrider_rider_v1_emissive.dds" id="23_f61d4"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_highelfdragonhawkrider_rider_v1_normal.dds" id="24_dgahr"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_highelfdragonhawkrider_rider_v1_orm.dds" id="25_u1ipv"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_skyfurytower_diffuse.dds" id="26_3nenc"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_skyfurytower_normal.dds" id="27_ycsfw"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/human_skyfurytower_orm.dds" id="28_mewey"]
+[ext_resource type="PackedScene" path="res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem/hegolem.glb" id="29_mkv4h"]
+[ext_resource type="PackedScene" path="res://entities/enemies/base/HumanoidAnimTree.tscn" id="30_mr2lg"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_nl3bh"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_l5wao")
+orm_texture = ExtResource("5_2sify")
+emission_enabled = true
+emission_texture = ExtResource("3_o0yqg")
+normal_enabled = true
+normal_texture = ExtResource("4_bukcu")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_wkmc3"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("6_vnufa")
+orm_texture = ExtResource("9_sv252")
+emission_enabled = true
+emission_texture = ExtResource("7_fd7v3")
+normal_enabled = true
+normal_texture = ExtResource("8_x70yx")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_cubf5"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("10_rqg7f")
+orm_texture = ExtResource("13_psflw")
+emission_enabled = true
+emission_texture = ExtResource("11_7oj4l")
+normal_enabled = true
+normal_texture = ExtResource("12_6shkq")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_mp3t8"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("10_rqg7f")
+orm_texture = ExtResource("13_psflw")
+emission_enabled = true
+emission_texture = ExtResource("11_7oj4l")
+normal_enabled = true
+normal_texture = ExtResource("12_6shkq")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5egc6"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("14_1fggj")
+orm_texture = ExtResource("17_ydec2")
+emission_enabled = true
+emission_texture = ExtResource("15_pptel")
+normal_enabled = true
+normal_texture = ExtResource("16_co6gj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_tvvbg"]
+albedo_texture = ExtResource("18_ukhpg")
+orm_texture = ExtResource("21_edm1i")
+emission_enabled = true
+emission_texture = ExtResource("19_r4nir")
+normal_enabled = true
+normal_texture = ExtResource("20_glopd")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_bsgi7"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("22_pvkbq")
+orm_texture = ExtResource("25_u1ipv")
+emission_enabled = true
+emission_texture = ExtResource("23_f61d4")
+normal_enabled = true
+normal_texture = ExtResource("24_dgahr")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_u1ffu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("22_pvkbq")
+orm_texture = ExtResource("25_u1ipv")
+emission_enabled = true
+emission_texture = ExtResource("23_f61d4")
+normal_enabled = true
+normal_texture = ExtResource("24_dgahr")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7mprf"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("26_3nenc")
+orm_texture = ExtResource("28_mewey")
+normal_enabled = true
+normal_texture = ExtResource("27_ycsfw")
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_uxmb3"]
+animation = &"Attack"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ugs6u"]
+animation = &"Death"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_rn56s"]
+animation = &"HitReact"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3c17d"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jp5ti"]
+animation = &"Run"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_1mj3m"]
+animation = &"Stagger"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xo6c6"]
+animation = &"Walk"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tola0"]
+xfade_time = 0.12
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_4g1jm"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"moving"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_317bp"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stopped"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c5h2g"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"running"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_a37j7"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"walking"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ipoep"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_i60ko"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_nhync"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pduiw"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c46fj"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_mot78"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_d0m3f"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_28hg5"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_xxwru"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_o3hln"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_sylrt"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_uhnpq"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_3blcx"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0ieg5"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_vde4t"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gkawd"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_cgh1m"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pld0m"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_wr1x7"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jypwp"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gnvh3"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_7m1o2"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_g1woi"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_a1ugo"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_dv4a3"]
+states/Attack/node = SubResource("AnimationNodeAnimation_uxmb3")
+states/Attack/position = Vector2(600, 0)
+states/Death/node = SubResource("AnimationNodeAnimation_ugs6u")
+states/Death/position = Vector2(400, 140)
+states/HitReact/node = SubResource("AnimationNodeAnimation_rn56s")
+states/HitReact/position = Vector2(0, 140)
+states/Idle/node = SubResource("AnimationNodeAnimation_3c17d")
+states/Idle/position = Vector2(0, 0)
+states/Run/node = SubResource("AnimationNodeAnimation_jp5ti")
+states/Run/position = Vector2(400, 0)
+states/Stagger/node = SubResource("AnimationNodeAnimation_1mj3m")
+states/Stagger/position = Vector2(200, 140)
+states/Walk/node = SubResource("AnimationNodeAnimation_xo6c6")
+states/Walk/position = Vector2(200, 0)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_tola0"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_4g1jm"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_317bp"), "Walk", "Run", SubResource("AnimationNodeStateMachineTransition_c5h2g"), "Run", "Walk", SubResource("AnimationNodeStateMachineTransition_a37j7"), "Idle", "Attack", SubResource("AnimationNodeStateMachineTransition_ipoep"), "Walk", "Attack", SubResource("AnimationNodeStateMachineTransition_i60ko"), "Run", "Attack", SubResource("AnimationNodeStateMachineTransition_nhync"), "HitReact", "Attack", SubResource("AnimationNodeStateMachineTransition_pduiw"), "Stagger", "Attack", SubResource("AnimationNodeStateMachineTransition_c46fj"), "Idle", "HitReact", SubResource("AnimationNodeStateMachineTransition_mot78"), "Walk", "HitReact", SubResource("AnimationNodeStateMachineTransition_d0m3f"), "Run", "HitReact", SubResource("AnimationNodeStateMachineTransition_28hg5"), "Attack", "HitReact", SubResource("AnimationNodeStateMachineTransition_xxwru"), "Stagger", "HitReact", SubResource("AnimationNodeStateMachineTransition_o3hln"), "Idle", "Stagger", SubResource("AnimationNodeStateMachineTransition_sylrt"), "Walk", "Stagger", SubResource("AnimationNodeStateMachineTransition_uhnpq"), "Run", "Stagger", SubResource("AnimationNodeStateMachineTransition_3blcx"), "Attack", "Stagger", SubResource("AnimationNodeStateMachineTransition_0ieg5"), "HitReact", "Stagger", SubResource("AnimationNodeStateMachineTransition_vde4t"), "Idle", "Death", SubResource("AnimationNodeStateMachineTransition_gkawd"), "Walk", "Death", SubResource("AnimationNodeStateMachineTransition_cgh1m"), "Run", "Death", SubResource("AnimationNodeStateMachineTransition_pld0m"), "Attack", "Death", SubResource("AnimationNodeStateMachineTransition_wr1x7"), "HitReact", "Death", SubResource("AnimationNodeStateMachineTransition_jypwp"), "Stagger", "Death", SubResource("AnimationNodeStateMachineTransition_gnvh3"), "Attack", "Idle", SubResource("AnimationNodeStateMachineTransition_7m1o2"), "HitReact", "Idle", SubResource("AnimationNodeStateMachineTransition_g1woi"), "Stagger", "Idle", SubResource("AnimationNodeStateMachineTransition_a1ugo")]
+
+[node name="SynodAetherGolemModel" type="Node3D" unique_id=1620628263]
+script = ExtResource("1_6wcab")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_nl3bh"),
+1: SubResource("ORMMaterial3D_wkmc3"),
+2: SubResource("ORMMaterial3D_cubf5"),
+3: SubResource("ORMMaterial3D_mp3t8"),
+4: SubResource("ORMMaterial3D_5egc6"),
+5: SubResource("ORMMaterial3D_tvvbg"),
+6: SubResource("ORMMaterial3D_bsgi7"),
+7: SubResource("ORMMaterial3D_u1ffu"),
+8: SubResource("ORMMaterial3D_7mprf")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1320255752 instance=ExtResource("29_mkv4h")]
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=338442281 instance=ExtResource("30_mr2lg")]
+active = false
+tree_root = SubResource("AnimationNodeStateMachine_dv4a3")
+anim_player = NodePath("../Model/AnimationPlayer")
+parameters/conditions/attack_triggered = false
+parameters/conditions/hit_triggered = false
+parameters/conditions/is_dead = false
+parameters/conditions/moving = false
+parameters/conditions/running = false
+parameters/conditions/stagger_triggered = false
+parameters/conditions/stopped = false
+parameters/conditions/walking = false

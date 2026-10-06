@@ -393,21 +393,21 @@ const ENEMY_RARITY_DAMAGE_MULT := {
 ##   damage = MOB_BASE_DAMAGE[category] * (1 + MOB_DAMAGE_GROWTH_PER_LEVEL * (level - 1))
 const MOB_HEALTH_GROWTH_PER_LEVEL := 0.15
 const MOB_DAMAGE_GROWTH_PER_LEVEL := 0.08
+## v4.14 retune: a level-1 standard mob takes ~4 hits from the starter
+## weapon (~14 per hit), a light one ~2, a heavy ~8.
 const MOB_BASE_HEALTH := {
-	# v4.8 follow-up: x1.5 across the board (light rounded 82.5 -> 83) to
-	# offset the retuned spell grade multipliers.
-	"light": 83.0,
-	"standard": 150.0,
-	"heavy": 300.0,
-	"elite": 750.0,
-	"boss": 4500.0,
+	"light": 30.0,
+	"standard": 55.0,
+	"heavy": 110.0,
+	"elite": 280.0,
+	"boss": 1600.0,
 }
 const MOB_BASE_DAMAGE := {
-	"light": 6.0,
-	"standard": 10.0,
-	"heavy": 16.0,
-	"elite": 28.0,
-	"boss": 50.0,
+	"light": 5.0,
+	"standard": 9.0,
+	"heavy": 15.0,
+	"elite": 24.0,
+	"boss": 45.0,
 }
 
 ## Placeholder spawn-weight "config" (brief's own words: "Placeholder
@@ -427,21 +427,28 @@ const ENEMY_RARITY_SPAWN_WEIGHTS := {
 ## Each unit entry is [unit_id or Array of unit_ids, min, max] - an Array
 ## picks a random id per unit. Unit ids are data/enemies/definitions/ files.
 const UNCHARTERED_RAIDERS := ["unchartered_cutthroat", "unchartered_javelineer", "unchartered_brigand"]
+const SYNOD_GOLEMS := ["synod_warden_golem", "synod_ember_golem", "synod_aether_golem"]
 const ENEMY_PACKS_NORMAL := [
 	{"weight": 1.0, "units": [["unchartered_brigand", 1, 1], ["unchartered_javelineer", 1, 2]]},
 	{"weight": 1.0, "units": [["unchartered_enforcer", 1, 1], ["unchartered_cutthroat", 1, 2]]},
 	{"weight": 1.0, "units": [[UNCHARTERED_RAIDERS, 2, 3]]},
+	{"weight": 0.8, "units": [["hollowed_shambler", 3, 5]]},
+	{"weight": 0.6, "units": [[SYNOD_GOLEMS, 1, 1], ["hollowed_shambler", 0, 2]]},
+	{"weight": 0.6, "units": [["veilborne_mindbender", 2, 3]]},
 ]
 ## The Vault's elite pack, spawned alongside its FigmentBoss.
 const ENEMY_PACKS_VAULT_ELITE := [
 	{"weight": 1.0, "units": [["unchartered_chieftain", 1, 1], [UNCHARTERED_RAIDERS, 2, 3]]},
 	{"weight": 1.0, "units": [["directorate_adjudicator", 1, 1]]},
 	{"weight": 1.0, "units": [["synod_vindicator", 1, 1], ["synod_exarch", 1, 1]]},
-	{"weight": 1.0, "units": [["legion_threshold_knight", 1, 1]]},
+	{"weight": 1.0, "units": [["legion_threshold_knight", 1, 1], ["hollowed_shambler", 2, 3]]},
+	{"weight": 1.0, "units": [["legion_dreadknight", 1, 1], ["hollowed_shambler", 2, 3]]},
+	{"weight": 1.0, "units": [["veilborne_cantor", 1, 1], ["veilborne_mindbender", 2, 2]]},
+	{"weight": 1.0, "units": [["synod_exarch", 1, 1], [SYNOD_GOLEMS, 1, 2]]},
 ]
 
 # Cooldown Reduction cap (user request 2026-08-30): across every source that
-# reduces an ability's cooldown at cast time - Ability.rank's own -4%/rank
+# reduces an ability's cooldown at cast time - over-cap spell levels, gear
 # and Instinct's Action/Cast Speed (Player.get_action_speed_multiplier()) -
 # an ability's cooldown can never drop below 25% of its authored
 # cooldown_seconds. See Ability.get_final_cooldown().

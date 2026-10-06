@@ -54,11 +54,6 @@ const SPARK_CRAWLER_SCENE := preload("res://entities/effects/spark_crawler/Spark
 const SPARK_COUNT := 3
 const SPARK_SPREAD_DEG := 25.0
 
-## Tornado ("You can have up to three tornadoes at once", user request
-## 2026-08-30) - gated in _try_cast() by counting the "tornado_field"
-## group TornadoField.play() adds itself to, same spirit as the cooldown/
-## mana checks right above it but ability-specific rather than generic.
-const TORNADO_MAX_ACTIVE := 3
 
 const BLINK_DISTANCE := 8.0
 const PIERCING_BOLT_SCENE := preload("res://entities/effects/piercing_bolt/PiercingBolt.tscn")
@@ -160,7 +155,7 @@ func _physics_process(delta: float) -> void:
 				_flame_jets_drain_timer -= delta
 				if _flame_jets_drain_timer <= 0.0:
 					_flame_jets_drain_timer += CHANNEL_MANA_DRAIN_INTERVAL
-					_player.mana.spend(_flame_jets_ability.resource_cost * CHANNEL_MANA_DRAIN_PERCENT)
+					_player.mana.spend(_flame_jets_ability.get_mana_cost(_player.stat_sheet) * CHANNEL_MANA_DRAIN_PERCENT)
 					if _player.mana.current_mana <= 0.0:
 						_flame_jets_remaining = 0.0
 
@@ -207,10 +202,10 @@ func _try_cast(slot_index: int, cast_position: Vector3) -> void:
 	if get_cooldown_remaining(ability) > 0.0:
 		EventBus.ability_cast_failed.emit(_player, ability, "On cooldown")
 		return
-	if ability.ability_id == "tornado" and get_tree().get_nodes_in_group("tornado_field").size() >= TORNADO_MAX_ACTIVE:
-		EventBus.ability_cast_failed.emit(_player, ability, "3 tornadoes already active")
+	if ability.ability_id == "tornado" and get_tree().get_nodes_in_group("tornado_field").size() >= ability.get_limit(_player.stat_sheet):
+		EventBus.ability_cast_failed.emit(_player, ability, "Limit reached")
 		return
-	if _player.mana.current_mana < ability.resource_cost:
+	if _player.mana.current_mana < ability.get_mana_cost(_player.stat_sheet):
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
 		return
 	# Patch v4.3: CastTimeHandler.try_cast() refuses while a cast is winding
@@ -219,7 +214,7 @@ func _try_cast(slot_index: int, cast_position: Vector3) -> void:
 	if _player.cast_time_handler.is_casting():
 		EventBus.ability_cast_failed.emit(_player, ability, "Already casting")
 		return
-	_player.mana.spend(ability.resource_cost)
+	_player.mana.spend(ability.get_mana_cost(_player.stat_sheet))
 	if ability.ability_id == "flame_jets":
 		_flame_jets_input_action = "ability_%d" % (slot_index + 1)
 		_flame_jets_is_manual = true
@@ -227,7 +222,7 @@ func _try_cast(slot_index: int, cast_position: Vector3) -> void:
 	# the authored cooldown, same treatment PlayerMeleeAttack/
 	# PlayerRangedAttack give their own timings. get_final_cooldown() caps
 	# the combined reduction at Constants.MAX_COOLDOWN_REDUCTION.
-	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier())
+	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet)
 	# Patch v3.7 Section 2: routes through CastTimeHandler - INSTANT/
 	# CHANNELED abilities call _cast() back immediately (synchronously,
 	# via _on_cast_time_completed below), CAST_TIME ones only after their
@@ -257,7 +252,7 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		return
 	if ability.ability_id == "frost_armor":
 		_frost_armor_ability = ability
-		_frost_armor_remaining = FROST_ARMOR_DURATION
+		_frost_armor_remaining = FROST_ARMOR_DURATION * ability.get_duration_multiplier(_player.stat_sheet)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "flame_jets":
@@ -322,7 +317,7 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if cast_position.distance_to(enemy.global_position) > ability.radius:
+		if cast_position.distance_to(enemy.global_position) > ability.get_radius(_player.stat_sheet):
 			continue
 		var hit := ability.roll_damage(_player.stat_sheet)
 		var damage: float = hit["final_damage"] * damage_multiplier
@@ -362,7 +357,7 @@ func _process_slate_autocasts() -> void:
 ## this never calls ManaComponent.spend(), unlike _try_cast()), no
 ## Riposte window/Composure damage (apply_composure=false).
 func _auto_cast(ability: Ability, slate: Slate) -> void:
-	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier())
+	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_is_manual = false
 	var damage_percent := _modifier_value(slate, "auto_cast_damage_percent", 100.0)
@@ -404,14 +399,14 @@ func _play_range_effect(ability: Ability, cast_position: Vector3) -> void:
 	if ability.ability_id == "flame_wall":
 		# Needs the caster's own position too, to orient the wall - see
 		# FlameWallField.play()'s own comment.
-		effect.call("play", ability.radius, color, ability, _player.stat_sheet, _player, _player.global_position)
+		effect.call("play", ability.get_radius(_player.stat_sheet), color, ability, _player.stat_sheet, _player, _player.global_position)
 	elif ability.ability_id == "caltrops" or ability.ability_id == "black_hole" or ability.ability_id == "tornado":
 		# CaltropsField/BlackHoleField need the ability + StatSheet directly -
 		# both roll their own damage per tick rather than reusing one hit's
 		# damage repeatedly.
-		effect.call("play", ability.radius, color, ability, _player.stat_sheet, _player)
+		effect.call("play", ability.get_radius(_player.stat_sheet), color, ability, _player.stat_sheet, _player)
 	else:
-		effect.call("play", ability.radius, color)
+		effect.call("play", ability.get_radius(_player.stat_sheet), color)
 
 ## Called by EnemyMeleeAttack._resolve_hit() at the exact moment an enemy's
 ## melee strike lands on the player - "melee range" per Frost Armor's own
@@ -509,7 +504,7 @@ func _fire_winters_eye(ability: Ability, target: Vector3) -> void:
 	_player.get_tree().current_scene.add_child(orb)
 	orb.global_position = _player.global_position + Vector3(0, 1.0, 0)
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
-	orb.call("play", ability.radius, color, ability, _player.stat_sheet, _player, target)
+	orb.call("play", ability.get_radius(_player.stat_sheet), color, ability, _player.stat_sheet, _player, target)
 
 func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D) -> void:
 	var bolt: PiercingBolt = PIERCING_BOLT_SCENE.instantiate()
@@ -519,6 +514,7 @@ func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D)
 	bolt.damage_amount = hit["final_damage"] * damage_multiplier
 	bolt.is_critical = hit["is_critical"]
 	bolt.damage_type = ability.damage_type
+	bolt.speed *= ability.get_projectile_speed_multiplier(_player.stat_sheet)
 	bolt.source = _player
 	bolt.applies_status_effects = ability.applies_status_effects
 
@@ -588,13 +584,13 @@ func _show_reticle(ability: Ability) -> void:
 
 	if ability.ability_id == "flame_wall":
 		var box := BoxMesh.new()
-		var half_width: float = max(ability.radius, 1.5)
+		var half_width: float = max(ability.get_radius(_player.stat_sheet), 1.5)
 		box.size = Vector3(half_width * 2.0, FLAME_WALL_RETICLE_HEIGHT, FlameWallField.WALL_THICKNESS)
 		_reticle.mesh = box
 	else:
 		var torus := TorusMesh.new()
-		torus.outer_radius = max(ability.radius, 0.2)
-		torus.inner_radius = max(ability.radius - 0.15, 0.05)
+		torus.outer_radius = max(ability.get_radius(_player.stat_sheet), 0.2)
+		torus.inner_radius = max(ability.get_radius(_player.stat_sheet) - 0.15, 0.05)
 		_reticle.mesh = torus
 
 	var mat: StandardMaterial3D = _reticle.material_override

@@ -161,7 +161,9 @@ func _ready() -> void:
 	GameState.player_stat_sheet = stat_sheet
 	GameState.fate_board = fate_board
 	GameState.player_equipment = equipment
-	mouse_sensitivity = GameState.mouse_sensitivity
+	_apply_settings()
+	EventBus.settings_changed.connect(_apply_settings)
+	status_effects.effect_applied.connect(_on_status_effect_applied)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	add_to_group("player")
 	health.died.connect(_on_died)
@@ -197,11 +199,9 @@ func _on_equipment_changed() -> void:
 	stat_sheet.set_equipment_resistance(equipment.compute_resistance_bonuses())
 	stat_sheet.set_misc_bonus(equipment.compute_misc_bonuses())
 	stat_sheet.apply_equipment_affixes(equipment.get_all_equipped_items())
-	# Patch v3.7 Section 1: Conduit spell power floor, checked on the
-	# primary weapon only (an offhand-slot Conduit doesn't contribute -
-	# user direction, keeps this simple rather than summing both slots).
+	# Primary-slot Conduit only; an offhand Conduit doesn't contribute.
 	var primary := equipment.primary_weapon
-	stat_sheet.set_conduit_spell_power_range(primary.get_spell_power_range() if primary and primary.is_conduit else Vector2.ZERO)
+	stat_sheet.conduit_spell_damage_bonus = primary.get_conduit_spell_damage_bonus() if primary else 0.0
 	_apply_derived_stats()
 	_update_shield_mesh()
 	_update_active_weapon_visual()
@@ -301,6 +301,15 @@ func _on_leveled_up(new_level: int) -> void:
 func _on_xp_changed(current: float, _needed: float) -> void:
 	GameState.player_xp = current
 
+## Only a stun breaks a cast wind-up; plain damage doesn't.
+func _on_status_effect_applied(_effect_id: String) -> void:
+	if status_effects.is_stunned() and cast_time_handler.is_casting():
+		cast_time_handler.interrupt()
+
+func _apply_settings() -> void:
+	mouse_sensitivity = GameState.mouse_sensitivity
+	camera.fov = GameState.field_of_view
+
 func _on_died() -> void:
 	EventBus.player_died.emit()
 
@@ -329,7 +338,7 @@ func _apply_saved_loadout() -> void:
 			var ability: Ability = load(path)
 			if ability:
 				ability_loadout.equip(ability, i)
-	_apply_saved_ability_ranks()
+	_apply_saved_ability_levels()
 
 ## A rolled item's ref is a serialized snapshot; equipped items aren't in
 ## the inventory, so the restored copy is the only instance.
@@ -385,8 +394,8 @@ func _resolve_slate_ref(ref) -> Slate:
 		return SlateSerializer.from_dict(ref)
 	return null
 
-func _apply_saved_ability_ranks() -> void:
-	if GameState.ability_ranks.is_empty():
+func _apply_saved_ability_levels() -> void:
+	if GameState.ability_levels.is_empty():
 		return
 	var dir_path := "res://data/abilities/instances/"
 	var dir := DirAccess.open(dir_path)
@@ -397,8 +406,8 @@ func _apply_saved_ability_ranks() -> void:
 	while file_name != "":
 		if file_name.ends_with(".tres"):
 			var ability: Ability = load(dir_path + file_name) as Ability
-			if ability and GameState.ability_ranks.has(ability.ability_id):
-				ability.rank = GameState.ability_ranks[ability.ability_id]
+			if ability and GameState.ability_levels.has(ability.ability_id):
+				ability.level = clampi(int(GameState.ability_levels[ability.ability_id]), 1, Ability.MAX_LEVEL)
 		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 
@@ -548,12 +557,6 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 	var overflow := ward.absorb(mitigated)
 	health.apply_damage(overflow)
 	EventBus.damage_dealt.emit(source, self, mitigated, damage_type, false, false)
-	# Patch v3.7 Section 2: taking damage interrupts a CAST_TIME windup.
-	# is_casting() is only ever true mid-CAST_TIME (INSTANT/CHANNELED
-	# both complete synchronously and never set it), so this can't
-	# accidentally interrupt either of those - no extra type check needed.
-	if cast_time_handler.is_casting():
-		cast_time_handler.interrupt()
 
 const BLOCK_CHANCE_CAP := 0.75
 

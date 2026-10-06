@@ -1,0 +1,834 @@
+{
+  "source": "Dreadknight.mdx",
+  "version": 1000,
+  "scale": 0.02,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.0737904357910157,
+      0,
+      -1.691626739501953
+    ],
+    "max": [
+      1.1577236938476563,
+      2.922735595703125,
+      1.6804058837890625
+    ],
+    "height": 2.922735595703125
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 300,
+      "end": 2400,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 2700,
+      "end": 4200,
+      "move_speed": 0.34,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 4500,
+      "end": 9000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 9300,
+      "end": 11967,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 12267,
+      "end": 14100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 14400,
+      "end": 15400,
+      "move_speed": 5.4,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Slam 1",
+      "start": 15700,
+      "end": 17533,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 17833,
+      "end": 20166,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 20466,
+      "end": 23799,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 24099,
+      "end": 25532,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 25832,
+      "end": 27265,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Stand",
+      "start": 27565,
+      "end": 30532,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Walk One",
+      "start": 30832,
+      "end": 31965,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "undead_malganis_rig:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Main_Diffuse.dds",
+        "normal": "undead_malganis_main_normal.dds",
+        "orm": "undead_malganis_main_orm.dds",
+        "emissive": "undead_malganis_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Main_Diffuse.dds",
+        "normal": "Units/Undead/MalGanis/Undead_MalGanis_Main_Normal.tif",
+        "orm": "Units/Undead/MalGanis/Undead_MalGanis_Main_ORM.tif",
+        "emissive": "Units/Undead/MalGanis/Undead_MalGanis_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "undead_tichondrius_attach_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Attach_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "undead_tichondrius_main_normal.dds",
+        "orm": "undead_tichondrius_main_orm.dds",
+        "emissive": "undead_tichondrius_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "Units/Undead/Tichondrius/Undead_Tichondrius_Main_Normal.tif",
+        "orm": "Units/Undead/Tichondrius/Undead_Tichondrius_Main_ORM.tif",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "undead_tichondrius_attach_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Attach_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "undead_tichondrius_main_normal.dds",
+        "orm": "undead_tichondrius_main_orm.dds",
+        "emissive": "undead_tichondrius_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "Units/Undead/Tichondrius/Undead_Tichondrius_Main_Normal.tif",
+        "orm": "Units/Undead/Tichondrius/Undead_Tichondrius_Main_ORM.tif",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "",
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "undead_dalvengyr_main_normal.dds",
+        "orm": "undead_dalvengyr_main_orm.dds",
+        "emissive": "undead_dalvengyr_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "Units/Undead/Dalvengyr/Undead_Dalvengyr_Main_Normal.tif",
+        "orm": "Units/Undead/Dalvengyr/Undead_Dalvengyr_Main_ORM.tif",
+        "emissive": "Units/Undead/Dalvengyr/Undead_Dalvengyr_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "undead_tichondrius_attach_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Attach_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "undead_tichondrius_attach_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Attach_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "undead_tichondrius_attach_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Attach_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "undead_tichondrius_attach_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Armor_Diffuse.dds",
+        "normal": "Dreadknight_Armor_Normal.dds",
+        "orm": "Dreadknight_Armor_ORM.dds",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Attach_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "bloodfiend_main_normal.dds",
+        "orm": "bloodfiend_main_orm.dds",
+        "emissive": "bloodfiend_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "Units/Demon/Bloodfiend/Bloodfiend_Main_Normal.tif",
+        "orm": "Units/Demon/Bloodfiend/Bloodfiend_Main_ORM.tif",
+        "emissive": "Units/Demon/Bloodfiend/Bloodfiend_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "undead_tichondrius_main_normal.dds",
+        "orm": "undead_tichondrius_main_orm.dds",
+        "emissive": "undead_tichondrius_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "Units/Undead/Tichondrius/Undead_Tichondrius_Main_Normal.tif",
+        "orm": "Units/Undead/Tichondrius/Undead_Tichondrius_Main_ORM.tif",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "",
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orcjuggernaught_ship_diffuse.dds",
+        "normal": "orcjuggernaught_ship_normal.dds",
+        "orm": "orcjuggernaught_ship_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Critters/OrcJuggernaught/OrcJuggernaught_ship_Diffuse.tif",
+        "normal": "Units/Critters/OrcJuggernaught/OrcJuggernaught_ship_Normal.tif",
+        "orm": "Units/Critters/OrcJuggernaught/OrcJuggernaught_ship_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "",
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orcjuggernaught_ship_diffuse.dds",
+        "normal": "orcjuggernaught_ship_normal.dds",
+        "orm": "orcjuggernaught_ship_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Critters/OrcJuggernaught/OrcJuggernaught_ship_Diffuse.tif",
+        "normal": "Units/Critters/OrcJuggernaught/OrcJuggernaught_ship_Normal.tif",
+        "orm": "Units/Critters/OrcJuggernaught/OrcJuggernaught_ship_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "",
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "HeroLegion_Felstone_Diffuse.dds",
+        "normal": "volcanus_heart_normal.dds",
+        "orm": "volcanus_heart_orm.dds",
+        "emissive": "HeroLegion_Felstone_Emissive.dds"
+      },
+      "sources": {
+        "diffuse": "HeroLegion_Felstone_Diffuse.dds",
+        "normal": "Units/Creeps/Volcanus/Volcanus_Heart_Normal.tif",
+        "orm": "Units/Creeps/Volcanus/Volcanus_Heart_ORM.tif",
+        "emissive": "HeroLegion_Felstone_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "",
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "HeroLegion_Felstone_Diffuse.dds",
+        "normal": "volcanus_heart_normal.dds",
+        "orm": "volcanus_heart_orm.dds",
+        "emissive": "HeroLegion_Felstone_Emissive.dds"
+      },
+      "sources": {
+        "diffuse": "HeroLegion_Felstone_Diffuse.dds",
+        "normal": "Units/Creeps/Volcanus/Volcanus_Heart_Normal.tif",
+        "orm": "Units/Creeps/Volcanus/Volcanus_Heart_ORM.tif",
+        "emissive": "HeroLegion_Felstone_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 16,
+      "name": "",
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "undead_varimathras_main_normal.dds",
+        "orm": "undead_varimathras_main_orm.dds",
+        "emissive": "undead_varimathras_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "Units/Undead/Varimathras/Undead_Varimathras_Main_Normal.tif",
+        "orm": "Units/Undead/Varimathras/Undead_Varimathras_Main_ORM.tif",
+        "emissive": "Units/Undead/Varimathras/Undead_Varimathras_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 17,
+      "name": "",
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "undead_varimathras_main_normal.dds",
+        "orm": "undead_varimathras_main_orm.dds",
+        "emissive": "undead_varimathras_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Helmet.dds",
+        "normal": "Units/Undead/Varimathras/Undead_Varimathras_Main_Normal.tif",
+        "orm": "Units/Undead/Varimathras/Undead_Varimathras_Main_ORM.tif",
+        "emissive": "Units/Undead/Varimathras/Undead_Varimathras_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "undead_Tichondrius_rig1:wing_geo",
+      "material_id": 10,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_tichondrius_wing_diffuse.dds",
+        "normal": "undead_tichondrius_wing_normal.dds",
+        "orm": "undead_tichondrius_wing_orm.dds",
+        "emissive": "undead_tichondrius_wing_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Tichondrius/Undead_Tichondrius_Wing_Diffuse.tif",
+        "normal": "Units/Undead/Tichondrius/Undead_Tichondrius_Wing_Normal.tif",
+        "orm": "Units/Undead/Tichondrius/Undead_Tichondrius_Wing_ORM.tif",
+        "emissive": "Units/Undead/Tichondrius/Undead_Tichondrius_Wing_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "",
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Dreadknight_Sword_Diffuse.dds",
+        "normal": "undead_deathknight_weapons_normal.dds",
+        "orm": "undead_deathknight_weapons_orm.dds",
+        "emissive": "Dreadknight_Sword_Emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dreadknight_Sword_Diffuse.dds",
+        "normal": "Units/Undead/HeroFemaleDeathKnight/Undead_DeathKnight_Weapons_Normal.tif",
+        "orm": "Units/Undead/HeroFemaleDeathKnight/Undead_DeathKnight_Weapons_ORM.tif",
+        "emissive": "Dreadknight_Sword_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Spell Slam 1": true,
+        "Death 1": true,
+        "Dissipate": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    }
+  ]
+}

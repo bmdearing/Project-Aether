@@ -1,0 +1,422 @@
+{
+  "source": "bloodgolem.mdx",
+  "version": 1000,
+  "scale": 0.0105,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.46670610237121585,
+      0.0000292301494628191,
+      -2.0190819396972657
+    ],
+    "max": [
+      0.6398348579406739,
+      3.2116855773925783,
+      2.007465385437012
+    ],
+    "height": 3.2116563472431157
+  },
+  "sequences": [
+    {
+      "name": "Stand 2",
+      "start": 1700,
+      "end": 4967,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 5067,
+      "end": 9367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 9467,
+      "end": 10734,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 10834,
+      "end": 11868,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Spell 1",
+      "start": 11968,
+      "end": 13035,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Slam 1",
+      "start": 13135,
+      "end": 14168,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Sleep",
+      "start": 14268,
+      "end": 14568,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 14668,
+      "end": 16001,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 16101,
+      "end": 17734,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 17834,
+      "end": 20501,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 20601,
+      "end": 80601,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 80701,
+      "end": 82368,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "WarGolem_rig:main_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bloodgolem_skirt_diffuse.dds",
+        "normal": "wargolem_main_normal.dds",
+        "orm": "wargolem_main_orm.dds",
+        "emissive": "wargolem_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "bloodgolem_skirt_diffuse.dds",
+        "normal": "Units/Creeps/WarGolem/WarGolem_main_Normal.tif",
+        "orm": "Units/Creeps/WarGolem/WarGolem_main_ORM.tif",
+        "emissive": "Units/Creeps/WarGolem/WarGolem_main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack Spell 1": true,
+        "Spell Slam 1": true,
+        "Sleep": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true,
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "human_bloodElfLieutenant_rig:main_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_bloodelflieutenant_main_diffuse.dds",
+        "normal": "human_bloodelflieutenant_main_normal.dds",
+        "orm": "human_bloodelflieutenant_main_orm.dds",
+        "emissive": "human_bloodelflieutenant_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Other/BloodElfLieutenant/Human_BloodElfLieutenant_Main_Diffuse.tif",
+        "normal": "Units/Other/BloodElfLieutenant/Human_BloodElfLieutenant_Main_Normal.tif",
+        "orm": "Units/Other/BloodElfLieutenant/Human_BloodElfLieutenant_Main_ORM.tif",
+        "emissive": "Units/Other/BloodElfLieutenant/Human_BloodElfLieutenant_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack Spell 1": true,
+        "Spell Slam 1": true,
+        "Sleep": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true,
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Bloodfiend_rig:main_geo",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bloodgolem_main_diffuse.dds",
+        "normal": "bloodfiend_main_normal.dds",
+        "orm": "bloodfiend_main_orm.dds",
+        "emissive": "bloodfiend_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "bloodgolem_main_diffuse.dds",
+        "normal": "Units/Demon/Bloodfiend/Bloodfiend_Main_Normal.tif",
+        "orm": "Units/Demon/Bloodfiend/Bloodfiend_Main_ORM.tif",
+        "emissive": "Units/Demon/Bloodfiend/Bloodfiend_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack Spell 1": true,
+        "Spell Slam 1": true,
+        "Sleep": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true,
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Bloodfiend_rig:main_geo",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "bloodgolem_main_diffuse.dds",
+        "normal": "bloodfiend_main_normal.dds",
+        "orm": "bloodfiend_main_orm.dds",
+        "emissive": "bloodfiend_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "bloodgolem_main_diffuse.dds",
+        "normal": "Units/Demon/Bloodfiend/Bloodfiend_Main_Normal.tif",
+        "orm": "Units/Demon/Bloodfiend/Bloodfiend_Main_ORM.tif",
+        "emissive": "Units/Demon/Bloodfiend/Bloodfiend_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack Spell 1": true,
+        "Spell Slam 1": true,
+        "Sleep": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true,
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "human_towerDefenseTower_rig:advBoulderTower_main_geo",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_bouldertower_diffuse.dds",
+        "normal": "human_bouldertower_normal.dds",
+        "orm": "human_bouldertower_orm.dds",
+        "emissive": "human_bouldertower_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/TowerDefenseTower/Human_BoulderTower_Diffuse.tif",
+        "normal": "Buildings/Other/TowerDefenseTower/Human_BoulderTower_Normal.tif",
+        "orm": "Buildings/Other/TowerDefenseTower/Human_BoulderTower_ORM.tif",
+        "emissive": "Buildings/Other/TowerDefenseTower/Human_BoulderTower_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack Spell 1": true,
+        "Spell Slam 1": true,
+        "Sleep": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true,
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "SilvermoonWallCorner",
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "sm_silvermoonwall_diffuse.dds",
+        "normal": "sm_silvermoonwall_normal.dds",
+        "orm": "sm_silvermoonwall_orm.dds",
+        "emissive": "sm_silvermoonwall_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "sm_silvermoonwall_diffuse.dds",
+        "normal": "Doodads/Silvermoon/Structures/SilvermoonWallCorner/SM_SilvermoonWall_Normal.tif",
+        "orm": "Doodads/Silvermoon/Structures/SilvermoonWallCorner/SM_SilvermoonWall_ORM.tif",
+        "emissive": "sm_silvermoonwall_emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack Spell 1": true,
+        "Spell Slam 1": true,
+        "Sleep": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true,
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "human_dragonhawkRider_rig_ingame:main_geo",
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_highelfdragonhawkrider_rider_v1_diffuse.dds",
+        "normal": "human_highelfdragonhawkrider_rider_v1_normal.dds",
+        "orm": "human_highelfdragonhawkrider_rider_v1_orm.dds",
+        "emissive": "human_highelfdragonhawkrider_rider_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_V1_Diffuse.tif",
+        "normal": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_V1_Normal.tif",
+        "orm": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_V1_ORM.tif",
+        "emissive": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack Spell 1": true,
+        "Spell Slam 1": true,
+        "Sleep": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true,
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "human_dragonhawkRider_rig_ingame:main_geo",
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_highelfdragonhawkrider_rider_v1_diffuse.dds",
+        "normal": "human_highelfdragonhawkrider_rider_v1_normal.dds",
+        "orm": "human_highelfdragonhawkrider_rider_v1_orm.dds",
+        "emissive": "human_highelfdragonhawkrider_rider_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_V1_Diffuse.tif",
+        "normal": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_V1_Normal.tif",
+        "orm": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_V1_ORM.tif",
+        "emissive": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack Spell 1": true,
+        "Spell Slam 1": true,
+        "Sleep": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true,
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "human_skyFuryTower_rig:main_geo",
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_skyfurytower_diffuse.dds",
+        "normal": "human_skyfurytower_normal.dds",
+        "orm": "human_skyfurytower_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ElvenGuardMagicTower/Human_SkyFuryTower_Diffuse.tif",
+        "normal": "Buildings/Other/ElvenGuardMagicTower/Human_SkyFuryTower_Normal.tif",
+        "orm": "Buildings/Other/ElvenGuardMagicTower/Human_SkyFuryTower_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack Spell 1": true,
+        "Spell Slam 1": true,
+        "Sleep": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true,
+        "Stand 1": true
+      }
+    }
+  ]
+}

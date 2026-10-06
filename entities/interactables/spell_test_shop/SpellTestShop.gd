@@ -50,7 +50,11 @@ func _open_shop() -> void:
 					})
 			file_name = dir.get_next().trim_suffix(".remap")
 		dir.list_dir_end()
-	_get_shop_screen().open_with("Spell Testing Shop (Free - Debug)", entries)
+	_get_shop_screen().open_with("Spell Testing Shop (Free - Debug)", entries, {
+		"label": "Take 100 Crystallized Aether",
+		"cost": 0,
+		"on_action": func(): GameState.inventory.add(Ability.AETHER_CURRENCY, 100),
+	})
 
 func _grant(ability_id: String) -> void:
 	if not GameState.owned_ability_ids.has(ability_id):

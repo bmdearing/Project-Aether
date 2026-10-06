@@ -47,7 +47,10 @@ const BOSS_SPAWN_LOCAL := Vector3(0, 0.05, -(OUTER_RADIUS - CUT_OFFSET * 0.5))
 const PLAYER_SPAWN_LOCAL := Vector3(OUTER_RADIUS * 0.6, 0.1, -OUTER_RADIUS * 0.55)
 
 const PLAYER_SCENE := preload("res://entities/player/Player.tscn")
-const BOSS_SCENE := preload("res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn")
+const BOSS_SCENES: Array[PackedScene] = [
+	preload("res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn"),
+	preload("res://entities/enemies/xalatath/Xalatath.tscn"),
+]
 
 const FLOOR_SHADER_CODE := """
 shader_type spatial;
@@ -108,7 +111,7 @@ func _spawn_player() -> void:
 	player.look_at(Vector3(BOSS_SPAWN_LOCAL.x, player.global_position.y, BOSS_SPAWN_LOCAL.z))
 
 func _spawn_boss() -> void:
-	var boss: Enemy = BOSS_SCENE.instantiate()
+	var boss: Enemy = BOSS_SCENES.pick_random().instantiate()
 	boss.rank = Constants.EnemyRank.BOSS
 	add_child(boss)
 	boss.global_position = $BossSpawnPoint.global_position

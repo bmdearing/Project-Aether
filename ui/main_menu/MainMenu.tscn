@@ -98,53 +98,6 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="SettingsPanel"]
-custom_minimum_size = Vector2(360, 0)
-layout_mode = 2
-theme_override_constants/separation = 14
-alignment = 1
-
-[node name="TitleLabel" type="Label" parent="SettingsPanel/VBoxContainer"]
-layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Settings"
-horizontal_alignment = 1
-
-[node name="MouseSensitivityLabel" type="Label" parent="SettingsPanel/VBoxContainer"]
-layout_mode = 2
-text = "Mouse Sensitivity"
-
-[node name="MouseSensitivitySlider" type="HSlider" parent="SettingsPanel/VBoxContainer"]
-layout_mode = 2
-min_value = 0.001
-max_value = 0.01
-step = 0.0005
-value = 0.0035
-
-[node name="MasterVolumeLabel" type="Label" parent="SettingsPanel/VBoxContainer"]
-layout_mode = 2
-text = "Master Volume"
-
-[node name="MasterVolumeSlider" type="HSlider" parent="SettingsPanel/VBoxContainer"]
-layout_mode = 2
-min_value = 0.0
-max_value = 1.0
-step = 0.01
-value = 1.0
-
-[node name="FullscreenCheckBox" type="CheckBox" parent="SettingsPanel/VBoxContainer"]
-layout_mode = 2
-text = "Fullscreen"
-
-[node name="SettingsHintLabel" type="Label" parent="SettingsPanel/VBoxContainer"]
-layout_mode = 2
-autowrap_mode = 3
-text = "Settings apply immediately and last for this session. There's no options file yet, so they reset to these defaults next time the game is launched."
-
-[node name="SettingsBackButton" type="Button" parent="SettingsPanel/VBoxContainer"]
-layout_mode = 2
-text = "Back"
-
 [node name="AboutPanel" type="CenterContainer" parent="."]
 visible = false
 layout_mode = 1

@@ -21,85 +21,99 @@
       "name": "Stand 1",
       "start": 0,
       "end": 1633,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand 2",
       "start": 1667,
       "end": 4133,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Victory 1",
       "start": 4167,
       "end": 6767,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Attack 1",
       "start": 6800,
       "end": 7767,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Walk 1",
       "start": 7800,
       "end": 8600,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 4.859999999999999
     },
     {
       "name": "Stand Defend 1",
       "start": 8633,
       "end": 10133,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Walk Defend 1",
       "start": 10167,
       "end": 11267,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Death 1",
       "start": 11300,
       "end": 14333,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Decay Flesh",
       "start": 14367,
       "end": 74367,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Attack Defend 1",
       "start": 74400,
       "end": 75367,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Death Fire 1",
       "start": 11300,
       "end": 14333,
-      "duplicate_of": "Death 1"
+      "duplicate_of": "Death 1",
+      "move_speed": 0
     },
     {
       "name": "Stand Hit 1",
       "start": 0,
       "end": 1633,
-      "duplicate_of": "Stand 1"
+      "duplicate_of": "Stand 1",
+      "move_speed": 0
     },
     {
       "name": "Decay Bone",
       "start": 75400,
       "end": 135400,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Ready 1",
       "start": 135433,
       "end": 136433,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     }
   ],
   "geosets": [

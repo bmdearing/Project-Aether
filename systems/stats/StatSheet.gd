@@ -104,8 +104,7 @@ func get_crit_chance_from_stats() -> float:
 func get_attack_speed_from_stats() -> float:
 	return get_stat(Constants.Stat.AGILITY) * 0.01
 
-## Intellect: +1% increased spell damage per point - multiplies Conduit
-## spell power in Ability._base_hit().
+## Intellect: +1% increased spell damage per point (Ability._increased_percents()).
 func get_spell_power_from_stats() -> float:
 	return get_stat(Constants.Stat.INTELLECT) * 0.01
 
@@ -204,20 +203,13 @@ func apply_cast_speed_to_cooldown_conversion(conversion_percent: float) -> void:
 	var converted := cast_speed_bonus * (conversion_percent / 100.0)
 	cooldown_recovery_rate += converted
 
-## The equipped Conduit's spell power range (min, max) - the spell
-## counterpart of a weapon's base damage range; Ability.roll_damage() rolls
-## within it per cast. Recomputed by Player._on_equipment_changed() from
-## equipment.primary_weapon when it's a Conduit, (0, 0) otherwise - cached
-## here so every Ability.predict_damage()/roll_damage() call site (15+
-## across PlayerAbilityCast.gd and entities/effects/) needs no extra args.
-var conduit_spell_power_range: Vector2 = Vector2.ZERO
-
-func set_conduit_spell_power_range(value: Vector2) -> void:
-	conduit_spell_power_range = value
+## Increased Spell damage % from the equipped primary Conduit, pushed in by
+## Player._on_equipment_changed().
+var conduit_spell_damage_bonus: float = 0.0
 
 ## Player._apply_derived_stats() computes these from Agility and gear and
 ## stores them here (same "Player pushes a fresh total in" convention as
-## equipment_bonus/conduit_spell_power_range). stat_evasion_bonus is the total
+## equipment_bonus/conduit_spell_damage_bonus). stat_evasion_bonus is the total
 ## Evasion Rating (see get_total_evasion()), refreshed for display; the hit
 ## roll in Player.take_damage() reads get_total_evasion() live.
 ## finesse_crit_bonus (name kept from before the v4.8 rename) is Agility's +

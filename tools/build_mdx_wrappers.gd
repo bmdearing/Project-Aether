@@ -83,6 +83,11 @@ func _build_wrapper(label: String, mdx_path: String, out_path: String, with_anim
 	root.set("hidden_geosets", hidden)
 	root.set("always_hidden", always_hidden)
 	root.set("idle_clip", String(meta["idle_sequence"]))
+	var speeds := {}
+	for seq in meta["sequences"]:
+		if float(seq.get("move_speed", 0.0)) > 0.0:
+			speeds[String(seq["name"])] = float(seq["move_speed"])
+	root.set("clip_move_speeds", speeds)
 
 	var packed := PackedScene.new()
 	var err := packed.pack(root)

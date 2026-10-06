@@ -24,6 +24,7 @@ const INVENTORY_VERSION := 2
 
 func _ready() -> void:
 	load_game()
+	GameSettings.load_and_apply()
 
 func has_save() -> bool:
 	return FileAccess.file_exists(SAVE_PATH)
@@ -40,7 +41,7 @@ func save_game() -> void:
 		"weapon_set_refs": GameState.weapon_set_refs,
 		"active_weapon_set": GameState.active_weapon_set,
 		"ability_loadout_paths": GameState.ability_loadout_paths,
-		"ability_ranks": GameState.ability_ranks,
+		"ability_levels": GameState.ability_levels,
 		"player_level": GameState.player_level,
 		"player_xp": GameState.player_xp,
 		"gold": GameState.gold,
@@ -88,9 +89,16 @@ func load_game() -> void:
 		]
 	GameState.active_weapon_set = int(parsed.get("active_weapon_set", GameState.active_weapon_set))
 	GameState.ability_loadout_paths = _to_string_array(parsed.get("ability_loadout_paths"), GameState.ability_loadout_paths)
-	var ranks = parsed.get("ability_ranks", {})
-	if typeof(ranks) == TYPE_DICTIONARY:
-		GameState.ability_ranks = ranks
+	var levels = parsed.get("ability_levels", null)
+	if typeof(levels) == TYPE_DICTIONARY:
+		GameState.ability_levels = levels
+	else:
+		# Pre-level saves stored ranks 0-5; rank N becomes level N + 1.
+		var ranks = parsed.get("ability_ranks", {})
+		GameState.ability_levels = {}
+		if typeof(ranks) == TYPE_DICTIONARY:
+			for id in ranks:
+				GameState.ability_levels[id] = int(ranks[id]) + 1
 	GameState.player_level = int(parsed.get("player_level", GameState.player_level))
 	GameState.player_xp = float(parsed.get("player_xp", GameState.player_xp))
 	GameState.gold = int(parsed.get("gold", GameState.gold))

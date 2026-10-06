@@ -156,7 +156,7 @@ func _refresh_slot(index: int) -> void:
 		icon.text = ability.display_name
 		icon.tooltip_text = ability.display_name
 		box.bg_color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
-		cost_label.text = "%.0f" % ability.resource_cost
+		cost_label.text = "%.0f" % ability.get_mana_cost(_player.stat_sheet)
 	else:
 		icon.text = ""
 		icon.tooltip_text = ""
@@ -179,7 +179,7 @@ func _update_slot_cooldown(index: int) -> void:
 		label.text = ""
 		return
 	var remaining := _player.ability_cast.get_cooldown_remaining(ability)
-	var total := ability.get_effective_cooldown()
+	var total := ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet)
 	var fraction := remaining / total if total > 0.0 else 0.0
 	overlay.anchor_top = 1.0 - clamp(fraction, 0.0, 1.0)
 	label.text = "%.1f" % remaining if remaining > 0.05 else ""

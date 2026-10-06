@@ -1,0 +1,17 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="PackedScene" path="res://entities/enemies/units/MeleeUnit.tscn" id="1"]
+[ext_resource type="Script" path="res://entities/enemies/xalatath/Xalatath.gd" id="2"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/xalatath.tres" id="3"]
+[ext_resource type="Script" path="res://systems/combat/EnemyRangedAttack.gd" id="4"]
+
+[node name="Xalatath" instance=ExtResource("1")]
+script = ExtResource("2")
+rank = 3
+definition = ExtResource("3")
+
+[node name="RangedAttack" type="Node" parent="."]
+script = ExtResource("4")
+windup_duration = 0.8
+damage_type = 7
+projectile_speed = 16.0

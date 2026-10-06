@@ -72,6 +72,8 @@ function buildSidecar(model, mdxPath, scale) {
     name: s.Name,
     start: s.Interval[0],
     end: s.Interval[1],
+    // WC3 ground speed the clip is authored for, in exported metres/sec.
+    move_speed: (s.MoveSpeed || 0) * scale,
     duplicate_of: null,
   }));
   sequences.forEach((s, i) => {

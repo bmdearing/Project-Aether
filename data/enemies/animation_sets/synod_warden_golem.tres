@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="AnimationSet" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/AnimationSet.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+idle = "Stand 1"
+walk = "Walk 1"
+run = "Walk 1"
+attack_light = "Attack 1"
+attack_heavy = "Attack 1"
+attack_special = "Spell Slam 1"
+attack_hit_fraction = 0.5
+walk_clip_speed = 2.97
+hit_reaction = ""
+stagger = ""
+death = "Death 1"
+death_alt = ""
+ability_cast = ""

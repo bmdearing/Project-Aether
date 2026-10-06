@@ -20,3 +20,6 @@ base_crit_chance = 0.04
 is_ground_targeted = true
 cast_type = 1
 base_cast_time = 0.8
+base_damage_min = 8.0
+base_damage_max = 12.0
+tags = Array[StringName]([&"projectile", &"area", &"duration"])

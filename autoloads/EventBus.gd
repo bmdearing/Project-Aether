@@ -110,3 +110,6 @@ signal craft_failed(item: Resource, error: int, message: String)
 ## returned: the player came back into a saved map through the Hub portal.
 signal portal_opened(position: Vector3)
 signal portal_returned
+
+## GameSettings.apply() ran - live nodes (Player camera/mouse) re-read GameState.
+signal settings_changed

@@ -21,49 +21,57 @@
       "name": "Stand 1",
       "start": 100,
       "end": 1967,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0.8250000000000001
     },
     {
       "name": "Stand 2",
       "start": 2067,
       "end": 7267,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Walk 1",
       "start": 7367,
       "end": 8634,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Spell 1",
       "start": 8734,
       "end": 10068,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 1.881
     },
     {
       "name": "Attack 1",
       "start": 11000,
       "end": 12067,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Death 1",
       "start": 12167,
       "end": 13800,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Channel 1",
       "start": 15333,
       "end": 17200,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0.8250000000000001
     },
     {
       "name": "Dissipate",
       "start": 17500,
       "end": 19367,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0.8250000000000001
     }
   ],
   "geosets": [

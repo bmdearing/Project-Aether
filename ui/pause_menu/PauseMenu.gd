@@ -18,6 +18,7 @@ class_name PauseMenu
 @onready var quit_button: Button = $CenterContainer/VBoxContainer/QuitButton
 
 var _is_open: bool = false
+var _settings_center: CenterContainer
 var _fate_board_editor: FateBoardEditor
 var _inventory_screen: InventoryScreen
 var _abilities_screen: AbilitiesScreen
@@ -39,6 +40,26 @@ func _ready() -> void:
 	return_to_hub_button.visible = show_return_to_hub
 	main_menu_button.pressed.connect(_on_main_menu_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
+	_build_settings()
+
+func _build_settings() -> void:
+	var settings_button := Button.new()
+	settings_button.text = "Settings"
+	settings_button.pressed.connect(_show_settings.bind(true))
+	var menu := resume_button.get_parent()
+	menu.add_child(settings_button)
+	menu.move_child(settings_button, return_to_hub_button.get_index() + 1)
+	_settings_center = CenterContainer.new()
+	_settings_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_settings_center.visible = false
+	add_child(_settings_center)
+	var panel := SettingsPanel.new()
+	panel.back_pressed.connect(_show_settings.bind(false))
+	_settings_center.add_child(panel)
+
+func _show_settings(open_settings: bool) -> void:
+	_settings_center.visible = open_settings
+	resume_button.get_parent().get_parent().visible = not open_settings
 
 func _unhandled_input(event: InputEvent) -> void:
 	# P/B/N/C/M jump straight to the target screen (closing whatever else
@@ -83,6 +104,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		if menu.is_open():
 			return
 	if event.is_action_pressed("ui_cancel"):
+		if _is_open and _settings_center.visible:
+			_show_settings(false)
+			get_viewport().set_input_as_handled()
+			return
 		toggle()
 
 ## Opens `screen`, closing this pause menu and any other open blocking_menu
@@ -103,6 +128,7 @@ func toggle() -> void:
 	close() if _is_open else open()
 
 func open() -> void:
+	_show_settings(false)
 	_is_open = true
 	visible = true
 	get_tree().paused = true

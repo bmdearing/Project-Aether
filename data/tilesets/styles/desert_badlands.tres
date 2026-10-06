@@ -27,6 +27,7 @@ script = ExtResource("1")
 id = "desert_badlands"
 display_name = "Badlands"
 family = "desert"
+layout = "canyon"
 floor_albedo = ExtResource("2")
 floor_normal = ExtResource("3")
 floor_orm = ExtResource("4")

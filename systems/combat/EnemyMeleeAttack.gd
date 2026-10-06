@@ -53,7 +53,7 @@ func _physics_process(delta: float) -> void:
 
 	match _state:
 		State.IDLE:
-			if _enemy.global_position.distance_to(_player.global_position) <= attack_range:
+			if _enemy.global_position.distance_to(_player.global_position) <= attack_range and not _sibling_attacking():
 				_enter_telegraph()
 		State.TELEGRAPH:
 			_timer -= delta
@@ -68,6 +68,10 @@ func _physics_process(delta: float) -> void:
 			_timer -= delta
 			if _timer <= 0.0:
 				_state = State.IDLE
+
+func _sibling_attacking() -> bool:
+	var ranged := _enemy.get_node_or_null("RangedAttack") as EnemyRangedAttack
+	return ranged != null and ranged.is_attacking()
 
 func _enter_telegraph() -> void:
 	_state = State.TELEGRAPH

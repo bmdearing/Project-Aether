@@ -21,187 +21,218 @@
       "name": "Stand 1",
       "start": 300,
       "end": 2300,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Second",
       "start": 2600,
       "end": 7867,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Victory 1",
       "start": 8167,
       "end": 11234,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Attack 1",
       "start": 11534,
       "end": 12934,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Spell 1",
       "start": 13234,
       "end": 15934,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Dissipate",
       "start": 16234,
       "end": 21601,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Walk 1",
       "start": 21901,
       "end": 22901,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 4.859999999999999
     },
     {
       "name": "Death 1",
       "start": 23201,
       "end": 26701,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Stand 1",
       "start": 27001,
       "end": 29401,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Walk 1",
       "start": 29701,
       "end": 30868,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Agree One",
       "start": 31168,
       "end": 33135,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Angry One",
       "start": 33435,
       "end": 40068,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Frustrated One",
       "start": 40368,
       "end": 42334,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Headnod One",
       "start": 42634,
       "end": 44600,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Headshake One",
       "start": 44900,
       "end": 46866,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Idea One",
       "start": 47166,
       "end": 49132,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Introduction One",
       "start": 49432,
       "end": 51065,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Point One",
       "start": 51365,
       "end": 53332,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Point Two",
       "start": 53632,
       "end": 55599,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Shrug One",
       "start": 55899,
       "end": 57866,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Standard One",
       "start": 58166,
       "end": 64800,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Standard Two",
       "start": 65100,
       "end": 71733,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Standard Three",
       "start": 72033,
       "end": 78666,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Wave One",
       "start": 78966,
       "end": 80933,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Wave Two",
       "start": 81233,
       "end": 83200,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand 2",
       "start": 83500,
       "end": 88767,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand 3",
       "start": 89067,
       "end": 93534,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Ready 1",
       "start": 93834,
       "end": 95501,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Stand One",
       "start": 95801,
       "end": 98201,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Cinematic Listening One",
       "start": 98501,
       "end": 100901,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     },
     {
       "name": "Stand Channel 1",
       "start": 101201,
       "end": 103901,
-      "duplicate_of": null
+      "duplicate_of": null,
+      "move_speed": 0
     }
   ],
   "geosets": [

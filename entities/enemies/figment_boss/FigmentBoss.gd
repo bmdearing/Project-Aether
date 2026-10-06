@@ -12,7 +12,8 @@ class_name FigmentBoss
 const MODEL_SOURCE := preload("res://data/enemies/definitions/unchartered_chieftain.tres")
 const BOSS_MODEL_SCALE := 1.5
 
-const BOSS_HEALTH := 1760.0
+const BOSS_HEALTH := 700.0
+const BOSS_HEALTH_GROWTH_PER_TIER := 0.35
 const BOSS_XP_REWARD := 250.0
 const BOSS_GOLD_REWARD := 120
 
@@ -21,7 +22,8 @@ func _ready() -> void:
 	display_name = "Figment Chieftain"
 	move_speed = 1.4
 	stop_distance = 2.6
-	health.max_health = BOSS_HEALTH
+	var tier: int = GameState.active_map.tier if GameState.active_map else 1
+	health.max_health = BOSS_HEALTH * (1.0 + BOSS_HEALTH_GROWTH_PER_TIER * (tier - 1))
 	xp_reward = BOSS_XP_REWARD
 	gold_reward = BOSS_GOLD_REWARD
 	_install_model(MODEL_SOURCE.model_scene, MODEL_SOURCE.animation_set, MODEL_SOURCE.scale_modifier * BOSS_MODEL_SCALE, MODEL_SOURCE.model_yaw_offset)

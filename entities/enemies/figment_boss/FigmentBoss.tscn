@@ -14,5 +14,5 @@ attack_range = 2.8
 telegraph_duration = 1.3
 strike_duration = 0.2
 recovery_duration = 1.2
-damage_amount = 61.6
+damage_amount = 40.0
 damage_type = 0

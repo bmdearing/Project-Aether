@@ -17,3 +17,4 @@ is_auto_cast_eligible = false
 applies_status_effects = Array[String]([])
 radius = 0.0
 base_crit_chance = 0.0
+tags = Array[StringName]([&"movement", &"utility"])

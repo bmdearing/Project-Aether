@@ -27,7 +27,10 @@ var _source: Node
 
 @onready var core: MeshInstance3D = $Core
 
+var _duration: float = DURATION
+
 func play(radius: float, color: Color, ability: Ability, stat_sheet: StatSheet, source: Node) -> void:
+	_duration = DURATION * ability.get_duration_multiplier(stat_sheet)
 	_radius = radius
 	_ability = ability
 	_stat_sheet = stat_sheet
@@ -43,7 +46,7 @@ func play(radius: float, color: Color, ability: Ability, stat_sheet: StatSheet, 
 
 func _physics_process(delta: float) -> void:
 	_elapsed += delta
-	if _elapsed >= DURATION:
+	if _elapsed >= _duration:
 		queue_free()
 		return
 	_ticker -= delta

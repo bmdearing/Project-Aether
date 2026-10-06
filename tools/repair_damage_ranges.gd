@@ -2,13 +2,7 @@ extends Node
 ## One-shot repair script (Patch v3.7 Section 5) - splits every weapon
 ## .tres's single `base_damage` into a real roll range (`base_damage_min`/
 ## `base_damage_max`, ±15% of the original value), removing the old
-## field. Conduit weapons (is_conduit) ALSO get `spell_power_min`/
-## `spell_power_max` set the same way, from that same original value -
-## Patch v3.6b's Conduit generator used `base_damage` to represent Spell
-## Power (Weapon.gd had no dedicated field for it yet), so that number is
-## the right source for both new fields on a Conduit specifically.
-## `rolled_base_damage`/`rolled_spell_power` are left at 0.0 - set at
-## runtime only, by ItemRoller.roll() on an actual drop.
+## field. `rolled_base_damage` is left at 0.0.
 ##
 ## Run headlessly via tools/repair_damage_ranges.tscn, not part of the
 ## game itself.
@@ -57,9 +51,6 @@ func _repair_file(path: String) -> void:
 
 	weapon.base_damage_min = floor(base_damage * RANGE_FACTOR_MIN)
 	weapon.base_damage_max = ceil(base_damage * RANGE_FACTOR_MAX)
-	if weapon.is_conduit:
-		weapon.spell_power_min = floor(base_damage * RANGE_FACTOR_MIN)
-		weapon.spell_power_max = ceil(base_damage * RANGE_FACTOR_MAX)
 
 	if ResourceSaver.save(weapon, path) == OK:
 		_repaired += 1

@@ -157,8 +157,7 @@ regardless of the weapon/ability's own damage type:
   Chance per point (each in the same increased% bracket as gear's own
   bonus; attack speed also shortens ability cooldowns via
   `Player.get_action_speed_multiplier()`).
-- **Intellect**: +1% increased spell damage (a multiplier on Conduit spell
-  power) and Ward, plus +3 Mana per point.
+- **Intellect**: +1% increased spell damage and Ward, plus +3 Mana per point.
 
 `Constants.DAMAGE_TYPE_MAIN_STAT` doesn't feed damage; it only picks a
 rolled Slate's Main Stat line. **Mastery and Supercharge were removed**
@@ -200,15 +199,19 @@ Instinct/status-effect speed modifiers already do.
 - **Weapons:** `base x (1 + Str%) x Motion Value x (1 + sum Increased%)
   x product(More)`. `scaling_grade` has no effect on weapon damage; it's
   shown in Alt info and can be degraded by the Shard of Tharsis.
-- **Spells:** `Conduit spell power x (1 + Int%) x grade multiplier x
-  Motion Value x (1 + sum Increased%) x product(More)`. With no Conduit
-  equipped, spells deal 0 damage.
+- **Spells (v4.14):** `the spell's own base damage at its level x
+  (1 + sum Increased%) x product(More)`. Each spell has a unique level-1
+  range (`Ability.base_damage_min/max`) that grows 9.5% per level,
+  compounding. Increased% takes Intellect (1%/pt), the Chain Bonus,
+  increased Spell damage, the equipped Conduit's local Spell damage, and
+  whatever the spell's tags let in (e.g. increased Area damage for Area
+  spells). Conduits no longer carry flat spell power; spells work with no
+  Conduit at all.
 
-`calculate()` computes `power = base + stat_value x grade_multiplier`:
-weapons pass their Strength-boosted base with `stat_value = 0.0`, spells
-pass base 0 with the Intellect-boosted spell power as `stat_value`.
-`GRADE_MULTIPLIER_RANGES` is therefore a spell-quality multiplier (S
-1.4-1.8 down to E 0.25-0.45). Increased% is one additive pool (the Chain
+`calculate()` computes `power = base + stat_value x grade_multiplier`;
+both weapons and spells now pass their base with `stat_value = 0.0`, so
+`scaling_grade` (and an ability's legacy `motion_value`) no longer
+affects damage. Increased% is one additive pool (the Chain
 Bonus feeds it per damage tag); More multipliers stack. Followed by a
 **Critical Strike System** (also Section 11, doc-exact numbers): base crit
 chance is fixed per weapon/spell type (`Constants.WEAPON_BASE_CRIT_CHANCE`,
@@ -254,8 +257,8 @@ applier - the patch introduces it via a Throwable-focused Unique this
 project can't build yet (no Throwable weapon category exists).
 
 **Enemies** (`entities/enemies/`, `data/enemies/`): the Enemy Roster v1
-from *Project Aether — Enemy Roster & Factions* (`documents/`). Nine
-regular units, each an `EnemyDefinition` (`data/enemies/definitions/`) on
+from *Project Aether — Enemy Roster & Factions* (`documents/`), plus the
+v4.14 additions below. Regular units are each an `EnemyDefinition` (`data/enemies/definitions/`) on
 one of two generic scenes: `units/MeleeUnit.tscn` (`EnemyMeleeAttack`) or
 `units/RangedUnit.tscn` (`EnemyRangedAttack`, picked by
 `EnemyDefinition.is_ranged`). `EnemyRoster.create_unit(id)` builds one.
@@ -273,13 +276,37 @@ Health and damage come from `archetype_category` + `mob_level` through
 | Synod Vindicator | synod | elite 4 | Aetheric | melee, 25% Ward |
 | Synod Exarch | synod | elite 4 | Cold | ranged (kites), 30% Ward |
 | Legion Threshold Knight | karvis_legion | elite 5 | Pale | melee, 20% Ward |
+| Hollowed Shambler (Zombie Footman model) | hollowed | standard 1 | Kinetic | melee, packs of 3-5 |
+| Legion Dreadknight (Nathrezim) | karvis_legion | elite 5 | Entropic | melee, 15% Ward |
+| Synod Warden / Ember / Aether Golem (Arcane Golems) | synod | heavy 3 | Kinetic / Fire / Aetheric | melee, armored, Ward |
+| Veilborne Mindbender | veilborne | standard 2 | Entropic | ranged (kites) |
+| Veilborne Cantor (Priestess of the Damned) | veilborne | elite 4 | Pale | ranged (kites), 25% Ward |
+
+Xalatath (`entities/enemies/xalatath/`) is a second Pinnacle boss:
+melee up close, Entropic bolts beyond 5 m (`EnemyRangedAttack.min_range`).
+`PinnacleArena` picks one of its bosses at random.
 
 Only basic attacks exist: no pack roles, synergies, status riders, blocks,
-spells or channels yet. `GeneratedMap` spawns one pack per non-start room
-from `Constants.ENEMY_PACKS_NORMAL` (Unchartered packs) and one elite pack
-in the Vault from `ENEMY_PACKS_VAULT_ELITE`, alongside its FigmentBoss.
-`TestArena` has one of each unit in a row. `directorate_soldier.tres` and
-`hollowed_shambler.tres` exist but have no model and aren't spawned.
+spells or channels yet. `GeneratedMap` spawns packs from
+`Constants.ENEMY_PACKS_NORMAL` (Unchartered, Hollowed, Synod golem and
+Veilborne packs) and one elite pack in the Vault from
+`ENEMY_PACKS_VAULT_ELITE`, alongside its FigmentBoss. `TestArena` has one
+of each unit in a row. `directorate_soldier.tres` has no model and isn't
+spawned.
+
+**Attack lock**: an enemy is rooted from the start of its attack wind-up
+until its attack animation finishes (`Enemy.is_attack_locked()`).
+**Animation speed**: walk/run playback is scaled to actual ground speed
+over the clip's authored speed (MDX sequence MoveSpeed, carried into
+`MdxModel.clip_move_speeds` by the wrapper builder, or
+`AnimationSet.walk_clip_speed` when the MDX has none), so feet don't slide.
+**Kill box** (`autoloads/KillBox.gd`, every scene): an enemy that falls
+below y = -25 dies (normal rewards); the player is put back on the last
+ground they stood on and loses 15% of max Life.
+**Mob balance (v4.14)**: `Constants.MOB_BASE_HEALTH` light 30 / standard
+55 / heavy 110 / elite 280 / boss 1600 (a level-1 standard mob is ~4 hits
+from the starter Crude Greatsword); `MOB_BASE_DAMAGE` 5/9/15/24/45. The
+FigmentBoss has 700 Life (+35% per Figment tier) and hits for 40.
 
 All units chase the player (`chase_range`/`stop_distance`/
 `retreat_distance`), no pathfinding, and are gap-aware:
@@ -327,7 +354,8 @@ Caltrops (Physical), Blink and Purge (Utility). Cast on `1`-`4`
 **Cast types** (Patch v3.7, `Ability.cast_type`): INSTANT (everything by
 default), CAST_TIME (Comet 1.2s/Winter's Eye 0.8s/Meteor 1.6s/Black Hole
 1.0s - a real, interruptible windup via `entities/player/
-CastTimeHandler.gd`, taking damage cancels it and refunds nothing), or
+CastTimeHandler.gd`; only a stun (Freeze/Electrocute) cancels it - plain
+damage doesn't - and nothing is refunded), or
 CHANNELED (Flame Jets - already its own bespoke channel loop in
 `PlayerAbilityCast.gd`, untouched; the CastType exists for future use but
 currently behaves exactly like INSTANT, channeled cast-speed interaction
@@ -387,9 +415,21 @@ Every other ability (Comet, Inferno, Stormcall, Meteor, Ice Pulse, Static
 Discharge, Entropic Decay, Winter's Eye's own detonation, Flame Jets'
 `applies_status_effects`, etc.) still uses the generic instant-nova path,
 several with a bespoke cast VFX instead of the generic expanding ring
-(`CometImpact`/`InfernoPillar`/`StormcallBolt`). Abilities can be upgraded
-(`rank`, 0-5) via the Abilities screen (`N`) for Gold, boosting Motion
-Value and reducing cooldown. `ui/ability_bar/` shows equipped abilities
+(`CometImpact`/`InfernoPillar`/`StormcallBolt`).
+
+**Spell levels (v4.14)**: spells go from level 1 to 20, raised on the
+Abilities screen (`N`) for Gold plus **Crystallized Aether** (a currency
+that drops on its own 18% roll per kill, 1-3 + rank/tier bonus). Aether
+cost is 2 at level 1 and curves up to 120 for 19 -> 20
+(`Ability.get_upgrade_aether_cost()`). Gear's "+N to level of (Fire/...)
+Spells" adds levels on top and can go past 20; each level over 20 grants
+3% more damage and 1% reduced cooldown, plus 2% Area (Area tag), 3%
+Duration (Duration tag), 3% Projectile Speed (Projectile tag) and +1 Limit
+per 4 levels (Limit tag). **Tags** (`Ability.tags`: Area of Effect,
+Projectile, Duration, Limit, Channelling, Movement, Utility, plus Spell and
+the damage type) decide which modifiers apply: increased Area damage /
+AoE radius, Skill Effect Duration, Projectile Speed, Mana cost reduction
+and Cooldown Recovery all read them. Tornado's 3-at-once cap is its Limit. `ui/ability_bar/` shows equipped abilities
 with a cooldown wipe and Mana cost; `ui/abilities/AbilitiesScreen.gd` is
 the equip/upgrade menu.
 **The player starts with zero abilities** — per Patch v3.1's Skill
@@ -493,21 +533,22 @@ nothing to hover onto since it's the same card, not a second window.
 
 **Damage is a per-hit range.** Every weapon hit rolls its base damage
 uniformly within `base_damage_min`..`base_damage_max`, and every spell
-cast rolls the equipped Conduit's spell power within
-`spell_power_min`..`spell_power_max` (`Weapon`/`Ability.roll_damage()`);
-stats, motion value, chain bonus and crit apply on top. The old single
-per-drop roll (`rolled_base_damage`/`rolled_spell_power`) is unused.
+cast rolls the spell's own base damage range at its level
+(`Weapon`/`Ability.roll_damage()`); stats, motion value, chain bonus and
+crit apply on top. The old single per-drop roll (`rolled_base_damage`)
+is unused.
 Weapon cards show one "X Damage: min to max" per damage type present -
 the item's own range, in white, or in blue with the item's local increased
 Weapon Damage applied (`ItemCard._build_attack_power_lines()`). The
 character's Strength is not on the card; the character screen's Main
-Hand Damage includes it. Crit Chance/Spell Power/Attack Speed/Cast Speed
+Hand Damage includes it. Crit Chance/Spell Damage/Attack Speed/Cast Speed
 follow the same rule - one value, blue when a **local mod** changes it
 (v4.10, `local_*` stat keys in `data/affixes/weapons/generic|conduit/`:
 local Weapon Damage and Crit apply to that weapon's own hits via
-`Weapon._base_hit()`; local Attack Speed/Spell Damage/Cast Speed are
-display-only so far). Spell cards show the same for a
-cast (`Ability.predict_damage_range()`), or "requires a Conduit"; the
+`Weapon._base_hit()`, a Conduit's local Spell Damage applies to every
+spell; local Attack Speed/Cast Speed are display-only so far). Spell
+cards show "Level N", the tag line, the spell's base damage (blue with
+modifiers applied), and any over-cap bonuses; the
 character screen's Main Hand/Offhand Damage shows the per-hit range at
 that weapon's motion value.
 Scaling Grade moved to Alt Info; the old socket-count text line was
@@ -860,7 +901,23 @@ those are static hand-built scenes with no such graph.
 
 **Procedural map generation** (`systems/level_generation/MapGraph.gd`,
 `levels/generated_map/GeneratedMap.gd`): a fresh, differently-shaped Map
-every time you enter one — no fixed seed. Split into two layers on
+every time you enter one — no fixed seed. **Each Figment type has its own
+layout rules** (`MapLayout`, chosen by `MapTileset.layout`):
+  - **Dungeon** (Cellblock, Undercroft, Mine, Foundry Pit) - `rooms`:
+    the walled room grid described below.
+  - **Dunes** - `open_field`: one open 112 m field, no interior walls.
+    A 4x4 cell grid (`MapGraph.generate_full_grid()`) drives spawning
+    and the Map screen; the start is the middle of one edge and the
+    Vault is the far side. 1-3 walkable dune mounds per cell, tall dune
+    ridges plus an invisible wall around the edge, scattered rocks/
+    plants, 1-2 packs per cell, the boss on a raised dune crest with two
+    ramps and its elite pack in front.
+  - **Badlands** - `canyon`: 6-8 open 26 m basins on a spanning tree,
+    separated by jagged cliff lines (jittered rock blocks, 6-10 m tall).
+    Connected basins meet through one 8-12 m pass at a random spot along
+    the shared edge; spires and rocks for cover; the boss on a mesa with
+    ramps. Geometry for both open layouts is `TerrainBuilder.gd`.
+The rest of this section describes the Dungeon (`rooms`) layout. Split into two layers on
 purpose: `MapGraph.gd` is pure data (no `Node3D`, no geometry) — a
 randomized spanning-tree room-and-corridor layout on a 5x5 grid,
 guaranteeing every room is reachable from the start room. `GeneratedMap.gd`
@@ -928,8 +985,9 @@ same way equipment/ability loadout does (`GameState.player_level`/
 rolled/pathless items via `data/items/item_serializer.gd`, not just a
 path), owned rolled loot, Fate Board layout including any Spell Slate's
 designated ability (`GameState.fate_board_placements` - see Fate Board
-above, 2026-08-30 fix), ability loadout + ranks, player level/XP, Gold,
-unlocked ability ids, and settings — not current Health/Ward/Mana,
+above, 2026-08-30 fix), ability loadout + spell levels (old saves' ranks
+convert to level rank + 1), player level/XP, Gold, unlocked ability ids
+— not current Health/Ward/Mana,
 player position, or map state. `StatSheet`'s raw values
 need no save path of their own — Section 12 means they never change from
 `player_baseline.tres`'s fixed defaults, and the gear-derived bonus on
@@ -1078,10 +1136,12 @@ None of the six have a `PauseMenu` button — hotkey-only.
 7. **Armor mitigation applies one formula to all Physical damage types**:
    Section 16 says Kinetic gets it "full," Piercing "partial," Explosive
    a "flat reduction," but gives no ratio for the latter two.
-8. **`PlayerMeleeAttack`'s hitbox radius/swing arc/timings are invented
-   placeholders**, and melee is single-target only (no cleave/AoE weapon
-   mods modeled) — fine for one starting Greatsword, needs revisiting
-   once weapon variety matters.
+8. **`PlayerMeleeAttack`'s swing arcs/timings are invented placeholders.**
+   Each swing sweeps a per-family arc (thrust/slash/heavy/whip/fist:
+   reach, half-angle, splash share, target cap - `SWING_SHAPES`) every
+   Strike frame with line of sight; the enemy nearest the crosshair takes
+   full damage, the rest the splash share (50-75%, 100% on a charged
+   attack). Numbers need playtesting.
 9. **Player `StatSheet` baseline (flat `10.0`), enemy chase/kite numbers,
    `EnemyRangedAttack` tuning, and both Player's and enemies'
    `jump_velocity` (`7.0`, matched to each other) are all invented
@@ -1107,7 +1167,10 @@ None of the six have a `PauseMenu` button — hotkey-only.
     a Map is still always manual, not triggered by clearing enemies or
     completing the boss (killing the boss only fires
     `EventBus.figment_completed` for Figment Tree points - it doesn't
-    end the run); Settings has exactly three real options. Master volume
+    end the run). Settings (title screen and pause menu, shared
+    `SettingsPanel`, saved to `user://settings.cfg` by `GameSettings` so
+    New Game doesn't reset them): Mouse Sensitivity, Field of View,
+    Master Volume, Fullscreen, V-Sync. Master volume
     now has real audio to affect (Main Menu music + procedural rain/
     thunder, see the Main Menu background section above) but nothing
     plays in the Hub/Map yet.
@@ -1217,10 +1280,8 @@ None of the six have a `PauseMenu` button — hotkey-only.
     replaced every weapon's single `base_damage` with a real roll range
     (`base_damage_min`/`max`, `rolled_base_damage` set by `ItemRoller.
     roll()` on an actual drop, `get_base_damage()` falls back to the
-    range's midpoint otherwise) - Conduits got the same treatment for
-    `spell_power_min`/`max`/`rolled_spell_power`, the base floor a
-    Conduit contributes to spell damage (`StatSheet.conduit_spell_power`,
-    recomputed whenever the equipped primary weapon changes). The Crafting pass
+    range's midpoint otherwise). Conduit spell power was removed in
+    v4.14 (spells carry their own base damage). The Crafting pass
     (gap #25) extended this same pool with 4 more descriptive-only
     entries (Evasion/Resistance/Resilience/skill cooldown) so every Brand
     category has *something* real to roll - same gap, just wider now, not

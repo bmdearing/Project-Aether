@@ -1,0 +1,258 @@
+{
+  "source": "mindbender.mdx",
+  "version": 1000,
+  "scale": 0.027,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.5883217811584474,
+      -1.0308908042907714,
+      -1.514056125640869
+    ],
+    "max": [
+      1.1576956558227538,
+      0.9582963752746582,
+      1.4422603340148925
+    ],
+    "height": 1.9891871795654297
+  },
+  "sequences": [
+    {
+      "name": "Stand Alternate 1",
+      "start": 300,
+      "end": 1933,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death Alternate 1",
+      "start": 2233,
+      "end": 3566,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 3866,
+      "end": 5499,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 5799,
+      "end": 7599,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 7899,
+      "end": 9065,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 9365,
+      "end": 11032,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 11332,
+      "end": 14665,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 14965,
+      "end": 16632,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 16932,
+      "end": 26932,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Bone",
+      "start": 27232,
+      "end": 28232,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "SeaGiantBehemoth_rig_cin:pauldron_geo",
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "mindbender_diffuse.dds",
+        "normal": "unit_seagiantbehemoth_pauldron_normal.dds",
+        "orm": "mindbender_orm.dds",
+        "emissive": "mindbender_emmissive.dds"
+      },
+      "sources": {
+        "diffuse": "mindbender_Diffuse.dds",
+        "normal": "Units/Creeps/SeaGiantBehemoth/Unit_SeaGiantBehemoth_Pauldron_Normal.tif",
+        "orm": "mindbender_ORM.dds",
+        "emissive": "mindbender_emmissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Death Alternate 1": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "orc_watcherWard_rig:eye_geo",
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_watcherward_main_diffuse.dds",
+        "normal": "orc_watcherward_main_normal.dds",
+        "orm": "orc_watcherward_main_orm.dds",
+        "emissive": "orc_watcherward_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Diffuse.tif",
+        "normal": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Normal.tif",
+        "orm": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_ORM.tif",
+        "emissive": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Death Alternate 1": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Spell 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_watcherward_main_diffuse.dds",
+        "normal": "orc_watcherward_main_normal.dds",
+        "orm": "orc_watcherward_main_orm.dds",
+        "emissive": "orc_watcherward_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Diffuse.tif",
+        "normal": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Normal.tif",
+        "orm": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_ORM.tif",
+        "emissive": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Death Alternate 1": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "",
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_watcherward_main_diffuse.dds",
+        "normal": "orc_watcherward_main_normal.dds",
+        "orm": "orc_watcherward_main_orm.dds",
+        "emissive": "orc_watcherward_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Diffuse.tif",
+        "normal": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Normal.tif",
+        "orm": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_ORM.tif",
+        "emissive": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Death Alternate 1": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "",
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_watcherward_main_diffuse.dds",
+        "normal": "orc_watcherward_main_normal.dds",
+        "orm": "orc_watcherward_main_orm.dds",
+        "emissive": "orc_watcherward_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Diffuse.tif",
+        "normal": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Normal.tif",
+        "orm": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_ORM.tif",
+        "emissive": "Units/Orc/WatcherWard/Orc_WatcherWard_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Death Alternate 1": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand Ready 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    }
+  ]
+}

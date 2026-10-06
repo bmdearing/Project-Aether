@@ -22,17 +22,13 @@ func get_damage_range() -> Vector2:
 func get_base_damage() -> float:
 	return (base_damage_min + base_damage_max) / 2.0
 
-## Same per-cast range for a Conduit's spell power, pushed into
-## StatSheet.conduit_spell_power_range by Player._on_equipment_changed()
-## and rolled per cast in Ability.roll_damage(). Only meaningful when
-## is_conduit is true; 0/0 for every non-Conduit weapon. rolled_spell_power
-## is unused, like rolled_base_damage.
-@export var spell_power_min: float = 0.0
-@export var spell_power_max: float = 0.0
-@export var rolled_spell_power: float = 0.0
-
-func get_spell_power_range() -> Vector2:
-	return Vector2(spell_power_min, spell_power_max)
+## A Conduit adds no flat spell damage (spells carry their own). Its local
+## "increased Spell damage" applies to every spell; implicit/global spell
+## damage is already summed by EquipmentComponent.compute_misc_bonuses().
+func get_conduit_spell_damage_bonus() -> float:
+	if not is_conduit:
+		return 0.0
+	return (get_local_multiplier("local_increased_spell_damage") - 1.0) * 100.0
 
 @export var scaling_grade: Constants.ScalingGrade = Constants.ScalingGrade.C
 @export var native_damage_type: Constants.DamageType = Constants.DamageType.KINETIC
