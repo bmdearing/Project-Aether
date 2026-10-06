@@ -7,6 +7,12 @@ there. Most recent first.
 
 ---
 
+## 2026-10-06 — v4.16: Main menu overhaul (user request)
+
+Left-column title screen over the animated background: dark gradient, large gold title, text buttons that turn gold and slide on hover with a staggered fade-in, fade from black, gold-framed Settings/About panels, version tag. Menu and Hub music raised from -10 to -5 dB.
+
+---
+
 ## 2026-10-06 — v4.15: Memory Nexus Hub, LOD fix (user request)
 
 The user asked whether the Hub could look like Path of Exile's Synthesis
