@@ -548,6 +548,10 @@ func _item_type_line(item: Item) -> String:
 		return "Shield"
 	if item is FigmentItem:
 		return "Figment - Tier %d" % (item as FigmentItem).tier
+	if item is SkillTome:
+		return "Skill Tome"
+	if not item.is_equipment():
+		return "Currency"
 	return Constants.EquipmentSlot.keys()[item.equip_slot].capitalize()
 
 ## Patch v3.8 Section 3: Scaling Grade and the raw damage/socket-count

@@ -107,3 +107,5 @@ func _physics_process(delta: float) -> void:
 		var damage: float = hit["final_damage"] * TICK_DAMAGE_PERCENT
 		enemy.take_damage(damage, _ability.damage_type)
 		EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
+		# Standing in the fire builds Scorch.
+		enemy.status_effects.apply_effect("scorch", _source)

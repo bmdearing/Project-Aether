@@ -9,7 +9,7 @@ const ABILITY_DIR := "res://data/abilities/instances/"
 var _checks := 0
 var _failures := 0
 var _finished := 0
-const TEST_COUNT := 16
+const TEST_COUNT := 17
 
 var _arena: Node3D
 var _player: Player
@@ -50,6 +50,7 @@ func _run() -> void:
 	await _test_frost_armor()
 	await _test_flame_jets_walls()
 	await _test_caltrops_and_inferno()
+	await _test_scorch()
 	await _test_every_spell_casts()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("spell tests: %d checks, %d failures" % [_checks, _failures])
@@ -371,6 +372,37 @@ func _test_caltrops_and_inferno() -> void:
 	await _frames(1)
 	_check(_lost(near) > 0.0 and near.status_effects.has_effect("ignite"), "inferno engulfs and ignites its area")
 	_check(_lost(far) == 0.0, "inferno stays within its radius")
+	_finished += 1
+
+func _test_scorch() -> void:
+	await _reset_effects()
+	var e := _dummy(Vector3(0, 0, 0))
+	await _frames(2)
+	var se := e.status_effects
+	var before := _lost(e)
+	e.take_damage(100.0, Constants.DamageType.FIRE)
+	var plain := _lost(e) - before
+	for i in 7:
+		se.apply_effect("scorch", _player)
+	_check(se.get_scorch_stacks() == StatusEffectComponent.SCORCH_MAX_STACKS, "scorch stacks up to its cap")
+	before = _lost(e)
+	e.take_damage(100.0, Constants.DamageType.FIRE)
+	var scorched := _lost(e) - before
+	_check(is_equal_approx(scorched, plain * se.get_scorch_multiplier()), "scorch raises fire damage taken (%.1f vs %.1f)" % [scorched, plain])
+	before = _lost(e)
+	e.take_damage(100.0, Constants.DamageType.COLD)
+	_check(is_equal_approx(_lost(e) - before, plain), "scorch leaves other damage types alone")
+	se._timers["scorch"] = 0.01
+	await _frames(3)
+	_check(se.get_scorch_stacks() == 0, "scorch stacks clear when it expires")
+	await _reset_effects()
+	var target := _dummy(Vector3(0, 0, 24.6))
+	await _frames(2)
+	_player.camera.global_rotation = Vector3.ZERO
+	_cast._flame_jets_ability = _ability("flame_jets")
+	for i in 3:
+		_cast._tick_flame_jets()
+	_check(target.status_effects.get_scorch_stacks() == 3, "flame jets build scorch on prolonged contact")
 	_finished += 1
 
 ## Every spell's cast path runs without a script error.

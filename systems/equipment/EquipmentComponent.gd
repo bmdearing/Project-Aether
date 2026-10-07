@@ -94,7 +94,7 @@ func toggle_weapon_set() -> void:
 ## turn regardless of which is active at restore time. Ignored entirely
 ## for non-weapon slots.
 func equip(item: Item, bypass_requirements: bool = false, weapon_set: int = -1) -> void:
-	if item == null:
+	if item == null or not item.is_equipment():
 		return
 	if not bypass_requirements:
 		var block_reason := _requirement_block_reason(item)

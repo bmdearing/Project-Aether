@@ -134,7 +134,7 @@ func _build_inventory_grid() -> void:
 	_ammo_label.text = "Ammo: " + "   ".join(ammo)
 
 func _is_equippable(item: Item) -> bool:
-	return not (item is FigmentItem) and not Constants.CRAFTING_CONSUMABLE_IDS.has(item.item_id)
+	return item.is_equipment()
 
 func _on_entry_clicked(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
 	status_label.text = ""

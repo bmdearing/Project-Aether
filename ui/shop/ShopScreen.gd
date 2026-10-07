@@ -33,14 +33,18 @@ func is_open() -> bool:
 ## rows stay buyable after a purchase instead of permanently disabling,
 ## unlike GearShop's one-of-each rolled stock)}. action (optional): {label,
 ## cost, on_action} - a single button above the list for something that
-## isn't "buy an item" (GearShop's "Reroll Stock").
-func open_with(title: String, entries: Array, action: Dictionary = {}) -> void:
+## isn't "buy an item" (GearShop's "Reroll Stock"). sell_entries (optional):
+## [{label, price, color, item, on_sell}] - the player's own items, listed
+## under a "Sell" header; on_sell returning false leaves the row unsold.
+func open_with(title: String, entries: Array, action: Dictionary = {}, sell_entries: Array = []) -> void:
 	title_label.text = title
 	_is_open = true
 	visible = true
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_build_list(entries)
+	if not sell_entries.is_empty():
+		_build_sell_list(sell_entries)
 	_build_action(action)
 	_refresh_gold_label()
 
@@ -67,6 +71,40 @@ func _build_list(entries: Array) -> void:
 		return
 	for entry in entries:
 		list.add_child(_build_row(entry))
+
+func _section_header(text: String) -> Label:
+	var header := Label.new()
+	header.text = text
+	header.add_theme_font_size_override("font_size", 17)
+	header.add_theme_color_override("font_color", Color(0.85, 0.72, 0.4))
+	return header
+
+func _build_sell_list(sell_entries: Array) -> void:
+	list.add_child(HSeparator.new())
+	list.add_child(_section_header("Sell from your inventory"))
+	for entry in sell_entries:
+		var row := _build_row(entry)
+		var price: int = entry.get("price", 0)
+		var price_label: Label = row.get_child(1)
+		price_label.text = "+%d Gold" % price
+		var sell_button: Button = row.get_child(2)
+		sell_button.text = "Sell"
+		for c in sell_button.pressed.get_connections():
+			sell_button.pressed.disconnect(c["callable"])
+		sell_button.pressed.connect(_on_sell_pressed.bind(entry, sell_button, price_label))
+		list.add_child(row)
+
+func _on_sell_pressed(entry: Dictionary, sell_button: Button, price_label: Label) -> void:
+	if sell_button.disabled:
+		return
+	var on_sell: Callable = entry.get("on_sell", Callable())
+	if on_sell.is_valid() and on_sell.call() == false:
+		price_label.text = "Can't sell"
+		return
+	GameState.gold += entry.get("price", 0)
+	sell_button.disabled = true
+	sell_button.text = "Sold"
+	_refresh_gold_label()
 
 func _build_row(entry: Dictionary) -> HBoxContainer:
 	var row := HBoxContainer.new()

@@ -122,12 +122,26 @@ func can_add_suffix() -> bool:
 	var limits: Vector2i = Constants.AFFIX_LIMITS_GEAR.get(rarity, Vector2i.ZERO)
 	return get_suffix_count() < limits.y
 
+## Figments, Skill Tomes, ammo and crafting currency are Items too, but
+## never equipped - their equip_slot is left at the default (HELMET), so
+## nothing may read it as a real slot.
+func is_equipment() -> bool:
+	if self is FigmentItem or self is SkillTome or self is AmmoPack:
+		return false
+	return not Constants.CRAFTING_CONSUMABLE_IDS.has(item_id)
+
 ## snake_case type key used by modifier item_types, tolerance ranges and
 ## inventory footprints: weapon_type for weapons, the base line for
-## shields, the slot for everything else.
+## shields, the slot for gear, and a category for non-equipment.
 func get_item_type() -> StringName:
 	if item_type != &"":
 		return item_type
+	if self is FigmentItem:
+		return &"figment"
+	if self is SkillTome:
+		return &"skill_tome"
+	if not is_equipment():
+		return &"currency"
 	if self is Weapon:
 		return StringName(String(get("weapon_type")).to_lower().replace(" ", "_"))
 	if self is Shield and base_line_id != "":

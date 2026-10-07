@@ -15,6 +15,14 @@ const COST_BY_RARITY := {
 	1: 50,   # UNCOMMON
 	2: 120,  # RARE
 }
+## Selling pays a fraction of what that rarity would cost to buy.
+const SELL_PRICE_BY_RARITY := {
+	0: 5,    # COMMON
+	1: 12,   # UNCOMMON
+	2: 30,   # RARE
+	3: 75,   # UNIQUE
+	4: 150,  # MYTHIC
+}
 
 @onready var prompt_label: Label3D = $PromptLabel
 
@@ -68,11 +76,26 @@ func _open_shop() -> void:
 			"item": item,
 			"on_buy": func(): _buy(item),
 		})
+	var sell_entries: Array = []
+	for content in GameState.get_inventory_items():
+		var item := content as Item
+		if item == null:
+			continue
+		sell_entries.append({
+			"label": item.display_name,
+			"price": sell_price(item),
+			"color": _item_color(item),
+			"item": item,
+			"on_sell": func(): return GameState.remove_from_inventory(item),
+		})
 	_get_shop_screen().open_with("Gear Shop", entries, {
 		"label": "Reroll Stock",
 		"cost": REROLL_COST,
 		"on_action": func(): _reroll_and_reopen(),
-	})
+	}, sell_entries)
+
+static func sell_price(item: Item) -> int:
+	return SELL_PRICE_BY_RARITY.get(item.rarity, 5)
 
 func _buy(item: Item) -> bool:
 	if not GameState.add_to_inventory(item):

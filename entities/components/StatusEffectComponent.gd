@@ -4,7 +4,7 @@ class_name StatusEffectComponent
 ## one, per "Status effects apply bidirectionally"). Scope: Ignite/Chill/
 ## Freeze/Electrocute/Unraveling - the 5 effects with a real applier today
 ## (Ability.applies_status_effects on the elemental/esoteric spells).
-## Bleed/Armor Shred/Stagger-Stun and Scorch/Aetherburn/Pallid have no
+## Scorch was added later (see SCORCH_*). Bleed/Armor Shred/Stagger-Stun and Aetherburn/Pallid have no
 ## weapon-side proc mechanic or Fire-channel/Aetheric/Pale ability yet -
 ## left for this component to grow into later (README flagged gap).
 ##
@@ -50,6 +50,15 @@ const SLOW_MOVE_SLOW_PERCENT := 0.35
 const SHOCK_DURATION := 4.0
 const SHOCK_DAMAGE_INCREASE := 0.20
 
+## Scorch (Master v3 Section 09: "Increased vulnerability to further Fire
+## damage"; dropped by Patch v3.2, restored on user request). Each
+## application adds a stack up to SCORCH_MAX_STACKS and refreshes the
+## duration for all of them; every stack raises Fire damage taken - which
+## includes Ignite's ticks, so the two build on each other.
+const SCORCH_DURATION := 4.0
+const SCORCH_MAX_STACKS := 5
+const SCORCH_DAMAGE_PER_STACK := 0.06
+
 ## Patch v3.8: Debuff Effectiveness is a "removed expression" - no longer
 ## derived from a character stat (Intellect, its old source, is gone).
 ## debuff_effectiveness exists as a real ItemRoller.AFFIX_POOL entry but
@@ -68,6 +77,7 @@ const RESISTANCE_SHRED_DURATION := 8.0
 
 var _timers: Dictionary = {}  # effect_id -> float seconds remaining
 var _chill_stacks: int = 0
+var _scorch_stacks: int = 0
 var _ignite_ticker: float = 0.0
 var _ignite_tick_damage: float = 0.0
 var _ignite_source: Node
@@ -138,6 +148,10 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 		"shock":
 			_apply_timed("shock", SHOCK_DURATION, source)
 			_emit_applied("shock")
+		"scorch":
+			_scorch_stacks = mini(_scorch_stacks + 1, SCORCH_MAX_STACKS)
+			_timers["scorch"] = SCORCH_DURATION * _debuff_effectiveness_multiplier(source)
+			_emit_applied("scorch", _scorch_stacks)
 
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
@@ -177,9 +191,18 @@ func get_action_speed_multiplier() -> float:
 	return get_move_speed_multiplier()
 
 func get_damage_taken_multiplier(damage_type: Constants.DamageType) -> float:
+	var multiplier := 1.0
 	if has_effect("unraveling") and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.ESOTERIC:
-		return 1.0 + UNRAVELING_DAMAGE_TAKEN_PERCENT
-	return 1.0
+		multiplier *= 1.0 + UNRAVELING_DAMAGE_TAKEN_PERCENT
+	if damage_type == Constants.DamageType.FIRE:
+		multiplier *= get_scorch_multiplier()
+	return multiplier
+
+func get_scorch_stacks() -> int:
+	return _scorch_stacks if has_effect("scorch") else 0
+
+func get_scorch_multiplier() -> float:
+	return 1.0 + SCORCH_DAMAGE_PER_STACK * get_scorch_stacks()
 
 ## Lightning damage only - applied on top of get_damage_taken_multiplier()
 ## by the caller (Enemy.take_damage()), not folded into it, since that
@@ -264,10 +287,12 @@ func _expire(effect_id: String) -> void:
 	_timers.erase(effect_id)
 	if effect_id == "freeze":
 		_chill_stacks = 0
+	elif effect_id == "scorch":
+		_scorch_stacks = 0
 	_emit_expired(effect_id)
 
-func _emit_applied(effect_id: String) -> void:
-	EventBus.status_effect_applied.emit(_owner, effect_id, 1)
+func _emit_applied(effect_id: String, stacks: int = 1) -> void:
+	EventBus.status_effect_applied.emit(_owner, effect_id, stacks)
 	effect_applied.emit(effect_id)
 
 func _emit_expired(effect_id: String) -> void:

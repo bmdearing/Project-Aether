@@ -46,7 +46,7 @@ const GOLD_DIM := Color(0.62, 0.5, 0.32)
 const TEXT := Color(0.86, 0.84, 0.8)
 const TEXT_DISABLED := Color(0.42, 0.41, 0.4)
 const MENU_LEFT := 110.0
-const VERSION := "v4.20"
+const VERSION := "v4.21"
 
 ## Left-column layout over the animated background: a dark gradient behind
 ## a large gold title, text buttons that light up and slide on hover, and a

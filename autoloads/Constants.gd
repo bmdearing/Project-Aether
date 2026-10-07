@@ -100,7 +100,7 @@ const STAT_GLOSSARY := {
 # Section 09 - Status Effects. Scope: the 5 effects that already have a
 # real applier in this project (Ability.applies_status_effects on the
 # elemental/esoteric spells) - Bleed/Armor Shred/Stagger-Stun (Physical
-# family, no weapon-side proc mechanic exists) and Scorch/Aetherburn/
+# family, no weapon-side proc mechanic exists) and Aetherburn/
 # Pallid (no Fire-channel/Aetheric/Pale ability exists yet) are left for
 # StatusEffectComponent to grow into once a real source exists (flagged
 # in README). Blind is explicitly deferred in the patch doc itself, not
@@ -113,6 +113,7 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 	"unraveling": DamageType.ENTROPIC,
 	"slow": DamageType.PIERCING,  # Caltrops - a generic slow independent of Chill's Cold flavor, colored via its own Piercing source instead
 	"shock": DamageType.LIGHTNING,
+	"scorch": DamageType.FIRE,
 }
 
 ## Section 20's Infusion Stone/Shrivening Stone/Shard of Tharsis - fixed,
@@ -181,6 +182,7 @@ const STATUS_EFFECT_NAME := {
 	"unraveling": "Unraveling",
 	"slow": "Slowed",
 	"shock": "Shocked",
+	"scorch": "Scorched",
 }
 
 # Patch v3.8: directional metadata only now - Weapon._base_hit()/Ability.
