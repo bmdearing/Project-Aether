@@ -2,6 +2,8 @@
 
 A first-person action RPG with endgame-first loot and build-crafting, made in Godot 4.7.1.
 
+[![Join the Discord](https://img.shields.io/badge/Discord-Join%20the%20community-5865F2?logo=discord&logoColor=white)](https://discord.gg/8uvrTAZcrS)
+
 You start in the **Memory Nexus**, a hub floating in the void, and step through the Reality Engine into procedurally generated **Figments** full of enemies, loot and bosses. Fight up close with swords, polearms and fists, at range with bows and guns, or with spells channelled through conduits, then bring the loot home to craft and refine your build.
 
 ![The Memory Nexus hub](docs/hub.jpg)
@@ -72,6 +74,10 @@ godot --headless --export-release "Linux" builds/linux/ProjectAether.x86_64
 | `autoloads/` | Game state, events, saving, constants |
 | `tests/` | Headless test suites (`godot --headless --path . res://tests/<suite>.tscn`) |
 | `tools/` | Warcraft III MDX-to-glTF model converter |
+
+## Community
+
+Come chat, share feedback and report bugs on the [Project Aether Discord](https://discord.gg/8uvrTAZcrS). Bug reports are also welcome as [GitHub issues](https://github.com/bmdearing/Project-Aether/issues).
 
 ## Documentation
 
