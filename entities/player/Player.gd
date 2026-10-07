@@ -147,6 +147,26 @@ var _dash_direction: Vector3 = Vector3.ZERO
 var _dash_speed_current: float = 0.0
 var _dash_cooldown_remaining: float = 0.0
 
+## Ground/air acceleration instead of instant velocity: quick to start,
+## a short skid to stop, and air momentum that's steerable but not reversible.
+const GROUND_ACCELERATION := 70.0
+const GROUND_DECELERATION := 50.0
+const AIR_ACCELERATION := 18.0
+const AIR_DECELERATION := 4.0
+## Late jumps off ledges and early presses before landing still jump.
+const COYOTE_TIME := 0.1
+const JUMP_BUFFER_TIME := 0.12
+const IMPULSE_FRICTION := 12.0
+
+var _move_velocity: Vector3 = Vector3.ZERO
+var _impulse: Vector3 = Vector3.ZERO
+var _coyote_timer: float = 0.0
+var _jump_buffer_timer: float = 0.0
+
+## Short horizontal shove on top of normal movement (melee lunge).
+func apply_impulse(impulse: Vector3) -> void:
+	_impulse += Vector3(impulse.x, 0.0, impulse.z)
+
 ## Move Speed is gear-affix-only (StatSheet.misc_bonus). Attack Speed is
 ## gear + Agility (v4.8) - see get_action_speed_multiplier().
 
@@ -597,8 +617,12 @@ func _physics_process(delta: float) -> void:
 	# movement itself is already zeroed via _effective_speed()'s status
 	# multiplier below; this additionally blocks jump/parry/attack input.
 	var stunned := status_effects.is_stunned()
-	if Input.is_action_just_pressed("jump") and is_on_floor() and not stunned:
+	_coyote_timer = COYOTE_TIME if is_on_floor() else maxf(_coyote_timer - delta, 0.0)
+	_jump_buffer_timer = JUMP_BUFFER_TIME if Input.is_action_just_pressed("jump") else maxf(_jump_buffer_timer - delta, 0.0)
+	if _jump_buffer_timer > 0.0 and _coyote_timer > 0.0 and not stunned:
 		velocity.y = jump_velocity
+		_jump_buffer_timer = 0.0
+		_coyote_timer = 0.0
 		_is_sliding = false
 
 	var crouch_held := Input.is_action_pressed("crouch")
@@ -623,6 +647,7 @@ func _physics_process(delta: float) -> void:
 		_dash_speed_current = max(_dash_speed_current - DASH_DECELERATION * delta, 0.0)
 		velocity.x = _dash_direction.x * _dash_speed_current
 		velocity.z = _dash_direction.z * _dash_speed_current
+		_move_velocity = Vector3(velocity.x, 0.0, velocity.z)
 		if _dash_timer <= 0.0:
 			_is_dashing = false
 	elif _is_sliding:
@@ -631,13 +656,22 @@ func _physics_process(delta: float) -> void:
 		velocity.x = _slide_direction.x * _slide_speed_current
 		velocity.z = _slide_direction.z * _slide_speed_current
 		_is_crouching = true
+		_move_velocity = Vector3(velocity.x, 0.0, velocity.z)
 		if _slide_timer <= 0.0 or not is_on_floor():
 			_end_slide(crouch_held)
 	else:
 		_is_crouching = crouch_held
 		var speed := _effective_speed(crouch_speed) if _is_crouching else _effective_speed(sprint_speed if sprinting else move_speed)
-		velocity.x = move_dir.x * speed
-		velocity.z = move_dir.z * speed
+		var target := move_dir * speed
+		var rate: float
+		if is_on_floor():
+			rate = GROUND_ACCELERATION if move_dir != Vector3.ZERO else GROUND_DECELERATION
+		else:
+			rate = AIR_ACCELERATION if move_dir != Vector3.ZERO else AIR_DECELERATION
+		_move_velocity = _move_velocity.move_toward(target, rate * delta)
+		velocity.x = _move_velocity.x + _impulse.x
+		velocity.z = _move_velocity.z + _impulse.z
+	_impulse = _impulse.move_toward(Vector3.ZERO, IMPULSE_FRICTION * delta)
 
 	_update_crouch_visual(delta)
 	move_and_slide()

@@ -78,7 +78,14 @@ two sweeps still exist, one's just always the jab and the other's always
 the thrust now, no alternation). Swing timing/arc size are both per-weapon-type
 (`WEAPON_TYPE_SWING_DURATION_MULT`/`WEAPON_TYPE_SWING_INTENSITY` in
 `PlayerMeleeAttack.gd`) - a Greatsword swings ~2.4x slower with a ~1.3x
-bigger arc than the baseline, a Dagger faster/tighter. Idle sway/bob, the
+bigger arc than the baseline, Dagger/Rapier/Gauntlet close to baseline
+with tighter arcs. Every phase has a floor (`MIN_WINDUP`/`MIN_STRIKE`/
+`MIN_RECOVERY`) that attack speed can't go below. Hits land only in the
+back 40% of Strike (`STRIKE_CONTACT_START`), when the blade is crossing
+the screen; impact (hitstop length, camera kick, enemy knockback, the
+forward lunge) scales with `_swing_weight()`. Enemies flash white and get
+shoved on every hit (`Enemy.flash_hit()`/`apply_knockback()`, bosses take
+a quarter of the shove). Idle sway/bob, the
 right-click stance/moveset "engine" in full, kicks, and sword/dagger/
 cast-specific animations are all still future work - this is the rig
 plus the melee swing riding on it, not a complete animation system.
@@ -1135,7 +1142,7 @@ None of the six have a `PauseMenu` button — hotkey-only.
    out Parry's own dedicated role as the primary Stance-break tool
    (Section 07). Parry's own `apply_parry_damage()` is untouched by this,
    still full-strength.
-3. **First-person melee weight** (Pillar 2): camera shake + hitstop +
+3. **First-person melee weight** (Pillar 2): camera shake/kick + hitstop +
    a swinging weapon (a real model for Greatsword/Dagger now, still the
    placeholder blade for anything else) exist, but the docs are
    camera-agnostic on *how it should feel* (timing, intensity), and the

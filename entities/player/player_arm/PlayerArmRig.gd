@@ -411,26 +411,28 @@ static func _quad(st: SurfaceTool, a: Vector3, b: Vector3, c: Vector3, d: Vector
 
 ## --- Animation API, called by PlayerMeleeAttack / WeaponStance ---
 
+const FOLLOW_THROUGH_OVERSHOOT := 1.15
+const FOLLOW_THROUGH_SHARE := 0.15
+const IMPACT_HOLD_SHARE := 0.15
+
 ## `intensity` scales how far each bone actually rotates toward the
 ## chosen pose set's windup/strike targets (1.0 = as authored, >1 = a
 ## bigger arc for a heavier weapon/a stance special, <1 = tighter/faster)
 ## via partial slerp from identity - PlayerMeleeAttack passes a per-
 ## weapon-type value so a greatsword reads as a genuinely bigger
 ## commitment than a dagger, not just a slower copy of the same motion.
-## User feedback (2026-08-30): the first version of this swing "was far
-## too fast along with the animation" for a greatsword - windup now ends
-## with a brief held beat at full wind-up (anticipation, a real pause
-## before commitment) rather than flowing straight into the strike, and
-## the strike itself eases IN (slow start, fast finish) instead of OUT -
-## a heavy weapon overcoming its own inertia, not a flick. Blends from
-## whatever pose is currently applied (not always rest), so back-to-back
-## swings (combo cycling) don't visually snap.
+## Windup settles into a held beat at full wind-up, the strike accelerates
+## into contact (QUART ease-in, so the blade is fastest where hits land),
+## then follows through past the strike pose and holds before recovering.
+## Blends from whatever pose is currently applied, so back-to-back swings
+## don't snap.
 func play_attack_swing(pose_set: PoseSet, windup_duration: float, strike_duration: float, recovery_duration: float, intensity: float = 1.0) -> void:
 	if _swing_tween and _swing_tween.is_valid():
 		_swing_tween.kill()
 	var poses: Dictionary = _poses[pose_set]
 	var windup_pose := _scale_pose(poses["windup"], intensity)
 	var strike_pose := _scale_pose(poses["strike"], intensity)
+	var overshoot_pose := _scale_pose(poses["strike"], intensity * FOLLOW_THROUGH_OVERSHOOT)
 	var start_pose := _current_pose.duplicate()
 	var hold_duration := windup_duration * 0.2
 	var settle_duration := windup_duration - hold_duration
@@ -440,9 +442,20 @@ func play_attack_swing(pose_set: PoseSet, windup_duration: float, strike_duratio
 		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 	_swing_tween.tween_interval(hold_duration)
 	_swing_tween.tween_method(_apply_pose.bind(windup_pose, strike_pose), 0.0, 1.0, strike_duration) \
-		.set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
-	_swing_tween.tween_method(_apply_pose.bind(strike_pose, _rest_pose), 0.0, 1.0, recovery_duration) \
-		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)
+		.set_trans(Tween.TRANS_QUART).set_ease(Tween.EASE_IN)
+	_swing_tween.tween_method(_apply_pose.bind(strike_pose, overshoot_pose), 0.0, 1.0, recovery_duration * FOLLOW_THROUGH_SHARE) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_swing_tween.tween_interval(recovery_duration * IMPACT_HOLD_SHARE)
+	_swing_tween.tween_method(_apply_pose.bind(overshoot_pose, _rest_pose), 0.0, 1.0, recovery_duration * (1.0 - FOLLOW_THROUGH_SHARE - IMPACT_HOLD_SHARE)) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+## -1..1: which way the strike carries the weapon across the screen
+## (positive = toward the left), from the shoulder's yaw change.
+func get_swing_yaw_direction(pose_set: PoseSet) -> float:
+	var poses: Dictionary = _poses[pose_set]
+	var windup_yaw: float = Basis(poses["windup"][0]).get_euler().y
+	var strike_yaw: float = Basis(poses["strike"][0]).get_euler().y
+	return clampf((strike_yaw - windup_yaw) / deg_to_rad(60.0), -1.0, 1.0)
 
 ## Holds the chosen pose set's windup pose indefinitely (no auto-return) -
 ## the "prep" look for WeaponStance's right-click hold. exit_ready_pose()

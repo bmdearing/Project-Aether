@@ -345,13 +345,47 @@ var _pull := Vector3.ZERO
 func apply_pull(pull_velocity: Vector3) -> void:
 	_pull += Vector3(pull_velocity.x, 0.0, pull_velocity.z)
 
+## Melee hit shove: horizontal velocity that bleeds off over a few frames.
+var _knockback := Vector3.ZERO
+const KNOCKBACK_FRICTION := 22.0
+const BOSS_KNOCKBACK_SCALE := 0.25
+
+func apply_knockback(impulse: Vector3) -> void:
+	if rank == Constants.EnemyRank.BOSS:
+		impulse *= BOSS_KNOCKBACK_SCALE
+	_knockback += Vector3(impulse.x, 0.0, impulse.z)
+
+const HIT_FLASH_SEC := 0.09
+static var _hit_flash_material: StandardMaterial3D
+
+## Brief white overlay on every mesh of the model; runs on real time so hitstop doesn't stretch it.
+func flash_hit() -> void:
+	var root: Node = _model_root if _model_root else get_node_or_null("MeshInstance3D")
+	if root == null:
+		return
+	if _hit_flash_material == null:
+		_hit_flash_material = StandardMaterial3D.new()
+		_hit_flash_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		_hit_flash_material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		_hit_flash_material.albedo_color = Color(1.0, 1.0, 1.0, 0.55)
+	var meshes: Array[Node] = root.find_children("*", "MeshInstance3D", true, false)
+	if root is MeshInstance3D:
+		meshes.append(root)
+	for mesh: MeshInstance3D in meshes:
+		mesh.material_overlay = _hit_flash_material
+	get_tree().create_timer(HIT_FLASH_SEC, true, false, true).timeout.connect(func():
+		for mesh in meshes:
+			if is_instance_valid(mesh) and mesh.material_overlay == _hit_flash_material:
+				mesh.material_overlay = null)
+
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
 	_update_chase()
-	velocity.x += _pull.x
-	velocity.z += _pull.z
+	velocity.x += _pull.x + _knockback.x
+	velocity.z += _pull.z + _knockback.z
 	_pull = Vector3.ZERO
+	_knockback = _knockback.move_toward(Vector3.ZERO, KNOCKBACK_FRICTION * delta)
 	move_and_slide()
 	_update_model(delta)
 

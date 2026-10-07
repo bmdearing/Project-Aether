@@ -34,9 +34,19 @@ enum State { IDLE, WINDUP, STRIKE, RECOVERY }
 ## total) "was far too fast" even before any weapon-type scaling - bumped
 ## up across the board as the new no-weapon-match baseline, on top of
 ## which WEAPON_TYPE_SWING_DURATION_MULT below applies per weapon type.
-@export var windup_duration: float = 0.22
-@export var strike_duration: float = 0.16
-@export var recovery_duration: float = 0.24
+## Combat feel pass (2026-10-07): longer anticipation and recovery around a
+## short, fast strike - the contrast is what reads as punch.
+@export var windup_duration: float = 0.25
+@export var strike_duration: float = 0.12
+@export var recovery_duration: float = 0.25
+## Floors after every speed multiplier, so fast weapons + attack speed can't
+## blur a swing into a flicker.
+const MIN_WINDUP := 0.15
+const MIN_STRIKE := 0.075
+const MIN_RECOVERY := 0.19
+## Hits register only from this fraction of Strike onward, when the blade is
+## actually crossing the screen (the strike tween eases in).
+const STRIKE_CONTACT_START := 0.6
 ## Stands in for a "Basic Attack" skill's motion value - no skill/Tome
 ## system exists yet to grant one (Section 11: motion values live on
 ## individual skills, never a bare weapon). Now the DEFAULT/fallback for
@@ -76,12 +86,13 @@ const WEAPON_TYPE_MOTION_VALUE := {
 ## User feedback (2026-08-30, second follow-up): even at 1.85x "still
 ## don't feel right... slower side to side cleaves would look good" -
 ## pushed further still.
+## 2026-10-07: light weapons were too quick to read - Dagger/Rapier/Gauntlet raised.
 const WEAPON_TYPE_SWING_DURATION_MULT := {
-	"Dagger": 0.75,
+	"Dagger": 1.05,
 	"Greatsword": 2.4,
-	"Rapier": 0.65,
+	"Rapier": 0.95,
 	"Staff": 1.4,
-	"Gauntlet": 0.55,
+	"Gauntlet": 0.9,
 }
 const WEAPON_TYPE_SWING_INTENSITY := {
 	"Dagger": 0.85,
@@ -162,9 +173,18 @@ const THRUST_MOTION_VALUE_MULTIPLIER := 1.0
 const JAB_DURATION_MULTIPLIER := 0.6
 
 @export var hitstop_time_scale: float = 0.05
-@export var hitstop_duration: float = 0.06
-@export var shake_strength: float = 0.05
+@export var hitstop_duration: float = 0.07
+@export var shake_strength: float = 0.04
 @export var shake_duration: float = 0.15
+
+## Impact scales with swing weight (see _swing_weight()).
+const HITSTOP_CRIT_MULT := 1.3
+const HITSTOP_KILL_MULT := 1.5
+const SWING_KICK := 0.012          # radians of camera lean on every strike, hit or miss
+const HIT_KICK_PITCH := 0.03       # downward camera dip on a landed hit
+const HIT_KICK_YAW := 0.025
+const KNOCKBACK_PER_WEIGHT := 2.6  # m/s of shove per unit of swing weight
+const LUNGE_PER_WEIGHT := 1.4      # m/s forward step into the strike
 
 ## User request (2026-08-30): "Movement speed should be reduced when
 ## attacking with a melee weapon." Applies for the whole swing (Windup
@@ -191,6 +211,9 @@ var _hitbox: Area3D
 var _attack_type: AttackType = AttackType.THRUST
 ## instance id -> true for every enemy this swing already hit.
 var _hit_this_swing: Dictionary = {}
+var _strike_total: float = 0.0
+var _pose_set: PlayerArmRig.PoseSet = DEFAULT_THRUST_POSE
+var _active_hitstops: int = 0
 
 ## Swing hit volume per weapon family: reach (m from the camera), half-angle
 ## of the horizontal arc, damage share for every target after the first, and
@@ -299,7 +322,8 @@ func _physics_process(delta: float) -> void:
 				_enter_strike()
 		State.STRIKE:
 			_timer -= delta
-			_sweep_strike()
+			if _timer <= _strike_total * (1.0 - STRIKE_CONTACT_START):
+				_sweep_strike()
 			if _timer <= 0.0:
 				_end_strike()
 		State.RECOVERY:
@@ -313,7 +337,7 @@ func _physics_process(delta: float) -> void:
 ## Also applies WEAPON_TYPE_SWING_DURATION_MULT so windup/strike/recovery
 ## timers and PlayerArmRig's tween durations (_play_swing() passes these
 ## same effective values) stay perfectly in sync regardless of weapon.
-func _effective_duration(base: float) -> float:
+func _effective_duration(base: float, minimum: float = 0.0) -> float:
 	var weapon := _player.get_active_weapon()
 	var swing_mult: float = WEAPON_TYPE_SWING_DURATION_MULT.get(weapon.weapon_type, 1.0) if weapon else 1.0
 	match _attack_type:
@@ -323,7 +347,27 @@ func _effective_duration(base: float) -> float:
 			swing_mult *= SPECIAL_DURATION_MULTIPLIER
 		AttackType.THRUST:
 			pass  # x1.0 - identical timing to the old, only attack type this project had before this brief
-	return base * swing_mult / _player.get_action_speed_multiplier()
+	return maxf(base * swing_mult / _player.get_action_speed_multiplier(), minimum)
+
+## Felt heaviness of the current swing: drives hitstop, knockback, lunge, kick.
+func _swing_weight() -> float:
+	var weapon := _player.get_active_weapon()
+	var weight: float = clampf(WEAPON_TYPE_SWING_DURATION_MULT.get(weapon.weapon_type, 1.0) if weapon else 1.0, 0.85, 1.8)
+	match _attack_type:
+		AttackType.JAB:
+			weight *= 0.8
+		AttackType.CHARGED:
+			weight *= 1.4
+	return weight
+
+func _windup_time() -> float:
+	return _effective_duration(windup_duration, MIN_WINDUP)
+
+func _strike_time() -> float:
+	return _effective_duration(strike_duration, MIN_STRIKE)
+
+func _recovery_time() -> float:
+	return _effective_duration(recovery_duration, MIN_RECOVERY)
 
 func _effective_swing_intensity() -> float:
 	var weapon := _player.get_active_weapon()
@@ -331,7 +375,7 @@ func _effective_swing_intensity() -> float:
 
 func _enter_windup() -> void:
 	_state = State.WINDUP
-	_timer = _effective_duration(windup_duration)
+	_timer = _windup_time()
 	_play_swing()
 	_play_swing_sound()
 
@@ -356,10 +400,17 @@ func _play_swing_sound() -> void:
 
 func _enter_strike() -> void:
 	_state = State.STRIKE
-	_timer = _effective_duration(strike_duration)
+	_strike_total = _strike_time()
+	_timer = _strike_total
 	_hit_this_swing = {}
 	if _hitbox:
 		_hitbox.monitoring = true
+	var weight := _swing_weight()
+	_kick_camera(Vector3(-0.5, _swing_yaw(), 0.0) * SWING_KICK * weight)
+	var forward := -_player.camera.global_transform.basis.z
+	forward.y = 0.0
+	if forward.length() > 0.01:
+		_player.apply_impulse(forward.normalized() * LUNGE_PER_WEIGHT * weight)
 
 func _end_strike() -> void:
 	if _hitbox:
@@ -368,7 +419,7 @@ func _end_strike() -> void:
 
 func _enter_recovery() -> void:
 	_state = State.RECOVERY
-	_timer = _effective_duration(recovery_duration)
+	_timer = _recovery_time()
 
 ## Swing choreography now lives on PlayerArmRig's own 3-bone chain
 ## (shoulder/elbow/wrist) instead of tweening one rigid WeaponSocket
@@ -385,26 +436,27 @@ func _play_swing() -> void:
 	var rig := _player.arm_rig
 	if rig == null:
 		return
-	var pose_set: PlayerArmRig.PoseSet
 	var intensity: float
 	var weapon := _player.get_active_weapon()
 	match _attack_type:
 		AttackType.CHARGED:
-			pose_set = get_special_pose_set()
+			_pose_set = get_special_pose_set()
 			intensity = get_special_intensity()
 		AttackType.JAB:
-			pose_set = WEAPON_TYPE_JAB_POSE.get(weapon.weapon_type, DEFAULT_JAB_POSE) if weapon else DEFAULT_JAB_POSE
+			_pose_set = WEAPON_TYPE_JAB_POSE.get(weapon.weapon_type, DEFAULT_JAB_POSE) if weapon else DEFAULT_JAB_POSE
 			intensity = _effective_swing_intensity()
 		AttackType.THRUST:
-			pose_set = WEAPON_TYPE_THRUST_POSE.get(weapon.weapon_type, DEFAULT_THRUST_POSE) if weapon else DEFAULT_THRUST_POSE
+			_pose_set = WEAPON_TYPE_THRUST_POSE.get(weapon.weapon_type, DEFAULT_THRUST_POSE) if weapon else DEFAULT_THRUST_POSE
 			intensity = _effective_swing_intensity()
-	rig.play_attack_swing(
-		pose_set,
-		_effective_duration(windup_duration),
-		_effective_duration(strike_duration),
-		_effective_duration(recovery_duration),
-		intensity
-	)
+	rig.play_attack_swing(_pose_set, _windup_time(), _strike_time(), _recovery_time(), intensity)
+
+func _swing_yaw() -> float:
+	return _player.arm_rig.get_swing_yaw_direction(_pose_set) if _player.arm_rig else 0.0
+
+func _kick_camera(amount: Vector3) -> void:
+	var sway: CameraSway = _player.camera.get_node_or_null("CameraSway") if _player.camera else null
+	if sway:
+		sway.kick(amount)
 
 func get_swing_shape() -> Dictionary:
 	var weapon := _player.get_active_weapon()
@@ -488,7 +540,8 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	if is_primary and _player.parry_handler and _player.parry_handler.can_riposte(target):
 		var riposte_is_critical_spot := target.is_critical_spot_hit(_hitbox)
 		_player.parry_handler.execute_riposte(target, weapon, motion_value, damage_type)
-		_trigger_hit_feedback(true)
+		_react_to_hit(target, 1.5)
+		_trigger_hit_feedback(true, false, not target.health.is_alive())
 		EventBus.hit_landed.emit(true, riposte_is_critical_spot, not target.health.is_alive())
 		return
 
@@ -526,8 +579,16 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 		EventBus.counter_hit.emit(_player, target)
 	_apply_water_slices(weapon, target, final_damage)
 
+	_react_to_hit(target, damage_scale)
 	if is_primary:
-		_trigger_hit_feedback(false)
+		_trigger_hit_feedback(false, is_critical or is_critical_spot, not target.health.is_alive())
+
+func _react_to_hit(target: Enemy, scale: float) -> void:
+	target.flash_hit()
+	var push := target.global_position - _player.global_position
+	push.y = 0.0
+	if push.length() > 0.01:
+		target.apply_knockback(push.normalized() * KNOCKBACK_PER_WEIGHT * _swing_weight() * scale)
 
 ## Implementation Brief v3.4 Section 6's one fully-specified stance
 ## behavior (exact formula given, unlike every other stance in this
@@ -564,20 +625,34 @@ func _target_is_attacking(target: Enemy) -> bool:
 	var ranged: Node = target.get_node_or_null("RangedAttack")
 	return ranged != null and ranged.has_method("is_attacking") and ranged.is_attacking()
 
-func _trigger_hit_feedback(big: bool = false) -> void:
+func _trigger_hit_feedback(big: bool = false, critical: bool = false, killed: bool = false) -> void:
+	var weight := _swing_weight()
+	var duration := hitstop_duration * weight
+	if critical:
+		duration *= HITSTOP_CRIT_MULT
+	if killed:
+		duration *= HITSTOP_KILL_MULT
+	if big:
+		duration = hitstop_duration * 3.0
 	Engine.time_scale = hitstop_time_scale * 0.5 if big else hitstop_time_scale
-	var duration := hitstop_duration * 3.0 if big else hitstop_duration
+	_active_hitstops += 1
 	get_tree().create_timer(duration, true, false, true).timeout.connect(_end_hitstop)
+
+	_kick_camera(Vector3(-HIT_KICK_PITCH, _swing_yaw() * HIT_KICK_YAW, randf_range(-0.5, 0.5) * HIT_KICK_YAW) * weight * (2.0 if big else 1.0))
 
 	var camera := _player.camera
 	if camera == null:
 		return
 	var base_pos: Vector3 = camera.position
-	var strength := shake_strength * 3.0 if big else shake_strength
+	var strength := shake_strength * (3.0 if big else weight)
 	var offset := Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), 0.0) * strength
 	var tween := create_tween()
 	tween.tween_property(camera, "position", base_pos + offset, shake_duration * 0.3).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(camera, "position", base_pos, shake_duration * 0.7).set_trans(Tween.TRANS_SINE)
 
+## Overlapping hitstops (a kill right after a hit) end with the last one.
 func _end_hitstop() -> void:
-	Engine.time_scale = 1.0
+	_active_hitstops -= 1
+	if _active_hitstops <= 0:
+		_active_hitstops = 0
+		Engine.time_scale = 1.0

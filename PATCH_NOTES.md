@@ -7,6 +7,21 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.24: Combat and movement feel (user request)
+
+"Melee strikes are a bit too fast on smaller weapons and don't feel as punchy."
+
+- **Light weapons slower:** Dagger 0.75 -> 1.05, Rapier 0.65 -> 0.95, Gauntlet 0.55 -> 0.9 swing-duration multiplier. A Dagger jab went from 0.28 s to ~0.42 s. Each phase now has a floor (0.15 / 0.075 / 0.19 s) so attack speed can't blur a swing into a flicker.
+- **Swing shape:** base timing 0.22/0.16/0.24 -> 0.25/0.12/0.25 - longer anticipation and recovery around a shorter strike. The strike accelerates into contact (quart ease-in), follows through 15% past the strike pose and holds there before recovering.
+- **Hits land on contact:** the sweep used to run from the first Strike frame, while the blade was still at the wind-up pose, so the hitstop froze it before it had moved. Hits now register from 60% of the Strike onward.
+- **Impact scales with weight** (`_swing_weight()`: weapon duration multiplier, x0.8 jab, x1.4 charged): hitstop (longer on crits and kills), a directional camera kick that follows the swing, enemy knockback, and a small forward lunge into every strike. Enemies flash white on hit. Bosses take a quarter of the knockback.
+- **Hitstop overlap fix:** a second hitstop (e.g. a kill right after a hit) no longer gets cut short by the first one's timer.
+- **Movement:** acceleration instead of instant velocity (quick to start, a short skid to stop), reduced air control that keeps momentum, 0.1 s coyote time and 0.12 s jump buffering. Dash and slide now blend back into running speed instead of snapping to it. Camera dips on landing, scaled by fall speed; head bob follows speed.
+- `tests/combat` (16 checks) covers swing timing and floors, the contact window, hitstop recovery, knockback, acceleration and the lunge.
+- Known, pre-existing: `tests/inventory` fails its two out-of-bounds checks since the v4.23 14x7 grid change (fails on v4.23 as well).
+
+---
+
 ## 2026-10-07 — v4.23: Gear sizes after reload, bigger inventory, layout (user request)
 
 - **Shields shrinking to 1x1 after a reload:** `ItemSerializer` never saved `base_line_id`, which is what gives a shield its inventory size, so every saved shield came back 1x1. It also dropped item level, requirements and a shield's evasion/ward. Loading now rebuilds a rolled item from its base (`<base id>_rolled_N` -> `data/*/instances/<base id>.tres`) and applies the saved values on top, so existing saves are repaired too; base line, item level and shield evasion/ward are now saved as well.
