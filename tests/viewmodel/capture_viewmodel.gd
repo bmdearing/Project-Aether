@@ -65,6 +65,10 @@ func _time_scale(weapon: Weapon) -> float:
 
 func _trigger(mode: String, weapon: Weapon) -> void:
 	match mode:
+		"guard", "block":
+			GameState.shield_on_rmb = mode == "block"
+			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+			Input.action_press("stance")
 		"idle":
 			pass
 		"jab":
@@ -88,6 +92,8 @@ func _trigger(mode: String, weapon: Weapon) -> void:
 				_player.melee_attack.try_standard_thrust()
 
 func _release(mode: String) -> void:
+	if mode == "guard" or mode == "block":
+		Input.action_release("stance")
 	if mode == "walk":
 		Input.action_release("move_forward")
 	if mode == "charged":

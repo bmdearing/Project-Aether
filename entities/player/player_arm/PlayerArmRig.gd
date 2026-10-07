@@ -285,6 +285,7 @@ var _off_pose := Pose.new()
 var _guard: bool = false
 var _aiming: bool = false
 var _guard_w: float = 0.0
+var _shield_w: float = 0.0
 var _aim_w: float = 0.0
 var _fist_alt: bool = false
 
@@ -405,7 +406,8 @@ func play_attack(kind: Attack, windup: float, strike: float, recovery: float) ->
 			return
 	_start(_main_track, clip, windup, strike, recovery, _main_rest())
 
-## Right-click hold: melee raises a guard (or the shield), ranged aims down sights.
+## Right-click hold: melee raises a weapon guard, ranged aims down sights. The
+## shield only comes up while ShieldBlock is actually raised.
 func set_guard(on: bool) -> void:
 	_guard = on
 
@@ -509,6 +511,8 @@ func _process(delta: float) -> void:
 	_off_track.time += delta
 	var attacking := _main_track.active()
 	_guard_w = move_toward(_guard_w, 1.0 if _guard and not attacking else 0.0, delta * 6.0)
+	var shield_up := _player != null and _player.shield_block != null and _player.shield_block.is_raised
+	_shield_w = move_toward(_shield_w, 1.0 if shield_up else 0.0, delta * 8.0)
 	_aim_w = move_toward(_aim_w, 1.0 if _aiming else 0.0, delta * 7.0)
 	_update_sway(delta, attacking)
 
@@ -552,9 +556,6 @@ func _main_rest() -> Pose:
 		pose = pose.lerp_to(_pose_from(spec["guard"]), _smooth(_guard_w))
 	if spec.has("aim") and _aim_w > 0.0:
 		pose = pose.lerp_to(_pose_from(spec["aim"]), _smooth(_aim_w))
-	if _off_mode == OffMode.ITEM and _offhand_item is Shield:
-		# Weapon stays back while the shield takes the block.
-		pose = pose.lerp_to(_pose_from(spec["rest"]), _smooth(_guard_w))
 	return pose
 
 func _off_rest() -> Pose:
@@ -567,7 +568,7 @@ func _off_rest() -> Pose:
 			var spec: Dictionary = RESTS[&"fist"]
 			return _pose_from(spec["off"]).lerp_to(_pose_from(spec["off_guard"]), _smooth(_guard_w))
 		OffMode.ITEM:
-			var guard := _guard_w if _offhand_item is Shield else 0.0
+			var guard := _shield_w if _offhand_item is Shield else 0.0
 			return _pose_from(OFF_ITEM_REST).lerp_to(_pose_from(OFF_ITEM_GUARD), _smooth(guard))
 	return Pose.new(OFF_HIDDEN, Vector3(0.1, 1, -0.3), Vector3(0, 0, 1))
 
