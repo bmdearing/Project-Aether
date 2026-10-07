@@ -337,10 +337,21 @@ func get_outgoing_damage_multiplier() -> float:
 		return rarity_mult
 	return GameState.active_map.enemy_damage_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_DAMAGE_GROWTH_PER_TIER) * rarity_mult
 
+## Horizontal velocity added on top of chase movement for one physics frame
+## (Black Hole's pull). Goes through move_and_slide(), so it can't push an
+## enemy through walls.
+var _pull := Vector3.ZERO
+
+func apply_pull(pull_velocity: Vector3) -> void:
+	_pull += Vector3(pull_velocity.x, 0.0, pull_velocity.z)
+
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
 	_update_chase()
+	velocity.x += _pull.x
+	velocity.z += _pull.z
+	_pull = Vector3.ZERO
 	move_and_slide()
 	_update_model(delta)
 

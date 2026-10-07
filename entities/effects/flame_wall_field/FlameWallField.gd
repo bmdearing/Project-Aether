@@ -78,8 +78,10 @@ func _on_body_entered(body: Node3D) -> void:
 	if enemy == null or _inside.has(enemy):
 		return
 	_inside.append(enemy)
+	# Ignite's burn is a share of the hit that caused it, so roll one.
+	var hit := _ability.roll_damage(_stat_sheet)
 	for effect_id in _ability.applies_status_effects:
-		enemy.status_effects.apply_effect(effect_id, _source, 0.0)
+		enemy.status_effects.apply_effect(effect_id, _source, hit["final_damage"])
 
 func _on_body_exited(body: Node3D) -> void:
 	var enemy := body as Enemy

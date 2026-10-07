@@ -34,8 +34,19 @@ func _ready() -> void:
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		mesh.material_override = mat
 
+## Moves by ray-checked steps so walls and floors stop it; enemies are
+## still handled (and pierced) by body_entered.
 func _physics_process(delta: float) -> void:
-	global_position += -global_transform.basis.z * speed * delta
+	var step := -global_transform.basis.z * speed * delta
+	var query := PhysicsRayQueryParameters3D.create(global_position, global_position + step)
+	query.collision_mask = 1
+	if source is CollisionObject3D:
+		query.exclude = [source.get_rid()]
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if hit and hit["collider"] is StaticBody3D:
+		queue_free()
+		return
+	global_position += step
 
 func _on_body_entered(body: Node3D) -> void:
 	var enemy := body as Enemy

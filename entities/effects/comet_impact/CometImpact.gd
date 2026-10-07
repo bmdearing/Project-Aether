@@ -1,5 +1,8 @@
 extends Node3D
 class_name CometImpact
+
+## Fired when the falling mass lands - damage is dealt then, not on cast.
+signal impacted
 ## Comet's cast VFX: an icy ball falls from above and smashes into the
 ## ground at the cast point, bursting into ice-shard fragments plus the
 ## usual ground-shockwave ring. Purely visual - the real hit already
@@ -29,6 +32,7 @@ func play(radius: float, color: Color) -> void:
 
 func _on_impact(radius: float, color: Color) -> void:
 	ball.visible = false
+	impacted.emit()
 	var shockwave: AbilityRangeEffect = SHOCKWAVE_SCENE.instantiate()
 	get_parent().add_child(shockwave)
 	shockwave.global_position = global_position

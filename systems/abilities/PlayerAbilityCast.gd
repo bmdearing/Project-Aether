@@ -64,6 +64,8 @@ const PIERCING_BOLT_SCENE := preload("res://entities/effects/piercing_bolt/Pierc
 ## instant-AoE-at-cast-point every other first-pass ability still uses.
 const PIERCING_BOLT_ABILITY_IDS := ["cinder_lance", "thunder_javelin"]
 const THUNDER_SWEEP_BOLT_COUNT := 8
+## Thunder Javelin is the fast one ("Fast, piercing projectile").
+const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sweep": 18.0}
 
 ## Frost Armor ("A layer of frozen energy coats the Freeblood. Enemies
 ## that strike in melee range trigger a Retaliation Damage burst of Cold
@@ -123,6 +125,7 @@ var _flame_jets_input_action: String = ""
 ## documented never to cost, or get cut off instantly since no key is
 ## actually being held for it.
 var _flame_jets_is_manual: bool = false
+var _flame_jets_fx: CPUParticles3D
 
 var _cooldowns: Dictionary = {}  # Ability -> float seconds remaining
 var _player: Player
@@ -138,6 +141,8 @@ func _ready() -> void:
 	_player = get_parent()
 
 func _physics_process(delta: float) -> void:
+	if _flame_jets_fx:
+		_flame_jets_fx.emitting = _flame_jets_remaining > 0.0
 	for ability in _cooldowns.keys():
 		_cooldowns[ability] = max(0.0, _cooldowns[ability] - delta)
 	if _frost_armor_remaining > 0.0:
@@ -243,11 +248,14 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 	# component" per the doc itself - the only two abilities in this
 	# project that skip the generic enemy-damage loop entirely.
 	if ability.ability_id == "blink":
+		_flash_ring(_player.global_position, 1.4, ability)
 		_perform_blink()
+		_flash_ring(_player.global_position, 1.4, ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "purge":
 		_player.status_effects.clear_all_effects()
+		_flash_ring(_player.global_position, 3.0, ability, Color(0.85, 0.95, 1.0))
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "frost_armor":
@@ -260,6 +268,8 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		_flame_jets_remaining = FLAME_JETS_DURATION
 		_flame_jets_tick_timer = 0.0  # ticks on the very next physics frame, not after a full interval's delay
 		_flame_jets_drain_timer = CHANNEL_MANA_DRAIN_INTERVAL
+		_ensure_flame_jets_fx()
+		_flame_jets_fx.emitting = true
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	# Black Hole ("shouldn't be a DoT, but deals Entropic damage every
@@ -314,23 +324,127 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		EventBus.ability_cast.emit(_player, ability)
 		return
 
-	for enemy in get_tree().get_nodes_in_group("enemy"):
-		if not enemy is Enemy:
-			continue
-		if cast_position.distance_to(enemy.global_position) > ability.get_radius(_player.stat_sheet):
-			continue
-		var hit := ability.roll_damage(_player.stat_sheet)
-		var damage: float = hit["final_damage"] * damage_multiplier
-		var is_critical: bool = hit["is_critical"]
-		enemy.take_damage(damage, ability.damage_type)
-		if apply_composure and enemy.stance:
-			enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
-		EventBus.damage_dealt.emit(_player, enemy, damage, ability.damage_type, false, is_critical)
-		for effect_id in ability.applies_status_effects:
-			enemy.status_effects.apply_effect(effect_id, _player, damage)
+	# Comet/Meteor: damage lands with the falling mass, not on cast.
+	if IMPACT_ABILITY_IDS.has(ability.ability_id):
+		var impact := _play_range_effect(ability, cast_position)
+		var radius := ability.get_radius(_player.stat_sheet)
+		impact.connect("impacted", _damage_area.bind(ability, cast_position, radius, damage_multiplier, apply_composure, 0.0, Callable()))
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "stormcall":
+		_cast_stormcall(ability, cast_position, damage_multiplier, apply_composure)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "static_discharge":
+		_cast_static_discharge(ability, cast_position, damage_multiplier, apply_composure)
+		EventBus.ability_cast.emit(_player, ability)
+		return
 
+	# Ice Pulse / Entropic Decay radiate outward: hits ride the expanding ring.
+	var wave := WAVE_DURATION if WAVE_ABILITY_IDS.has(ability.ability_id) else 0.0
+	_damage_area(ability, cast_position, ability.get_radius(_player.stat_sheet), damage_multiplier, apply_composure, wave, Callable())
 	_play_range_effect(ability, cast_position)
 	EventBus.ability_cast.emit(_player, ability)
+
+const IMPACT_ABILITY_IDS := ["comet", "meteor"]
+const WAVE_ABILITY_IDS := ["ice_pulse", "static_discharge", "entropic_decay"]
+const WAVE_DURATION := 0.35  # AbilityRangeEffect's ring expands over the same time
+const COMET_CHILLED_BONUS := 2.5  # "massively increased damage against Chilled or Frozen"
+## Stormcall: full damage in the strike's core, then forks arc out to the
+## nearest enemies in range - one more fork per enemy caught in the core.
+const STORMCALL_CORE_RADIUS := 2.5
+const STORMCALL_BASE_FORKS := 2
+const STORMCALL_FORK_DAMAGE := 0.6
+## Static Discharge: each enemy the discharge hits arcs on to the nearest
+## enemy outside the burst within this range.
+const STATIC_CHAIN_RANGE := 5.5
+const STATIC_CHAIN_DAMAGE := 0.5
+const ARC_HEIGHT := 1.0
+
+## Hits every enemy within radius of centre. wave > 0 delays each hit by its
+## distance so damage rides an expanding ring. on_hit(enemy) runs per hit.
+func _damage_area(ability: Ability, centre: Vector3, radius: float, damage_multiplier: float, apply_composure: bool, wave: float, on_hit: Callable) -> void:
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy == null:
+			continue
+		var dist := centre.distance_to(enemy.global_position)
+		if dist > radius:
+			continue
+		if wave > 0.0:
+			get_tree().create_timer(wave * dist / maxf(radius, 0.01), false).timeout.connect(
+				_hit_enemy.bind(ability, enemy, damage_multiplier, apply_composure, on_hit))
+		else:
+			_hit_enemy(ability, enemy, damage_multiplier, apply_composure, on_hit)
+
+func _hit_enemy(ability: Ability, enemy: Enemy, damage_multiplier: float, apply_composure: bool, on_hit: Callable) -> void:
+	if not is_instance_valid(enemy) or not enemy.health.is_alive():
+		return
+	var hit := ability.roll_damage(_player.stat_sheet)
+	var damage: float = hit["final_damage"] * damage_multiplier
+	if ability.ability_id == "comet" and (enemy.status_effects.has_effect("chill") or enemy.status_effects.has_effect("freeze")):
+		damage *= COMET_CHILLED_BONUS
+	enemy.take_damage(damage, ability.damage_type)
+	if apply_composure and enemy.stance:
+		enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
+	EventBus.damage_dealt.emit(_player, enemy, damage, ability.damage_type, false, hit["is_critical"])
+	for effect_id in ability.applies_status_effects:
+		enemy.status_effects.apply_effect(effect_id, _player, damage)
+	if on_hit.is_valid():
+		on_hit.call(enemy)
+
+func _enemies_by_distance(centre: Vector3, max_dist: float) -> Array[Enemy]:
+	var result: Array[Enemy] = []
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy and enemy.health.is_alive() and centre.distance_to(enemy.global_position) <= max_dist:
+			result.append(enemy)
+	result.sort_custom(func(a: Enemy, b: Enemy): return centre.distance_to(a.global_position) < centre.distance_to(b.global_position))
+	return result
+
+func _cast_stormcall(ability: Ability, centre: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
+	_play_range_effect(ability, centre)
+	var radius := ability.get_radius(_player.stat_sheet)
+	var core: Array[Enemy] = []
+	var outer: Array[Enemy] = []
+	for enemy in _enemies_by_distance(centre, radius):
+		if centre.distance_to(enemy.global_position) <= STORMCALL_CORE_RADIUS:
+			core.append(enemy)
+		else:
+			outer.append(enemy)
+	for enemy in core:
+		_hit_enemy(ability, enemy, damage_multiplier, apply_composure, Callable())
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+	var scene := _player.get_tree().current_scene
+	for enemy in outer.slice(0, STORMCALL_BASE_FORKS + core.size()):
+		LightningArc.spawn(scene, centre + Vector3.UP * 0.3, enemy.global_position + Vector3.UP * ARC_HEIGHT, color)
+		_hit_enemy(ability, enemy, damage_multiplier * STORMCALL_FORK_DAMAGE, apply_composure, Callable())
+
+func _cast_static_discharge(ability: Ability, centre: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
+	var radius := ability.get_radius(_player.stat_sheet)
+	var chained := {}
+	for enemy in _enemies_by_distance(centre, radius):
+		chained[enemy.get_instance_id()] = true
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+	var scene := _player.get_tree().current_scene
+	var arc_on := func(from_enemy: Enemy) -> void:
+		LightningArc.spawn(scene, centre + Vector3.UP * ARC_HEIGHT, from_enemy.global_position + Vector3.UP * ARC_HEIGHT, color)
+		for next in _enemies_by_distance(from_enemy.global_position, STATIC_CHAIN_RANGE):
+			if chained.has(next.get_instance_id()):
+				continue
+			chained[next.get_instance_id()] = true
+			LightningArc.spawn(scene, from_enemy.global_position + Vector3.UP * ARC_HEIGHT, next.global_position + Vector3.UP * ARC_HEIGHT, color)
+			_hit_enemy(ability, next, damage_multiplier * STATIC_CHAIN_DAMAGE, apply_composure, Callable())
+			break
+	_damage_area(ability, centre, radius, damage_multiplier, apply_composure, WAVE_DURATION, arc_on)
+	_play_range_effect(ability, centre)
+
+## Expanding ring with no damage - Blink/Purge feedback.
+func _flash_ring(pos: Vector3, radius: float, ability: Ability, color: Color = Color(0, 0, 0, 0)) -> void:
+	var ring: AbilityRangeEffect = RANGE_EFFECT_SCENE.instantiate()
+	_player.get_tree().current_scene.add_child(ring)
+	ring.global_position = pos + Vector3.UP * 0.05
+	ring.play(radius, color if color.a > 0.0 else Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE))
 
 ## Section 10 Unique "The Unbound Chorus": "Designate one Spell skill -
 ## that skill automatically triggers when its cooldown expires." Scoped to
@@ -390,7 +504,7 @@ func _resolve_ability_by_id(ability_id: String) -> Ability:
 			dir.list_dir_end()
 	return _ability_by_id_cache.get(ability_id)
 
-func _play_range_effect(ability: Ability, cast_position: Vector3) -> void:
+func _play_range_effect(ability: Ability, cast_position: Vector3) -> Node3D:
 	var scene: PackedScene = SPECIAL_EFFECT_SCENES.get(ability.ability_id, RANGE_EFFECT_SCENE)
 	var effect: Node3D = scene.instantiate()
 	_player.get_tree().current_scene.add_child(effect)
@@ -407,6 +521,7 @@ func _play_range_effect(ability: Ability, cast_position: Vector3) -> void:
 		effect.call("play", ability.get_radius(_player.stat_sheet), color, ability, _player.stat_sheet, _player)
 	else:
 		effect.call("play", ability.get_radius(_player.stat_sheet), color)
+	return effect
 
 ## Called by EnemyMeleeAttack._resolve_hit() at the exact moment an enemy's
 ## melee strike lands on the player - "melee range" per Frost Armor's own
@@ -440,6 +555,61 @@ func _tick_flame_jets() -> void:
 		EventBus.damage_dealt.emit(_player, enemy, damage, _flame_jets_ability.damage_type, false, hit["is_critical"])
 		for effect_id in _flame_jets_ability.applies_status_effects:
 			enemy.status_effects.apply_effect(effect_id, _player, damage)
+
+## The flame stream: soft additive puffs from just below the view, out along
+## the aim for FLAME_JETS_RANGE, growing and cooling from white-yellow to red.
+func _ensure_flame_jets_fx() -> void:
+	if is_instance_valid(_flame_jets_fx):
+		return
+	var p := CPUParticles3D.new()
+	p.amount = 160
+	p.lifetime = 0.42
+	p.local_coords = false
+	p.emitting = false
+	p.position = Vector3(0.12, -0.28, -0.6)
+	p.direction = Vector3(0, 0, -1)
+	p.spread = 8.0
+	p.gravity = Vector3(0, 1.5, 0)
+	p.initial_velocity_min = FLAME_JETS_RANGE / 0.42 * 0.85
+	p.initial_velocity_max = FLAME_JETS_RANGE / 0.42 * 1.05
+	p.damping_min = 2.0
+	p.damping_max = 4.0
+	p.angle_max = 180.0
+	p.scale_amount_min = 0.5
+	p.scale_amount_max = 0.9
+	var curve := Curve.new()
+	curve.add_point(Vector2(0.0, 0.15))
+	curve.add_point(Vector2(1.0, 1.0))
+	p.scale_amount_curve = curve
+	var ramp := Gradient.new()
+	ramp.set_color(0, Color(1.0, 0.95, 0.7, 0.9))
+	ramp.add_point(0.3, Color(1.0, 0.55, 0.12, 0.85))
+	ramp.add_point(0.7, Color(0.75, 0.15, 0.05, 0.45))
+	ramp.set_color(ramp.get_point_count() - 1, Color(0.2, 0.05, 0.02, 0.0))
+	p.color_ramp = ramp
+	var tex := GradientTexture2D.new()
+	tex.fill = GradientTexture2D.FILL_RADIAL
+	tex.fill_from = Vector2(0.5, 0.5)
+	tex.fill_to = Vector2(1.0, 0.5)
+	var soft := Gradient.new()
+	soft.set_color(0, Color(1, 1, 1, 1))
+	soft.set_color(1, Color(1, 1, 1, 0))
+	tex.gradient = soft
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
+	mat.billboard_keep_scale = true
+	mat.vertex_color_use_as_albedo = true
+	mat.albedo_texture = tex
+	mat.albedo_color = Color(1.6, 1.3, 1.1)
+	var quad := QuadMesh.new()
+	quad.material = mat
+	p.mesh = quad
+	p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_player.camera.add_child(p)
+	_flame_jets_fx = p
 
 func has_frost_armor() -> bool:
 	return _frost_armor_remaining > 0.0
@@ -514,7 +684,7 @@ func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D)
 	bolt.damage_amount = hit["final_damage"] * damage_multiplier
 	bolt.is_critical = hit["is_critical"]
 	bolt.damage_type = ability.damage_type
-	bolt.speed *= ability.get_projectile_speed_multiplier(_player.stat_sheet)
+	bolt.speed = BOLT_SPEEDS.get(ability.ability_id, bolt.speed) * ability.get_projectile_speed_multiplier(_player.stat_sheet)
 	bolt.source = _player
 	bolt.applies_status_effects = ability.applies_status_effects
 

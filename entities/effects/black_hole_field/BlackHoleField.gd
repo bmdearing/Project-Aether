@@ -14,7 +14,7 @@ class_name BlackHoleField
 ## this ability's damage comes from here.
 
 const DURATION := 2.5
-const PULL_SPEED := 3.0
+const PULL_SPEED := 5.0  # m/s added toward the centre, strongest at the edge
 const RISE_DURATION := 0.3
 const TICK_INTERVAL := 0.25
 
@@ -66,11 +66,8 @@ func _physics_process(delta: float) -> void:
 		# the center should still keep taking damage, not go immune once
 		# it arrives (caught by scratch_spells_test.gd: a same-position
 		# enemy took zero damage across a full second of ticks).
-		if dist >= 0.05:
-			var pull: Vector3 = to_center.normalized() * PULL_SPEED * delta
-			if pull.length() > dist:
-				pull = to_center  # don't overshoot past the center
-			enemy.global_position += pull
+		if dist >= 0.3:
+			enemy.apply_pull(to_center.normalized() * PULL_SPEED * clampf(dist / 1.5, 0.3, 1.0))
 		if should_tick and _ability and _stat_sheet:
 			var hit := _ability.roll_damage(_stat_sheet)
 			var damage: float = hit["final_damage"]

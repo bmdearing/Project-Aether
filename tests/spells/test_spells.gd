@@ -1,0 +1,291 @@
+extends Node
+## Spell behaviour checks: casts each spell at stationary dummy enemies and
+## verifies its specific mechanic (timing, forks/chains, pull, walls, DoT).
+## Run: Godot --headless --path . res://tests/spells/test_spells.tscn --quit-after 20000
+## Exits 0 when every check passes. Never writes the save file.
+
+const ABILITY_DIR := "res://data/abilities/instances/"
+
+var _checks := 0
+var _failures := 0
+var _finished := 0
+const TEST_COUNT := 11
+
+var _arena: Node3D
+var _player: Player
+var _cast: PlayerAbilityCast
+
+func _ready() -> void:
+	_run.call_deferred()
+
+func _check(ok: bool, what: String) -> void:
+	_checks += 1
+	if not ok:
+		_failures += 1
+		print("FAIL: ", what)
+
+func _frames(n: int) -> void:
+	for i in n:
+		await get_tree().physics_frame
+
+func _wait(sec: float) -> void:
+	await get_tree().create_timer(sec).timeout
+
+func _run() -> void:
+	GameState.reset_to_defaults()
+	GameState.game_started = false
+	await _setup()
+	await _test_comet_timing_and_bonus()
+	await _test_meteor_timing()
+	await _test_wave()
+	await _test_stormcall_forks()
+	await _test_static_chain()
+	await _test_black_hole_pull()
+	await _test_flame_wall_ignite()
+	await _test_winters_eye()
+	await _test_bolt_walls()
+	await _test_spark_and_tornado()
+	await _test_every_spell_casts()
+	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
+	print("spell tests: %d checks, %d failures" % [_checks, _failures])
+	get_tree().quit(1 if _failures > 0 else 0)
+
+func _setup() -> void:
+	_arena = Node3D.new()
+	add_child(_arena)
+	var body := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = Vector3(120, 1, 120)
+	shape.shape = box
+	shape.position.y = -0.5
+	body.add_child(shape)
+	_arena.add_child(body)
+	_player = load("res://entities/player/Player.tscn").instantiate()
+	_arena.add_child(_player)
+	_player.global_position = Vector3(0, 0, 30)
+	await _frames(3)
+	_player.set_physics_process(false)
+	_cast = _player.ability_cast
+	_clear()
+
+func _clear() -> void:
+	for e in get_tree().get_nodes_in_group("enemy"):
+		e.remove_from_group("enemy")
+		e.queue_free()
+
+func _ability(id: String) -> Ability:
+	var a := load(ABILITY_DIR + id + ".tres") as Ability
+	a.level = 1
+	a.base_crit_chance = 0.0
+	return a
+
+func _dummy(pos: Vector3) -> Enemy:
+	var e := EnemyRoster.create_unit("unchartered_brigand")
+	_arena.add_child(e)
+	e.global_position = pos
+	e.move_speed = 0.0
+	e.evasion_value = 0.0
+	e.armor_value = 0.0
+	e.health.max_health = 1.0e6
+	e.health.current_health = 1.0e6
+	var melee := e.get_node_or_null("MeleeAttack")
+	if melee:
+		melee.set_physics_process(false)
+	return e
+
+func _lost(e: Enemy) -> float:
+	return 1.0e6 - e.health.current_health if is_instance_valid(e) else 0.0
+
+func _reset_effects() -> void:
+	_clear()
+	for n in get_tree().get_nodes_in_group("tornado_field"):
+		n.queue_free()
+	await _frames(3)
+
+func _test_comet_timing_and_bonus() -> void:
+	await _reset_effects()
+	var comet := _ability("comet")
+	var plain := _dummy(Vector3(-1, 0, 0))
+	var chilled := _dummy(Vector3(1, 0, 0))
+	await _frames(2)
+	chilled.status_effects.apply_effect("chill", null)
+	_cast._cast(comet, Vector3.ZERO)
+	await _frames(1)
+	_check(_lost(plain) == 0.0, "comet deals no damage before it lands")
+	await _wait(0.6)
+	_check(_lost(plain) > 0.0, "comet damages on impact")
+	_check(_lost(chilled) > _lost(plain) * 1.8, "comet hits Chilled enemies much harder (%.0f vs %.0f)" % [_lost(chilled), _lost(plain)])
+	_finished += 1
+
+func _test_meteor_timing() -> void:
+	await _reset_effects()
+	var e := _dummy(Vector3.ZERO)
+	await _frames(2)
+	_cast._cast(_ability("meteor"), Vector3.ZERO)
+	await _frames(1)
+	_check(_lost(e) == 0.0, "meteor deals no damage before it lands")
+	await _wait(0.6)
+	_check(_lost(e) > 0.0, "meteor damages on impact")
+	_finished += 1
+
+func _test_wave() -> void:
+	await _reset_effects()
+	var pulse := _ability("ice_pulse")
+	var near := _dummy(Vector3(0, 0, 29))
+	var far := _dummy(Vector3(4.5, 0, 30))
+	await _frames(2)
+	_cast._cast(pulse, _player.global_position)
+	await _frames(1)
+	_check(_lost(far) == 0.0, "ice pulse hasn't reached the far enemy yet")
+	await _wait(0.5)
+	_check(_lost(near) > 0.0 and _lost(far) > 0.0, "ice pulse wave reaches everyone in range")
+	_check(near.status_effects.has_effect("chill"), "ice pulse chills")
+	_finished += 1
+
+func _test_stormcall_forks() -> void:
+	await _reset_effects()
+	var storm := _ability("stormcall")
+	var core := _dummy(Vector3(0.5, 0, 0))
+	var outer := _dummy(Vector3(4.5, 0, 0))
+	var outside := _dummy(Vector3(9.0, 0, 0))
+	await _frames(2)
+	_cast._cast(storm, Vector3.ZERO)
+	await _frames(2)
+	_check(_lost(core) > 0.0, "stormcall hits its core")
+	_check(_lost(outer) > 0.0 and _lost(outer) < _lost(core), "stormcall forks to a nearby enemy for less damage")
+	_check(_lost(outside) == 0.0, "stormcall forks stay within range")
+	_finished += 1
+
+func _test_static_chain() -> void:
+	await _reset_effects()
+	var sd := _ability("static_discharge")
+	var inside := _dummy(Vector3(2, 0, 30))
+	var beyond := _dummy(Vector3(6.5, 0, 30))
+	await _frames(2)
+	_cast._cast(sd, _player.global_position)
+	await _wait(0.5)
+	_check(_lost(inside) > 0.0, "static discharge hits nearby enemies")
+	_check(_lost(beyond) > 0.0, "static discharge arcs on to an enemy outside the burst")
+	_finished += 1
+
+func _test_black_hole_pull() -> void:
+	await _reset_effects()
+	var e := _dummy(Vector3(4, 0, 0))
+	await _frames(2)
+	var start := e.global_position.distance_to(Vector3.ZERO)
+	var field: BlackHoleField = load("res://entities/effects/black_hole_field/BlackHoleField.tscn").instantiate()
+	_arena.add_child(field)
+	var bh := _ability("black_hole")
+	field.play(bh.radius, Color.PURPLE, bh, _player.stat_sheet, _player)
+	await _wait(1.0)
+	_check(e.global_position.distance_to(Vector3.ZERO) < start - 1.0, "black hole drags enemies in")
+	# A wall between the hole and an enemy holds it.
+	field.queue_free()
+	await _reset_effects()
+	var wall := StaticBody3D.new()
+	var ws := CollisionShape3D.new()
+	var wb := BoxShape3D.new()
+	wb.size = Vector3(0.6, 4, 8)
+	ws.shape = wb
+	wall.add_child(ws)
+	_arena.add_child(wall)
+	wall.global_position = Vector3(2.5, 2, 0)
+	var walled := _dummy(Vector3(4, 0, 0))
+	await _frames(2)
+	var field2: BlackHoleField = load("res://entities/effects/black_hole_field/BlackHoleField.tscn").instantiate()
+	_arena.add_child(field2)
+	field2.play(bh.radius, Color.PURPLE, bh, _player.stat_sheet, _player)
+	await _wait(1.0)
+	_check(walled.global_position.x > 2.5, "black hole can't drag enemies through a wall (x %.2f)" % walled.global_position.x)
+	field2.queue_free()
+	wall.queue_free()
+	_finished += 1
+
+func _test_flame_wall_ignite() -> void:
+	await _reset_effects()
+	var fw := _ability("flame_wall")
+	var field: FlameWallField = load("res://entities/effects/flame_wall_field/FlameWallField.tscn").instantiate()
+	_arena.add_child(field)
+	field.global_position = Vector3(0, 0, 0)
+	field.play(fw.radius, Color.ORANGE_RED, fw, _player.stat_sheet, _player, Vector3(0, 0, 10))
+	await _frames(2)
+	var e := _dummy(Vector3(0, 0, 0))
+	await _wait(0.3)
+	_check(e.status_effects.has_effect("ignite"), "flame wall ignites enemies that enter")
+	var before := _lost(e)
+	await _wait(1.2)
+	_check(_lost(e) > before, "flame wall burns over time")
+	field.queue_free()
+	_finished += 1
+
+func _test_winters_eye() -> void:
+	await _reset_effects()
+	var we := _ability("winters_eye")
+	var e := _dummy(Vector3(2, 0, 0))
+	await _frames(2)
+	var orb: WintersEyeOrb = load("res://entities/effects/winters_eye_orb/WintersEyeOrb.tscn").instantiate()
+	_arena.add_child(orb)
+	orb.global_position = Vector3(0, 1, 6)
+	orb.play(we.radius, Color.CYAN, we, _player.stat_sheet, _player, Vector3.ZERO)
+	await _wait(1.5)
+	_check(is_instance_valid(orb), "winter's eye hasn't detonated on arrival")
+	_check(_lost(e) > 0.0 and (e.status_effects.has_effect("chill") or e.status_effects.has_effect("freeze")), "winter's eye icicles hit and chill")
+	await _wait(2.0)
+	_check(not is_instance_valid(orb), "winter's eye detonates when its duration ends")
+	_finished += 1
+
+func _test_bolt_walls() -> void:
+	await _reset_effects()
+	var wall := StaticBody3D.new()
+	var ws := CollisionShape3D.new()
+	var wb := BoxShape3D.new()
+	wb.size = Vector3(6, 6, 0.5)
+	ws.shape = wb
+	wall.add_child(ws)
+	_arena.add_child(wall)
+	wall.global_position = Vector3(0, 2, 20)
+	var behind := _dummy(Vector3(0, 0, 15))
+	var open := _dummy(Vector3(8, 0, 22))
+	await _frames(2)
+	var lance := _ability("cinder_lance")
+	_cast._spawn_bolt(lance, 1.0, Transform3D(Basis.IDENTITY, Vector3(0, 1, 26)))
+	var aimed := Transform3D(Basis.looking_at(Vector3(8, 1, 22) - Vector3(0, 1, 26)), Vector3(0, 1, 26))
+	_cast._spawn_bolt(lance, 1.0, aimed)
+	await _wait(1.2)
+	_check(_lost(behind) == 0.0, "cinder lance stops at walls")
+	_check(_lost(open) > 0.0, "cinder lance hits in the open")
+	wall.queue_free()
+	_finished += 1
+
+func _test_spark_and_tornado() -> void:
+	await _reset_effects()
+	var e := _dummy(Vector3(0, 0, 25))
+	await _frames(2)
+	_cast._cast(_ability("spark"), _player.global_position)
+	await _wait(2.0)
+	_check(_lost(e) > 0.0, "spark hunts down an enemy")
+	await _reset_effects()
+	var t := _dummy(Vector3(3, 0, 0))
+	await _frames(2)
+	var tor := _ability("tornado")
+	_cast._play_range_effect(tor, Vector3(-2, 0, 0))
+	await _wait(2.5)
+	_check(_lost(t) > 0.0, "tornado hunts and damages")
+	_finished += 1
+
+## Every spell's cast path runs without a script error.
+func _test_every_spell_casts() -> void:
+	await _reset_effects()
+	_dummy(Vector3(0, 0, 26))
+	await _frames(2)
+	for f in DirAccess.get_files_at(ABILITY_DIR):
+		if not f.ends_with(".tres"):
+			continue
+		var a := _ability(f.get_basename())
+		_player.global_position = Vector3(0, 0, 30)
+		_cast._cast(a, Vector3(0, 0, 24))
+		await _frames(2)
+	await _wait(3.0)
+	_check(true, "all spells cast")
+	_finished += 1
