@@ -7,6 +7,22 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.24: First-person viewmodel rebuild (user request)
+
+The old viewmodel rendered weapons tiny and far off near screen centre (the model sat ~0.4 m from an invisible 3-bone arm's pivot, so swings rotated it through empty space), had no hands, and most weapon types fell back to a flat grey box. Replaced:
+
+- **`WeaponModelLibrary`** (`entities/player/viewmodel/`) builds a model for every weapon type. Pack models now cover Claymore, Shortsword, Saber, Cutlass, Athame, Rapier, Mace, War Pick, Spear, Shock Lance, Halberd and Crossbow as well as the original four. Guns, bows, whips, wands, gauntlets, off-hand foci (Rod/Tome/Grimoire/Fetish/Talisman) and shields (by base: buckler/kite/rune/tower/pavise/great/spiked/warded) are built from primitives, with damage-type colour on the glowing parts.
+- Grip points were **measured from each pack mesh's width profile** (guard = widest slice, handle = the narrow run past it). The model origins sit at the guard or the head, which is what put the greatsword's hands on the blade in the first pass.
+- **`PlayerArmRig` rewritten** as a keyframed viewmodel: gloved hands and sleeves, a second hand on two-handers' second grip, off-hand items in the left hand, and both fists for gauntlets. Poses are "hand position + tip direction + face direction", so clips stay readable.
+- **Per-family attack clips** (blade, heavy, thrust, blunt, spear, halberd, staff, whip, fist, wand), with separate light/heavy/charged moves: diagonal and horizontal slashes, overhead chops, stabs, lunges, backhands, pole jabs/drives, a whip crack, alternating jabs, hooks and uppercuts. They're timed to `PlayerMeleeAttack`'s phases, so the impact pose lands when hits turn on, and the clip freezes during hitstop.
+- **Ranged:** recoil kick + muzzle flash/light, reload animation (tilt-in, off-hand to the mag, or the free hand bringing one up for pistols), and a drawn bow with a live string and nocked arrow that snaps on release. Right-click aims down sights.
+- **Feel layer:** mouse-lag sway, figure-eight walk bob, breathing, sprint tuck, jump/landing dip, equip raise on weapon swap, a hit jolt, and a cast gesture with a glow in the free hand on every spell. Melee right-click raises a guard, or the shield if you have one.
+- `PoseSet`/`play_attack_swing()` and the per-weapon pose tables in `PlayerMeleeAttack`/`PlayerRangedAttack` are gone; callers use `play_attack(kind, windup, strike, recovery)`. The old `ShieldSocket` disc and placeholder blade box are removed from `Player.tscn`.
+- **Not changed:** swing durations. Only Dagger/Greatsword/Rapier/Staff/Gauntlet have duration multipliers, so e.g. a Claymore still swings at the default speed. That's a balance call, not an animation one.
+- `tests/viewmodel/capture_viewmodel.tscn` renders contact sheets of weapons across an attack (needs a window, not `--headless`; `grid.sh` wraps it).
+
+---
+
 ## 2026-10-07 — v4.23: Gear sizes after reload, bigger inventory, layout (user request)
 
 - **Shields shrinking to 1x1 after a reload:** `ItemSerializer` never saved `base_line_id`, which is what gives a shield its inventory size, so every saved shield came back 1x1. It also dropped item level, requirements and a shield's evasion/ward. Loading now rebuilds a rolled item from its base (`<base id>_rolled_N` -> `data/*/instances/<base id>.tres`) and applies the saved values on top, so existing saves are repaired too; base line, item level and shield evasion/ward are now saved as well.

@@ -62,8 +62,6 @@ const STANCE_INSTANCES_DIR := "res://data/stance/instances/"
 ## the active weapon's type (e.g. every type except Rapier right now).
 const DEFAULT_MOVE_SPEED_MULTIPLIER := 0.75
 
-const READY_POSE_DURATION := 0.28
-const EXIT_POSE_DURATION := 0.15
 const AIM_FOV := 55.0
 const AIM_ZOOM_DURATION := 0.2
 
@@ -151,15 +149,9 @@ func _enter_stance() -> void:
 		_tween_fov(AIM_FOV)
 	else:
 		_mode = Mode.MELEE
-		if _player.melee_attack.is_idle() and _player.arm_rig:
-			# GUARD, not the weapon's special-attack windup pose - user
-			# feedback (2026-08-30 follow-up): reusing the special's own
-			# pose here, further scaled up by SPECIAL_INTENSITY_MULTIPLIER,
-			# is what swung the sword and arm off to the side out of frame
-			# instead of a held "ready" ready. GUARD is deliberately small
-			# and always played at intensity 1.0 (no per-weapon scaling) so
-			# this can't recur regardless of how big future specials get.
-			_player.arm_rig.enter_ready_pose(PlayerArmRig.PoseSet.GUARD, READY_POSE_DURATION, 1.0)
+	if _player.arm_rig:
+		_player.arm_rig.set_aiming(_mode == Mode.RANGED)
+		_player.arm_rig.set_guard(_mode == Mode.MELEE)
 
 func _exit_stance() -> void:
 	if not is_active:
@@ -169,13 +161,9 @@ func _exit_stance() -> void:
 	stance_exited.emit()
 	if _mode == Mode.RANGED:
 		_tween_fov(GameState.field_of_view)
-	elif _mode == Mode.MELEE and _player.melee_attack.is_idle() and _player.arm_rig:
-		# Only reset the pose if no swing is in progress - a special attack
-		# already owns the arm rig's tween via its own windup/strike/
-		# recovery sequence (see PlayerArmRig.play_attack_swing()), which
-		# already ends back at rest on its own. Resetting here too would
-		# just kill and restart that tween mid-swing.
-		_player.arm_rig.exit_ready_pose(EXIT_POSE_DURATION)
+	if _player.arm_rig:
+		_player.arm_rig.set_aiming(false)
+		_player.arm_rig.set_guard(false)
 	_mode = Mode.NONE
 
 func _tween_fov(target: float) -> void:
