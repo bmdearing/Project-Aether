@@ -199,6 +199,11 @@ func to_dict() -> Dictionary:
 		data.append(d)
 	return {"width": width, "height": height, "accepts": accepts, "entries": data}
 
+## Enlarges the grid (never shrinks it); entries keep their positions.
+func grow_to(size: Vector2i) -> void:
+	width = maxi(width, size.x)
+	height = maxi(height, size.y)
+
 static func from_dict(d: Dictionary) -> GridInventory:
 	var inv := GridInventory.new(int(d.get("width", Constants.INVENTORY_SIZE.x)), int(d.get("height", Constants.INVENTORY_SIZE.y)), int(d.get("accepts", Accepts.ANY)))
 	for e in d.get("entries", []):

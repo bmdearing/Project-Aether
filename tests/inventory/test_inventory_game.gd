@@ -260,5 +260,6 @@ func _test_migration() -> void:
 	var in_stash := 0
 	for tab in GameState.stash.tabs:
 		in_stash += tab.get_entries().size()
-	_check(GameState.inventory.get_entries().size() == 12 and GameState.inventory.get_entries().size() + in_stash == 30, "migration overflow goes to the stash")
+	var fits := int(Constants.INVENTORY_SIZE.x / 2.0) * int(Constants.INVENTORY_SIZE.y / 3.0)  # 2x3 body armours
+	_check(GameState.inventory.get_entries().size() == fits and GameState.inventory.get_entries().size() + in_stash == 30, "migration overflow goes to the stash")
 	_finished += 1

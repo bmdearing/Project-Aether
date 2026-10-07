@@ -112,6 +112,8 @@ func load_game() -> void:
 	var grid_raw = parsed.get("grid_inventory")
 	if typeof(grid_raw) == TYPE_DICTIONARY:
 		GameState.inventory = GridInventory.from_dict(grid_raw)
+		# Saves from before the inventory grew (v4.23: 12x6 -> 14x7).
+		GameState.inventory.grow_to(Constants.INVENTORY_SIZE)
 	var portal_raw = parsed.get("portal_map_state")
 	GameState.portal_map_state = portal_raw if typeof(portal_raw) == TYPE_DICTIONARY else {}
 	GameState.portals_opened = int(parsed.get("portals_opened", 0))

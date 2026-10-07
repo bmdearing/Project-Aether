@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.23: Gear sizes after reload, bigger inventory, layout (user request)
+
+- **Shields shrinking to 1x1 after a reload:** `ItemSerializer` never saved `base_line_id`, which is what gives a shield its inventory size, so every saved shield came back 1x1. It also dropped item level, requirements and a shield's evasion/ward. Loading now rebuilds a rolled item from its base (`<base id>_rolled_N` -> `data/*/instances/<base id>.tres`) and applies the saved values on top, so existing saves are repaired too; base line, item level and shield evasion/ward are now saved as well.
+- Footprint audit: every rollable base type resolves to a footprint table entry (only the unrolled throwable bases don't).
+- **Inventory 12x6 -> 14x7.** Older saves grow on load (`GridInventory.grow_to()`); items keep their positions.
+- **Inventory screen:** the grid now sits under the paper doll on the right (PoE-style). The doll is taller (430 px) with larger slots; slots with item art show just the icon, as the grid does.
+
+---
+
 ## 2026-10-07 — v4.22: Crafting stones are stackable currency (user request)
 
 Shard of Tharsis, Infusion Stone and Shrivening Stone were one-per-cell `Item`s; they're now currency stacks like the Orbs (`StringName` ids, 1x1, up to `MAX_STACK` per cell), with names and descriptions in `currency_text.tres`.

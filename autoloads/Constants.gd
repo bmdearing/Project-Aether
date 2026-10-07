@@ -538,7 +538,7 @@ const MAX_ANCHORED_MODIFIERS := 1
 const SLATE_TIER_CAP_BY_SIZE := {}
 
 ## ---- Inventory & stash (placeholder sizes) -------------------------------
-const INVENTORY_SIZE := Vector2i(12, 6)
+const INVENTORY_SIZE := Vector2i(14, 7)
 const MAX_STACK := 100
 const STASH_TAB_COUNT := 4
 const STASH_TAB_SIZE := Vector2i(12, 12)

@@ -59,6 +59,8 @@ static func to_dict(item: Item) -> Dictionary:
 		"tolerance": item.tolerance,
 		"tolerance_max": item.tolerance_max,
 		"active_edict": String(item.active_edict.id) if item.active_edict else "",
+		"base_line_id": item.base_line_id,
+		"item_level": item.item_level,
 	}
 	if item is SkillTome:
 		d["ability_id"] = item.ability_id
@@ -100,23 +102,39 @@ static func to_dict(item: Item) -> Dictionary:
 	elif item is Shield:
 		d["block_chance"] = item.block_chance
 		d["armor_value"] = item.armor_value
+		d["evasion_value"] = item.evasion_value
+		d["ward_value"] = item.ward_value
 	return d
+
+## A rolled item's id is "<base id>_rolled_<n>" (ItemRoller.roll()). Its
+## base supplies every field this file doesn't save - requirements, and on
+## saves older than v4.23 the base line (which sets a shield's inventory
+## size), item level and shield evasion/ward.
+static func _base_for(item_id: String) -> Item:
+	var cut := item_id.find("_rolled_")
+	var base_id := item_id.substr(0, cut) if cut != -1 else item_id
+	if base_id == "":
+		return null
+	for dir_path in ItemRoller.BASE_ITEM_DIRS:
+		var path: String = dir_path + base_id + ".tres"
+		if ResourceLoader.exists(path):
+			return load(path) as Item
+	return null
 
 static func from_dict(d: Dictionary) -> Item:
 	if d.is_empty():
 		return null
 	var item: Item
-	match d.get("class", "Item"):
-		"Weapon": item = Weapon.new()
-		"Armor": item = Armor.new()
-		"Shield": item = Shield.new()
-		"FigmentItem": item = FigmentItem.new()
-		"SkillTome": item = SkillTome.new()
-		"AmmoPack": item = AmmoPack.new()
-		_: item = Item.new()
+	var base := _base_for(d.get("item_id", ""))
+	if base != null and _class_tag(base) == d.get("class", "Item"):
+		item = base.duplicate(true)
+	else:
+		item = _new_of_class(d.get("class", "Item"))
 
 	item.item_id = d.get("item_id", "")
 	item.display_name = d.get("display_name", "")
+	item.base_line_id = d.get("base_line_id", item.base_line_id)
+	item.item_level = d.get("item_level", item.item_level)
 	item.rarity = d.get("rarity", 0)
 	item.equip_slot = d.get("equip_slot", 0)
 	item.max_sockets = d.get("max_sockets", 0)
@@ -180,8 +198,20 @@ static func from_dict(d: Dictionary) -> Item:
 	elif item is Shield:
 		item.block_chance = d.get("block_chance", 0.0)
 		item.armor_value = d.get("armor_value", 0.0)
+		item.evasion_value = d.get("evasion_value", item.evasion_value)
+		item.ward_value = d.get("ward_value", item.ward_value)
 
 	return item
+
+static func _new_of_class(tag: String) -> Item:
+	match tag:
+		"Weapon": return Weapon.new()
+		"Armor": return Armor.new()
+		"Shield": return Shield.new()
+		"FigmentItem": return FigmentItem.new()
+		"SkillTome": return SkillTome.new()
+		"AmmoPack": return AmmoPack.new()
+	return Item.new()
 
 static func _class_tag(item: Item) -> String:
 	if item is SkillTome:

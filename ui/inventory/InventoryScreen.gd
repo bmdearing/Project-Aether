@@ -12,8 +12,8 @@ const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
 @onready var offense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/OffenseList
 @onready var defense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/DefenseList
 @onready var misc_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/MiscList
-@onready var inventory_grid: InventoryGridView = $HBox/InventoryPanel/InventoryScroll/InventoryGrid
-@onready var inventory_panel: VBoxContainer = $HBox/InventoryPanel
+@onready var inventory_grid: InventoryGridView = $HBox/SidePanel/InventoryPanel/InventoryScroll/InventoryGrid
+@onready var inventory_panel: VBoxContainer = $HBox/SidePanel/InventoryPanel
 @onready var status_label: Label = $HBox/SidePanel/StatusLabel
 @onready var close_button: Button = $HBox/SidePanel/CloseButton
 
@@ -127,6 +127,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build_inventory_grid() -> void:
 	inventory_grid.set_inventory(GameState.inventory)
+	(inventory_grid.get_parent() as Control).custom_minimum_size = inventory_grid.custom_minimum_size
 	var ammo: Array[String] = []
 	for type in Constants.AmmoType.values():
 		if type != Constants.AmmoType.ARROW:
@@ -230,6 +231,8 @@ func _refresh_stats() -> void:
 
 func _style_slot_button(button: ItemSlotButton, item: Item, count: int = 1) -> void:
 	button.text = "%s x%d" % [item.display_name, count] if count > 1 else item.display_name
+	if item.icon_path != "":
+		button.text = ""  # the icon stands in for the name, as in the grid
 	button.tooltip_text = item.display_name  # non-empty just to trigger Godot's tooltip system - ItemCard replaces the actual content
 	button.item = item
 	button.disabled = false

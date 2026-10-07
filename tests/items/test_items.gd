@@ -54,6 +54,21 @@ func _ready() -> void:
 	_check(loaded.count_of(&"shard_of_tharsis") == 2 and loaded.count_of(&"infusion_stone") == 1, "old saved stones load as currency")
 	_check(loaded.get_entries().all(func(e): return e.is_currency()), "no stone stays an Item after loading")
 
+	# A saved shield keeps its base line (and so its 2x2 size), also from
+	# saves written before the line was saved.
+	var buckler := (load("res://data/shields/instances/gen_buckler_crude_buckler.tres") as Item).duplicate(true)
+	buckler.item_id = "gen_buckler_crude_buckler_rolled_42"
+	var sd := ItemSerializer.to_dict(buckler)
+	_check(GridInventory.footprint_of(ItemSerializer.from_dict(sd)) == Vector2i(2, 2), "a reloaded buckler is 2x2")
+	for key in ["base_line_id", "item_level", "evasion_value"]:
+		sd.erase(key)
+	var old_buckler := ItemSerializer.from_dict(sd)
+	_check(GridInventory.footprint_of(old_buckler) == Vector2i(2, 2), "a buckler from an old save is 2x2")
+	_check(old_buckler.evasion_value == buckler.evasion_value and old_buckler.stat_requirement_value == buckler.stat_requirement_value, "old-save shields get their base evasion and requirements back")
+	var small := GridInventory.from_dict({"width": 12, "height": 6, "entries": []})
+	small.grow_to(Constants.INVENTORY_SIZE)
+	_check(small.width == 14 and small.height == 7, "old 12x6 inventories grow to 14x7")
+
 	# Selling
 	var sold := Item.new()
 	sold.item_id = "test_ring"

@@ -55,23 +55,12 @@ text = "Misc"
 [node name="MiscList" type="VBoxContainer" parent="HBox/StatsPanel/StatsScroll/StatsList"]
 theme_override_constants/separation = 4
 
-[node name="InventoryPanel" type="VBoxContainer" parent="HBox"]
+[node name="Spacer" type="Control" parent="HBox"]
 size_flags_horizontal = 3
-size_flags_vertical = 3
-theme_override_constants/separation = 8
-
-[node name="InventoryTitle" type="Label" parent="HBox/InventoryPanel"]
-text = "Inventory"
-
-[node name="InventoryScroll" type="ScrollContainer" parent="HBox/InventoryPanel"]
-size_flags_vertical = 3
-
-[node name="InventoryGrid" type="Control" parent="HBox/InventoryPanel/InventoryScroll"]
-script = ExtResource("3")
 
 [node name="SidePanel" type="VBoxContainer" parent="HBox"]
-custom_minimum_size = Vector2(420, 0)
-theme_override_constants/separation = 10
+custom_minimum_size = Vector2(740, 0)
+theme_override_constants/separation = 8
 
 [node name="TitleLabel" type="Label" parent="HBox/SidePanel"]
 text = "Equipment"
@@ -82,10 +71,11 @@ text = ""
 
 [node name="HintLabel" type="Label" parent="HBox/SidePanel"]
 autowrap_mode = 3
-text = "Click a slot in the grid to equip it. Click an equipped paper-doll slot to unequip it. Hover any occupied slot for its stat card - hold Alt for an advanced one."
+theme_override_font_sizes/font_size = 13
+text = "Click an item to equip it, click an equipped slot to unequip it. Hover for its stat card (hold Alt for more)."
 
 [node name="PaperDoll" type="HBoxContainer" parent="HBox/SidePanel"]
-size_flags_vertical = 3
+custom_minimum_size = Vector2(0, 430)
 theme_override_constants/separation = 10
 
 [node name="LeftColumn" type="VBoxContainer" parent="HBox/SidePanel/PaperDoll"]
@@ -93,12 +83,12 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
 [node name="RingLeft" type="Button" parent="HBox/SidePanel/PaperDoll/LeftColumn"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 56)
 clip_text = true
 script = ExtResource("2")
 
 [node name="PrimaryWeapon" type="Button" parent="HBox/SidePanel/PaperDoll/LeftColumn"]
-custom_minimum_size = Vector2(0, 160)
+custom_minimum_size = Vector2(0, 200)
 size_flags_vertical = 3
 clip_text = true
 script = ExtResource("2")
@@ -108,23 +98,23 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
 [node name="Helmet" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 64)
 clip_text = true
 script = ExtResource("2")
 
 [node name="Amulet" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 56)
 clip_text = true
 script = ExtResource("2")
 
 [node name="BodyArmour" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-custom_minimum_size = Vector2(0, 80)
+custom_minimum_size = Vector2(0, 150)
 size_flags_vertical = 3
 clip_text = true
 script = ExtResource("2")
 
 [node name="Belt" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-custom_minimum_size = Vector2(0, 32)
+custom_minimum_size = Vector2(0, 52)
 clip_text = true
 script = ExtResource("2")
 
@@ -132,13 +122,13 @@ script = ExtResource("2")
 theme_override_constants/separation = 6
 
 [node name="Gloves" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn/BottomRow"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 64)
 size_flags_horizontal = 3
 clip_text = true
 script = ExtResource("2")
 
 [node name="Boots" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn/BottomRow"]
-custom_minimum_size = Vector2(0, 40)
+custom_minimum_size = Vector2(0, 64)
 size_flags_horizontal = 3
 clip_text = true
 script = ExtResource("2")
@@ -148,15 +138,27 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 6
 
 [node name="RingRight" type="Button" parent="HBox/SidePanel/PaperDoll/RightColumn"]
-custom_minimum_size = Vector2(0, 48)
+custom_minimum_size = Vector2(0, 56)
 clip_text = true
 script = ExtResource("2")
 
 [node name="Offhand" type="Button" parent="HBox/SidePanel/PaperDoll/RightColumn"]
-custom_minimum_size = Vector2(0, 160)
+custom_minimum_size = Vector2(0, 200)
 size_flags_vertical = 3
 clip_text = true
 script = ExtResource("2")
+
+[node name="InventoryPanel" type="VBoxContainer" parent="HBox/SidePanel"]
+size_flags_vertical = 3
+theme_override_constants/separation = 6
+
+[node name="InventoryTitle" type="Label" parent="HBox/SidePanel/InventoryPanel"]
+text = "Inventory"
+
+[node name="InventoryScroll" type="ScrollContainer" parent="HBox/SidePanel/InventoryPanel"]
+
+[node name="InventoryGrid" type="Control" parent="HBox/SidePanel/InventoryPanel/InventoryScroll"]
+script = ExtResource("3")
 
 [node name="CloseButton" type="Button" parent="HBox/SidePanel"]
 text = "Close (Esc)"
