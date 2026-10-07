@@ -202,7 +202,7 @@ func _refresh() -> void:
 	_refresh_currency()
 
 func _targets() -> Array:
-	var targets := GameState.get_inventory_items().filter(func(c): return c is Slate or (c is Item and not _is_crafting_consumable(c)))
+	var targets := GameState.get_inventory_items().filter(func(c): return c is Slate or c is Item)
 	if GameState.player_equipment:
 		targets.append_array(GameState.player_equipment.get_all_equipped_items())
 	return targets.filter(func(c): return c.resource_path == "")
@@ -310,34 +310,28 @@ func _refresh_currency() -> void:
 		row.add_child(apply)
 		_edicts_list.add_child(row)
 
-	var consumable_counts: Dictionary = {}  # item_id -> {item, count}
-	for item in GameState.get_inventory_items():
-		if item is Item and _is_crafting_consumable(item):
-			var entry: Dictionary = consumable_counts.get(item.item_id, {"item": item, "count": 0})
-			entry["count"] += 1
-			consumable_counts[item.item_id] = entry
-	for item_id in consumable_counts:
-		var entry: Dictionary = consumable_counts[item_id]
-		var item: Item = entry["item"]
+	for id_string in Constants.CRAFTING_CONSUMABLE_IDS:
+		var id := StringName(id_string)
+		var count := GameState.inventory.count_of(id)
+		if count == 0:
+			continue
 		var row := HBoxContainer.new()
-		var name_button := _row("%s x%d" % [item.display_name, entry["count"]], ROW_COLOR, item)
+		var name_button := _row("%s x%d" % [CurrencyText.name_of(id), count], ROW_COLOR)
+		name_button.tooltip_text = CurrencyText.description_of(id)
 		name_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		row.add_child(name_button)
 		var action := Button.new()
-		action.text = _consumable_action_label(item.item_id)
-		action.pressed.connect(_on_consumable_pressed.bind(item))
+		action.text = _consumable_action_label(id)
+		action.pressed.connect(_on_consumable_pressed.bind(id))
 		row.add_child(action)
 		_consumables_list.add_child(row)
 
-func _consumable_action_label(item_id: String) -> String:
-	match item_id:
+func _consumable_action_label(id: StringName) -> String:
+	match String(id):
 		"infusion_stone": return "Infuse"
 		"shrivening_stone": return "Shrive"
 		"shard_of_tharsis": return "Corrupt"
 	return "Use"
-
-func _is_crafting_consumable(item: Item) -> bool:
-	return Constants.CRAFTING_CONSUMABLE_IDS.has(item.item_id)
 
 ## ---- Actions --------------------------------------------------------
 
@@ -402,12 +396,12 @@ func _on_empower_pressed() -> void:
 	_status_label.text = result["message"]
 	_refresh()
 
-func _on_consumable_pressed(consumable: Item) -> void:
+func _on_consumable_pressed(id: StringName) -> void:
 	if not (_target is Item) or _target is FigmentItem:
 		_status_label.text = "Select an item first."
 		return
 	var result: Dictionary
-	match consumable.item_id:
+	match String(id):
 		"infusion_stone":
 			if not (_target is Weapon):
 				_status_label.text = "Infusion Stone only works on weapons."
@@ -425,7 +419,7 @@ func _on_consumable_pressed(consumable: Item) -> void:
 			return
 	_status_label.text = result["message"]
 	if result["success"]:
-		GameState.remove_from_inventory(consumable)
+		GameState.inventory.remove_currency(id)
 	_refresh()
 
 ## ---- Row styling ----------------------------------------------------

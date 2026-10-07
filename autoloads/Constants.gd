@@ -116,11 +116,9 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 	"scorch": DamageType.FIRE,
 }
 
-## Section 20's Infusion Stone/Shrivening Stone/Shard of Tharsis - fixed,
-## non-Brand crafting items (see data/consumables/instances/). Shared by
-## Enemy.gd (loot drop), CraftingScreen.gd (their own action buttons),
-## and InventoryScreen.gd (excluded from equip-on-click) so the 3 ids
-## live in exactly one place.
+## Section 20's Infusion Stone/Shrivening Stone/Shard of Tharsis - stackable
+## crafting currency (inventory StringName stacks, like the Orbs). Older
+## saves held them as Items; GridInventory converts those on load.
 const CRAFTING_CONSUMABLE_IDS := ["infusion_stone", "shrivening_stone", "shard_of_tharsis"]
 
 ## Implementation Brief v4.2 - ranged weapon ammo. ARROW is infinite (never

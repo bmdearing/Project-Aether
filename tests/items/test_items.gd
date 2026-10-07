@@ -1,6 +1,7 @@
 extends Node
-## Non-gear item tagging (currency/Figments/tomes were read as Helmets),
-## inventory footprints, and selling to the Gear Shop.
+## Non-gear item tagging (Figments/tomes were read as Helmets), crafting
+## stones as stackable currency (incl. old saves holding them as Items),
+## and selling to the Gear Shop.
 ## Run: Godot --headless --path . res://tests/items/test_items.tscn --quit-after 3000
 
 var _checks := 0
@@ -12,15 +13,15 @@ func _check(ok: bool, what: String) -> void:
 		_failures += 1
 		print("FAIL: ", what)
 
+func _old_item(id: String) -> Item:
+	var item := Item.new()
+	item.item_id = id
+	item.display_name = id
+	return item
+
 func _ready() -> void:
 	GameState.reset_to_defaults()
 	var card: Node = load("res://ui/item_card/ItemCard.tscn").instantiate()
-	for id in Constants.CRAFTING_CONSUMABLE_IDS:
-		var c := load("res://data/consumables/instances/%s.tres" % id) as Item
-		_check(not c.is_equipment(), "%s is not equipment" % id)
-		_check(c.get_item_type() == &"currency", "%s is typed currency" % id)
-		_check(GridInventory.footprint_of(c) == Vector2i.ONE, "%s takes 1x1" % id)
-		_check(card._item_type_line(c) == "Currency", "%s is labelled Currency" % id)
 	var fig := FigmentRoller.roll(1)
 	_check(GridInventory.footprint_of(fig) == Vector2i.ONE, "figments take 1x1")
 	_check(not card._item_type_line(fig).contains("Helmet"), "figments aren't labelled Helmet")
@@ -34,14 +35,37 @@ func _ready() -> void:
 	_check(helm.get_item_type() == &"helmet" and GridInventory.footprint_of(helm) == Vector2i(2, 2), "real helmets are still 2x2 helmets")
 	card.free()
 
+	# Crafting stones are currency stacks.
+	var inv := GridInventory.new()
+	for id in Constants.CRAFTING_CONSUMABLE_IDS:
+		_check(CurrencyText.name_of(StringName(id)) != id, "%s has a display name" % id)
+		_check(CurrencyText.description_of(StringName(id)) != "", "%s has a description" % id)
+	inv.add(&"shard_of_tharsis", 3)
+	inv.add(_old_item("shard_of_tharsis"))
+	_check(inv.count_of(&"shard_of_tharsis") == 4, "an old Item shard joins the currency stack")
+	_check(inv.get_entries().size() == 1, "shards share one 1x1 stack")
+	# An old save with shards stored as separate Items loads as one stack.
+	var old_save := {"width": 12, "height": 5, "entries": [
+		{"x": 0, "y": 0, "count": 1, "item": ItemSerializer.to_dict(_old_item("shard_of_tharsis"))},
+		{"x": 2, "y": 0, "count": 1, "item": ItemSerializer.to_dict(_old_item("shard_of_tharsis"))},
+		{"x": 4, "y": 0, "count": 1, "item": ItemSerializer.to_dict(_old_item("infusion_stone"))},
+	]}
+	var loaded := GridInventory.from_dict(old_save)
+	_check(loaded.count_of(&"shard_of_tharsis") == 2 and loaded.count_of(&"infusion_stone") == 1, "old saved stones load as currency")
+	_check(loaded.get_entries().all(func(e): return e.is_currency()), "no stone stays an Item after loading")
+
 	# Selling
-	var shard := (load("res://data/consumables/instances/shard_of_tharsis.tres") as Item).duplicate()
-	_check(GameState.add_to_inventory(shard), "shard goes in the inventory")
+	var sold := Item.new()
+	sold.item_id = "test_ring"
+	sold.display_name = "Test Ring"
+	sold.equip_slot = Constants.EquipmentSlot.RING
+	sold.rarity = Constants.ItemRarity.RARE
+	_check(GameState.add_to_inventory(sold), "ring goes in the inventory")
 	var gold_before := GameState.gold
 	var screen: ShopScreen = load("res://ui/shop/ShopScreen.tscn").instantiate()
 	add_child(screen)
-	var entry := {"label": shard.display_name, "price": GearShop.sell_price(shard), "item": shard,
-		"on_sell": func(): return GameState.remove_from_inventory(shard)}
+	var entry := {"label": sold.display_name, "price": GearShop.sell_price(sold), "item": sold,
+		"on_sell": func(): return GameState.remove_from_inventory(sold)}
 	screen.open_with("Test", [], {}, [entry])
 	var sell_button: Button = null
 	for row in screen.list.get_children():
@@ -50,11 +74,11 @@ func _ready() -> void:
 	_check(sell_button != null, "shop lists inventory items to sell")
 	if sell_button:
 		sell_button.pressed.emit()
-	_check(not GameState.get_inventory_items().has(shard), "selling removes the item")
-	_check(GameState.gold == gold_before + GearShop.sell_price(shard), "selling pays gold")
+	_check(not GameState.get_inventory_items().has(sold), "selling removes the item")
+	_check(GameState.gold == gold_before + GearShop.sell_price(sold), "selling pays gold")
 	if sell_button:
 		sell_button.pressed.emit()
-	_check(GameState.gold == gold_before + GearShop.sell_price(shard), "a sold row can't be sold twice")
+	_check(GameState.gold == gold_before + GearShop.sell_price(sold), "a sold row can't be sold twice")
 	screen.close()
 
 	print("item tests: %d checks, %d failures" % [_checks, _failures])

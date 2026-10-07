@@ -554,10 +554,8 @@ func _maybe_drop_loot() -> void:
 		return
 
 	if randf() <= CRAFTING_CONSUMABLE_DROP_CHANCE:
-		var consumable := _roll_crafting_consumable()
-		if consumable:
-			_spawn_pickup(consumable)
-			return
+		_spawn_currency_pickup(StringName(Constants.CRAFTING_CONSUMABLE_IDS.pick_random()))
+		return
 
 	if randf() <= SLATE_DROP_CHANCE:
 		var power_level: int = GameState.active_map.tier if GameState.active_map else 1
@@ -640,11 +638,6 @@ func _drop_converted(affix: EnemyAffix) -> void:
 				_spawn_pickup(figment)
 		_:
 			pass  # other conversion types ("brands", etc.) have no seeded affix yet to reach this
-
-func _roll_crafting_consumable() -> Item:
-	var id: String = Constants.CRAFTING_CONSUMABLE_IDS[randi() % Constants.CRAFTING_CONSUMABLE_IDS.size()]
-	var base := load(CRAFTING_CONSUMABLE_DIR + id + ".tres") as Item
-	return base.duplicate(true) as Item if base else null
 
 func _spawn_pickup(item: Item) -> void:
 	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()

@@ -42,7 +42,10 @@ names = {
 "recasting": "Orb of Recasting",
 "reckoning": "Orb of Reckoning",
 "severance": "Orb of Severance",
-"tempering": "Orb of Tempering"
+"tempering": "Orb of Tempering",
+"infusion_stone": "Infusion Stone",
+"shrivening_stone": "Shrivening Stone",
+"shard_of_tharsis": "Shard of Tharsis"
 }
 descriptions = {
 "absolution": "Removes all modifiers that aren't anchored. The item returns to Common, or to Uncommon if an anchored modifier remains.",
@@ -64,7 +67,10 @@ descriptions = {
 "recasting": "Removes one random modifier from a Rare item, then adds one.",
 "reckoning": "Rerolls every modifier's value within its current tier.",
 "severance": "Removes one random modifier.",
-"tempering": "Adds 2 to 4 quality to armour or a weapon, up to 20."
+"tempering": "Adds 2 to 4 quality to armour or a weapon, up to 20.",
+"infusion_stone": "Changes a weapon's damage type to a new one. Reversible with a Shrivening Stone.",
+"shrivening_stone": "Strips an infused damage type, restoring a weapon to its native damage type.",
+"shard_of_tharsis": "Corrupts an item: a random outcome, good or bad. Corrupted items can't be crafted further, except with Opening and Tempering."
 }
 errors = {
 "ALREADY_ANCHORED": "This item already has an anchored modifier.",

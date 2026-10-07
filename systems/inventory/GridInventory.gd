@@ -32,6 +32,13 @@ func _init(p_width: int = Constants.INVENTORY_SIZE.x, p_height: int = Constants.
 	height = p_height
 	accepts = p_accepts
 
+## Crafting stones used to be Items; one arriving as an Item (old save,
+## old drop) is stored as its currency stack instead.
+static func as_currency_if_consumable(content):
+	if content is Item and Constants.CRAFTING_CONSUMABLE_IDS.has(String(content.item_id)):
+		return StringName(content.item_id)
+	return content
+
 static func footprint_of(content) -> Vector2i:
 	if content is StringName:
 		return Vector2i.ONE
@@ -63,6 +70,7 @@ func find_space(size: Vector2i) -> Vector2i:
 ## Drops content at pos. Currency dropped on a matching stack merges into
 ## it; overflow goes to new cells. Returns how many couldn't be stored.
 func place(content, pos: Vector2i, count: int = 1) -> int:
+	content = as_currency_if_consumable(content)
 	if not accepts_content(content):
 		return count
 	if not content is StringName:
@@ -86,6 +94,7 @@ func place(content, pos: Vector2i, count: int = 1) -> int:
 ## Picks content up into the first available space. Currency tops up
 ## existing stacks before opening new cells. Returns how many didn't fit.
 func add(content, count: int = 1) -> int:
+	content = as_currency_if_consumable(content)
 	if not accepts_content(content):
 		return count
 	if not content is StringName:

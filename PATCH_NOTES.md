@@ -7,6 +7,17 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.22: Crafting stones are stackable currency (user request)
+
+Shard of Tharsis, Infusion Stone and Shrivening Stone were one-per-cell `Item`s; they're now currency stacks like the Orbs (`StringName` ids, 1x1, up to `MAX_STACK` per cell), with names and descriptions in `currency_text.tres`.
+
+- Enemies drop them as currency pickups; the Crafting screen's "Stones & Shard" rows read the stack counts and spend one on a successful use.
+- Old saves: `GridInventory.as_currency_if_consumable()` turns any stone still stored as an Item into its currency stack on load (and on any `add`/`place`), so existing shards merge into one stack.
+- Removed the three `data/consumables/instances/` Item resources.
+- `tests/items` covers stacking and old-save conversion (20 checks).
+
+---
+
 ## 2026-10-07 — v4.21: Scorch, item tags, selling (user request)
 
 - **Scorch** status effect: +6% Fire damage taken per stack, up to 5 stacks (30%), 4 s, each application refreshes all stacks. Ignite ticks are Fire, so Scorch amplifies them too. Applied by Flame Jets (every tick of contact, per the Master doc), Flame Wall (every tick standing in it, per Patch v3.1) and Cinder Lance. Patch v3.2 had removed Scorch as a universal status; it is back on request.
