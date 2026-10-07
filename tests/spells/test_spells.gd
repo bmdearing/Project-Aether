@@ -9,7 +9,7 @@ const ABILITY_DIR := "res://data/abilities/instances/"
 var _checks := 0
 var _failures := 0
 var _finished := 0
-const TEST_COUNT := 11
+const TEST_COUNT := 16
 
 var _arena: Node3D
 var _player: Player
@@ -45,6 +45,11 @@ func _run() -> void:
 	await _test_winters_eye()
 	await _test_bolt_walls()
 	await _test_spark_and_tornado()
+	await _test_javelin_pierce()
+	await _test_thunder_sweep()
+	await _test_frost_armor()
+	await _test_flame_jets_walls()
+	await _test_caltrops_and_inferno()
 	await _test_every_spell_casts()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("spell tests: %d checks, %d failures" % [_checks, _failures])
@@ -272,6 +277,100 @@ func _test_spark_and_tornado() -> void:
 	_cast._play_range_effect(tor, Vector3(-2, 0, 0))
 	await _wait(2.5)
 	_check(_lost(t) > 0.0, "tornado hunts and damages")
+	_finished += 1
+
+func _test_javelin_pierce() -> void:
+	await _reset_effects()
+	var a := _dummy(Vector3(0, 0, 20))
+	var b := _dummy(Vector3(0, 0, 12))
+	await _frames(2)
+	_cast._spawn_bolt(_ability("thunder_javelin"), 1.0, Transform3D(Basis.IDENTITY, Vector3(0, 1, 26)))
+	await _wait(0.6)
+	_check(_lost(a) > 0.0 and _lost(b) > 0.0, "thunder javelin pierces through a line of enemies")
+	_finished += 1
+
+func _test_thunder_sweep() -> void:
+	await _reset_effects()
+	# A ramp in one direction: sweep bolts ride over it rather than dying on it.
+	var ramp := StaticBody3D.new()
+	var rs := CollisionShape3D.new()
+	var rb := BoxShape3D.new()
+	rb.size = Vector3(3, 0.4, 6)
+	rs.shape = rb
+	ramp.add_child(rs)
+	_arena.add_child(ramp)
+	ramp.global_position = Vector3(0, 0.1, 27)
+	ramp.rotation.x = deg_to_rad(10)
+	var over_ramp := _dummy(Vector3(0, 0, 24))
+	var side := _dummy(Vector3(5, 0, 30))
+	var too_far := _dummy(Vector3(-12, 0, 30))
+	await _frames(2)
+	_cast._cast(_ability("thunder_sweep"), _player.global_position)
+	await _wait(1.2)
+	_check(_lost(side) > 0.0, "thunder sweep hits enemies around the caster")
+	_check(_lost(over_ramp) > 0.0, "thunder sweep rides over sloped ground")
+	_check(_lost(too_far) == 0.0, "thunder sweep stops at its radius")
+	ramp.queue_free()
+	_finished += 1
+
+func _test_frost_armor() -> void:
+	await _reset_effects()
+	var attacker := _dummy(_player.global_position + Vector3(1, 0, 0))
+	var bystander := _dummy(_player.global_position + Vector3(-2, 0, 0))
+	var distant := _dummy(_player.global_position + Vector3(-8, 0, 0))
+	await _frames(2)
+	_cast._cast(_ability("frost_armor"), _player.global_position)
+	await _frames(1)
+	_check(is_instance_valid(_cast._frost_armor_fx), "frost armor shows its shards")
+	_cast.trigger_frost_armor_retaliation(attacker)
+	_check(_lost(attacker) > 0.0 and attacker.status_effects.has_effect("chill"), "frost armor retaliates against the attacker")
+	_check(_lost(bystander) > 0.0, "frost armor's burst hits enemies nearby")
+	_check(_lost(distant) == 0.0, "frost armor's burst stays within its radius")
+	var after := _lost(attacker)
+	_cast.trigger_frost_armor_retaliation(attacker)
+	_check(_lost(attacker) == after, "frost armor bursts at most once per half second")
+	_cast._frost_armor_remaining = 0.0
+	await _frames(3)
+	_check(not is_instance_valid(_cast._frost_armor_fx), "frost armor shards go away when it ends")
+	_finished += 1
+
+func _test_flame_jets_walls() -> void:
+	await _reset_effects()
+	_player.camera.global_rotation = Vector3.ZERO
+	var wall := StaticBody3D.new()
+	var ws := CollisionShape3D.new()
+	var wb := BoxShape3D.new()
+	wb.size = Vector3(1.2, 4, 0.4)
+	ws.shape = wb
+	wall.add_child(ws)
+	_arena.add_child(wall)
+	wall.global_position = Vector3(0.8, 2, 26.5)
+	var open := _dummy(Vector3(-0.8, 0, 24.6))
+	var hidden := _dummy(Vector3(0.8, 0, 24.6))
+	await _frames(2)
+	_cast._flame_jets_ability = _ability("flame_jets")
+	_cast._tick_flame_jets()
+	_check(_lost(open) > 0.0, "flame jets burn what's in front")
+	_check(_lost(hidden) == 0.0, "flame jets don't burn through walls")
+	wall.queue_free()
+	_finished += 1
+
+func _test_caltrops_and_inferno() -> void:
+	await _reset_effects()
+	var e := _dummy(Vector3(1, 0, 0))
+	await _frames(2)
+	var field := _cast._play_range_effect(_ability("caltrops"), Vector3.ZERO)
+	await _wait(0.6)
+	_check(_lost(e) > 0.0 and e.status_effects.has_effect("slow"), "caltrops cut and slow")
+	field.queue_free()
+	await _reset_effects()
+	var near := _dummy(Vector3(3.5, 0, 0))
+	var far := _dummy(Vector3(7, 0, 0))
+	await _frames(2)
+	_cast._cast(_ability("inferno"), Vector3.ZERO)
+	await _frames(1)
+	_check(_lost(near) > 0.0 and near.status_effects.has_effect("ignite"), "inferno engulfs and ignites its area")
+	_check(_lost(far) == 0.0, "inferno stays within its radius")
 	_finished += 1
 
 ## Every spell's cast path runs without a script error.

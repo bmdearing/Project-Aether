@@ -7,6 +7,38 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.20: Spell pass, part 2 (user request)
+
+Covers the spells the v4.19 pass only smoke-tested.
+
+- **Frost Armor:** ice shards now circle the player while it's active (visible at the bottom of the view), with a ring on cast. Retaliation is now a burst: every enemy within the spell's radius takes the hit (always including the attacker), and it can fire at most every 0.5 s so a pack swinging together triggers one burst, not one per enemy.
+- **Thunder Sweep:** bolts now hug the ground, riding over slopes and stopping only at walls, and travel the spell's radius (raised from 5 to 8) instead of 36 m.
+- **Projectiles (Cinder Lance, Thunder Javelin, Thunder Sweep):** enemies along each step are now hit by ray, so fast bolts can't skip past an enemy between frames. Bolts are coloured by their damage type; they were always the default colour because the colour was set before the type.
+- **Flame Jets:** no longer burns enemies through walls.
+- **Inferno:** the column was much narrower than the area it damages; it's a bit wider and a ring now marks the full reach.
+- **Caltrops:** visible spikes scattered over the field (it was a flat disc), fading out when it expires.
+- `tests/spells` now covers 18 of the 20 spells (41 checks). Blink and Purge are only smoke-tested.
+
+---
+
+## 2026-10-07 — v4.19: Spell pass (user request)
+
+"They don't all behave as they should" - each spell checked against its description.
+
+- **Comet / Meteor:** damage lands on impact, not on cast. Comet deals 2.5x to Chilled/Frozen enemies.
+- **Stormcall:** full damage in a 2.5 m core, then forking arcs to the nearest enemies in range for 60% (two forks, plus one per enemy in the core).
+- **Static Discharge:** each enemy hit arcs on to the nearest enemy outside the burst for 50%.
+- **Ice Pulse / Entropic Decay / Static Discharge:** hits ride the expanding ring instead of landing all at once.
+- **Black Hole:** pulls through movement (`Enemy.apply_pull`) instead of setting positions, so walls stop it.
+- **Flame Wall:** the Ignite on entry did zero damage; it now rolls real damage.
+- **Winter's Eye:** hovers at the target and detonates (2x, with a ring) at the end of its duration; icicles are visible shards spiralling off the orb.
+- **Cinder Lance / Thunder Javelin / Thunder Sweep:** stop at walls and floors; Javelin is the fast one (42 m/s).
+- **Flame Jets:** a fire stream VFX. **Blink / Purge:** a ring flash.
+- **Spark:** kept the requested 0.15 s re-hit; lowered damage to 1.5-2.5.
+- New `LightningArc` effect and `tests/spells`.
+
+---
+
 ## 2026-10-06 — v4.18: Tornado VFX (user request)
 
 The Tornado was one translucent cone, upside down (wide at the ground). Now: two lathed funnel shells (`tornado_funnel.gdshader`) narrow at the base and flaring up, with spiralling wind streaks and a serpentine sway that grows with height; rocks and dust carried round by a spinning node (local-coord particles) spiralling up and outward; a churning dust ring at the base left behind as it moves; a dark scoured patch underneath; fade in and out. Gameplay (seek, ticks, limit) unchanged.

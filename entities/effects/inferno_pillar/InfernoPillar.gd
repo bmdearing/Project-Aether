@@ -10,6 +10,7 @@ const RISE_DURATION := 0.15
 const HOLD_DURATION := 0.35
 const FADE_DURATION := 0.3
 const EMBER_COUNT := 24
+const RING_SCENE := preload("res://entities/effects/ability_range_effect/AbilityRangeEffect.tscn")
 
 @onready var pillar: MeshInstance3D = $Pillar
 
@@ -22,8 +23,13 @@ func play(radius: float, color: Color) -> void:
 	mat.albedo_color = fire_color
 	pillar.material_override = mat
 
-	var pillar_radius: float = clamp(radius * 0.35, 0.5, 2.0)
+	var pillar_radius: float = clamp(radius * 0.45, 0.6, 2.4)
 	pillar.scale = Vector3(pillar_radius, 0.01, pillar_radius)
+	# The column is narrower than the area it engulfs - a ring marks the real reach.
+	var ring: AbilityRangeEffect = RING_SCENE.instantiate()
+	add_child(ring)
+	ring.position.y = 0.05
+	ring.play(radius, color.lightened(0.2))
 
 	_spawn_embers(color)
 

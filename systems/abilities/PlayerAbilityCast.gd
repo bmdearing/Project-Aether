@@ -80,8 +80,14 @@ const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sw
 ## AoE-at-cast-point every other first-pass ability used.
 const FROST_ARMOR_DURATION := 8.0  # invented, no doc-given buff duration
 
+const FROST_ARMOR_BURST_COOLDOWN := 0.5  # a pack hitting at once triggers one burst, not one each
+const FROST_SHARD_COUNT := 6
+const FROST_SHARD_SPIN := 1.6
+
 var _frost_armor_ability: Ability = null
 var _frost_armor_remaining: float = 0.0
+var _frost_armor_burst_cd: float = 0.0
+var _frost_armor_fx: Node3D
 
 ## Flame Jets ("flamethrower type spell, slowing the character down and
 ## throwing flames at what the player is looking at" - user request,
@@ -147,6 +153,12 @@ func _physics_process(delta: float) -> void:
 		_cooldowns[ability] = max(0.0, _cooldowns[ability] - delta)
 	if _frost_armor_remaining > 0.0:
 		_frost_armor_remaining = max(0.0, _frost_armor_remaining - delta)
+	_frost_armor_burst_cd = maxf(0.0, _frost_armor_burst_cd - delta)
+	if is_instance_valid(_frost_armor_fx):
+		if _frost_armor_remaining > 0.0:
+			_frost_armor_fx.rotate_y(FROST_SHARD_SPIN * delta)
+		else:
+			_frost_armor_fx.queue_free()
 	if _flame_jets_remaining > 0.0:
 		if _flame_jets_is_manual and (not Input.is_action_pressed(_flame_jets_input_action) or _player.mana.current_mana <= 0.0):
 			_flame_jets_remaining = 0.0
@@ -261,6 +273,8 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 	if ability.ability_id == "frost_armor":
 		_frost_armor_ability = ability
 		_frost_armor_remaining = FROST_ARMOR_DURATION * ability.get_duration_multiplier(_player.stat_sheet)
+		_ensure_frost_armor_fx()
+		_flash_ring(_player.global_position, 1.4, ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "flame_jets":
@@ -547,6 +561,8 @@ func _tick_flame_jets() -> void:
 			continue
 		if to_enemy.normalized().dot(forward) < cos_half_angle:
 			continue
+		if _line_blocked(origin, enemy.global_position + Vector3.UP):
+			continue
 		var hit := _flame_jets_ability.roll_damage(_player.stat_sheet)
 		var damage: float = hit["final_damage"] * FLAME_JETS_TICK_DAMAGE_PERCENT
 		enemy.take_damage(damage, _flame_jets_ability.damage_type)
@@ -611,24 +627,57 @@ func _ensure_flame_jets_fx() -> void:
 	_player.camera.add_child(p)
 	_flame_jets_fx = p
 
+func _line_blocked(from: Vector3, to: Vector3) -> bool:
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.collision_mask = 1
+	query.exclude = [_player.get_rid()]
+	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
+	return not hit.is_empty() and hit["collider"] is StaticBody3D
+
+## Ice shards circling the player at waist height while Frost Armor holds -
+## they pass through the bottom of the first-person view.
+func _ensure_frost_armor_fx() -> void:
+	if is_instance_valid(_frost_armor_fx):
+		return
+	var root := Node3D.new()
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.albedo_color = Color(0.6, 0.85, 1.0, 0.7)
+	var box := BoxMesh.new()
+	box.size = Vector3(0.05, 0.34, 0.05)
+	box.material = mat
+	for i in FROST_SHARD_COUNT:
+		var a := TAU * i / FROST_SHARD_COUNT
+		var shard := MeshInstance3D.new()
+		shard.mesh = box
+		shard.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		shard.position = Vector3(cos(a), 0.85 + 0.2 * sin(a * 2.0), sin(a)) * Vector3(1.05, 1.0, 1.05)
+		shard.rotation = Vector3(0.35, -a, 0.3)
+		root.add_child(shard)
+	_player.add_child(root)
+	_frost_armor_fx = root
+
 func has_frost_armor() -> bool:
 	return _frost_armor_remaining > 0.0
 
 func trigger_frost_armor_retaliation(attacker: Enemy) -> void:
-	if not has_frost_armor() or _frost_armor_ability == null or attacker == null:
+	if not has_frost_armor() or _frost_armor_ability == null or attacker == null or _frost_armor_burst_cd > 0.0:
 		return
-	var hit := _frost_armor_ability.roll_damage(_player.stat_sheet)
+	_frost_armor_burst_cd = FROST_ARMOR_BURST_COOLDOWN
 	# Patch v4.0 "Increased Retaliation Damage" - the only real retaliation
 	# trigger in this project right now (a general passive-block-triggers-
 	# a-counterattack mechanic doesn't exist to hook "Retaliate on Passive
 	# Block" into - see PATCH_NOTES.md for that gap).
-	var damage: float = hit["final_damage"] * (1.0 + _player.stat_sheet.get_misc_bonus("increased_retaliation_damage") / 100.0)
-	attacker.take_damage(damage, _frost_armor_ability.damage_type)
-	if attacker.stance:
-		attacker.stance.apply_attack_stance_damage(damage, _frost_armor_ability.damage_type)
-	EventBus.damage_dealt.emit(_player, attacker, damage, _frost_armor_ability.damage_type, false, hit["is_critical"])
-	for effect_id in _frost_armor_ability.applies_status_effects:
-		attacker.status_effects.apply_effect(effect_id, _player, damage)
+	var mult := 1.0 + _player.stat_sheet.get_misc_bonus("increased_retaliation_damage") / 100.0
+	# The burst hits everything within the ability's radius, and always the attacker.
+	var centre := _player.global_position
+	var radius := _frost_armor_ability.get_radius(_player.stat_sheet)
+	_damage_area(_frost_armor_ability, centre, radius, mult, true, 0.0, Callable())
+	if centre.distance_to(attacker.global_position) > radius:
+		_hit_enemy(_frost_armor_ability, attacker, mult, true, Callable())
+	_flash_ring(centre, radius, _frost_armor_ability)
 
 ## Fired from the camera's own forward direction ("at a crosshair") -
 ## not ground-targeted, no aim-hold step, matches "throw a spear ... at a
@@ -678,8 +727,6 @@ func _fire_winters_eye(ability: Ability, target: Vector3) -> void:
 
 func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D) -> void:
 	var bolt: PiercingBolt = PIERCING_BOLT_SCENE.instantiate()
-	_player.get_tree().current_scene.add_child(bolt)
-	bolt.global_transform = xform
 	var hit := ability.roll_damage(_player.stat_sheet)
 	bolt.damage_amount = hit["final_damage"] * damage_multiplier
 	bolt.is_critical = hit["is_critical"]
@@ -687,6 +734,12 @@ func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D)
 	bolt.speed = BOLT_SPEEDS.get(ability.ability_id, bolt.speed) * ability.get_projectile_speed_multiplier(_player.stat_sheet)
 	bolt.source = _player
 	bolt.applies_status_effects = ability.applies_status_effects
+	if ability.ability_id == "thunder_sweep":
+		bolt.follow_ground = true
+		bolt.max_distance = ability.get_radius(_player.stat_sheet)
+	# Configured before entering the tree so _ready() colours it by damage type.
+	_player.get_tree().current_scene.add_child(bolt)
+	bolt.global_transform = xform
 
 ## "26 - Ability Staging Ground", Utility - Blink: "Teleport a short
 ## distance in a targeted direction. No attack component." Raycasts along

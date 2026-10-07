@@ -29,6 +29,11 @@ var _ticker: float = 0.0
 @onready var patch: MeshInstance3D = $Patch
 
 var _duration: float = DURATION
+var _patch_mat: StandardMaterial3D
+var _spike_mat: StandardMaterial3D
+
+const SPIKES_PER_SQ_M := 1.6
+const FADE_TIME := 0.5
 
 func play(radius: float, color: Color, ability: Ability, stat_sheet: StatSheet, source: Node) -> void:
 	_duration = DURATION * ability.get_duration_multiplier(stat_sheet)
@@ -40,16 +45,50 @@ func play(radius: float, color: Color, ability: Ability, stat_sheet: StatSheet, 
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	var c := color
-	c.a = 0.4
+	c.a = 0.18
 	mat.albedo_color = c
 	patch.material_override = mat
 	patch.scale = Vector3(radius, 1.0, radius)
+	_patch_mat = mat
+	_scatter_spikes(radius)
+
+## Small four-sided spikes strewn at random over the field.
+func _scatter_spikes(radius: float) -> void:
+	var spike := CylinderMesh.new()
+	spike.top_radius = 0.0
+	spike.bottom_radius = 0.07
+	spike.height = 0.16
+	spike.radial_segments = 4
+	spike.rings = 1
+	_spike_mat = StandardMaterial3D.new()
+	_spike_mat.albedo_color = Color(0.55, 0.55, 0.6)
+	_spike_mat.metallic = 0.8
+	_spike_mat.roughness = 0.35
+	_spike_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	spike.material = _spike_mat
+	var mm := MultiMesh.new()
+	mm.transform_format = MultiMesh.TRANSFORM_3D
+	mm.mesh = spike
+	mm.instance_count = int(PI * radius * radius * SPIKES_PER_SQ_M)
+	for i in mm.instance_count:
+		var r := radius * sqrt(randf())
+		var a := randf() * TAU
+		var basis := Basis.from_euler(Vector3(randf_range(-0.5, 0.5), randf() * TAU, randf_range(-0.5, 0.5)))
+		mm.set_instance_transform(i, Transform3D(basis, Vector3(cos(a) * r, 0.07, sin(a) * r)))
+	var mmi := MultiMeshInstance3D.new()
+	mmi.multimesh = mm
+	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mmi)
 
 func _physics_process(delta: float) -> void:
 	_elapsed += delta
 	if _elapsed >= _duration:
 		queue_free()
 		return
+	var fade := clampf((_duration - _elapsed) / FADE_TIME, 0.0, 1.0)
+	if _patch_mat and fade < 1.0:
+		_patch_mat.albedo_color.a = 0.18 * fade
+		_spike_mat.albedo_color.a = fade
 	_ticker -= delta
 	if _ticker > 0.0:
 		return
