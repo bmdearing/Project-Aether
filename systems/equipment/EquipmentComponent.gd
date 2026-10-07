@@ -211,7 +211,7 @@ func get_total_evasion(extra_increased: float = 0.0) -> float:
 ## real, prominent ward_value that this method was silently ignoring,
 ## reading only the separate, much rarer rolled flat_ward AFFIX) plus any
 ## flat_ward affixes rolled onto ANY equipped item (existed since
-## ItemRoller.AFFIX_POOL's first pass, purely descriptive per README gap
+## ItemRoller.AFFIX_POOL's first pass, purely descriptive per DEVELOPMENT.md gap
 ## #18 until Patch v3.2 gave Ward a real formula to feed).
 func compute_ward_bonus() -> float:
 	var total := 0.0

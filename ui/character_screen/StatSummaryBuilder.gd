@@ -85,7 +85,7 @@ static func _weapon_in(player: Player, slot: Constants.EquipmentSlot) -> Weapon:
 ## Weapon.is_ranged rather than assuming Primary=melee/Offhand=ranged.
 ## Melee reads PlayerMeleeAttack._effective_motion_value(weapon) rather
 ## than its own flat base_motion_value now that motion value varies per
-## weapon_type (2026-08-30) - README/this file's own convention is this
+## weapon_type (2026-08-30) - DEVELOPMENT.md/this file's own convention is this
 ## number can never drift from what a real swing actually deals, so it
 ## has to follow that change too, not just PlayerMeleeAttack.gd itself.
 static func _predict_damage(player: Player, slot: Constants.EquipmentSlot) -> String:

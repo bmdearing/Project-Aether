@@ -6,13 +6,13 @@ class_name StatusEffectComponent
 ## (Ability.applies_status_effects on the elemental/esoteric spells).
 ## Scorch was added later (see SCORCH_*). Bleed/Armor Shred/Stagger-Stun and Aetherburn/Pallid have no
 ## weapon-side proc mechanic or Fire-channel/Aetheric/Pale ability yet -
-## left for this component to grow into later (README flagged gap).
+## left for this component to grow into later (DEVELOPMENT.md flagged gap).
 ##
 ## Durations/magnitudes/stack thresholds below are invented - the doc
 ## names each effect and its qualitative behavior only ("Slows movement
 ## and action speed", "Advanced Chill stage - full immobilization"), no
 ## numbers, matching this project's existing convention for unspecified
-## tuning (README flagged gap).
+## tuning (DEVELOPMENT.md flagged gap).
 
 signal effect_applied(effect_id: String)
 signal effect_expired(effect_id: String)
@@ -89,7 +89,7 @@ const SCORCH_DAMAGE_PER_STACK := 0.06
 ## Resistance values by a flat percentage for 8 seconds... Stacks from
 ## multiple sources with diminishing returns." No current applier exists
 ## in this project - the doc introduces it via The Cartographer of Ruin,
-## a Throwable-focused unique, and Throwables aren't built yet (README) -
+## a Throwable-focused unique, and Throwables aren't built yet (DEVELOPMENT.md) -
 ## the mechanic itself is real and tested, just unreachable from any real
 ## content for now, same shape as several Brand categories already here.
 const RESISTANCE_SHRED_DURATION := 8.0

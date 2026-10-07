@@ -1,9 +1,17 @@
 # Patch Notes
 
 Chronological log of what changed and why — bugs found, root causes,
-judgment calls made without stopping to ask. `README.md` describes the
+judgment calls made without stopping to ask. `DEVELOPMENT.md` describes the
 project as it stands today; this file is the history of how it got
 there. Most recent first.
+
+---
+
+## 2026-10-07 — Docs: public README, CREDITS, first release
+
+- `README.md` is now a short player-facing page (download, features, controls, building, credits). The old system-by-system reference moved unchanged to `DEVELOPMENT.md`, apart from replacing its stale arm-rig section with the v4.24 viewmodel and adding Reload/weapon-swap to its controls table.
+- `CREDITS.md` lists every third-party asset and its creator, with a notice that all of them are placeholders to be replaced.
+- First GitHub release, v0.1.0, with Windows and Linux builds.
 
 ---
 

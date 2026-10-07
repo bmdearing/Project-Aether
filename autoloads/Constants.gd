@@ -103,7 +103,7 @@ const STAT_GLOSSARY := {
 # family, no weapon-side proc mechanic exists) and Aetherburn/
 # Pallid (no Fire-channel/Aetheric/Pale ability exists yet) are left for
 # StatusEffectComponent to grow into once a real source exists (flagged
-# in README). Blind is explicitly deferred in the patch doc itself, not
+# in DEVELOPMENT.md). Blind is explicitly deferred in the patch doc itself, not
 # just by this project, so it's not modeled at all.
 const STATUS_EFFECT_DAMAGE_TYPE := {
 	"ignite": DamageType.FIRE,
@@ -234,7 +234,7 @@ const CHAIN_BONUS_TIERS := [
 enum SlateRarity { COMMON, UNCOMMON, RARE, VERY_RARE, UNIQUE, MYTHIC }
 
 # No doc-sourced color for SlateRarity - reuses ITEM_RARITY_COLOR's palette,
-# plus an invented violet for the extra VERY_RARE tier. Placeholder, flagged in README.
+# plus an invented violet for the extra VERY_RARE tier. Placeholder, flagged in DEVELOPMENT.md.
 const SLATE_RARITY_COLOR := {
 	SlateRarity.COMMON: Color(0.9, 0.9, 0.9),
 	SlateRarity.UNCOMMON: Color(0.3, 0.55, 0.95),

@@ -96,7 +96,7 @@ const TIER_DECAY := 0.8
 ## Shard of Tharsis outcomes use _pool_for_brand_tag(). Evasion/
 ## Resistance/Resilience/Skills have no other stat anywhere in this
 ## project to hang a REAL affix off yet (same as flat_armor/flat_ward
-## already were before this - README gap #18: descriptive-only, not
+## already were before this - DEVELOPMENT.md gap #18: descriptive-only, not
 ## aggregated into a formula), so their 4 entries below just extend that
 ## same existing gap rather than opening a new one.
 const AFFIX_POOL := [

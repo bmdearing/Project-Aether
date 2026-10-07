@@ -118,13 +118,9 @@ func _break_guard() -> void:
 func _raise() -> void:
 	is_raised = true
 	_player.weapon_stance.cancel()
-	if _player.arm_rig:
-		_player.arm_rig.set_guard(true)  # the viewmodel raises the shield
 
 func _lower() -> void:
 	is_raised = false
-	if _player.arm_rig:
-		_player.arm_rig.set_guard(false)
 
 func _jolt() -> void:
 	if _player.arm_rig:

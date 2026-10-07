@@ -58,7 +58,7 @@ static func calculate(
 ## Section 16: Damage Reduction % = Armor / (Armor + 6 x Hit Damage).
 ## Doc splits Kinetic/Piercing/Explosive behavior without concrete ratios,
 ## so this applies the full formula uniformly to all Physical damage
-## (placeholder, flagged in README).
+## (placeholder, flagged in DEVELOPMENT.md).
 static func physical_mitigation(armor: float, hit_damage: float) -> float:
 	if armor <= 0.0 or hit_damage <= 0.0:
 		return 0.0
