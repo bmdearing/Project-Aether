@@ -354,6 +354,17 @@ func apply_knockback(impulse: Vector3) -> void:
 	if rank == Constants.EnemyRank.BOSS:
 		impulse *= BOSS_KNOCKBACK_SCALE
 	_knockback += Vector3(impulse.x, 0.0, impulse.z)
+	if impulse.y > 0.0:
+		velocity.y = maxf(velocity.y, impulse.y)
+
+## Cancels a wind-up or strike in progress and plays the stagger reaction.
+func interrupt_attack() -> void:
+	for path in ["MeleeAttack", "RangedAttack"]:
+		var attack := get_node_or_null(path)
+		if attack and attack.has_method("interrupt"):
+			attack.interrupt()
+	if _anim_controller and health.is_alive():
+		_anim_controller.play_stagger()
 
 const HIT_FLASH_SEC := 0.09
 static var _hit_flash_material: StandardMaterial3D
@@ -738,7 +749,7 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		status_multiplier *= status_effects.get_shock_multiplier()
 	var mitigated := amount * multiplier * status_multiplier
 	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
-	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0:
+	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0 and not is_dot:
 		mitigated *= (1.0 - armor_value / (armor_value + 1000.0))
 	if status_effects and (category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC):
 		var shred := status_effects.get_resistance_shred()

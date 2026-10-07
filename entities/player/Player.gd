@@ -46,6 +46,9 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var status_effects: StatusEffectComponent = $StatusEffectComponent
 @onready var weapon_stance: WeaponStance = $WeaponStance
 var shield_block: ShieldBlock
+var stance_attack: StanceAttack
+## An LMB press that started a stance charge; its release must not also jab.
+var _lmb_owned_by_stance: bool = false
 @onready var cast_time_handler: CastTimeHandler = $CastTimeHandler
 
 ## Implementation Brief v3.3 Section 2: distinguishes a light-jab tap from
@@ -160,9 +163,21 @@ const JUMP_BUFFER_TIME := 0.12
 const IMPULSE_FRICTION := 12.0
 
 var _move_velocity: Vector3 = Vector3.ZERO
+var _lunge_velocity: Vector3 = Vector3.ZERO
+var _lunge_timer: float = 0.0
 var _impulse: Vector3 = Vector3.ZERO
 var _coyote_timer: float = 0.0
 var _jump_buffer_timer: float = 0.0
+
+## Covers exactly `distance` along `direction` over `duration` (stance
+## lunges). Walls and enemies stop it through move_and_slide().
+func lunge(direction: Vector3, distance: float, duration: float) -> void:
+	var flat := Vector3(direction.x, 0.0, direction.z).normalized()
+	_lunge_velocity = flat * distance / maxf(duration, 0.01)
+	_lunge_timer = duration
+
+func is_lunging() -> bool:
+	return _lunge_timer > 0.0
 
 ## Short horizontal shove on top of normal movement (melee lunge).
 func apply_impulse(impulse: Vector3) -> void:
@@ -182,6 +197,9 @@ func _ready() -> void:
 	shield_block = ShieldBlock.new()
 	shield_block.name = "ShieldBlock"
 	add_child(shield_block)
+	stance_attack = StanceAttack.new()
+	stance_attack.name = "StanceAttack"
+	add_child(stance_attack)
 	GameState.player_stat_sheet = stat_sheet
 	GameState.fate_board = fate_board
 	GameState.player_equipment = equipment
@@ -649,7 +667,13 @@ func _physics_process(delta: float) -> void:
 	if Input.is_action_just_pressed("crouch") and is_on_floor() and not _is_sliding and not _is_dashing and sprinting and move_dir.length() > 0.1:
 		_start_slide(move_dir)
 
-	if _is_dashing:
+	if _lunge_timer > 0.0:
+		var share := minf(_lunge_timer / delta, 1.0)  # last frame covers only what's left
+		_lunge_timer -= delta
+		velocity.x = _lunge_velocity.x * share
+		velocity.z = _lunge_velocity.z * share
+		_move_velocity = _lunge_velocity * 0.15
+	elif _is_dashing:
 		_dash_timer -= delta
 		_dash_speed_current = max(_dash_speed_current - DASH_DECELERATION * delta, 0.0)
 		velocity.x = _dash_direction.x * _dash_speed_current
@@ -729,7 +753,11 @@ func _handle_attack_input(delta: float) -> void:
 	# accumulated hold time to begin with, so resetting here on every
 	# frame that doesn't apply is a no-op for those cases, not a behavior
 	# change.
-	if is_melee and not weapon_stance.is_active:
+	if _lmb_owned_by_stance:
+		if not Input.is_action_pressed("attack"):
+			_lmb_owned_by_stance = false
+			stance_attack.release()
+	elif is_melee and not weapon_stance.is_active:
 		if Input.is_action_pressed("attack"):
 			_lmb_held_time += delta
 			_lmb_was_held = true
@@ -748,7 +776,10 @@ func _handle_attack_input(delta: float) -> void:
 		if active_weapon and active_weapon.is_ranged:
 			ranged_attack.try_attack(weapon_stance.is_active)
 		elif weapon_stance.is_active:
-			melee_attack.try_charged_thrust()
+			if stance_attack.begin_charge():
+				_lmb_owned_by_stance = true
+			else:
+				melee_attack.try_charged_thrust()
 	# Full-auto weapons fire every frame the button is held (they ignore
 	# try_attack() above); every other fire mode returns immediately.
 	if Input.is_action_pressed("attack") and active_weapon and active_weapon.is_ranged:
@@ -762,7 +793,8 @@ func get_move_speed_multiplier() -> float:
 func _effective_speed(base: float) -> float:
 	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier() \
 		* melee_attack.get_move_speed_multiplier() * ability_cast.get_move_speed_multiplier() \
-		* weapon_stance.get_move_speed_multiplier() * shield_block.get_move_speed_multiplier()
+		* weapon_stance.get_move_speed_multiplier() * shield_block.get_move_speed_multiplier() \
+		* stance_attack.get_move_speed_multiplier()
 
 ## Gear attack_speed + Agility's +1%/point, one increased% bracket.
 func get_action_speed_multiplier() -> float:

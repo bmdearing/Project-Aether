@@ -214,6 +214,11 @@ var _hit_this_swing: Dictionary = {}
 var _strike_total: float = 0.0
 var _pose_set: PlayerArmRig.PoseSet = DEFAULT_THRUST_POSE
 var _active_hitstops: int = 0
+## One charged stance release in progress (see release_stance_attack()):
+## pose, intensity, windup, motion_mult, recovery_mult, damage_type, plus
+## optional shape (hit sweep override), on_contact (resolves the hit itself
+## at Strike instead of sweeping) and on_hit(enemy, damage).
+var _stance_release: Dictionary = {}
 
 ## Swing hit volume per weapon family: reach (m from the camera), half-angle
 ## of the horizontal arc, damage share for every target after the first, and
@@ -322,7 +327,7 @@ func _physics_process(delta: float) -> void:
 				_enter_strike()
 		State.STRIKE:
 			_timer -= delta
-			if _timer <= _strike_total * (1.0 - STRIKE_CONTACT_START):
+			if _timer <= _strike_total * (1.0 - STRIKE_CONTACT_START) and not _stance_release.has("on_contact"):
 				_sweep_strike()
 			if _timer <= 0.0:
 				_end_strike()
@@ -331,6 +336,37 @@ func _physics_process(delta: float) -> void:
 			if _timer <= 0.0:
 				_state = State.IDLE
 				_attack_type = AttackType.THRUST
+				_stance_release = {}
+
+## Plays a charged stance attack (StanceAttack's release). The arm is
+## already wound up from the charge, so the windup is short.
+func release_stance_attack(params: Dictionary) -> void:
+	if _state != State.IDLE or _player.get_active_weapon() == null:
+		return
+	_ensure_hitbox_connected()
+	_attack_type = AttackType.CHARGED
+	_stance_release = params
+	_enter_windup()
+
+## Every live enemy within `radius` of `center` with a clear line from it.
+func enemies_in_radius(center: Vector3, radius: float) -> Array[Enemy]:
+	var found: Array[Enemy] = []
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy == null or not enemy.health.is_alive():
+			continue
+		var flat := enemy.global_position - center
+		flat.y = 0.0
+		if flat.length() - ENEMY_BODY_RADIUS > radius:
+			continue
+		if _has_line_of_sight(center + Vector3.UP * 0.5, enemy.global_position + Vector3(0, ENEMY_AIM_HEIGHT, 0), enemy):
+			found.append(enemy)
+	return found
+
+## Deals the current swing's damage to each target; the first is primary.
+func hit_targets(targets: Array[Enemy]) -> void:
+	for i in targets.size():
+		_deal_damage(targets[i], 1.0, i == 0)
 
 ## Section 12: Instinct -> "+1% Attack/Cast speed per point" divides the
 ## base duration rather than mutating windup_duration/etc. directly.
@@ -361,13 +397,15 @@ func _swing_weight() -> float:
 	return weight
 
 func _windup_time() -> float:
+	if _stance_release.has("windup"):
+		return _stance_release["windup"]
 	return _effective_duration(windup_duration, MIN_WINDUP)
 
 func _strike_time() -> float:
 	return _effective_duration(strike_duration, MIN_STRIKE)
 
 func _recovery_time() -> float:
-	return _effective_duration(recovery_duration, MIN_RECOVERY)
+	return _effective_duration(recovery_duration, MIN_RECOVERY) * _stance_release.get("recovery_mult", 1.0)
 
 func _effective_swing_intensity() -> float:
 	var weapon := _player.get_active_weapon()
@@ -409,8 +447,10 @@ func _enter_strike() -> void:
 	_kick_camera(Vector3(-0.5, _swing_yaw(), 0.0) * SWING_KICK * weight)
 	var forward := -_player.camera.global_transform.basis.z
 	forward.y = 0.0
-	if forward.length() > 0.01:
+	if forward.length() > 0.01 and not _stance_release.has("no_step"):
 		_player.apply_impulse(forward.normalized() * LUNGE_PER_WEIGHT * weight)
+	if _stance_release.has("on_contact"):
+		(_stance_release["on_contact"] as Callable).call()
 
 func _end_strike() -> void:
 	if _hitbox:
@@ -440,8 +480,8 @@ func _play_swing() -> void:
 	var weapon := _player.get_active_weapon()
 	match _attack_type:
 		AttackType.CHARGED:
-			_pose_set = get_special_pose_set()
-			intensity = get_special_intensity()
+			_pose_set = _stance_release.get("pose", get_special_pose_set())
+			intensity = _stance_release.get("intensity", get_special_intensity())
 		AttackType.JAB:
 			_pose_set = WEAPON_TYPE_JAB_POSE.get(weapon.weapon_type, DEFAULT_JAB_POSE) if weapon else DEFAULT_JAB_POSE
 			intensity = _effective_swing_intensity()
@@ -461,6 +501,8 @@ func _kick_camera(amount: Vector3) -> void:
 func get_swing_shape() -> Dictionary:
 	var weapon := _player.get_active_weapon()
 	var family: String = WEAPON_SWING_FAMILY.get(weapon.weapon_type, DEFAULT_SWING_FAMILY) if weapon else DEFAULT_SWING_FAMILY
+	if _stance_release.has("shape"):
+		return _stance_release["shape"]
 	var shape: Dictionary = SWING_SHAPES[family].duplicate()
 	if _attack_type == AttackType.CHARGED:
 		shape["reach"] += CHARGED_REACH_BONUS
@@ -525,13 +567,14 @@ func _attack_type_motion_multiplier() -> float:
 		AttackType.JAB:
 			return JAB_MOTION_VALUE_MULTIPLIER
 		AttackType.CHARGED:
-			return SPECIAL_MOTION_VALUE_MULTIPLIER
+			return _stance_release.get("motion_mult", SPECIAL_MOTION_VALUE_MULTIPLIER)
 		_:
 			return THRUST_MOTION_VALUE_MULTIPLIER
 
 func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = true) -> void:
 	var weapon: Weapon = _player.get_active_weapon()
 	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	damage_type = _stance_release.get("damage_type", damage_type)
 	var motion_value := _effective_motion_value(weapon) * _attack_type_motion_multiplier()
 
 	# A melee hit on an already-broken enemy is a Riposte, not a normal
@@ -578,6 +621,8 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	if is_counter:
 		EventBus.counter_hit.emit(_player, target)
 	_apply_water_slices(weapon, target, final_damage)
+	if _stance_release.has("on_hit"):
+		(_stance_release["on_hit"] as Callable).call(target, final_damage)
 
 	_react_to_hit(target, damage_scale)
 	if is_primary:

@@ -41,3 +41,26 @@ enum MeleeStanceType {
 }
 
 @export var stance_type: MeleeStanceType = MeleeStanceType.GUARD
+
+## Charge-and-release stances (hold LMB in stance, release to fire - see
+## StanceAttack). charge_time 0 = no charge: LMB plays the instant special.
+@export_group("Charged attack")
+@export var charge_time: float = 0.0
+## Holding less than this counts as zero charge.
+@export var charge_min_time: float = 0.0
+## Releasing before full charge cancels instead of attacking.
+@export var require_full_charge: bool = false
+@export var charge_move_multiplier: float = 0.6
+## Multiplier on the weapon's motion value, from zero to full charge.
+@export var motion_value_min: float = 1.6
+@export var motion_value_max: float = 1.6
+## Lunge distance, shockwave length, impact distance or strike range (m).
+@export var reach_min: float = 0.0
+@export var reach_max: float = 0.0
+## Impact radius / shockwave half-width (m).
+@export var radius: float = 0.0
+## Cone or strike half-angle (degrees).
+@export var half_angle: float = 0.0
+@export var stance_damage_multiplier: float = 1.0
+## Recovery length multiplier at full charge.
+@export var recovery_multiplier_max: float = 1.0

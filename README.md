@@ -97,6 +97,13 @@ negated and drain player Composure (bar under the crosshair, `ComposureBar`);
 empty Composure breaks the guard with a 1 s `guard_break` stun. Stance names
 and descriptions for the Behaviors tab and HUD live in `data/stance/StanceInfo.gd`.
 
+**Charged stance attacks** (`systems/combat/StanceAttack.gd`, v4.26): in
+stance, hold LMB to charge the active page's `MeleeStanceBehavior` and
+release to fire. Rapier, Spear, Greatsword, Mace, Shock Lance, Pressure Fist
+and Whip have their Stance A built; all tuning lives on the behavior
+resources' "Charged attack" fields. Stances without one keep the instant
+special.
+
 **Weapon stance** (`systems/combat/WeaponStance.gd`, hold Right Mouse,
 2026-08-30 user request): preps a per-weapon special. Melee holds a
 dedicated `PoseSet.GUARD` - small, mostly rest-adjacent, always played at

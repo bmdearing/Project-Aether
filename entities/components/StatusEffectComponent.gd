@@ -18,6 +18,11 @@ signal effect_applied(effect_id: String)
 signal effect_expired(effect_id: String)
 
 const IGNITE_DURATION := 4.0
+## Bleed (Whip's Crack): Physical DoT, no Armor (Patch v3.2: "Bleed is the
+## exception - no resistance applies"). 60% of the hit over 4 s is a placeholder.
+const BLEED_DURATION := 4.0
+const BLEED_TICK_INTERVAL := 0.5
+const BLEED_DAMAGE_PERCENT := 0.6
 const IGNITE_TICK_INTERVAL := 0.5
 const IGNITE_DAMAGE_PERCENT := 0.5  # total DoT damage = 50% of the triggering hit, spread across the duration
 
@@ -81,6 +86,9 @@ var _scorch_stacks: int = 0
 var _ignite_ticker: float = 0.0
 var _ignite_tick_damage: float = 0.0
 var _ignite_source: Node
+var _bleed_ticker: float = 0.0
+var _bleed_tick_damage: float = 0.0
+var _bleed_source: Node
 ## Patch v4.0 Faster Ailment Tick Rate - per-application, since the
 ## caster's tick-rate bonus can change between one Ignite application and
 ## the next (unlike IGNITE_TICK_INTERVAL, which was always a fixed constant).
@@ -96,6 +104,8 @@ func _process(delta: float) -> void:
 			_expire(effect_id)
 	if has_effect("ignite"):
 		_tick_ignite(delta)
+	if has_effect("bleed"):
+		_tick_bleed(delta)
 	_tick_resistance_shred(delta)
 
 ## Independent-source stacking with a hard duration (not the _timers'
@@ -148,6 +158,12 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 		"shock":
 			_apply_timed("shock", SHOCK_DURATION, source)
 			_emit_applied("shock")
+		"bleed":
+			_bleed_source = source
+			_bleed_tick_damage = hit_damage * BLEED_DAMAGE_PERCENT / (BLEED_DURATION / BLEED_TICK_INTERVAL)
+			_bleed_ticker = BLEED_TICK_INTERVAL
+			_timers["bleed"] = BLEED_DURATION
+			_emit_applied("bleed")
 		"guard_break":
 			_timers["guard_break"] = ShieldBlock.GUARD_BREAK_STUN
 			_emit_applied("guard_break")
@@ -282,6 +298,17 @@ func _tick_ignite(delta: float) -> void:
 		# the hit that applied it. is_dot: no floating damage number per tick.
 		_owner.take_damage(dmg, Constants.DamageType.FIRE, true, false, true)
 	EventBus.damage_dealt.emit(_ignite_source, _owner, dmg, Constants.DamageType.FIRE, false, false)
+
+func _tick_bleed(delta: float) -> void:
+	_bleed_ticker -= delta
+	if _bleed_ticker > 0.0:
+		return
+	_bleed_ticker += BLEED_TICK_INTERVAL
+	if _owner is Player:
+		_owner.take_damage(_bleed_tick_damage * (1.0 - _owner.get_dot_mitigation()), Constants.DamageType.KINETIC, _bleed_source, Player.HitKind.DOT)
+	elif _owner is Enemy:
+		_owner.take_damage(_bleed_tick_damage, Constants.DamageType.KINETIC, false, false, true)
+	EventBus.damage_dealt.emit(_bleed_source, _owner, _bleed_tick_damage, Constants.DamageType.KINETIC, false, false)
 
 func _debuff_effectiveness_multiplier(_source: Node) -> float:
 	return 1.0

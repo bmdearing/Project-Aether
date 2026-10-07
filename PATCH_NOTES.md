@@ -7,6 +7,25 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.26: Charged stance attacks, batch 1 (user request)
+
+Stance A for seven weapons, per Patch v3.4's melee stance table. In stance (hold RMB), **hold LMB to charge and release to fire**; letting go of RMB, getting stunned or raising a shield cancels the charge. A bar under the crosshair shows the charge (dim until a stance that needs a full charge is ready, white when full), and the HUD's stance readout now names the stance. Every number is on the weapon's `MeleeStanceBehavior` resource (new "Charged attack" group); `StanceAttack.gd` decides what each stance does on release.
+
+- **Rapier - Charged Thrust:** lunge 1.5 m (under 0.3 s) up to 4 m (0.6 s), linear between - the doc's numbers - then a 1.8x thrust (v3.3's charged thrust value).
+- **Spear - Lunge:** 2.5 m up to 6 m over 0.8 s, 1.4x-2.0x damage; a full charge recovers 1.8x slower ("full charge sends further but has longer recovery").
+- **Greatsword - Execute:** must reach the full 1.0 s charge; releasing early just lowers the blade. Slams a 2.5 m radius 1.8 m ahead for 3.0x.
+- **Mace - Overhead Slam:** roots you while charging (v3.3). 2.2 m slam, 1.4x-2.4x, and an aftershock at the same spot 1.5 s later for the same damage again (doc).
+- **Shock Lance - Discharge:** a Lightning shockwave runs along the ground (over slopes, stops at walls), 6 m up to 12 m, 2 m wide, 0.6x-1.8x.
+- **Pressure Fist - Pressure Blast:** 3.5 m cone in front, 1.0x-2.0x, 4x stagger (Composure) damage, and launches enemies up and back. New `pressure_fist_stance_a.tres`.
+- **Whip - Crack:** 6.5 m narrow strike at the first enemy in line, 1.6x; applies **Bleed** and interrupts the target's wind-up or strike.
+- **Bleed** (new status): Physical DoT, 60% of the hit over 4 s, ignores Armor (Patch v3.2: "Bleed is the exception").
+- Enemies can now be interrupted (`Enemy.interrupt_attack()`) and knocked upward (`apply_knockback` with a Y component).
+- Stances without a charged attack (Dagger, Cutlass, War Pick, Halberd, every page B) keep the old instant special on LMB.
+- Distances, charge times and multipliers not given by the doc are placeholders.
+- `tests/combat/test_stances` (25 checks) drives each through real input: lunge distances, Execute's full-charge rule, area hits and misses, Mace root and aftershock, shockwave lane, blast launch and stagger, Crack's Bleed and interrupt, cancel on RMB release, and the instant-special fallback.
+
+---
+
 ## 2026-10-07 — v4.25: Raised shield, player Composure, Behaviors tab (user request)
 
 - **Raise Shield:** with a shield equipped, holding RMB raises it instead of entering the weapon stance (Master v3, Active Block). Any hit within 75 degrees of where you're facing is fully negated, melee, projectile or spell; DoT ticks still land. You can't attack and move at 60% while it's up. The old passive block roll is skipped while the shield is raised.

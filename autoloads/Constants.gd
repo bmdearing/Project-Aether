@@ -182,6 +182,7 @@ const STATUS_EFFECT_NAME := {
 	"shock": "Shocked",
 	"scorch": "Scorched",
 	"guard_break": "Guard Broken",
+	"bleed": "Bleeding",
 }
 
 # Patch v3.8: directional metadata only now - Weapon._base_hit()/Ability.

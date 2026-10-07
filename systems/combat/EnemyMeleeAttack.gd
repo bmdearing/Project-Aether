@@ -113,6 +113,12 @@ func _poll_hitbox() -> void:
 ## how the enemy's own telegraph-flash already reads as "this enemy is
 ## attacking" the moment it starts, not just at the swing itself. Read by
 ## PlayerMeleeAttack._deal_damage() via get_node_or_null("MeleeAttack").
+func interrupt() -> void:
+	if _state == State.TELEGRAPH or _state == State.STRIKE:
+		if _hitbox:
+			_hitbox.monitoring = false
+		_enter_recovery()
+
 func is_attacking() -> bool:
 	return _state == State.TELEGRAPH or _state == State.STRIKE
 

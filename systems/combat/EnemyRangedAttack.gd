@@ -32,6 +32,11 @@ func _ready() -> void:
 
 ## Counter damage (see EnemyMeleeAttack.is_attacking()'s own comment) -
 ## Windup is this component's equivalent "committed, mid-attack" window.
+func interrupt() -> void:
+	if _state == State.WINDUP:
+		_state = State.COOLDOWN
+		_timer = cooldown_duration
+
 func is_attacking() -> bool:
 	return _state == State.WINDUP
 
