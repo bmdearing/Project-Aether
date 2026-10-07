@@ -37,3 +37,4 @@ stat_requirement = 0
 stat_requirement_value = 8.0
 level_requirement = 8
 intellect_requirement = 5
+spell_page_modifier = "pallid"

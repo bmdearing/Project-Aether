@@ -20,3 +20,4 @@ base_crit_chance = 0.04
 base_damage_min = 18.0
 base_damage_max = 27.0
 tags = Array[StringName]([&"projectile"])
+unleashable = true

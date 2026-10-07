@@ -132,6 +132,11 @@ func get_current_magazine() -> int:
 @export var conduit_stance_type: String = ""
 @export var spell_page_tag: String = ""
 @export var unleash_copy_count: int = 0
+## Patch v3.6 per-line extras (see CasterStance). spell_page_modifier changes
+## what page-2 spells do: "double_status", "enhanced_status", "pallid".
+## stance_buff: "spell_damage", "ward_restore", "esoteric_damage".
+@export var spell_page_modifier: String = ""
+@export var stance_buff: String = ""
 
 func get_base_crit_chance() -> float:
 	return Constants.WEAPON_BASE_CRIT_CHANCE.get(weapon_type, Constants.DEFAULT_BASE_CRIT_CHANCE)

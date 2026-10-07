@@ -32,3 +32,4 @@ flavor_text = "Talisman (Line 1)"
 base_line_id = "talisman_line1"
 stat_requirement = 0
 stat_requirement_value = 0.5
+stance_buff = "spell_damage"

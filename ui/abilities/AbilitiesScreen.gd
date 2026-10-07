@@ -9,7 +9,9 @@ class_name AbilitiesScreen
 ## filtered to GameState.owned_ability_ids (found via SkillTome or the
 ## Hub's SpellTestShop). List rebuilds every open, not just at _ready(),
 ## since ownership can change mid-session. Clicking an owned ability
-## equips it into the first open slot.
+## equips it into the first open slot of the bar, or of the stance page
+## (slots a Spell Library conduit casts while RMB is held) when that's the
+## chosen target.
 ##
 ## Leveling a spell costs Gold + Crystallized Aether (Ability.
 ## get_upgrade_gold_cost()/get_upgrade_aether_cost()), up to Ability.MAX_LEVEL.
@@ -26,6 +28,9 @@ var _owned_abilities: Array[Ability] = []
 var _level_labels: Array[Label] = []
 var _upgrade_buttons: Array[Button] = []
 var _equipped_buttons: Array[ItemSlotButton] = []
+var _page_buttons: Array[ItemSlotButton] = []
+var _equip_to_page: bool = false
+var _page_row: HBoxContainer
 var _aether_label: Label
 
 func _ready() -> void:
@@ -35,9 +40,10 @@ func _ready() -> void:
 	add_to_group("blocking_menu")
 	close_button.pressed.connect(close)
 	_build_equipped_row()
+	_build_page_row()
 	_aether_label = Label.new()
 	equipped_row.get_parent().add_child(_aether_label)
-	equipped_row.get_parent().move_child(_aether_label, equipped_row.get_index() + 1)
+	equipped_row.get_parent().move_child(_aether_label, _page_row.get_index() + 1)
 
 func is_open() -> bool:
 	return _is_open
@@ -133,9 +139,44 @@ func _build_equipped_row() -> void:
 		equipped_row.add_child(button)
 		_equipped_buttons.append(button)
 
+## Stance page row under the bar, with a switch for where clicks equip.
+func _build_page_row() -> void:
+	var parent := equipped_row.get_parent()
+	var target_row := HBoxContainer.new()
+	var label := Label.new()
+	label.text = "Equip to:"
+	target_row.add_child(label)
+	var group := ButtonGroup.new()
+	for page in 2:
+		var button := Button.new()
+		button.text = "Ability Bar" if page == 0 else "Stance Page"
+		button.toggle_mode = true
+		button.button_group = group
+		button.button_pressed = page == 0
+		button.pressed.connect(func(): _equip_to_page = page == 1)
+		target_row.add_child(button)
+	parent.add_child(target_row)
+	parent.move_child(target_row, equipped_row.get_index())
+	var page_label := Label.new()
+	page_label.text = "Stance Page - cast while holding RMB with a Spell Library conduit"
+	parent.add_child(page_label)
+	var page_row := HBoxContainer.new()
+	_page_row = page_row
+	page_row.add_theme_constant_override("separation", equipped_row.get_theme_constant("separation"))
+	for i in range(AbilityLoadoutComponent.SLOT_COUNT):
+		var button := ItemSlotButton.new()
+		button.custom_minimum_size = Vector2(64, 64)
+		button.clip_text = true
+		button.pressed.connect(_on_equipped_slot_pressed.bind(AbilityLoadoutComponent.SLOT_COUNT + i))
+		page_row.add_child(button)
+		_page_buttons.append(button)
+	parent.add_child(page_row)
+	parent.move_child(page_label, equipped_row.get_index() + 1)
+	parent.move_child(page_row, page_label.get_index() + 1)
+
 func _on_owned_ability_pressed(ability: Ability) -> void:
 	if _ability_loadout:
-		_ability_loadout.equip_first_open(ability)
+		_ability_loadout.equip_first_open(ability, _equip_to_page)
 		GameState.sync_ability_loadout(_ability_loadout)
 
 func _can_afford(ability: Ability) -> bool:
@@ -172,9 +213,10 @@ func _refresh_owned_list() -> void:
 func _refresh_equipped_row() -> void:
 	if _ability_loadout == null:
 		return
-	for i in range(_equipped_buttons.size()):
-		var button := _equipped_buttons[i]
-		var ability: Ability = _ability_loadout.get_equipped(i)
+	var buttons: Array[ItemSlotButton] = _equipped_buttons + _page_buttons
+	for i in range(buttons.size()):
+		var button := buttons[i]
+		var ability: Ability = _ability_loadout.slots[i]
 		button.ability = ability
 		var box := StyleBoxFlat.new()
 		box.set_corner_radius_all(4)

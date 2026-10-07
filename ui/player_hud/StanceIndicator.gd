@@ -42,6 +42,12 @@ func _refresh() -> void:
 		visible = true
 		_label.text = "RMB - Raise Shield"
 		return
+	var conduit := _player.caster_stance.get_source() if _player.caster_stance else null
+	if conduit:
+		visible = true
+		var page := int(_player.weapon_stance.active_page)
+		_label.text = "Stance %s - %s" % ["A" if page == 0 else "B", StanceInfo.for_conduit(conduit).get("name", conduit.weapon_type)]
+		return
 	if weapon.is_ranged:
 		var dual := StanceInfo.RANGED_B.has(weapon.weapon_type)
 		var aim := StanceInfo.for_weapon(weapon, int(_player.weapon_stance.active_page) if dual else 0)

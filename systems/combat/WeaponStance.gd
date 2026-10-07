@@ -21,7 +21,7 @@ class_name WeaponStance
 ## nothing for a caster branch to key off yet. Add a Mode.CASTER branch
 ## here once a real caster weapon item exists.
 
-enum Mode { NONE, MELEE, RANGED }
+enum Mode { NONE, MELEE, RANGED, CASTER }
 
 ## Implementation Brief v3.3 Section 3 additions (2026-08-31): a
 ## StanceBehavior resource per weapon type (move speed penalty, parry
@@ -162,7 +162,14 @@ func _enter_stance() -> void:
 	is_active = true
 	current_behavior = _resolve_behavior(weapon)
 	stance_entered.emit()
-	if weapon.is_ranged:
+	if _player.caster_stance.get_source() != null:
+		# A conduit's stance replaces the weapon's own (see CasterStance).
+		_mode = Mode.CASTER
+		current_behavior = null
+		if _player.melee_attack.is_idle() and _player.arm_rig:
+			_player.arm_rig.enter_ready_pose(PlayerArmRig.PoseSet.GUARD, READY_POSE_DURATION, 1.0)
+		_player.caster_stance.on_stance_entered()
+	elif weapon.is_ranged:
 		_mode = Mode.RANGED
 		_tween_fov(AIM_FOV)
 	else:
@@ -189,7 +196,7 @@ func _exit_stance() -> void:
 	stance_exited.emit()
 	if _mode == Mode.RANGED:
 		_tween_fov(GameState.field_of_view)
-	elif _mode == Mode.MELEE and _player.melee_attack.is_idle() and _player.arm_rig:
+	elif _mode != Mode.RANGED and _player.melee_attack.is_idle() and _player.arm_rig:
 		# Only reset the pose if no swing is in progress - a special attack
 		# already owns the arm rig's tween via its own windup/strike/
 		# recovery sequence (see PlayerArmRig.play_attack_swing()), which

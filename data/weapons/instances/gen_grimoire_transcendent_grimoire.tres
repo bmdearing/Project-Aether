@@ -35,3 +35,4 @@ stat_requirement = 0
 stat_requirement_value = 42.0
 level_requirement = 80
 intellect_requirement = 92
+spell_page_modifier = "double_status"

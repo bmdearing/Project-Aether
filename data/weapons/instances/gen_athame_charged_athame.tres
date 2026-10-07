@@ -34,3 +34,4 @@ stat_requirement = 0
 stat_requirement_value = 16.0
 level_requirement = 24
 intellect_requirement = 18
+stance_buff = "esoteric_damage"

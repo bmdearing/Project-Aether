@@ -35,3 +35,4 @@ stat_requirement = 0
 stat_requirement_value = 25.0
 level_requirement = 34
 intellect_requirement = 28
+stance_buff = "ward_restore"

@@ -56,24 +56,24 @@ const TYPE_META := {
 ## unleash_copy_count, optional lower_power flag.
 const LINES := [
 	{"type": "Wand", "line": 1, "stance": "spell_library", "grades": [["arcane", 0]], "implicit_stat": null, "value": 0.0},
-	{"type": "Wand", "line": 2, "stance": "unleash", "grades": [["arcane", 1], ["intellect", 2]], "implicit_stat": "increased_spell_damage", "value": 14.0},
+	{"type": "Wand", "line": 2, "stance": "unleash", "unleash_copy_count": 2, "grades": [["arcane", 1], ["intellect", 2]], "implicit_stat": "increased_spell_damage", "value": 14.0},
 	{"type": "Staff", "line": 1, "stance": "unleash", "grades": [["arcane", 0]], "implicit_stat": null, "value": 0.0, "unleash_copy_count": 3},
 	{"type": "Staff", "line": 2, "stance": "battlemage", "grades": [["arcane", 1], ["strength", 2]], "implicit_stat": "increased_physical_damage_reach", "value": 12.0},
 	{"type": "Athame", "line": 1, "stance": "spell_library", "spell_page_tag": "esoteric", "grades": [["enigma", 0]], "implicit_stat": null, "value": 0.0},
-	{"type": "Athame", "line": 2, "stance": "stance_buff", "grades": [["enigma", 1], ["intellect", 2]], "implicit_stat": "increased_esoteric_damage", "value": 16.0},
+	{"type": "Athame", "line": 2, "stance": "stance_buff", "stance_buff": "esoteric_damage", "grades": [["enigma", 1], ["intellect", 2]], "implicit_stat": "increased_esoteric_damage", "value": 16.0},
 	{"type": "Spell Gauntlet", "line": 1, "stance": "mana_stars", "grades": [["arcane", 0]], "implicit_stat": null, "value": 0.0},
 	{"type": "Spell Gauntlet", "line": 2, "stance": "battlemage", "grades": [["arcane", 1], ["strength", 2]], "implicit_stat": "increased_damage_after_melee", "value": 14.0},
 
 	{"type": "Rod", "line": 1, "stance": "passive", "grades": [["arcane", 1]], "implicit_stat": "increased_spell_damage", "value": 12.0, "lower_power": true},
 	{"type": "Rod", "line": 2, "stance": "passive", "grades": [["enigma", 1]], "implicit_stat": "increased_esoteric_damage", "value": 14.0},
 	{"type": "Grimoire", "line": 1, "stance": "spell_library", "spell_page_tag": "esoteric", "grades": [["enigma", 1], ["intellect", 2]], "implicit_stat": "increased_esoteric_damage", "value": 16.0},
-	{"type": "Grimoire", "line": 2, "stance": "spell_library", "grades": [["intellect", 1]], "implicit_stat": "increased_debuff_effectiveness", "value": 12.0},
+	{"type": "Grimoire", "line": 2, "stance": "spell_library", "spell_page_modifier": "double_status", "grades": [["intellect", 1]], "implicit_stat": "increased_debuff_effectiveness", "value": 12.0},
 	{"type": "Tome", "line": 1, "stance": "spell_library", "spell_page_tag": "generic", "grades": [["arcane", 1]], "implicit_stat": "increased_spell_damage", "value": 10.0},
 	{"type": "Tome", "line": 2, "stance": "spell_library", "spell_page_tag": "elemental", "grades": [["arcane", 1], ["intellect", 2]], "implicit_stat": "increased_elemental_damage", "value": 14.0},
-	{"type": "Talisman", "line": 1, "stance": "stance_buff", "grades": [["arcane", 1]], "implicit_stat": "increased_spell_damage_in_stance", "value": 12.0},
-	{"type": "Talisman", "line": 2, "stance": "stance_buff", "grades": [["enigma", 1]], "implicit_stat": "increased_ward_restoration_rate", "value": 14.0},
-	{"type": "Fetish", "line": 1, "stance": "spell_library", "grades": [["intellect", 1]], "implicit_stat": "increased_ailment_effectiveness", "value": 20.0},
-	{"type": "Fetish", "line": 2, "stance": "spell_library", "spell_page_tag": "esoteric", "grades": [["enigma", 1], ["intellect", 2]], "implicit_stat": "increased_pale_damage", "value": 16.0},
+	{"type": "Talisman", "line": 1, "stance": "stance_buff", "stance_buff": "spell_damage", "grades": [["arcane", 1]], "implicit_stat": "increased_spell_damage_in_stance", "value": 12.0},
+	{"type": "Talisman", "line": 2, "stance": "stance_buff", "stance_buff": "ward_restore", "grades": [["enigma", 1]], "implicit_stat": "increased_ward_restoration_rate", "value": 14.0},
+	{"type": "Fetish", "line": 1, "stance": "spell_library", "spell_page_modifier": "enhanced_status", "grades": [["intellect", 1]], "implicit_stat": "increased_ailment_effectiveness", "value": 20.0},
+	{"type": "Fetish", "line": 2, "stance": "spell_library", "spell_page_modifier": "pallid", "spell_page_tag": "esoteric", "grades": [["enigma", 1], ["intellect", 2]], "implicit_stat": "increased_pale_damage", "value": 16.0},
 ]
 
 var _count := 0
@@ -109,6 +109,8 @@ func _write_tier(line: Dictionary, tier_index: int) -> void:
 	w.conduit_stance_type = line["stance"]
 	w.spell_page_tag = line.get("spell_page_tag", "")
 	w.unleash_copy_count = line.get("unleash_copy_count", 0)
+	w.spell_page_modifier = line.get("spell_page_modifier", "")
+	w.stance_buff = line.get("stance_buff", "")
 	w.is_main_hand = not meta["offhand"]
 	w.is_offhand = meta["offhand"]
 

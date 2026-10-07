@@ -32,6 +32,8 @@ var _slot_icons: Array[ItemSlotButton] = []
 var _slot_overlays: Array[ColorRect] = []
 var _slot_cooldown_labels: Array[Label] = []
 var _slot_cost_labels: Array[Label] = []
+## The bar shows the stance page while a Spell Library stance is held.
+var _showing_spell_page: bool = false
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -67,7 +69,7 @@ func _build_cast_error_label() -> void:
 func _on_ability_cast_failed(caster: Node, ability: Ability, reason: String) -> void:
 	if not caster is Player or not is_instance_valid(_player):
 		return
-	var slot_index := _player.ability_loadout.slots.find(ability)
+	var slot_index := _player.ability_loadout.slots.find(ability) % AbilityLoadoutComponent.SLOT_COUNT if ability else -1
 	if slot_index >= 0 and slot_index < slot_row.get_child_count():
 		var slot_node := slot_row.get_child(slot_index)
 		var flash := create_tween()
@@ -137,6 +139,10 @@ func _process(_delta: float) -> void:
 	if not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Player
 		return
+	var on_page := _player.caster_stance != null and _player.caster_stance.uses_spell_page()
+	if on_page != _showing_spell_page:
+		_showing_spell_page = on_page
+		_refresh_all_slots()
 	for i in range(_slot_icons.size()):
 		_update_slot_cooldown(i)
 
@@ -147,7 +153,7 @@ func _refresh_all_slots() -> void:
 func _refresh_slot(index: int) -> void:
 	var icon := _slot_icons[index]
 	var cost_label := _slot_cost_labels[index]
-	var ability: Ability = _player.ability_loadout.get_equipped(index) if is_instance_valid(_player) else null
+	var ability: Ability = _player.ability_cast.get_bar_ability(index) if is_instance_valid(_player) else null
 	icon.ability = ability
 
 	var box := StyleBoxFlat.new()
@@ -171,7 +177,7 @@ func _refresh_slot(index: int) -> void:
 	icon.add_theme_color_override("font_pressed_color", text_color)
 
 func _update_slot_cooldown(index: int) -> void:
-	var ability: Ability = _player.ability_loadout.get_equipped(index)
+	var ability: Ability = _player.ability_cast.get_bar_ability(index)
 	var overlay := _slot_overlays[index]
 	var label := _slot_cooldown_labels[index]
 	if ability == null or not is_instance_valid(_player.ability_cast):

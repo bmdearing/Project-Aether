@@ -30,6 +30,11 @@ const ARMOR_SHRED_DURATION := 6.0
 const SUPPRESSED_SLOW_PER_STACK := 0.08
 const SUPPRESSED_MAX_STACKS := 5
 const SUPPRESSED_DURATION := 3.0
+## Pallid (Master v3: Pale, "reduced damage dealt"): 20% less for 4 s. Placeholder numbers.
+const PALLID_DAMAGE_REDUCTION := 0.2
+const PALLID_DURATION := 4.0
+## "enhanced:<id>" (Fetish's Status Amplifier page) lasts this much longer.
+const ENHANCED_DURATION_MULTIPLIER := 1.5
 const BLEED_TICK_INTERVAL := 0.5
 const BLEED_DAMAGE_PERCENT := 0.6
 const IGNITE_TICK_INTERVAL := 0.5
@@ -152,6 +157,12 @@ func _tick_resistance_shred(delta: float) -> void:
 ## hit_damage is only used by Ignite (its DoT total is a percent of the
 ## triggering hit) - irrelevant for the others.
 func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.0) -> void:
+	if effect_id.begins_with("enhanced:"):
+		var base_id := effect_id.trim_prefix("enhanced:")
+		apply_effect(base_id, source, hit_damage)
+		if _timers.has(base_id):
+			_timers[base_id] *= ENHANCED_DURATION_MULTIPLIER
+		return
 	match effect_id:
 		"ignite":
 			_apply_ignite(source, hit_damage)
@@ -183,6 +194,9 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 			_suppressed_stacks = mini(_suppressed_stacks + 1, SUPPRESSED_MAX_STACKS)
 			_timers["suppressed"] = SUPPRESSED_DURATION
 			_emit_applied("suppressed", _suppressed_stacks)
+		"pallid":
+			_apply_timed("pallid", PALLID_DURATION, source)
+			_emit_applied("pallid")
 		"guard_break":
 			_timers["guard_break"] = ShieldBlock.GUARD_BREAK_STUN
 			_emit_applied("guard_break")
@@ -195,6 +209,10 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 func apply_timed_effect(effect_id: String, duration: float) -> void:
 	_timers[effect_id] = maxf(_timers.get(effect_id, 0.0), duration)
 	_emit_applied(effect_id)
+
+## Pallid enemies deal less damage.
+func get_outgoing_damage_multiplier() -> float:
+	return 1.0 - PALLID_DAMAGE_REDUCTION if has_effect("pallid") else 1.0
 
 func get_armor_multiplier() -> float:
 	return 1.0 - ARMOR_SHRED_PER_STACK * _armor_shred_stacks if has_effect("armor_shred") else 1.0

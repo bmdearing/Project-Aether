@@ -136,6 +136,11 @@ var _flame_jets_fx: CPUParticles3D
 var _cooldowns: Dictionary = {}  # Ability -> float seconds remaining
 var _player: Player
 var _targeting_slot: int = -1
+var _targeting_from_page: bool = false
+## Cast copy -> {"copies", "ward_restore"} until CastTimeHandler fires it (CasterStance).
+var _cast_plans: Dictionary = {}
+## Unleash: yaw offset (degrees) for the copy being cast right now.
+var _aim_yaw_offset: float = 0.0
 var _reticle: MeshInstance3D
 ## ability_id -> Ability, lazily scanned from data/abilities/instances/ -
 ## same dir-scan AbilitiesScreen._scan_owned_abilities() already does, kept
@@ -188,41 +193,58 @@ func _physics_process(delta: float) -> void:
 
 	_process_slate_autocasts()
 
+## What key slot_index casts right now: the stance page while a Spell
+## Library stance is held, the bar otherwise.
+func get_bar_ability(slot_index: int) -> Ability:
+	if _player.caster_stance and _player.caster_stance.uses_spell_page():
+		return _player.ability_loadout.get_page2(slot_index)
+	return _player.ability_loadout.get_equipped(slot_index)
+
+func _slot_ability(slot_index: int, from_page: bool) -> Ability:
+	return _player.ability_loadout.get_page2(slot_index) if from_page else _player.ability_loadout.get_equipped(slot_index)
+
 func get_cooldown_remaining(ability: Ability) -> float:
 	return _cooldowns.get(ability, 0.0) if ability else 0.0
 
 func _on_ability_pressed(slot_index: int) -> void:
-	var ability: Ability = _player.ability_loadout.get_equipped(slot_index)
+	var from_page := _player.caster_stance.uses_spell_page()
+	var ability: Ability = _slot_ability(slot_index, from_page)
 	if ability == null:
 		return
 	if ability.is_ground_targeted:
 		if _targeting_slot != -1:
 			return
 		_targeting_slot = slot_index
+		_targeting_from_page = from_page
 		_show_reticle(ability)
 	else:
-		_try_cast(slot_index, _player.global_position)
+		_try_cast(slot_index, _player.global_position, from_page)
 
 func _release_targeted_cast() -> void:
 	var slot_index := _targeting_slot
 	_targeting_slot = -1
 	_hide_reticle()
-	_try_cast(slot_index, _get_ground_target_point())
+	_try_cast(slot_index, _get_ground_target_point(), _targeting_from_page)
 
 ## Mana/cooldown are checked here, not when targeting starts - a targeted
 ## cast only spends/starts cooldown on an actual release, same as an
 ## instant cast only ever fires once, at the moment its checks pass.
-func _try_cast(slot_index: int, cast_position: Vector3) -> void:
-	var ability: Ability = _player.ability_loadout.get_equipped(slot_index)
+func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false) -> void:
+	var ability: Ability = _slot_ability(slot_index, from_page)
 	if ability == null:
 		return
+	var plan := _player.caster_stance.prepare_cast(ability, from_page)
+	if plan.has("error"):
+		EventBus.ability_cast_failed.emit(_player, ability, plan["error"])
+		return
+	var copies: int = plan["copies"]
 	if get_cooldown_remaining(ability) > 0.0:
 		EventBus.ability_cast_failed.emit(_player, ability, "On cooldown")
 		return
 	if ability.ability_id == "tornado" and get_tree().get_nodes_in_group("tornado_field").size() >= ability.get_limit(_player.stat_sheet):
 		EventBus.ability_cast_failed.emit(_player, ability, "Limit reached")
 		return
-	if _player.mana.current_mana < ability.get_mana_cost(_player.stat_sheet):
+	if _player.mana.current_mana < ability.get_mana_cost(_player.stat_sheet) * copies:
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
 		return
 	# Patch v4.3: CastTimeHandler.try_cast() refuses while a cast is winding
@@ -231,7 +253,7 @@ func _try_cast(slot_index: int, cast_position: Vector3) -> void:
 	if _player.cast_time_handler.is_casting():
 		EventBus.ability_cast_failed.emit(_player, ability, "Already casting")
 		return
-	_player.mana.spend(ability.get_mana_cost(_player.stat_sheet))
+	_player.mana.spend(ability.get_mana_cost(_player.stat_sheet) * copies)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_input_action = "ability_%d" % (slot_index + 1)
 		_flame_jets_is_manual = true
@@ -244,10 +266,29 @@ func _try_cast(slot_index: int, cast_position: Vector3) -> void:
 	# CHANNELED abilities call _cast() back immediately (synchronously,
 	# via _on_cast_time_completed below), CAST_TIME ones only after their
 	# windup finishes (or not at all if interrupted by taking damage).
-	_player.cast_time_handler.try_cast(ability, cast_position)
+	var cast: Ability = plan["ability"]
+	if cast != ability:
+		_cast_plans[cast] = plan
+	_player.cast_time_handler.try_cast(cast, cast_position)
 
 func _on_cast_time_completed(ability: Ability, cast_position: Vector3) -> void:
-	_cast(ability, cast_position)
+	var plan: Dictionary = _cast_plans.get(ability, {})
+	_cast_plans.erase(ability)
+	if plan.get("ward_restore", false):
+		_player.caster_stance.restore_ward_for_cast()
+	var copies: int = plan.get("copies", 1)
+	if copies <= 1:
+		_cast(ability, cast_position)
+		return
+	# Unleash: aimed copies fan out, targeted copies line up across the target.
+	var right := _player.camera.global_transform.basis.x
+	right.y = 0.0
+	right = right.normalized()
+	for i in copies:
+		var offset := _player.caster_stance.unleash_offset(i, copies)
+		_aim_yaw_offset = -offset * CasterStance.UNLEASH_SPREAD_DEG
+		_cast(ability, cast_position + right * offset * CasterStance.UNLEASH_TARGET_SPACING)
+	_aim_yaw_offset = 0.0
 
 ## Each enemy rolls its own crit independently (roll_damage() per-target,
 ## not once and reused) - a shared roll would make them all crit together.
@@ -683,7 +724,9 @@ func trigger_frost_armor_retaliation(attacker: Enemy) -> void:
 ## not ground-targeted, no aim-hold step, matches "throw a spear ... at a
 ## crosshair" reading as an instant-direction throw, not a placed point.
 func _fire_piercing_bolt(ability: Ability, damage_multiplier: float) -> void:
-	_spawn_bolt(ability, damage_multiplier, _player.camera.global_transform)
+	var xform := _player.camera.global_transform
+	xform.basis = Basis(Vector3.UP, deg_to_rad(_aim_yaw_offset)) * xform.basis
+	_spawn_bolt(ability, damage_multiplier, xform)
 
 ## THUNDER_SWEEP_BOLT_COUNT bolts spawned at evenly-spaced yaw angles
 ## around the player, each flattened to the horizontal plane (a "ground
@@ -704,7 +747,7 @@ func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
 	forward.y = 0.0
 	if forward.length() < 0.01:
 		forward = -_player.global_transform.basis.z
-	forward = forward.normalized()
+	forward = forward.normalized().rotated(Vector3.UP, deg_to_rad(_aim_yaw_offset))
 	var origin := _player.global_position + forward * 0.5
 	for i in range(SPARK_COUNT):
 		var offset_deg := SPARK_SPREAD_DEG * (i - (SPARK_COUNT - 1) / 2.0)

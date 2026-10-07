@@ -22,6 +22,10 @@ class_name Ability
 ## drops (Comet, Inferno, Stormcall) - not every ability's mechanic reads
 ## as "aim a spot," so this is opt-in per ability, not automatic.
 @export var is_ground_targeted: bool = false
+## Patch v3.3 Unleash: an Unleash conduit's stance fires several copies of it.
+@export var unleashable: bool = false
+## Per-cast "more" damage multiplier set on a cast's copy (CasterStance buffs).
+var extra_more: float = 1.0
 
 ## AoE radius in meters - invented, not doc-sourced, loosely sized off
 ## each ability's flavor text.
@@ -187,7 +191,7 @@ func _increased_percents(stat_sheet: StatSheet) -> Array[float]:
 	return increased
 
 func _base_hit(base_damage: float, stat_sheet: StatSheet) -> Dictionary:
-	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE]
+	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more]
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
 		base_damage, 1.0, 0.0, scaling_grade, 0.5, _increased_percents(stat_sheet), more, damage_type
 	)

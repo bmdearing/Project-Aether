@@ -187,6 +187,7 @@ const STATUS_EFFECT_NAME := {
 	"entangle": "Entangled",
 	"suppressed": "Suppressed",
 	"marked": "Marked",
+	"pallid": "Pallid",
 }
 
 # Patch v3.8: directional metadata only now - Weapon._base_hit()/Ability.

@@ -72,6 +72,43 @@ const RANGED_B := {
 	"Longbow": {"name": "Rain of Arrows", "desc": "Fires in a high arc; volleys rain down on the spot you aim at."},
 }
 
+## Conduits, by conduit_stance_type (Patch v3.4 caster stances, v3.6 lines);
+## a line's spell_page_modifier / stance_buff picks a more specific entry.
+const CONDUIT := {
+	"spell_library": {"name": "Spell Library", "desc": "While RMB is held, keys 1-4 cast your Stance Page - four more spells (set on the Abilities screen)."},
+	"unleash": {"name": "Unleash", "desc": "Unleashable spells cast while RMB is held fire several copies at once. Mana is paid per copy."},
+	"mana_stars": {"name": "Mana Stars", "desc": "Hold RMB; each LMB fires a Mana Star using the gauntlet's damage and infusion, scaled by Spell Power."},
+	"battlemage_staff": {"name": "Battlemage", "desc": "RMB strikes out with the staff's reach."},
+	"battlemage_gauntlet": {"name": "Battlemage", "desc": "Hold RMB to punch with LMB; a punch that lands sends a Mana Star after it."},
+	"spell_damage": {"name": "Stance Buff", "desc": "Spells cast while RMB is held deal 25% more damage."},
+	"esoteric_damage": {"name": "Pale Focus", "desc": "Esoteric spells cast while RMB is held deal 30% more damage."},
+	"ward_restore": {"name": "Ward Buff", "desc": "Each spell cast while RMB is held restores 8% of your Ward."},
+	"double_status": {"name": "Dark Knowledge", "desc": "Stance Page spells apply their status effects twice."},
+	"enhanced_status": {"name": "Status Amplifier", "desc": "Stance Page spells' status effects last 50% longer."},
+	"pallid": {"name": "Pallid Page", "desc": "Stance Page spells always apply Pallid (enemies deal less damage)."},
+	"passive": {"name": "Passive", "desc": "No stance; boosts the main hand's casting."},
+}
+
+## {name, desc} for a conduit's stance, with its page restriction appended.
+static func for_conduit(conduit: Weapon) -> Dictionary:
+	if conduit == null or not conduit.is_conduit:
+		return {}
+	var key := conduit.conduit_stance_type
+	if key == "battlemage":
+		key = "battlemage_gauntlet" if conduit.weapon_type == "Spell Gauntlet" else "battlemage_staff"
+	if conduit.spell_page_modifier != "":
+		key = conduit.spell_page_modifier
+	elif conduit.stance_buff != "":
+		key = conduit.stance_buff
+	var info: Dictionary = CONDUIT.get(key, {}).duplicate()
+	if info.is_empty():
+		return info
+	if conduit.conduit_stance_type == "spell_library" and conduit.spell_page_tag in ["esoteric", "elemental"]:
+		info["desc"] += " Only %s spells." % conduit.spell_page_tag.capitalize()
+	if conduit.conduit_stance_type == "unleash":
+		info["desc"] += " %d copies." % maxi(conduit.unleash_copy_count, CasterStance.MIN_UNLEASH_COPIES)
+	return info
+
 ## {name, desc} for the weapon's stance on `page` (0 = A, 1 = B), or {} if none is designed.
 static func for_weapon(weapon: Weapon, page: int) -> Dictionary:
 	if weapon == null:

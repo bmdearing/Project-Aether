@@ -104,6 +104,12 @@ and Whip have their Stance A built; all tuning lives on the behavior
 resources' "Charged attack" fields. Stances without one keep the instant
 special.
 
+**Caster stances** (`systems/combat/CasterStance.gd`, v4.30): conduits
+replace the weapon stance - Spell Library (keys 1-4 cast the Stance Page,
+loadout slots 5-8), Unleash, Stance Buff, Mana Stars and Battlemage, from
+each conduit line's `conduit_stance_type`, `spell_page_modifier` and
+`stance_buff`. Wands fire bolts on LMB; Rods are passive.
+
 **Ranged aim stances** (v4.29): one `RangedStanceBehavior` per ranged
 weapon type (`data/stance/instances/ranged_*.tres`, Patch v3.4 table),
 applied by `PlayerRangedAttack` while RMB aims. Shortbow and Longbow have a

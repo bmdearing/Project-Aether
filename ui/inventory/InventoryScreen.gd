@@ -132,6 +132,8 @@ func _refresh_behaviors() -> void:
 	_add_heading("Main Hand - %s" % (weapon.display_name if weapon else "empty"))
 	if weapon == null:
 		_add_text("No weapon equipped.")
+	elif weapon.is_conduit:
+		_add_conduit_text(weapon, "Hold RMB (Stance A)")
 	elif weapon.is_ranged and StanceInfo.RANGED_B.has(weapon.weapon_type):
 		_add_text("Hold RMB to aim with the selected stance. Holding X in combat also switches.")
 		_add_page_choices(weapon)
@@ -147,6 +149,11 @@ func _refresh_behaviors() -> void:
 		_add_text("Hold RMB to enter the selected stance. Holding X in combat also switches.")
 		_add_page_choices(weapon)
 
+	var off_conduit: Weapon = _equipment.offhand as Weapon if _equipment else null
+	if off_conduit and off_conduit.is_conduit:
+		_add_heading("Off Hand - %s" % off_conduit.display_name)
+		_add_conduit_text(off_conduit, "Hold X to switch to Stance B, then hold RMB")
+		return
 	var shield: Shield = _equipment.offhand as Shield if _equipment else null
 	_add_heading("Off Hand - %s" % (shield.display_name if shield else "no shield"))
 	if shield == null:
@@ -172,6 +179,15 @@ func _add_page_choices(weapon: Weapon) -> void:
 		button.pressed.connect(_on_stance_page_chosen.bind(page))
 		_behaviors_panel.add_child(button)
 		_add_text(info["desc"])
+
+func _add_conduit_text(conduit: Weapon, how: String) -> void:
+	var info := StanceInfo.for_conduit(conduit)
+	if info.is_empty():
+		_add_text("No stance is designed for this conduit yet.")
+	elif conduit.conduit_stance_type == "passive":
+		_add_text("%s: %s" % [info["name"], info["desc"]])
+	else:
+		_add_text("%s - %s: %s" % [how, info["name"], info["desc"]])
 
 func _on_stance_page_chosen(page: int) -> void:
 	GameState.stance_page = page

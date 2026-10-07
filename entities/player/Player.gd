@@ -48,6 +48,7 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 var shield_block: ShieldBlock
 var stance_attack: StanceAttack
 var stance_defense: StanceDefense
+var caster_stance: CasterStance
 ## An LMB press that started a stance charge; its release must not also jab.
 var _lmb_owned_by_stance: bool = false
 @onready var cast_time_handler: CastTimeHandler = $CastTimeHandler
@@ -204,6 +205,9 @@ func _ready() -> void:
 	stance_defense = StanceDefense.new()
 	stance_defense.name = "StanceDefense"
 	add_child(stance_defense)
+	caster_stance = CasterStance.new()
+	caster_stance.name = "CasterStance"
+	add_child(caster_stance)
 	GameState.player_stat_sheet = stat_sheet
 	GameState.fate_board = fate_board
 	GameState.player_equipment = equipment
@@ -752,7 +756,8 @@ func _handle_attack_input(delta: float) -> void:
 		_lmb_was_held = false
 		return
 	var active_weapon := get_active_weapon()
-	var is_melee := active_weapon != null and not active_weapon.is_ranged
+	var is_wand := active_weapon != null and active_weapon.weapon_type == "Wand"
+	var is_melee := active_weapon != null and not active_weapon.is_ranged and not is_wand
 
 	# Implementation Brief v3.3 Section 2: light jab (release <0.6s hold)
 	# vs standard thrust (release at >=0.6s) - only tracked for melee
@@ -782,7 +787,11 @@ func _handle_attack_input(delta: float) -> void:
 		_lmb_was_held = false
 
 	if Input.is_action_just_pressed("attack"):
-		if active_weapon and active_weapon.is_ranged:
+		if caster_stance.try_stance_attack():
+			pass
+		elif is_wand:
+			caster_stance.try_primary_attack()
+		elif active_weapon and active_weapon.is_ranged:
 			ranged_attack.try_attack(weapon_stance.is_active)
 		elif weapon_stance.is_active:
 			if stance_attack.begin_charge():

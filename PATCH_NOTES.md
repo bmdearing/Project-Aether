@@ -7,6 +7,26 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.30: Caster (conduit) stances (user request)
+
+Patch v3.4's Caster Stance System with Patch v3.6's per-line behaviour, in the new `CasterStance.gd`. Stance A is the main-hand conduit's, stance B (Hold X) the offhand conduit's, falling back to the main hand's. A conduit's stance replaces the weapon stance; with a non-conduit main hand, page A keeps the weapon's own stance.
+
+- **Spell Library** (Wand 1, Athame 1, Grimoire, Tome, Fetish): holding RMB swaps keys 1-4 to the **Stance Page**, four more spells. The ability bar shows the page while it's active. The Abilities screen has an "Equip to: Ability Bar / Stance Page" switch and a second row of four slots; they're saved with the loadout. Esoteric-tagged lines (Athame 1, Grimoire 1, Fetish 2) only cast Esoteric spells from the page, Tome 2 only Elemental.
+- **Page modifiers:** Grimoire 2 Dark Knowledge applies page spells' statuses twice; Fetish 1 Status Amplifier makes them last 50% longer; Fetish 2 Pale Focus always applies **Pallid** (new status: enemies deal 20% less damage for 4 s; Master v3's "reduced damage dealt").
+- **Unleash** (Staff 1: 3 copies, Wand 2: 2): an Unleashable spell cast in stance fires that many copies - aimed spells fan out 8 degrees apart, targeted ones land 2.5 m apart across the target. Mana is paid per copy; one cooldown. Unleashable: Cinder Lance, Thunder Javelin, Spark, Winter's Eye, Comet, Stormcall (the doc names none; these are the aimed and single-target ones).
+- **Stance Buff:** Talisman 1 +25% spell damage while held; Athame 2 +30% to Esoteric spells; Talisman 2 restores 8% of max Ward per cast.
+- **Mana Stars** (Spell Gauntlet 1): in stance, each LMB fires a Mana Star from the gauntlet's damage and infusion, scaled by Spell Power, for 4 Mana.
+- **Battlemage:** Staff 2 strikes at 4.2 m reach when RMB goes down; Spell Gauntlet 2 punches on LMB in stance, and a punch that lands sends a free Mana Star after it.
+- **Wands** fire energy bolts on LMB (v3.4: "Fires ranged energy bolts") instead of swinging.
+- **Rod** stays passive (v3.6: "no stance behaviour").
+- **Data fixes:** Wand 2 had no copy count (now 2, below Staff 1's 3 - "highest copy count of any Conduit"). Grimoire 2 and both Fetish lines were plain spell libraries; they now carry their page modifier (`Weapon.spell_page_modifier`). Talisman/Athame buffs are named per line (`Weapon.stance_buff`). `tools/generate_conduit_lines.gd` writes both.
+- Spells take a per-cast `extra_more` damage multiplier; a cast in stance uses a copy of the spell carrying the stance's changes.
+- Behaviors tab and the HUD stance readout describe conduit stances.
+- All numbers except the copy counts' ordering are placeholders.
+- `tests/combat/test_caster_stances` (28 checks) uses the real conduit items.
+
+---
+
 ## 2026-10-07 — v4.29: Ranged aim stances (user request)
 
 Every ranged stance in Patch v3.4's table, applied while RMB aims, on top of the existing aim bonus (1.4x damage, half spread). Numbers are on each `RangedStanceBehavior` (new "Aim stance" group); `PlayerRangedAttack` applies them.

@@ -329,13 +329,13 @@ func _apply_map_modifiers() -> void:
 ## one was attached at spawn time - same active_map-independence as
 ## _apply_map_modifiers() above.
 func get_outgoing_damage_multiplier() -> float:
-	var rarity_mult := 1.0
+	var mult := status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0
 	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
 	if rarity_component:
-		rarity_mult = rarity_component.get_damage_multiplier()
+		mult *= rarity_component.get_damage_multiplier()
 	if GameState.active_map == null:
-		return rarity_mult
-	return GameState.active_map.enemy_damage_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_DAMAGE_GROWTH_PER_TIER) * rarity_mult
+		return mult
+	return GameState.active_map.enemy_damage_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_DAMAGE_GROWTH_PER_TIER) * mult
 
 ## Horizontal velocity added on top of chase movement for one physics frame
 ## (Black Hole's pull). Goes through move_and_slide(), so it can't push an
