@@ -132,6 +132,9 @@ func _refresh_behaviors() -> void:
 	_add_heading("Main Hand - %s" % (weapon.display_name if weapon else "empty"))
 	if weapon == null:
 		_add_text("No weapon equipped.")
+	elif weapon.is_ranged and StanceInfo.RANGED_B.has(weapon.weapon_type):
+		_add_text("Hold RMB to aim with the selected stance. Holding X in combat also switches.")
+		_add_page_choices(weapon)
 	elif weapon.is_ranged:
 		var aim := StanceInfo.for_weapon(weapon, 0)
 		if aim.is_empty():
@@ -142,13 +145,7 @@ func _refresh_behaviors() -> void:
 		_add_text("No stances are designed for %s yet." % weapon.weapon_type)
 	else:
 		_add_text("Hold RMB to enter the selected stance. Holding X in combat also switches.")
-		var group := ButtonGroup.new()
-		for page in 2:
-			var info := StanceInfo.for_weapon(weapon, page)
-			var button := _make_toggle("Stance %s - %s" % ["A" if page == 0 else "B", info["name"]], group, GameState.stance_page == page)
-			button.pressed.connect(_on_stance_page_chosen.bind(page))
-			_behaviors_panel.add_child(button)
-			_add_text(info["desc"])
+		_add_page_choices(weapon)
 
 	var shield: Shield = _equipment.offhand as Shield if _equipment else null
 	_add_heading("Off Hand - %s" % (shield.display_name if shield else "no shield"))
@@ -166,6 +163,15 @@ func _refresh_behaviors() -> void:
 	row.add_child(stance)
 	_behaviors_panel.add_child(row)
 	_add_text("A raised shield stops every hit from the front, but holding it and taking hits drains Composure (the bar under the crosshair). When it runs out your guard breaks and you're stunned for a second.")
+
+func _add_page_choices(weapon: Weapon) -> void:
+	var group := ButtonGroup.new()
+	for page in 2:
+		var info := StanceInfo.for_weapon(weapon, page)
+		var button := _make_toggle("Stance %s - %s" % ["A" if page == 0 else "B", info["name"]], group, GameState.stance_page == page)
+		button.pressed.connect(_on_stance_page_chosen.bind(page))
+		_behaviors_panel.add_child(button)
+		_add_text(info["desc"])
 
 func _on_stance_page_chosen(page: int) -> void:
 	GameState.stance_page = page

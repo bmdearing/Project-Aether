@@ -94,9 +94,17 @@ func _ready() -> void:
 func get_move_speed_multiplier() -> float:
 	if not is_active:
 		return 1.0
+	if current_behavior is RangedStanceBehavior and current_behavior.backpedal_full_speed and _is_backpedaling():
+		return 1.0
 	if current_behavior:
 		return current_behavior.move_speed_multiplier
 	return DEFAULT_MOVE_SPEED_MULTIPLIER
+
+## Kiting Shot: moving away from where you aim.
+func _is_backpedaling() -> bool:
+	var forward := -_player.camera.global_transform.basis.z
+	var flat := Vector2(forward.x, forward.z).normalized()
+	return Vector2(_player.velocity.x, _player.velocity.z).dot(flat) < -0.5
 
 ## Implementation Brief v3.4 Section 5: ranged behaviors are authored per
 ## doc "Line" (Section 25's own base_line_id, e.g. "service_pistol_line1"),

@@ -43,7 +43,8 @@ const DEFAULT_FIRE_INTENSITY := 0.8
 @export var projectile_speed: float = 25.0
 
 ## Right-click-hold aim (WeaponStance) rewards firing with a flat damage
-## bonus, and now also halves the weapon's spread.
+## bonus and halves the weapon's spread; the weapon's RangedStanceBehavior
+## (Patch v3.4 table) adds its own mechanic on top - see _stance().
 const AIMED_DAMAGE_MULTIPLIER := 1.4
 const AIMED_SPREAD_MULTIPLIER := 0.5
 const DRY_CLICK_COOLDOWN := 0.3
@@ -56,6 +57,29 @@ var _is_reloading: bool = false
 var _reload_timer: float = 0.0
 var _reload_weapon: Weapon
 var _player: Player
+
+## Aim stance state (RangedStanceBehavior, see _stance()).
+const RAIN_TARGET_RANGE := 40.0
+const STAGGER_COMPOSURE_DAMAGE := 20.0
+var _dump_remaining: int = 0
+var _dump_timer: float = 0.0
+var _aim_time: float = 0.0
+var _brace_spent: bool = false
+var _stagger_log: Dictionary = {}   # enemy instance id -> Array of hit msec
+var _mark_bonus: float = 0.0
+
+## The aim stance in effect, or null when not aiming / none designed.
+func _stance() -> RangedStanceBehavior:
+	if not _player.weapon_stance.is_active:
+		return null
+	return _player.weapon_stance.current_behavior as RangedStanceBehavior
+
+## Marksman: how much the current aim has built up (1.0 = none).
+func get_aim_multiplier() -> float:
+	var st := _stance()
+	if st == null or st.aim_ramp_time <= 0.0:
+		return 1.0
+	return lerpf(1.0, st.aim_ramp_max_multiplier, clampf(_aim_time / st.aim_ramp_time, 0.0, 1.0))
 
 func _ready() -> void:
 	_player = get_parent()
@@ -112,6 +136,10 @@ func try_attack(aimed: bool = false) -> void:
 		return
 	if weapon.fire_mode != Constants.FireMode.FULL_AUTO:
 		_fire_one(weapon, aimed)  # FULL_AUTO fires from try_attack_held() instead
+		var st := _stance() if aimed else null
+		if st and st.dump_magazine and _uses_magazine(weapon):
+			_dump_remaining = weapon.get_current_magazine()
+			_dump_timer = st.shot_interval
 
 ## Called every physics frame while the attack input is held.
 func try_attack_held(aimed: bool = false) -> void:
@@ -124,7 +152,8 @@ func try_attack_held(aimed: bool = false) -> void:
 		return
 	_fire_one(weapon, aimed)
 	var interval := 1.0 / weapon.fire_rate if weapon.fire_rate > 0.0 else fire_cooldown
-	_full_auto_timer = interval / _player.get_action_speed_multiplier()
+	var st := _stance() if aimed else null
+	_full_auto_timer = interval / _player.get_action_speed_multiplier() / (st.fire_rate_multiplier if st else 1.0)
 
 func _dry_click() -> void:
 	_cooldown_remaining = DRY_CLICK_COOLDOWN
@@ -134,7 +163,8 @@ func _fire_one(weapon: Weapon, aimed: bool) -> void:
 	if _uses_magazine(weapon):
 		weapon.current_magazine = weapon.get_current_magazine() - 1
 	# Section 12: Instinct -> "+1% Attack/Cast speed per point" divides the base cooldown.
-	_cooldown_remaining = fire_cooldown / _player.get_action_speed_multiplier()
+	var st := _stance() if aimed else null
+	_cooldown_remaining = fire_cooldown / _player.get_action_speed_multiplier() / (st.fire_rate_multiplier if st else 1.0)
 	_fire(weapon, aimed)
 
 	match weapon.fire_mode:
@@ -149,7 +179,14 @@ func _fire_one(weapon: Weapon, aimed: bool) -> void:
 				_is_cycling = true
 				_cycle_timer = draw
 
+	# Rapid Fire / Fan the Hammer: a fixed shot interval replaces draw and cycling.
+	if st and st.shot_interval > 0.0:
+		_is_cycling = false
+		_cycle_timer = 0.0
+		_cooldown_remaining = st.shot_interval / _player.get_action_speed_multiplier()
+
 	if _uses_magazine(weapon) and weapon.get_current_magazine() <= 0:
+		_dump_remaining = 0
 		_start_reload(weapon)
 	EventBus.ammo_changed.emit(weapon.ammo_type, AmmoInventory.get_reserve(weapon.ammo_type))
 
@@ -223,6 +260,19 @@ func interrupt_pump_reload() -> void:
 		EventBus.reload_interrupted.emit(weapon)
 
 func _physics_process(delta: float) -> void:
+	var st := _stance()
+	_aim_time = _aim_time + delta if st else 0.0
+	if st == null:
+		_brace_spent = false
+	if _dump_remaining > 0:
+		_dump_timer -= delta
+		var weapon: Weapon = _player.get_active_weapon()
+		if weapon == null or not weapon.is_ranged or _is_reloading:
+			_dump_remaining = 0
+		elif _dump_timer <= 0.0:
+			_dump_remaining -= 1
+			_dump_timer = st.shot_interval if st else 0.1
+			_fire_one(weapon, true)
 	if _cooldown_remaining > 0.0:
 		_cooldown_remaining -= delta
 	if _full_auto_timer > 0.0:
@@ -238,10 +288,29 @@ func _physics_process(delta: float) -> void:
 
 func _fire(weapon: Weapon, aimed: bool = false) -> void:
 	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	var st := _stance() if aimed else null
 	var motion_value := base_motion_value * (AIMED_DAMAGE_MULTIPLIER if aimed else 1.0)
 	var pellets := maxi(weapon.pellet_count, 1)
 	var spread := weapon.pellet_spread_degrees * (AIMED_SPREAD_MULTIPLIER if aimed else 1.0)
+	if st:
+		motion_value *= st.damage_multiplier * get_aim_multiplier()
+		spread = spread * st.spread_multiplier + st.spread_add_degrees
+	_aim_time = 0.0
 	var socket_transform: Transform3D = _player.weapon_socket.global_transform
+
+	# Steady Aim: increased crit chance for this shot only.
+	var original_crit_bonus := _player.stat_sheet.finesse_crit_bonus
+	if st and st.crit_chance_increase > 0.0:
+		_player.stat_sheet.finesse_crit_bonus = (1.0 + original_crit_bonus) * (1.0 + st.crit_chance_increase) - 1.0
+
+	var cosmetic := false
+	if st and st.rain_radius > 0.0:
+		_fire_rain(weapon, st, motion_value, damage_type)
+		pellets = 0
+	elif st and st.braced_cone_shot and not _brace_spent:
+		_brace_spent = true
+		_cone_shot(weapon, st, motion_value, weapon.pellet_spread_degrees * st.spread_multiplier, damage_type)
+		cosmetic = true
 
 	# One shot's damage is split across the pellets; each rolls its own crit.
 	for i in range(pellets):
@@ -253,6 +322,11 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		projectile.damage_type = damage_type
 		projectile.source = _player
 		projectile.speed = projectile_speed
+		projectile.cosmetic = cosmetic
+		projectile.damage_modifier = _damage_modifier.bind(st)
+		if st:
+			projectile.pierce = st.pierce
+			projectile.on_hit = _on_projectile_hit.bind(st)
 		_player.get_tree().current_scene.add_child(projectile)
 
 		var spawn_transform := socket_transform
@@ -268,8 +342,97 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 			spawn_transform.basis = Basis.looking_at(fire_dir.normalized(), Vector3.UP)
 		projectile.global_transform = spawn_transform
 
+	_player.stat_sheet.finesse_crit_bonus = original_crit_bonus
 	AudioManager.play_at(SoundLib.get_fire_sound(weapon.ammo_type), _player.global_position)
 	_play_fire_animation(weapon)
+
+## Point Blank by distance, plus Tracer Round's bonus on a marked enemy.
+func _damage_modifier(enemy: Enemy, st: RangedStanceBehavior) -> float:
+	var multiplier := 1.0
+	if st and st.point_blank_max_multiplier > 1.0:
+		var distance := enemy.global_position.distance_to(_player.global_position)
+		var closeness := clampf((st.point_blank_far - distance) / maxf(st.point_blank_far - st.point_blank_near, 0.01), 0.0, 1.0)
+		multiplier *= lerpf(1.0, st.point_blank_max_multiplier, closeness)
+	if enemy.status_effects and enemy.status_effects.has_effect("marked"):
+		multiplier *= 1.0 + _mark_bonus
+	return multiplier
+
+## Suppression stacks, Full Auto Burst stagger, Tracer Round marking.
+func _on_projectile_hit(enemy: Enemy, _damage: float, st: RangedStanceBehavior) -> void:
+	if not is_instance_valid(enemy) or enemy.status_effects == null:
+		return
+	for i in st.slow_stacks_per_hit:
+		enemy.status_effects.apply_effect("suppressed", _player)
+	if st.stagger_hits > 0:
+		var id := enemy.get_instance_id()
+		var now := Time.get_ticks_msec()
+		var recent: Array = _stagger_log.get(id, []).filter(func(t): return now - t <= st.stagger_window * 1000.0)
+		recent.append(now)
+		if recent.size() >= st.stagger_hits:
+			recent.clear()
+			enemy.interrupt_attack()
+			if enemy.stance:
+				enemy.stance.apply_parry_damage(STAGGER_COMPOSURE_DAMAGE)
+		_stagger_log[id] = recent
+	if st.mark_duration > 0.0 and not _has_live_mark():
+		enemy.status_effects.apply_timed_effect("marked", st.mark_duration)
+		_mark_bonus = st.mark_damage_bonus
+
+func _has_live_mark() -> bool:
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy and enemy.health.is_alive() and enemy.status_effects and enemy.status_effects.has_effect("marked"):
+			return true
+	return false
+
+## Pump Brace: the braced shot hits every enemy in its cone (spread_multiplier
+## times the hip-fire spread - "double spread width") for full damage.
+func _cone_shot(weapon: Weapon, st: RangedStanceBehavior, motion_value: float, half_angle: float, damage_type: Constants.DamageType) -> void:
+	var origin := _player.camera.global_position
+	var forward := -_player.camera.global_transform.basis.z
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy == null or not enemy.health.is_alive():
+			continue
+		var to_enemy := enemy.global_position + Vector3.UP - origin
+		if to_enemy.length() > st.cone_range or rad_to_deg(forward.angle_to(to_enemy.normalized())) > half_angle + 5.0:
+			continue
+		if not _player.melee_attack._has_line_of_sight(origin, enemy.global_position + Vector3.UP, enemy):
+			continue
+		var hit := weapon.roll_damage(motion_value, _player.stat_sheet)
+		_direct_hit(enemy, hit["final_damage"], damage_type, hit["is_critical"])
+
+## Longbow Rain of Arrows: volleys on the spot under the crosshair.
+func _fire_rain(weapon: Weapon, st: RangedStanceBehavior, motion_value: float, damage_type: Constants.DamageType) -> void:
+	var origin := _player.camera.global_position
+	var forward := -_player.camera.global_transform.basis.z
+	var space := _player.get_world_3d().direct_space_state
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + forward * RAIN_TARGET_RANGE)
+	query.exclude = [_player.get_rid()]
+	var hit := space.intersect_ray(query)
+	var target: Vector3 = hit["position"] if not hit.is_empty() else origin + forward * RAIN_TARGET_RANGE
+	var ground := space.intersect_ray(PhysicsRayQueryParameters3D.create(target + Vector3.UP, target + Vector3.DOWN * 30.0))
+	if not ground.is_empty():
+		target = ground["position"]
+	var rain := ArrowRain.new()
+	_player.get_tree().current_scene.add_child(rain)
+	rain.global_position = target
+	rain.launch(st.rain_radius, st.rain_waves, _on_rain_hit.bind(weapon, motion_value, damage_type))
+
+func _on_rain_hit(enemy: Enemy, weapon: Weapon, motion_value: float, damage_type: Constants.DamageType) -> void:
+	if not is_instance_valid(_player):
+		return
+	var hit := weapon.roll_damage(motion_value, _player.stat_sheet)
+	_direct_hit(enemy, hit["final_damage"], damage_type, hit["is_critical"])
+
+func _direct_hit(enemy: Enemy, amount: float, damage_type: Constants.DamageType, is_critical: bool) -> void:
+	if not enemy.take_damage(amount, damage_type, false, true):
+		return
+	if enemy.stance:
+		enemy.stance.apply_attack_stance_damage(amount, damage_type)
+	enemy.flash_hit()
+	EventBus.damage_dealt.emit(_player, enemy, amount, damage_type, false, is_critical)
+	EventBus.hit_landed.emit(is_critical, false, not enemy.health.is_alive())
 
 func _play_fire_animation(weapon: Weapon) -> void:
 	var rig := _player.arm_rig

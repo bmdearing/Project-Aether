@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="RangedStanceBehavior" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/stance/RangedStanceBehavior.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+stance_type = 11
+weapon_type = "Bolt Action Rifle"
+move_speed_multiplier = 0.0
+roots = true
+pierce = 1

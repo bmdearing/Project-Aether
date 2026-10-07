@@ -60,8 +60,6 @@ enum MeleeStanceType {
 @export var melee_damage_blocked: float = 0.0
 ## Share of all incoming damage negated (Mace Fortify).
 @export var damage_reduction: float = 0.0
-## No walking, dashing or jumping while held.
-@export var roots: bool = false
 ## Frontal barrier pool as a share of max life (Spear Phalanx).
 @export var barrier_fraction: float = 0.0
 @export var barrier_half_angle: float = 70.0

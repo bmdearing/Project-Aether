@@ -3,12 +3,11 @@ class_name StanceBehavior
 ## Per-weapon-type stance tuning (Implementation Brief v3.3 Section 4).
 ## WeaponStance.gd resolves one of these by the active weapon's own
 ## weapon_type when stance is entered - null (no matching instance) falls
-## back to WeaponStance's own hardcoded defaults, so the system works with
-## weapon types that don't have a hand-authored StanceBehavior yet. Only
-## `data/stance/instances/rapier_stance.tres` exists so far - per the
-## brief, other weapon types are deliberately left unmapped for now.
+## back to WeaponStance's own hardcoded defaults.
 
 @export var weapon_type: String = ""
 @export var move_speed_multiplier: float = 0.75
 @export var parry_window_multiplier: float = 1.0  # >1.0 = wider window
 @export var stance_animation: String = ""          # animation name on ArmRig - left blank, no animation system exists yet (see PlayerArmRig.gd)
+## No walking, dashing or jumping while held (StanceDefense.is_rooted()).
+@export var roots: bool = false

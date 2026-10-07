@@ -104,6 +104,11 @@ and Whip have their Stance A built; all tuning lives on the behavior
 resources' "Charged attack" fields. Stances without one keep the instant
 special.
 
+**Ranged aim stances** (v4.29): one `RangedStanceBehavior` per ranged
+weapon type (`data/stance/instances/ranged_*.tres`, Patch v3.4 table),
+applied by `PlayerRangedAttack` while RMB aims. Shortbow and Longbow have a
+second page.
+
 **Instant stances** (v4.28): Water Slices, Sweep, Armor Pierce, Hooking
 Strike, Entangle, Repulse, Slice and Dice and Stealth fire on the LMB press
 in stance (`StanceAttack.try_instant()`), tuned by the behavior's

@@ -35,13 +35,20 @@ func _refresh() -> void:
 		visible = false
 		return
 	var weapon := _player.get_active_weapon()
-	if weapon == null or weapon.is_ranged:
+	if weapon == null:
 		visible = false
 		return
-	visible = true
 	if _player.shield_block and _player.shield_block.overrides_stance():
+		visible = true
 		_label.text = "RMB - Raise Shield"
 		return
+	if weapon.is_ranged:
+		var dual := StanceInfo.RANGED_B.has(weapon.weapon_type)
+		var aim := StanceInfo.for_weapon(weapon, int(_player.weapon_stance.active_page) if dual else 0)
+		visible = not aim.is_empty()
+		_label.text = "Aim - %s" % aim.get("name", "")
+		return
+	visible = true
 	var page := int(_player.weapon_stance.active_page)
 	var info := StanceInfo.for_weapon(weapon, page)
 	_label.text = "Stance %s - %s" % ["A" if page == 0 else "B", info.get("name", weapon.weapon_type)]

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="RangedStanceBehavior" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/stance/RangedStanceBehavior.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+stance_type = 1
+weapon_type = "Revolver"
+move_speed_multiplier = 0.6
+dump_magazine = true
+shot_interval = 0.09
+spread_add_degrees = 5.0
+damage_multiplier = 0.9

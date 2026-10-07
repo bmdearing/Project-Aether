@@ -41,8 +41,8 @@ func _behavior() -> MeleeStanceBehavior:
 	return _player.weapon_stance.current_behavior as MeleeStanceBehavior
 
 func is_rooted() -> bool:
-	var b := _behavior()
-	return b != null and b.roots
+	return _player.weapon_stance.is_active and _player.weapon_stance.current_behavior != null \
+		and _player.weapon_stance.current_behavior.roots
 
 func get_move_speed_multiplier() -> float:
 	return 0.0 if is_rooted() else 1.0

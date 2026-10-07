@@ -185,6 +185,8 @@ const STATUS_EFFECT_NAME := {
 	"bleed": "Bleeding",
 	"armor_shred": "Armor Shred",
 	"entangle": "Entangled",
+	"suppressed": "Suppressed",
+	"marked": "Marked",
 }
 
 # Patch v3.8: directional metadata only now - Weapon._base_hit()/Ability.

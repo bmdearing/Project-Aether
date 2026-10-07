@@ -26,6 +26,10 @@ const BLEED_DURATION := 4.0
 const ARMOR_SHRED_PER_STACK := 0.15
 const ARMOR_SHRED_MAX_STACKS := 5
 const ARMOR_SHRED_DURATION := 6.0
+## Machine Pistol Suppression: -8% move speed per stack, up to 5, 3 s.
+const SUPPRESSED_SLOW_PER_STACK := 0.08
+const SUPPRESSED_MAX_STACKS := 5
+const SUPPRESSED_DURATION := 3.0
 const BLEED_TICK_INTERVAL := 0.5
 const BLEED_DAMAGE_PERCENT := 0.6
 const IGNITE_TICK_INTERVAL := 0.5
@@ -95,6 +99,7 @@ var _bleed_ticker: float = 0.0
 var _bleed_tick_damage: float = 0.0
 var _bleed_source: Node
 var _armor_shred_stacks: int = 0
+var _suppressed_stacks: int = 0
 ## Patch v4.0 Faster Ailment Tick Rate - per-application, since the
 ## caster's tick-rate bonus can change between one Ignite application and
 ## the next (unlike IGNITE_TICK_INTERVAL, which was always a fixed constant).
@@ -174,6 +179,10 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 			_armor_shred_stacks = mini(_armor_shred_stacks + 1, ARMOR_SHRED_MAX_STACKS)
 			_timers["armor_shred"] = ARMOR_SHRED_DURATION
 			_emit_applied("armor_shred", _armor_shred_stacks)
+		"suppressed":
+			_suppressed_stacks = mini(_suppressed_stacks + 1, SUPPRESSED_MAX_STACKS)
+			_timers["suppressed"] = SUPPRESSED_DURATION
+			_emit_applied("suppressed", _suppressed_stacks)
 		"guard_break":
 			_timers["guard_break"] = ShieldBlock.GUARD_BREAK_STUN
 			_emit_applied("guard_break")
@@ -222,6 +231,8 @@ func get_move_speed_multiplier() -> float:
 		multiplier *= 1.0 - CHILL_MOVE_SLOW_PERCENT
 	if has_effect("slow"):
 		multiplier *= 1.0 - SLOW_MOVE_SLOW_PERCENT
+	if has_effect("suppressed"):
+		multiplier *= 1.0 - SUPPRESSED_SLOW_PER_STACK * _suppressed_stacks
 	return multiplier
 
 func get_action_speed_multiplier() -> float:
@@ -335,6 +346,8 @@ func _expire(effect_id: String) -> void:
 	_timers.erase(effect_id)
 	if effect_id == "armor_shred":
 		_armor_shred_stacks = 0
+	elif effect_id == "suppressed":
+		_suppressed_stacks = 0
 	if effect_id == "freeze":
 		_chill_stacks = 0
 	elif effect_id == "scorch":

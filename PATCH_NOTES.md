@@ -7,6 +7,31 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.29: Ranged aim stances (user request)
+
+Every ranged stance in Patch v3.4's table, applied while RMB aims, on top of the existing aim bonus (1.4x damage, half spread). Numbers are on each `RangedStanceBehavior` (new "Aim stance" group); `PlayerRangedAttack` applies them.
+
+- **Stance data replaced:** the 27 generated per-line files (`gen_ranged_*.tres`) gave each line a stance round-robin, so e.g. Service Pistol line 1 was Kiting Shot. Removed with their generator (`tools/generate_ranged_stances.gd`); there is now one file per weapon type, matching the doc (`ranged_<type>.tres`), plus `Shortbow_b`/`Longbow_b`. Shortbow and Longbow exist now (the generator predated them) and get both of their doc stances; Hold X switches as for melee.
+- **Service Pistol - Steady Aim:** a quarter of the aimed spread and double crit chance for the shot.
+- **Revolver - Fan the Hammer:** one press empties the cylinder, a shot every 0.09 s with 5 degrees of spread, then the reload starts.
+- **Machine Pistol - Suppression:** each hit adds a stack of **Suppressed** (-8% move speed per stack, up to 5, 3 s).
+- **Submachine Gun - Full Auto Burst:** 1.4x fire rate; 4 hits on one enemy within 1 s interrupt and stagger it.
+- **Loaded Shotgun - Point Blank:** up to 1.8x damage at 2 m, falling to 1x at 10 m.
+- **Pump Action Shotgun - Brace:** plants your feet (rooted). The first shot in stance hits every enemy in a cone of twice the hip-fire spread (32 degrees each side, 12 m) for the full shot's damage. "Negates self-knockback" has nothing to act on - no shot pushes the player.
+- **Shortbow A - Rapid Fire:** an arrow every 0.15 s, skipping the draw, at 0.5x each. **Shortbow B - Kiting Shot:** full speed while moving away from where you aim.
+- **Longbow A - Snipe:** 2.5x and pierces every enemy in line. **Longbow B - Rain of Arrows:** 0.7 s after release, three volleys fall on a 3.5 m circle where you aim, 0.6x each.
+- **Lever Action Rifle - Marksman:** damage builds to 2x over 1.5 s of aiming; firing resets it.
+- **Bolt Action Rifle - Breath Control:** rooted; the shot passes through one enemy. "Removes damage falloff" has nothing to act on - there's no falloff.
+- **Machine Gun - Dig In:** rooted, 2.5x fire rate, under a third of the spread (no recoil system exists, so spread stands in).
+- **Battle Rifle - Tracer Round:** a hit marks the enemy (**Marked**, 4 s) if nothing is marked; your shots deal +35% to it.
+- Crossbow isn't in the doc's table, so it aims without a stance mechanic.
+- Projectiles gained `pierce`, `damage_modifier`, `on_hit` and `cosmetic`. `roots` moved to `StanceBehavior` so ranged stances can root you.
+- The HUD readout now shows ranged aim stances ("Aim - Snipe"), and the Behaviors tab lets you pick the bows' stance.
+- Numbers not in the doc are placeholders; the doc gives only Tracer Round's 4 s.
+- `tests/combat/test_ranged_stances` (31 checks) fires every stance through real input.
+
+---
+
 ## 2026-10-07 — v4.28: Remaining melee stances, batch 3 (user request)
 
 Every melee stance in Patch v3.4's table now has its mechanic, except Pressure Fist Stance B (not designed). These fire on the LMB press in stance (`StanceAttack.try_instant()`); numbers are on each `MeleeStanceBehavior` (new "Instant stance" group).

@@ -1,9 +1,0 @@
-[gd_resource type="Resource" script_class="RangedStanceBehavior" load_steps=2 format=3]
-
-[ext_resource type="Script" path="res://data/stance/RangedStanceBehavior.gd" id="1_l7p08"]
-
-[resource]
-script = ExtResource("1_l7p08")
-stance_type = 4
-weapon_type = "bolt_action_rifle_line2"
-move_speed_multiplier = 0.6

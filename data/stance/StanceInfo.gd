@@ -1,7 +1,8 @@
 class_name StanceInfo
 ## Player-facing stance names and descriptions, from Patch v3.4's melee and
 ## ranged stance tables. Keyed by Weapon.weapon_type; melee entries are
-## [Stance A, Stance B]. Shown on the inventory's Behaviors tab and the HUD.
+## [Stance A, Stance B]; ranged entries are the aim stance (RANGED_B for the
+## bows' second page). Shown on the inventory's Behaviors tab and the HUD.
 
 const MELEE := {
 	"Rapier": [
@@ -65,11 +66,19 @@ const RANGED := {
 	"Battle Rifle": {"name": "Tracer Round", "desc": "The first shot marks the target. Further shots deal increased damage to it for 4 s."},
 }
 
+## The bows' second aim stance (Hold X switches, as for melee).
+const RANGED_B := {
+	"Shortbow": {"name": "Kiting Shot", "desc": "No movement penalty while moving away from where you aim."},
+	"Longbow": {"name": "Rain of Arrows", "desc": "Fires in a high arc; volleys rain down on the spot you aim at."},
+}
+
 ## {name, desc} for the weapon's stance on `page` (0 = A, 1 = B), or {} if none is designed.
 static func for_weapon(weapon: Weapon, page: int) -> Dictionary:
 	if weapon == null:
 		return {}
 	if weapon.is_ranged:
+		if page == 1 and RANGED_B.has(weapon.weapon_type):
+			return RANGED_B[weapon.weapon_type]
 		return RANGED.get(weapon.weapon_type, {})
 	var pages: Array = MELEE.get(weapon.weapon_type, [])
 	return pages[page] if page < pages.size() else {}
