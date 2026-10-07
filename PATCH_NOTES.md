@@ -7,6 +7,14 @@ there. Most recent first.
 
 ---
 
+## 2026-10-06 — v4.18: Tornado VFX (user request)
+
+The Tornado was one translucent cone, upside down (wide at the ground). Now: two lathed funnel shells (`tornado_funnel.gdshader`) narrow at the base and flaring up, with spiralling wind streaks and a serpentine sway that grows with height; rocks and dust carried round by a spinning node (local-coord particles) spiralling up and outward; a churning dust ring at the base left behind as it moves; a dark scoured patch underneath; fade in and out. Gameplay (seek, ticks, limit) unchanged.
+
+Gotcha: in the Compatibility renderer, billboard particle materials drew dead particles as a full-size black disc at the emitter; `billboard_keep_scale = true` fixes it.
+
+---
+
 ## 2026-10-06 — v4.17: Storm title background, Hub nebula sky (user request)
 
 - Title background rebuilt (`MainMenuBackground.gd` + `menu_*` shaders): storm sky with warped clouds, silver-lined edges and a haloed moon (beams toned down on request); layered ridges with moonlit rims and mist; a lake with a glittering moon path and rain ripples; a Dalaran spire on a crag; two rain layers; forked lightning bolts synced to the thunder that light the clouds, lake and ridges; slow camera drift.
