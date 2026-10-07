@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.21: Scorch, item tags, selling (user request)
+
+- **Scorch** status effect: +6% Fire damage taken per stack, up to 5 stacks (30%), 4 s, each application refreshes all stacks. Ignite ticks are Fire, so Scorch amplifies them too. Applied by Flame Jets (every tick of contact, per the Master doc), Flame Wall (every tick standing in it, per Patch v3.1) and Cinder Lance. Patch v3.2 had removed Scorch as a universal status; it is back on request.
+- **"Helmet" mislabel:** Figments, Skill Tomes, ammo and crafting currency are `Item`s that never set `equip_slot`, and slot 0 is HELMET - so they were labelled Helmet, took the helmet footprint (2x2) and could be routed to the helmet slot. New `Item.is_equipment()`; non-gear items are now typed `currency` / `figment` / `skill_tome` (1x1), labelled Currency / Figment - Tier N / Skill Tome, and `EquipmentComponent.equip()` refuses them.
+- **Selling:** the Gear Shop lists everything in your carried inventory under "Sell from your inventory" - 5 / 12 / 30 / 75 / 150 Gold by rarity (Common to Mythic).
+- `tests/items` (22 checks); Scorch checks added to `tests/spells` (46).
+
+---
+
 ## 2026-10-07 — v4.20: Spell pass, part 2 (user request)
 
 Covers the spells the v4.19 pass only smoke-tested.

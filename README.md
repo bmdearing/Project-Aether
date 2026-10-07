@@ -468,8 +468,9 @@ a flat 1.0 since no stat drives it anymore. Stunned
 targets have their `EnemyMeleeAttack`/`EnemyRangedAttack` state machine
 paused (Enemy side) or lose jump/parry/attack input (Player side). Active
 effects show as a colored chip row top-left on `PlayerHUD` and as small
-floating dots above an Enemy's head. Bleed/Armor Shred/Stagger-Stun and
-Scorch/Aetherburn/Pallid aren't modeled yet — see gaps below.
+floating dots above an Enemy's head. **Scorch** (v4.21): +6% Fire damage
+taken per stack, max 5, 4s - from Flame Jets, Flame Wall and Cinder Lance.
+Bleed/Armor Shred/Stagger-Stun and Aetherburn/Pallid aren't modeled yet — see gaps below.
 
 **Equipment & Items** (`data/items/`, `data/armor/`, `data/shields/`,
 `data/weapons/`, `systems/equipment/EquipmentComponent.gd`): Section 13
