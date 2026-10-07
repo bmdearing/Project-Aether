@@ -183,6 +183,8 @@ const STATUS_EFFECT_NAME := {
 	"scorch": "Scorched",
 	"guard_break": "Guard Broken",
 	"bleed": "Bleeding",
+	"armor_shred": "Armor Shred",
+	"entangle": "Entangled",
 }
 
 # Patch v3.8: directional metadata only now - Weapon._base_hit()/Ability.

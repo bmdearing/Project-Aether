@@ -104,6 +104,12 @@ and Whip have their Stance A built; all tuning lives on the behavior
 resources' "Charged attack" fields. Stances without one keep the instant
 special.
 
+**Instant stances** (v4.28): Water Slices, Sweep, Armor Pierce, Hooking
+Strike, Entangle, Repulse, Slice and Dice and Stealth fire on the LMB press
+in stance (`StanceAttack.try_instant()`), tuned by the behavior's
+"Instant stance" fields. Stealth also scales enemy detection
+(`Enemy._detection_range()`).
+
 **Held stances** (`systems/combat/StanceDefense.gd`, v4.27): Guard,
 Fortify, Phalanx and Brace apply while RMB holds the stance, from the
 behavior's "Held stance" fields. The parry stances use

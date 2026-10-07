@@ -1,20 +1,9 @@
 extends StanceBehavior
 class_name MeleeStanceBehavior
-## Implementation Brief v3.4 Section 6 (2026-08-31). stance_type tags
-## which named stance a .tres represents; per the brief, only Rapier
-## (already real since v3.3 - move_speed_multiplier/parry_window_
-## multiplier), and Cutlass's WATER_SLICES (see PlayerMeleeAttack's own
-## Gain-As implementation) have real behavioral logic. Every other type
-## here is data + enum tag only, stubbed for a later pass - "the system
-## already supports these, just add the data files."
-##
-## Dagger's STEALTH (page B) is explicitly allowed to have real logic per
-## the brief's own wording, but the brief gives no formula/mechanic for
-## it (unlike Water Slices, which comes with exact code) - a real
-## "stealth" effect would mean touching Enemy's chase/aggro detection,
-## which doesn't have a hook for a per-player detection-radius modifier
-## today. Left as data-only rather than inventing an ungrounded mechanic -
-## flagged in README, not silently skipped.
+## A melee weapon's stance page (Patch v3.4 melee stance table). stance_type
+## picks the mechanic; the export groups below hold its numbers - see
+## StanceAttack (charged and instant attacks) and StanceDefense (held
+## stances). Pressure Fist's Stance B is not designed yet.
 
 enum MeleeStanceType {
 	CHARGED_THRUST,
@@ -79,3 +68,25 @@ enum MeleeStanceType {
 ## Halberd Brace: enemies closing to this range in front get struck.
 @export var brace_range: float = 0.0
 @export var brace_motion_value: float = 1.2
+
+## Instant stances: LMB fires straight away (see StanceAttack.try_instant()).
+## motion_value_min, reach_min, half_angle and radius above apply here too.
+@export_group("Instant stance")
+## Slice and Dice: hits in the flurry, and the last hit's multiplier when it completes.
+@export var hits: int = 1
+@export var finisher_multiplier: float = 1.0
+## Push (Sweep, Repulse) in m/s.
+@export var knockback: float = 0.0
+## Entangle's root (s).
+@export var status_duration: float = 0.0
+## Water Slices projectile.
+@export var projectile_speed: float = 0.0
+@export var projectile_pierce: int = 1
+@export var gain_as_cold: float = 0.0
+## Armor Pierce: Armor Shred stacks per hit.
+@export var armor_shred_stacks: int = 0
+## Stealth: enemy detection range multiplier while hidden, the speed above
+## which you're seen, and the first attack's damage multiplier.
+@export var stealth_detection_multiplier: float = 1.0
+@export var stealth_max_speed: float = 0.0
+@export var stealth_damage_multiplier: float = 1.0

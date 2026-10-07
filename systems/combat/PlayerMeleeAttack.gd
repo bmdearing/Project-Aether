@@ -412,9 +412,13 @@ func _windup_time() -> float:
 	return _effective_duration(windup_duration, MIN_WINDUP)
 
 func _strike_time() -> float:
+	if _stance_release.has("strike"):
+		return _stance_release["strike"]
 	return _effective_duration(strike_duration, MIN_STRIKE)
 
 func _recovery_time() -> float:
+	if _stance_release.has("recovery"):
+		return _stance_release["recovery"]
 	return _effective_duration(recovery_duration, MIN_RECOVERY) * _stance_release.get("recovery_mult", 1.0)
 
 func _effective_swing_intensity() -> float:
@@ -621,7 +625,7 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	if is_counter:
 		final_damage *= COUNTER_DAMAGE_MULTIPLIER
 
-	if not target.take_damage(final_damage, damage_type, false, true):
+	if not target.take_damage(final_damage, damage_type, false, true, false, _stance_release.get("ignore_armor", false)):
 		return  # dodged - no stance damage, riders, or hit feedback
 	if target.stance:
 		target.stance.apply_attack_stance_damage(final_damage, damage_type)
@@ -630,7 +634,6 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	EventBus.hit_landed.emit(is_critical, is_critical_spot, not target.health.is_alive())
 	if is_counter:
 		EventBus.counter_hit.emit(_player, target)
-	_apply_water_slices(weapon, target, final_damage)
 	if _stance_release.has("on_hit"):
 		(_stance_release["on_hit"] as Callable).call(target, final_damage)
 
@@ -640,35 +643,12 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 
 func _react_to_hit(target: Enemy, scale: float) -> void:
 	target.flash_hit()
+	if _stance_release.has("no_push"):
+		return
 	var push := target.global_position - _player.global_position
 	push.y = 0.0
 	if push.length() > 0.01:
 		target.apply_knockback(push.normalized() * KNOCKBACK_PER_WEIGHT * _swing_weight() * scale)
-
-## Implementation Brief v3.4 Section 6's one fully-specified stance
-## behavior (exact formula given, unlike every other stance in this
-## file): Cutlass's WATER_SLICES page ("Gain As" - 40% of the hit's own
-## damage dealt AGAIN as a separate Cold instance, original damage
-## unchanged). Only while that stance page is actually active (RMB held,
-## i.e. only ever during a charged thrust - jab/thrust can't coexist with
-## stance being active, see Player._handle_attack_input()). The brief's
-## own pseudocode says "Esoteric" in a comment but emits DamageType.COLD
-## in the actual code - went with COLD (the code, and the thematically
-## obvious read for "Water Slices" - water/ice fits Cold, not Esoteric).
-## EventBus.damage_applied (the brief's own signal name) doesn't exist in
-## this project - reused the existing damage_dealt signal instead, same
-## as every other damage instance already announces itself.
-const WATER_SLICES_COLD_BONUS_PERCENT := 0.40
-
-func _apply_water_slices(weapon: Weapon, target: Enemy, original_damage: float) -> void:
-	if weapon.weapon_type != "Cutlass" or not _player.weapon_stance.is_active:
-		return
-	var behavior := _player.weapon_stance.current_behavior
-	if not (behavior is MeleeStanceBehavior) or behavior.stance_type != MeleeStanceBehavior.MeleeStanceType.WATER_SLICES:
-		return
-	var cold_bonus := original_damage * WATER_SLICES_COLD_BONUS_PERCENT
-	target.take_damage(cold_bonus, Constants.DamageType.COLD)
-	EventBus.damage_dealt.emit(_player, target, cold_bonus, Constants.DamageType.COLD, false, false)
 
 ## True if target's own melee or ranged attack component is mid-swing
 ## (Windup/Telegraph through Strike) - "mid attack animation" per the

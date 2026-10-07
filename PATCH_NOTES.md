@@ -7,6 +7,24 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.28: Remaining melee stances, batch 3 (user request)
+
+Every melee stance in Patch v3.4's table now has its mechanic, except Pressure Fist Stance B (not designed). These fire on the LMB press in stance (`StanceAttack.try_instant()`); numbers are on each `MeleeStanceBehavior` (new "Instant stance" group).
+
+- **Cutlass A - Water Slices:** the swing throws a water slash that flies 12 m at chest height, piercing up to 3 enemies and stopping at walls. Each hit deals 40% of its damage again as Cold (Gain As, doc). Replaces the old version, which added the Cold to a normal melee hit.
+- **Halberd A - Sweep:** a 270 degree arc (everything but the 90 degrees behind you), 3.4 m, full damage to up to 8 enemies, 1.3x, extra knockback.
+- **War Pick A - Armor Pierce:** 1.4x and ignores Armor entirely; each hit adds a stack of the new **Armor Shred** (-15% Armor per stack, up to 5, 6 s).
+- **War Pick B - Hooking Strike:** a 4.5 m hook that drags the target to just in front of you and interrupts its attack.
+- **Whip B - Entangle:** roots the first enemy in line within 6.5 m for 2 s (doc). No damage; it can still attack. A green ring marks it.
+- **Shock Lance B - Repulse:** pushes every enemy within 4 m away and Electrocutes them. No damage (doc doesn't give any).
+- **Dagger A - Slice and Dice:** one press is a 5-hit flurry at 0.45x each; if it completes, the last hit is 2.5x. Leaving stance mid-flurry ends it without the finisher.
+- **Dagger B - Stealth:** while the stance is held and you move no faster than 3.5 m/s (the stance itself slows you to 55%), enemies only notice you at 35% of their normal range. Your first attack from stealth is 2.5x; it then needs the stance re-entered. The HUD stance readout shows "(hidden)". Already-alerted enemies keep chasing.
+- Enemies now take an `ignore_armor` flag and read `get_armor_multiplier()` from their status effects; Entangle sets their move speed to 0.
+- Numbers not in the doc are placeholders: every damage multiplier, range and count above except Water Slices' 40% and Entangle's 2 s.
+- `tests/combat/test_stances` now 68 checks, covering every stance in this batch. The "no special stance" fallback check moved from Dagger to Saber.
+
+---
+
 ## 2026-10-07 — v4.27: Held defensive stances, batch 2 (user request)
 
 The Patch v3.4 stances that work for as long as RMB is held. All values are on the weapon's `MeleeStanceBehavior` (new "Held stance" group); `StanceDefense.gd` applies them.

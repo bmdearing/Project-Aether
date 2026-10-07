@@ -9,3 +9,6 @@ move_speed_multiplier = 0.75
 parry_window_multiplier = 1.0
 stance_animation = ""
 stance_type = 9
+motion_value_min = 0.8
+reach_min = 4.5
+half_angle = 15.0

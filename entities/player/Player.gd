@@ -787,7 +787,7 @@ func _handle_attack_input(delta: float) -> void:
 		elif weapon_stance.is_active:
 			if stance_attack.begin_charge():
 				_lmb_owned_by_stance = true
-			else:
+			elif not stance_attack.try_instant():
 				melee_attack.try_charged_thrust()
 	# Full-auto weapons fire every frame the button is held (they ignore
 	# try_attack() above); every other fire mode returns immediately.

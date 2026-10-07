@@ -43,6 +43,14 @@ func _run() -> void:
 	await _test_phalanx()
 	await _test_brace()
 	await _test_parry_stances()
+	await _test_water_slices()
+	await _test_sweep()
+	await _test_armor_pierce()
+	await _test_hook()
+	await _test_entangle()
+	await _test_repulse()
+	await _test_slice_and_dice()
+	await _test_stealth()
 	print("stance tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -225,12 +233,12 @@ func _test_cancel_and_fallback() -> void:
 	Input.action_release("attack")
 	await _seconds(0.8)
 	_check(_lost(target) == 0.0 and _player.melee_attack.is_idle(), "a cancelled charge doesn't attack or jab")
-	await _reset("Dagger")
+	await _reset("Saber")
 	Input.action_press("stance")
 	await _frames(2)
 	Input.action_press("attack")
 	await _frames(2)
-	_check(not _player.melee_attack.is_idle(), "stances without a charged attack keep the instant special")
+	_check(not _player.melee_attack.is_idle(), "weapons with no stance resource keep the generic special")
 	Input.action_release("attack")
 
 ## Damage the player takes from one hit, from full health.
@@ -329,4 +337,163 @@ func _test_parry_stances() -> void:
 	await _enter_page_b("Cutlass")
 	parry.start_parry_window()
 	_check(parry._parry_timer > base * 1.5, "cutlass Parry Ready widens it too")
+	await _leave_stance()
+
+var _damage_log: Array = []  # [target, amount, type]
+
+func _log_damage(_source, target, amount: float, damage_type, _is_spell, _crit) -> void:
+	_damage_log.append([target, amount, damage_type])
+
+func _hits_on(target: Enemy) -> Array:
+	return _damage_log.filter(func(e): return e[0] == target)
+
+## Enter stance on `page` and tap LMB once.
+func _tap_stance(page: WeaponStance.StancePage, settle: float = 0.6) -> void:
+	_player.weapon_stance.set_stance_page(page)
+	Input.action_press("stance")
+	await _frames(2)
+	Input.action_press("attack")
+	await _frames(2)
+	Input.action_release("attack")
+	await _seconds(settle)
+
+func _test_water_slices() -> void:
+	await _reset("Cutlass")
+	var near := _dummy(START + _forward() * 3.0)
+	var far := _dummy(START + _forward() * 9.0 + _player.global_transform.basis.x * 0.4)
+	var off := _dummy(START + _forward() * 6.0 + _player.global_transform.basis.x * 4.0)
+	await _frames(3)
+	if not EventBus.damage_dealt.is_connected(_log_damage):
+		EventBus.damage_dealt.connect(_log_damage)
+	_damage_log.clear()
+	await _tap_stance(WeaponStance.StancePage.A, 1.2)
+	_check(_lost(near) > 0.0 and _lost(far) > 0.0, "water slice pierces along its path to 9 m")
+	_check(_lost(off) == 0.0, "water slice stays on its line")
+	var cold := _hits_on(far).filter(func(e): return e[2] == Constants.DamageType.COLD)
+	_check(cold.size() == 1, "each slash hit adds a Cold hit (Gain As)")
+	await _leave_stance()
+
+func _test_sweep() -> void:
+	await _reset("Halberd")
+	var right := _player.global_transform.basis.x
+	var front := _dummy(START + _forward() * 2.5)
+	var left := _dummy(START - right * 2.5)
+	var side := _dummy(START + right * 2.5)
+	var behind := _dummy(START - _forward() * 2.5)
+	await _frames(3)
+	var side_start := side.global_position
+	await _tap_stance(WeaponStance.StancePage.A, 1.0)
+	_check(_lost(front) > 0.0 and _lost(left) > 0.0 and _lost(side) > 0.0, "sweep hits front and both sides")
+	_check(_lost(behind) == 0.0, "sweep leaves the 90 degrees behind you")
+	_check((side.global_position - side_start).length() > 1.0, "sweep knocks enemies back")
+	await _leave_stance()
+
+func _test_armor_pierce() -> void:
+	await _reset("War Pick")
+	var target := _dummy(START + _forward() * 2.0)
+	target.armor_value = 3000.0
+	await _frames(3)
+	await _tap_stance(WeaponStance.StancePage.A, 1.0)
+	_check(_lost(target) > 50.0, "armor pierce ignores 3000 Armor (%.0f)" % _lost(target))
+	_check(target.status_effects.has_effect("armor_shred"), "armor pierce applies Armor Shred")
+	_check(target.status_effects.get_armor_multiplier() < 1.0, "shred lowers the target's Armor")
+	await _leave_stance()
+
+func _test_hook() -> void:
+	await _reset("War Pick")
+	var target := _dummy(START + _forward() * 4.2)
+	await _frames(3)
+	var melee: EnemyMeleeAttack = target.get_node("MeleeAttack")
+	melee._state = EnemyMeleeAttack.State.TELEGRAPH
+	melee._timer = 5.0
+	await _tap_stance(WeaponStance.StancePage.B, 1.2)
+	var distance := (target.global_position - _player.global_position).length()
+	_check(_lost(target) > 0.0, "hooking strike hits at 4 m")
+	_check(distance < 2.4, "hooking strike pulls the target in (%.2f m)" % distance)
+	_check(melee._state == EnemyMeleeAttack.State.RECOVERY, "hooking strike interrupts")
+	await _leave_stance()
+
+func _test_entangle() -> void:
+	await _reset("Whip")
+	var target := _dummy(START + _forward() * 6.0)
+	target.move_speed = 4.0
+	await _frames(3)
+	await _tap_stance(WeaponStance.StancePage.B, 0.4)
+	var held_at := target.global_position
+	_check(target.status_effects.has_effect("entangle"), "entangle roots the target")
+	_check(_lost(target) == 0.0, "entangle deals no damage")
+	await _seconds(1.0)
+	_check((target.global_position - held_at).length() < 0.05, "an entangled enemy can't move")
+	await _seconds(1.2)
+	_check((target.global_position - held_at).length() > 0.5, "it moves again after 2 s")
+	await _leave_stance()
+
+func _test_repulse() -> void:
+	await _reset("Shock Lance")
+	var a := _dummy(START + _forward() * 2.0)
+	var b := _dummy(START + _player.global_transform.basis.x * 2.0)
+	var far := _dummy(START - _forward() * 8.0)
+	await _frames(3)
+	await _tap_stance(WeaponStance.StancePage.B, 0.8)
+	_check((a.global_position - START).length() > 3.5 and (b.global_position - START).length() > 3.5, "repulse pushes everything nearby away")
+	_check(a.status_effects.has_effect("electrocute"), "repulse Electrocutes")
+	_check(not far.status_effects.has_effect("electrocute"), "repulse has a limited radius")
+	await _leave_stance()
+
+func _test_slice_and_dice() -> void:
+	await _reset("Dagger")
+	var target := _dummy(START + _forward() * 1.8)
+	await _frames(3)
+	_damage_log.clear()
+	await _tap_stance(WeaponStance.StancePage.A, 1.5)
+	var hits := _hits_on(target)
+	_check(hits.size() == 5, "slice and dice lands a 5-hit flurry (%d)" % hits.size())
+	if hits.size() == 5:
+		_check(hits[4][1] > hits[0][1] * 1.5, "a completed flurry ends with a finisher")
+	await _leave_stance()
+	await _reset("Dagger")
+	target = _dummy(START + _forward() * 1.8)
+	await _frames(3)
+	_damage_log.clear()
+	Input.action_press("stance")
+	await _frames(2)
+	Input.action_press("attack")
+	await _frames(2)
+	Input.action_release("attack")
+	await _seconds(0.15)
+	Input.action_release("stance")
+	await _seconds(0.8)
+	_check(_hits_on(target).size() < 5, "leaving stance cuts the flurry short")
+
+func _test_stealth() -> void:
+	await _reset("Dagger")
+	_player.weapon_stance.set_stance_page(WeaponStance.StancePage.B)
+	Input.action_press("stance")
+	await _frames(2)
+	var watcher := _dummy(START + _forward() * 9.0)
+	watcher.move_speed = 4.0
+	await _frames(3)
+	var start := watcher.global_position
+	await _seconds(1.0)
+	_check(_player.stance_attack.is_stealthed(), "standing still in Stealth hides you")
+	_check((watcher.global_position - start).length() < 0.05, "a hidden player isn't noticed at 9 m")
+	Input.action_release("stance")
+	await _seconds(1.0)
+	_check((watcher.global_position - start).length() > 1.0, "leaving stealth gets you noticed")
+	await _reset("Dagger")
+	var target := _dummy(START + _forward() * 2.0)
+	if target.stance:
+		target.stance.max_stance = 1.0e9  # no Composure break, so the second stab isn't a Riposte
+		target.stance.reset()
+	await _frames(3)
+	await _tap_stance(WeaponStance.StancePage.B, 1.5)
+	var from_stealth := _lost(target)
+	target.global_position = START + _forward() * 2.0
+	await _frames(2)
+	Input.action_press("attack")
+	await _frames(2)
+	Input.action_release("attack")
+	await _seconds(1.5)
+	var after := _lost(target) - from_stealth
+	_check(after > 0.0 and from_stealth > after * 1.6, "the first attack from stealth hits much harder (%.0f vs %.0f)" % [from_stealth, after])
 	await _leave_stance()

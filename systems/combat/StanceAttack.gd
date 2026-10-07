@@ -1,10 +1,11 @@
 extends Node
 class_name StanceAttack
-## Charge-and-release stance attacks (Patch v3.4 melee stance table). In
-## stance, holding LMB charges the active page's MeleeStanceBehavior (its
-## charge_time > 0); releasing fires it, scaled by charge. Releasing RMB or
-## being stunned cancels. What each stance does on release is keyed by its
-## stance_type; every number lives on the behavior resource.
+## Stance attacks (Patch v3.4 melee stance table). In stance, LMB on a
+## stance with charge_time > 0 charges, and releasing fires it scaled by
+## charge (releasing RMB or being stunned cancels); any other stance fires
+## on the press (try_instant()). What each does is keyed by its
+## stance_type; every number lives on the MeleeStanceBehavior resource.
+## Also owns Dagger's Stealth state, which enemies read for detection.
 
 signal charge_changed(progress: float, full: bool)  # progress: held time / charge_time
 signal charge_ended
@@ -16,6 +17,13 @@ const SHOCKWAVE_SPEED := 22.0
 const BLAST_KNOCKBACK := 11.0
 const BLAST_LIFT := 5.0
 const FULL_CHARGE_KICK := Vector3(0.012, 0.0, 0.0)
+const SLASH_HEIGHT := 1.2
+const HOOK_STOP_DISTANCE := 1.4      # where a hooked enemy ends up
+const REPULSE_LIFT := 2.0
+const FLURRY_WINDUP := 0.05
+const FLURRY_STRIKE := 0.07
+const FLURRY_RECOVERY := 0.05
+const ENTANGLE_COLOR := Color(0.45, 0.75, 0.3, 0.7)
 
 ## Arm pose held while charging and swung on release.
 const POSES := {
@@ -33,9 +41,29 @@ var _behavior: MeleeStanceBehavior
 var _held: float = 0.0
 var _was_full: bool = false
 var _player: Player
+var _flurry_left: int = 0
+var _flurry_behavior: MeleeStanceBehavior
+## Stealth's bonus is spent by the first attack; re-entering stance restores it.
+var _stealth_spent: bool = false
 
 func _ready() -> void:
 	_player = get_parent()
+
+func _active_behavior() -> MeleeStanceBehavior:
+	return _player.weapon_stance.current_behavior as MeleeStanceBehavior if _player.weapon_stance.is_active else null
+
+## Dagger Stealth: stance held, bonus unspent, moving no faster than stealth_max_speed.
+func is_stealthed() -> bool:
+	var b := _active_behavior()
+	if b == null or b.stance_type != MeleeStanceBehavior.MeleeStanceType.STEALTH or _stealth_spent:
+		return false
+	return Vector2(_player.velocity.x, _player.velocity.z).length() <= b.stealth_max_speed
+
+func get_detection_multiplier() -> float:
+	return _active_behavior().stealth_detection_multiplier if is_stealthed() else 1.0
+
+func is_flurrying() -> bool:
+	return _flurry_left > 0
 
 ## Starts charging if the active stance has a charged attack. False means
 ## the caller should fall back to the instant special.
@@ -79,6 +107,10 @@ func cancel() -> void:
 	charge_ended.emit()
 
 func _physics_process(delta: float) -> void:
+	if not _player.weapon_stance.is_active:
+		_stealth_spent = false
+	if _flurry_left > 0:
+		_continue_flurry()
 	if not is_charging:
 		return
 	if not _player.weapon_stance.is_active or _player.status_effects.is_stunned() or _player.shield_block.is_raised:
@@ -204,17 +236,196 @@ func _on_crack_hit(enemy: Enemy, damage: float) -> void:
 		enemy.status_effects.apply_effect("bleed", _player, damage)
 	enemy.interrupt_attack()
 
+## Stances that fire on the LMB press. False: no instant attack here, so
+## the caller falls back to the generic special.
+func try_instant() -> bool:
+	var b := _active_behavior()
+	if b == null or b.charge_time > 0.0:
+		return false
+	if not _player.melee_attack.is_idle() or _flurry_left > 0:
+		return true  # swallow the press; a swing is still finishing
+	var params := {
+		"intensity": _player.melee_attack.get_special_intensity(),
+		"motion_mult": b.motion_value_min,
+	}
+	match b.stance_type:
+		MeleeStanceBehavior.MeleeStanceType.WATER_SLICES:
+			params["pose"] = PlayerArmRig.PoseSet.SWEEP_RIGHT
+			params["no_step"] = true
+			params["on_contact"] = _water_slice.bind(b)
+		MeleeStanceBehavior.MeleeStanceType.SWEEP:
+			params["pose"] = PlayerArmRig.PoseSet.BIG_SWEEP
+			params["shape"] = {"reach": b.reach_min, "half_angle": b.half_angle, "splash": 1.0, "max_targets": 8}
+			params["on_hit"] = _push_away.bind(b.knockback)
+		MeleeStanceBehavior.MeleeStanceType.ARMOR_PIERCE:
+			params["pose"] = PlayerArmRig.PoseSet.CLEAVE
+			params["ignore_armor"] = true
+			params["on_hit"] = _shred.bind(b.armor_shred_stacks)
+		MeleeStanceBehavior.MeleeStanceType.HOOKING_STRIKE:
+			params["pose"] = PlayerArmRig.PoseSet.SWEEP_LEFT
+			params["shape"] = {"reach": b.reach_min, "half_angle": b.half_angle, "splash": 0.0, "max_targets": 1}
+			params["no_push"] = true
+			params["no_step"] = true
+			params["on_hit"] = _hook
+		MeleeStanceBehavior.MeleeStanceType.ENTANGLE:
+			params["pose"] = PlayerArmRig.PoseSet.CLEAVE
+			params["on_contact"] = _entangle.bind(b)
+		MeleeStanceBehavior.MeleeStanceType.REPULSE:
+			params["pose"] = PlayerArmRig.PoseSet.JAB
+			params["no_step"] = true
+			params["on_contact"] = _repulse.bind(b)
+		MeleeStanceBehavior.MeleeStanceType.SLICE_AND_DICE:
+			_flurry_behavior = b
+			_flurry_left = maxi(b.hits, 1)
+			_continue_flurry()
+			return true
+		MeleeStanceBehavior.MeleeStanceType.STEALTH:
+			params["pose"] = PlayerArmRig.PoseSet.DASH_THRUST
+			params["shape"] = {"reach": b.reach_min, "half_angle": b.half_angle, "splash": 0.0, "max_targets": 1}
+			if is_stealthed():
+				params["motion_mult"] = b.motion_value_min * b.stealth_damage_multiplier
+			_stealth_spent = true
+		_:
+			return false
+	_player.melee_attack.release_stance_attack(params)
+	return true
+
+## Slice and Dice: one quick hit per call while the flurry lasts; the last
+## hit of a completed flurry gets finisher_multiplier. Leaving stance or
+## being stunned ends it early, finisher lost.
+func _continue_flurry() -> void:
+	if not _player.weapon_stance.is_active or _player.status_effects.is_stunned():
+		_flurry_left = 0
+		return
+	if not _player.melee_attack.is_idle():
+		return
+	var b := _flurry_behavior
+	var last := _flurry_left == 1
+	var params := {
+		"pose": PlayerArmRig.PoseSet.DASH_THRUST if _flurry_left % 2 == 0 else PlayerArmRig.PoseSet.CLEAVE,
+		"intensity": _player.melee_attack.get_special_intensity() * (1.2 if last else 0.8),
+		"motion_mult": b.motion_value_min * (b.finisher_multiplier if last else 1.0),
+		"windup": FLURRY_WINDUP * (2.0 if last else 1.0),
+		"strike": FLURRY_STRIKE,
+		"recovery": FLURRY_RECOVERY * (4.0 if last else 1.0),
+		"no_step": not last,
+	}
+	_flurry_left -= 1
+	_player.melee_attack.release_stance_attack(params)
+
+## Cutlass Water Slices: the swing throws a slash that pierces a few enemies.
+func _water_slice(b: MeleeStanceBehavior) -> void:
+	var weapon := _player.get_active_weapon()
+	var melee := _player.melee_attack
+	var motion: float = melee._effective_motion_value(weapon) * melee._attack_type_motion_multiplier()
+	var slash := StanceSlash.new()
+	get_tree().current_scene.add_child(slash)
+	var forward := -_player.camera.global_transform.basis.z
+	slash.global_position = _player.global_position + Vector3.UP * SLASH_HEIGHT + forward * 0.6
+	slash.launch(forward, b.reach_min, b.radius, b.projectile_speed, b.projectile_pierce, _on_slash_hit.bind(weapon, motion, b.gain_as_cold))
+
+func _on_slash_hit(enemy: Enemy, weapon: Weapon, motion: float, cold_share: float) -> void:
+	if not is_instance_valid(_player):
+		return
+	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	var damage: float = weapon.roll_damage(motion, _player.stat_sheet)["final_damage"]
+	if _hit(enemy, damage, damage_type) and cold_share > 0.0:
+		_hit(enemy, damage * cold_share, Constants.DamageType.COLD)
+
+## Halberd Sweep: extra shove on top of the normal hit reaction.
+func _push_away(enemy: Enemy, _damage: float, force: float) -> void:
+	var push := enemy.global_position - _player.global_position
+	push.y = 0.0
+	if push.length() > 0.01:
+		enemy.apply_knockback(push.normalized() * force)
+
+func _shred(enemy: Enemy, _damage: float, stacks: int) -> void:
+	if enemy.status_effects:
+		for i in stacks:
+			enemy.status_effects.apply_effect("armor_shred", _player)
+
+## War Pick Hooking Strike: drags the target to just in front of you.
+func _hook(enemy: Enemy, _damage: float) -> void:
+	var pull := _player.global_position - enemy.global_position
+	pull.y = 0.0
+	var distance := pull.length() - HOOK_STOP_DISTANCE
+	if distance > 0.0:
+		enemy.apply_knockback(pull.normalized() * sqrt(2.0 * Enemy.KNOCKBACK_FRICTION * distance))
+	enemy.interrupt_attack()
+
+## Whip Entangle: roots the first enemy in line. No damage.
+func _entangle(b: MeleeStanceBehavior) -> void:
+	var target := _first_in_line(b.reach_min, b.half_angle)
+	if target == null or target.status_effects == null:
+		return
+	target.status_effects.apply_timed_effect("entangle", b.status_duration)
+	target.flash_hit()
+	var ring := _vine_ring()
+	target.add_child(ring)
+	get_tree().create_timer(b.status_duration, false).timeout.connect(ring.queue_free)
+
+## Shock Lance Repulse: shoves everything nearby away and Electrocutes it.
+func _repulse(b: MeleeStanceBehavior) -> void:
+	_ring(_player.global_position, b.radius, Color(0.6, 0.8, 1.0))
+	_kick(Vector3(-0.02, 0.0, 0.02))
+	for enemy in _player.melee_attack.enemies_in_radius(_player.global_position, b.radius):
+		var push := enemy.global_position - _player.global_position
+		push.y = 0.0
+		var direction := push.normalized() if push.length() > 0.01 else _forward()
+		enemy.apply_knockback(direction * b.knockback + Vector3.UP * REPULSE_LIFT)
+		if enemy.status_effects:
+			enemy.status_effects.apply_effect("electrocute", _player)
+		enemy.flash_hit()
+
+func _first_in_line(reach: float, half_angle: float) -> Enemy:
+	var origin := _player.camera.global_position
+	var forward := _forward()
+	var best: Enemy = null
+	var best_distance := INF
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy == null or not enemy.health.is_alive():
+			continue
+		var to_enemy := enemy.global_position - _player.global_position
+		to_enemy.y = 0.0
+		var distance := to_enemy.length()
+		if distance - 0.5 > reach or distance >= best_distance:
+			continue
+		if distance > 0.5 and rad_to_deg(forward.angle_to(to_enemy / distance)) > half_angle + rad_to_deg(atan2(0.5, distance)):
+			continue
+		if not _player.melee_attack._has_line_of_sight(origin, enemy.global_position + Vector3.UP, enemy):
+			continue
+		best = enemy
+		best_distance = distance
+	return best
+
+func _vine_ring() -> MeshInstance3D:
+	var ring := MeshInstance3D.new()
+	var torus := TorusMesh.new()
+	torus.inner_radius = 0.45
+	torus.outer_radius = 0.6
+	ring.mesh = torus
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = ENTANGLE_COLOR
+	ring.material_override = mat
+	ring.position = Vector3(0.0, 0.3, 0.0)
+	ring.scale = Vector3(1.0, 2.5, 1.0)
+	return ring
+
 ## A hit outside the swing (aftershock, shockwave): no crit, no riposte.
-func _hit(enemy: Enemy, damage: float, damage_type: Constants.DamageType) -> void:
+func _hit(enemy: Enemy, damage: float, damage_type: Constants.DamageType) -> bool:
 	if not is_instance_valid(enemy) or not enemy.health.is_alive():
-		return
+		return false
 	if not enemy.take_damage(damage, damage_type, false, true):
-		return
+		return false
 	if enemy.stance:
 		enemy.stance.apply_attack_stance_damage(damage, damage_type)
 	enemy.flash_hit()
 	EventBus.damage_dealt.emit(_player, enemy, damage, damage_type, false, false)
 	EventBus.hit_landed.emit(false, false, not enemy.health.is_alive())
+	return true
 
 func _ring(center: Vector3, radius: float, color: Color) -> void:
 	var ring := IMPACT_RING_SCENE.instantiate()

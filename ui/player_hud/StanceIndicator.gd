@@ -45,3 +45,5 @@ func _refresh() -> void:
 	var page := int(_player.weapon_stance.active_page)
 	var info := StanceInfo.for_weapon(weapon, page)
 	_label.text = "Stance %s - %s" % ["A" if page == 0 else "B", info.get("name", weapon.weapon_type)]
+	if _player.stance_attack and _player.stance_attack.is_stealthed():
+		_label.text += " (hidden)"

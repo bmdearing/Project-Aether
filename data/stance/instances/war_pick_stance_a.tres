@@ -9,3 +9,5 @@ move_speed_multiplier = 0.75
 parry_window_multiplier = 1.0
 stance_animation = ""
 stance_type = 10
+motion_value_min = 1.4
+armor_shred_stacks = 1

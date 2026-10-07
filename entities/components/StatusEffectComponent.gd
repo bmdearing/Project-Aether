@@ -21,6 +21,11 @@ const IGNITE_DURATION := 4.0
 ## Bleed (Whip's Crack): Physical DoT, no Armor (Patch v3.2: "Bleed is the
 ## exception - no resistance applies"). 60% of the hit over 4 s is a placeholder.
 const BLEED_DURATION := 4.0
+## War Pick Armor Pierce: each stack strips 15% of Armor, up to 5, for 6 s
+## (refreshed by every stack). Placeholder numbers; the doc only says "stacking".
+const ARMOR_SHRED_PER_STACK := 0.15
+const ARMOR_SHRED_MAX_STACKS := 5
+const ARMOR_SHRED_DURATION := 6.0
 const BLEED_TICK_INTERVAL := 0.5
 const BLEED_DAMAGE_PERCENT := 0.6
 const IGNITE_TICK_INTERVAL := 0.5
@@ -89,6 +94,7 @@ var _ignite_source: Node
 var _bleed_ticker: float = 0.0
 var _bleed_tick_damage: float = 0.0
 var _bleed_source: Node
+var _armor_shred_stacks: int = 0
 ## Patch v4.0 Faster Ailment Tick Rate - per-application, since the
 ## caster's tick-rate bonus can change between one Ignite application and
 ## the next (unlike IGNITE_TICK_INTERVAL, which was always a fixed constant).
@@ -164,6 +170,10 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 			_bleed_ticker = BLEED_TICK_INTERVAL
 			_timers["bleed"] = BLEED_DURATION
 			_emit_applied("bleed")
+		"armor_shred":
+			_armor_shred_stacks = mini(_armor_shred_stacks + 1, ARMOR_SHRED_MAX_STACKS)
+			_timers["armor_shred"] = ARMOR_SHRED_DURATION
+			_emit_applied("armor_shred", _armor_shred_stacks)
 		"guard_break":
 			_timers["guard_break"] = ShieldBlock.GUARD_BREAK_STUN
 			_emit_applied("guard_break")
@@ -171,6 +181,14 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 			_scorch_stacks = mini(_scorch_stacks + 1, SCORCH_MAX_STACKS)
 			_timers["scorch"] = SCORCH_DURATION * _debuff_effectiveness_multiplier(source)
 			_emit_applied("scorch", _scorch_stacks)
+
+## Fixed-length effects with no other logic (Whip's Entangle root).
+func apply_timed_effect(effect_id: String, duration: float) -> void:
+	_timers[effect_id] = maxf(_timers.get(effect_id, 0.0), duration)
+	_emit_applied(effect_id)
+
+func get_armor_multiplier() -> float:
+	return 1.0 - ARMOR_SHRED_PER_STACK * _armor_shred_stacks if has_effect("armor_shred") else 1.0
 
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
@@ -197,7 +215,7 @@ func is_stunned() -> bool:
 	return has_effect("electrocute") or has_effect("freeze") or has_effect("guard_break")
 
 func get_move_speed_multiplier() -> float:
-	if is_stunned():
+	if is_stunned() or has_effect("entangle"):
 		return 0.0
 	var multiplier := 1.0
 	if has_effect("chill"):
@@ -315,6 +333,8 @@ func _debuff_effectiveness_multiplier(_source: Node) -> float:
 
 func _expire(effect_id: String) -> void:
 	_timers.erase(effect_id)
+	if effect_id == "armor_shred":
+		_armor_shred_stacks = 0
 	if effect_id == "freeze":
 		_chill_stacks = 0
 	elif effect_id == "scorch":

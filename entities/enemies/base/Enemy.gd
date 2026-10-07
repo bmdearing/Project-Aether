@@ -400,6 +400,10 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	_update_model(delta)
 
+## Shrinks while the player hides in Dagger's Stealth stance.
+func _detection_range() -> float:
+	return chase_range * _player.stance_attack.get_detection_multiplier() if _player.stance_attack else chase_range
+
 func _update_chase() -> void:
 	if not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Player
@@ -427,13 +431,13 @@ func _update_chase() -> void:
 		_last_combat_msec = Time.get_ticks_msec()
 		return
 
-	if dist <= chase_range:
+	if dist <= _detection_range():
 		_last_combat_msec = Time.get_ticks_msec()
 
 	# A hit from outside chase_range (landed or dodged - take_damage() marks
 	# combat before its dodge roll) still pulls the enemy in, for the same
 	# grace window the health bar uses.
-	if (dist > chase_range and not is_in_combat()) or dist < 0.001:
+	if (dist > _detection_range() and not is_in_combat()) or dist < 0.001:
 		velocity.x = 0.0
 		velocity.z = 0.0
 		return
@@ -736,7 +740,8 @@ func is_critical_spot_hit(attacking_area: Area3D) -> bool:
 ## Returns false if the hit was dodged (caller should skip its on-hit
 ## follow-ups), true otherwise - including a hit fully absorbed by Ward.
 ## is_dot: a damage-over-time tick - no floating damage number.
-func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false, is_dot: bool = false) -> bool:
+## ignore_armor: War Pick's Armor Pierce.
+func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false, is_dot: bool = false, ignore_armor: bool = false) -> bool:
 	_last_combat_msec = Time.get_ticks_msec()
 	var show_number := not is_dot and health.is_alive()
 	if can_evade and not is_spell and evasion_value > 0.0:
@@ -749,8 +754,9 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		status_multiplier *= status_effects.get_shock_multiplier()
 	var mitigated := amount * multiplier * status_multiplier
 	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
-	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0 and not is_dot:
-		mitigated *= (1.0 - armor_value / (armor_value + 1000.0))
+	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0 and not is_dot and not ignore_armor:
+		var armor := armor_value * (status_effects.get_armor_multiplier() if status_effects else 1.0)
+		mitigated *= (1.0 - armor / (armor + 1000.0))
 	if status_effects and (category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC):
 		var shred := status_effects.get_resistance_shred()
 		if shred > 0.0:
