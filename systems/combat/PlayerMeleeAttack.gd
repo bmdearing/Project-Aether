@@ -363,6 +363,16 @@ func enemies_in_radius(center: Vector3, radius: float) -> Array[Enemy]:
 			found.append(enemy)
 	return found
 
+## One hit outside any swing (Halberd Brace), with its own motion value and type.
+func deal_stance_damage(target: Enemy, motion_mult: float, damage_type: Constants.DamageType) -> void:
+	var saved_release := _stance_release
+	var saved_type := _attack_type
+	_stance_release = {"motion_mult": motion_mult, "damage_type": damage_type}
+	_attack_type = AttackType.CHARGED
+	_deal_damage(target, 1.0, true)
+	_stance_release = saved_release
+	_attack_type = saved_type
+
 ## Deals the current swing's damage to each target; the first is primary.
 func hit_targets(targets: Array[Enemy]) -> void:
 	for i in targets.size():

@@ -130,7 +130,7 @@ func _resolve_hit(player: Player) -> void:
 		EventBus.enemy_attack_resolved.emit(_enemy, player, false, false)
 		return
 	if not parried:
-		player.take_damage(damage_amount * _enemy.get_outgoing_damage_multiplier(), damage_type, _enemy)
+		player.take_damage(damage_amount * _enemy.get_outgoing_damage_multiplier(), damage_type, _enemy, Player.HitKind.ATTACK, true)
 		# Frost Armor: "Enemies that strike in melee range trigger a
 		# Retaliation Damage burst of Cold damage" - a parried hit never
 		# actually lands, so no retaliation there (matches the doc's own

@@ -38,6 +38,11 @@ func _run() -> void:
 	await _test_pressure_blast()
 	await _test_whip()
 	await _test_cancel_and_fallback()
+	await _test_guard()
+	await _test_fortify()
+	await _test_phalanx()
+	await _test_brace()
+	await _test_parry_stances()
 	print("stance tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -227,3 +232,101 @@ func _test_cancel_and_fallback() -> void:
 	await _frames(2)
 	_check(not _player.melee_attack.is_idle(), "stances without a charged attack keep the instant special")
 	Input.action_release("attack")
+
+## Damage the player takes from one hit, from full health.
+func _hit_player(amount: float, source: Node, hit_kind: Player.HitKind = Player.HitKind.ATTACK, is_melee: bool = false) -> float:
+	_player.health.current_health = _player.health.max_health
+	_player.take_damage(amount, Constants.DamageType.FIRE, source, hit_kind, is_melee)
+	return _player.health.max_health - _player.health.current_health
+
+func _enter_page_b(weapon_type: String) -> void:
+	await _reset(weapon_type)
+	_player.weapon_stance.set_stance_page(WeaponStance.StancePage.B)
+	Input.action_press("stance")
+	await _frames(3)
+
+func _leave_stance() -> void:
+	Input.action_release("stance")
+	await _frames(2)
+	_player.weapon_stance.set_stance_page(WeaponStance.StancePage.A)
+
+func _test_guard() -> void:
+	await _enter_page_b("Greatsword")
+	var enemy := _dummy(START + Vector3(0, 0, -2))
+	_check(_player.stat_sheet.get_total_evasion(_player.equipment) == 0.0, "test player has no evasion")
+	var guarded := _hit_player(50.0, enemy, Player.HitKind.ATTACK, true)
+	var ranged := _hit_player(50.0, enemy, Player.HitKind.ATTACK, false)
+	await _leave_stance()
+	var open := _hit_player(50.0, enemy, Player.HitKind.ATTACK, true)
+	_check(absf(guarded - open * 0.2) < 0.5, "guard blocks 80%% of a melee hit (%.1f vs %.1f)" % [guarded, open])
+	_check(is_equal_approx(ranged, open), "guard doesn't touch non-melee hits")
+
+func _test_fortify() -> void:
+	await _enter_page_b("Mace")
+	var enemy := _dummy(START + Vector3(0, 0, -3))
+	var fortified := _hit_player(50.0, enemy, Player.HitKind.SPELL)
+	Input.action_press("move_forward")
+	Input.action_press("sprint")
+	await _seconds(0.4)
+	var moved := _travel()
+	Input.action_release("sprint")
+	Input.action_release("move_forward")
+	await _leave_stance()
+	var open := _hit_player(50.0, enemy, Player.HitKind.SPELL)
+	_check(absf(fortified - open * 0.6) < 0.5, "fortify cuts all damage by 40%% (%.1f vs %.1f)" % [fortified, open])
+	_check(absf(moved) < 0.02, "fortify roots you, dash included (%.2f m)" % moved)
+
+func _test_phalanx() -> void:
+	await _reset("Spear")
+	var front := _dummy(START + Vector3(0, 0, -3))
+	var behind := _dummy(START + Vector3(0, 0, 3))
+	await _seconds(0.2)
+	var defense := _player.stance_defense
+	_player.weapon_stance.set_stance_page(WeaponStance.StancePage.B)
+	defense.barrier = defense.get_max_barrier()
+	Input.action_press("stance")
+	await _frames(3)
+	var pool := defense.barrier
+	_check(pool > 0.0, "phalanx has a barrier (%.0f)" % pool)
+	_check(_hit_player(20.0, front) == 0.0, "barrier soaks a frontal hit")
+	_check(defense.barrier < pool, "soaking drains the barrier")
+	_check(_hit_player(20.0, behind) > 0.0, "hits from behind get past the barrier")
+	var past := _hit_player(pool * 3.0, front)
+	_check(past > 0.0 and defense.barrier == 0.0, "an empty barrier lets the rest through")
+	await _leave_stance()
+	await _seconds(BARRIER_WAIT)
+	_check(is_equal_approx(defense.barrier, defense.get_max_barrier()), "barrier refills out of stance")
+
+const BARRIER_WAIT := StanceDefense.BARRIER_REGEN_DELAY + StanceDefense.BARRIER_REGEN_TIME + 0.3
+
+func _test_brace() -> void:
+	await _enter_page_b("Halberd")
+	var charger := _dummy(START + Vector3(0, 0, -8))
+	var flank := _dummy(START + Vector3(0, 0, 8))
+	await _frames(3)
+	var composure_before: float = charger.stance.current_stance if charger.stance else 0.0
+	charger.global_position = START + Vector3(0, 0, -2)
+	flank.global_position = START + Vector3(0, 0, 2)
+	await _frames(3)
+	var first := _lost(charger)
+	_check(first > 0.0, "brace strikes an enemy that closes in front")
+	_check(_lost(flank) == 0.0, "brace ignores enemies behind")
+	if charger.stance:
+		_check(charger.stance.current_stance < composure_before, "brace staggers")
+	await _frames(10)
+	_check(is_equal_approx(_lost(charger), first), "one strike per approach, not every frame")
+	await _leave_stance()
+
+func _test_parry_stances() -> void:
+	var parry := _player.parry_handler
+	await _reset("Rapier")
+	parry.start_parry_window()
+	var base: float = parry._parry_timer
+	await _enter_page_b("Rapier")
+	parry.start_parry_window()
+	_check(parry._parry_timer > base * 2.0, "rapier Ready Parry widens the parry window (%.2fs vs %.2fs)" % [parry._parry_timer, base])
+	await _leave_stance()
+	await _enter_page_b("Cutlass")
+	parry.start_parry_window()
+	_check(parry._parry_timer > base * 1.5, "cutlass Parry Ready widens it too")
+	await _leave_stance()

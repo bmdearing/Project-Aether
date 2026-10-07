@@ -9,3 +9,4 @@ move_speed_multiplier = 0.7
 parry_window_multiplier = 1.3
 stance_animation = ""
 stance_type = 14
+barrier_fraction = 0.4

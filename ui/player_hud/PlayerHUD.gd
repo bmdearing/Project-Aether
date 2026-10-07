@@ -147,6 +147,7 @@ func _ready() -> void:
 	_build_stance_indicator()
 	add_child(ComposureBar.new())
 	add_child(StanceChargeBar.new())
+	add_child(BarrierBar.new())
 	_build_throwable_indicator()
 	_build_enemy_counter()
 	EventBus.enemy_count_changed.connect(_on_enemy_count_changed)

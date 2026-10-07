@@ -64,3 +64,18 @@ enum MeleeStanceType {
 @export var stance_damage_multiplier: float = 1.0
 ## Recovery length multiplier at full charge.
 @export var recovery_multiplier_max: float = 1.0
+
+## Held stances: passive effects for as long as RMB is held (see StanceDefense).
+@export_group("Held stance")
+## Share of each incoming melee hit negated (Greatsword Guard).
+@export var melee_damage_blocked: float = 0.0
+## Share of all incoming damage negated (Mace Fortify).
+@export var damage_reduction: float = 0.0
+## No walking, dashing or jumping while held.
+@export var roots: bool = false
+## Frontal barrier pool as a share of max life (Spear Phalanx).
+@export var barrier_fraction: float = 0.0
+@export var barrier_half_angle: float = 70.0
+## Halberd Brace: enemies closing to this range in front get struck.
+@export var brace_range: float = 0.0
+@export var brace_motion_value: float = 1.2

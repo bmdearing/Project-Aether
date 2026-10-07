@@ -104,6 +104,11 @@ and Whip have their Stance A built; all tuning lives on the behavior
 resources' "Charged attack" fields. Stances without one keep the instant
 special.
 
+**Held stances** (`systems/combat/StanceDefense.gd`, v4.27): Guard,
+Fortify, Phalanx and Brace apply while RMB holds the stance, from the
+behavior's "Held stance" fields. The parry stances use
+`parry_window_multiplier` in `ParryRiposteHandler`.
+
 **Weapon stance** (`systems/combat/WeaponStance.gd`, hold Right Mouse,
 2026-08-30 user request): preps a per-weapon special. Melee holds a
 dedicated `PoseSet.GUARD` - small, mostly rest-adjacent, always played at

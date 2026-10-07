@@ -47,6 +47,7 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var weapon_stance: WeaponStance = $WeaponStance
 var shield_block: ShieldBlock
 var stance_attack: StanceAttack
+var stance_defense: StanceDefense
 ## An LMB press that started a stance charge; its release must not also jab.
 var _lmb_owned_by_stance: bool = false
 @onready var cast_time_handler: CastTimeHandler = $CastTimeHandler
@@ -200,6 +201,9 @@ func _ready() -> void:
 	stance_attack = StanceAttack.new()
 	stance_attack.name = "StanceAttack"
 	add_child(stance_attack)
+	stance_defense = StanceDefense.new()
+	stance_defense.name = "StanceDefense"
+	add_child(stance_defense)
 	GameState.player_stat_sheet = stat_sheet
 	GameState.fate_board = fate_board
 	GameState.player_equipment = equipment
@@ -535,10 +539,14 @@ enum HitKind { ATTACK, SPELL, DOT }
 ## mitigation (Armor for Physical, Resistance for Elemental/Esoteric) applies,
 ## then Ward absorbs whatever's left regardless of type (the old Esoteric-
 ## only restriction is gone), then Ward overflow hits Health.
-func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null, hit_kind: HitKind = HitKind.ATTACK) -> void:
+## is_melee: an enemy weapon swing (EnemyMeleeAttack), for Guard.
+func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null, hit_kind: HitKind = HitKind.ATTACK, is_melee: bool = false) -> void:
 	if parry_handler and parry_handler.is_invulnerable:
 		return
 	if hit_kind != HitKind.DOT and shield_block.try_block(amount, source):
+		return
+	amount = stance_defense.absorb(amount, source, hit_kind, is_melee)
+	if amount <= 0.0:
 		return
 	# Patch v4.4 Evasion: Dodge (attacks only) negates the hit entirely and
 	# never interrupts a cast; Deflection (attacks and spells) reduces it.
@@ -644,7 +652,8 @@ func _physics_process(delta: float) -> void:
 	var stunned := status_effects.is_stunned()
 	_coyote_timer = COYOTE_TIME if is_on_floor() else maxf(_coyote_timer - delta, 0.0)
 	_jump_buffer_timer = JUMP_BUFFER_TIME if Input.is_action_just_pressed("jump") else maxf(_jump_buffer_timer - delta, 0.0)
-	if _jump_buffer_timer > 0.0 and _coyote_timer > 0.0 and not stunned:
+	var rooted := stance_defense.is_rooted() or (stance_attack.is_charging and stance_attack.get_move_speed_multiplier() <= 0.0)
+	if _jump_buffer_timer > 0.0 and _coyote_timer > 0.0 and not stunned and not rooted:
 		velocity.y = jump_velocity
 		_jump_buffer_timer = 0.0
 		_coyote_timer = 0.0
@@ -660,11 +669,11 @@ func _physics_process(delta: float) -> void:
 	# just_pressed fires once on the initial keydown regardless of how long
 	# Shift stays held afterward - a tap dashes, continuing to hold still
 	# sprints normally on top of it (see the const block's own comment).
-	if Input.is_action_just_pressed("sprint") and not stunned and not _is_dashing and not _is_sliding \
+	if Input.is_action_just_pressed("sprint") and not stunned and not rooted and not _is_dashing and not _is_sliding \
 			and _dash_cooldown_remaining <= 0.0 and move_dir.length() > 0.1:
 		_start_dash(move_dir)
 
-	if Input.is_action_just_pressed("crouch") and is_on_floor() and not _is_sliding and not _is_dashing and sprinting and move_dir.length() > 0.1:
+	if Input.is_action_just_pressed("crouch") and is_on_floor() and not rooted and not _is_sliding and not _is_dashing and sprinting and move_dir.length() > 0.1:
 		_start_slide(move_dir)
 
 	if _lunge_timer > 0.0:
@@ -794,7 +803,7 @@ func _effective_speed(base: float) -> float:
 	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier() \
 		* melee_attack.get_move_speed_multiplier() * ability_cast.get_move_speed_multiplier() \
 		* weapon_stance.get_move_speed_multiplier() * shield_block.get_move_speed_multiplier() \
-		* stance_attack.get_move_speed_multiplier()
+		* stance_attack.get_move_speed_multiplier() * stance_defense.get_move_speed_multiplier()
 
 ## Gear attack_speed + Agility's +1%/point, one increased% bracket.
 func get_action_speed_multiplier() -> float:

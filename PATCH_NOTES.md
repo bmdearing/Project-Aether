@@ -7,6 +7,20 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.27: Held defensive stances, batch 2 (user request)
+
+The Patch v3.4 stances that work for as long as RMB is held. All values are on the weapon's `MeleeStanceBehavior` (new "Held stance" group); `StanceDefense.gd` applies them.
+
+- **Greatsword B - Guard:** negates 80% of every incoming melee hit (doc), from any direction. Projectiles and spells are untouched. Enemy melee hits now say they're melee (`Player.take_damage(..., is_melee)`).
+- **Mace B - Fortify:** roots you - no walking, dashing, sliding or jumping - and cuts all incoming damage by 40% (doc says "significant"; 40% is a placeholder). A ring on the ground shows it.
+- **Spear B - Phalanx:** a barrier in front of you (70 degrees either side) soaks hits until its pool - 40% of max life - is empty; overflow and anything from the sides or behind gets through. Refills over 4 s after 3 s out of the stance. A faint wall low in your view while it holds; a bar under the crosshair shows the pool.
+- **Halberd B - Brace:** roots you. An enemy that comes within 2.6 m in front, or starts an attack while there, is struck for 1.2x Piercing damage, interrupted and staggered (25 Composure). Once per enemy per 1.5 s.
+- **Rapier B - Ready Parry / Cutlass B - Parry Ready:** already worked through the parry window multiplier; Rapier's raised from 2.0x to 2.5x ("significantly wider"). Cutlass stays 1.6x.
+- `tests/combat/test_stances` now 42 checks: Guard's 80% on melee only, Fortify's reduction and root (dash included), Phalanx front/back, drain, overflow and refill, Brace strike, stagger and one-per-approach, and both parry windows.
+- Note for later: an enemy's health component resets to full one frame after it spawns, so damage in that first frame is lost. Not hit in normal play; the tests spawn enemies out of range first.
+
+---
+
 ## 2026-10-07 — v4.26: Charged stance attacks, batch 1 (user request)
 
 Stance A for seven weapons, per Patch v3.4's melee stance table. In stance (hold RMB), **hold LMB to charge and release to fire**; letting go of RMB, getting stunned or raising a shield cancels the charge. A bar under the crosshair shows the charge (dim until a stance that needs a full charge is ready, white when full), and the HUD's stance readout now names the stance. Every number is on the weapon's `MeleeStanceBehavior` resource (new "Charged attack" group); `StanceAttack.gd` decides what each stance does on release.

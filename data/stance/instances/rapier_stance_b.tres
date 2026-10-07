@@ -6,6 +6,6 @@
 script = ExtResource("1")
 weapon_type = "Rapier_b"
 move_speed_multiplier = 0.7
-parry_window_multiplier = 2.0
+parry_window_multiplier = 2.5
 stance_animation = ""
 stance_type = 1
