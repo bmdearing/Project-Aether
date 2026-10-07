@@ -1,11 +1,8 @@
 extends CharacterBody3D
 class_name Player
 ## First-person controller. Camera lives in Head; WeaponSocket under the
-## camera holds the active weapon's visual - a real model where one
-## exists (_update_weapon_model()), the placeholder blade otherwise -
-## now mounted on ArmRig's Hand bone rather than sitting directly on
-## WeaponSocket (2026-08-30, PlayerArmRig). Melee weight (Pillar 2) reads
-## through camera shake/swing/hitstop plus the arm's own 3-bone swing.
+## camera hosts ArmRig, the viewmodel that builds and animates the held
+## weapon and off-hand item (PlayerArmRig, WeaponModelLibrary).
 
 @export var move_speed: float = 6.0
 @export var sprint_speed: float = 9.0
@@ -25,14 +22,11 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
 @onready var camera: Camera3D = $Head/Camera3D
 @onready var weapon_socket: Node3D = $Head/Camera3D/WeaponSocket
-## PlayerArmRig reparents WeaponMesh onto its Hand bone during its own
-## _ready() (child of WeaponSocket, so it runs before Player's own
-## @onready block below resolves) - these paths point at that final
-## location, not WeaponMesh's static position in Player.tscn.
+## PlayerArmRig moves WeaponMesh into its grip during its own _ready()
+## (a child, so it runs before this @onready block resolves).
 @onready var arm_rig: PlayerArmRig = $Head/Camera3D/WeaponSocket/ArmRig
-@onready var weapon_mesh: MeshInstance3D = $Head/Camera3D/WeaponSocket/ArmRig/Skeleton3D/HandAttachment/WeaponMesh
-@onready var attack_hitbox: Area3D = $Head/Camera3D/WeaponSocket/ArmRig/Skeleton3D/HandAttachment/WeaponMesh/AttackHitbox
-@onready var shield_mesh: MeshInstance3D = $Head/Camera3D/ShieldSocket/ShieldMesh
+@onready var weapon_mesh: MeshInstance3D = $Head/Camera3D/WeaponSocket/ArmRig/Sway/Main/Grip/WeaponMesh
+@onready var attack_hitbox: Area3D = $Head/Camera3D/WeaponSocket/ArmRig/Sway/Main/Grip/WeaponMesh/AttackHitbox
 @onready var health: HealthComponent = $HealthComponent
 @onready var ward: WardComponent = $WardComponent
 @onready var mana: ManaComponent = $ManaComponent
@@ -69,21 +63,6 @@ var _lmb_was_held: bool = false
 const WEAPON_SWAP_HOLD_THRESHOLD := 0.25
 var _x_held_time: float = 0.0
 var _x_triggered_hold: bool = false
-
-## Real weapon models (assets/models/pack1/, a purchased low-poly pack) -
-## keyed by Weapon.weapon_type, same string GearShop/DebugOverlay/
-## Constants.WEAPON_BASE_CRIT_CHANCE already key off. Anything not listed
-## here (e.g. "Service Pistol" - no firearm exists in this melee-focused
-## pack; "Rapier"/"Gauntlet" - no matching model in this pack either, see
-## PATCH_NOTES.md) falls back to the original placeholder blade, tinted
-## by damage type same as before.
-const WEAPON_MODEL_SCENES := {
-	"Greatsword": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Great_Sword.fbx"),
-	"Dagger": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Dagger.fbx"),
-	"Bow": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Bow.fbx"),
-	"Staff": preload("res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Studios.fbx_Wizard_Staff.fbx"),
-}
-
 var fate_board: FateBoard
 
 ## Patch v3.5 Section 3: throwables are a stackable inventory consumable,
@@ -100,8 +79,6 @@ func use_throwable() -> void:
 	EventBus.throwable_used.emit(active_throwable.throwable_type)
 
 var _last_active_weapon: Weapon = null
-var _weapon_model: Node3D
-var _placeholder_blade_mesh: Mesh
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _base_max_health: float = 0.0
 var _base_max_mana: float = 0.0
@@ -224,7 +201,6 @@ func _ready() -> void:
 	_base_mana_regen = mana.regen_per_second
 	if collision_shape.shape:
 		collision_shape.shape = collision_shape.shape.duplicate()
-	_placeholder_blade_mesh = weapon_mesh.mesh
 	equipment.equipment_changed.connect(_on_equipment_changed)
 	EventBus.slate_placed.connect(func(_id, _pos): _apply_fate_board_bonuses())
 	EventBus.slate_removed.connect(func(_id, _pos): _apply_fate_board_bonuses())
@@ -253,8 +229,8 @@ func _on_equipment_changed() -> void:
 	var primary := equipment.primary_weapon
 	stat_sheet.conduit_spell_damage_bonus = primary.get_conduit_spell_damage_bonus() if primary else 0.0
 	_apply_derived_stats()
-	_update_shield_mesh()
-	_update_active_weapon_visual()
+	if arm_rig:
+		arm_rig.set_loadout(equipment.primary_weapon, equipment.offhand)
 	var active := get_active_weapon()
 	if active != _last_active_weapon:
 		_last_active_weapon = active
@@ -461,66 +437,6 @@ func _apply_saved_ability_levels() -> void:
 		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 
-## A weapon with a real model (WEAPON_MODEL_SCENES) shows that model
-## instanced under weapon_mesh, in its own baked materials - untinted,
-## unlike the placeholder blade below, since flattening a model that
-## already has real wood/metal materials to one flat color would look
-## worse than the placeholder it's replacing. Anything unmapped (no
-## model for that weapon_type yet) falls back to exactly the old
-## tinted-box placeholder.
-func _update_weapon_model() -> void:
-	if _weapon_model:
-		_weapon_model.queue_free()
-		_weapon_model = null
-	var weapon := equipment.primary_weapon
-	var scene: PackedScene = WEAPON_MODEL_SCENES.get(weapon.weapon_type) if weapon else null
-	if scene:
-		_weapon_model = scene.instantiate()
-		weapon_mesh.add_child(_weapon_model)
-		weapon_mesh.mesh = null
-		weapon_mesh.material_override = null
-		# Scaled down and tucked toward the bottom-right, closer to camera -
-		# the pack's own FBX->Godot axis correction already leaves the
-		# blade pointing roughly forward at rest (confirmed by screenshot,
-		# not assumed), it just needed to be smaller and positioned like a
-		# held weapon instead of life-size and centered. Approximate,
-		# tuned by eye via screenshot, not exact hand-placement math.
-		_weapon_model.scale = Vector3.ONE * 0.45
-		_weapon_model.rotation_degrees = Vector3(15.0, -20.0, 10.0)
-		_weapon_model.position = Vector3(0.4, -0.4, 0.35)
-	elif weapon:
-		weapon_mesh.mesh = _placeholder_blade_mesh
-		weapon_mesh.material_override = _unshaded_material(Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE))
-
-func _update_active_weapon_visual() -> void:
-	_update_weapon_model()
-	if weapon_mesh:
-		weapon_mesh.visible = equipment.primary_weapon != null
-	# User request (2026-08-30): "Two handed weapons should clearly need
-	# two hands." primary_weapon rather than get_active_weapon() - a
-	# two-handed ranged weapon isn't a concept that exists (Service
-	# Pistol.is_two_handed is false), but reading straight off the equipped
-	# weapon's own flag rather than re-deriving "is this melee" keeps this
-	# correct if that ever changes.
-	if arm_rig:
-		var weapon := equipment.primary_weapon
-		arm_rig.set_two_handed(weapon != null and weapon.is_two_handed)
-
-func _update_shield_mesh() -> void:
-	if shield_mesh == null:
-		return
-	var offhand_item := equipment.offhand
-	if offhand_item == null:
-		shield_mesh.visible = false
-		return
-	shield_mesh.visible = true
-	shield_mesh.material_override = _unshaded_material(Constants.ITEM_RARITY_COLOR.get(offhand_item.rarity, Color.WHITE))
-
-func _unshaded_material(color: Color) -> StandardMaterial3D:
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	return mat
 
 ## Melee vs ranged attack follows the active Weapon's is_ranged, not
 ## which slot it's in - see the dispatch in _physics_process(). Ranged

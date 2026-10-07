@@ -25,15 +25,15 @@ const FLURRY_STRIKE := 0.07
 const FLURRY_RECOVERY := 0.05
 const ENTANGLE_COLOR := Color(0.45, 0.75, 0.3, 0.7)
 
-## Arm pose held while charging and swung on release.
+## Stances with a charged attack, and the viewmodel clip played on release.
 const POSES := {
-	MeleeStanceBehavior.MeleeStanceType.CHARGED_THRUST: PlayerArmRig.PoseSet.DASH_THRUST,
-	MeleeStanceBehavior.MeleeStanceType.LUNGE: PlayerArmRig.PoseSet.DASH_THRUST,
-	MeleeStanceBehavior.MeleeStanceType.EXECUTE: PlayerArmRig.PoseSet.CLEAVE,
-	MeleeStanceBehavior.MeleeStanceType.OVERHEAD_SLAM: PlayerArmRig.PoseSet.CLEAVE,
-	MeleeStanceBehavior.MeleeStanceType.DISCHARGE: PlayerArmRig.PoseSet.CLEAVE,
-	MeleeStanceBehavior.MeleeStanceType.PRESSURE_BLAST: PlayerArmRig.PoseSet.JAB,
-	MeleeStanceBehavior.MeleeStanceType.CRACK: PlayerArmRig.PoseSet.CLEAVE,
+	MeleeStanceBehavior.MeleeStanceType.CHARGED_THRUST: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.LUNGE: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.EXECUTE: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.OVERHEAD_SLAM: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.DISCHARGE: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.PRESSURE_BLAST: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.CRACK: PlayerArmRig.Attack.CHARGED,
 }
 
 var is_charging: bool = false
@@ -77,8 +77,6 @@ func begin_charge() -> bool:
 	_held = 0.0
 	_was_full = false
 	is_charging = true
-	if _player.arm_rig:
-		_player.arm_rig.enter_ready_pose(POSES[behavior.stance_type], behavior.charge_time, _player.melee_attack.get_special_intensity() * 1.2)
 	charge_changed.emit(0.0, false)
 	return true
 
@@ -102,8 +100,6 @@ func cancel() -> void:
 		return
 	is_charging = false
 	_behavior = null
-	if _player.arm_rig and _player.melee_attack.is_idle():
-		_player.arm_rig.exit_ready_pose(0.2)
 	charge_ended.emit()
 
 func _physics_process(delta: float) -> void:
@@ -133,12 +129,9 @@ func release() -> void:
 	_behavior = null
 	charge_ended.emit()
 	if behavior.require_full_charge and not full:
-		if _player.arm_rig:
-			_player.arm_rig.exit_ready_pose(0.25)
 		return
 	var params := {
-		"pose": POSES[behavior.stance_type],
-		"intensity": _player.melee_attack.get_special_intensity() * (1.0 + 0.3 * f),
+		"kind": POSES[behavior.stance_type],
 		"windup": 0.08,
 		"motion_mult": lerpf(behavior.motion_value_min, behavior.motion_value_max, f),
 		"recovery_mult": lerpf(1.0, behavior.recovery_multiplier_max, f),
@@ -244,34 +237,31 @@ func try_instant() -> bool:
 		return false
 	if not _player.melee_attack.is_idle() or _flurry_left > 0:
 		return true  # swallow the press; a swing is still finishing
-	var params := {
-		"intensity": _player.melee_attack.get_special_intensity(),
-		"motion_mult": b.motion_value_min,
-	}
+	var params := {"motion_mult": b.motion_value_min}
 	match b.stance_type:
 		MeleeStanceBehavior.MeleeStanceType.WATER_SLICES:
-			params["pose"] = PlayerArmRig.PoseSet.SWEEP_RIGHT
+			params["kind"] = PlayerArmRig.Attack.HEAVY
 			params["no_step"] = true
 			params["on_contact"] = _water_slice.bind(b)
 		MeleeStanceBehavior.MeleeStanceType.SWEEP:
-			params["pose"] = PlayerArmRig.PoseSet.BIG_SWEEP
+			params["kind"] = PlayerArmRig.Attack.CHARGED
 			params["shape"] = {"reach": b.reach_min, "half_angle": b.half_angle, "splash": 1.0, "max_targets": 8}
 			params["on_hit"] = _push_away.bind(b.knockback)
 		MeleeStanceBehavior.MeleeStanceType.ARMOR_PIERCE:
-			params["pose"] = PlayerArmRig.PoseSet.CLEAVE
+			params["kind"] = PlayerArmRig.Attack.HEAVY
 			params["ignore_armor"] = true
 			params["on_hit"] = _shred.bind(b.armor_shred_stacks)
 		MeleeStanceBehavior.MeleeStanceType.HOOKING_STRIKE:
-			params["pose"] = PlayerArmRig.PoseSet.SWEEP_LEFT
+			params["kind"] = PlayerArmRig.Attack.LIGHT
 			params["shape"] = {"reach": b.reach_min, "half_angle": b.half_angle, "splash": 0.0, "max_targets": 1}
 			params["no_push"] = true
 			params["no_step"] = true
 			params["on_hit"] = _hook
 		MeleeStanceBehavior.MeleeStanceType.ENTANGLE:
-			params["pose"] = PlayerArmRig.PoseSet.CLEAVE
+			params["kind"] = PlayerArmRig.Attack.HEAVY
 			params["on_contact"] = _entangle.bind(b)
 		MeleeStanceBehavior.MeleeStanceType.REPULSE:
-			params["pose"] = PlayerArmRig.PoseSet.JAB
+			params["kind"] = PlayerArmRig.Attack.LIGHT
 			params["no_step"] = true
 			params["on_contact"] = _repulse.bind(b)
 		MeleeStanceBehavior.MeleeStanceType.SLICE_AND_DICE:
@@ -280,7 +270,7 @@ func try_instant() -> bool:
 			_continue_flurry()
 			return true
 		MeleeStanceBehavior.MeleeStanceType.STEALTH:
-			params["pose"] = PlayerArmRig.PoseSet.DASH_THRUST
+			params["kind"] = PlayerArmRig.Attack.CHARGED
 			params["shape"] = {"reach": b.reach_min, "half_angle": b.half_angle, "splash": 0.0, "max_targets": 1}
 			if is_stealthed():
 				params["motion_mult"] = b.motion_value_min * b.stealth_damage_multiplier
@@ -302,8 +292,7 @@ func _continue_flurry() -> void:
 	var b := _flurry_behavior
 	var last := _flurry_left == 1
 	var params := {
-		"pose": PlayerArmRig.PoseSet.DASH_THRUST if _flurry_left % 2 == 0 else PlayerArmRig.PoseSet.CLEAVE,
-		"intensity": _player.melee_attack.get_special_intensity() * (1.2 if last else 0.8),
+		"kind": PlayerArmRig.Attack.CHARGED if last else PlayerArmRig.Attack.LIGHT,
 		"motion_mult": b.motion_value_min * (b.finisher_multiplier if last else 1.0),
 		"windup": FLURRY_WINDUP * (2.0 if last else 1.0),
 		"strike": FLURRY_STRIKE,

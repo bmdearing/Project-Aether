@@ -139,7 +139,7 @@ func try_stance_attack() -> bool:
 		"battlemage":
 			if source.weapon_type == "Spell Gauntlet" and _player.melee_attack.is_idle():
 				_player.melee_attack.release_stance_attack({
-					"pose": PlayerArmRig.PoseSet.JAB,
+					"kind": PlayerArmRig.Attack.LIGHT,
 					"motion_mult": PUNCH_MOTION_VALUE,
 					"on_hit": _mana_star_follow_up.bind(source),
 				})
@@ -151,7 +151,7 @@ func on_stance_entered() -> void:
 	var source := get_source()
 	if source and source.conduit_stance_type == "battlemage" and source.weapon_type == "Staff" and _player.melee_attack.is_idle():
 		_player.melee_attack.release_stance_attack({
-			"pose": PlayerArmRig.PoseSet.DASH_THRUST,
+			"kind": PlayerArmRig.Attack.HEAVY,
 			"motion_mult": REACH_STRIKE_MOTION_VALUE,
 			"shape": REACH_STRIKE_SHAPE,
 		})

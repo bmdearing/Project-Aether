@@ -3,8 +3,8 @@ class_name PlayerRangedAttack
 ## Ranged attack: spawns Projectile.tscn instances moving forward from
 ## WeaponSocket. No windup/strike states like PlayerMeleeAttack - hit
 ## registration is still a single instant fire-and-cooldown.
-## _play_fire_animation() layers a purely cosmetic pose tween on
-## PlayerArmRig on top of that, via the same play_attack_swing()
+## _play_fire_animation() layers a purely cosmetic recoil clip on
+## PlayerArmRig on top of that, via the same play_attack()
 ## PlayerMeleeAttack itself uses - it doesn't gate or delay the shot.
 ##
 ## Implementation Brief v4.2 adds magazines/reloading/fire modes/spread on
@@ -18,23 +18,11 @@ class_name PlayerRangedAttack
 
 const PROJECTILE_SCENE := preload("res://entities/projectile/Projectile.tscn")
 
-## Same minimal-table-plus-DEFAULT convention as PlayerMeleeAttack's own
-## per-weapon-type dicts - Bow gets a fuller draw-then-release motion,
-## anything unmapped (Service Pistol) gets a sharp recoil kick instead.
-const WEAPON_TYPE_FIRE_POSE := {
-	"Bow": PlayerArmRig.PoseSet.BOW_RELEASE,
-}
-const DEFAULT_FIRE_POSE := PlayerArmRig.PoseSet.RECOIL
-const WEAPON_TYPE_FIRE_DURATION_MULT := {
-	"Bow": 1.6,
-}
+## Cosmetic fire reaction on the viewmodel; bows get a slower release.
 const FIRE_WINDUP := 0.06
 const FIRE_STRIKE := 0.06
 const FIRE_RECOVERY := 0.16
-const WEAPON_TYPE_FIRE_INTENSITY := {
-	"Bow": 1.1,
-}
-const DEFAULT_FIRE_INTENSITY := 0.8
+const BOW_FIRE_DURATION_MULT := 1.6
 
 @export var fire_cooldown: float = 0.4
 ## Stands in for a "Basic Shot" skill's motion value - no skill/Tome
@@ -434,18 +422,9 @@ func _direct_hit(enemy: Enemy, amount: float, damage_type: Constants.DamageType,
 	EventBus.damage_dealt.emit(_player, enemy, amount, damage_type, false, is_critical)
 	EventBus.hit_landed.emit(is_critical, false, not enemy.health.is_alive())
 
-func _play_fire_animation(weapon: Weapon) -> void:
+func _play_fire_animation(_weapon: Weapon) -> void:
 	var rig := _player.arm_rig
 	if rig == null:
 		return
-	var pose_set: PlayerArmRig.PoseSet = WEAPON_TYPE_FIRE_POSE.get(weapon.weapon_type, DEFAULT_FIRE_POSE)
-	var duration_mult: float = WEAPON_TYPE_FIRE_DURATION_MULT.get(weapon.weapon_type, 1.0)
-	var intensity: float = WEAPON_TYPE_FIRE_INTENSITY.get(weapon.weapon_type, DEFAULT_FIRE_INTENSITY)
-	var action_speed := _player.get_action_speed_multiplier()
-	rig.play_attack_swing(
-		pose_set,
-		FIRE_WINDUP * duration_mult / action_speed,
-		FIRE_STRIKE * duration_mult / action_speed,
-		FIRE_RECOVERY * duration_mult / action_speed,
-		intensity
-	)
+	var mult := (BOW_FIRE_DURATION_MULT if rig.get_family() == &"bow" else 1.0) / _player.get_action_speed_multiplier()
+	rig.play_attack(PlayerArmRig.Attack.FIRE, FIRE_WINDUP * mult, FIRE_STRIKE * mult, FIRE_RECOVERY * mult)

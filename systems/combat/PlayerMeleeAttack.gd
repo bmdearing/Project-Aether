@@ -2,12 +2,11 @@ extends Node
 class_name PlayerMeleeAttack
 ## Player-driven melee attack: Idle -> Windup -> Strike -> Recovery.
 ## Hit detection sweeps a per-weapon arc in front of the camera every
-## Strike frame (SWING_SHAPES) and can hit several enemies per swing. Swing is a
-## procedural Tween driving PlayerArmRig's bone poses (see _play_swing());
-## camera shake is a separate procedural Tween on camera.position. Neither
-## is baked Animation data. try_charged_thrust() (driven by WeaponStance's
-## right-click hold, 2026-08-30) is the same state machine with a bigger,
-## weapon-specific pose/motion-value/duration - see WEAPON_TYPE_SPECIAL_POSE.
+## Strike frame (SWING_SHAPES) and can hit several enemies per swing. The
+## visible swing is PlayerArmRig.play_attack(), timed to these phases;
+## camera shake is a separate procedural Tween on camera.position.
+## try_charged_thrust() (WeaponStance right-click hold) is the same state
+## machine with a bigger motion value/duration and the family's charged clip.
 ##
 ## Implementation Brief v3.3 Section 2/5 (2026-08-31): three distinct
 ## attack types, dispatched by Player.gd off LMB hold duration - light jab
@@ -23,7 +22,7 @@ class_name PlayerMeleeAttack
 ## weapon's former combo list is repurposed as a fixed per-ATTACK-TYPE
 ## pose instead (index 0 -> jab, index 1 or wraparound -> thrust) so the
 ## per-weapon pose variety already authored survives, it just no longer
-## cycles. Per-weapon MOTION VALUE/duration/intensity tables (WEAPON_TYPE_
+## cycles. Per-weapon MOTION VALUE/duration tables (WEAPON_TYPE_
 ## MOTION_VALUE etc.) are preserved unchanged, per user direction - the
 ## brief's own 0.6/1.0/1.6 jab/thrust/charged values are applied as
 ## MULTIPLIERS on top of that per-weapon base, not a replacement of it.
@@ -75,17 +74,8 @@ const WEAPON_TYPE_MOTION_VALUE := {
 	"Gauntlet": 0.5,
 }
 
-## User feedback (2026-08-30): a greatsword swing needs to actually feel
-## heavy, not just deal more damage per the motion value above - this
-## multiplies windup/strike/recovery duration (via _effective_duration())
-## so a Greatsword swing genuinely takes longer than a Dagger's, and
-## scales how far PlayerArmRig's bone poses rotate (via
-## WEAPON_TYPE_SWING_INTENSITY below) so a heavier weapon also reads as a
-## bigger arc, not a slowed-down copy of the same small motion. Same
-## minimal-table-plus-DEFAULT convention as WEAPON_TYPE_MOTION_VALUE.
-## User feedback (2026-08-30, second follow-up): even at 1.85x "still
-## don't feel right... slower side to side cleaves would look good" -
-## pushed further still.
+## Per-weapon swing duration multiplier (via _effective_duration()), so a
+## Greatsword swing genuinely takes longer than a Dagger's.
 ## 2026-10-07: light weapons were too quick to read - Dagger/Rapier/Gauntlet raised.
 const WEAPON_TYPE_SWING_DURATION_MULT := {
 	"Dagger": 1.05,
@@ -94,73 +84,8 @@ const WEAPON_TYPE_SWING_DURATION_MULT := {
 	"Staff": 1.4,
 	"Gauntlet": 0.9,
 }
-const WEAPON_TYPE_SWING_INTENSITY := {
-	"Dagger": 0.85,
-	"Greatsword": 1.3,
-	"Rapier": 0.9,
-	"Staff": 1.15,
-	"Gauntlet": 0.8,
-}
-
-## Per-weapon light-jab / standard-thrust poses (Implementation Brief
-## v3.3 Section 2, merged 2026-08-31) - each weapon's former 2-pose combo
-## list (see git history / PATCH_NOTES.md for that saga) is repurposed
-## here as a fixed jab pose (was combo index 0) and thrust pose (was
-## combo index 1, or the same pose again for weapons that only ever had
-## one - Rapier/Gauntlet). No cycling anymore: the SAME attack type always
-## plays the SAME pose for a given weapon, distinguished by ATTACK TYPE
-## (jab vs thrust) rather than by an incrementing combo counter.
-const WEAPON_TYPE_JAB_POSE := {
-	"Greatsword": PlayerArmRig.PoseSet.SWEEP_RIGHT,
-	"Staff": PlayerArmRig.PoseSet.TWIRL_RIGHT,
-	"Rapier": PlayerArmRig.PoseSet.DASH_THRUST,
-	"Dagger": PlayerArmRig.PoseSet.CLEAVE,
-	"Gauntlet": PlayerArmRig.PoseSet.JAB,
-}
-const WEAPON_TYPE_THRUST_POSE := {
-	"Greatsword": PlayerArmRig.PoseSet.SWEEP_LEFT,
-	"Staff": PlayerArmRig.PoseSet.TWIRL_LEFT,
-	"Rapier": PlayerArmRig.PoseSet.DASH_THRUST,
-	"Dagger": PlayerArmRig.PoseSet.DASH_THRUST,
-	"Gauntlet": PlayerArmRig.PoseSet.JAB,
-}
-## Default jab/thrust poses for a weapon type with no entry above -
-## CLEAVE (a generic slash) for jab, SWEEP_RIGHT for thrust, same
-## fallback shape the old NORMAL_COMBO_POSES default used to provide.
-const DEFAULT_JAB_POSE := PlayerArmRig.PoseSet.CLEAVE
-const DEFAULT_THRUST_POSE := PlayerArmRig.PoseSet.SWEEP_RIGHT
-
-## User request (2026-08-30): "holding right click puts you in a stance
-## that preps you for heavier or special attacks... a great sword might
-## have a big sweep, a rapier might dash and thrust in one direction." A
-## real Rapier item didn't exist yet when this was first built, so
-## DASH_THRUST was mapped onto Dagger as a stand-in (closest existing
-## light one-handed weapon) - now that worn_rapier.tres exists (2026-08-30
-## later still), Rapier gets its own entry (the "real" intended match),
-## and Dagger keeps DASH_THRUST too since a quick dagger lunge is just as
-## fitting. Staff reuses BIG_SWEEP (a staff sweep). Gauntlet's special is
-## JAB, not DASH_THRUST anymore (2026-08-30 even later, "the animations
-## are all the same" feedback) - its special should feel like a BIGGER
-## punch, not switch to an entirely different motion family; the existing
-## intensity/duration multipliers already make a scaled-up JAB read as a
-## haymaker. Driven by WeaponStance.gd, which owns the right-click hold
-## input - Player.gd calls try_charged_thrust() on a left-click while active.
-const WEAPON_TYPE_SPECIAL_POSE := {
-	"Dagger": PlayerArmRig.PoseSet.DASH_THRUST,
-	"Greatsword": PlayerArmRig.PoseSet.BIG_SWEEP,
-	"Rapier": PlayerArmRig.PoseSet.DASH_THRUST,
-	"Staff": PlayerArmRig.PoseSet.BIG_SWEEP,
-	"Gauntlet": PlayerArmRig.PoseSet.JAB,
-}
 const SPECIAL_MOTION_VALUE_MULTIPLIER := 1.6
 const SPECIAL_DURATION_MULTIPLIER := 1.4
-## User feedback (2026-08-30, second follow-up): this stacked with
-## WEAPON_TYPE_SWING_INTENSITY (1.3 for Greatsword) on top of BIG_SWEEP's
-## own already-big base angles, swinging the sword ~114 degrees around
-## the shoulder and off past the edge of frame - lowered here, and
-## BIG_SWEEP's own base angles were independently halved in
-## PlayerArmRig.gd, so neither change alone has to carry the whole fix.
-const SPECIAL_INTENSITY_MULTIPLIER := 1.1
 
 ## Implementation Brief v3.3 Section 2: light jab (motion value x0.6,
 ## quicker swing) and standard thrust (x1.0 - a no-op, i.e. identical
@@ -199,7 +124,7 @@ const COUNTER_DAMAGE_MULTIPLIER := 1.15
 
 ## Implementation Brief v3.3 Section 2 - replaces the old boolean
 ## _is_special (special vs. not) now that there are 3 distinct attack
-## types instead of 2. "SPECIAL" naming below (WEAPON_TYPE_SPECIAL_POSE,
+## types instead of 2. "SPECIAL" naming below
 ## SPECIAL_MOTION_VALUE_MULTIPLIER, etc.) predates the brief and still
 ## means CHARGED - not renamed everywhere to keep this merge smaller.
 enum AttackType { JAB, THRUST, CHARGED }
@@ -212,10 +137,10 @@ var _attack_type: AttackType = AttackType.THRUST
 ## instance id -> true for every enemy this swing already hit.
 var _hit_this_swing: Dictionary = {}
 var _strike_total: float = 0.0
-var _pose_set: PlayerArmRig.PoseSet = DEFAULT_THRUST_POSE
+var _swing_side: bool = false
 var _active_hitstops: int = 0
 ## One charged stance release in progress (see release_stance_attack()):
-## pose, intensity, windup, motion_mult, recovery_mult, damage_type, plus
+## kind (PlayerArmRig.Attack clip), windup, motion_mult, recovery_mult, damage_type, plus
 ## optional shape (hit sweep override), on_contact (resolves the hit itself
 ## at Strike instead of sweeping) and on_hit(enemy, damage).
 var _stance_release: Dictionary = {}
@@ -281,9 +206,7 @@ func try_standard_thrust() -> void:
 ## Called from Player._physics_process when WeaponStance.is_active and LMB
 ## is pressed (Implementation Brief v3.3 Section 2's "charged thrust" -
 ## renamed from the pre-brief try_special_attack(), same mechanic: the
-## weapon's special per WEAPON_TYPE_SPECIAL_POSE, falls back to a boosted
-## CLEAVE for anything unmapped, same minimal-table-plus-DEFAULT
-## convention as the rest of this file). Dagger's charged thrust also
+## weapon family's charged clip on PlayerArmRig). Dagger's charged thrust also
 ## fires a real forward dash before the thrust - see Player.
 ## try_special_dash() - best-effort: if the dash is on its own cooldown
 ## (shared with the Shift-dash, deliberately not a separate free dash
@@ -311,13 +234,6 @@ func _ensure_hitbox_connected() -> void:
 	_hitbox = _player.attack_hitbox
 	if _hitbox:
 		_hitbox.monitoring = false
-
-func get_special_pose_set() -> PlayerArmRig.PoseSet:
-	var weapon := _player.get_active_weapon()
-	return WEAPON_TYPE_SPECIAL_POSE.get(weapon.weapon_type, PlayerArmRig.PoseSet.CLEAVE) if weapon else PlayerArmRig.PoseSet.CLEAVE
-
-func get_special_intensity() -> float:
-	return _effective_swing_intensity() * SPECIAL_INTENSITY_MULTIPLIER
 
 func _physics_process(delta: float) -> void:
 	match _state:
@@ -421,12 +337,9 @@ func _recovery_time() -> float:
 		return _stance_release["recovery"]
 	return _effective_duration(recovery_duration, MIN_RECOVERY) * _stance_release.get("recovery_mult", 1.0)
 
-func _effective_swing_intensity() -> float:
-	var weapon := _player.get_active_weapon()
-	return WEAPON_TYPE_SWING_INTENSITY.get(weapon.weapon_type, 1.0) if weapon else 1.0
-
 func _enter_windup() -> void:
 	_state = State.WINDUP
+	_swing_side = not _swing_side
 	_timer = _windup_time()
 	_play_swing()
 	_play_swing_sound()
@@ -475,37 +388,23 @@ func _enter_recovery() -> void:
 	_state = State.RECOVERY
 	_timer = _recovery_time()
 
-## Swing choreography now lives on PlayerArmRig's own 3-bone chain
-## (shoulder/elbow/wrist) instead of tweening one rigid WeaponSocket
-## rotation - see PlayerArmRig.play_attack_swing() for the actual pose
-## targets. Timings here still drive it so windup/strike/recovery stay
-## exactly in sync with the state machine above (blade reaches full
-## extension right as Strike begins and the hitbox turns on). Pose is
-## chosen purely by attack type now (Implementation Brief v3.3 Section 2,
-## merged 2026-08-31) - jab and thrust each play a fixed per-weapon pose
-## (WEAPON_TYPE_JAB_POSE/WEAPON_TYPE_THRUST_POSE), charged plays its
-## weapon's dedicated special pose (get_special_pose_set()). No more
-## combo-index cycling - the brief explicitly doesn't want a combo system.
+## The viewmodel picks the clip for the weapon's family; these timings keep
+## its strike pose landing exactly when the hit sweep turns on.
 func _play_swing() -> void:
 	var rig := _player.arm_rig
 	if rig == null:
 		return
-	var intensity: float
-	var weapon := _player.get_active_weapon()
+	var kind: PlayerArmRig.Attack = PlayerArmRig.Attack.HEAVY
 	match _attack_type:
-		AttackType.CHARGED:
-			_pose_set = _stance_release.get("pose", get_special_pose_set())
-			intensity = _stance_release.get("intensity", get_special_intensity())
 		AttackType.JAB:
-			_pose_set = WEAPON_TYPE_JAB_POSE.get(weapon.weapon_type, DEFAULT_JAB_POSE) if weapon else DEFAULT_JAB_POSE
-			intensity = _effective_swing_intensity()
-		AttackType.THRUST:
-			_pose_set = WEAPON_TYPE_THRUST_POSE.get(weapon.weapon_type, DEFAULT_THRUST_POSE) if weapon else DEFAULT_THRUST_POSE
-			intensity = _effective_swing_intensity()
-	rig.play_attack_swing(_pose_set, _windup_time(), _strike_time(), _recovery_time(), intensity)
+			kind = PlayerArmRig.Attack.LIGHT
+		AttackType.CHARGED:
+			kind = PlayerArmRig.Attack.CHARGED
+	rig.play_attack(_stance_release.get("kind", kind), _windup_time(), _strike_time(), _recovery_time())
 
+## Which way the camera leans on a strike: alternates, so successive swings rock side to side.
 func _swing_yaw() -> float:
-	return _player.arm_rig.get_swing_yaw_direction(_pose_set) if _player.arm_rig else 0.0
+	return 1.0 if _swing_side else -1.0
 
 func _kick_camera(amount: Vector3) -> void:
 	var sway: CameraSway = _player.camera.get_node_or_null("CameraSway") if _player.camera else null

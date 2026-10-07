@@ -7,7 +7,9 @@ there. Most recent first.
 
 ---
 
-## 2026-10-07 — v4.30: Caster (conduit) stances (user request)
+## 2026-10-07 — v4.31: Caster (conduit) stances (user request)
+
+Merged with the v4.24 viewmodel rebuild: stance attacks now play its clips (`PlayerArmRig.Attack` kinds via the `kind` release param) instead of the removed `PoseSet` poses, charging and stances use its guard pose, and the raised shield (v4.26) drives its guard (`set_guard`) instead of the removed `ShieldSocket` disc. Strike camera kicks alternate sides instead of following a pose's direction.
 
 Patch v3.4's Caster Stance System with Patch v3.6's per-line behaviour, in the new `CasterStance.gd`. Stance A is the main-hand conduit's, stance B (Hold X) the offhand conduit's, falling back to the main hand's. A conduit's stance replaces the weapon stance; with a non-conduit main hand, page A keeps the weapon's own stance.
 
@@ -27,7 +29,7 @@ Patch v3.4's Caster Stance System with Patch v3.6's per-line behaviour, in the n
 
 ---
 
-## 2026-10-07 — v4.29: Ranged aim stances (user request)
+## 2026-10-07 — v4.30: Ranged aim stances (user request)
 
 Every ranged stance in Patch v3.4's table, applied while RMB aims, on top of the existing aim bonus (1.4x damage, half spread). Numbers are on each `RangedStanceBehavior` (new "Aim stance" group); `PlayerRangedAttack` applies them.
 
@@ -52,7 +54,7 @@ Every ranged stance in Patch v3.4's table, applied while RMB aims, on top of the
 
 ---
 
-## 2026-10-07 — v4.28: Remaining melee stances, batch 3 (user request)
+## 2026-10-07 — v4.29: Remaining melee stances, batch 3 (user request)
 
 Every melee stance in Patch v3.4's table now has its mechanic, except Pressure Fist Stance B (not designed). These fire on the LMB press in stance (`StanceAttack.try_instant()`); numbers are on each `MeleeStanceBehavior` (new "Instant stance" group).
 
@@ -70,7 +72,7 @@ Every melee stance in Patch v3.4's table now has its mechanic, except Pressure F
 
 ---
 
-## 2026-10-07 — v4.27: Held defensive stances, batch 2 (user request)
+## 2026-10-07 — v4.28: Held defensive stances, batch 2 (user request)
 
 The Patch v3.4 stances that work for as long as RMB is held. All values are on the weapon's `MeleeStanceBehavior` (new "Held stance" group); `StanceDefense.gd` applies them.
 
@@ -84,7 +86,7 @@ The Patch v3.4 stances that work for as long as RMB is held. All values are on t
 
 ---
 
-## 2026-10-07 — v4.26: Charged stance attacks, batch 1 (user request)
+## 2026-10-07 — v4.27: Charged stance attacks, batch 1 (user request)
 
 Stance A for seven weapons, per Patch v3.4's melee stance table. In stance (hold RMB), **hold LMB to charge and release to fire**; letting go of RMB, getting stunned or raising a shield cancels the charge. A bar under the crosshair shows the charge (dim until a stance that needs a full charge is ready, white when full), and the HUD's stance readout now names the stance. Every number is on the weapon's `MeleeStanceBehavior` resource (new "Charged attack" group); `StanceAttack.gd` decides what each stance does on release.
 
@@ -103,7 +105,7 @@ Stance A for seven weapons, per Patch v3.4's melee stance table. In stance (hold
 
 ---
 
-## 2026-10-07 — v4.25: Raised shield, player Composure, Behaviors tab (user request)
+## 2026-10-07 — v4.26: Raised shield, player Composure, Behaviors tab (user request)
 
 - **Raise Shield:** with a shield equipped, holding RMB raises it instead of entering the weapon stance (Master v3, Active Block). Any hit within 75 degrees of where you're facing is fully negated, melee, projectile or spell; DoT ticks still land. You can't attack and move at 60% while it's up. The old passive block roll is skipped while the shield is raised.
 - **Player Composure:** stands in for the doc's Stamina until that exists. A bar under the crosshair shows while blocking and while refilling. Holding the shield drains 5/s; each blocked hit costs 8 + 60 x (hit / max health). At zero the guard breaks: shield drops, 1 s stun ("Guard Broken" status), and it can't be raised again until Composure is back to 30%. Refills at 40/s after 4 s without blocking (the doc's delay). Parry +25, riposte +15, kill +5. Max is 100 + the gear "+X Stamina" suffix, which had no effect until now. All numbers are first-pass placeholders.
@@ -114,18 +116,34 @@ Stance A for seven weapons, per Patch v3.4's melee stance table. In stance (hold
 
 ---
 
-## 2026-10-07 — v4.24: Combat and movement feel (user request)
+## 2026-10-07 — v4.25: Combat and movement feel (user request)
 
 "Melee strikes are a bit too fast on smaller weapons and don't feel as punchy."
 
 - **Light weapons slower:** Dagger 0.75 -> 1.05, Rapier 0.65 -> 0.95, Gauntlet 0.55 -> 0.9 swing-duration multiplier. A Dagger jab went from 0.28 s to ~0.42 s. Each phase now has a floor (0.15 / 0.075 / 0.19 s) so attack speed can't blur a swing into a flicker.
-- **Swing shape:** base timing 0.22/0.16/0.24 -> 0.25/0.12/0.25 - longer anticipation and recovery around a shorter strike. The strike accelerates into contact (quart ease-in), follows through 15% past the strike pose and holds there before recovering.
+- **Swing shape:** base timing 0.22/0.16/0.24 -> 0.25/0.12/0.25 - longer anticipation and recovery around a shorter strike. (The old rig's ease-in strike and follow-through pose from this entry were dropped when merging over the v4.24 viewmodel rebuild; its clips now carry the swing's look, timed to these phases.)
 - **Hits land on contact:** the sweep used to run from the first Strike frame, while the blade was still at the wind-up pose, so the hitstop froze it before it had moved. Hits now register from 60% of the Strike onward.
 - **Impact scales with weight** (`_swing_weight()`: weapon duration multiplier, x0.8 jab, x1.4 charged): hitstop (longer on crits and kills), a directional camera kick that follows the swing, enemy knockback, and a small forward lunge into every strike. Enemies flash white on hit. Bosses take a quarter of the knockback.
 - **Hitstop overlap fix:** a second hitstop (e.g. a kill right after a hit) no longer gets cut short by the first one's timer.
 - **Movement:** acceleration instead of instant velocity (quick to start, a short skid to stop), reduced air control that keeps momentum, 0.1 s coyote time and 0.12 s jump buffering. Dash and slide now blend back into running speed instead of snapping to it. Camera dips on landing, scaled by fall speed; head bob follows speed.
 - `tests/combat` (16 checks) covers swing timing and floors, the contact window, hitstop recovery, knockback, acceleration and the lunge.
 - Known, pre-existing: `tests/inventory` fails its two out-of-bounds checks since the v4.23 14x7 grid change (fails on v4.23 as well).
+
+---
+
+## 2026-10-07 — v4.24: First-person viewmodel rebuild (user request)
+
+The old viewmodel rendered weapons tiny and far off near screen centre (the model sat ~0.4 m from an invisible 3-bone arm's pivot, so swings rotated it through empty space), had no hands, and most weapon types fell back to a flat grey box. Replaced:
+
+- **`WeaponModelLibrary`** (`entities/player/viewmodel/`) builds a model for every weapon type. Pack models now cover Claymore, Shortsword, Saber, Cutlass, Athame, Rapier, Mace, War Pick, Spear, Shock Lance, Halberd and Crossbow as well as the original four. Guns, bows, whips, wands, gauntlets, off-hand foci (Rod/Tome/Grimoire/Fetish/Talisman) and shields (by base: buckler/kite/rune/tower/pavise/great/spiked/warded) are built from primitives, with damage-type colour on the glowing parts.
+- Grip points were **measured from each pack mesh's width profile** (guard = widest slice, handle = the narrow run past it). The model origins sit at the guard or the head, which is what put the greatsword's hands on the blade in the first pass.
+- **`PlayerArmRig` rewritten** as a keyframed viewmodel: gloved hands and sleeves, a second hand on two-handers' second grip, off-hand items in the left hand, and both fists for gauntlets. Poses are "hand position + tip direction + face direction", so clips stay readable.
+- **Per-family attack clips** (blade, heavy, thrust, blunt, spear, halberd, staff, whip, fist, wand), with separate light/heavy/charged moves: diagonal and horizontal slashes, overhead chops, stabs, lunges, backhands, pole jabs/drives, a whip crack, alternating jabs, hooks and uppercuts. They're timed to `PlayerMeleeAttack`'s phases, so the impact pose lands when hits turn on, and the clip freezes during hitstop.
+- **Ranged:** recoil kick + muzzle flash/light, reload animation (tilt-in, off-hand to the mag, or the free hand bringing one up for pistols), and a drawn bow with a live string and nocked arrow that snaps on release. Right-click aims down sights.
+- **Feel layer:** mouse-lag sway, figure-eight walk bob, breathing, sprint tuck, jump/landing dip, equip raise on weapon swap, a hit jolt, and a cast gesture with a glow in the free hand on every spell. Melee right-click raises a guard, or the shield if you have one.
+- `PoseSet`/`play_attack_swing()` and the per-weapon pose tables in `PlayerMeleeAttack`/`PlayerRangedAttack` are gone; callers use `play_attack(kind, windup, strike, recovery)`. The old `ShieldSocket` disc and placeholder blade box are removed from `Player.tscn`.
+- **Not changed:** swing durations. Only Dagger/Greatsword/Rapier/Staff/Gauntlet have duration multipliers, so e.g. a Claymore still swings at the default speed. That's a balance call, not an animation one.
+- `tests/viewmodel/capture_viewmodel.tscn` renders contact sheets of weapons across an attack (needs a window, not `--headless`; `grid.sh` wraps it).
 
 ---
 

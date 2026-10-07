@@ -90,38 +90,38 @@ right-click stance/moveset "engine" in full, kicks, and sword/dagger/
 cast-specific animations are all still future work - this is the rig
 plus the melee swing riding on it, not a complete animation system.
 
-**Raised shield** (`systems/combat/ShieldBlock.gd`, v4.25): with a shield
+**Raised shield** (`systems/combat/ShieldBlock.gd`, v4.26): with a shield
 equipped and the inventory Behaviors tab on "Raise Shield" (the default),
 RMB raises the shield instead of the weapon stance. Frontal hits are
 negated and drain player Composure (bar under the crosshair, `ComposureBar`);
 empty Composure breaks the guard with a 1 s `guard_break` stun. Stance names
 and descriptions for the Behaviors tab and HUD live in `data/stance/StanceInfo.gd`.
 
-**Charged stance attacks** (`systems/combat/StanceAttack.gd`, v4.26): in
+**Charged stance attacks** (`systems/combat/StanceAttack.gd`, v4.27): in
 stance, hold LMB to charge the active page's `MeleeStanceBehavior` and
 release to fire. Rapier, Spear, Greatsword, Mace, Shock Lance, Pressure Fist
 and Whip have their Stance A built; all tuning lives on the behavior
 resources' "Charged attack" fields. Stances without one keep the instant
 special.
 
-**Caster stances** (`systems/combat/CasterStance.gd`, v4.30): conduits
+**Caster stances** (`systems/combat/CasterStance.gd`, v4.31): conduits
 replace the weapon stance - Spell Library (keys 1-4 cast the Stance Page,
 loadout slots 5-8), Unleash, Stance Buff, Mana Stars and Battlemage, from
 each conduit line's `conduit_stance_type`, `spell_page_modifier` and
 `stance_buff`. Wands fire bolts on LMB; Rods are passive.
 
-**Ranged aim stances** (v4.29): one `RangedStanceBehavior` per ranged
+**Ranged aim stances** (v4.30): one `RangedStanceBehavior` per ranged
 weapon type (`data/stance/instances/ranged_*.tres`, Patch v3.4 table),
 applied by `PlayerRangedAttack` while RMB aims. Shortbow and Longbow have a
 second page.
 
-**Instant stances** (v4.28): Water Slices, Sweep, Armor Pierce, Hooking
+**Instant stances** (v4.29): Water Slices, Sweep, Armor Pierce, Hooking
 Strike, Entangle, Repulse, Slice and Dice and Stealth fire on the LMB press
 in stance (`StanceAttack.try_instant()`), tuned by the behavior's
 "Instant stance" fields. Stealth also scales enemy detection
 (`Enemy._detection_range()`).
 
-**Held stances** (`systems/combat/StanceDefense.gd`, v4.27): Guard,
+**Held stances** (`systems/combat/StanceDefense.gd`, v4.28): Guard,
 Fortify, Phalanx and Brace apply while RMB holds the stance, from the
 behavior's "Held stance" fields. The parry stances use
 `parry_window_multiplier` in `ParryRiposteHandler`.

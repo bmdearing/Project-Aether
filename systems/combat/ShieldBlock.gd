@@ -22,29 +22,18 @@ const GUARD_BREAK_STUN := 1.0
 const RESTORE_ON_PARRY := 25.0
 const RESTORE_ON_RIPOSTE := 15.0
 const RESTORE_ON_KILL := 5.0
-
-const RAISE_DURATION := 0.12
-const LOWER_DURATION := 0.18
-const RAISED_POSITION := Vector3(-0.3, -0.27, -0.62)
-const RAISED_ROTATION := Vector3(0.0, 8.0, 0.0)
+const JOLT_PUSH := Vector3(0.0, 0.0, 0.03)
+const JOLT_TILT := Vector3(0.04, 0.0, 0.0)
 
 var is_raised: bool = false
 var composure: float = BASE_COMPOSURE
 
 var _player: Player
-var _socket: Node3D
-var _rest_position: Vector3
-var _rest_rotation: Vector3
-var _socket_tween: Tween
 var _regen_delay: float = 0.0
 var _recovering: bool = false
 
 func _ready() -> void:
 	_player = get_parent()
-	_socket = _player.get_node_or_null("Head/Camera3D/ShieldSocket")
-	if _socket:
-		_rest_position = _socket.position
-		_rest_rotation = _socket.rotation_degrees
 	composure = get_max_composure()
 	EventBus.parry_successful.connect(func(_p, _e): restore(RESTORE_ON_PARRY))
 	EventBus.riposte_executed.connect(_on_riposte_executed)
@@ -129,26 +118,17 @@ func _break_guard() -> void:
 func _raise() -> void:
 	is_raised = true
 	_player.weapon_stance.cancel()
-	_tween_socket(RAISED_POSITION, RAISED_ROTATION, RAISE_DURATION)
+	if _player.arm_rig:
+		_player.arm_rig.set_guard(true)  # the viewmodel raises the shield
 
 func _lower() -> void:
 	is_raised = false
-	_tween_socket(_rest_position, _rest_rotation, LOWER_DURATION)
+	if _player.arm_rig:
+		_player.arm_rig.set_guard(false)
 
 func _jolt() -> void:
-	if _socket == null:
-		return
-	_tween_socket(RAISED_POSITION + Vector3(0.0, 0.0, 0.06), RAISED_ROTATION, 0.04)
-	_socket_tween.tween_property(_socket, "position", RAISED_POSITION, 0.12).set_trans(Tween.TRANS_SINE)
+	if _player.arm_rig:
+		_player.arm_rig._kick(JOLT_PUSH, JOLT_TILT)
 	var sway: CameraSway = _player.camera.get_node_or_null("CameraSway")
 	if sway:
 		sway.kick(Vector3(-0.015, 0.0, randf_range(-0.01, 0.01)))
-
-func _tween_socket(pos: Vector3, rot: Vector3, duration: float) -> void:
-	if _socket == null:
-		return
-	if _socket_tween and _socket_tween.is_valid():
-		_socket_tween.kill()
-	_socket_tween = create_tween()
-	_socket_tween.tween_property(_socket, "position", pos, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	_socket_tween.parallel().tween_property(_socket, "rotation_degrees", rot, duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
