@@ -1,0 +1,75 @@
+class_name StanceInfo
+## Player-facing stance names and descriptions, from Patch v3.4's melee and
+## ranged stance tables. Keyed by Weapon.weapon_type; melee entries are
+## [Stance A, Stance B]. Shown on the inventory's Behaviors tab and the HUD.
+
+const MELEE := {
+	"Rapier": [
+		{"name": "Charged Thrust", "desc": "Lunge forward up to 4 m on LMB. Distance scales with charge time."},
+		{"name": "Ready Parry", "desc": "Significantly wider parry window while held."},
+	],
+	"Dagger": [
+		{"name": "Slice and Dice", "desc": "LMB becomes a rapid multi-hit flurry. Low damage per hit, high total on full execution."},
+		{"name": "Stealth", "desc": "Reduces detection radius while held. Moving slowly maintains stealth. The first attack from stealth deals bonus damage."},
+	],
+	"Greatsword": [
+		{"name": "Execute", "desc": "Fully charged slam into a small area. Very high damage. Must hold the full charge to release."},
+		{"name": "Guard", "desc": "Blocks 80% of incoming melee damage while held."},
+	],
+	"Mace": [
+		{"name": "Overhead Slam", "desc": "Charge and release a devastating overhead blow. An aftershock detonates 1.5 s after impact for the same damage again."},
+		{"name": "Fortify", "desc": "Plant the weapon, rooting yourself. Significant damage reduction aura while rooted."},
+	],
+	"Cutlass": [
+		{"name": "Water Slices", "desc": "LMB releases projectile slashes. Each deals 40% of its damage again as Cold."},
+		{"name": "Parry Ready", "desc": "Widened parry window while held."},
+	],
+	"War Pick": [
+		{"name": "Armor Pierce", "desc": "Stance strikes ignore all Armor and leave a stacking Armor Shred debuff."},
+		{"name": "Hooking Strike", "desc": "LMB pulls the target toward you, interrupting their current action."},
+	],
+	"Halberd": [
+		{"name": "Sweep", "desc": "Wide 270 degree arc around you. Hits every enemy in range and knocks them back."},
+		{"name": "Brace", "desc": "Plant the halberd. Enemies that charge into you take Piercing damage and are staggered."},
+	],
+	"Spear": [
+		{"name": "Lunge", "desc": "Gap close with longer range than the Rapier. A full charge goes further but recovers slower."},
+		{"name": "Phalanx", "desc": "Projects a damage-absorbing barrier in front of you. Frontal attacks only."},
+	],
+	"Shock Lance": [
+		{"name": "Discharge", "desc": "Builds electrical charge while held. Release to send a Lightning shockwave along the ground."},
+		{"name": "Repulse", "desc": "LMB releases an electrical burst that pushes nearby enemies away and Electrocutes them."},
+	],
+	"Whip": [
+		{"name": "Crack", "desc": "Charged strike at maximum whip range. Applies Bleed and briefly interrupts the target."},
+		{"name": "Entangle", "desc": "Wraps the target, rooting it for 2 s. No damage, pure control."},
+	],
+	"Pressure Fist": [
+		{"name": "Pressure Blast", "desc": "Charge internal pressure, then release a point-blank cone of force. Massive Stagger, sends enemies flying."},
+		{"name": "Stance B", "desc": "Not designed yet."},
+	],
+}
+
+const RANGED := {
+	"Service Pistol": {"name": "Steady Aim", "desc": "Tightens accuracy and increases crit chance while held."},
+	"Revolver": {"name": "Fan the Hammer", "desc": "Unloads every remaining chamber in rapid succession. Low accuracy, high burst, forced reload after."},
+	"Machine Pistol": {"name": "Suppression", "desc": "Each hit applies a stacking movement slow."},
+	"Submachine Gun": {"name": "Full Auto Burst", "desc": "Dumps the magazine in a continuous stream. Staggers enemies hit repeatedly."},
+	"Loaded Shotgun": {"name": "Point Blank", "desc": "Bonus damage the closer the target. Maximum at melee range."},
+	"Pump Action Shotgun": {"name": "Brace", "desc": "Plant your feet, negating self-knockback. The next shot has double spread and hits everything in a wide cone."},
+	"Shortbow": {"name": "Rapid Fire", "desc": "LMB fires one arrow per tap at high speed. Low damage per arrow."},
+	"Longbow": {"name": "Snipe", "desc": "High damage arrow that pierces every enemy in a line."},
+	"Lever Action Rifle": {"name": "Marksman", "desc": "Longer aim before firing means a bigger hit."},
+	"Bolt Action Rifle": {"name": "Breath Control", "desc": "No movement. Removes damage falloff and pierces one target."},
+	"Machine Gun": {"name": "Dig In", "desc": "Roots you completely. Massively increased fire rate, reduced recoil."},
+	"Battle Rifle": {"name": "Tracer Round", "desc": "The first shot marks the target. Further shots deal increased damage to it for 4 s."},
+}
+
+## {name, desc} for the weapon's stance on `page` (0 = A, 1 = B), or {} if none is designed.
+static func for_weapon(weapon: Weapon, page: int) -> Dictionary:
+	if weapon == null:
+		return {}
+	if weapon.is_ranged:
+		return RANGED.get(weapon.weapon_type, {})
+	var pages: Array = MELEE.get(weapon.weapon_type, [])
+	return pages[page] if page < pages.size() else {}

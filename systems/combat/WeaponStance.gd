@@ -53,7 +53,13 @@ signal stance_page_changed(page: StancePage)
 var active_page: StancePage = StancePage.A
 
 func toggle_stance_page() -> void:
-	active_page = StancePage.B if active_page == StancePage.A else StancePage.A
+	set_stance_page(StancePage.B if active_page == StancePage.A else StancePage.A)
+
+func set_stance_page(page: StancePage) -> void:
+	if page == active_page:
+		return
+	active_page = page
+	GameState.stance_page = page
 	stance_page_changed.emit(active_page)
 	EventBus.stance_page_changed.emit(active_page)
 
@@ -80,6 +86,7 @@ var _behavior_by_weapon_type: Dictionary = {}
 
 func _ready() -> void:
 	_player = get_parent()
+	active_page = GameState.stance_page as StancePage
 
 ## User request (2026-08-31): "Apply movement speed penalty while active
 ## (read from StanceBehavior resource)." Consumed by Player._effective_
@@ -130,7 +137,8 @@ func _scan_behaviors() -> void:
 	dir.list_dir_end()
 
 func _physics_process(_delta: float) -> void:
-	if Input.is_action_just_pressed("stance") and not _player.is_input_blocked():
+	if Input.is_action_just_pressed("stance") and not _player.is_input_blocked() \
+			and not _player.shield_block.overrides_stance():
 		_enter_stance()
 	elif Input.is_action_just_released("stance"):
 		_exit_stance()
@@ -160,6 +168,10 @@ func _enter_stance() -> void:
 			# and always played at intensity 1.0 (no per-weapon scaling) so
 			# this can't recur regardless of how big future specials get.
 			_player.arm_rig.enter_ready_pose(PlayerArmRig.PoseSet.GUARD, READY_POSE_DURATION, 1.0)
+
+## Drops out of stance without waiting for RMB release (shield raised).
+func cancel() -> void:
+	_exit_stance()
 
 func _exit_stance() -> void:
 	if not is_active:

@@ -90,6 +90,13 @@ right-click stance/moveset "engine" in full, kicks, and sword/dagger/
 cast-specific animations are all still future work - this is the rig
 plus the melee swing riding on it, not a complete animation system.
 
+**Raised shield** (`systems/combat/ShieldBlock.gd`, v4.25): with a shield
+equipped and the inventory Behaviors tab on "Raise Shield" (the default),
+RMB raises the shield instead of the weapon stance. Frontal hits are
+negated and drain player Composure (bar under the crosshair, `ComposureBar`);
+empty Composure breaks the guard with a 1 s `guard_break` stun. Stance names
+and descriptions for the Behaviors tab and HUD live in `data/stance/StanceInfo.gd`.
+
 **Weapon stance** (`systems/combat/WeaponStance.gd`, hold Right Mouse,
 2026-08-30 user request): preps a per-weapon special. Melee holds a
 dedicated `PoseSet.GUARD` - small, mostly rest-adjacent, always played at

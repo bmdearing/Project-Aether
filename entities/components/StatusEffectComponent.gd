@@ -148,6 +148,9 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 		"shock":
 			_apply_timed("shock", SHOCK_DURATION, source)
 			_emit_applied("shock")
+		"guard_break":
+			_timers["guard_break"] = ShieldBlock.GUARD_BREAK_STUN
+			_emit_applied("guard_break")
 		"scorch":
 			_scorch_stacks = mini(_scorch_stacks + 1, SCORCH_MAX_STACKS)
 			_timers["scorch"] = SCORCH_DURATION * _debuff_effectiveness_multiplier(source)
@@ -175,7 +178,7 @@ func clear_all_effects() -> void:
 ## Electrocute's "Stun / stagger effect" and Freeze's "full immobilization"
 ## both disrupt action - Chill alone (a slow) does not.
 func is_stunned() -> bool:
-	return has_effect("electrocute") or has_effect("freeze")
+	return has_effect("electrocute") or has_effect("freeze") or has_effect("guard_break")
 
 func get_move_speed_multiplier() -> float:
 	if is_stunned():

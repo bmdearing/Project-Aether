@@ -16,7 +16,6 @@ var _player: Player
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	_label = Label.new()
 	_label.add_theme_font_size_override("font_size", 16)
 	add_child(_label)
@@ -25,6 +24,10 @@ func _ready() -> void:
 		_player.weapon_stance.stance_page_changed.connect(func(_page): _refresh())
 		EventBus.weapon_swapped.connect(func(_p): _refresh())
 		_player.equipment.equipment_changed.connect(_refresh)
+	_refresh()
+
+## The Behaviors tab can change what RMB does without any signal firing.
+func _process(_delta: float) -> void:
 	_refresh()
 
 func _refresh() -> void:
@@ -36,5 +39,9 @@ func _refresh() -> void:
 		visible = false
 		return
 	visible = true
-	var page_name := "A" if _player.weapon_stance.active_page == WeaponStance.StancePage.A else "B"
-	_label.text = "Stance %s - %s" % [page_name, weapon.weapon_type]
+	if _player.shield_block and _player.shield_block.overrides_stance():
+		_label.text = "RMB - Raise Shield"
+		return
+	var page := int(_player.weapon_stance.active_page)
+	var info := StanceInfo.for_weapon(weapon, page)
+	_label.text = "Stance %s - %s" % ["A" if page == 0 else "B", info.get("name", weapon.weapon_type)]

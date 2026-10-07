@@ -32,6 +32,12 @@ const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
 @onready var paper_doll: HBoxContainer = $HBox/SidePanel/PaperDoll
 var _weapon_set_label: Label
 var _weapon_set_button: Button
+## Equipment / Behaviors tabs at the top left of the paper doll. Behaviors
+## swaps the doll for per-weapon settings: which stance RMB uses, and
+## whether RMB raises an equipped shield instead.
+var _equipment_tab: Button
+var _behaviors_tab: Button
+var _behaviors_panel: VBoxContainer
 
 var _is_open: bool = false
 var _equipment: EquipmentComponent
@@ -60,6 +66,7 @@ func _ready() -> void:
 	for row in _doll_rows:
 		(row["button"] as ItemSlotButton).pressed.connect(_on_doll_slot_pressed.bind(row))
 	_build_weapon_set_indicator()
+	_build_behaviors_panel()
 	inventory_grid.cell_size = 52
 	inventory_grid.entry_clicked.connect(_on_entry_clicked)
 	inventory_grid.drop_failed.connect(func(): status_label.text = "That doesn't fit there.")
@@ -75,6 +82,16 @@ func _ready() -> void:
 ## inventory instead of only via the in-game X-tap.
 func _build_weapon_set_indicator() -> void:
 	var row := HBoxContainer.new()
+	var tabs := ButtonGroup.new()
+	_equipment_tab = _make_toggle("Equipment", tabs, true)
+	_equipment_tab.pressed.connect(_show_tab.bind(false))
+	_behaviors_tab = _make_toggle("Behaviors", tabs, false)
+	_behaviors_tab.pressed.connect(_show_tab.bind(true))
+	row.add_child(_equipment_tab)
+	row.add_child(_behaviors_tab)
+	var spacer := Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	row.add_child(spacer)
 	_weapon_set_label = Label.new()
 	_weapon_set_button = Button.new()
 	_weapon_set_button.text = "Swap Weapon Set (X)"
@@ -83,6 +100,90 @@ func _build_weapon_set_indicator() -> void:
 	row.add_child(_weapon_set_button)
 	side_panel.add_child(row)
 	side_panel.move_child(row, paper_doll.get_index())
+
+func _make_toggle(text: String, group: ButtonGroup, pressed: bool) -> Button:
+	var button := Button.new()
+	button.text = text
+	button.toggle_mode = true
+	button.button_group = group
+	button.button_pressed = pressed
+	return button
+
+func _build_behaviors_panel() -> void:
+	_behaviors_panel = VBoxContainer.new()
+	_behaviors_panel.custom_minimum_size = paper_doll.custom_minimum_size
+	_behaviors_panel.add_theme_constant_override("separation", 8)
+	_behaviors_panel.visible = false
+	side_panel.add_child(_behaviors_panel)
+	side_panel.move_child(_behaviors_panel, paper_doll.get_index() + 1)
+
+func _show_tab(behaviors: bool) -> void:
+	paper_doll.visible = not behaviors
+	_behaviors_panel.visible = behaviors
+	if behaviors:
+		_refresh_behaviors()
+
+func _refresh_behaviors() -> void:
+	if _behaviors_panel == null or not _behaviors_panel.visible:
+		return
+	for child in _behaviors_panel.get_children():
+		child.queue_free()
+	var weapon: Weapon = _equipment.primary_weapon if _equipment else null
+	_add_heading("Main Hand - %s" % (weapon.display_name if weapon else "empty"))
+	if weapon == null:
+		_add_text("No weapon equipped.")
+	elif weapon.is_ranged:
+		var aim := StanceInfo.for_weapon(weapon, 0)
+		if aim.is_empty():
+			_add_text("Hold RMB to aim. No aim stance is designed for %s yet." % weapon.weapon_type)
+		else:
+			_add_text("Hold RMB to aim - %s: %s" % [aim["name"], aim["desc"]])
+	elif not StanceInfo.MELEE.has(weapon.weapon_type):
+		_add_text("No stances are designed for %s yet." % weapon.weapon_type)
+	else:
+		_add_text("Hold RMB to enter the selected stance. Holding X in combat also switches.")
+		var group := ButtonGroup.new()
+		for page in 2:
+			var info := StanceInfo.for_weapon(weapon, page)
+			var button := _make_toggle("Stance %s - %s" % ["A" if page == 0 else "B", info["name"]], group, GameState.stance_page == page)
+			button.pressed.connect(_on_stance_page_chosen.bind(page))
+			_behaviors_panel.add_child(button)
+			_add_text(info["desc"])
+
+	var shield: Shield = _equipment.offhand as Shield if _equipment else null
+	_add_heading("Off Hand - %s" % (shield.display_name if shield else "no shield"))
+	if shield == null:
+		_add_text("Equip a shield to block with right mouse.")
+		return
+	_add_text("Right mouse with a shield:")
+	var row := HBoxContainer.new()
+	var rmb := ButtonGroup.new()
+	var raise := _make_toggle("Raise Shield", rmb, GameState.shield_on_rmb)
+	raise.pressed.connect(func(): GameState.shield_on_rmb = true)
+	var stance := _make_toggle("Weapon Stance", rmb, not GameState.shield_on_rmb)
+	stance.pressed.connect(func(): GameState.shield_on_rmb = false)
+	row.add_child(raise)
+	row.add_child(stance)
+	_behaviors_panel.add_child(row)
+	_add_text("A raised shield stops every hit from the front, but holding it and taking hits drains Composure (the bar under the crosshair). When it runs out your guard breaks and you're stunned for a second.")
+
+func _on_stance_page_chosen(page: int) -> void:
+	GameState.stance_page = page
+	var player := get_tree().get_first_node_in_group("player") as Player
+	if player:
+		player.weapon_stance.set_stance_page(page as WeaponStance.StancePage)
+
+func _add_heading(text: String) -> void:
+	var label := Label.new()
+	label.text = text
+	label.add_theme_font_size_override("font_size", 18)
+	_behaviors_panel.add_child(label)
+
+func _add_text(text: String) -> void:
+	var label := Label.new()
+	label.text = text
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_behaviors_panel.add_child(label)
 
 func _refresh_weapon_set_label() -> void:
 	if _equipment == null or _weapon_set_label == null:
@@ -216,6 +317,7 @@ func _refresh_doll() -> void:
 	if _equipment == null:
 		return
 	_refresh_weapon_set_label()
+	_refresh_behaviors()
 	for row in _doll_rows:
 		var ring_index: int = row.get("ring_index", 0)
 		var equipped: Item = _equipment.get_equipped(row["slot"], ring_index)

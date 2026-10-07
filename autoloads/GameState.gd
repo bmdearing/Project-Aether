@@ -114,6 +114,11 @@ var fate_board_placements: Array = []
 ## death, spent at the Hub's GearShop.
 var gold: int = 0
 
+## Behaviors tab (inventory): RMB raises an equipped shield instead of
+## entering the weapon stance; which stance page RMB uses.
+var shield_on_rmb: bool = true
+var stance_page: int = 0
+
 ## Ability ids the player has unlocked via SkillTome or SpellTestShop -
 ## abilities aren't a free "owns one" stand-in anymore.
 var owned_ability_ids: Array[String] = []
@@ -186,6 +191,8 @@ func reset_to_defaults() -> void:
 	gold = 1000000  # Patch v3.8c, user request - dev/testing convenience
 	figment_tree_points = 0
 	figment_tree_unlocked_nodes = []
+	shield_on_rmb = true
+	stance_page = 0
 	portal_map_state = {}
 	portals_opened = 0
 	returning_through_portal = false

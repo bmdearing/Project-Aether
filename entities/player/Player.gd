@@ -45,6 +45,7 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @onready var experience: ExperienceComponent = $ExperienceComponent
 @onready var status_effects: StatusEffectComponent = $StatusEffectComponent
 @onready var weapon_stance: WeaponStance = $WeaponStance
+var shield_block: ShieldBlock
 @onready var cast_time_handler: CastTimeHandler = $CastTimeHandler
 
 ## Implementation Brief v3.3 Section 2: distinguishes a light-jab tap from
@@ -178,6 +179,9 @@ func _ready() -> void:
 		stat_sheet.agility = 10.0
 		stat_sheet.intellect = 10.0
 	fate_board = FateBoard.new()
+	shield_block = ShieldBlock.new()
+	shield_block.name = "ShieldBlock"
+	add_child(shield_block)
 	GameState.player_stat_sheet = stat_sheet
 	GameState.fate_board = fate_board
 	GameState.player_equipment = equipment
@@ -516,6 +520,8 @@ enum HitKind { ATTACK, SPELL, DOT }
 func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null, hit_kind: HitKind = HitKind.ATTACK) -> void:
 	if parry_handler and parry_handler.is_invulnerable:
 		return
+	if hit_kind != HitKind.DOT and shield_block.try_block(amount, source):
+		return
 	# Patch v4.4 Evasion: Dodge (attacks only) negates the hit entirely and
 	# never interrupts a cast; Deflection (attacks and spells) reduces it.
 	if hit_kind != HitKind.DOT:
@@ -588,8 +594,8 @@ const BLOCK_CHANCE_CAP := 0.75
 ## (EnemyMeleeAttack._resolve_hit()) asks this instead.
 func try_block_melee_hit() -> bool:
 	var shield := equipment.offhand as Shield if equipment else null
-	if shield == null:
-		return false
+	if shield == null or shield_block.is_raised:
+		return false  # a raised shield blocks (or doesn't) in take_damage()
 	var chance: float = min(shield.block_chance + stat_sheet.get_block_chance_bonus(), BLOCK_CHANCE_CAP)
 	if randf() < chance:
 		EventBus.hit_blocked.emit(self)
@@ -605,8 +611,9 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Non-pausing menus (the inventory) show the cursor; combat input is
 ## ignored while they do, movement isn't.
+## Headless runs (tests) can't capture the mouse, so they never count as blocked.
 func is_input_blocked() -> bool:
-	return Input.mouse_mode != Input.MOUSE_MODE_CAPTURED
+	return Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and DisplayServer.get_name() != "headless"
 
 func _physics_process(delta: float) -> void:
 	if not is_on_floor():
@@ -707,6 +714,10 @@ func _handle_weapon_swap_input(delta: float) -> void:
 		_x_triggered_hold = false
 
 func _handle_attack_input(delta: float) -> void:
+	if shield_block.is_raised:
+		_lmb_held_time = 0.0
+		_lmb_was_held = false
+		return
 	var active_weapon := get_active_weapon()
 	var is_melee := active_weapon != null and not active_weapon.is_ranged
 
@@ -751,7 +762,7 @@ func get_move_speed_multiplier() -> float:
 func _effective_speed(base: float) -> float:
 	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier() \
 		* melee_attack.get_move_speed_multiplier() * ability_cast.get_move_speed_multiplier() \
-		* weapon_stance.get_move_speed_multiplier()
+		* weapon_stance.get_move_speed_multiplier() * shield_block.get_move_speed_multiplier()
 
 ## Gear attack_speed + Agility's +1%/point, one increased% bracket.
 func get_action_speed_multiplier() -> float:

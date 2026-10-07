@@ -145,6 +145,7 @@ func _ready() -> void:
 	_build_crosshair()
 	_build_hit_marker()
 	_build_stance_indicator()
+	add_child(ComposureBar.new())
 	_build_throwable_indicator()
 	_build_enemy_counter()
 	EventBus.enemy_count_changed.connect(_on_enemy_count_changed)
@@ -187,9 +188,11 @@ func _build_hit_marker() -> void:
 
 func _build_stance_indicator() -> void:
 	var indicator := StanceIndicator.new()
+	indicator.anchor_top = 1.0
+	indicator.anchor_bottom = 1.0
 	indicator.offset_left = 16.0
-	indicator.offset_bottom = -16.0
-	indicator.offset_top = -40.0
+	indicator.offset_bottom = -40.0
+	indicator.offset_top = -64.0
 	indicator.offset_right = 200.0
 	add_child(indicator)
 

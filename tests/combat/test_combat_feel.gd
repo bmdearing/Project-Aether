@@ -1,5 +1,6 @@
 extends Node
-## Melee timing, contact window, hit reaction and movement acceleration.
+## Melee timing, contact window, hit reaction, movement acceleration and
+## the raised shield (ShieldBlock).
 ## Run: Godot --headless --path . res://tests/combat/test_combat_feel.tscn --quit-after 20000
 ## Exits 0 when every check passes.
 
@@ -28,6 +29,7 @@ func _run() -> void:
 	await _test_swing_timing()
 	await _test_contact_window_and_reaction()
 	await _test_acceleration()
+	await _test_shield_block()
 	print("combat feel tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -151,3 +153,64 @@ func _test_acceleration() -> void:
 		await _frames(1)
 	var lunge := (_player.global_position - before).dot(-_player.global_transform.basis.z)
 	_check(lunge > 0.1, "heavy strike steps the player forward (%.2fm)" % lunge)
+
+func _health_lost(before: float) -> float:
+	return before - _player.health.current_health
+
+func _test_shield_block() -> void:
+	var block := _player.shield_block
+	_equip("Dagger")
+	var shield := Shield.new()
+	shield.block_chance = 0.0
+	shield.equip_slot = Constants.EquipmentSlot.OFFHAND
+	_player.equipment.offhand = shield
+	_player.stat_sheet.misc_bonus["evasion"] = 0.0
+	GameState.shield_on_rmb = true
+	_player.velocity = Vector3.ZERO
+	await _frames(5)
+
+	Input.action_press("stance")
+	await _frames(3)
+	_check(block.is_raised, "RMB raises the shield")
+	_check(not _player.weapon_stance.is_active, "shield overrides the weapon stance")
+	_check(_player._effective_speed(_player.move_speed) < _player.move_speed, "moving slower while blocking")
+
+	var forward := -_player.camera.global_transform.basis.z
+	forward.y = 0.0
+	var front := _dummy(_player.global_position + forward.normalized() * 2.0)
+	var behind := _dummy(_player.global_position - forward.normalized() * 2.0)
+	await _frames(2)
+	_player.health.current_health = _player.health.max_health
+	var hp := _player.health.current_health
+	var composure_before := block.composure
+	_player.take_damage(20.0, Constants.DamageType.KINETIC, front)
+	_check(is_equal_approx(hp, _player.health.current_health), "hit from the front is fully blocked")
+	_check(block.composure < composure_before, "a blocked hit costs Composure")
+	_player.take_damage(20.0, Constants.DamageType.KINETIC, behind)
+	_check(_health_lost(hp) > 0.0 or _player.ward.current_ward < _player.ward.max_ward, "hit from behind gets through")
+
+	Input.action_press("attack")
+	await _frames(3)
+	Input.action_release("attack")
+	await _frames(2)
+	_check(_player.melee_attack.is_idle(), "can't attack with the shield raised")
+
+	while block.is_raised:
+		block.try_block(_player.health.max_health, front)
+	_check(_player.status_effects.is_stunned(), "running out of Composure breaks the guard and stuns")
+	await _frames(3)
+	_check(not block.is_raised, "shield can't be raised again straight after a break")
+	await get_tree().create_timer(ShieldBlock.GUARD_BREAK_STUN + 0.1).timeout
+	_check(not _player.status_effects.is_stunned(), "stun ends after a second")
+	Input.action_release("stance")
+	await _frames(2)
+
+	GameState.shield_on_rmb = false
+	Input.action_press("stance")
+	await _frames(3)
+	_check(not block.is_raised and _player.weapon_stance.is_active, "Weapon Stance setting keeps RMB on the stance")
+	Input.action_release("stance")
+	await _frames(2)
+	GameState.shield_on_rmb = true
+	front.queue_free()
+	behind.queue_free()

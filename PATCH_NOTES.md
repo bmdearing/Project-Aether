@@ -7,6 +7,17 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.25: Raised shield, player Composure, Behaviors tab (user request)
+
+- **Raise Shield:** with a shield equipped, holding RMB raises it instead of entering the weapon stance (Master v3, Active Block). Any hit within 75 degrees of where you're facing is fully negated, melee, projectile or spell; DoT ticks still land. You can't attack and move at 60% while it's up. The old passive block roll is skipped while the shield is raised.
+- **Player Composure:** stands in for the doc's Stamina until that exists. A bar under the crosshair shows while blocking and while refilling. Holding the shield drains 5/s; each blocked hit costs 8 + 60 x (hit / max health). At zero the guard breaks: shield drops, 1 s stun ("Guard Broken" status), and it can't be raised again until Composure is back to 30%. Refills at 40/s after 4 s without blocking (the doc's delay). Parry +25, riposte +15, kill +5. Max is 100 + the gear "+X Stamina" suffix, which had no effect until now. All numbers are first-pass placeholders.
+- **Behaviors tab:** Equipment / Behaviors tabs at the top left of the inventory's paper doll. Behaviors shows the main-hand weapon's two stances (names and descriptions from Patch v3.4), lets you pick which one RMB uses, and for a shield, whether RMB raises it or uses the weapon stance. Both choices are saved. The stance descriptions are the design; most stances still have no mechanics behind them.
+- **HUD stance readout:** it was positioned off the top of the screen (anchored without its offsets moving), so the A/B readout from v3.4 was never visible. Now at the bottom left, showing the stance name, or "RMB - Raise Shield".
+- `Player.is_input_blocked()` no longer counts a headless run as blocked (headless can't capture the mouse), so tests can drive input.
+- `tests/combat` now 27 checks, including raising, frontal-only blocking, attack lockout, guard break, stun and the Weapon Stance setting.
+
+---
+
 ## 2026-10-07 — v4.24: Combat and movement feel (user request)
 
 "Melee strikes are a bit too fast on smaller weapons and don't feel as punchy."
