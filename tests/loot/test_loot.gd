@@ -92,8 +92,11 @@ func _test_rarity_weights() -> void:
 	var boosted := _rarity_shares(3.0, 20000)
 	_check(absf(base[Constants.ItemRarity.RARE] - 0.06) < 0.01, "Rares drop without any Item Rarity (%.3f)" % base[Constants.ItemRarity.RARE])
 	_check(absf(base[Constants.ItemRarity.UNCOMMON] - 0.22) < 0.015, "base Uncommon share (%.3f)" % base[Constants.ItemRarity.UNCOMMON])
-	# x3 rarity: 72 / 66 / 18 -> Rare 18/156.
-	_check(absf(boosted[Constants.ItemRarity.RARE] - 18.0 / 156.0) < 0.01, "+200%% Item Rarity roughly doubles the Rare share (%.3f)" % boosted[Constants.ItemRarity.RARE])
+	var w := Loot.rarity_weights(3.0)
+	var w_total := 0.0
+	for v in w.values():
+		w_total += v
+	_check(absf(boosted[Constants.ItemRarity.RARE] - w[Constants.ItemRarity.RARE] / w_total) < 0.01, "+200%% Item Rarity roughly doubles the Rare share (%.3f)" % boosted[Constants.ItemRarity.RARE])
 	_check(boosted[Constants.ItemRarity.COMMON] < base[Constants.ItemRarity.COMMON] - 0.2, "Item Rarity makes Commons rarer")
 	var rng := RandomNumberGenerator.new()
 	rng.seed = 5

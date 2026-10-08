@@ -102,6 +102,7 @@ const CURRENCY_COLOR := Color(0.85, 0.68, 0.3)
 const BRAND_COLOR := Color(0.85, 0.3, 0.3)
 const HINT_COLOR := Color(0.6, 0.75, 0.6)
 const SOCKETED_COLOR := Color(0.55, 0.85, 0.9)
+const UNIQUE_MOD_COLOR := Color(0.95, 0.68, 0.38)
 const JEWEL_HINT := "Right-click to pick up, then click an item with a free socket."
 
 ## Orbs, Brands, Edicts and stones: name, stack size, what it does and how to use it.
@@ -152,7 +153,7 @@ func _render_item(item: Item) -> void:
 	var requirements_met := _check_requirements_met(item)
 	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH, AetherStyle.GOLD if requirements_met else REQUIREMENT_UNMET_COLOR)
-	var badge_row := _add_type_badge("ITEM", rarity_color)
+	var badge_row := _add_type_badge(_item_badge(item), rarity_color)
 	if item.is_corrupted:
 		badge_row.add_child(_make_badge("CORRUPTED", CORRUPTED_BADGE_COLOR))
 	if item.icon_path != "":
@@ -180,8 +181,9 @@ func _render_item(item: Item) -> void:
 		_add_mod_line(_affix_text(affix, false), IMPLICIT_COLOR)
 	if implicits.size() > 0 and (explicits.size() > 0 or not item.get_socketed_jewels().is_empty()):
 		_add_separator()
+	var mod_color := UNIQUE_MOD_COLOR if item.rarity >= Constants.ItemRarity.UNIQUE else AFFIX_COLOR
 	for line in _merged_explicit_lines(item):
-		_add_mod_line(line, AFFIX_COLOR)
+		_add_mod_line(line, mod_color)
 	if item is Weapon:
 		_add_stance_lines(item as Weapon, true)
 	if item is Jewel:
@@ -326,6 +328,8 @@ func _affix_text(affix: ItemAffix, show_tier: bool) -> String:
 		text = text.substr(0, tier_at)
 	if show_tier and not affix.is_implicit and affix.tier > 0:
 		text = _with_range(text, affix) + "  [Tier %d]" % affix.tier
+	elif show_tier and not affix.is_implicit and affix.value_max > affix.value_min:
+		text = _with_range(text, affix)  # unique modifiers: a range, no tier
 	return text
 
 static var _number_regex: RegEx
@@ -642,6 +646,14 @@ class SocketRow extends Control:
 			if i < jewels.size():
 				var colour: Color = Constants.ITEM_RARITY_COLOR.get(jewels[i].rarity, Color.WHITE)
 				AetherStyle.diamond(self, centre, SOCKET_RADIUS * 0.8, colour.darkened(0.25), colour.lightened(0.3))
+
+## "UNIQUE" / "MYTHIC" for those rarities, else "ITEM".
+func _item_badge(item: Item) -> String:
+	if item.rarity == Constants.ItemRarity.MYTHIC:
+		return "MYTHIC"
+	if item.rarity == Constants.ItemRarity.UNIQUE:
+		return "UNIQUE"
+	return "ITEM"
 
 func _item_type_line(item: Item) -> String:
 	if item is Jewel:

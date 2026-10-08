@@ -259,9 +259,7 @@ class Overcharged extends CorruptionOutcome:
 ## ---- Tier 4: Extreme -----------------------------------------------------
 
 class Transcendent extends CorruptionOutcome:
-	## Reroll as a Corrupted Unique - all existing mods lost. UniquePool
-	## is stubbed (no corrupted-Unique catalog exists yet) - a no-op
-	## until that content exists.
+	## Reroll as a Corrupted Unique (UniquePool) - all existing mods lost.
 	func apply(item: Item, _power_level: int) -> void:
 		var corrupted_uniques := UniquePool.get_corrupted_uniques_for_type(item.equip_slot)
 		if corrupted_uniques.is_empty():
@@ -270,6 +268,8 @@ class Transcendent extends CorruptionOutcome:
 		item.affixes = new_unique.affixes
 		item.rarity = Constants.ItemRarity.UNIQUE
 		item.display_name = new_unique.display_name
+		item.unique_id = new_unique.unique_id
+		item.flavor_text = new_unique.flavor_text
 		EventBus.item_transcended.emit(item)
 
 class Unmade extends CorruptionOutcome:

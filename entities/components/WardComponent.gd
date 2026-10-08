@@ -45,6 +45,8 @@ var restoration_multiplier: float = 1.0
 ## delay() clamps the result to REGEN_DELAY_FLOOR_SECONDS regardless of
 ## how much is invested - "cannot reduce below 2 seconds."
 var regen_delay_reduction: float = 0.0
+## Set by UniqueEffects (The Pale Eye, Stride of the Unwound): no restoration at all.
+var recovery_blocked: bool = false
 
 var _regen_delay_timer: float = 0.0
 
@@ -85,7 +87,7 @@ func absorb(incoming_damage: float) -> float:
 ## through here and gets restoration_multiplier's Enigma scaling - "Ward
 ## Restoration is a unified stat" per the patch.
 func restore(amount: float) -> void:
-	if amount <= 0.0:
+	if amount <= 0.0 or recovery_blocked:
 		return
 	var final_amount := amount * restoration_multiplier
 	current_ward = min(max_ward, current_ward + final_amount)

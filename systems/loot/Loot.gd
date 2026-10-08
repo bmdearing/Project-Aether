@@ -11,11 +11,13 @@ const MAGIC_FIND_QUANTITY := 0.5
 const MAGIC_FIND_RARITY := 2.0
 
 ## Base rarity weights; Item Rarity multiplies every weight but Common's.
-## Unique has no weight until uniques exist.
+## Unique and Mythic roll a UniqueCatalog item (UniqueRoller).
 const RARITY_WEIGHTS := {
 	Constants.ItemRarity.COMMON: 72.0,
 	Constants.ItemRarity.UNCOMMON: 22.0,
 	Constants.ItemRarity.RARE: 6.0,
+	Constants.ItemRarity.UNIQUE: 1.5,
+	Constants.ItemRarity.MYTHIC: 0.1,
 }
 
 ## Drop rolls per kill by rank, plus extra for Elite/Champion/Ascendant.

@@ -17,6 +17,8 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @export var mouse_sensitivity: float = 0.0035
 @export var max_look_up_deg: float = 89.0
 @export var stat_sheet: StatSheet
+## Equipped Unique/Mythic mechanics (created in _ready()).
+var unique_effects: UniqueEffects
 
 @onready var head: Node3D = $Head
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
@@ -201,6 +203,10 @@ func _ready() -> void:
 	_base_mana_regen = mana.regen_per_second
 	if collision_shape.shape:
 		collision_shape.shape = collision_shape.shape.duplicate()
+	unique_effects = UniqueEffects.new()
+	unique_effects.name = "UniqueEffects"
+	add_child(unique_effects)
+	stat_sheet.unique_effects = unique_effects
 	equipment.equipment_changed.connect(_on_equipment_changed)
 	EventBus.slate_placed.connect(func(_id, _pos): _apply_fate_board_bonuses())
 	EventBus.slate_removed.connect(func(_id, _pos): _apply_fate_board_bonuses())
@@ -221,6 +227,8 @@ func _ready() -> void:
 ## Fires on every equip()/unequip(), not just at spawn - also covers a
 ## shield/weapon equipped into a previously-empty slot.
 func _on_equipment_changed() -> void:
+	if unique_effects:
+		unique_effects.refresh(equipment.get_all_equipped_items())
 	stat_sheet.set_equipment_bonus(equipment.compute_stat_bonuses())
 	stat_sheet.set_equipment_resistance(equipment.compute_resistance_bonuses())
 	stat_sheet.set_misc_bonus(equipment.compute_misc_bonuses())
@@ -266,8 +274,9 @@ var resilience: float = 0.0
 ## resets to a flat 1.0 until/unless a gear affix drives it.
 func _apply_derived_stats() -> void:
 	# Life: Strength's +4/point + gear-affix max_life/life_regen.
-	health.set_max_health(_base_max_health + stat_sheet.get_max_life_bonus() + stat_sheet.get_misc_bonus("max_life"))
-	health.regen_per_second = stat_sheet.get_misc_bonus("life_regen")
+	var life_mult := unique_effects.max_life_multiplier() if unique_effects else 1.0
+	health.set_max_health((_base_max_health + stat_sheet.get_max_life_bonus() + stat_sheet.get_misc_bonus("max_life")) * life_mult)
+	health.regen_per_second = 0.0 if unique_effects and unique_effects.has(UniqueEffects.NO_LIFE_REGEN) else stat_sheet.get_misc_bonus("life_regen")
 	resilience = stat_sheet.get_misc_bonus("flat_resilience")
 
 	# Mana: Intellect's +3/point + gear-affix max_mana/mana_regen.
@@ -283,7 +292,8 @@ func _apply_derived_stats() -> void:
 	# DamageCalculator.get_crit_chance()'s 2026-09-07 fix.
 	stat_sheet.finesse_crit_bonus = stat_sheet.get_crit_chance_from_stats() + stat_sheet.get_gear_crit_chance_bonus()
 
-	ward.set_max_ward(equipment.compute_ward_bonus() * (1.0 + stat_sheet.get_ward_increased_from_stats()))
+	var ward_mult := unique_effects.ward_multiplier() if unique_effects else 1.0
+	ward.set_max_ward(equipment.compute_ward_bonus() * (1.0 + stat_sheet.get_ward_increased_from_stats()) * ward_mult)
 	ward.restoration_multiplier = 1.0  # no longer stat-driven - see header
 	# Patch v4.0 Faster Ward Delay - WardComponent has no StatSheet
 	# reference of its own, so this is pushed in the same way every other
@@ -479,6 +489,8 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 			if randf() < DamageCalculator.deflection_chance(evasion):
 				amount *= 1.0 - DamageCalculator.deflection_mitigation(evasion)
 				EventBus.hit_deflected.emit(self)
+	if unique_effects:
+		amount *= unique_effects.damage_taken_multiplier(hit_kind == HitKind.SPELL)
 	# Patch v4.0 Defensive Mod Pool - % Physical Damage taken as Elemental
 	# shifts BEFORE mitigation, per damage type, splitting one hit into
 	# several smaller ones the rest of this function then processes
@@ -518,6 +530,9 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 				var bonus_armor := equipment.get_total_armor() * armor_to_elemental_pct
 				mitigated *= (1.0 - DamageCalculator.physical_mitigation(bonus_armor, mitigated))
 		mitigated *= (1.0 - stat_sheet.get_reduced_damage_taken(category))
+	if unique_effects:
+		mitigated = unique_effects.absorb_esoteric(mitigated, damage_type)
+		unique_effects.record_damage_taken(mitigated)
 	# Patch v4.0 "% of Damage from Mana before Life" - drains Mana for a
 	# portion of the mitigated hit before Ward/Health ever see it.
 	var mana_shield_pct := stat_sheet.get_damage_from_mana_percent()

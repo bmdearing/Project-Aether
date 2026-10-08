@@ -23,6 +23,8 @@ static func empower_figment(figment: FigmentItem) -> Dictionary:
 static func infuse(weapon: Weapon) -> Dictionary:
 	if weapon == null:
 		return {"success": false, "message": "Choose a weapon to infuse."}
+	if weapon.get_all_affixes().any(func(a: ItemAffix): return a.stat_key == UniqueEffects.NO_INFUSION):
+		return {"success": false, "message": "%s cannot be Infused." % weapon.display_name}
 	var options: Array = Constants.DamageType.values().filter(func(t): return t != weapon.native_damage_type)
 	weapon.infused_damage_type = options[randi() % options.size()]
 	EventBus.item_stats_changed.emit(weapon)

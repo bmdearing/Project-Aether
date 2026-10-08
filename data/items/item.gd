@@ -39,6 +39,8 @@ class_name Item
 @export var item_type: StringName = &""
 @export var affixes: Array[ItemAffix] = []
 @export var flavor_text: String = ""
+## Set on Uniques and Mythics: their UniqueCatalog id.
+@export var unique_id: String = ""
 ## res:// path to a 64x64 icon (assets/sprites/) shown instead of the
 ## flat rarity/damage-type color square - a String (not a Texture2D
 ## reference) so ItemSerializer's plain-Dictionary rolled-item save data

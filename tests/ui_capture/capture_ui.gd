@@ -1,7 +1,7 @@
 extends Node
 ## Screenshots real UI states in the Hub for visual review.
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_ui.tscn --resolution 1920x1080 -- <out.png> <mode>
-## Modes: hud, inventory, character, abilities, fateboard, map, pause, shop, stash, card, sockets, death
+## Modes: hud, inventory, character, abilities, fateboard, map, pause, shop, stash, card, sockets, uniques, death
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -35,6 +35,8 @@ func _run() -> void:
 			_show_card(player)
 		"sockets":
 			_show_sockets()
+		"uniques":
+			_show_uniques()
 		"death":
 			EventBus.player_died.emit()
 	await get_tree().create_timer(2.0).timeout
@@ -120,3 +122,15 @@ func _show_sockets() -> void:
 			card._showing_alt = true
 			card._render_alt_info()
 		card.position = Vector2(40 + (380 if alt else 0), 120)
+
+## Three unique cards and the Mythic, side by side.
+func _show_uniques() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	get_tree().root.add_child(layer)
+	var ids := ["the_pale_eye", "grevanes_accounting", "unmaking_of_solen_vrath", "hollowed_kings_mantle"]
+	for i in ids.size():
+		var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+		layer.add_child(card)
+		card.display_item(UniqueRoller.build(UniqueCatalog.get_def(ids[i]), 80))
+		card.position = Vector2(40 + i * 470, 60)

@@ -7,6 +7,34 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.36: Uniques and Mythics (user request)
+
+- **Catalog** (`data/uniques/unique_catalog.gd`): each unique is a fixed name, flavour and modifier list on a real base of its type (`UniqueRoller.base_for()` picks the best base the drop level allows). Modifiers roll within ranges and are not Orb-craftable. Uniques can be socketed and corrupted (docs: Master v3 Section 18).
+  - **From the design docs** (Section 19):
+    - The Hollowed King's Mantle: Esoteric damage comes out of Mana first, with 200% overflow as Physical damage bypassing Ward; more Ward; more Esoteric damage. "Ward Threshold" isn't a stat here, so it's "more Ward".
+    - Grevane's Accounting: Debt stacks (max 20) paid out as Retaliation on your next hit while standing still; 25% less damage while moving.
+    - The Pale Eye: crits apply Pallid; crits on Pallid enemies deal +30%; no Ward recovery at all; +40% crit chance, +60% crit damage.
+    - **Mythic** The Unmaking of Solen Vrath: a two-handed Aetheric claymore. Aetheric hits echo 40% as Entropic and vice versa, applying an enhanced (double) Unraveling; 30% reduced Maximum Life; can't be Infused; plus the **Grade Equivalent Bonus** (one grade above its base). Aetherburn isn't in the game, so Unraveling stands in for it.
+  - **Placeholders in the same "build problem" style**, until the doc's dedicated Unique design session:
+    - Crown of the Ninth Bell (helmet): +2 spell levels, Mana, but spells cost 50% more Mana.
+    - Hands of the Last Toll (gloves): Life on kill, but no Life regeneration.
+    - Stride of the Unwound (boots): more speed and more damage while moving, but no Ward recovery while moving.
+    - Seal of the Lesser Sun (ring): more Fire damage and Ignite chance, but -30% Cold Resistance.
+    - The Unpaid Wall (kite shield): Block, Ward on block, but 20% more damage taken from Spells.
+    - Widow's Patience (crossbow): 40-60% more damage after 2s without a hit, but 25% reduced Attack Speed.
+  - **Corrupted-only:** The Debt of Tharsis (Magic Find and Rarity, but 10% more damage taken). It's what the Shard's Transcendent outcome now produces; `UniquePool` was a stub that made that outcome a no-op.
+  - Not built: The Cartographer of Ruin, which needs throwables (excluded from loot). Unique/Mythic jewels whose effect depends on socket location are also not built.
+- **Drops:** `Loot.RARITY_WEIGHTS` gains Unique 1.5 and Mythic 0.1, against 72/22/6, and Item Rarity scales them too. An `ItemRoller` roll that lands Unique/Mythic becomes a weighted catalog pick (`UniqueRoller`), or a Rare if nothing fits. Jewels cap at Rare.
+- **Mechanics** (`systems/loot/UniqueEffects.gd`, a child of Player): sums every equipped `unique_*` modifier.
+  - Hit rolls get its "more" multiplier through `StatSheet.unique_damage_multiplier()` (weapons and spells).
+  - On-hit effects run off `EventBus.damage_dealt`, with re-entry guarded so echo hits don't echo.
+  - Incoming damage, Max Life/Ward/regen, `WardComponent.recovery_blocked`, Life on kill (`enemy_died`) and Ward on block (`hit_blocked`) are wired in Player.
+  - `Ability.get_mana_cost()` now allows a negative "reduction" (more cost); it used to clamp at 0.
+- **Item card:** UNIQUE/MYTHIC badge, orange modifier text, and Alt shows each ranged unique modifier's roll range (no tier). `Item.unique_id` is saved with the item.
+- **Tests:** new `tests/uniques/` (123 checks: every entry builds on its base type with its text filled in, Grade bonus, drop odds, save round-trip, no Orbs or Infusion, every mechanic on a live player, corrupted Transcendent, card badges/flavour/ranges). `tests/ui_capture/shot.sh <out> uniques` screenshots four cards.
+
+---
+
 ## 2026-10-08 — v4.35: Loot system: Item Quantity, Item Rarity, Magic Find (user request)
 
 - **Three new stats** (`systems/loot/Loot.gd`):

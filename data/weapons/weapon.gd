@@ -175,7 +175,7 @@ func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dicti
 	# Grade is shown in Alt info and can be degraded by Shard of Tharsis.
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
 		boosted_base, motion_value, 0.0, scaling_grade,
-		0.5, increased, [], damage_type
+		0.5, increased, [stat_sheet.unique_damage_multiplier(damage_type)], damage_type
 	)
 	return {
 		"base_damage": result.final_damage,

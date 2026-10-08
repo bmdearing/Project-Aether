@@ -155,7 +155,7 @@ func get_final_cooldown(action_speed_multiplier: float, stat_sheet: StatSheet = 
 
 func get_mana_cost(stat_sheet: StatSheet = null) -> float:
 	var reduction := stat_sheet.get_misc_bonus("mana_cost_reduction") / 100.0 if stat_sheet else 0.0
-	return resource_cost * (1.0 - clampf(reduction, 0.0, 0.75))
+	return resource_cost * (1.0 - clampf(reduction, -1.0, 0.75))  # negative = costs more (Crown of the Ninth Bell)
 
 func get_radius(stat_sheet: StatSheet = null) -> float:
 	if not has_tag(TAG_AREA):
@@ -207,7 +207,7 @@ func _increased_percents(stat_sheet: StatSheet) -> Array[float]:
 	return increased
 
 func _base_hit(base_damage: float, stat_sheet: StatSheet) -> Dictionary:
-	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more]
+	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more, stat_sheet.unique_damage_multiplier(damage_type)]
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
 		base_damage, 1.0, 0.0, scaling_grade, 0.5, _increased_percents(stat_sheet), more, damage_type
 	)

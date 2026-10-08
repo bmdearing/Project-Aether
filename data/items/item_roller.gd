@@ -314,6 +314,11 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 	# Loot.roll_rarity() weights Common/Uncommon/Rare; loot_rarity_multiplier
 	# (Item Rarity) scales the non-Common weights.
 	item.rarity = Loot.roll_rarity(loot_rarity_multiplier)
+	if item.rarity >= Constants.ItemRarity.UNIQUE:
+		var unique := UniqueRoller.roll(item.rarity, power_level)
+		if unique:
+			return unique
+		item.rarity = Constants.ItemRarity.RARE
 	var affix_count := 0
 	match item.rarity:
 		Constants.ItemRarity.UNCOMMON:
@@ -544,7 +549,7 @@ static func _build_candidate_meta_cache() -> void:
 				var path: String = dir_path + file_name
 				var item := load(path) as Item
 				if item and not _is_excluded_line(item.base_line_id):
-					_candidate_meta_cache[path] = {"item_level": item.item_level, "base_line_id": item.base_line_id}
+					_candidate_meta_cache[path] = {"item_level": item.item_level, "base_line_id": item.base_line_id, "item_type": String(item.get_item_type()), "equip_slot": item.equip_slot}
 			file_name = dir.get_next().trim_suffix(".remap")
 		dir.list_dir_end()
 

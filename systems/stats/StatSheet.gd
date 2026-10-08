@@ -184,6 +184,13 @@ func apply_equipment_affixes(items: Array[Item]) -> void:
 ## +20%) - not @export'd/persisted, same "always re-derived from currently
 ## equipped gear" footing as equipment_bonus/increased_damage_generic
 ## above. Recalculated on every stat refresh, never cached across one.
+## The player's UniqueEffects (set by Player), for unique_damage_multiplier().
+var unique_effects: UniqueEffects
+
+## "More" multiplier from equipped Uniques on a hit of damage_type.
+func unique_damage_multiplier(damage_type: int) -> float:
+	return unique_effects.damage_multiplier(damage_type) if unique_effects else 1.0
+
 var cast_speed_bonus: float = 0.0
 var cooldown_recovery_rate: float = 0.0
 

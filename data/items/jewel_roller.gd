@@ -12,6 +12,8 @@ static func roll(item_level: int = 1, loot_rarity_multiplier: float = 1.0, rng: 
 	jewel.display_name = Jewel.DISPLAY_NAME
 	jewel.item_level = maxi(item_level, 1)
 	jewel.rarity = Loot.roll_rarity(loot_rarity_multiplier, rng)
+	if jewel.rarity >= Constants.ItemRarity.UNIQUE:
+		jewel.rarity = Constants.ItemRarity.RARE  # no unique jewels yet
 	var count := 0
 	match jewel.rarity:
 		Constants.ItemRarity.UNCOMMON:
