@@ -74,9 +74,9 @@ class MockCanvas extends Control:
 		_crosshair(Vector2(mid, h / 2.0))
 		_enemy_bar(Vector2(mid - 150, h * 0.36), "Synod Warden Golem", Color(0.45, 0.65, 1.0), 0.62, 0.55)
 		_bottom_shade(w, h)
-		var base_y := h - 128.0
-		_orb(Vector2(mid - 265, base_y), 62.0, 0.78, LIFE, "LIFE", "166", "/ 212", 0.65)
-		_orb(Vector2(mid + 265, base_y), 62.0, 0.46, MANA, "MANA", "52", "/ 112", -1.0)
+		var base_y := h - 134.0
+		_orb(Vector2(mid - 280, base_y), 68.0, 0.78, LIFE, "LIFE", "166", "/ 212", 0.65)
+		_orb(Vector2(mid + 280, base_y), 68.0, 0.46, MANA, "MANA", "52", "/ 112", -1.0)
 		var spells := [["Ci", FIRE, 0.0, "8"], ["Ic", COLD, 0.0, "8"], ["St", LIGHTNING, 0.35, "34"], ["Bh", ENTROPIC, 0.0, "30"]]
 		_skill_bar(Vector2(mid, base_y + 4), spells)
 		_xp_bar(Vector2(0, h - 7), w, 0.38, 14)
