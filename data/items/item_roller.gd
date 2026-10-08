@@ -108,9 +108,9 @@ const AFFIX_POOL := [
 	# was this entry's own invented 16-20%).
 	{"stat_key": "elemental_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Elemental damage", "applies_to": ["weapon"], "brand_tags": ["fire", "cold", "lightning"]},
 	{"stat_key": "esoteric_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Esoteric damage", "applies_to": ["weapon"], "brand_tags": ["aetheric", "entropic", "pale"]},
-	{"stat_key": "flat_armor", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Armor", "applies_to": ["armor", "shield"], "brand_tags": ["armor"]},
-	{"stat_key": "flat_ward", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Ward", "applies_to": ["armor"], "brand_tags": ["ward"]},
-	{"stat_key": "flat_evasion", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Evasion", "applies_to": ["armor"], "brand_tags": ["evasion"]},
+	{"stat_key": "flat_armor", "defense": "armor", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Armor", "applies_to": ["armor", "shield"], "brand_tags": ["armor"]},
+	{"stat_key": "flat_ward", "defense": "ward", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Ward", "applies_to": ["armor"], "brand_tags": ["ward"]},
+	{"stat_key": "flat_evasion", "defense": "evasion", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Evasion", "applies_to": ["armor"], "brand_tags": ["evasion"]},
 	# Patch v3.2 "Revision - Resistance System": doc-exact range, matching
 	# the Ember/Frost/Volt/Void Ring implicits (+11-27%) - Esoteric is
 	# unified across Aetheric/Entropic/Pale per the patch, one stat covers
@@ -253,9 +253,9 @@ const AFFIX_POOL := [
 
 	# Patch v4.0 Armor Base Specific Mods (flat_ward/flat_armor/flat_evasion
 	# pre-existing, "Varies by type" per the doc - no new T1 given for those)
-	{"stat_key": "increased_ward", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward", "applies_to": ["armor"], "brand_tags": ["ward"]},
-	{"stat_key": "increased_armor", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Armor", "applies_to": ["armor", "shield"], "brand_tags": ["armor"]},
-	{"stat_key": "increased_evasion", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Evasion", "applies_to": ["armor"], "brand_tags": ["evasion"]},
+	{"stat_key": "increased_ward", "defense": "ward", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward", "applies_to": ["armor"], "brand_tags": ["ward"]},
+	{"stat_key": "increased_armor", "defense": "armor", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Armor", "applies_to": ["armor", "shield"], "brand_tags": ["armor"]},
+	{"stat_key": "increased_evasion", "defense": "evasion", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Evasion", "applies_to": ["armor"], "brand_tags": ["evasion"]},
 	{"stat_key": "hybrid_defense_life", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d to primary defense and Life (hybrid)", "applies_to": ["armor"], "brand_tags": []},
 
 	# Patch v4.0 Amulet Exclusive Mod Pool - Prefix, +1-2 at T1 (item level
@@ -567,6 +567,11 @@ static func _pool_for(item: Item) -> Array:
 		var applies: Array = entry["applies_to"]
 		if not (applies.is_empty() or applies.has(category)):
 			continue
+		# Defence mods only roll on a base that has that defence (no Armour
+		# mods on an Evasion hood).
+		var defense: String = entry.get("defense", "")
+		if defense != "" and (item is Armor or item is Shield) and not _has_defense(item, defense):
+			continue
 		var slots: Array = entry.get("slots", [])
 		if not slots.is_empty() and not slots.has(item.equip_slot):
 			continue
@@ -601,3 +606,10 @@ static func _category_of(item: Item) -> String:
 	if item is Shield:
 		return "shield"
 	return "item"
+
+static func _has_defense(item: Item, defense: String) -> bool:
+	match defense:
+		"armor": return item.get("armor_value") > 0.0
+		"evasion": return item.get("evasion_value") > 0.0
+		"ward": return item.get("ward_value") > 0.0
+	return true

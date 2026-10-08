@@ -136,6 +136,18 @@ func _test_gear_modifiers() -> void:
 	var amulet := Item.new()
 	amulet.equip_slot = Constants.EquipmentSlot.AMULET
 	var glove_keys := _pool_keys(gloves)
+	var hood := Armor.new()
+	hood.equip_slot = Constants.EquipmentSlot.HELMET
+	hood.evasion_value = 40.0
+	var hood_keys := _pool_keys(hood)
+	_check(hood_keys.has("flat_evasion") and hood_keys.has("increased_evasion"), "an Evasion base rolls Evasion mods")
+	_check(not hood_keys.has("flat_armor") and not hood_keys.has("increased_armor") and not hood_keys.has("increased_ward"), "an Evasion base never rolls Armour or Ward mods")
+	var plate := Armor.new()
+	plate.equip_slot = Constants.EquipmentSlot.BODY_ARMOUR
+	plate.armor_value = 100.0
+	plate.ward_value = 50.0
+	var plate_keys := _pool_keys(plate)
+	_check(plate_keys.has("increased_armor") and plate_keys.has("flat_ward") and not plate_keys.has("increased_evasion"), "an Armour/Ward base rolls both of those and no Evasion")
 	var amulet_keys := _pool_keys(amulet)
 	_check(glove_keys.has("item_rarity") and glove_keys.has("magic_find") and not glove_keys.has("item_quantity"), "armour rolls Item Rarity and Magic Find, not Quantity")
 	_check(amulet_keys.has("item_quantity") and amulet_keys.has("item_rarity") and amulet_keys.has("magic_find"), "accessories roll all three")

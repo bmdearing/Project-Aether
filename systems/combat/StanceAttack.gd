@@ -47,9 +47,43 @@ var _flurry_left: int = 0
 var _flurry_behavior: MeleeStanceBehavior
 ## Stealth's bonus is spent by the first attack; re-entering stance restores it.
 var _stealth_spent: bool = false
+## Charged stances charge from holding RMB alone: set while RMB is held in
+## one and its charge hasn't started (a swing was still finishing) or fired.
+var _wants_charge: bool = false
+## Letting go of RMB sooner than this cancels instead of firing, so a tap
+## into stance doesn't throw a lunge.
+const MIN_HOLD_TO_FIRE := 0.2
 
 func _ready() -> void:
 	_player = get_parent()
+
+## Rapier, Greatsword, Mace and the other charged stances: holding RMB
+## charges, a full charge fires by itself, and letting go early fires a
+## partial charge where the stance allows one.
+func is_charged_stance() -> bool:
+	var behavior := _player.weapon_stance.current_behavior as MeleeStanceBehavior
+	return behavior != null and behavior.charge_time > 0.0 and POSES.has(behavior.stance_type)
+
+## Connected by Player._ready() (WeaponStance isn't resolved yet in ours).
+func _on_stance_entered() -> void:
+	_wants_charge = false
+	if not is_charged_stance():
+		return
+	var behavior := _player.weapon_stance.current_behavior
+	if not _player.weapon_stance.is_ready(behavior):
+		_on_cooldown(behavior)
+		return
+	begin_charge()
+	_wants_charge = not is_charging  # a swing is still finishing: start once it ends
+
+func _on_stance_exited() -> void:
+	_wants_charge = false
+	if not is_charging:
+		return
+	if _held >= maxf(_behavior.charge_min_time, MIN_HOLD_TO_FIRE) and not _behavior.require_full_charge:
+		release()
+	else:
+		cancel()
 
 func _active_behavior() -> MeleeStanceBehavior:
 	return _player.weapon_stance.current_behavior as MeleeStanceBehavior if _player.weapon_stance.is_active else null
@@ -112,6 +146,9 @@ func _physics_process(delta: float) -> void:
 		_stealth_spent = false
 	if _flurry_left > 0:
 		_continue_flurry()
+	if _wants_charge and not is_charging and _player.weapon_stance.is_active and _player.melee_attack.is_idle():
+		_wants_charge = false
+		begin_charge()
 	if not is_charging:
 		return
 	if not _player.weapon_stance.is_active or _player.status_effects.is_stunned() or _player.shield_block.is_raised:
@@ -123,6 +160,8 @@ func _physics_process(delta: float) -> void:
 		_kick(FULL_CHARGE_KICK)
 	_was_full = full
 	charge_changed.emit(clampf(_held / _behavior.charge_time, 0.0, 1.0), full)
+	if full:
+		release()
 
 func release() -> void:
 	if not is_charging:

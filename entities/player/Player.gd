@@ -45,8 +45,6 @@ var shield_block: ShieldBlock
 var stance_attack: StanceAttack
 var stance_defense: StanceDefense
 var caster_stance: CasterStance
-## An LMB press that started a stance charge; its release must not also jab.
-var _lmb_owned_by_stance: bool = false
 @onready var cast_time_handler: CastTimeHandler = $CastTimeHandler
 
 ## Implementation Brief v3.3 Section 2: distinguishes a light-jab tap from
@@ -218,6 +216,8 @@ func _ready() -> void:
 	# Player._ready() runs last, after every child's own _ready(), so
 	# both components are guaranteed live here.
 	cast_time_handler.cast_completed.connect(ability_cast._on_cast_time_completed)
+	weapon_stance.stance_entered.connect(stance_attack._on_stance_entered)
+	weapon_stance.stance_exited.connect(stance_attack._on_stance_exited)
 	_apply_saved_loadout()
 	_apply_saved_experience()
 	_apply_saved_fate_board()
@@ -698,11 +698,7 @@ func _handle_attack_input(delta: float) -> void:
 	# accumulated hold time to begin with, so resetting here on every
 	# frame that doesn't apply is a no-op for those cases, not a behavior
 	# change.
-	if _lmb_owned_by_stance:
-		if not Input.is_action_pressed("attack"):
-			_lmb_owned_by_stance = false
-			stance_attack.release()
-	elif is_melee and not weapon_stance.is_active:
+	if is_melee and not weapon_stance.is_active:
 		if Input.is_action_pressed("attack"):
 			_lmb_held_time += delta
 			_lmb_was_held = true
@@ -725,8 +721,8 @@ func _handle_attack_input(delta: float) -> void:
 		elif active_weapon and active_weapon.is_ranged:
 			ranged_attack.try_attack(weapon_stance.is_active)
 		elif weapon_stance.is_active:
-			if stance_attack.begin_charge():
-				_lmb_owned_by_stance = true
+			if stance_attack.is_charged_stance():
+				pass  # charged stances charge from holding RMB alone
 			elif not stance_attack.try_instant():
 				melee_attack.try_charged_thrust()
 	# Full-auto weapons fire every frame the button is held (they ignore
@@ -745,9 +741,12 @@ func _effective_speed(base: float) -> float:
 		* weapon_stance.get_move_speed_multiplier() * shield_block.get_move_speed_multiplier() \
 		* stance_attack.get_move_speed_multiplier() * stance_defense.get_move_speed_multiplier()
 
-## Gear attack_speed + Agility's +1%/point, one increased% bracket.
+## Gear attack_speed + Agility's +1%/point, one increased% bracket, times
+## the active weapon's own local attack speed mods.
 func get_action_speed_multiplier() -> float:
-	return 1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0 + stat_sheet.get_attack_speed_from_stats()
+	var weapon := get_active_weapon()
+	var local := weapon.get_local_multiplier("local_increased_attack_speed") if weapon else 1.0
+	return (1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0 + stat_sheet.get_attack_speed_from_stats()) * local
 
 func _start_dash(move_dir: Vector3) -> void:
 	_is_dashing = true

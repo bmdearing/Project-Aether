@@ -12,10 +12,8 @@ class_name FigmentItem
 ## enemy_damage_multiplier/enemy_health_multiplier are applied to every
 ## Enemy spawned in the resulting Map (see Enemy.gd's
 ## _apply_map_modifiers()) on top of Enemy's own deterministic tier
-## scaling. loot_quantity_multiplier/loot_rarity_multiplier are shown on
-## the stat card but inert - no loot-quantity/rarity consumption of these
-## specific multipliers exists yet (loot generation has its own separate,
-## real power_level-based rarity curve - see ItemRoller.gd).
+## scaling. loot_quantity_multiplier/loot_rarity_multiplier add to the
+## player's Item Quantity/Rarity for every kill in the Map (Loot.multipliers()).
 
 @export var tier: int = 1
 @export var enemy_damage_multiplier: float = 1.0

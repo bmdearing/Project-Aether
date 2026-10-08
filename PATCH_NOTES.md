@@ -7,6 +7,34 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.37: Band of Wishes, hold-to-charge stances, slower weapons, defence mods by base (user requests)
+
+- **Mythic: Band of Wishes** (user design): a ring with no implicit whose only modifier is "Reflects the modifiers of your other Ring".
+  - `EquipmentComponent._update_ring_reflections()` sets `Item.reflect_source` on every equipment change, and `Item.get_effective_affixes()` adds the other ring's modifiers and socketed jewels, so stats, resistances and unique mechanics all double up (e.g. two Seals' worth of Fire).
+  - Two Bands reflect nothing. An unequipped Band is just itself.
+  - Its card lists "Reflecting <ring>" and the copied lines.
+  - Mythics now: Solen Vrath and the Band, equal weight.
+- **Charged stances fire from RMB alone** (user: "hold right click enough then it'll happen").
+  - Every charged melee stance (Rapier, Spear, Greatsword, Mace, Shock Lance, Whip, Pressure Fist) starts charging the moment RMB enters the stance, waiting for a swing in progress to finish.
+  - It fires by itself at full charge. Letting go early fires a partial charge where the stance allows one; it must be held at least `StanceAttack.MIN_HOLD_TO_FIRE` (0.2s) or the stance's own minimum, so a quick tap into stance does nothing.
+  - Execute still needs the full charge. LMB in a charged stance does nothing now; instant specials (Sweep, Hook, Repulse, Water Slices, Slice and Dice...) still go on LMB.
+- **Attack speed:**
+  - Every weapon card shows Attack Speed in attacks per second (`WeaponSpeed.attacks_per_second()`, kept out of Weapon because referencing the combat scripts from it made a preload cycle that broke the Projectile scene): swings for melee and conduits, bolts for wands, shots for ranged (fire cooldown vs cycle/draw), blue when a local mod changes it.
+  - Local "increased Attack Speed" mods were display-only and now really speed up the player (`Player.get_action_speed_multiplier()`).
+  - Non-gun weapons are slower:
+    - Base swing 0.80s → 0.92s. Every melee and conduit type now has its own speed, from Rapier 0.95x to Greatsword 2.4x. Most types used to fall back to 1.0x, so a Halberd swung like a Rapier.
+    - Bow draw 0.6 → 0.8s, Longbow 1.0 → 1.3s, Wand bolts 0.35 → 0.45s. Guns unchanged.
+- **Defence mods follow the base:**
+  - Armour, Evasion and Ward modifiers (flat and increased) only roll on armour or shields that have that defence. The user reported an Evasion hood rolling "increased Armor".
+  - Items already rolled keep their mods.
+- **Figment card:** "(no loot system yet - inert)" was still showing. Item Quantity/Rarity now read "+X%" and feed the kill's loot (v4.35).
+- **Tests:**
+  - `tests/combat/test_stances.gd` is driven by RMB only. The slower Halberd/War Pick/Shock Lance swings needed longer settle times. New attack-speed checks: every type has a speed, every weapon has a rate, local mods apply.
+  - `tests/uniques/` gains the Band of Wishes (reflection with jewels, unique mechanics, removal, two Bands).
+  - `tests/loot/` gains defence gating.
+
+---
+
 ## 2026-10-08 — v4.36: Uniques and Mythics (user request)
 
 - **Catalog** (`data/uniques/unique_catalog.gd`): each unique is a fixed name, flavour and modifier list on a real base of its type (`UniqueRoller.base_for()` picks the best base the drop level allows). Modifiers roll within ranges and are not Orb-craftable. Uniques can be socketed and corrupted (docs: Master v3 Section 18).

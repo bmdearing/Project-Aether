@@ -189,6 +189,11 @@ func _render_item(item: Item) -> void:
 	if item is Jewel:
 		_add_separator()
 		_add_mod_line(JEWEL_HINT, HINT_COLOR)
+	if item.reflect_source:
+		_add_separator()
+		_add_mod_line("Reflecting %s" % item.reflect_source.display_name, STAT_LABEL_COLOR)
+		for affix in item.reflect_source._affixes_with_jewels():
+			_add_mod_line(_affix_text(affix, false), SOCKETED_COLOR)
 	if item.flavor_text != "":
 		_add_separator()
 		_add_flavor(item.flavor_text)
@@ -584,17 +589,16 @@ func _add_value_line(label: String, label_color: Color, base_text: String, modif
 	_add_leader_row(label, label_color, modified_text if is_modified else base_text, MODIFIED_VALUE_COLOR if is_modified else STAT_COLOR)
 
 ## Crit Chance, Spell Power, and Attack/Cast Speed, each with its local mod
-## (v4.10) shown as a blue modified value. Local weapon damage and crit are
-## real (Weapon._base_hit()); local spell damage, attack speed and cast
-## speed are display-only for now.
+## (v4.10) shown as a blue modified value. Local weapon damage and crit
+## (Weapon._base_hit()) and attack speed (Player.get_action_speed_multiplier())
+## are real; local spell damage and cast speed are display-only for now.
 func _add_weapon_value_lines(w: Weapon) -> void:
 	if w.is_conduit and w.get_conduit_spell_damage_bonus() > 0.0:
 		_add_value_line("Spell Damage", STAT_COLOR, "+%.0f%%" % w.get_conduit_spell_damage_bonus())
 	_add_value_line("Crit Chance", STAT_COLOR, "%s%%" % _format_num(snapped(w.get_base_crit_chance() * 100.0, 0.1)),
 		"%s%%" % _format_num(snapped(w.get_local_crit_chance() * 100.0, 0.1)))
-	var attack_speed := w.get_local_multiplier("local_increased_attack_speed")
-	if attack_speed > 1.0:
-		_add_value_line("Attack Speed", STAT_COLOR, "1.00", "%.2f" % attack_speed)
+	# Every weapon that attacks shows its rate; blue when a local mod changes it.
+	_add_value_line("Attack Speed", STAT_COLOR, "%.2f/s" % WeaponSpeed.attacks_per_second(w, false), "%.2f/s" % WeaponSpeed.attacks_per_second(w))
 	var cast_speed := w.get_local_multiplier("local_increased_cast_speed")
 	if cast_speed > 1.0:
 		_add_value_line("Cast Speed", STAT_COLOR, "1.00", "%.2f" % cast_speed)
@@ -710,8 +714,9 @@ func _item_stat_lines(item: Item) -> Array[String]:
 			lines.append("Area: %s (%s)" % [style.display_name, style.family.capitalize()])
 		lines.append("Monster Damage: %.0f%%" % (m.enemy_damage_multiplier * 100.0))
 		lines.append("Monster Life: %.0f%%" % (m.enemy_health_multiplier * 100.0))
-		lines.append("Item Quantity: %.0f%% (no loot system yet - inert)" % (m.loot_quantity_multiplier * 100.0))
-		lines.append("Item Rarity: %.0f%% (no loot system yet - inert)" % (m.loot_rarity_multiplier * 100.0))
+		# Added to the player's own Item Quantity/Rarity on every kill here (Loot.multipliers()).
+		lines.append("Item Quantity: +%.0f%%" % ((m.loot_quantity_multiplier - 1.0) * 100.0))
+		lines.append("Item Rarity: +%.0f%%" % ((m.loot_rarity_multiplier - 1.0) * 100.0))
 	if item.item_level > 1:
 		lines.append("Requires Level %d" % item.item_level)
 	if item.stat_requirement != -1:

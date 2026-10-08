@@ -65,9 +65,10 @@ const RANGED_PROFILES := {
 	"Machine Gun": [Constants.AmmoType.AUTOMATIC, 60, Constants.FireMode.FULL_AUTO, 1, 4.0, 15.0, 0.0, 3.5, false],
 	"Crossbow": [Constants.AmmoType.CROSSBOW_BOLT, 1, Constants.FireMode.SINGLE_ACTION, 1, 0.0, 0.0, 2.5, 0.0, false],
 	# v4.7: bow cycle = draw time between shots (0.6s / 1.0s Longbow).
-	"Shortbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.6, 0.0, false],
-	"Bow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.6, 0.0, false],
-	"Longbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 0.0, 0.0, 1.0, 0.0, false],
+	# 2026-10-08: draw slowed to 0.8s / 1.3s Longbow with the other non-gun weapons.
+	"Shortbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.8, 0.0, false],
+	"Bow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.8, 0.0, false],
+	"Longbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 0.0, 0.0, 1.3, 0.0, false],
 }
 
 ## Bow draw time (0 for everything else). Read from RANGED_PROFILES, not

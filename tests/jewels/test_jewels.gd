@@ -224,6 +224,8 @@ func _test_card() -> void:
 	_finished += 1
 
 func _test_overlay() -> void:
+	var saved_setting := GameState.always_show_sockets
+	GameState.always_show_sockets = false  # the player's own settings.cfg may have it on
 	var button := Button.new()
 	button.size = Vector2(72, 108)
 	add_child(button)
@@ -244,6 +246,7 @@ func _test_overlay() -> void:
 	_check(not overlay.visible, "turning the setting off hides them again")
 	overlay.item = _jewel({"cast_speed": 4.0})
 	_check(overlay.visible, "a jewel without art draws as a gem")
+	GameState.always_show_sockets = saved_setting
 	button.queue_free()
 	await _frames(1)
 	_finished += 1

@@ -24,7 +24,8 @@ const FIRE_STRIKE := 0.06
 const FIRE_RECOVERY := 0.16
 const BOW_FIRE_DURATION_MULT := 1.6
 
-@export var fire_cooldown: float = 0.5
+const BASE_FIRE_COOLDOWN := 0.5
+@export var fire_cooldown: float = BASE_FIRE_COOLDOWN
 ## Stands in for a "Basic Shot" skill's motion value - no skill/Tome
 ## system exists yet (Section 11: motion values live on skills).
 @export var base_motion_value: float = 1.0

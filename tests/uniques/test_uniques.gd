@@ -7,7 +7,7 @@ extends Node
 
 const HUB := "res://levels/hub/Hub.tscn"
 const ITEM_CARD := "res://ui/item_card/ItemCard.tscn"
-const TEST_COUNT := 7
+const TEST_COUNT := 8
 
 var _checks := 0
 var _failures := 0
@@ -56,6 +56,7 @@ func _run() -> void:
 	await _test_defensive_uniques()
 	await _test_offensive_uniques()
 	_test_corrupted_unique()
+	_test_band_of_wishes()
 	_test_card()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("unique tests: %d checks, %d failures" % [_checks, _failures])
@@ -121,7 +122,7 @@ func _test_drops() -> void:
 	var unique := UniqueRoller.roll(Constants.ItemRarity.UNIQUE, 60)
 	_check(unique != null and unique.rarity == Constants.ItemRarity.UNIQUE and not UniqueCatalog.get_def(unique.unique_id).get("corrupted_only", false), "a Unique drop is a droppable catalog unique")
 	var mythic := UniqueRoller.roll(Constants.ItemRarity.MYTHIC, 60)
-	_check(mythic != null and mythic.unique_id == "unmaking_of_solen_vrath", "a Mythic drop is Solen Vrath")
+	_check(mythic != null and mythic.rarity == Constants.ItemRarity.MYTHIC, "a Mythic drop is a Mythic (%s)" % (mythic.unique_id if mythic else "none"))
 	_check(UniqueRoller.droppable(Constants.ItemRarity.UNIQUE).all(func(d): return not d.get("corrupted_only", false)), "corrupted-only uniques never drop")
 	var jewel_rng := RandomNumberGenerator.new()
 	jewel_rng.seed = 8
@@ -329,4 +330,56 @@ func _test_card() -> void:
 	card.display_item(_unique("unmaking_of_solen_vrath"))
 	_check(_card_text(card).contains(AetherStyle.spaced("MYTHIC")), "a Mythic's card says MYTHIC")
 	card.queue_free()
+	_finished += 1
+
+func _ring(stat_key: String, value: float) -> Item:
+	var ring := Item.new()
+	ring.equip_slot = Constants.EquipmentSlot.RING
+	ring.display_name = "Test Ring"
+	var a := ItemAffix.new()
+	a.stat_key = stat_key
+	a.value = value
+	a.description = "+%d %s" % [value, stat_key]
+	ring.affixes.append(a)
+	return ring
+
+func _test_band_of_wishes() -> void:
+	var old_rings := _equipment.rings.duplicate()
+	_equipment.unequip(Constants.EquipmentSlot.RING, 0)
+	_equipment.unequip(Constants.EquipmentSlot.RING, 1)
+	var band := _unique("band_of_wishes")
+	_check(band.rarity == Constants.ItemRarity.MYTHIC and band.affixes.size() == 1, "the Band of Wishes is a Mythic ring with only its reflection")
+	var strength := func() -> float: return _equipment.compute_stat_bonuses().get(Constants.Stat.STRENGTH, 0.0)
+	_equipment.equip(band, true)
+	_check(is_equal_approx(strength.call(), 0.0), "alone, the Band reflects nothing")
+	var other := _ring("flat_strength", 10.0)
+	other.socketed.append(Jewel.new())
+	other.sockets = 1
+	var jewel_mod := ItemAffix.new()
+	jewel_mod.stat_key = "flat_strength"
+	jewel_mod.value = 5.0
+	other.socketed[0].affixes.append(jewel_mod)
+	_equipment.equip(other, true)
+	_check(is_equal_approx(strength.call(), 30.0), "the Band copies the other ring, jewels included (%.0f)" % strength.call())
+	var card: ItemCard = load(ITEM_CARD).instantiate()
+	add_child(card)
+	card.display_item(band)
+	_check(_card_text(card).contains("Reflecting Test Ring"), "the Band's card lists what it reflects")
+	card.queue_free()
+	var seal := _unique("seal_of_the_lesser_sun")
+	_equipment.unequip(Constants.EquipmentSlot.RING, _equipment.rings.find(other))
+	_check(band.reflect_source == null and is_equal_approx(strength.call(), 0.0), "taking the other ring off stops the reflection")
+	_equipment.equip(seal, true)
+	var once: float = seal.affixes.filter(func(a): return a.stat_key == UniqueEffects.MORE_FIRE_DAMAGE)[0].value
+	_check(is_equal_approx(_fx.value(UniqueEffects.MORE_FIRE_DAMAGE), once * 2.0), "it reflects unique mechanics too")
+	_equipment.unequip(Constants.EquipmentSlot.RING, _equipment.rings.find(seal))
+	var band2 := _unique("band_of_wishes")
+	_equipment.equip(band2, true)
+	_check(band.reflect_source == null and band2.reflect_source == null, "two Bands reflect nothing")
+	_equipment.unequip(Constants.EquipmentSlot.RING, 0)
+	_equipment.unequip(Constants.EquipmentSlot.RING, 1)
+	_check(band.get_effective_affixes().size() == 1, "an unequipped Band keeps only its own modifier")
+	for r in old_rings:
+		if r:
+			_equipment.equip(r, true)
 	_finished += 1

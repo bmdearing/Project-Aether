@@ -35,14 +35,18 @@ enum State { IDLE, WINDUP, STRIKE, RECOVERY }
 ## which WEAPON_TYPE_SWING_DURATION_MULT below applies per weapon type.
 ## Combat feel pass (2026-10-07): longer anticipation and recovery around a
 ## short, fast strike - the contrast is what reads as punch.
-@export var windup_duration: float = 0.32
-@export var strike_duration: float = 0.14
-@export var recovery_duration: float = 0.34
+## 2026-10-08: everything still hit too fast - about 15% slower again.
+const BASE_WINDUP := 0.36
+const BASE_STRIKE := 0.16
+const BASE_RECOVERY := 0.40
+@export var windup_duration: float = BASE_WINDUP
+@export var strike_duration: float = BASE_STRIKE
+@export var recovery_duration: float = BASE_RECOVERY
 ## Floors after every speed multiplier, so fast weapons + attack speed can't
 ## blur a swing into a flicker.
-const MIN_WINDUP := 0.2
-const MIN_STRIKE := 0.09
-const MIN_RECOVERY := 0.24
+const MIN_WINDUP := 0.22
+const MIN_STRIKE := 0.1
+const MIN_RECOVERY := 0.27
 ## Hits register only from this fraction of Strike onward, when the blade is
 ## actually crossing the screen (the strike tween eases in).
 const STRIKE_CONTACT_START := 0.6
@@ -77,13 +81,20 @@ const WEAPON_TYPE_MOTION_VALUE := {
 ## Per-weapon swing duration multiplier (via _effective_duration()), so a
 ## Greatsword swing genuinely takes longer than a Dagger's.
 ## 2026-10-07: light weapons were too quick to read - Dagger/Rapier/Gauntlet raised.
+## 2026-10-08: every melee and conduit type has an entry (most used to fall
+## back to 1.0, so a Halberd swung as fast as a Rapier). Two-handers are slowest.
 const WEAPON_TYPE_SWING_DURATION_MULT := {
-	"Dagger": 1.05,
-	"Greatsword": 2.4,
-	"Rapier": 0.95,
-	"Staff": 1.4,
-	"Gauntlet": 0.9,
+	"Rapier": 0.95, "Dagger": 1.0, "Athame": 1.0, "Gauntlet": 0.9, "Spell Gauntlet": 0.95,
+	"Shortsword": 1.1, "Pressure Fist": 1.1, "Saber": 1.15, "Cutlass": 1.15,
+	"Fetish": 1.2, "Talisman": 1.2, "Rod": 1.25, "Tome": 1.3, "Grimoire": 1.3, "Whip": 1.3,
+	"Spear": 1.35, "Staff": 1.4, "Mace": 1.45, "War Pick": 1.5, "Shock Lance": 1.6,
+	"Halberd": 1.8, "Claymore": 2.2, "Greatsword": 2.4,
 }
+
+## Seconds for one plain swing (windup + strike + recovery) before attack
+## speed, for the item card.
+static func swing_seconds(weapon_type: String) -> float:
+	return (BASE_WINDUP + BASE_STRIKE + BASE_RECOVERY) * WEAPON_TYPE_SWING_DURATION_MULT.get(weapon_type, 1.0)
 const SPECIAL_MOTION_VALUE_MULTIPLIER := 1.6
 const SPECIAL_DURATION_MULTIPLIER := 1.4
 

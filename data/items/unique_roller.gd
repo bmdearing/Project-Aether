@@ -37,9 +37,10 @@ static func build(def: Dictionary, item_level: int = 1, base: Item = null) -> It
 	item.rarity = def["rarity"]
 	item.flavor_text = def.get("flavor", "")
 	var affixes: Array[ItemAffix] = []
-	for a in base.affixes:
-		if a.is_implicit:
-			affixes.append(a)
+	if not def.get("no_implicits", false):
+		for a in base.affixes:
+			if a.is_implicit:
+				affixes.append(a)
 	for mod in def["mods"]:
 		affixes.append(make_affix(mod))
 	item.affixes = affixes

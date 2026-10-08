@@ -28,7 +28,7 @@ const UNLEASH_SPREAD_DEG := 8.0
 const UNLEASH_TARGET_SPACING := 2.5
 
 const BOLT_MOTION_VALUE := 1.0
-const WAND_BOLT_COOLDOWN := 0.35
+const WAND_BOLT_COOLDOWN := 0.45  # 2026-10-08: was 0.35, slowed with the other non-gun weapons
 const MANA_STAR_MOTION_VALUE := 1.0
 const MANA_STAR_COOLDOWN := 0.25
 const MANA_STAR_MANA_COST := 4.0

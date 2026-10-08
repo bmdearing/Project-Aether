@@ -10,7 +10,8 @@ class_name UniqueCatalog
 ##
 ## The first four are the design doc's own examples (Master v3 Section 19;
 ## Aetherburn is not in the game, so Solen Vrath applies an enhanced
-## Unraveling instead). The rest are placeholders in the same "build
+## Unraveling instead). The Band of Wishes (a ring that reflects the other
+## ring) is the user's Mythic design. The rest are placeholders in the same "build
 ## problem" style until the dedicated Unique design session. The Cartographer
 ## of Ruin (Patch v3.1) needs throwables, which aren't in the game yet.
 ##
@@ -60,6 +61,14 @@ const DEFS := [
 			["unique_echo_unraveling", 1.0, 1.0, "Hitting with both applies Unraveling at double effectiveness"],
 			["unique_reduced_max_life", 30.0, 30.0, "%d%% reduced Maximum Life"],
 			["unique_no_infusion", 1.0, 1.0, "Cannot be Infused"],
+		],
+	},
+	{
+		"id": "band_of_wishes", "name": "Band of Wishes", "rarity": Constants.ItemRarity.MYTHIC,
+		"base_type": "ring", "weight": 100.0, "no_implicits": true,
+		"flavor": "Every wish it grants, you already owned.",
+		"mods": [
+			["unique_reflect_ring", 1.0, 1.0, "Reflects the modifiers of your other Ring"],
 		],
 	},
 	# ---- Placeholders until the Unique design session ----

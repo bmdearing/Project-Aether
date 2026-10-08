@@ -64,7 +64,7 @@ const WEAPON_SET_SLOTS := [
 func toggle_weapon_set() -> void:
 	active_weapon_set = 1 if active_weapon_set == 0 else 0
 	weapon_set_changed.emit(active_weapon_set)
-	equipment_changed.emit()
+	_emit_changed()
 
 ## Only Player currently instances this despite the "any future equippable
 ## actor" framing above - level/stat requirement checks (2026-08-30) need
@@ -121,7 +121,7 @@ func equip(item: Item, bypass_requirements: bool = false, weapon_set: int = -1) 
 		Constants.EquipmentSlot.AMULET: amulet = item
 		Constants.EquipmentSlot.BELT: belt = item
 		Constants.EquipmentSlot.RING: _equip_ring(item)
-	equipment_changed.emit()
+	_emit_changed()
 
 func _equip_weapon(weapon: Weapon, set_index: int) -> void:
 	if weapon.is_offhand:
@@ -135,7 +135,7 @@ func _equip_weapon(weapon: Weapon, set_index: int) -> void:
 		primary_weapons[set_index] = weapon
 		if weapon.is_two_handed:
 			offhands[set_index] = null
-	equipment_changed.emit()
+	_emit_changed()
 
 ## weapon_set: same meaning as equip()'s own param - which set's slot to
 ## clear for PRIMARY_WEAPON/OFFHAND, ignored otherwise.
@@ -153,7 +153,7 @@ func unequip(slot: Constants.EquipmentSlot, ring_index: int = 0, weapon_set: int
 		Constants.EquipmentSlot.RING:
 			if ring_index >= 0 and ring_index < rings.size():
 				rings[ring_index] = null
-	equipment_changed.emit()
+	_emit_changed()
 
 ## Read counterpart to equip()/unequip()'s routing, so callers (UI) don't
 ## need 15 bespoke field accesses. weapon_set: same meaning as equip()'s.
@@ -434,3 +434,23 @@ func _equip_ring(item: Item) -> void:
 			rings[i] = item
 			return
 	rings[0] = item
+
+## Updates ring reflection (Band of Wishes), then tells listeners.
+func _emit_changed() -> void:
+	_update_ring_reflections()
+	equipment_changed.emit()
+
+var _reflecting: Array[Item] = []
+
+## A ring with the reflect mechanic copies the other equipped ring's
+## modifiers (Item.reflect_source). Two reflecting rings reflect nothing.
+func _update_ring_reflections() -> void:
+	for ring in _reflecting:
+		ring.reflect_source = null
+	_reflecting.clear()
+	for i in rings.size():
+		var ring := rings[i]
+		var other: Item = rings[1 - i] if rings.size() == 2 else null
+		if ring and other and ring.reflects_other_ring() and not other.reflects_other_ring():
+			ring.reflect_source = other
+			_reflecting.append(ring)

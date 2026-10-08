@@ -110,9 +110,17 @@ const MAX_IMPLICITS := 3
 func get_all_affixes() -> Array[ItemAffix]:
 	return affixes
 
-## The item's own modifiers plus those of the jewels in its sockets: what
-## the stat totals read.
+## The item's own modifiers plus those of the jewels in its sockets, and
+## for the Band of Wishes the other ring's too: what the stat totals read.
 func get_effective_affixes() -> Array[ItemAffix]:
+	var own := _affixes_with_jewels()
+	if reflect_source == null:
+		return own
+	var all: Array[ItemAffix] = own.duplicate()
+	all.append_array(reflect_source._affixes_with_jewels())
+	return all
+
+func _affixes_with_jewels() -> Array[ItemAffix]:
 	var jewels := get_socketed_jewels()
 	if jewels.is_empty():
 		return affixes
@@ -120,6 +128,13 @@ func get_effective_affixes() -> Array[ItemAffix]:
 	for jewel in jewels:
 		all.append_array(jewel.affixes)
 	return all
+
+## Band of Wishes: copies the other equipped ring (set by EquipmentComponent).
+const REFLECT_RING_KEY := "unique_reflect_ring"
+var reflect_source: Item
+
+func reflects_other_ring() -> bool:
+	return affixes.any(func(a: ItemAffix): return a.stat_key == REFLECT_RING_KEY)
 
 ## Socketed jewels that still have a socket (a Corruption can take one away).
 func get_socketed_jewels() -> Array[Item]:

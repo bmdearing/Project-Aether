@@ -6,7 +6,7 @@ class_name StanceInfo
 
 const MELEE := {
 	"Rapier": [
-		{"name": "Charged Thrust", "desc": "Lunge forward up to 4 m on LMB. Distance scales with charge time."},
+		{"name": "Charged Thrust", "desc": "Hold RMB to charge a lunge of up to 4 m. It fires at full charge, or shorter if you let go early."},
 		{"name": "Ready Parry", "desc": "Significantly wider parry window while held."},
 	],
 	"Dagger": [

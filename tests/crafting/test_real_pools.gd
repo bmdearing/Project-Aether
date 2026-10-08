@@ -128,7 +128,7 @@ func _test_real_gear() -> void:
 	_check(p.is_valid() and p.outcomes.all(func(o): return o["tier"].tier >= ItemRoller.TIER_COUNT - 1), "low item level can't roll top tiers")
 	# A pre-Orb rolled modifier gets its description refreshed by Reckoning.
 	var legacy := ItemRoller.roll(40)
-	while legacy == null or legacy is Weapon or _explicits(legacy).is_empty():
+	while legacy == null or legacy is Weapon or _explicits(legacy).is_empty() or legacy.rarity >= Constants.ItemRarity.UNIQUE:
 		legacy = ItemRoller.roll(40)
 	legacy.tolerance = 100
 	resolver.apply(legacy, &"reckoning")

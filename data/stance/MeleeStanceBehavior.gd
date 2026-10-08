@@ -31,8 +31,8 @@ enum MeleeStanceType {
 
 @export var stance_type: MeleeStanceType = MeleeStanceType.GUARD
 
-## Charge-and-release stances (hold LMB in stance, release to fire - see
-## StanceAttack). charge_time 0 = no charge: LMB plays the instant special.
+## Charge-and-release stances (holding RMB charges, full charge or letting go fires - see
+## StanceAttack). charge_time 0 = no charge: LMB in stance plays the instant special.
 @export_group("Charged attack")
 @export var charge_time: float = 0.0
 ## Holding less than this counts as zero charge.

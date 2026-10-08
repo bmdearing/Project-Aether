@@ -1,6 +1,7 @@
 extends Node
 ## Charge-and-release stance attacks (StanceAttack), driven through real
-## input: hold RMB, hold LMB to charge, release.
+## input: hold RMB to charge; a full charge fires, letting go early fires a
+## partial one.
 ## Run: Godot --headless --path . res://tests/combat/test_stances.tscn --quit-after 30000
 
 var _checks := 0
@@ -52,6 +53,7 @@ func _run() -> void:
 	await _test_slice_and_dice()
 	await _test_stealth()
 	await _test_stance_cooldown()
+	_test_attack_speeds()
 	print("stance tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -114,14 +116,12 @@ func _dummy(pos: Vector3) -> Enemy:
 func _lost(e: Enemy) -> float:
 	return 1.0e6 - e.health.current_health
 
-## Enter stance, charge for `seconds`, release, let the swing finish.
+## Hold RMB for `seconds` (it charges by itself), let go, let the swing finish.
 func _charge(seconds: float, settle: float = 0.6) -> void:
 	_player.weapon_stance._cooldowns.clear()  # each check stands alone
 	Input.action_press("stance")
-	await _frames(2)
-	Input.action_press("attack")
 	await _seconds(seconds)
-	Input.action_release("attack")
+	Input.action_release("stance")
 	await _seconds(settle)
 
 func _travel() -> float:
@@ -129,27 +129,25 @@ func _travel() -> float:
 
 func _test_stance_cooldown() -> void:
 	await _reset("Rapier")
-	await _charge(0.1)
+	await _charge(0.32)
 	var behavior := _player.weapon_stance.get_ready_behavior()
 	var remaining := _player.weapon_stance.get_cooldown_remaining(behavior)
 	_check(behavior.cooldown_seconds > 0.0 and remaining > 0.0, "a stance special starts its cooldown (%.1fs)" % remaining)
 	var start := _player.global_position
 	Input.action_press("stance")
-	await _frames(2)
-	Input.action_press("attack")
-	await _seconds(0.1)
-	Input.action_release("attack")
+	await _seconds(0.32)
+	Input.action_release("stance")
 	await _seconds(0.6)
 	_check(_player.global_position.distance_to(start) < 0.2 and not _player.stance_attack.is_charging, "the special can't be used again while it recharges")
 	Input.action_release("stance")
 	_player.weapon_stance._cooldowns[behavior] = 0.0
-	await _charge(0.1)
+	await _charge(0.32)
 	_check(_player.global_position.distance_to(start) > 1.0, "it works again once ready")
 	await _leave_stance()
 
 func _test_rapier() -> void:
 	await _reset("Rapier")
-	await _charge(0.1)
+	await _charge(0.32)
 	var short := _travel()
 	_check(short > 1.3 and short < 1.8, "rapier tap lunges about 1.5 m (%.2f)" % short)
 	await _reset("Rapier")
@@ -186,13 +184,11 @@ func _test_mace() -> void:
 	await _frames(2)
 	Input.action_press("move_forward")
 	Input.action_press("stance")
-	await _frames(2)
-	Input.action_press("attack")
 	await _seconds(0.3)
 	var charging_from := _travel()
 	await _seconds(0.6)
 	var moved := _travel() - charging_from
-	Input.action_release("attack")
+	Input.action_release("stance")
 	Input.action_release("move_forward")
 	await _seconds(0.5)
 	_check(moved < 0.02, "mace roots you while charging (%.2f m)" % moved)
@@ -247,14 +243,11 @@ func _test_cancel_and_fallback() -> void:
 	var target := _dummy(START + _forward() * 2.0)
 	await _frames(2)
 	Input.action_press("stance")
-	await _frames(2)
-	Input.action_press("attack")
 	await _seconds(0.5)
-	_check(_player.stance_attack.is_charging, "holding LMB in stance charges")
+	_check(_player.stance_attack.is_charging, "holding RMB alone charges the stance")
 	Input.action_release("stance")
 	await _frames(3)
-	_check(not _player.stance_attack.is_charging, "releasing RMB cancels the charge")
-	Input.action_release("attack")
+	_check(not _player.stance_attack.is_charging, "letting go before a full Execute charge cancels it")
 	await _seconds(0.8)
 	_check(_lost(target) == 0.0 and _player.melee_attack.is_idle(), "a cancelled charge doesn't attack or jab")
 	await _reset("Saber")
@@ -407,7 +400,7 @@ func _test_sweep() -> void:
 	var behind := _dummy(START - _forward() * 2.5)
 	await _frames(3)
 	var side_start := side.global_position
-	await _tap_stance(WeaponStance.StancePage.A, 1.0)
+	await _tap_stance(WeaponStance.StancePage.A, 2.2)
 	_check(_lost(front) > 0.0 and _lost(left) > 0.0 and _lost(side) > 0.0, "sweep hits front and both sides")
 	_check(_lost(behind) == 0.0, "sweep leaves the 90 degrees behind you")
 	_check((side.global_position - side_start).length() > 1.0, "sweep knocks enemies back")
@@ -431,7 +424,7 @@ func _test_hook() -> void:
 	var melee: EnemyMeleeAttack = target.get_node("MeleeAttack")
 	melee._state = EnemyMeleeAttack.State.TELEGRAPH
 	melee._timer = 5.0
-	await _tap_stance(WeaponStance.StancePage.B, 1.2)
+	await _tap_stance(WeaponStance.StancePage.B, 2.2)
 	var distance := (target.global_position - _player.global_position).length()
 	_check(_lost(target) > 0.0, "hooking strike hits at 4 m")
 	_check(distance < 2.4, "hooking strike pulls the target in (%.2f m)" % distance)
@@ -460,7 +453,7 @@ func _test_repulse() -> void:
 	var far := _dummy(START - _forward() * 8.0)
 	await _frames(3)
 	_player.stat_sheet.misc_bonus["ailment_chance_electrocute"] = 100.0  # the rider is a roll; force it
-	await _tap_stance(WeaponStance.StancePage.B, 0.8)
+	await _tap_stance(WeaponStance.StancePage.B, 1.3)
 	_check((a.global_position - START).length() > 3.5 and (b.global_position - START).length() > 3.5, "repulse pushes everything nearby away")
 	_check(a.status_effects.has_effect("electrocute"), "repulse Electrocutes")
 	_player.stat_sheet.misc_bonus.erase("ailment_chance_electrocute")
@@ -524,3 +517,38 @@ func _test_stealth() -> void:
 	var after := _lost(target) - from_stealth
 	_check(after > 0.0 and from_stealth > after * 1.6, "the first attack from stealth hits much harder (%.0f vs %.0f)" % [from_stealth, after])
 	await _leave_stance()
+
+## Every attacking weapon has a rate; non-gun weapons were slowed (2026-10-08)
+## and every melee/conduit type has its own swing speed.
+func _test_attack_speeds() -> void:
+	var missing: Array[String] = []
+	var zero: Array[String] = []
+	var seen := {}
+	for dir in ["res://data/weapons/instances/"]:
+		for file in DirAccess.get_files_at(dir):
+			var w := load(dir + file.trim_suffix(".remap")) as Weapon
+			if w == null or seen.has(w.weapon_type):
+				continue
+			seen[w.weapon_type] = true
+			if not w.is_ranged and w.weapon_type != "Wand" and not PlayerMeleeAttack.WEAPON_TYPE_SWING_DURATION_MULT.has(w.weapon_type):
+				missing.append(w.weapon_type)
+			if WeaponSpeed.attacks_per_second(w) <= 0.0:
+				zero.append(w.weapon_type)
+	_check(missing.is_empty(), "every melee and conduit type has its own swing speed (missing: %s)" % ", ".join(missing))
+	_check(zero.is_empty(), "every weapon has an attack speed (none: %s)" % ", ".join(zero))
+	var rapier := Weapon.new()
+	rapier.weapon_type = "Rapier"
+	var halberd := Weapon.new()
+	halberd.weapon_type = "Halberd"
+	_check(WeaponSpeed.attacks_per_second(rapier) < 1.2 and WeaponSpeed.attacks_per_second(halberd) < WeaponSpeed.attacks_per_second(rapier) * 0.6, "melee is slower overall and heavy weapons much slower (%.2f vs %.2f/s)" % [WeaponSpeed.attacks_per_second(rapier), WeaponSpeed.attacks_per_second(halberd)])
+	var fast := ItemAffix.new()
+	fast.stat_key = "local_increased_attack_speed"
+	fast.value = 20.0
+	fast.is_local = true
+	rapier.affixes.append(fast)
+	_check(is_equal_approx(WeaponSpeed.attacks_per_second(rapier), WeaponSpeed.attacks_per_second(rapier, false) * rapier.get_local_multiplier("local_increased_attack_speed")) and WeaponSpeed.attacks_per_second(rapier) > WeaponSpeed.attacks_per_second(rapier, false), "a local attack speed mod raises the weapon's rate")
+	var before := _player.get_action_speed_multiplier()
+	var old := _player.equipment.primary_weapon
+	_player.equipment.primary_weapon = rapier
+	_check(_player.get_action_speed_multiplier() > before, "and actually speeds up the player's swings")
+	_player.equipment.primary_weapon = old
