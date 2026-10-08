@@ -389,9 +389,9 @@ class MockCanvas extends Control:
 		y -= 7
 		_divider(x, y, width)
 		y += 26
-		_text(serif, Vector2(x, y), _spaced("STANCE") + "    Execute", 14, GOLD, HORIZONTAL_ALIGNMENT_CENTER, width)
+		_stat(x + pad, y, width - pad * 2, "Stance: Execute", "6s cooldown", GOLD, TEXT)
 		y += 21
-		_text(serif, Vector2(x, y), "A fully charged slam into a small area.", 13, TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER, width)
+		_text(serif, Vector2(x, y), "Charge 1s, slam a 2.5m area for 300% weapon damage", 13, TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER, width)
 		y += 16
 		_divider(x, y, width)
 		y += 26
