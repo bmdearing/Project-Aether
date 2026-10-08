@@ -19,6 +19,7 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @export var stat_sheet: StatSheet
 ## Equipped Unique/Mythic mechanics (created in _ready()).
 var unique_effects: UniqueEffects
+var loot_picker: LootPicker
 
 @onready var head: Node3D = $Head
 @onready var collision_shape: CollisionShape3D = $CollisionShape3D
@@ -205,6 +206,9 @@ func _ready() -> void:
 	unique_effects.name = "UniqueEffects"
 	add_child(unique_effects)
 	stat_sheet.unique_effects = unique_effects
+	loot_picker = LootPicker.new()
+	loot_picker.name = "LootPicker"
+	add_child(loot_picker)
 	equipment.equipment_changed.connect(_on_equipment_changed)
 	EventBus.slate_placed.connect(func(_id, _pos): _apply_fate_board_bonuses())
 	EventBus.slate_removed.connect(func(_id, _pos): _apply_fate_board_bonuses())

@@ -3,11 +3,9 @@ class_name ItemCard
 ## Rich stat card, built dynamically per call from whatever Item/Slate/
 ## Ability is passed in. `ItemSlotButton._make_custom_tooltip()` shows
 ## this via Godot's native tooltip system (auto-position/hide/lifecycle
-## all native) - the card itself listens for Alt directly (Patch v3.8
-## Section 5) and swaps its OWN content between the normal card and Alt
-## Info in place while still showing, rather than a second floating card
-## (the previous AdvancedTooltip.gd autoload, removed) - release Alt and
-## it swaps back, no clicks/pinning/second window.
+## all native) - the card itself watches Alt (Patch v3.8 Section 5) and
+## swaps its OWN content between the normal card and Alt Info in place,
+## rather than a second floating card - release Alt and it swaps back.
 ##
 ## The 3 card types are deliberately given a distinct silhouette so a
 ## player can tell which one they're looking at before reading a word of
@@ -125,21 +123,17 @@ func display_currency(id: StringName, count: int, hint: String = "") -> void:
 		_add_separator()
 		_add_mod_line(hint, HINT_COLOR)
 
-## Patch v3.8 Section 5: Alt is a HOLD - press while this card is showing
-## swaps to Alt Info in place, release swaps back. No second window, no
-## click-to-pin - matches this card's own native-tooltip lifecycle
-## exactly (Godot handles show/hide/position, this only ever changes
-## what's INSIDE it).
-func _input(event: InputEvent) -> void:
-	if not event is InputEventKey:
+## Alt is a hold: while it's down the card shows Alt Info in place, release
+## swaps back. Polled, not read from input events: a tooltip popup never has
+## keyboard focus, so a card inside one never receives key events.
+func _process(_delta: float) -> void:
+	if not is_visible_in_tree() or (_current_item == null and _current_slate == null and _current_ability == null):
 		return
-	var key_event := event as InputEventKey
-	if key_event.keycode != KEY_ALT or key_event.echo:
-		return
-	if key_event.pressed and not _showing_alt:
+	var alt := Input.is_key_pressed(KEY_ALT)
+	if alt and not _showing_alt:
 		_showing_alt = true
 		_render_alt_info()
-	elif not key_event.pressed and _showing_alt:
+	elif not alt and _showing_alt:
 		_showing_alt = false
 		if _current_item:
 			_render_item(_current_item)
@@ -460,6 +454,8 @@ func _render_alt_info() -> void:
 		for line in _requirement_lines(_current_item):
 			_add_stat_line(line)
 		_add_alt_affix_tiers(_current_item)
+	elif _current_slate != null:
+		_render_slate(_current_slate)  # Slates have no extra detail yet
 	elif _current_ability != null:
 		var base := _current_ability.get_base_damage_range()
 		_add_stat_line("Level 1 Damage: %.0f to %.0f" % [_current_ability.base_damage_min, _current_ability.base_damage_max])

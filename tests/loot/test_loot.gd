@@ -1,14 +1,14 @@
 extends Node
 ## Loot system: Magic Find conversion, how gear/Figment/enemy bonuses add up,
 ## weighted rarity, drop-roll counts, the new gear modifiers, Item Quantity
-## and Rarity actually changing what a kill drops, the character sheet rows
-## and the Rare drop beam.
+## and Rarity actually changing what a kill drops, the character sheet rows,
+## the Rare drop beam, look-to-pick-up and the item card's Alt view.
 ## Run: Godot --headless --path . res://tests/loot/test_loot.tscn
 ## Exits 0 when every check passes. Never writes the save file.
 
 const HUB := "res://levels/hub/Hub.tscn"
 const LOOT_PICKUP := "res://entities/pickups/loot_pickup/LootPickup.tscn"
-const TEST_COUNT := 8
+const TEST_COUNT := 10
 
 var _checks := 0
 var _failures := 0
@@ -45,6 +45,8 @@ func _run() -> void:
 	_test_character_sheet()
 	await _test_kill_drops()
 	await _test_rare_beam()
+	await _test_look_pickup()
+	await _test_card_alt()
 	GameState.active_map = null
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("loot tests: %d checks, %d failures" % [_checks, _failures])
@@ -249,5 +251,111 @@ func _test_rare_beam() -> void:
 	_check(pickups[1].get_node_or_null("Beam") == null, "Common drops don't")
 	for p in pickups:
 		p.queue_free()
+	await _frames(1)
+	_finished += 1
+
+func _look_pickup(item: Item, offset: Vector3) -> LootPickup:
+	var p: LootPickup = load(LOOT_PICKUP).instantiate()
+	p.item = item
+	_hub.add_child(p)
+	var cam := _player.camera
+	p.global_position = cam.global_position + cam.global_transform.basis * offset
+	p._base_y = p.position.y
+	return p
+
+func _test_look_pickup() -> void:
+	var currency: LootPickup = load(LOOT_PICKUP).instantiate()
+	currency.currency_id = Pinnacle.FRAGMENT_IDS[0]
+	_check(currency.auto_pickup(), "currency and fragments are collected on touch")
+	currency.free()
+	for auto in [AmmoPack.new(), SkillTome.new(), FigmentItem.new()]:
+		var p: LootPickup = load(LOOT_PICKUP).instantiate()
+		p.item = auto
+		_check(p.auto_pickup(), "%s is collected on touch" % auto.get_script().get_global_name())
+		p.free()
+
+	var sword := Weapon.new()
+	sword.display_name = "Look Test Sword"
+	sword.rarity = Constants.ItemRarity.RARE
+	var ahead := _look_pickup(sword, Vector3(0, 0, -3))
+	var aside := _look_pickup(Item.new(), Vector3(3, 0, 0))
+	_check(not ahead.auto_pickup() and ahead.is_in_group(LootPickup.LOOK_GROUP), "gear waits to be picked up")
+	_check(ahead.get_node_or_null("NameTag") != null and (ahead.get_node("NameTag") as Label3D).text == "Look Test Sword", "gear drops show their name")
+	ahead._on_body_entered(_player)
+	_check(not ahead.is_queued_for_deletion(), "walking over gear doesn't pick it up")
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	await _frames(2)
+	var picker := _player.loot_picker
+	_check(picker.target == ahead, "the drop in the middle of the view is the target")
+	_check(ahead.mesh.scale.x > 1.0 and is_equal_approx(aside.mesh.scale.x, 1.0), "only the target is highlighted")
+	var look_card: LootLookCard = _hub.find_children("*", "LootLookCard", true, false)[0] if not _hub.find_children("*", "LootLookCard", true, false).is_empty() else null
+	_check(look_card != null and look_card._card.visible and look_card._card._current_item == sword, "the HUD shows the looked-at item's card")
+	_check(look_card != null and look_card._prompt.text.begins_with("E "), "the prompt names the Interact key")
+
+	var press := InputEventAction.new()
+	press.action = &"interact"
+	press.pressed = true
+	Input.parse_input_event(press)
+	await _frames(2)
+	_check((not is_instance_valid(ahead) or ahead.is_queued_for_deletion()) and GameState.inventory.has_content(sword), "Interact picks up the target")
+	await get_tree().physics_frame
+	await _frames(1)
+	_check(picker.target == null and not look_card._card.visible, "nothing targeted afterwards: the card hides")
+	var release := InputEventAction.new()
+	release.action = &"interact"
+	Input.parse_input_event(release)
+
+	var far := _look_pickup(Item.new(), Vector3(0, 0, -(LootPicker.REACH + 2.0)))
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	_check(picker.target == null, "drops beyond reach aren't targeted")
+	GameState.remove_from_inventory(sword)
+	for p in [aside, far]:
+		p.queue_free()
+	await _frames(1)
+	_finished += 1
+
+func _card_texts(card: ItemCard) -> String:
+	var texts: Array[String] = []
+	for child in card._content().get_children():
+		if child is Label and not child.is_queued_for_deletion():
+			texts.append((child as Label).text)
+	return "\n".join(texts)
+
+func _test_card_alt() -> void:
+	var ring := Item.new()
+	ring.display_name = "Alt Test Ring"
+	ring.equip_slot = Constants.EquipmentSlot.RING
+	var own := ItemAffix.new()
+	own.stat_key = "flat_strength"
+	own.description = "+10 Strength"
+	own.value = 10.0
+	own.tier = 2
+	ring.affixes.append(own)
+	ring.sockets = 1
+	var jewel := JewelRoller.roll(20)
+	ring.socketed.append(jewel)
+	var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+	add_child(card)
+	card.display_item(ring)
+	await _frames(1)
+	_check(not _card_texts(card).contains("Socketed ("), "main card folds jewel mods in, no socket section")
+	var alt := InputEventKey.new()
+	alt.keycode = KEY_ALT
+	alt.pressed = true
+	Input.parse_input_event(alt)
+	await _frames(2)
+	var alt_text := _card_texts(card)
+	_check(card._showing_alt, "holding Alt switches the card to Alt view")
+	_check(alt_text.contains("[Tier 2]") and alt_text.contains("Socketed (1/1)"), "Alt view lists explicits, then the jewel mods in their own section")
+	_check(alt_text.find("Strength") < alt_text.find("Socketed ("), "the socket section sits below the explicits")
+	var up := InputEventKey.new()
+	up.keycode = KEY_ALT
+	up.pressed = false
+	Input.parse_input_event(up)
+	await _frames(2)
+	_check(not card._showing_alt and _card_texts(card).contains("Alt Test Ring"), "releasing Alt swaps back")
+	card.queue_free()
 	await _frames(1)
 	_finished += 1

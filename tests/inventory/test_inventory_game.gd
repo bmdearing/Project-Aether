@@ -88,14 +88,14 @@ func _test_pickups() -> void:
 	var pickup: LootPickup = load(LOOT_PICKUP).instantiate()
 	pickup.item = helmet
 	_hub.add_child(pickup)
-	pickup._on_body_entered(_player)
+	pickup.try_pickup()
 	_check(GameState.inventory.has_content(helmet) and pickup.is_queued_for_deletion(), "pickup goes into the grid")
 
 	var slate := Slate.new()
 	var slate_pickup: LootPickup = load(LOOT_PICKUP).instantiate()
 	slate_pickup.slate = slate
 	_hub.add_child(slate_pickup)
-	slate_pickup._on_body_entered(_player)
+	slate_pickup.try_pickup()
 	_check(GameState.inventory.has_content(slate), "slate pickup goes into the grid")
 	GameState.remove_from_inventory(slate)
 
@@ -106,10 +106,10 @@ func _test_pickups() -> void:
 	blocked.item = _armor(Constants.EquipmentSlot.GLOVES, "Test Gloves")
 	_hub.add_child(blocked)
 	_full_signals = 0
-	blocked._on_body_entered(_player)
+	blocked.try_pickup()
 	_check(not blocked.is_queued_for_deletion() and _full_signals == 1, "full inventory leaves the pickup on the ground")
 	GameState.inventory = saved
-	blocked._on_body_entered(_player)
+	blocked.try_pickup()
 	_check(blocked.is_queued_for_deletion() and GameState.inventory.has_content(blocked.item), "pickup succeeds once there's room")
 	await _frames(1)
 	_finished += 1

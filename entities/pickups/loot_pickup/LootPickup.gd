@@ -1,15 +1,11 @@
 extends Area3D
 class_name LootPickup
-## Auto-pickup on touch - a judgment call, not requested verbatim. Fits
-## genre convention for gear that drops constantly during combat better
-## than adding a whole proximity-prompt + keypress flow (like
-## RealityEngine's) for something this frequent. Spawned by Enemy.gd on death
-## with one ItemRoller-rolled Item (or, since the Slate-system expansion,
-## a SlateRoller-rolled Slate - see the `slate` field) already assigned.
-## Placeholder visual (a colored, rotating/bobbing sphere) keyed by rarity
-## (Constants.ITEM_RARITY_COLOR / Constants.SLATE_RARITY_COLOR) - same
-## color language ItemSlotButton and the Player's weapon/shield meshes
-## already use.
+## A drop on the ground. Gear, jewels and Slates wait to be looked at and
+## picked up with Interact (LootPicker on the Player, card on the HUD);
+## currency, Maw Fragments, Figments, Tomes and ammo are collected on touch.
+## Spawned by Enemy.gd on death with its content already assigned: one of
+## `item`, `slate` or `currency_id`. Placeholder visual: a rotating, bobbing
+## sphere in the rarity colour.
 
 const ROTATE_SPEED := 1.5
 const BOB_SPEED := 2.0
@@ -32,6 +28,9 @@ var _time: float = 0.0
 func _ready() -> void:
 	_base_y = position.y
 	body_entered.connect(_on_body_entered)
+	if not auto_pickup():
+		add_to_group(LOOK_GROUP)
+		_add_name_tag()
 	if item:
 		_apply_color(Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE))
 		if item.rarity >= Constants.ItemRarity.RARE:
@@ -73,31 +72,83 @@ func _process(delta: float) -> void:
 	rotate_y(ROTATE_SPEED * delta)
 	position.y = _base_y + sin(_time * BOB_SPEED) * BOB_HEIGHT
 
+const LOOK_GROUP := &"loot_look"
+const NAME_TAG_RANGE := 14.0
+const TARGETED_SCALE := 1.35
+
+var _name_tag: Label3D
+
+## Collected on touch, not by looking at it and pressing Interact.
+func auto_pickup() -> bool:
+	if currency_id != &"":
+		return true
+	return item is AmmoPack or item is SkillTome or item is FigmentItem
+
+func display_name() -> String:
+	if slate:
+		return slate.display_name
+	return item.display_name if item else ""
+
+func rarity_color() -> Color:
+	if slate:
+		return Constants.SLATE_RARITY_COLOR.get(slate.rarity, Color.WHITE)
+	return Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE) if item else Color.WHITE
+
+## Name above the drop, so you can find the one to look at.
+func _add_name_tag() -> void:
+	_name_tag = Label3D.new()
+	_name_tag.name = "NameTag"
+	_name_tag.text = display_name()
+	_name_tag.modulate = rarity_color()
+	_name_tag.outline_modulate = Color(0, 0, 0, 0.85)
+	_name_tag.outline_size = 8
+	_name_tag.font_size = 40
+	_name_tag.pixel_size = 0.0035
+	_name_tag.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	_name_tag.fixed_size = false
+	_name_tag.position.y = 0.55
+	_name_tag.visibility_range_end = NAME_TAG_RANGE
+	_name_tag.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_name_tag)
+
+## LootPicker: grows the drop and brightens its name while it's the target.
+func set_targeted(on: bool) -> void:
+	mesh.scale = Vector3.ONE * (TARGETED_SCALE if on else 1.0)
+	if _name_tag:
+		_name_tag.font_size = 52 if on else 40
+		_name_tag.outline_modulate = Color(rarity_color().darkened(0.7), 0.95) if on else Color(0, 0, 0, 0.85)
+
 func _on_body_entered(body: Node3D) -> void:
-	if not (body is Player):
-		return
+	if body is Player and auto_pickup():
+		try_pickup()
+
+## Moves the content into the inventory and frees the drop. False (and the
+## drop stays) when there's no room.
+func try_pickup() -> bool:
+	if is_queued_for_deletion():
+		return false
 	if currency_id != &"":
 		var leftover := GameState.inventory.add(currency_id, currency_count)
 		if leftover > 0:
 			currency_count = leftover
 			EventBus.inventory_full.emit(null)
-			return
+			return false
 		queue_free()
-		return
+		return true
 	if slate:
 		if not GameState.add_to_inventory(slate):
 			EventBus.inventory_full.emit(slate)
-			return
+			return false
 		EventBus.slate_picked_up.emit(slate)
 		queue_free()
-		return
+		return true
 	if item == null:
-		return
+		return false
 	if item is AmmoPack:
 		var pack := item as AmmoPack
 		AmmoInventory.add(pack.ammo_type, pack.amount)
 		queue_free()
-		return
+		return true
 	if item is SkillTome:
 		var tome := item as SkillTome
 		if not GameState.owned_ability_ids.has(tome.ability_id):
@@ -106,6 +157,7 @@ func _on_body_entered(body: Node3D) -> void:
 	else:
 		if not GameState.add_to_inventory(item):
 			EventBus.inventory_full.emit(item)
-			return
+			return false
 		EventBus.loot_picked_up.emit(item)
 	queue_free()
+	return true

@@ -7,6 +7,18 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.40: Look-to-pick-up loot, item card Alt view fixed (user request)
+
+- **Gear is picked up by looking at it and pressing Interact (E).** Weapons, armour, jewels, shields, uniques and Slates no longer go into your bags when you walk over them.
+  - `LootPicker` (on the Player) picks the drop closest to the centre of the view, within 5m and in line of sight. How far off-centre still counts grows with distance, so far drops aren't pixel hunts.
+  - The target grows and its name brightens. Every gear drop has a floating name in its rarity colour, visible within 14m.
+  - The HUD shows the target's full item card beside the crosshair (`LootLookCard`), with "E Pick up / Alt Details" under it. A full inventory leaves the drop where it is and shows "Inventory full".
+- **Still collected on touch:** gold, currency, Maw Fragments, Figments, Skill Tomes and ammo (`LootPickup.auto_pickup()`).
+- **Alt on item cards works.** The card listened for Alt as a key event, but inventory cards live in a tooltip popup, which never has keyboard focus, so the event never reached them. The card now checks whether Alt is held each frame. That also makes the socket view reachable: holding Alt lists the item's own modifiers with tiers and ranges, then a "Socketed (n/m)" section with the jewels' modifiers below them. Slates show their normal card under Alt instead of an empty one.
+- Tests: `test_loot` covers which drops auto-collect, targeting, highlight, the HUD card, Interact pickup, reach, and the Alt view's explicit/socket split.
+
+---
+
 ## 2026-10-08 — v4.39: Lord of the Elements rework, elemental sigils (user feedback)
 
 - **He hovers and casts.** The Lord now floats in the crescent's empty bay, 2.6m past the inner edge. He never moves, falls or gets knocked back (`Enemy.immovable`).
