@@ -81,14 +81,9 @@ func _test_placement() -> void:
 	_check(not inv.can_place(ring, Vector2i(1, 3)), "collision rejected")
 	_check(inv.place(ring, Vector2i(1, 3)) == 1, "collided place returns the item")
 	_check(inv.can_place(ring, Vector2i(2, 0)), "free cell accepted")
-<<<<<<< HEAD
 	var rapier_size := GridInventory.footprint_of(_weapon("Rapier"))
 	_check(not inv.can_place(_weapon("Rapier"), Vector2i(inv.width - rapier_size.x + 1, 0)), "out of bounds rejected (wide)")
 	_check(not inv.can_place(_weapon("Rapier"), Vector2i(0, inv.height - rapier_size.y + 1)), "out of bounds rejected (tall)")
-=======
-	_check(not inv.can_place(_weapon("Rapier"), Vector2i(inv.width - 1, 0)), "out of bounds rejected (wide)")
-	_check(not inv.can_place(_weapon("Rapier"), Vector2i(0, inv.height - 2)), "out of bounds rejected (tall)")
->>>>>>> origin/master
 	_check(not inv.can_place(ring, Vector2i(-1, 0)), "negative position rejected")
 	var armour := _slot_item(Constants.EquipmentSlot.BODY_ARMOUR)
 	_check(inv.add(armour) == 0 and inv.entry_at(Vector2i(2, 0)).content == armour, "find_space is first fit from top-left")
