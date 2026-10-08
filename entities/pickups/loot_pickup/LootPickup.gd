@@ -34,10 +34,33 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	if item:
 		_apply_color(Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE))
+		if item.rarity >= Constants.ItemRarity.RARE:
+			_add_beam(Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE))
 	elif currency_id != &"":
 		_apply_color(InventoryGridView.CURRENCY_COLOR)
 	elif slate:
 		_apply_color(Constants.SLATE_RARITY_COLOR.get(slate.rarity, Color.WHITE))
+
+## A tall faint light column so Rare and better drops stand out across a field.
+const BEAM_HEIGHT := 5.0
+
+func _add_beam(color: Color) -> void:
+	var beam := MeshInstance3D.new()
+	beam.name = "Beam"
+	var cylinder := CylinderMesh.new()
+	cylinder.top_radius = 0.03
+	cylinder.bottom_radius = 0.09
+	cylinder.height = BEAM_HEIGHT
+	beam.mesh = cylinder
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.albedo_color = Color(color, 0.45)
+	beam.material_override = mat
+	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	beam.position = Vector3(0, BEAM_HEIGHT / 2.0, 0)
+	add_child(beam)
 
 func _apply_color(color: Color) -> void:
 	var mat := StandardMaterial3D.new()

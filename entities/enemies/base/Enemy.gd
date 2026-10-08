@@ -674,20 +674,29 @@ func _drop_gold() -> void:
 ## Patch v3.9 "Enemy Rarity System" - doc: "Certain affixes convert all
 ## drops from that enemy into a specific category... all-or-nothing."
 ## Short-circuits the entire cascade below when present, matching that.
+## Otherwise Item Quantity scales the number of drop rolls and Item Rarity
+## the quality of each (Loot.multipliers()).
 func _maybe_drop_loot() -> void:
 	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
 	if rarity_component:
 		var conversion_affix := rarity_component.get_drop_conversion_affix()
 		if conversion_affix:
-			_drop_converted(conversion_affix)
+			for i in Loot.roll_count(Loot.multipliers(rarity_component)["quantity"]):
+				_drop_converted(conversion_affix)
 			return
 
 	_maybe_drop_aether()
+	var mods := Loot.multipliers(rarity_component)
+	for i in Loot.roll_count(Loot.base_drop_rolls(rank, rarity_component) * mods["quantity"]):
+		_roll_drop(mods["rarity"])
+
+## One drop roll: at most one drop, from the first category that hits.
+func _roll_drop(rarity_mult: float) -> void:
 	if randf() <= TOME_DROP_CHANCE:
 		var tome := TomeRoller.roll_for_unowned(GameState.owned_ability_ids)
 		if tome:
 			_spawn_pickup(tome)
-			return  # one drop max per kill
+			return  # one drop per roll
 
 	if randf() <= CURRENCY_DROP_CHANCE:
 		_spawn_currency_pickup(Constants.roll_currency_drop())
@@ -712,7 +721,6 @@ func _maybe_drop_loot() -> void:
 			return
 
 	if randf() <= JEWEL_DROP_CHANCE:
-		var rarity_mult: float = GameState.active_map.loot_rarity_multiplier if GameState.active_map else 1.0
 		_spawn_pickup(JewelRoller.roll(_compute_item_level(), rarity_mult))
 		return
 
@@ -722,10 +730,8 @@ func _maybe_drop_loot() -> void:
 			_spawn_pickup(ammo)
 			return
 
-	var quantity_mult: float = GameState.active_map.loot_quantity_multiplier if GameState.active_map else 1.0
-	if randf() > BASE_LOOT_DROP_CHANCE * quantity_mult:
+	if randf() > BASE_LOOT_DROP_CHANCE:
 		return
-	var rarity_mult: float = GameState.active_map.loot_rarity_multiplier if GameState.active_map else 1.0
 	var item := ItemRoller.roll(_compute_item_level(), rarity_mult)
 	if item == null:
 		return
@@ -790,7 +796,7 @@ func _spawn_pickup(item: Item) -> void:
 	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()
 	pickup.item = item
 	get_parent().add_child(pickup)
-	pickup.global_position = global_position
+	pickup.global_position = _drop_position()
 	EventBus.loot_dropped.emit(item, global_position)
 
 func _maybe_drop_aether() -> void:
@@ -805,13 +811,13 @@ func _spawn_currency_pickup(currency_id: StringName, count: int = 1) -> void:
 	pickup.currency_id = currency_id
 	pickup.currency_count = count
 	get_parent().add_child(pickup)
-	pickup.global_position = global_position
+	pickup.global_position = _drop_position()
 
 func _spawn_slate_pickup(slate: Slate) -> void:
 	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()
 	pickup.slate = slate
 	get_parent().add_child(pickup)
-	pickup.global_position = global_position
+	pickup.global_position = _drop_position()
 	EventBus.slate_dropped.emit(slate, global_position)
 
 ## Patch v3.2 Resistance Shred: enemies have no Resistance stat of their
@@ -915,3 +921,10 @@ func is_attack_locked() -> bool:
 func begin_attack_telegraph(windup_sec: float) -> void:
 	if _anim_controller:
 		_anim_controller.play_attack(windup_sec)
+
+## Several drops from one kill spread out instead of stacking in one spot.
+const DROP_SCATTER := 0.9
+
+func _drop_position() -> Vector3:
+	var angle := randf() * TAU
+	return global_position + Vector3(cos(angle), 0.0, sin(angle)) * randf() * DROP_SCATTER

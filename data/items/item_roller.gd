@@ -16,17 +16,16 @@ class_name ItemRoller
 ## plus every untagged standalone base. See Enemy._compute_item_level()
 ## for how a kill's own power_level is derived from area level + rank.
 ##
-## Rarity -> affix count (Common 0, Uncommon 1-2, Rare 1-6 - v4.7 raised
-## the minimum from Section 18's 0 so a colored drop always has a mod;
-## rarity is determined by base quality, not affix count). Affix
+## Rarity -> affix count (Common 0, Uncommon 1-2, Rare RARE_AFFIX_COUNT).
+## Rarity is a weighted roll (Loot.roll_rarity()), not set by affix count. Affix
 ## values roll in tiers (TIER_COUNT bands, Tier 1 best) gated by
 ## `power_level`. flat_<stat> affixes are the only source of stat growth
 ## in this project (Section 12: gear only) - summed into StatSheet by
 ## EquipmentComponent.compute_stat_bonuses().
 ##
-## loot_rarity_multiplier (from the active Map, see FigmentItem.gd) shifts
-## the rarity roll. loot_quantity_multiplier is consumed by Enemy.gd's
-## drop-chance roll instead, not here.
+## loot_rarity_multiplier is the kill's total Item Rarity (Loot.multipliers():
+## gear, Figment and enemy affixes). Item Quantity sets how many drop rolls
+## a kill gets instead (Enemy._maybe_drop_loot()).
 
 const BASE_ITEM_DIRS := [
 	"res://data/weapons/instances/",
@@ -144,6 +143,11 @@ const AFFIX_POOL := [
 	{"stat_key": "crit_damage", "tier1_min": 15.0, "tier1_max": 20.0, "desc": "+%d%% increased Critical Strike Damage", "applies_to": [], "brand_tags": []},
 	{"stat_key": "debuff_effectiveness", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% Debuff Effectiveness", "applies_to": [], "brand_tags": ["skills"]},
 	{"stat_key": "stamina", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Stamina", "applies_to": [], "brand_tags": []},
+	# Loot (v4.35): Magic Find is worth 0.5% Item Quantity + 2% Item Rarity per
+	# point (Loot.gd). Armour and accessories only; Quantity on accessories only.
+	{"stat_key": "item_rarity", "tier1_min": 14.0, "tier1_max": 20.0, "desc": "%d%% increased Item Rarity", "applies_to": ["armor", "item"], "brand_tags": []},
+	{"stat_key": "item_quantity", "tier1_min": 4.0, "tier1_max": 6.0, "desc": "%d%% increased Item Quantity", "applies_to": ["item"], "brand_tags": []},
+	{"stat_key": "magic_find", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d Magic Find", "applies_to": ["armor", "item"], "brand_tags": []},
 
 	# Patch v4.0 Ailment Build Mod Pool - [type] = bleed/ignite/chill/
 	# electrocute/shock/aetherburn/unraveling/pallid, 8 distinct affixes
@@ -283,6 +287,9 @@ const AFFIX_POOL := [
 ## power_level: the active Map's tier, or player level as a fallback in
 ## the Hub - a rough "how strong should this roll be" signal.
 ## loot_rarity_multiplier: shifts the rarity roll upward.
+## Modifiers on a dropped Rare.
+const RARE_AFFIX_COUNT := Vector2i(3, 6)
+
 static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> Item:
 	var base := _pick_base_item(power_level)
 	if base == null:
@@ -304,18 +311,15 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 	item.sockets = randi() % (item.max_sockets + 1)
 	CraftingResolver.roll_tolerance(item)
 
-	var rarity_roll := randf() * loot_rarity_multiplier
+	# Loot.roll_rarity() weights Common/Uncommon/Rare; loot_rarity_multiplier
+	# (Item Rarity) scales the non-Common weights.
+	item.rarity = Loot.roll_rarity(loot_rarity_multiplier)
 	var affix_count := 0
-	# v4.7: an Uncommon/Rare roll always gets at least one affix (it used to
-	# roll 0, e.g. a mod-less "magic" Crude Machine Gun).
-	if rarity_roll >= 1.4:
-		item.rarity = Constants.ItemRarity.RARE
-		affix_count = randi_range(1, 6)
-	elif rarity_roll >= 0.9:
-		item.rarity = Constants.ItemRarity.UNCOMMON
-		affix_count = randi_range(1, 2)
-	else:
-		item.rarity = Constants.ItemRarity.COMMON
+	match item.rarity:
+		Constants.ItemRarity.UNCOMMON:
+			affix_count = randi_range(1, 2)
+		Constants.ItemRarity.RARE:
+			affix_count = randi_range(RARE_AFFIX_COUNT.x, RARE_AFFIX_COUNT.y)
 
 	# A rolled item's affix list is fully re-rolled, not additive on top
 	# of the base's own hand-authored implicit(s).

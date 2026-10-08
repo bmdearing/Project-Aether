@@ -1,6 +1,6 @@
 extends RefCounted
 class_name JewelRoller
-## Rolls a Jewel drop. Rarity uses ItemRoller's thresholds; Uncommon rolls
+## Rolls a Jewel drop. Rarity comes from Loot.roll_rarity(); Uncommon rolls
 ## 1-2 modifiers and Rare 3-4, within the jewel's prefix/suffix limits.
 
 static func roll(item_level: int = 1, loot_rarity_multiplier: float = 1.0, rng: RandomNumberGenerator = null) -> Jewel:
@@ -11,14 +11,13 @@ static func roll(item_level: int = 1, loot_rarity_multiplier: float = 1.0, rng: 
 	jewel.item_id = "jewel_rolled_%d" % rng.randi()
 	jewel.display_name = Jewel.DISPLAY_NAME
 	jewel.item_level = maxi(item_level, 1)
-	var rarity_roll := rng.randf() * loot_rarity_multiplier
+	jewel.rarity = Loot.roll_rarity(loot_rarity_multiplier, rng)
 	var count := 0
-	if rarity_roll >= 1.4:
-		jewel.rarity = Constants.ItemRarity.RARE
-		count = rng.randi_range(3, 4)
-	elif rarity_roll >= 0.9:
-		jewel.rarity = Constants.ItemRarity.UNCOMMON
-		count = rng.randi_range(1, 2)
+	match jewel.rarity:
+		Constants.ItemRarity.UNCOMMON:
+			count = rng.randi_range(1, 2)
+		Constants.ItemRarity.RARE:
+			count = rng.randi_range(3, 4)
 	add_random_modifiers(jewel, count, rng)
 	return jewel
 

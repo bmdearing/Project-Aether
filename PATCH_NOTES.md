@@ -7,6 +7,29 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.35: Loot system: Item Quantity, Item Rarity, Magic Find (user request)
+
+- **Three new stats** (`systems/loot/Loot.gd`):
+  - Item Quantity, Item Rarity, and Magic Find. **1 Magic Find = +0.5% Item Quantity and +2% Item Rarity** (user's numbers; `Loot.MAGIC_FIND_QUANTITY` / `MAGIC_FIND_RARITY`).
+  - The character sheet lists all three, with Magic Find already counted in the Quantity and Rarity totals.
+- **Where they come from**, added together per kill (`Loot.multipliers()`):
+  - **Your gear:** new modifiers. Item Rarity (14-20% at Tier 1) and Magic Find (8-12) roll on armour and accessories. Item Quantity (4-6%) rolls on accessories only. Weapons don't roll them.
+  - **Jewels:** can roll Item Rarity and Magic Find.
+  - **The active Figment:** its existing Quantity/Rarity mods.
+  - **The enemy's rarity affixes:** `EnemyAffix.item_rarity_bonus`/`item_quantity_bonus` existed since v3.9 but were never read until now.
+  - Rarity and Magic Find are suffixes, Quantity a prefix.
+- **Item Quantity = more drop rolls.** A kill used to give exactly one roll through the drop cascade, and Quantity only raised the gear chance at its very end. Now each kill gets `Loot.base_drop_rolls() × quantity` rolls: Normal 1, Magic 1.5, Rare 2.5, Boss 5, +0.5/+1.5/+3 for Elite/Champion/Ascendant. A fractional part becomes a matching chance of one more roll. Each roll keeps the old one-drop odds, so Quantity scales every category (currency, Slates, Figments, jewels, gear), not just gear. Drops from one kill scatter up to 0.9m instead of stacking.
+- **Item Rarity = a real weighted roll** (`Loot.roll_rarity()`), used by gear and jewel drops and the shop.
+  - The old roll was `randf() * multiplier`, with Rare needing ≥1.4, so **Rares could never drop** without a ≥40% rarity Figment, and Uncommons were 10%.
+  - Base weights are now Common 72 / Uncommon 22 / Rare 6. Item Rarity multiplies the Uncommon and Rare weights (e.g. +200%: Rare ~11.5%).
+  - Unique has no weight yet; it's the hook for uniques.
+  - Dropped Rares roll 3-6 modifiers (was 1-6).
+- **Rare drops show a light beam** (`LootPickup._add_beam()`).
+- Judgment calls to revisit: the rarity weights, the per-rank roll counts and the modifier ranges are invented, and live as constants in `Loot.gd` and `ItemRoller.AFFIX_POOL`. Bosses and rare monsters dropping more is new; previously every enemy got the same single roll.
+- **Tests:** new `tests/loot/` (28 checks: Magic Find conversion, how the sources add up, rarity shares at x1 and x3, roll-count averaging, which gear rolls which mod, equipped Magic Find counting, the character sheet rows, Item Quantity multiplying real kill drops, scatter, the Rare beam).
+
+---
+
 ## 2026-10-08 — v4.34: Jewels and sockets, Dunes performance (user request)
 
 **Jewels**

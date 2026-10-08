@@ -346,6 +346,7 @@ const MISC_BONUS_KEYS := [
 	"max_life", "life_regen", "max_mana", "mana_regen",
 	"flat_resilience", "cast_speed", "attack_speed", "move_speed",
 	"crit_damage",
+	"item_quantity", "item_rarity", "magic_find",  # Loot.gd
 	# Patch v4.0 Ailment Build Mod Pool
 	"dot_multiplier", "ailment_tick_rate", "ailment_ignore_chance",
 	"ailment_chance_bleed", "increased_ailment_damage_bleed", "increased_ailment_duration_bleed",

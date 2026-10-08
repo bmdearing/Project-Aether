@@ -27,6 +27,9 @@ const STAT_TOOLTIPS := {
 	"Cold Resistance": "Reduces Cold damage and Chill/Freeze effects.",
 	"Lightning Resistance": "Reduces Lightning damage and Electrocute.",
 	"Esoteric Resistance": "Reduces Aetheric, Entropic, and Pale damage taken.",
+	"Item Quantity": "More drop rolls from every kill, so more of everything drops. Includes Magic Find.",
+	"Item Rarity": "Better odds that dropped items and jewels are Uncommon or Rare. Includes Magic Find.",
+	"Magic Find": "Each point gives +0.5% Item Quantity and +2% Item Rarity.",
 }
 
 static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, misc_list: VBoxContainer, player: Player) -> void:
@@ -67,6 +70,10 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 	_add(misc_list, "Move Speed", "%.1f m/s" % (player.move_speed * player.get_move_speed_multiplier()))
 	_add(misc_list, "Sprint Speed", "%.1f m/s" % (player.sprint_speed * player.get_move_speed_multiplier()))
 	_add(misc_list, "Action Speed", "%.0f%%" % (player.get_action_speed_multiplier() * 100.0))
+	var loot: Dictionary = player.equipment.compute_misc_bonuses() if player.equipment else {}
+	_add(misc_list, "Item Quantity", "+%.1f%%" % Loot.quantity_percent(loot))
+	_add(misc_list, "Item Rarity", "+%.0f%%" % Loot.rarity_percent(loot))
+	_add(misc_list, "Magic Find", "%.0f" % loot.get(Loot.MAGIC_FIND_KEY, 0.0))
 	for tag in stats.chain_bonus_by_tag:
 		var bonus: float = stats.chain_bonus_by_tag[tag]
 		if bonus != 0.0:

@@ -23,6 +23,7 @@ const STAT_KEYS := [
 	"attack_speed", "cast_speed", "move_speed",
 	"crit_chance_increased", "crit_damage_increased",
 	"increased_aoe_radius", "skill_effect_duration",
+	"item_rarity", "magic_find",
 	"ailment_chance_bleed", "ailment_chance_ignite", "ailment_chance_chill", "ailment_chance_electrocute",
 	"ailment_chance_shock", "ailment_chance_aetherburn", "ailment_chance_unraveling", "ailment_chance_pallid",
 	"increased_ailment_damage_bleed", "increased_ailment_damage_ignite", "increased_ailment_damage_chill",
