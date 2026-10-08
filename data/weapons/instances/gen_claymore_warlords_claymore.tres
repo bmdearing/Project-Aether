@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ltuhl"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_s0x62"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_s0x62"]
+
+[sub_resource type="Resource" id="Resource_0f5pc"]
+script = ExtResource("1_ltuhl")
+description = "+12% increased Physical damage"
+stat_key = "increased_physical_damage"
+value = 12.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_s0x62")
@@ -15,6 +23,7 @@ item_id = "gen_claymore_warlords_claymore"
 display_name = "Warlord's Claymore"
 equip_slot = 4
 max_sockets = 4
+affixes = Array[ExtResource("1_ltuhl")]([SubResource("Resource_0f5pc")])
 flavor_text = "High Damage"
 item_level = 53
 base_line_id = "claymore_line1"

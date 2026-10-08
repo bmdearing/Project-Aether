@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_7fmpq"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_3yk21"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_3yk21"]
+
+[sub_resource type="Resource" id="Resource_u8r8p"]
+script = ExtResource("1_7fmpq")
+description = "+16% increased Stagger effect"
+stat_key = "increased_stagger_effect"
+value = 16.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_3yk21")
@@ -15,6 +23,7 @@ item_id = "gen_war_pick_breaker_pick"
 display_name = "Breaker Pick"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_7fmpq")]([SubResource("Resource_u8r8p")])
 flavor_text = "Stagger"
 item_level = 16
 base_line_id = "war_pick_line2"

@@ -5,12 +5,11 @@
 [resource]
 script = ExtResource("1_jvat8")
 tag = "kinetic"
-is_behavior_modifier = true
-description = "Kinetic Shift (stub)"
+description = "+%d%% Physical Shred"
 stat_key = "kinetic_behavior_shift"
-value = 1.0
-value_min = 1.0
-value_max = 1.0
+value = 6.0
+value_min = 6.0
+value_max = 12.0
 tier = 1
 is_prefix = false
 affix_id = "kinetic_behavior_shift"

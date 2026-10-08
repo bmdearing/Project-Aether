@@ -277,7 +277,7 @@ func _physics_process(delta: float) -> void:
 			_finish_reload(_reload_weapon)
 
 func _fire(weapon: Weapon, aimed: bool = false) -> void:
-	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	var damage_type := weapon.get_damage_type()
 	var st := _stance() if aimed else null
 	var motion_value := base_motion_value * (AIMED_DAMAGE_MULTIPLIER if aimed else 1.0)
 	var pellets := maxi(weapon.pellet_count, 1)

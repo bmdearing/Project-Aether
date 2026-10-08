@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_g1olv"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_e00pu"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_e00pu"]
+
+[sub_resource type="Resource" id="Resource_v1odm"]
+script = ExtResource("1_g1olv")
+description = "+12% increased Movement Speed"
+stat_key = "move_speed"
+value = 12.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_e00pu")
@@ -10,6 +18,7 @@ item_id = "gen_boots_veilstep_treads"
 display_name = "Veilstep Treads"
 equip_slot = 3
 max_sockets = 2
+affixes = Array[ExtResource("1_g1olv")]([SubResource("Resource_v1odm")])
 flavor_text = "Movement Speed - Implicit: +12% increased Movement Speed"
 item_level = 91
 base_line_id = "boots_line4"

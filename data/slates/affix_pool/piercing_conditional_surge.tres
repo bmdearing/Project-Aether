@@ -5,9 +5,7 @@
 [resource]
 script = ExtResource("1_bwsba")
 tag = "piercing"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Piercing Surge (stub)"
+description = "+%d%% chance to cause Bleed"
 stat_key = "piercing_conditional_surge"
 value = 8.0
 value_min = 8.0

@@ -1,7 +1,22 @@
-[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Shield" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_v4lrs"]
 [ext_resource type="Script" path="res://data/shields/shield.gd" id="2_nepbw"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_nepbw"]
+
+[sub_resource type="Resource" id="Resource_5vehn"]
+script = ExtResource("1_v4lrs")
+description = "+10% increased Armor"
+stat_key = "increased_armor"
+value = 10.0
+is_implicit = true
+
+[sub_resource type="Resource" id="Resource_omxow"]
+script = ExtResource("1_v4lrs")
+description = "+10% increased Evasion"
+stat_key = "increased_evasion"
+value = 10.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_nepbw")
@@ -12,6 +27,7 @@ item_id = "gen_kite_shield_colossus_kite_shield"
 display_name = "Colossus Kite Shield"
 equip_slot = 6
 max_sockets = 3
+affixes = Array[ExtResource("1_v4lrs")]([SubResource("Resource_5vehn"), SubResource("Resource_omxow")])
 flavor_text = "Balanced - Implicit: +10% increased Armor, +10% increased Evasion"
 item_level = 91
 base_line_id = "kite_shield_line1"

@@ -37,9 +37,10 @@ const BASE_ITEM_DIRS := [
 ## Base lines that are throwables, not gear (Patch v4.3): their old .tres
 ## bases sit in data/items/instances/ and were being rolled as rings with
 ## garbled stats. Matched as substrings of Item.base_line_id ("grenade"
-## also covers "infusion_grenade"). Excluded from loot/shop rolls only -
-## the files stay, for a future throwable consumable system.
-const EXCLUDED_ITEM_TYPES := ["throwing_knife", "impact_hatchet", "pressure_javelin", "grenade", "infusion_grenade"]
+## also covers "infusion_grenade"; "throwing_kni" covers the knife lines).
+## Excluded from loot/shop rolls only - the files stay, for a future
+## throwable consumable system.
+const EXCLUDED_ITEM_TYPES := ["throwing_kni", "impact_hatchet", "pressure_javelin", "grenade", "infusion_grenade"]
 
 static func _is_excluded_line(base_line_id: String) -> bool:
 	for excluded in EXCLUDED_ITEM_TYPES:
@@ -361,12 +362,85 @@ static func _tier_range(tier1_min: float, tier1_max: float, tier: int) -> Vector
 	var scale: float = pow(TIER_DECAY, tier - 1)
 	return Vector2(tier1_min * scale, tier1_max * scale)
 
-## Invented - the doc never defines what gates tier access. The best
-## tier reachable improves by one per power_level point; the actual roll
-## is uniform between that and the worst tier.
+## Patch v3.5: tiers are gated by item level, T1 needing level 80. The
+## other tiers' requirements are spread evenly down to level 1.
+const TOP_TIER_LEVEL := 80
+
+static func tier_min_level(tier: int, tier_count: int = TIER_COUNT) -> int:
+	if tier_count <= 1:
+		return 1
+	return 1 + roundi((TOP_TIER_LEVEL - 1) * float(tier_count - tier) / float(tier_count - 1))
+
+## Best (lowest-numbered) tier an item of this level can roll.
+static func best_tier_for_level(level: int, tier_count: int = TIER_COUNT) -> int:
+	for t in range(1, tier_count + 1):
+		if tier_min_level(t, tier_count) <= level:
+			return t
+	return tier_count
+
+## A tier the level allows, weighted by GEAR_TIER_WEIGHTS (better tiers rarer).
 static func _roll_tier(power_level: int) -> int:
-	var best_reachable: int = clamp(TIER_COUNT - power_level, 1, TIER_COUNT)
-	return randi_range(best_reachable, TIER_COUNT)
+	var best := best_tier_for_level(power_level)
+	var total := 0
+	for t in range(best, TIER_COUNT + 1):
+		total += Constants.GEAR_TIER_WEIGHTS[t - 1]
+	var pick := randi() % maxi(total, 1)
+	for t in range(best, TIER_COUNT + 1):
+		pick -= Constants.GEAR_TIER_WEIGHTS[t - 1]
+		if pick < 0:
+			return t
+	return TIER_COUNT
+
+## Modifiers with their own tier table instead of Tier 1 x TIER_DECAY: each
+## row is [item level needed, min, max], best tier (Tier 1) first.
+## % Weapon / Spell Damage run from 30% to 190% (user request). Flat damage
+## is "Adds X to (X x FLAT_DAMAGE_SPREAD)"; the hybrid's value is its %
+## part and its flat part is HYBRID_FLAT_PER_PERCENT of that.
+const DAMAGE_PERCENT_TIERS := [[80, 160.0, 190.0], [68, 128.0, 155.0], [56, 105.0, 127.0], [45, 85.0, 104.0], [34, 68.0, 84.0], [23, 53.0, 67.0], [12, 40.0, 52.0], [1, 30.0, 39.0]]
+const LEVELLED_TIERS := {
+	"local_increased_weapon_damage": DAMAGE_PERCENT_TIERS,
+	"local_increased_spell_damage": DAMAGE_PERCENT_TIERS,
+	"local_flat_weapon_damage": [[80, 29.0, 34.0], [68, 24.0, 28.0], [56, 19.0, 23.0], [45, 14.0, 18.0], [34, 10.0, 13.0], [23, 7.0, 9.0], [12, 4.0, 6.0], [1, 2.0, 3.0]],
+	"local_hybrid_weapon_damage": [[80, 71.0, 85.0], [64, 59.0, 70.0], [48, 47.0, 58.0], [32, 35.0, 46.0], [16, 25.0, 34.0], [1, 15.0, 24.0]],
+}
+const FLAT_DAMAGE_SPREAD := 1.75
+const HYBRID_FLAT_PER_PERCENT := 0.2
+
+static func has_levelled_tiers(stat_key: String) -> bool:
+	return LEVELLED_TIERS.has(StatKeys.canonical(stat_key))
+
+## Rows of `stat_key`'s table that `level` allows, best first.
+static func levelled_tiers_for(stat_key: String, level: int) -> Array:
+	return LEVELLED_TIERS.get(StatKeys.canonical(stat_key), []).filter(func(row): return row[0] <= level)
+
+## {"tier", "min", "max"} rolled from the table; the best allowed tier is the
+## rarest (weights 1, 2, 3... down the allowed rows).
+static func roll_levelled_tier(stat_key: String, level: int) -> Dictionary:
+	var table: Array = LEVELLED_TIERS[StatKeys.canonical(stat_key)]
+	var rows := levelled_tiers_for(stat_key, level)
+	if rows.is_empty():
+		rows = [table[-1]]
+	var total := rows.size() * (rows.size() + 1) / 2
+	var pick := randi() % total
+	for i in rows.size():
+		pick -= i + 1
+		if pick < 0:
+			return {"tier": table.find(rows[i]) + 1, "min": rows[i][1], "max": rows[i][2]}
+	var last: Array = rows[-1]
+	return {"tier": table.find(last) + 1, "min": last[1], "max": last[2]}
+
+## Card text for a rolled value: two-number templates ("Adds %d to %d")
+## get the flat range, the hybrid gets its % and flat range.
+static func describe_value(template: String, stat_key: String, value: float) -> String:
+	match StatKeys.canonical(stat_key):
+		"local_flat_weapon_damage":
+			return template % [roundi(value), roundi(value * FLAT_DAMAGE_SPREAD)]
+		"local_hybrid_weapon_damage":
+			var flat := maxf(roundf(value * HYBRID_FLAT_PER_PERCENT), 1.0)
+			return template % [roundi(value), roundi(flat), roundi(flat * FLAT_DAMAGE_SPREAD)]
+	if template.contains("%.1f"):
+		return template % value
+	return template % round(value) if "%" in template else template
 
 ## Patch v3.9 Weapon Affix Library - data/affixes/weapons/<type>/*.tres,
 ## loaded once and cached (~96 files, same one-time-scan reasoning as
@@ -475,7 +549,13 @@ static func _roll_weapon_affixes(weapon: Weapon, affix_count: int, power_level: 
 	for source in picked:
 		var rolled_tier := _roll_tier(power_level)
 		var value_range := _tier_range(source.value_min, source.value_max, rolled_tier)
+		if has_levelled_tiers(source.stat_key):
+			var rolled := roll_levelled_tier(source.stat_key, power_level)
+			rolled_tier = rolled["tier"]
+			value_range = Vector2(rolled["min"], rolled["max"])
 		var value: float = randf_range(value_range.x, value_range.y)
+		if has_levelled_tiers(source.stat_key):
+			value = roundf(value)
 		var affix := ItemAffix.new()
 		affix.affix_id = source.affix_id
 		affix.stat_key = source.stat_key
@@ -488,12 +568,7 @@ static func _roll_weapon_affixes(weapon: Weapon, affix_count: int, power_level: 
 		affix.damage_type = source.damage_type
 		affix.is_generic = source.is_generic
 		affix.is_local = source.is_local
-		# Bug fix (2026-09-07, user-reported): source.description is a
-		# template (one %d or %.1f placeholder) - the rolled value must be
-		# substituted in, same as the OLD AFFIX_POOL's own "desc" dict
-		# entries already do, or the card only ever shows "(Tier N)" with
-		# no actual number.
-		var formatted: String = source.description % value if source.description.contains("%.1f") else source.description % round(value)
+		var formatted := describe_value(source.description, source.stat_key, value)
 		affix.description = "%s (Tier %d)" % [formatted, rolled_tier]
 		weapon.affixes.append(affix)
 

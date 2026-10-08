@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_00c1d"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_370su"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_370su"]
+
+[sub_resource type="Resource" id="Resource_joju1"]
+script = ExtResource("1_00c1d")
+description = "+13% increased Evasion while wielding"
+stat_key = "increased_evasion"
+value = 13.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_370su")
@@ -15,6 +23,7 @@ item_id = "gen_shortsword_specters_edge"
 display_name = "Specter's Edge"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_00c1d")]([SubResource("Resource_joju1")])
 flavor_text = "Evasion Line"
 item_level = 76
 base_line_id = "shortsword_line3"

@@ -22,6 +22,33 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.43: Gear stats wired up, level-gated tiers, new weapon damage mods, Slate modifiers, base type review (user request)
+
+- **Most gear modifiers did nothing; now they work.** An audit of all 226 modifier keys found 94 that nothing in the game read: almost the whole Patch v3.9 weapon library ("+48% increased Fire damage", attack speed, crit damage, ailment chance...), plus Life/Mana %, Life/Mana regen %, increased Ward, Ward recovery, flat Aether, skill cooldowns and others from the general pool. Base implicits used a third set of names ("+22% Attack Speed", "+18% Bleed Damage") that nothing read either.
+  - `StatKeys` maps every name onto one stat (`ItemAffix.key()`), and `EquipmentComponent.compute_misc_bonuses()` now sums every non-local stat instead of a hand-kept whitelist.
+  - **No "% increased damage" stat affected weapon hits before.** `StatSheet.get_increased_damage_percent()` (generic + the hit's type + its Physical/Elemental/Esoteric category + Attack damage) now feeds `Weapon._base_hit()` and spells.
+  - Life: flat Life, % increased Life, flat and % Life regen. Mana: flat, %, regen %. Ward: % increased Ward, Ward recovery. Aether capacity: flat and %. Dash speed, Evasion applying to spell hits, Retaliation on Block (`ShieldBlock`, the blocked hit back at the attacker) and the Cast Speed → Cooldown Recovery Slate affix (it had no caller).
+  - `GearEffects` (new, on the Player): increased damage vs Chilled/Ignited/Shocked/Pallid/Unraveled enemies, vs low-Life and full-Life enemies, while moving and at range (an extra hit for that share), Life/Ward on hit, Ward drain on hit, Mana/Ward on kill, Mana/Ward when you Ignite/Electrocute/Chill/Pallid. Damage-over-time ticks don't count as hits.
+  - **Still inert (need a mechanic first):** Stagger effect and Stagger chance, Freeze threshold, Chill/Shock/Unraveling/Pallid effectiveness, Armour Shred effectiveness, Stealth, unaware-enemy damage, explosion Stun/Bleed zones, Ward Threshold, debuff effectiveness, damage after melee / vs broken / spell damage in stance, Riposte bonus damage, Aetherburn (not a status in the game).
+- **Tiers are gated by item level** (Patch v3.5: T1 needs level 80). Before, every tier opened by item level 4. `ItemRoller.tier_min_level()` spreads the rest evenly down to level 1; better tiers are rarer within what's allowed. Jewels follow the same rule.
+- **Weapon and Spell Damage %:** an 8-tier table from 30% (level 1) to 190% (level 80+) for local Weapon Damage on martial weapons and local Spell Damage on Conduits (`ItemRoller.LEVELLED_TIERS`).
+- **New weapon prefixes:** "Forceful — Adds X to Y Weapon Damage" (2-3 at level 1, 29-34 at 80; max is 1.75x min) and "Keen — +X% increased Weapon Damage, Adds Y to Z" (15-85%, flat part 20% of the % roll). Flat damage adds to the weapon's own range (`Weapon.get_damage_range()`), the card shows the result. The kinetic-only "Forceful" library mod folded into it.
+- **Flat Critical Strike Chance** ("+4% Critical Strike Chance") is local to its weapon and shows on the card's Crit Chance line.
+- **Infusion on the card:** the damage line shows the infused type (combat already used it). The weapon model's accent colour follows it too.
+- **Slates roll modifiers.** Drops roll a rarity with Item Rarity: Uncommon gets 1-2 modifiers, Rare 3-4, through the same code the Orbs use. The 37 placeholder ("stub") Slate modifiers are real: per tag, % increased damage, an ailment chance or speed line, and an ailment damage/duration or utility line; the Cast Speed conversion uses Patch v3.7's 25/20/15%. Crafted/rolled Slate modifiers now apply when the Slate is placed and show on its card (neither happened before).
+- **Base type review** against Master v3 Section 25 (all 976 rows) and later patches:
+  - Damage ranges match (Patch v3.7's ±15% widening). Conduit lines follow their later brief, not Section 25's Wand/Staff tables.
+  - 14 high-level body armours had 0 defence: the doc writes "1,121-1,341" and the generator read the comma as the end of the number. Fixed to the doc midpoints.
+  - 5 bases were lost to names the doc reuses across lines (Battle Rifle Line 2's top three tiers, a Bolt Action Rifle tier, Body Armour Line 1's final tier). Restored as Sundering/Ruinous/Obliterating Battle Rifle, Field Bolt Rifle, Bastion Warplate.
+  - 189 missing implicits added: every weapon line's "implicit throughout" (crit, physical damage, armour penetration, evasion, attack speed, stagger, electrocute) and the armour/shield final-tier implicits. Skipped where the doc gives no number ("+flat Life", "+% Deflection") or the stat no longer exists (Block Threshold).
+  - Accessories: 14 added from the doc (Agility/Intellect/Convergence/Vital/Resonant Pendants, Aetheric Conduit; Ward/Vital/Resonant/Iron/Swift Rings; Iron/Leather/Strength Belts). Resilience and Endurance Belts wait on Stun Recovery / Stamina regen.
+  - Throwing Knives could still drop (the exclusion list said "throwing_knife", the lines are "throwing_knives").
+  - **Not added (needs your call):** the doc's experimental ranged weapons (Rail Carbine, Voltage Pistol, Pressurized Rifle, Thermal Pistol, Jet Rifle) and four Conduits (Focus, Seal, Charm, Lantern) - they need firing behaviour / stances designed.
+- **Wiki in the pause menu**, under Settings, using the live character's Magic Find.
+- Tests: new `tests/gear` (62 checks).
+
+---
+
 ## 2026-10-08 — v4.41: Unique wiki, Unique stash tab, loot landing in reach (user request)
 
 - **Wiki (main menu).** A new Wiki button lists every Unique and Mythic (`UniqueWiki`), Mythics first, filterable.

@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_eea6w"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_oqih8"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_oqih8"]
+
+[sub_resource type="Resource" id="Resource_gnalx"]
+script = ExtResource("1_eea6w")
+description = "+14% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 14.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_oqih8")
@@ -11,11 +19,17 @@ base_damage_max = 90.0
 scaling_grade = 0
 is_two_handed = true
 is_ranged = true
+ammo_type = 3
+magazine_size = 5
+fire_mode = 2
+cycle_time = 0.8
+reload_time = 2.8
 primary_scaling_stat = "agility"
 item_id = "gen_bolt_action_rifle_sharpshooters_rifle"
 display_name = "Sharpshooter's Rifle"
 equip_slot = 4
 max_sockets = 4
+affixes = Array[ExtResource("1_eea6w")]([SubResource("Resource_gnalx")])
 flavor_text = "Critical Strike"
 item_level = 41
 base_line_id = "bolt_action_rifle_line1"
@@ -23,12 +37,3 @@ stat_requirement = 0
 stat_requirement_value = 20.5
 level_requirement = 34
 agility_requirement = 28
-ammo_type = 3
-magazine_size = 5
-fire_mode = 2
-pellet_count = 1
-pellet_spread_degrees = 0
-fire_rate = 0
-cycle_time = 0.8
-reload_time = 2.8
-reload_per_shell = false

@@ -5,12 +5,11 @@
 [resource]
 script = ExtResource("1_vqhsx")
 tag = "explosive"
-is_behavior_modifier = true
-description = "Explosive Shift (stub)"
+description = "+%d%% increased Area damage"
 stat_key = "explosive_behavior_shift"
-value = 1.0
-value_min = 1.0
-value_max = 1.0
+value = 12.0
+value_min = 12.0
+value_max = 28.0
 tier = 1
 is_prefix = false
 affix_id = "explosive_behavior_shift"

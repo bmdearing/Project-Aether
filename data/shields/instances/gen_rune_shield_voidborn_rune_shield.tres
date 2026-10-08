@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Shield" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_4u6g3"]
 [ext_resource type="Script" path="res://data/shields/shield.gd" id="2_n448g"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_n448g"]
+
+[sub_resource type="Resource" id="Resource_wads8"]
+script = ExtResource("1_4u6g3")
+description = "+18% increased Esoteric damage while wielding"
+stat_key = "increased_esoteric_damage"
+value = 18.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_n448g")
@@ -11,6 +19,7 @@ item_id = "gen_rune_shield_voidborn_rune_shield"
 display_name = "Voidborn Rune Shield"
 equip_slot = 6
 max_sockets = 3
+affixes = Array[ExtResource("1_4u6g3")]([SubResource("Resource_wads8")])
 flavor_text = "Esoteric/Spell - Implicit: +18% increased Esoteric damage while wielding"
 item_level = 91
 base_line_id = "rune_shield_line2"

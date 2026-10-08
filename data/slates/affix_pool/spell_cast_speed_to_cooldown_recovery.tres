@@ -6,11 +6,10 @@
 script = ExtResource("1_cstcd")
 tag = "spell"
 is_conditional = true
-condition_description = "Converts a percentage of current Cast Speed into Cooldown Recovery Rate - see StatSheet.apply_cast_speed_to_cooldown_conversion()."
-description = "Cast Speed to Cooldown Recovery (stub)"
+description = "%d%% of Cast Speed bonus applies as Cooldown Recovery Rate"
 stat_key = "cast_speed_to_cooldown_recovery"
-value = 15.0
-value_min = 15.0
+value = 25.0
+value_min = 25.0
 value_max = 25.0
 tier = 1
 is_prefix = false

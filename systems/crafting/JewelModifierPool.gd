@@ -33,10 +33,10 @@ const STAT_KEYS := [
 
 static var _cache: Dictionary = {}  # "<stat_key>|<best tier>" -> ModifierDef
 
-## Low item levels can't reach the best tiers: level 1 rolls Tier 3 only,
-## level 3 and up reaches Tier 1.
+## Tiers are gated by item level like gear (ItemRoller.tier_min_level()):
+## Tier 3 from level 1, Tier 2 from 41, Tier 1 from 80.
 static func best_tier_for(item_level: int) -> int:
-	return clampi(TIER_COUNT + 1 - maxi(item_level, 1), 1, TIER_COUNT)
+	return ItemRoller.best_tier_for_level(maxi(item_level, 1), TIER_COUNT)
 
 static func defs_for(jewel: Item) -> Array[ModifierDef]:
 	var best_tier := best_tier_for(jewel.item_level)

@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Shield" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_61x1a"]
 [ext_resource type="Script" path="res://data/shields/shield.gd" id="2_6ag0c"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_6ag0c"]
+
+[sub_resource type="Resource" id="Resource_g1eam"]
+script = ExtResource("1_61x1a")
+description = "+14% increased Critical Strike Chance"
+stat_key = "crit_chance_increased"
+value = 14.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_6ag0c")
@@ -11,6 +19,7 @@ item_id = "gen_spiked_shield_bladesingers_spiked_shield"
 display_name = "Bladesinger's Spiked Shield"
 equip_slot = 6
 max_sockets = 3
+affixes = Array[ExtResource("1_61x1a")]([SubResource("Resource_g1eam")])
 flavor_text = "Critical Strike - Implicit: +14% increased Critical Strike Chance"
 item_level = 91
 base_line_id = "spiked_shield_line2"

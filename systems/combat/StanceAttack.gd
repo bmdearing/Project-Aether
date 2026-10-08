@@ -235,7 +235,7 @@ func _slam(behavior: MeleeStanceBehavior, reach: float, aftershock: bool) -> voi
 		var weapon := _player.get_active_weapon()
 		var motion: float = melee._effective_motion_value(weapon) * melee._attack_type_motion_multiplier()
 		var damage: float = weapon.roll_damage(motion, _player.stat_sheet)["final_damage"]
-		var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+		var damage_type := weapon.get_damage_type()
 		get_tree().create_timer(AFTERSHOCK_DELAY, false).timeout.connect(_aftershock.bind(center, behavior.radius, damage, damage_type))
 
 func _aftershock(center: Vector3, radius: float, damage: float, damage_type: Constants.DamageType) -> void:
@@ -378,7 +378,7 @@ func _water_slice(b: MeleeStanceBehavior) -> void:
 func _on_slash_hit(enemy: Enemy, weapon: Weapon, motion: float, cold_share: float) -> void:
 	if not is_instance_valid(_player):
 		return
-	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	var damage_type := weapon.get_damage_type()
 	var damage: float = weapon.roll_damage(motion, _player.stat_sheet)["final_damage"]
 	if _hit(enemy, damage, damage_type) and cold_share > 0.0:
 		_hit(enemy, damage * cold_share, Constants.DamageType.COLD)
@@ -500,7 +500,7 @@ func _earthquake(behavior: MeleeStanceBehavior, reach: float, motion_mult: float
 	var melee := _player.melee_attack
 	var motion: float = melee._effective_motion_value(weapon) * motion_mult
 	var damage: float = weapon.roll_damage(motion, _player.stat_sheet)["final_damage"]
-	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	var damage_type := weapon.get_damage_type()
 	EarthquakeField.spawn(get_tree().current_scene, Vector3(center.x, _player.global_position.y, center.z), behavior.radius * EARTHQUAKE_FIELD_SCALE, damage, damage_type, _player)
 
 ## Greataxe Shatter: shreds Armour; a kill bursts into shards around the body.
@@ -513,7 +513,7 @@ func _on_shatter_hit(enemy: Enemy, damage: float, behavior: MeleeStanceBehavior)
 		return
 	_ring(enemy.global_position, SHATTER_BURST_RADIUS, Color(0.75, 0.85, 1.0))
 	var weapon := _player.get_active_weapon()
-	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	var damage_type := weapon.get_damage_type()
 	for other in _player.melee_attack.enemies_in_radius(enemy.global_position, SHATTER_BURST_RADIUS):
 		if other != enemy:
 			_hit(other, damage * SHATTER_BURST_SHARE, damage_type)

@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_sulbs"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_sdtyj"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_sdtyj"]
+
+[sub_resource type="Resource" id="Resource_2bww1"]
+script = ExtResource("1_sulbs")
+description = "+14% increased Evasion while wielding"
+stat_key = "increased_evasion"
+value = 14.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_sdtyj")
@@ -15,6 +23,7 @@ item_id = "gen_rapier_veilstep_blade"
 display_name = "Veilstep Blade"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_sulbs")]([SubResource("Resource_2bww1")])
 flavor_text = "Evasion Line"
 item_level = 45
 base_line_id = "rapier_line2"

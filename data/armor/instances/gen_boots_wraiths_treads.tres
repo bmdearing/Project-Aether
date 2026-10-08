@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_yvrn1"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_om31h"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_om31h"]
+
+[sub_resource type="Resource" id="Resource_dabll"]
+script = ExtResource("1_yvrn1")
+description = "+13% increased Evasion"
+stat_key = "increased_evasion"
+value = 13.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_om31h")
@@ -10,6 +18,7 @@ item_id = "gen_boots_wraiths_treads"
 display_name = "Wraith's Treads"
 equip_slot = 3
 max_sockets = 2
+affixes = Array[ExtResource("1_yvrn1")]([SubResource("Resource_dabll")])
 flavor_text = "Maximum Evasion - Implicit: +13% increased Evasion"
 item_level = 91
 base_line_id = "boots_line2"

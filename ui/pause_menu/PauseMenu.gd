@@ -19,6 +19,8 @@ class_name PauseMenu
 
 var _is_open: bool = false
 var _settings_center: CenterContainer
+var _wiki_center: CenterContainer
+var _wiki: UniqueWiki
 var _fate_board_editor: FateBoardEditor
 var _inventory_screen: InventoryScreen
 var _abilities_screen: AbilitiesScreen
@@ -58,6 +60,38 @@ func _build_settings() -> void:
 	var panel := SettingsPanel.new()
 	panel.back_pressed.connect(_show_settings.bind(false))
 	_settings_center.add_child(panel)
+	_build_wiki(menu, settings_button)
+
+## Wiki button under Settings: the same Unique wiki as the main menu, with
+## odds from the live character's Magic Find.
+func _build_wiki(menu: Node, after: Button) -> void:
+	var wiki_button := Button.new()
+	wiki_button.text = "Wiki"
+	wiki_button.name = "WikiButton"
+	wiki_button.pressed.connect(_show_wiki.bind(true))
+	menu.add_child(wiki_button)
+	menu.move_child(wiki_button, after.get_index() + 1)
+	_wiki_center = CenterContainer.new()
+	_wiki_center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_wiki_center.visible = false
+	add_child(_wiki_center)
+	var frame := PanelContainer.new()
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(0.03, 0.035, 0.05, 0.95)
+	box.border_color = AetherStyle.GOLD_DIM
+	box.set_border_width_all(1)
+	box.set_content_margin_all(28)
+	frame.add_theme_stylebox_override("panel", box)
+	_wiki_center.add_child(frame)
+	_wiki = UniqueWiki.new()
+	_wiki.back_pressed.connect(_show_wiki.bind(false))
+	frame.add_child(_wiki)
+
+func _show_wiki(open_wiki: bool) -> void:
+	_wiki_center.visible = open_wiki
+	resume_button.get_parent().get_parent().visible = not open_wiki
+	if open_wiki:
+		_wiki.refresh_character()
 
 func _show_settings(open_settings: bool) -> void:
 	_settings_center.visible = open_settings
@@ -109,8 +143,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		if menu.is_open():
 			return
 	if event.is_action_pressed("ui_cancel"):
-		if _is_open and _settings_center.visible:
+		if _is_open and (_settings_center.visible or _wiki_center.visible):
 			_show_settings(false)
+			_show_wiki(false)
 			get_viewport().set_input_as_handled()
 			return
 		toggle()
@@ -134,6 +169,7 @@ func toggle() -> void:
 
 func open() -> void:
 	_show_settings(false)
+	_show_wiki(false)
 	_is_open = true
 	visible = true
 	get_tree().paused = true

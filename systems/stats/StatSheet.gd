@@ -110,19 +110,19 @@ func get_resistance(damage_type: Constants.DamageType) -> float:
 func set_equipment_resistance(resistance: Dictionary) -> void:
 	equipment_resistance = resistance
 
-## "increased_damage" affixes, generic and per DamageType. Scaffolding: not
-## consumed by DamageCalculator yet.
+## "increased_damage" affixes, generic and per DamageType (see
+## get_increased_damage_percent()).
 var increased_damage_generic: float = 0.0
 var increased_damage_by_type: Dictionary = {}
 
 ## Routes a rolled ItemAffix to the bucket its stat_key belongs to.
 func apply_affix(affix: ItemAffix) -> void:
-	if EquipmentComponent.AFFIX_STAT_KEYS.has(affix.stat_key):
-		var stat: Constants.Stat = EquipmentComponent.AFFIX_STAT_KEYS[affix.stat_key]
+	if EquipmentComponent.AFFIX_STAT_KEYS.has(affix.key()):
+		var stat: Constants.Stat = EquipmentComponent.AFFIX_STAT_KEYS[affix.key()]
 		equipment_bonus[stat] = equipment_bonus.get(stat, 0.0) + affix.value
 		return
-	if EquipmentComponent.RESISTANCE_AFFIX_KEYS.has(affix.stat_key):
-		var key: String = EquipmentComponent.RESISTANCE_AFFIX_KEYS[affix.stat_key]
+	if EquipmentComponent.RESISTANCE_AFFIX_KEYS.has(affix.key()):
+		var key: String = EquipmentComponent.RESISTANCE_AFFIX_KEYS[affix.key()]
 		equipment_resistance[key] = equipment_resistance.get(key, 0.0) + affix.value
 		return
 	if affix.stat_key == "increased_damage":
@@ -179,7 +179,23 @@ var finesse_crit_bonus: float = 0.0
 var misc_bonus: Dictionary = {}
 
 func get_misc_bonus(key: String) -> float:
-	return misc_bonus.get(key, 0.0)
+	return misc_bonus.get(key, 0.0) + slate_misc_bonus.get(key, 0.0)
+
+## Placed Slates' non-attribute modifiers, by canonical key (ChainCalculator.
+## slate_misc_bonuses()), added on top of gear's.
+var slate_misc_bonus: Dictionary = {}
+
+## Total "% increased" for a hit of damage_type: generic, the type's own and
+## its category's (Physical/Elemental/Esoteric), plus attack damage for
+## weapon hits. Spell damage is added by Ability itself.
+func get_increased_damage_percent(damage_type: int, is_attack: bool) -> float:
+	var total: float = increased_damage_generic + increased_damage_by_type.get(damage_type, 0.0)
+	total += get_misc_bonus("increased_generic_damage") + get_misc_bonus(StatKeys.type_damage_key(damage_type))
+	var category: int = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type, -1)
+	total += get_misc_bonus(StatKeys.CATEGORY_DAMAGE_KEYS.get(category, ""))
+	if is_attack:
+		total += get_misc_bonus("increased_attack_damage")
+	return total
 
 ## Fraction added to the base crit multiplier. crit_damage and
 ## crit_damage_increased are the same effect under two keys.

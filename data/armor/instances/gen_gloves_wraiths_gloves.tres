@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_66wof"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_2u0wi"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_2u0wi"]
+
+[sub_resource type="Resource" id="Resource_6bbi8"]
+script = ExtResource("1_66wof")
+description = "+13% increased Evasion"
+stat_key = "increased_evasion"
+value = 13.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_2u0wi")
@@ -10,6 +18,7 @@ item_id = "gen_gloves_wraiths_gloves"
 display_name = "Wraith's Gloves"
 equip_slot = 2
 max_sockets = 2
+affixes = Array[ExtResource("1_66wof")]([SubResource("Resource_6bbi8")])
 flavor_text = "Maximum Evasion - Implicit: +13% increased Evasion"
 item_level = 91
 base_line_id = "gloves_line2"

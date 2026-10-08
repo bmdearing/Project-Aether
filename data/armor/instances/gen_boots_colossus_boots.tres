@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_j51bh"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_hr4wh"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_hr4wh"]
+
+[sub_resource type="Resource" id="Resource_7neo7"]
+script = ExtResource("1_j51bh")
+description = "+11% increased Armor"
+stat_key = "increased_armor"
+value = 11.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_hr4wh")
@@ -10,6 +18,7 @@ item_id = "gen_boots_colossus_boots"
 display_name = "Colossus Boots"
 equip_slot = 3
 max_sockets = 2
+affixes = Array[ExtResource("1_j51bh")]([SubResource("Resource_7neo7")])
 flavor_text = "Maximum Armor - Implicit: +11% increased Armor"
 item_level = 91
 base_line_id = "boots_line1"

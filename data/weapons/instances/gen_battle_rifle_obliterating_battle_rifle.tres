@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="Weapon" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_wqg23"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_c6msh"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_814p0"]
+
+[sub_resource type="Resource" id="Resource_pm6or"]
+script = ExtResource("1_wqg23")
+description = "+22% Armor penetration on hits"
+stat_key = "armor_penetration"
+value = 22.0
+is_implicit = true
+
+[resource]
+script = ExtResource("2_c6msh")
+weapon_type = "Battle Rifle"
+base_damage_min = 85.0
+base_damage_max = 114.0
+scaling_grade = 0
+is_two_handed = true
+is_ranged = true
+ammo_type = 3
+magazine_size = 20
+pellet_spread_degrees = 0.5
+reload_time = 2.0
+primary_scaling_stat = "strength"
+item_id = "gen_battle_rifle_obliterating_battle_rifle"
+display_name = "Obliterating Battle Rifle"
+equip_slot = 4
+max_sockets = 4
+affixes = Array[ExtResource("1_wqg23")]([SubResource("Resource_pm6or")])
+flavor_text = "Armor Penetration"
+item_level = 79
+base_line_id = "battle_rifle_line2"
+stat_requirement = 0
+stat_requirement_value = 20.0
+level_requirement = 68
+strength_requirement = 72

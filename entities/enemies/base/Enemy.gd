@@ -45,6 +45,12 @@ func get_ward() -> float:
 func get_ward_max() -> float:
 	return _ward_pool
 
+## Removes up to `amount` Ward (drain-on-hit modifiers); returns what it took.
+func drain_ward(amount: float) -> float:
+	var drained := minf(amount, _ward_current)
+	_ward_current -= drained
+	return drained
+
 ## Bonus for a weapon hit aimed at the HeadZone (headshot).
 @export var critical_spot_multiplier: float = 1.10
 
@@ -677,7 +683,7 @@ func _roll_drop(rarity_mult: float) -> void:
 
 	if randf() <= SLATE_DROP_CHANCE:
 		var power_level: int = GameState.active_map.tier if GameState.active_map else 1
-		var slate := SlateRoller.roll(power_level)
+		var slate := SlateRoller.roll(power_level, rarity_mult)
 		if slate:
 			_spawn_slate_pickup(slate)
 			return

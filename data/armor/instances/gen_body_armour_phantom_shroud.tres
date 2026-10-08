@@ -1,10 +1,12 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_tlxxy"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_1tck6"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_1tck6"]
 
 [resource]
 script = ExtResource("2_1tck6")
+evasion_value = 981.0
 ward_value = 836.0
 item_id = "gen_body_armour_phantom_shroud"
 display_name = "Phantom Shroud"

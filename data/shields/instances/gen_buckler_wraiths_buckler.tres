@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Shield" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_bb0hs"]
 [ext_resource type="Script" path="res://data/shields/shield.gd" id="2_q1brc"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_q1brc"]
+
+[sub_resource type="Resource" id="Resource_lcmtl"]
+script = ExtResource("1_bb0hs")
+description = "+14% increased Evasion"
+stat_key = "increased_evasion"
+value = 14.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_q1brc")
@@ -11,6 +19,7 @@ item_id = "gen_buckler_wraiths_buckler"
 display_name = "Wraith's Buckler"
 equip_slot = 6
 max_sockets = 3
+affixes = Array[ExtResource("1_bb0hs")]([SubResource("Resource_lcmtl")])
 flavor_text = "Maximum Evasion - Implicit: +14% increased Evasion"
 item_level = 91
 base_line_id = "buckler_line1"

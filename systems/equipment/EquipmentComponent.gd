@@ -202,17 +202,8 @@ func get_total_evasion(extra_increased: float = 0.0) -> float:
 	var increased: float = affixes.get("increased_evasion", 0.0) / 100.0 + extra_increased
 	return (base + flat) * (1.0 + increased)
 
-## Patch v3.2: "Ward pool size scales through gear rolls." Two real
-## sources sum together: each equipped Armor/Shield's own base
-## `ward_value` (Section 25's doc-sourced "Base Ward" column - same
-## mechanical treatment get_total_armor() already gives armor_value; added
-## 2026-08-30 after a user bug report that Ward "isn't actually being
-## applied anymore" - the Section 25 generator gave ~170 armor pieces a
-## real, prominent ward_value that this method was silently ignoring,
-## reading only the separate, much rarer rolled flat_ward AFFIX) plus any
-## flat_ward affixes rolled onto ANY equipped item (existed since
-## ItemRoller.AFFIX_POOL's first pass, purely descriptive per DEVELOPMENT.md gap
-## #18 until Patch v3.2 gave Ward a real formula to feed).
+## Ward pool: every equipped Armor/Shield's base ward_value plus flat Ward
+## from any item, times increased Ward.
 func compute_ward_bonus() -> float:
 	var total := 0.0
 	if helmet: total += helmet.ward_value
@@ -220,11 +211,9 @@ func compute_ward_bonus() -> float:
 	if gloves: total += gloves.ward_value
 	if boots: total += boots.ward_value
 	if offhand is Shield: total += (offhand as Shield).ward_value
-	for item in get_all_equipped_items():
-		for affix in item.get_effective_affixes():
-			if affix.stat_key == "flat_ward":
-				total += affix.value
-	return total
+	var affixes := compute_misc_bonuses()
+	return (total + affixes.get("flat_ward", 0.0)) * (1.0 + affixes.get("increased_ward", 0.0) / 100.0)
+
 
 ## Restore-descriptor per equipped item for GameState.sync_equipment() -
 ## a resource_path String, or an ItemSerializer Dictionary for rolled
@@ -269,8 +258,8 @@ func compute_stat_bonuses() -> Dictionary:
 	var totals := {}
 	for item in get_all_equipped_items():
 		for affix in item.get_effective_affixes():
-			if AFFIX_STAT_KEYS.has(affix.stat_key):
-				var stat: Constants.Stat = AFFIX_STAT_KEYS[affix.stat_key]
+			if AFFIX_STAT_KEYS.has(affix.key()):
+				var stat: Constants.Stat = AFFIX_STAT_KEYS[affix.key()]
 				totals[stat] = totals.get(stat, 0.0) + affix.value
 	return totals
 
@@ -307,101 +296,47 @@ func compute_resistance_bonuses() -> Dictionary:
 	var totals := {}
 	for item in get_all_equipped_items():
 		for affix in item.get_effective_affixes():
-			if RESISTANCE_AFFIX_KEYS.has(affix.stat_key):
-				var key: String = RESISTANCE_AFFIX_KEYS[affix.stat_key]
+			if RESISTANCE_AFFIX_KEYS.has(affix.key()):
+				var key: String = RESISTANCE_AFFIX_KEYS[affix.key()]
 				totals[key] = totals.get(key, 0.0) + affix.value
-			elif affix.stat_key == ALL_ELEMENTAL_RESISTANCE_KEY:
+			elif affix.key() == ALL_ELEMENTAL_RESISTANCE_KEY:
 				for key in ["fire", "cold", "lightning"]:
 					totals[key] = totals.get(key, 0.0) + affix.value
 	return totals
 
-## Patch v3.8 Section 2 "Removed expressions" - max_life/life_regen/
-## max_mana/mana_regen/resilience/cast_speed used to derive from a
-## character stat, now purely gear-affix-driven (same shape as
-## compute_resistance_bonuses() above, just a different key set). flat_
-## resilience already existed (pre-v3.8, previously descriptive-only);
-## the rest are new ItemRoller.AFFIX_POOL entries added alongside this.
-## Patch v4.0 "Full Mod Pool Framework" - every new stat_key routes
-## through this SAME existing misc_bonus mechanism rather than ~50 new
-## individual StatSheet fields (the brief's own literal ask) - several of
-## its own listed stat_keys (attack_speed, cast_speed, cooldown_recovery_
-## rate, flat_armor, flat_evasion, flat_ward) are ALREADY real, working
-## keys under this exact mechanism; adding parallel dedicated fields for
-## those would either silently double-count them or fork into two
-## divergent, easy-to-desync code paths for the same effect. See
-## StatSheet.gd's own new v4.0 section for the few stat_keys needing
-## real combination logic (per-ailment, per-damage-type, resistance
-## unification) - those get thin getter methods instead of bespoke fields.
-## Section 09-style status effect ids and the 9 damage types, spelled out
-## directly below (Ailment Build's 8 x 3 per-ailment keys, Amulet
-## Exclusive's 9 x 2 per-damage-type skill_level keys) - GDScript consts
-## can't be built by calling a function, so no programmatic loop here.
+## Every other gear stat (life, mana, speeds, damage, ailments, defences...)
+## summed per canonical key (StatKeys) into StatSheet.misc_bonus. Local
+## weapon mods stay on their weapon and Unique mechanics go to UniqueEffects.
 const AILMENT_IDS := ["bleed", "ignite", "chill", "electrocute", "shock", "aetherburn", "unraveling", "pallid"]
 const V40_DAMAGE_TYPE_KEYS := ["kinetic", "piercing", "explosive", "fire", "cold", "lightning", "aetheric", "entropic", "pale"]
-
-const MISC_BONUS_KEYS := [
-	"block_chance_bonus",
-	"flat_armor",  # see get_total_armor() - had to be listed here or compute_misc_bonuses() dropped it, same as flat_evasion
-	"flat_evasion",  # Patch v4.4 - see get_total_evasion(). NOT summed anywhere before this: v4.0's note calling it "already real" was wrong
-	"max_life", "life_regen", "max_mana", "mana_regen",
-	"flat_resilience", "cast_speed", "attack_speed", "move_speed",
-	"crit_damage",
-	"item_quantity", "item_rarity", "magic_find",  # Loot.gd
-	# Patch v4.0 Ailment Build Mod Pool
-	"dot_multiplier", "ailment_tick_rate", "ailment_ignore_chance",
-	"ailment_chance_bleed", "increased_ailment_damage_bleed", "increased_ailment_duration_bleed",
-	"ailment_chance_ignite", "increased_ailment_damage_ignite", "increased_ailment_duration_ignite",
-	"ailment_chance_chill", "increased_ailment_damage_chill", "increased_ailment_duration_chill",
-	"ailment_chance_electrocute", "increased_ailment_damage_electrocute", "increased_ailment_duration_electrocute",
-	"ailment_chance_shock", "increased_ailment_damage_shock", "increased_ailment_duration_shock",
-	"ailment_chance_aetherburn", "increased_ailment_damage_aetherburn", "increased_ailment_duration_aetherburn",
-	"ailment_chance_unraveling", "increased_ailment_damage_unraveling", "increased_ailment_duration_unraveling",
-	"ailment_chance_pallid", "increased_ailment_damage_pallid", "increased_ailment_duration_pallid",
-	# Patch v4.0 Physical Hit Build Mod Pool
-	"increased_physical_damage", "crit_chance_increased", "crit_damage_increased",
-	# Patch v4.0 Spell Hit Build Mod Pool
-	"increased_spell_damage", "skill_effect_duration", "mana_cost_reduction", "cooldown_recovery_rate",
-	# Patch v4.0 Ranged Build Mod Pool
-	"increased_aoe_radius", "increased_area_damage", "projectile_speed", "reduced_projectile_speed",
-	# Patch v4.0 Parry/Riposte Build Mod Pool
-	"parry_window_duration", "ward_on_parry", "increased_riposte_damage", "riposte_crit_chance",
-	# Patch v4.0 Healing/Sustain Mod Pool
-	"life_regen_flat", "life_regen_increased", "flat_life", "life_increased",
-	"mana_regen_increased", "flat_mana", "mana_increased", "ward_recovery_increased",
-	# Patch v4.0 Offensive Mod Pool
-	"fire_penetration", "cold_penetration", "lightning_penetration", "elemental_penetration", "physical_shred",
-	# Patch v4.0 Retaliation Mod Pool
-	"increased_retaliation_damage", "retaliate_on_block",
-	# Patch v4.0 Defensive Mod Pool
-	"reduced_physical_taken", "reduced_elemental_taken", "reduced_esoteric_taken", "ward_delay_reduction",
-	"armor_to_elemental", "evasion_to_spells", "dash_speed", "damage_from_mana",
-	"phys_as_fire", "phys_as_cold", "phys_as_lightning",
-	# fire_resistance/cold_resistance/lightning_resistance/esoteric_resistance/
-	# all_elemental_resistance are NOT here - they route through
-	# RESISTANCE_AFFIX_KEYS/compute_resistance_bonuses() below, the
-	# existing dedicated resistance mechanism, not misc_bonus.
-	# Patch v4.0 Armor Base Specific Mods (flat_ward/flat_armor/flat_evasion already existed pre-v4.0)
-	"increased_ward", "increased_armor", "increased_evasion", "hybrid_defense_life",
-	# Patch v4.0 Amulet Exclusive Mod Pool
-	"flat_aether", "skill_level_all", "skill_level_spells",
-	"skill_level_kinetic", "skill_level_spell_kinetic",
-	"skill_level_piercing", "skill_level_spell_piercing",
-	"skill_level_explosive", "skill_level_spell_explosive",
-	"skill_level_fire", "skill_level_spell_fire",
-	"skill_level_cold", "skill_level_spell_cold",
-	"skill_level_lightning", "skill_level_spell_lightning",
-	"skill_level_aetheric", "skill_level_spell_aetheric",
-	"skill_level_entropic", "skill_level_spell_entropic",
-	"skill_level_pale", "skill_level_spell_pale",
-]
 
 func compute_misc_bonuses() -> Dictionary:
 	var totals := {}
 	for item in get_all_equipped_items():
 		for affix in item.get_effective_affixes():
-			if MISC_BONUS_KEYS.has(affix.stat_key):
-				totals[affix.stat_key] = totals.get(affix.stat_key, 0.0) + affix.value
+			var key := affix.key()
+			if not is_misc_key(key):
+				continue
+			totals[key] = totals.get(key, 0.0) + affix.value
+			if key == "hybrid_defense_life":
+				_add_hybrid_defense(totals, item, affix.value)
 	return totals
+
+## Attributes and resistances have their own sums; local and Unique keys
+## aren't character stats.
+static func is_misc_key(key: String) -> bool:
+	return not (key.begins_with("local_") or key.begins_with("unique_") or AFFIX_STAT_KEYS.has(key) or RESISTANCE_AFFIX_KEYS.has(key) or key == ALL_ELEMENTAL_RESISTANCE_KEY)
+
+## "+N to primary defence and Life": the Life half is flat Life, the other
+## half goes to whichever defence the item itself has most of.
+static func _add_hybrid_defense(totals: Dictionary, item: Item, value: float) -> void:
+	totals["flat_life"] = totals.get("flat_life", 0.0) + value
+	var defences := {"flat_armor": item.get("armor_value"), "flat_evasion": item.get("evasion_value"), "flat_ward": item.get("ward_value")}
+	var best := "flat_armor"
+	for k in defences:
+		if defences[k] != null and float(defences[k]) > float(defences[best] if defences[best] != null else 0.0):
+			best = k
+	totals[best] = totals.get(best, 0.0) + value
 
 func get_all_equipped_items() -> Array[Item]:
 	var items: Array[Item] = [helmet, body_armour, gloves, boots, primary_weapon, offhand, amulet, belt]

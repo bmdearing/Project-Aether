@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_r8px2"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_fs7sy"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_fs7sy"]
+
+[sub_resource type="Resource" id="Resource_jfx85"]
+script = ExtResource("1_r8px2")
+description = "+14% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 14.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_fs7sy")
@@ -10,11 +18,17 @@ base_damage_min = 47.0
 base_damage_max = 65.0
 scaling_grade = 0
 is_ranged = true
+ammo_type = 1
+magazine_size = 6
+fire_mode = 5
+cycle_time = 0.3
+reload_time = 2.0
 primary_scaling_stat = "agility"
 item_id = "gen_revolver_deadeyes_revolver"
 display_name = "Deadeye's Revolver"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_r8px2")]([SubResource("Resource_jfx85")])
 flavor_text = "Critical Strike"
 item_level = 53
 base_line_id = "revolver_line2"
@@ -22,12 +36,3 @@ stat_requirement = 0
 stat_requirement_value = 26.5
 level_requirement = 44
 agility_requirement = 40
-ammo_type = 1
-magazine_size = 6
-fire_mode = 5
-pellet_count = 1
-pellet_spread_degrees = 0
-fire_rate = 0
-cycle_time = 0.3
-reload_time = 2
-reload_per_shell = false

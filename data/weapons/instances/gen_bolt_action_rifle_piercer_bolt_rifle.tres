@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_dvf43"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_bwy5k"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_bwy5k"]
+
+[sub_resource type="Resource" id="Resource_l7wsc"]
+script = ExtResource("1_dvf43")
+description = "+25% Armor penetration on hits"
+stat_key = "armor_penetration"
+value = 25.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_bwy5k")
@@ -11,21 +19,18 @@ base_damage_max = 17.0
 scaling_grade = 0
 is_two_handed = true
 is_ranged = true
+ammo_type = 3
+magazine_size = 5
+fire_mode = 2
+cycle_time = 0.8
+reload_time = 2.8
 primary_scaling_stat = "strength"
 item_id = "gen_bolt_action_rifle_piercer_bolt_rifle"
 display_name = "Piercer Bolt Rifle"
 equip_slot = 4
 max_sockets = 2
+affixes = Array[ExtResource("1_dvf43")]([SubResource("Resource_l7wsc")])
 flavor_text = "Armor Penetration"
 base_line_id = "bolt_action_rifle_line3"
 stat_requirement = 0
 stat_requirement_value = 0.5
-ammo_type = 3
-magazine_size = 5
-fire_mode = 2
-pellet_count = 1
-pellet_spread_degrees = 0
-fire_rate = 0
-cycle_time = 0.8
-reload_time = 2.8
-reload_per_shell = false

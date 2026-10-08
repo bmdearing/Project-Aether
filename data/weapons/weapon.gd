@@ -15,12 +15,36 @@ class_name Weapon
 @export var base_damage_max: float = 0.0
 @export var rolled_base_damage: float = 0.0
 
-func get_damage_range() -> Vector2:
+## The base's own range, before this weapon's modifiers.
+func get_base_range() -> Vector2:
 	return Vector2(base_damage_min, base_damage_max)
 
-## Average base damage (the range midpoint).
+## Per-hit range: the base plus flat added damage from its own modifiers.
+func get_damage_range() -> Vector2:
+	return get_base_range() + get_flat_added_damage()
+
+## Average damage (the range midpoint).
 func get_base_damage() -> float:
-	return (base_damage_min + base_damage_max) / 2.0
+	var r := get_damage_range()
+	return (r.x + r.y) / 2.0
+
+## "Adds X to Y" from this weapon's flat and hybrid damage modifiers.
+func get_flat_added_damage() -> Vector2:
+	var added := Vector2.ZERO
+	for affix in affixes:
+		var flat := 0.0
+		match affix.key():
+			"local_flat_weapon_damage":
+				flat = roundf(affix.value)
+			"local_hybrid_weapon_damage":
+				flat = maxf(roundf(affix.value * ItemRoller.HYBRID_FLAT_PER_PERCENT), 1.0)
+		if flat > 0.0:
+			added += Vector2(flat, roundf(flat * ItemRoller.FLAT_DAMAGE_SPREAD))
+	return added
+
+## The type this weapon's hits deal: its Infusion when infused, else native.
+func get_damage_type() -> Constants.DamageType:
+	return infused_damage_type if infused_damage_type != -1 else native_damage_type
 
 ## A Conduit adds no flat spell damage (spells carry their own). Its local
 ## "increased Spell damage" applies to every spell; implicit/global spell
@@ -148,27 +172,37 @@ func get_base_crit_chance() -> float:
 func get_local_multiplier(stat_key: String) -> float:
 	var mult := 1.0
 	for affix in affixes:
-		if affix.stat_key == stat_key:
+		var key := affix.key()
+		if key == stat_key or (stat_key == "local_increased_weapon_damage" and key == "local_hybrid_weapon_damage"):
 			mult += affix.value / 100.0
 	return mult
+
+## Flat Critical Strike Chance from this weapon's own modifiers, as a fraction.
+func get_local_flat_crit_chance() -> float:
+	var total := 0.0
+	for affix in affixes:
+		if affix.key() == "local_flat_crit_chance":
+			total += affix.value / 100.0
+	return total
 
 ## Base crit with this weapon's local increased crit applied - what the
 ## card shows and what _base_hit() rolls against (before Agility/gear).
 func get_local_crit_chance() -> float:
-	return get_base_crit_chance() * get_local_multiplier("local_increased_crit_chance")
+	return (get_base_crit_chance() + get_local_flat_crit_chance()) * get_local_multiplier("local_increased_crit_chance")
 
 ## Shared groundwork for predict_damage()/roll_damage(), for one base
 ## damage value within the weapon's range.
 ## v4.8: damage = base x (1 + Strength%) x MV x increased x more, for every
 ## damage type. v4.10: x this weapon's local increased Weapon Damage too.
 func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dictionary:
-	var damage_type: Constants.DamageType = infused_damage_type if infused_damage_type != -1 else native_damage_type
+	var damage_type := get_damage_type()
 	var boosted_base := base * (1.0 + stat_sheet.get_strength_weapon_multiplier()) * get_local_multiplier("local_increased_weapon_damage")
 	# Section 10's Chain Bonus System, stored as a raw fraction on StatSheet,
 	# converted to the percent-units DamageCalculator.calculate() expects
 	# (each entry "e.g. 8.0 for 8%").
 	var increased: Array[float] = [
 		stat_sheet.get_chain_bonus(damage_type) * 100.0,
+		stat_sheet.get_increased_damage_percent(damage_type, true),
 	]
 	# scaling_grade is passed but has no effect on weapon damage since
 	# stat_value = 0.0 (Strength is applied as a % multiplier on base_damage

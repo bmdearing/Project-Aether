@@ -108,7 +108,7 @@ func _test_rolls() -> void:
 	_check(level1.all(func(d: ModifierDef): return d.tiers.size() == 1 and d.tiers[0].tier == 3), "item level 1 jewels only reach Tier 3")
 
 	var jewel := Jewel.new()
-	jewel.item_level = 50
+	jewel.item_level = 80  # Tier 1 needs item level 80
 	var defs := JewelModifierPool.defs_for(jewel)
 	_check(defs.size() == JewelModifierPool.STAT_KEYS.size(), "every jewel stat key exists in the affix pool (%d/%d)" % [defs.size(), JewelModifierPool.STAT_KEYS.size()])
 	_check(defs.any(func(d): return d.affix_type == ModifierDef.AffixType.PREFIX) and defs.any(func(d): return d.affix_type == ModifierDef.AffixType.SUFFIX), "the pool has both prefixes and suffixes")
@@ -123,7 +123,7 @@ func _test_rolls() -> void:
 func _test_crafting() -> void:
 	var resolver := CraftingResolver.create_default()
 	var jewel := Jewel.new()
-	jewel.item_level = 50
+	jewel.item_level = 80  # Tier 1 needs item level 80
 	var r := resolver.apply(jewel, &"quickening")
 	_check(r.success and jewel.rarity == Constants.ItemRarity.UNCOMMON and jewel.affixes.size() == 1, "Quickening makes an Uncommon jewel with one modifier")
 	_check(jewel.affixes.all(func(a): return JewelModifierPool.STAT_KEYS.has(a.stat_key)), "Orbs roll from the jewel pool")

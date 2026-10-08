@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_vd6ow"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_x6u1r"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_x6u1r"]
+
+[sub_resource type="Resource" id="Resource_3nv1q"]
+script = ExtResource("1_vd6ow")
+description = "+15% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 15.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_x6u1r")
@@ -15,6 +23,7 @@ item_id = "gen_dagger_voidfang"
 display_name = "Voidfang"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_vd6ow")]([SubResource("Resource_3nv1q")])
 flavor_text = "Assassination (Crit)"
 item_level = 91
 base_line_id = "dagger_line1"

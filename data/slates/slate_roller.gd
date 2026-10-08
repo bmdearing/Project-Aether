@@ -48,7 +48,10 @@ const SHAPE_TEMPLATES := [
 ]
 
 ## power_level is currently unused.
-static func roll(power_level: int = 1) -> Slate:
+## rarity_multiplier is Item Rarity (Loot.multipliers()): a drop rolls its
+## rarity like gear does, and Uncommon/Rare drops get modifiers from the
+## Slate pool, the same way the matching Orbs would add them.
+static func roll(power_level: int = 1, rarity_multiplier: float = 1.0) -> Slate:
 	var bracket: Dictionary = SIZE_BRACKETS[randi() % SIZE_BRACKETS.size()]
 	var template := _pick_shape_template(bracket)
 	if template.is_empty():
@@ -67,8 +70,8 @@ static func roll(power_level: int = 1) -> Slate:
 	if slate.is_hybrid:
 		var others := REAL_DAMAGE_TYPES.filter(func(t): return t != slate.tag)
 		slate.secondary_tag = others[randi() % others.size()]
-	# Rev2: rarity comes from crafted modifiers, so every drop starts Common.
-	# The size bracket still sets the drop's Aether cost, unchanged.
+	# Rev2: rarity comes from modifiers - it starts Common and
+	# roll_rarity_modifiers() below raises it. The size bracket sets the cost.
 	var bracket_rarity: Constants.SlateRarity = bracket["rarities"][randi() % bracket["rarities"].size()]
 	slate.rarity = Constants.SlateRarity.COMMON
 	slate.display_name = "%s Slate" % Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
@@ -76,7 +79,32 @@ static func roll(power_level: int = 1) -> Slate:
 	slate.modifiers = _roll_modifiers(slate.tag, tile_count, power_level)
 	slate.aether_cost = tile_count + RARITY_AETHER_BONUS.get(bracket_rarity, 0)
 	CraftingResolver.roll_tolerance(slate)
+	roll_rarity_modifiers(slate, Loot.roll_rarity(rarity_multiplier))
 	return slate
+
+## Uncommon: 1-2 modifiers (Quickening, then maybe Grafting); Rare and above:
+## 3-4 (Forging). Applied without spending the Slate's Aether Tolerance.
+static func roll_rarity_modifiers(slate: Slate, item_rarity: int) -> void:
+	var orbs: Array[StringName] = []
+	if item_rarity == Constants.ItemRarity.UNCOMMON:
+		orbs.append(&"quickening")
+		if randf() < 0.5:
+			orbs.append(&"grafting")
+	elif item_rarity >= Constants.ItemRarity.RARE:
+		orbs.append(&"forging")
+	if orbs.is_empty():
+		return
+	var resolver := CraftingResolver.create_default()
+	for orb in orbs:
+		var target := CraftTarget.wrap(slate)
+		var ctx := resolver._resolve_brands(orb, null)
+		if resolver._check(target, orb, ctx, null) != CraftResult.CraftError.NONE:
+			return
+		var sim := resolver._simulate(target, orb, ctx, null)
+		if sim["error"] != CraftResult.CraftError.NONE:
+			return
+		target.set_explicits(sim["explicits"])
+		target.set_rarity(sim["rarity"])
 
 static func _pick_shape_template(bracket: Dictionary) -> Array:
 	var candidates: Array = []

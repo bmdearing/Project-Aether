@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_dr6df"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_8kgjs"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_8kgjs"]
+
+[sub_resource type="Resource" id="Resource_xti86"]
+script = ExtResource("1_dr6df")
+description = "+15% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 15.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_8kgjs")
@@ -15,6 +23,7 @@ item_id = "gen_dagger_stiletto"
 display_name = "Stiletto"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_dr6df")]([SubResource("Resource_xti86")])
 flavor_text = "Assassination (Crit)"
 item_level = 31
 base_line_id = "dagger_line1"

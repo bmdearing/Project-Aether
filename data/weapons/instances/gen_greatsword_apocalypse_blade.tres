@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_kw11e"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_00ga4"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_00ga4"]
+
+[sub_resource type="Resource" id="Resource_nrf4d"]
+script = ExtResource("1_kw11e")
+description = "+11% increased Physical damage"
+stat_key = "increased_physical_damage"
+value = 11.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_00ga4")
@@ -14,6 +22,7 @@ item_id = "gen_greatsword_apocalypse_blade"
 display_name = "Apocalypse Blade"
 equip_slot = 4
 max_sockets = 6
+affixes = Array[ExtResource("1_kw11e")]([SubResource("Resource_nrf4d")])
 flavor_text = "High Damage"
 item_level = 91
 base_line_id = "greatsword_line1"

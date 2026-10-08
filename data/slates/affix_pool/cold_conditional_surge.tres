@@ -5,9 +5,7 @@
 [resource]
 script = ExtResource("1_1xo2b")
 tag = "cold"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Cold Surge (stub)"
+description = "+%d%% chance to cause Chill"
 stat_key = "cold_conditional_surge"
 value = 8.0
 value_min = 8.0

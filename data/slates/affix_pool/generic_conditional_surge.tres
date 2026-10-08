@@ -5,13 +5,11 @@
 [resource]
 script = ExtResource("1_cvhvc")
 tag = "generic"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Generic Surge (stub)"
+description = "+%d%% increased Skill Effect Duration"
 stat_key = "generic_conditional_surge"
-value = 8.0
-value_min = 8.0
-value_max = 20.0
+value = 10.0
+value_min = 10.0
+value_max = 24.0
 tier = 1
 is_prefix = false
 affix_id = "generic_conditional_surge"

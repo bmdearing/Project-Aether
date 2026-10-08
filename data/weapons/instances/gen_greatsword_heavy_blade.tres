@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_csx7s"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_hc6gy"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_hc6gy"]
+
+[sub_resource type="Resource" id="Resource_5qyif"]
+script = ExtResource("1_csx7s")
+description = "+11% increased Physical damage"
+stat_key = "increased_physical_damage"
+value = 11.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_hc6gy")
@@ -14,6 +22,7 @@ item_id = "gen_greatsword_heavy_blade"
 display_name = "Heavy Blade"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_csx7s")]([SubResource("Resource_5qyif")])
 flavor_text = "High Damage"
 item_level = 12
 base_line_id = "greatsword_line1"

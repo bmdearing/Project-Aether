@@ -40,3 +40,7 @@ func get_group() -> StringName:
 	if group != &"":
 		return group
 	return StringName(affix_id) if affix_id != "" else StringName(stat_key)
+
+## The stat this modifier feeds, whatever name it was rolled under (StatKeys).
+func key() -> String:
+	return StatKeys.canonical(stat_key)

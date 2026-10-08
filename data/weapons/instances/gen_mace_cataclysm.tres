@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_geqd3"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_uhc2j"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_uhc2j"]
+
+[sub_resource type="Resource" id="Resource_vm517"]
+script = ExtResource("1_geqd3")
+description = "+12% increased Physical damage"
+stat_key = "increased_physical_damage"
+value = 12.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_uhc2j")
@@ -14,6 +22,7 @@ item_id = "gen_mace_cataclysm"
 display_name = "Cataclysm"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_geqd3")]([SubResource("Resource_vm517")])
 flavor_text = "High Damage"
 item_level = 91
 base_line_id = "mace_line2"

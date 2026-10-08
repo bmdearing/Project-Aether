@@ -5,13 +5,11 @@
 [resource]
 script = ExtResource("1_2vynr")
 tag = "attack"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Attack Surge (stub)"
+description = "+%d%% increased Attack Speed"
 stat_key = "attack_conditional_surge"
-value = 8.0
-value_min = 8.0
-value_max = 20.0
+value = 6.0
+value_min = 6.0
+value_max = 14.0
 tier = 1
 is_prefix = false
 affix_id = "attack_conditional_surge"

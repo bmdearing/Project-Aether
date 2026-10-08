@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_vny15"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_gkkqg"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_gkkqg"]
+
+[sub_resource type="Resource" id="Resource_d6t0l"]
+script = ExtResource("1_vny15")
+description = "+20% increased Stagger effect on hit"
+stat_key = "increased_stagger_effect"
+value = 20.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_gkkqg")
@@ -11,11 +19,17 @@ base_damage_max = 124.0
 scaling_grade = 0
 is_two_handed = true
 is_ranged = true
+ammo_type = 2
+magazine_size = 6
+pellet_count = 8
+pellet_spread_degrees = 14.0
+reload_time = 2.2
 primary_scaling_stat = "strength"
 item_id = "gen_loaded_shotgun_obliterator_shotgun"
 display_name = "Obliterator Shotgun"
 equip_slot = 4
 max_sockets = 5
+affixes = Array[ExtResource("1_vny15")]([SubResource("Resource_d6t0l")])
 flavor_text = "Stagger"
 item_level = 91
 base_line_id = "loaded_shotgun_line2"
@@ -23,12 +37,3 @@ stat_requirement = 0
 stat_requirement_value = 45.5
 level_requirement = 92
 strength_requirement = 115
-ammo_type = 2
-magazine_size = 6
-fire_mode = 0
-pellet_count = 8
-pellet_spread_degrees = 14
-fire_rate = 0
-cycle_time = 0
-reload_time = 2.2
-reload_per_shell = false

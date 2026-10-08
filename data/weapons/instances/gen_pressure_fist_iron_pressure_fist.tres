@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_fgq7k"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_ofvb6"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_ofvb6"]
+
+[sub_resource type="Resource" id="Resource_paih7"]
+script = ExtResource("1_fgq7k")
+description = "+20% increased Explosive damage"
+stat_key = "increased_explosive_damage"
+value = 20.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_ofvb6")
@@ -14,6 +22,7 @@ item_id = "gen_pressure_fist_iron_pressure_fist"
 display_name = "Iron Pressure Fist"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_fgq7k")]([SubResource("Resource_paih7")])
 flavor_text = "Explosive"
 item_level = 14
 base_line_id = "pressure_fist_line1"

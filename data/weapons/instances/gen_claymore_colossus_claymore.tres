@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_4ioep"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_v3fal"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_v3fal"]
+
+[sub_resource type="Resource" id="Resource_hke0f"]
+script = ExtResource("1_4ioep")
+description = "+12% increased Physical damage"
+stat_key = "increased_physical_damage"
+value = 12.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_v3fal")
@@ -15,6 +23,7 @@ item_id = "gen_claymore_colossus_claymore"
 display_name = "Colossus Claymore"
 equip_slot = 4
 max_sockets = 5
+affixes = Array[ExtResource("1_4ioep")]([SubResource("Resource_hke0f")])
 flavor_text = "High Damage"
 item_level = 79
 base_line_id = "claymore_line1"

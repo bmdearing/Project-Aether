@@ -5,9 +5,7 @@
 [resource]
 script = ExtResource("1_meps2")
 tag = "aetheric"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Aetheric Surge (stub)"
+description = "+%d%% chance to cause Aetherburn"
 stat_key = "aetheric_conditional_surge"
 value = 8.0
 value_min = 8.0

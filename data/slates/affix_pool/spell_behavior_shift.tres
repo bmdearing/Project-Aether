@@ -5,12 +5,11 @@
 [resource]
 script = ExtResource("1_3qkoi")
 tag = "spell"
-is_behavior_modifier = true
-description = "Spell Shift (stub)"
+description = "%d%% reduced Mana cost of skills"
 stat_key = "spell_behavior_shift"
-value = 1.0
-value_min = 1.0
-value_max = 1.0
+value = 6.0
+value_min = 6.0
+value_max = 12.0
 tier = 1
 is_prefix = false
 affix_id = "spell_behavior_shift"

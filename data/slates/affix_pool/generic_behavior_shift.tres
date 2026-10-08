@@ -5,12 +5,11 @@
 [resource]
 script = ExtResource("1_xi3b5")
 tag = "generic"
-is_behavior_modifier = true
-description = "Generic Shift (stub)"
+description = "+%d%% increased Cooldown Recovery Rate"
 stat_key = "generic_behavior_shift"
-value = 1.0
-value_min = 1.0
-value_max = 1.0
+value = 6.0
+value_min = 6.0
+value_max = 14.0
 tier = 1
 is_prefix = false
 affix_id = "generic_behavior_shift"

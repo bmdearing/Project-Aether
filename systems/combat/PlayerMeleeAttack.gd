@@ -498,7 +498,7 @@ func _attack_type_motion_multiplier() -> float:
 
 func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = true) -> void:
 	var weapon: Weapon = _player.get_active_weapon()
-	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	var damage_type := weapon.get_damage_type()
 	damage_type = _stance_release.get("damage_type", damage_type)
 	var motion_value := _effective_motion_value(weapon) * _attack_type_motion_multiplier()
 

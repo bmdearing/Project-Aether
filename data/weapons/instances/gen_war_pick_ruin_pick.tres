@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_m5vr3"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_y2lnn"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_y2lnn"]
+
+[sub_resource type="Resource" id="Resource_nxydk"]
+script = ExtResource("1_m5vr3")
+description = "+16% increased Stagger effect"
+stat_key = "increased_stagger_effect"
+value = 16.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_y2lnn")
@@ -15,6 +23,7 @@ item_id = "gen_war_pick_ruin_pick"
 display_name = "Ruin Pick"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_m5vr3")]([SubResource("Resource_nxydk")])
 flavor_text = "Stagger"
 item_level = 46
 base_line_id = "war_pick_line2"

@@ -1,14 +1,24 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_huwef"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_h15mv"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_h15mv"]
+
+[sub_resource type="Resource" id="Resource_58idk"]
+script = ExtResource("1_huwef")
+description = "+13% increased Evasion"
+stat_key = "increased_evasion"
+value = 13.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_h15mv")
+evasion_value = 2071.0
 item_id = "gen_body_armour_specters_carapace"
 display_name = "Specter's Carapace"
 equip_slot = 1
 max_sockets = 4
+affixes = Array[ExtResource("1_huwef")]([SubResource("Resource_58idk")])
 flavor_text = "Maximum Evasion - Implicit: +13% increased Evasion"
 item_level = 91
 base_line_id = "body_armour_line3"

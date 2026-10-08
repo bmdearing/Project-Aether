@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Shield" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_u5lj8"]
 [ext_resource type="Script" path="res://data/shields/shield.gd" id="2_we58w"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_we58w"]
+
+[sub_resource type="Resource" id="Resource_12jrm"]
+script = ExtResource("1_u5lj8")
+description = "+16% increased Ward Threshold"
+stat_key = "increased_ward"
+value = 16.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_we58w")
@@ -11,6 +19,7 @@ item_id = "gen_rune_shield_colossus_rune_shield"
 display_name = "Colossus Rune Shield"
 equip_slot = 6
 max_sockets = 3
+affixes = Array[ExtResource("1_u5lj8")]([SubResource("Resource_12jrm")])
 flavor_text = "Ward Line - Implicit: +16% increased Ward Threshold"
 item_level = 91
 base_line_id = "rune_shield_line1"

@@ -214,6 +214,10 @@ func _render_slate(slate: Slate) -> void:
 		_add_separator()
 		for mod in slate.modifiers:
 			_add_mod_line(mod.description, MORE_MOD_COLOR if mod.is_more_multiplier else AFFIX_COLOR)
+	if slate.explicits.size() > 0:
+		_add_separator()
+		for affix in slate.explicits:
+			_add_mod_line(_affix_text(affix, false), AFFIX_COLOR)
 	if slate.implicit_flavor_text != "":
 		_add_separator()
 		_add_flavor(slate.implicit_flavor_text)
@@ -527,8 +531,9 @@ func _stat_sheet_for_card() -> StatSheet:
 		return player.stat_sheet
 	return GameState.player_stat_sheet as StatSheet
 
-## "<Type> Damage: lo to hi" - the item's own per-hit range: raw in white,
-## or with this item's local increased Weapon Damage applied in blue. The
+## "<Type> Damage: lo to hi" - the item's own per-hit range, in the type it
+## deals (its Infusion if infused): the base in white, or in blue with this
+## item's flat added damage and local increased Weapon Damage applied. The
 ## character's Strength is deliberately NOT included - the card shows the
 ## item, the character screen shows damage with stats. Primary damage type
 ## always shown; extra lines only for a
@@ -537,10 +542,11 @@ func _stat_sheet_for_card() -> StatSheet:
 func _build_attack_power_lines(weapon: Weapon) -> Array:
 	var lines := []
 	var local_mult := weapon.get_local_multiplier("local_increased_weapon_damage")
-	var range := weapon.get_damage_range()
-	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color.WHITE)
+	var range := weapon.get_base_range()
+	var added := weapon.get_flat_added_damage()
+	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.get_damage_type(), Color.WHITE)
 	lines.append({
-		"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?"),
+		"label": "%s Damage" % Constants.DAMAGE_TYPE_NAME.get(weapon.get_damage_type(), "?"),
 		"lo": range.x,
 		"hi": range.y,
 		"color": primary_color,
@@ -554,7 +560,9 @@ func _build_attack_power_lines(weapon: Weapon) -> Array:
 				"hi": range.y * (affix.value / 100.0),
 				"color": color,
 			})
-	for line in lines:
+	lines[0]["boosted_lo"] = (range.x + added.x) * local_mult
+	lines[0]["boosted_hi"] = (range.y + added.y) * local_mult
+	for line in lines.slice(1):
 		line["boosted_lo"] = line["lo"] * local_mult
 		line["boosted_hi"] = line["hi"] * local_mult
 	# Shotguns: show what ONE pellet hits for, times the pellet count.

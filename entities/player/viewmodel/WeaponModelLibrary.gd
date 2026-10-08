@@ -73,7 +73,7 @@ static func build(weapon: Weapon) -> Node3D:
 	var inner := Node3D.new()
 	root.add_child(inner)
 	var forward_authored := true
-	var accent: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color(0.5, 0.8, 1.0))
+	var accent: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.get_damage_type(), Color(0.5, 0.8, 1.0))
 	var t := weapon.weapon_type
 	if PACK_MELEE.has(t):
 		forward_authored = false
@@ -131,7 +131,7 @@ static func build_left_gauntlet(weapon: Weapon) -> Node3D:
 	var inner := Node3D.new()
 	inner.basis = FORWARD_TO_TIP
 	root.add_child(inner)
-	var accent: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.native_damage_type, Color(0.5, 0.8, 1.0))
+	var accent: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.get_damage_type(), Color(0.5, 0.8, 1.0))
 	_build_gauntlet(inner, weapon.weapon_type, accent, true)
 	_lift_meta(inner, root)
 	return root
@@ -143,7 +143,7 @@ static func build_offhand(item: Item) -> Node3D:
 	var accent := Color(0.55, 0.75, 1.0)
 	if item is Weapon:
 		var w := item as Weapon
-		accent = Constants.DAMAGE_TYPE_COLOR.get(w.native_damage_type, accent)
+		accent = Constants.DAMAGE_TYPE_COLOR.get(w.get_damage_type(), accent)
 		match w.weapon_type:
 			"Rod": _build_rod(root, accent)
 			"Tome": _build_book(root, Color(0.42, 0.2, 0.12), accent, 0.05)

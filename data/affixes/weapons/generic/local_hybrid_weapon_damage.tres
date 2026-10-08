@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+description = "+%d%% increased Weapon Damage, Adds %d to %d Weapon Damage"
+stat_key = "local_hybrid_weapon_damage"
+value = 15.0
+value_min = 15.0
+value_max = 24.0
+is_prefix = true
+affix_id = "local_hybrid_weapon_damage"
+display_name = "Keen"
+min_item_level = 1
+is_generic = true
+weapon_type_filter = Array[String]([])
+is_local = true

@@ -19,6 +19,7 @@ const FALL_GRAVITY_MULTIPLIER := 1.7
 @export var stat_sheet: StatSheet
 ## Equipped Unique/Mythic mechanics (created in _ready()).
 var unique_effects: UniqueEffects
+var gear_effects: GearEffects
 var loot_picker: LootPicker
 
 @onready var head: Node3D = $Head
@@ -206,6 +207,9 @@ func _ready() -> void:
 	unique_effects.name = "UniqueEffects"
 	add_child(unique_effects)
 	stat_sheet.unique_effects = unique_effects
+	gear_effects = GearEffects.new()
+	gear_effects.name = "GearEffects"
+	add_child(gear_effects)
 	loot_picker = LootPicker.new()
 	loot_picker.name = "LootPicker"
 	add_child(loot_picker)
@@ -260,6 +264,7 @@ func _apply_fate_board_bonuses() -> void:
 	var chains := ChainCalculator.compute_chains(fate_board)
 	stat_sheet.set_slate_bonus(ChainCalculator.slate_stat_bonuses(fate_board, chains))
 	stat_sheet.set_chain_bonus_by_tag(ChainCalculator.bonus_by_tag(chains))
+	stat_sheet.slate_misc_bonus = ChainCalculator.slate_misc_bonuses(fate_board)
 	_apply_derived_stats()
 
 ## Section 12: "Resilience / DoT mitigation" - reduces StatusEffectComponent's
@@ -277,15 +282,18 @@ var resilience: float = 0.0
 ## is a "removed expression" (not stat-derived) - restoration_multiplier
 ## resets to a flat 1.0 until/unless a gear affix drives it.
 func _apply_derived_stats() -> void:
-	# Life: Strength's +4/point + gear-affix max_life/life_regen.
-	var life_mult := unique_effects.max_life_multiplier() if unique_effects else 1.0
-	health.set_max_health((_base_max_health + stat_sheet.get_max_life_bonus() + stat_sheet.get_misc_bonus("max_life")) * life_mult)
-	health.regen_per_second = 0.0 if unique_effects and unique_effects.has(UniqueEffects.NO_LIFE_REGEN) else stat_sheet.get_misc_bonus("life_regen")
+	# Life: Strength's +4/point + flat Life, times increased Life; regen likewise.
+	var life_mult := (unique_effects.max_life_multiplier() if unique_effects else 1.0) * (1.0 + stat_sheet.get_misc_bonus("life_increased") / 100.0)
+	var flat_life := stat_sheet.get_misc_bonus("max_life") + stat_sheet.get_misc_bonus("flat_life")
+	health.set_max_health((_base_max_health + stat_sheet.get_max_life_bonus() + flat_life) * life_mult)
+	var life_regen := (stat_sheet.get_misc_bonus("life_regen") + stat_sheet.get_misc_bonus("life_regen_flat")) * (1.0 + stat_sheet.get_misc_bonus("life_regen_increased") / 100.0)
+	health.regen_per_second = 0.0 if unique_effects and unique_effects.has(UniqueEffects.NO_LIFE_REGEN) else life_regen
 	resilience = stat_sheet.get_misc_bonus("flat_resilience")
 
-	# Mana: Intellect's +3/point + gear-affix max_mana/mana_regen.
-	mana.max_mana = _base_max_mana + stat_sheet.get_mana_from_stats() + stat_sheet.get_misc_bonus("max_mana")
-	mana.regen_per_second = _base_mana_regen + stat_sheet.get_misc_bonus("mana_regen")
+	# Mana: Intellect's +3/point + flat Mana, times increased Mana; regen likewise.
+	var flat_mana := stat_sheet.get_misc_bonus("max_mana") + stat_sheet.get_misc_bonus("flat_mana")
+	mana.max_mana = (_base_max_mana + stat_sheet.get_mana_from_stats() + flat_mana) * (1.0 + stat_sheet.get_misc_bonus("mana_increased") / 100.0)
+	mana.regen_per_second = (_base_mana_regen + stat_sheet.get_misc_bonus("mana_regen")) * (1.0 + stat_sheet.get_misc_bonus("mana_regen_increased") / 100.0)
 
 	# Evasion (gear x Agility's increased%) - refreshed here for display;
 	# take_damage() reads it live.
@@ -298,7 +306,7 @@ func _apply_derived_stats() -> void:
 
 	var ward_mult := unique_effects.ward_multiplier() if unique_effects else 1.0
 	ward.set_max_ward(equipment.compute_ward_bonus() * (1.0 + stat_sheet.get_ward_increased_from_stats()) * ward_mult)
-	ward.restoration_multiplier = 1.0  # no longer stat-driven - see header
+	ward.restoration_multiplier = 1.0 + stat_sheet.get_misc_bonus("ward_recovery_increased") / 100.0
 	# Patch v4.0 Faster Ward Delay - WardComponent has no StatSheet
 	# reference of its own, so this is pushed in the same way every other
 	# derived value on this component already is.
@@ -307,12 +315,18 @@ func _apply_derived_stats() -> void:
 	# Cast Speed: gear-affix-only now too, feeds the same StatSheet pool
 	# Patch v3.7's CastTimeHandler already reads.
 	stat_sheet.cast_speed_bonus = stat_sheet.get_misc_bonus("cast_speed")
-	# Patch v4.0 "Increased Cooldown Efficiency" - direct assignment, not
-	# apply_cast_speed_to_cooldown_conversion()'s += (that Slate-side
-	# conversion path has no caller anywhere in the project - dead code,
-	# out of scope for this patch - so there's nothing else contributing
-	# to this field to preserve).
+	# Gear's Cooldown Recovery Rate, then the Slate affix that converts part
+	# of Cast Speed into it.
 	stat_sheet.cooldown_recovery_rate = stat_sheet.get_misc_bonus("cooldown_recovery_rate")
+	stat_sheet.apply_cast_speed_to_cooldown_conversion(stat_sheet.get_misc_bonus("cast_speed_to_cooldown_recovery"))
+	_apply_aether_capacity()
+
+## Level capacity plus gear's flat Aether, times increased Aether capacity.
+func _apply_aether_capacity() -> void:
+	var capacity := (FateBoard.capacity_for_level(GameState.player_level) + stat_sheet.get_misc_bonus("flat_aether")) * (1.0 + stat_sheet.get_misc_bonus("increased_aether_capacity") / 100.0)
+	if int(capacity) != fate_board.aether_capacity:
+		fate_board.aether_capacity = int(capacity)
+		EventBus.aether_budget_changed.emit(fate_board.aether_used, fate_board.aether_capacity)
 
 func get_dot_mitigation() -> float:
 	return DamageCalculator.dot_mitigation(resilience)
@@ -334,7 +348,6 @@ func _on_leveled_up(new_level: int) -> void:
 	GameState.player_level = new_level
 	stat_sheet.level_bonus = GameState.get_level_stat_bonus()
 	_apply_derived_stats()
-	fate_board.aether_capacity = FateBoard.capacity_for_level(new_level)
 	EventBus.aether_budget_changed.emit(fate_board.aether_used, fate_board.aether_capacity)
 	EventBus.player_leveled_up.emit(new_level)
 
@@ -487,7 +500,10 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 	if hit_kind != HitKind.DOT:
 		var evasion := stat_sheet.get_total_evasion(equipment)
 		if evasion > 0.0:
-			if hit_kind == HitKind.ATTACK and randf() < DamageCalculator.dodge_chance(evasion):
+			var dodge := DamageCalculator.dodge_chance(evasion)
+			if hit_kind != HitKind.ATTACK:
+				dodge *= stat_sheet.get_misc_bonus("evasion_to_spells") / 100.0  # "% of Evasion applies to Spell Hits"
+			if randf() < dodge:
 				EventBus.hit_dodged.emit(self)
 				return
 			if randf() < DamageCalculator.deflection_chance(evasion):
@@ -759,7 +775,7 @@ func _start_dash(move_dir: Vector3) -> void:
 	_is_dashing = true
 	_dash_timer = DASH_DURATION
 	_dash_direction = move_dir
-	_dash_speed_current = DASH_SPEED
+	_dash_speed_current = DASH_SPEED * (1.0 + stat_sheet.get_misc_bonus("dash_speed") / 100.0)
 	_dash_cooldown_remaining = DASH_COOLDOWN
 
 ## User request (2026-08-30): Dagger's stance special ("a rapier might

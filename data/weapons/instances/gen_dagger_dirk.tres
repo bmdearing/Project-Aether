@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_gehbt"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_d0s0q"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_d0s0q"]
+
+[sub_resource type="Resource" id="Resource_h71w2"]
+script = ExtResource("1_gehbt")
+description = "+15% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 15.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_d0s0q")
@@ -15,6 +23,7 @@ item_id = "gen_dagger_dirk"
 display_name = "Dirk"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_gehbt")]([SubResource("Resource_h71w2")])
 flavor_text = "Assassination (Crit)"
 item_level = 21
 base_line_id = "dagger_line1"

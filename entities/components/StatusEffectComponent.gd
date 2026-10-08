@@ -108,6 +108,10 @@ func _tick_resistance_shred(delta: float) -> void:
 		if _resistance_shred_sources[i]["remaining"] <= 0.0:
 			_resistance_shred_sources.remove_at(i)
 
+## True while a damage-over-time tick's damage_dealt is being emitted, so
+## on-hit effects (GearEffects) can skip ticks.
+static var emitting_dot := false
+
 const AILMENT_IDS := ["ignite", "bleed", "chill", "shock", "electrocute", "unraveling", "pallid", "scorch"]
 ## Ailments with no gear chance stat of their own borrow another's.
 const CHANCE_STAT_ALIAS := {"scorch": "ignite"}
@@ -311,7 +315,9 @@ func _tick_ignite(delta: float) -> void:
 	elif _owner is Enemy:
 		# is_spell: ticks skip the Composure Break bonus, like spell hits.
 		_owner.take_damage(dmg, Constants.DamageType.FIRE, true, false, true)
+	emitting_dot = true
 	EventBus.damage_dealt.emit(_ignite_source, _owner, dmg, Constants.DamageType.FIRE, false, false)
+	emitting_dot = false
 
 func _tick_bleed(delta: float) -> void:
 	_bleed_ticker -= delta
@@ -322,7 +328,9 @@ func _tick_bleed(delta: float) -> void:
 		_owner.take_damage(_bleed_tick_damage * (1.0 - _owner.get_dot_mitigation()), Constants.DamageType.KINETIC, _bleed_source, Player.HitKind.DOT)
 	elif _owner is Enemy:
 		_owner.take_damage(_bleed_tick_damage, Constants.DamageType.KINETIC, false, false, true)
+	emitting_dot = true
 	EventBus.damage_dealt.emit(_bleed_source, _owner, _bleed_tick_damage, Constants.DamageType.KINETIC, false, false)
+	emitting_dot = false
 
 ## "+% increased X duration" from the source's gear.
 func _duration_multiplier(source: Node, effect_id: String) -> float:

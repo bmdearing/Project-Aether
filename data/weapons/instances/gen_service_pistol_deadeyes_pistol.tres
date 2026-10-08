@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_uvgnh"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_udkqd"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_udkqd"]
+
+[sub_resource type="Resource" id="Resource_vdw5q"]
+script = ExtResource("1_uvgnh")
+description = "+12% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 12.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_udkqd")
@@ -15,6 +23,7 @@ item_id = "gen_service_pistol_deadeyes_pistol"
 display_name = "Deadeye's Pistol"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_uvgnh")]([SubResource("Resource_vdw5q")])
 flavor_text = "Critical Strike"
 item_level = 67
 base_line_id = "service_pistol_line1"
@@ -22,12 +31,3 @@ stat_requirement = 0
 stat_requirement_value = 33.5
 level_requirement = 56
 agility_requirement = 55
-ammo_type = 0
-magazine_size = 12
-fire_mode = 0
-pellet_count = 1
-pellet_spread_degrees = 0
-fire_rate = 0
-cycle_time = 0
-reload_time = 1.4
-reload_per_shell = false

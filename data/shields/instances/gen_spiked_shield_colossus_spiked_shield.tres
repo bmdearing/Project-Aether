@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Shield" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_4cyth"]
 [ext_resource type="Script" path="res://data/shields/shield.gd" id="2_rg15w"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_rg15w"]
+
+[sub_resource type="Resource" id="Resource_un6hy"]
+script = ExtResource("1_4cyth")
+description = "+20% increased Retaliation damage"
+stat_key = "increased_retaliation_damage"
+value = 20.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_rg15w")
@@ -11,6 +19,7 @@ item_id = "gen_spiked_shield_colossus_spiked_shield"
 display_name = "Colossus Spiked Shield"
 equip_slot = 6
 max_sockets = 3
+affixes = Array[ExtResource("1_4cyth")]([SubResource("Resource_un6hy")])
 flavor_text = "Offensive/Retaliation - Implicit: +20% increased Retaliation damage"
 item_level = 91
 base_line_id = "spiked_shield_line1"

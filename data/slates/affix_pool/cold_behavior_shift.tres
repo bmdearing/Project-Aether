@@ -5,12 +5,11 @@
 [resource]
 script = ExtResource("1_nf616")
 tag = "cold"
-is_behavior_modifier = true
-description = "Cold Shift (stub)"
+description = "+%d%% increased Chill duration"
 stat_key = "cold_behavior_shift"
-value = 1.0
-value_min = 1.0
-value_max = 1.0
+value = 12.0
+value_min = 12.0
+value_max = 28.0
 tier = 1
 is_prefix = false
 affix_id = "cold_behavior_shift"

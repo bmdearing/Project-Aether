@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/items/item.gd" id="1"]
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "+244 Evasion (implicit)"
+stat_key = "flat_evasion"
+value = 244.0
+value_min = 181.0
+value_max = 307.0
+is_prefix = false
+is_implicit = true
+
+[resource]
+script = ExtResource("1")
+item_id = "leather_belt"
+display_name = "Leather Belt"
+equip_slot = 10
+max_sockets = 1
+affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])

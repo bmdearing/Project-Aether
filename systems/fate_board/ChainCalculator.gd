@@ -106,3 +106,19 @@ static func _bonus_for_tile_count(tile_count: int) -> float:
 		bonus += tiles_in_tier * tier["per_tile"]
 		remaining -= tiles_in_tier
 	return bonus
+
+## Every placed Slate's other modifiers (its fixed lines and the ones rolled
+## or crafted onto it: damage, speed, ailments...), summed
+## per canonical key at face value - chains amplify only attributes.
+static func slate_misc_bonuses(board: FateBoard) -> Dictionary:
+	var totals := {}
+	for placement_id in board.placements:
+		var data: FateBoard.PlacedSlateData = board.placements[placement_id]
+		for modifier in data.slate.modifiers:
+			var key := StatKeys.canonical(modifier.stat_key)
+			if EquipmentComponent.is_misc_key(key):
+				totals[key] = totals.get(key, 0.0) + modifier.value
+		for affix in data.slate.explicits:
+			if EquipmentComponent.is_misc_key(affix.key()):
+				totals[affix.key()] = totals.get(affix.key(), 0.0) + affix.value
+	return totals

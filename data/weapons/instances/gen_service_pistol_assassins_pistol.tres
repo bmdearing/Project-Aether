@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_547sg"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_focpt"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_focpt"]
+
+[sub_resource type="Resource" id="Resource_j2030"]
+script = ExtResource("1_547sg")
+description = "+12% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 12.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_focpt")
@@ -15,6 +23,7 @@ item_id = "gen_service_pistol_assassins_pistol"
 display_name = "Assassin's Pistol"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_547sg")]([SubResource("Resource_j2030")])
 flavor_text = "Critical Strike"
 item_level = 79
 base_line_id = "service_pistol_line1"
@@ -22,12 +31,3 @@ stat_requirement = 0
 stat_requirement_value = 39.5
 level_requirement = 68
 agility_requirement = 72
-ammo_type = 0
-magazine_size = 12
-fire_mode = 0
-pellet_count = 1
-pellet_spread_degrees = 0
-fire_rate = 0
-cycle_time = 0
-reload_time = 1.4
-reload_per_shell = false

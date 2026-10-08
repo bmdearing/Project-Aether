@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_7pwqh"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_ofnmf"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_ofnmf"]
+
+[sub_resource type="Resource" id="Resource_kgq5t"]
+script = ExtResource("1_7pwqh")
+description = "+13% increased Evasion while wielding"
+stat_key = "increased_evasion"
+value = 13.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_ofnmf")
@@ -15,6 +23,7 @@ item_id = "gen_shortsword_shadow_edge"
 display_name = "Shadow Edge"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_7pwqh")]([SubResource("Resource_kgq5t")])
 flavor_text = "Evasion Line"
 item_level = 46
 base_line_id = "shortsword_line3"

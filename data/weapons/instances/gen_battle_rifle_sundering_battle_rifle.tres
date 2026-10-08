@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="Weapon" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_yqsod"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_mj1eg"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_uhl73"]
+
+[sub_resource type="Resource" id="Resource_gasfy"]
+script = ExtResource("1_yqsod")
+description = "+22% Armor penetration on hits"
+stat_key = "armor_penetration"
+value = 22.0
+is_implicit = true
+
+[resource]
+script = ExtResource("2_mj1eg")
+weapon_type = "Battle Rifle"
+base_damage_min = 52.0
+base_damage_max = 71.0
+scaling_grade = 0
+is_two_handed = true
+is_ranged = true
+ammo_type = 3
+magazine_size = 20
+pellet_spread_degrees = 0.5
+reload_time = 2.0
+primary_scaling_stat = "strength"
+item_id = "gen_battle_rifle_sundering_battle_rifle"
+display_name = "Sundering Battle Rifle"
+equip_slot = 4
+max_sockets = 4
+affixes = Array[ExtResource("1_yqsod")]([SubResource("Resource_gasfy")])
+flavor_text = "Armor Penetration"
+item_level = 53
+base_line_id = "battle_rifle_line2"
+stat_requirement = 0
+stat_requirement_value = 20.0
+level_requirement = 44
+strength_requirement = 40

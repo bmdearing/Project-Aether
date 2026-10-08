@@ -1,10 +1,12 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_8rqmr"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_wv1fv"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_wv1fv"]
 
 [resource]
 script = ExtResource("2_wv1fv")
+ward_value = 1251.0
 item_id = "gen_body_armour_mantle_coat"
 display_name = "Mantle Coat"
 equip_slot = 1

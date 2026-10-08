@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_iv8ro"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_sa6kr"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_sa6kr"]
+
+[sub_resource type="Resource" id="Resource_s1ba2"]
+script = ExtResource("1_iv8ro")
+description = "+14% increased Evasion while wielding"
+stat_key = "increased_evasion"
+value = 14.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_sa6kr")
@@ -15,6 +23,7 @@ item_id = "gen_rapier_wraiths_edge"
 display_name = "Wraith's Edge"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_iv8ro")]([SubResource("Resource_s1ba2")])
 flavor_text = "Evasion Line"
 item_level = 79
 base_line_id = "rapier_line2"

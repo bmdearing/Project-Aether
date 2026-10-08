@@ -133,7 +133,7 @@ func _test_real_gear() -> void:
 	legacy.tolerance = 100
 	resolver.apply(legacy, &"reckoning")
 	var after := _explicits(legacy)[0]
-	var expected := "%s (Tier %d)" % [ItemRoller.format_desc(CraftingResolver._template_for(after), after.value), after.tier]
+	var expected := "%s (Tier %d)" % [ItemRoller.describe_value(CraftingResolver._template_for(after), after.stat_key, after.value), after.tier]
 	_check(CraftingResolver._template_for(after) != "" and after.description == expected, "reckoning redescribes pre-Orb modifiers")
 	_finished += 1
 
@@ -142,7 +142,7 @@ func _test_real_slates() -> void:
 	var ok := 0
 	var on_tag := true
 	for i in 30:
-		var slate := SlateRoller.roll(10)
+		var slate := SlateRoller.roll(10, 0.0)  # Item Rarity 0: always a Common drop
 		_check(slate.rarity == Constants.SlateRarity.COMMON and slate.tolerance > 0, "slate drops start Common with tolerance")
 		var r := resolver.apply(slate, &"forging")
 		if not r.success:
@@ -156,8 +156,9 @@ func _test_real_slates() -> void:
 		_check(_within_limits(slate) and slate.explicits.size() >= 3, "slate forging gives 3-4 within limits")
 	_check(ok == 30, "forging works on every real slate drop (%d/30)" % ok)
 	_check(on_tag, "slates only roll modifiers for their own tags or untyped ones")
-	var copy := SlateSerializer.from_dict(JSON.parse_string(JSON.stringify(SlateSerializer.to_dict(SlateRoller.roll(10)))))
-	_check(copy != null and copy.rarity == Constants.SlateRarity.COMMON, "slate round trip")
+	var original := SlateRoller.roll(10, 20.0)
+	var copy := SlateSerializer.from_dict(JSON.parse_string(JSON.stringify(SlateSerializer.to_dict(original))))
+	_check(copy != null and copy.rarity == original.rarity and copy.explicits.size() == original.explicits.size(), "slate round trip keeps rarity and modifiers")
 	_finished += 1
 
 func _test_legacy_brands() -> void:

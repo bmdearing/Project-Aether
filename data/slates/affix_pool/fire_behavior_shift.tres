@@ -5,12 +5,11 @@
 [resource]
 script = ExtResource("1_xe7tm")
 tag = "fire"
-is_behavior_modifier = true
-description = "Fire Shift (stub)"
+description = "+%d%% increased Ignite damage"
 stat_key = "fire_behavior_shift"
-value = 1.0
-value_min = 1.0
-value_max = 1.0
+value = 12.0
+value_min = 12.0
+value_max = 28.0
 tier = 1
 is_prefix = false
 affix_id = "fire_behavior_shift"

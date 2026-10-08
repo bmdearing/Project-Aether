@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_tkbs6"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_w37ey"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_w37ey"]
+
+[sub_resource type="Resource" id="Resource_vxh1f"]
+script = ExtResource("1_tkbs6")
+description = "+20% increased Explosive damage"
+stat_key = "increased_explosive_damage"
+value = 20.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_w37ey")
@@ -14,6 +22,7 @@ item_id = "gen_pressure_fist_crude_pressure_fist"
 display_name = "Crude Pressure Fist"
 equip_slot = 4
 max_sockets = 2
+affixes = Array[ExtResource("1_tkbs6")]([SubResource("Resource_vxh1f")])
 flavor_text = "Explosive"
 base_line_id = "pressure_fist_line1"
 stat_requirement = 0

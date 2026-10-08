@@ -5,9 +5,7 @@
 [resource]
 script = ExtResource("1_h6t1x")
 tag = "entropic"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Entropic Surge (stub)"
+description = "+%d%% chance to cause Unraveling"
 stat_key = "entropic_conditional_surge"
 value = 8.0
 value_min = 8.0

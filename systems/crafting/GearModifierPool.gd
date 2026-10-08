@@ -4,8 +4,8 @@ class_name GearModifierPool
 ## eligibility rules ItemRoller uses for drops (AFFIX_POOL for armour,
 ## shields and accessories; the weapon affix library for weapons), so Orbs
 ## and drops can't drift apart. Tiers follow ItemRoller: Tier 1's range
-## decays by TIER_DECAY per tier, and tiers better than the item's level
-## allows (ItemRoller._roll_tier()) are left out.
+## decays by TIER_DECAY per tier (or the modifier's own LEVELLED_TIERS table),
+## and tiers above what the item's level allows are left out.
 
 ## Words in an AFFIX_POOL stat_key that make it a suffix; everything else
 ## is a prefix. AFFIX_POOL has no prefix/suffix of its own.
@@ -20,12 +20,13 @@ static var _cache: Dictionary = {}
 static func defs_for(item: Item) -> Array[ModifierDef]:
 	if item is Jewel:
 		return JewelModifierPool.defs_for(item)
-	var best_tier: int = clampi(ItemRoller.TIER_COUNT - maxi(item.item_level, 1), 1, ItemRoller.TIER_COUNT)
+	var level := maxi(item.item_level, 1)
+	var best_tier := ItemRoller.best_tier_for_level(level)
 	var defs: Array[ModifierDef] = []
 	if item is Weapon:
 		for want_prefix in [true, false]:
 			for source in ItemRoller._eligible_weapon_affixes(item, maxi(item.item_level, 1), want_prefix):
-				defs.append(_library_def(source, best_tier))
+				defs.append(_library_def(source, best_tier, level))
 	else:
 		for entry in ItemRoller._pool_for(item):
 			defs.append(_pool_def(entry, best_tier))
@@ -46,9 +47,10 @@ static func _pool_def(entry: Dictionary, best_tier: int) -> ModifierDef:
 	_cache[key] = def
 	return def
 
-static func _library_def(source: ItemAffix, best_tier: int) -> ModifierDef:
+static func _library_def(source: ItemAffix, best_tier: int, level: int) -> ModifierDef:
 	var id := source.affix_id if source.affix_id != "" else source.stat_key
-	var key := "lib:%s|%d" % [id, best_tier]
+	var levelled := ItemRoller.has_levelled_tiers(source.stat_key)
+	var key := "lib:%s|%d" % [id, ItemRoller.levelled_tiers_for(source.stat_key, level).size() if levelled else best_tier]
 	if _cache.has(key):
 		return _cache[key]
 	var def := ModifierDef.new()
@@ -61,7 +63,7 @@ static func _library_def(source: ItemAffix, best_tier: int) -> ModifierDef:
 	if source.damage_type != -1:
 		tags.append(Constants.DAMAGE_TYPE_NAME.get(source.damage_type, "").to_lower())
 	def.tags = _tags(tags, source.stat_key)
-	def.tiers = _tiers(source.value_min, source.value_max, best_tier)
+	def.tiers = _levelled_tiers(source.stat_key, level) if levelled else _tiers(source.value_min, source.value_max, best_tier)
 	def.damage_type = source.damage_type
 	def.is_generic = source.is_generic
 	def.is_local = source.is_local
@@ -98,5 +100,21 @@ static func _tiers(tier1_min: float, tier1_max: float, best_tier: int) -> Array[
 		tier.value_min = range_.x
 		tier.value_max = range_.y
 		tier.weight = Constants.GEAR_TIER_WEIGHTS[t - 1]
+		tiers.append(tier)
+	return tiers
+
+## A LEVELLED_TIERS modifier's tiers the level allows; the best is rarest.
+static func _levelled_tiers(stat_key: String, level: int) -> Array[ModifierTier]:
+	var table: Array = ItemRoller.LEVELLED_TIERS[StatKeys.canonical(stat_key)]
+	var rows := ItemRoller.levelled_tiers_for(stat_key, level)
+	if rows.is_empty():
+		rows = [table[-1]]
+	var tiers: Array[ModifierTier] = []
+	for i in rows.size():
+		var tier := ModifierTier.new()
+		tier.tier = table.find(rows[i]) + 1
+		tier.value_min = rows[i][1]
+		tier.value_max = rows[i][2]
+		tier.weight = i + 1
 		tiers.append(tier)
 	return tiers

@@ -188,6 +188,7 @@ func _increased_percents(stat_sheet: StatSheet) -> Array[float]:
 		stat_sheet.get_spell_power_from_stats() * 100.0,
 		stat_sheet.get_misc_bonus("increased_spell_damage"),
 		stat_sheet.conduit_spell_damage_bonus,
+		stat_sheet.get_increased_damage_percent(damage_type, false),
 	]
 	if has_tag(TAG_AREA):
 		increased.append(stat_sheet.get_misc_bonus("increased_area_damage"))

@@ -5,13 +5,11 @@
 [resource]
 script = ExtResource("1_wlam3")
 tag = "spell"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Spell Surge (stub)"
+description = "+%d%% increased Cast Speed"
 stat_key = "spell_conditional_surge"
-value = 8.0
-value_min = 8.0
-value_max = 20.0
+value = 6.0
+value_min = 6.0
+value_max = 14.0
 tier = 1
 is_prefix = false
 affix_id = "spell_conditional_surge"

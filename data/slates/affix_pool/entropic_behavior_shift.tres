@@ -5,12 +5,11 @@
 [resource]
 script = ExtResource("1_wot0o")
 tag = "entropic"
-is_behavior_modifier = true
-description = "Entropic Shift (stub)"
+description = "+%d%% increased Unraveling damage"
 stat_key = "entropic_behavior_shift"
-value = 1.0
-value_min = 1.0
-value_max = 1.0
+value = 12.0
+value_min = 12.0
+value_max = 28.0
 tier = 1
 is_prefix = false
 affix_id = "entropic_behavior_shift"

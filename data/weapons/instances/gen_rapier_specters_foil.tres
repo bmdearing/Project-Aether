@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_mxd7w"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_3jhie"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_3jhie"]
+
+[sub_resource type="Resource" id="Resource_7lfvx"]
+script = ExtResource("1_mxd7w")
+description = "+14% increased Evasion while wielding"
+stat_key = "increased_evasion"
+value = 14.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_3jhie")
@@ -15,6 +23,7 @@ item_id = "gen_rapier_specters_foil"
 display_name = "Specter's Foil"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_mxd7w")]([SubResource("Resource_7lfvx")])
 flavor_text = "Evasion Line"
 item_level = 91
 base_line_id = "rapier_line2"

@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_5a2b2"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_857f2"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_857f2"]
+
+[sub_resource type="Resource" id="Resource_ywnfl"]
+script = ExtResource("1_5a2b2")
+description = "+15% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 15.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_857f2")
@@ -15,6 +23,7 @@ item_id = "gen_dagger_gut_hook"
 display_name = "Gut Hook"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_5a2b2")]([SubResource("Resource_ywnfl")])
 flavor_text = "Assassination (Crit)"
 item_level = 51
 base_line_id = "dagger_line1"

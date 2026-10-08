@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_3nmkl"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_ahao2"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_ahao2"]
+
+[sub_resource type="Resource" id="Resource_itw14"]
+script = ExtResource("1_3nmkl")
+description = "+14% increased Ward Threshold"
+stat_key = "increased_ward"
+value = 14.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_ahao2")
@@ -10,6 +18,7 @@ item_id = "gen_gloves_void_wraps"
 display_name = "Void Wraps"
 equip_slot = 2
 max_sockets = 2
+affixes = Array[ExtResource("1_3nmkl")]([SubResource("Resource_itw14")])
 flavor_text = "Maximum Ward - Implicit: +14% increased Ward Threshold"
 item_level = 91
 base_line_id = "gloves_line3"

@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_eiq7v"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_80h2x"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_80h2x"]
+
+[sub_resource type="Resource" id="Resource_pdkta"]
+script = ExtResource("1_eiq7v")
+description = "+25% Armor penetration on hits"
+stat_key = "armor_penetration"
+value = 25.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_80h2x")
@@ -11,11 +19,17 @@ base_damage_max = 68.0
 scaling_grade = 0
 is_two_handed = true
 is_ranged = true
+ammo_type = 3
+magazine_size = 5
+fire_mode = 2
+cycle_time = 0.8
+reload_time = 2.8
 primary_scaling_stat = "strength"
 item_id = "gen_bolt_action_rifle_breacher_bolt_rifle"
 display_name = "Breacher Bolt Rifle"
 equip_slot = 4
 max_sockets = 4
+affixes = Array[ExtResource("1_eiq7v")]([SubResource("Resource_pdkta")])
 flavor_text = "Armor Penetration"
 item_level = 40
 base_line_id = "bolt_action_rifle_line3"
@@ -23,12 +37,3 @@ stat_requirement = 0
 stat_requirement_value = 20.0
 level_requirement = 24
 agility_requirement = 18
-ammo_type = 3
-magazine_size = 5
-fire_mode = 2
-pellet_count = 1
-pellet_spread_degrees = 0
-fire_rate = 0
-cycle_time = 0.8
-reload_time = 2.8
-reload_per_shell = false

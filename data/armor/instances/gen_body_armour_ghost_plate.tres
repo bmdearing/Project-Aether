@@ -1,7 +1,22 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_nw16c"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_7kguj"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_7kguj"]
+
+[sub_resource type="Resource" id="Resource_xyqkd"]
+script = ExtResource("1_nw16c")
+description = "+9% Armor"
+stat_key = "increased_armor"
+value = 9.0
+is_implicit = true
+
+[sub_resource type="Resource" id="Resource_x8k8q"]
+script = ExtResource("1_nw16c")
+description = "+9% Evasion"
+stat_key = "increased_evasion"
+value = 9.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_7kguj")
@@ -11,6 +26,7 @@ item_id = "gen_body_armour_ghost_plate"
 display_name = "Ghost Plate"
 equip_slot = 1
 max_sockets = 3
+affixes = Array[ExtResource("1_nw16c")]([SubResource("Resource_xyqkd"), SubResource("Resource_x8k8q")])
 flavor_text = "Armor/Evasion Hybrid - Implicit: +9% Armor, +9% Evasion"
 item_level = 91
 base_line_id = "body_armour_line6"

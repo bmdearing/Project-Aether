@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_gsvlr"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_js836"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_js836"]
+
+[sub_resource type="Resource" id="Resource_v0vd6"]
+script = ExtResource("1_gsvlr")
+description = "+22% Armor penetration on hits"
+stat_key = "armor_penetration"
+value = 22.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_js836")
@@ -11,21 +19,17 @@ base_damage_max = 11.0
 scaling_grade = 0
 is_two_handed = true
 is_ranged = true
+ammo_type = 3
+magazine_size = 20
+pellet_spread_degrees = 0.5
+reload_time = 2.0
 primary_scaling_stat = "strength"
 item_id = "gen_battle_rifle_piercer_battle_rifle"
 display_name = "Piercer Battle Rifle"
 equip_slot = 4
 max_sockets = 2
+affixes = Array[ExtResource("1_gsvlr")]([SubResource("Resource_v0vd6")])
 flavor_text = "Armor Penetration"
 base_line_id = "battle_rifle_line2"
 stat_requirement = 0
 stat_requirement_value = 0.5
-ammo_type = 3
-magazine_size = 20
-fire_mode = 0
-pellet_count = 1
-pellet_spread_degrees = 0.5
-fire_rate = 0
-cycle_time = 0
-reload_time = 2
-reload_per_shell = false

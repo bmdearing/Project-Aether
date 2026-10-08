@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_7ocxd"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_qa7ut"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_qa7ut"]
 
 [resource]
 script = ExtResource("2_qa7ut")

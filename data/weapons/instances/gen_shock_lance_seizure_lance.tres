@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_p1c37"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_e2mss"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_e2mss"]
+
+[sub_resource type="Resource" id="Resource_t05rr"]
+script = ExtResource("1_p1c37")
+description = "+22% increased Electrocute duration"
+stat_key = "increased_ailment_duration_electrocute"
+value = 22.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_e2mss")
@@ -16,6 +24,7 @@ item_id = "gen_shock_lance_seizure_lance"
 display_name = "Seizure Lance"
 equip_slot = 4
 max_sockets = 4
+affixes = Array[ExtResource("1_p1c37")]([SubResource("Resource_t05rr")])
 flavor_text = "Electrocute/Stagger"
 item_level = 61
 base_line_id = "shock_lance_line2"

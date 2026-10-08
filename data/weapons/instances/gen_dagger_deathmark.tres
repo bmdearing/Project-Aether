@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_ug0ww"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_f5kp1"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_f5kp1"]
+
+[sub_resource type="Resource" id="Resource_w8g1h"]
+script = ExtResource("1_ug0ww")
+description = "+15% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 15.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_f5kp1")
@@ -15,6 +23,7 @@ item_id = "gen_dagger_deathmark"
 display_name = "Deathmark"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_ug0ww")]([SubResource("Resource_w8g1h")])
 flavor_text = "Assassination (Crit)"
 item_level = 81
 base_line_id = "dagger_line1"

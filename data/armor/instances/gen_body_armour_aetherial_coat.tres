@@ -1,10 +1,12 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_voxn8"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_io7uw"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_io7uw"]
 
 [resource]
 script = ExtResource("2_io7uw")
+ward_value = 1031.0
 item_id = "gen_body_armour_aetherial_coat"
 display_name = "Aetherial Coat"
 equip_slot = 1

@@ -5,7 +5,7 @@
 [resource]
 script = ExtResource("1_eppgw")
 tag = "attack"
-description = "Attack Intensity (stub)"
+description = "+%d%% increased Attack damage"
 stat_key = "attack_increased_damage"
 value = 12.0
 value_min = 12.0

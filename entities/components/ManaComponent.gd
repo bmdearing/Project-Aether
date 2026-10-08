@@ -19,3 +19,10 @@ func _process(delta: float) -> void:
 func spend(amount: float) -> void:
 	current_mana = max(0.0, current_mana - amount)
 	mana_changed.emit(current_mana, max_mana)
+
+## Gains Mana up to the maximum (Mana on kill / on ailment modifiers).
+func restore(amount: float) -> void:
+	if amount <= 0.0:
+		return
+	current_mana = min(max_mana, current_mana + amount)
+	mana_changed.emit(current_mana, max_mana)

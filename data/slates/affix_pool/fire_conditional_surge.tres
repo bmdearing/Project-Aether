@@ -5,9 +5,7 @@
 [resource]
 script = ExtResource("1_rehcr")
 tag = "fire"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Fire Surge (stub)"
+description = "+%d%% chance to cause Ignite"
 stat_key = "fire_conditional_surge"
 value = 8.0
 value_min = 8.0

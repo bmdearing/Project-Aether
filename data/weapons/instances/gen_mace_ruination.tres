@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_b3ixo"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_6te3v"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_6te3v"]
+
+[sub_resource type="Resource" id="Resource_fsuya"]
+script = ExtResource("1_b3ixo")
+description = "+12% increased Physical damage"
+stat_key = "increased_physical_damage"
+value = 12.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_6te3v")
@@ -14,6 +22,7 @@ item_id = "gen_mace_ruination"
 display_name = "Ruination"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_b3ixo")]([SubResource("Resource_fsuya")])
 flavor_text = "High Damage"
 item_level = 66
 base_line_id = "mace_line2"

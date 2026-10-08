@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Shield" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_mhvwh"]
 [ext_resource type="Script" path="res://data/shields/shield.gd" id="2_dgkh5"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_dgkh5"]
+
+[sub_resource type="Resource" id="Resource_tk7qt"]
+script = ExtResource("1_mhvwh")
+description = "+20% increased Ward Threshold"
+stat_key = "increased_ward"
+value = 20.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_dgkh5")
@@ -11,6 +19,7 @@ item_id = "gen_warded_barrier_colossus_warded_barrier"
 display_name = "Colossus Warded Barrier"
 equip_slot = 6
 max_sockets = 3
+affixes = Array[ExtResource("1_mhvwh")]([SubResource("Resource_tk7qt")])
 flavor_text = "Maximum Ward - Implicit: +20% increased Ward Threshold"
 item_level = 91
 base_line_id = "warded_barrier_line1"

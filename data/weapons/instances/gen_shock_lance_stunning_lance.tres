@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_x0fop"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_428tk"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_428tk"]
+
+[sub_resource type="Resource" id="Resource_xweh3"]
+script = ExtResource("1_x0fop")
+description = "+22% increased Electrocute duration"
+stat_key = "increased_ailment_duration_electrocute"
+value = 22.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_428tk")
@@ -16,6 +24,7 @@ item_id = "gen_shock_lance_stunning_lance"
 display_name = "Stunning Lance"
 equip_slot = 4
 max_sockets = 2
+affixes = Array[ExtResource("1_x0fop")]([SubResource("Resource_xweh3")])
 flavor_text = "Electrocute/Stagger"
 base_line_id = "shock_lance_line2"
 stat_requirement = 2

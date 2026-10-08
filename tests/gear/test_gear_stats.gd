@@ -1,0 +1,277 @@
+extends Node
+## Gear stats actually doing something: canonical stat keys (StatKeys) feeding
+## damage, life, mana and crit; level-gated tiers; % / flat / hybrid weapon
+## damage mods; Infusion and flat crit on the card; GearEffects conditional
+## damage and on-hit gains; Slate drops with modifiers that apply when placed;
+## the doc's accessories and base fixes; the pause menu Wiki.
+## Run: Godot --headless --path . res://tests/gear/test_gear_stats.tscn
+## Exits 0 when every check passes. Never writes the save file.
+
+const HUB := "res://levels/hub/Hub.tscn"
+const TEST_COUNT := 9
+
+var _checks := 0
+var _failures := 0
+var _finished := 0
+var _hub: Node
+var _player: Player
+
+func _ready() -> void:
+	_run.call_deferred()
+
+func _check(ok: bool, what: String) -> void:
+	_checks += 1
+	if not ok:
+		_failures += 1
+		print("FAIL: ", what)
+
+func _frames(n: int) -> void:
+	for i in n:
+		await get_tree().process_frame
+
+func _run() -> void:
+	GameState.reset_to_defaults()
+	GameState.game_started = false
+	_hub = load(HUB).instantiate()
+	add_child(_hub)
+	await _frames(5)
+	_player = get_tree().get_first_node_in_group("player") as Player
+	_test_tiers()
+	_test_weapon_mods()
+	_test_card()
+	_test_damage_stats()
+	_test_resources()
+	await _test_gear_effects()
+	_test_slates()
+	_test_bases()
+	await _test_pause_wiki()
+	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
+	print("gear stat tests: %d checks, %d failures" % [_checks, _failures])
+	get_tree().quit(1 if _failures > 0 else 0)
+
+func _affix(key: String, value: float, desc: String = "") -> ItemAffix:
+	var a := ItemAffix.new()
+	a.stat_key = key
+	a.value = value
+	a.description = desc if desc != "" else key
+	return a
+
+func _sword() -> Weapon:
+	var w := Weapon.new()
+	w.weapon_type = "Greatsword"
+	w.display_name = "Stat Test Sword"
+	w.base_damage_min = 10.0
+	w.base_damage_max = 20.0
+	w.native_damage_type = Constants.DamageType.KINETIC
+	return w
+
+func _test_tiers() -> void:
+	_check(ItemRoller.best_tier_for_level(1) == ItemRoller.TIER_COUNT and ItemRoller.best_tier_for_level(80) == 1, "Tier 1 needs item level 80, level 1 gets the worst tier")
+	_check(ItemRoller.best_tier_for_level(40) > 1 and ItemRoller.best_tier_for_level(40) < ItemRoller.TIER_COUNT, "tiers open up with item level")
+	var low_max := 0.0
+	var high_max := 0.0
+	for i in 200:
+		low_max = maxf(low_max, ItemRoller.roll_levelled_tier("local_increased_weapon_damage", 1)["max"])
+		high_max = maxf(high_max, ItemRoller.roll_levelled_tier("local_increased_weapon_damage", 91)["max"])
+	_check(is_equal_approx(low_max, 39.0), "level 1 Weapon Damage rolls 30-39%")
+	_check(is_equal_approx(high_max, 190.0), "high-level Weapon Damage reaches 190%")
+	_check(ItemRoller.levelled_tiers_for("local_increased_spell_damage", 91).size() == 8, "Spell Damage uses the same 8-tier 30-190% table")
+	var jewel_best := JewelModifierPool.best_tier_for(1)
+	_check(jewel_best == JewelModifierPool.TIER_COUNT and JewelModifierPool.best_tier_for(80) == 1, "jewel tiers are level-gated too")
+	_finished += 1
+
+func _test_weapon_mods() -> void:
+	var w := _sword()
+	w.affixes.append(_affix("local_flat_weapon_damage", 10.0))
+	_check(w.get_damage_range() == Vector2(20, 38), "Adds 10 to 18 on a 10-20 base: %s" % w.get_damage_range())
+	var hybrid := _sword()
+	hybrid.affixes.append(_affix("local_hybrid_weapon_damage", 50.0))
+	_check(is_equal_approx(hybrid.get_local_multiplier("local_increased_weapon_damage"), 1.5) and hybrid.get_flat_added_damage().x == 10.0, "hybrid: +50% and Adds 10 to 18")
+	_check(ItemRoller.describe_value("Adds %d to %d Weapon Damage", "local_flat_weapon_damage", 10.0) == "Adds 10 to 18 Weapon Damage", "flat damage text")
+	var crit := _sword()
+	var base_crit := crit.get_local_crit_chance()
+	crit.affixes.append(_affix("generic_of_the_sharp", 4.0))
+	_check(is_equal_approx(crit.get_local_crit_chance(), base_crit + 0.04), "flat crit chance adds to the weapon's own crit")
+	var fast := _sword()
+	fast.affixes.append(_affix("generic_fluid", 15.0))
+	_check(is_equal_approx(fast.get_local_multiplier("local_increased_attack_speed"), 1.15), "library Attack Speed mods are local")
+	var rolled_any_flat := false
+	for i in 300:
+		var r := ItemRoller.roll(60)
+		if r is Weapon and not (r as Weapon).is_conduit:
+			for a in r.affixes:
+				if a.key() == "local_flat_weapon_damage" or a.key() == "local_hybrid_weapon_damage":
+					rolled_any_flat = true
+	_check(rolled_any_flat, "flat and hybrid damage mods roll on drops")
+	_finished += 1
+
+func _card_text(card: ItemCard) -> String:
+	var texts: Array[String] = []
+	for c in card.find_children("*", "", true, false):
+		if c is Label:
+			texts.append((c as Label).text)
+		elif c.get("label") != null and c.get("value") != null:
+			texts.append("%s: %s" % [c.get("label"), c.get("value")])
+	return "\n".join(texts)
+
+func _test_card() -> void:
+	var crossbow := _sword()
+	crossbow.native_damage_type = Constants.DamageType.PIERCING
+	crossbow.infused_damage_type = Constants.DamageType.FIRE
+	crossbow.affixes.append(_affix("generic_of_the_sharp", 4.0, "+4.0% Critical Strike Chance"))
+	crossbow.affixes.append(_affix("local_flat_weapon_damage", 10.0, "Adds 10 to 18 Weapon Damage"))
+	var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+	add_child(card)
+	card.display_item(crossbow)
+	var text := _card_text(card)
+	_check(text.contains("Fire Damage") and not text.contains("Piercing Damage"), "an infused weapon's card shows its infused type")
+	_check(text.contains("20 to 38"), "the damage line includes flat added damage")
+	var expected_crit := "%s%%" % card._format_num(snapped(crossbow.get_local_crit_chance() * 100.0, 0.1))
+	_check(text.contains("Crit Chance: " + expected_crit), "the crit line includes flat crit (%s)" % expected_crit)
+	_check(crossbow.get_damage_type() == Constants.DamageType.FIRE, "infused weapons deal their infused type")
+	card.queue_free()
+	_finished += 1
+
+func _test_damage_stats() -> void:
+	var sheet := _player.stat_sheet
+	var saved: Dictionary = sheet.misc_bonus
+	var w := _sword()
+	sheet.misc_bonus = {}
+	var plain := w.predict_damage(1.0, sheet)
+	sheet.misc_bonus = {"increased_physical_damage": 50.0}
+	_check(w.predict_damage(1.0, sheet) > plain * 1.2, "% increased Physical damage raises Kinetic weapon hits")
+	sheet.misc_bonus = {"increased_kinetic_damage": 50.0}
+	_check(w.predict_damage(1.0, sheet) > plain * 1.2, "% increased Kinetic damage raises Kinetic weapon hits")
+	sheet.misc_bonus = {"increased_fire_damage": 50.0}
+	_check(is_equal_approx(w.predict_damage(1.0, sheet), plain), "Fire damage doesn't touch a Kinetic weapon")
+	w.infused_damage_type = Constants.DamageType.FIRE
+	_check(w.predict_damage(1.0, sheet) > plain * 1.2, "...until it's infused with Fire")
+	sheet.misc_bonus = saved
+	# Library and implicit names reach the same stats.
+	var ring := Item.new()
+	ring.equip_slot = Constants.EquipmentSlot.RING
+	ring.affixes.append(_affix("fire_scorching", 40.0))
+	ring.affixes.append(_affix("generic_of_strength", 10.0))
+	ring.affixes.append(_affix("generic_deadly", 30.0))
+	ring.affixes.append(_affix("increased_bleed_damage", 20.0))
+	var equipment := EquipmentComponent.new()
+	equipment.rings = [ring]
+	var misc := equipment.compute_misc_bonuses()
+	_check(misc.get("increased_fire_damage", 0.0) == 40.0, "fire_scorching counts as increased Fire damage")
+	_check(misc.get("crit_damage_increased", 0.0) == 30.0, "generic_deadly counts as Critical Strike damage")
+	_check(misc.get("increased_ailment_damage_bleed", 0.0) == 20.0, "implicit Bleed damage counts as Bleed damage")
+	_check(equipment.compute_stat_bonuses().get(Constants.Stat.STRENGTH, 0.0) == 10.0, "+Strength library mods count as Strength")
+	_check(not misc.has("local_flat_crit_chance"), "local mods stay on their weapon")
+	equipment.free()
+	_finished += 1
+
+func _test_resources() -> void:
+	var sheet := _player.stat_sheet
+	var saved: Dictionary = sheet.misc_bonus
+	sheet.misc_bonus = {}
+	_player._apply_derived_stats()
+	var life := _player.health.max_health
+	var mana := _player.mana.max_mana
+	sheet.misc_bonus = {"flat_life": 50.0, "life_increased": 10.0, "flat_mana": 20.0, "mana_increased": 10.0, "ward_recovery_increased": 25.0, "flat_aether": 5.0}
+	_player._apply_derived_stats()
+	_check(is_equal_approx(_player.health.max_health, (life + 50.0) * 1.1), "flat Life and increased Life apply")
+	_check(is_equal_approx(_player.mana.max_mana, (mana + 20.0) * 1.1), "flat Mana and increased Mana apply")
+	_check(is_equal_approx(_player.ward.restoration_multiplier, 1.25), "increased Ward Recovery applies")
+	_check(_player.fate_board.aether_capacity == FateBoard.capacity_for_level(GameState.player_level) + 5, "flat Aether capacity applies")
+	sheet.misc_bonus = saved
+	_player._apply_derived_stats()
+	_finished += 1
+
+func _test_gear_effects() -> void:
+	var sheet := _player.stat_sheet
+	var saved: Dictionary = sheet.misc_bonus
+	var arena := Node3D.new()
+	add_child(arena)
+	var enemy := EnemyRoster.create_unit("hollowed_shambler")
+	arena.add_child(enemy)
+	enemy.set_physics_process(false)
+	enemy.global_position = _player.global_position + Vector3(0, 0, -2)
+	await _frames(2)
+	sheet.misc_bonus = {"damage_vs_chilled": 100.0, "life_on_hit": 5.0}
+	enemy.health.max_health = 100000.0
+	enemy.health.current_health = 50000.0
+	_player.health.current_health = _player.health.max_health - 20.0
+	var before := enemy.health.current_health
+	enemy.take_damage(100.0, Constants.DamageType.KINETIC)
+	var plain_loss := before - enemy.health.current_health
+	EventBus.damage_dealt.emit(_player, enemy, plain_loss, Constants.DamageType.KINETIC, false, false)
+	var no_chill_loss := before - enemy.health.current_health
+	_check(is_equal_approx(no_chill_loss, plain_loss), "no bonus against an enemy that isn't Chilled")
+	_check(is_equal_approx(_player.health.current_health, _player.health.max_health - 15.0), "Life on hit heals")
+	enemy.status_effects.apply_effect("chill", _player, 10.0)
+	_check(enemy.status_effects.has_effect("chill"), "chill landed for the test")
+	before = enemy.health.current_health
+	EventBus.damage_dealt.emit(_player, enemy, 100.0, Constants.DamageType.KINETIC, false, false)
+	_check(before - enemy.health.current_health > 50.0, "+100% damage vs Chilled deals an extra share of the hit")
+	sheet.misc_bonus = saved
+	enemy.queue_free()
+	arena.queue_free()
+	await _frames(1)
+	_finished += 1
+
+func _test_slates() -> void:
+	var rare := 0
+	var with_mods := 0
+	for i in 200:
+		var s := SlateRoller.roll(40, 20.0)
+		if s.rarity >= Constants.SlateRarity.RARE:
+			rare += 1
+			if s.explicits.size() >= 3:
+				with_mods += 1
+	_check(rare > 0 and with_mods == rare, "Rare Slate drops carry 3-4 modifiers (%d/%d)" % [with_mods, rare])
+	var commons := 0
+	for i in 50:
+		if SlateRoller.roll(40, 0.0).explicits.is_empty():
+			commons += 1
+	_check(commons == 50, "Common Slates have no modifiers")
+	var stubs := 0
+	for tag in SlateAffixPool.get_all_tags():
+		for a in SlateAffixPool.get_pool_for_tag(tag):
+			if a.description.contains("stub"):
+				stubs += 1
+	_check(stubs == 0, "no placeholder Slate modifiers are left")
+	var slate := Slate.new()
+	slate.shape_cells = [Vector2i(0, 0), Vector2i(1, 0)]
+	slate.tag = Constants.DamageType.FIRE
+	slate.explicits.append(_affix("fire_increased_damage", 20.0, "+20% increased Fire damage"))
+	var board := FateBoard.new()
+	var placed := FateBoard.PlacedSlateData.new()
+	placed.slate = slate
+	board.placements["test"] = placed
+	_check(ChainCalculator.slate_misc_bonuses(board).get("increased_fire_damage", 0.0) == 20.0, "a placed Slate's modifiers reach the character")
+	var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+	add_child(card)
+	card.display_slate(slate)
+	_check(_card_text(card).contains("+20% increased Fire damage"), "the Slate card lists its modifiers")
+	card.queue_free()
+	_finished += 1
+
+func _test_bases() -> void:
+	for id in ["agility_pendant", "intellect_pendant", "convergence_pendant", "aetheric_conduit", "vital_pendant", "resonant_pendant", "ward_ring", "vital_ring", "resonant_ring", "iron_ring", "swift_ring", "iron_belt", "leather_belt", "strength_belt"]:
+		var item := load("res://data/items/instances/%s.tres" % id) as Item
+		_check(item != null and not item.affixes.is_empty() and item.affixes[0].is_implicit, "%s exists with its implicit" % id)
+	var vest := load("res://data/armor/instances/gen_body_armour_specters_carapace.tres") as Armor
+	_check(vest.evasion_value > 1000.0, "high-level evasion armours have their defence (%d)" % vest.evasion_value)
+	_check(not vest.affixes.is_empty(), "final armour tiers carry their implicit")
+	var dagger := load("res://data/weapons/instances/gen_dagger_voidfang.tres") as Weapon
+	_check(dagger and dagger.affixes.any(func(a): return a.key() == "local_increased_crit_chance"), "weapon lines carry their implicit throughout")
+	for path in ["res://data/weapons/instances/gen_battle_rifle_sundering_battle_rifle.tres", "res://data/armor/instances/gen_body_armour_bastion_warplate.tres", "res://data/weapons/instances/gen_bolt_action_rifle_field_bolt_rifle.tres"]:
+		_check(ResourceLoader.exists(path), "%s was restored" % path.get_file())
+	_check(ItemRoller._is_excluded_line("throwing_knives_line1"), "Throwing Knives don't drop")
+	_finished += 1
+
+func _test_pause_wiki() -> void:
+	var menus := _hub.find_children("*", "PauseMenu", true, false)
+	var pause: PauseMenu = menus.front() if not menus.is_empty() else null
+	_check(pause != null and pause.find_child("WikiButton", true, false) != null, "the pause menu has a Wiki button")
+	if pause:
+		pause._show_wiki(true)
+		await _frames(1)
+		_check(pause._wiki_center.visible and pause._wiki.listed_ids().size() == UniqueCatalog.DEFS.size(), "it opens the Unique wiki")
+		pause._show_wiki(false)
+	_finished += 1

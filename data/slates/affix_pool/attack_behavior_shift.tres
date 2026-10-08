@@ -5,12 +5,11 @@
 [resource]
 script = ExtResource("1_m203s")
 tag = "attack"
-is_behavior_modifier = true
-description = "Attack Shift (stub)"
+description = "+%d%% increased Critical Strike Chance"
 stat_key = "attack_behavior_shift"
-value = 1.0
-value_min = 1.0
-value_max = 1.0
+value = 12.0
+value_min = 12.0
+value_max = 28.0
 tier = 1
 is_prefix = false
 affix_id = "attack_behavior_shift"

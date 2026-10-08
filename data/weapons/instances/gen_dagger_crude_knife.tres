@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_7eblg"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_t7wux"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_t7wux"]
+
+[sub_resource type="Resource" id="Resource_84rme"]
+script = ExtResource("1_7eblg")
+description = "+15% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 15.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_t7wux")
@@ -15,6 +23,7 @@ item_id = "gen_dagger_crude_knife"
 display_name = "Crude Knife"
 equip_slot = 4
 max_sockets = 2
+affixes = Array[ExtResource("1_7eblg")]([SubResource("Resource_84rme")])
 flavor_text = "Assassination (Crit)"
 base_line_id = "dagger_line1"
 stat_requirement = 0

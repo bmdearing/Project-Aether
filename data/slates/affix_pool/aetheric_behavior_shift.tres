@@ -5,12 +5,11 @@
 [resource]
 script = ExtResource("1_14pva")
 tag = "aetheric"
-is_behavior_modifier = true
-description = "Aetheric Shift (stub)"
+description = "+%d%% increased Aetherburn damage"
 stat_key = "aetheric_behavior_shift"
-value = 1.0
-value_min = 1.0
-value_max = 1.0
+value = 12.0
+value_min = 12.0
+value_max = 28.0
 tier = 1
 is_prefix = false
 affix_id = "aetheric_behavior_shift"

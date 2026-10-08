@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_wypo7"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_l52sl"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_l52sl"]
+
+[sub_resource type="Resource" id="Resource_rs2ab"]
+script = ExtResource("1_wypo7")
+description = "+25% Armor penetration on hits"
+stat_key = "armor_penetration"
+value = 25.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_l52sl")
@@ -11,11 +19,17 @@ base_damage_max = 141.0
 scaling_grade = 0
 is_two_handed = true
 is_ranged = true
+ammo_type = 3
+magazine_size = 5
+fire_mode = 2
+cycle_time = 0.8
+reload_time = 2.8
 primary_scaling_stat = "strength"
 item_id = "gen_bolt_action_rifle_obliterator_bolt_rifle"
 display_name = "Obliterator Bolt Rifle"
 equip_slot = 4
 max_sockets = 5
+affixes = Array[ExtResource("1_wypo7")]([SubResource("Resource_rs2ab")])
 flavor_text = "Armor Penetration"
 item_level = 79
 base_line_id = "bolt_action_rifle_line3"
@@ -23,12 +37,3 @@ stat_requirement = 0
 stat_requirement_value = 39.5
 level_requirement = 68
 agility_requirement = 72
-ammo_type = 3
-magazine_size = 5
-fire_mode = 2
-pellet_count = 1
-pellet_spread_degrees = 0
-fire_rate = 0
-cycle_time = 0.8
-reload_time = 2.8
-reload_per_shell = false

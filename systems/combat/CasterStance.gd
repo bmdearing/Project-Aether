@@ -69,7 +69,7 @@ func uses_spell_page() -> bool:
 	return is_active() and get_kind() == "spell_library"
 
 func _damage_type(weapon: Weapon) -> Constants.DamageType:
-	return weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	return weapon.get_damage_type()
 
 ## What a cast in the current stance really casts: a copy of the spell
 ## carrying the stance's changes, how many copies fly, and whether to

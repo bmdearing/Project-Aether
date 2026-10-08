@@ -5,9 +5,7 @@
 [resource]
 script = ExtResource("1_dnchx")
 tag = "lightning"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Lightning Surge (stub)"
+description = "+%d%% chance to cause Shock"
 stat_key = "lightning_conditional_surge"
 value = 8.0
 value_min = 8.0

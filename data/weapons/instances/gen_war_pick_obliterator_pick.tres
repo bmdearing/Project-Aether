@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_pwx30"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_8hfds"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_8hfds"]
+
+[sub_resource type="Resource" id="Resource_x5ekg"]
+script = ExtResource("1_pwx30")
+description = "+16% increased Stagger effect"
+stat_key = "increased_stagger_effect"
+value = 16.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_8hfds")
@@ -15,6 +23,7 @@ item_id = "gen_war_pick_obliterator_pick"
 display_name = "Obliterator Pick"
 equip_slot = 4
 max_sockets = 3
+affixes = Array[ExtResource("1_pwx30")]([SubResource("Resource_x5ekg")])
 flavor_text = "Stagger"
 item_level = 61
 base_line_id = "war_pick_line2"

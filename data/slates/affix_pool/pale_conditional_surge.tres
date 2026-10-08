@@ -5,9 +5,7 @@
 [resource]
 script = ExtResource("1_56cyt")
 tag = "pale"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Pale Surge (stub)"
+description = "+%d%% chance to cause Pallid"
 stat_key = "pale_conditional_surge"
 value = 8.0
 value_min = 8.0

@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="Item" load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://data/items/item.gd" id="1"]
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "+12 Strength (implicit)"
+stat_key = "flat_strength"
+value = 12.0
+value_min = 9.0
+value_max = 15.0
+is_prefix = false
+is_implicit = true
+
+[sub_resource type="Resource" id="SubResource_2"]
+script = ExtResource("2")
+description = "+12 Agility (implicit)"
+stat_key = "flat_agility"
+value = 12.0
+value_min = 9.0
+value_max = 15.0
+is_prefix = false
+is_implicit = true
+
+[sub_resource type="Resource" id="SubResource_3"]
+script = ExtResource("2")
+description = "+12 Intellect (implicit)"
+stat_key = "flat_intellect"
+value = 12.0
+value_min = 9.0
+value_max = 15.0
+is_prefix = false
+is_implicit = true
+
+[resource]
+script = ExtResource("1")
+item_id = "convergence_pendant"
+display_name = "Convergence Pendant"
+equip_slot = 9
+max_sockets = 1
+affixes = Array[ExtResource("2")]([SubResource("SubResource_1"), SubResource("SubResource_2"), SubResource("SubResource_3")])

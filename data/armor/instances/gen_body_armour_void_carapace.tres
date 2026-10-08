@@ -1,14 +1,24 @@
-[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Armor" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_2bmm4"]
 [ext_resource type="Script" path="res://data/armor/armor.gd" id="2_d3i61"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_d3i61"]
+
+[sub_resource type="Resource" id="Resource_far3f"]
+script = ExtResource("1_2bmm4")
+description = "+14% increased Ward Threshold"
+stat_key = "increased_ward"
+value = 14.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_d3i61")
+ward_value = 1491.0
 item_id = "gen_body_armour_void_carapace"
 display_name = "Void Carapace"
 equip_slot = 1
 max_sockets = 3
+affixes = Array[ExtResource("1_2bmm4")]([SubResource("Resource_far3f")])
 flavor_text = "Maximum Ward - Implicit: +14% increased Ward Threshold"
 item_level = 91
 base_line_id = "body_armour_line5"

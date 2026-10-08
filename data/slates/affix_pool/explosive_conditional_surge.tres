@@ -5,9 +5,7 @@
 [resource]
 script = ExtResource("1_13nna")
 tag = "explosive"
-is_conditional = true
-condition_description = "Placeholder condition - not yet designed."
-description = "Explosive Surge (stub)"
+description = "+%d%% increased Area of Effect"
 stat_key = "explosive_conditional_surge"
 value = 8.0
 value_min = 8.0

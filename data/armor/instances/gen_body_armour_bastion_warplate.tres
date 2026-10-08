@@ -1,0 +1,27 @@
+[gd_resource type="Resource" script_class="Armor" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_2lh46"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_0tnq3"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_e1uy0"]
+
+[sub_resource type="Resource" id="Resource_l2hrm"]
+script = ExtResource("1_2lh46")
+description = "+11% increased Armor"
+stat_key = "increased_armor"
+value = 11.0
+is_implicit = true
+
+[resource]
+script = ExtResource("2_0tnq3")
+armor_value = 417.0
+item_id = "gen_body_armour_bastion_warplate"
+display_name = "Bastion Warplate"
+equip_slot = 1
+max_sockets = 3
+affixes = Array[ExtResource("1_2lh46")]([SubResource("Resource_l2hrm")])
+flavor_text = "Maximum Armor"
+item_level = 91
+base_line_id = "body_armour_line1"
+stat_requirement = 0
+stat_requirement_value = 39.5
+level_requirement = 92

@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Item" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/items/item.gd" id="1"]
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="2"]
+
+[sub_resource type="Resource" id="SubResource_1"]
+script = ExtResource("2")
+description = "+42 Aether capacity (implicit)"
+stat_key = "flat_aether"
+value = 42.0
+value_min = 31.0
+value_max = 53.0
+is_prefix = false
+is_implicit = true
+
+[resource]
+script = ExtResource("1")
+item_id = "aetheric_conduit"
+display_name = "Aetheric Conduit"
+equip_slot = 9
+max_sockets = 1
+affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])

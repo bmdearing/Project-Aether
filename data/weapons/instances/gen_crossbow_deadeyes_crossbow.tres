@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Weapon" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Weapon" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_y61ak"]
 [ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_r5lqg"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_r5lqg"]
+
+[sub_resource type="Resource" id="Resource_8so0o"]
+script = ExtResource("1_y61ak")
+description = "+15% increased Critical Strike Chance"
+stat_key = "local_increased_crit_chance"
+value = 15.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_r5lqg")
@@ -12,11 +20,17 @@ scaling_grade = 0
 native_damage_type = 1
 is_two_handed = true
 is_ranged = true
+ammo_type = 5
+magazine_size = 1
+fire_mode = 5
+cycle_time = 2.5
+reload_time = 0.0
 primary_scaling_stat = "agility"
 item_id = "gen_crossbow_deadeyes_crossbow"
 display_name = "Deadeye's Crossbow"
 equip_slot = 4
 max_sockets = 4
+affixes = Array[ExtResource("1_y61ak")]([SubResource("Resource_8so0o")])
 flavor_text = "Critical Strike"
 item_level = 40
 base_line_id = "crossbow_line2"
@@ -24,12 +38,3 @@ stat_requirement = 0
 stat_requirement_value = 20.0
 level_requirement = 24
 agility_requirement = 18
-ammo_type = 5
-magazine_size = 1
-fire_mode = 5
-pellet_count = 1
-pellet_spread_degrees = 0
-fire_rate = 0
-cycle_time = 2.5
-reload_time = 0
-reload_per_shell = false

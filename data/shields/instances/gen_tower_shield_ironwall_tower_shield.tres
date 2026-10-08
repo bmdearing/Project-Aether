@@ -1,7 +1,15 @@
-[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="Shield" format=3]
 
 [ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_6aay0"]
 [ext_resource type="Script" path="res://data/shields/shield.gd" id="2_r0r3m"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_r0r3m"]
+
+[sub_resource type="Resource" id="Resource_bhllu"]
+script = ExtResource("1_6aay0")
+description = "+13% Armor"
+stat_key = "increased_armor"
+value = 13.0
+is_implicit = true
 
 [resource]
 script = ExtResource("2_r0r3m")
@@ -11,6 +19,7 @@ item_id = "gen_tower_shield_ironwall_tower_shield"
 display_name = "Ironwall Tower Shield"
 equip_slot = 6
 max_sockets = 3
+affixes = Array[ExtResource("1_6aay0")]([SubResource("Resource_bhllu")])
 flavor_text = "Armor + Block - Implicit: +13% Armor, +12% Block Chance"
 item_level = 91
 base_line_id = "tower_shield_line2"

@@ -541,6 +541,8 @@ func _roll_affix(cand: Dictionary) -> ItemAffix:
 	affix.value_min = tier.value_min
 	affix.value_max = tier.value_max
 	affix.value = rng.randf_range(tier.value_min, tier.value_max)
+	if ItemRoller.has_levelled_tiers(def.stat_key):
+		affix.value = roundf(affix.value)
 	affix.is_prefix = def.affix_type == PREFIX
 	affix.affix_id = String(def.id)
 	affix.damage_type = def.damage_type
@@ -553,7 +555,7 @@ func _describe(affix: ItemAffix) -> void:
 	var text := _template_for(affix)
 	if text == "":
 		return
-	affix.description = "%s (Tier %d)" % [ItemRoller.format_desc(text, affix.value), affix.tier]
+	affix.description = "%s (Tier %d)" % [ItemRoller.describe_value(text, affix.stat_key, affix.value), affix.tier]
 
 ## The line's format string: from its ModifierDef, or for a modifier rolled
 ## before Orbs existed, from the AFFIX_POOL entry / weapon library affix it

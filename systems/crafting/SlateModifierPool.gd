@@ -29,7 +29,7 @@ static func _def_for(source: SlateAffix) -> ModifierDef:
 	def.id = StringName(id)
 	def.group = def.id
 	def.stat_key = source.stat_key
-	def.text = "%s +%%d" % source.display_name if source.display_name != "" else source.description
+	def.text = source.description
 	def.affix_type = ModifierDef.AffixType.PREFIX if source.is_prefix else ModifierDef.AffixType.SUFFIX
 	def.tags.append(StringName(source.tag))
 	def.damage_type = source.damage_type
