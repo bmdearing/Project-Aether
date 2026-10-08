@@ -75,13 +75,11 @@ class MockCanvas extends Control:
 		_enemy_bar(Vector2(mid - 150, h * 0.36), "Synod Warden Golem", Color(0.45, 0.65, 1.0), 0.62, 0.55)
 		_bottom_shade(w, h)
 		var base_y := h - 128.0
-		_orb(Vector2(mid - 330, base_y), 62.0, 0.78, LIFE, "LIFE", "166", "/ 212", 0.65)
-		_orb(Vector2(mid + 330, base_y), 62.0, 0.46, MANA, "MANA", "52", "/ 112", -1.0)
+		_orb(Vector2(mid - 265, base_y), 62.0, 0.78, LIFE, "LIFE", "166", "/ 212", 0.65)
+		_orb(Vector2(mid + 265, base_y), 62.0, 0.46, MANA, "MANA", "52", "/ 112", -1.0)
 		var spells := [["Ci", FIRE, 0.0, "8"], ["Ic", COLD, 0.0, "8"], ["St", LIGHTNING, 0.35, "34"], ["Bh", ENTROPIC, 0.0, "30"]]
-		for i in spells.size():
-			var s: Array = spells[i]
-			_medallion(Vector2(mid - 165 + i * 110, base_y + 6), 32.0, s[0], s[1], s[2], str(i + 1), s[3], i == 3)
-		_xp_bar(Vector2(mid - 420, h - 16), 840.0, 0.38, 14)
+		_skill_bar(Vector2(mid, base_y + 4), spells)
+		_xp_bar(Vector2(0, h - 7), w, 0.38, 14)
 		_stance(Vector2(w - 330, h - 104), 42.0, "Execute", "Ex", "A", 0.4)
 		_weapon_plate(Vector2(w - 262, h - 142))
 		_item_card(Vector2(w - 470, 150), 400.0)
@@ -184,15 +182,80 @@ class MockCanvas extends Control:
 		_text(numbers, c + Vector2(-10, r + 9), key, 13, TEXT, HORIZONTAL_ALIGNMENT_CENTER, 20)
 		_text(numbers, c + Vector2(-r, -r - 6), cost, 12, MANA.lightened(0.45) if not starved else Color(1, 0.4, 0.4), HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
 
+	## Edge-to-edge bar along the very bottom (Guild Wars 2 style): a glass
+	## track with a gold fill, a notch every 5%, the level at the left end
+	## and the XP count over the centre.
 	func _xp_bar(pos: Vector2, width: float, fraction: float, level: int) -> void:
-		draw_line(pos, pos + Vector2(width, 0), GOLD_FAINT, 2.0, true)
-		draw_line(pos, pos + Vector2(width * fraction, 0), GOLD, 2.5, true)
-		draw_circle(pos + Vector2(width * fraction, 0), 3.0, GOLD.lightened(0.3))
-		for i in 11:
-			var x := pos.x + width * i / 10.0
-			draw_line(Vector2(x, pos.y - 4), Vector2(x, pos.y + 4), GOLD_DIM, 1.0, true)
-		_diamond(pos - Vector2(22, 0), 12.0, GLASS, GOLD)
-		_text(numbers, pos - Vector2(34, -5), str(level), 14, TEXT, HORIZONTAL_ALIGNMENT_CENTER, 24)
+		var track := Rect2(pos - Vector2(0, 5), Vector2(width, 10))
+		draw_rect(track, Color(0.02, 0.025, 0.04, 0.9))
+		var fill := Rect2(track.position, Vector2(width * fraction, track.size.y))
+		draw_rect(fill, GOLD.darkened(0.25))
+		draw_rect(Rect2(fill.position, Vector2(fill.size.x, 2)), GOLD.lightened(0.25))
+		draw_line(track.position, track.position + Vector2(width, 0), GOLD_DIM, 1.0)
+		for i in range(1, 20):
+			var x := width * i / 20.0
+			draw_line(Vector2(x, track.position.y), Vector2(x, track.end.y), Color(0, 0, 0, 0.7) if i % 4 else Color(0, 0, 0, 0.9), 1.0 if i % 4 else 2.0)
+		draw_circle(Vector2(width * fraction, pos.y), 2.5, Color(1, 0.95, 0.8))
+		_diamond(Vector2(30, pos.y - 24), 16.0, GLASS, GOLD)
+		_text(numbers, Vector2(18, pos.y - 18), str(level), 15, TEXT, HORIZONTAL_ALIGNMENT_CENTER, 24)
+		_text(numbers, Vector2(width / 2.0 - 100, pos.y - 10), "1,140 / 3,000 XP", 12, TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER, 200)
+
+	## One engraved plate holding the four skills edge to edge.
+	func _skill_bar(centre: Vector2, spells: Array) -> void:
+		var tile := 70.0
+		var gap := 6.0
+		var pad := 10.0
+		var width := spells.size() * tile + (spells.size() - 1) * gap + pad * 2.0
+		var plate := Rect2(centre - Vector2(width / 2.0, tile / 2.0 + pad), Vector2(width, tile + pad * 2.0))
+		_plate(plate)
+		for i in spells.size():
+			var s: Array = spells[i]
+			var rect := Rect2(plate.position + Vector2(pad + i * (tile + gap), pad), Vector2(tile, tile))
+			_facet_tile(rect, s[0], s[1], s[2], str(i + 1), s[3], i == 3)
+
+	## Square with clipped corners, like a cut gem: element tint, glyph, cost,
+	## key on a diamond at the bottom edge, and a dial sweep when recharging.
+	func _facet_tile(rect: Rect2, glyph: String, element: Color, cooldown: float, key: String, cost: String, starved: bool) -> void:
+		var cut := 10.0
+		var p := rect.position
+		var e := rect.end
+		var shape := PackedVector2Array([
+			p + Vector2(cut, 0), Vector2(e.x - cut, p.y), Vector2(e.x, p.y + cut), Vector2(e.x, e.y - cut),
+			Vector2(e.x - cut, e.y), Vector2(p.x + cut, e.y), Vector2(p.x, e.y - cut), p + Vector2(0, cut)])
+		draw_colored_polygon(shape, GLASS_LIGHT)
+		var inner := PackedVector2Array()
+		for v in shape:
+			inner.append(rect.get_center() + (v - rect.get_center()) * 0.8)
+		draw_colored_polygon(inner, Color(element, 0.14))
+		var inner_loop := inner.duplicate()
+		inner_loop.append(inner[0])
+		draw_polyline(inner_loop, Color(element, 0.45), 1.0, true)
+		var c := rect.get_center()
+		_text(serif, c + Vector2(-rect.size.x / 2.0, 10), glyph, 26, element.lerp(Color.WHITE, 0.15) if not starved else element.darkened(0.55), HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+		if cooldown > 0.0:
+			_square_dial(rect.grow(-2), cooldown)
+		if starved:
+			draw_colored_polygon(shape, Color(0.05, 0.1, 0.35, 0.45))
+		var loop := shape.duplicate()
+		loop.append(shape[0])
+		draw_polyline(loop, GOLD, 1.8, true)
+		_text(numbers, Vector2(e.x - 30, p.y + 15), cost, 12, MANA.lightened(0.45) if not starved else Color(1, 0.4, 0.4), HORIZONTAL_ALIGNMENT_RIGHT, 24)
+		_diamond(Vector2(c.x, e.y), 9.0, GLASS, GOLD)
+		_text(numbers, Vector2(c.x - 10, e.y + 5), key, 13, TEXT, HORIZONTAL_ALIGNMENT_CENTER, 20)
+
+	## Clock sweep clipped to a square, with the gold hand.
+	func _square_dial(rect: Rect2, fraction: float) -> void:
+		var c := rect.get_center()
+		var reach := rect.size.length()
+		var start := -PI / 2.0 + TAU * (1.0 - fraction)
+		var pts := PackedVector2Array([c])
+		for i in 33:
+			var a := start + TAU * fraction * i / 32.0
+			var q := c + Vector2(cos(a), sin(a)) * reach
+			pts.append(Vector2(clampf(q.x, rect.position.x, rect.end.x), clampf(q.y, rect.position.y, rect.end.y)))
+		draw_colored_polygon(pts, Color(0, 0, 0, 0.6))
+		var hand := c + Vector2(cos(start), sin(start)) * reach
+		draw_line(c, Vector2(clampf(hand.x, rect.position.x, rect.end.x), clampf(hand.y, rect.position.y, rect.end.y)), GOLD, 2.0, true)
 
 	func _stance(c: Vector2, r: float, title: String, glyph: String, page: String, cooldown: float) -> void:
 		_text(serif, c + Vector2(-90, -r - 26), title, 16, GOLD, HORIZONTAL_ALIGNMENT_CENTER, 180)
