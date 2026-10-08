@@ -7,6 +7,22 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.41: Unique wiki, Unique stash tab, loot landing in reach (user request)
+
+- **Wiki (main menu).** A new Wiki button lists every Unique and Mythic (`UniqueWiki`), Mythics first, filterable.
+  - Each entry shows the base type, the modifiers with their roll ranges, the flavour text, and whether it's already in your Unique tab.
+  - **Source:** World Drop, "Pinnacle: <boss>" for boss-only uniques, or "Shard of Tharsis (Transcendent corruption)" for the Debt of Tharsis.
+  - **Odds** (`UniqueOdds`, mirroring the real rolls): per gear drop, per normal monster kill, per boss kill, and per Pinnacle reward.
+  - **Magic Find slider** starts at your character's Magic Find (the saved gear on the main menu), and your gear's flat Item Rarity/Quantity are added on top. Figment and monster-affix bonuses aren't included; the panel says so.
+- **Boss-only uniques.** A `UniqueCatalog` entry can now take `"boss": "<Pinnacle.BOSSES id>"`. It then only drops from that boss's guaranteed reward, never as a world drop. PinnacleArena tells the boss its id. No existing unique uses this yet.
+- **Unique stash tab.** The stash has a "Uniques" tab with one named slot per Unique and Mythic (`Stash.uniques`, saved with the stash). Right-clicking a unique in your inventory while the tab is open puts it in its slot, if the slot is free. Clicking a filled slot sends the item back. Hovering an empty slot previews the unique.
+- **Loot no longer ends up out of reach (dungeon Vault).** Two bugs:
+  - Pickups recorded their resting height in `_ready`, but every spawner positions them *after* adding them. So every drop and every gold coin bobbed around y = 0, whatever height it was dropped at. A boss on the Vault's raised platform dropped its loot inside or under the platform. Now only the mesh bobs and spins, and the pickup stays where it was put.
+  - Drops scattered up to 0.9m around the body with no ground check, so a kill at a platform edge could leave loot hanging over the gap. Each scatter spot now needs floor within 0.6m below the feet (`Enemy._drop_position()`), and drops rest 0.35m above that floor. If no spot qualifies, the drop goes to the floor under the body.
+- Tests: new `tests/wiki` (odds, sources, Magic Find, wiki panel, main menu, Unique tab model and screen). `test_loot` covers drops at a platform edge, a kill in mid-air, and pickups keeping their height.
+
+---
+
 ## 2026-10-08 — v4.40: Look-to-pick-up loot, item card Alt view fixed (user request)
 
 - **Gear is picked up by looking at it and pressing Interact (E).** Weapons, armour, jewels, shields, uniques and Slates no longer go into your bags when you walk over them.

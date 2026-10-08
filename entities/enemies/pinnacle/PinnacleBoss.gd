@@ -8,6 +8,8 @@ const HEALTH_MULTIPLIER := 3.0
 const PHASE_THRESHOLDS: Array[float] = [0.66, 0.33]
 ## Chance the guaranteed drop is a Mythic instead of a Unique.
 const MYTHIC_CHANCE := 0.1
+## Pinnacle.BOSSES id, set by PinnacleArena; its own uniques join the reward pool.
+var pinnacle_id: String = ""
 
 func _ready() -> void:
 	super._ready()
@@ -31,7 +33,7 @@ func phase_openers() -> Dictionary:
 
 func _on_died() -> void:
 	var rarity := Constants.ItemRarity.MYTHIC if randf() < MYTHIC_CHANCE else Constants.ItemRarity.UNIQUE
-	var reward := UniqueRoller.roll(rarity, _compute_item_level())
+	var reward := UniqueRoller.roll(rarity, _compute_item_level(), pinnacle_id)
 	if reward:
 		_spawn_pickup(reward)
 	super._on_died()

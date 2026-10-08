@@ -16,21 +16,20 @@ const COIN_COLOR := Color(0.95, 0.8, 0.25)
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
-var _base_y: float = 0.0
 var _time: float = 0.0
 
 func _ready() -> void:
-	_base_y = position.y
 	body_entered.connect(_on_body_entered)
 	var mat := StandardMaterial3D.new()
 	mat.albedo_color = COIN_COLOR
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mesh.material_override = mat
 
+## Only the coin spins and bobs; the pickup stays where it was put.
 func _process(delta: float) -> void:
 	_time += delta
-	rotate_y(ROTATE_SPEED * delta)
-	position.y = _base_y + sin(_time * BOB_SPEED) * BOB_HEIGHT
+	mesh.rotate_y(ROTATE_SPEED * delta)
+	mesh.position.y = sin(_time * BOB_SPEED) * BOB_HEIGHT
 
 func _on_body_entered(body: Node3D) -> void:
 	if amount <= 0 or not (body is Player):

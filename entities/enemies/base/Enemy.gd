@@ -640,7 +640,7 @@ func _drop_gold() -> void:
 	var pickup: GoldPickup = GOLD_PICKUP_SCENE.instantiate()
 	pickup.amount = gold_reward
 	get_parent().add_child(pickup)
-	pickup.global_position = global_position + Vector3(randf_range(-0.3, 0.3), 0.1, randf_range(-0.3, 0.3))
+	pickup.global_position = _drop_position()
 
 ## A drop-conversion rarity affix replaces all drops with its category.
 ## Otherwise Item Quantity scales the number of drop rolls and Item Rarity
@@ -911,6 +911,40 @@ func begin_attack_telegraph(windup_sec: float) -> void:
 ## Several drops from one kill spread out instead of stacking in one spot.
 const DROP_SCATTER := 0.9
 
+## A scatter spot only counts if there's floor at most this far below the feet,
+## so drops never hang over a ledge or gap (the Vault's jump platform).
+const DROP_MAX_STEP := 0.6
+const DROP_ATTEMPTS := 8
+## Drops float this high above the floor they land on.
+const DROP_HOVER := 0.35
+
+## A random spot near the body that has floor under it, set onto that floor.
+## Falls back to the floor under the body itself.
 func _drop_position() -> Vector3:
-	var angle := randf() * TAU
-	return global_position + Vector3(cos(angle), 0.0, sin(angle)) * randf() * DROP_SCATTER
+	for attempt in DROP_ATTEMPTS:
+		var angle := randf() * TAU
+		var spot := global_position + Vector3(cos(angle), 0.0, sin(angle)) * randf() * DROP_SCATTER
+		var floor_y: float = _floor_below(spot, DROP_MAX_STEP)
+		if not is_nan(floor_y):
+			return Vector3(spot.x, floor_y + DROP_HOVER, spot.z)
+	var under: float = _floor_below(global_position, 100.0)
+	return global_position if is_nan(under) else Vector3(global_position.x, under + DROP_HOVER, global_position.z)
+
+## Height of the level geometry below `point` (searched from a little above
+## it down to max_drop below), skipping creatures. NAN when there's none.
+func _floor_below(point: Vector3, max_drop: float) -> float:
+	if not is_inside_tree():
+		return point.y
+	var space := get_world_3d().direct_space_state
+	var exclude: Array[RID] = [get_rid()]
+	for i in 4:
+		var query := PhysicsRayQueryParameters3D.create(point + Vector3.UP * 0.8, point + Vector3.DOWN * max_drop)
+		query.exclude = exclude
+		var hit := space.intersect_ray(query)
+		if hit.is_empty():
+			return NAN
+		if hit["collider"] is CharacterBody3D or hit["collider"] is RigidBody3D:
+			exclude.append(hit["rid"])
+			continue
+		return (hit["position"] as Vector3).y
+	return NAN

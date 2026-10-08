@@ -65,7 +65,7 @@ func _loot_keys(map: GeneratedMap) -> Array:
 			continue
 		var pos := ""
 		if child is LootPickup or child is GoldPickup:
-			pos = "%.2f,%.2f,%.2f" % [child.position.x, child._base_y, child.position.z]
+			pos = "%.2f,%.2f,%.2f" % [child.position.x, child.position.y, child.position.z]
 		if child is LootPickup and child.currency_id != &"":
 			keys.append("%s x%d|%s" % [child.currency_id, child.currency_count, pos])
 		elif child is LootPickup:

@@ -5,9 +5,10 @@ class_name UniqueRoller
 ## that rarity can drop.
 
 ## Weighted pick among the droppable entries of `rarity`, built at item_level.
-## Null if there are none.
-static func roll(rarity: int, item_level: int = 1) -> Item:
-	var defs := droppable(rarity)
+## boss_id adds that Pinnacle boss's own uniques to the pool. Null if there
+## are none.
+static func roll(rarity: int, item_level: int = 1, boss_id: String = "") -> Item:
+	var defs := droppable(rarity, boss_id)
 	var total := 0.0
 	for def in defs:
 		total += float(def["weight"])
@@ -18,8 +19,10 @@ static func roll(rarity: int, item_level: int = 1) -> Item:
 			return build(def, item_level)
 	return null
 
-static func droppable(rarity: int) -> Array:
-	return UniqueCatalog.DEFS.filter(func(d): return d["rarity"] == rarity and not d.get("corrupted_only", false))
+## World drops of `rarity`, plus boss_id's own when given. Corrupted-only
+## entries never drop.
+static func droppable(rarity: int, boss_id: String = "") -> Array:
+	return UniqueCatalog.DEFS.filter(func(d): return d["rarity"] == rarity and not d.get("corrupted_only", false) and d.get("boss", boss_id) == boss_id)
 
 ## The unique on the best `base_type` base item_level allows. Pass `base` to
 ## put it on a given item instead (corrupted uniques keep the item's base).
@@ -89,3 +92,12 @@ static func base_for(base_type: String, item_level: int) -> Item:
 			lowest_path = path
 	var chosen := best_path if best_path != "" else lowest_path
 	return load(chosen) as Item if chosen != "" else null
+
+## A catalog modifier as text with its roll range: "(40-50)% more Ward".
+static func range_text(mod: Array) -> String:
+	var lo := absf(mod[1])
+	var hi := absf(mod[2])
+	if is_equal_approx(lo, hi):
+		return ItemRoller.format_desc(mod[3], lo)
+	var token := "\u0001"
+	return String(mod[3]).replace("%d", token).replace("%%", "%").replace(token, "(%d-%d)" % [roundi(minf(lo, hi)), roundi(maxf(lo, hi))])

@@ -22,11 +22,9 @@ const BOB_HEIGHT := 0.15
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
-var _base_y: float = 0.0
 var _time: float = 0.0
 
 func _ready() -> void:
-	_base_y = position.y
 	body_entered.connect(_on_body_entered)
 	if not auto_pickup():
 		add_to_group(LOOK_GROUP)
@@ -67,10 +65,12 @@ func _apply_color(color: Color) -> void:
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mesh.material_override = mat
 
+## Only the mesh spins and bobs; the pickup itself stays where it was put
+## (spawners place it after add_child, so _ready can't record a rest height).
 func _process(delta: float) -> void:
 	_time += delta
-	rotate_y(ROTATE_SPEED * delta)
-	position.y = _base_y + sin(_time * BOB_SPEED) * BOB_HEIGHT
+	mesh.rotate_y(ROTATE_SPEED * delta)
+	mesh.position.y = sin(_time * BOB_SPEED) * BOB_HEIGHT
 
 const LOOK_GROUP := &"loot_look"
 const NAME_TAG_RANGE := 14.0

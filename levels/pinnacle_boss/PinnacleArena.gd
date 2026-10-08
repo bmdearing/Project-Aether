@@ -110,6 +110,8 @@ func _spawn_boss() -> void:
 	GameState.pending_pinnacle = ""
 	boss = (load(Pinnacle.BOSSES[boss_id]["scene"]) as PackedScene).instantiate()
 	boss.rank = Constants.EnemyRank.BOSS
+	if boss is PinnacleBoss:
+		(boss as PinnacleBoss).pinnacle_id = boss_id
 	add_child(boss)
 	boss.global_position = to_global(BAY_SPAWN_LOCAL) if boss.immovable else $BossSpawnPoint.global_position
 	if boss.has_signal("element_changed"):

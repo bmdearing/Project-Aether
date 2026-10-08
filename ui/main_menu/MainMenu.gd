@@ -21,6 +21,8 @@ class_name MainMenu
 
 @onready var about_back_button: Button = $AboutPanel/VBoxContainer/AboutBackButton
 @onready var music_player: AudioStreamPlayer = $MusicPlayer
+var wiki_panel: Control
+var wiki: UniqueWiki
 
 const MUSIC_PATH := "res://assets/music/lament.mp3"
 
@@ -37,6 +39,7 @@ func _ready() -> void:
 	var settings := SettingsPanel.new()
 	settings.back_pressed.connect(_show_panel.bind(main_panel))
 	_framed(settings_panel, settings)
+	_build_wiki()
 	_restyle()
 
 ## ---- Look ------------------------------------------------------------------
@@ -100,7 +103,7 @@ func _restyle() -> void:
 	# Main menu: left-aligned column instead of a centred box.
 	main_panel.set_anchors_preset(Control.PRESET_TOP_LEFT)
 	main_panel.position = Vector2(MENU_LEFT - 18, 300)
-	main_panel.size = Vector2(380, 340)
+	main_panel.size = Vector2(380, 400)
 	var column := main_panel.get_child(0) as VBoxContainer
 	column.alignment = BoxContainer.ALIGNMENT_BEGIN
 	column.add_theme_constant_override("separation", 6)
@@ -205,6 +208,36 @@ func _show_panel(panel: Control) -> void:
 	main_panel.visible = panel == main_panel
 	settings_panel.visible = panel == settings_panel
 	about_panel.visible = panel == about_panel
+	wiki_panel.visible = panel == wiki_panel
+	if panel == wiki_panel:
+		move_child(wiki_panel, get_child_count() - 1)
+		wiki.refresh_character()
+
+## The Wiki button (above Settings) and its panel: every Unique and Mythic
+## with its drop odds (UniqueWiki).
+func _build_wiki() -> void:
+	var button := Button.new()
+	button.name = "WikiButton"
+	button.text = "Wiki"
+	settings_button.add_sibling(button)
+	settings_button.get_parent().move_child(button, settings_button.get_index())
+	# Full screen with a dim backdrop: the panel is wide enough to reach the title.
+	wiki_panel = Control.new()
+	wiki_panel.name = "WikiPanel"
+	wiki_panel.visible = false
+	wiki_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(wiki_panel)
+	var dim := ColorRect.new()
+	dim.color = Color(0, 0, 0, 0.7)
+	dim.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	wiki_panel.add_child(dim)
+	var center := CenterContainer.new()
+	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	wiki_panel.add_child(center)
+	wiki = UniqueWiki.new()
+	wiki.back_pressed.connect(_show_panel.bind(main_panel))
+	_framed(center, wiki)
+	button.pressed.connect(_show_panel.bind(wiki_panel))
 
 func _on_continue_pressed() -> void:
 	GameState.game_started = true

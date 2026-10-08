@@ -220,7 +220,6 @@ func capture_state() -> Dictionary:
 			continue
 		if child is LootPickup:
 			var pos: Vector3 = child.position
-			pos.y = child._base_y
 			if child.currency_id != &"":
 				loot.append({"currency": String(child.currency_id), "count": child.currency_count, "pos": _vec_to_array(pos)})
 			elif child.slate:
@@ -230,7 +229,6 @@ func capture_state() -> Dictionary:
 				loot.append({"item": ref, "pos": _vec_to_array(pos)})
 		elif child is GoldPickup:
 			var pos: Vector3 = child.position
-			pos.y = child._base_y
 			loot.append({"gold": child.amount, "pos": _vec_to_array(pos)})
 	var portal_pos: Vector3 = _portal.global_position if is_instance_valid(_portal) else last_player_spawn
 	var player_pos: Vector3 = _portal_player_position if is_instance_valid(_portal) else last_player_spawn

@@ -1,7 +1,8 @@
 extends CanvasLayer
 class_name StashScreen
 ## Hub stash: carried inventory on the left, stash tabs on the right. Drag
-## between them, or right-click an entry to send it to the other side.
+## between them, or right-click an entry to send it to the other side. The
+## last tab is the Unique tab (UniqueTabView): one slot per Unique and Mythic.
 ## Doesn't pause the game.
 
 const CELL := 44
@@ -10,6 +11,8 @@ var _is_open := false
 var _active_tab := 0
 var _carried_view: InventoryGridView
 var _stash_view: InventoryGridView
+var _stash_scroll: ScrollContainer
+var _unique_view: UniqueTabView
 var _tab_bar: HBoxContainer
 var _status: Label
 
@@ -73,8 +76,13 @@ func _build() -> void:
 	var scroll := ScrollContainer.new()
 	scroll.custom_minimum_size = Vector2(Constants.STASH_TAB_SIZE.x * CELL + 14, 10 * CELL)
 	right.add_child(scroll)
+	_stash_scroll = scroll
 	_stash_view = _make_view()
 	scroll.add_child(_stash_view)
+	_unique_view = UniqueTabView.new()
+	_unique_view.visible = false
+	_unique_view.slot_clicked.connect(_withdraw_unique)
+	right.add_child(_unique_view)
 
 	_status = _label("", 14)
 	root.add_child(_status)
@@ -99,16 +107,26 @@ func _label(text: String, size: int) -> Label:
 func _refresh() -> void:
 	_carried_view.set_inventory(GameState.inventory)
 	var tabs := GameState.stash.tabs
-	_active_tab = clampi(_active_tab, 0, tabs.size() - 1)
+	_active_tab = clampi(_active_tab, 0, tabs.size())
 	for child in _tab_bar.get_children():
 		child.queue_free()
-	for i in tabs.size():
+	for i in tabs.size() + 1:
 		var b := Button.new()
-		b.text = _tab_name(tabs[i], i)
+		b.text = _tab_name(tabs[i], i) if i < tabs.size() else "Uniques"
 		b.disabled = i == _active_tab
 		b.pressed.connect(_select_tab.bind(i))
 		_tab_bar.add_child(b)
-	_stash_view.set_inventory(tabs[_active_tab])
+	var uniques_open := is_unique_tab_open()
+	_stash_scroll.visible = not uniques_open
+	_unique_view.visible = uniques_open
+	if uniques_open:
+		_unique_view.stash = GameState.stash
+		_unique_view.refresh()
+	else:
+		_stash_view.set_inventory(tabs[_active_tab])
+
+func is_unique_tab_open() -> bool:
+	return _active_tab == GameState.stash.tabs.size()
 
 func _tab_name(tab: GridInventory, index: int) -> String:
 	match tab.accepts:
@@ -123,9 +141,14 @@ func _select_tab(index: int) -> void:
 	_refresh()
 
 func _on_entry_right_clicked(view: InventoryGridView, entry: GridInventory.Entry) -> void:
+	if view == _carried_view and is_unique_tab_open() and entry.content is Item and (entry.content as Item).unique_id != "":
+		_deposit_unique(entry)
+		return
 	var from := view.inventory
-	var to: GridInventory = GameState.stash.tabs[_active_tab] if view == _carried_view else GameState.inventory
-	if view == _carried_view and not to.accepts_content(entry.content):
+	var to: GridInventory = GameState.inventory
+	if view == _carried_view:
+		to = null if is_unique_tab_open() else GameState.stash.tabs[_active_tab]
+	if view == _carried_view and (to == null or not to.accepts_content(entry.content)):
 		to = _first_tab_accepting(entry.content)
 	if to == null or not send(from, entry, to):
 		_status.text = "No room for that."
@@ -147,3 +170,27 @@ func _first_tab_accepting(content) -> GridInventory:
 		if tab.accepts_content(content) and tab.find_space(GridInventory.footprint_of(content)) != GridInventory.NO_SPACE:
 			return tab
 	return null
+
+## A carried Unique/Mythic into its slot in the Unique tab.
+func _deposit_unique(entry: GridInventory.Entry) -> void:
+	var item := entry.content as Item
+	if GameState.stash.store_unique(item):
+		GameState.inventory.remove(entry)
+		_status.text = ""
+	elif GameState.stash.uniques.has(item.unique_id):
+		_status.text = "Your Unique tab already holds %s." % item.display_name
+	else:
+		_status.text = "That isn't in the Unique catalogue."
+	_refresh()
+
+## A Unique tab slot's item back into the inventory.
+func _withdraw_unique(id: String) -> void:
+	var item: Item = GameState.stash.uniques.get(id)
+	if item == null:
+		return
+	if GameState.add_to_inventory(item):
+		GameState.stash.take_unique(id)
+		_status.text = ""
+	else:
+		_status.text = "No room for that."
+	_refresh()

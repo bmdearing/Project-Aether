@@ -8,7 +8,7 @@ extends Node
 
 const HUB := "res://levels/hub/Hub.tscn"
 const LOOT_PICKUP := "res://entities/pickups/loot_pickup/LootPickup.tscn"
-const TEST_COUNT := 10
+const TEST_COUNT := 11
 
 var _checks := 0
 var _failures := 0
@@ -45,6 +45,7 @@ func _run() -> void:
 	_test_character_sheet()
 	await _test_kill_drops()
 	await _test_rare_beam()
+	await _test_drops_on_floor()
 	await _test_look_pickup()
 	await _test_card_alt()
 	GameState.active_map = null
@@ -206,6 +207,7 @@ func _test_kill_drops() -> void:
 	var arena := Node3D.new()
 	add_child(arena)
 	arena.global_position = Vector3(500, 0, 500)
+	_floor(arena, Vector3(500, -0.5, 500), Vector3(10, 1, 10))
 	var enemy := EnemyRoster.create_unit("hollowed_shambler")
 	arena.add_child(enemy)
 	enemy.set_physics_process(false)
@@ -260,7 +262,6 @@ func _look_pickup(item: Item, offset: Vector3) -> LootPickup:
 	_hub.add_child(p)
 	var cam := _player.camera
 	p.global_position = cam.global_position + cam.global_transform.basis * offset
-	p._base_y = p.position.y
 	return p
 
 func _test_look_pickup() -> void:
@@ -357,5 +358,52 @@ func _test_card_alt() -> void:
 	await _frames(2)
 	_check(not card._showing_alt and _card_texts(card).contains("Alt Test Ring"), "releasing Alt swaps back")
 	card.queue_free()
+	await _frames(1)
+	_finished += 1
+
+func _floor(parent: Node, centre: Vector3, size: Vector3) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = size
+	shape.shape = box
+	body.add_child(shape)
+	parent.add_child(body)
+	body.global_position = centre
+	return body
+
+## Drops land on floor next to the body, never over a ledge, and stay at the
+## height they were put at (they used to bob around y = 0 wherever they fell).
+func _test_drops_on_floor() -> void:
+	var arena := Node3D.new()
+	add_child(arena)
+	_floor(arena, Vector3(700, -0.5, 700), Vector3(30, 1, 30))
+	_floor(arena, Vector3(700, 20, 700), Vector3(4, 1, 4))
+	var enemy := EnemyRoster.create_unit("hollowed_shambler")
+	arena.add_child(enemy)
+	enemy.set_physics_process(false)
+	enemy.global_position = Vector3(701.9, 20.5, 700)
+	await get_tree().physics_frame
+	await _frames(1)
+	var on_platform := true
+	for i in 40:
+		var spot := enemy._drop_position()
+		if spot.x > 702.0 or absf(spot.y - (20.5 + Enemy.DROP_HOVER)) > 0.05:
+			on_platform = false
+	_check(on_platform, "an enemy at a platform's edge drops onto the platform, not over the drop")
+	enemy.global_position = Vector3(710, 3.0, 700)
+	_check(absf(enemy._drop_position().y - Enemy.DROP_HOVER) < 0.05, "an enemy killed in the air drops onto the floor below")
+	var pickup: LootPickup = load(LOOT_PICKUP).instantiate()
+	pickup.item = Item.new()
+	arena.add_child(pickup)
+	pickup.global_position = Vector3(700, 20.85, 700)
+	var gold: GoldPickup = load("res://entities/pickups/gold_pickup/GoldPickup.tscn").instantiate()
+	gold.amount = 1
+	arena.add_child(gold)
+	gold.global_position = Vector3(699, 20.85, 700)
+	await _frames(5)
+	_check(is_equal_approx(pickup.global_position.y, 20.85) and is_equal_approx(gold.global_position.y, 20.85), "loot and gold stay at the height they were dropped at")
+	enemy.queue_free()
+	arena.queue_free()
 	await _frames(1)
 	_finished += 1
