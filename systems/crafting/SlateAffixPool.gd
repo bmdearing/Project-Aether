@@ -1,11 +1,6 @@
 extends RefCounted
 class_name SlateAffixPool
-## Patch v3.6 Section 1. A static, lazily-scanned pool of SlateAffix
-## stubs (data/slates/affix_pool/*.tres) organized by tag - same
-## directory-scan-and-cache convention as ItemRoller's own
-## static pools, rather than a true autoload (nothing here needs to be a
-## persistent Node - this project's other Roller/Pool classes are all
-## static-method RefCounted utilities).
+## Lazily-scanned SlateAffix pool (data/slates/affix_pool/*.tres) by tag.
 
 const POOL_DIR := "res://data/slates/affix_pool/"
 

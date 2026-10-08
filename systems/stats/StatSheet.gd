@@ -1,57 +1,30 @@
 extends Resource
 class_name StatSheet
-## Three stats - Strength/Agility/Intellect (v4.8 rename of Prowess/
-## Finesse/Resolve). Every stat effect is a percentage (see the derived
-## getters below), except Strength's Life and Intellect's Mana.
-## No manual allocation on level up, but v4.7 adds a fixed +0.6 to each
-## stat per level (level_bonus below). The raw fields below are the
-## character's permanently-fixed baseline (player_baseline.tres, 10.0
-## flat each - an invented vertical-slice testing value, no doc-sourced
-## baseline exists); equipment_bonus and slate_bonus are what grow a stat
-## past that - gear (EquipmentComponent.compute_stat_bonuses()) and
-## placed Slates (ChainCalculator.slate_stat_bonuses()) respectively.
-## Player.gd pushes a fresh total into each on every equip/unequip or
-## Slate placement/removal. Neither is persisted separately - both are
-## re-derived from saved state (equipment_refs, fate_board_placements) on
-## every load.
+## Strength/Agility/Intellect plus the derived bonuses that feed combat.
+## The exported fields are the fixed baseline (player_baseline.tres). Level,
+## gear and Slate bonuses are pushed in by Player.gd and re-derived on load,
+## never saved.
 
 @export var strength: float = 0.0
 @export var agility: float = 0.0
 @export var intellect: float = 0.0
 
-## Constants.Stat -> float, recomputed whenever equipment changes (see
-## Player.gd). Not @export'd/persisted - always re-derived from currently
-## equipped gear, never stored independently (see header).
+## Constants.Stat -> float from equipped gear.
 var equipment_bonus: Dictionary = {}
 
-## Constants.Stat -> float, recomputed whenever the Fate Board changes
-## (Player._apply_fate_board_bonuses()) - the Slate-system counterpart to
-## equipment_bonus, summing every PLACED Slate's flat_<stat> modifiers,
-## each amplified by (1 + its chain's bonus) since v4.9 (ChainCalculator.
-## slate_stat_bonuses(); Section 10's "Main Stat"/"Random Stat" per-tile
-## formula, 5+ tile Slates only). Not persisted - re-derived from the
-## saved Fate Board layout on every load.
+## Constants.Stat -> float from placed Slates, chain-amplified
+## (ChainCalculator.slate_stat_bonuses()).
 var slate_bonus: Dictionary = {}
 
-## v4.7: flat bonus to all three stats from character level
-## (GameState.get_level_stat_bonus()), pushed in by Player.gd. Separate from
-## the baseline fields above, which are the shared player_baseline.tres
-## values and must never be mutated.
+## Flat bonus to all three stats from character level. Kept separate because
+## the baseline fields are the shared player_baseline.tres and must not mutate.
 var level_bonus: float = 0.0
 
-## DamageType -> float fraction (e.g. 0.2375 for +23.75%), the Chain Bonus
-## System's per-tag total (ChainCalculator.bonus_by_tag()) - fed into
-## Weapon/Ability._base_hit()'s increased_percents pool as real "increased
-## <category> damage".
+## DamageType -> increased damage fraction from Fate Board chains.
 var chain_bonus_by_tag: Dictionary = {}
 
-## Patch v3.2 "Revision - Resistance System": String key ("fire"/"cold"/
-## "lightning"/"esoteric") -> float percent (e.g. 20.0 for 20%), summed
-## from equipped gear's resistance affixes (EquipmentComponent.
-## compute_resistance_bonuses()). Esoteric is unified across Aetheric/
-## Entropic/Pale per the patch - one value covers all three. Physical
-## (Kinetic/Piercing/Explosive) has no Resistance stat; Armor still
-## covers it, unchanged by this patch.
+## "fire"/"cold"/"lightning"/"esoteric" -> percent from gear. Esoteric covers
+## Aetheric/Entropic/Pale; Physical has no Resistance (Armor covers it).
 var equipment_resistance: Dictionary = {}
 
 func get_stat(stat: Constants.Stat) -> float:
@@ -88,9 +61,8 @@ func get_strength_weapon_multiplier() -> float:
 func get_evasion_from_stats() -> float:
 	return get_stat(Constants.Stat.AGILITY) * 0.01
 
-## Patch v4.4. Total Evasion Rating: (gear base + flat affixes) x (1 +
-## gear increased% + Agility's increased%). Fed to DamageCalculator.
-## dodge_chance()/deflection_chance()/deflection_mitigation().
+## Total Evasion Rating: (gear base + flat affixes) x (1 + gear increased% +
+## Agility's increased%).
 func get_total_evasion(equipment: EquipmentComponent) -> float:
 	return equipment.get_total_evasion(get_evasion_from_stats()) if equipment else 0.0
 
@@ -122,8 +94,7 @@ func get_chain_bonus(tag: Constants.DamageType) -> float:
 func set_chain_bonus_by_tag(bonus: Dictionary) -> void:
 	chain_bonus_by_tag = bonus
 
-## Maps a DamageType to which of the 4 unified Resistance stats covers it
-## (Patch v3.2) - null for Physical types, which Armor covers instead.
+## Resistance key covering damage_type; null for Physical.
 static func resistance_key_for(damage_type: Constants.DamageType):
 	match damage_type:
 		Constants.DamageType.FIRE: return "fire"
@@ -139,19 +110,12 @@ func get_resistance(damage_type: Constants.DamageType) -> float:
 func set_equipment_resistance(resistance: Dictionary) -> void:
 	equipment_resistance = resistance
 
-## Patch v3.5 Section 4. Generic "increased damage" affixes (no damage
-## type) vs type-specific ones (Constants.DamageType -> float) - kept
-## separate since a generic bonus should apply on top of every damage
-## type, not get bucketed under one. Not consumed by DamageCalculator
-## yet (no ItemRoller affix generation produces "increased_damage" affixes
-## yet, that's a separate pass per the brief) - scaffolding only.
+## "increased_damage" affixes, generic and per DamageType. Scaffolding: not
+## consumed by DamageCalculator yet.
 var increased_damage_generic: float = 0.0
 var increased_damage_by_type: Dictionary = {}
 
-## Single dispatch point for a rolled ItemAffix - routes to whichever
-## bucket its stat_key means. Reuses EquipmentComponent's own stat_key
-## tables rather than duplicating them, so there's one source of truth
-## for what each key means.
+## Routes a rolled ItemAffix to the bucket its stat_key belongs to.
 func apply_affix(affix: ItemAffix) -> void:
 	if EquipmentComponent.AFFIX_STAT_KEYS.has(affix.stat_key):
 		var stat: Constants.Stat = EquipmentComponent.AFFIX_STAT_KEYS[affix.stat_key]
@@ -168,10 +132,7 @@ func apply_affix(affix: ItemAffix) -> void:
 			var dt: Constants.DamageType = affix.damage_type
 			increased_damage_by_type[dt] = increased_damage_by_type.get(dt, 0.0) + affix.value
 
-## Recomputes increased_damage_generic/increased_damage_by_type from every
-## equipped item's affixes - additive alongside set_equipment_bonus()/
-## set_equipment_resistance() above (Player._on_equipment_changed() calls
-## both), not a replacement for them.
+## Recomputes the increased_damage buckets from equipped items' affixes.
 func apply_equipment_affixes(items: Array[Item]) -> void:
 	increased_damage_generic = 0.0
 	increased_damage_by_type = {}
@@ -180,10 +141,6 @@ func apply_equipment_affixes(items: Array[Item]) -> void:
 			if affix.stat_key == "increased_damage":
 				apply_affix(affix)
 
-## Patch v3.7 Section 3. Additive pools, percentage totals (e.g. 20.0 for
-## +20%) - not @export'd/persisted, same "always re-derived from currently
-## equipped gear" footing as equipment_bonus/increased_damage_generic
-## above. Recalculated on every stat refresh, never cached across one.
 ## The player's UniqueEffects (set by Player), for unique_damage_multiplier().
 var unique_effects: UniqueEffects
 
@@ -191,6 +148,7 @@ var unique_effects: UniqueEffects
 func unique_damage_multiplier(damage_type: int) -> float:
 	return unique_effects.damage_multiplier(damage_type) if unique_effects else 1.0
 
+## Percent totals (20.0 = +20%), re-derived on every stat refresh.
 var cast_speed_bonus: float = 0.0
 var cooldown_recovery_rate: float = 0.0
 
@@ -200,12 +158,8 @@ func get_effective_cast_time(base_cast_time: float) -> float:
 func get_effective_cooldown(base_cooldown: float) -> float:
 	return base_cooldown / (1.0 + cooldown_recovery_rate / 100.0)
 
-## Section 20 Slate affix: converts a fraction of the player's current
-## Cast Speed into Cooldown Recovery Rate. conversion_percent is 15-25
-## depending on the Slate's own tier. Recalculate on every stat refresh
-## alongside cast_speed_bonus itself - not cached, so a change in Cast
-## Speed from gear/Slates always propagates through immediately rather
-## than freezing whatever conversion applied last time this ran.
+## Slate affix: adds conversion_percent of current Cast Speed to Cooldown
+## Recovery Rate. Must be re-applied on every stat refresh.
 func apply_cast_speed_to_cooldown_conversion(conversion_percent: float) -> void:
 	var converted := cast_speed_bonus * (conversion_percent / 100.0)
 	cooldown_recovery_rate += converted
@@ -214,62 +168,33 @@ func apply_cast_speed_to_cooldown_conversion(conversion_percent: float) -> void:
 ## Player._on_equipment_changed().
 var conduit_spell_damage_bonus: float = 0.0
 
-## Player._apply_derived_stats() computes these from Agility and gear and
-## stores them here (same "Player pushes a fresh total in" convention as
-## equipment_bonus/conduit_spell_damage_bonus). stat_evasion_bonus is the total
-## Evasion Rating (see get_total_evasion()), refreshed for display; the hit
-## roll in Player.take_damage() reads get_total_evasion() live.
-## finesse_crit_bonus (name kept from before the v4.8 rename) is Agility's +
-## gear's increased crit fraction, read by Weapon/Ability._base_hit() as a
-## multiplier on base_crit_chance.
+## Pushed in by Player._apply_derived_stats(). stat_evasion_bonus is the
+## total Evasion Rating, for display. finesse_crit_bonus (pre-v4.8 name) is
+## the increased crit fraction from Agility and gear.
 var stat_evasion_bonus: float = 0.0
 var finesse_crit_bonus: float = 0.0
 
-## Patch v3.8 Section 2 "Removed expressions": max_life/life_regen/
-## max_mana/mana_regen/resilience/cast_speed used to derive from a
-## character stat (Vitality/Intellect) - now purely gear-affix-driven.
-## String stat_key -> summed float, recomputed by EquipmentComponent.
-## compute_misc_bonuses() alongside equipment_bonus/equipment_resistance.
-## attack_speed/move_speed/crit_damage/debuff_effectiveness/stamina are
-## also in the pool but have no consumer yet (same "real affix, no
-## formula to feed it into yet" gap flat_evasion/flat_resistance/flat_
-## resilience/skill_cooldown_reduced already had before this patch).
+## stat_key -> summed percent for every other gear affix
+## (EquipmentComponent.compute_misc_bonuses()).
 var misc_bonus: Dictionary = {}
 
 func get_misc_bonus(key: String) -> float:
 	return misc_bonus.get(key, 0.0)
 
-## Patch v3.8c bug fix: ItemRoller.AFFIX_POOL's "crit_damage" entry (+15-20%
-## increased Critical Strike Damage) rolled onto gear but was never summed
-## anywhere - EquipmentComponent.MISC_BONUS_KEYS didn't include it, so
-## DamageCalculator.get_crit_damage_multiplier() was always called with its
-## default 0.0 bonus regardless of equipped gear. misc_bonus stores the
-## raw percent-unit affix total (same units the "+%d%%" affix description
-## uses) - divided by 100 here so the caller gets a fraction to add
-## directly to get_crit_damage_multiplier()'s base 1.5x.
-## Patch v4.0 "Increased Critical Strike Bonus" (crit_damage_increased) is
-## the same effect as the pre-existing v3.8c "crit_damage" key under a new
-## name - summed together rather than treated as a second, separate bonus.
+## Fraction added to the base crit multiplier. crit_damage and
+## crit_damage_increased are the same effect under two keys.
 func get_crit_damage_bonus() -> float:
 	return (get_misc_bonus("crit_damage") + get_misc_bonus("crit_damage_increased")) / 100.0
 
 func set_misc_bonus(bonus: Dictionary) -> void:
 	misc_bonus = bonus
 
-## --- Patch v4.0 "Full Mod Pool Framework" -------------------------------
-## Everything below reads from misc_bonus (see EquipmentComponent.
-## MISC_BONUS_KEYS' own v4.0 comment for why no new dedicated fields were
-## added for most of these) - grouped by the doc's own mod pool sections.
+## --- Mod pool getters (all read misc_bonus) --------------------------------
 
-## Gear's own "increased Critical Strike Chance" - combined with Agility's
-## contribution the same multiplicative way (DamageCalculator.
-## get_crit_chance()'s 2026-09-07 fix), not added on top separately.
 func get_gear_crit_chance_bonus() -> float:
 	return get_misc_bonus("crit_chance_increased") / 100.0
 
-## Ailment Build Mod Pool - ailment_id matches StatusEffectComponent's own
-## effect_id strings ("bleed"/"ignite"/"chill"/"electrocute"/"shock"/
-## "aetherburn"/"unraveling"/"pallid").
+## ailment_id is a StatusEffectComponent effect_id.
 func get_ailment_chance_bonus(ailment_id: String) -> float:
 	return get_misc_bonus("ailment_chance_%s" % ailment_id) / 100.0
 
@@ -288,10 +213,7 @@ func get_ailment_tick_rate_bonus() -> float:
 func get_ailment_ignore_chance() -> float:
 	return get_misc_bonus("ailment_ignore_chance") / 100.0
 
-## Offensive Mod Pool - Penetration. Elemental Penetration applies to all
-## three Elemental types on top of that type's own specific Penetration
-## (additive, per the doc: "Stacks additively with other Penetration
-## sources"). Esoteric/Physical have no Penetration mods in this patch.
+## Type-specific plus Elemental Penetration (additive). Elemental types only.
 func get_penetration(damage_type: Constants.DamageType) -> float:
 	match damage_type:
 		Constants.DamageType.FIRE:
@@ -305,11 +227,7 @@ func get_penetration(damage_type: Constants.DamageType) -> float:
 func get_physical_shred() -> float:
 	return get_misc_bonus("physical_shred") / 100.0
 
-## Defensive Mod Pool - % Physical Damage taken as Elemental (Helmet/Body
-## Armour/Amulet only per the doc, not enforced here - that's an item-
-## slot-eligibility concern for the affix pool, this just reads whatever
-## ended up in misc_bonus). Returns [[fraction, DamageType], ...] for
-## each nonzero shift.
+## Physical damage taken as Elemental: [[fraction, DamageType], ...].
 func get_phys_damage_shift() -> Array:
 	var shifts := []
 	if get_misc_bonus("phys_as_fire") > 0.0:
@@ -336,15 +254,7 @@ func get_reduced_damage_taken(category: Constants.DamageCategory) -> float:
 func get_ward_delay_reduction() -> float:
 	return get_misc_bonus("ward_delay_reduction")
 
-## Amulet Exclusive Mod Pool - Skill Level. Doc: "applies to active bar
-## skills and Slate auto-casts only - not passives" (this project has no
-## passive-Ability system for a gear-rolled Ability to accidentally match,
-## so every Ability object already qualifies). is_spell is effectively
-## always true for this project's Ability objects (they ARE this
-## project's "spells" - weapon melee/ranged attacks are a separate,
-## unrelated damage path with no Ability involved), so skill_level_spells/
-## skill_level_spell_[type] apply unconditionally rather than needing a
-## real is_spell flag Ability.gd doesn't have.
+## Skill Level mods. Every Ability is a spell, so the _spell variants always apply.
 const _V40_DAMAGE_TYPE_KEYS := {
 	Constants.DamageType.KINETIC: "kinetic", Constants.DamageType.PIERCING: "piercing",
 	Constants.DamageType.EXPLOSIVE: "explosive", Constants.DamageType.FIRE: "fire",
@@ -361,8 +271,6 @@ func get_skill_level_bonus(damage_type: Constants.DamageType) -> int:
 		bonus += int(get_misc_bonus("skill_level_spell_%s" % type_key))
 	return bonus
 
-## Patch v4.3 - "of Steadying" shield affix ("block_chance_bonus", in whole
-## percent points) as a fraction, added flat to the equipped shield's own
-## block_chance in Player.try_block_melee_hit().
+## Flat addition to the shield's block_chance.
 func get_block_chance_bonus() -> float:
 	return get_misc_bonus("block_chance_bonus") / 100.0

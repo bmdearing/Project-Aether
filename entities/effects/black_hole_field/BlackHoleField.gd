@@ -1,17 +1,7 @@
 extends Node3D
 class_name BlackHoleField
-## Black Hole ("26 - Ability Staging Ground", Esoteric/Entropic): "Summons
-## a point of collapsing incoherence that drags surrounding enemies toward
-## its center for a short duration." User revision (2026-08-30): "Black
-## Hole shouldn't be a DoT, but deals Entropic damage every .25 seconds" -
-## i.e. not a single instant hit at cast time (the previous design,
-## routed through PlayerAbilityCast._cast()'s generic damage loop) and
-## not a StatusEffectComponent-style DoT tick (Ignite's own model) either -
-## a real repeated direct hit, rolled fresh each tick same as any other
-## ability damage instance (crit varies tick to tick, same reasoning
-## CaltropsField's own ticks already follow). PlayerAbilityCast.gd now
-## skips its generic loop entirely for "black_hole" (see _cast()) - ALL of
-## this ability's damage comes from here.
+## Black Hole: pulls enemies toward its centre and hits them every tick,
+## each tick a fresh damage roll. All of the ability's damage comes from here.
 
 const DURATION := 2.5
 const PULL_SPEED := 5.0  # m/s added toward the centre, strongest at the edge

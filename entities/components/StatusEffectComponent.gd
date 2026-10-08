@@ -1,25 +1,15 @@
 extends Node
 class_name StatusEffectComponent
-## Section 09 - Status Effects, bidirectional (Player and Enemy both carry
-## one, per "Status effects apply bidirectionally").
-## Ailments (AILMENT_IDS) roll to land - see try_apply(); stance riders
-## (Armor Shred, Suppressed, Slow, Guard Break, Entangle) always land.
-##
-## Durations/magnitudes/stack thresholds below are invented - the doc
-## names each effect and its qualitative behavior only ("Slows movement
-## and action speed", "Advanced Chill stage - full immobilization"), no
-## numbers, matching this project's existing convention for unspecified
-## tuning (DEVELOPMENT.md flagged gap).
+## Status effects on a Player or Enemy. Ailments (AILMENT_IDS) roll to land
+## (try_apply()); stance riders always land. Numbers are placeholders.
 
 signal effect_applied(effect_id: String)
 signal effect_expired(effect_id: String)
 
 const IGNITE_DURATION := 4.0
-## Bleed (Whip's Crack): Physical DoT, no Armor (Patch v3.2: "Bleed is the
-## exception - no resistance applies"). 60% of the hit over 4 s is a placeholder.
+## Bleed: Physical DoT that ignores Armor.
 const BLEED_DURATION := 4.0
-## War Pick Armor Pierce: each stack strips 15% of Armor, up to 5, for 6 s
-## (refreshed by every stack). Placeholder numbers; the doc only says "stacking".
+## Each stack strips Armor; every new stack refreshes the duration.
 const ARMOR_SHRED_PER_STACK := 0.15
 const ARMOR_SHRED_MAX_STACKS := 5
 const ARMOR_SHRED_DURATION := 6.0
@@ -27,7 +17,7 @@ const ARMOR_SHRED_DURATION := 6.0
 const SUPPRESSED_SLOW_PER_STACK := 0.08
 const SUPPRESSED_MAX_STACKS := 5
 const SUPPRESSED_DURATION := 3.0
-## Pallid (Master v3: Pale, "reduced damage dealt"): 20% less for 4 s. Placeholder numbers.
+## Pallid: reduced damage dealt.
 const PALLID_DAMAGE_REDUCTION := 0.2
 const PALLID_DURATION := 4.0
 ## "enhanced:<id>" (Fetish's Status Amplifier page) lasts this much longer.
@@ -39,56 +29,31 @@ const IGNITE_DAMAGE_PERCENT := 0.9  # total DoT damage = 90% of the triggering h
 
 const CHILL_DURATION := 2.5
 const CHILL_MOVE_SLOW_PERCENT := 0.35
-const CHILL_STACKS_TO_FREEZE := 3  # 3rd Chill application within its own window upgrades to Freeze
+const CHILL_STACKS_TO_FREEZE := 3
 
 const FREEZE_DURATION := 1.2
 
 const ELECTROCUTE_DURATION := 1.0
 
 const UNRAVELING_DURATION := 5.0
-const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.3  # "Increased Esoteric damage taken" - applies to the whole category, not just Entropic
+const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.3  # all Esoteric damage
 
-## Generic movement slow, independent of Chill - user request (2026-08-30):
-## "Caltrops should slow... enemies that continue to stand on it." Reusing
-## Chill for this would be a thematic mismatch (Chill is explicitly Cold-
-## flavored per Constants.STATUS_EFFECT_DAMAGE_TYPE, Caltrops is Physical/
-## Piercing) - this is its own effect instead. Refreshed continuously by
-## CaltropsField while an enemy stands in the field (not a one-shot
-## application), so SLOW_DURATION just needs to outlast one tick interval
-## comfortably, not model a real "how long does this linger" duration.
+## Caltrops' slow, refreshed every tick while standing in the field, so the
+## duration only needs to outlast one tick.
 const SLOW_DURATION := 0.75
 const SLOW_MOVE_SLOW_PERCENT := 0.35
 
-## Patch v3.8b: Spark's new proc, replacing Electrocute on that ability only
-## (Thunder Javelin/Thunder Sweep keep Electrocute). Non-stacking, duration
-## refreshes on reapplication (same _apply_timed model as Electrocute/
-## Unraveling/Slow above) - does not stun/interrupt, unlike Electrocute.
+## Shock: increased Lightning damage taken; doesn't stun, unlike Electrocute.
 const SHOCK_DURATION := 4.0
 const SHOCK_DAMAGE_INCREASE := 0.25
 
-## Scorch (Master v3 Section 09: "Increased vulnerability to further Fire
-## damage"; dropped by Patch v3.2, restored on user request). Each
-## application adds a stack up to SCORCH_MAX_STACKS and refreshes the
-## duration for all of them; every stack raises Fire damage taken - which
-## includes Ignite's ticks, so the two build on each other.
+## Scorch: stacking Fire damage taken (Ignite ticks included). Each
+## application refreshes every stack.
 const SCORCH_DURATION := 4.0
 const SCORCH_MAX_STACKS := 5
 const SCORCH_DAMAGE_PER_STACK := 0.08
 
-## Patch v3.8: Debuff Effectiveness is a "removed expression" - no longer
-## derived from a character stat (Intellect, its old source, is gone).
-## debuff_effectiveness exists as a real ItemRoller.AFFIX_POOL entry but
-## has no consumer wired up yet (same "real affix, no formula to feed it"
-## footing several other Patch v3.8 gear-only stats share) - this always
-## returns 1.0 (no bonus) until that wiring exists.
-
-## Patch v3.2 ADDITION - Resistance Shred: "Temporarily reduces a target's
-## Resistance values by a flat percentage for 8 seconds... Stacks from
-## multiple sources with diminishing returns." No current applier exists
-## in this project - the doc introduces it via The Cartographer of Ruin,
-## a Throwable-focused unique, and Throwables aren't built yet (DEVELOPMENT.md) -
-## the mechanic itself is real and tested, just unreachable from any real
-## content for now, same shape as several Brand categories already here.
+## Resistance Shred: each application is an independent source.
 const RESISTANCE_SHRED_DURATION := 8.0
 
 var _timers: Dictionary = {}  # effect_id -> float seconds remaining
@@ -102,9 +67,7 @@ var _bleed_tick_damage: float = 0.0
 var _bleed_source: Node
 var _armor_shred_stacks: int = 0
 var _suppressed_stacks: int = 0
-## Patch v4.0 Faster Ailment Tick Rate - per-application, since the
-## caster's tick-rate bonus can change between one Ignite application and
-## the next (unlike IGNITE_TICK_INTERVAL, which was always a fixed constant).
+## Set per application from the caster's tick-rate bonus.
 var _ignite_tick_interval: float = IGNITE_TICK_INTERVAL
 var _resistance_shred_sources: Array = []  # each {"value": float, "remaining": float}
 
@@ -121,17 +84,11 @@ func _process(delta: float) -> void:
 		_tick_bleed(delta)
 	_tick_resistance_shred(delta)
 
-## Independent-source stacking with a hard duration (not the _timers'
-## single-value-refresh model above) - each application is its own
-## instance, all contributing simultaneously via get_resistance_shred().
 func apply_resistance_shred(percent: float) -> void:
 	_resistance_shred_sources.append({"value": percent, "remaining": RESISTANCE_SHRED_DURATION})
 
-## Doc-exact stacking rule, verified against the doc's own worked example
-## (20%/15%/10% -> 20 + 7.5 + 5 = 32.5%): the single largest active source
-## applies at full value, every OTHER active source contributes at half
-## of ITS OWN value - not a compounding chain (10% halved is 5%, not a
-## further halving of an already-halved 15%).
+## Largest source at full value, every other at half its own value
+## (20/15/10 -> 20 + 7.5 + 5 = 32.5).
 func get_resistance_shred() -> float:
 	if _resistance_shred_sources.is_empty():
 		return 0.0
@@ -187,8 +144,7 @@ func roll_gear_ailments(source: Node, hit_damage: float, skip: Array = []) -> vo
 		if chance > 0.0 and randf() < chance:
 			apply_effect(effect_id, source, hit_damage)
 
-## hit_damage is only used by Ignite/Bleed (their DoT total is a percent of
-## the triggering hit) - irrelevant for the others.
+## hit_damage sets Ignite/Bleed's DoT total; other effects ignore it.
 func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.0) -> void:
 	if _owner is Player and is_ailment(effect_id) and randf() < _owner.stat_sheet.get_ailment_ignore_chance():
 		return
@@ -255,24 +211,12 @@ func get_armor_multiplier() -> float:
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
 
-## "26 - Ability Staging Ground", Utility - Purge: "stripping buffs from
-## surrounding enemies while simultaneously clearing debuffs from the
-## caster." Only the caster-side half is implemented - no enemy buff
-## system exists in this project to strip (every enemy-facing mechanic
-## here is a debuff already), so that half of the doc description has
-## nothing to act on yet. Ends every active timed effect immediately
-## (each via _expire() so effect_expired/EventBus fire normally, same as
-## a natural timeout) and clears Resistance Shred sources too, even
-## though Shred is something a target of the player's own casts carries,
-## not the player - harmless no-op when called on the player, and correct
-## if this is ever called on an Enemy's own StatusEffectComponent instead.
+## Purge: expires every effect (firing the normal expiry signals).
 func clear_all_effects() -> void:
 	for effect_id in _timers.keys().duplicate():
 		_expire(effect_id)
 	_resistance_shred_sources.clear()
 
-## Electrocute's "Stun / stagger effect" and Freeze's "full immobilization"
-## both disrupt action - Chill alone (a slow) does not.
 func is_stunned() -> bool:
 	return has_effect("electrocute") or has_effect("freeze") or has_effect("guard_break")
 
@@ -305,10 +249,7 @@ func get_scorch_stacks() -> int:
 func get_scorch_multiplier() -> float:
 	return 1.0 + SCORCH_DAMAGE_PER_STACK * get_scorch_stacks()
 
-## Lightning damage only - applied on top of get_damage_taken_multiplier()
-## by the caller (Enemy.take_damage()), not folded into it, since that
-## method is category-keyed (Elemental/Esoteric) and Shock is a single-
-## damage-type effect.
+## Lightning only; the caller applies it on top of get_damage_taken_multiplier().
 func get_shock_multiplier() -> float:
 	if has_effect("shock"):
 		return 1.0 + SHOCK_DAMAGE_INCREASE
@@ -318,9 +259,7 @@ func _apply_timed(effect_id: String, base_duration: float, source: Node) -> void
 	var duration := base_duration * _duration_multiplier(source, effect_id)
 	_timers[effect_id] = max(_timers.get(effect_id, 0.0), duration)
 
-## 3 Chill applications without a Freeze already active upgrade to Freeze
-## (Section 09: "Advanced Chill stage") instead of just refreshing Chill's
-## own timer indefinitely.
+## The CHILL_STACKS_TO_FREEZE-th Chill upgrades to Freeze.
 func _apply_chill(source: Node) -> void:
 	if has_effect("freeze"):
 		return
@@ -336,17 +275,8 @@ func _apply_chill(source: Node) -> void:
 		_apply_timed("chill", CHILL_DURATION, source)
 		_emit_applied("chill")
 
-## Re-applying Ignite refreshes it (new tick damage/duration/source) rather
-## than stacking independent instances - simplest behavior the doc doesn't
-## specify either way.
-##
-## Patch v4.0 Ailment Build Mod Pool - Increased Ailment Damage/DoT
-## Multiplier/Faster Tick Rate all come from the CASTER's own gear
-## (source's StatSheet, not this component's owner - a Player casting
-## Ignite onto an Enemy scales it by the Player's own stats, not the
-## Enemy's, and Enemy has no StatSheet to read regardless). Faster Tick
-## Rate preserves total damage and shortens the interval, per the doc:
-## "same total damage, faster delivery."
+## Re-applying refreshes rather than stacking. Damage and tick-rate bonuses
+## come from the source's gear; faster ticks keep the same total damage.
 func _apply_ignite(source: Node, hit_damage: float) -> void:
 	_ignite_source = source
 	var source_stats: StatSheet = source.stat_sheet if source is Player else null
@@ -374,10 +304,7 @@ func _tick_ignite(delta: float) -> void:
 		dmg *= 1.0 - _owner.get_dot_mitigation()
 		_owner.take_damage(dmg, Constants.DamageType.FIRE, _ignite_source, Player.HitKind.DOT)  # ticks are never evaded
 	elif _owner is Enemy:
-		# is_spell=true: Ignite only ever comes from a spell hit (Inferno/
-		# Cinder Lance), and Section 07 excludes spells from the Composure
-		# Break damage bonus - the DoT tick should follow the same rule as
-		# the hit that applied it. is_dot: a smaller floating number per tick.
+		# is_spell: ticks skip the Composure Break bonus, like spell hits.
 		_owner.take_damage(dmg, Constants.DamageType.FIRE, true, false, true)
 	EventBus.damage_dealt.emit(_ignite_source, _owner, dmg, Constants.DamageType.FIRE, false, false)
 

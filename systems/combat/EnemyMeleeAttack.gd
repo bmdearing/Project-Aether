@@ -3,16 +3,9 @@ class_name EnemyMeleeAttack
 ## Telegraph + Area3D hitbox melee attack: Idle -> Telegraph -> Strike ->
 ## Recovery. Attach to an Enemy that should threaten the player.
 ##
-## Strike's hitbox is a static sphere centered on the enemy (Enemy.tscn's
-## AttackHitbox, radius baked into the scene) rather than a swept hitbox -
-## enemies don't move/rotate to face the player yet, so there's no swing
-## to attach one to.
-##
-## Strike resolves hits by POLLING get_overlapping_bodies() every physics
-## frame instead of listening for body_entered: Idle's aggro check already
-## uses attack_range as the hitbox radius, so the player is typically
-## already inside the sphere when Strike enables monitoring - there's no
-## "entering" transition left for body_entered to catch.
+## The hitbox is a static sphere (Enemy.tscn's AttackHitbox). Strike polls
+## get_overlapping_bodies() rather than using body_entered, because the
+## player is usually already inside the sphere when monitoring turns on.
 
 enum State { IDLE, TELEGRAPH, STRIKE, RECOVERY }
 
@@ -106,35 +99,25 @@ func _poll_hitbox() -> void:
 			_resolve_hit(player)
 			return
 
-## User request (2026-08-30): "If you melee attack an enemy while they
-## are mid attack animation, you deal Counter damage and deal 15% more
-## damage." Telegraph AND Strike both count as "mid attack" - the whole
-## committed window, not just the instant the hitbox is live, matching
-## how the enemy's own telegraph-flash already reads as "this enemy is
-## attacking" the moment it starts, not just at the swing itself. Read by
-## PlayerMeleeAttack._deal_damage() via get_node_or_null("MeleeAttack").
 func interrupt() -> void:
 	if _state == State.TELEGRAPH or _state == State.STRIKE:
 		if _hitbox:
 			_hitbox.monitoring = false
 		_enter_recovery()
 
+## Telegraph and Strike both count (used for Counter hits).
 func is_attacking() -> bool:
 	return _state == State.TELEGRAPH or _state == State.STRIKE
 
 func _resolve_hit(player: Player) -> void:
 	var parried: bool = player.parry_handler and player.parry_handler.attempt_parry(_enemy, player.ward)
-	# Patch v4.3: a shield can block a melee hit that wasn't parried - no
-	# damage, no Frost Armor retaliation (same as a parried hit).
+	# A shield block, like a parry, takes no damage and triggers no retaliation.
 	if not parried and player.try_block_melee_hit():
 		EventBus.enemy_attack_resolved.emit(_enemy, player, false, false)
 		return
 	if not parried:
 		player.take_damage(damage_amount * _enemy.get_outgoing_damage_multiplier(), damage_type, _enemy, Player.HitKind.ATTACK, true)
-		# Frost Armor: "Enemies that strike in melee range trigger a
-		# Retaliation Damage burst of Cold damage" - a parried hit never
-		# actually lands, so no retaliation there (matches the doc's own
-		# framing of this as a response to a landed strike).
+		# Frost Armor retaliates only against landed hits.
 		if player.ability_cast:
 			player.ability_cast.trigger_frost_armor_retaliation(_enemy)
 	EventBus.enemy_attack_resolved.emit(_enemy, player, true, parried)

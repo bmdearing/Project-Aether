@@ -1,9 +1,7 @@
 extends Resource
 class_name Ability
-## A skill/ability as referenced in the Skill System (Section 11) and
-## Ability Staging Ground (Section 23). Damage comes from the spell's own
-## per-level base damage (base_damage_min/max); tags decide which gear
-## modifiers apply. motion_value and scaling_grade are legacy data only.
+## A spell. Damage comes from its per-level base damage
+## (base_damage_min/max); tags decide which gear modifiers apply. motion_value and scaling_grade are legacy data only.
 
 @export var ability_id: String
 @export var display_name: String
@@ -13,7 +11,7 @@ class_name Ability
 @export var scaling_grade: Constants.ScalingGrade = Constants.ScalingGrade.C
 @export var cooldown_seconds: float = 0.0
 @export var resource_cost: float = 0.0
-@export var can_trigger_riposte: bool = false    # true only for high-MV committed attacks per Section 07
+@export var can_trigger_riposte: bool = false    # high-MV committed attacks only
 @export var is_auto_cast_eligible: bool = true   # false for e.g. Riposte itself
 @export var applies_status_effects: Array[String] = []  # status effect ids, e.g. "chill", "ignite"
 ## Chance each applies_status_effects entry lands per hit, before the
@@ -21,13 +19,9 @@ class_name Ability
 @export var status_chance: float = 0.25
 ## Set on a cast's copy (CasterStance Pallid page): these always land.
 var guaranteed_statuses: Array[String] = []
-## Hold the ability's hotkey to aim (PlayerAbilityCast shows a ground
-## ring), release to cast centered there, instead of the usual instant
-## self-centered nova on press. Reserved for high-commitment single-target
-## drops (Comet, Inferno, Stormcall) - not every ability's mechanic reads
-## as "aim a spot," so this is opt-in per ability, not automatic.
+## Hold the hotkey to aim a ground reticle, release to cast there.
 @export var is_ground_targeted: bool = false
-## Patch v3.3 Unleash: an Unleash conduit's stance fires several copies of it.
+## An Unleash conduit's stance fires several copies of it.
 @export var unleashable: bool = false
 ## Per-cast "more" damage multiplier set on a cast's copy (CasterStance buffs).
 var extra_more: float = 1.0
@@ -36,22 +30,14 @@ var extra_more: float = 1.0
 ## each ability's flavor text.
 @export var radius: float = 5.0
 
-## Patch v3.7 Section 2. CAST_TIME abilities go through CastTimeHandler's
-## windup before actually casting (interruptible by taking damage);
-## INSTANT and CHANNELED both fire immediately - channeled cast-speed
-## interaction is explicitly deferred, so CHANNELED behaves like INSTANT
-## for now (several abilities, e.g. Flame Jets, already implement their
-## own bespoke channel duration/tick loop in PlayerAbilityCast.gd,
-## entirely separate from this).
+## CAST_TIME waits out an interruptible windup (CastTimeHandler). CHANNELED
+## fires immediately like INSTANT; channel loops live in PlayerAbilityCast.
 enum CastType { INSTANT, CAST_TIME, CHANNELED }
 @export var cast_type: CastType = CastType.INSTANT
 @export var base_cast_time: float = 0.0       # seconds - CAST_TIME only
 @export var base_recovery_time: float = 0.3   # fixed post-cast lockout - not yet consumed anywhere
 @export var channel_duration: float = 0.0     # seconds - CHANNELED only, not yet consumed anywhere
 
-## Doc-sourced base crit chance is per "spell type"; abilities here have
-## no such classification (all execute as a generic nova), so this is a
-## thematic guess at which doc category fits each one.
 @export var base_crit_chance: float = 0.05
 
 ## Base damage per hit at level 1, before any modifier. Grows each level
@@ -144,9 +130,8 @@ func get_effective_cooldown(stat_sheet: StatSheet = null) -> float:
 		reduction += stat_sheet.get_misc_bonus("cooldown_recovery_rate") / 100.0
 	return cooldown_seconds / (1.0 + maxf(reduction, 0.0))
 
-## Real cast-time cooldown: level/gear reduction folded in, then divided by
-## Instinct's Action/Cast Speed multiplier - clamped so all sources combined
-## never take more than Constants.MAX_COOLDOWN_REDUCTION off the authored value.
+## Cooldown after level/gear reduction and action speed, with the total
+## reduction capped at Constants.MAX_COOLDOWN_REDUCTION.
 func get_final_cooldown(action_speed_multiplier: float, stat_sheet: StatSheet = null) -> float:
 	var safe_multiplier: float = max(action_speed_multiplier, 0.01)
 	var reduced: float = get_effective_cooldown(stat_sheet) / safe_multiplier

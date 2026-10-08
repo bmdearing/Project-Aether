@@ -1,17 +1,8 @@
 extends Node3D
 class_name RealityEngine
-## The Reality Engine (renamed per user request from "Map Device") -
-## stand in its ProximityArea and press `interact` (E) to open a
-## selection list (reuses ShopScreen, same generic list-purchase UI
-## GearShop/SpellTestShop already share) of every owned Figment
-## (the carried inventory, dropped by enemies or empowered via the
-## Crafting screen - see CraftingSystem.empower_figment()), plus a
-## free Tier 1 offer that's always available so there's never a hard
-## floor on entering a Map even before any Figment has dropped.
-## Choosing a row consumes that Figment (if it was a real owned one - the
-## free offer doesn't touch the inventory) and leaves the Hub for
-## GameState.MAP_SCENE with its modifiers active for everything spawned
-## there (Enemy.gd's _apply_map_modifiers()).
+## The Reality Engine (map device). Interacting lists every carried
+## Figment (via ShopScreen) plus an always-free Tier 1 run. Choosing one
+## consumes it and loads GameState.MAP_SCENE with its modifiers.
 
 const FREE_TIER := 1
 

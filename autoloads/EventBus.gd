@@ -3,23 +3,11 @@ extends Node
 ## to each other - keeps FateBoard, Combat, and UI decoupled.
 
 signal damage_dealt(source: Node, target: Node, amount: float, damage_type: int, is_more_multiplier_applied: bool, is_critical: bool)
-## Implementation Brief v3.3 Section 5/"Files to Modify" - fired once per
-## landed melee hit alongside (not instead of) damage_dealt above; carries
-## motion_value so a future consumer (combat log, audio) can tell a light
-## jab apart from a charged thrust without re-deriving it from damage_dealt's
-## own amount, which damage_dealt alone can't do.
+## Per landed melee hit, alongside damage_dealt; adds the motion value.
 signal melee_attack_executed(source: Node, final_damage: float, damage_type: int, motion_value: float)
-## Fired once per PLAYER-landed hit (melee or ranged), consumed by
-## PlayerHUD's HitMarker. Redesigned 2026-08-31 (user reference image) from
-## the original 2-bool "3 states only" version to carry all 3 independent
-## facts a marker needs to distinguish - is_critical (a roll crit),
-## is_critical_spot (a weakpoint/headshot hit), is_kill (this hit killed
-## the target) - see HitMarker.show_hit() for how they combine into 8
-## distinct glyphs.
+## Per player-landed hit, for the HUD HitMarker. is_critical_spot = headshot.
 signal hit_landed(is_critical: bool, is_critical_spot: bool, is_kill: bool)
-## Implementation Brief v3.4 Section 4 - fired by WeaponStance.
-## toggle_stance_page() alongside its own local stance_page_changed signal,
-## for UI (StanceIndicator) that doesn't hold a direct WeaponStance reference.
+## Mirrors WeaponStance.stance_page_changed for UI without a direct reference.
 signal stance_page_changed(page: int)
 signal status_effect_applied(target: Node, effect_id: String, stacks: int)
 signal status_effect_expired(target: Node, effect_id: String)
@@ -76,29 +64,28 @@ signal item_transcended(item: Item)
 signal item_unmade(item: Item)
 signal grade_ascended(item: Item, stat: String, new_grade: int)
 
-## Patch v3.7 Section 2 - CastTimeHandler.
+## CastTimeHandler.
 signal cast_started(ability: Ability, cast_time: float)
 signal cast_interrupted()
 
-## Implementation Brief v4.2 - ranged ammo/reload. ammo_changed fires on any
+## Ranged ammo/reload. ammo_changed fires on any
 ## reserve change AND after every shot (the HUD re-reads the magazine then).
 signal reload_started(weapon: Weapon)
 signal reload_finished(weapon: Weapon)
 signal reload_interrupted(weapon: Weapon)
 signal ammo_changed(ammo_type: int, reserve_count: int)
 
-## Patch v4.3 - a melee hit stopped by the defender's shield.
+## A melee hit stopped by the defender's shield.
 signal hit_blocked(defender: Node)
 
-## Patch v4.6 - a player weapon attack fully avoided by an enemy's evasion_value.
+## A player weapon attack dodged by an enemy's evasion_value.
 signal enemy_hit_dodged(enemy: Node)
 
-## Patch v4.7 - Figment mob counter. enemy_died fires from Enemy._on_died();
 ## GeneratedMap counts spawns/deaths and emits enemy_count_changed for the HUD.
 signal enemy_died(enemy: Node)
 signal enemy_count_changed(remaining: int, total: int)
 
-## Patch v4.4 - Evasion. Dodged: an attack hit fully negated. Deflected: a hit
+## Evasion. Dodged: an attack hit fully negated. Deflected: a hit
 ## reduced by Deflection Mitigation (still lands).
 signal hit_dodged(defender: Node)
 signal hit_deflected(defender: Node)

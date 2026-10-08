@@ -1,25 +1,14 @@
 extends Button
 class_name ItemSlotButton
-## Rich ItemCard hover tooltip via Godot's _make_custom_tooltip() hook
-## (positioning/delay/auto-hide all native). Holding Alt while the card
-## is showing swaps its OWN content to Alt Info in place (ItemCard.gd's
-## own _input() listens for Alt directly) - no second popup, matching
-## Patch v3.8 Section 5 ("must not spawn a second floating ItemCard").
+## Slot button with an ItemCard hover tooltip (_make_custom_tooltip()).
+## Holding Alt swaps the card to Alt Info in place. Set exactly one of
+## item/slate/ability.
 ##
-## Used by InventoryScreen, FateBoardEditor, AbilitiesScreen, ShopScreen -
-## set exactly one of item/slate/ability per button.
+## Items with an icon_path show the icon; others fall back to a colored
+## square with text.
 ##
-## Setting `item` to one with a real `icon_path` shows that icon as a
-## child TextureRect (drawn on top of the button's own background/text,
-## same as any real ARPG's icon-only inventory slot - the name is still
-## available via the hover tooltip). Items with no icon yet (icon_path
-## empty) fall back to exactly the old colored-square-plus-text look.
-##
-## `draggable` (opt-in, off by default - only InventoryScreen sets it)
-## turns on Godot's native Control drag-and-drop: dragging one slot onto
-## another emits `item_drag_dropped(source_index, target_index)` using
-## each button's own index within its parent container, and the screen
-## that owns the grid decides what reordering that actually means.
+## `draggable` enables drag-and-drop between slots, emitting
+## item_drag_dropped(source_index, target_index) by child index.
 
 const ITEM_CARD_SCENE := preload("res://ui/item_card/ItemCard.tscn")
 
@@ -65,10 +54,7 @@ func _refresh_icon() -> void:
 	else:
 		_icon_rect.visible = false
 
-## Drag SOURCE: only a slot with a real item can be picked up (an empty
-## padding slot has nothing to move). A small floating label following
-## the cursor is enough feedback - matches this project's placeholder-art
-## style everywhere else (a colored square is already the "icon").
+## Only a slot holding an item can be dragged.
 func _get_drag_data(_at_position: Vector2) -> Variant:
 	if not draggable or item == null:
 		return null
@@ -86,9 +72,7 @@ func _get_drag_data(_at_position: Vector2) -> Variant:
 	set_drag_preview(preview)
 	return {"source_index": get_index()}
 
-## Drag TARGET: an empty padding slot still accepts a drop (moving an
-## item past the end of the current list) - only the flag and the data
-## shape matter here, not whether this particular slot has an item.
+## Empty slots accept drops too.
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 	return draggable and data is Dictionary and data.has("source_index")
 

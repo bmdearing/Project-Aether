@@ -1,28 +1,15 @@
 extends Node
 class_name ParryRiposteHandler
-## Orchestrates Parry -> Stance damage -> Composure Break -> Riposte,
-## per Section 07. Attach to the Player; targets are enemies carrying
-## StanceComponent + ComposureComponent.
+## Parry -> Stance damage -> Composure Break -> Riposte. Attach to the Player.
 ##
-## `attempt_parry()` is fed by EnemyMeleeAttack.gd's Strike state, called
-## directly with the attacking enemy as `attacker` when the swing
-## resolves - stands in for a real hitbox until enemy art/animation exists.
-##
-## Riposte itself is triggered from PlayerMeleeAttack._deal_damage() -
-## any melee attack landed on a target while ComposureComponent.is_broken
-## is true, not gated to only-after-a-parry (attrition-broken enemies are
-## just as riposte-able as parry-broken ones). Riposte is universal per
-## Section 07 - available to every build, not gated by Slate investment
-## (Slates only amplify effectiveness).
+## EnemyMeleeAttack calls attempt_parry() when a swing resolves.
+## PlayerMeleeAttack triggers a riposte on any melee hit against a broken
+## enemy, however it was broken.
 
 @export var parry_window_seconds: float = 0.25
 @export var parry_stance_damage: float = 25.0
-## Riposte's motion-value multiplier on top of the weapon's normal swing
-## (already the full charged MV when riposting off a charged thrust) -
-## invented, not doc-sourced with an exact number. Riposte damage also
-## inherits ComposureComponent's existing "damage taken while broken"
-## multiplier for free, since the target is still broken at the moment the
-## hit lands (end_broken_state() runs after). Never evadable.
+## On top of the swing's motion value. The broken-state damage bonus also
+## applies, since the break ends after the hit. Never evadable.
 const RIPOSTE_MOTION_VALUE_MULTIPLIER := 1.4
 @export var riposte_invuln_duration: float = 1.0
 
@@ -41,19 +28,12 @@ func _process(delta: float) -> void:
 		if _invuln_timer <= 0.0:
 			is_invulnerable = false
 
-## Implementation Brief v3.3 Section 7: a weapon's active stance can widen
-## the parry window (Rapier's own rapier_stance.tres: 1.5x) - only the
-## window DURATION changes, damage/Ward restore/Composure damage from a
-## successful parry are unaffected, per the brief's own explicit scope.
+## The active stance and gear can widen the window (duration only).
 func start_parry_window() -> void:
 	var player := get_parent() as Player
 	var window_mult := 1.0
 	if player and player.weapon_stance and player.weapon_stance.is_active and player.weapon_stance.current_behavior:
 		window_mult = player.weapon_stance.current_behavior.parry_window_multiplier
-	# Patch v4.0 "Increased Parry Window Duration" - stacks multiplicatively
-	# alongside the existing stance-based window_mult above (a rapier
-	# stance and a gear roll both widening the window compounds, same as
-	# every other "increased%" gear stat in this project).
 	if player and player.stat_sheet:
 		window_mult *= 1.0 + player.stat_sheet.get_misc_bonus("parry_window_duration") / 100.0
 	_parry_active = true
@@ -72,9 +52,7 @@ func attempt_parry(attacker: Node, ward: WardComponent) -> bool:
 
 	if ward:
 		ward.restore_on_parry_success()
-		# Patch v4.0 "Ward Restored on Successful Parry" - additional Ward
-		# on top of the existing fixed PARRY_RESTORE_PERCENT baseline
-		# above, not a replacement for it.
+		# Gear Ward-on-parry, on top of the base restore.
 		var player := get_parent() as Player
 		if player and player.stat_sheet:
 			var ward_on_parry_pct := player.stat_sheet.get_misc_bonus("ward_on_parry") / 100.0
@@ -88,20 +66,12 @@ func can_riposte(target: Node) -> bool:
 	var composure: ComposureComponent = target.get_node_or_null("ComposureComponent") if target else null
 	return composure != null and composure.is_broken
 
-## Big damage burst + a brief invulnerability window ("the duration of the
-## animation" - there's no real animation, so this just times out
-## alongside PlayerMeleeAttack's stronger riposte hitstop/shake). Ends the
-## target's broken state - one riposte consumes the window, it doesn't
-## loop for its remaining duration.
+## Big hit plus brief invulnerability. Ends the target's broken state.
 func execute_riposte(target: Enemy, weapon: Weapon, base_motion_value: float, damage_type: Constants.DamageType) -> void:
 	if not can_riposte(target):
 		return
 	var player: Player = get_parent()
-	# Patch v4.0 "Riposte has Increased Critical Strike Chance" - a
-	# temporary bump to finesse_crit_bonus for just this one roll (roll_
-	# damage() has no per-call crit-chance-override param, and adding one
-	# would ripple into every other caller of Weapon.roll_damage() for a
-	# bonus that's Riposte-specific), restored immediately after.
+	# Riposte crit chance gear: bump finesse_crit_bonus for this one roll.
 	var riposte_crit_bonus := player.stat_sheet.get_misc_bonus("riposte_crit_chance") / 100.0
 	var original_crit_bonus := player.stat_sheet.finesse_crit_bonus
 	if riposte_crit_bonus > 0.0:

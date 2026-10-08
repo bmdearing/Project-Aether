@@ -55,17 +55,13 @@ static func calculate(
 	}
 	return result
 
-## Section 16: Damage Reduction % = Armor / (Armor + 6 x Hit Damage).
-## Doc splits Kinetic/Piercing/Explosive behavior without concrete ratios,
-## so this applies the full formula uniformly to all Physical damage
-## (placeholder, flagged in DEVELOPMENT.md).
+## Damage Reduction = Armor / (Armor + 6 x Hit Damage), for all Physical types.
 static func physical_mitigation(armor: float, hit_damage: float) -> float:
 	if armor <= 0.0 or hit_damage <= 0.0:
 		return 0.0
 	return armor / (armor + 6.0 * hit_damage)
 
-## Patch v4.4 Evasion (design doc, Master v3.0). Dodge: an attack hit
-## deals nothing. Deflection: the hit lands but is reduced by
+## Evasion. Dodge: an attack hit deals nothing. Deflection: the hit lands but is reduced by
 ## deflection_mitigation(). Caps are hard ceilings on the curves.
 const DODGE_CHANCE_DIVISOR := 3800.0
 const DODGE_CHANCE_CAP := 0.65
@@ -89,74 +85,33 @@ static func deflection_mitigation(evasion: float) -> float:
 		return 0.0
 	return min(evasion / (evasion + DEFLECTION_MITIGATION_DIVISOR), DEFLECTION_MITIGATION_CAP)
 
-## Patch v3.2 "Revision - Resistance System" gives no explicit floor or
-## ceiling (only that Resistance Shred can push Resistance negative,
-## amplifying damage taken) - these two bounds are user-set directly
-## (2026-08-30), replacing this project's own earlier invented 75%-cap/
-## uncapped-floor placeholder. -200% floor still leaves heavily-shredded
-## Resistance able to roughly triple incoming damage of that type; 95%
-## ceiling guarantees at least 5% of every hit always gets through no
-## matter how much Resistance is stacked.
+## Negative Resistance (from Shred) amplifies damage taken.
 const RESISTANCE_FLOOR := -200.0
 const RESISTANCE_CEILING := 95.0
 static func resistance_mitigation(resistance_percent: float) -> float:
 	return clamp(resistance_percent, RESISTANCE_FLOOR, RESISTANCE_CEILING) / 100.0
 
-## Patch v4.0 Offensive Mod Pool - Penetration/Physical Shred. Real,
-## reusable functions per this patch's own "Files to Modify" list, but
-## NOT yet called from Enemy.take_damage() - Enemy.gd has no Armor or
-## Resistance value of its own anywhere in this project (only Resistance
-## SHRED exists enemy-side, applied as a bonus damage-taken multiplier,
-## not a real mitigatable base value), and Enemy.gd is explicitly on this
-## same patch's "Files to Leave Alone" list. Giving enemies a real Armor/
-## Resistance stat to Penetrate/Shred is a bigger, separate change than
-## this patch's own stated scope - flagged in PATCH_NOTES.md rather than
-## either silently doing nothing or touching an excluded file.
-##
-## Doc: "Penetration reduces enemy resistance before mitigation... stacks
-## with Resistance Shred but calculated separately - Penetration applies
-## first, then Resistance Shred." attacker_stats is nullable so a caller
-## with no live StatSheet (a non-Player attacker) degrades to 0 penetration.
+## Penetration applies first, then Resistance Shred. Not called yet: enemies
+## have no base Resistance to penetrate. attacker_stats may be null.
 static func get_effective_resistance(base_resistance: float, damage_type: Constants.DamageType, attacker_stats: StatSheet, resistance_shred: float = 0.0) -> float:
 	var pen: float = attacker_stats.get_penetration(damage_type) if attacker_stats else 0.0
 	var after_penetration: float = max(-200.0, base_resistance - pen)
 	return after_penetration - resistance_shred
 
-## Doc: "Physical Shred reduces enemy Armor value directly - same
-## mechanic as Resistance Shred targeting Armor." Multiplies the ARMOR
-## VALUE itself (not the mitigation percentage physical_mitigation()
-## derives from it) - per this patch's own DO NOT.
+## Physical Shred scales the Armor value itself, not the mitigation percent.
 static func get_effective_armor(base_armor: float, attacker_stats: StatSheet) -> float:
 	var shred_percent: float = attacker_stats.get_physical_shred() if attacker_stats else 0.0
 	return base_armor * (1.0 - shred_percent)
 
-## Patch v3.8: base crit chance is fixed per weapon/spell type (2%-8%);
-## Agility's crit-chance contribution (StatSheet.get_crit_chance_from_
-## stats(), a flat fraction) now adds directly on top instead of scaling
-## it multiplicatively - the old Instinct-based "x(1 + instinct*0.03)"
-## formula is gone along with Instinct itself.
-## Bug fix (2026-09-07, user-reported): Agility is "increased Critical
-## Strike Chance," a multiplier on the weapon/ability's own base_crit_
-## chance - not flat additive percentage points. finesse_crit_bonus keeps
-## meaning exactly what StatSheet.get_crit_chance_from_stats() already
-## computes (Agility * 0.01, e.g. 0.07 for 7 Agility) - only how it
-## combines with base_crit_chance changed here.
+## Increased crit chance multiplies the base, it doesn't add points.
 static func get_crit_chance(base_crit_chance: float, finesse_crit_bonus: float) -> float:
 	return base_crit_chance * (1.0 + finesse_crit_bonus)
 
-## Base Critical Strike Damage multiplier 150%, flat - no longer stat-
-## derived (the pre-v3.8 Intellect used to feed it; "crit_damage" is a
-## gear-affix-only "removed expression" per Patch v3.8 Section 2).
-## bonus_fraction defaults to 0.0 - no consumer sums a crit_damage affix
-## into this yet, same "real value, no formula to feed it" footing as
-## several other gear-affix-only stats this patch introduced.
+## Base 150%, scaled by StatSheet.get_crit_damage_bonus().
 static func get_crit_damage_multiplier(bonus_fraction: float = 0.0) -> float:
 	return 1.5 * (1.0 + bonus_fraction)
 
-## Section 12: "Resilience Mitigation % = Resilience / (Resilience + 2,000).
-## Soft cap at 50% DoT mitigation." Reduces StatusEffectComponent's Ignite
-## ticks for whichever side has Resilience (currently Player only - see
-## Player.resilience).
+## Resilience / (Resilience + 2000), capped at 50%. Reduces DoT ticks.
 static func dot_mitigation(resilience: float) -> float:
 	if resilience <= 0.0:
 		return 0.0

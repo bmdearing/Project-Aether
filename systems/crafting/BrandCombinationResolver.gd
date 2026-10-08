@@ -1,21 +1,8 @@
 extends RefCounted
 class_name BrandCombinationResolver
-## Patch v3.6 Section 2. Resolves a set of placed category Brands
-## (DAMAGE_TYPE/DEFENSIVE_TYPE/UMBRELLA - CraftingSystem.gd's own
-## category_brands) into which real ItemRoller.AFFIX_POOL tag(s) to roll
-## from. Keyed on real Brand.item_id (this project's 26 actual Brand
-## instances - see data/brands/instances/), not the brief's own
-## brand_id/pool-name scheme, which assumed pool categories ("mana",
-## "spell", "attack", "speed") that don't exist as real ItemRoller tags -
-## every combo below resolves to a LIST of real category_tag strings to
-## union-roll from instead of a made-up single hybrid pool name, so no
-## new pool content has to be invented to make combinations mean
-## something (Cube UI/GearAffixPool design stay untouched, per the brief).
-##
-## Falls back to CraftingSystem's existing single-category weighted pick
-## for any combination not listed here - this only adds NAMED, deterministic
-## flavor to specific combos the brief called out, it doesn't replace the
-## general case.
+## Maps specific combinations of placed category Brands (by Brand.item_id)
+## to the affix pool tags to union-roll from. Unlisted combinations fall
+## back to CraftingSystem's single-category weighted pick.
 
 ## Two-Brand combinations -> real tags to union-roll from.
 const DOUBLE_BRAND_TAGS := {
@@ -37,17 +24,10 @@ const TRIPLE_BRAND_TAGS := {
 	"distill+hone+quicken": ["resource", "skills", "movement"],
 }
 
-## Any damage-type Brand + hone/inscribe: both real Brands share the
-## "skills" category_tag (there's no separate real "attack"/"spell" tag
-## to distinguish them by, unlike the brief assumed), so this keys on the
-## real item_id directly instead.
+## hone/inscribe share the "skills" tag, so they're matched by item_id.
 const SKILL_PAIRING_IDS := ["hone", "inscribe"]
 
-## brand_ids: the item_id of every placed category Brand (duplicates
-## allowed - same brand x2 doesn't change which combo matches, only
-## _roll_tier_floor() below cares about count). Returns real tags to
-## union-roll from, or [] if no named combination matches (caller should
-## fall back to its own default weighting).
+## brand_ids may contain duplicates. Returns [] when no combination matches.
 static func resolve_tags(brand_ids: Array[String], category_tags: Array[String]) -> Array[String]:
 	var unique_ids := _unique(brand_ids)
 
@@ -67,20 +47,15 @@ static func resolve_tags(brand_ids: Array[String], category_tags: Array[String])
 	var empty: Array[String] = []
 	return empty
 
-## Const Dictionary values are plain untyped Array literals - copy into a
-## properly-typed Array[String] so callers (and this file's own -> Array
-## [String] return types) don't hit a runtime type mismatch.
+## Const Dictionary values are untyped Arrays; convert for typed returns.
 static func _to_string_array(arr: Array) -> Array[String]:
 	var result: Array[String] = []
 	for s in arr:
 		result.append(s)
 	return result
 
-## "Same Brand x3 - guaranteed T1-T3 floor" (brief's own phrasing) -
-## this project's tiers run Tier 1 (best) to ItemRoller.TIER_COUNT
-## (worst), so a "floor" is a CAP on how bad the roll can be, not a
-## minimum number. Returns the max allowed tier (int) or -1 if the
-## bonus doesn't apply.
+## Same Brand x3 guarantees T1-T3. Tier 1 is best, so this returns the worst
+## allowed tier, or -1 if the bonus doesn't apply.
 static func same_brand_tier_cap(brand_ids: Array[String]) -> int:
 	if brand_ids.size() == 3 and brand_ids[0] == brand_ids[1] and brand_ids[1] == brand_ids[2]:
 		return 3

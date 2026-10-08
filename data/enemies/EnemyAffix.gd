@@ -1,17 +1,10 @@
 extends Resource
 class_name EnemyAffix
-## Patch v3.9 "Enemy Rarity System" - a rolled modifier on an EnemyRarity-
-## carrying enemy (see EnemyRarityComponent.gd). PACK affixes roll on
-## Elite packs, CHAMPION/ASCENDANT affixes on their own tiers - Champion
-## and Ascendant each draw from their own exclusive pool per the doc
-## ("Rolls Champion-exclusive affixes" / "Rolls affixes from a stronger
-## exclusive pool").
+## A rolled modifier on a rare enemy (EnemyRarityComponent). PACK affixes
+## roll on Elite packs; Champion and Ascendant each have their own pool.
 ##
-## Aura mechanics (has_aura/aura_*) are explicitly NOT wired this pass -
-## visual placeholder only, per the brief's own DO NOT list. Damage
-## conversion (converts_damage) and drop conversion (converts_drops) are
-## data-only scaffolding too - LootDropper stubs the Figment conversion
-## case, nothing consumes damage_conversion_type yet.
+## Auras are visual only, and damage conversion isn't consumed yet. Drop
+## conversion only handles Figments.
 
 enum AffixCategory { PACK, CHAMPION, ASCENDANT }
 

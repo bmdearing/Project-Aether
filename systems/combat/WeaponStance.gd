@@ -1,53 +1,16 @@
 extends Node
 class_name WeaponStance
-## User request (2026-08-30): "I'm also hoping to add a stance for melee
-## weapons, holding right click puts you in a stance that preps you for
-## heavier or special attacks... This will also work for ranged weapons
-## to aim their weapons." Right-click (the "stance" input action, free
-## until now) enters this mode; left-click (the existing "attack" action)
-## while active fires the weapon's special instead of a normal swing/shot
-## - see Player._physics_process()'s attack dispatch.
-##
-## Naming note: this is completely unrelated to StanceComponent.gd, which
-## is an ENEMY posture/poise bar (Composure/Riposte loop). Deliberately
-## named differently (WeaponStance, not e.g. PlayerStance) to keep that
-## distinction obvious in code search - see StanceComponent.gd's own
-## header if this still reads confusingly.
-##
-## Caster weapons ("This can also work for caster weapons to do an innate
-## ability") are NOT wired up here - no equippable item in this project
-## currently identifies as a caster weapon (spellcasting is entirely
-## independent of the weapon slot, see PlayerAbilityCast.gd), so there is
-## nothing for a caster branch to key off yet. Add a Mode.CASTER branch
-## here once a real caster weapon item exists.
+## Holding the "stance" input (RMB) readies the weapon: melee preps special
+## attacks, ranged aims. Unrelated to StanceComponent, the enemy poise bar.
 
 enum Mode { NONE, MELEE, RANGED, CASTER }
 
-## Implementation Brief v3.3 Section 3 additions (2026-08-31): a
-## StanceBehavior resource per weapon type (move speed penalty, parry
-## window multiplier, a still-unused animation name slot), resolved from
-## data/stance/instances/ by the active weapon's weapon_type - see
-## _resolve_behavior(). Merged onto the existing stance system rather than
-## a rewrite (user direction) - the brief's own signals/get_move_speed_
-## multiplier() are additive, everything else here (FOV zoom, arm ready-
-## pose, ranged-vs-melee mode) is unchanged.
+## Per-weapon tuning comes from a StanceBehavior resource (_resolve_behavior()).
 signal stance_entered
 signal stance_exited
 
-## Implementation Brief v3.4 Section 4 (2026-08-31) - a second "page" of
-## stance behavior, toggled by HOLDING the weapon-swap key (tapping it
-## instead swaps weapon SETS - see Player._handle_weapon_swap_input()).
-## Named toggle_stance_page() rather than the brief's own "toggle_stance()" -
-## this file already uses "stance" for the RMB-hold is_active concept above,
-## reusing that word for something else here would read as conflicting
-## with it. Section 7's caster page-2 routing (user direction: route by
-## the active weapon's own weapon_type rather than a dedicated Conduit
-## slot/offhand field - "Conduits are not a slot" per an earlier decision
-## this session) is folded into _resolve_behavior() below: page B looks
-## for a StanceBehavior whose own weapon_type is "<Type>_b" first, falling
-## back to the plain page-A lookup. No such resource exists yet - per the
-## brief, spell page CONTENT is explicitly deferred, this is the toggle
-## architecture only.
+## Second stance page, toggled by holding the weapon-swap key. Page B looks
+## up a "<type>_b" StanceBehavior first, falling back to page A's.
 enum StancePage { A, B }
 signal stance_page_changed(page: StancePage)
 var active_page: StancePage = StancePage.A
@@ -77,9 +40,7 @@ var current_behavior: StanceBehavior = null
 var _player: Player
 var _mode: Mode = Mode.NONE
 var _fov_tween: Tween
-## weapon_type -> StanceBehavior, lazily scanned once from
-## STANCE_INSTANCES_DIR - same dir-scan-and-cache convention as
-## PlayerAbilityCast._resolve_ability_by_id()/TomeRoller.
+## weapon_type -> StanceBehavior, lazily scanned from STANCE_INSTANCES_DIR.
 var _behavior_by_weapon_type: Dictionary = {}
 ## StanceBehavior -> seconds until its special is ready again.
 var _cooldowns: Dictionary = {}
@@ -88,9 +49,7 @@ func _ready() -> void:
 	_player = get_parent()
 	active_page = GameState.stance_page as StancePage
 
-## User request (2026-08-31): "Apply movement speed penalty while active
-## (read from StanceBehavior resource)." Consumed by Player._effective_
-## speed() alongside every other move-speed multiplier source.
+## The StanceBehavior's move speed penalty while active.
 func get_move_speed_multiplier() -> float:
 	if not is_active:
 		return 1.0
@@ -106,19 +65,9 @@ func _is_backpedaling() -> bool:
 	var flat := Vector2(forward.x, forward.z).normalized()
 	return Vector2(_player.velocity.x, _player.velocity.z).dot(flat) < -0.5
 
-## Implementation Brief v3.4 Section 5: ranged behaviors are authored per
-## doc "Line" (Section 25's own base_line_id, e.g. "service_pistol_line1"),
-## not per bare weapon_type - a single weapon_type key can't hold more
-## than one StanceBehavior in _behavior_by_weapon_type (a Dictionary
-## overwrite would silently drop every line but the last one scanned), so
-## resolution now takes the whole Weapon and tries its own base_line_id
-## first (set by tools/generate_base_types.gd - "" for every hand-
-## authored single, which never matches, falling through to the
-## weapon_type lookup exactly as before). Ranged .tres instances store
-## their line id directly in the inherited weapon_type field to be found
-## this way - safe to share one dict/key space with melee's plain type
-## names since line ids are lowercase_with_underscores and never collide
-## with a Capitalized type name.
+## Tries the weapon's base_line_id first (ranged behaviors are authored per
+## line, e.g. "service_pistol_line1"), then its weapon_type. Line ids are
+## lowercase, so they never collide with Capitalized type names.
 func _resolve_behavior(weapon: Weapon) -> StanceBehavior:
 	if _behavior_by_weapon_type.is_empty():
 		_scan_behaviors()

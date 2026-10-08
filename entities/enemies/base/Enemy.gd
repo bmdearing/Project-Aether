@@ -6,12 +6,7 @@ class_name Enemy
 ## component (EnemyMeleeAttack/EnemyRangedAttack) that drives the telegraph
 ## calls below - chasing and attacking are decoupled.
 
-## User request (2026-08-30): White/Blue/Rare/Boss rank, gating which item-
-## level tier of loot this enemy can drop (see _compute_item_level()).
-## Left at NORMAL here and rolled randomly in _ready() unless a scene
-## explicitly overrides it to BOSS (a real boss encounter's own scene sets
-## this before _ready() runs, same as any other @export override) - see
-## _roll_rank()'s own header for why BOSS itself is never auto-rolled.
+## Rolled in _ready() unless a scene sets BOSS. Offsets drop item level.
 @export var rank: Constants.EnemyRank = Constants.EnemyRank.NORMAL
 @export var move_speed: float = 3.0
 @export var chase_range: float = 15.0
@@ -30,9 +25,8 @@ class_name Enemy
 ## Name on the hover health bar; falls back to the node's own name.
 @export var display_name: String = ""
 
-## Data-driven override of the stats/visuals above (Implementation Brief
-## v4.1). Applied at the start of _ready(); null keeps whatever this
-## enemy's own scene/subclass sets, so archetypes migrate one at a time.
+## Overrides the stats/visuals above at the start of _ready(); null keeps
+## the scene/subclass values.
 @export var definition: EnemyDefinition = null
 
 var faction: String = ""
@@ -70,8 +64,7 @@ const RIPOSTE_INDICATOR_HEIGHT := 2.2
 const RIPOSTE_INDICATOR_COLOR := Color(1.0, 0.05, 0.05)
 const RIPOSTE_BLINK_INTERVAL := 0.25
 
-## Small colored dots above the head, one per active status effect (Section
-## 09), stacked below the (higher, blinking) riposte indicator.
+## Colored dots above the head, one per active status effect.
 const STATUS_ICON_HEIGHT := 2.0
 const STATUS_ICON_RADIUS := 0.08
 const STATUS_ICON_SPACING := 0.22
@@ -97,13 +90,8 @@ const DEATH_LINGER_SEC := 1.5              # corpse stays after the death clip e
 ## another axis sets the difference (Arator's front is +X: -PI/2).
 var model_forward_yaw_offset: float = 0.0
 
-## User request (2026-08-31): enemy health bars "hang while we're in
-## combat and disappear when they lose track of me/I am out of combat
-## for 5 seconds." "In combat" = within chase_range of the player (the
-## same distance _update_chase() already gates its own chase/attack
-## logic on - "losing track of me" IS leaving chase_range, no separate
-## concept needed) OR has taken damage recently - updated continuously
-## from real state rather than a parallel combat-state machine.
+## In combat while the player is within detection range or for this long
+## after the last hit; drives the hover health bar.
 const OUT_OF_COMBAT_GRACE_MSEC := 5000
 var _last_combat_msec: int = -OUT_OF_COMBAT_GRACE_MSEC - 1
 
@@ -330,9 +318,7 @@ func _on_status_effect_changed(effect_id: String) -> void:
 	if icon:
 		icon.visible = status_effects.has_effect(effect_id)
 
-## Hidden red light above the head, only shown (blinking) while
-## Riposte-able - "you melee attack an enemy whose stance is broken to
-## riposte them" needs a clear on-screen signal of that window.
+## Red light above the head, blinking while the enemy can be riposted.
 func _build_riposte_indicator() -> void:
 	_riposte_indicator = MeshInstance3D.new()
 	var sphere := SphereMesh.new()
@@ -364,31 +350,15 @@ func _on_broken_state_ended() -> void:
 		_riposte_blink_tween.kill()
 	_riposte_indicator.visible = false
 
-## Deterministic scaling by the active Map's own tier (`FigmentItem.tier`) -
-## on top of enemy_health_multiplier/enemy_damage_multiplier, which are
-## only a PROBABILISTIC bonus (FigmentRoller doesn't guarantee either affix
-## rolls onto a given Map - see AFFIX_POOL there), so two Tier 5 Maps
-## could otherwise end up equally tough as two Tier 1 Maps by chance.
-## Tier itself always makes enemies tougher, harder-hitting, and more
-## rewarding. Invented growth curve, not doc-sourced - Section 24 defers
-## Map/tier balance entirely (same convention as every other flagged gap).
-##
-## v4.5: TIER_HEALTH_GROWTH_PER_TIER removed (user decision, 2026-09-22) -
-## the mob level curve (definition.mob_level + MOB_LEVELS_PER_TIER per tier
-## above 1, see _apply_map_modifiers() below) already grows health per tier for
-## definition-driven enemies; keeping both double-counted tier's health
-## contribution. Health at tier now comes from the level curve x
-## enemy_health_multiplier (Figment affix roll) only. Damage/reward have no
-## level-curve counterpart yet, so their own deterministic per-tier growth
-## is unchanged.
+## Per-tier scaling from the active Map, on top of its rolled enemy
+## multipliers. Health scales through the mob level curve instead
+## (MOB_LEVELS_PER_TIER).
 const TIER_DAMAGE_GROWTH_PER_TIER := 0.10
 const TIER_REWARD_GROWTH_PER_TIER := 0.20
 const MOB_LEVELS_PER_TIER := 2
 
-## Patch v3.9: also applies EnemyRarityComponent's health multiplier, if
-## one was attached at spawn time - independent of GameState.active_map
-## (rarity scaling still applies in the Hub/anywhere with no active Map),
-## so this can no longer just early-return when active_map is null.
+## Applies Map tier/affix scaling and the rarity health multiplier (which
+## applies even without an active Map).
 func _apply_map_modifiers() -> void:
 	var rarity_mult := 1.0
 	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
@@ -413,9 +383,6 @@ func _apply_map_modifiers() -> void:
 	xp_reward *= tier_bonus
 	gold_reward = int(gold_reward * tier_bonus)
 
-## Patch v3.9: also applies EnemyRarityComponent's damage multiplier, if
-## one was attached at spawn time - same active_map-independence as
-## _apply_map_modifiers() above.
 func get_outgoing_damage_multiplier() -> float:
 	var mult := status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0
 	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
@@ -555,10 +522,8 @@ const GAP_SEARCH_STEP := 0.5
 const GAP_SAFETY_MARGIN := 1.0
 const GAP_LANDING_MARGIN := 0.2
 
-## Measures the actual gap ahead via raycast (not a hardcoded distance)
-## and only jumps if this archetype's move_speed/jump_velocity arc can
-## clear both the horizontal distance AND the landing height by the
-## time it gets there - otherwise stops at the edge.
+## Raycasts the gap ahead and jumps only if this unit's speed/jump arc can
+## clear both its width and the landing height; otherwise stops at the edge.
 func _check_gap_jump() -> void:
 	if not is_on_floor():
 		return
@@ -625,9 +590,6 @@ const CURRENCY_DROP_CHANCE := 0.12
 const CRAFTING_CONSUMABLE_DROP_CHANCE := 0.03
 const CRAFTING_CONSUMABLE_DIR := "res://data/consumables/instances/"
 const SLATE_DROP_CHANCE := 0.10
-## User request: "make map items droppable." Rarer than gear/Brands -
-## Figments are a stronger reward (an entire extra Map's worth of loot),
-## same invented-rate convention as everything else in this table.
 const FIGMENT_DROP_CHANCE := 0.06
 const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPickup.tscn")
 const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
@@ -638,7 +600,7 @@ func _on_died() -> void:
 	if player and player.experience:
 		player.experience.add_xp(xp_reward)
 	if player and player.ward:
-		player.ward.restore_on_kill()  # Patch v3.2: "On kill: 5% Ward Restoration baseline"
+		player.ward.restore_on_kill()
 	_drop_gold()
 	_maybe_drop_loot()
 	if _anim_controller:
@@ -671,11 +633,9 @@ func _drop_gold() -> void:
 	get_parent().add_child(pickup)
 	pickup.global_position = global_position + Vector3(randf_range(-0.3, 0.3), 0.1, randf_range(-0.3, 0.3))
 
-## Patch v3.9 "Enemy Rarity System" - doc: "Certain affixes convert all
-## drops from that enemy into a specific category... all-or-nothing."
-## Short-circuits the entire cascade below when present, matching that.
+## A drop-conversion rarity affix replaces all drops with its category.
 ## Otherwise Item Quantity scales the number of drop rolls and Item Rarity
-## the quality of each (Loot.multipliers()).
+## the quality of each.
 func _maybe_drop_loot() -> void:
 	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
 	if rarity_component:
@@ -737,9 +697,7 @@ func _roll_drop(rarity_mult: float) -> void:
 		return
 	_spawn_pickup(item)
 
-## Implementation Brief v4.2: ammo drops prefer the ammo type the player's
-## ranged weapon actually uses. Rolled independently of (and just before)
-## the gear roll below, so it doesn't change any earlier drop's odds.
+## Ammo drops prefer the type the player's ranged weapon uses.
 const AMMO_DROP_CHANCE := 0.15
 ## Socketable jewels (JewelRoller), rolled just before ammo.
 const JEWEL_DROP_CHANCE := 0.04
@@ -775,13 +733,7 @@ func _get_preferred_ammo_type(player: Player) -> Constants.AmmoType:
 	var types := [Constants.AmmoType.PISTOL, Constants.AmmoType.RIFLE, Constants.AmmoType.SHOTGUN, Constants.AmmoType.AUTOMATIC]
 	return types[randi() % types.size()]
 
-## Stub only (brief's own DO NOT: "Implement Figment drop conversion
-## fully - stub only. Full Figment drop logic is a separate pass") -
-## reuses the existing, already-working FigmentRoller.roll_for_drop()
-## rather than half-building a second Figment-rolling path. Item Rarity/
-## Quantity bonuses (EnemyRarityComponent.get_effective_rarity_bonus()/
-## get_effective_quantity_bonus()) are real, aggregated data but not yet
-## fed into the roll - that's the deferred "separate pass."
+## Stub: only "figments" conversion exists so far.
 func _drop_converted(affix: EnemyAffix) -> void:
 	match affix.drop_conversion_type:
 		"figments":
@@ -820,11 +772,7 @@ func _spawn_slate_pickup(slate: Slate) -> void:
 	pickup.global_position = _drop_position()
 	EventBus.slate_dropped.emit(slate, global_position)
 
-## Patch v3.2 Resistance Shred: enemies have no Resistance stat of their
-## own (no StatSheet/gear here), but "0% base - shred%" is still a real,
-## meaningful negative Resistance - this is the doc's own primary framing
-## for the mechanic (shredding an ENEMY's Resistance), so it's wired even
-## without a full enemy-side Resistance system to shred FROM.
+## Enemies have 0% base Resistance, so Resistance Shred makes it negative.
 ## can_evade: true only for player weapon attack hits (melee swing, ranged
 ## projectile). Spells, DoT ticks, riders and ripostes leave it false.
 ## Returns false if the hit was dodged (caller should skip its on-hit
@@ -882,10 +830,7 @@ func _spawn_damage_number(amount: float, damage_type: Constants.DamageType, alph
 	number.global_position = global_position + Vector3(randf_range(-0.3, 0.3), body_height - 0.1 + extra_height, randf_range(-0.3, 0.3))
 	number.setup(amount, damage_type, false, alpha, is_dot)
 
-## Never returns BOSS - a boss encounter's own scene/script sets `rank`
-## to BOSS directly (see _ready()'s own guard), it doesn't come from this
-## weighted roll. Falls back to NORMAL if the weight table were ever
-## emptied, which it isn't.
+## Weighted roll; never returns BOSS (boss scenes set it directly).
 func _roll_rank() -> Constants.EnemyRank:
 	var total := 0.0
 	for w in Constants.ENEMY_RANK_SPAWN_WEIGHTS.values():
@@ -898,12 +843,8 @@ func _roll_rank() -> Constants.EnemyRank:
 			return r
 	return Constants.EnemyRank.NORMAL
 
-## User request (2026-08-30): "the right tier is based on the level of the
-## area and mobs. White mobs are the area level, blue mobs are the area +1,
-## rare mobs are the area + 2 levels, bosses are the area + 5 levels."
-## Scoped to ItemRoller drops specifically (real weapon/armor/shield base
-## types) - Slate/Figment rolls just below keep using the Map tier
-## directly, a separate tier concept this request didn't touch.
+## Area level plus the rank offset (Normal +0, Magic +1, Rare +2, Boss +5).
+## Used for gear and jewel drops; Slates/Figments use the Map tier.
 func _compute_item_level() -> int:
 	var area_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
 	return area_level + Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)

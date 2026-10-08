@@ -49,11 +49,8 @@ static func roll_for_drop(power_level: int) -> FigmentItem:
 	var tier: int = clamp(power_level + randi_range(-1, 1), 1, MAX_TIER)
 	return roll(tier)
 
-## User request: "Figments should be craftable to make them harder."
-## Increments tier (caller's job - see CraftingSystem.empower_figment())
-## and strengthens/adds one affix scaled to the NEW tier, reusing the
-## same pool/formula roll() itself uses so an empowered Figment reads
-## exactly like one that could have rolled naturally at that tier.
+## Strengthens or adds one affix at the Figment's (already raised) tier,
+## using the same pool as roll().
 static func strengthen(figment: FigmentItem) -> void:
 	_roll_one_affix(figment, AFFIX_POOL[randi() % AFFIX_POOL.size()])
 

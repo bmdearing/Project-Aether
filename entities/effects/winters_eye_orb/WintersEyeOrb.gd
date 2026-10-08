@@ -1,19 +1,8 @@
 extends Node3D
 class_name WintersEyeOrb
-## Winter's Eye ("26 - Ability Staging Ground": "A slow-moving orb of
-## frozen energy launched toward a target area. Continuously fires a
-## spiral of icicles at nearby enemies as it travels. Detonates at end of
-## duration, dealing burst Cold damage. Applies Chill on icicle hits.")
-##
-## Icicles are real shards that fly from points circling the orb to the
-## nearest enemies (MAX_SHARDS_PER_TICK per volley) and hit on arrival. It
-## travels to the target, hovers, and detonates when its duration ends.
-##
-## Patch v3.8b: faster/shorter/wider-reaching per the brief's own new
-## constants (was TRAVEL_SPEED 3.5/ICICLE_RADIUS 3.0/MAX_LIFETIME 6.0,
-## unbounded hits per tick) - also caps each tick to the MAX_SHARDS_PER_
-## TICK nearest enemies instead of hitting every enemy in radius at once,
-## and spins the mesh while traveling for a visible "spiral" read.
+## Winter's Eye: an orb that travels to the target, hovers, and detonates
+## when its duration ends. Each volley fires icicle shards at the
+## MAX_SHARDS_PER_TICK nearest enemies; they hit on arrival.
 
 const ORB_SPEED := 8.0
 const SHARD_INTERVAL := 0.3

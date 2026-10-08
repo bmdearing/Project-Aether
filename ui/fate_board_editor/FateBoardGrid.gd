@@ -10,11 +10,8 @@ signal cell_clicked(cell: Vector2i, button_index: int)
 signal drop_requested
 
 const GRID_SIZE := 150
-## Zoom (Patch v4.3): scroll wheel resizes the cells themselves rather than
-## scaling the Control - a ScrollContainer sizes its scroll range from the
-## child's minimum size (ignoring scale), so scaling would leave the scroll
-## range and clip rect wrong. Everything that used the old fixed cell-size constant now reads
-## _cell_px = BASE_CELL_PX * _zoom.
+## Zoom resizes the cells (_cell_px = BASE_CELL_PX * _zoom) rather than
+## scaling the Control, since ScrollContainer ignores scale when sizing.
 const BASE_CELL_PX := 20.0
 const ZOOM_STEP := 0.15
 const ZOOM_MIN := 0.5

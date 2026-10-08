@@ -1,14 +1,8 @@
 extends CanvasLayer
 class_name CharacterScreen
-## Read-only character sheet (`C`); doesn't pause the game. All 3 stats come from gear, Slates and level
-## (see StatSheet.gd), so this just displays live totals via
-## StatSummaryBuilder (shared with InventoryScreen's own stats column).
-##
-## Patch v3.8b: PrimaryStatsRow's 3 large STRENGTH/AGILITY/INTELLECT labels are
-## a PoE-style "the 3 stats that matter" header, always freshly computed
-## in _refresh() - "live on gear equip/unequip" is automatic since
-## PauseMenu._toggle_screen() never lets this and InventoryScreen be open
-## at the same time (equipping requires closing this screen first).
+## Read-only character sheet (`C`); doesn't pause the game. Shows live
+## totals via StatSummaryBuilder, refreshed on open (it can't be open
+## alongside InventoryScreen).
 
 @onready var offense_list: VBoxContainer = $CenterContainer/VBox/Columns/OffenseColumn/OffenseList
 @onready var defense_list: VBoxContainer = $CenterContainer/VBox/Columns/DefenseColumn/DefenseList

@@ -1,30 +1,14 @@
 extends CanvasLayer
 class_name PlayerHUD
-## Always-on readout of Life/Mana/Ward and the active weapon. Life and
-## Mana are circular `StatOrb`s flanking the ability bar (Ward renders as
-## an inset vertical strip along the right edge of the Life orb, see
-## StatOrb.set_ward_value()); XP is a notched bar below the ability bar
-## near the very bottom of the screen, with a level badge at its left end
-## - GW2-style layout, per user reference. The fill is a fixed-size
-## `ColorRect` (unstretched) running xp_bar.gdshader - a moving yellow/
-## gold/orange gradient with twinkling stars (user direction, 2026-08-30,
-## replacing the previous static 6-color rainbow `GradientTexture1D`) -
-## revealed by a shrinking clip window, so the animation at a given point
-## along the bar stays put as it fills rather than resampling/squishing.
-## Placeholder art otherwise, matching the rest of the project.
+## Always-on HUD: Life/Mana orbs (Ward as a strip on the Life orb) beside the
+## ability bar, the XP bar along the bottom, the weapon plate, status chips
+## and enemy health bars.
 ##
-## Life/Mana/Ward push-update via their component's *_changed signal. The
-## initial read is deferred via call_deferred() since HealthComponent's
-## current_health assignment is itself deferred - a synchronous read here
-## would catch it before that runs and show an empty orb for a frame.
+## The XP fill is a fixed-size shader rect revealed by a clip window, so the
+## animation doesn't stretch as it fills.
 ##
-## Weapon swaps listen to EventBus.weapon_swapped and play a brief
-## flash/scale-punch Tween on the weapon icon.
-##
-## A top-left row of colored chips shows the player's own active status
-## effects (Section 09), built/removed live off EventBus.status_effect_
-## applied/_expired - the same signals StatusEffectComponent emits for
-## Enemy's floating head icons.
+## The initial orb read is deferred because HealthComponent sets
+## current_health deferred too.
 
 const ORB_RADIUS := 64.0
 const ORB_GAP := 18.0
@@ -49,9 +33,8 @@ const STATUS_CHIP_MIN_WIDTH := 76.0
 const STATUS_CHIP_GAP := 6.0
 const XP_BAR_SHADER := preload("res://ui/player_hud/xp_bar.gdshader")
 
-## Screen-edge vignette (Implementation Brief v4.1). Invisible at full health
-## in normal play (the brief's DO NOT) - it only shows in a Figment, below
-## LOW_HEALTH_FRACTION life, or as a brief flash on taking damage.
+## Screen-edge vignette: only shows in a Figment, below LOW_HEALTH_FRACTION
+## life, or as a flash on taking damage.
 const VIGNETTE_SHADER := preload("res://assets/shaders/vignette.gdshader")
 const VIGNETTE_NORMAL_INTENSITY := 0.0
 const VIGNETTE_FIGMENT_INTENSITY := 0.35
@@ -61,10 +44,8 @@ const VIGNETTE_LOW_HEALTH_FRACTION := 0.3
 const VIGNETTE_LOW_HEALTH_COLOR := Color(0.55, 0.0, 0.02)
 const VIGNETTE_FLASH_DECAY_PER_SEC := 2.5
 const VIGNETTE_BLEND_SPEED := 6.0
-## Ammo counter above the weapon indicator (Implementation Brief v4.2):
-## magazine large, reserve small, "RELOADING" while a reload runs. Hidden
-## unless a ranged weapon is equipped; bows show an infinity sign (arrows
-## are unlimited and have no magazine).
+## Ammo counter: magazine large, reserve small. Ranged weapons only; bows
+## show an infinity sign.
 const AMMO_BOX_WIDTH := 160.0
 const AMMO_EMPTY_COLOR := Color(1.0, 0.2, 0.2)
 var _ammo_box: VBoxContainer
@@ -86,11 +67,7 @@ const THROWABLE_MARGIN := 16.0
 ## had to the experience that they end up at... show it filling up."
 const XP_FILL_TWEEN_DURATION := 0.5
 
-## Patch v3.8b: inverse of the health bar's damage trail - the trail here
-## shows the INCOMING gain instantly (bright), and the main fill tweens up
-## to meet it, rather than the main fill dropping instantly and a trail
-## lingering behind. A brighter/more saturated version of the shader's own
-## gold/amber, not a different hue.
+## The trail jumps to the new XP instantly and the main fill tweens up to it.
 const XP_TRAIL_COLOR_MODULATE := Color(1.5, 1.25, 0.7)
 
 @onready var weapon_indicator: HBoxContainer = $WeaponIndicator
@@ -102,9 +79,7 @@ var _xp_fill_clip: Control
 var _xp_trail_clip: Control
 var _xp_label: Label
 var _xp_tween: Tween
-## -1 = not yet initialized (the deferred startup call in _ready() should
-## snap the bar to wherever a loaded save's XP already is, not tween up
-## from empty).
+## -1 until the first update, which snaps instead of tweening.
 var _xp_last_needed: float = -1.0
 var _level_badge: LevelBadge
 var _weapon_icon: ItemSlotButton
@@ -168,9 +143,7 @@ func _ready() -> void:
 		EventBus.throwable_used.connect(_on_throwable_used)
 		call_deferred("_initial_refresh")
 
-## Implementation Brief v3.4 Section 1: a CenterContainer holding the
-## static cross - full-rect anchored so its center always lands on
-## screen center regardless of resolution.
+## Full-rect CenterContainer so the cross stays centred at any resolution.
 func _build_crosshair() -> void:
 	var container := CenterContainer.new()
 	container.set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -404,9 +377,7 @@ func _on_inventory_full(_content: Resource) -> void:
 	_inventory_full_tween.tween_interval(1.5)
 	_inventory_full_tween.tween_property(_inventory_full_label, "modulate:a", 0.0, 0.5)
 
-## Top-left row of colored chips, one per active status effect (Section
-## 09) - built/removed live via EventBus.status_effect_applied/_expired,
-## same push-update style as the orbs/XP bar above.
+## Top-left chips, one per active status effect on the player.
 func _build_status_row() -> void:
 	_status_row = HBoxContainer.new()
 	_status_row.anchor_left = 0.0
@@ -417,9 +388,8 @@ func _build_status_row() -> void:
 	_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_status_row)
 
-## v4.7: "Enemies: remaining / total", top-left under the status chips (top-
-## center is the boss bar, top-right the debug overlay). Hidden until
-## GeneratedMap reports a count, so it never shows in the Hub.
+## "Enemies: remaining / total" under the status chips. Hidden until
+## GeneratedMap reports a count.
 func _build_enemy_counter() -> void:
 	_enemy_counter_label = Label.new()
 	_enemy_counter_label.add_theme_font_override("font", AetherStyle.serif())
@@ -470,12 +440,8 @@ func _process(_delta: float) -> void:
 	_update_enemy_health_bars()
 	_update_vignette(_delta)
 
-## User request (2026-08-31): "a health bar on enemies when I hover over
-## them... hangs while we're in combat and disappears when they lose
-## track of me/I am out of combat for 5 seconds" - qualifying condition
-## is hover (crosshair raycast) OR Enemy.is_in_combat() (see that
-## function's own header). Boss-rank enemies get the special top-of-
-## screen BossHealthBar instead of a floating one, never both.
+## Floating bars for enemies under the crosshair or in combat. Bosses use
+## BossHealthBar instead.
 func _update_enemy_health_bars() -> void:
 	if not is_instance_valid(_player) or _player.camera == null:
 		return
@@ -702,21 +668,8 @@ func _on_ward_changed(current: float, max_value: float) -> void:
 	if is_instance_valid(_player):
 		_life_orb.set_value(_player.health.current_health, _player.health.max_health)
 
-## needed is always > 0 (XP_BASE * XP_GROWTH^n never reaches 0), unlike
-## Life/Mana's max_value which can legitimately be 0 (no Ward gear, e.g.).
-## Level shows in the badge now, not this text - xp_changed always fires
-## after any level-up processing (ExperienceComponent.add_xp()), so
-## _player.experience.level is already the current value here.
-##
-## User request (2026-08-30): tween the fill from where it was to where
-## it ends up, instead of snapping instantly. ExperienceComponent.add_xp()
-## only emits xp_changed once per call even if it crossed a level (it
-## loops internally and fires after the loop, see its own comments) - so
-## a level-up shows up here as `needed` having changed since the last
-## call. When that happens, fill the OLD bar the rest of the way to 1.0
-## first, snap back to empty, then fill toward the new target - the
-## classic "level up" bar animation - rather than jumping straight to
-## whatever (probably smaller-looking) ratio the new level starts at.
+## Tweens the fill. A level-up shows as `needed` changing since the last
+## call: the old bar fills to the end, resets, then fills to the new value.
 func _on_xp_changed(current: float, needed: float) -> void:
 	var at_max_level: bool = _player.experience.is_max_level()
 	_xp_label.text = "MAX LEVEL" if at_max_level else "%.0f / %.0f XP" % [current, needed]
@@ -733,11 +686,8 @@ func _on_xp_changed(current: float, needed: float) -> void:
 		_xp_tween.kill()
 	_xp_tween = create_tween()
 	if needed != _xp_last_needed:
-		# Old bar's trail leaps to full immediately (an "incoming" amount
-		# large enough to top it off); once the catch-up tween below
-		# finishes filling it, both layers reset to empty and the trail
-		# immediately shows the NEW target so the fill tween that follows
-		# has something to visibly catch up to, same as the normal case.
+		# Trail tops off the old bar; after the catch-up both reset and the
+		# trail jumps to the new target.
 		_xp_trail_clip.anchor_right = 1.0
 		_xp_tween.tween_property(_xp_fill_clip, "anchor_right", 1.0, XP_FILL_TWEEN_DURATION) \
 			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_OUT)

@@ -1,19 +1,8 @@
 extends Node3D
 class_name SparkCrawler
-## Spark (Lightning, user request 2026-08-30): "creates 3 lightning
-## projectiles that crawl the ground and search for enemies." Each
-## crawler re-targets the nearest living enemy every physics frame (no
-## locked target - if its target dies or a closer one appears, it
-## redirects) and steers toward it via a lerped heading (Patch v3.8b:
-## instant snap-to-target replaced with TURN_SPEED-gated turning, so a
-## crawler visibly curves onto a target instead of teleporting its facing).
-## Unlike PiercingBolt (hits each enemy once, ever) a crawler can hit the
-## SAME enemy repeatedly while it lingers in contact, gated per-enemy by
-## HIT_INTERVAL ("each spark projectile can hit the same enemy only once
-## every .15 seconds") so continuous overlap doesn't melt a target in one
-## tick. With no enemy in SEEK_RADIUS it wanders (heading drifts by a
-## small random turn every WANDER_INTERVAL) instead of holding a fixed
-## heading, per Patch v3.8b: "wandering randomly if none in range."
+## Spark ground crawler. Re-targets the nearest enemy every frame and turns
+## toward it at TURN_SPEED; wanders when nothing is within SEEK_RADIUS. Can
+## hit the same enemy repeatedly, at most once per HIT_INTERVAL.
 
 const MOVE_SPEED := 5.0
 const TURN_SPEED := 3.0  # rad/s
@@ -95,8 +84,7 @@ func _find_nearest_enemy() -> Enemy:
 			nearest = enemy
 	return nearest
 
-## Re-rolls a random wander target heading every WANDER_INTERVAL so the
-## crawler drifts instead of holding a single fixed direction forever.
+## Picks a new random heading every WANDER_INTERVAL.
 func _tick_wander(delta: float) -> Vector3:
 	_wander_timer -= delta
 	if _wander_timer <= 0.0:

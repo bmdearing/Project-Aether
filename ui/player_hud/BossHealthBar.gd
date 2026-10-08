@@ -1,34 +1,14 @@
 extends Control
 class_name BossHealthBar
-## User request (2026-08-31): "Pinnacle bosses and uber bosses should have
-## a special health bar that stays at the very top of the screen,
-## stylized and menacing." Distinct from the floating per-enemy bars
-## (EnemyHealthBar) - fixed at top-center regardless of the boss's own
-## screen position, wider, and driven by its own animated shader (same
-## "canvas_item ShaderMaterial on a ColorRect" technique StatOrb.gd
-## already established this session) rather than a plain _draw() fill,
-## since "stylized and menacing" is explicitly a visual-quality ask.
-## Triggered by Enemy.rank == Constants.EnemyRank.BOSS - the only boss-
-## tier concept that exists in this project (added 2026-08-30 for loot
-## gating); "Pinnacle boss" and "uber boss" both read as that same rank
-## for now, not a further split tier, since nothing in this project
-## distinguishes them from each other yet.
+## Fixed top-center health bar for BOSS-rank enemies, drawn by an animated
+## shader on a ColorRect.
 
 const WIDTH := 520.0
 const HEIGHT := 18.0
 const NAME_HEIGHT := 30.0
 
-## User feedback (2026-08-31): "I like where you started it. But let's
-## make the fill more clean." The original fill multiplied in a blocky
-## hash-noise "vein" pattern per-pixel - replaced with a smooth vertical
-## gradient (still gives the fill some depth/roundness, just no grain/
-## noise) - the pulsing glow right at the fill edge stayed, that read as
-## a good "menacing" touch rather than noise. Also gained the same
-## damage-trail concept EnemyHealthBar has (trailing_fraction, a lighter
-## shade between it and fill_fraction) - driven from GDScript exactly
-## like that file (_process(delta), not a Tween - see EnemyHealthBar's
-## own header for why), just fed into the shader as a second uniform
-## instead of drawn as a second rect.
+## Smooth vertical gradient fill with a pulsing edge glow, plus a damage
+## trail (trailing_fraction) driven from _process() like EnemyHealthBar.
 const SHADER_CODE := """
 shader_type canvas_item;
 

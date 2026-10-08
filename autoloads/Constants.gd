@@ -22,9 +22,7 @@ const DAMAGE_TYPE_CATEGORY := {
 	DamageType.PALE: DamageCategory.ESOTERIC,
 }
 
-# Damage type display name + color, for UI (Fate Board grid, etc). Colors
-# reuse the Gem palette from Section 15 (Jarne/Silfre/Raffe/Eldre/Ise/Leikre/
-# Aedre/Rotne/Folre) so tag color language stays consistent across systems.
+# Damage type display names and UI colors.
 const DAMAGE_TYPE_NAME := {
 	DamageType.KINETIC: "Kinetic",
 	DamageType.PIERCING: "Piercing",
@@ -49,13 +47,8 @@ const DAMAGE_TYPE_COLOR := {
 	DamageType.PALE: Color(0.85, 0.83, 0.75),
 }
 
-## Patch v3.6: lowercase tag string -> DamageType, for SlateAffixPool/
-## Brand-combination lookups that key on a string tag rather than the
-## enum directly. Only the 9 real damage types have an enum value -
-## "spell"/"attack"/"generic" (Section 10's own non-damage-type Slate
-## tags, see Slate.category_tag_override) are valid SlateAffix.tag
-## strings with no DamageType counterpart, so they're deliberately absent
-## here rather than mapped to a fake enum entry.
+## Lowercase tag string -> DamageType. Non-damage tags ("spell", "attack",
+## "generic") are intentionally absent.
 const DAMAGE_TYPE_TAGS := {
 	"kinetic": DamageType.KINETIC,
 	"piercing": DamageType.PIERCING,
@@ -68,61 +61,41 @@ const DAMAGE_TYPE_TAGS := {
 	"pale": DamageType.PALE,
 }
 
-## Three stats. v4.8 renamed them (Prowess -> Strength, Finesse -> Agility,
-## Resolve -> Intellect) and made every stat effect a percentage:
-## Strength multiplies weapon base damage, Intellect multiplies Conduit
-## spell power, regardless of the weapon/ability's own damage type
-## (DAMAGE_TYPE_MAIN_STAT below is directional metadata only - see
-## Weapon/Ability._base_hit()). Old saves are migrated on load by
-## ItemSerializer.migrate_stat_key()/migrate_stat_text(); data files by
-## tools/repair_v48_stat_rename.gd.
+## Strength scales weapon damage and Intellect spell power, regardless of
+## damage type. Pre-v4.8 names (Prowess/Finesse/Resolve) are migrated on
+## load by ItemSerializer.
 enum Stat { STRENGTH, AGILITY, INTELLECT }
 
-# Display names - used by ItemCard's requirement line and EquipmentComponent's
-# equip-block reason (user request 2026-08-30: gate Section 25's items behind
-# a level + stat requirement) rather than each spot inventing its own
-# capitalization of the enum key.
 const STAT_NAME := {
 	Stat.STRENGTH: "Strength",
 	Stat.AGILITY: "Agility",
 	Stat.INTELLECT: "Intellect",
 }
 
-# Per-point values - shown in the advanced (Alt-hover) tooltip when a mod
-# line links to one of these stats. See StatSheet.gd's own derived-value
-# methods for the real formulas these describe.
+# Per-point effects shown in the Alt-hover tooltip (formulas live in StatSheet).
 const STAT_GLOSSARY := {
 	Stat.STRENGTH: "+1% increased Weapon Damage, +4 Life per point.",
 	Stat.AGILITY: "+1% increased Attack Speed, +1% increased Evasion, +1% increased Critical Strike Chance per point.",
 	Stat.INTELLECT: "+1% increased Spell Damage, +3 Mana, +1% increased Ward per point.",
 }
 
-# Section 09 - Status Effects. Scope: the 5 effects that already have a
-# real applier in this project (Ability.applies_status_effects on the
-# elemental/esoteric spells) - Bleed/Armor Shred/Stagger-Stun (Physical
-# family, no weapon-side proc mechanic exists) and Aetherburn/
-# Pallid (no Fire-channel/Aetheric/Pale ability exists yet) are left for
-# StatusEffectComponent to grow into once a real source exists (flagged
-# in DEVELOPMENT.md). Blind is explicitly deferred in the patch doc itself, not
-# just by this project, so it's not modeled at all.
+# Status effect -> damage type, used for its color.
 const STATUS_EFFECT_DAMAGE_TYPE := {
 	"ignite": DamageType.FIRE,
 	"chill": DamageType.COLD,
 	"freeze": DamageType.COLD,
 	"electrocute": DamageType.LIGHTNING,
 	"unraveling": DamageType.ENTROPIC,
-	"slow": DamageType.PIERCING,  # Caltrops - a generic slow independent of Chill's Cold flavor, colored via its own Piercing source instead
+	"slow": DamageType.PIERCING,  # Caltrops
 	"shock": DamageType.LIGHTNING,
 	"scorch": DamageType.FIRE,
 }
 
-## Section 20's Infusion Stone/Shrivening Stone/Shard of Tharsis - stackable
-## crafting currency (inventory StringName stacks, like the Orbs). Older
-## saves held them as Items; GridInventory converts those on load.
+## Stackable crafting currency, held like the Orbs. Older saves held them as
+## Items; GridInventory converts those on load.
 const CRAFTING_CONSUMABLE_IDS := ["infusion_stone", "shrivening_stone", "shard_of_tharsis"]
 
-## Implementation Brief v4.2 - ranged weapon ammo. ARROW is infinite (never
-## tracked, never dropped); every other type has a persistent reserve in
+## ARROW is infinite (never tracked or dropped); the rest have a reserve in
 ## the AmmoInventory autoload.
 enum AmmoType { PISTOL, REVOLVER, SHOTGUN, RIFLE, AUTOMATIC, CROSSBOW_BOLT, ARROW }
 
@@ -131,10 +104,8 @@ enum AmmoType { PISTOL, REVOLVER, SHOTGUN, RIFLE, AUTOMATIC, CROSSBOW_BOLT, ARRO
 ## crossbow): a Weapon.cycle_time delay between shots.
 enum FireMode { SEMI_AUTO, FULL_AUTO, BOLT_ACTION, LEVER_ACTION, PUMP_ACTION, SINGLE_ACTION }
 
-## Implementation Brief v4.3 - hard socket ceiling per item category (see
-## ItemRoller.get_socket_category()). A ceiling only: a base's own max_sockets
-## (tier-scaled by tools/generate_base_types.gd) is never raised to it, and
-## Bore/Corruption never take an item past it (bar Corruption's +1 "extra").
+## Hard socket ceiling per item category (ItemRoller.get_socket_category()).
+## Bases are never raised to it; only Corruption's +1 can exceed it.
 const MAX_SOCKETS_BY_CATEGORY := {
 	"one_handed_melee": 3,
 	"two_handed_melee": 6,
@@ -190,11 +161,8 @@ const STATUS_EFFECT_NAME := {
 	"pallid": "Pallid",
 }
 
-# Patch v3.8: directional metadata only now - Weapon._base_hit()/Ability.
-# _base_hit() no longer branch on this at all (weapons always scale with
-# Strength, spells with Intellect, regardless of damage type), but it's
-# kept accurate for anything else that wants "which stat does this damage
-# type thematically belong to" (SlateRoller's Main Stat line).
+# Thematic stat per damage type (SlateRoller's Main Stat line). Damage
+# scaling doesn't use it.
 const DAMAGE_TYPE_MAIN_STAT := {
 	DamageType.KINETIC: Stat.STRENGTH,
 	DamageType.PIERCING: Stat.STRENGTH,
@@ -209,11 +177,8 @@ const DAMAGE_TYPE_MAIN_STAT := {
 
 enum ScalingGrade { S, A, B, C, D, E }
 
-# Grade Multiplier ranges (min, max). Since v4.8 the grade is purely a spell
-# quality multiplier: Ability._base_hit() computes Conduit spell power x
-# (1 + Int%) x grade. Weapons ignore it entirely (they pass stat_value 0.0
-# to DamageCalculator.calculate()). v4.8 follow-up retuned these for that
-# role - B is roughly neutral (~1.0x), S boosts, E cuts.
+# Spell quality multiplier ranges (min, max); weapons ignore grade. B is
+# roughly neutral.
 const GRADE_MULTIPLIER_RANGES := {
 	ScalingGrade.S: Vector2(1.4, 1.8),
 	ScalingGrade.A: Vector2(1.1, 1.4),
@@ -233,8 +198,7 @@ const CHAIN_BONUS_TIERS := [
 
 enum SlateRarity { COMMON, UNCOMMON, RARE, VERY_RARE, UNIQUE, MYTHIC }
 
-# No doc-sourced color for SlateRarity - reuses ITEM_RARITY_COLOR's palette,
-# plus an invented violet for the extra VERY_RARE tier. Placeholder, flagged in DEVELOPMENT.md.
+# ITEM_RARITY_COLOR's palette plus violet for VERY_RARE.
 const SLATE_RARITY_COLOR := {
 	SlateRarity.COMMON: Color(0.9, 0.9, 0.9),
 	SlateRarity.UNCOMMON: Color(0.3, 0.55, 0.95),
@@ -244,34 +208,18 @@ const SLATE_RARITY_COLOR := {
 	SlateRarity.MYTHIC: Color(0.98, 0.75, 0.75),
 }
 
-# Section 13 - Equipment Slots. OFFHAND covers a Shield OR an offhand-type
-# Weapon (Weapon.is_offhand). Patch v3.5: Sidearm/Conduit/Secondary cut as
-# their own slots - a weapon now equips into PRIMARY_WEAPON or OFFHAND
-# based on Weapon.is_main_hand/is_offhand instead (see
-# EquipmentComponent.equip()). Throwables are inventory stacks now, not an
-# equipment slot at all (see ThrowableStack.gd).
-#
-# Every surviving entry keeps its ORIGINAL explicit int value (5/7/8 -
-# SIDEARM_WEAPON/CONDUIT/SECONDARY_THROWABLE - are simply retired, not
-# reassigned to anything else) rather than letting Godot renumber the
-# enum. Item.equip_slot is stored as a raw int in every existing .tres
-# file (Shields/Amulets/Belts/Rings included) - renumbering would silently
-# repoint OFFHAND=6/AMULET=9/BELT=10/RING=11's old stored ints at whatever
-# entry happens to occupy that number now, corrupting every one of those
-# files without touching them.
+# OFFHAND holds a Shield or an offhand Weapon. Values are explicit because
+# .tres files store equip_slot as a raw int - never renumber (5/7/8 are
+# retired slots).
 enum EquipmentSlot {
 	HELMET = 0, BODY_ARMOUR = 1, GLOVES = 2, BOOTS = 3,
 	PRIMARY_WEAPON = 4, OFFHAND = 6,
 	AMULET = 9, BELT = 10, RING = 11,
 }
 
-# Section 18 - Item Rarity & Affixes. Distinct scale from SlateRarity above
-# (that one's 6-tier and Slate-specific per Section 10).
 enum ItemRarity { COMMON, UNCOMMON, RARE, UNIQUE, MYTHIC }
 
-# Section 18's rarity color column (White/Blue/Yellow/Orange/Peach) - used
-# for items with no damage-type identity of their own to key a color off of
-# (e.g. a Shield, which isn't tied to one of the 9 damage types).
+# White/Blue/Yellow/Orange/Peach.
 const ITEM_RARITY_COLOR := {
 	ItemRarity.COMMON: Color(0.9, 0.9, 0.9),
 	ItemRarity.UNCOMMON: Color(0.3, 0.55, 0.95),
@@ -280,17 +228,8 @@ const ITEM_RARITY_COLOR := {
 	ItemRarity.MYTHIC: Color(0.98, 0.75, 0.75),
 }
 
-# Section 11 "Base Crit Chance by Weapon Type", keyed by Weapon.weapon_type.
-# Doc-exact for every weapon type Section 25 actually details a real tiered
-# line for (see tools/generate_base_types.gd) - the doc's table also lists
-# several caster types (Rod/Focus/Tome/Talisman/Seal/Charm/Lantern/Spell
-# Gauntlet/Athame/Grimoire/Fetish/Rail Carbine/Voltage Pistol/Pressurized
-# Rifle/Thermal Pistol/Jet Rifle) that have no Section 25 tier table at
-# all, so this project has no base item that could ever read them -
-# skipped rather than transcribed dead. "Bow" and "Gauntlet" (this
-# project's own, added 2026-08-30 before Section 25 was fully read) aren't
-# doc weapon types either - Gauntlet's own 6% stays as an invented value,
-# and Bow simply isn't in this table (falls through to DEFAULT).
+# Base crit chance keyed by Weapon.weapon_type; unlisted types (e.g. Bow)
+# use DEFAULT_BASE_CRIT_CHANCE.
 const WEAPON_BASE_CRIT_CHANCE := {
 	"Dagger": 0.08,
 	"Rapier": 0.07,
@@ -323,13 +262,7 @@ const WEAPON_BASE_CRIT_CHANCE := {
 }
 const DEFAULT_BASE_CRIT_CHANCE := 0.05
 
-## Enemy rarity rank (invented - no doc-sourced enemy rank system exists,
-## same footing as other invented enemy tuning). User request (2026-08-30):
-## drives which item-level tier of Section 25's real base types a kill
-## can drop - "White mobs are the area level, blue mobs are the area +1,
-## rare mobs are the area + 2 levels, bosses are the area + 5 levels."
-## BOSS is never auto-rolled (see Enemy._roll_rank()) - only set
-## explicitly by a boss encounter's own scene/script.
+## Enemy rank: offsets the item level of drops. BOSS is never auto-rolled.
 enum EnemyRank { NORMAL, MAGIC, RARE, BOSS }
 
 const ENEMY_RANK_NAME := {
@@ -346,21 +279,15 @@ const ENEMY_RANK_ITEM_LEVEL_OFFSET := {
 	EnemyRank.BOSS: 5,
 }
 
-## Spawn-time odds for a regular (non-boss-flagged) enemy to roll each
-## rank - invented, genre-standard shape (most kills are White, Rare is
-## uncommon). Boss is deliberately absent - it's only ever set explicitly.
+## Spawn odds per rank (Boss is only ever set explicitly).
 const ENEMY_RANK_SPAWN_WEIGHTS := {
 	EnemyRank.NORMAL: 80.0,
 	EnemyRank.MAGIC: 16.0,
 	EnemyRank.RARE: 4.0,
 }
 
-## Patch v3.9 "Enemy Rarity System" - a SEPARATE axis from EnemyRank
-## above, per user direction (2026-09-06): EnemyRank keeps driving loot
-## item-level exactly as before (untouched by this patch); EnemyRarity
-## drives stat multipliers, affixes, auras, and drop conversion instead.
-## An enemy carries both simultaneously - e.g. a MAGIC-rank Elite is a
-## perfectly normal combination, the two systems don't interact.
+## Independent of EnemyRank: rarity drives stat multipliers, affixes,
+## auras and drop conversion; rank drives drop item level.
 enum EnemyRarity { NORMAL, ELITE, CHAMPION, ASCENDANT }
 
 const ENEMY_RARITY_NAME := {
@@ -370,7 +297,6 @@ const ENEMY_RARITY_NAME := {
 	EnemyRarity.ASCENDANT: "Ascendant",
 }
 
-## Doc-exact: "Name shown in blue/yellow/orange."
 const ENEMY_RARITY_NAME_COLOR := {
 	EnemyRarity.NORMAL: Color.WHITE,
 	EnemyRarity.ELITE: Color(0.4, 0.6, 1.0),
@@ -378,11 +304,7 @@ const ENEMY_RARITY_NAME_COLOR := {
 	EnemyRarity.ASCENDANT: Color(1.0, 0.5, 0.0),
 }
 
-## Doc-exact stat-scaling multipliers are never given a number by the doc
-## itself (Section 24-style deferred balance) - these are this project's
-## own invented placeholder curve, same footing as TIER_HEALTH_GROWTH_
-## PER_TIER/ENEMY_RANK_SPAWN_WEIGHTS above. health/damage are multipliers
-## (1.0 = no change); NORMAL is intentionally absent (no scaling at all).
+## Placeholder health/damage multipliers; NORMAL is absent (no scaling).
 const ENEMY_RARITY_HEALTH_MULT := {
 	EnemyRarity.ELITE: 1.5,
 	EnemyRarity.CHAMPION: 3.0,
@@ -417,12 +339,7 @@ const MOB_BASE_DAMAGE := {
 	"boss": 45.0,
 }
 
-## Placeholder spawn-weight "config" (brief's own words: "Placeholder
-## weights for testing... do not hardcode, read from spawn configuration")
-## - this table IS that configuration (same role ENEMY_RANK_SPAWN_WEIGHTS
-## already plays for the other axis) rather than a literal inline dict in
-## the spawner script itself, so a future real config resource can replace
-## just this table without touching spawn-site code.
+## Placeholder rarity spawn weights.
 const ENEMY_RARITY_SPAWN_WEIGHTS := {
 	EnemyRarity.NORMAL: 75.0,
 	EnemyRarity.ELITE: 20.0,
@@ -454,18 +371,10 @@ const ENEMY_PACKS_VAULT_ELITE := [
 	{"weight": 1.0, "units": [["synod_exarch", 1, 1], [SYNOD_GOLEMS, 1, 2]]},
 ]
 
-# Cooldown Reduction cap (user request 2026-08-30): across every source that
-# reduces an ability's cooldown at cast time - over-cap spell levels, gear
-# and Instinct's Action/Cast Speed (Player.get_action_speed_multiplier()) -
-# an ability's cooldown can never drop below 25% of its authored
-# cooldown_seconds. See Ability.get_final_cooldown().
+# Combined cap across all cooldown reduction sources (Ability.get_final_cooldown()).
 const MAX_COOLDOWN_REDUCTION := 0.75
 
-## Patch v3.7 Section 3 - Cast Speed affix tiers (percent, T1 best).
-## min_item_level gates which tier a roll can reach, same shape as
-## ItemRoller's own tier system (though this table is consumed directly
-## by wherever Cast Speed affixes are authored/rolled, not through
-## ItemRoller.AFFIX_POOL's tier1_min/max + TIER_DECAY scheme).
+## Cast Speed affix tiers (percent, T1 best), gated by item level.
 const CAST_SPEED_TIERS := [
 	{"min": 18.0, "max": 22.0, "item_level": 72},  # T1
 	{"min": 14.0, "max": 17.0, "item_level": 56},  # T2
@@ -474,7 +383,6 @@ const CAST_SPEED_TIERS := [
 	{"min": 2.0,  "max": 5.0,  "item_level": 8},   # T5
 ]
 
-## Patch v3.8 Section 5 - ItemCard's Alt Info panel.
 static func grade_to_letter(grade: int) -> String:
 	match grade:
 		0: return "S"
@@ -485,10 +393,7 @@ static func grade_to_letter(grade: int) -> String:
 		5: return "E"
 	return "?"
 
-## Picks readable text over an arbitrary background color set at
-## runtime (item rarity/damage-type colors) - without this, buttons
-## colored with a light background (Common rarity white, etc.) get the
-## same light default theme text as everything else and go illegible.
+## Dark or light text, whichever reads over bg.
 static func get_contrasting_text_color(bg: Color) -> Color:
 	var luminance := 0.299 * bg.r + 0.587 * bg.g + 0.114 * bg.b
 	return Color(0.05, 0.05, 0.05) if luminance > 0.6 else Color(0.95, 0.95, 0.95)

@@ -1,25 +1,8 @@
 extends Node3D
 class_name FlameWallField
-## Flame Wall (new spell, user request 2026-08-30): "a ground target that
-## makes a wall of fire that ignites enemies that pass through it, and
-## also do damage over time to enemies standing on it." Not doc-sourced -
-## invented per the user's own description, no Section 26 entry exists
-## for it.
-##
-## Two distinct triggers, matching the two clauses in the request
-## separately rather than collapsing them into one: (1) "ignites enemies
-## that pass through it" - a discrete Ignite application the moment an
-## enemy's body enters the wall's Area3D, once per enemy per pass
-## (_ignited_this_pass tracks who's currently inside so a stationary
-## enemy standing in the wall doesn't get Ignite re-applied every physics
-## frame - re-entering after fully leaving does trigger it again); (2)
-## "damage over time to enemies standing on it" - a separate, repeated
-## direct-damage tick (same TICK_INTERVAL pattern as Caltrops/Black Hole)
-## to anything currently inside, independent of the Ignite trigger.
-##
-## Oriented perpendicular to the caster->cast-point direction (a "wall"
-## needs a facing, and a ground-targeted point alone doesn't carry one) -
-## width comes from the ability's own radius.
+## Flame Wall: Ignites each enemy once per pass through it
+## (_ignited_this_pass), and separately hits everything inside every tick.
+## Oriented perpendicular to the caster; width comes from the radius.
 
 const DURATION := 6.0
 const TICK_INTERVAL := 0.5

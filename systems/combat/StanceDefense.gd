@@ -1,6 +1,6 @@
 extends Node
 class_name StanceDefense
-## Held defensive stances (Patch v3.4 melee table, mostly Stance B): their
+## Held defensive stances (mostly Stance B): their
 ## effects last exactly as long as RMB holds the stance. Driven by the
 ## active MeleeStanceBehavior's "Held stance" fields:
 ## - Guard (Greatsword): negates melee_damage_blocked of each melee hit.

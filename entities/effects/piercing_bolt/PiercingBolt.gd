@@ -1,15 +1,7 @@
 extends Area3D
 class_name PiercingBolt
-## Straight-line traveling bolt that PIERCES - unlike entities/projectile/
-## Projectile.gd (which queue_free()s on its first hit, shared with
-## ordinary ranged weapon fire), this keeps traveling through its whole
-## lifetime, damaging every NEW enemy it touches once each (tracked in
-## _hit_enemies so a wide/slow bolt can't tick the same enemy twice while
-## overlapping it). User request (2026-08-30): Cinder Lance and Thunder
-## Javelin both "should pierce" / "work like Cinder Lance."
-##
-## Player-only for now (no enemy caster uses this) - source is always the
-## casting Player, aimed from the camera along its forward direction.
+## Straight-line bolt that pierces, hitting each enemy once (_hit_enemies).
+## Player-cast only.
 
 @export var speed: float = 22.0
 @export var lifetime: float = 2.0

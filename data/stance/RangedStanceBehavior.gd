@@ -1,6 +1,6 @@
 extends StanceBehavior
 class_name RangedStanceBehavior
-## A ranged weapon's aim stance (Patch v3.4 ranged stance table), resolved
+## A ranged weapon's aim stance, resolved
 ## by weapon_type ("Shortbow_b"/"Longbow_b" for the bows' second page).
 ## PlayerRangedAttack applies these while RMB aims, on top of the base aim
 ## bonus (more damage, half the spread).

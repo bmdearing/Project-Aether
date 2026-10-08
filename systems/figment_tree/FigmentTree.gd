@@ -1,16 +1,8 @@
 extends RefCounted
 class_name FigmentTree
-## Scaffolding for the Figment Tree - user request: "prepare legs for a
-## Figment Tree to complete figments to get points, increasing the yield
-## and type of content seen on Figments." This provides the data model
-## (FigmentTreeNode) and a small hand-authored node list, plus real,
-## tested unlock/validation logic (GameState.figment_tree_points spent
-## against GameState.figment_tree_unlocked_nodes) - deliberately NOT a
-## full system: no UI screen exists to spend points through yet, and no
-## node's effect_key is actually wired into FigmentRoller/loot generation
-## yet. "Prepare legs," not "build the whole thing" - the next pass that
-## wants to finish this needs a UI (mirroring FateBoardEditor/Crafting
-## Screen's own patterns) and to wire each effect_key into a real formula.
+## Figment Tree scaffolding: the node list and unlock logic (spending
+## GameState.figment_tree_points). There's no UI yet, and no effect_key is
+## wired into loot.
 
 static func all_nodes() -> Array[FigmentTreeNode]:
 	return [

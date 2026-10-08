@@ -1,13 +1,8 @@
 extends Node
 class_name CastTimeHandler
-## Patch v3.7 Section 2. Gates CAST_TIME abilities behind an interruptible
-## windup before they actually fire; INSTANT and CHANNELED abilities fire
-## immediately (channeled cast-speed interaction is explicitly deferred -
-## several abilities, e.g. Flame Jets, already run their own bespoke
-## channel loop in PlayerAbilityCast.gd, untouched by this). PlayerAbilityCast.
-## _try_cast() calls try_cast() after its own mana/cooldown checks pass,
-## then connects to cast_completed to actually run the ability's real
-## cast logic (_cast()) - this only decides WHEN that happens, never what.
+## Decides when an ability fires: CAST_TIME abilities wait out an
+## interruptible windup; INSTANT and CHANNELED fire immediately.
+## PlayerAbilityCast runs the actual cast on cast_completed.
 
 signal cast_completed(ability: Ability, cast_position: Vector3)
 signal cast_interrupted()
@@ -42,8 +37,7 @@ func try_cast(ability: Ability, cast_position: Vector3) -> bool:
 
 func interrupt() -> void:
 	if _casting:
-		# Patch v4.3: the player gets told (AbilityBar flashes the slot and
-		# shows the reason) - the mana and cooldown are already spent.
+		# Tell the player (the AbilityBar flashes); Mana and cooldown are already spent.
 		if _current_ability:
 			EventBus.ability_cast_failed.emit(_player, _current_ability, "Interrupted")
 		_casting = false
@@ -74,7 +68,6 @@ func _begin_cast(ability: Ability, cast_position: Vector3) -> void:
 func _fire_immediately(ability: Ability, cast_position: Vector3) -> void:
 	cast_completed.emit(ability, cast_position)
 
-## Channeled implementation deferred - wire to cast_completed immediately
-## for now (matches INSTANT), per the brief's own explicit scope cut.
+## Channeling isn't implemented here yet; behaves like INSTANT.
 func _begin_channel(ability: Ability, cast_position: Vector3) -> void:
 	cast_completed.emit(ability, cast_position)

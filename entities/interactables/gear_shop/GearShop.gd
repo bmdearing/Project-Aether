@@ -109,8 +109,7 @@ func _reroll_and_reopen() -> void:
 	_roll_stock()
 	_open_shop()
 
-## Mirrors InventoryScreen._item_color() - rarity for every item type
-## (Patch v3.8b: dropped weapons' damage-type exception).
+## Rarity color, same as InventoryScreen._item_color().
 func _item_color(item: Item) -> Color:
 	return Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 

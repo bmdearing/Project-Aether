@@ -1,9 +1,7 @@
 extends Resource
 class_name StanceBehavior
-## Per-weapon-type stance tuning (Implementation Brief v3.3 Section 4).
-## WeaponStance.gd resolves one of these by the active weapon's own
-## weapon_type when stance is entered - null (no matching instance) falls
-## back to WeaponStance's own hardcoded defaults.
+## Per-weapon-type stance tuning, resolved by WeaponStance. Without one,
+## WeaponStance's defaults apply.
 
 @export var weapon_type: String = ""
 @export var move_speed_multiplier: float = 0.75

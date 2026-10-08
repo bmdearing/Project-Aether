@@ -1,11 +1,7 @@
 extends RefCounted
 class_name CorruptionSystem
-## Patch v3.6 Section 3 - Shard of Tharsis. Replaces the flat 8-outcome
-## weighted list CraftingSystem.corrupt() used before this (Section 24
-## "Deferred Design" always flagged that as an invented placeholder
-## pending a real pass) with the brief's 4-tier x named-outcome model.
-## CraftingSystem.corrupt() is now a thin wrapper around corrupt() below,
-## so existing Dictionary-based call sites need no changes.
+## Shard of Tharsis: rolls a severity tier, then a named outcome from it
+## (CorruptionOutcome). CraftingSystem.corrupt() wraps corrupt() below.
 
 ## Outcome tier weights - adjust after playtesting.
 const TIER_WEIGHTS := {
@@ -26,7 +22,7 @@ const _SIGNIFICANT := [
 ]
 const _MAJOR := [
 	"Veiltouch", "Hollow", "Inversion", "MawTouched", "PaleBranded", "Overcharged",
-	"Ascendant",  # Patch v3.6b
+	"Ascendant",
 ]
 const _EXTREME := [
 	"Transcendent", "Unmade", "ResonantEcho", "AethericSurge",

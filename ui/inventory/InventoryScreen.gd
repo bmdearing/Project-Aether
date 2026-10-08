@@ -97,13 +97,7 @@ func _ready() -> void:
 	_ammo_label = Label.new()
 	inventory_panel.add_child(_ammo_label)
 
-## Implementation Brief v3.4 Section 4, user-expanded scope ("Properly
-## show which set is being worn in the inventory screen"). The paper-doll's
-## own weapon slots (Primary/Sidearm/Offhand) already show whichever set
-## is ACTIVE with zero changes needed - EquipmentComponent.get_equipped()
-## defaults to the active set - this just adds a label + a toggle button
-## next to the doll so the player can tell (and switch) directly from the
-## inventory instead of only via the in-game X-tap.
+## Label and toggle showing which weapon set is active.
 func _build_weapon_set_indicator() -> void:
 	var row := HBoxContainer.new()
 	var tabs := ButtonGroup.new()
@@ -654,11 +648,7 @@ func _apply_button_color(button: Button, color: Color) -> void:
 		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
 			button.add_theme_color_override(state, AetherStyle.TEXT_DIM)
 
-## Patch v3.8b: was weapons-key-off-damage-type, everything else off
-## rarity - a Magic-rarity weapon showed its (Lightning-yellow etc.) damage
-## color instead of blue. Every item slot now colors off rarity alone,
-## matching ItemCard's hover-tooltip border (Ability cards are the sole,
-## intentional exception - see ItemCard.gd's own header comment).
+## Rarity color, matching ItemCard's border.
 func _item_color(item: Item) -> Color:
 	return Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 

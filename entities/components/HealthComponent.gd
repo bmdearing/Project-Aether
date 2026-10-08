@@ -9,9 +9,7 @@ signal died
 signal health_changed(current: float, max: float)
 
 @export var max_health: float = 100.0
-## Section 12: Vitality -> "+0.1 Life regen/sec" per point - only ever
-## set non-zero for the Player (Player._apply_derived_stats()), enemies
-## have no StatSheet/Vitality to drive this from.
+## Set for the Player only (Player._apply_derived_stats()).
 var regen_per_second: float = 0.0
 var current_health: float = 0.0
 

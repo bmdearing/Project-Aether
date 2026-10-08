@@ -1,18 +1,8 @@
 extends RefCounted
 class_name CorruptionOutcome
-## Patch v3.6 Section 3 - Shard of Tharsis. One outcome per the brief's
-## own Minor/Significant/Major/Extreme lists (22 total, none added or
-## removed). Adapted to this project's real Item/ItemAffix shape rather
-## than the brief's own BaseItem: `sockets` -> `max_sockets` (this
-## project already uses max_sockets as both current and cap - see
-## ItemRoller.get_socket_cap()/CraftingSystem._bore()), `implicit_count()` ->
-## `get_implicit_count()`, tier bounds use ItemRoller.TIER_COUNT (5, not
-## the brief's assumed 10) since Tier 1 is already this project's best
-## tier. `GearAffixPool` calls route through the REAL existing gear pool
-## (ItemRoller/CraftingSystem._random_affix_for()) instead of a stub -
-## that pool already exists and works, unlike ImplicitPool/
-## SpecialCorruptionPool/UniquePool, which are genuinely new and stay
-## stubbed per the brief.
+## Shard of Tharsis corruption outcomes, grouped Minor/Significant/Major/
+## Extreme. Affix rolls use the real gear pool; ImplicitPool,
+## SpecialCorruptionPool and UniquePool are still stubs.
 
 var success: bool = true
 var reason: String = ""
@@ -80,9 +70,7 @@ class TierDown extends CorruptionOutcome:
 ## ---- Tier 2: Significant -----------------------------------------------
 
 class AddSpecialAffix extends CorruptionOutcome:
-	## Pulls from a special-corruption-only pool - mods not available
-	## through normal crafting. Stubbed (SpecialCorruptionPool.gd) - no
-	## such pool exists yet, per the brief's own "stubs only" scope.
+	## Corruption-only mods (SpecialCorruptionPool, stubbed).
 	func apply(item: Item, _power_level: int) -> void:
 		if not item.can_add_prefix() and not item.can_add_suffix():
 			return
@@ -223,15 +211,8 @@ class PaleBranded extends CorruptionOutcome:
 		item.affixes.append(implicit)
 
 class Ascendant extends CorruptionOutcome:
-	## Patch v3.6b: upgrades the item's own scaling_grade by one step
-	## (A->S, B->A, C->B, ...) - the only real "scaling grade" this
-	## project has (Weapon.scaling_grade; the brief's own multi-stat
-	## "pick one random scaling grade stat" was translated to
-	## primary_scaling_stat/secondary_scaling_stat as descriptive-only
-	## metadata, not real independent grades - see Weapon.gd's own
-	## comment). Only meaningful for a Weapon (the only class with
-	## scaling_grade); anything else, or an already-S-grade Weapon, is a
-	## near-miss - logged, not an error.
+	## Raises a Weapon's scaling_grade one step. Non-weapons and S-grade
+	## weapons are a logged no-op.
 	func apply(item: Item, _power_level: int) -> void:
 		if not (item is Weapon):
 			print("Ascendant: near miss - %s has no scaling grade to ascend." % item.display_name)
@@ -273,9 +254,7 @@ class Transcendent extends CorruptionOutcome:
 		EventBus.item_transcended.emit(item)
 
 class Unmade extends CorruptionOutcome:
-	## Strip everything - a perfect, high-item-level base. 91 matches
-	## this project's real generated-catalog ceiling (tools/
-	## generate_base_types.gd's highest tier), not an arbitrary number.
+	## Strip everything into a max-item-level base (91, the catalog ceiling).
 	func apply(item: Item, _power_level: int) -> void:
 		item.affixes.clear()
 		item.rarity = Constants.ItemRarity.COMMON

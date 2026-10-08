@@ -5,42 +5,20 @@ class_name PinnacleArena
 ## the UI suite itself (same order as GeneratedMap), so it runs standalone
 ## (F6). Nothing in the game routes here yet.
 ##
-## Built procedurally in code rather than hand-authored in the .tscn -
-## same convention GeneratedMap.gd already uses for its own floor/wall
-## geometry - since a crescent/lune shape isn't expressible with this
-## project's usual BoxShape3D-per-piece approach. CSGShape3D (a Boolean
-## geometry op that also generates matching collision via use_collision)
-## is the first CSG usage in the project; every other level's floor is a
-## simple plane/box.
-##
-## Crescent construction: two same-radius circles (OUTER_RADIUS/
-## CUT_RADIUS), one centered at the origin, one offset along +Z by
-## CUT_OFFSET - subtracting the offset one from the origin one leaves a
-## lune/crescent sliver on the -Z side. A small CUT_OFFSET relative to
-## OUTER_RADIUS means the two circles mostly coincide, which is what
-## makes the remaining sliver thin and uniformly curved rather than a
-## fat D-shape with one flat-ish bite taken out of it.
+## The crescent is CSG (with use_collision): a circle at the origin minus
+## one offset along +Z by CUT_OFFSET, leaving a thin lune on the -Z side.
 
 const OUTER_RADIUS := 26.0
 const CUT_RADIUS := 26.0
 const CUT_OFFSET := 9.0
 const FLOOR_THICKNESS := 1.0
 const WALL_HEIGHT := 6.0
-## How far outside the floor's own outer edge / inside its own inner
-## (cutout) edge the invisible boundary wall sits - not exactly on the
-## edge, so a player's collision capsule doesn't clip through it right at
-## the lip.
+## Boundary wall offset past the floor's edges.
 const WALL_MARGIN := 1.5
-## CSGCylinder3D defaults to a low-poly side count (8) - fine for an
-## octagonal pillar, but it renders our "circles" as visibly angular
-## chevrons/wedges instead of a smooth curve (caught by screenshotting a
-## first attempt at this arena - looked like a sharp-angled roof, not a
-## crescent). Every cylinder below sets this explicitly.
+## CSGCylinder3D's default 8 sides makes the circles visibly angular.
 const CSG_SIDES := 64
 
-## Roughly the crescent's own belly point (farthest from the cutout,
-## opposite CUT_OFFSET's direction) - not exact, just a reasonable spot
-## on the walkable band for a boss placeholder marker.
+## Roughly the crescent's belly, farthest from the cutout.
 const BOSS_SPAWN_LOCAL := Vector3(0, 0.05, -(OUTER_RADIUS - CUT_OFFSET * 0.5))
 ## One end of the crescent band - a reasonable default player entry point
 ## for whenever this arena gets wired into the game's actual flow.
@@ -121,11 +99,8 @@ func _spawn_ui() -> void:
 		add_child(scene.instantiate())
 
 func _build_environment() -> void:
-	# First pass at this was unplayably dark (verified by screenshot, not
-	# just guessed at) - "terrifying" needs to read as strong CONTRAST
-	# between dark stone and glowing cracks/embers, not a scene so dim the
-	# floor itself is barely visible. Brightened ambient/key light and
-	# thinned the fog considerably from the first attempt.
+	# Dark but readable: contrast comes from the glowing cracks, so don't
+	# drop the ambient light or thicken the fog much further.
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color(0.04, 0.015, 0.015)
@@ -154,9 +129,7 @@ func _build_lighting() -> void:
 	light.rotation_degrees = Vector3(-55, 35, 0)
 	add_child(light)
 
-	# A dim, low, red glow near the boss spot - keeps the floor's cracks
-	# readable near the arena's focal point without washing out the
-	# darkness the ambient/fog settings above are going for.
+	# Dim red glow near the boss spot.
 	var underlight := OmniLight3D.new()
 	underlight.name = "EmberGlow"
 	underlight.position = BOSS_SPAWN_LOCAL + Vector3(0, 2.5, 0)
@@ -201,11 +174,7 @@ func _build_boundary_walls() -> void:
 	root.use_collision = true
 	root.visible = false  # collision-only - "an invisible wall" per the request
 
-	# Outer ring: a tall hollow cylinder tracing OUTER_RADIUS's full
-	# circumference. Full 360 degrees rather than just the crescent's own
-	# outer arc - the extra wall length past the crescent's ends has no
-	# floor near it and is never in the player's way, but building it as
-	# a full ring is far simpler than tracing the exact lune boundary.
+	# Outer ring: a full hollow cylinder, simpler than tracing the lune.
 	var outer_solid := CSGCylinder3D.new()
 	outer_solid.radius = OUTER_RADIUS + WALL_MARGIN
 	outer_solid.height = WALL_HEIGHT
@@ -222,9 +191,7 @@ func _build_boundary_walls() -> void:
 	outer_hollow.operation = CSGShape3D.OPERATION_SUBTRACTION
 	root.add_child(outer_hollow)
 
-	# Inner (cutout) ring: same idea, tracing the boundary of the circle
-	# that was subtracted from the floor - stops players walking off the
-	# crescent's inner edge into the cutout.
+	# Inner ring around the cutout circle.
 	var inner_solid := CSGCylinder3D.new()
 	inner_solid.radius = CUT_RADIUS
 	inner_solid.height = WALL_HEIGHT

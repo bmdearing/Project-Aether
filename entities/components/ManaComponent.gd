@@ -1,11 +1,6 @@
 extends Node
 class_name ManaComponent
-## Resource pool Ability.resource_cost draws from. Unlike WardComponent
-## (Section 16: no passive regen, active-restoration only per the docs),
-## there's no documented Mana design anywhere in the referenced sections -
-## a slow passive regen here is an invented, undocumented default, not
-## doc-sourced, same category as WardComponent's own placeholder
-## restore-on-parry ratio.
+## Mana pool spent by abilities, with slow passive regen.
 
 @export var max_mana: float = 100.0
 @export var regen_per_second: float = 5.0

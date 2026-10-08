@@ -1,11 +1,7 @@
 extends MeshInstance3D
 class_name TreeSilhouette
-## Procedural pine-tree silhouette - same cheap flat-facing-camera trick
-## MountainRange.gd already uses for the mountain layers, giving the Main
-## Menu backdrop a foreground depth layer instead of just two mountain
-## ridges (user request: "add trees to the landscape"). A trunk sliver
-## plus 3 stacked, narrowing triangular tiers reads as a conifer at
-## silhouette distance without needing a real tree mesh/texture.
+## Flat pine-tree silhouette for the main menu backdrop: a trunk plus three
+## narrowing triangular tiers.
 
 @export var trunk_height: float = 1.2
 @export var trunk_width: float = 0.35

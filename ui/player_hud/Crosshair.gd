@@ -1,13 +1,6 @@
 extends Control
 class_name Crosshair
-## Implementation Brief v3.4 Section 1 (2026-08-31): simple static
-## crosshair, visible regardless of weapon type (hidden only while a UI
-## panel has the mouse, see _process()) - explicitly no
-## spread animation, no melee hiding, no movement/firing-driven dynamics.
-## Four short segments (a hollow-center cross) rather than two solid
-## overlapping bars - reads as one consistent visual language with
-## HitMarker's own shape right next to it, just static/dim instead of a
-## brief bright flash.
+## Static hollow-centre cross, hidden only while a UI panel has the mouse.
 
 const COLOR := Color(1.0, 1.0, 1.0, 0.8)
 const RING_RADIUS := 9.0

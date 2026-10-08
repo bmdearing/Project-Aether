@@ -1,8 +1,6 @@
 extends RefCounted
 class_name StatSummaryBuilder
-## Shared stat-line builder for CharacterScreen and InventoryScreen's
-## stats column (equipping gear there now updates stats live in place).
-## One source of truth so both stay in sync.
+## Stat lines shared by CharacterScreen and InventoryScreen's stats column.
 
 ## Hover text per stat row, keyed by the row's label (Patch v4.3). Rows not
 ## listed here get no tooltip.
@@ -79,22 +77,14 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 		if bonus != 0.0:
 			_add(misc_list, "%s Chain Bonus" % Constants.DAMAGE_TYPE_NAME.get(tag, "?"), "+%.1f%%" % (bonus * 100.0))
 
-## OFFHAND can hold a Shield (no damage - `as Weapon` returns null,
-## reading as "None equipped" below) or an offhand-type Weapon since
-## Patch v3.5 dropped Sidearm as its own slot.
+## Null for a Shield in OFFHAND.
 static func _weapon_in(player: Player, slot: Constants.EquipmentSlot) -> Weapon:
 	if player.equipment == null:
 		return null
 	return player.equipment.primary_weapon if slot == Constants.EquipmentSlot.PRIMARY_WEAPON else player.equipment.offhand as Weapon
 
-## motion_value comes from whichever attack script would actually use
-## this slot (melee vs ranged), matching Player's own dispatch by
-## Weapon.is_ranged rather than assuming Primary=melee/Offhand=ranged.
-## Melee reads PlayerMeleeAttack._effective_motion_value(weapon) rather
-## than its own flat base_motion_value now that motion value varies per
-## weapon_type (2026-08-30) - DEVELOPMENT.md/this file's own convention is this
-## number can never drift from what a real swing actually deals, so it
-## has to follow that change too, not just PlayerMeleeAttack.gd itself.
+## Uses the same motion value the melee/ranged attack script would, so the
+## prediction matches real hits.
 static func _predict_damage(player: Player, slot: Constants.EquipmentSlot) -> String:
 	var weapon := _weapon_in(player, slot)
 	if weapon == null:

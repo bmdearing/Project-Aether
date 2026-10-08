@@ -7,20 +7,14 @@ class_name StanceComponent
 @export var max_stance: float = 100.0
 var current_stance: float = 0.0
 
-# Depletion weight multipliers by damage category, per Section 07 Stance rules.
+# Depletion weight multipliers by damage category.
 const CATEGORY_WEIGHT := {
 	Constants.DamageCategory.PHYSICAL: 1.0,   # Blunt/Explosive land at the strong end within Physical
 	Constants.DamageCategory.ELEMENTAL: 0.6,  # treated as "ranged/moderate" until elemental-specific tuning lands
 	Constants.DamageCategory.ESOTERIC: 0.35,  # Occult/Spell - weakest Stance depletion, bypasses physical guard
 }
 
-## User-reported feel issue: ordinary attacks were depleting Stance far
-## too fast ("too much stance damage just by hitting"), breaking Composure
-## almost immediately and cheapening Parry's own dedicated role ("Stance
-## depleted primarily through successful Parries" per Section 07 - attack
-## chip damage was drowning that out). -80% on the attack-damage path
-## only; Parry's own apply_parry_damage() is untouched, still the primary
-## Stance-break tool it's meant to be.
+## Keeps ordinary hits from breaking Stance faster than Parries do.
 const ATTACK_STANCE_DAMAGE_MULTIPLIER := 0.2
 
 func _ready() -> void:

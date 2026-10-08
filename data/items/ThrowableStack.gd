@@ -1,8 +1,6 @@
 extends Resource
 class_name ThrowableStack
-## Patch v3.5 Section 3: throwables are no longer an equipment slot - a
-## stackable inventory consumable instead, consumed on use. See
-## Player.active_throwable/use_throwable().
+## Stackable throwable consumable (Player.active_throwable/use_throwable()).
 
 @export var throwable_type: String = ""    # matches ability_id of throwable
 @export var quantity: int = 0

@@ -1,38 +1,22 @@
 extends Node
 class_name PlayerAbilityCast
-## Casts AbilityLoadoutComponent's equipped abilities on ability_1..4
-## input, checking/consuming ManaComponent + cooldown per Ability.
+## Casts the equipped abilities on ability_1..4 input, checking Mana and
+## cooldowns.
 ##
-## Most abilities cast instantly at the player's own position (a self-
-## centered nova) on press. Several (Ability.is_ground_targeted) instead
-## enter a hold-to-aim mode: holding the key shows a ground ring following
-## a raycast from the camera, and releasing casts centered on that point
-## instead. Only one targeting session can be active at a time - a second
-## targeted key pressed mid-aim is ignored until the first is released.
+## Most abilities cast instantly at the player's position. Ground-targeted
+## ones enter hold-to-aim: holding shows a reticle at the camera raycast hit,
+## releasing casts there. Only one targeting session at a time.
 ##
-## Execution is otherwise deliberately generic for every ability: consume
-## resource_cost, start cooldown, deal damage to every Enemy within the
-## ability's own radius of the cast point, then apply Ability.
-## applies_status_effects (Section 09, via StatusEffectComponent) to each
-## hit. Not each ability's actual described mechanic (Comet/Winter's Eye/
-## Frost Armor are distinct real mechanics) - a first pass so the ability
-## bar's readouts aren't inert UI. Three abilities break this generic
-## shape outright: Blink/Purge deal no damage at all (see _cast()'s early
-## returns), and Black Hole/Caltrops layer extra behavior on top via their
-## own effect scenes (BlackHoleField/CaltropsField) rather than anything
-## this script does directly.
+## The default cast damages every enemy in radius and applies the ability's
+## statuses; abilities with bespoke mechanics branch off early in _cast().
 
 const RANGE_EFFECT_SCENE := preload("res://entities/effects/ability_range_effect/AbilityRangeEffect.tscn")
 const MAX_TARGET_RANGE := 30.0
 const RETICLE_HEIGHT_OFFSET := 0.05
 const FLAME_WALL_RETICLE_HEIGHT := 0.05  # flat ground-plan slab, not the real wall's WALL_HEIGHT
 
-## Ground-targeted abilities with a bespoke cast VFX instead of the
-## generic ring - everything else still just uses RANGE_EFFECT_SCENE.
-## Meteor ("26 - Ability Staging Ground": "descends from above, crashing
-## into a targeted area") reuses Comet's own fall-and-impact VFX outright -
-## same mechanic, just a different damage type/color, not worth a second
-## near-identical scene.
+## Abilities with a bespoke cast VFX instead of the generic ring. Meteor
+## reuses Comet's impact scene.
 const SPECIAL_EFFECT_SCENES := {
 	"comet": preload("res://entities/effects/comet_impact/CometImpact.tscn"),
 	"meteor": preload("res://entities/effects/comet_impact/CometImpact.tscn"),
@@ -45,11 +29,7 @@ const SPECIAL_EFFECT_SCENES := {
 	"tornado": preload("res://entities/effects/tornado_field/TornadoField.tscn"),
 }
 
-## Spark ("creates 3 lightning projectiles that crawl the ground and
-## search for enemies", user request 2026-08-30) - spawned directly by
-## _fire_spark() below rather than through SPECIAL_EFFECT_SCENES/
-## _play_range_effect(), since it's 3 independently-moving crawlers, not
-## one VFX instance at a fixed cast point.
+## Spark: ground crawlers spawned by _fire_spark().
 const SPARK_CRAWLER_SCENE := preload("res://entities/effects/spark_crawler/SparkCrawler.tscn")
 const SPARK_COUNT := 3
 const SPARK_SPREAD_DEG := 25.0
@@ -57,28 +37,14 @@ const SPARK_SPREAD_DEG := 25.0
 
 const BLINK_DISTANCE := 8.0
 const PIERCING_BOLT_SCENE := preload("res://entities/effects/piercing_bolt/PiercingBolt.tscn")
-## User request (2026-08-30): "Cinder Lance should throw a spear of fire
-## at a crosshair, this should pierce" / "Thunder Javelin should work
-## like Cinder Lance." Both replaced by PIERCING_BOLT_SCENE - a real
-## traveling bolt (see that scene's own header) instead of the generic
-## instant-AoE-at-cast-point every other first-pass ability still uses.
+## Fired as a piercing bolt from the crosshair.
 const PIERCING_BOLT_ABILITY_IDS := ["cinder_lance", "thunder_javelin"]
 const THUNDER_SWEEP_BOLT_COUNT := 8
-## Thunder Javelin is the fast one ("Fast, piercing projectile").
 const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sweep": 18.0}
 
-## Frost Armor ("A layer of frozen energy coats the Freeblood. Enemies
-## that strike in melee range trigger a Retaliation Damage burst of Cold
-## damage. Applies Chill on retaliation hit.") - a pure self-buff at cast
-## time (no AoE hit on cast, same as Blink/Purge skip the generic loop),
-## a fixed duration window during which EnemyMeleeAttack._resolve_hit()
-## (the exact point a melee hit lands on the player) calls
-## trigger_frost_armor_retaliation() back here. User-reported bug fix
-## (2026-08-30): "Frost Armor doesn't properly deal cold retaliation
-## damage to enemies when they melee attack the player" - it never had
-## any retaliation mechanic at all before this, just the generic instant-
-## AoE-at-cast-point every other first-pass ability used.
-const FROST_ARMOR_DURATION := 8.0  # invented, no doc-given buff duration
+## Frost Armor: a self-buff; while active, enemy melee hits call
+## trigger_frost_armor_retaliation() (from EnemyMeleeAttack._resolve_hit()).
+const FROST_ARMOR_DURATION := 8.0
 
 const FROST_ARMOR_BURST_COOLDOWN := 0.5  # a pack hitting at once triggers one burst, not one each
 const FROST_SHARD_COUNT := 6
@@ -89,27 +55,10 @@ var _frost_armor_remaining: float = 0.0
 var _frost_armor_burst_cd: float = 0.0
 var _frost_armor_fx: Node3D
 
-## Flame Jets ("flamethrower type spell, slowing the character down and
-## throwing flames at what the player is looking at" - user request,
-## 2026-08-30). Re-aims at the camera's CURRENT forward direction every
-## tick rather than locking direction at cast time - "what the player is
-## looking at" reads as continuous, not a single snapshot. Player.
-## _effective_speed() reads get_move_speed_multiplier() below every
-## physics frame while this is active, same pattern PlayerMeleeAttack's
-## own attack-speed penalty already follows.
-##
-## Patch v3.8b: reworked into a real hold-to-channel spell. resource_cost/
-## cooldown still spend/start once at press (same economy every other
-## ability uses), but the channel itself now also drains Mana continuously
-## (CHANNEL_MANA_DRAIN_PERCENT of resource_cost every CHANNEL_MANA_DRAIN_
-## INTERVAL) and cuts off the instant the ability_N key releases or Mana
-## hits 0 - no grace tick either way. FLAME_JETS_DURATION is now a hard
-## cap (a held key can't channel forever), not the sole end condition.
-## Flame Jets is the only CHANNELED-cast_type ability in the project right
-## now, so this stays flame_jets-specific rather than a generic system -
-## CastTimeHandler.gd already fires CHANNELED abilities' _cast() the same
-## instant as INSTANT ones (no windup to interrupt), so "not interruptible
-## by damage" needs no separate change here.
+## Flame Jets: a hold-to-channel cone that follows the camera each tick and
+## slows the player (Player reads get_move_speed_multiplier()). The cost is
+## paid on press, then Mana drains continuously; the channel ends when the
+## key is released or Mana hits 0.
 const FLAME_JETS_DURATION := 1.8  # auto-cast (Slate) length
 const FLAME_JETS_MANUAL_CAP := 600.0
 const FLAME_JETS_TICK_INTERVAL := 0.15
@@ -125,12 +74,7 @@ var _flame_jets_remaining: float = 0.0
 var _flame_jets_tick_timer: float = 0.0
 var _flame_jets_drain_timer: float = 0.0
 var _flame_jets_input_action: String = ""
-## false for a Slate auto-cast (The Unbound Chorus etc. - EXPLICITLY "no
-## resource cost", never calls ManaComponent.spend()) - the hold-to-
-## channel key check and continuous Mana drain below only apply to a real
-## player-held cast, or auto-cast Flame Jets would either drain Mana it's
-## documented never to cost, or get cut off instantly since no key is
-## actually being held for it.
+## False for a Slate auto-cast: no key to hold and no Mana drain.
 var _flame_jets_is_manual: bool = false
 var _flame_jets_fx: CPUParticles3D
 
@@ -146,10 +90,8 @@ var _cast_plans: Dictionary = {}
 ## Unleash: yaw offset (degrees) for the copy being cast right now.
 var _aim_yaw_offset: float = 0.0
 var _reticle: MeshInstance3D
-## ability_id -> Ability, lazily scanned from data/abilities/instances/ -
-## same dir-scan AbilitiesScreen._scan_owned_abilities() already does, kept
-## here too since Slate-designated abilities (see below) aren't necessarily
-## in the 4-slot hotbar AbilityLoadoutComponent tracks.
+## ability_id -> Ability, lazily scanned from data/abilities/instances/ for
+## Slate-designated abilities that may not be on the bar.
 var _ability_by_id_cache: Dictionary = {}
 
 func _ready() -> void:
@@ -231,9 +173,7 @@ func _release_targeted_cast() -> void:
 	_hide_reticle()
 	_try_cast(slot_index, _get_ground_target_point(), _targeting_from_page)
 
-## Mana/cooldown are checked here, not when targeting starts - a targeted
-## cast only spends/starts cooldown on an actual release, same as an
-## instant cast only ever fires once, at the moment its checks pass.
+## Mana/cooldown are checked on release, not when targeting starts.
 func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false) -> void:
 	var ability: Ability = _slot_ability(slot_index, from_page)
 	if ability == null:
@@ -251,9 +191,7 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 	if _player.mana.current_mana < ability.get_mana_cost(_player.stat_sheet) * copies:
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
 		return
-	# Patch v4.3: CastTimeHandler.try_cast() refuses while a cast is winding
-	# up - which used to happen AFTER mana was spent and the cooldown started,
-	# silently eating both.
+	# Checked before spending, since CastTimeHandler refuses mid-windup.
 	if _player.cast_time_handler.is_casting():
 		EventBus.ability_cast_failed.emit(_player, ability, "Already casting")
 		return
@@ -262,15 +200,9 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_input_action = "ability_%d" % (slot_index + 1)
 		_flame_jets_is_manual = true
-	# Section 12: Instinct -> "+1% Attack/Cast speed per point" - divides
-	# the authored cooldown, same treatment PlayerMeleeAttack/
-	# PlayerRangedAttack give their own timings. get_final_cooldown() caps
-	# the combined reduction at Constants.MAX_COOLDOWN_REDUCTION.
 	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet)
-	# Patch v3.7 Section 2: routes through CastTimeHandler - INSTANT/
-	# CHANNELED abilities call _cast() back immediately (synchronously,
-	# via _on_cast_time_completed below), CAST_TIME ones only after their
-	# windup finishes (or not at all if interrupted by taking damage).
+	# CastTimeHandler calls _on_cast_time_completed() immediately for
+	# INSTANT/CHANNELED, or after the windup for CAST_TIME.
 	var cast: Ability = plan["ability"]
 	if cast != ability:
 		_cast_plans[cast] = plan
@@ -295,16 +227,8 @@ func _on_cast_time_completed(ability: Ability, cast_position: Vector3) -> void:
 		_cast(ability, cast_position + right * offset * CasterStance.UNLEASH_TARGET_SPACING)
 	_aim_yaw_offset = 0.0
 
-## Each enemy rolls its own crit independently (roll_damage() per-target,
-## not once and reused) - a shared roll would make them all crit together.
-## damage_multiplier/apply_composure exist for _auto_cast() below (Slate-
-## designated auto-cast damage is reduced and doesn't apply Composure
-## damage per The Unbound Chorus's own modifiers) - a real player press
-## always calls this with both at their defaults.
+## damage_multiplier/apply_composure are only non-default for Slate auto-casts.
 func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 1.0, apply_composure: bool = true) -> void:
-	# Blink/Purge ("26 - Ability Staging Ground", Utility) have "No damage
-	# component" per the doc itself - the only two abilities in this
-	# project that skip the generic enemy-damage loop entirely.
 	if ability.ability_id == "blink":
 		_flash_ring(_player.global_position, 1.4, ability)
 		_perform_blink()
@@ -333,10 +257,7 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		_flame_jets_fx.emitting = true
 		EventBus.ability_cast.emit(_player, ability)
 		return
-	# Black Hole ("shouldn't be a DoT, but deals Entropic damage every
-	# .25 seconds", 2026-08-30) - ALL of its damage now comes from
-	# BlackHoleField's own repeated ticks (see that scene's header), not
-	# an instant hit here.
+	# Field abilities: all damage comes from the effect scene's own ticks.
 	if ability.ability_id == "black_hole":
 		_play_range_effect(ability, cast_position)
 		EventBus.ability_cast.emit(_player, ability)
@@ -345,41 +266,23 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		_fire_piercing_bolt(ability, damage_multiplier)
 		EventBus.ability_cast.emit(_player, ability)
 		return
-	# Thunder Sweep: "should fire out bolts of lightning along the floor
-	# originating from the player" - THUNDER_SWEEP_BOLT_COUNT PiercingBolts
-	# spawned radiating outward in a full circle around the player
-	# (matches the doc's older "strikes all surrounding enemies" intent
-	# via coverage rather than one big AoE), each flattened to travel
-	# along the ground rather than following the camera's pitch.
 	if ability.ability_id == "thunder_sweep":
 		_fire_radiating_bolts(ability, damage_multiplier)
 		EventBus.ability_cast.emit(_player, ability)
 		return
-	# Flame Wall: no instant burst on cast, per the user's own description
-	# ("makes a wall of fire that ignites... and does damage over time") -
-	# all its damage comes from FlameWallField's own Ignite-on-entry +
-	# repeated tick, same "bespoke mechanic skips the generic loop"
-	# precedent as Black Hole/Frost Armor/Blink/Purge above.
 	if ability.ability_id == "flame_wall":
 		_play_range_effect(ability, cast_position)
 		EventBus.ability_cast.emit(_player, ability)
 		return
-	# Winter's Eye: the orb SPAWNS at the player and travels TOWARD
-	# cast_position - doesn't fit _play_range_effect()'s generic "spawn
-	# the VFX at cast_position" pattern, so it gets its own dispatch.
+	# The orb spawns at the player and travels toward cast_position.
 	if ability.ability_id == "winters_eye":
 		_fire_winters_eye(ability, cast_position)
 		EventBus.ability_cast.emit(_player, ability)
 		return
-	# Spark: 3 independently-seeking ground crawlers, not one AoE-at-a-point
-	# VFX - see _fire_spark()'s own header.
 	if ability.ability_id == "spark":
 		_fire_spark(ability, damage_multiplier)
 		EventBus.ability_cast.emit(_player, ability)
 		return
-	# Tornado: all damage comes from TornadoField's own repeated ticks
-	# while it drifts/hunts, same "bespoke mechanic skips the generic
-	# loop" precedent as Black Hole/Flame Wall above.
 	if ability.ability_id == "tornado":
 		_play_range_effect(ability, cast_position)
 		EventBus.ability_cast.emit(_player, ability)
@@ -506,14 +409,8 @@ func _flash_ring(pos: Vector3, radius: float, ability: Ability, color: Color = C
 	ring.global_position = pos + Vector3.UP * 0.05
 	ring.play(radius, color if color.a > 0.0 else Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE))
 
-## Section 10 Unique "The Unbound Chorus": "Designate one Spell skill -
-## that skill automatically triggers when its cooldown expires." Scoped to
-## exactly that one doc-sourced mechanic (auto_cast_designated_spell) for
-## now - Slate.requires_spell_designation and FateBoard.PlacedSlateData.
-## designated_ability_id are the general "a Slate is bound to a spell"
-## framework this reads from; other interaction types (buff/retrigger/
-## modify a designated spell) would need their own concrete Slate designs
-## to implement against, same as this one did.
+## Auto-casts spells designated on Slates with auto_cast_designated_spell
+## (The Unbound Chorus) whenever they're off cooldown.
 func _process_slate_autocasts() -> void:
 	if _player.fate_board == null:
 		return
@@ -526,11 +423,8 @@ func _process_slate_autocasts() -> void:
 			continue
 		_auto_cast(ability, data.slate)
 
-## Modifiers 2-4 off The Unbound Chorus specifically: 60% damage
-## (auto_cast_damage_percent), no resource cost (satisfied structurally -
-## this never calls ManaComponent.spend(), unlike _try_cast()), no
-## Riposte window/Composure damage (apply_composure=false).
-## Spells have no cooldown of their own, so auto-cast needs its own pacing.
+## Auto-casts cost no Mana, deal auto_cast_damage_percent damage and skip
+## Composure damage. Spells have no cooldown, so this paces them.
 const AUTO_CAST_MIN_INTERVAL := 2.0
 
 func _auto_cast(ability: Ability, slate: Slate) -> void:
@@ -593,29 +487,19 @@ func _play_range_effect(ability: Ability, cast_position: Vector3) -> Node3D:
 	effect.global_position = cast_position
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
 	if ability.ability_id == "flame_wall":
-		# Needs the caster's own position too, to orient the wall - see
-		# FlameWallField.play()'s own comment.
+		# The caster position orients the wall.
 		effect.call("play", ability.get_radius(_player.stat_sheet), color, ability, _player.stat_sheet, _player, _player.global_position)
 	elif ability.ability_id == "caltrops" or ability.ability_id == "black_hole" or ability.ability_id == "tornado":
-		# CaltropsField/BlackHoleField need the ability + StatSheet directly -
-		# both roll their own damage per tick rather than reusing one hit's
-		# damage repeatedly.
+		# Field scenes roll their own damage per tick.
 		effect.call("play", ability.get_radius(_player.stat_sheet), color, ability, _player.stat_sheet, _player)
 	else:
 		effect.call("play", ability.get_radius(_player.stat_sheet), color)
 	return effect
 
-## Called by EnemyMeleeAttack._resolve_hit() at the exact moment an enemy's
-## melee strike lands on the player - "melee range" per Frost Armor's own
-## doc text, not any damage the player takes. Rolls a fresh hit off the
-## Ability's own scaling (same pattern every other ability's damage
-## already follows) rather than a fixed number, so gear/stats still matter.
 func get_move_speed_multiplier() -> float:
 	return FLAME_JETS_MOVE_SPEED_MULTIPLIER if _flame_jets_remaining > 0.0 else 1.0
 
-## Cone check via dot product against the camera's CURRENT forward
-## direction (not whatever it was at cast time) - a flamethrower stream
-## should track where the player is looking while it's firing.
+## Cone check against the camera's current forward direction.
 func _tick_flame_jets() -> void:
 	var origin := _player.camera.global_position
 	var forward := -_player.camera.global_transform.basis.z
@@ -729,14 +613,11 @@ func _ensure_frost_armor_fx() -> void:
 func has_frost_armor() -> bool:
 	return _frost_armor_remaining > 0.0
 
+## Called when an enemy melee hit lands on the player.
 func trigger_frost_armor_retaliation(attacker: Enemy) -> void:
 	if not has_frost_armor() or _frost_armor_ability == null or attacker == null or _frost_armor_burst_cd > 0.0:
 		return
 	_frost_armor_burst_cd = FROST_ARMOR_BURST_COOLDOWN
-	# Patch v4.0 "Increased Retaliation Damage" - the only real retaliation
-	# trigger in this project right now (a general passive-block-triggers-
-	# a-counterattack mechanic doesn't exist to hook "Retaliate on Passive
-	# Block" into - see PATCH_NOTES.md for that gap).
 	var mult := 1.0 + _player.stat_sheet.get_misc_bonus("increased_retaliation_damage") / 100.0
 	# The burst hits everything within the ability's radius, and always the attacker.
 	var centre := _player.global_position
@@ -746,18 +627,12 @@ func trigger_frost_armor_retaliation(attacker: Enemy) -> void:
 		_hit_enemy(_frost_armor_ability, attacker, mult, true, Callable())
 	_flash_ring(centre, radius, _frost_armor_ability)
 
-## Fired from the camera's own forward direction ("at a crosshair") -
-## not ground-targeted, no aim-hold step, matches "throw a spear ... at a
-## crosshair" reading as an instant-direction throw, not a placed point.
 func _fire_piercing_bolt(ability: Ability, damage_multiplier: float) -> void:
 	var xform := _player.camera.global_transform
 	xform.basis = Basis(Vector3.UP, deg_to_rad(_aim_yaw_offset)) * xform.basis
 	_spawn_bolt(ability, damage_multiplier, xform)
 
-## THUNDER_SWEEP_BOLT_COUNT bolts spawned at evenly-spaced yaw angles
-## around the player, each flattened to the horizontal plane (a "ground
-## bolt" shouldn't inherit the camera's up/down look pitch the way a
-## crosshair-aimed bolt should).
+## Ground bolts in a full horizontal circle around the player.
 func _fire_radiating_bolts(ability: Ability, damage_multiplier: float) -> void:
 	var origin := _player.global_position + Vector3(0, 0.3, 0)
 	for i in range(THUNDER_SWEEP_BOLT_COUNT):
@@ -765,9 +640,7 @@ func _fire_radiating_bolts(ability: Ability, damage_multiplier: float) -> void:
 		var xform := Transform3D(Basis(Vector3.UP, angle), origin)
 		_spawn_bolt(ability, damage_multiplier, xform)
 
-## Spawns SPARK_COUNT crawlers in a fan spread in front of the caster
-## (flattened to the horizontal plane), each independently re-targeting
-## the nearest enemy once it's loose - see SparkCrawler's own header.
+## SPARK_COUNT crawlers fanned out ahead of the caster; each seeks on its own.
 func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
 	var forward := -_player.camera.global_transform.basis.z
 	forward.y = 0.0
@@ -810,17 +683,9 @@ func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D)
 	_player.get_tree().current_scene.add_child(bolt)
 	bolt.global_transform = xform
 
-## "26 - Ability Staging Ground", Utility - Blink: "Teleport a short
-## distance in a targeted direction. No attack component." Raycasts along
-## the camera's forward direction (flattened to the horizontal plane, so
-## looking up/down doesn't launch the player into the air or the floor)
-## so the player can't blink through a wall - stops just short of
-## whatever it hits, or travels the full BLINK_DISTANCE if nothing's there.
-## Cast from the CAMERA's height, not the player's feet-level
-## global_position - a horizontal ray started exactly at floor height
-## grazes the floor collider and reports an immediate 0-distance "hit" at
-## the origin itself, which zeroed out every blink (caught by
-## scratch_big_test.gd during verification).
+## Teleports horizontally along the camera's facing, stopping short of walls.
+## The ray starts at camera height: from the feet it would graze the floor
+## and report a 0-distance hit.
 func _perform_blink() -> void:
 	var camera := _player.camera
 	var ray_origin := camera.global_position
@@ -836,12 +701,8 @@ func _perform_blink() -> void:
 	var distance: float = max(ray_origin.distance_to(result["position"]) - 0.5, 0.0) if result else BLINK_DISTANCE
 	_player.global_position += direction * distance
 
-## Ray from the camera through the (fixed, first-person) crosshair to
-## whatever it's aimed at - floor, wall, or enemy collision all work as a
-## target surface. Aiming at open sky (nothing hit) falls back to
-## projecting onto a horizontal plane at the player's own feet height, so
-## there's always a sensible point rather than an undefined one. Capped
-## at MAX_TARGET_RANGE either way.
+## Crosshair raycast hit, capped at MAX_TARGET_RANGE. With no hit, falls back
+## to the plane at the player's feet.
 func _get_ground_target_point() -> Vector3:
 	var camera := _player.camera
 	var origin := camera.global_position
@@ -857,13 +718,7 @@ func _get_ground_target_point() -> Vector3:
 		return origin + direction * clamp(t, 0.0, MAX_TARGET_RANGE)
 	return origin + direction * MAX_TARGET_RANGE
 
-## Flame Wall is not circular AoE (Patch v3.8b) - its real shape, per
-## FlameWallField.gd, is a WALL_THICKNESS-deep rectangle spanning
-## max(radius, 1.5) * 2 in width, oriented perpendicular to the caster ->
-## cast-point line. The shared reticle swaps to a flat box matching that
-## exact footprint (reading FlameWallField's own WALL_THICKNESS constant
-## rather than duplicating the number) instead of the generic Torus used
-## by every other ground-targeted ability.
+## A ring for most abilities; Flame Wall gets a box matching its footprint.
 func _show_reticle(ability: Ability) -> void:
 	if _reticle == null:
 		_reticle = MeshInstance3D.new()
@@ -898,9 +753,7 @@ func _update_reticle() -> void:
 	var target_point := _get_ground_target_point()
 	_reticle.global_position = target_point + Vector3(0, RETICLE_HEIGHT_OFFSET, 0)
 	if _reticle.mesh is BoxMesh:
-		# Same orientation rule as FlameWallField.play(): look_at() points
-		# local -Z at the caster, which puts local X (the box's width axis)
-		# perpendicular to the caster->target line.
+		# Same orientation as FlameWallField.play(): width perpendicular to the caster.
 		var flat_caster_pos := Vector3(_player.global_position.x, _reticle.global_position.y, _player.global_position.z)
 		if _reticle.global_position.distance_to(flat_caster_pos) > 0.01:
 			_reticle.look_at(flat_caster_pos, Vector3.UP)

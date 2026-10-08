@@ -52,9 +52,7 @@ func end_broken_state() -> void:
 		stance.reset()
 	broken_state_ended.emit()
 
-## World Doc Section 07: Composure Break increases damage taken from attacks
-## and skills, explicitly NOT spells - is_spell must be true for Conduit/spell
-## damage so it's excluded from the bonus.
+## The broken-state bonus excludes spells, so spell damage passes is_spell.
 func get_damage_multiplier(is_spell: bool = false) -> float:
 	if is_spell:
 		return 1.0

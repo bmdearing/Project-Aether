@@ -24,11 +24,8 @@ var _board: FateBoard
 var _selected_slate: Slate
 var _rotation_steps: int = 0
 var _flipped: bool = false
-## Section 10 Unique "The Unbound Chorus": which owned Ability the
-## currently-selected Spell Slate will bind to on placement - populated by
-## _refresh_designate_options(), read at the moment of a successful click
-## placement, then cleared. "" means none chosen yet (blocks placement for
-## a Slate with requires_spell_designation).
+## Ability the selected Spell Slate binds to on placement; "" blocks
+## placement for a Slate that requires one.
 var _pending_designated_ability_id: String = ""
 var _designate_ability_ids: Array[String] = []
 
@@ -109,10 +106,7 @@ func _on_palette_selected(slate: Slate) -> void:
 	selected_label.text = "\n".join(lines)
 	_refresh_designate_options(slate)
 
-## Section 10 Unique "The Unbound Chorus": "Designate one Spell skill" -
-## any owned Ability (not just what's in the 4-slot hotbar; the whole
-## point of a Slate-granted cast is it doesn't cost a hotbar slot), scanned
-## the same way AbilitiesScreen._scan_owned_abilities() already does.
+## Any owned Ability can be designated, not just those on the bar.
 func _refresh_designate_options(slate: Slate) -> void:
 	designate_option.clear()
 	_designate_ability_ids = []

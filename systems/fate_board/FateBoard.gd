@@ -2,17 +2,12 @@ extends Resource
 class_name FateBoard
 ## The Fate Board: effectively unlimited grid space, gated by Aether budget
 ## rather than tile limits. Tracks placed Slates and delegates chain math
-## to ChainCalculator. See Section 10.
+## to ChainCalculator.
 
 signal placement_failed(reason: String)
 
-## User request (2026-08-30): "gain 2 points of Aether for the Fate Board
-## every time you level up. Start with 10 at level 1." Invented - Section
-## 10 just calls the board "effectively unlimited," gated by Aether, with
-## no doc-sourced acquisition curve (same "Deferred Design" footing as
-## the rest of SlateRoller's own invented numbers). Replaces the previous
-## flat 30. See capacity_for_level() - Player.gd keeps aether_capacity in
-## sync with GameState.player_level at boot and on every level-up.
+## Aether budget by level (capacity_for_level()); Player keeps
+## aether_capacity in sync on boot and level-up.
 const AETHER_BASE := 10
 const AETHER_PER_LEVEL := 2
 
@@ -40,9 +35,7 @@ class PlacedSlateData:
 	var rotation_steps: int
 	var flipped: bool
 	var cells: Array[Vector2i]
-	## Section 10's Unique Slate "The Unbound Chorus": "Designate one Spell
-	## skill" - which owned Ability this placement is bound to, for Slates
-	## with Slate.requires_spell_designation. "" for every ordinary Slate.
+	## Bound ability for Slates with requires_spell_designation; "" otherwise.
 	var designated_ability_id: String = ""
 
 func can_place(slate: Slate, origin: Vector2i, rotation_steps: int, flipped: bool) -> bool:
@@ -70,13 +63,8 @@ func _touches_existing(cells: Array[Vector2i]) -> bool:
 				return true
 	return false
 
-## bypass_budget: true only for Player._apply_saved_fate_board() restoring
-## a previous session's placements - aether_capacity is now derived from
-## player_level (see capacity_for_level()) and gets (re)synced independently
-## of restore order, so a save should never have its own already-placed
-## Slates silently dropped just because capacity happens to be computed
-## before/after restoration runs. Same "a save always restores cleanly"
-## principle as EquipmentComponent.equip()'s own bypass_requirements.
+## bypass_budget: used when restoring a save, so placements never drop
+## because capacity is synced in a different order.
 func place_slate(slate: Slate, origin: Vector2i, rotation_steps: int = 0, flipped: bool = false, designated_ability_id: String = "", bypass_budget: bool = false) -> String:
 	var reason := _placement_failure_reason(slate, origin, rotation_steps, flipped, not bypass_budget)
 	if reason != "":
