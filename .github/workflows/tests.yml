@@ -27,8 +27,11 @@ jobs:
           key: godot-import-${{ env.GODOT_VERSION }}-${{ hashFiles('**/*.import') }}
           restore-keys: godot-import-${{ env.GODOT_VERSION }}-
 
+      # The first import on a fresh checkout only builds the class cache.
       - name: Import assets
-        run: timeout 1500 "$RUNNER_TEMP/godot" --headless --path . --import
+        run: |
+          timeout 1500 "$RUNNER_TEMP/godot" --headless --path . --import
+          timeout 1500 "$RUNNER_TEMP/godot" --headless --path . --import
 
       - name: Run tests
         run: tests/run_all.sh "$RUNNER_TEMP/godot"
