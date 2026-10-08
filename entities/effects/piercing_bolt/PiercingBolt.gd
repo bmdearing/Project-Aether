@@ -18,7 +18,7 @@ var damage_amount: float = 0.0
 var damage_type: Constants.DamageType = Constants.DamageType.KINETIC
 var source: Node
 var is_critical: bool = false
-var applies_status_effects: Array[String] = []
+var ability: Ability  # rolls its statuses on each enemy hit
 
 ## Thunder Sweep: travels flat along the ground, riding over slopes and
 ## stopping only at walls; max_distance > 0 ends the bolt after that far.
@@ -94,5 +94,5 @@ func _hit(enemy: Enemy) -> void:
 	if enemy.stance:
 		enemy.stance.apply_attack_stance_damage(damage_amount, damage_type)
 	EventBus.damage_dealt.emit(source, enemy, damage_amount, damage_type, false, is_critical)
-	for effect_id in applies_status_effects:
-		enemy.status_effects.apply_effect(effect_id, source, damage_amount)
+	if ability:
+		ability.apply_statuses(enemy, source, damage_amount)

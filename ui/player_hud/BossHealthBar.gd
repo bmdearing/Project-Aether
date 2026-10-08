@@ -16,7 +16,7 @@ class_name BossHealthBar
 
 const WIDTH := 520.0
 const HEIGHT := 26.0
-const NAME_HEIGHT := 22.0
+const NAME_HEIGHT := 30.0
 
 ## User feedback (2026-08-31): "I like where you started it. But let's
 ## make the fill more clean." The original fill multiplied in a blocky
@@ -68,6 +68,9 @@ var _shader_mat: ShaderMaterial
 var _fraction: float = 1.0
 var _trailing_fraction: float = 1.0
 var _trail_speed: float = 0.0  # fraction/sec, set whenever a new trail starts
+var _ward_back: ColorRect
+var _ward_fill: ColorRect
+const WARD_HEIGHT := 6.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -80,6 +83,19 @@ func _ready() -> void:
 	offset_right = WIDTH / 2.0
 	offset_top = 14.0
 	offset_bottom = 14.0 + NAME_HEIGHT + HEIGHT
+
+	_ward_back = ColorRect.new()
+	_ward_back.color = Color(0.1, 0.2, 0.3, 0.8)
+	_ward_back.position = Vector2(0, NAME_HEIGHT - WARD_HEIGHT - 1.0)
+	_ward_back.size = Vector2(WIDTH, WARD_HEIGHT)
+	_ward_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ward_back.visible = false
+	add_child(_ward_back)
+	_ward_fill = ColorRect.new()
+	_ward_fill.color = Color(0.45, 0.8, 1.0)
+	_ward_fill.size = Vector2(WIDTH, WARD_HEIGHT)
+	_ward_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_ward_back.add_child(_ward_fill)
 
 	_label = Label.new()
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -107,6 +123,11 @@ func _ready() -> void:
 
 func set_boss_name(text: String) -> void:
 	_label.text = text
+
+func set_ward(current: float, max_value: float) -> void:
+	_ward_back.visible = max_value > 0.0
+	if max_value > 0.0:
+		_ward_fill.size.x = WIDTH * clampf(current / max_value, 0.0, 1.0)
 
 func set_health(current: float, max_value: float) -> void:
 	var new_fraction: float = clamp(current / max_value, 0.0, 1.0) if max_value > 0.0 else 0.0

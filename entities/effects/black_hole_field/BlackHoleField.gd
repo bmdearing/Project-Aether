@@ -59,7 +59,7 @@ func _physics_process(delta: float) -> void:
 		var to_center: Vector3 = global_position - enemy.global_position
 		to_center.y = 0.0
 		var dist := to_center.length()
-		if dist > _radius:
+		if dist - enemy.body_radius > _radius:
 			continue
 		# The dist<0.05 guard only matters for the pull math below (avoids
 		# normalizing a near-zero vector) - an enemy pulled all the way to

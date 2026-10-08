@@ -16,7 +16,6 @@
 [ext_resource type="PackedScene" path="res://ui/pause_menu/PauseMenu.tscn" id="6"]
 [ext_resource type="PackedScene" path="res://ui/fate_board_editor/FateBoardEditor.tscn" id="7"]
 [ext_resource type="PackedScene" path="res://ui/inventory/InventoryScreen.tscn" id="8"]
-[ext_resource type="PackedScene" path="res://ui/crafting/CraftingScreen.tscn" id="15"]
 [ext_resource type="PackedScene" path="res://ui/death_screen/DeathScreen.tscn" id="9"]
 [ext_resource type="PackedScene" path="res://ui/ability_bar/AbilityBar.tscn" id="10"]
 [ext_resource type="PackedScene" path="res://ui/abilities/AbilitiesScreen.tscn" id="11"]
@@ -108,8 +107,6 @@ definition = ExtResource("def_8")
 [node name="FateBoardEditor" parent="." instance=ExtResource("7")]
 
 [node name="InventoryScreen" parent="." instance=ExtResource("8")]
-
-[node name="CraftingScreen" parent="." instance=ExtResource("15")]
 
 [node name="AbilitiesScreen" parent="." instance=ExtResource("11")]
 

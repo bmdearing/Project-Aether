@@ -221,19 +221,31 @@ func _test_hub_crafting() -> void:
 	ring.tolerance = 100
 	GameState.inventory.add(ring)
 	GameState.inventory.add(&"brand_cold", 2)
-	var screen: CraftingScreen = hub.get_node("CraftingScreen")
+	var screen: InventoryScreen = hub.get_node("InventoryScreen")
 	screen.open()
-	_check(screen._targets().has(ring), "crafting screen lists carried items")
-	screen._on_target_selected(ring)
-	screen._on_brand_toggled(&"brand_cold")
-	screen._on_orb_selected(&"quickening")
-	_check(screen._preview_label.text.contains("Brands used"), "crafting screen shows the orb preview with active brands")
-	screen._on_orb_used(&"quickening")
-	_check(ring.rarity == Constants.ItemRarity.UNCOMMON and _explicits(ring)[0].def.tags.has(&"cold"), "crafting screen applies the orb with the active brand")
-	_check(GameState.inventory.count_of(&"quickening") == 2 and GameState.inventory.count_of(&"brand_cold") == 1, "crafting screen consumes from the grid")
+	var ring_entry: GridInventory.Entry = null
+	var brand_entry: GridInventory.Entry = null
+	var orb_entry: GridInventory.Entry = null
+	for e in GameState.inventory.get_entries():
+		if not e.is_currency() and e.content == ring:
+			ring_entry = e
+		elif e.is_currency() and e.content == &"brand_cold":
+			brand_entry = e
+		elif e.is_currency() and e.content == &"quickening":
+			orb_entry = e
+	screen._on_entry_right_clicked(screen.inventory_grid, brand_entry)
+	_check(screen._active_brands.is_active(&"brand_cold") and screen._highlight_for(brand_entry) == InventoryScreen.ACTIVE_BRAND_BORDER, "right-clicking a brand activates it with a red border")
+	screen._on_entry_right_clicked(screen.inventory_grid, orb_entry)
+	_check(screen._armed == &"quickening", "right-clicking an orb picks it up")
+	screen._on_entry_hovered(screen.inventory_grid, ring_entry)
+	_check(screen.status_label.text.contains("Brands used"), "hovering an item with an orb picked up shows the preview")
+	screen._on_entry_clicked(screen.inventory_grid, ring_entry)
+	_check(ring.rarity == Constants.ItemRarity.UNCOMMON and _explicits(ring)[0].def.tags.has(&"cold"), "clicking an item applies the orb with the active brand")
+	_check(GameState.inventory.count_of(&"quickening") == 2 and GameState.inventory.count_of(&"brand_cold") == 1, "crafting consumes from the grid")
 	GameState.inventory.add(&"edict_spell")
-	screen._on_edict_applied(&"edict_spell")
-	_check(ring.active_edict != null and GameState.inventory.count_of(&"edict_spell") == 0, "crafting screen applies edicts")
+	screen._armed = &"edict_spell"
+	screen._on_entry_right_clicked(screen.inventory_grid, ring_entry)
+	_check(ring.active_edict != null and GameState.inventory.count_of(&"edict_spell") == 0 and screen._armed == &"", "right-clicking an item with an edict picked up applies it")
 	screen.close()
 	_check(not hub.has_node("BrandShop"), "brand shop removed from the hub")
 	hub.queue_free()

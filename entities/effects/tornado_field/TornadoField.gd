@@ -68,7 +68,7 @@ func _physics_process(delta: float) -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if global_position.distance_to(enemy.global_position) > _radius:
+		if enemy.distance_to_body(global_position) > _radius:
 			continue
 		var hit := _ability.roll_damage(_stat_sheet)
 		var damage: float = hit["final_damage"] * TICK_DAMAGE_PERCENT
@@ -76,8 +76,7 @@ func _physics_process(delta: float) -> void:
 		if enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, _ability.damage_type)
 		EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
-		for effect_id in _ability.applies_status_effects:
-			enemy.status_effects.apply_effect(effect_id, _source, damage)
+		_ability.apply_statuses(enemy, _source, damage)
 
 ## Nearest living enemy within SEEK_RADIUS steers the heading; otherwise a
 ## periodic random redirect keeps it covering ground.

@@ -14,7 +14,6 @@
 [ext_resource type="PackedScene" path="res://ui/shop/ShopScreen.tscn" id="12"]
 [ext_resource type="PackedScene" path="res://entities/interactables/gear_shop/GearShop.tscn" id="13"]
 [ext_resource type="PackedScene" path="res://entities/interactables/spell_test_shop/SpellTestShop.tscn" id="14"]
-[ext_resource type="PackedScene" path="res://ui/crafting/CraftingScreen.tscn" id="15"]
 [ext_resource type="PackedScene" path="res://entities/interactables/ammo_store/AmmoStore.tscn" id="17"]
 [ext_resource type="AudioStream" uid="uid://f1msa8iu1rvg" path="res://assets/music/hub/hub.mp3" id="18"]
 [ext_resource type="PackedScene" path="res://ui/debug/inventory_debug/InventoryDebugScreen.tscn" id="19"]
@@ -79,8 +78,6 @@ autoplay = true
 [node name="InventoryDebugScreen" parent="." instance=ExtResource("19")]
 
 [node name="StashScreen" parent="." instance=ExtResource("21")]
-
-[node name="CraftingScreen" parent="." instance=ExtResource("15")]
 
 [node name="AbilitiesScreen" parent="." instance=ExtResource("8")]
 

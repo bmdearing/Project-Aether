@@ -3,8 +3,8 @@ class_name PauseMenu
 ## Owns pause/menu/mouse-mode state exclusively - Player.gd no longer
 ## touches Input.mouse_mode or listens for ui_cancel itself.
 ##
-## Inventory/Fate Board/Abilities/Character/Map/Crafting are deliberately
-## NOT buttons here - user preference: they're hotkey-only (P/B/N/C/M/K),
+## Inventory/Fate Board/Abilities/Character/Map are deliberately
+## NOT buttons here - user preference: they're hotkey-only (P/B/N/C/M),
 ## same as they always partly were (P/B worked from anywhere even before
 ## this), just no longer duplicated as buttons too.
 
@@ -24,7 +24,6 @@ var _inventory_screen: InventoryScreen
 var _abilities_screen: AbilitiesScreen
 var _character_screen: CharacterScreen
 var _map_screen: MapScreen
-var _crafting_screen: CraftingScreen
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -34,7 +33,6 @@ func _ready() -> void:
 	_abilities_screen = get_tree().get_first_node_in_group("abilities_screen")
 	_character_screen = get_tree().get_first_node_in_group("character_screen")
 	_map_screen = get_tree().get_first_node_in_group("map_screen")
-	_crafting_screen = get_tree().get_first_node_in_group("crafting_screen")
 	resume_button.pressed.connect(close)
 	return_to_hub_button.pressed.connect(_on_return_to_hub_pressed)
 	return_to_hub_button.visible = show_return_to_hub
@@ -69,7 +67,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("open_inventory"):
+		# Opened from the character sheet, it keeps the stats on the left.
+		var with_stats := _character_screen != null and _character_screen.is_open()
 		_toggle_screen(_inventory_screen)
+		if with_stats and _inventory_screen.is_open():
+			_inventory_screen.toggle_stats()
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("open_abilities"):
@@ -77,15 +79,14 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("open_character"):
-		_toggle_screen(_character_screen)
+		if _inventory_screen and _inventory_screen.is_open():
+			_inventory_screen.toggle_stats()
+		else:
+			_toggle_screen(_character_screen)
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("open_map"):
 		_toggle_screen(_map_screen)
-		get_viewport().set_input_as_handled()
-		return
-	if event.is_action_pressed("open_crafting"):
-		_toggle_screen(_crafting_screen)
 		get_viewport().set_input_as_handled()
 		return
 	if show_return_to_hub and event.is_action_pressed("return_to_hub"):

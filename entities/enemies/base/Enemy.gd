@@ -45,10 +45,19 @@ var _ward_current: float = 0.0
 func get_display_name() -> String:
 	return display_name if display_name != "" else name
 
-## Implementation Brief v3.4 Section 3 (2026-08-31): "Every enemy has a
-## headshot zone. Hitting it applies 25% increased damage taken to that
-## hit only." Head only for now, per the brief's own scope limit.
-@export var critical_spot_multiplier: float = 1.25
+func get_ward() -> float:
+	return _ward_current
+
+func get_ward_max() -> float:
+	return _ward_pool
+
+## Bonus for a weapon hit aimed at the HeadZone (headshot).
+@export var critical_spot_multiplier: float = 1.10
+
+## Body size, fitted to the installed model by _fit_body_to_model(); the
+## defaults match Enemy.tscn's placeholder capsule.
+var body_height: float = 1.9
+var body_radius: float = 0.45
 
 
 @onready var health: HealthComponent = $HealthComponent
@@ -197,12 +206,90 @@ func _install_model(model_scene: PackedScene, anim_set: AnimationSet, model_scal
 	model.rotation.y = yaw_offset
 	model_forward_yaw_offset = yaw_offset
 	_model_root = model
+	_fit_body_to_model(model)
 	var anim_tree := model.get_node_or_null("AnimationTree") as AnimationTree
 	if anim_tree and anim_set:
 		var controller := EnemyAnimationController.new()
 		add_child(controller)
 		controller.setup(anim_tree, anim_set)
 		_anim_controller = controller
+
+const MIN_BODY_HEIGHT := 1.0
+const MAX_BODY_RADIUS := 0.9
+const BODY_RADIUS_PER_WIDTH := 0.22
+const HEAD_RADIUS_PER_HEIGHT := 0.09
+
+## Sizes the collision capsule, HeadZone and overhead markers to the model's
+## rest-pose bounds, so tall units are hittable all the way up. Radius is
+## capped so big models still fit through doorways.
+func _fit_body_to_model(model: Node3D) -> void:
+	var bounds := _model_bounds(model)
+	if bounds.size == Vector3.ZERO:
+		return
+	body_height = maxf(bounds.end.y, MIN_BODY_HEIGHT)
+	body_radius = clampf(maxf(bounds.size.x, bounds.size.z) * BODY_RADIUS_PER_WIDTH, 0.35, minf(MAX_BODY_RADIUS, body_height * 0.45))
+	var collision := get_node_or_null("CollisionShape3D") as CollisionShape3D
+	if collision and collision.shape is CapsuleShape3D:
+		var capsule := collision.shape.duplicate() as CapsuleShape3D
+		capsule.radius = body_radius
+		capsule.height = body_height
+		collision.shape = capsule
+		collision.position.y = body_height / 2.0
+	var head_zone := get_node_or_null("HeadZone") as Area3D
+	if head_zone:
+		var head_radius := clampf(body_height * HEAD_RADIUS_PER_HEIGHT, 0.18, 0.45)
+		head_zone.position.y = body_height - head_radius
+		var head_shape := head_zone.get_node("CollisionShape3D") as CollisionShape3D
+		var sphere := head_shape.shape.duplicate() as SphereShape3D
+		sphere.radius = head_radius
+		head_shape.shape = sphere
+	attack_hitbox.position.y = body_height / 2.0
+	var top := body_height + 0.1
+	if _riposte_indicator:
+		_riposte_indicator.position.y = top + 0.3
+	for icon in _status_icons.values():
+		icon.position.y = top + 0.1
+
+func _model_bounds(model: Node3D) -> AABB:
+	var bounds := AABB()
+	var to_local := global_transform.affine_inverse()
+	for node in model.find_children("*", "MeshInstance3D", true, false):
+		var mesh := node as MeshInstance3D
+		if mesh.mesh == null or not mesh.is_visible_in_tree():
+			continue
+		var box: AABB = (to_local * mesh.global_transform) * mesh.get_aabb()
+		bounds = box if bounds.size == Vector3.ZERO else bounds.merge(box)
+	return bounds
+
+## Distance from point to the surface of the body capsule (0 when inside),
+## so area effects reach big units by their edge, not their centre.
+func distance_to_body(point: Vector3) -> float:
+	var axis_y := clampf(point.y, global_position.y, global_position.y + body_height)
+	return maxf(point.distance_to(Vector3(global_position.x, axis_y, global_position.z)) - body_radius, 0.0)
+
+## Head centre and radius in world space; radius 0 when there's no live HeadZone.
+func get_critical_spot() -> Dictionary:
+	var head_zone := get_node_or_null("HeadZone") as Area3D
+	if head_zone == null or not head_zone.monitorable:
+		return {"centre": Vector3.ZERO, "radius": 0.0}
+	var sphere := (head_zone.get_node("CollisionShape3D") as CollisionShape3D).shape as SphereShape3D
+	return {"centre": head_zone.global_position, "radius": sphere.radius if sphere else 0.0}
+
+## Headshot test for a projectile: was it inside the head (plus margin)
+## when it struck the body?
+func is_critical_spot_point(point: Vector3, margin: float = 0.1) -> bool:
+	var spot := get_critical_spot()
+	return spot["radius"] > 0.0 and point.distance_to(spot["centre"]) <= spot["radius"] + margin
+
+## Headshot test for melee: does the aim ray pass through the head?
+func is_critical_spot_aimed(origin: Vector3, direction: Vector3) -> bool:
+	var spot := get_critical_spot()
+	if spot["radius"] <= 0.0:
+		return false
+	var dir := direction.normalized()
+	var to_centre: Vector3 = spot["centre"] - origin
+	var along := to_centre.dot(dir)
+	return along >= 0.0 and (to_centre - dir * along).length() <= spot["radius"]
 
 ## Turns the model (not the body - collision/hitboxes stay symmetric) toward
 ## the player, and feeds ground speed to the animation tree.
@@ -721,29 +808,15 @@ func _spawn_slate_pickup(slate: Slate) -> void:
 ## meaningful negative Resistance - this is the doc's own primary framing
 ## for the mechanic (shredding an ENEMY's Resistance), so it's wired even
 ## without a full enemy-side Resistance system to shred FROM.
-## Implementation Brief v3.4 Section 3 - the brief's own `is_critical_spot
-## (hit_position: Vector3)` doesn't fit this project's actual hit
-## detection (no bones, no precise hit point anywhere - melee/ranged hits
-## are both plain Area3D body-overlap checks). Adapted to area-overlap
-## instead: true if the attacking Area3D (a weapon's hitbox, or a
-## Projectile) is ALSO currently overlapping this enemy's own HeadZone at
-## the moment of the hit - same intent (did this specific attack catch
-## the head), different mechanism to match what this project actually has.
-func is_critical_spot_hit(attacking_area: Area3D) -> bool:
-	var head_zone := get_node_or_null("HeadZone") as Area3D
-	if head_zone == null or attacking_area == null:
-		return false
-	return attacking_area.overlaps_area(head_zone)
-
 ## can_evade: true only for player weapon attack hits (melee swing, ranged
 ## projectile). Spells, DoT ticks, riders and ripostes leave it false.
 ## Returns false if the hit was dodged (caller should skip its on-hit
 ## follow-ups), true otherwise - including a hit fully absorbed by Ward.
-## is_dot: a damage-over-time tick - no floating damage number.
+## is_dot: a damage-over-time tick - smaller floating number.
 ## ignore_armor: War Pick's Armor Pierce.
 func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false, is_dot: bool = false, ignore_armor: bool = false) -> bool:
 	_last_combat_msec = Time.get_ticks_msec()
-	var show_number := not is_dot and health.is_alive()
+	var show_number := health.is_alive()
 	if can_evade and not is_spell and evasion_value > 0.0:
 		if randf() < DamageCalculator.dodge_chance(evasion_value):
 			EventBus.enemy_hit_dodged.emit(self)
@@ -766,13 +839,13 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		_ward_current -= absorbed
 		mitigated -= absorbed
 		if show_number:
-			_spawn_damage_number(absorbed, damage_type, DamageNumber.WARD_ALPHA, WARD_NUMBER_EXTRA_HEIGHT)
+			_spawn_damage_number(absorbed, damage_type, DamageNumber.WARD_ALPHA, WARD_NUMBER_EXTRA_HEIGHT, is_dot)
 		if mitigated <= 0.0:
 			AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), global_position, -4.0)
 			return true
 	health.apply_damage(mitigated)
 	if show_number:
-		_spawn_damage_number(mitigated, damage_type)
+		_spawn_damage_number(mitigated, damage_type, 1.0, 0.0, is_dot)
 	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), global_position, -2.0)
 	if _anim_controller and health.is_alive() and Time.get_ticks_msec() - _last_hit_react_msec >= HIT_REACT_MIN_INTERVAL_MSEC:
 		_last_hit_react_msec = Time.get_ticks_msec()
@@ -780,18 +853,17 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 	return true
 
 const DAMAGE_NUMBER_SCENE := preload("res://ui/damage_number/DamageNumber.tscn")
-const DAMAGE_NUMBER_HEIGHT := 1.8
 const WARD_NUMBER_EXTRA_HEIGHT := 0.35  # Ward numbers sit a little above health numbers
 
 ## Crit is always false for now: take_damage() has no crit info (callers
 ## hold it in their roll_damage() result but don't pass it through).
-func _spawn_damage_number(amount: float, damage_type: Constants.DamageType, alpha: float = 1.0, extra_height: float = 0.0) -> void:
+func _spawn_damage_number(amount: float, damage_type: Constants.DamageType, alpha: float = 1.0, extra_height: float = 0.0, is_dot: bool = false) -> void:
 	if amount <= 0.0 or not is_inside_tree():
 		return
 	var number: DamageNumber = DAMAGE_NUMBER_SCENE.instantiate()
 	get_tree().current_scene.add_child(number)
-	number.global_position = global_position + Vector3(randf_range(-0.3, 0.3), DAMAGE_NUMBER_HEIGHT + extra_height, randf_range(-0.3, 0.3))
-	number.setup(amount, damage_type, false, alpha)
+	number.global_position = global_position + Vector3(randf_range(-0.3, 0.3), body_height - 0.1 + extra_height, randf_range(-0.3, 0.3))
+	number.setup(amount, damage_type, false, alpha, is_dot)
 
 ## Never returns BOSS - a boss encounter's own scene/script sets `rank`
 ## to BOSS directly (see _ready()'s own guard), it doesn't come from this

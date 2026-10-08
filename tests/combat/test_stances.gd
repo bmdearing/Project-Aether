@@ -210,6 +210,7 @@ func _test_whip() -> void:
 	var melee: EnemyMeleeAttack = target.get_node("MeleeAttack")
 	melee._state = EnemyMeleeAttack.State.TELEGRAPH
 	melee._timer = 5.0
+	_player.stat_sheet.misc_bonus["ailment_chance_bleed"] = 100.0  # the rider is a roll; force it
 	await _charge(0.7, 0.4)
 	var hit := _lost(target)
 	_check(hit > 0.0, "crack hits at long range")
@@ -217,6 +218,7 @@ func _test_whip() -> void:
 	_check(melee._state == EnemyMeleeAttack.State.RECOVERY, "crack interrupts the target's attack")
 	await _seconds(1.2)
 	_check(_lost(target) > hit, "bleed ticks for damage")
+	_player.stat_sheet.misc_bonus.erase("ailment_chance_bleed")
 
 func _test_cancel_and_fallback() -> void:
 	await _reset("Greatsword")
@@ -418,7 +420,7 @@ func _test_entangle() -> void:
 	var target := _dummy(START + _forward() * 6.0)
 	target.move_speed = 4.0
 	await _frames(3)
-	await _tap_stance(WeaponStance.StancePage.B, 0.4)
+	await _tap_stance(WeaponStance.StancePage.B, 0.6)
 	var held_at := target.global_position
 	_check(target.status_effects.has_effect("entangle"), "entangle roots the target")
 	_check(_lost(target) == 0.0, "entangle deals no damage")
@@ -434,9 +436,11 @@ func _test_repulse() -> void:
 	var b := _dummy(START + _player.global_transform.basis.x * 2.0)
 	var far := _dummy(START - _forward() * 8.0)
 	await _frames(3)
+	_player.stat_sheet.misc_bonus["ailment_chance_electrocute"] = 100.0  # the rider is a roll; force it
 	await _tap_stance(WeaponStance.StancePage.B, 0.8)
 	_check((a.global_position - START).length() > 3.5 and (b.global_position - START).length() > 3.5, "repulse pushes everything nearby away")
 	_check(a.status_effects.has_effect("electrocute"), "repulse Electrocutes")
+	_player.stat_sheet.misc_bonus.erase("ailment_chance_electrocute")
 	_check(not far.status_effects.has_effect("electrocute"), "repulse has a limited radius")
 	await _leave_stance()
 

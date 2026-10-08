@@ -70,7 +70,7 @@ func _physics_process(delta: float) -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if global_position.distance_to(enemy.global_position) > HIT_RADIUS:
+		if enemy.distance_to_body(global_position) > HIT_RADIUS:
 			continue
 		if _hit_timers.get(enemy, 0.0) > 0.0:
 			continue
@@ -81,8 +81,7 @@ func _physics_process(delta: float) -> void:
 		if enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
 		EventBus.damage_dealt.emit(source, enemy, damage, ability.damage_type, false, hit["is_critical"])
-		for effect_id in ability.applies_status_effects:
-			enemy.status_effects.apply_effect(effect_id, source, damage)
+		ability.apply_statuses(enemy, source, damage)
 
 func _find_nearest_enemy() -> Enemy:
 	var nearest: Enemy = null

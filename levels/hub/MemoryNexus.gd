@@ -303,7 +303,8 @@ func _build_landmarks() -> void:
 	for side in [-1.0, 1.0]:
 		var c := Vector3(17.0 * side, 0, -4)
 		_rune_disc(c + Vector3(0, 0.03, 0), 9.5, 0.04 * side, 1.8)
-		var colonnade := _prop("CityColumnsemicircle", c + Vector3(5.6 * side, 0, 0), 6.5, PI / 2.0 * side)
+		# The model opens along its local +X; turn that toward the Hub centre.
+		var colonnade := _prop("CityColumnsemicircle", c + Vector3(5.6 * side, 0, 0), 6.5, 0.0 if side < 0.0 else PI)
 		_solid(colonnade, 0.35)
 
 ## ---- Decor -------------------------------------------------------------------

@@ -98,7 +98,7 @@ func _physics_process(delta: float) -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if global_position.distance_to(enemy.global_position) > _radius:
+		if enemy.distance_to_body(global_position) > _radius:
 			continue
 		var hit := _ability.roll_damage(_stat_sheet)
 		var damage: float = hit["final_damage"] * TICK_DAMAGE_PERCENT

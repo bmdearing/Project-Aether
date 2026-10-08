@@ -8,22 +8,27 @@ const FLOAT_HEIGHT := 1.2
 const FADE_DURATION := 0.9
 const FONT_SIZE := 36
 const CRIT_FONT_SIZE := 48
-## Ward-absorbed amounts render fainter so they read apart from health hits.
+const DOT_FONT_SIZE := 24
+## Ward-absorbed amounts pass alpha < 1 and render in the Ward colour.
 const WARD_ALPHA := 0.5
+const WARD_COLOR := Color(0.55, 0.85, 1.0)
 
 @onready var label: Label3D = $Label3D
 
 ## alpha < 1.0 for Ward absorption. is_crit is always false for now -
 ## take_damage() doesn't receive crit info yet.
-func setup(amount: float, damage_type: Constants.DamageType, is_crit: bool, alpha: float = 1.0) -> void:
+func setup(amount: float, damage_type: Constants.DamageType, is_crit: bool, alpha: float = 1.0, is_dot: bool = false) -> void:
 	label.text = str(maxi(1, roundi(amount)))
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(damage_type, Color.WHITE)
+	if alpha < 1.0:
+		color = WARD_COLOR
+		alpha = 1.0
 	if is_crit:
 		color = color.lightened(0.3)
 	color.a = alpha
 	label.modulate = color
 	label.outline_modulate = Color(0, 0, 0, alpha)
-	label.font_size = CRIT_FONT_SIZE if is_crit else FONT_SIZE
+	label.font_size = CRIT_FONT_SIZE if is_crit else (DOT_FONT_SIZE if is_dot else FONT_SIZE)
 	_animate()
 
 func _animate() -> void:

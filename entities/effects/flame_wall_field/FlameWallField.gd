@@ -23,6 +23,7 @@ class_name FlameWallField
 
 const DURATION := 6.0
 const TICK_INTERVAL := 0.5
+const SCORCH_CHANCE_PER_TICK := 0.35
 const TICK_DAMAGE_PERCENT := 0.25
 const WALL_HEIGHT := 2.2
 const WALL_THICKNESS := 0.6
@@ -80,8 +81,7 @@ func _on_body_entered(body: Node3D) -> void:
 	_inside.append(enemy)
 	# Ignite's burn is a share of the hit that caused it, so roll one.
 	var hit := _ability.roll_damage(_stat_sheet)
-	for effect_id in _ability.applies_status_effects:
-		enemy.status_effects.apply_effect(effect_id, _source, hit["final_damage"])
+	_ability.apply_statuses(enemy, _source, hit["final_damage"])
 
 func _on_body_exited(body: Node3D) -> void:
 	var enemy := body as Enemy
@@ -108,4 +108,4 @@ func _physics_process(delta: float) -> void:
 		enemy.take_damage(damage, _ability.damage_type)
 		EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
 		# Standing in the fire builds Scorch.
-		enemy.status_effects.apply_effect("scorch", _source)
+		enemy.status_effects.try_apply("scorch", _source, 0.0, SCORCH_CHANCE_PER_TICK)

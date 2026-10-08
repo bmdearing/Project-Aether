@@ -62,7 +62,7 @@ static func find_def(id: StringName) -> ModifierDef:
 
 static func roll_tolerance(target: Resource, p_rng: RandomNumberGenerator = null) -> void:
 	var t := CraftTarget.wrap(target)
-	if t == null:
+	if t == null or not t.uses_tolerance():
 		return
 	var range_: Vector2i = Constants.STARTING_TOLERANCE_BY_ITEM_TYPE.get(t.get_item_type(), Constants.STARTING_TOLERANCE_DEFAULT)
 	var value := p_rng.randi_range(range_.x, range_.y) if p_rng != null else randi_range(range_.x, range_.y)
@@ -131,10 +131,11 @@ func apply(item: Resource, orb_id: StringName, active_brands: ActiveBrands = nul
 	if sim["error"] != E.NONE:
 		return _fail(item, result, sim["error"])
 
-	var cost_range: Vector2i = Constants.TOLERANCE_COST.get(orb_id, Vector2i.ONE)
-	var cost := rng.randi_range(cost_range.x, cost_range.y)
-	result.tolerance_spent = mini(cost, t.get_tolerance())
-	t.set_tolerance(maxi(0, t.get_tolerance() - cost))
+	if t.uses_tolerance():
+		var cost_range: Vector2i = Constants.TOLERANCE_COST.get(orb_id, Vector2i.ONE)
+		var cost := rng.randi_range(cost_range.x, cost_range.y)
+		result.tolerance_spent = mini(cost, t.get_tolerance())
+		t.set_tolerance(maxi(0, t.get_tolerance() - cost))
 
 	t.set_explicits(sim["explicits"])
 	var rarity_changed: bool = t.get_rarity() != sim["rarity"]
@@ -191,7 +192,7 @@ func _check(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: EdictDef
 		return E.INVALID_TARGET
 	if t.is_corrupted() and orb_id != &"opening" and orb_id != &"tempering":
 		return E.CORRUPTED
-	if t.get_tolerance() <= 0:
+	if t.uses_tolerance() and t.get_tolerance() <= 0:
 		return E.NO_TOLERANCE
 	var explicits := t.get_explicits()
 	var positional: int = ctx["positional"]

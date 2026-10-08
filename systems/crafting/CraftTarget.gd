@@ -77,6 +77,10 @@ func set_explicits(explicits: Array[ItemAffix]) -> void:
 func is_corrupted() -> bool:
 	return resource.is_corrupted
 
+## Aether Tolerance is a Slate-only crafting budget; gear crafts freely.
+func uses_tolerance() -> bool:
+	return is_slate
+
 func get_tolerance() -> int:
 	return resource.tolerance
 

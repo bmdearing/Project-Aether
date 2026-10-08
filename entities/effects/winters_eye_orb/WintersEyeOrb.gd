@@ -77,7 +77,7 @@ func _fire_shards() -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if global_position.distance_to(enemy.global_position) <= SHARD_RADIUS:
+		if enemy.distance_to_body(global_position) <= SHARD_RADIUS:
 			candidates.append(enemy)
 	candidates.sort_custom(func(a: Enemy, b: Enemy): return global_position.distance_to(a.global_position) < global_position.distance_to(b.global_position))
 	for enemy in candidates.slice(0, MAX_SHARDS_PER_TICK):
@@ -114,20 +114,20 @@ func _icicle_hit(enemy: Enemy) -> void:
 	var damage: float = hit["final_damage"] * ICICLE_DAMAGE_PERCENT
 	enemy.take_damage(damage, _ability.damage_type)
 	EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
-	enemy.status_effects.apply_effect("chill", _source)
+	_ability.apply_statuses(enemy, _source, damage)
 
 func _detonate() -> void:
 	_detonated = true
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if global_position.distance_to(enemy.global_position) > _ability.get_radius(_stat_sheet):
+		if enemy.distance_to_body(global_position) > _ability.get_radius(_stat_sheet):
 			continue
 		var hit := _ability.roll_damage(_stat_sheet)
 		var damage: float = hit["final_damage"] * DETONATE_MULTIPLIER
 		enemy.take_damage(damage, _ability.damage_type)
 		EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
-		enemy.status_effects.apply_effect("chill", _source)
+		_ability.apply_statuses(enemy, _source, damage)
 	var ring: AbilityRangeEffect = RANGE_EFFECT_SCENE.instantiate()
 	get_parent().add_child(ring)
 	ring.global_position = Vector3(global_position.x, _target.y + 0.05, global_position.z)

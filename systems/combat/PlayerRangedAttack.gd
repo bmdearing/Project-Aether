@@ -24,7 +24,7 @@ const FIRE_STRIKE := 0.06
 const FIRE_RECOVERY := 0.16
 const BOW_FIRE_DURATION_MULT := 1.6
 
-@export var fire_cooldown: float = 0.4
+@export var fire_cooldown: float = 0.5
 ## Stands in for a "Basic Shot" skill's motion value - no skill/Tome
 ## system exists yet (Section 11: motion values live on skills).
 @export var base_motion_value: float = 1.0
@@ -420,6 +420,7 @@ func _direct_hit(enemy: Enemy, amount: float, damage_type: Constants.DamageType,
 		enemy.stance.apply_attack_stance_damage(amount, damage_type)
 	enemy.flash_hit()
 	EventBus.damage_dealt.emit(_player, enemy, amount, damage_type, false, is_critical)
+	enemy.status_effects.roll_gear_ailments(_player, amount)
 	EventBus.hit_landed.emit(is_critical, false, not enemy.health.is_alive())
 
 func _play_fire_animation(_weapon: Weapon) -> void:

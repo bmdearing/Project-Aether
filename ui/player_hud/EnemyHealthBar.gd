@@ -11,7 +11,11 @@ class_name EnemyHealthBar
 
 const WIDTH := 90.0
 const HEIGHT := 7.0
-const BAR_TOP := 16.0
+const BAR_TOP := 22.0
+const WARD_HEIGHT := 4.0
+const WARD_GAP := 1.0
+const WARD_COLOR := Color(0.45, 0.8, 1.0, 1.0)
+const WARD_BG_COLOR := Color(0.1, 0.2, 0.3, 0.8)
 const BG_COLOR := Color(0.08, 0.08, 0.08, 0.85)
 const FILL_COLOR := Color(0.78, 0.15, 0.15, 1.0)
 const BORDER_COLOR := Color(0, 0, 0, 0.85)
@@ -37,6 +41,8 @@ var _fraction: float = 1.0
 var _trailing_fraction: float = 1.0
 var _trail_speed: float = 0.0  # fraction/sec, set whenever a new trail starts
 var _name_label: Label
+var _ward_fraction: float = 0.0
+var _has_ward: bool = false
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -73,12 +79,27 @@ func set_health(current: float, max_value: float) -> void:
 		_trail_speed = 0.0
 	queue_redraw()
 
+## Ward shows as a thin strip above the health bar while the enemy has any pool.
+func set_ward(current: float, max_value: float) -> void:
+	var has_ward := max_value > 0.0
+	var fraction := clampf(current / max_value, 0.0, 1.0) if has_ward else 0.0
+	if has_ward != _has_ward or not is_equal_approx(fraction, _ward_fraction):
+		_has_ward = has_ward
+		_ward_fraction = fraction
+		queue_redraw()
+
 func _process(delta: float) -> void:
 	if _trailing_fraction > _fraction:
 		_trailing_fraction = max(_fraction, _trailing_fraction - _trail_speed * delta)
 		queue_redraw()
 
 func _draw() -> void:
+	if _has_ward:
+		var ward_top := BAR_TOP - WARD_HEIGHT - WARD_GAP
+		draw_rect(Rect2(0, ward_top, WIDTH, WARD_HEIGHT), WARD_BG_COLOR)
+		if _ward_fraction > 0.0:
+			draw_rect(Rect2(0, ward_top, WIDTH * _ward_fraction, WARD_HEIGHT), WARD_COLOR)
+		draw_rect(Rect2(0, ward_top, WIDTH, WARD_HEIGHT), BORDER_COLOR, false, 1.0)
 	draw_rect(Rect2(0, BAR_TOP, WIDTH, HEIGHT), BG_COLOR)
 	if _trailing_fraction > _fraction:
 		draw_rect(Rect2(0, BAR_TOP, WIDTH * _trailing_fraction, HEIGHT), TRAIL_COLOR)

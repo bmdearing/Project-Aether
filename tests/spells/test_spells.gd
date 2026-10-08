@@ -84,6 +84,7 @@ func _ability(id: String) -> Ability:
 	var a := load(ABILITY_DIR + id + ".tres") as Ability
 	a.level = 1
 	a.base_crit_chance = 0.0
+	a.status_chance = 1.0  # mechanics checks; the roll itself is covered in tests/combat_pass
 	return a
 
 func _dummy(pos: Vector3) -> Enemy:

@@ -16,6 +16,11 @@ class_name Ability
 @export var can_trigger_riposte: bool = false    # true only for high-MV committed attacks per Section 07
 @export var is_auto_cast_eligible: bool = true   # false for e.g. Riposte itself
 @export var applies_status_effects: Array[String] = []  # status effect ids, e.g. "chill", "ignite"
+## Chance each applies_status_effects entry lands per hit, before the
+## caster's "+% chance to cause X" gear.
+@export var status_chance: float = 0.25
+## Set on a cast's copy (CasterStance Pallid page): these always land.
+var guaranteed_statuses: Array[String] = []
 ## Hold the ability's hotkey to aim (PlayerAbilityCast shows a ground
 ## ring), release to cast centered there, instead of the usual instant
 ## self-centered nova on press. Reserved for high-commitment single-target
@@ -102,6 +107,17 @@ func get_effective_level(stat_sheet: StatSheet) -> int:
 
 func get_levels_over_cap(stat_sheet: StatSheet) -> int:
 	return maxi(get_effective_level(stat_sheet) - MAX_LEVEL, 0)
+
+func get_status_chance(effect_id: String) -> float:
+	return 1.0 if guaranteed_statuses.has(effect_id) else status_chance
+
+## Rolls this spell's statuses, then the caster's gear-only ailment chances.
+func apply_statuses(enemy: Enemy, source: Node, hit_damage: float) -> void:
+	if enemy == null or enemy.status_effects == null:
+		return
+	for effect_id in applies_status_effects:
+		enemy.status_effects.try_apply(effect_id, source, hit_damage, get_status_chance(effect_id.trim_prefix("enhanced:")))
+	enemy.status_effects.roll_gear_ailments(source, hit_damage, applies_status_effects)
 
 func has_tag(tag: StringName) -> bool:
 	return tags.has(tag)

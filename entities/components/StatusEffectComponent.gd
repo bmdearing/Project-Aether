@@ -1,12 +1,9 @@
 extends Node
 class_name StatusEffectComponent
 ## Section 09 - Status Effects, bidirectional (Player and Enemy both carry
-## one, per "Status effects apply bidirectionally"). Scope: Ignite/Chill/
-## Freeze/Electrocute/Unraveling - the 5 effects with a real applier today
-## (Ability.applies_status_effects on the elemental/esoteric spells).
-## Scorch was added later (see SCORCH_*). Bleed/Armor Shred/Stagger-Stun and Aetherburn/Pallid have no
-## weapon-side proc mechanic or Fire-channel/Aetheric/Pale ability yet -
-## left for this component to grow into later (DEVELOPMENT.md flagged gap).
+## one, per "Status effects apply bidirectionally").
+## Ailments (AILMENT_IDS) roll to land - see try_apply(); stance riders
+## (Armor Shred, Suppressed, Slow, Guard Break, Entangle) always land.
 ##
 ## Durations/magnitudes/stack thresholds below are invented - the doc
 ## names each effect and its qualitative behavior only ("Slows movement
@@ -36,20 +33,20 @@ const PALLID_DURATION := 4.0
 ## "enhanced:<id>" (Fetish's Status Amplifier page) lasts this much longer.
 const ENHANCED_DURATION_MULTIPLIER := 1.5
 const BLEED_TICK_INTERVAL := 0.5
-const BLEED_DAMAGE_PERCENT := 0.6
+const BLEED_DAMAGE_PERCENT := 1.0
 const IGNITE_TICK_INTERVAL := 0.5
-const IGNITE_DAMAGE_PERCENT := 0.5  # total DoT damage = 50% of the triggering hit, spread across the duration
+const IGNITE_DAMAGE_PERCENT := 0.9  # total DoT damage = 90% of the triggering hit, spread across the duration
 
 const CHILL_DURATION := 2.5
-const CHILL_MOVE_SLOW_PERCENT := 0.3
+const CHILL_MOVE_SLOW_PERCENT := 0.35
 const CHILL_STACKS_TO_FREEZE := 3  # 3rd Chill application within its own window upgrades to Freeze
 
 const FREEZE_DURATION := 1.2
 
-const ELECTROCUTE_DURATION := 0.8
+const ELECTROCUTE_DURATION := 1.0
 
 const UNRAVELING_DURATION := 5.0
-const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.25  # "Increased Esoteric damage taken" - applies to the whole category, not just Entropic
+const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.3  # "Increased Esoteric damage taken" - applies to the whole category, not just Entropic
 
 ## Generic movement slow, independent of Chill - user request (2026-08-30):
 ## "Caltrops should slow... enemies that continue to stand on it." Reusing
@@ -67,7 +64,7 @@ const SLOW_MOVE_SLOW_PERCENT := 0.35
 ## refreshes on reapplication (same _apply_timed model as Electrocute/
 ## Unraveling/Slow above) - does not stun/interrupt, unlike Electrocute.
 const SHOCK_DURATION := 4.0
-const SHOCK_DAMAGE_INCREASE := 0.20
+const SHOCK_DAMAGE_INCREASE := 0.25
 
 ## Scorch (Master v3 Section 09: "Increased vulnerability to further Fire
 ## damage"; dropped by Patch v3.2, restored on user request). Each
@@ -76,7 +73,7 @@ const SHOCK_DAMAGE_INCREASE := 0.20
 ## includes Ignite's ticks, so the two build on each other.
 const SCORCH_DURATION := 4.0
 const SCORCH_MAX_STACKS := 5
-const SCORCH_DAMAGE_PER_STACK := 0.06
+const SCORCH_DAMAGE_PER_STACK := 0.08
 
 ## Patch v3.8: Debuff Effectiveness is a "removed expression" - no longer
 ## derived from a character stat (Intellect, its old source, is gone).
@@ -154,9 +151,47 @@ func _tick_resistance_shred(delta: float) -> void:
 		if _resistance_shred_sources[i]["remaining"] <= 0.0:
 			_resistance_shred_sources.remove_at(i)
 
-## hit_damage is only used by Ignite (its DoT total is a percent of the
-## triggering hit) - irrelevant for the others.
+const AILMENT_IDS := ["ignite", "bleed", "chill", "shock", "electrocute", "unraveling", "pallid", "scorch"]
+## Ailments with no gear chance stat of their own borrow another's.
+const CHANCE_STAT_ALIAS := {"scorch": "ignite"}
+## Ailments a plain hit can cause from "+% chance to cause X" gear alone.
+const GEAR_PROC_AILMENTS := ["ignite", "bleed", "chill", "shock", "electrocute", "unraveling", "pallid"]
+
+static func is_ailment(effect_id: String) -> bool:
+	return AILMENT_IDS.has(effect_id.trim_prefix("enhanced:"))
+
+## The source's "+% chance to cause X" gear, as a fraction.
+static func get_chance_bonus(source: Node, effect_id: String) -> float:
+	var player := source as Player
+	if player == null or player.stat_sheet == null:
+		return 0.0
+	return player.stat_sheet.get_misc_bonus("ailment_chance_" + CHANCE_STAT_ALIAS.get(effect_id, effect_id)) / 100.0
+
+## Ailments roll base_chance + the source's gear chance; anything else always lands.
+func try_apply(effect_id: String, source: Node, hit_damage: float, base_chance: float) -> bool:
+	var base_id := effect_id.trim_prefix("enhanced:")
+	if AILMENT_IDS.has(base_id) and randf() >= base_chance + get_chance_bonus(source, base_id):
+		return false
+	apply_effect(effect_id, source, hit_damage)
+	return true
+
+## Weapon hits (and spells, for ailments they don't already carry) proc
+## ailments purely from the attacker's "+% chance to cause X" gear.
+func roll_gear_ailments(source: Node, hit_damage: float, skip: Array = []) -> void:
+	if not source is Player:
+		return
+	for effect_id in GEAR_PROC_AILMENTS:
+		if skip.has(effect_id) or skip.has("enhanced:" + effect_id):
+			continue
+		var chance := get_chance_bonus(source, effect_id)
+		if chance > 0.0 and randf() < chance:
+			apply_effect(effect_id, source, hit_damage)
+
+## hit_damage is only used by Ignite/Bleed (their DoT total is a percent of
+## the triggering hit) - irrelevant for the others.
 func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.0) -> void:
+	if _owner is Player and is_ailment(effect_id) and randf() < _owner.stat_sheet.get_ailment_ignore_chance():
+		return
 	if effect_id.begins_with("enhanced:"):
 		var base_id := effect_id.trim_prefix("enhanced:")
 		apply_effect(base_id, source, hit_damage)
@@ -182,9 +217,9 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 			_emit_applied("shock")
 		"bleed":
 			_bleed_source = source
-			_bleed_tick_damage = hit_damage * BLEED_DAMAGE_PERCENT / (BLEED_DURATION / BLEED_TICK_INTERVAL)
+			_bleed_tick_damage = hit_damage * BLEED_DAMAGE_PERCENT * _ailment_damage_multiplier(source, "bleed") / (BLEED_DURATION / BLEED_TICK_INTERVAL)
 			_bleed_ticker = BLEED_TICK_INTERVAL
-			_timers["bleed"] = BLEED_DURATION
+			_timers["bleed"] = BLEED_DURATION * _duration_multiplier(source, "bleed")
 			_emit_applied("bleed")
 		"armor_shred":
 			_armor_shred_stacks = mini(_armor_shred_stacks + 1, ARMOR_SHRED_MAX_STACKS)
@@ -202,7 +237,7 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 			_emit_applied("guard_break")
 		"scorch":
 			_scorch_stacks = mini(_scorch_stacks + 1, SCORCH_MAX_STACKS)
-			_timers["scorch"] = SCORCH_DURATION * _debuff_effectiveness_multiplier(source)
+			_timers["scorch"] = SCORCH_DURATION * _duration_multiplier(source, "scorch")
 			_emit_applied("scorch", _scorch_stacks)
 
 ## Fixed-length effects with no other logic (Whip's Entangle root).
@@ -280,7 +315,7 @@ func get_shock_multiplier() -> float:
 	return 1.0
 
 func _apply_timed(effect_id: String, base_duration: float, source: Node) -> void:
-	var duration := base_duration * _debuff_effectiveness_multiplier(source)
+	var duration := base_duration * _duration_multiplier(source, effect_id)
 	_timers[effect_id] = max(_timers.get(effect_id, 0.0), duration)
 
 ## 3 Chill applications without a Freeze already active upgrade to Freeze
@@ -317,8 +352,7 @@ func _apply_ignite(source: Node, hit_damage: float) -> void:
 	var source_stats: StatSheet = source.stat_sheet if source is Player else null
 	var total_damage := hit_damage * IGNITE_DAMAGE_PERCENT
 	if source_stats:
-		total_damage *= 1.0 + source_stats.get_ailment_damage_bonus("ignite")
-		total_damage *= 1.0 + source_stats.get_dot_multiplier()
+		total_damage *= _ailment_damage_multiplier(source, "ignite")
 	var tick_interval := IGNITE_TICK_INTERVAL
 	if source_stats:
 		tick_interval /= 1.0 + source_stats.get_ailment_tick_rate_bonus()
@@ -326,7 +360,8 @@ func _apply_ignite(source: Node, hit_damage: float) -> void:
 	_ignite_tick_damage = total_damage / ticks
 	_ignite_ticker = tick_interval
 	_ignite_tick_interval = tick_interval
-	_timers["ignite"] = IGNITE_DURATION
+	var duration := IGNITE_DURATION * _duration_multiplier(source, "ignite")
+	_timers["ignite"] = duration
 	_emit_applied("ignite")
 
 func _tick_ignite(delta: float) -> void:
@@ -342,7 +377,7 @@ func _tick_ignite(delta: float) -> void:
 		# is_spell=true: Ignite only ever comes from a spell hit (Inferno/
 		# Cinder Lance), and Section 07 excludes spells from the Composure
 		# Break damage bonus - the DoT tick should follow the same rule as
-		# the hit that applied it. is_dot: no floating damage number per tick.
+		# the hit that applied it. is_dot: a smaller floating number per tick.
 		_owner.take_damage(dmg, Constants.DamageType.FIRE, true, false, true)
 	EventBus.damage_dealt.emit(_ignite_source, _owner, dmg, Constants.DamageType.FIRE, false, false)
 
@@ -357,8 +392,19 @@ func _tick_bleed(delta: float) -> void:
 		_owner.take_damage(_bleed_tick_damage, Constants.DamageType.KINETIC, false, false, true)
 	EventBus.damage_dealt.emit(_bleed_source, _owner, _bleed_tick_damage, Constants.DamageType.KINETIC, false, false)
 
-func _debuff_effectiveness_multiplier(_source: Node) -> float:
-	return 1.0
+## "+% increased X duration" from the source's gear.
+func _duration_multiplier(source: Node, effect_id: String) -> float:
+	var player := source as Player
+	if player == null or player.stat_sheet == null:
+		return 1.0
+	return 1.0 + player.stat_sheet.get_ailment_duration_bonus(CHANCE_STAT_ALIAS.get(effect_id, effect_id))
+
+## "+% increased X damage" and the DoT multiplier from the source's gear.
+func _ailment_damage_multiplier(source: Node, effect_id: String) -> float:
+	var player := source as Player
+	if player == null or player.stat_sheet == null:
+		return 1.0
+	return (1.0 + player.stat_sheet.get_ailment_damage_bonus(effect_id)) * (1.0 + player.stat_sheet.get_dot_multiplier())
 
 func _expire(effect_id: String) -> void:
 	_timers.erase(effect_id)

@@ -1,9 +1,11 @@
 extends CanvasLayer
 class_name InventoryScreen
 ## Footprint-grid inventory (GameState.inventory, see GridInventory) +
-## paper-doll equipment diagram + a live stats column (StatSummaryBuilder,
-## shared with CharacterScreen). Clicking an item equips it; clicking a
-## paper-doll slot unequips into the grid if there's room. Equipped items
+## paper-doll equipment diagram + a stats column shown with C (StatSummaryBuilder,
+## shared with CharacterScreen). Right-clicking an item equips it; clicking a
+## paper-doll slot unequips into the grid if there's room. Crafting happens
+## here too: right-click a Brand to activate it, right-click an Orb/Edict/
+## stone to pick it up, then click the item to use it on. Equipped items
 ## live on EquipmentComponent, not in the grid. Doesn't pause the game.
 
 const EMPTY_SLOT_COLOR := Color(0.25, 0.25, 0.28)
@@ -16,6 +18,8 @@ const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
 @onready var inventory_panel: VBoxContainer = $HBox/SidePanel/InventoryPanel
 @onready var status_label: Label = $HBox/SidePanel/StatusLabel
 @onready var close_button: Button = $HBox/SidePanel/CloseButton
+@onready var stats_panel: VBoxContainer = $HBox/StatsPanel
+@onready var hint_label: Label = $HBox/SidePanel/HintLabel
 
 @onready var slot_primary_weapon: ItemSlotButton = $HBox/SidePanel/PaperDoll/LeftColumn/PrimaryWeapon
 @onready var slot_ring_left: ItemSlotButton = $HBox/SidePanel/PaperDoll/LeftColumn/RingLeft
@@ -45,6 +49,15 @@ var _doll_rows: Array[Dictionary] = []
 
 var _ammo_label: Label
 
+## Currency picked up with right-click; the next item clicked receives it.
+var _armed: StringName = &""
+var _resolver: CraftingResolver
+var _active_brands: ActiveBrands
+const ARMED_BORDER := Color(1.0, 0.82, 0.3)
+const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
+const PREVIEW_LINES := 5
+const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. C shows stats. Hold Alt over an item for details."
+
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
@@ -65,10 +78,17 @@ func _ready() -> void:
 	]
 	for row in _doll_rows:
 		(row["button"] as ItemSlotButton).pressed.connect(_on_doll_slot_pressed.bind(row))
+		(row["button"] as ItemSlotButton).gui_input.connect(_on_doll_slot_input.bind(row))
 	_build_weapon_set_indicator()
 	_build_behaviors_panel()
 	inventory_grid.cell_size = 52
 	inventory_grid.entry_clicked.connect(_on_entry_clicked)
+	inventory_grid.entry_right_clicked.connect(_on_entry_right_clicked)
+	inventory_grid.entry_hovered.connect(_on_entry_hovered)
+	inventory_grid.highlight = _highlight_for
+	inventory_grid.currency_hint = _hint_for
+	hint_label.text = HINT
+	stats_panel.visible = false
 	inventory_grid.drop_failed.connect(func(): status_label.text = "That doesn't fit there.")
 	_ammo_label = Label.new()
 	inventory_panel.add_child(_ammo_label)
@@ -224,13 +244,19 @@ func _on_weapon_set_toggle_pressed() -> void:
 func is_open() -> bool:
 	return _is_open
 
-func open() -> void:
+func open(show_stats: bool = false) -> void:
 	_is_open = true
 	visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_equipment = GameState.player_equipment
 	if _equipment and not _equipment.equip_failed.is_connected(_on_equip_failed):
 		_equipment.equip_failed.connect(_on_equip_failed)
+	_resolver = CraftingResolver.create_default()
+	_resolver.currency = GameState.inventory
+	if _active_brands == null or _active_brands.carried != GameState.inventory:
+		_active_brands = ActiveBrands.new(GameState.inventory)
+	_armed = &""
+	stats_panel.visible = show_stats
 	status_label.text = ""
 	_build_inventory_grid()
 	_refresh_doll()
@@ -239,13 +265,25 @@ func open() -> void:
 func close() -> void:
 	_is_open = false
 	visible = false
+	_armed = &""
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+## C while the inventory is open: stats column on the left, grid on the right.
+func toggle_stats() -> void:
+	stats_panel.visible = not stats_panel.visible
+	_refresh_stats()
+
+func is_showing_stats() -> bool:
+	return stats_panel.visible
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _is_open:
 		return
 	if event.is_action_pressed("ui_cancel"):
-		close()
+		if _armed != &"":
+			_disarm()
+		else:
+			close()
 		get_viewport().set_input_as_handled()
 
 func _build_inventory_grid() -> void:
@@ -260,18 +298,167 @@ func _build_inventory_grid() -> void:
 func _is_equippable(item: Item) -> bool:
 	return item.is_equipment()
 
+## Left click: uses the picked-up currency on the item; otherwise nothing
+## (drag to move).
 func _on_entry_clicked(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
+	if _armed != &"" and not entry.is_currency():
+		_use_armed_on(entry.content)
+
+func _on_entry_right_clicked(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
 	status_label.text = ""
 	if entry.is_currency():
-		status_label.text = "%s is crafting currency." % CurrencyText.name_of(entry.content)
+		_on_currency_right_clicked(entry.content)
+	elif _armed != &"":
+		_use_armed_on(entry.content)
 	elif entry.content is Slate:
 		status_label.text = "Slates are placed from the Fate Board."
+	elif entry.content is FigmentItem:
+		_empower_figment(entry.content)
 	elif _is_equippable(entry.content):
 		_equip_from_inventory(entry)
-	elif entry.content is FigmentItem:
-		status_label.text = "%s is used at the Reality Engine, not equipped." % entry.content.display_name
 	else:
-		status_label.text = "%s is used from the Crafting screen (K), not equipped." % entry.content.display_name
+		status_label.text = "%s can't be equipped." % entry.content.display_name
+
+## ---- Crafting -------------------------------------------------------
+
+func _is_brand(id: StringName) -> bool:
+	return _resolver != null and _resolver.brand_defs.has(id)
+
+func _is_usable_currency(id: StringName) -> bool:
+	return Constants.ORB_IDS.has(id) or (_resolver != null and _resolver.edict_defs.has(id)) or Constants.CRAFTING_CONSUMABLE_IDS.has(String(id))
+
+func _on_currency_right_clicked(id: StringName) -> void:
+	if _is_brand(id):
+		if _active_brands.is_active(id):
+			_active_brands.deactivate(id)
+			status_label.text = "%s deactivated." % CurrencyText.name_of(id)
+		elif _active_brands.activate(id):
+			status_label.text = "%s active - it applies to your next Orb." % CurrencyText.name_of(id)
+	elif _is_usable_currency(id):
+		if _armed == id:
+			_disarm()
+			return
+		_armed = id
+		status_label.text = "Click an item to use %s on it. Esc or right-click it again to put it back." % CurrencyText.name_of(id)
+	else:
+		status_label.text = CurrencyText.description_of(id)
+	inventory_grid.refresh()
+
+func _disarm() -> void:
+	_armed = &""
+	status_label.text = ""
+	inventory_grid.refresh()
+
+func _highlight_for(entry: GridInventory.Entry) -> Color:
+	if not entry.is_currency():
+		return Color.TRANSPARENT
+	if entry.content == _armed:
+		return ARMED_BORDER
+	if _active_brands and _active_brands.is_active(entry.content):
+		return ACTIVE_BRAND_BORDER
+	return Color.TRANSPARENT
+
+func _hint_for(entry: GridInventory.Entry) -> String:
+	var id: StringName = entry.content
+	if _is_brand(id):
+		return "Active - right-click to deactivate." if _active_brands.is_active(id) else "Right-click to activate for your next Orb."
+	if _is_usable_currency(id):
+		return "Right-click to pick up, then click an item to use it."
+	return ""
+
+## Uses the picked-up Orb/Edict/stone on target (a grid or equipped item).
+func _use_armed_on(target: Resource) -> void:
+	var id := _armed
+	if not (target is Item or target is Slate) or target is FigmentItem:
+		status_label.text = "%s can't be used on that." % CurrencyText.name_of(id)
+		return
+	if target.resource_path != "":
+		status_label.text = "Unequip this item first to craft on it."
+		return
+	if Constants.ORB_IDS.has(id):
+		var result := _resolver.apply(target, id, _active_brands)
+		status_label.text = _describe_craft(id, result) if result.success else result.get_message()
+	elif _resolver.edict_defs.has(id):
+		var result := _resolver.apply_edict(target, id)
+		status_label.text = "%s applied." % CurrencyText.name_of(id) if result.success else result.get_message()
+	else:
+		var outcome := _use_stone(id, target)
+		status_label.text = outcome["message"]
+		if outcome["success"]:
+			GameState.inventory.remove_currency(id)
+	if GameState.inventory.count_of(id) <= 0:
+		_armed = &""
+	_after_craft(target)
+
+func _describe_craft(id: StringName, result: CraftResult) -> String:
+	var parts: Array[String] = ["%s used." % CurrencyText.name_of(id)]
+	for a in result.removed:
+		parts.append("Removed: " + a.description)
+	for a in result.added:
+		parts.append("Added: " + a.description)
+	if result.anchored:
+		parts.append("Anchored: " + result.anchored.description)
+	if result.quality_gained > 0:
+		parts.append("+%d quality" % result.quality_gained)
+	if result.sockets_rolled_to >= 0:
+		parts.append("Sockets: %d" % result.sockets_rolled_to)
+	return "  ".join(parts)
+
+func _use_stone(id: StringName, target: Resource) -> Dictionary:
+	match String(id):
+		"infusion_stone":
+			return CraftingSystem.infuse(target) if target is Weapon else {"success": false, "message": "Infusion Stone only works on weapons."}
+		"shrivening_stone":
+			return CraftingSystem.shrive(target) if target is Weapon else {"success": false, "message": "Shrivening Stone only works on weapons."}
+		"shard_of_tharsis":
+			if not target is Item:
+				return {"success": false, "message": "The Shard only corrupts gear."}
+			var power_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
+			return CraftingSystem.corrupt(target, power_level)
+	return {"success": false, "message": "That can't be used here."}
+
+## Hovering an item with an Orb picked up previews the outcomes.
+func _on_entry_hovered(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
+	if _armed == &"" or entry.is_currency() or not Constants.ORB_IDS.has(_armed):
+		return
+	if not (entry.content is Item or entry.content is Slate) or entry.content is FigmentItem:
+		return
+	status_label.text = _preview_text(entry.content)
+
+func _preview_text(target: Resource) -> String:
+	var p := _resolver.preview(target, _armed, _active_brands)
+	var orb_name := CurrencyText.name_of(_armed)
+	if not p.is_valid():
+		return "%s: %s" % [orb_name, CurrencyText.error_message(CraftResult.error_name(p.error))]
+	var lines: Array[String] = [orb_name + ": " + CurrencyText.description_of(_armed)]
+	if not p.applied_brands.is_empty():
+		lines.append("Brands used: " + ", ".join(p.applied_brands.map(func(b): return CurrencyText.name_of(b))))
+	var outcomes := p.outcomes.duplicate()
+	outcomes.sort_custom(func(a, b): return a["probability"] > b["probability"])
+	var shown: Array[String] = []
+	for o in outcomes.slice(0, PREVIEW_LINES):
+		var text: String = o["def"].text if o["def"].text != "" else String(o["def"].id)
+		shown.append("%s (%.0f%%)" % [text.replace("%d", "X").replace("%%", "%"), o["probability"] * 100.0])
+	if not shown.is_empty():
+		lines.append("Likely: " + ", ".join(shown) + (" ..." if outcomes.size() > PREVIEW_LINES else ""))
+	return "\n".join(lines)
+
+func _empower_figment(figment: FigmentItem) -> void:
+	if GameState.gold < CraftingSystem.EMPOWER_FIGMENT_GOLD_COST:
+		status_label.text = "Empowering a Figment costs %d Gold." % CraftingSystem.EMPOWER_FIGMENT_GOLD_COST
+		return
+	var result := CraftingSystem.empower_figment(figment)
+	if result["success"]:
+		GameState.gold -= CraftingSystem.EMPOWER_FIGMENT_GOLD_COST
+	status_label.text = result["message"]
+	_build_inventory_grid()
+
+func _after_craft(target: Resource) -> void:
+	if _equipment and _equipment.get_all_equipped_items().has(target):
+		_equipment.equipment_changed.emit()
+	_build_inventory_grid()
+	_refresh_doll()
+	_refresh_stats()
 
 ## Moves an item from the grid onto the paper doll. Whatever it displaces
 ## goes back into the grid; if that doesn't fit, the swap is undone.
@@ -303,12 +490,21 @@ func _equip_from_inventory(entry: GridInventory.Entry) -> void:
 		break
 	_after_equipment_change()
 
+func _on_doll_slot_input(event: InputEvent, row: Dictionary) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT and _armed != &"":
+		var item := _equipment.get_equipped(row["slot"], row.get("ring_index", 0)) if _equipment else null
+		if item:
+			_use_armed_on(item)
+
 func _on_doll_slot_pressed(row: Dictionary) -> void:
 	if _equipment == null:
 		return
 	var ring_index: int = row.get("ring_index", 0)
 	var item := _equipment.get_equipped(row["slot"], ring_index)
 	if item == null:
+		return
+	if _armed != &"":
+		_use_armed_on(item)
 		return
 	var copy := _inventory_copy(item)
 	if not GameState.add_to_inventory(copy):

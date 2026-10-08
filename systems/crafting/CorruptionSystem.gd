@@ -5,7 +5,7 @@ class_name CorruptionSystem
 ## "Deferred Design" always flagged that as an invented placeholder
 ## pending a real pass) with the brief's 4-tier x named-outcome model.
 ## CraftingSystem.corrupt() is now a thin wrapper around corrupt() below,
-## so CraftingScreen.gd's own Dictionary-based call site needs no changes.
+## so existing Dictionary-based call sites need no changes.
 
 ## Outcome tier weights - adjust after playtesting.
 const TIER_WEIGHTS := {

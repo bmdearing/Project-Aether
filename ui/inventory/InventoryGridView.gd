@@ -7,6 +7,7 @@ class_name InventoryGridView
 signal changed
 signal entry_clicked(view: InventoryGridView, entry: GridInventory.Entry)
 signal entry_right_clicked(view: InventoryGridView, entry: GridInventory.Entry)
+signal entry_hovered(view: InventoryGridView, entry: GridInventory.Entry)
 signal drop_failed
 
 const ITEM_CARD_SCENE := preload("res://ui/item_card/ItemCard.tscn")
@@ -16,6 +17,11 @@ const CURRENCY_COLOR := Color(0.62, 0.5, 0.22)
 
 @export var cell_size: int = 36
 var inventory: GridInventory
+## Optional (entry) -> Color: a coloured border marks an active Brand or the
+## currency waiting to be used. Transparent = no border.
+var highlight: Callable
+## Optional (entry) -> String: usage hint at the bottom of a currency tooltip.
+var currency_hint: Callable
 
 func set_inventory(inv: GridInventory) -> void:
 	inventory = inv
@@ -51,7 +57,8 @@ func _make_block(entry: GridInventory.Entry) -> EntryBlock:
 	block.add_theme_font_size_override("font_size", 11)
 	block.text = _label_for(entry)
 	block.tooltip_text = describe(entry)
-	_style(block, _color_for(entry))
+	var border: Color = highlight.call(entry) if highlight.is_valid() else Color.TRANSPARENT
+	_style(block, _color_for(entry), border)
 	if not entry.is_currency() and entry.content is Item and entry.content.icon_path != "":
 		var icon := TextureRect.new()
 		icon.texture = load(entry.content.icon_path)
@@ -62,6 +69,7 @@ func _make_block(entry: GridInventory.Entry) -> EntryBlock:
 		block.add_child(icon)
 		block.text = "" if entry.count <= 1 else str(entry.count)
 	block.pressed.connect(func(): entry_clicked.emit(self, entry))
+	block.mouse_entered.connect(func(): entry_hovered.emit(self, entry))
 	return block
 
 static func describe(entry: GridInventory.Entry) -> String:
@@ -72,7 +80,8 @@ static func describe(entry: GridInventory.Entry) -> String:
 	var lines: Array[String] = [entry.content.display_name]
 	var t := CraftTarget.wrap(entry.content)
 	if t != null:
-		lines.append("Tolerance %d/%d" % [t.get_tolerance(), entry.content.tolerance_max])
+		if t.uses_tolerance():
+			lines.append("Tolerance %d/%d" % [t.get_tolerance(), entry.content.tolerance_max])
 		if not t.is_slate:
 			lines.append("Quality %d  Sockets %d%s" % [t.get_quality(), t.get_sockets(), " (opened)" if t.sockets_rolled() else ""])
 		if t.get_active_edict() != null:
@@ -93,11 +102,14 @@ func _color_for(entry: GridInventory.Entry) -> Color:
 		return Constants.SLATE_RARITY_COLOR.get(entry.content.rarity, Color.GRAY)
 	return Constants.ITEM_RARITY_COLOR.get(entry.content.rarity, Color.GRAY)
 
-func _style(button: Button, color: Color) -> void:
+func _style(button: Button, color: Color, border: Color = Color.TRANSPARENT) -> void:
 	for state in ["normal", "hover", "pressed", "focus"]:
 		var box := StyleBoxFlat.new()
 		box.bg_color = color.lightened(0.15) if state == "hover" else color
 		box.set_corner_radius_all(3)
+		if border.a > 0.0:
+			box.border_color = border
+			box.set_border_width_all(3)
 		button.add_theme_stylebox_override(state, box)
 	var text_color := Constants.get_contrasting_text_color(color)
 	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
@@ -150,9 +162,10 @@ class EntryBlock extends Button:
 			accept_event()
 
 	func _make_custom_tooltip(_for_text: String) -> Object:
-		if entry.is_currency():
-			return null
 		var card: ItemCard = ITEM_CARD_SCENE.instantiate()
+		if entry.is_currency():
+			card.display_currency(entry.content, entry.count, view.currency_hint.call(entry) if view.currency_hint.is_valid() else "")
+			return card
 		if entry.content is Slate:
 			card.display_slate(entry.content)
 		else:

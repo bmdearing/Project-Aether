@@ -118,17 +118,17 @@ func _test_equip_unequip() -> void:
 	_screen.open()
 	_check(not get_tree().paused, "inventory doesn't pause")
 	var helmet: Item = GameState.get_inventory_items().filter(func(i): return i.display_name == "Test Helm")[0]
-	_screen._on_entry_clicked(_screen.inventory_grid, _entry_for(helmet))
+	_screen._on_entry_right_clicked(_screen.inventory_grid, _entry_for(helmet))
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.HELMET) == helmet and not GameState.inventory.has_content(helmet), "click equips and removes from grid")
 
 	var old_body := _equipment.get_equipped(Constants.EquipmentSlot.BODY_ARMOUR)
 	var body := _armor(Constants.EquipmentSlot.BODY_ARMOUR, "Test Plate")
 	GameState.inventory.add(body)
-	_screen._on_entry_clicked(_screen.inventory_grid, _entry_for(body))
+	_screen._on_entry_right_clicked(_screen.inventory_grid, _entry_for(body))
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.BODY_ARMOUR) == body, "body armour swapped in")
 	var returned := GameState.get_inventory_items().filter(func(i): return i is Armor and i.display_name == old_body.display_name)
 	_check(returned.size() == 1, "displaced armour returns to the grid")
-	_check(returned.size() == 1 and returned[0] != old_body and returned[0].resource_path == "" and returned[0].tolerance > 0, "hand-authored base returns as its own copy with tolerance")
+	_check(returned.size() == 1 and returned[0] != old_body and returned[0].resource_path == "", "hand-authored base returns as its own copy")
 
 	_screen._on_doll_slot_pressed(_doll_row(Constants.EquipmentSlot.HELMET))
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.HELMET) == null and GameState.inventory.has_content(helmet), "doll click unequips into the grid")
@@ -158,13 +158,13 @@ func _test_swap_revert() -> void:
 	var greatsword := _weapon("Greatsword", true)
 	GameState.inventory.add(greatsword)
 	_screen.open()
-	_screen._on_entry_clicked(_screen.inventory_grid, _entry_for(greatsword))
+	_screen._on_entry_right_clicked(_screen.inventory_grid, _entry_for(greatsword))
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.PRIMARY_WEAPON) == saber and _equipment.get_equipped(Constants.EquipmentSlot.OFFHAND) == shield, "swap reverted when displaced items don't fit")
 	_check(GameState.inventory.has_content(greatsword) and GameState.inventory.get_entries().size() == 1, "grid unchanged after a reverted swap")
 
 	GameState.inventory = GridInventory.new(4, 4)
 	GameState.inventory.add(greatsword)
-	_screen._on_entry_clicked(_screen.inventory_grid, _entry_for(greatsword))
+	_screen._on_entry_right_clicked(_screen.inventory_grid, _entry_for(greatsword))
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.PRIMARY_WEAPON) == greatsword and _equipment.get_equipped(Constants.EquipmentSlot.OFFHAND) == null, "two-hander equipped when there's room")
 	_check(GameState.inventory.has_content(saber) and GameState.inventory.has_content(shield), "two-hander puts both displaced items in the grid")
 	_screen.close()
@@ -248,7 +248,7 @@ func _test_migration() -> void:
 	_check(names.has("Old Loose Slate") and not names.has("Old Placed Slate"), "migration moves unplaced slates into the grid")
 	var ref = GameState.fate_board_placements[0]["slate_ref"]
 	_check(ref is Dictionary and ref.get("display_name", "") == "Old Placed Slate", "placed slate index converted to full data")
-	_check(GameState.get_inventory_items().all(func(i): return i.tolerance > 0), "migrated items get tolerance")
+	_check(GameState.get_inventory_items().all(func(i): return (i.tolerance > 0) == (i is Slate)), "migrated slates get tolerance, gear does not")
 
 	var crowded := {"owned_loot": []}
 	for i in 30:

@@ -123,7 +123,7 @@ var _enemy_counter_label: Label
 
 ## User request (2026-08-31): floating enemy health bars on hover/in-
 ## combat, plus a special top-of-screen bar for boss-rank enemies.
-const ENEMY_HEALTH_BAR_HEIGHT_OFFSET := 2.2  # world-space Y above the enemy's own origin
+const ENEMY_HEALTH_BAR_HEIGHT_OFFSET := 0.3  # metres above the top of the enemy's body
 const ENEMY_HOVER_MAX_RANGE := 30.0
 var _enemy_bars: Dictionary = {}  # Enemy instance id (int) -> EnemyHealthBar
 var _boss_bar: BossHealthBar
@@ -530,7 +530,8 @@ func _update_enemy_health_bars() -> void:
 		var rarity_component := enemy.get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
 		bar.set_name_color(rarity_component.get_name_color() if rarity_component else Color.WHITE)
 		bar.set_health(enemy.health.current_health, enemy.health.max_health)
-		var world_pos := enemy.global_position + Vector3(0, ENEMY_HEALTH_BAR_HEIGHT_OFFSET, 0)
+		bar.set_ward(enemy.get_ward(), enemy.get_ward_max())
+		var world_pos := enemy.global_position + Vector3(0, enemy.body_height + ENEMY_HEALTH_BAR_HEIGHT_OFFSET, 0)
 		if camera.is_position_behind(world_pos):
 			bar.visible = false
 		else:
@@ -555,6 +556,7 @@ func _update_boss_bar(boss: Enemy) -> void:
 	_boss_bar.visible = true
 	_boss_bar.set_boss_name(boss.get_display_name())
 	_boss_bar.set_health(boss.health.current_health, boss.health.max_health)
+	_boss_bar.set_ward(boss.get_ward(), boss.get_ward_max())
 
 func _get_hovered_enemy_id(camera: Camera3D) -> int:
 	var origin := camera.global_position

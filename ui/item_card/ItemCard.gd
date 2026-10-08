@@ -97,6 +97,30 @@ func display_ability(ability: Ability, stat_sheet: StatSheet = null) -> void:
 	_showing_alt = false
 	_render_ability(ability, stat_sheet)
 
+const CURRENCY_COLOR := Color(0.85, 0.68, 0.3)
+const BRAND_COLOR := Color(0.85, 0.3, 0.3)
+const HINT_COLOR := Color(0.6, 0.75, 0.6)
+
+## Orbs, Brands, Edicts and stones: name, stack size, what it does and how to use it.
+func display_currency(id: StringName, count: int, hint: String = "") -> void:
+	_current_item = null
+	_current_slate = null
+	_current_ability = null
+	_clear()
+	var kind := "BRAND" if String(id).begins_with("brand_") else ("EDICT" if String(id).begins_with("edict_") else "CURRENCY")
+	var color := BRAND_COLOR if kind == "BRAND" else CURRENCY_COLOR
+	_set_card_style(color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH)
+	_add_type_badge(kind, color)
+	_add_title(CurrencyText.name_of(id), color)
+	_add_subtitle("Stack: %d" % count)
+	var desc := CurrencyText.description_of(id)
+	if desc != "":
+		_add_separator()
+		_add_mod_line(desc, STAT_COLOR)
+	if hint != "":
+		_add_separator()
+		_add_mod_line(hint, HINT_COLOR)
+
 ## Patch v3.8 Section 5: Alt is a HOLD - press while this card is showing
 ## swaps to Alt Info in place, release swaps back. No second window, no
 ## click-to-pin - matches this card's own native-tooltip lifecycle
@@ -204,7 +228,8 @@ func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 	_add_separator()
 	_add_spell_damage_line(ability, sheet)
 	_add_stat_line("Cast Type: %s" % _get_cast_type_label(ability))
-	_add_stat_line("Cooldown: %.1fs" % ability.get_effective_cooldown(sheet))
+	if ability.cooldown_seconds > 0.0:
+		_add_stat_line("Cooldown: %.1fs" % ability.get_effective_cooldown(sheet))
 	_add_stat_line("Mana Cost: %.0f" % ability.get_mana_cost(sheet))
 	if ability.get_radius(sheet) > 0.0:
 		_add_stat_line("Range: %.1fm" % ability.get_radius(sheet))
@@ -216,7 +241,7 @@ func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 		var effect_names := ability.applies_status_effects.map(
 			func(id): return Constants.STATUS_EFFECT_NAME.get(id, id)
 		)
-		_add_stat_line("Applies: %s" % ", ".join(effect_names))
+		_add_stat_line("%.0f%% chance to apply: %s" % [ability.status_chance * 100.0, ", ".join(effect_names)])
 	if ability.description != "":
 		_add_separator()
 		_add_flavor(ability.description)
@@ -292,8 +317,43 @@ func _affix_text(affix: ItemAffix, show_tier: bool) -> String:
 	if tier_at != -1 and text.ends_with(")"):
 		text = text.substr(0, tier_at)
 	if show_tier and not affix.is_implicit and affix.tier > 0:
-		text += " (Tier %d)" % affix.tier
+		text = _with_range(text, affix) + "  [Tier %d]" % affix.tier
 	return text
+
+static var _number_regex: RegEx
+
+## Puts the roll range right after the rolled number: "+23(20-25) Strength".
+func _with_range(text: String, affix: ItemAffix) -> String:
+	if is_equal_approx(affix.value_min, affix.value_max) or affix.value_max == 0.0:
+		return text
+	if _number_regex == null:
+		_number_regex = RegEx.create_from_string("\\d+(\\.\\d+)?")
+	var range_text := "(%s-%s)" % [_format_num(affix.value_min), _format_num(affix.value_max)]
+	var m := _number_regex.search(text)
+	if m == null:
+		return "%s %s" % [text, range_text]
+	return text.substr(0, m.get_end()) + range_text + text.substr(m.get_end())
+
+const STANCE_COLOR := Color(0.95, 0.8, 0.5)
+
+## The weapon's stance(s) - what holding RMB does with it.
+func _add_stance_lines(w: Weapon) -> void:
+	var stances: Array[Dictionary] = []
+	if w.is_conduit:
+		stances.append(StanceInfo.for_conduit(w))
+	else:
+		for page in 2:
+			var info := StanceInfo.for_weapon(w, page)
+			if not info.is_empty() and not stances.any(func(s): return s["name"] == info["name"]):
+				stances.append(info)
+	stances = stances.filter(func(s): return not s.is_empty())
+	if stances.is_empty():
+		return
+	_add_separator()
+	for i in stances.size():
+		var label := "Stance" if stances.size() == 1 else "Stance %s" % ["A", "B"][i]
+		_add_mod_line("%s: %s" % [label, stances[i]["name"]], STANCE_COLOR)
+		_add_mod_line(stances[i]["desc"], STAT_COLOR)
 
 func _add_alt_affix_tiers(item: Item) -> void:
 	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
@@ -315,6 +375,7 @@ func _render_alt_info() -> void:
 		_add_stat_line("Item Level: %d" % w.item_level)
 		for line in _requirement_lines(w):
 			_add_stat_line(line)
+		_add_stance_lines(w)
 		_add_alt_affix_tiers(w)
 	elif _current_item != null:
 		_add_stat_line("Item Level: %d" % _current_item.item_level)

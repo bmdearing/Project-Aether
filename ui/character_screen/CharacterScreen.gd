@@ -1,6 +1,6 @@
 extends CanvasLayer
 class_name CharacterScreen
-## Read-only character sheet (`C`). All 3 stats come from gear, Slates and level
+## Read-only character sheet (`C`); doesn't pause the game. All 3 stats come from gear, Slates and level
 ## (see StatSheet.gd), so this just displays live totals via
 ## StatSummaryBuilder (shared with InventoryScreen's own stats column).
 ##
@@ -19,6 +19,8 @@ class_name CharacterScreen
 @onready var intellect_label: Label = $CenterContainer/VBox/PrimaryStatsRow/IntellectLabel
 
 var _is_open: bool = false
+var _refresh_timer: float = 0.0
+const REFRESH_INTERVAL := 0.5  # the game keeps running underneath, so stats can change
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -33,15 +35,21 @@ func is_open() -> bool:
 func open() -> void:
 	_is_open = true
 	visible = true
-	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_refresh()
 
 func close() -> void:
 	_is_open = false
 	visible = false
-	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+func _process(delta: float) -> void:
+	if not _is_open:
+		return
+	_refresh_timer -= delta
+	if _refresh_timer <= 0.0:
+		_refresh_timer = REFRESH_INTERVAL
+		_refresh()
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _is_open:

@@ -10,6 +10,8 @@ class_name StanceAttack
 signal charge_changed(progress: float, full: bool)  # progress: held time / charge_time
 signal charge_ended
 
+## Base chance a stance ailment rider (Whip Bleed, Repulse Electrocute) lands, before gear.
+const STANCE_AILMENT_CHANCE := 0.5
 const LUNGE_SPEED := 18.0           # m/s; sets how long a lunge of a given distance takes
 const IMPACT_RING_SCENE := preload("res://entities/effects/ability_range_effect/AbilityRangeEffect.tscn")
 const AFTERSHOCK_DELAY := 1.5       # Mace: doc-given
@@ -226,7 +228,7 @@ func _on_blast_hit(enemy: Enemy, damage: float, behavior: MeleeStanceBehavior) -
 ## Whip Crack: Bleed and an interrupt on whatever it reaches.
 func _on_crack_hit(enemy: Enemy, damage: float) -> void:
 	if enemy.status_effects:
-		enemy.status_effects.apply_effect("bleed", _player, damage)
+		enemy.status_effects.try_apply("bleed", _player, damage, STANCE_AILMENT_CHANCE)
 	enemy.interrupt_attack()
 
 ## Stances that fire on the LMB press. False: no instant attack here, so
@@ -363,7 +365,7 @@ func _repulse(b: MeleeStanceBehavior) -> void:
 		var direction := push.normalized() if push.length() > 0.01 else _forward()
 		enemy.apply_knockback(direction * b.knockback + Vector3.UP * REPULSE_LIFT)
 		if enemy.status_effects:
-			enemy.status_effects.apply_effect("electrocute", _player)
+			enemy.status_effects.try_apply("electrocute", _player, 0.0, STANCE_AILMENT_CHANCE)
 		enemy.flash_hit()
 
 func _first_in_line(reach: float, half_angle: float) -> Enemy:

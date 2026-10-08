@@ -85,6 +85,8 @@ func _spell(id: String) -> Ability:
 	a.level = 1
 	a.base_crit_chance = 0.0
 	a.base_damage_min = a.base_damage_max  # fixed rolls, so damage comparisons are exact
+	a.status_chance = 1.0
+	a.cooldown_seconds = 1.0  # a started cooldown is how these checks see a cast
 	return a
 
 func _reset(main: Weapon, off: Weapon = null, page: WeaponStance.StancePage = WeaponStance.StancePage.A) -> void:
@@ -133,6 +135,7 @@ func _lost(e: Enemy) -> float:
 
 func _cast_key(key: int, settle: float = 0.8) -> void:
 	var action := "ability_%d" % key
+	_player.ability_cast._cast_lockout = 0.0  # each check casts on its own, not back-to-back
 	Input.action_press(action)
 	await _frames(2)
 	Input.action_release(action)
@@ -150,8 +153,9 @@ func _test_spell_library() -> void:
 	Input.action_press("stance")
 	await _frames(3)
 	_check(_player.ability_cast.get_bar_ability(0) == page_spell, "holding RMB shows the stance page on the bar")
+	var mana_before := _player.mana.current_mana
 	await _cast_key(1, 0.3)
-	_check(_player.ability_cast.get_cooldown_remaining(page_spell) > 0.0, "key 1 casts the stance page spell in stance")
+	_check(_player.mana.current_mana < mana_before, "key 1 casts the stance page spell in stance")
 	_check(_player.ability_cast.get_cooldown_remaining(bar_spell) == 0.0, "the bar spell stays unused")
 	Input.action_release("stance")
 	await _frames(3)

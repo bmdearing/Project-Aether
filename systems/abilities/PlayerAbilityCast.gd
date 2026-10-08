@@ -110,14 +110,15 @@ var _frost_armor_fx: Node3D
 ## CastTimeHandler.gd already fires CHANNELED abilities' _cast() the same
 ## instant as INSTANT ones (no windup to interrupt), so "not interruptible
 ## by damage" needs no separate change here.
-const FLAME_JETS_DURATION := 1.8
+const FLAME_JETS_DURATION := 1.8  # auto-cast (Slate) length
+const FLAME_JETS_MANUAL_CAP := 600.0
 const FLAME_JETS_TICK_INTERVAL := 0.15
 const FLAME_JETS_TICK_DAMAGE_PERCENT := 0.25
 const FLAME_JETS_RANGE := 6.0
 const FLAME_JETS_HALF_ANGLE_DEG := 20.0
 const FLAME_JETS_MOVE_SPEED_MULTIPLIER := 0.4
 const CHANNEL_MANA_DRAIN_INTERVAL := 0.15
-const CHANNEL_MANA_DRAIN_PERCENT := 0.08
+const CHANNEL_MANA_DRAIN_PERCENT := 0.2
 
 var _flame_jets_ability: Ability = null
 var _flame_jets_remaining: float = 0.0
@@ -134,6 +135,9 @@ var _flame_jets_is_manual: bool = false
 var _flame_jets_fx: CPUParticles3D
 
 var _cooldowns: Dictionary = {}  # Ability -> float seconds remaining
+## Spells have no cooldowns, so this short shared recovery (Ability.
+## base_recovery_time, scaled by cast speed) is the only gap between casts.
+var _cast_lockout: float = 0.0
 var _player: Player
 var _targeting_slot: int = -1
 var _targeting_from_page: bool = false
@@ -156,6 +160,7 @@ func _physics_process(delta: float) -> void:
 		_flame_jets_fx.emitting = _flame_jets_remaining > 0.0
 	for ability in _cooldowns.keys():
 		_cooldowns[ability] = max(0.0, _cooldowns[ability] - delta)
+	_cast_lockout = maxf(0.0, _cast_lockout - delta)
 	if _frost_armor_remaining > 0.0:
 		_frost_armor_remaining = max(0.0, _frost_armor_remaining - delta)
 	_frost_armor_burst_cd = maxf(0.0, _frost_armor_burst_cd - delta)
@@ -238,11 +243,10 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 		EventBus.ability_cast_failed.emit(_player, ability, plan["error"])
 		return
 	var copies: int = plan["copies"]
+	if _cast_lockout > 0.0:
+		return
 	if get_cooldown_remaining(ability) > 0.0:
 		EventBus.ability_cast_failed.emit(_player, ability, "On cooldown")
-		return
-	if ability.ability_id == "tornado" and get_tree().get_nodes_in_group("tornado_field").size() >= ability.get_limit(_player.stat_sheet):
-		EventBus.ability_cast_failed.emit(_player, ability, "Limit reached")
 		return
 	if _player.mana.current_mana < ability.get_mana_cost(_player.stat_sheet) * copies:
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
@@ -254,6 +258,7 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 		EventBus.ability_cast_failed.emit(_player, ability, "Already casting")
 		return
 	_player.mana.spend(ability.get_mana_cost(_player.stat_sheet) * copies)
+	_cast_lockout = ability.base_recovery_time / maxf(_player.get_action_speed_multiplier(), 0.01)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_input_action = "ability_%d" % (slot_index + 1)
 		_flame_jets_is_manual = true
@@ -320,7 +325,8 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		return
 	if ability.ability_id == "flame_jets":
 		_flame_jets_ability = ability
-		_flame_jets_remaining = FLAME_JETS_DURATION
+		# A held cast channels until the key is released or Mana runs out.
+		_flame_jets_remaining = FLAME_JETS_MANUAL_CAP if _flame_jets_is_manual else FLAME_JETS_DURATION
 		_flame_jets_tick_timer = 0.0  # ticks on the very next physics frame, not after a full interval's delay
 		_flame_jets_drain_timer = CHANNEL_MANA_DRAIN_INTERVAL
 		_ensure_flame_jets_fx()
@@ -423,7 +429,7 @@ func _damage_area(ability: Ability, centre: Vector3, radius: float, damage_multi
 		var enemy := node as Enemy
 		if enemy == null:
 			continue
-		var dist := centre.distance_to(enemy.global_position)
+		var dist := enemy.distance_to_body(centre)
 		if dist > radius:
 			continue
 		if wave > 0.0:
@@ -443,8 +449,7 @@ func _hit_enemy(ability: Ability, enemy: Enemy, damage_multiplier: float, apply_
 	if apply_composure and enemy.stance:
 		enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
 	EventBus.damage_dealt.emit(_player, enemy, damage, ability.damage_type, false, hit["is_critical"])
-	for effect_id in ability.applies_status_effects:
-		enemy.status_effects.apply_effect(effect_id, _player, damage)
+	ability.apply_statuses(enemy, _player, damage)
 	if on_hit.is_valid():
 		on_hit.call(enemy)
 
@@ -452,7 +457,7 @@ func _enemies_by_distance(centre: Vector3, max_dist: float) -> Array[Enemy]:
 	var result: Array[Enemy] = []
 	for node in get_tree().get_nodes_in_group("enemy"):
 		var enemy := node as Enemy
-		if enemy and enemy.health.is_alive() and centre.distance_to(enemy.global_position) <= max_dist:
+		if enemy and enemy.health.is_alive() and enemy.distance_to_body(centre) <= max_dist:
 			result.append(enemy)
 	result.sort_custom(func(a: Enemy, b: Enemy): return centre.distance_to(a.global_position) < centre.distance_to(b.global_position))
 	return result
@@ -463,7 +468,7 @@ func _cast_stormcall(ability: Ability, centre: Vector3, damage_multiplier: float
 	var core: Array[Enemy] = []
 	var outer: Array[Enemy] = []
 	for enemy in _enemies_by_distance(centre, radius):
-		if centre.distance_to(enemy.global_position) <= STORMCALL_CORE_RADIUS:
+		if enemy.distance_to_body(centre) <= STORMCALL_CORE_RADIUS:
 			core.append(enemy)
 		else:
 			outer.append(enemy)
@@ -525,8 +530,11 @@ func _process_slate_autocasts() -> void:
 ## (auto_cast_damage_percent), no resource cost (satisfied structurally -
 ## this never calls ManaComponent.spend(), unlike _try_cast()), no
 ## Riposte window/Composure damage (apply_composure=false).
+## Spells have no cooldown of their own, so auto-cast needs its own pacing.
+const AUTO_CAST_MIN_INTERVAL := 2.0
+
 func _auto_cast(ability: Ability, slate: Slate) -> void:
-	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet)
+	_cooldowns[ability] = maxf(ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet), AUTO_CAST_MIN_INTERVAL)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_is_manual = false
 	var damage_percent := _modifier_value(slate, "auto_cast_damage_percent", 100.0)
@@ -559,10 +567,29 @@ func _resolve_ability_by_id(ability_id: String) -> Ability:
 			dir.list_dir_end()
 	return _ability_by_id_cache.get(ability_id)
 
+func _limit_group(ability: Ability) -> StringName:
+	return StringName("spell_limit_" + ability.ability_id)
+
+## At the limit, the oldest instance makes way for the new one.
+func _make_room_for(ability: Ability, limit: int) -> void:
+	var live: Array[Node] = []
+	for node in get_tree().get_nodes_in_group(_limit_group(ability)):
+		if not node.is_queued_for_deletion():
+			live.append(node)
+	while live.size() >= limit:
+		var oldest: Node = live.pop_front()
+		oldest.remove_from_group(_limit_group(ability))
+		oldest.queue_free()
+
 func _play_range_effect(ability: Ability, cast_position: Vector3) -> Node3D:
 	var scene: PackedScene = SPECIAL_EFFECT_SCENES.get(ability.ability_id, RANGE_EFFECT_SCENE)
+	var limit := ability.get_limit(_player.stat_sheet) if ability.has_tag(Ability.TAG_LIMIT) else 0
+	if limit > 0:
+		_make_room_for(ability, limit)
 	var effect: Node3D = scene.instantiate()
 	_player.get_tree().current_scene.add_child(effect)
+	if limit > 0:
+		effect.add_to_group(_limit_group(ability))
 	effect.global_position = cast_position
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
 	if ability.ability_id == "flame_wall":
@@ -596,9 +623,9 @@ func _tick_flame_jets() -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		var to_enemy: Vector3 = enemy.global_position - origin
+		var to_enemy: Vector3 = enemy.global_position + Vector3.UP * minf(enemy.body_height * 0.5, 1.0) - origin
 		var dist := to_enemy.length()
-		if dist > FLAME_JETS_RANGE or dist < 0.01:
+		if dist - enemy.body_radius > FLAME_JETS_RANGE or dist < 0.01:
 			continue
 		if to_enemy.normalized().dot(forward) < cos_half_angle:
 			continue
@@ -610,8 +637,7 @@ func _tick_flame_jets() -> void:
 		if enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, _flame_jets_ability.damage_type)
 		EventBus.damage_dealt.emit(_player, enemy, damage, _flame_jets_ability.damage_type, false, hit["is_critical"])
-		for effect_id in _flame_jets_ability.applies_status_effects:
-			enemy.status_effects.apply_effect(effect_id, _player, damage)
+		_flame_jets_ability.apply_statuses(enemy, _player, damage)
 
 ## The flame stream: soft additive puffs from just below the view, out along
 ## the aim for FLAME_JETS_RANGE, growing and cooling from white-yellow to red.
@@ -776,7 +802,7 @@ func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D)
 	bolt.damage_type = ability.damage_type
 	bolt.speed = BOLT_SPEEDS.get(ability.ability_id, bolt.speed) * ability.get_projectile_speed_multiplier(_player.stat_sheet)
 	bolt.source = _player
-	bolt.applies_status_effects = ability.applies_status_effects
+	bolt.ability = ability
 	if ability.ability_id == "thunder_sweep":
 		bolt.follow_ground = true
 		bolt.max_distance = ability.get_radius(_player.stat_sheet)

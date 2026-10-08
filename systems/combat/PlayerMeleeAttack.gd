@@ -35,14 +35,14 @@ enum State { IDLE, WINDUP, STRIKE, RECOVERY }
 ## which WEAPON_TYPE_SWING_DURATION_MULT below applies per weapon type.
 ## Combat feel pass (2026-10-07): longer anticipation and recovery around a
 ## short, fast strike - the contrast is what reads as punch.
-@export var windup_duration: float = 0.25
-@export var strike_duration: float = 0.12
-@export var recovery_duration: float = 0.25
+@export var windup_duration: float = 0.32
+@export var strike_duration: float = 0.14
+@export var recovery_duration: float = 0.34
 ## Floors after every speed multiplier, so fast weapons + attack speed can't
 ## blur a swing into a flicker.
-const MIN_WINDUP := 0.15
-const MIN_STRIKE := 0.075
-const MIN_RECOVERY := 0.19
+const MIN_WINDUP := 0.2
+const MIN_STRIKE := 0.09
+const MIN_RECOVERY := 0.24
 ## Hits register only from this fraction of Strike onward, when the blade is
 ## actually crossing the screen (the strike tween eases in).
 const STRIKE_CONTACT_START := 0.6
@@ -494,7 +494,7 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	# swing - big bonus damage + a moment of player invulnerability,
 	# handled entirely by ParryRiposteHandler.
 	if is_primary and _player.parry_handler and _player.parry_handler.can_riposte(target):
-		var riposte_is_critical_spot := target.is_critical_spot_hit(_hitbox)
+		var riposte_is_critical_spot := target.is_critical_spot_aimed(_player.camera.global_position, -_player.camera.global_transform.basis.z)
 		_player.parry_handler.execute_riposte(target, weapon, motion_value, damage_type)
 		_react_to_hit(target, 1.5)
 		_trigger_hit_feedback(true, false, not target.health.is_alive())
@@ -505,12 +505,8 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	var final_damage: float = hit["final_damage"] * damage_scale
 	var is_critical: bool = hit["is_critical"]
 
-	# Implementation Brief v3.4 Section 3 - the weapon's own hitbox is
-	# whichever Area3D is currently resolving this hit (_hitbox), checked
-	# against the target's HeadZone for overlap - see Enemy.
-	# is_critical_spot_hit()'s own header for why this replaces the
-	# brief's hit_position-based check.
-	var is_critical_spot := is_primary and target.is_critical_spot_hit(_hitbox)
+	# Headshot: the crosshair is on the target's head.
+	var is_critical_spot := is_primary and target.is_critical_spot_aimed(_player.camera.global_position, -_player.camera.global_transform.basis.z)
 	if is_critical_spot:
 		final_damage *= target.critical_spot_multiplier
 
@@ -529,6 +525,7 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	if target.stance:
 		target.stance.apply_attack_stance_damage(final_damage, damage_type)
 	EventBus.damage_dealt.emit(_player, target, final_damage, damage_type, false, is_critical)
+	target.status_effects.roll_gear_ailments(_player, final_damage)
 	EventBus.melee_attack_executed.emit(_player, final_damage, damage_type, motion_value)
 	EventBus.hit_landed.emit(is_critical, is_critical_spot, not target.health.is_alive())
 	if is_counter:

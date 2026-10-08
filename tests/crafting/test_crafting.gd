@@ -406,22 +406,31 @@ func _expected_rarity(prefix_count: int) -> int:
 
 func _test_tolerance() -> void:
 	_setup(23)
+	var s := _slate()
+	s.tolerance = 3
+	var r := _resolver.apply(s, &"forging")
+	_check(r.success and s.tolerance == 0 and r.tolerance_spent == 3, "over-cost slate craft resolves and drops tolerance to 0")
+	_check(_resolver.apply(s, &"ascendant").error == E.NO_TOLERANCE, "next slate craft returns NO_TOLERANCE")
+	_check(_resolver.apply(s, &"absolution").error == E.NO_TOLERANCE and s.tolerance == 0, "absolution at 0 tolerance fails")
+	s = _slate()
+	_resolver.apply(s, &"forging")
+	var before := s.tolerance
+	_check(_resolver.apply(s, &"absolution").success and s.tolerance < before, "absolution spends rather than restores tolerance")
 	var g := _gear()
-	g.tolerance = 3
-	var r := _resolver.apply(g, &"forging")
-	_check(r.success and g.tolerance == 0 and r.tolerance_spent == 3, "over-cost craft resolves and drops tolerance to 0")
-	_check(_resolver.apply(g, &"ascendant").error == E.NO_TOLERANCE, "next craft returns NO_TOLERANCE")
-	_check(_resolver.apply(g, &"absolution").error == E.NO_TOLERANCE and g.tolerance == 0, "absolution at 0 tolerance fails")
-	g = _rare_gear()
-	var before := g.tolerance
-	_check(_resolver.apply(g, &"absolution").success and g.tolerance < before, "absolution spends rather than restores tolerance")
-	var failed := _gear()
+	g.tolerance = 0
+	r = _resolver.apply(g, &"forging")
+	_check(r.success and r.tolerance_spent == 0 and _resolver.apply(g, &"ascendant").success, "gear has no tolerance budget")
+	var failed := _slate()
 	_resolver.apply(failed, &"grafting")
 	_check(failed.tolerance == 1000, "failed craft spends no tolerance")
-	var dropped := _gear()
+	var dropped := _slate()
 	CraftingResolver.roll_tolerance(dropped)
-	var range_: Vector2i = Constants.STARTING_TOLERANCE_DEFAULT
-	_check(dropped.tolerance >= range_.x and dropped.tolerance <= range_.y and dropped.tolerance_max == dropped.tolerance, "tolerance rolled in range")
+	var range_: Vector2i = Constants.STARTING_TOLERANCE_BY_ITEM_TYPE.get(CraftTarget.wrap(dropped).get_item_type(), Constants.STARTING_TOLERANCE_DEFAULT)
+	_check(dropped.tolerance >= range_.x and dropped.tolerance <= range_.y and dropped.tolerance_max == dropped.tolerance, "slate tolerance rolled in range")
+	var dropped_gear := _gear()
+	dropped_gear.tolerance = 0
+	CraftingResolver.roll_tolerance(dropped_gear)
+	_check(dropped_gear.tolerance == 0, "gear gets no tolerance")
 	_finished += 1
 
 func _test_opening() -> void:
@@ -573,5 +582,5 @@ func _test_signals_and_text() -> void:
 	_check(s_copy.explicits.size() == s.explicits.size() and s_copy.tolerance == s.tolerance, "slate crafting state survives save")
 	var legacy := ItemSerializer.to_dict(_gear())
 	legacy.erase("tolerance")
-	_check(ItemSerializer.from_dict(legacy).tolerance > 0, "legacy save gets tolerance rolled")
+	_check(ItemSerializer.from_dict(legacy).tolerance == 0, "legacy gear save gets no tolerance")
 	_finished += 1

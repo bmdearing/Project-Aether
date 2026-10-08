@@ -92,6 +92,7 @@ func prepare_cast(ability: Ability, from_spell_page: bool) -> Dictionary:
 			"pallid":
 				if not statuses.has("pallid"):
 					statuses.append("pallid")
+				cast.guaranteed_statuses = ["pallid"]
 	cast.applies_status_effects = statuses
 	match source.conduit_stance_type:
 		"unleash":
