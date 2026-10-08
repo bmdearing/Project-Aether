@@ -406,6 +406,8 @@ const KNOCKBACK_FRICTION := 22.0
 const BOSS_KNOCKBACK_SCALE := 0.25
 
 func apply_knockback(impulse: Vector3) -> void:
+	if immovable:
+		return
 	if rank == Constants.EnemyRank.BOSS:
 		impulse *= BOSS_KNOCKBACK_SCALE
 	_knockback += Vector3(impulse.x, 0.0, impulse.z)
@@ -445,6 +447,13 @@ func flash_hit() -> void:
 				mesh.material_overlay = null)
 
 func _physics_process(delta: float) -> void:
+	if immovable:
+		# Hovering in place (the Lord of the Elements over the Pinnacle bay).
+		velocity = Vector3.ZERO
+		_pull = Vector3.ZERO
+		_knockback = Vector3.ZERO
+		_update_model(delta)
+		return
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
 	_update_chase()
@@ -850,6 +859,18 @@ func _roll_rank() -> Constants.EnemyRank:
 func _compute_item_level() -> int:
 	var area_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
 	return area_level + Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
+
+## Never moves, falls or gets pushed: it hovers where it was placed.
+var immovable: bool = false
+
+## Where this enemy's spells and projectiles start.
+func get_cast_origin() -> Vector3:
+	return global_position + Vector3(0, 0.95, 0)
+
+## Called by BossBrain as an ability is telegraphed at `target`, landing
+## after `delay` seconds; bosses override it for casting effects.
+func on_ability_telegraph(_ability: BossAbility, _target: Vector3, _delay: float) -> void:
+	pass
 
 ## Set by a BossBrain child: abilities, phases and the casting lock.
 var boss_brain: BossBrain

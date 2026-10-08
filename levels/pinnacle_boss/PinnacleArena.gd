@@ -11,7 +11,8 @@ class_name PinnacleArena
 
 const OUTER_RADIUS := 26.0
 const CUT_RADIUS := 26.0
-const CUT_OFFSET := 9.0
+## The cut circle's offset sets how thick the crescent is (14m at its middle).
+const CUT_OFFSET := 14.0
 const FLOOR_THICKNESS := 1.0
 const WALL_HEIGHT := 6.0
 ## Boundary wall offset past the floor's edges.
@@ -19,8 +20,17 @@ const WALL_MARGIN := 1.5
 ## CSGCylinder3D's default 8 sides makes the circles visibly angular.
 const CSG_SIDES := 64
 
-## Roughly the crescent's belly, farthest from the cutout.
-const BOSS_SPAWN_LOCAL := Vector3(0, 0.05, -(OUTER_RADIUS - CUT_OFFSET * 0.5))
+## Walking bosses start in the crescent's belly; a hovering one (the Lord of
+## the Elements) floats in the empty bay, BAY_DEPTH past the inner edge.
+const BOSS_SPAWN_LOCAL := Vector3(0, 0.05, -(OUTER_RADIUS + CUT_RADIUS - CUT_OFFSET) * 0.5)
+const BAY_DEPTH := 2.6
+const BAY_SPAWN_LOCAL := Vector3(0, 0.6, CUT_OFFSET - CUT_RADIUS + BAY_DEPTH)
+## The invisible edge wall blocks bodies, not shots: it sits on its own
+## layer, which the player and enemies collide with but projectiles don't.
+const BARRIER_LAYER := 2
+## Sigil spots sit on the band's midline at these angles from -Z.
+const SIGIL_ANGLES_DEG: Array[float] = [-64.0, -42.0, -21.0, 0.0, 21.0, 42.0, 64.0]
+const SIGIL_MIN_SPACING := 9.0
 ## One end of the crescent band: where the player enters.
 const PLAYER_SPAWN_LOCAL := Vector3(OUTER_RADIUS * 0.6, 0.1, -OUTER_RADIUS * 0.55)
 
@@ -29,6 +39,9 @@ const PLAYER_SCENE := preload("res://entities/player/Player.tscn")
 const PORTAL_OFFSET := Vector3(0, 0, 3.0)
 
 var boss: Enemy
+var _floor_mat: ShaderMaterial
+var _ember_process: ParticleProcessMaterial
+var _ember_mat: StandardMaterial3D
 
 const FLOOR_SHADER_CODE := """
 shader_type spatial;
@@ -72,6 +85,7 @@ void fragment() {
 
 func _ready() -> void:
 	GameState.initialize_standalone()
+	child_entered_tree.connect(_on_child_entered)
 	_build_environment()
 	_build_lighting()
 	_build_floor()
@@ -86,7 +100,7 @@ func _spawn_player() -> void:
 	var player: Player = PLAYER_SCENE.instantiate()
 	add_child(player)
 	player.global_position = $PlayerSpawnPoint.global_position
-	player.look_at(Vector3(BOSS_SPAWN_LOCAL.x, player.global_position.y, BOSS_SPAWN_LOCAL.z))
+	player.look_at(Vector3(BAY_SPAWN_LOCAL.x, player.global_position.y, BAY_SPAWN_LOCAL.z))
 
 ## GameState.pending_pinnacle's boss, or a random one when run standalone.
 func _spawn_boss() -> void:
@@ -97,7 +111,10 @@ func _spawn_boss() -> void:
 	boss = (load(Pinnacle.BOSSES[boss_id]["scene"]) as PackedScene).instantiate()
 	boss.rank = Constants.EnemyRank.BOSS
 	add_child(boss)
-	boss.global_position = $BossSpawnPoint.global_position
+	boss.global_position = to_global(BAY_SPAWN_LOCAL) if boss.immovable else $BossSpawnPoint.global_position
+	if boss.has_signal("element_changed"):
+		boss.element_changed.connect(_on_element_changed)
+		_on_element_changed(boss.get("current_element"))
 	boss.health.died.connect(_on_boss_died)
 
 ## A portal home appears by the entry once the boss falls.
@@ -118,22 +135,34 @@ func _spawn_ui() -> void:
 		add_child(scene.instantiate())
 
 func _build_environment() -> void:
-	# Dark but readable: contrast comes from the glowing cracks, so don't
-	# drop the ambient light or thicken the fog much further.
+	# Neutral and dark, so colour comes from the Lord's orbs, the cracks and
+	# the sigils rather than the room tinting everything one hue.
 	var env := Environment.new()
-	env.background_mode = Environment.BG_COLOR
-	env.background_color = Color(0.04, 0.015, 0.015)
+	# A faint violet horizon behind the dark sky so the Lord stands out.
+	var sky_mat := ProceduralSkyMaterial.new()
+	sky_mat.sky_top_color = Color(0.025, 0.025, 0.07)
+	sky_mat.sky_horizon_color = Color(0.17, 0.11, 0.26)
+	sky_mat.ground_horizon_color = Color(0.1, 0.07, 0.16)
+	sky_mat.ground_bottom_color = Color(0.01, 0.01, 0.03)
+	sky_mat.sun_angle_max = 0.0
+	var sky := Sky.new()
+	sky.sky_material = sky_mat
+	env.background_mode = Environment.BG_SKY
+	env.sky = sky
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
-	env.ambient_light_color = Color(0.5, 0.16, 0.12)
-	env.ambient_light_energy = 0.9
+	env.ambient_light_color = Color(0.36, 0.35, 0.46)
+	env.ambient_light_energy = 0.7
 	env.fog_enabled = true
-	env.fog_light_color = Color(0.35, 0.08, 0.04)
+	env.fog_light_color = Color(0.1, 0.09, 0.16)
 	env.fog_light_energy = 0.5
 	env.fog_density = 0.004
 	env.fog_sky_affect = 0.0
 	env.glow_enabled = true
-	env.glow_intensity = 0.9
-	env.glow_bloom = 0.25
+	env.glow_intensity = 0.7
+	# Tight glow only: the wide levels turned small orb halos into big discs.
+	for level in 7:
+		env.set_glow_level(level, 1.0 if level < 2 else 0.0)
+	env.glow_bloom = 0.0  # bloom on everything blew orb halos up into blobs
 	var world_env := WorldEnvironment.new()
 	world_env.name = "WorldEnvironment"
 	world_env.environment = env
@@ -142,20 +171,21 @@ func _build_environment() -> void:
 func _build_lighting() -> void:
 	var light := DirectionalLight3D.new()
 	light.name = "DirectionalLight3D"
-	light.light_color = Color(0.9, 0.45, 0.3)
-	light.light_energy = 1.4
+	light.light_color = Color(0.86, 0.86, 1.0)
+	light.light_energy = 0.9
 	light.shadow_enabled = true
 	light.rotation_degrees = Vector3(-55, 35, 0)
+	light.sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_ONLY
 	add_child(light)
 
-	# Dim red glow near the boss spot.
-	var underlight := OmniLight3D.new()
-	underlight.name = "EmberGlow"
-	underlight.position = BOSS_SPAWN_LOCAL + Vector3(0, 2.5, 0)
-	underlight.light_color = Color(1.0, 0.35, 0.1)
-	underlight.light_energy = 4.0
-	underlight.omni_range = 32.0
-	add_child(underlight)
+	# A soft white key on the bay, so the Lord reads in his own colours.
+	var key := OmniLight3D.new()
+	key.name = "BayLight"
+	key.position = BAY_SPAWN_LOCAL + Vector3(0, 4.0, -6.0)
+	key.light_color = Color(0.9, 0.9, 1.0)
+	key.light_energy = 2.4
+	key.omni_range = 18.0
+	add_child(key)
 
 func _build_floor() -> void:
 	var root := CSGCombiner3D.new()
@@ -182,6 +212,7 @@ func _build_floor() -> void:
 	root.add_child(cut)
 
 	var mat := ShaderMaterial.new()
+	_floor_mat = mat
 	var shader := Shader.new()
 	shader.code = FLOOR_SHADER_CODE
 	mat.shader = shader
@@ -192,6 +223,8 @@ func _build_boundary_walls() -> void:
 	root.name = "Boundary"
 	root.use_collision = true
 	root.visible = false  # collision-only - "an invisible wall" per the request
+	root.collision_layer = BARRIER_LAYER
+	root.collision_mask = 0
 
 	# Outer ring: a full hollow cylinder, simpler than tracing the lune.
 	var outer_solid := CSGCylinder3D.new()
@@ -252,6 +285,7 @@ func _build_embers() -> void:
 	)
 
 	var process_mat := ParticleProcessMaterial.new()
+	_ember_process = process_mat
 	process_mat.direction = Vector3(0, 1, 0)
 	process_mat.spread = 20.0
 	process_mat.gravity = Vector3(0, 0.4, 0)
@@ -268,6 +302,7 @@ func _build_embers() -> void:
 	ember_mesh.radius = 0.05
 	ember_mesh.height = 0.1
 	var ember_mat := StandardMaterial3D.new()
+	_ember_mat = ember_mat
 	ember_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	ember_mat.albedo_color = Color(1.0, 0.5, 0.15)
 	ember_mat.emission_enabled = true
@@ -277,3 +312,45 @@ func _build_embers() -> void:
 	particles.draw_pass_1 = ember_mesh
 
 	add_child(particles)
+
+## Bosses and the player collide with the edge wall's layer; shots don't.
+func _on_child_entered(node: Node) -> void:
+	if node is CharacterBody3D:
+		node.collision_mask |= BARRIER_LAYER
+
+## The floor's cracks and the embers take the Lord's current element.
+func _on_element_changed(element: int) -> void:
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(element, Color(1.0, 0.35, 0.05))
+	if _floor_mat:
+		var current: Variant = _floor_mat.get_shader_parameter("crack_color")
+		var from: Color = current if current is Color else Color(1.0, 0.35, 0.05)  # the shader default until first set
+		var tween := create_tween()
+		tween.tween_method(func(c: Color): _floor_mat.set_shader_parameter("crack_color", c), from, color, 0.6)
+	if _ember_process:
+		_ember_process.color = color
+	if _ember_mat:
+		_ember_mat.albedo_color = color.lightened(0.2)
+		_ember_mat.emission = color
+
+## Up to `count` sigil spots on the crescent's midline, spread apart, for the
+## Lord of the Elements' orbs (LordOfTheElements.place_sigils()).
+func sigil_spots(count: int) -> Array[Vector3]:
+	var candidates: Array[Vector3] = []
+	for angle in SIGIL_ANGLES_DEG:
+		candidates.append(to_global(band_midpoint(deg_to_rad(angle))))
+	candidates.shuffle()
+	var chosen: Array[Vector3] = []
+	for c in candidates:
+		if chosen.size() >= count:
+			break
+		if chosen.all(func(o: Vector3): return o.distance_to(c) >= SIGIL_MIN_SPACING):
+			chosen.append(c)
+	return chosen
+
+## The middle of the crescent's band along the direction `angle` from -Z.
+static func band_midpoint(angle: float) -> Vector3:
+	var dir := Vector3(sin(angle), 0.0, -cos(angle))
+	var centre := Vector3(0, 0, CUT_OFFSET)
+	var b := dir.dot(centre)
+	var inner := b + sqrt(b * b - centre.length_squared() + CUT_RADIUS * CUT_RADIUS)
+	return dir * (inner + OUTER_RADIUS) * 0.5

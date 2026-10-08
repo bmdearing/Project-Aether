@@ -79,7 +79,7 @@ func _fire() -> void:
 	if not is_instance_valid(_player):
 		return
 
-	var origin: Vector3 = _enemy.global_position + Vector3(0, 0.95, 0)
+	var origin: Vector3 = _enemy.get_cast_origin()
 	var target_pos: Vector3 = _player.global_position + Vector3(0, 0.9, 0)
 	var dir := (target_pos - origin).normalized()
 	# Muzzle offset forward of the enemy's capsule - spawning at `origin`

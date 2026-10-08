@@ -151,6 +151,7 @@ func _slam(a: BossAbility) -> void:
 	var center := _boss.global_position
 	_boss.begin_attack_telegraph(a.telegraph)
 	BossTelegraph.circle(_scene(), center, a.radius, a.telegraph, _tint(a))
+	_boss.on_ability_telegraph(a, center, a.telegraph)
 	await _wait(a.telegraph)
 	if _alive():
 		_hit_circle(center, a.radius, a)
@@ -171,6 +172,7 @@ func _blast(a: BossAbility) -> void:
 
 func _delayed_circle(spot: Vector3, a: BossAbility) -> void:
 	BossTelegraph.circle(_scene(), spot, a.radius, a.telegraph, _tint(a))
+	_boss.on_ability_telegraph(a, spot, a.telegraph)
 	await _wait(a.telegraph)
 	if _alive():
 		_hit_circle(spot, a.radius, a)
@@ -179,6 +181,7 @@ func _hazard(a: BossAbility) -> void:
 	var spot := _player.global_position
 	_boss.begin_attack_telegraph(a.telegraph)
 	BossTelegraph.circle(_scene(), spot, a.radius, a.telegraph, _tint(a))
+	_boss.on_ability_telegraph(a, spot, a.telegraph)
 	await _wait(a.telegraph)
 	if not _alive():
 		return
@@ -232,7 +235,7 @@ func _volley(a: BossAbility) -> void:
 	await _wait(a.telegraph)
 	if not _alive() or _player == null:
 		return
-	var origin := _boss.global_position + Vector3(0, 1.2, 0)
+	var origin := _boss.get_cast_origin()
 	var aim := (_player.global_position + Vector3(0, 0.9, 0) - origin).normalized()
 	for i in a.count:
 		var t := 0.0 if a.count == 1 else float(i) / (a.count - 1) - 0.5

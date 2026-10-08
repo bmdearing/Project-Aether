@@ -491,6 +491,9 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 				EventBus.hit_deflected.emit(self)
 	if unique_effects:
 		amount *= unique_effects.damage_taken_multiplier(hit_kind == HitKind.SPELL)
+	# Ground zones like the Lord of the Elements' sigils.
+	for zone in get_tree().get_nodes_in_group("damage_zone"):
+		amount *= zone.damage_multiplier_for(self, damage_type)
 	# Patch v4.0 Defensive Mod Pool - % Physical Damage taken as Elemental
 	# shifts BEFORE mitigation, per damage type, splitting one hit into
 	# several smaller ones the rest of this function then processes

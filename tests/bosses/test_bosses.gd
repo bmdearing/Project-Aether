@@ -7,7 +7,7 @@ extends Node
 
 const ARENA := "res://levels/pinnacle_boss/PinnacleArena.tscn"
 const FIGMENT_BOSS := "res://entities/enemies/figment_boss/FigmentBoss.tscn"
-const TEST_COUNT := 6
+const TEST_COUNT := 7
 
 var _checks := 0
 var _failures := 0
@@ -41,6 +41,7 @@ func _run() -> void:
 	await _test_fragments()
 	_test_reality_engine()
 	await _test_pinnacle_arena()
+	await _test_lord_sigils()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("boss tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -277,4 +278,70 @@ func _test_pinnacle_arena() -> void:
 		arena.queue_free()
 		await _frames(3)
 	_check(Pinnacle.BOSSES["herald_of_the_maw"]["name"] == "Herald of the Maw", "Xalatath goes by a placeholder name")
+	_finished += 1
+
+## Lord of the Elements: hovers in the bay, wide body, orbs become sigils
+## that cut the damage of other elements and raise his current one.
+func _test_lord_sigils() -> void:
+	GameState.pending_pinnacle = "lord_of_the_elements"
+	var arena: PinnacleArena = load(ARENA).instantiate()
+	add_child(arena)
+	await _frames(3)
+	var lord := arena.boss as LordOfTheElements
+	_check(lord != null and lord.immovable, "the Lord hovers in place")
+	var bay := arena.to_global(PinnacleArena.BAY_SPAWN_LOCAL)
+	_check(lord.global_position.distance_to(bay) < 0.5, "he floats in the crescent's empty bay")
+	_check(lord.body_radius >= LordOfTheElements.BODY_RADIUS, "his body is wide enough to reach from the edge")
+	var edge := arena.to_global(Vector3(0, 0, PinnacleArena.CUT_OFFSET - PinnacleArena.CUT_RADIUS - 0.5))
+	_check(lord.distance_to_body(edge) < 2.0, "melee standing on the edge is within reach (%.2f m)" % lord.distance_to_body(edge))
+	var start := lord.global_position
+	lord.apply_knockback(Vector3(30, 0, 0))
+	await _frames(10)
+	_check(lord.global_position.distance_to(start) < 0.05, "he can't be knocked around")
+	_check(lord._orbs.size() == 3, "his three planets are the elements")
+	await _seconds(LordOfTheElements.ORB_FLIGHT + 0.6)
+	var sigils := get_tree().get_nodes_in_group("element_sigil")
+	_check(sigils.size() == 3, "the orbs land as three sigils (%d)" % sigils.size())
+	var elements := sigils.map(func(s): return s.element)
+	_check(elements.has(Constants.DamageType.FIRE) and elements.has(Constants.DamageType.COLD) and elements.has(Constants.DamageType.LIGHTNING), "one sigil per element")
+	var floor_ok := true
+	for s in sigils:
+		var local := arena.to_local(s.global_position)
+		var outer := Vector2(local.x, local.z).length()
+		var from_cut := Vector2(local.x, local.z - PinnacleArena.CUT_OFFSET).length()
+		floor_ok = floor_ok and outer + ElementSigil.RADIUS <= PinnacleArena.OUTER_RADIUS + 0.5 and from_cut - ElementSigil.RADIUS >= PinnacleArena.CUT_RADIUS - 0.5
+	_check(floor_ok, "every sigil sits on the crescent")
+	_check(lord.get_cast_origin().distance_to(lord.global_position) > 1.0, "spells leave from the active orb")
+	var player := get_tree().get_first_node_in_group("player") as Player
+	var sigil: ElementSigil = sigils.filter(func(s): return s.element == Constants.DamageType.FIRE)[0]
+	player.set_physics_process(false)
+	player.global_position = sigil.global_position + Vector3(0, 0.1, 0)
+	lord.current_element = Constants.DamageType.COLD
+	_check(is_equal_approx(sigil.damage_multiplier_for(player, Constants.DamageType.COLD), ElementSigil.PROTECTED_MULTIPLIER), "a sigil of another element protects you")
+	_check(is_equal_approx(sigil.damage_multiplier_for(player, Constants.DamageType.FIRE), ElementSigil.MATCHED_MULTIPLIER), "its own element hurts more")
+	lord.current_element = Constants.DamageType.FIRE
+	_check(sigil.is_dangerous(), "a sigil warns while he uses its element")
+	player.health.current_health = player.health.max_health
+	player.ward.current_ward = 0.0
+	var outside := player.global_position + Vector3(0, 0, 30)
+	var hit := func(pos: Vector3) -> float:
+		player.global_position = pos
+		player.health.current_health = player.health.max_health
+		player._take_damage_single(0.0, Constants.DamageType.COLD)
+		var before := player.health.current_health
+		player.take_damage(50.0, Constants.DamageType.COLD, null, Player.HitKind.DOT)
+		return before - player.health.current_health
+	var unprotected: float = hit.call(outside)
+	var protected: float = hit.call(sigil.global_position + Vector3(0, 0.1, 0))
+	_check(protected < unprotected * 0.8, "standing in the sigil really takes less (%.1f vs %.1f)" % [protected, unprotected])
+	var old := sigils.duplicate()
+	lord.boss_brain.phase_changed.emit(2)
+	await _seconds(LordOfTheElements.ORB_FLIGHT + 1.0)
+	var moved := get_tree().get_nodes_in_group("element_sigil")
+	_check(moved.size() == 3 and not moved.any(func(s): return old.has(s)), "a new phase moves the sigils")
+	lord.health.apply_damage(lord.health.max_health * 2.0)
+	await _seconds(0.8)
+	_check(get_tree().get_nodes_in_group("element_sigil").is_empty(), "the sigils fade when he dies")
+	arena.queue_free()
+	await _frames(2)
 	_finished += 1

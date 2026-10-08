@@ -7,6 +7,31 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.39: Lord of the Elements rework, elemental sigils (user feedback)
+
+- **He hovers and casts.** The Lord now floats in the crescent's empty bay, 2.6m past the inner edge. He never moves, falls or gets knocked back (`Enemy.immovable`).
+  - His body radius is 2m, so melee standing on the edge can reach him.
+  - Instead of walking over he fires elemental bolts (a RangedAttack) and keeps his melee for anyone hugging him.
+  - Frozen Expanse is now a 7m blast under you rather than a slam around him.
+  - The invisible edge wall moved to its own collision layer (`PinnacleArena.BARRIER_LAYER`). Bodies collide with it; projectiles fly through, so you can shoot him across it. Walking bosses (the Herald) still start in the crescent's belly.
+- **The crescent is fatter:** `CUT_OFFSET` 9 → 14, so the band is 14m thick at its middle instead of 9.
+- **His orbs are the elements.**
+  - The model's three floating planets (`planet_02/03/04` bones) map to Fire, Cold and Lightning. Each gets a glowing halo and light that follow the bone. The orb of the element he's using burns brighter and flares as he casts.
+  - Bolts and volleys leave from that orb (`Enemy.get_cast_origin()`). Blasts, pools and slams fall as comets thrown from it (`Enemy.on_ability_telegraph()`, `ElementComet`), landing as the ground telegraph fills.
+- **Elemental sigils** (user's idea):
+  - At the start of the fight and of each phase he sends the three orbs down into the crescent; each burns an `ElementSigil` at a spread-out spot on the band's midline (`PinnacleArena.sigil_spots()`). The planet then hovers over its sigil.
+  - Standing in a sigil reduces hits of any other element by 40% and increases hits of its own element by 25%, so you want the sigil of the element he isn't using.
+  - A sigil glows and raises a faint column while it's protecting you, and flickers red while he's using its element. Each element's sigil has its own rune (Fire 3 points, Cold 6, Lightning 4).
+  - Hooked into `Player.take_damage()` through a new "damage_zone" group.
+- **No more red room.** The arena was lit by a red-orange sun, red ambient light, red fog and a strong red light under the boss, which dyed the Lord and everything else red.
+  - Lighting is now neutral and dark: a violet horizon sky gradient, a cool key light, and a soft white light on the bay.
+  - The floor's cracks and the embers shift to his current element.
+  - Bloom is now limited to the two tightest glow levels; wide bloom blew small orb halos up into big discs.
+- **He stands out against the dark:** an additive fresnel rim in his current element's colour (lightened toward white) outlines his body (`LordOfTheElements.RIM_SHADER`). The planet meshes on him are hidden through render layers once they leave, because the model's animation keeps re-enabling their visibility.
+- **Tests:** `tests/bosses/` gains the Lord (hovers in the bay, reachable from the edge, can't be knocked back, three orbs, three sigils on the floor, protection and penalty numbers, real damage reduction, sigils move on a new phase and fade on death): 75 checks.
+
+---
+
 ## 2026-10-08 — v4.38: Boss abilities, Figment boss pool, Maw Fragments and the Pinnacle, Greataxe, Warcries (user request)
 
 **Boss ability system** (`systems/combat/boss/`)
