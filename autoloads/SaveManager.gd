@@ -1,24 +1,11 @@
 extends Node
-## Single JSON save file at user://savegame.json. Loads at boot, before
-## MainMenu shows, populating GameState directly - Continue is then just
-## "go to the Hub", no separate load step.
-##
-## Saves at every meaningful transition (scene change away from gameplay,
-## quit) rather than on a timer - few enough call sites to enumerate
-## directly (PauseMenu, DeathScreen, MainMenu, RealityEngine).
-##
-## Saves: equipment loadout (incl. rolled/pathless items via
-## ItemSerializer), both weapon sets + which is active (2026-08-31,
-## Implementation Brief v3.4 Section 4), owned loot, owned Slates (SlateSerializer, same
-## rationale), Fate Board LAYOUT (which Slate sits where + any Spell
-## Slate's designated ability - GameState.fate_board_placements, user-
-## reported fix 2026-08-30: "Slates do not persist between scenes, they
-## need to stay on the character" - previously only ownership persisted),
-## ability loadout + ranks, level/XP, gold, owned ability ids, settings.
-## NOT saved: current Health/Ward/Mana or player position (always resume
-## the Hub at full), GameState.active_map.
+## Single JSON save at user://savegame.json, loaded at boot straight into
+## GameState. Saved on scene transitions and quit, not on a timer.
+## Not saved: current Health/Ward/Mana, player position, active_map.
 
 const SAVE_PATH := "user://savegame.json"
+const TEMP_PATH := SAVE_PATH + ".tmp"
+const BACKUP_PATH := SAVE_PATH + ".bak"
 ## 2: loot moved from owned_loot/owned_slates into the footprint grid.
 const INVENTORY_VERSION := 2
 
@@ -27,7 +14,7 @@ func _ready() -> void:
 	GameSettings.load_and_apply()
 
 func has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH)
+	return FileAccess.file_exists(SAVE_PATH) or FileAccess.file_exists(BACKUP_PATH)
 
 func save_game() -> void:
 	if not GameState.game_started:
@@ -56,26 +43,42 @@ func save_game() -> void:
 		"portal_map_state": GameState.portal_map_state,
 		"portals_opened": GameState.portals_opened,
 	}
-	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	_write_atomic(JSON.stringify(data))
+
+## Writes to a temp file, then swaps it in; the previous save becomes the
+## backup, so a crash mid-save never leaves only a truncated file.
+func _write_atomic(text: String) -> void:
+	var file := FileAccess.open(TEMP_PATH, FileAccess.WRITE)
 	if file == null:
-		push_warning("SaveManager: failed to open %s for writing (error %d)" % [SAVE_PATH, FileAccess.get_open_error()])
+		push_warning("SaveManager: failed to open %s for writing (error %d)" % [TEMP_PATH, FileAccess.get_open_error()])
 		return
-	file.store_string(JSON.stringify(data))
+	var ok := file.store_string(text)
 	file.close()
+	if not ok:
+		push_warning("SaveManager: failed to write %s" % TEMP_PATH)
+		return
+	if FileAccess.file_exists(SAVE_PATH):
+		if FileAccess.file_exists(BACKUP_PATH):
+			DirAccess.remove_absolute(BACKUP_PATH)
+		DirAccess.rename_absolute(SAVE_PATH, BACKUP_PATH)
+	var err := DirAccess.rename_absolute(TEMP_PATH, SAVE_PATH)
+	if err != OK:
+		push_warning("SaveManager: failed to move %s into place (error %d)" % [TEMP_PATH, err])
+
+func _read_save(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var parsed = JSON.parse_string(FileAccess.get_file_as_string(path))
+	if typeof(parsed) != TYPE_DICTIONARY:
+		push_warning("SaveManager: %s is missing or corrupt" % path)
+		return {}
+	return parsed
 
 func load_game() -> void:
-	if not has_save():
-		return
-	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
-	if file == null:
-		push_warning("SaveManager: failed to open %s for reading (error %d)" % [SAVE_PATH, FileAccess.get_open_error()])
-		return
-	var text := file.get_as_text()
-	file.close()
-
-	var parsed = JSON.parse_string(text)
-	if typeof(parsed) != TYPE_DICTIONARY:
-		push_warning("SaveManager: %s did not contain a valid JSON object, ignoring" % SAVE_PATH)
+	var parsed := _read_save(SAVE_PATH)
+	if parsed.is_empty():
+		parsed = _read_save(BACKUP_PATH)
+	if parsed.is_empty():
 		return
 
 	GameState.game_started = parsed.get("game_started", GameState.game_started)
@@ -141,8 +144,9 @@ func load_game() -> void:
 		_migrate_legacy_inventory(parsed)
 
 func delete_save() -> void:
-	if FileAccess.file_exists(SAVE_PATH):
-		DirAccess.remove_absolute(SAVE_PATH)
+	for path in [SAVE_PATH, BACKUP_PATH, TEMP_PATH]:
+		if FileAccess.file_exists(path):
+			DirAccess.remove_absolute(path)
 
 func _to_string_array(value, fallback: Array[String]) -> Array[String]:
 	if typeof(value) != TYPE_ARRAY:

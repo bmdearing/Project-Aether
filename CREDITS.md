@@ -46,7 +46,7 @@ Doodads in `assets/models/doodads/` (desert, dungeon and nexus props) and the sh
 
 ## Animation
 
-- **Universal Animation Library** and **Universal Animation Library 2** by [Quaternius](https://quaternius.com) (CC0 1.0)
+- **Universal Animation Library** by [Quaternius](https://quaternius.com) (CC0 1.0)
 
 ## 2D art
 
