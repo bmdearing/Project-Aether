@@ -24,6 +24,8 @@ Trinity Rule archetypes) were pulled from this source and match it exactly.
 
 ## What's implemented
 
+**UI style (v4.33)**: everything draws through `ui/theme/AetherStyle.gd` (palette, fonts, plates, dividers, dials) and the project theme `ui/theme/aether_theme.tres` (regenerate with `Godot --headless --path . --script res://tools/build_ui_theme.gd` after changing `build_theme()`). Full-screen menus use `layer = AetherStyle.SCREEN_LAYER` plus `AetherStyle.style_screen(self)`, and the HUD hides while one is open. Tooltips follow the cursor (`TooltipFollow` autoload). `tests/ui_capture/shot.sh` screenshots UI states.
+
 **Player** (`entities/player/Player.gd`): first-person `CharacterBody3D`
 (WASD relative to body facing, mouse look, jump, sprint, crouch, slide).
 Melee or ranged attack, dispatched automatically by whatever's equipped

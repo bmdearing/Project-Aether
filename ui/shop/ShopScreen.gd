@@ -18,6 +18,9 @@ class_name ShopScreen
 var _is_open: bool = false
 
 func _ready() -> void:
+	layer = AetherStyle.SCREEN_LAYER  # above the HUD
+	AetherStyle.style_screen(self)
+	AetherStyle.wrap_in_plate($CenterContainer/VBox, 24)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	add_to_group("shop_screen")
@@ -119,16 +122,10 @@ func _build_row(entry: Dictionary) -> HBoxContainer:
 		icon.item = entry["item"]
 	elif entry.get("ability"):
 		icon.ability = entry["ability"]
-	var box := StyleBoxFlat.new()
-	box.bg_color = entry.get("color", Color.WHITE)
-	box.set_corner_radius_all(4)
-	icon.add_theme_stylebox_override("normal", box)
-	icon.add_theme_stylebox_override("hover", box)
-	icon.add_theme_stylebox_override("pressed", box)
-	var text_color := Constants.get_contrasting_text_color(box.bg_color)
-	icon.add_theme_color_override("font_color", text_color)
-	icon.add_theme_color_override("font_hover_color", text_color)
-	icon.add_theme_color_override("font_pressed_color", text_color)
+	var accent: Color = entry.get("color", AetherStyle.GOLD)
+	AetherStyle.style_slot_button(icon, accent)
+	for state in ["font_color", "font_hover_color", "font_pressed_color"]:
+		icon.add_theme_color_override(state, accent.lerp(Color.WHITE, 0.3))
 	row.add_child(icon)
 
 	var cost: int = entry.get("cost", 0)

@@ -29,6 +29,7 @@ func setup(amount: float, damage_type: Constants.DamageType, is_crit: bool, alph
 	label.modulate = color
 	label.outline_modulate = Color(0, 0, 0, alpha)
 	label.font_size = CRIT_FONT_SIZE if is_crit else (DOT_FONT_SIZE if is_dot else FONT_SIZE)
+	label.font = AetherStyle.numbers()
 	_animate()
 
 func _animate() -> void:

@@ -1,19 +1,15 @@
 extends Control
 class_name StanceIndicator
-## Bottom-right stance icon: what holding RMB does with the current weapon,
-## which page (A/B) is selected, and a radial cooldown sweep when the
-## stance's special is recharging. The name sits above the icon. Lights up
-## while the stance is held; flashes red when a special is pressed early.
+## Bottom-right stance medallion: what holding RMB does with the current
+## weapon (name above), the page (A/B) on a gem, a dial sweep with a
+## countdown while the special recharges, and "RMB" below. Lights up while
+## the stance is held; flashes red when a special is pressed early.
 
-const ICON_SIZE := 64.0
-const NAME_HEIGHT := 18.0
-const BG_COLOR := Color(0.07, 0.07, 0.09, 0.85)
-const READY_BORDER := Color(0.85, 0.68, 0.32)
-const ACTIVE_BORDER := Color(1.0, 0.9, 0.55)
-const COOLDOWN_BORDER := Color(0.4, 0.4, 0.42)
-const DENIED_BORDER := Color(0.95, 0.2, 0.2)
-const SWEEP_COLOR := Color(0, 0, 0, 0.62)
-const GLYPH_COLOR := Color(0.95, 0.9, 0.8)
+const RADIUS := 40.0
+const NAME_HEIGHT := 24.0
+const FOOT_HEIGHT := 18.0
+const PAD := 12.0
+const DENIED := Color(0.95, 0.2, 0.2)
 const DENIED_FLASH := 0.35
 
 var _player: Player
@@ -23,12 +19,13 @@ var _page: String = ""
 var _cooldown: float = 0.0
 var _cooldown_total: float = 0.0
 var _denied: float = 0.0
-var _font: Font
+
+static func box_size() -> Vector2:
+	return Vector2((RADIUS + PAD) * 2.0, NAME_HEIGHT + (RADIUS + PAD) * 2.0 + FOOT_HEIGHT)
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE + NAME_HEIGHT)
-	_font = get_theme_default_font()
+	custom_minimum_size = box_size()
 	_player = get_tree().get_first_node_in_group("player") as Player
 	EventBus.stance_on_cooldown.connect(func(_p, _r): _denied = DENIED_FLASH)
 
@@ -77,49 +74,40 @@ static func _initials(text: String) -> String:
 	for word in text.split(" ", false):
 		if word[0] == word[0].to_upper():
 			letters += word[0]
+	if letters.length() == 1:
+		return text.left(2)
 	return letters.left(2) if letters != "" else text.left(2)
 
 func _draw() -> void:
 	if not visible:
 		return
-	var name_size := _font.get_string_size(_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 13)
-	draw_string(_font, Vector2(ICON_SIZE - name_size.x, 12), _name, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, GLYPH_COLOR)
-	var rect := Rect2(0, NAME_HEIGHT, ICON_SIZE, ICON_SIZE)
-	var box := StyleBoxFlat.new()
-	box.bg_color = BG_COLOR
-	box.set_corner_radius_all(6)
-	box.set_border_width_all(2)
+	var serif := AetherStyle.serif()
+	var numbers := AetherStyle.numbers()
+	var c := Vector2(size.x / 2.0, NAME_HEIGHT + RADIUS + PAD)
+	var r := RADIUS
+	AetherStyle.text(self, serif, Vector2(c.x - 100.0, NAME_HEIGHT - 6.0), _name, 16, AetherStyle.GOLD, HORIZONTAL_ALIGNMENT_CENTER, 200.0)
+	draw_circle(c, r + 10.0, Color(0, 0, 0, 0.35))
+	draw_circle(c, r, AetherStyle.GLASS_LIGHT)
 	var on_cooldown := _cooldown > 0.0
+	if not on_cooldown:
+		AetherStyle.text(self, serif, Vector2(c.x - r, c.y + 11.0), _glyph, 30, AetherStyle.TEXT, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
+	elif _cooldown_total > 0.0:
+		AetherStyle.dial(self, Rect2(c - Vector2(r - 1.0, r - 1.0), Vector2(r - 1.0, r - 1.0) * 2.0), _cooldown / _cooldown_total, true)
+		AetherStyle.text(self, numbers, Vector2(c.x - r, c.y + 9.0), str(ceili(_cooldown)), 24, AetherStyle.TEXT, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
+	var ring := AetherStyle.GOLD
+	var width := 2.5
 	if _denied > 0.0:
-		box.border_color = DENIED_BORDER
+		ring = DENIED
 	elif on_cooldown:
-		box.border_color = COOLDOWN_BORDER
+		ring = AetherStyle.GOLD_DIM
 	elif _player.weapon_stance.is_active:
-		box.border_color = ACTIVE_BORDER
-		box.set_border_width_all(3)
-	else:
-		box.border_color = READY_BORDER
-	draw_style_box(box, rect)
-	var glyph_size := _font.get_string_size(_glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 26)
-	var glyph_pos := rect.get_center() + Vector2(-glyph_size.x / 2.0, glyph_size.y / 3.0)
-	draw_string(_font, glyph_pos, _glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, 26, GLYPH_COLOR.darkened(0.45) if on_cooldown else GLYPH_COLOR)
-	if on_cooldown and _cooldown_total > 0.0:
-		_draw_sweep(rect.grow(-2), _cooldown / _cooldown_total)
-		var secs := str(ceili(_cooldown))
-		var secs_size := _font.get_string_size(secs, HORIZONTAL_ALIGNMENT_LEFT, -1, 20)
-		draw_string(_font, rect.get_center() + Vector2(-secs_size.x / 2.0, secs_size.y / 3.0), secs, HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color.WHITE)
+		ring = AetherStyle.GOLD_BRIGHT
+		width = 3.5
+		draw_arc(c, r + 2.0, 0, TAU, 56, Color(AetherStyle.GOLD_BRIGHT, 0.3), 6.0, true)
+	draw_arc(c, r, 0, TAU, 56, ring, width, true)
+	AetherStyle.ticks(self, c, r + 4.0, 48, 4, AetherStyle.GOLD_DIM)
 	if _page != "":
-		draw_string(_font, rect.position + Vector2(5, 15), _page, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, READY_BORDER)
-	draw_string(_font, rect.position + Vector2(ICON_SIZE - 30, ICON_SIZE - 5), "RMB", HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(0.7, 0.7, 0.72))
-
-## Clockwise dark wedge covering the unrecovered fraction, from 12 o'clock.
-func _draw_sweep(rect: Rect2, fraction: float) -> void:
-	var centre := rect.get_center()
-	var reach := rect.size.length()
-	var points := PackedVector2Array([centre])
-	var steps := 24
-	for i in steps + 1:
-		var angle := -PI / 2.0 + TAU * (1.0 - fraction) + TAU * fraction * i / steps
-		var p := centre + Vector2(cos(angle), sin(angle)) * reach
-		points.append(Vector2(clampf(p.x, rect.position.x, rect.end.x), clampf(p.y, rect.position.y, rect.end.y)))
-	draw_colored_polygon(points, SWEEP_COLOR)
+		var gem := c + Vector2(-r * 0.78, -r * 0.78)
+		AetherStyle.diamond(self, gem, 10.0, Color(0.25, 0.18, 0.06), AetherStyle.GOLD)
+		AetherStyle.text(self, serif, gem + Vector2(-10, 5), _page, 13, AetherStyle.GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, 20)
+	AetherStyle.text(self, serif, Vector2(c.x - r, size.y - 2.0), AetherStyle.spaced("RMB"), 11, AetherStyle.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)

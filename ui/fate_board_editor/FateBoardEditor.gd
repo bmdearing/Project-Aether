@@ -33,6 +33,8 @@ var _pending_designated_ability_id: String = ""
 var _designate_ability_ids: Array[String] = []
 
 func _ready() -> void:
+	layer = AetherStyle.SCREEN_LAYER  # above the HUD
+	AetherStyle.style_screen(self)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	add_to_group("fate_board_editor")

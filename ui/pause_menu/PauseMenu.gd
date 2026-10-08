@@ -26,6 +26,10 @@ var _character_screen: CharacterScreen
 var _map_screen: MapScreen
 
 func _ready() -> void:
+	layer = AetherStyle.SCREEN_LAYER  # above the HUD
+	AetherStyle.style_screen(self)
+	add_to_group("full_screen_menu")
+	AetherStyle.wrap_in_plate($CenterContainer/VBoxContainer, 28)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	_fate_board_editor = get_tree().get_first_node_in_group("fate_board_editor")

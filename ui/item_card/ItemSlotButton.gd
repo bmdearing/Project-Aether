@@ -32,6 +32,11 @@ var item: Item:
 var slate: Slate
 var ability: Ability
 var draggable: bool = false
+## false for invisible tooltip-only buttons laid over custom-drawn widgets.
+var show_icon: bool = true:
+	set(value):
+		show_icon = value
+		_refresh_icon()
 
 var _is_hovered: bool = false
 var _icon_rect: TextureRect
@@ -50,7 +55,7 @@ func _ready() -> void:
 func _refresh_icon() -> void:
 	if _icon_rect == null:
 		return
-	if item and item.icon_path != "":
+	if show_icon and item and item.icon_path != "":
 		_icon_rect.texture = load(item.icon_path)
 		_icon_rect.visible = true
 	else:

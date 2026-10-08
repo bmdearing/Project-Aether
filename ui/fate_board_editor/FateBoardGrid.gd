@@ -20,10 +20,10 @@ const ZOOM_STEP := 0.15
 const ZOOM_MIN := 0.5
 const ZOOM_MAX := 4.0
 const DEFAULT_ZOOM := 2.2  # 44px cells
-const GRID_LINE_COLOR := Color(1, 1, 1, 0.08)
+const GRID_LINE_COLOR := Color(0.86, 0.71, 0.42, 0.13)
 const VALID_PREVIEW_COLOR := Color(0.2, 0.9, 0.3, 0.55)
 const INVALID_PREVIEW_COLOR := Color(0.9, 0.2, 0.2, 0.55)
-const ANCHOR_COLOR := Color(1.0, 1.0, 1.0, 0.35)
+const ANCHOR_COLOR := Color(1.0, 0.86, 0.55, 0.45)
 const NEBULA_SHADER := preload("res://ui/fate_board_editor/slate_nebula.gdshader")
 const DRAG_THRESHOLD := 6.0
 

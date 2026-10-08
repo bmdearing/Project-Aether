@@ -23,6 +23,9 @@ var _refresh_timer: float = 0.0
 const REFRESH_INTERVAL := 0.5  # the game keeps running underneath, so stats can change
 
 func _ready() -> void:
+	layer = AetherStyle.SCREEN_LAYER  # above the HUD
+	AetherStyle.style_screen(self)
+	AetherStyle.wrap_in_plate($CenterContainer/VBox, 24)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	add_to_group("character_screen")

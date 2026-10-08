@@ -37,7 +37,8 @@ const AMMO_INFO_COLOR := SUBTITLE_COLOR  # Magazine/Reload lines on ranged weapo
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
 const FLAVOR_COLOR := Color(0.75, 0.65, 0.45)
 const MODIFIED_VALUE_COLOR := Color(0.4, 0.6, 1.0)  # a card value changed by a mod on the item itself (v4.10)
-const CARD_WIDTH := 260.0
+const CARD_WIDTH := 320.0
+const STAT_LABEL_COLOR := Color(0.66, 0.62, 0.55)
 
 const SLATE_BADGE_COLOR := Color(0.55, 0.35, 0.85)  # fixed - independent of the Slate's own rarity color, shown on the border instead
 
@@ -109,7 +110,7 @@ func display_currency(id: StringName, count: int, hint: String = "") -> void:
 	_clear()
 	var kind := "BRAND" if String(id).begins_with("brand_") else ("EDICT" if String(id).begins_with("edict_") else "CURRENCY")
 	var color := BRAND_COLOR if kind == "BRAND" else CURRENCY_COLOR
-	_set_card_style(color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH)
+	_set_card_style(color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH, AetherStyle.GOLD)
 	_add_type_badge(kind, color)
 	_add_title(CurrencyText.name_of(id), color)
 	_add_subtitle("Stack: %d" % count)
@@ -147,8 +148,8 @@ func _input(event: InputEvent) -> void:
 func _render_item(item: Item) -> void:
 	_clear()
 	var requirements_met := _check_requirements_met(item)
-	var rarity_color: Color = REQUIREMENT_UNMET_COLOR if not requirements_met else Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
-	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH)
+	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
+	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH, AetherStyle.GOLD if requirements_met else REQUIREMENT_UNMET_COLOR)
 	var badge_row := _add_type_badge("ITEM", rarity_color)
 	if item.is_corrupted:
 		badge_row.add_child(_make_badge("CORRUPTED", CORRUPTED_BADGE_COLOR))
@@ -179,6 +180,8 @@ func _render_item(item: Item) -> void:
 		_add_separator()
 	for affix in explicits:
 		_add_mod_line(_affix_text(affix, false), AFFIX_COLOR)
+	if item is Weapon:
+		_add_stance_lines(item as Weapon, true)
 	if item.flavor_text != "":
 		_add_separator()
 		_add_flavor(item.flavor_text)
@@ -337,23 +340,43 @@ func _with_range(text: String, affix: ItemAffix) -> String:
 const STANCE_COLOR := Color(0.95, 0.8, 0.5)
 
 ## The weapon's stance(s) - what holding RMB does with it.
-func _add_stance_lines(w: Weapon) -> void:
-	var stances: Array[Dictionary] = []
+## Stance section. Compact (main card): the selected page only, as
+## "Stance: Name ... cooldown" plus one line of what it does. Full (Alt):
+## every page, with its description too.
+func _add_stance_lines(w: Weapon, compact: bool = false) -> void:
+	var pages: Array[int] = []
 	if w.is_conduit:
-		stances.append(StanceInfo.for_conduit(w))
+		if not StanceInfo.for_conduit(w).is_empty():
+			pages.append(0)
 	else:
 		for page in 2:
 			var info := StanceInfo.for_weapon(w, page)
-			if not info.is_empty() and not stances.any(func(s): return s["name"] == info["name"]):
-				stances.append(info)
-	stances = stances.filter(func(s): return not s.is_empty())
-	if stances.is_empty():
+			if not info.is_empty() and (page == 0 or info["name"] != StanceInfo.for_weapon(w, 0).get("name", "")):
+				pages.append(page)
+	if pages.is_empty():
 		return
+	if compact:
+		pages = [GameState.stance_page if pages.has(GameState.stance_page) else pages[0]]
 	_add_separator()
-	for i in stances.size():
-		var label := "Stance" if stances.size() == 1 else "Stance %s" % ["A", "B"][i]
-		_add_mod_line("%s: %s" % [label, stances[i]["name"]], STANCE_COLOR)
-		_add_mod_line(stances[i]["desc"], STAT_COLOR)
+	for page in pages:
+		var info := StanceInfo.for_conduit(w) if w.is_conduit else StanceInfo.for_weapon(w, page)
+		var label := "Stance" if pages.size() == 1 else "Stance %s" % ["A", "B"][page]
+		_add_leader_row("%s: %s" % [label, info["name"]], STANCE_COLOR, StanceInfo.cooldown_text(w, page), STAT_COLOR)
+		var effect := StanceInfo.effect_line(w, page)
+		_add_flavor_line(effect)
+		if not compact and effect != info["desc"]:
+			_add_flavor_line(info["desc"])
+
+## A small dim centred line (stance effects).
+func _add_flavor_line(text: String) -> void:
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_color_override("font_color", STAT_LABEL_COLOR)
+	_content().add_child(label)
 
 func _add_alt_affix_tiers(item: Item) -> void:
 	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
@@ -507,18 +530,8 @@ func _add_attack_power_line(line: Dictionary) -> void:
 ## value replaces the base one and is shown in blue; otherwise the base
 ## value in white.
 func _add_value_line(label: String, label_color: Color, base_text: String, modified_text: String = "") -> void:
-	var rtl := RichTextLabel.new()
-	rtl.bbcode_enabled = true
-	rtl.fit_content = true
-	rtl.scroll_active = false
-	rtl.custom_minimum_size = Vector2(CARD_WIDTH, 0)
 	var is_modified := modified_text != "" and modified_text != base_text
-	rtl.text = "[color=#%s]%s[/color]: [color=#%s]%s[/color]" % [
-		label_color.to_html(false), label,
-		(MODIFIED_VALUE_COLOR if is_modified else STAT_COLOR).to_html(false),
-		modified_text if is_modified else base_text,
-	]
-	_content().add_child(rtl)
+	_add_leader_row(label, label_color, modified_text if is_modified else base_text, MODIFIED_VALUE_COLOR if is_modified else STAT_COLOR)
 
 ## Crit Chance, Spell Power, and Attack/Cast Speed, each with its local mod
 ## (v4.10) shown as a blue modified value. Local weapon damage and crit are
@@ -555,10 +568,7 @@ func _ranged_info_lines(weapon: Weapon) -> Array[String]:
 	return lines
 
 func _add_ammo_info_line(text: String) -> void:
-	var label := Label.new()
-	label.text = text
-	label.add_theme_color_override("font_color", AMMO_INFO_COLOR)
-	_content().add_child(label)
+	_add_stat_line(text)
 
 func _format_num(v: float) -> String:
 	return str(int(round(v))) if v == round(v) else "%.1f" % v
@@ -659,21 +669,41 @@ func _clear() -> void:
 	for child in _content().get_children():
 		child.queue_free()
 
-func _set_card_style(border_color: Color, bg_color: Color, corner_radius: int, border_width: int) -> void:
+## Every card is an engraved plate: dark glass, a frame (gold for items, the
+## Slate/element colour otherwise), a faint inner line, corner diamonds and
+## a gem at the top in the accent colour (rarity, Slate violet, element).
+func _set_card_style(accent: Color, bg_color: Color, corner_radius: int, border_width: int, frame: Color = Color(0, 0, 0, 0)) -> void:
+	_accent = accent
+	_frame = frame if frame.a > 0.0 else accent
 	var box := StyleBoxFlat.new()
-	box.bg_color = bg_color
-	box.border_color = border_color
-	box.set_border_width_all(border_width)
+	box.bg_color = Color(bg_color.r * 0.6, bg_color.g * 0.6, bg_color.b * 0.75, 0.95)
+	box.border_color = _frame
+	box.set_border_width_all(maxi(border_width - 1, 1) if corner_radius <= ITEM_CORNER_RADIUS else border_width)
 	box.set_corner_radius_all(corner_radius)
+	box.shadow_color = Color(0, 0, 0, 0.5)
+	box.shadow_size = 10
 	add_theme_stylebox_override("panel", box)
+	queue_redraw()
 
-## The first thing drawn in the card - a small colored pill naming the
-## card's TYPE (not its rarity/element), so recognition doesn't depend on
-## reading the subtitle line underneath it.
-## Returns the row the badge sits in, so a second badge (CORRUPTED) can sit
-## beside it.
+var _accent: Color = AetherStyle.GOLD
+var _frame: Color = AetherStyle.GOLD
+
+func _draw() -> void:
+	var rect := Rect2(Vector2.ZERO, size)
+	draw_rect(rect.grow(-5), Color(_frame, 0.3), false, 1.0)
+	for p in [rect.position, Vector2(rect.end.x, 0), rect.end, Vector2(0, rect.end.y)]:
+		AetherStyle.diamond(self, p, 5.0, AetherStyle.GLASS_SOLID, _frame)
+	var gem := Vector2(size.x / 2.0, 0)
+	draw_circle(gem, 14.0, Color(_accent, 0.18))
+	AetherStyle.diamond(self, gem, 10.0, _accent.darkened(0.15), _frame)
+	AetherStyle.diamond(self, gem, 4.5, _accent.lightened(0.45), Color(0, 0, 0, 0))
+
+## A small type tag (ITEM / SLATE / SPELL / BRAND...) above the title, so a
+## card's kind reads before its name. Returns the row, so a second tag
+## (CORRUPTED) can sit beside it.
 func _add_type_badge(text: String, color: Color) -> HBoxContainer:
 	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	row.add_theme_constant_override("separation", 6)
 	row.add_child(_make_badge(text, color))
 	_content().add_child(row)
@@ -681,65 +711,72 @@ func _add_type_badge(text: String, color: Color) -> HBoxContainer:
 
 func _make_badge(text: String, color: Color) -> Label:
 	var badge := Label.new()
-	badge.text = text
-	badge.add_theme_font_size_override("font_size", 11)
-	var box := StyleBoxFlat.new()
-	box.bg_color = color
-	box.set_corner_radius_all(3)
-	box.content_margin_left = 6.0
-	box.content_margin_right = 6.0
-	box.content_margin_top = 1.0
-	box.content_margin_bottom = 1.0
-	badge.add_theme_stylebox_override("normal", box)
-	badge.add_theme_color_override("font_color", Constants.get_contrasting_text_color(color))
-	badge.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	badge.text = AetherStyle.spaced(text)
+	badge.add_theme_font_size_override("font_size", 10)
+	badge.add_theme_stylebox_override("normal", AetherStyle.glass_box(Color(color, 0.7), Color(color, 0.12), 1, 6.0))
+	badge.add_theme_color_override("font_color", color.lerp(Color.WHITE, 0.3))
+	badge.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	return badge
 
 func _add_title(text: String, color: Color) -> void:
 	var label := Label.new()
 	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
 	label.add_theme_color_override("font_color", color)
-	label.add_theme_font_size_override("font_size", 18)
+	label.add_theme_font_size_override("font_size", 23)
 	_content().add_child(label)
 
 func _add_title_with_icon(text: String, color: Color, icon_path: String) -> void:
-	var row := HBoxContainer.new()
-	row.add_theme_constant_override("separation", 8)
 	var icon := TextureRect.new()
 	icon.texture = load(icon_path)
-	icon.custom_minimum_size = Vector2(32, 32)
+	icon.custom_minimum_size = Vector2(48, 48)
+	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	row.add_child(icon)
-	var label := Label.new()
-	label.text = text
-	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(CARD_WIDTH - 40, 0)
-	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	label.add_theme_color_override("font_color", color)
-	label.add_theme_font_size_override("font_size", 18)
-	row.add_child(label)
-	_content().add_child(row)
+	_content().add_child(icon)
+	_add_title(text, color)
 
 func _add_subtitle(text: String) -> void:
 	var label := Label.new()
 	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_override("font", AetherStyle.serif_italic())
+	label.add_theme_font_size_override("font_size", 13)
 	label.add_theme_color_override("font_color", SUBTITLE_COLOR)
 	_content().add_child(label)
 
 func _add_separator() -> void:
-	_content().add_child(HSeparator.new())
+	var divider := CardDivider.new()
+	divider.custom_minimum_size = Vector2(CARD_WIDTH, 14)
+	_content().add_child(divider)
 
+## "Label: value" lines become a dotted-leader row (label left, value
+## right); anything else is a centred line.
 func _add_stat_line(text: String) -> void:
+	var split := text.find(": ")
+	if split > 0:
+		_add_leader_row(text.left(split), STAT_LABEL_COLOR, text.substr(split + 2), STAT_COLOR)
+		return
 	var label := Label.new()
 	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_color_override("font_color", STAT_COLOR)
 	_content().add_child(label)
+
+func _add_leader_row(label: String, label_color: Color, value: String, value_color: Color) -> void:
+	var row := LeaderRow.new()
+	row.label = label
+	row.label_color = label_color
+	row.value = value
+	row.value_color = value_color
+	row.custom_minimum_size = Vector2(CARD_WIDTH, 21)
+	_content().add_child(row)
 
 func _add_mod_line(text: String, color: Color) -> void:
 	var label := Label.new()
 	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
 	label.add_theme_color_override("font_color", color)
@@ -748,7 +785,35 @@ func _add_mod_line(text: String, color: Color) -> void:
 func _add_flavor(text: String) -> void:
 	var label := Label.new()
 	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	label.add_theme_font_override("font", AetherStyle.serif_italic())
 	label.add_theme_color_override("font_color", FLAVOR_COLOR)
 	_content().add_child(label)
+
+class CardDivider extends Control:
+	func _draw() -> void:
+		AetherStyle.divider(self, 0.0, size.y / 2.0, size.x, 0.0)
+
+## Label on the left, value on the right, faint gold dots between.
+class LeaderRow extends Control:
+	var label: String
+	var label_color: Color
+	var value: String
+	var value_color: Color
+
+	func _draw() -> void:
+		var serif := AetherStyle.serif()
+		var numbers := AetherStyle.numbers()
+		var y := size.y - 5.0
+		AetherStyle.text(self, serif, Vector2(0, y), label, 15, label_color)
+		AetherStyle.text(self, numbers, Vector2(0, y), value, 16, value_color, HORIZONTAL_ALIGNMENT_RIGHT, size.x)
+		if value == "":
+			return
+		var from := AetherStyle.text_width(serif, label, 15) + 8.0
+		var to := size.x - AetherStyle.text_width(numbers, value, 16) - 8.0
+		var x := from
+		while x < to:
+			draw_circle(Vector2(x, y - 4.0), 0.8, AetherStyle.GOLD_FAINT)
+			x += 6.0

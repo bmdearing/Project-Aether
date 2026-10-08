@@ -119,3 +119,56 @@ static func for_weapon(weapon: Weapon, page: int) -> Dictionary:
 		return RANGED.get(weapon.weapon_type, {})
 	var pages: Array = MELEE.get(weapon.weapon_type, [])
 	return pages[page] if page < pages.size() else {}
+
+const BEHAVIOR_DIR := "res://data/stance/instances/"
+## Melee stances whose LMB is an instant attack (the rest charge, or are held).
+const INSTANT_ATTACKS := [
+	MeleeStanceBehavior.MeleeStanceType.WATER_SLICES, MeleeStanceBehavior.MeleeStanceType.SWEEP,
+	MeleeStanceBehavior.MeleeStanceType.ARMOR_PIERCE, MeleeStanceBehavior.MeleeStanceType.HOOKING_STRIKE,
+	MeleeStanceBehavior.MeleeStanceType.REPULSE,
+]
+static var _behaviors: Dictionary = {}
+
+## The StanceBehavior data for a weapon's page - same lookup WeaponStance uses.
+static func behavior_for(weapon: Weapon, page: int) -> StanceBehavior:
+	if weapon == null:
+		return null
+	if _behaviors.is_empty():
+		for file in DirAccess.get_files_at(BEHAVIOR_DIR):
+			var path := BEHAVIOR_DIR + file.trim_suffix(".remap")
+			if path.ends_with(".tres"):
+				var b := load(path) as StanceBehavior
+				if b:
+					_behaviors[b.weapon_type] = b
+	if page == 1 and _behaviors.has(weapon.weapon_type + "_b"):
+		return _behaviors[weapon.weapon_type + "_b"]
+	if weapon.base_line_id != "" and _behaviors.has(weapon.base_line_id):
+		return _behaviors[weapon.base_line_id]
+	return _behaviors.get(weapon.weapon_type)
+
+## One short line of what the stance does, from its data where it's an
+## attack ("Charge 1s, 300% weapon damage in a 2.5m area"), else its
+## description.
+static func effect_line(weapon: Weapon, page: int) -> String:
+	var info := for_conduit(weapon) if weapon and weapon.is_conduit else for_weapon(weapon, page)
+	var b := behavior_for(weapon, page) as MeleeStanceBehavior
+	if b == null or b.motion_value_max <= 0.0 or not (b.charge_time > 0.0 or INSTANT_ATTACKS.has(b.stance_type)):
+		return info.get("desc", "")
+	var damage := "%d%%" % roundi(b.motion_value_max * 100.0)
+	if not is_equal_approx(b.motion_value_min, b.motion_value_max):
+		damage = "%d-%d%%" % [roundi(b.motion_value_min * 100.0), roundi(b.motion_value_max * 100.0)]
+	var hit := "%s weapon damage" % damage
+	if b.radius > 0.0:
+		hit += " in a %sm area" % _num(b.radius)
+	elif b.reach_max > 0.0:
+		hit += " up to %sm away" % _num(b.reach_max)
+	if b.charge_time > 0.0:
+		return "Charge %ss, %s" % [_num(b.charge_time), hit]
+	return hit.capitalize().left(1) + hit.substr(1)
+
+static func cooldown_text(weapon: Weapon, page: int) -> String:
+	var b := behavior_for(weapon, page)
+	return "%ss cooldown" % _num(b.cooldown_seconds) if b and b.cooldown_seconds > 0.0 else ""
+
+static func _num(v: float) -> String:
+	return str(int(round(v))) if is_equal_approx(v, round(v)) else "%.1f" % v

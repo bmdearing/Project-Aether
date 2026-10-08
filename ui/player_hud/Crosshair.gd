@@ -10,8 +10,9 @@ class_name Crosshair
 ## brief bright flash.
 
 const COLOR := Color(1.0, 1.0, 1.0, 0.8)
-const ARM_LENGTH := 12.0
-const THICKNESS := 2.0
+const RING_RADIUS := 9.0
+const ARM_LENGTH := 5.0
+const THICKNESS := 1.5
 const GAP := 4.0
 
 func _ready() -> void:
@@ -25,9 +26,10 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	visible = Input.mouse_mode == Input.MOUSE_MODE_CAPTURED
 
+## A thin ring with four short ticks and a centre dot.
 func _draw() -> void:
 	var c := size / 2.0
-	draw_line(c + Vector2(-ARM_LENGTH - GAP, 0), c + Vector2(-GAP, 0), COLOR, THICKNESS)
-	draw_line(c + Vector2(GAP, 0), c + Vector2(ARM_LENGTH + GAP, 0), COLOR, THICKNESS)
-	draw_line(c + Vector2(0, -ARM_LENGTH - GAP), c + Vector2(0, -GAP), COLOR, THICKNESS)
-	draw_line(c + Vector2(0, GAP), c + Vector2(0, ARM_LENGTH + GAP), COLOR, THICKNESS)
+	draw_arc(c, RING_RADIUS, 0, TAU, 32, Color(1, 1, 1, 0.55), 1.2, true)
+	for d in [Vector2.UP, Vector2.DOWN, Vector2.LEFT, Vector2.RIGHT]:
+		draw_line(c + d * (RING_RADIUS + GAP), c + d * (RING_RADIUS + GAP + ARM_LENGTH), COLOR, THICKNESS, true)
+	draw_circle(c, 1.6, Color(1, 1, 1, 0.9))

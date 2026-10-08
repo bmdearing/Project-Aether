@@ -114,6 +114,8 @@ func _card_text(node: Node) -> String:
 			out += child.text + "\n"
 		elif child is RichTextLabel:
 			out += child.get_parsed_text() + "\n"
+		elif child is ItemCard.LeaderRow:
+			out += "%s: %s\n" % [child.label, child.value]
 	return out
 
 func _test_upgrade_flow() -> void:

@@ -7,6 +7,30 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.33: Celestial-instrument UI (user request)
+
+Mocked up first (`tests/ui_mockup/`, iterated with the user: skills grouped in one plate, full-width XP bar, 10% bigger globes, Ward as a lattice on the right of the Life globe), then rolled out to the real UI.
+
+- **Style module** `ui/theme/AetherStyle.gd`: palette (smoked glass, aged gold, cyan for Aether), fonts and shared drawing helpers (diamonds, plates, dividers, tick rings, clock dials, gem-cut tiles). Fonts are SystemFonts falling back Cinzel/Cormorant -> Georgia -> Times, and Rajdhani/Barlow Condensed -> Bahnschrift -> Arial Narrow. Nothing is bundled yet; shipping Cinzel and Rajdhani (both OFL) needs the user's go-ahead to download them.
+- **Project theme** `ui/theme/aether_theme.tres`, set as `gui/theme/custom` and generated from `AetherStyle.build_theme()` by `tools/build_ui_theme.gd`. A runtime `root.theme` was tried first and did nothing, because theme inheritance stops at CanvasLayer and every screen sits on one.
+- **HUD**:
+  - Life/Mana globes keep the animated liquid shader inside a gold tick ring.
+  - Ward is a shimmering crystalline lattice covering up to 45% of the Life globe from the right. It replaces the old liquid strip.
+  - The four skills sit in one plate of gem-cut tiles with clock-dial cooldowns, dimmed when you can't afford them.
+  - The XP bar runs edge to edge with notches and a level diamond.
+  - There's a stance medallion, an engraved weapon plate (name, icon, set, gold), and gold-framed enemy and boss bars.
+  - Also restyled: the crosshair ring, damage numbers in the number font, and glass status chips.
+- **Item cards**: engraved plate with the rarity on a gem in the top border. The frame is gold, or red when you don't meet the requirements. Sections are split by diamond dividers. "Label: value" lines become dotted-leader rows; mods and flavour text are centred.
+  - Weapons show their selected stance inline. The effect line is generated from the stance's data (`StanceInfo.effect_line()`, e.g. "Charge 1s, 300% weapon damage in a 2.5m area") with the cooldown on the right. Alt shows every page with its description.
+- **Screens**:
+  - Every full-screen menu draws on `AetherStyle.SCREEN_LAYER` (10), above the HUD. The HUD and ability bar hide while any menu, the pause screen or the death screen is open (`AetherStyle.menu_open()`); before this the bottom HUD drew over the inventory.
+  - `AetherStyle.style_screen()` turns "...Title" labels into gold serif headings and deepens the veil. `wrap_in_plate()` frames the Character, Pause, Map, Shop and Death screens.
+  - Inventory, Abilities and Shop slots are dark glass with rarity or element borders instead of flat colour fills. Stat values use the number font. The Fate Board grid and Map use gold lines.
+- **Tooltips follow the cursor** (`TooltipFollow` autoload, from the previous commit).
+- `tests/ui_capture/` screenshots real UI states in the Hub (`shot.sh <out.png> <hud|inventory|character|abilities|fateboard|map|pause|card>`).
+
+---
+
 ## 2026-10-07 — v4.32: Combat, inventory and stance pass (user request)
 
 **Spells**

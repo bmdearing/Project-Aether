@@ -15,7 +15,7 @@ class_name BossHealthBar
 ## distinguishes them from each other yet.
 
 const WIDTH := 520.0
-const HEIGHT := 26.0
+const HEIGHT := 18.0
 const NAME_HEIGHT := 30.0
 
 ## User feedback (2026-08-31): "I like where you started it. But let's
@@ -54,9 +54,6 @@ void fragment() {
 		col = trail_col;
 	}
 
-	float border = step(uv.y, 0.07) + step(0.93, uv.y) + step(uv.x, 0.007) + step(0.993, uv.x);
-	col = mix(col, vec3(0.85, 0.55, 0.15), border * 0.6);
-
 	COLOR = vec4(col, 1.0);
 }
 """
@@ -85,22 +82,23 @@ func _ready() -> void:
 	offset_bottom = 14.0 + NAME_HEIGHT + HEIGHT
 
 	_ward_back = ColorRect.new()
-	_ward_back.color = Color(0.1, 0.2, 0.3, 0.8)
+	_ward_back.color = Color(AetherStyle.AETHER, 0.18)
 	_ward_back.position = Vector2(0, NAME_HEIGHT - WARD_HEIGHT - 1.0)
 	_ward_back.size = Vector2(WIDTH, WARD_HEIGHT)
 	_ward_back.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ward_back.visible = false
 	add_child(_ward_back)
 	_ward_fill = ColorRect.new()
-	_ward_fill.color = Color(0.45, 0.8, 1.0)
+	_ward_fill.color = AetherStyle.AETHER
 	_ward_fill.size = Vector2(WIDTH, WARD_HEIGHT)
 	_ward_fill.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_ward_back.add_child(_ward_fill)
 
 	_label = Label.new()
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_label.add_theme_font_size_override("font_size", 20)
-	_label.add_theme_color_override("font_color", Color(0.95, 0.75, 0.6))
+	_label.add_theme_font_override("font", AetherStyle.serif())
+	_label.add_theme_font_size_override("font_size", 22)
+	_label.add_theme_color_override("font_color", AetherStyle.GOLD_BRIGHT)
 	_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
 	_label.add_theme_constant_override("shadow_offset_x", 1)
 	_label.add_theme_constant_override("shadow_offset_y", 1)
@@ -120,6 +118,11 @@ func _ready() -> void:
 	bar.material = _shader_mat
 	bar.color = Color.WHITE
 	add_child(bar)
+	var frame := BarFrame.new()
+	frame.position = bar.position
+	frame.size = bar.size
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(frame)
 
 func set_boss_name(text: String) -> void:
 	_label.text = text
@@ -146,3 +149,12 @@ func _process(delta: float) -> void:
 	if _trailing_fraction > _fraction:
 		_trailing_fraction = max(_fraction, _trailing_fraction - _trail_speed * delta)
 		_shader_mat.set_shader_parameter("trailing_fraction", _trailing_fraction)
+
+## Gold frame with a faint inner line and diamond end caps over the shader bar.
+class BarFrame extends Control:
+	func _draw() -> void:
+		var rect := Rect2(Vector2.ZERO, size)
+		draw_rect(rect, AetherStyle.GOLD, false, 1.5)
+		draw_rect(rect.grow(-3), AetherStyle.GOLD_FAINT, false, 1.0)
+		AetherStyle.diamond(self, Vector2(0, size.y / 2.0), 8.0, AetherStyle.GLASS_SOLID, AetherStyle.GOLD)
+		AetherStyle.diamond(self, Vector2(size.x, size.y / 2.0), 8.0, AetherStyle.GLASS_SOLID, AetherStyle.GOLD)

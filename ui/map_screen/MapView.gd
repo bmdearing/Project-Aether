@@ -8,9 +8,9 @@ class_name MapView
 
 const CELL_PIXELS := 48.0
 const ROOM_SIZE := 34.0
-const CONNECTION_COLOR := Color(0.5, 0.5, 0.55)
-const NORMAL_COLOR := Color(0.35, 0.35, 0.4)
-const START_COLOR := Color(0.3, 0.75, 0.4)
+const CONNECTION_COLOR := Color(0.55, 0.45, 0.28, 0.9)
+const NORMAL_COLOR := Color(0.16, 0.19, 0.28)
+const START_COLOR := Color(0.45, 0.86, 1.0)
 const VAULT_COLOR := Color(0.9, 0.75, 0.2)
 const PLAYER_MARKER_COLOR := Color(1, 1, 1)
 

@@ -34,6 +34,8 @@ var _page_row: HBoxContainer
 var _aether_label: Label
 
 func _ready() -> void:
+	layer = AetherStyle.SCREEN_LAYER  # above the HUD
+	AetherStyle.style_screen(self)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	add_to_group("abilities_screen")
@@ -104,16 +106,10 @@ func _build_owned_list() -> void:
 		icon.tooltip_text = ability.display_name
 		icon.custom_minimum_size = Vector2(200, 40)
 		icon.clip_text = true
-		var box := StyleBoxFlat.new()
-		box.bg_color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
-		box.set_corner_radius_all(4)
-		icon.add_theme_stylebox_override("normal", box)
-		icon.add_theme_stylebox_override("hover", box)
-		icon.add_theme_stylebox_override("pressed", box)
-		var text_color := Constants.get_contrasting_text_color(box.bg_color)
-		icon.add_theme_color_override("font_color", text_color)
-		icon.add_theme_color_override("font_hover_color", text_color)
-		icon.add_theme_color_override("font_pressed_color", text_color)
+		var element: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+		AetherStyle.style_slot_button(icon, element)
+		for state in ["font_color", "font_hover_color", "font_pressed_color"]:
+			icon.add_theme_color_override(state, element.lerp(Color.WHITE, 0.25))
 		icon.pressed.connect(_on_owned_ability_pressed.bind(ability))
 		row.add_child(icon)
 
@@ -218,20 +214,11 @@ func _refresh_equipped_row() -> void:
 		var button := buttons[i]
 		var ability: Ability = _ability_loadout.slots[i]
 		button.ability = ability
-		var box := StyleBoxFlat.new()
-		box.set_corner_radius_all(4)
-		if ability:
-			button.text = ability.display_name
-			button.tooltip_text = ability.display_name
-			box.bg_color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
-		else:
-			button.text = "Empty"
-			button.tooltip_text = ""
-			box.bg_color = Color(0.25, 0.25, 0.28)
-		button.add_theme_stylebox_override("normal", box)
-		button.add_theme_stylebox_override("hover", box)
-		button.add_theme_stylebox_override("pressed", box)
-		var text_color := Constants.get_contrasting_text_color(box.bg_color)
-		button.add_theme_color_override("font_color", text_color)
-		button.add_theme_color_override("font_hover_color", text_color)
-		button.add_theme_color_override("font_pressed_color", text_color)
+		# Initials in the element colour, like the HUD bar; the card has the name.
+		var accent: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE) if ability else AetherStyle.GOLD_FAINT
+		button.text = AbilityBar.initials(ability.display_name) if ability else "-"
+		button.tooltip_text = ability.display_name if ability else ""
+		AetherStyle.style_slot_button(button, accent)
+		button.add_theme_font_size_override("font_size", 22)
+		for state in ["font_color", "font_hover_color", "font_pressed_color"]:
+			button.add_theme_color_override(state, accent.lerp(Color.WHITE, 0.2) if ability else AetherStyle.TEXT_DIM)

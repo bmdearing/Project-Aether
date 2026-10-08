@@ -119,10 +119,13 @@ static func _add(list: VBoxContainer, label_text: String, value_text: String, to
 	var label := Label.new()
 	label.text = label_text
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	label.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
 	row.add_child(label)
 	var value := Label.new()
 	value.text = value_text
-	value.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85))
+	value.add_theme_font_override("font", AetherStyle.numbers())
+	value.add_theme_font_size_override("font_size", 16)
+	value.add_theme_color_override("font_color", AetherStyle.TEXT)
 	row.add_child(value)
 	list.add_child(row)
 

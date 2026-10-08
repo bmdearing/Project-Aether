@@ -8,8 +8,8 @@ class_name InventoryScreen
 ## stone to pick it up, then click the item to use it on. Equipped items
 ## live on EquipmentComponent, not in the grid. Doesn't pause the game.
 
-const EMPTY_SLOT_COLOR := Color(0.25, 0.25, 0.28)
-const EMPTY_GRID_COLOR := Color(0.2, 0.2, 0.22)
+const EMPTY_SLOT_COLOR := Color(0.55, 0.45, 0.28, 0.5)
+const EMPTY_GRID_COLOR := Color(0.55, 0.45, 0.28, 0.3)
 
 @onready var offense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/OffenseList
 @onready var defense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/DefenseList
@@ -59,6 +59,8 @@ const PREVIEW_LINES := 5
 const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. C shows stats. Hold Alt over an item for details."
 
 func _ready() -> void:
+	layer = AetherStyle.SCREEN_LAYER  # above the HUD
+	AetherStyle.style_screen(self)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	add_to_group("inventory_screen")
@@ -565,18 +567,10 @@ func _style_empty_button(button: ItemSlotButton, label: String) -> void:
 	_apply_button_color(button, EMPTY_SLOT_COLOR if label != "" else EMPTY_GRID_COLOR)
 
 func _apply_button_color(button: Button, color: Color) -> void:
-	var box := StyleBoxFlat.new()
-	box.bg_color = color
-	box.set_corner_radius_all(4)
-	button.add_theme_stylebox_override("normal", box)
-	button.add_theme_stylebox_override("hover", box)
-	button.add_theme_stylebox_override("pressed", box)
-	button.add_theme_stylebox_override("disabled", box)
-	var text_color := Constants.get_contrasting_text_color(color)
-	button.add_theme_color_override("font_color", text_color)
-	button.add_theme_color_override("font_hover_color", text_color)
-	button.add_theme_color_override("font_pressed_color", text_color)
-	button.add_theme_color_override("font_disabled_color", text_color)
+	AetherStyle.style_slot_button(button, color)
+	if color == EMPTY_SLOT_COLOR or color == EMPTY_GRID_COLOR:
+		for state in ["font_color", "font_hover_color", "font_pressed_color", "font_disabled_color"]:
+			button.add_theme_color_override(state, AetherStyle.TEXT_DIM)
 
 ## Patch v3.8b: was weapons-key-off-damage-type, everything else off
 ## rarity - a Magic-rarity weapon showed its (Lightning-yellow etc.) damage

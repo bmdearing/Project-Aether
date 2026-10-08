@@ -14,6 +14,8 @@ var _tab_bar: HBoxContainer
 var _status: Label
 
 func _ready() -> void:
+	layer = AetherStyle.SCREEN_LAYER  # above the HUD
+	AetherStyle.style_screen(self)
 	visible = false
 	add_to_group("stash_screen")
 	add_to_group("blocking_menu")

@@ -1,11 +1,10 @@
 extends Control
 class_name NotchedBar
-## Draws interior tick marks over a bar every 1/DIVISIONS of its width -
-## used by the XP bar to mark each 10% of progress. Purely decorative,
-## drawn on top of the bar's own background/fill (mouse-transparent).
+## Drawn over the XP bar: a notch every 5% (heavier every 20%) and a thin
+## gold line along the top edge. Mouse-transparent.
 
-const DIVISIONS := 10
-const NOTCH_COLOR := Color(0, 0, 0, 0.5)
+const DIVISIONS := 20
+const MAJOR_EVERY := 4
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -13,4 +12,6 @@ func _ready() -> void:
 func _draw() -> void:
 	for i in range(1, DIVISIONS):
 		var x: float = size.x * i / float(DIVISIONS)
-		draw_line(Vector2(x, 0.0), Vector2(x, size.y), NOTCH_COLOR, 1.0)
+		var major := i % MAJOR_EVERY == 0
+		draw_line(Vector2(x, 0.0), Vector2(x, size.y), Color(0, 0, 0, 0.9 if major else 0.6), 2.0 if major else 1.0)
+	draw_line(Vector2.ZERO, Vector2(size.x, 0.0), AetherStyle.GOLD_DIM, 1.0)

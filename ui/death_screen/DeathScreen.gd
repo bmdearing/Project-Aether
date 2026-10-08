@@ -13,6 +13,11 @@ class_name DeathScreen
 @onready var quit_button: Button = $CenterContainer/VBoxContainer/QuitButton
 
 func _ready() -> void:
+	layer = AetherStyle.SCREEN_LAYER  # above the HUD
+	AetherStyle.style_screen(self)
+	add_to_group("full_screen_menu")
+	AetherStyle.wrap_in_plate($CenterContainer/VBoxContainer, 28)
+	$CenterContainer/Plate/VBoxContainer/TitleLabel.add_theme_color_override("font_color", AetherStyle.DANGER)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	EventBus.player_died.connect(_on_player_died)

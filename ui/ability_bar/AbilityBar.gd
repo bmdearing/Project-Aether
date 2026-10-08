@@ -1,50 +1,80 @@
 extends CanvasLayer
 class_name AbilityBar
-## Always-on HUD readout of the player's 4 equipped abilities - icon
-## colored by damage type, a top-down cooldown wipe overlay, remaining
-## seconds, and Mana cost, per slot. Slots are built in code since all 4
-## are structurally identical.
-##
-## Purely a display - casting happens via PlayerAbilityCast reading
-## ability_1..4 directly. Hovering a slot shows the same ItemCard stat
-## card Abilities/Inventory use, though nothing here is clickable -
-## equip/unequip lives in AbilitiesScreen. Refreshes on
-## AbilityLoadoutComponent.loadout_changed.
+## The four equipped spells as one engraved plate of gem-cut tiles: element
+## tint and initials, Mana cost, key on a diamond below, a dial sweep while
+## a spell recharges, dimmed when there isn't enough Mana. An invisible
+## ItemSlotButton sits on each tile so hovering still shows the spell card.
+## Casting happens in PlayerAbilityCast; this only displays.
 
-const SLOT_SIZE := 64.0
-const EMPTY_COLOR := Color(0.2, 0.2, 0.22)
-const COOLDOWN_OVERLAY_COLOR := Color(0, 0, 0, 0.75)
+const TILE := 70.0
+const GAP := 6.0
+const PAD := 10.0
+const CUT := 10.0
+## Plate centre, measured up from the bottom of the screen.
+const CENTRE_FROM_BOTTOM := 120.0
 
-@onready var slot_row: HBoxContainer = $SlotRow
-
-## Cast-failure feedback (Patch v4.3): the failing slot flashes red and the
-## reason ("Not enough Mana", "On cooldown", "Interrupted"...) fades in above
-## the bar. Lives here rather than in PlayerHUD because this is the node that
-## owns the slot controls.
 const ERROR_FLASH_COLOR := Color(1.0, 0.25, 0.25)
 const ERROR_TEXT_HOLD_SEC := 1.0
 const ERROR_TEXT_FADE_SEC := 0.5
-var _cast_error_label: Label
-var _cast_error_tween: Tween
+const ERROR_FLASH_SEC := 0.3
+
+@onready var slot_row: HBoxContainer = $SlotRow
 
 var _player: Player
+var _plate: SkillPlate
 var _slot_icons: Array[ItemSlotButton] = []
-var _slot_overlays: Array[ColorRect] = []
-var _slot_cooldown_labels: Array[Label] = []
-var _slot_cost_labels: Array[Label] = []
+var _cast_error_label: Label
+var _cast_error_tween: Tween
 ## The bar shows the stance page while a Spell Library stance is held.
 var _showing_spell_page: bool = false
+
+static func plate_size() -> Vector2:
+	var count := AbilityLoadoutComponent.SLOT_COUNT
+	return Vector2(count * TILE + (count - 1) * GAP + PAD * 2.0, TILE + PAD * 2.0)
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	_player = get_tree().get_first_node_in_group("player") as Player
+	var size := plate_size()
+	_plate = SkillPlate.new()
+	_plate.bar = self
+	_plate.anchor_left = 0.5
+	_plate.anchor_right = 0.5
+	_plate.anchor_top = 1.0
+	_plate.anchor_bottom = 1.0
+	_plate.offset_left = -size.x / 2.0
+	_plate.offset_right = size.x / 2.0
+	_plate.offset_top = -CENTRE_FROM_BOTTOM - size.y / 2.0
+	_plate.offset_bottom = -CENTRE_FROM_BOTTOM + size.y / 2.0
+	_plate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_plate)
+	move_child(_plate, 0)
+	slot_row.anchor_left = 0.5
+	slot_row.anchor_right = 0.5
+	slot_row.offset_left = _plate.offset_left + PAD
+	slot_row.offset_right = _plate.offset_right - PAD
+	slot_row.offset_top = _plate.offset_top + PAD
+	slot_row.offset_bottom = _plate.offset_bottom - PAD
+	slot_row.add_theme_constant_override("separation", int(GAP))
 	for i in range(AbilityLoadoutComponent.SLOT_COUNT):
-		_build_slot(i + 1)
+		_build_slot()
 	if is_instance_valid(_player):
 		_player.ability_loadout.loadout_changed.connect(_refresh_all_slots)
 	_build_cast_error_label()
 	EventBus.ability_cast_failed.connect(_on_ability_cast_failed)
 	_refresh_all_slots()
+
+func _build_slot() -> void:
+	var icon := ItemSlotButton.new()
+	icon.custom_minimum_size = Vector2(TILE, TILE)
+	icon.flat = true
+	icon.show_icon = false
+	icon.focus_mode = Control.FOCUS_NONE
+	icon.mouse_filter = Control.MOUSE_FILTER_PASS  # hoverable for the card, doesn't eat clicks
+	for state in ["normal", "hover", "pressed", "focus", "disabled"]:
+		icon.add_theme_stylebox_override(state, StyleBoxEmpty.new())
+	slot_row.add_child(icon)
+	_slot_icons.append(icon)
 
 func _build_cast_error_label() -> void:
 	_cast_error_label = Label.new()
@@ -54,10 +84,11 @@ func _build_cast_error_label() -> void:
 	_cast_error_label.anchor_bottom = 1.0
 	_cast_error_label.offset_left = -200.0
 	_cast_error_label.offset_right = 200.0
-	_cast_error_label.offset_top = -118.0
-	_cast_error_label.offset_bottom = -90.0
+	_cast_error_label.offset_bottom = _plate.offset_top - 16.0
+	_cast_error_label.offset_top = _cast_error_label.offset_bottom - 28.0
 	_cast_error_label.grow_horizontal = Control.GROW_DIRECTION_BOTH
 	_cast_error_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_cast_error_label.add_theme_font_override("font", AetherStyle.serif())
 	_cast_error_label.add_theme_font_size_override("font_size", 18)
 	_cast_error_label.add_theme_color_override("font_color", ERROR_FLASH_COLOR)
 	_cast_error_label.add_theme_color_override("font_outline_color", Color(0.0, 0.0, 0.0, 0.9))
@@ -70,11 +101,8 @@ func _on_ability_cast_failed(caster: Node, ability: Ability, reason: String) -> 
 	if not caster is Player or not is_instance_valid(_player):
 		return
 	var slot_index := _player.ability_loadout.slots.find(ability) % AbilityLoadoutComponent.SLOT_COUNT if ability else -1
-	if slot_index >= 0 and slot_index < slot_row.get_child_count():
-		var slot_node := slot_row.get_child(slot_index)
-		var flash := create_tween()
-		flash.tween_property(slot_node, "modulate", ERROR_FLASH_COLOR, 0.1)
-		flash.tween_property(slot_node, "modulate", Color.WHITE, 0.2)
+	if slot_index >= 0:
+		_plate.flash(slot_index)
 	if _cast_error_tween:
 		_cast_error_tween.kill()
 	_cast_error_label.text = reason
@@ -85,57 +113,8 @@ func _on_ability_cast_failed(caster: Node, ability: Ability, reason: String) -> 
 	_cast_error_tween.tween_property(_cast_error_label, "modulate:a", 0.0, ERROR_TEXT_FADE_SEC)
 	_cast_error_tween.tween_callback(func(): _cast_error_label.visible = false)
 
-func _build_slot(key_number: int) -> void:
-	var slot := Control.new()
-	slot.custom_minimum_size = Vector2(SLOT_SIZE, SLOT_SIZE)
-	slot_row.add_child(slot)
-
-	var icon := ItemSlotButton.new()
-	icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-	icon.clip_text = true
-	icon.mouse_filter = Control.MOUSE_FILTER_PASS  # still hoverable for the tooltip card, but doesn't eat clicks
-	slot.add_child(icon)
-
-	var overlay := ColorRect.new()
-	overlay.color = COOLDOWN_OVERLAY_COLOR
-	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
-	overlay.anchor_top = 0.0
-	slot.add_child(overlay)
-
-	var cooldown_label := Label.new()
-	cooldown_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	cooldown_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	cooldown_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	cooldown_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cooldown_label.add_theme_color_override("font_color", Color.WHITE)
-	slot.add_child(cooldown_label)
-
-	var cost_label := Label.new()
-	cost_label.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	cost_label.offset_left = -28
-	cost_label.offset_top = -18
-	cost_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	cost_label.add_theme_font_size_override("font_size", 12)
-	cost_label.add_theme_color_override("font_color", Color(0.6, 0.75, 0.95))
-	slot.add_child(cost_label)
-
-	var key_label := Label.new()
-	key_label.text = str(key_number)
-	key_label.set_anchors_preset(Control.PRESET_TOP_LEFT)
-	key_label.offset_left = 4
-	key_label.offset_top = 0
-	key_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	key_label.add_theme_font_size_override("font_size", 12)
-	key_label.add_theme_color_override("font_color", Color(0.8, 0.8, 0.8))
-	slot.add_child(key_label)
-
-	_slot_icons.append(icon)
-	_slot_overlays.append(overlay)
-	_slot_cooldown_labels.append(cooldown_label)
-	_slot_cost_labels.append(cost_label)
-
 func _process(_delta: float) -> void:
+	visible = not AetherStyle.menu_open(get_tree())
 	if not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Player
 		return
@@ -143,49 +122,78 @@ func _process(_delta: float) -> void:
 	if on_page != _showing_spell_page:
 		_showing_spell_page = on_page
 		_refresh_all_slots()
-	for i in range(_slot_icons.size()):
-		_update_slot_cooldown(i)
+	_plate.queue_redraw()
 
 func _refresh_all_slots() -> void:
 	for i in range(_slot_icons.size()):
-		_refresh_slot(i)
+		var ability := get_slot_ability(i)
+		_slot_icons[i].ability = ability
+		_slot_icons[i].text = ""
+		_slot_icons[i].tooltip_text = ability.display_name if ability else ""
 
-func _refresh_slot(index: int) -> void:
-	var icon := _slot_icons[index]
-	var cost_label := _slot_cost_labels[index]
-	var ability: Ability = _player.ability_cast.get_bar_ability(index) if is_instance_valid(_player) else null
-	icon.ability = ability
+func get_slot_ability(index: int) -> Ability:
+	return _player.ability_cast.get_bar_ability(index) if is_instance_valid(_player) else null
 
-	var box := StyleBoxFlat.new()
-	box.set_corner_radius_all(4)
-	if ability:
-		icon.text = ability.display_name
-		icon.tooltip_text = ability.display_name
-		box.bg_color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
-		cost_label.text = "%.0f" % ability.get_mana_cost(_player.stat_sheet)
-	else:
-		icon.text = ""
-		icon.tooltip_text = ""
-		box.bg_color = EMPTY_COLOR
-		cost_label.text = ""
-	icon.add_theme_stylebox_override("normal", box)
-	icon.add_theme_stylebox_override("hover", box)
-	icon.add_theme_stylebox_override("pressed", box)
-	var text_color := Constants.get_contrasting_text_color(box.bg_color)
-	icon.add_theme_color_override("font_color", text_color)
-	icon.add_theme_color_override("font_hover_color", text_color)
-	icon.add_theme_color_override("font_pressed_color", text_color)
+func get_player() -> Player:
+	return _player
 
-func _update_slot_cooldown(index: int) -> void:
-	var ability: Ability = _player.ability_cast.get_bar_ability(index)
-	var overlay := _slot_overlays[index]
-	var label := _slot_cooldown_labels[index]
-	if ability == null or not is_instance_valid(_player.ability_cast):
-		overlay.anchor_top = 0.0
-		label.text = ""
-		return
-	var remaining := _player.ability_cast.get_cooldown_remaining(ability)
-	var total := ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet)
-	var fraction := remaining / total if total > 0.0 else 0.0
-	overlay.anchor_top = 1.0 - clamp(fraction, 0.0, 1.0)
-	label.text = "%.1f" % remaining if remaining > 0.05 else ""
+static func initials(text: String) -> String:
+	var words := text.split(" ", false)
+	if words.size() >= 2:
+		return (words[0][0] + words[1][0]).to_upper()
+	return text.left(2).capitalize()
+
+class SkillPlate extends Control:
+	var bar: AbilityBar
+	var _flash: Dictionary = {}  # slot index -> seconds left
+
+	func flash(index: int) -> void:
+		_flash[index] = AbilityBar.ERROR_FLASH_SEC
+
+	func _process(delta: float) -> void:
+		for i in _flash.keys():
+			_flash[i] -= delta
+			if _flash[i] <= 0.0:
+				_flash.erase(i)
+
+	func _draw() -> void:
+		AetherStyle.plate(self, Rect2(Vector2.ZERO, size))
+		var player := bar.get_player()
+		for i in AbilityLoadoutComponent.SLOT_COUNT:
+			var rect := Rect2(Vector2(AbilityBar.PAD + i * (AbilityBar.TILE + AbilityBar.GAP), AbilityBar.PAD), Vector2(AbilityBar.TILE, AbilityBar.TILE))
+			_draw_tile(rect, i, bar.get_slot_ability(i), player)
+
+	func _draw_tile(rect: Rect2, index: int, ability: Ability, player: Player) -> void:
+		var shape := AetherStyle.facet(rect, AbilityBar.CUT)
+		draw_colored_polygon(shape, AetherStyle.GLASS_LIGHT)
+		var numbers := AetherStyle.numbers()
+		var c := rect.get_center()
+		var border := AetherStyle.GOLD
+		if ability:
+			var element: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, AetherStyle.TEXT)
+			var cost := ability.get_mana_cost(player.stat_sheet) if player else 0.0
+			var starved := player != null and player.mana.current_mana < cost
+			var inner := PackedVector2Array()
+			for v in shape:
+				inner.append(c + (v - c) * 0.8)
+			draw_colored_polygon(inner, Color(element, 0.14))
+			AetherStyle.outline(self, inner, Color(element, 0.45), 1.0)
+			var glyph_color := element.darkened(0.55) if starved else element.lerp(Color.WHITE, 0.15)
+			AetherStyle.text(self, AetherStyle.serif(), Vector2(rect.position.x, c.y + 10.0), AbilityBar.initials(ability.display_name), 26, glyph_color, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+			if player:
+				var remaining := player.ability_cast.get_cooldown_remaining(ability)
+				var total := ability.get_final_cooldown(player.get_action_speed_multiplier(), player.stat_sheet)
+				if remaining > 0.05 and total > 0.0:
+					AetherStyle.dial(self, rect.grow(-2), remaining / total)
+					AetherStyle.text(self, numbers, Vector2(rect.position.x, c.y + 8.0), "%.1f" % remaining, 18, Color.WHITE, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+			if starved:
+				draw_colored_polygon(shape, Color(0.05, 0.1, 0.35, 0.45))
+			AetherStyle.text(self, numbers, Vector2(rect.end.x - 30.0, rect.position.y + 15.0), "%d" % roundi(cost), 12, Color(1, 0.4, 0.4) if starved else AetherStyle.MANA.lightened(0.45), HORIZONTAL_ALIGNMENT_RIGHT, 24)
+		else:
+			border = AetherStyle.GOLD_DIM
+		if _flash.has(index):
+			draw_colored_polygon(shape, Color(AbilityBar.ERROR_FLASH_COLOR, 0.35 * _flash[index] / AbilityBar.ERROR_FLASH_SEC))
+			border = AbilityBar.ERROR_FLASH_COLOR
+		AetherStyle.outline(self, shape, border, 1.8)
+		AetherStyle.diamond(self, Vector2(c.x, rect.end.y), 9.0, AetherStyle.GLASS, AetherStyle.GOLD)
+		AetherStyle.text(self, numbers, Vector2(c.x - 10.0, rect.end.y + 5.0), str(index + 1), 13, AetherStyle.TEXT, HORIZONTAL_ALIGNMENT_CENTER, 20)

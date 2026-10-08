@@ -11,8 +11,8 @@ signal entry_hovered(view: InventoryGridView, entry: GridInventory.Entry)
 signal drop_failed
 
 const ITEM_CARD_SCENE := preload("res://ui/item_card/ItemCard.tscn")
-const CELL_COLOR := Color(0.18, 0.18, 0.2)
-const LINE_COLOR := Color(0.3, 0.3, 0.34)
+const CELL_COLOR := Color(0.03, 0.035, 0.06, 0.85)
+const LINE_COLOR := Color(0.55, 0.45, 0.28, 0.28)
 const CURRENCY_COLOR := Color(0.62, 0.5, 0.22)
 
 @export var cell_size: int = 36
@@ -54,7 +54,8 @@ func _make_block(entry: GridInventory.Entry) -> EntryBlock:
 	block.size = Vector2(entry.size) * cell_size - Vector2(2, 2)
 	block.clip_text = true
 	block.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	block.add_theme_font_size_override("font_size", 11)
+	block.add_theme_font_override("font", AetherStyle.numbers())
+	block.add_theme_font_size_override("font_size", 12)
 	block.text = _label_for(entry)
 	block.tooltip_text = describe(entry)
 	var border: Color = highlight.call(entry) if highlight.is_valid() else Color.TRANSPARENT
@@ -103,17 +104,14 @@ func _color_for(entry: GridInventory.Entry) -> Color:
 	return Constants.ITEM_RARITY_COLOR.get(entry.content.rarity, Color.GRAY)
 
 func _style(button: Button, color: Color, border: Color = Color.TRANSPARENT) -> void:
-	for state in ["normal", "hover", "pressed", "focus"]:
-		var box := StyleBoxFlat.new()
-		box.bg_color = color.lightened(0.15) if state == "hover" else color
-		box.set_corner_radius_all(3)
-		if border.a > 0.0:
-			box.border_color = border
+	# Dark glass with the rarity as the border; a highlight (active Brand,
+	# picked-up currency) takes over the border and thickens it.
+	AetherStyle.style_slot_button(button, color)
+	if border.a > 0.0:
+		for state in ["normal", "hover", "pressed"]:
+			var box := AetherStyle.slot_box(border, state != "normal")
 			box.set_border_width_all(3)
-		button.add_theme_stylebox_override(state, box)
-	var text_color := Constants.get_contrasting_text_color(color)
-	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
-		button.add_theme_color_override(state, text_color)
+			button.add_theme_stylebox_override(state, box)
 
 ## Top-left cell for a drag that grabbed the block at grab_offset.
 func cell_for(local_pos: Vector2, grab_offset: Vector2) -> Vector2i:

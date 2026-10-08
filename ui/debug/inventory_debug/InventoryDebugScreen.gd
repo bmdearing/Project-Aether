@@ -17,6 +17,8 @@ var _resolver: CraftingResolver
 var _active_brands: ActiveBrands
 
 func _ready() -> void:
+	layer = AetherStyle.SCREEN_LAYER  # above the HUD
+	AetherStyle.style_screen(self)
 	layer = 20
 	visible = false
 	add_to_group("blocking_menu")
