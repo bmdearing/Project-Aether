@@ -498,6 +498,10 @@ func _update_boss_bar(boss: Enemy) -> void:
 	_boss_bar.set_boss_name(boss.get_display_name())
 	_boss_bar.set_health(boss.health.current_health, boss.health.max_health)
 	_boss_bar.set_ward(boss.get_ward(), boss.get_ward_max())
+	var marks: Array[float] = []
+	if boss.boss_brain:
+		marks = boss.boss_brain.phase_thresholds
+	_boss_bar.set_phase_marks(marks)
 
 func _get_hovered_enemy_id(camera: Camera3D) -> int:
 	var origin := camera.global_position

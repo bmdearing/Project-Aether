@@ -235,6 +235,10 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		_flash_ring(_player.global_position, 1.4, ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
+	if ability.has_tag(Ability.TAG_WARCRY):
+		_warcry(ability, damage_multiplier)
+		EventBus.ability_cast.emit(_player, ability)
+		return
 	if ability.ability_id == "purge":
 		_player.status_effects.clear_all_effects()
 		_flash_ring(_player.global_position, 3.0, ability, Color(0.85, 0.95, 1.0))
@@ -763,3 +767,40 @@ func _update_reticle() -> void:
 func _hide_reticle() -> void:
 	if _reticle:
 		_reticle.visible = false
+
+## ---- Warcries ------------------------------------------------------------
+## Every Warcry also fires EventBus.warcry_used, which ruptures the Greataxe's
+## Earthquake fields.
+const BATTLE_CRY_MORE_DAMAGE := 20.0      # % more damage, +1 per level
+const BATTLE_CRY_DURATION := 6.0
+const INTIMIDATE_DURATION := 6.0
+const SEISMIC_CRY_KNOCKBACK := 9.0
+const WARCRY_COLOR := Color(1.0, 0.75, 0.3)
+
+func _warcry(ability: Ability, damage_multiplier: float) -> void:
+	var centre := _player.global_position
+	var radius := ability.get_radius(_player.stat_sheet)
+	var duration_mult := ability.get_duration_multiplier(_player.stat_sheet)
+	_flash_ring(centre, radius, ability, WARCRY_COLOR)
+	match ability.ability_id:
+		"battle_cry":
+			var more := BATTLE_CRY_MORE_DAMAGE + (ability.get_effective_level(_player.stat_sheet) - 1)
+			_player.unique_effects.add_timed_more(&"battle_cry", more, BATTLE_CRY_DURATION * duration_mult)
+		"intimidating_shout":
+			for enemy in _enemies_near(centre, radius):
+				enemy.status_effects.apply_timed_effect("intimidated", INTIMIDATE_DURATION * duration_mult)
+		"seismic_cry":
+			_damage_area(ability, centre, radius, damage_multiplier, true, 0.0, Callable())
+			for enemy in _enemies_near(centre, radius):
+				var away := enemy.global_position - centre
+				away.y = 0.0
+				enemy.apply_knockback(away.normalized() * SEISMIC_CRY_KNOCKBACK)
+	EventBus.warcry_used.emit(_player)
+
+func _enemies_near(centre: Vector3, radius: float) -> Array[Enemy]:
+	var result: Array[Enemy] = []
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy and enemy.health.is_alive() and enemy.distance_to_body(centre) <= radius:
+			result.append(enemy)
+	return result

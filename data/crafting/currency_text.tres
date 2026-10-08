@@ -5,6 +5,10 @@
 [resource]
 script = ExtResource("1")
 names = {
+"maw_fragment_ash": "Maw Fragment of Ash",
+"maw_fragment_hollow": "Maw Fragment of Hollows",
+"maw_fragment_storm": "Maw Fragment of Storms",
+"maw_fragment_tide": "Maw Fragment of Tides",
 "absolution": "Orb of Absolution",
 "anchoring": "Orb of Anchoring",
 "ascendant": "Ascendant Orb",
@@ -48,6 +52,10 @@ names = {
 "shard_of_tharsis": "Shard of Tharsis"
 }
 descriptions = {
+"maw_fragment_ash": "One of four. Dropped by Figment bosses. Bring all four to the Reality Engine to open the Pinnacle.",
+"maw_fragment_hollow": "One of four. Dropped by Figment bosses. Bring all four to the Reality Engine to open the Pinnacle.",
+"maw_fragment_storm": "One of four. Dropped by Figment bosses. Bring all four to the Reality Engine to open the Pinnacle.",
+"maw_fragment_tide": "One of four. Dropped by Figment bosses. Bring all four to the Reality Engine to open the Pinnacle.",
 "absolution": "Removes all modifiers that aren't anchored. The item returns to Common, or to Uncommon if an anchored modifier remains.",
 "anchoring": "Permanently locks one random modifier on an item with at least 3 modifiers.",
 "ascendant": "Adds one modifier to a Rare item.",

@@ -83,6 +83,8 @@ signal enemy_hit_dodged(enemy: Node)
 
 ## GeneratedMap counts spawns/deaths and emits enemy_count_changed for the HUD.
 signal enemy_died(enemy: Node)
+signal warcry_used(user: Node)  # a Warcry skill went off (ruptures Earthquake fields)
+signal boss_phase_changed(boss: Node, phase: int)  # BossBrain crossed a health threshold
 signal enemy_count_changed(remaining: int, total: int)
 
 ## Evasion. Dodged: an attack hit fully negated. Deflected: a hit

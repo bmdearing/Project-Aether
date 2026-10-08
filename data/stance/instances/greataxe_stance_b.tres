@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="MeleeStanceBehavior" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/stance/MeleeStanceBehavior.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+weapon_type = "Greataxe_b"
+move_speed_multiplier = 0.65
+parry_window_multiplier = 1.0
+stance_animation = ""
+stance_type = 21
+charge_time = 1.0
+charge_min_time = 0.3
+charge_move_multiplier = 0.4
+motion_value_min = 2.2
+motion_value_max = 3.2
+reach_min = 2.4
+reach_max = 2.4
+half_angle = 50.0
+armor_shred_stacks = 3
+cooldown_seconds = 5.0

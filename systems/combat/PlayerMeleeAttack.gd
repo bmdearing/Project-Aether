@@ -73,6 +73,7 @@ const STRIKE_CONTACT_START := 0.6
 const WEAPON_TYPE_MOTION_VALUE := {
 	"Dagger": 0.65,
 	"Greatsword": 1.1,
+	"Greataxe": 1.15,
 	"Rapier": 0.55,
 	"Staff": 1.0,
 	"Gauntlet": 0.5,
@@ -88,7 +89,7 @@ const WEAPON_TYPE_SWING_DURATION_MULT := {
 	"Shortsword": 1.1, "Pressure Fist": 1.1, "Saber": 1.15, "Cutlass": 1.15,
 	"Fetish": 1.2, "Talisman": 1.2, "Rod": 1.25, "Tome": 1.3, "Grimoire": 1.3, "Whip": 1.3,
 	"Spear": 1.35, "Staff": 1.4, "Mace": 1.45, "War Pick": 1.5, "Shock Lance": 1.6,
-	"Halberd": 1.8, "Claymore": 2.2, "Greatsword": 2.4,
+	"Halberd": 1.8, "Claymore": 2.2, "Greataxe": 2.3, "Greatsword": 2.4,
 }
 
 ## Seconds for one plain swing (windup + strike + recovery) before attack
@@ -169,7 +170,7 @@ const SWING_SHAPES := {
 const WEAPON_SWING_FAMILY := {
 	"Dagger": "thrust", "Rapier": "thrust", "Spear": "thrust", "Shock Lance": "thrust",
 	"Shortsword": "slash", "Saber": "slash", "Cutlass": "slash",
-	"Claymore": "heavy", "Greatsword": "heavy", "Halberd": "heavy", "Mace": "heavy", "War Pick": "heavy", "Staff": "heavy",
+	"Claymore": "heavy", "Greataxe": "heavy", "Greatsword": "heavy", "Halberd": "heavy", "Mace": "heavy", "War Pick": "heavy", "Staff": "heavy",
 	"Whip": "whip",
 	"Pressure Fist": "fist", "Gauntlet": "fist",
 }
@@ -357,7 +358,7 @@ func _enter_windup() -> void:
 
 ## Weapon types by swing sound family. Anything unlisted (staves, casting
 ## foci) stays silent rather than borrowing a mismatched sound.
-const SWING_BLADE_TYPES := ["Greatsword", "Claymore", "Rapier", "Dagger", "Saber", "Cutlass", "Shortsword", "Whip"]
+const SWING_BLADE_TYPES := ["Greatsword", "Claymore", "Greataxe", "Rapier", "Dagger", "Saber", "Cutlass", "Shortsword", "Whip"]
 const SWING_BLUNT_TYPES := ["Mace", "War Pick", "Pressure Fist", "Gauntlet"]
 const SWING_PIERCE_TYPES := ["Spear", "Halberd", "Shock Lance"]
 

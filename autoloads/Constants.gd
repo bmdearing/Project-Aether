@@ -150,6 +150,7 @@ const STATUS_EFFECT_NAME := {
 	"electrocute": "Electrocute",
 	"unraveling": "Unraveling",
 	"slow": "Slowed",
+	"intimidated": "Intimidated",
 	"shock": "Shocked",
 	"scorch": "Scorched",
 	"guard_break": "Guard Broken",
@@ -240,6 +241,7 @@ const WEAPON_BASE_CRIT_CHANCE := {
 	"War Pick": 0.04,
 	"Greatsword": 0.04,
 	"Claymore": 0.04,
+	"Greataxe": 0.05,
 	"Halberd": 0.05,
 	"Spear": 0.06,
 	"Shock Lance": 0.05,
@@ -359,16 +361,6 @@ const ENEMY_PACKS_NORMAL := [
 	{"weight": 0.8, "units": [["hollowed_shambler", 3, 5]]},
 	{"weight": 0.6, "units": [[SYNOD_GOLEMS, 1, 1], ["hollowed_shambler", 0, 2]]},
 	{"weight": 0.6, "units": [["veilborne_mindbender", 2, 3]]},
-]
-## The Vault's elite pack, spawned alongside its FigmentBoss.
-const ENEMY_PACKS_VAULT_ELITE := [
-	{"weight": 1.0, "units": [["unchartered_chieftain", 1, 1], [UNCHARTERED_RAIDERS, 2, 3]]},
-	{"weight": 1.0, "units": [["directorate_adjudicator", 1, 1]]},
-	{"weight": 1.0, "units": [["synod_vindicator", 1, 1], ["synod_exarch", 1, 1]]},
-	{"weight": 1.0, "units": [["legion_threshold_knight", 1, 1], ["hollowed_shambler", 2, 3]]},
-	{"weight": 1.0, "units": [["legion_dreadknight", 1, 1], ["hollowed_shambler", 2, 3]]},
-	{"weight": 1.0, "units": [["veilborne_cantor", 1, 1], ["veilborne_mindbender", 2, 2]]},
-	{"weight": 1.0, "units": [["synod_exarch", 1, 1], [SYNOD_GOLEMS, 1, 2]]},
 ]
 
 # Combined cap across all cooldown reduction sources (Ability.get_final_cooldown()).

@@ -1,7 +1,8 @@
 extends Node
 class_name UniqueEffects
-## The player's active Unique/Mythic mechanics: every `unique_*` modifier on
-## equipped gear (UniqueCatalog), summed by key. Player refreshes it when
+## The player's active Unique/Mythic mechanics (every `unique_*` modifier on
+## equipped gear, UniqueCatalog, summed by key) and timed damage buffs
+## (Battle Cry). Player refreshes it when
 ## equipment changes and asks it about damage taken and Ward/Life; weapon and
 ## spell rolls ask damage_multiplier() through StatSheet; on-hit effects run
 ## off EventBus.damage_dealt.
@@ -35,6 +36,8 @@ const PATIENT_SHOT_SECONDS := 2.0
 const MOVING_SPEED := 0.5
 
 var effects: Dictionary = {}
+## Timed "more damage" buffs (Battle Cry): id -> {"more": %, "left": seconds}.
+var timed_more: Dictionary = {}
 var debt_stacks: int = 0
 var debt_damage: float = 0.0
 
@@ -68,7 +71,11 @@ func value(key: String) -> float:
 func is_moving() -> bool:
 	return _player != null and Vector2(_player.velocity.x, _player.velocity.z).length() > MOVING_SPEED
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	for id in timed_more.keys():
+		timed_more[id]["left"] -= delta
+		if timed_more[id]["left"] <= 0.0:
+			timed_more.erase(id)
 	if _player and _player.ward:
 		_player.ward.recovery_blocked = has(NO_WARD_RECOVERY) or (has(NO_WARD_RECOVERY_MOVING) and is_moving())
 
@@ -77,6 +84,8 @@ func _physics_process(_delta: float) -> void:
 ## "More" multiplier on a weapon or spell hit of damage_type.
 func damage_multiplier(damage_type: int) -> float:
 	var mult := 1.0
+	for buff in timed_more.values():
+		mult *= 1.0 + buff["more"] / 100.0
 	if has(ESOTERIC_DAMAGE) and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.ESOTERIC:
 		mult *= 1.0 + value(ESOTERIC_DAMAGE) / 100.0
 	if has(MORE_FIRE_DAMAGE) and damage_type == Constants.DamageType.FIRE:
@@ -122,6 +131,10 @@ func _on_enemy_died(_enemy: Node) -> void:
 func _on_hit_blocked(defender: Node) -> void:
 	if defender == _player and has(WARD_ON_BLOCK):
 		_player.ward.restore(_player.ward.max_ward * value(WARD_ON_BLOCK) / 100.0)
+
+## A temporary "% more damage" buff; recasting refreshes it.
+func add_timed_more(id: StringName, more_percent: float, seconds: float) -> void:
+	timed_more[id] = {"more": more_percent, "left": seconds}
 
 ## ---- Incoming damage ---------------------------------------------------
 

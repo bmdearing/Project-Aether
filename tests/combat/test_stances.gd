@@ -54,6 +54,9 @@ func _run() -> void:
 	await _test_stealth()
 	await _test_stance_cooldown()
 	_test_attack_speeds()
+	await _test_earthquake()
+	await _test_shatter()
+	await _test_warcries()
 	print("stance tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -552,3 +555,85 @@ func _test_attack_speeds() -> void:
 	_player.equipment.primary_weapon = rapier
 	_check(_player.get_action_speed_multiplier() > before, "and actually speeds up the player's swings")
 	_player.equipment.primary_weapon = old
+
+## Greataxe Earthquake: slam, then a field that slows and ruptures for 60%
+## when you leave it or Warcry.
+func _test_earthquake() -> void:
+	await _reset("Greataxe")
+	for field in get_tree().get_nodes_in_group("earthquake_field"):
+		field.queue_free()
+	var near := _dummy(START + _forward() * 2.0)
+	var edge := _dummy(START + _forward() * 6.5)
+	await _frames(2)
+	await _charge(1.3, 0.8)
+	var fields := get_tree().get_nodes_in_group("earthquake_field")
+	_check(_lost(near) > 0.0, "earthquake slam hits")
+	_check(_lost(edge) == 0.0, "the slam itself is small")
+	_check(fields.size() == 1, "earthquake leaves a field")
+	if fields.is_empty():
+		return
+	var field: EarthquakeField = fields[0]
+	_check(field.radius >= 5.0, "the field is large (%.1f m)" % field.radius)
+	await _frames(10)
+	_check(near.status_effects.has_effect("slow"), "enemies on the rough ground are slowed")
+	var before_near := _lost(near)
+	var before_edge := _lost(edge)
+	_player.global_position = START - _forward() * 12.0
+	await _frames(4)
+	_check(not is_instance_valid(field) or field.is_queued_for_deletion(), "leaving the field ruptures it")
+	_check(_lost(near) > before_near and _lost(edge) > before_edge, "the rupture hits everything inside")
+	var share := (_lost(near) - before_near) / maxf(before_near, 0.001)
+	_check(share > 0.3 and share < 1.0, "the rupture is a share of the slam (%.2f)" % share)
+	await _leave_stance()
+
+func _test_shatter() -> void:
+	await _reset("Greataxe")
+	_player.weapon_stance.set_stance_page(WeaponStance.StancePage.B)
+	var target := _dummy(START + _forward() * 2.0)
+	var bystander := _dummy(START + _forward() * 2.0 + _player.global_transform.basis.x * 6.0)
+	var victim := _dummy(START + _forward() * 2.0 + _player.global_transform.basis.x * 1.2)
+	await _frames(2)
+	victim.health.current_health = 1.0
+	var bystander_far := bystander.global_position
+	await _charge(1.2, 0.8)
+	_check(_lost(target) > 0.0, "shatter hits")
+	_check(target.status_effects.has_effect("armor_shred"), "shatter breaks Armour")
+	_check(not victim.health.is_alive(), "shatter can kill")
+	_check(_lost(target) > 0.0 and _lost(bystander) == 0.0, "the shard burst stays local")
+	await _leave_stance()
+
+func _test_warcries() -> void:
+	await _reset("Greataxe")
+	var cast := _player.ability_cast
+	var target := _dummy(START + _forward() * 3.0)
+	await _frames(2)
+	var shout := load("res://data/abilities/instances/intimidating_shout.tres") as Ability
+	var battle := load("res://data/abilities/instances/battle_cry.tres") as Ability
+	var seismic := load("res://data/abilities/instances/seismic_cry.tres") as Ability
+	_check(shout.has_tag(Ability.TAG_WARCRY) and battle.has_tag(Ability.TAG_WARCRY) and seismic.has_tag(Ability.TAG_WARCRY), "the three warcries are tagged Warcry")
+	var cries := [0]
+	var count_cry := func(_who): cries[0] += 1
+	EventBus.warcry_used.connect(count_cry)
+	cast._cast(shout, START)
+	_check(target.status_effects.has_effect("intimidated"), "Intimidating Shout marks nearby enemies")
+	_check(target.status_effects.get_damage_taken_multiplier(Constants.DamageType.KINETIC) > 1.15, "intimidated enemies take more damage")
+	var weapon := _player.get_active_weapon()
+	var before := _player.stat_sheet.unique_damage_multiplier(Constants.DamageType.KINETIC)
+	cast._cast(battle, START)
+	_check(_player.stat_sheet.unique_damage_multiplier(Constants.DamageType.KINETIC) > before * 1.15, "Battle Cry raises your damage")
+	var start_pos := target.global_position
+	cast._cast(seismic, START)
+	await _frames(10)
+	_check(_lost(target) > 0.0, "Seismic Cry deals damage")
+	_check(target.global_position.distance_to(start_pos) > 0.5, "Seismic Cry throws enemies back")
+	_check(cries[0] == 3, "every warcry announces itself (ruptures Earthquakes)")
+	EventBus.warcry_used.disconnect(count_cry)
+	# A warcry ruptures an Earthquake field even while you stand in it.
+	var field := EarthquakeField.spawn(_arena, START, 6.0, 100.0, Constants.DamageType.KINETIC, _player)
+	var inside := _dummy(START + _forward() * 2.5)
+	await _frames(3)
+	var hp := _lost(inside)
+	cast._cast(battle, START)
+	await _frames(2)
+	_check(_lost(inside) > hp and not is_instance_valid(field) or field.is_queued_for_deletion(), "a warcry ruptures an Earthquake field")
+	_player.unique_effects.timed_more.clear()

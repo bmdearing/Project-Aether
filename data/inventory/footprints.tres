@@ -59,6 +59,7 @@ footprints = {
 "bow": Vector2i(2, 3),
 "greatsword": Vector2i(2, 4),
 "claymore": Vector2i(2, 4),
+"greataxe": Vector2i(2, 4),
 "halberd": Vector2i(2, 4),
 "spear": Vector2i(2, 4),
 "shock_lance": Vector2i(2, 4),

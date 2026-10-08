@@ -1,9 +1,10 @@
 extends Node3D
 class_name PinnacleArena
 ## First Pinnacle boss arena: a crescent with the boss in its belly and an
-## invisible boundary wall. Spawns the Player, the Lord of the Elements and
+## invisible boundary wall. Spawns the Player, the chosen Pinnacle boss and
 ## the UI suite itself (same order as GeneratedMap), so it runs standalone
-## (F6). Nothing in the game routes here yet.
+## (F6). Reached from the Reality Engine with a full set of Maw Fragments
+## (Pinnacle.enter() picks the boss); killing it opens a portal to the Hub.
 ##
 ## The crescent is CSG (with use_collision): a circle at the origin minus
 ## one offset along +Z by CUT_OFFSET, leaving a thin lune on the -Z side.
@@ -20,15 +21,14 @@ const CSG_SIDES := 64
 
 ## Roughly the crescent's belly, farthest from the cutout.
 const BOSS_SPAWN_LOCAL := Vector3(0, 0.05, -(OUTER_RADIUS - CUT_OFFSET * 0.5))
-## One end of the crescent band - a reasonable default player entry point
-## for whenever this arena gets wired into the game's actual flow.
+## One end of the crescent band: where the player enters.
 const PLAYER_SPAWN_LOCAL := Vector3(OUTER_RADIUS * 0.6, 0.1, -OUTER_RADIUS * 0.55)
 
 const PLAYER_SCENE := preload("res://entities/player/Player.tscn")
-const BOSS_SCENES: Array[PackedScene] = [
-	preload("res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn"),
-	preload("res://entities/enemies/xalatath/Xalatath.tscn"),
-]
+## The portal home appears this far in front of the player spawn.
+const PORTAL_OFFSET := Vector3(0, 0, 3.0)
+
+var boss: Enemy
 
 const FLOOR_SHADER_CODE := """
 shader_type spatial;
@@ -88,11 +88,30 @@ func _spawn_player() -> void:
 	player.global_position = $PlayerSpawnPoint.global_position
 	player.look_at(Vector3(BOSS_SPAWN_LOCAL.x, player.global_position.y, BOSS_SPAWN_LOCAL.z))
 
+## GameState.pending_pinnacle's boss, or a random one when run standalone.
 func _spawn_boss() -> void:
-	var boss: Enemy = BOSS_SCENES.pick_random().instantiate()
+	var boss_id := GameState.pending_pinnacle
+	if not Pinnacle.BOSSES.has(boss_id):
+		boss_id = Pinnacle.BOSSES.keys().pick_random()
+	GameState.pending_pinnacle = ""
+	boss = (load(Pinnacle.BOSSES[boss_id]["scene"]) as PackedScene).instantiate()
 	boss.rank = Constants.EnemyRank.BOSS
 	add_child(boss)
 	boss.global_position = $BossSpawnPoint.global_position
+	boss.health.died.connect(_on_boss_died)
+
+## A portal home appears by the entry once the boss falls.
+func _on_boss_died() -> void:
+	var portal := Portal.new()
+	portal.destination = Portal.Destination.HUB
+	portal.taken.connect(_go_home)
+	add_child(portal)
+	portal.global_position = $PlayerSpawnPoint.global_position + PORTAL_OFFSET
+
+func _go_home() -> void:
+	SaveManager.save_game()
+	get_tree().paused = false
+	get_tree().change_scene_to_file(GameState.HUB_SCENE)
 
 func _spawn_ui() -> void:
 	for scene in GeneratedMap.UI_SCENES:

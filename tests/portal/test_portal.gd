@@ -92,6 +92,11 @@ func _test_round_trip(round_index: int) -> void:
 			if child is Enemy and int(child.get_meta(&"spawn_index")) == index:
 				child.health.apply_damage(1.0e9)
 				killed.append(index)
+	# Kills can drop loot beside the player; keep it on the ground for the
+	# before/after comparison instead of letting the player walk it up.
+	for child in map.get_children():
+		if child is LootPickup or child is GoldPickup:
+			child.monitoring = false
 	await _frames(3)
 
 	var sword := Weapon.new()
@@ -139,6 +144,9 @@ func _test_round_trip(round_index: int) -> void:
 	_returned = 0
 	var back: GeneratedMap = load(MAP).instantiate()
 	add_child(back)
+	for child in back.get_children():
+		if child is LootPickup or child is GoldPickup:
+			child.monitoring = false  # the player comes back right beside it
 	var restored := _snapshot_enemies(back)
 	_check(back.map_seed == original_seed and back.graph.rooms.keys() == rooms, "round %d: same layout" % round_index)
 	var expected_alive := spawned.keys().filter(func(i): return not killed.has(i))

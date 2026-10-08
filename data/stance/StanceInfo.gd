@@ -45,6 +45,10 @@ const MELEE := {
 		{"name": "Crack", "desc": "Charged strike at maximum whip range. Applies Bleed and briefly interrupts the target."},
 		{"name": "Entangle", "desc": "Wraps the target, rooting it for 2 s. No damage, pure control."},
 	],
+	"Greataxe": [
+		{"name": "Earthquake", "desc": "A heavy slam that leaves a wide field of rough ground. When you leave the field or use a Warcry it ruptures for 60% of the slam's damage."},
+		{"name": "Shatter", "desc": "A crushing overhead blow that breaks Armour (3 Armour Shred). Enemies it kills shatter, hitting those around them for 40% of the blow."},
+	],
 	"Pressure Fist": [
 		{"name": "Pressure Blast", "desc": "Charge internal pressure, then release a point-blank cone of force. Massive Stagger, sends enemies flying."},
 		{"name": "Stance B", "desc": "Not designed yet."},

@@ -2,7 +2,8 @@ extends Node3D
 class_name RealityEngine
 ## The Reality Engine (map device). Interacting lists every carried
 ## Figment (via ShopScreen) plus an always-free Tier 1 run. Choosing one
-## consumes it and loads GameState.MAP_SCENE with its modifiers.
+## consumes it and loads GameState.MAP_SCENE with its modifiers. A full set
+## of Maw Fragments opens a Pinnacle boss instead (Pinnacle.enter()).
 
 const FREE_TIER := 1
 
@@ -36,11 +37,29 @@ func _open_selection() -> void:
 	for item in GameState.get_inventory_items():
 		if item is FigmentItem:
 			entries.append(_entry_for(item as FigmentItem))
+	entries.append_array(_pinnacle_entries())
 	_get_shop_screen().open_with("Reality Engine", entries, {
 		"label": "Enter a Free Tier %d Figment" % FREE_TIER,
 		"cost": 0,
 		"on_action": func(): _enter(FigmentRoller.roll(FREE_TIER)),
 	})
+
+## One entry per Pinnacle boss; each needs a full set of Maw Fragments.
+func _pinnacle_entries() -> Array:
+	var have := Pinnacle.FRAGMENT_IDS.size() - Pinnacle.missing_fragments(GameState.inventory).size()
+	var entries: Array = []
+	for id in Pinnacle.BOSSES:
+		var boss_id: String = id
+		entries.append({
+			"label": "Pinnacle: %s" % Pinnacle.BOSSES[boss_id]["name"],
+			"cost_text": "%d/%d Fragments" % [have, Pinnacle.FRAGMENT_IDS.size()],
+			"fail_text": "Need all 4",
+			"button_label": "Open",
+			"color": Constants.ITEM_RARITY_COLOR[Constants.ItemRarity.UNIQUE],
+			"repeatable": true,
+			"on_buy": func(): return Pinnacle.enter(get_tree(), boss_id),
+		})
+	return entries
 
 func _entry_for(figment: FigmentItem) -> Dictionary:
 	return {

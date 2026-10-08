@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="Weapon" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_mqee7"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_0eimw"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_0amaj"]
+
+[resource]
+script = ExtResource("2_0eimw")
+weapon_type = "Greataxe"
+base_damage_min = 24.0
+base_damage_max = 35.0
+rolled_base_damage = 0.0
+scaling_grade = 0
+native_damage_type = 0
+infused_damage_type = -1
+is_two_handed = true
+is_ranged = false
+ammo_type = 0
+magazine_size = 12
+fire_mode = 0
+pellet_count = 1
+pellet_spread_degrees = 0.0
+fire_rate = 0.0
+cycle_time = 0.0
+reload_time = 1.4
+reload_per_shell = false
+skill_ids = Array[String]([])
+is_main_hand = true
+is_offhand = false
+primary_scaling_stat = "strength"
+secondary_scaling_stat = ""
+is_conduit = false
+conduit_stance_type = ""
+spell_page_tag = ""
+unleash_copy_count = 0
+spell_page_modifier = ""
+stance_buff = ""
+item_id = "gen_greataxe_heavy_greataxe"
+display_name = "Heavy Greataxe"
+rarity = 0
+equip_slot = 4
+max_sockets = 3
+sockets = 0
+socketed = Array[ExtResource("3_0amaj")]([])
+quality = 0
+sockets_rolled = false
+tolerance = 0
+tolerance_max = 0
+item_type = &""
+affixes = Array[ExtResource("1_mqee7")]([])
+flavor_text = "Heavy Cleave"
+unique_id = ""
+icon_path = ""
+is_corrupted = false
+is_craftable = true
+item_level = 14
+base_line_id = "greataxe_line1"
+stat_requirement = 0
+stat_requirement_value = 7.0
+level_requirement = 8
+strength_requirement = 5
+agility_requirement = 0
+intellect_requirement = 0

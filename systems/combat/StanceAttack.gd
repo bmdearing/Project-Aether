@@ -36,6 +36,8 @@ const POSES := {
 	MeleeStanceBehavior.MeleeStanceType.DISCHARGE: PlayerArmRig.Attack.CHARGED,
 	MeleeStanceBehavior.MeleeStanceType.PRESSURE_BLAST: PlayerArmRig.Attack.CHARGED,
 	MeleeStanceBehavior.MeleeStanceType.CRACK: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.EARTHQUAKE: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.SHATTER: PlayerArmRig.Attack.CHARGED,
 }
 
 var is_charging: bool = false
@@ -197,6 +199,13 @@ func release() -> void:
 		MeleeStanceBehavior.MeleeStanceType.CRACK:
 			params["shape"] = {"reach": reach, "half_angle": behavior.half_angle, "splash": 0.0, "max_targets": 1}
 			params["on_hit"] = _on_crack_hit
+		MeleeStanceBehavior.MeleeStanceType.EARTHQUAKE:
+			params["no_step"] = true
+			params["on_contact"] = _earthquake.bind(behavior, reach, params["motion_mult"])
+		MeleeStanceBehavior.MeleeStanceType.SHATTER:
+			params["no_step"] = true
+			params["shape"] = {"reach": reach, "half_angle": behavior.half_angle, "splash": 1.0, "max_targets": 8}
+			params["on_hit"] = _on_shatter_hit.bind(behavior)
 	_player.melee_attack.release_stance_attack(params)
 
 ## Feedback for pressing a special that isn't ready - same channel spells use.
@@ -479,3 +488,32 @@ func _kick(amount: Vector3) -> void:
 	var sway: CameraSway = _player.camera.get_node_or_null("CameraSway")
 	if sway:
 		sway.kick(amount)
+
+## Greataxe Earthquake: the slam, plus a field twice its radius that ruptures
+## for 60% of the slam when you leave it or Warcry (EarthquakeField).
+const EARTHQUAKE_FIELD_SCALE := 2.0
+
+func _earthquake(behavior: MeleeStanceBehavior, reach: float, motion_mult: float) -> void:
+	var center := _player.global_position + _forward() * reach
+	_slam(behavior, reach, false)
+	var weapon := _player.get_active_weapon()
+	var melee := _player.melee_attack
+	var motion: float = melee._effective_motion_value(weapon) * motion_mult
+	var damage: float = weapon.roll_damage(motion, _player.stat_sheet)["final_damage"]
+	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	EarthquakeField.spawn(get_tree().current_scene, Vector3(center.x, _player.global_position.y, center.z), behavior.radius * EARTHQUAKE_FIELD_SCALE, damage, damage_type, _player)
+
+## Greataxe Shatter: shreds Armour; a kill bursts into shards around the body.
+const SHATTER_BURST_SHARE := 0.4
+const SHATTER_BURST_RADIUS := 3.0
+
+func _on_shatter_hit(enemy: Enemy, damage: float, behavior: MeleeStanceBehavior) -> void:
+	_shred(enemy, damage, behavior.armor_shred_stacks)
+	if enemy.health.is_alive():
+		return
+	_ring(enemy.global_position, SHATTER_BURST_RADIUS, Color(0.75, 0.85, 1.0))
+	var weapon := _player.get_active_weapon()
+	var damage_type: Constants.DamageType = weapon.infused_damage_type if weapon.infused_damage_type != -1 else weapon.native_damage_type
+	for other in _player.melee_attack.enemies_in_radius(enemy.global_position, SHATTER_BURST_RADIUS):
+		if other != enemy:
+			_hit(other, damage * SHATTER_BURST_SHARE, damage_type)

@@ -16,7 +16,7 @@ const PACK := "res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Stu
 const FAMILY := {
 	"Shortsword": &"blade", "Saber": &"blade", "Cutlass": &"blade",
 	"Dagger": &"thrust", "Rapier": &"thrust", "Athame": &"thrust",
-	"Greatsword": &"heavy", "Claymore": &"heavy",
+	"Greatsword": &"heavy", "Claymore": &"heavy", "Greataxe": &"heavy",
 	"Mace": &"blunt", "War Pick": &"blunt",
 	"Spear": &"spear", "Shock Lance": &"spear",
 	"Halberd": &"halberd",
@@ -40,6 +40,7 @@ const FAMILY := {
 const PACK_MELEE := {
 	"Greatsword": ["Great_Sword", 0.42, 0.27, 0.5],
 	"Claymore": ["Kriegmesser", 0.46, 0.14, 0.32],
+	"Greataxe": ["Double_Axe", 0.8, 0.3, 0.6],
 	"Shortsword": ["Arming_Sword", 0.48, 0.18, null],
 	"Saber": ["Scimitar", 0.42, 0.3, null],
 	"Cutlass": ["Cutlass", 0.55, 0.27, null],

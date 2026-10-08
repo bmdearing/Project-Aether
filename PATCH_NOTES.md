@@ -7,6 +7,64 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.38: Boss abilities, Figment boss pool, Maw Fragments and the Pinnacle, Greataxe, Warcries (user request)
+
+**Boss ability system** (`systems/combat/boss/`)
+- `BossBrain` runs a boss's abilities and phases. Between ordinary attacks it casts a ready ability that fits the player's distance, standing still while it casts (`Enemy.is_casting()` feeds `is_attack_locked()`, and the melee/ranged attacks wait for it).
+- Crossing a health threshold starts the next phase: a 1.6s invulnerable roar (`Enemy.invulnerable`), cooldowns 15%/30% faster, and the phase's opening ability. The boss health bar marks phase thresholds with gold diamonds.
+- `BossAbility` kinds, each telegraphed on the ground (`BossTelegraph`: a disc or strip filling over the windup, tinted by damage type):
+  - SLAM (around the boss)
+  - BLAST (where the player stood; several for `count` > 1)
+  - HAZARD (a pool that keeps burning)
+  - CHARGE (rushes along a strip)
+  - VOLLEY (a fan of projectiles)
+  - SUMMON (roster adds, capped at 6)
+  - PULL (drags you in, then slams)
+- Damage is the boss's own attack damage times the ability's multiplier; abilities can apply a status (Chill, Pallid).
+
+**Figment bosses** (user: the elites beside the boss should be bosses instead of making the room harder)
+- The Vault's elite pack is gone; the Vault holds only its boss. `ENEMY_PACKS_VAULT_ELITE` was removed.
+- The boss is one of four (`FigmentBoss.PROFILES`, picked with the map seed so a portal return rebuilds the same one), each with a second phase at 50%:
+  - **Figment Chieftain:** Cleaving Leap charge, War Stomp; phase 2 Rally the Raiders.
+  - **The Adjudicator:** Hammer of Judgement blasts, Consecrate fire pools; phase 2 Verdict, a 4-blast rain.
+  - **The Threshold Knight:** Relentless Charge (Pallid), Soul Chains pull; phase 2 Pale Ruin, a big Pallid slam.
+  - **The Exarch:** a ranged Cold caster; Frost Lance volley, Glacial Spike blasts, Frost Nova when you're close; phase 2 Blizzard pools.
+- Synod Vindicator, Legion Dreadknight and Veilborne Cantor were only ever in the Vault pack, so they don't spawn at the moment.
+
+**Maw Fragments and the Pinnacle** (`systems/pinnacle/Pinnacle.gd`)
+- Every Figment boss drops one of four Maw Fragments (Ash, Tides, Storms, Hollows). They are currency: they stack and show in the inventory with names and descriptions.
+- The Reality Engine lists both Pinnacle bosses with "n/4 Fragments". A full set (one of each) is spent to enter `PinnacleArena` with the chosen boss (`GameState.pending_pinnacle`). The arena was previously unreachable.
+- Killing the boss drops a guaranteed Unique (10% Mythic) on top of its Boss loot rolls, and opens a portal home.
+- **Pinnacle bosses** (`PinnacleBoss`: 3x health, phases at 66% and 33%):
+  - **Lord of the Elements** (every attack and untyped ability takes the next of Fire → Cold → Lightning):
+    - Phase 1: Elemental Burst, Conflagration fire pools.
+    - Phase 2: opens with Frozen Expanse (a 9m chilling slam); adds Storm Volley.
+    - Phase 3: opens with Cataclysm (a 6-blast rain); adds Elemental Convergence (pull + slam).
+  - **Herald of the Maw** (Xalatath renamed: a placeholder, since the name and model are Blizzard's; ids, files and model still need replacing):
+    - Phase 1: Void Rift pools, Shadow Lunge.
+    - Phase 2: opens with Call the Hollow (Mindbender adds); adds Entropic Volley.
+    - Phase 3: opens with Unmaking (pull + heavy slam); adds Collapse.
+
+**Greataxe** (two-handed axe, user request)
+- New weapon type: 15 base tiers generated from the Claymore line by `tools/generate_greataxe_line.gd` (same levels/requirements, +10% damage for a slightly slower swing). It uses the pack's Double Axe model, the heavy animation family, a 2x4 inventory footprint and a 5% base crit.
+- **Stance A, Earthquake** (charged, from RMB):
+  - A 3m slam, then a 6m field of rough ground (`EarthquakeField`) that slows enemies on it.
+  - When you leave the field or use a Warcry it ruptures for 60% of the slam's damage on everything inside. Otherwise it fizzles after 12s; at most 3 fields at once.
+- **Stance B, Shatter** (charged): a crushing overhead arc that applies 3 Armour Shred. Enemies it kills burst for 40% of the blow to everything within 3m.
+
+**Warcries** (skill-bar abilities tagged Warcry; they keep cooldowns, unlike spells)
+- Battle Cry: 20% more damage (+1% per level) for 6s.
+- Intimidating Shout: enemies within 8m are Intimidated for 6s, taking 20% increased damage.
+- Seismic Cry: Kinetic damage within 7m and a knockback.
+- Every Warcry fires `EventBus.warcry_used`, which ruptures Earthquake fields. Skill Tomes can drop all three.
+
+**Fixes**
+- An enemy projectile whose shooter died in flight errored on impact (`Projectile`); it now lands without its source.
+
+**Tests:** new `tests/bosses/` (59 checks: each Figment boss profile, every ability kind on a live player, phases and invulnerability, fragments and sets, Reality Engine entries, both Pinnacle arenas end to end). `tests/combat/test_stances.gd` gains Earthquake, Shatter and the three Warcries. The spell-rule tests exempt Warcries. The portal test stops loot being walked up before and after the restore (the player stands beside it), a flake made likelier by more drops per kill.
+
+---
+
 ## 2026-10-08 — v4.37: Band of Wishes, hold-to-charge stances, slower weapons, defence mods by base (user requests)
 
 - **Mythic: Band of Wishes** (user design): a ring with no implicit whose only modifier is "Reflects the modifiers of your other Ring".

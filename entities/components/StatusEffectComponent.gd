@@ -201,6 +201,9 @@ func apply_timed_effect(effect_id: String, duration: float) -> void:
 	_timers[effect_id] = maxf(_timers.get(effect_id, 0.0), duration)
 	_emit_applied(effect_id)
 
+## Intimidating Shout: takes more damage of every type.
+const INTIMIDATED_DAMAGE_TAKEN := 0.2
+
 ## Pallid enemies deal less damage.
 func get_outgoing_damage_multiplier() -> float:
 	return 1.0 - PALLID_DAMAGE_REDUCTION if has_effect("pallid") else 1.0
@@ -239,6 +242,8 @@ func get_damage_taken_multiplier(damage_type: Constants.DamageType) -> float:
 	var multiplier := 1.0
 	if has_effect("unraveling") and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.ESOTERIC:
 		multiplier *= 1.0 + UNRAVELING_DAMAGE_TAKEN_PERCENT
+	if has_effect("intimidated"):
+		multiplier *= 1.0 + INTIMIDATED_DAMAGE_TAKEN
 	if damage_type == Constants.DamageType.FIRE:
 		multiplier *= get_scorch_multiplier()
 	return multiplier

@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="Weapon" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_f0tsk"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_4nq2h"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_n64u0"]
+
+[resource]
+script = ExtResource("2_4nq2h")
+weapon_type = "Greataxe"
+base_damage_min = 113.0
+base_damage_max = 155.0
+rolled_base_damage = 0.0
+scaling_grade = 0
+native_damage_type = 0
+infused_damage_type = -1
+is_two_handed = true
+is_ranged = false
+ammo_type = 0
+magazine_size = 12
+fire_mode = 0
+pellet_count = 1
+pellet_spread_degrees = 0.0
+fire_rate = 0.0
+cycle_time = 0.0
+reload_time = 1.4
+reload_per_shell = false
+skill_ids = Array[String]([])
+is_main_hand = true
+is_offhand = false
+primary_scaling_stat = "strength"
+secondary_scaling_stat = ""
+is_conduit = false
+conduit_stance_type = ""
+spell_page_tag = ""
+unleash_copy_count = 0
+spell_page_modifier = ""
+stance_buff = ""
+item_id = "gen_greataxe_colossus_axe"
+display_name = "Colossus Axe"
+rarity = 0
+equip_slot = 4
+max_sockets = 5
+sockets = 0
+socketed = Array[ExtResource("3_n64u0")]([])
+quality = 0
+sockets_rolled = false
+tolerance = 0
+tolerance_max = 0
+item_type = &""
+affixes = Array[ExtResource("1_f0tsk")]([])
+flavor_text = "Heavy Cleave"
+unique_id = ""
+icon_path = ""
+is_corrupted = false
+is_craftable = true
+item_level = 79
+base_line_id = "greataxe_line1"
+stat_requirement = 0
+stat_requirement_value = 39.5
+level_requirement = 68
+strength_requirement = 72
+agility_requirement = 0
+intellect_requirement = 0

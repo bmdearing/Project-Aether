@@ -64,7 +64,7 @@ func _physics_process(delta: float) -> void:
 
 func _sibling_attacking() -> bool:
 	var ranged := _enemy.get_node_or_null("RangedAttack") as EnemyRangedAttack
-	return ranged != null and ranged.is_attacking()
+	return ranged != null and ranged.is_attacking() or _enemy.is_casting()
 
 func _enter_telegraph() -> void:
 	_state = State.TELEGRAPH

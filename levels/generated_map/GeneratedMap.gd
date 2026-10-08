@@ -139,6 +139,7 @@ func _build_layout() -> void:
 
 func _spawn_vault_boss(pos: Vector3) -> void:
 	_boss = FIGMENT_BOSS_SCENE.instantiate()
+	_boss.profile_id = FigmentBoss.pick_profile_id()  # seeded, so a portal return rebuilds the same boss
 	_spawn_enemy(_boss, pos)
 
 func get_living_enemy_count() -> int:
@@ -476,41 +477,29 @@ func _spawn_player() -> void:
 const PACK_RING_RADIUS := 1.8
 const PACK_CENTER_JITTER := 2.5
 
-## One pack per non-start room; the Vault's elite pack holds its main floor
-## (the boss already owns the platform, see _build_split_floor()).
+## One pack per room except the start and the Vault: the Vault holds only
+## its boss (FigmentBoss; the elites that used to guard it are now bosses).
 func _spawn_enemies() -> void:
 	if layout.kind != MapLayout.Kind.ROOMS:
 		_spawn_enemies_open()
 		return
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
-		if room.is_start:
+		if room.is_start or room.is_vault:
 			continue
-		var center := _cell_to_world(cell)
-		var table: Array = Constants.ENEMY_PACKS_NORMAL
-		if room.is_vault:
-			var main_depth := ROOM_FOOTPRINT - JUMP_PLATFORM_DEPTH - JUMP_GAP_DEPTH
-			center += Vector3(0, 0, -ROOM_FOOTPRINT / 2.0 + main_depth / 2.0)
-			table = Constants.ENEMY_PACKS_VAULT_ELITE
-		else:
-			center += Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))
-		_spawn_pack(EnemyRoster.roll_pack(table), center)
+		var center := _cell_to_world(cell) + Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))
+		_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_NORMAL), center)
 
-## Open layouts: packs_per_cell packs near each cell's centre; the Vault's
-## elite pack waits between the boss dais and the way in.
+## Open layouts: packs_per_cell packs near each cell's centre; the Vault
+## holds only its boss.
 const OPEN_PACK_SPREAD := 0.2
-const VAULT_PACK_OFFSET := 9.0
 
 func _spawn_enemies_open() -> void:
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
-		if room.is_start:
+		if room.is_start or room.is_vault:
 			continue
 		var center := _cell_to_world(cell)
-		if room.is_vault:
-			var toward_start := (_cell_to_world(graph.start_cell) - center).normalized()
-			_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_VAULT_ELITE), center + toward_start * VAULT_PACK_OFFSET)
-			continue
 		for i in randi_range(layout.packs_per_cell.x, layout.packs_per_cell.y):
 			var offset := Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)) * cell_size * OPEN_PACK_SPREAD
 			_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_NORMAL), center + offset)

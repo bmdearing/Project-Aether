@@ -65,7 +65,7 @@ func _physics_process(delta: float) -> void:
 
 func _sibling_attacking() -> bool:
 	var melee := _enemy.get_node_or_null("MeleeAttack") as EnemyMeleeAttack
-	return melee != null and melee.is_attacking()
+	return melee != null and melee.is_attacking() or _enemy.is_casting()
 
 func _enter_windup() -> void:
 	_state = State.WINDUP

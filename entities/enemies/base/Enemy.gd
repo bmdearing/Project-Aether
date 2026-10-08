@@ -781,6 +781,8 @@ func _spawn_slate_pickup(slate: Slate) -> void:
 ## ignore_armor: War Pick's Armor Pierce.
 func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false, is_dot: bool = false, ignore_armor: bool = false) -> bool:
 	_last_combat_msec = Time.get_ticks_msec()
+	if invulnerable:
+		return false
 	var show_number := health.is_alive()
 	if can_evade and not is_spell and evasion_value > 0.0:
 		if randf() < DamageCalculator.dodge_chance(evasion_value):
@@ -849,8 +851,30 @@ func _compute_item_level() -> int:
 	var area_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
 	return area_level + Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
 
+## Set by a BossBrain child: abilities, phases and the casting lock.
+var boss_brain: BossBrain
+## Phase transitions: hits land but deal nothing.
+var invulnerable: bool = false
+
+func is_casting() -> bool:
+	return boss_brain != null and boss_brain.casting
+
+## Base damage boss abilities scale from: the boss's own attack damage.
+func get_ability_base_damage() -> float:
+	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
+	var ranged := get_node_or_null("RangedAttack") as EnemyRangedAttack
+	var base := melee.damage_amount if melee else (ranged.damage_amount if ranged else 20.0)
+	return base * get_outgoing_damage_multiplier()
+
+## Damage type for abilities that don't set their own (BossAbility.damage_type -1).
+func get_ability_damage_type() -> int:
+	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
+	return melee.damage_type if melee else (definition.damage_type if definition else Constants.DamageType.KINETIC)
+
 ## Rooted in place from an attack's wind-up until its animation finishes.
 func is_attack_locked() -> bool:
+	if is_casting():
+		return true
 	for path in ["MeleeAttack", "RangedAttack"]:
 		var attack := get_node_or_null(path)
 		if attack and attack.has_method("is_attacking") and attack.is_attacking():

@@ -130,7 +130,7 @@ func _build_row(entry: Dictionary) -> HBoxContainer:
 
 	var cost: int = entry.get("cost", 0)
 	var cost_label := Label.new()
-	cost_label.text = "Free" if cost <= 0 else "%d Gold" % cost
+	cost_label.text = entry.get("cost_text", "Free" if cost <= 0 else "%d Gold" % cost)
 	cost_label.custom_minimum_size = Vector2(90, 0)
 	row.add_child(cost_label)
 
@@ -152,7 +152,7 @@ func _on_buy_pressed(entry: Dictionary, buy_button: Button, cost_label: Label) -
 	# An on_buy that returns false (e.g. no inventory room) is refunded.
 	if on_buy.is_valid() and on_buy.call() == false:
 		GameState.gold += cost
-		cost_label.text = "No room"
+		cost_label.text = entry.get("fail_text", "No room")
 		_refresh_gold_label()
 		return
 	_refresh_gold_label()

@@ -26,6 +26,8 @@ enum MeleeStanceType {
 	CRACK,
 	ENTANGLE,
 	PRESSURE_BLAST,
+	EARTHQUAKE,
+	SHATTER,
 	# PRESSURE_FIST_STANCE_B - deferred, do not add yet (per the brief)
 }
 

@@ -47,6 +47,7 @@ var _trailing_fraction: float = 1.0
 var _trail_speed: float = 0.0  # fraction/sec, set whenever a new trail starts
 var _ward_back: ColorRect
 var _ward_fill: ColorRect
+var _frame: BarFrame
 const WARD_HEIGHT := 6.0
 
 func _ready() -> void:
@@ -98,14 +99,20 @@ func _ready() -> void:
 	bar.material = _shader_mat
 	bar.color = Color.WHITE
 	add_child(bar)
-	var frame := BarFrame.new()
-	frame.position = bar.position
-	frame.size = bar.size
-	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(frame)
+	_frame = BarFrame.new()
+	_frame.position = bar.position
+	_frame.size = bar.size
+	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_frame)
 
 func set_boss_name(text: String) -> void:
 	_label.text = text
+
+## Diamonds on the frame where the boss changes phase (health fractions).
+func set_phase_marks(marks: Array[float]) -> void:
+	if _frame.marks != marks:
+		_frame.marks = marks
+		_frame.queue_redraw()
 
 func set_ward(current: float, max_value: float) -> void:
 	_ward_back.visible = max_value > 0.0
@@ -132,9 +139,15 @@ func _process(delta: float) -> void:
 
 ## Gold frame with a faint inner line and diamond end caps over the shader bar.
 class BarFrame extends Control:
+	var marks: Array[float] = []
+
 	func _draw() -> void:
 		var rect := Rect2(Vector2.ZERO, size)
 		draw_rect(rect, AetherStyle.GOLD, false, 1.5)
 		draw_rect(rect.grow(-3), AetherStyle.GOLD_FAINT, false, 1.0)
 		AetherStyle.diamond(self, Vector2(0, size.y / 2.0), 8.0, AetherStyle.GLASS_SOLID, AetherStyle.GOLD)
 		AetherStyle.diamond(self, Vector2(size.x, size.y / 2.0), 8.0, AetherStyle.GLASS_SOLID, AetherStyle.GOLD)
+		for mark in marks:
+			var x := size.x * mark
+			draw_line(Vector2(x, 2), Vector2(x, size.y - 2), AetherStyle.GOLD, 1.5)
+			AetherStyle.diamond(self, Vector2(x, 0), 4.0, AetherStyle.GOLD_BRIGHT, AetherStyle.GOLD)

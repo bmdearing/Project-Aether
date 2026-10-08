@@ -206,6 +206,8 @@ var portal_map_state: Dictionary = {}
 var portals_opened: int = 0
 ## Set by the Hub return portal just before loading MAP_SCENE.
 var returning_through_portal: bool = false
+## Pinnacle boss id the arena should spawn (set by Pinnacle.enter()).
+var pending_pinnacle: String = ""
 
 func _on_player_died() -> void:
 	portal_map_state = {}

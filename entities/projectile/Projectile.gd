@@ -54,6 +54,8 @@ func _on_body_entered(body: Node3D) -> void:
 	if body is Enemy and _pierced.has(body.get_instance_id()):
 		return
 	AudioManager.play_at(SoundLib.get_impact_sound(_get_surface_type(body)), global_position, -3.0)
+	if not is_instance_valid(source):
+		source = null  # the shooter died while this was in flight
 	if source is Player:
 		_hit_enemy(body as Enemy)
 	else:
@@ -86,7 +88,7 @@ func _hit_enemy(enemy: Enemy) -> void:
 func _hit_player(player: Player) -> void:
 	if player == null:
 		return
-	var parried: bool = player.parry_handler and player.parry_handler.attempt_parry(source, player.ward)
+	var parried: bool = source != null and player.parry_handler and player.parry_handler.attempt_parry(source, player.ward)
 	if not parried:
 		player.take_damage(damage_amount, damage_type, source, Player.HitKind.SPELL if is_spell_projectile else Player.HitKind.ATTACK)
 	EventBus.enemy_attack_resolved.emit(source, player, true, parried)
