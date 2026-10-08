@@ -10,4 +10,3 @@ item_id = "scuffed_boots"
 display_name = "Scuffed Boots"
 equip_slot = 3
 max_sockets = 2
-icon_path = "res://assets/sprites/gear sets-1/1_part_012.png"

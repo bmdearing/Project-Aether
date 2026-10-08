@@ -544,7 +544,7 @@ func _build_weapon_indicator() -> void:
 
 class WeaponPlate extends Control:
 	var weapon_name: String = ""
-	var icon: Texture2D
+	var item: Item
 	var weapon_type: String = ""
 	var name_color: Color = AetherStyle.TEXT
 	var set_text: String = ""
@@ -554,9 +554,9 @@ class WeaponPlate extends Control:
 		AetherStyle.plate(self, Rect2(Vector2.ZERO, size))
 		var serif := AetherStyle.serif()
 		var numbers := AetherStyle.numbers()
-		var text_width := size.x - (66.0 if icon else 24.0)
-		if icon:
-			draw_texture_rect(icon, Rect2(size.x - 54.0, 8.0, 42.0, 42.0), false)
+		var text_width := size.x - (66.0 if item else 24.0)
+		if item:
+			IconArt.draw(self, item, Rect2(size.x - 54.0, 8.0, 42.0, 42.0))
 		AetherStyle.text(self, serif, Vector2(14, 28), weapon_name, 17, name_color, HORIZONTAL_ALIGNMENT_LEFT, text_width)
 		AetherStyle.text(self, serif, Vector2(14, 47), weapon_type, 12, AetherStyle.TEXT_DIM, HORIZONTAL_ALIGNMENT_LEFT, text_width)
 		AetherStyle.text(self, numbers, Vector2(14, size.y - 10.0), set_text, 12, AetherStyle.GOLD_DIM)
@@ -719,7 +719,7 @@ func _refresh_weapon_indicator() -> void:
 	_weapon_icon.item = weapon
 	_weapon_icon.tooltip_text = weapon.display_name if weapon else ""
 	_weapon_plate.weapon_name = weapon.display_name if weapon else "No weapon"
-	_weapon_plate.icon = load(weapon.icon_path) as Texture2D if weapon and weapon.icon_path != "" else null
+	_weapon_plate.item = weapon
 	_weapon_plate.weapon_type = weapon.weapon_type if weapon else ""
 	_weapon_plate.name_color = Constants.ITEM_RARITY_COLOR.get(weapon.rarity, AetherStyle.TEXT) if weapon else AetherStyle.TEXT_DIM
 	_weapon_plate.set_text = "Set %s" % ("A" if _player.equipment.active_weapon_set == 0 else "B")

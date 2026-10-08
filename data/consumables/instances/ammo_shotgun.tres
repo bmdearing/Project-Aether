@@ -10,7 +10,6 @@ rarity = 0
 equip_slot = 0
 max_sockets = 0
 flavor_text = "+12 Shotgun shells."
-icon_path = ""
 is_craftable = false
 ammo_type = 2
 amount = 12

@@ -535,13 +535,14 @@ Primary or Offhand via `Weapon.is_main_hand`/`is_offhand` instead
 are no longer equipment at all - see the Throwable Stack entry below.
 `ui/inventory/InventoryScreen.gd` (`B`) is a 3-column layout: a live
 stats column (left), a slot-grid inventory (center, excluding anything
-currently equipped), and a paper-doll equipment diagram (right, weapons
-flanking a center torso column, one ring on each side). Items with a
-real `icon_path` (`assets/sprites/` - a purchased dark-fantasy icon
-pack) show that icon via `ItemSlotButton`; anything without one yet
-still falls back to a colored square (rarity or damage-type color).
-`worn_pistol` deliberately has no icon - no firearm exists in that
-asset pack.
+currently equipped), and a paper-doll equipment diagram laid out like
+Path of Exile's (`InventoryScreen._layout_doll()`: every slot is its item
+footprint in inventory cells, weapons 2x4 flanking the body column). Every
+Item, Slate and currency id draws as a code-drawn vector icon
+(`ui/icons/IconArt.gd`, shown by the `ItemIcon` Control in the grid,
+`ItemSlotButton`, and the HUD weapon plate), fitted at its footprint aspect.
+New item types or currency ids need an arm in `IconArt._draw_key()`;
+unknown ones fall back to a gold orb with their first letter.
 
 **Throwable Stacks** (`data/items/ThrowableStack.gd`, Patch v3.5 Section
 3): a stackable inventory consumable, not an equipment slot - `Player.

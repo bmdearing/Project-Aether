@@ -10,4 +10,3 @@ item_id = "worn_gauntlets"
 display_name = "Worn Gauntlets"
 equip_slot = 2
 max_sockets = 2
-icon_path = "res://assets/sprites/gear sets-1/1_part_002.png"

@@ -12,4 +12,3 @@ item_id = "guardians_kite_shield"
 display_name = "Guardian's Kite Shield"
 equip_slot = 6
 max_sockets = 3
-icon_path = "res://assets/sprites/Dark fantasy Asset Pack 2_weapons and shields/shields/shield_split/10_part_001.png"

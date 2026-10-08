@@ -1,7 +1,7 @@
 extends Node
 ## Screenshots real UI states in the Hub for visual review.
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_ui.tscn --resolution 1920x1080 -- <out.png> <mode>
-## Modes: hud, inventory, character, abilities, fateboard, map, pause, shop, stash, card, sockets, uniques, death
+## Modes: hud, inventory, inventory_icons, icons, character, abilities, fateboard, map, pause, shop, stash, card, sockets, uniques, death
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -26,6 +26,8 @@ func _run() -> void:
 		"abilities":
 			_screen("abilities_screen").open()
 		"fateboard":
+			for slate_id in ["ember_lattice", "frostfire_nexus"]:
+				GameState.add_to_inventory(load("res://data/slates/instances/%s.tres" % slate_id).duplicate(true))
 			_screen("fate_board_editor").open()
 		"map":
 			_screen("map_screen").open()
@@ -39,6 +41,11 @@ func _run() -> void:
 			_show_uniques()
 		"death":
 			EventBus.player_died.emit()
+		"icons":
+			_show_icon_sheet()
+		"inventory_icons":
+			_fill_icon_inventory()
+			_screen("inventory_screen").open(false)
 	await get_tree().create_timer(2.0).timeout
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(out)
@@ -134,3 +141,57 @@ func _show_uniques() -> void:
 		layer.add_child(card)
 		card.display_item(UniqueRoller.build(UniqueCatalog.get_def(ids[i]), 80))
 		card.position = Vector2(40 + i * 470, 60)
+
+## Every IconArt key at its footprint: gear types, currency, Slates, Figments.
+func _show_icon_sheet() -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	get_tree().root.add_child(layer)
+	var bg := ColorRect.new()
+	bg.color = Color(0.05, 0.05, 0.07)
+	bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	layer.add_child(bg)
+	var flow := HFlowContainer.new()
+	flow.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	flow.offset_left = 8
+	flow.offset_top = 8
+	flow.add_theme_constant_override("h_separation", 6)
+	flow.add_theme_constant_override("v_separation", 6)
+	layer.add_child(flow)
+	var contents: Array = []
+	for key in FootprintTable.get_instance().footprints.keys():
+		contents.append(StringName(key))
+	for key in ["helmet", "gloves", "boots", "shield", "gauntlet", "bow"]:
+		contents.append(StringName(key))
+	for key in CurrencyText.get_instance().names.keys():
+		contents.append(StringName(key))
+	for path in DirAccess.get_files_at("res://data/slates/instances"):
+		if path.ends_with(".tres"):
+			contents.append(load("res://data/slates/instances/" + path))
+	for tier in [1, 4, 7, 10]:
+		contents.append(FigmentRoller.roll(tier))
+	for k in 3:
+		contents.append(JewelRoller.roll(20, 1.0 + k * 2.0))
+	contents.append(load("res://data/abilities/skill_tome.gd").new())
+	for content in contents:
+		var fp := GridInventory.footprint_of(content)
+		if content is StringName:
+			fp = FootprintTable.footprint_for_type(content)
+		var cell := Panel.new()
+		cell.custom_minimum_size = Vector2(fp) * 40.0
+		var icon := ItemIcon.fill(cell)
+		icon.content = content
+		icon.count = 7 if content is StringName and fp == Vector2i.ONE else 0
+		flow.add_child(cell)
+
+## Inventory holding one of everything the icon pass covers.
+func _fill_icon_inventory() -> void:
+	for id in [&"absolution", &"anchoring", &"ascendant", &"elevation", &"forging", &"grafting", &"opening", &"quickening", &"recasting", &"reckoning", &"severance", &"tempering", &"brand_cold", &"brand_lightning", &"brand_armor", &"brand_prefix", &"edict_spell", &"edict_suffix", &"infusion_stone", &"shrivening_stone", &"shard_of_tharsis", &"crystallized_aether"]:
+		GameState.inventory.add(id, randi_range(1, 40))
+	for id in Pinnacle.FRAGMENT_IDS:
+		GameState.inventory.add(id, 1)
+	for tier in [2, 5, 9]:
+		GameState.add_to_inventory(FigmentRoller.roll(tier))
+	for path in ["aetheric_conduit", "ember_lattice", "frostfire_nexus", "stormtouched_array"]:
+		GameState.add_to_inventory(load("res://data/slates/instances/%s.tres" % path).duplicate(true))
+	GameState.add_to_inventory(JewelRoller.roll(20, 3.0))

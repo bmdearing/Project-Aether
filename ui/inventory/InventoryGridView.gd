@@ -52,29 +52,16 @@ func _make_block(entry: GridInventory.Entry) -> EntryBlock:
 	block.entry = entry
 	block.position = Vector2(entry.position) * cell_size + Vector2.ONE
 	block.size = Vector2(entry.size) * cell_size - Vector2(2, 2)
-	block.clip_text = true
-	block.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	block.add_theme_font_override("font", AetherStyle.numbers())
-	block.add_theme_font_size_override("font_size", 12)
-	block.text = _label_for(entry)
 	block.tooltip_text = describe(entry)
 	var border: Color = highlight.call(entry) if highlight.is_valid() else Color.TRANSPARENT
 	_style(block, _color_for(entry), border)
-	if not entry.is_currency() and entry.content is Item and entry.content.icon_path != "":
-		var icon := TextureRect.new()
-		icon.texture = load(entry.content.icon_path)
-		icon.set_anchors_preset(Control.PRESET_FULL_RECT)
-		icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		block.add_child(icon)
-		block.text = "" if entry.count <= 1 else str(entry.count)
+	var icon := ItemIcon.fill(block)
+	icon.content = entry.content
+	icon.count = entry.count
 	if not entry.is_currency() and entry.content is Item:
 		var overlay := SocketOverlay.new()
 		block.add_child(overlay)
 		overlay.item = entry.content
-		if entry.content is Jewel and entry.content.icon_path == "":
-			block.text = ""
 	block.pressed.connect(func(): entry_clicked.emit(self, entry))
 	block.mouse_entered.connect(func(): entry_hovered.emit(self, entry))
 	return block
@@ -96,11 +83,6 @@ static func describe(entry: GridInventory.Entry) -> String:
 		for a in t.get_explicits():
 			lines.append(("[Anchored] " if a.anchored else "") + a.description)
 	return "\n".join(lines)
-
-func _label_for(entry: GridInventory.Entry) -> String:
-	if entry.is_currency():
-		return "%s\n%d" % [CurrencyText.name_of(entry.content).replace("Orb of ", ""), entry.count]
-	return entry.content.display_name
 
 func _color_for(entry: GridInventory.Entry) -> Color:
 	if entry.is_currency():
@@ -145,8 +127,10 @@ class EntryBlock extends Button:
 	var entry: GridInventory.Entry
 
 	func _get_drag_data(at_position: Vector2) -> Variant:
-		var preview := ColorRect.new()
-		preview.color = Color(1, 1, 1, 0.35)
+		var preview := ItemIcon.new()
+		preview.content = entry.content
+		preview.count = entry.count
+		preview.modulate.a = 0.8
 		preview.size = size
 		preview.position = -at_position
 		var holder := Control.new()

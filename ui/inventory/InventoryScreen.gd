@@ -10,6 +10,10 @@ class_name InventoryScreen
 
 const EMPTY_SLOT_COLOR := Color(0.55, 0.45, 0.28, 0.5)
 const EMPTY_GRID_COLOR := Color(0.55, 0.45, 0.28, 0.3)
+## Pixels between paper doll slots. Each doll row's "cells" places its slot
+## in inventory cells (x, y, wide, tall), laid out like Path of Exile: weapons
+## flank the body column and every slot is its item's footprint.
+const DOLL_GAP := 4
 
 @onready var offense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/OffenseList
 @onready var defense_list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList/DefenseList
@@ -21,19 +25,19 @@ const EMPTY_GRID_COLOR := Color(0.55, 0.45, 0.28, 0.3)
 @onready var stats_panel: VBoxContainer = $HBox/StatsPanel
 @onready var hint_label: Label = $HBox/SidePanel/HintLabel
 
-@onready var slot_primary_weapon: ItemSlotButton = $HBox/SidePanel/PaperDoll/LeftColumn/PrimaryWeapon
-@onready var slot_ring_left: ItemSlotButton = $HBox/SidePanel/PaperDoll/LeftColumn/RingLeft
-@onready var slot_helmet: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/Helmet
-@onready var slot_amulet: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/Amulet
-@onready var slot_body_armour: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/BodyArmour
-@onready var slot_belt: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/Belt
-@onready var slot_gloves: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/BottomRow/Gloves
-@onready var slot_boots: ItemSlotButton = $HBox/SidePanel/PaperDoll/CenterColumn/BottomRow/Boots
-@onready var slot_offhand: ItemSlotButton = $HBox/SidePanel/PaperDoll/RightColumn/Offhand
-@onready var slot_ring_right: ItemSlotButton = $HBox/SidePanel/PaperDoll/RightColumn/RingRight
+@onready var slot_primary_weapon: ItemSlotButton = $HBox/SidePanel/PaperDoll/PrimaryWeapon
+@onready var slot_ring_left: ItemSlotButton = $HBox/SidePanel/PaperDoll/RingLeft
+@onready var slot_helmet: ItemSlotButton = $HBox/SidePanel/PaperDoll/Helmet
+@onready var slot_amulet: ItemSlotButton = $HBox/SidePanel/PaperDoll/Amulet
+@onready var slot_body_armour: ItemSlotButton = $HBox/SidePanel/PaperDoll/BodyArmour
+@onready var slot_belt: ItemSlotButton = $HBox/SidePanel/PaperDoll/Belt
+@onready var slot_gloves: ItemSlotButton = $HBox/SidePanel/PaperDoll/Gloves
+@onready var slot_boots: ItemSlotButton = $HBox/SidePanel/PaperDoll/Boots
+@onready var slot_offhand: ItemSlotButton = $HBox/SidePanel/PaperDoll/Offhand
+@onready var slot_ring_right: ItemSlotButton = $HBox/SidePanel/PaperDoll/RingRight
 
 @onready var side_panel: VBoxContainer = $HBox/SidePanel
-@onready var paper_doll: HBoxContainer = $HBox/SidePanel/PaperDoll
+@onready var paper_doll: Control = $HBox/SidePanel/PaperDoll
 var _weapon_set_label: Label
 var _weapon_set_button: Button
 ## Equipment / Behaviors tabs at the top left of the paper doll. Behaviors
@@ -69,23 +73,24 @@ func _ready() -> void:
 	add_to_group("blocking_menu")
 	close_button.pressed.connect(close)
 	_doll_rows = [
-		{"button": slot_helmet, "slot": Constants.EquipmentSlot.HELMET, "label": "Helmet"},
-		{"button": slot_body_armour, "slot": Constants.EquipmentSlot.BODY_ARMOUR, "label": "Body Armour"},
-		{"button": slot_gloves, "slot": Constants.EquipmentSlot.GLOVES, "label": "Gloves"},
-		{"button": slot_boots, "slot": Constants.EquipmentSlot.BOOTS, "label": "Boots"},
-		{"button": slot_primary_weapon, "slot": Constants.EquipmentSlot.PRIMARY_WEAPON, "label": "Primary Weapon"},
-		{"button": slot_offhand, "slot": Constants.EquipmentSlot.OFFHAND, "label": "Offhand"},
-		{"button": slot_amulet, "slot": Constants.EquipmentSlot.AMULET, "label": "Amulet"},
-		{"button": slot_belt, "slot": Constants.EquipmentSlot.BELT, "label": "Belt"},
-		{"button": slot_ring_left, "slot": Constants.EquipmentSlot.RING, "ring_index": 0, "label": "Ring 1"},
-		{"button": slot_ring_right, "slot": Constants.EquipmentSlot.RING, "ring_index": 1, "label": "Ring 2"},
+		{"button": slot_helmet, "slot": Constants.EquipmentSlot.HELMET, "label": "Helmet", "cells": Rect2i(3, 0, 2, 2), "ghost": &"helmet"},
+		{"button": slot_body_armour, "slot": Constants.EquipmentSlot.BODY_ARMOUR, "label": "Body Armour", "cells": Rect2i(3, 2, 2, 3), "ghost": &"body_armour"},
+		{"button": slot_gloves, "slot": Constants.EquipmentSlot.GLOVES, "label": "Gloves", "cells": Rect2i(1, 4, 2, 2), "ghost": &"gloves"},
+		{"button": slot_boots, "slot": Constants.EquipmentSlot.BOOTS, "label": "Boots", "cells": Rect2i(5, 4, 2, 2), "ghost": &"boots"},
+		{"button": slot_primary_weapon, "slot": Constants.EquipmentSlot.PRIMARY_WEAPON, "label": "Primary Weapon", "cells": Rect2i(0, 0, 2, 4), "ghost": &"shortsword"},
+		{"button": slot_offhand, "slot": Constants.EquipmentSlot.OFFHAND, "label": "Offhand", "cells": Rect2i(6, 0, 2, 4), "ghost": &"kite_shield"},
+		{"button": slot_amulet, "slot": Constants.EquipmentSlot.AMULET, "label": "Amulet", "cells": Rect2i(5, 2, 1, 1), "ghost": &"amulet"},
+		{"button": slot_belt, "slot": Constants.EquipmentSlot.BELT, "label": "Belt", "cells": Rect2i(3, 5, 2, 1), "ghost": &"belt"},
+		{"button": slot_ring_left, "slot": Constants.EquipmentSlot.RING, "ring_index": 0, "label": "Ring 1", "cells": Rect2i(2, 3, 1, 1), "ghost": &"ring"},
+		{"button": slot_ring_right, "slot": Constants.EquipmentSlot.RING, "ring_index": 1, "label": "Ring 2", "cells": Rect2i(5, 3, 1, 1), "ghost": &"ring"},
 	]
 	for row in _doll_rows:
 		(row["button"] as ItemSlotButton).pressed.connect(_on_doll_slot_pressed.bind(row))
 		(row["button"] as ItemSlotButton).gui_input.connect(_on_doll_slot_input.bind(row))
+	inventory_grid.cell_size = 52
+	_layout_doll()
 	_build_weapon_set_indicator()
 	_build_behaviors_panel()
-	inventory_grid.cell_size = 52
 	inventory_grid.entry_clicked.connect(_on_entry_clicked)
 	inventory_grid.entry_right_clicked.connect(_on_entry_right_clicked)
 	inventory_grid.entry_hovered.connect(_on_entry_hovered)
@@ -96,6 +101,19 @@ func _ready() -> void:
 	inventory_grid.drop_failed.connect(func(): status_label.text = "That doesn't fit there.")
 	_ammo_label = Label.new()
 	inventory_panel.add_child(_ammo_label)
+
+## Sizes the doll slots from inventory cells so equipped icons match the grid.
+func _layout_doll() -> void:
+	var pitch := inventory_grid.cell_size + DOLL_GAP
+	var extent := Vector2i.ZERO
+	for row in _doll_rows:
+		var cells: Rect2i = row["cells"]
+		var button: ItemSlotButton = row["button"]
+		button.position = Vector2(cells.position * pitch)
+		button.size = Vector2(cells.size * pitch - Vector2i(DOLL_GAP, DOLL_GAP))
+		button.ghost_key = row["ghost"]
+		extent = extent.max(cells.end)
+	paper_doll.custom_minimum_size = Vector2(extent * pitch - Vector2i(DOLL_GAP, DOLL_GAP))
 
 ## Label and toggle showing which weapon set is active.
 func _build_weapon_set_indicator() -> void:
@@ -627,18 +645,16 @@ func _refresh_stats() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	StatSummaryBuilder.refresh(offense_list, defense_list, misc_list, player)
 
-func _style_slot_button(button: ItemSlotButton, item: Item, count: int = 1) -> void:
-	button.text = "%s x%d" % [item.display_name, count] if count > 1 else item.display_name
-	if item.icon_path != "":
-		button.text = ""  # the icon stands in for the name, as in the grid
+func _style_slot_button(button: ItemSlotButton, item: Item) -> void:
+	button.text = ""
 	button.tooltip_text = item.display_name  # non-empty just to trigger Godot's tooltip system - ItemCard replaces the actual content
 	button.item = item
 	button.disabled = false
 	_apply_button_color(button, _item_color(item))
 
 func _style_empty_button(button: ItemSlotButton, label: String) -> void:
-	button.text = label
-	button.tooltip_text = ""
+	button.text = ""
+	button.tooltip_text = label
 	button.item = null
 	_apply_button_color(button, EMPTY_SLOT_COLOR if label != "" else EMPTY_GRID_COLOR)
 

@@ -58,7 +58,6 @@ item_type = &""
 affixes = Array[ExtResource("1_1125a")]([SubResource("Resource_qugij")])
 flavor_text = "Heavy Cleave"
 unique_id = ""
-icon_path = ""
 is_corrupted = false
 is_craftable = true
 item_level = 16

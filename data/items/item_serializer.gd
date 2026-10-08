@@ -50,7 +50,6 @@ static func to_dict(item: Item) -> Dictionary:
 		"max_sockets": item.max_sockets,
 		"flavor_text": item.flavor_text,
 		"unique_id": item.unique_id,
-		"icon_path": item.icon_path,
 		"affixes": affixes,
 		"is_corrupted": item.is_corrupted,
 		"is_craftable": item.is_craftable,
@@ -143,7 +142,6 @@ static func from_dict(d: Dictionary) -> Item:
 	item.max_sockets = d.get("max_sockets", 0)
 	item.flavor_text = d.get("flavor_text", "")
 	item.unique_id = d.get("unique_id", "")
-	item.icon_path = d.get("icon_path", "")
 	item.is_corrupted = d.get("is_corrupted", false)
 	item.is_craftable = d.get("is_craftable", true)
 

@@ -2,7 +2,7 @@ extends Control
 class_name SocketOverlay
 ## Drawn over an item's art: its sockets while the parent is hovered (or
 ## always, with the Always Show Item Sockets setting), a filled socket
-## showing its jewel's rarity. A Jewel without an icon draws as a gem.
+## showing its jewel's rarity.
 
 const SOCKET_BG := Color(0.02, 0.02, 0.04, 0.85)
 const MAX_STEP := 30.0
@@ -28,17 +28,11 @@ func _ready() -> void:
 	_update()
 
 func _update() -> void:
-	visible = _shows_jewel() or (item != null and item.sockets > 0 and (_hovered or GameState.always_show_sockets))
+	visible = item != null and item.sockets > 0 and (_hovered or GameState.always_show_sockets)
 	queue_redraw()
-
-func _shows_jewel() -> bool:
-	return item is Jewel and item.icon_path == ""
 
 func _draw() -> void:
 	if item == null:
-		return
-	if _shows_jewel():
-		_draw_jewel()
 		return
 	var count := item.sockets
 	var cols := 2 if count > 1 and GridInventory.footprint_of(item).x >= 2 else 1
@@ -58,11 +52,3 @@ func _draw() -> void:
 		if i < jewels.size():
 			var colour: Color = Constants.ITEM_RARITY_COLOR.get(jewels[i].rarity, Color.WHITE)
 			AetherStyle.diamond(self, centre, radius * 0.75, colour.darkened(0.25), colour.lightened(0.3))
-
-func _draw_jewel() -> void:
-	var colour: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
-	var centre := size / 2.0
-	var half := minf(size.x, size.y) * 0.32
-	draw_circle(centre, half * 1.2, Color(colour, 0.12))
-	AetherStyle.diamond(self, centre, half, colour.darkened(0.45), colour)
-	AetherStyle.diamond(self, centre - Vector2(0, half * 0.2), half * 0.4, colour.lightened(0.4), Color(0, 0, 0, 0))

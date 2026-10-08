@@ -7,6 +7,21 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.42: Code-drawn item icons, compact paper doll (user request)
+
+- **Every inventory thing has an icon now.** The old sprite packs (only 10 items had a picture) are no longer used. `IconArt` draws vector icons in code, and `ItemIcon` shows them in the grid, stash, paper doll, shop rows, Fate Board palette and the HUD weapon plate.
+  - **Currency:** each Orb is a coloured sphere with its own symbol (anchor for Anchoring, dice for Reckoning, ...). Brands are hexagonal plates with their category's glyph (flame, snowflake, bolt, shield, P/S...). Edicts are scrolls with a coloured wax seal. Infusion/Shrivening Stones, the Shard of Tharsis and Crystallized Aether each have their own shape.
+  - **Maw Fragments** are four quarters of one toothed ring (Ash, Tides, Storms, Hollows), each in its own colour, with the rest of the ring shown faintly.
+  - **Figments** are diamond mirrors with the tier number on them, coloured from blue (tier 1) to red (tier 10).
+  - **Slates** show their actual tile shape in their damage-type colour (hybrids alternate colours).
+  - **Gear** gets a simple silhouette for every base type (swords, axes, polearms, bows, pistols, long guns, staves, books, shields, armour pieces, jewellery). These are placeholders until real models and renders exist.
+  - Icons keep their item's footprint aspect, so they fit any block or slot. Stack counts are drawn in the bottom-right corner. Item names are no longer printed on grid blocks; hover for the card.
+- **Paper doll laid out like Path of Exile.** Slots are now sized in inventory cells: weapons 2x4 either side, helmet 2x2, body 2x3, belt 2x1, rings and amulet 1x1, gloves and boots 2x2. The doll is much smaller and its icons are the same scale as the grid. Empty slots show a faint silhouette of what goes there; hover for the slot name.
+- `Item.icon_path` is removed, along with the item card's title icon. Old saves that carry it load fine (the key is ignored). `assets/sprites` is no longer referenced.
+- UI capture harness: new `icons` (contact sheet of every icon) and `inventory_icons` modes; the `fateboard` mode now puts two Slates in the palette.
+
+---
+
 ## 2026-10-08 — v4.41: Unique wiki, Unique stash tab, loot landing in reach (user request)
 
 - **Wiki (main menu).** A new Wiki button lists every Unique and Mythic (`UniqueWiki`), Mythics first, filterable.

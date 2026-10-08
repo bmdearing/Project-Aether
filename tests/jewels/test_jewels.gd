@@ -244,8 +244,10 @@ func _test_overlay() -> void:
 	GameState.always_show_sockets = false
 	EventBus.settings_changed.emit()
 	_check(not overlay.visible, "turning the setting off hides them again")
-	overlay.item = _jewel({"cast_speed": 4.0})
-	_check(overlay.visible, "a jewel without art draws as a gem")
+	var jewel := _jewel({"cast_speed": 4.0})
+	overlay.item = jewel
+	_check(not overlay.visible, "a socketless jewel leaves the overlay hidden")
+	_check(IconArt.key_of(jewel) == &"jewel", "a jewel draws as a gem icon")
 	GameState.always_show_sockets = saved_setting
 	button.queue_free()
 	await _frames(1)

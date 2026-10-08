@@ -18,4 +18,3 @@ display_name = "Frayed Belt"
 equip_slot = 10
 max_sockets = 1
 affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
-icon_path = "res://assets/sprites/gear sets-1/1_part_016.png"

@@ -41,12 +41,6 @@ class_name Item
 @export var flavor_text: String = ""
 ## Set on Uniques and Mythics: their UniqueCatalog id.
 @export var unique_id: String = ""
-## res:// path to a 64x64 icon (assets/sprites/) shown instead of the
-## flat rarity/damage-type color square - a String (not a Texture2D
-## reference) so ItemSerializer's plain-Dictionary rolled-item save data
-## stays JSON-safe. Empty means no icon exists yet - callers fall back to
-## the color square exactly as before.
-@export var icon_path: String = ""
 
 ## Shard of Tharsis. is_corrupted records that a Shard was used (Orbs then
 ## only allow Opening and Tempering); is_craftable goes false with it and

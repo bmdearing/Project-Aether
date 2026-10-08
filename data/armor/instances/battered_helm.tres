@@ -9,4 +9,3 @@ armor_value = 14.0
 item_id = "battered_helm"
 display_name = "Battered Helm"
 max_sockets = 2
-icon_path = "res://assets/sprites/gear sets-1/1_part_001.png"

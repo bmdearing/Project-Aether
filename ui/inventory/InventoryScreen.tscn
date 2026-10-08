@@ -74,77 +74,46 @@ autowrap_mode = 3
 theme_override_font_sizes/font_size = 13
 text = "Click an item to equip it, click an equipped slot to unequip it. Hover for its stat card (hold Alt for more)."
 
-[node name="PaperDoll" type="HBoxContainer" parent="HBox/SidePanel"]
-custom_minimum_size = Vector2(0, 430)
-theme_override_constants/separation = 10
+[node name="PaperDoll" type="Control" parent="HBox/SidePanel"]
+size_flags_horizontal = 4
 
-[node name="LeftColumn" type="VBoxContainer" parent="HBox/SidePanel/PaperDoll"]
-size_flags_horizontal = 3
-theme_override_constants/separation = 6
-
-[node name="RingLeft" type="Button" parent="HBox/SidePanel/PaperDoll/LeftColumn"]
-custom_minimum_size = Vector2(0, 56)
+[node name="PrimaryWeapon" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 
-[node name="PrimaryWeapon" type="Button" parent="HBox/SidePanel/PaperDoll/LeftColumn"]
-custom_minimum_size = Vector2(0, 200)
-size_flags_vertical = 3
+[node name="RingLeft" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 
-[node name="CenterColumn" type="VBoxContainer" parent="HBox/SidePanel/PaperDoll"]
-size_flags_horizontal = 3
-theme_override_constants/separation = 6
-
-[node name="Helmet" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-custom_minimum_size = Vector2(0, 64)
+[node name="Gloves" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 
-[node name="Amulet" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-custom_minimum_size = Vector2(0, 56)
+[node name="Helmet" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 
-[node name="BodyArmour" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-custom_minimum_size = Vector2(0, 150)
-size_flags_vertical = 3
+[node name="BodyArmour" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 
-[node name="Belt" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-custom_minimum_size = Vector2(0, 52)
+[node name="Belt" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 
-[node name="BottomRow" type="HBoxContainer" parent="HBox/SidePanel/PaperDoll/CenterColumn"]
-theme_override_constants/separation = 6
-
-[node name="Gloves" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn/BottomRow"]
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
+[node name="Amulet" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 
-[node name="Boots" type="Button" parent="HBox/SidePanel/PaperDoll/CenterColumn/BottomRow"]
-custom_minimum_size = Vector2(0, 64)
-size_flags_horizontal = 3
+[node name="RingRight" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 
-[node name="RightColumn" type="VBoxContainer" parent="HBox/SidePanel/PaperDoll"]
-size_flags_horizontal = 3
-theme_override_constants/separation = 6
-
-[node name="RingRight" type="Button" parent="HBox/SidePanel/PaperDoll/RightColumn"]
-custom_minimum_size = Vector2(0, 56)
+[node name="Boots" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 
-[node name="Offhand" type="Button" parent="HBox/SidePanel/PaperDoll/RightColumn"]
-custom_minimum_size = Vector2(0, 200)
-size_flags_vertical = 3
+[node name="Offhand" type="Button" parent="HBox/SidePanel/PaperDoll"]
 clip_text = true
 script = ExtResource("2")
 

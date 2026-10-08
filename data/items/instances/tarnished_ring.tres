@@ -18,4 +18,3 @@ display_name = "Tarnished Ring"
 equip_slot = 11
 max_sockets = 1
 affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
-icon_path = "res://assets/sprites/Dark fantasy Asset Pack V2.0/rings/rings_split/rings_part_001.png"

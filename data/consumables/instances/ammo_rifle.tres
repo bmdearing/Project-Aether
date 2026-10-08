@@ -10,7 +10,6 @@ rarity = 0
 equip_slot = 0
 max_sockets = 0
 flavor_text = "+15 Rifle rounds."
-icon_path = ""
 is_craftable = false
 ammo_type = 3
 amount = 15

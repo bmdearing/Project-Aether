@@ -22,4 +22,3 @@ display_name = "Crude Greatsword"
 equip_slot = 4
 max_sockets = 6
 affixes = Array[ExtResource("2")]([SubResource("SubResource_1")])
-icon_path = "res://assets/sprites/Dark fantasy Asset Pack 2_weapons and shields/weapons/weapon_split/10_part_005.png"

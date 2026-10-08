@@ -150,10 +150,7 @@ func _render_item(item: Item) -> void:
 	var badge_row := _add_type_badge(_item_badge(item), rarity_color)
 	if item.is_corrupted:
 		badge_row.add_child(_make_badge("CORRUPTED", CORRUPTED_BADGE_COLOR))
-	if item.icon_path != "":
-		_add_title_with_icon(item.display_name, rarity_color, item.icon_path)
-	else:
-		_add_title(item.display_name, rarity_color)
+	_add_title(item.display_name, rarity_color)
 	_add_subtitle(_item_type_line(item))
 	_add_separator()
 	if item is Weapon:
@@ -783,15 +780,6 @@ func _add_title(text: String, color: Color) -> void:
 	label.add_theme_color_override("font_color", color)
 	label.add_theme_font_size_override("font_size", 23)
 	_content().add_child(label)
-
-func _add_title_with_icon(text: String, color: Color, icon_path: String) -> void:
-	var icon := TextureRect.new()
-	icon.texture = load(icon_path)
-	icon.custom_minimum_size = Vector2(48, 48)
-	icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	icon.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	_content().add_child(icon)
-	_add_title(text, color)
 
 func _add_subtitle(text: String) -> void:
 	var label := Label.new()
