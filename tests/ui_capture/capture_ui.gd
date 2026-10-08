@@ -1,7 +1,7 @@
 extends Node
 ## Screenshots real UI states in the Hub for visual review.
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_ui.tscn --resolution 1920x1080 -- <out.png> <mode>
-## Modes: hud, inventory, character, abilities, fateboard, map, pause, shop, stash, card, death
+## Modes: hud, inventory, character, abilities, fateboard, map, pause, shop, stash, card, sockets, death
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -33,6 +33,8 @@ func _run() -> void:
 			_find_pause(hub).open()
 		"card":
 			_show_card(player)
+		"sockets":
+			_show_sockets()
 		"death":
 			EventBus.player_died.emit()
 	await get_tree().create_timer(2.0).timeout
@@ -88,3 +90,33 @@ func _show_card(player: Player) -> void:
 	card2.display_ability(player.ability_loadout.get_equipped(0), player.stat_sheet)
 	layer.add_child(card2)
 	card2.position = Vector2(860, 140)
+
+## Inventory with sockets always shown, jewels in the grid, and a socketed
+## item's card in its normal and Alt forms.
+func _show_sockets() -> void:
+	GameState.always_show_sockets = true
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 3
+	var socketed: Item = null
+	for k in 4:
+		var item := ItemRoller.roll(20, 3.0)
+		item.max_sockets = maxi(ItemRoller.get_socket_cap(item), 2)
+		item.sockets = item.max_sockets
+		for j in mini(k + 1, item.sockets):
+			item.socketed.append(JewelRoller.roll(20, 3.0, rng))
+		GameState.add_to_inventory(item)
+		socketed = item
+	for k in 5:
+		GameState.add_to_inventory(JewelRoller.roll(20, 1.5 + k * 0.3, rng))
+	_screen("inventory_screen").open(false)
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	get_tree().root.add_child(layer)
+	for alt in [false, true]:
+		var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+		layer.add_child(card)
+		card.display_item(socketed)
+		if alt:
+			card._showing_alt = true
+			card._render_alt_info()
+		card.position = Vector2(40 + (380 if alt else 0), 120)

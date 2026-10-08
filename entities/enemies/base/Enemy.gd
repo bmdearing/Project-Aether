@@ -207,6 +207,7 @@ func _install_model(model_scene: PackedScene, anim_set: AnimationSet, model_scal
 	model_forward_yaw_offset = yaw_offset
 	_model_root = model
 	_fit_body_to_model(model)
+	DrawDistance.apply(model, DrawDistance.ACTOR_RANGE)
 	var anim_tree := model.get_node_or_null("AnimationTree") as AnimationTree
 	if anim_tree and anim_set:
 		var controller := EnemyAnimationController.new()
@@ -484,7 +485,10 @@ func _physics_process(delta: float) -> void:
 	velocity.z += _pull.z + _knockback.z
 	_pull = Vector3.ZERO
 	_knockback = _knockback.move_toward(Vector3.ZERO, KNOCKBACK_FRICTION * delta)
-	move_and_slide()
+	# Standing still on the ground: nothing to resolve, so skip the physics
+	# query (most of a large pack is idle at any moment).
+	if not (is_on_floor() and velocity.is_zero_approx()):
+		move_and_slide()
 	_update_model(delta)
 
 ## Shrinks while the player hides in Dagger's Stealth stance.
@@ -707,6 +711,11 @@ func _maybe_drop_loot() -> void:
 			_spawn_pickup(figment)
 			return
 
+	if randf() <= JEWEL_DROP_CHANCE:
+		var rarity_mult: float = GameState.active_map.loot_rarity_multiplier if GameState.active_map else 1.0
+		_spawn_pickup(JewelRoller.roll(_compute_item_level(), rarity_mult))
+		return
+
 	if randf() <= AMMO_DROP_CHANCE:
 		var ammo := _roll_ammo_drop()
 		if ammo:
@@ -726,6 +735,8 @@ func _maybe_drop_loot() -> void:
 ## ranged weapon actually uses. Rolled independently of (and just before)
 ## the gear roll below, so it doesn't change any earlier drop's odds.
 const AMMO_DROP_CHANCE := 0.15
+## Socketable jewels (JewelRoller), rolled just before ammo.
+const JEWEL_DROP_CHANCE := 0.04
 
 func _roll_ammo_drop() -> Item:
 	var player := get_tree().get_first_node_in_group("player") as Player

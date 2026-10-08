@@ -18,6 +18,8 @@ const TAG_ALIASES := {"resource": &"mana", "movement": &"speed"}
 static var _cache: Dictionary = {}
 
 static func defs_for(item: Item) -> Array[ModifierDef]:
+	if item is Jewel:
+		return JewelModifierPool.defs_for(item)
 	var best_tier: int = clampi(ItemRoller.TIER_COUNT - maxi(item.item_level, 1), 1, ItemRoller.TIER_COUNT)
 	var defs: Array[ModifierDef] = []
 	if item is Weapon:

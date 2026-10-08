@@ -49,7 +49,11 @@ func set_rarity(rarity: int) -> void:
 				slate.rarity = Constants.SlateRarity.RARE
 
 func get_affix_limits(rarity: int) -> Vector2i:
-	var table: Dictionary = Constants.AFFIX_LIMITS_SLATE if is_slate else Constants.AFFIX_LIMITS_GEAR
+	var table: Dictionary = Constants.AFFIX_LIMITS_GEAR
+	if is_slate:
+		table = Constants.AFFIX_LIMITS_SLATE
+	elif resource is Jewel:
+		table = Constants.AFFIX_LIMITS_JEWEL
 	return table.get(rarity, Vector2i.ZERO)
 
 func get_explicits() -> Array[ItemAffix]:

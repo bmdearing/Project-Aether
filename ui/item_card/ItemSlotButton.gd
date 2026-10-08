@@ -40,6 +40,7 @@ var show_icon: bool = true:
 
 var _is_hovered: bool = false
 var _icon_rect: TextureRect
+var _sockets: SocketOverlay
 
 func _ready() -> void:
 	mouse_entered.connect(func(): _is_hovered = true)
@@ -50,11 +51,14 @@ func _ready() -> void:
 	_icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_icon_rect.visible = false
 	add_child(_icon_rect)
+	_sockets = SocketOverlay.new()
+	add_child(_sockets)
 	_refresh_icon()
 
 func _refresh_icon() -> void:
 	if _icon_rect == null:
 		return
+	_sockets.item = item if show_icon else null
 	if show_icon and item and item.icon_path != "":
 		_icon_rect.texture = load(item.icon_path)
 		_icon_rect.visible = true

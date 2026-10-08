@@ -136,6 +136,8 @@ func _along_vector(dir: Vector2i) -> Vector3:
 func _spawn(scene: PackedScene) -> Node3D:
 	var node := scene.instantiate() as Node3D
 	_parent.add_child(node)
+	var size := _local_bounds(node).size * node.scale
+	DrawDistance.apply(node, DrawDistance.range_for_size(maxf(size.x, maxf(size.y, size.z))))
 	return node
 
 ## Visible-mesh bounds in the node's local space, before its own scale and rotation.

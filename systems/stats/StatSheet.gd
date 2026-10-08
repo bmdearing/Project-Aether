@@ -176,7 +176,7 @@ func apply_equipment_affixes(items: Array[Item]) -> void:
 	increased_damage_generic = 0.0
 	increased_damage_by_type = {}
 	for item in items:
-		for affix in item.affixes:
+		for affix in item.get_effective_affixes():
 			if affix.stat_key == "increased_damage":
 				apply_affix(affix)
 

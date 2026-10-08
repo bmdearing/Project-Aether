@@ -15,6 +15,7 @@ static func load_and_apply() -> void:
 		GameState.fullscreen = bool(cfg.get_value(SECTION, "fullscreen", GameState.fullscreen))
 		GameState.field_of_view = float(cfg.get_value(SECTION, "field_of_view", GameState.field_of_view))
 		GameState.vsync = bool(cfg.get_value(SECTION, "vsync", GameState.vsync))
+		GameState.always_show_sockets = bool(cfg.get_value(SECTION, "always_show_sockets", GameState.always_show_sockets))
 	apply()
 
 static func save() -> void:
@@ -24,6 +25,7 @@ static func save() -> void:
 	cfg.set_value(SECTION, "fullscreen", GameState.fullscreen)
 	cfg.set_value(SECTION, "field_of_view", GameState.field_of_view)
 	cfg.set_value(SECTION, "vsync", GameState.vsync)
+	cfg.set_value(SECTION, "always_show_sockets", GameState.always_show_sockets)
 	cfg.save(PATH)
 
 static func apply() -> void:

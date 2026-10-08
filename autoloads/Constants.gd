@@ -501,6 +501,12 @@ const AFFIX_LIMITS_GEAR := {
 	ItemRarity.UNCOMMON: Vector2i(1, 1),
 	ItemRarity.RARE: Vector2i(3, 3),
 }
+## Jewels: up to two prefixes and two suffixes.
+const AFFIX_LIMITS_JEWEL := {
+	ItemRarity.COMMON: Vector2i(0, 0),
+	ItemRarity.UNCOMMON: Vector2i(1, 1),
+	ItemRarity.RARE: Vector2i(2, 2),
+}
 const AFFIX_LIMITS_SLATE := {
 	ItemRarity.COMMON: Vector2i(0, 0),
 	ItemRarity.UNCOMMON: Vector2i(1, 1),

@@ -62,6 +62,8 @@ static func to_dict(item: Item) -> Dictionary:
 		"base_line_id": item.base_line_id,
 		"item_level": item.item_level,
 	}
+	if not item.socketed.is_empty():
+		d["socketed"] = item.socketed.map(func(j: Item): return to_dict(j))
 	if item is SkillTome:
 		d["ability_id"] = item.ability_id
 		d["ability_path"] = item.ability_path
@@ -149,6 +151,12 @@ static func from_dict(d: Dictionary) -> Item:
 	item.affixes = affixes
 	item.sockets = d.get("sockets", 0)
 	item.sockets_rolled = d.get("sockets_rolled", false)
+	var jewels: Array[Item] = []
+	for j in d.get("socketed", []):
+		var jewel := from_dict(j)
+		if jewel:
+			jewels.append(jewel)
+	item.socketed = jewels
 	item.quality = d.get("quality", 0)
 	read_craft_state(item, d)
 
@@ -211,9 +219,12 @@ static func _new_of_class(tag: String) -> Item:
 		"FigmentItem": return FigmentItem.new()
 		"SkillTome": return SkillTome.new()
 		"AmmoPack": return AmmoPack.new()
+		"Jewel": return Jewel.new()
 	return Item.new()
 
 static func _class_tag(item: Item) -> String:
+	if item is Jewel:
+		return "Jewel"
 	if item is SkillTome:
 		return "SkillTome"
 	if item is AmmoPack:

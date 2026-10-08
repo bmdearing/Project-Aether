@@ -53,10 +53,12 @@ var _ammo_label: Label
 var _armed: StringName = &""
 var _resolver: CraftingResolver
 var _active_brands: ActiveBrands
+## A jewel picked up from the grid, waiting to be clicked into a socket.
+var _held_jewel: Jewel
 const ARMED_BORDER := Color(1.0, 0.82, 0.3)
 const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
 const PREVIEW_LINES := 5
-const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. C shows stats. Hold Alt over an item for details."
+const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. Right-click a Jewel to pick it up, then click an item to socket it; Ctrl+right-click an item to take its jewels out. C shows stats. Hold Alt over an item for details."
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -257,6 +259,7 @@ func open(show_stats: bool = false) -> void:
 	_resolver.currency = GameState.inventory
 	if _active_brands == null or _active_brands.carried != GameState.inventory:
 		_active_brands = ActiveBrands.new(GameState.inventory)
+	_held_jewel = null
 	_armed = &""
 	stats_panel.visible = show_stats
 	status_label.text = ""
@@ -268,6 +271,7 @@ func close() -> void:
 	_is_open = false
 	visible = false
 	_armed = &""
+	_held_jewel = null
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 ## C while the inventory is open: stats column on the left, grid on the right.
@@ -284,6 +288,8 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("ui_cancel"):
 		if _armed != &"":
 			_disarm()
+		elif _held_jewel:
+			_release_jewel()
 		else:
 			close()
 		get_viewport().set_input_as_handled()
@@ -305,6 +311,8 @@ func _is_equippable(item: Item) -> bool:
 func _on_entry_clicked(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
 	if _armed != &"" and not entry.is_currency():
 		_use_armed_on(entry.content)
+	elif _held_jewel and not entry.is_currency() and entry.content != _held_jewel:
+		_socket_into(entry.content)
 
 func _on_entry_right_clicked(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
 	status_label.text = ""
@@ -312,6 +320,12 @@ func _on_entry_right_clicked(_view: InventoryGridView, entry: GridInventory.Entr
 		_on_currency_right_clicked(entry.content)
 	elif _armed != &"":
 		_use_armed_on(entry.content)
+	elif Input.is_key_pressed(KEY_CTRL) and entry.content is Item and not entry.content.socketed.is_empty():
+		_unsocket_all(entry.content)
+	elif entry.content is Jewel:
+		_toggle_held_jewel(entry.content)
+	elif _held_jewel:
+		_socket_into(entry.content)
 	elif entry.content is Slate:
 		status_label.text = "Slates are placed from the Fate Board."
 	elif entry.content is FigmentItem:
@@ -320,6 +334,61 @@ func _on_entry_right_clicked(_view: InventoryGridView, entry: GridInventory.Entr
 		_equip_from_inventory(entry)
 	else:
 		status_label.text = "%s can't be equipped." % entry.content.display_name
+
+## ---- Jewels ---------------------------------------------------------
+
+func _toggle_held_jewel(jewel: Jewel) -> void:
+	if _held_jewel == jewel:
+		_release_jewel()
+		return
+	_armed = &""
+	_held_jewel = jewel
+	status_label.text = "Click an item with a free socket to set the Jewel. Esc or right-click it again to put it back."
+	inventory_grid.refresh()
+
+func _release_jewel() -> void:
+	_held_jewel = null
+	status_label.text = ""
+	inventory_grid.refresh()
+
+func _socket_into(target: Resource) -> void:
+	var jewel := _held_jewel
+	if not (target is Item) or not target.is_equipment():
+		status_label.text = "Jewels go into the sockets of gear."
+		return
+	var item := target as Item
+	if item.resource_path != "":
+		status_label.text = "Unequip this item first to socket it."
+		return
+	if item.free_sockets() <= 0:
+		status_label.text = "%s has no free socket." % item.display_name if item.sockets > 0 else "%s has no sockets." % item.display_name
+		return
+	GameState.remove_from_inventory(jewel)
+	item.socketed.append(jewel)
+	_held_jewel = null
+	status_label.text = "Jewel set into %s." % item.display_name
+	_after_socket_change(item)
+
+## Takes every jewel out of target and back into the grid, as far as room allows.
+func _unsocket_all(item: Item) -> void:
+	var moved := 0
+	for jewel in item.socketed.duplicate():
+		if not GameState.add_to_inventory(jewel):
+			break
+		item.socketed.erase(jewel)
+		moved += 1
+	status_label.text = "Removed %d jewel%s from %s." % [moved, "" if moved == 1 else "s", item.display_name]
+	if not item.socketed.is_empty():
+		status_label.text += " No room for the rest."
+	_after_socket_change(item)
+
+func _after_socket_change(item: Item) -> void:
+	EventBus.item_sockets_changed.emit(item)
+	if _equipment and _equipment.get_all_equipped_items().has(item):
+		_equipment.equipment_changed.emit()
+		_after_equipment_change()
+	else:
+		_build_inventory_grid()
 
 ## ---- Crafting -------------------------------------------------------
 
@@ -340,6 +409,7 @@ func _on_currency_right_clicked(id: StringName) -> void:
 		if _armed == id:
 			_disarm()
 			return
+		_held_jewel = null
 		_armed = id
 		status_label.text = "Click an item to use %s on it. Esc or right-click it again to put it back." % CurrencyText.name_of(id)
 	else:
@@ -352,6 +422,8 @@ func _disarm() -> void:
 	inventory_grid.refresh()
 
 func _highlight_for(entry: GridInventory.Entry) -> Color:
+	if _held_jewel and entry.content == _held_jewel:
+		return ARMED_BORDER
 	if not entry.is_currency():
 		return Color.TRANSPARENT
 	if entry.content == _armed:
@@ -493,10 +565,17 @@ func _equip_from_inventory(entry: GridInventory.Entry) -> void:
 	_after_equipment_change()
 
 func _on_doll_slot_input(event: InputEvent, row: Dictionary) -> void:
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT and _armed != &"":
-		var item := _equipment.get_equipped(row["slot"], row.get("ring_index", 0)) if _equipment else null
-		if item:
-			_use_armed_on(item)
+	if not (event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT):
+		return
+	var item := _equipment.get_equipped(row["slot"], row.get("ring_index", 0)) if _equipment else null
+	if item == null:
+		return
+	if _armed != &"":
+		_use_armed_on(item)
+	elif _held_jewel:
+		_socket_into(item)
+	elif event.ctrl_pressed and not item.socketed.is_empty():
+		_unsocket_all(item)
 
 func _on_doll_slot_pressed(row: Dictionary) -> void:
 	if _equipment == null:
@@ -507,6 +586,9 @@ func _on_doll_slot_pressed(row: Dictionary) -> void:
 		return
 	if _armed != &"":
 		_use_armed_on(item)
+		return
+	if _held_jewel:
+		_socket_into(item)
 		return
 	var copy := _inventory_copy(item)
 	if not GameState.add_to_inventory(copy):

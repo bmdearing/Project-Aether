@@ -228,7 +228,7 @@ func _check(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: EdictDef
 			if t.get_quality() >= Constants.QUALITY_CAP:
 				return E.QUALITY_CAPPED
 		&"opening":
-			if t.is_slate:
+			if t.is_slate or t.resource is Jewel:
 				return E.INVALID_TARGET
 			if t.sockets_rolled() or t.get_sockets() > 0:
 				return E.SOCKETS_ALREADY_ROLLED

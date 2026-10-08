@@ -69,6 +69,12 @@ func _make_block(entry: GridInventory.Entry) -> EntryBlock:
 		icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		block.add_child(icon)
 		block.text = "" if entry.count <= 1 else str(entry.count)
+	if not entry.is_currency() and entry.content is Item:
+		var overlay := SocketOverlay.new()
+		block.add_child(overlay)
+		overlay.item = entry.content
+		if entry.content is Jewel and entry.content.icon_path == "":
+			block.text = ""
 	block.pressed.connect(func(): entry_clicked.emit(self, entry))
 	block.mouse_entered.connect(func(): entry_hovered.emit(self, entry))
 	return block

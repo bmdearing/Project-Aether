@@ -36,6 +36,8 @@ func setup(tree: AnimationTree, anim_set: AnimationSet) -> void:
 	_apply_animation_set()
 	_apply_loop_modes()
 	_read_clip_speeds()
+	_tree.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_MANUAL
+	_lod_frame = randi() % FAR_STEP
 	_tree.active = true
 	_state_machine = _tree.get("parameters/playback")
 
@@ -204,8 +206,56 @@ func _pulse(condition: String) -> void:
 	if _tree == null or _dead:
 		return
 	_tree.set(CONDITION_PATH + condition, true)
+	_pulses += 1
 	get_tree().create_timer(CONDITION_PULSE_SEC).timeout.connect(_clear_condition.bind(condition))
 
 func _clear_condition(condition: String) -> void:
+	_pulses = maxi(_pulses - 1, 0)
 	if is_instance_valid(_tree):
 		_tree.set(CONDITION_PATH + condition, false)
+
+## ---- Level of detail ----------------------------------------------------
+## The tree is advanced by hand: every frame near the camera, every few
+## frames further out, and not at all while off screen or past the draw
+## distance, where nobody sees the pose. Anything gameplay waits on (an
+## attack, hit, stagger or death state, or a trigger about to fire) always
+## runs at full rate, so attack locks and death timings are unaffected.
+const LOD_NEAR := 20.0
+const LOD_FAR := 45.0
+const MID_STEP := 2
+const FAR_STEP := 4
+## A frozen enemy catches up at most this much time when it reappears.
+const MAX_CATCH_UP := 0.25
+const LOCOMOTION_STATES: Array[StringName] = [&"Idle", &"Walk", &"Run"]
+
+var _pending_delta: float = 0.0
+var _lod_frame: int = 0
+var _pulses: int = 0
+
+func _process(delta: float) -> void:
+	if _tree == null:
+		return
+	_pending_delta = minf(_pending_delta + delta, MAX_CATCH_UP)
+	var step := lod_step()
+	if step <= 0:
+		return
+	_lod_frame += 1
+	if _lod_frame % step != 0:
+		return
+	_tree.advance(_pending_delta)
+	_pending_delta = 0.0
+
+## Frames between updates: 1 = every frame, 0 = frozen.
+func lod_step() -> int:
+	if _dead or _pulses > 0 or (_state_machine and not LOCOMOTION_STATES.has(_state_machine.get_current_node())):
+		return 1
+	var camera := get_viewport().get_camera_3d() if is_inside_tree() else null
+	var model := _tree.get_parent() as Node3D
+	if camera == null or model == null:
+		return 1
+	var dist := camera.global_position.distance_to(model.global_position)
+	if dist < LOD_NEAR:
+		return 1
+	if dist > DrawDistance.ACTOR_RANGE or not camera.is_position_in_frustum(model.global_position + Vector3.UP):
+		return 0
+	return MID_STEP if dist < LOD_FAR else FAR_STEP

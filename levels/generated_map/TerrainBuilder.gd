@@ -233,8 +233,21 @@ func _add_ellipsoid(pos: Vector3, radius: float, height: float, material: Materi
 	if material:
 		mesh.material_override = material
 	body.add_child(mesh)
+	# Collide against a sphere cap fitted to the part above the ground
+	# (y = 0): a capsule sliding over a convex hull of the mesh cost
+	# 0.5-2.5ms per move_and_slide, so packs standing on mounds dragged the
+	# Dunes to single-digit fps. Sphere collisions are close to free.
+	var half := height / 2.0
+	var cap_height := half + pos.y
+	if cap_height <= 0.0:
+		return
+	var ground_t := clampf(-pos.y / half, -1.0, 1.0)
+	var footprint := radius * sqrt(1.0 - ground_t * ground_t)
+	var shape := SphereShape3D.new()
+	shape.radius = (footprint * footprint + cap_height * cap_height) / (2.0 * cap_height)
 	var collision := CollisionShape3D.new()
-	collision.shape = sphere.create_convex_shape()
+	collision.shape = shape
+	collision.position = Vector3(0, half - shape.radius, 0)  # tops coincide
 	body.add_child(collision)
 
 func _add_invisible_wall(pos: Vector3, size: Vector3) -> void:

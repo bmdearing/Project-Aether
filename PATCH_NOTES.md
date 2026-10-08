@@ -7,6 +7,38 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.34: Jewels and sockets, Dunes performance (user request)
+
+**Jewels**
+- New item type `Jewel` (`data/items/jewel.gd`). Up to 4 modifiers, 2 prefix + 2 suffix (`Constants.AFFIX_LIMITS_JEWEL`; Uncommon 1+1). Drops from enemies (`Enemy.JEWEL_DROP_CHANCE` 4%, rolled before ammo) via `JewelRoller`, with the usual rarity roll: Uncommon 1-2 modifiers, Rare 3-4.
+- Modifiers come from `JewelModifierPool`: 43 global modifiers taken from `ItemRoller.AFFIX_POOL` (attributes, Life/Mana, damage types, resistances, speeds, crit, ailment chance and damage, area). Judgment call on "stronger but lower bands": jewels get **3 tiers instead of gear's 5**, and the tiers are tighter. Tier 1 is 60% of gear's Tier 1 and each tier keeps 90% of the one above, so a jewel's worst roll still beats gear's worst tier, while its best stays under gear's best (sockets stack). All three numbers are constants at the top of the pool.
+- Crafting works as usual: `GearModifierPool.defs_for()` hands jewels to the jewel pool, so every Orb, Brand and Edict applies. Opening is refused, since jewels have no sockets of their own.
+- **Socketing** (inventory):
+  - Right-click a Jewel to pick it up (gold border), then click an item, in the grid or on the paper doll, to set it. Esc or right-clicking the jewel again puts it back.
+  - Ctrl+right-click an item to take its jewels back out.
+  - Hand-authored equipped bases (shared resources) must be unequipped first, the same rule as crafting.
+- Stored on `Item.socketed`, saved with the item. `Item.get_effective_affixes()` (own modifiers plus socketed jewels') now feeds every stat total in `EquipmentComponent` and `StatSheet`. Only the first `sockets` jewels count, in case a Corruption removes a socket.
+
+**Socket display**
+- Item art in the inventory grid and on the paper doll shows its sockets on hover (`SocketOverlay`): snake-ordered rings, with a gem in the jewel's rarity colour when filled. **Settings → Always Show Item Sockets** keeps them on. A jewel with no art yet draws as a gem.
+- Item cards no longer show the socket row unless a jewel is socketed. The main card folds jewel modifiers into the explicit lines (same stat sums into one line). **Alt** lists the explicits on their own, then a "Socketed (n/m)" section with each jewel modifier's range and tier.
+
+**Dunes performance** (user: unplayable with 64 enemies)
+- Measured with a new windowed probe (`tests/perf/perf_dunes.tscn`) on the real GPU: 3-4 fps with 64-80 enemies. Rendering wasn't the problem (hiding every enemy changed nothing; pausing them gave 145 fps).
+- **Root cause:** the dune mounds and edge ridges collided as convex hulls of a 24x10 sphere mesh. A capsule's `move_and_slide` against one cost ~2.5 ms (the floor costs ~20 µs). Packs spawn on the mounds, so physics took 30-45 ms per tick, and Godot then ran several ticks per frame to catch up. A coarse 42-point hull was still ~450 µs. Mounds and ridges now collide as a sphere cap fitted to the part above the ground (`TerrainBuilder._add_ellipsoid`); the visible mesh is unchanged. This change alone took it from ~3 fps to ~40 fps with 82 enemies.
+- **Enemy animation LOD** (`EnemyAnimationController.lod_step()`): the AnimationTree is advanced by hand.
+  - Every frame within 20m of the camera, every 2nd frame to 45m, every 4th beyond.
+  - Frozen while off screen or past the draw distance.
+  - Attack, hit, stagger and death states, and pending triggers, always run at full rate, because `is_attack_locked()` waits on the attack clip.
+- **Draw distance** (`DrawDistance`): enemy models stop drawing past 95m. Map props stop at 60m if small (<2.5m) or 100m if medium (<6m); large props are never culled.
+- Idle enemies standing on the ground skip `move_and_slide()`.
+- Result: 65 enemies on the Dunes ran at ~114 fps (vsync off, RTX 2070 SUPER), up from ~3-4.
+- About "unloading textures": textures and meshes here are shared resources loaded once per map, so unloading them by distance would mean reloading (and hitching) as you turn. Culling what's drawn and simulated is the part that costs frame time, and it's what this change does.
+
+**Tests:** new `tests/jewels/` (46 checks: rolls and limits, tier bands, Orbs on jewels, stats from socketed jewels, save round-trip, socketing through the inventory and doll, card main/Alt split, the hover/setting overlay, the animation LOD steps and enemy draw distance). `tests/ui_capture/shot.sh <out> sockets` screenshots the socket overlay and a socketed card.
+
+---
+
 ## 2026-10-07 — v4.33: Celestial-instrument UI (user request)
 
 Mocked up first (`tests/ui_mockup/`, iterated with the user: skills grouped in one plate, full-width XP bar, 10% bigger globes, Ward as a lattice on the right of the Life globe), then rolled out to the real UI.

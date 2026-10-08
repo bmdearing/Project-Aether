@@ -101,6 +101,8 @@ func display_ability(ability: Ability, stat_sheet: StatSheet = null) -> void:
 const CURRENCY_COLOR := Color(0.85, 0.68, 0.3)
 const BRAND_COLOR := Color(0.85, 0.3, 0.3)
 const HINT_COLOR := Color(0.6, 0.75, 0.6)
+const SOCKETED_COLOR := Color(0.55, 0.85, 0.9)
+const JEWEL_HINT := "Right-click to pick up, then click an item with a free socket."
 
 ## Orbs, Brands, Edicts and stones: name, stack size, what it does and how to use it.
 func display_currency(id: StringName, count: int, hint: String = "") -> void:
@@ -167,8 +169,8 @@ func _render_item(item: Item) -> void:
 			_add_ammo_info_line(line)
 	for line in _item_stat_lines(item):
 		_add_stat_line(line)
-	if item.max_sockets > 0:
-		_add_socket_row(item.sockets, item.max_sockets)
+	if not item.get_socketed_jewels().is_empty():
+		_add_socket_row(item)
 	# Patch v3.8b: implicits (gold) then explicits (blue), with the
 	# dividing line ONLY between the two groups - not shown at all if
 	# either group is empty, and never shown before implicits.
@@ -176,12 +178,15 @@ func _render_item(item: Item) -> void:
 	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
 	for affix in implicits:
 		_add_mod_line(_affix_text(affix, false), IMPLICIT_COLOR)
-	if implicits.size() > 0 and explicits.size() > 0:
+	if implicits.size() > 0 and (explicits.size() > 0 or not item.get_socketed_jewels().is_empty()):
 		_add_separator()
-	for affix in explicits:
-		_add_mod_line(_affix_text(affix, false), AFFIX_COLOR)
+	for line in _merged_explicit_lines(item):
+		_add_mod_line(line, AFFIX_COLOR)
 	if item is Weapon:
 		_add_stance_lines(item as Weapon, true)
+	if item is Jewel:
+		_add_separator()
+		_add_mod_line(JEWEL_HINT, HINT_COLOR)
 	if item.flavor_text != "":
 		_add_separator()
 		_add_flavor(item.flavor_text)
@@ -380,11 +385,52 @@ func _add_flavor_line(text: String) -> void:
 
 func _add_alt_affix_tiers(item: Item) -> void:
 	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
-	if explicits.is_empty():
+	if not explicits.is_empty():
+		_add_separator()
+		for affix in explicits:
+			_add_mod_line(_affix_text(affix, true), AFFIX_COLOR)
+	_add_alt_socket_section(item)
+
+## Alt view: the socketed jewels' modifiers in their own section under the
+## explicits, with ranges and tiers.
+func _add_alt_socket_section(item: Item) -> void:
+	var jewels := item.get_socketed_jewels()
+	if jewels.is_empty():
 		return
 	_add_separator()
-	for affix in explicits:
-		_add_mod_line(_affix_text(affix, true), AFFIX_COLOR)
+	_add_mod_line("Socketed (%d/%d)" % [jewels.size(), item.sockets], STAT_LABEL_COLOR)
+	for jewel in jewels:
+		for affix in jewel.affixes:
+			_add_mod_line(_affix_text(affix, true), SOCKETED_COLOR)
+	_add_mod_line("Ctrl+Right-click to take the jewels out.", HINT_COLOR)
+
+## Main card: the item's explicits with its socketed jewels folded in. A
+## jewel modifier with the same stat as an explicit adds to that line;
+## the rest follow, summed per stat.
+func _merged_explicit_lines(item: Item) -> Array[String]:
+	var extra: Dictionary = {}  # stat_key -> [template, total]
+	var order: Array[String] = []
+	for jewel in item.get_socketed_jewels():
+		for affix in jewel.affixes:
+			if not extra.has(affix.stat_key):
+				extra[affix.stat_key] = [CraftingResolver._template_for(affix), 0.0, affix]
+				order.append(affix.stat_key)
+			extra[affix.stat_key][1] += affix.value
+	var lines: Array[String] = []
+	for affix in item.affixes:
+		if affix.is_implicit:
+			continue
+		var template := CraftingResolver._template_for(affix)
+		if extra.has(affix.stat_key) and template != "":
+			lines.append(ItemRoller.format_desc(template, affix.value + extra[affix.stat_key][1]))
+			extra.erase(affix.stat_key)
+			order.erase(affix.stat_key)
+		else:
+			lines.append(_affix_text(affix, false))
+	for key in order:
+		var entry: Array = extra[key]
+		lines.append(ItemRoller.format_desc(entry[0], entry[1]) if entry[0] != "" else _affix_text(entry[2], false))
+	return lines
 
 func _render_alt_info() -> void:
 	_clear()
@@ -573,38 +619,33 @@ func _add_ammo_info_line(text: String) -> void:
 func _format_num(v: float) -> String:
 	return str(int(round(v))) if v == round(v) else "%.1f" % v
 
-## Bottom-of-card row of small circles - filled (solid) for `sockets`
-## (how many this specific rolled instance has, ItemRoller.roll()),
-## outline-only for the rest up to `max_sockets` (the item type's overall
-## cap - unaffected by this, still raised by Bore/Corruption exactly as
-## before). Replaces the old plain "Sockets: %d" text line.
-func _add_socket_row(sockets: int, max_sockets: int) -> void:
+## Row of the item's sockets, shown once a jewel is set: a gem in the
+## jewel's rarity for each filled socket, an empty ring for the rest.
+func _add_socket_row(item: Item) -> void:
 	var row := SocketRow.new()
-	row.sockets = sockets
-	row.max_sockets = max_sockets
+	row.item = item
 	row.custom_minimum_size = Vector2(CARD_WIDTH, 24.0)
 	_content().add_child(row)
 
 class SocketRow extends Control:
-	var sockets: int = 0
-	var max_sockets: int = 0
-	const SOCKET_RADIUS := 6.0
-	const SOCKET_SPACING := 16.0
-	const FILLED_COLOR := Color(0.7, 0.7, 0.8)
-	const EMPTY_COLOR := Color(0.4, 0.4, 0.4)
+	var item: Item
+	const SOCKET_RADIUS := 7.0
+	const SOCKET_SPACING := 20.0
 
 	func _draw() -> void:
-		var total_width: float = max_sockets * SOCKET_SPACING
-		var start_x: float = (size.x - total_width) / 2.0 + SOCKET_SPACING / 2.0
-		var y: float = size.y / 2.0
-		for i in range(max_sockets):
-			var center := Vector2(start_x + i * SOCKET_SPACING, y)
-			if i < sockets:
-				draw_circle(center, SOCKET_RADIUS, FILLED_COLOR)
-			else:
-				draw_arc(center, SOCKET_RADIUS, 0.0, TAU, 16, EMPTY_COLOR, 1.5)
+		var jewels := item.get_socketed_jewels()
+		var start_x: float = (size.x - item.sockets * SOCKET_SPACING) / 2.0 + SOCKET_SPACING / 2.0
+		for i in item.sockets:
+			var centre := Vector2(start_x + i * SOCKET_SPACING, size.y / 2.0)
+			draw_circle(centre, SOCKET_RADIUS + 1.0, Color(0, 0, 0, 0.5))
+			draw_arc(centre, SOCKET_RADIUS, 0.0, TAU, 24, AetherStyle.GOLD_DIM, 1.5, true)
+			if i < jewels.size():
+				var colour: Color = Constants.ITEM_RARITY_COLOR.get(jewels[i].rarity, Color.WHITE)
+				AetherStyle.diamond(self, centre, SOCKET_RADIUS * 0.8, colour.darkened(0.25), colour.lightened(0.3))
 
 func _item_type_line(item: Item) -> String:
+	if item is Jewel:
+		return "Jewel"
 	if item is Weapon:
 		var w := item as Weapon
 		var tags: Array[String] = []

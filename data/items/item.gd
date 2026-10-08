@@ -23,6 +23,9 @@ class_name Item
 ## ItemCard's new socket art (Section 3) actually draws filled vs. empty.
 @export var max_sockets: int = 0
 @export var sockets: int = 0
+## Jewels set into this item, at most `sockets` of them. Their modifiers
+## count as the item's own (get_effective_affixes()).
+@export var socketed: Array[Item] = []
 ## 0 to Constants.QUALITY_CAP, raised by the Orb of Tempering. Not yet
 ## applied to modifier values.
 @export var quality: int = 0
@@ -105,6 +108,27 @@ const MAX_IMPLICITS := 3
 func get_all_affixes() -> Array[ItemAffix]:
 	return affixes
 
+## The item's own modifiers plus those of the jewels in its sockets: what
+## the stat totals read.
+func get_effective_affixes() -> Array[ItemAffix]:
+	var jewels := get_socketed_jewels()
+	if jewels.is_empty():
+		return affixes
+	var all: Array[ItemAffix] = affixes.duplicate()
+	for jewel in jewels:
+		all.append_array(jewel.affixes)
+	return all
+
+## Socketed jewels that still have a socket (a Corruption can take one away).
+func get_socketed_jewels() -> Array[Item]:
+	return socketed.slice(0, maxi(sockets, 0))
+
+func free_sockets() -> int:
+	return maxi(sockets - socketed.size(), 0)
+
+func get_affix_limits() -> Vector2i:
+	return Constants.AFFIX_LIMITS_GEAR.get(rarity, Vector2i.ZERO)
+
 func get_prefix_count() -> int:
 	return affixes.filter(func(a: ItemAffix): return a.is_prefix and not a.is_implicit).size()
 
@@ -115,18 +139,18 @@ func get_implicit_count() -> int:
 	return affixes.filter(func(a: ItemAffix): return a.is_implicit).size()
 
 func can_add_prefix() -> bool:
-	var limits: Vector2i = Constants.AFFIX_LIMITS_GEAR.get(rarity, Vector2i.ZERO)
+	var limits := get_affix_limits()
 	return get_prefix_count() < limits.x
 
 func can_add_suffix() -> bool:
-	var limits: Vector2i = Constants.AFFIX_LIMITS_GEAR.get(rarity, Vector2i.ZERO)
+	var limits := get_affix_limits()
 	return get_suffix_count() < limits.y
 
 ## Figments, Skill Tomes, ammo and crafting currency are Items too, but
 ## never equipped - their equip_slot is left at the default (HELMET), so
 ## nothing may read it as a real slot.
 func is_equipment() -> bool:
-	if self is FigmentItem or self is SkillTome or self is AmmoPack:
+	if self is Jewel or self is FigmentItem or self is SkillTome or self is AmmoPack:
 		return false
 	return not Constants.CRAFTING_CONSUMABLE_IDS.has(item_id)
 
@@ -136,6 +160,8 @@ func is_equipment() -> bool:
 func get_item_type() -> StringName:
 	if item_type != &"":
 		return item_type
+	if self is Jewel:
+		return &"jewel"
 	if self is FigmentItem:
 		return &"figment"
 	if self is SkillTome:

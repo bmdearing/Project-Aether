@@ -221,7 +221,7 @@ func compute_ward_bonus() -> float:
 	if boots: total += boots.ward_value
 	if offhand is Shield: total += (offhand as Shield).ward_value
 	for item in get_all_equipped_items():
-		for affix in item.affixes:
+		for affix in item.get_effective_affixes():
 			if affix.stat_key == "flat_ward":
 				total += affix.value
 	return total
@@ -268,7 +268,7 @@ const AFFIX_STAT_KEYS := {
 func compute_stat_bonuses() -> Dictionary:
 	var totals := {}
 	for item in get_all_equipped_items():
-		for affix in item.affixes:
+		for affix in item.get_effective_affixes():
 			if AFFIX_STAT_KEYS.has(affix.stat_key):
 				var stat: Constants.Stat = AFFIX_STAT_KEYS[affix.stat_key]
 				totals[stat] = totals.get(stat, 0.0) + affix.value
@@ -306,7 +306,7 @@ const ALL_ELEMENTAL_RESISTANCE_KEY := "all_elemental_resistance"
 func compute_resistance_bonuses() -> Dictionary:
 	var totals := {}
 	for item in get_all_equipped_items():
-		for affix in item.affixes:
+		for affix in item.get_effective_affixes():
 			if RESISTANCE_AFFIX_KEYS.has(affix.stat_key):
 				var key: String = RESISTANCE_AFFIX_KEYS[affix.stat_key]
 				totals[key] = totals.get(key, 0.0) + affix.value
@@ -397,7 +397,7 @@ const MISC_BONUS_KEYS := [
 func compute_misc_bonuses() -> Dictionary:
 	var totals := {}
 	for item in get_all_equipped_items():
-		for affix in item.affixes:
+		for affix in item.get_effective_affixes():
 			if MISC_BONUS_KEYS.has(affix.stat_key):
 				totals[affix.stat_key] = totals.get(affix.stat_key, 0.0) + affix.value
 	return totals

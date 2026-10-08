@@ -26,6 +26,7 @@ func _ready() -> void:
 		func(v: float): GameState.master_volume = v, func(v: float): return "%d%%" % int(round(v * 100.0)))
 	_add_toggle("Fullscreen", GameState.fullscreen, func(on: bool): GameState.fullscreen = on)
 	_add_toggle("V-Sync", GameState.vsync, func(on: bool): GameState.vsync = on)
+	_add_toggle("Always Show Item Sockets", GameState.always_show_sockets, func(on: bool): GameState.always_show_sockets = on)
 
 	var back := Button.new()
 	back.text = "Back"
