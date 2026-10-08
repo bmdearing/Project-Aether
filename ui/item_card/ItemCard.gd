@@ -604,7 +604,7 @@ func _item_type_line(item: Item) -> String:
 			tags.append("Ranged")
 		return "%s%s" % [w.weapon_type, " (%s)" % ", ".join(tags) if tags.size() > 0 else ""]
 	if item is Armor:
-		return "Armour - %s" % Constants.EquipmentSlot.keys()[item.equip_slot].capitalize()
+		return "Armour - %s" % String(Constants.EquipmentSlot.find_key(item.equip_slot)).capitalize()
 	if item is Shield:
 		return "Shield"
 	if item is FigmentItem:
@@ -613,7 +613,7 @@ func _item_type_line(item: Item) -> String:
 		return "Skill Tome"
 	if not item.is_equipment():
 		return "Currency"
-	return Constants.EquipmentSlot.keys()[item.equip_slot].capitalize()
+	return String(Constants.EquipmentSlot.find_key(item.equip_slot)).capitalize()
 
 ## Patch v3.8 Section 3: Scaling Grade and the raw damage/socket-count
 ## text lines moved out of here (Scaling Grade -> Alt Info, damage -> the

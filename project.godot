@@ -30,6 +30,7 @@ SaveManager="*res://autoloads/SaveManager.gd"
 AudioManager="*res://systems/audio/AudioManager.gd"
 SoundLib="*res://systems/audio/SoundLib.gd"
 KillBox="*res://autoloads/KillBox.gd"
+TooltipFollow="*res://autoloads/TooltipFollow.gd"
 
 [display]
 
