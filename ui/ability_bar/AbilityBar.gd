@@ -179,7 +179,7 @@ class SkillPlate extends Control:
 			draw_colored_polygon(inner, Color(element, 0.14))
 			AetherStyle.outline(self, inner, Color(element, 0.45), 1.0)
 			var glyph_color := element.darkened(0.55) if starved else element.lerp(Color.WHITE, 0.15)
-			AetherStyle.text(self, AetherStyle.serif(), Vector2(rect.position.x, c.y + 10.0), AbilityBar.initials(ability.display_name), 26, glyph_color, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+			AetherStyle.text(self, AetherStyle.title(), Vector2(rect.position.x, c.y + 10.0), AbilityBar.initials(ability.display_name), 26, glyph_color, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
 			if player:
 				var remaining := player.ability_cast.get_cooldown_remaining(ability)
 				var total := ability.get_final_cooldown(player.get_action_speed_multiplier(), player.stat_sheet)

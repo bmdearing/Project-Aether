@@ -53,6 +53,14 @@ Doodads in `assets/models/doodads/` (desert, dungeon and nexus props) and the sh
 - **Dark Fantasy Asset Pack V2.0** and **Dark Fantasy Asset Pack 2 (weapons and shields)**: item icons
 - **Gear sets 1-3**: item icons
 
+## Fonts
+
+All three are under the SIL Open Font License 1.1; the licence texts are in `assets/fonts/`.
+
+- **Cinzel** by Natanael Gama (`Cinzel-Variable.ttf`): titles and labels
+- **EB Garamond** by Georg Duffner and Octavio Pardo (`EBGaramond-*.ttf`): body text
+- **Rajdhani** by Indian Type Foundry (`Rajdhani-SemiBold.ttf`): numbers
+
 ## Music
 
 - `assets/music/lament.mp3` (main menu)

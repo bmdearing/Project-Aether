@@ -139,7 +139,7 @@ class OrbFrame extends Control:
 			AetherStyle.text(self, numbers, Vector2(edge_x, c.y - r * 0.42), "%d" % roundi(orb.ward), 15, Color(0.85, 0.98, 1.0), HORIZONTAL_ALIGNMENT_CENTER, c.x + r - edge_x)
 		AetherStyle.text(self, numbers, Vector2(c.x - r, value_y), "%d" % roundi(orb.current), 30, AetherStyle.TEXT, HORIZONTAL_ALIGNMENT_CENTER, text_right - (c.x - r))
 		AetherStyle.text(self, numbers, Vector2(c.x - r, value_y + 20.0), "/ %d" % roundi(orb.maximum), 15, AetherStyle.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER, text_right - (c.x - r))
-		AetherStyle.text(self, serif, Vector2(c.x - r, c.y + r + 36.0), AetherStyle.spaced(orb.label_prefix), 13, AetherStyle.GOLD, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
+		AetherStyle.text(self, AetherStyle.title(), Vector2(c.x - r, c.y + r + 36.0), AetherStyle.spaced(orb.label_prefix), 13, AetherStyle.GOLD, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
 
 	## Triangular lattice over the right side of the globe: a few lit
 	## facets that shimmer, and a hard inner edge with node diamonds.

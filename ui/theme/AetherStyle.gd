@@ -23,33 +23,49 @@ const SHADOW := Color(0, 0, 0, 0.75)
 ## Full-screen menus draw above the HUD (CanvasLayer default 1).
 const SCREEN_LAYER := 10
 
-## Engraved serif for titles and body text, a narrow sans for numbers.
-## SystemFont falls back down each list, then to Godot's default font.
-const SERIF_NAMES := ["Cinzel", "Cormorant Garamond", "Georgia", "Times New Roman", "DejaVu Serif"]
-const NUMBER_NAMES := ["Rajdhani", "Barlow Condensed", "Bahnschrift", "Arial Narrow", "DejaVu Sans Condensed"]
+## Bundled fonts (assets/fonts, all SIL OFL): Cinzel for titles and labels,
+## EB Garamond for body text, Rajdhani for numbers. Each falls back to a
+## system font if its file is missing.
+const TITLE_FILE := "res://assets/fonts/Cinzel-Variable.ttf"
+const SERIF_FILE := "res://assets/fonts/EBGaramond-Variable.ttf"
+const SERIF_ITALIC_FILE := "res://assets/fonts/EBGaramond-Italic-Variable.ttf"
+const NUMBER_FILE := "res://assets/fonts/Rajdhani-SemiBold.ttf"
+const SERIF_NAMES := ["EB Garamond", "Georgia", "Times New Roman", "DejaVu Serif"]
+const NUMBER_NAMES := ["Rajdhani", "Bahnschrift", "Arial Narrow", "DejaVu Sans Condensed"]
 
-static var _serif: SystemFont
-static var _serif_italic: SystemFont
-static var _numbers: SystemFont
+static var _title: Font
+static var _serif: Font
+static var _serif_italic: Font
+static var _numbers: Font
+
+## Engraved capitals for titles, headings and spaced labels - not body text.
+static func title() -> Font:
+	if _title == null:
+		_title = _font(TITLE_FILE, SERIF_NAMES, false)
+	return _title
 
 static func serif() -> Font:
 	if _serif == null:
-		_serif = _system_font(SERIF_NAMES, false)
+		_serif = _font(SERIF_FILE, SERIF_NAMES, false)
 	return _serif
 
 static func serif_italic() -> Font:
 	if _serif_italic == null:
-		_serif_italic = _system_font(SERIF_NAMES, true)
+		_serif_italic = _font(SERIF_ITALIC_FILE, SERIF_NAMES, true)
 	return _serif_italic
 
 static func numbers() -> Font:
 	if _numbers == null:
-		_numbers = _system_font(NUMBER_NAMES, false)
+		_numbers = _font(NUMBER_FILE, NUMBER_NAMES, false)
 	return _numbers
 
-static func _system_font(names: Array, italic: bool) -> SystemFont:
+static func _font(path: String, fallback_names: Array, italic: bool) -> Font:
+	if ResourceLoader.exists(path):
+		var file := load(path) as FontFile
+		if file:
+			return file
 	var f := SystemFont.new()
-	f.font_names = PackedStringArray(names)
+	f.font_names = PackedStringArray(fallback_names)
 	f.font_italic = italic
 	f.antialiasing = TextServer.FONT_ANTIALIASING_GRAY
 	return f
@@ -338,7 +354,7 @@ static func menu_open(tree: SceneTree) -> bool:
 	return false
 
 static func title_label(label: Label, size_px := 22) -> void:
-	label.add_theme_font_override("font", serif())
+	label.add_theme_font_override("font", title())
 	label.add_theme_font_size_override("font_size", size_px)
 	label.add_theme_color_override("font_color", GOLD)
 	label.add_theme_color_override("font_shadow_color", SHADOW)

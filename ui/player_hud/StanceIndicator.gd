@@ -81,7 +81,7 @@ static func _initials(text: String) -> String:
 func _draw() -> void:
 	if not visible:
 		return
-	var serif := AetherStyle.serif()
+	var serif := AetherStyle.title()
 	var numbers := AetherStyle.numbers()
 	var c := Vector2(size.x / 2.0, NAME_HEIGHT + RADIUS + PAD)
 	var r := RADIUS

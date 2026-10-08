@@ -11,7 +11,8 @@ there. Most recent first.
 
 Mocked up first (`tests/ui_mockup/`, iterated with the user: skills grouped in one plate, full-width XP bar, 10% bigger globes, Ward as a lattice on the right of the Life globe), then rolled out to the real UI.
 
-- **Style module** `ui/theme/AetherStyle.gd`: palette (smoked glass, aged gold, cyan for Aether), fonts and shared drawing helpers (diamonds, plates, dividers, tick rings, clock dials, gem-cut tiles). Fonts are SystemFonts falling back Cinzel/Cormorant -> Georgia -> Times, and Rajdhani/Barlow Condensed -> Bahnschrift -> Arial Narrow. Nothing is bundled yet; shipping Cinzel and Rajdhani (both OFL) needs the user's go-ahead to download them.
+- **Style module** `ui/theme/AetherStyle.gd`: palette (smoked glass, aged gold, cyan for Aether), fonts and shared drawing helpers (diamonds, plates, dividers, tick rings, clock dials, gem-cut tiles).
+- **Fonts** (bundled in `assets/fonts/`, SIL OFL, user-approved download from Google Fonts): Cinzel for titles and labels, EB Garamond for body text (Cinzel is capitals-only, so too tiring for mod lines), Rajdhani for numbers. System fonts are only a fallback if a file is missing.
 - **Project theme** `ui/theme/aether_theme.tres`, set as `gui/theme/custom` and generated from `AetherStyle.build_theme()` by `tools/build_ui_theme.gd`. A runtime `root.theme` was tried first and did nothing, because theme inheritance stops at CanvasLayer and every screen sits on one.
 - **HUD**:
   - Life/Mana globes keep the animated liquid shader inside a gold tick ring.

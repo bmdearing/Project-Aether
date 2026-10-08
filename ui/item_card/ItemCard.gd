@@ -712,6 +712,7 @@ func _add_type_badge(text: String, color: Color) -> HBoxContainer:
 func _make_badge(text: String, color: Color) -> Label:
 	var badge := Label.new()
 	badge.text = AetherStyle.spaced(text)
+	badge.add_theme_font_override("font", AetherStyle.title())
 	badge.add_theme_font_size_override("font_size", 10)
 	badge.add_theme_stylebox_override("normal", AetherStyle.glass_box(Color(color, 0.7), Color(color, 0.12), 1, 6.0))
 	badge.add_theme_color_override("font_color", color.lerp(Color.WHITE, 0.3))
@@ -720,6 +721,7 @@ func _make_badge(text: String, color: Color) -> Label:
 
 func _add_title(text: String, color: Color) -> void:
 	var label := Label.new()
+	label.add_theme_font_override("font", AetherStyle.title())
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
