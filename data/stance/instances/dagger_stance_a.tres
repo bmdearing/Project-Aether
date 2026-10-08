@@ -12,3 +12,4 @@ stance_type = 2
 motion_value_min = 0.45
 hits = 5
 finisher_multiplier = 2.5
+cooldown_seconds = 4.0

@@ -189,13 +189,16 @@ func _build_hit_marker() -> void:
 	add_child(_hit_marker)
 
 func _build_stance_indicator() -> void:
+	# Bottom right, just left of the weapon indicator.
 	var indicator := StanceIndicator.new()
+	indicator.anchor_left = 1.0
+	indicator.anchor_right = 1.0
 	indicator.anchor_top = 1.0
 	indicator.anchor_bottom = 1.0
-	indicator.offset_left = 16.0
-	indicator.offset_bottom = -40.0
-	indicator.offset_top = -64.0
-	indicator.offset_right = 200.0
+	indicator.offset_right = -236.0
+	indicator.offset_left = indicator.offset_right - StanceIndicator.ICON_SIZE
+	indicator.offset_bottom = -20.0
+	indicator.offset_top = indicator.offset_bottom - StanceIndicator.ICON_SIZE - StanceIndicator.NAME_HEIGHT
 	add_child(indicator)
 
 func _build_throwable_indicator() -> void:

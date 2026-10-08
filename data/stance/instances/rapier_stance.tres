@@ -15,3 +15,4 @@ motion_value_min = 1.8
 motion_value_max = 1.8
 reach_min = 1.5
 reach_max = 4.0
+cooldown_seconds = 3.0

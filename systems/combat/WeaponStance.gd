@@ -81,6 +81,8 @@ var _fov_tween: Tween
 ## STANCE_INSTANCES_DIR - same dir-scan-and-cache convention as
 ## PlayerAbilityCast._resolve_ability_by_id()/TomeRoller.
 var _behavior_by_weapon_type: Dictionary = {}
+## StanceBehavior -> seconds until its special is ready again.
+var _cooldowns: Dictionary = {}
 
 func _ready() -> void:
 	_player = get_parent()
@@ -142,7 +144,9 @@ func _scan_behaviors() -> void:
 		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 
-func _physics_process(_delta: float) -> void:
+func _physics_process(delta: float) -> void:
+	for behavior in _cooldowns.keys():
+		_cooldowns[behavior] = maxf(_cooldowns[behavior] - delta, 0.0)
 	if Input.is_action_just_pressed("stance") and not _player.is_input_blocked() \
 			and not _player.shield_block.overrides_stance():
 		_enter_stance()
@@ -173,6 +177,23 @@ func _enter_stance() -> void:
 	if _player.arm_rig:
 		_player.arm_rig.set_aiming(_mode == Mode.RANGED)
 		_player.arm_rig.set_guard(_mode == Mode.MELEE)
+
+func get_cooldown_remaining(behavior: StanceBehavior) -> float:
+	return _cooldowns.get(behavior, 0.0) if behavior else 0.0
+
+func is_ready(behavior: StanceBehavior) -> bool:
+	return get_cooldown_remaining(behavior) <= 0.0
+
+func start_cooldown(behavior: StanceBehavior) -> void:
+	if behavior and behavior.cooldown_seconds > 0.0:
+		_cooldowns[behavior] = behavior.cooldown_seconds
+
+## The stance RMB would enter right now (page and weapon aware), for the HUD.
+func get_ready_behavior() -> StanceBehavior:
+	if is_active:
+		return current_behavior
+	var weapon := _player.get_active_weapon() if _player else null
+	return _resolve_behavior(weapon) if weapon else null
 
 ## Drops out of stance without waiting for RMB release (shield raised).
 func cancel() -> void:

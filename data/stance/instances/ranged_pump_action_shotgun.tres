@@ -11,3 +11,4 @@ roots = true
 braced_cone_shot = true
 spread_multiplier = 2.0
 cone_range = 12.0
+cooldown_seconds = 5.0

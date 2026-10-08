@@ -46,6 +46,7 @@ signal player_died
 
 signal ability_cast(caster: Node, ability: Ability)
 signal ability_cast_failed(caster: Node, ability: Ability, reason: String)
+signal stance_on_cooldown(player: Node, remaining: float)
 
 signal weapon_swapped(player: Node)
 

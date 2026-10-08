@@ -125,7 +125,8 @@ func try_attack(aimed: bool = false) -> void:
 	if weapon.fire_mode != Constants.FireMode.FULL_AUTO:
 		_fire_one(weapon, aimed)  # FULL_AUTO fires from try_attack_held() instead
 		var st := _stance() if aimed else null
-		if st and st.dump_magazine and _uses_magazine(weapon):
+		if st and st.dump_magazine and _uses_magazine(weapon) and _player.weapon_stance.is_ready(st):
+			_player.weapon_stance.start_cooldown(st)
 			_dump_remaining = weapon.get_current_magazine()
 			_dump_timer = st.shot_interval
 
@@ -292,11 +293,13 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		_player.stat_sheet.finesse_crit_bonus = (1.0 + original_crit_bonus) * (1.0 + st.crit_chance_increase) - 1.0
 
 	var cosmetic := false
-	if st and st.rain_radius > 0.0:
+	if st and st.rain_radius > 0.0 and _player.weapon_stance.is_ready(st):
+		_player.weapon_stance.start_cooldown(st)
 		_fire_rain(weapon, st, motion_value, damage_type)
 		pellets = 0
-	elif st and st.braced_cone_shot and not _brace_spent:
+	elif st and st.braced_cone_shot and not _brace_spent and _player.weapon_stance.is_ready(st):
 		_brace_spent = true
+		_player.weapon_stance.start_cooldown(st)
 		_cone_shot(weapon, st, motion_value, weapon.pellet_spread_degrees * st.spread_multiplier, damage_type)
 		cosmetic = true
 

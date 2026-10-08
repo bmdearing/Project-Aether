@@ -10,3 +10,4 @@ move_speed_multiplier = 0.6
 damage_multiplier = 0.6
 rain_radius = 3.5
 rain_waves = 3
+cooldown_seconds = 8.0

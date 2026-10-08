@@ -12,3 +12,4 @@ stance_type = 18
 reach_min = 6.5
 half_angle = 8.0
 status_duration = 2.0
+cooldown_seconds = 8.0

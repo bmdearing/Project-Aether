@@ -118,6 +118,10 @@ func unleash_offset(index: int, count: int) -> float:
 	return index - (count - 1) / 2.0
 
 ## LMB outside stance. True when handled (a Wand's energy bolt).
+const WAND_SLING_WINDUP := 0.06
+const WAND_SLING_STRIKE := 0.07
+const WAND_SLING_RECOVERY := 0.2
+
 func try_primary_attack() -> bool:
 	var weapon := _player.get_active_weapon()
 	if weapon == null or weapon.weapon_type != "Wand":
@@ -125,6 +129,8 @@ func try_primary_attack() -> bool:
 	if _bolt_cooldown <= 0.0:
 		_bolt_cooldown = WAND_BOLT_COOLDOWN / _player.get_action_speed_multiplier()
 		_fire_bolt(weapon, BOLT_MOTION_VALUE)
+		if _player.arm_rig:
+			_player.arm_rig.play_attack(PlayerArmRig.Attack.FIRE, WAND_SLING_WINDUP, WAND_SLING_STRIKE, WAND_SLING_RECOVERY)
 	return true
 
 ## LMB in a conduit stance. True when handled.

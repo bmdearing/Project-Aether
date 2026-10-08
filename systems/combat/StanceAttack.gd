@@ -73,6 +73,9 @@ func begin_charge() -> bool:
 	var behavior := _player.weapon_stance.current_behavior as MeleeStanceBehavior
 	if behavior == null or behavior.charge_time <= 0.0 or not POSES.has(behavior.stance_type):
 		return false
+	if not _player.weapon_stance.is_ready(behavior):
+		_on_cooldown(behavior)
+		return true
 	if not _player.melee_attack.is_idle():
 		return true  # swallow the press; a swing is still finishing
 	_behavior = behavior
@@ -132,6 +135,7 @@ func release() -> void:
 	charge_ended.emit()
 	if behavior.require_full_charge and not full:
 		return
+	_player.weapon_stance.start_cooldown(behavior)
 	var params := {
 		"kind": POSES[behavior.stance_type],
 		"windup": 0.08,
@@ -155,6 +159,10 @@ func release() -> void:
 			params["shape"] = {"reach": reach, "half_angle": behavior.half_angle, "splash": 0.0, "max_targets": 1}
 			params["on_hit"] = _on_crack_hit
 	_player.melee_attack.release_stance_attack(params)
+
+## Feedback for pressing a special that isn't ready - same channel spells use.
+func _on_cooldown(behavior: StanceBehavior) -> void:
+	EventBus.stance_on_cooldown.emit(_player, _player.weapon_stance.get_cooldown_remaining(behavior))
 
 func _forward() -> Vector3:
 	var forward := -_player.camera.global_transform.basis.z
@@ -239,6 +247,10 @@ func try_instant() -> bool:
 		return false
 	if not _player.melee_attack.is_idle() or _flurry_left > 0:
 		return true  # swallow the press; a swing is still finishing
+	if not _player.weapon_stance.is_ready(b):
+		_on_cooldown(b)
+		return true
+	_player.weapon_stance.start_cooldown(b)
 	var params := {"motion_mult": b.motion_value_min}
 	match b.stance_type:
 		MeleeStanceBehavior.MeleeStanceType.WATER_SLICES:

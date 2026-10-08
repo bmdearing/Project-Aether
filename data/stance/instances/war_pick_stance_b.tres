@@ -12,3 +12,4 @@ stance_type = 9
 motion_value_min = 0.8
 reach_min = 4.5
 half_angle = 15.0
+cooldown_seconds = 5.0

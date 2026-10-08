@@ -15,3 +15,4 @@ radius = 0.8
 projectile_speed = 16.0
 projectile_pierce = 3
 gain_as_cold = 0.4
+cooldown_seconds = 3.0

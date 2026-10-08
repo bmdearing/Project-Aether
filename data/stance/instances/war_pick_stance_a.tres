@@ -11,3 +11,4 @@ stance_animation = ""
 stance_type = 10
 motion_value_min = 1.4
 armor_shred_stacks = 1
+cooldown_seconds = 4.0

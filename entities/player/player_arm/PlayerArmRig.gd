@@ -189,6 +189,14 @@ const WAND_FLICK := [
 	["s", 1.0, Vector3(-0.06, 0.02, -0.2), Vector3(-0.15, 0.2, -1), null, 0.4],
 	["r", 0.2, Vector3(-0.06, 0.02, -0.19), Vector3(-0.15, 0.2, -1), null, 0.5],
 ]
+## Wand shots: whip the wand across the body and back, alternating sides
+## (the mirrored clip plays on every other shot).
+const WAND_SLING := [
+	["w", 1.0, Vector3(-0.16, 0.08, 0.04), Vector3(-0.95, 0.45, 0.05), null, 0.45],
+	["s", 0.55, Vector3(0.0, 0.07, -0.16), Vector3(0.0, 0.4, -0.9), null, 2.0],
+	["s", 1.0, Vector3(0.18, 0.0, -0.1), Vector3(0.95, 0.15, -0.35), null, 0.5],
+	["r", 0.35, Vector3(0.17, 0.0, -0.1), Vector3(0.9, 0.18, -0.4), null, 0.5],
+]
 const PUNCH := [
 	["w", 1.0, Vector3(0.03, -0.02, 0.08), null, null, 0.45],
 	["s", 1.0, Vector3(-0.1, 0.07, -0.24), Vector3(-0.15, 0.3, -1), null, 0.35],
@@ -275,6 +283,7 @@ var _muzzle_flash: Node3D
 var _weapon: Weapon
 var _offhand_item: Item
 var _family: StringName = &"blade"
+var _wand_alt: bool = false
 var _off_mode: OffMode = OffMode.HIDDEN
 var _offhand_grip: Vector3 = Vector3.ZERO
 
@@ -444,6 +453,10 @@ func _mirror(clip: Array) -> Array:
 
 func _play_fire(windup: float, strike: float, recovery: float) -> void:
 	match _family:
+		&"wand":
+			_wand_alt = not _wand_alt
+			_start(_main_track, WAND_SLING if _wand_alt else _mirror(WAND_SLING), windup, strike, recovery, _main_rest())
+			_cast_glow_t = 0.3
 		&"bow":
 			_start(_main_track, BOW_RELEASE, 0.0, strike, recovery, _main_rest())
 			# String hand snaps back on release, then returns to nock.
@@ -478,6 +491,9 @@ func _on_reload_stopped(weapon: Weapon) -> void:
 
 func _on_ability_cast(caster: Node, _ability: Ability) -> void:
 	if caster != _player or _player == null:
+		return
+	if _family == &"wand":
+		_play_fire(0.08, 0.08, 0.22)
 		return
 	if _off_mode == OffMode.HIDDEN:
 		_start(_off_track, CAST_OFF, 0.12, 0.1, 0.35, _off_rest())

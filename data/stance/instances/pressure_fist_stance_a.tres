@@ -16,3 +16,4 @@ reach_min = 3.5
 reach_max = 3.5
 half_angle = 50.0
 stance_damage_multiplier = 4.0
+cooldown_seconds = 6.0

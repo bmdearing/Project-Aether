@@ -16,3 +16,4 @@ motion_value_max = 2.4
 reach_min = 1.6
 reach_max = 1.6
 radius = 2.2
+cooldown_seconds = 6.0

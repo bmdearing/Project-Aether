@@ -16,3 +16,4 @@ motion_value_max = 2.0
 reach_min = 2.5
 reach_max = 6.0
 recovery_multiplier_max = 1.8
+cooldown_seconds = 4.0

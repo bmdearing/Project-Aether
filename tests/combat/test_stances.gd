@@ -51,6 +51,7 @@ func _run() -> void:
 	await _test_repulse()
 	await _test_slice_and_dice()
 	await _test_stealth()
+	await _test_stance_cooldown()
 	print("stance tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -115,6 +116,7 @@ func _lost(e: Enemy) -> float:
 
 ## Enter stance, charge for `seconds`, release, let the swing finish.
 func _charge(seconds: float, settle: float = 0.6) -> void:
+	_player.weapon_stance._cooldowns.clear()  # each check stands alone
 	Input.action_press("stance")
 	await _frames(2)
 	Input.action_press("attack")
@@ -124,6 +126,26 @@ func _charge(seconds: float, settle: float = 0.6) -> void:
 
 func _travel() -> float:
 	return (_player.global_position - START).dot(_forward())
+
+func _test_stance_cooldown() -> void:
+	await _reset("Rapier")
+	await _charge(0.1)
+	var behavior := _player.weapon_stance.get_ready_behavior()
+	var remaining := _player.weapon_stance.get_cooldown_remaining(behavior)
+	_check(behavior.cooldown_seconds > 0.0 and remaining > 0.0, "a stance special starts its cooldown (%.1fs)" % remaining)
+	var start := _player.global_position
+	Input.action_press("stance")
+	await _frames(2)
+	Input.action_press("attack")
+	await _seconds(0.1)
+	Input.action_release("attack")
+	await _seconds(0.6)
+	_check(_player.global_position.distance_to(start) < 0.2 and not _player.stance_attack.is_charging, "the special can't be used again while it recharges")
+	Input.action_release("stance")
+	_player.weapon_stance._cooldowns[behavior] = 0.0
+	await _charge(0.1)
+	_check(_player.global_position.distance_to(start) > 1.0, "it works again once ready")
+	await _leave_stance()
 
 func _test_rapier() -> void:
 	await _reset("Rapier")
@@ -351,6 +373,7 @@ func _hits_on(target: Enemy) -> Array:
 
 ## Enter stance on `page` and tap LMB once.
 func _tap_stance(page: WeaponStance.StancePage, settle: float = 0.6) -> void:
+	_player.weapon_stance._cooldowns.clear()
 	_player.weapon_stance.set_stance_page(page)
 	Input.action_press("stance")
 	await _frames(2)

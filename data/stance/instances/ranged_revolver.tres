@@ -11,3 +11,4 @@ dump_magazine = true
 shot_interval = 0.09
 spread_add_degrees = 5.0
 damage_multiplier = 0.9
+cooldown_seconds = 6.0
