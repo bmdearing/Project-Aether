@@ -75,7 +75,7 @@ class MockCanvas extends Control:
 		_enemy_bar(Vector2(mid - 150, h * 0.36), "Synod Warden Golem", Color(0.45, 0.65, 1.0), 0.62, 0.55)
 		_bottom_shade(w, h)
 		var base_y := h - 134.0
-		_orb(Vector2(mid - 280, base_y), 68.0, 0.78, LIFE, "LIFE", "166", "/ 212", 0.65)
+		_orb(Vector2(mid - 280, base_y), 68.0, 0.78, LIFE, "LIFE", "166", "/ 212", 0.32)
 		_orb(Vector2(mid + 280, base_y), 68.0, 0.46, MANA, "MANA", "52", "/ 112", -1.0)
 		var spells := [["Ci", FIRE, 0.0, "8"], ["Ic", COLD, 0.0, "8"], ["St", LIGHTNING, 0.35, "34"], ["Bh", ENTROPIC, 0.0, "30"]]
 		_skill_bar(Vector2(mid, base_y + 4), spells)
@@ -157,14 +157,56 @@ class MockCanvas extends Control:
 		draw_arc(c, r, 0, TAU, 64, GOLD, 2.5, true)
 		draw_arc(c, r + 3.0, 0, TAU, 64, GOLD_FAINT, 1.0, true)
 		_ticks(c, r + 4.0, 60, 5, GOLD_DIM)
-		if ward >= 0.0:
-			draw_arc(c, r + 15.0, -PI / 2.0, -PI / 2.0 + TAU * ward, 48, Color(AETHER, 0.25), 7.0, true)
-			draw_arc(c, r + 15.0, -PI / 2.0, -PI / 2.0 + TAU * ward, 48, AETHER, 2.0, true)
-			var tip := -PI / 2.0 + TAU * ward
-			draw_circle(c + Vector2(cos(tip), sin(tip)) * (r + 15.0), 3.5, AETHER)
+		if ward > 0.0:
+			_ward_lattice(c, r, ward)
+			var edge_x := c.x + r - 2.0 * r * ward
+			_text(numbers, Vector2(edge_x, c.y - r * 0.42), "48", 15, Color(0.85, 0.98, 1.0), HORIZONTAL_ALIGNMENT_CENTER, c.x + r - edge_x)
 		_text(numbers, c + Vector2(-r, 8), value, 30, TEXT, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
 		_text(numbers, c + Vector2(-r, 28), max_text, 15, TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
 		_text(serif, c + Vector2(-r, r + 40), _spaced(label), 13, GOLD, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
+
+	## Ward as a crystalline field over the right side of the Life globe,
+	## reaching in by fraction of the width: a triangular lattice with a few
+	## lit facets and a ruler-straight inner edge - deliberately not liquid.
+	func _ward_lattice(c: Vector2, r: float, fraction: float) -> void:
+		var edge_x := c.x + r - 2.0 * r * fraction
+		var inside := func(p: Vector2) -> bool: return p.distance_to(c) <= r - 2.0 and p.x >= edge_x
+		# Segment of the circle right of the edge, tinted.
+		var t := acos(clampf((edge_x - c.x) / r, -1.0, 1.0))
+		var cap := PackedVector2Array()
+		for i in 49:
+			var a := -t + 2.0 * t * i / 48.0
+			cap.append(c + Vector2(cos(a), sin(a)) * (r - 1.0))
+		draw_colored_polygon(cap, Color(0.25, 0.75, 1.0, 0.2))
+		# Triangular lattice.
+		var s := 11.0
+		var row_h := s * 0.866
+		var rng := RandomNumberGenerator.new()
+		rng.seed = 7
+		var rows := int(2.0 * r / row_h) + 2
+		var cols := int(2.0 * r / s) + 2
+		var origin := c - Vector2(r, r)
+		for j in rows:
+			for i in cols:
+				var p := origin + Vector2(i * s + (j % 2) * s * 0.5, j * row_h)
+				var right := p + Vector2(s, 0)
+				var down_l := p + Vector2(-s * 0.5, row_h)
+				var down_r := p + Vector2(s * 0.5, row_h)
+				if inside.call(p) and inside.call(down_l) and inside.call(down_r) and rng.randf() < 0.32:
+					draw_colored_polygon(PackedVector2Array([p, down_l, down_r]), Color(0.55, 0.92, 1.0, rng.randf_range(0.12, 0.38)))
+				for q in [right, down_l, down_r]:
+					if inside.call(p) and inside.call(q):
+						draw_line(p, q, Color(0.55, 0.9, 1.0, 0.42), 1.0, true)
+		# Hard inner edge with nodes, plus a faint duplicate offset for a
+		# slight "out of phase" shimmer.
+		var half := sin(t) * r
+		draw_line(Vector2(edge_x - 2, c.y - half + 2), Vector2(edge_x - 2, c.y + half - 2), Color(1.0, 0.3, 0.9, 0.25), 1.0, true)
+		draw_line(Vector2(edge_x, c.y - half + 2), Vector2(edge_x, c.y + half - 2), Color(0.75, 0.97, 1.0, 0.95), 1.6, true)
+		var ny := c.y - half + 8.0
+		while ny < c.y + half - 6.0:
+			_diamond(Vector2(edge_x, ny), 2.2, Color(0.8, 0.98, 1.0), Color(0, 0, 0, 0))
+			ny += 14.0
+		draw_arc(c, r - 2.0, -t, t, 40, Color(0.6, 0.95, 1.0, 0.6), 1.5, true)
 
 	func _medallion(c: Vector2, r: float, glyph: String, element: Color, cooldown: float, key: String, cost: String, starved: bool) -> void:
 		draw_circle(c, r + 6.0, Color(0, 0, 0, 0.35))
