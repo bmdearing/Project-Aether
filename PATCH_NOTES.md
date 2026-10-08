@@ -7,6 +7,43 @@ there. Most recent first.
 
 ---
 
+## 2026-10-07 — v4.32: Combat, inventory and stance pass (user request)
+
+**Spells**
+- Cooldowns removed from every spell except Blink (3s) and Purge (6s). Mana is the limiter now, plus a 0.3s shared cast recovery (`Ability.base_recovery_time`, which was previously unused) so a key can't fire every frame. Slate auto-cast needed its own 2s floor, because it fires whenever the spell's cooldown is ready, and with no cooldown that would be every frame.
+- Flame Jets channels until the key is released or Mana runs out (drain raised to 20% of cost per 0.15s, about 18 Mana/s). The 1.8s duration only applies to Slate auto-cast now.
+- Limit spells replace their oldest instance instead of failing ("Limit reached" is gone). Black Hole (1), Flame Wall (2) and Caltrops (3) gained the Limit tag so spam without cooldowns stays bounded. Instances are tracked in a `spell_limit_<id>` group; group order is tree order, so the first one is the oldest.
+
+**Status effects**
+- Ailments (Ignite, Bleed, Chill, Shock, Electrocute, Unraveling, Pallid, Scorch) now roll to land: `Ability.status_chance` per spell (10-50%, higher where the status is the spell's point, lower for fast tickers like Flame Jets) plus the existing "+% chance to cause X" gear mods. Those mods had been rolling on gear but nothing read them. Increased duration, increased damage (Bleed now too) and "chance to ignore Ailments" are wired the same way. Weapon hits can now proc ailments purely from gear chance. Stance riders that aren't ailments (Armor Shred, Suppressed, Slow, Entangle, Guard Break) still always land. Whip Crack's Bleed and Repulse's Electrocute roll 50% base.
+- To compensate: Ignite 50% -> 90% of the hit over its duration, Bleed 60% -> 100%, Shock +20% -> +25%, Scorch 6% -> 8%/stack, Chill slow 30% -> 35%, Unraveling +25% -> +30%, Electrocute 0.8s -> 1.0s.
+- DoT ticks now show (smaller) damage numbers. Previously `take_damage(is_dot)` suppressed them entirely.
+
+**Hitboxes, headshots, Ward**
+- Every enemy used Enemy.tscn's 1.9m capsule regardless of model. The golems are about 3.2m tall, so anything above the waist missed. `Enemy._fit_body_to_model()` now sizes the capsule (height = model top; radius from width, capped at 0.9m so big units fit through doorways), the HeadZone, and the overhead markers/health bar/damage numbers from the model's rest-pose bounds. The shared capsule and sphere sub-resources are duplicated first, otherwise resizing one unit would resize every unit.
+- The "can't hit golems with Entropic Decay" report: the spell was landing. The golem's 25% Ward soaked the first ~35 damage, and Ward hits only showed a half-transparent number while the health bar didn't move. Ward now has a blue strip above enemy and boss health bars, and Ward hits show in Ward blue. AoE range is also measured to the body's edge (`Enemy.distance_to_body()`) rather than its origin, so big units at the rim are included.
+- Headshots: +10% (was 25%). Melee checks whether the crosshair ray passes through the head; projectiles check where they were when they struck the body. The old check (attacking Area3D overlapping the HeadZone) was area-overlap-based, which made melee headshots near-random.
+
+**Feel and stats**
+- Baseline melee swing is about 30% slower (0.62s -> 0.8s before weapon weight, with higher floors), and semi-auto fire is 0.4s -> 0.5s. Full-auto rates are unchanged.
+- Aether Tolerance is Slate-only (`CraftTarget.uses_tolerance()`). Gear rolls none and crafts freely.
+
+**Stances**
+- `StanceBehavior.cooldown_seconds`: charged/instant melee specials (3-8s) and the ranged bursts Fan the Hammer, Rain of Arrows and Pump Brace recharge between uses. Held stances, aim modifiers and conduit spell pages have no cooldown. A special on cooldown is refused (an early press flashes the icon red); a ranged burst on cooldown fires a normal aimed shot instead.
+- New bottom-right stance icon (`StanceIndicator`, replacing the bottom-left text): name, page letter, RMB hint and a radial cooldown sweep.
+- Wands sling across the body and back on alternate shots (`WAND_SLING`), for both bolts and spell casts. Previously a wand bolt played no animation at all.
+
+**Inventory and UI**
+- Right-click equips (left-click does nothing but drag). Right-click a Brand to activate it (red border); right-click an Orb/Edict/stone to pick it up (gold border), then click an item (grid or paper doll) to use it. Hovering shows the Orb preview in the status line. The K crafting screen is removed. Its Figment empowering moved to right-click on a Figment.
+- Brands had no descriptions apart from Prefix/Suffix/Preservation. All 18 tag Brands now have one, and currency gets a proper tooltip card with stack size and usage hint.
+- The inventory's stats column is hidden until C. C with the inventory open toggles it, and opening the inventory from the Character screen keeps it. The Character screen no longer pauses and refreshes twice a second.
+- Item cards on Alt: the weapon's stance(s) with descriptions, and every rolled mod shows its roll range right after the number plus its tier: "+23(20-25) Strength  [Tier 1]". The main card still hides tiers.
+- Hub colonnades turned 90 degrees so their open side faces the centre platform. The model opens along its local +X.
+
+**Tests**: new `tests/combat_pass/` (limits, chance rolls, golem body/headshots, AoE edge, Flame Jets, cooldown audit) and a stance-cooldown check. Existing mechanic tests force `status_chance = 1` or gear chance 100% so they keep testing the mechanic, not the roll. Tolerance tests moved to Slates. The inventory bounds test now derives from the grid and footprint size.
+
+---
+
 ## 2026-10-07 — Docs: public README, CREDITS, first release
 
 - `README.md` is now a short player-facing page (download, features, controls, building, credits). The old system-by-system reference moved unchanged to `DEVELOPMENT.md`, apart from replacing its stale arm-rig section with the v4.24 viewmodel and adding Reload/weapon-swap to its controls table.

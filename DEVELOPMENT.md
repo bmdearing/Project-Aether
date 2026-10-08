@@ -466,7 +466,18 @@ per 4 levels (Limit tag). **Tags** (`Ability.tags`: Area of Effect,
 Projectile, Duration, Limit, Channelling, Movement, Utility, plus Spell and
 the damage type) decide which modifiers apply: increased Area damage /
 AoE radius, Skill Effect Duration, Projectile Speed, Mana cost reduction
-and Cooldown Recovery all read them. Tornado's 3-at-once cap is its Limit. `ui/ability_bar/` shows equipped abilities
+and Cooldown Recovery all read them. **Limits** (Tornado 3, Black Hole 1,
+Flame Wall 2, Caltrops 3): casting past the limit removes the oldest
+instance. **Cooldowns (v4.32)**: only Blink and Purge keep one; every other
+spell is limited by Mana plus a short shared cast recovery
+(`Ability.base_recovery_time`, 0.3s, scaled by cast speed). Flame Jets
+channels for as long as the key is held and Mana lasts. Slate auto-cast
+fires at most every 2s. **Status chance**: each spell rolls
+`Ability.status_chance` per hit for each of its statuses, plus the
+caster's "+% chance to cause X" gear (`StatusEffectComponent.try_apply()`);
+weapon hits roll gear chance alone (`roll_gear_ailments()`). Stance riders
+that aren't ailments (Armor Shred, Suppressed, Slow, Entangle) always land.
+`ui/ability_bar/` shows equipped abilities
 with a cooldown wipe and Mana cost; `ui/abilities/AbilitiesScreen.gd` is
 the equip/upgrade menu.
 **The player starts with zero abilities** — per Patch v3.1's Skill
@@ -744,7 +755,7 @@ Figment plus an always-available free Tier 1 offer, so there's never a
 hard floor on playing even before any Figment has dropped. **Figments are
 now droppable** (`Enemy.gd`, 6% chance/kill, scaled near the killing
 Map's own tier via `FigmentRoller.roll_for_drop()`) and **craftable** -
-selecting one in the Crafting screen (`K`) shows an "Empower" action
+right-clicking one in the Inventory empowers it
 (Gold-gated, `CraftingSystem.empower_figment()`) that raises its tier and
 strengthens its rolls, making it harder on purpose. Leaving a Map is
 manual (Pause menu's "Return to Hub," or death).
@@ -893,21 +904,28 @@ equippable from `InventoryScreen`, or stays on the ground if there's no room; a 
   eligibility rules drops use, 5 tiers gated by item level); Slates from
   `SlateModifierPool` (their own tags plus generic/spell/attack). Gear and
   Slate pools never mix. Test content can register its own pools.
-- **Aether Tolerance**: every item and Slate rolls a crafting budget on
-  drop; each Orb spends a random amount; at 0 the item is finished.
+- **Aether Tolerance** (Slates only): each Slate rolls a crafting budget on
+  drop; each Orb spends a random amount; at 0 the Slate is finished. Gear
+  has no budget and can be crafted indefinitely.
 - **Brands & Edicts** (`data/crafting/brands/`, `edicts/`): 18 tag Brands,
   Prefix/Suffix, Preservation, and Vestige support; tags combine (Fire +
   Cold needs both). Brands must be carried and activated
   (`ActiveBrands`); Edicts sit on the item until its next resolved craft.
   All player-facing names/errors live in `data/crafting/currency_text.tres`.
-- **Crafting screen (K)**: pick a carried/equipped item or Slate, select an
-  Orb to see its preview, Use it; click Brands to activate them; Apply
-  Edicts; the Infusion/Shrivening Stone, Shard of Tharsis and Figment
-  empowering live here too. Currency drops from enemies as loot pickups.
-- **Inventory (B)**: a 12x6 footprint grid (`GridInventory`,
+- **Crafting in the Inventory** (the old K screen is gone): right-click a
+  Brand to activate it (red border, applies to the next Orb); right-click an
+  Orb, Edict or stone to pick it up (gold border), then click a grid item or
+  paper-doll slot to use it - hovering an item first previews the Orb's
+  likely outcomes. Esc or right-clicking the currency again puts it back.
+  Hand-authored starting gear must be unequipped first (it becomes its own
+  copy). Right-clicking a Figment empowers it. Currency drops from enemies
+  as loot pickups; currency tooltips explain each one.
+- **Inventory (B)**: a 14x7 footprint grid (`GridInventory`,
   `GameState.inventory`), no rotation; currency stacks to 100 per cell.
-  Click to equip (displaced gear goes back into the grid, or the swap is
-  undone if it can't fit), click the paper doll to unequip. Doesn't pause
+  Right-click to equip (displaced gear goes back into the grid, or the swap is
+  undone if it can't fit), click the paper doll to unequip; left-drag moves.
+  The stats column only shows after C (C while the inventory is open toggles
+  it; opening the inventory from the Character screen keeps it). Doesn't pause
   the game; combat input is ignored while the cursor is showing. Full
   inventory leaves pickups on the ground ("Inventory full" on the HUD).
 - **Stash**: the chest in the Hub (E) opens 4 general tabs plus Currency and
@@ -1135,16 +1153,15 @@ formulas).
 | Open Abilities (equip/upgrade) directly | N |
 | Open Character Screen directly | C |
 | Open Map Screen directly | M |
-| Open Crafting directly | K |
 | Rotate pending Slate *(Fate Board editor only)* | R |
 | Flip pending Slate *(Fate Board editor only)* | Q |
 | Interact *(Reality Engine, shops, Stash chest - Hub only)* | E |
 | Debug grid inventory / stash view | F6 |
 
-P/B/N/C/M/K work from anywhere — gameplay, the pause menu, or another such
+P/B/N/C/M work from anywhere — gameplay, the pause menu, or another such
 screen — and jump straight to their target, closing whatever else was
 open. Pressing the same key again while already on that screen closes it.
-None of the six have a `PauseMenu` button — hotkey-only.
+C while the inventory is open toggles its stats column instead. None of the five have a `PauseMenu` button — hotkey-only.
 
 ## Flagged design gaps (need your call, not resolved unilaterally)
 

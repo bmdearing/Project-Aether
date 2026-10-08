@@ -46,7 +46,7 @@ Each build is a single self-contained executable (about 900 MB to download).
 | Swap weapon set (tap) / stance page (hold) | X |
 | Interact | E |
 | Portal to the Hub | T |
-| Inventory / Character / Abilities / Fate Board / Map / Crafting | B / C / N / P / M / K |
+| Inventory / Character / Abilities / Fate Board / Map | B / C / N / P / M |
 | Pause | Esc |
 
 ## Building from source
