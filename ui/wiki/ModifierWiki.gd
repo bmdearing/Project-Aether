@@ -201,7 +201,7 @@ func _add_implicit_pool(base: Item) -> void:
 		_list.add_child(_text("None - no base of this type has an implicit to draw from.", 13, MUTED))
 		return
 	for affix in pool:
-		_list.add_child(_text(affix.description.trim_suffix(" (implicit)"), 14, CorruptionWiki.CORRUPT_COLOR.lightened(0.3)))
+		_list.add_child(_text(StatKeys.implicit_text(affix), 14, CorruptionWiki.CORRUPT_COLOR.lightened(0.3)))
 
 func _show_index() -> void:
 	var query := _search.text.strip_edges().to_lower()

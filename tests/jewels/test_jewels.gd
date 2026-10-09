@@ -42,7 +42,7 @@ func _run() -> void:
 	_test_crafting()
 	_test_stats()
 	_test_saving()
-	_test_socketing()
+	await _test_socketing()
 	_test_card()
 	await _test_overlay()
 	await _test_animation_lod()
@@ -182,8 +182,17 @@ func _test_socketing() -> void:
 	_screen._on_entry_clicked(_screen.inventory_grid, _entry_for(gloves))
 	_check(gloves.socketed.size() == 1 and GameState.inventory.has_content(spare), "a full item refuses another jewel")
 	_screen._release_jewel()
-	_screen._unsocket_all(gloves)
-	_check(gloves.socketed.is_empty() and GameState.inventory.has_content(jewel), "unsocketing returns jewels to the grid")
+	var ctrl := InputEventKey.new()
+	ctrl.keycode = KEY_CTRL
+	ctrl.pressed = true
+	Input.parse_input_event(ctrl)
+	await get_tree().process_frame
+	_screen._on_entry_right_clicked(_screen.inventory_grid, _entry_for(gloves))
+	ctrl.pressed = false
+	Input.parse_input_event(ctrl)
+	_check(gloves.socketed == [jewel] and not GameState.inventory.has_content(jewel), "socketing is permanent: Ctrl+right-click doesn't take the jewel back")
+	jewel = _jewel({"flat_strength": 6.0})
+	GameState.inventory.add(jewel)
 
 	# Into equipped gear, through the paper doll.
 	var worn := _armor(2)
@@ -195,7 +204,6 @@ func _test_socketing() -> void:
 	var after: float = _equipment.compute_stat_bonuses().get(Constants.Stat.STRENGTH, 0.0)
 	_check(worn.socketed == [jewel] and is_equal_approx(after - before, 6.0), "a jewel set into worn gear raises its stats")
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.GLOVES) == worn, "socketing a worn item doesn't unequip it")
-	_screen._unsocket_all(worn)
 	if old:
 		_equipment.equip(old, true)
 	_screen.close()

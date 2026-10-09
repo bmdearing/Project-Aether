@@ -101,7 +101,7 @@ const BRAND_COLOR := Color(0.85, 0.3, 0.3)
 const HINT_COLOR := Color(0.6, 0.75, 0.6)
 const SOCKETED_COLOR := Color(0.55, 0.85, 0.9)
 const UNIQUE_MOD_COLOR := Color(0.95, 0.68, 0.38)
-const JEWEL_HINT := "Right-click to pick up, then click an item with a free socket."
+const JEWEL_HINT := "Right-click to pick up, then click an item with a free socket. Socketing is permanent."
 
 ## Orbs, Brands, Edicts and stones: name, stack size, what it does and how to use it.
 func display_currency(id: StringName, count: int, hint: String = "") -> void:
@@ -169,7 +169,7 @@ func _render_item(item: Item) -> void:
 	var implicits := item.affixes.filter(func(a: ItemAffix): return a.is_implicit)
 	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
 	for affix in implicits:
-		_add_mod_line(_affix_text(affix, false), IMPLICIT_COLOR)
+		_add_mod_line(StatKeys.implicit_text(affix), IMPLICIT_COLOR)
 	if implicits.size() > 0 and (explicits.size() > 0 or not item.get_socketed_jewels().is_empty()):
 		_add_separator()
 	var mod_color := UNIQUE_MOD_COLOR if item.rarity >= Constants.ItemRarity.UNIQUE else AFFIX_COLOR
@@ -408,7 +408,6 @@ func _add_alt_socket_section(item: Item) -> void:
 	for jewel in jewels:
 		for affix in jewel.affixes:
 			_add_mod_line(_affix_text(affix, true), SOCKETED_COLOR)
-	_add_mod_line("Ctrl+Right-click to take the jewels out.", HINT_COLOR)
 
 ## Main card: the item's explicits with its socketed jewels folded in, one
 ## line per stat: modifiers feeding the same stat add up (two Intellect rolls
@@ -487,15 +486,7 @@ func _check_requirements_met(item: Item) -> bool:
 	var stat_sheet := _stat_sheet_for_card()
 	if stat_sheet == null:
 		return true
-	if GameState.player_level < item.level_requirement:
-		return false
-	if stat_sheet.get_stat(Constants.Stat.STRENGTH) < item.strength_requirement:
-		return false
-	if stat_sheet.get_stat(Constants.Stat.AGILITY) < item.agility_requirement:
-		return false
-	if stat_sheet.get_stat(Constants.Stat.INTELLECT) < item.intellect_requirement:
-		return false
-	return true
+	return ItemRequirements.block_reason(item, GameState.player_level, stat_sheet) == ""
 
 ## Shared between the Alt Info panel (always shown) and the main card
 ## (shown only when unmet, in red - see _render_item()) - "Requires Level
@@ -503,15 +494,13 @@ func _check_requirements_met(item: Item) -> bool:
 ## whichever of Strength/Agility/Intellect are actually non-zero.
 func _requirement_lines(item: Item) -> Array[String]:
 	var lines: Array[String] = []
-	if item.level_requirement > 1:
-		lines.append("Requires Level %d" % item.level_requirement)
+	var req := ItemRequirements.of(item)
+	if req["level"] > 1:
+		lines.append("Requires Level %d" % req["level"])
 	var stat_parts: Array[String] = []
-	if item.strength_requirement > 0:
-		stat_parts.append("%d Strength" % item.strength_requirement)
-	if item.agility_requirement > 0:
-		stat_parts.append("%d Agility" % item.agility_requirement)
-	if item.intellect_requirement > 0:
-		stat_parts.append("%d Intellect" % item.intellect_requirement)
+	for stat in ["strength", "agility", "intellect"]:
+		if req[stat] > 0:
+			stat_parts.append("%d %s" % [req[stat], stat.capitalize()])
 	if stat_parts.size() > 0:
 		lines.append("Requires %s" % " / ".join(stat_parts))
 	return lines
@@ -715,6 +704,10 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		var s := item as Shield
 		if s.armor_value > 0.0:
 			lines.append("Armour: %.0f" % s.armor_value)
+		if s.evasion_value > 0.0:
+			lines.append("Evasion: %.0f" % s.evasion_value)
+		if s.ward_value > 0.0:
+			lines.append("Ward: %.0f" % s.ward_value)
 		lines.append("Block Chance: %.0f%%" % (s.block_chance * 100.0))
 	elif item is FigmentItem:
 		var m := item as FigmentItem
@@ -726,10 +719,6 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		# Added to the player's own Item Quantity/Rarity on every kill here (Loot.multipliers()).
 		lines.append("Item Quantity: +%.0f%%" % ((m.loot_quantity_multiplier - 1.0) * 100.0))
 		lines.append("Item Rarity: +%.0f%%" % ((m.loot_rarity_multiplier - 1.0) * 100.0))
-	if item.item_level > 1:
-		lines.append("Requires Level %d" % item.item_level)
-	if item.stat_requirement != -1:
-		lines.append("Requires %.0f %s" % [item.stat_requirement_value, Constants.STAT_NAME.get(item.stat_requirement, "?")])
 	return lines
 
 func _clear() -> void:

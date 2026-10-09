@@ -191,3 +191,52 @@ const CATEGORY_DAMAGE_KEYS := {
 	Constants.DamageCategory.ELEMENTAL: "increased_elemental_damage",
 	Constants.DamageCategory.ESOTERIC: "increased_esoteric_damage",
 }
+
+## Card text for implicits, by stat: the generated bases stored short labels
+## ("+14% Duelist", "+16% Reach") as their descriptions.
+const IMPLICIT_TEXT := {
+	"increased_physical_damage": "+%d%% increased Physical damage",
+	"increased_elemental_damage": "+%d%% increased Elemental damage",
+	"increased_esoteric_damage": "+%d%% increased Esoteric damage",
+	"increased_kinetic_damage": "+%d%% increased Kinetic damage",
+	"increased_piercing_damage": "+%d%% increased Piercing damage",
+	"increased_explosive_damage": "+%d%% increased Explosive damage",
+	"increased_fire_damage": "+%d%% increased Fire damage",
+	"increased_cold_damage": "+%d%% increased Cold damage",
+	"increased_lightning_damage": "+%d%% increased Lightning damage",
+	"increased_aetheric_damage": "+%d%% increased Aetheric damage",
+	"increased_entropic_damage": "+%d%% increased Entropic damage",
+	"increased_pale_damage": "+%d%% increased Pale damage",
+	"increased_spell_damage": "+%d%% increased Spell damage",
+	"stagger_effect": "+%d%% increased Stagger effect",
+	"increased_aoe_radius": "+%d%% increased Area of Effect",
+	"increased_ailment_damage_bleed": "+%d%% increased Bleed damage",
+	"increased_ailment_duration_bleed": "+%d%% increased Bleed duration",
+	"increased_ailment_duration_electrocute": "+%d%% increased Electrocute duration",
+	"local_increased_attack_speed": "+%d%% increased Attack Speed",
+	"local_increased_crit_chance": "+%d%% increased Critical Strike Chance",
+	"physical_shred": "+%d%% Armour penetration",
+	"increased_riposte_damage": "+%d%% increased Riposte damage",
+	"increased_retaliation_damage": "+%d%% increased Retaliation damage",
+	"parry_window_duration": "+%d%% increased Parry Window duration",
+	"damage_while_moving": "+%d%% increased damage while moving",
+	"damage_at_range": "+%d%% increased damage beyond melee range",
+	"damage_vs_staggered": "+%d%% increased damage against Staggered enemies",
+	"damage_after_melee": "+%d%% increased damage for 4 seconds after a melee hit",
+	"armor_shred_effect": "+%d%% increased Armour Shred effect",
+	"ward_recovery_increased": "+%d%% increased Ward Restoration rate",
+	"spell_damage_in_stance": "+%d%% increased Spell damage while in stance",
+	"debuff_effectiveness": "+%d%% increased Debuff effectiveness",
+	"ailment_effectiveness": "+%d%% increased Ailment effectiveness",
+	"increased_evasion": "+%d%% increased Evasion",
+	"increased_armor": "+%d%% increased Armour",
+	"increased_ward": "+%d%% increased Ward",
+	"move_speed": "+%d%% increased Movement Speed",
+}
+
+## An implicit's card line: the stat's own wording when known.
+static func implicit_text(affix: ItemAffix) -> String:
+	var template: String = IMPLICIT_TEXT.get(affix.key(), "")
+	if template != "":
+		return template % roundi(affix.value)
+	return affix.description.trim_suffix(" (implicit)")

@@ -7,6 +7,18 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.46: Requirements follow defences, shield cards, implicit wording, loot over the void, permanent jewels (user request)
+
+- **Requirements are worked out from the item** (`ItemRequirements`), one rule for the card and the equip check: character level from item level (Brief v3.8d's table), weapons by type, and armour and shields by the stat behind their defence - Armour needs Strength, Evasion Agility, Ward Intellect; a hybrid needs both (the larger defence as primary). Jewellery needs only level. Before, shields were mapped by hand (Ward shields asked for Strength), body armour, helmets, gloves and boots had no stat requirement, and an older "Requires Level/Requires X Strength" pair was always printed and was what actually blocked equipping.
+  - Per Patch v3.8 the main card shows requirements only when you don't meet them (in red); Alt shows them always.
+- **Shield cards show Evasion and Ward** (Bucklers, Kite Shields, Rune Shields, Warded Barriers) - they counted in play but never appeared.
+- **Implicit wording:** generated bases carried short labels ("+14% Duelist", "+16% Reach", "+13% Executioner"). Implicits now print their stat's sentence (`StatKeys.implicit_text()`), on cards and in the Wiki - e.g. "+14% increased Parry Window duration".
+- **Loot over the void:** a boss hovering where there's no floor (the Lord of the Elements in his bay) dropped loot in mid-air. Drops now search outward for the nearest floor (closest to you first), and fall back to your feet.
+- **Socketing jewels is permanent** (user decision): Ctrl+right-click no longer takes them out; the hint says so.
+- Tests: `test_gear_stats` +2 (requirements and wording, void drops); `test_jewels` checks sockets can't be emptied.
+
+---
+
 ## 2026-10-08 — v4.45: Wiki Modifiers and Corruption pages, Corruption made real, roll and card fixes (user request)
 
 - **The Wiki has tabs:** Uniques, Modifiers, Corruption (`Wiki`, main and pause menu).

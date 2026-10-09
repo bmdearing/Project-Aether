@@ -347,21 +347,10 @@ func get_all_equipped_items() -> Array[Item]:
 func _ref_for(item: Item):
 	return item.resource_path if item.resource_path != "" else ItemSerializer.to_dict(item)
 
-## User request (2026-08-30): "They should also have the appropriate
-## level requirement and stat requirement to equip." Empty string = OK to
-## equip. Checked at the top of equip() itself (same spot the existing
-## two-handed-conflict checks already live), so the existing equip_failed
-## signal / InventoryScreen's "Can't equip: %s" status line handle display
-## for free - no new UI plumbing needed.
+## Empty string = OK to equip (ItemRequirements: level and stats from the
+## item itself). Shown by InventoryScreen's "Can't equip" line.
 func _requirement_block_reason(item: Item) -> String:
-	if GameState.player_level < item.item_level:
-		return "Requires character level %d" % item.item_level
-	if item.stat_requirement != -1 and _player:
-		var have := _player.stat_sheet.get_stat(item.stat_requirement)
-		if have < item.stat_requirement_value:
-			var stat_name: String = Constants.STAT_NAME.get(item.stat_requirement, "?")
-			return "Requires %.0f %s (have %.0f)" % [item.stat_requirement_value, stat_name, have]
-	return ""
+	return ItemRequirements.block_reason(item, GameState.player_level, _player.stat_sheet if _player else null)
 
 func _equip_ring(item: Item) -> void:
 	for i in range(rings.size()):

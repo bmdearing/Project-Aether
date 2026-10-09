@@ -62,7 +62,7 @@ var _held_jewel: Jewel
 const ARMED_BORDER := Color(1.0, 0.82, 0.3)
 const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
 const PREVIEW_LINES := 5
-const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. Right-click a Jewel to pick it up, then click an item to socket it; Ctrl+right-click an item to take its jewels out. C shows stats. Hold Alt over an item for details."
+const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows stats. Hold Alt over an item for details."
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -332,8 +332,6 @@ func _on_entry_right_clicked(_view: InventoryGridView, entry: GridInventory.Entr
 		_on_currency_right_clicked(entry.content)
 	elif _armed != &"":
 		_use_armed_on(entry.content)
-	elif Input.is_key_pressed(KEY_CTRL) and entry.content is Item and not entry.content.socketed.is_empty():
-		_unsocket_all(entry.content)
 	elif entry.content is Jewel:
 		_toggle_held_jewel(entry.content)
 	elif _held_jewel:
@@ -379,19 +377,6 @@ func _socket_into(target: Resource) -> void:
 	item.socketed.append(jewel)
 	_held_jewel = null
 	status_label.text = "Jewel set into %s." % item.display_name
-	_after_socket_change(item)
-
-## Takes every jewel out of target and back into the grid, as far as room allows.
-func _unsocket_all(item: Item) -> void:
-	var moved := 0
-	for jewel in item.socketed.duplicate():
-		if not GameState.add_to_inventory(jewel):
-			break
-		item.socketed.erase(jewel)
-		moved += 1
-	status_label.text = "Removed %d jewel%s from %s." % [moved, "" if moved == 1 else "s", item.display_name]
-	if not item.socketed.is_empty():
-		status_label.text += " No room for the rest."
 	_after_socket_change(item)
 
 func _after_socket_change(item: Item) -> void:
@@ -586,8 +571,6 @@ func _on_doll_slot_input(event: InputEvent, row: Dictionary) -> void:
 		_use_armed_on(item)
 	elif _held_jewel:
 		_socket_into(item)
-	elif event.ctrl_pressed and not item.socketed.is_empty():
-		_unsocket_all(item)
 
 func _on_doll_slot_pressed(row: Dictionary) -> void:
 	if _equipment == null:

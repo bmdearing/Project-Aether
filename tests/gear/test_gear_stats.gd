@@ -8,7 +8,7 @@ extends Node
 ## Exits 0 when every check passes. Never writes the save file.
 
 const HUB := "res://levels/hub/Hub.tscn"
-const TEST_COUNT := 13
+const TEST_COUNT := 15
 
 var _checks := 0
 var _failures := 0
@@ -49,6 +49,8 @@ func _run() -> void:
 	_test_roll_fixes()
 	_test_corruption()
 	_test_card_lines()
+	_test_requirements()
+	await _test_void_drops()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("gear stat tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -457,3 +459,63 @@ func _test_card_lines() -> void:
 	_check(not _card_text(card).contains("Maximum Evasion"), "base line names don't show as flavour")
 	card.free()
 	_finished += 1
+
+## Requirements follow the defence (Armour Str, Evasion Agi, Ward Int); one
+## rule for the card and the equip check.
+func _test_requirements() -> void:
+	var barrier := load("res://data/shields/instances/gen_warded_barrier_iron_warded_barrier.tres") as Item
+	var req := ItemRequirements.of(barrier)
+	_check(req["intellect"] > 0 and req["strength"] == 0, "a Ward shield needs Intellect: %s" % req)
+	var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+	card.display_item(barrier)
+	var text := _card_text(card)
+	_check(text.contains("Ward: "), "the shield card shows its Ward")
+	var kite := load("res://data/shields/instances/gen_kite_shield_crude_kite_shield.tres") as Item
+	if kite:
+		var kite_req := ItemRequirements.of(kite)
+		kite.item_level = 40
+		kite_req = ItemRequirements.of(kite)
+		_check(kite_req["strength"] > 0 or kite_req["agility"] > 0, "Kite Shields need their defences' stats: %s" % kite_req)
+	var vest := load("res://data/armor/instances/gen_body_armour_shadow_vest.tres") as Item
+	_check(ItemRequirements.of(vest)["agility"] > 0, "evasion armour needs Agility")
+	var ring := load("res://data/items/instances/ember_ring.tres") as Item
+	var ring_req := ItemRequirements.of(ring)
+	_check(ring_req["strength"] + ring_req["agility"] + ring_req["intellect"] == 0, "jewellery needs no stats")
+	var saber := load("res://data/weapons/instances/gen_saber_hussars_blade.tres") as Item
+	if saber:
+		card.display_item(saber)
+		_check(not _card_text(card).contains("Duelist"), "implicits read as sentences, not line labels: %s" % _card_text(card))
+	card.free()
+	_finished += 1
+
+## A boss hovering over the void drops onto the nearest floor, or at your feet.
+func _test_void_drops() -> void:
+	var arena := Node3D.new()
+	add_child(arena)
+	_floor(arena, Vector3(900, -0.5, 906), Vector3(4, 1, 4))
+	var enemy := EnemyRoster.create_unit("hollowed_shambler")
+	arena.add_child(enemy)
+	enemy.set_physics_process(false)
+	enemy.global_position = Vector3(900, 0.5, 900)
+	await get_tree().physics_frame
+	await _frames(1)
+	var spot := enemy._drop_position()
+	_check(absf(spot.y - Enemy.DROP_HOVER) < 0.05 and spot.z > 903.0, "over the void, drops land on the nearest floor (%s)" % spot)
+	enemy.global_position = Vector3(2000, 50, 2000)
+	var near_player := enemy._drop_position()
+	_check(near_player.distance_to(_player.global_position) < 2.0, "with no floor in reach they land at the player")
+	enemy.queue_free()
+	arena.queue_free()
+	await _frames(1)
+	_finished += 1
+
+func _floor(parent: Node, centre: Vector3, box_size: Vector3) -> StaticBody3D:
+	var body := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = box_size
+	shape.shape = box
+	body.add_child(shape)
+	parent.add_child(body)
+	body.global_position = centre
+	return body

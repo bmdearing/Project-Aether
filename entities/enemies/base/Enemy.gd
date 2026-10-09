@@ -959,7 +959,33 @@ func _drop_position() -> Vector3:
 		if not is_nan(floor_y):
 			return Vector3(spot.x, floor_y + DROP_HOVER, spot.z)
 	var under: float = _floor_below(global_position, 100.0)
-	return global_position if is_nan(under) else Vector3(global_position.x, under + DROP_HOVER, global_position.z)
+	if not is_nan(under):
+		return Vector3(global_position.x, under + DROP_HOVER, global_position.z)
+	return _nearest_floor_spot()
+
+## Nothing under the body (a boss hovering over the void): the nearest floor
+## in rings out to DROP_SEARCH_RADIUS, nearest the player first; else the
+## player's own feet, which are always reachable.
+const DROP_SEARCH_RADIUS := 16.0
+
+func _nearest_floor_spot() -> Vector3:
+	var player := get_tree().get_first_node_in_group("player") as Node3D if is_inside_tree() else null
+	var radius := 1.5
+	while radius <= DROP_SEARCH_RADIUS:
+		var best := Vector3.INF
+		for i in 12:
+			var angle := TAU * i / 12.0
+			var spot := global_position + Vector3(cos(angle), 0.0, sin(angle)) * radius
+			var floor_y: float = _floor_below(spot, 20.0)
+			if is_nan(floor_y):
+				continue
+			var found := Vector3(spot.x, floor_y + DROP_HOVER, spot.z)
+			if best == Vector3.INF or (player and found.distance_to(player.global_position) < best.distance_to(player.global_position)):
+				best = found
+		if best != Vector3.INF:
+			return best + Vector3(randf_range(-0.4, 0.4), 0.0, randf_range(-0.4, 0.4))
+		radius += 1.5
+	return player.global_position + Vector3(randf_range(-0.6, 0.6), DROP_HOVER, randf_range(-0.6, 0.6)) if player else global_position
 
 ## Height of the level geometry below `point` (searched from a little above
 ## it down to max_drop below), skipping creatures. NAN when there's none.
