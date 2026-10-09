@@ -15,11 +15,11 @@ const TIER_WEIGHTS: Array[int] = [15, 35, 50]
 
 const STAT_KEYS := [
 	"flat_strength", "flat_agility", "flat_intellect",
-	"max_life", "max_mana", "life_regen", "mana_regen",
+	"flat_life", "flat_mana", "life_regen_flat", "mana_regen",
 	"flat_armor", "flat_evasion", "flat_ward",
 	"increased_physical_damage", "increased_spell_damage", "elemental_dmg_increased", "esoteric_dmg_increased",
 	"increased_area_damage", "dot_multiplier",
-	"fire_resistance_pct", "cold_resistance_pct", "lightning_resistance_pct", "esoteric_resistance_pct",
+	"fire_resistance", "cold_resistance", "lightning_resistance", "esoteric_resistance",
 	"attack_speed", "cast_speed", "move_speed",
 	"crit_chance_increased", "crit_damage_increased",
 	"increased_aoe_radius", "skill_effect_duration",

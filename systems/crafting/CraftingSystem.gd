@@ -59,15 +59,16 @@ static func _random_affix_for(item: Item, pool: Array, power_level: int, exclude
 	if candidates.is_empty():
 		return null
 	var entry: Dictionary = candidates[randi() % candidates.size()]
-	var rolled_tier: int = ItemRoller._roll_tier(power_level)
-	var value_range: Vector2 = ItemRoller._tier_range(entry["tier1_min"], entry["tier1_max"], rolled_tier)
-	var value: float = randf_range(value_range.x, value_range.y)
+	var rolled := ItemRoller.roll_tier_range(entry["stat_key"], entry["tier1_min"], entry["tier1_max"], power_level)
+	var rolled_tier: int = rolled["tier"]
+	var value_range := Vector2(rolled["min"], rolled["max"])
+	var value := ItemRoller.roll_value(entry["stat_key"], value_range)
 	var affix := ItemAffix.new()
 	affix.stat_key = entry["stat_key"]
 	affix.value = value
 	affix.value_min = value_range.x
 	affix.value_max = value_range.y
 	affix.tier = rolled_tier
-	affix.description = "%s (Tier %d)" % [ItemRoller.format_desc(entry["desc"], value), rolled_tier]
+	affix.description = "%s (Tier %d)" % [ItemRoller.describe_value(entry["desc"], entry["stat_key"], value), rolled_tier]
 	affix.is_prefix = item.affixes.size() % 2 == 0
 	return affix

@@ -185,7 +185,9 @@ func _render_item(item: Item) -> void:
 		_add_mod_line("Reflecting %s" % item.reflect_source.display_name, STAT_LABEL_COLOR)
 		for affix in item.reflect_source._affixes_with_jewels():
 			_add_mod_line(_affix_text(affix, false), SOCKETED_COLOR)
-	if item.flavor_text != "":
+	# Only Uniques and Mythics carry real flavour: generated bases stored their
+	# line name ("Speed Line", "Maximum Ward") there.
+	if item.flavor_text != "" and item.rarity >= Constants.ItemRarity.UNIQUE:
 		_add_separator()
 		_add_flavor(item.flavor_text)
 	# Patch v3.8d: requirements only ever appear on the main card when
@@ -408,33 +410,39 @@ func _add_alt_socket_section(item: Item) -> void:
 			_add_mod_line(_affix_text(affix, true), SOCKETED_COLOR)
 	_add_mod_line("Ctrl+Right-click to take the jewels out.", HINT_COLOR)
 
-## Main card: the item's explicits with its socketed jewels folded in. A
-## jewel modifier with the same stat as an explicit adds to that line;
-## the rest follow, summed per stat.
+## Main card: the item's explicits with its socketed jewels folded in, one
+## line per stat: modifiers feeding the same stat add up (two Intellect rolls
+## read as one), and a hybrid splits into its parts so they merge too. Alt
+## Info keeps every modifier separate.
 func _merged_explicit_lines(item: Item) -> Array[String]:
-	var extra: Dictionary = {}  # stat_key -> [template, total]
-	var order: Array[String] = []
+	var sources: Array[ItemAffix] = []
+	sources.assign(item.affixes.filter(func(a: ItemAffix): return not a.is_implicit))
 	for jewel in item.get_socketed_jewels():
-		for affix in jewel.affixes:
-			if not extra.has(affix.stat_key):
-				extra[affix.stat_key] = [CraftingResolver._template_for(affix), 0.0, affix]
-				order.append(affix.stat_key)
-			extra[affix.stat_key][1] += affix.value
+		sources.append_array(jewel.affixes)
+	var totals: Dictionary = {}  # stat -> [template, total, first affix]
+	var order: Array[String] = []
+	for affix in sources:
+		for part in _line_parts(affix):
+			if not totals.has(part[0]):
+				totals[part[0]] = [part[1], 0.0, affix]
+				order.append(part[0])
+			totals[part[0]][1] += part[2]
 	var lines: Array[String] = []
-	for affix in item.affixes:
-		if affix.is_implicit:
-			continue
-		var template := CraftingResolver._template_for(affix)
-		if extra.has(affix.stat_key) and template != "":
-			lines.append(ItemRoller.format_desc(template, affix.value + extra[affix.stat_key][1]))
-			extra.erase(affix.stat_key)
-			order.erase(affix.stat_key)
-		else:
-			lines.append(_affix_text(affix, false))
-	for key in order:
-		var entry: Array = extra[key]
-		lines.append(ItemRoller.format_desc(entry[0], entry[1]) if entry[0] != "" else _affix_text(entry[2], false))
+	for stat in order:
+		var entry: Array = totals[stat]
+		lines.append(ItemRoller.describe_value(entry[0], stat, entry[1]) if entry[0] != "" else _affix_text(entry[2], false))
 	return lines
+
+## [stat, template, value] for each stat a modifier feeds. One without a known
+## template (Uniques, corruption implicits) keeps its own line.
+func _line_parts(affix: ItemAffix) -> Array:
+	var template := CraftingResolver._template_for(affix)
+	if template == "":
+		return [["#%d" % affix.get_instance_id(), "", affix.value]]
+	if affix.key() == "local_hybrid_weapon_damage":
+		var flat := maxf(roundf(affix.value * ItemRoller.HYBRID_FLAT_PER_PERCENT), 1.0)
+		return [["local_increased_weapon_damage", "+%d%% increased Weapon Damage", affix.value], ["local_flat_weapon_damage", "Adds %d to %d Weapon Damage", flat]]
+	return [[affix.key(), template, affix.value]]
 
 func _render_alt_info() -> void:
 	_clear()

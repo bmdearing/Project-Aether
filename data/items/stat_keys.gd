@@ -8,6 +8,15 @@ class_name StatKeys
 ## counts no matter which naming it was rolled under.
 
 const ALIASES := {
+	# General pool names for the same stat
+	"max_life": "flat_life",
+	"max_mana": "flat_mana",
+	"life_regen_flat": "life_regen",
+	"crit_damage": "crit_damage_increased",
+	"fire_resistance_pct": "fire_resistance",
+	"cold_resistance_pct": "cold_resistance",
+	"lightning_resistance_pct": "lightning_resistance",
+	"esoteric_resistance_pct": "esoteric_resistance",
 	# Damage by type / category
 	"aetheric_aetheric": "increased_aetheric_damage",
 	"cold_glacial": "increased_cold_damage",

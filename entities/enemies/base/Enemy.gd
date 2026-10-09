@@ -422,6 +422,15 @@ func apply_knockback(impulse: Vector3) -> void:
 	if impulse.y > 0.0:
 		velocity.y = maxf(velocity.y, impulse.y)
 
+## A corrupted item's "nearby enemies have reduced Resistances" aura.
+const SHRED_AURA_RADIUS := 8.0
+
+func _aura_shred() -> float:
+	var player := get_tree().get_first_node_in_group("player") as Node3D
+	if player == null or player.global_position.distance_to(global_position) > SHRED_AURA_RADIUS:
+		return 0.0
+	return GearEffects.player_bonus(get_tree(), "resistance_shred_aura")
+
 ## Staggered: interrupted in the last STAGGER_SECONDS, or Broken (Composure).
 const STAGGER_SECONDS := 1.5
 var _staggered_until_msec: int = 0
@@ -829,7 +838,7 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		var armor := armor_value * (status_effects.get_armor_multiplier() if status_effects else 1.0)
 		mitigated *= (1.0 - armor / (armor + 1000.0))
 	if status_effects and (category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC):
-		var shred := status_effects.get_resistance_shred()
+		var shred := status_effects.get_resistance_shred() + _aura_shred()
 		if shred > 0.0:
 			mitigated *= (1.0 - DamageCalculator.resistance_mitigation(-shred))
 	if _ward_current > 0.0:

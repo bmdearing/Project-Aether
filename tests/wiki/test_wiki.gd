@@ -7,7 +7,7 @@ extends Node
 
 const HUB := "res://levels/hub/Hub.tscn"
 const MAIN_MENU := "res://ui/main_menu/MainMenu.tscn"
-const TEST_COUNT := 5
+const TEST_COUNT := 7
 
 var _checks := 0
 var _failures := 0
@@ -34,6 +34,8 @@ func _run() -> void:
 	await _test_wiki_panel()
 	await _test_main_menu()
 	await _test_stash_screen()
+	await _test_modifier_pages()
+	await _test_corruption_page()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("wiki tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -155,3 +157,65 @@ func _test_stash_screen() -> void:
 	hub.queue_free()
 	await _frames(1)
 	_finished += 1
+
+func _test_modifier_pages() -> void:
+	for group in WikiCatalog.GROUPS:
+		_check(not WikiCatalog.types_in(group).is_empty(), "%s has base types" % group)
+	var names := WikiCatalog.all_types().map(func(t): return t["name"])
+	_check(names.has("Greatsword") and names.has("Ring") and names.has("Jewel") and names.has("Fire Slate"), "groups list weapons, accessories, jewels and slates")
+	_check(not names.any(func(n): return String(n).contains("Grenade") or String(n).contains("Knife")), "throwables aren't listed")
+	var sword: Dictionary = WikiCatalog.types_in("Melee").filter(func(t): return t["name"] == "Greatsword")[0]
+	var rows := WikiCatalog.modifier_rows(sword["base"], 80)
+	var total := 0.0
+	for r in rows:
+		total += r["chance"]
+	_check(is_equal_approx(total, 1.0), "Orb chances on a blank item add up to 100% (%.3f)" % total)
+	var dmg: Array = rows.filter(func(r): return r["def"].stat_key == "local_increased_weapon_damage")
+	_check(dmg.size() == 1 and dmg[0]["tiers"].size() == 8 and dmg[0]["tiers"][0]["level"] == 80 and is_equal_approx(dmg[0]["tiers"][0]["max"], 190.0), "Weapon Damage shows its 8 tiers, Tier 1 at item level 80 up to 190%")
+	var low := WikiCatalog.modifier_rows(sword["base"], 1)
+	var low_dmg: Array = low.filter(func(r): return r["def"].stat_key == "local_increased_weapon_damage")[0]["tiers"]
+	_check(low_dmg.filter(func(t): return t["chance"] > 0.0).size() == 1, "at item level 1 only the lowest tier can roll")
+	_check(rows.all(func(r): return r["tiers"].all(func(t): return t["level"] >= 1 and t["level"] <= 80)), "every tier names the item level it needs")
+	var kinetic := low.filter(func(r): return r["def"].stat_key == "increased_kinetic_damage")
+	_check(not kinetic.is_empty() and kinetic[0]["chance"] > 0.0, "library mods roll below their Tier 1 level (Kinetic damage at item level 1)")
+	var index := WikiCatalog.modifier_index()
+	var fire_res: Array = index.filter(func(r): return String(r["text"]).contains("Fire Resistance"))
+	_check(fire_res.size() == 1, "one Fire Resistance modifier, not two from different patches")
+	var wiki := Wiki.new()
+	add_child(wiki)
+	await _frames(1)
+	wiki.show_page("Modifiers")
+	wiki.modifiers.show_type("Accessories", "Amulet", 80)
+	await _frames(1)
+	_check(wiki.modifiers.rows.any(func(r): return String(r["text"]).contains("to level of all")), "the By item view lists the amulet's modifiers")
+	wiki.modifiers.by_modifier = true
+	wiki.modifiers._search.text = "Attack Speed"
+	wiki.modifiers.refresh()
+	_check(not wiki.modifiers.rows.is_empty() and wiki.modifiers.rows.all(func(r): return String(r["text"]).contains("Attack Speed")), "By modifier search filters")
+	wiki.queue_free()
+	await _frames(1)
+	_finished += 1
+
+func _test_corruption_page() -> void:
+	var tiers := WikiCatalog.corruption_tiers()
+	var total := 0.0
+	for t in tiers:
+		for o in t["outcomes"]:
+			total += o["chance"]
+			_check(o["text"] != "", "%s is described" % o["name"])
+	_check(is_equal_approx(total, 1.0), "outcome chances add up to 100%")
+	var ascendant: Dictionary = tiers[2]["outcomes"].filter(func(o): return o["name"] == "Ascendant")[0]
+	_check(ascendant["slots"][0] and not ascendant["slots"].slice(1).any(func(s): return s), "Ascendant only lights the weapon slot")
+	var page := CorruptionWiki.new()
+	add_child(page)
+	await _frames(1)
+	_check(page.shown.size() == total_outcomes(), "the page lists every outcome")
+	page.queue_free()
+	await _frames(1)
+	_finished += 1
+
+func total_outcomes() -> int:
+	var n := 0
+	for tier in 4:
+		n += CorruptionSystem.outcomes_in_tier(tier + 1).size()
+	return n

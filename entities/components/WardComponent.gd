@@ -70,3 +70,10 @@ func restore_on_kill() -> void:
 
 func restore_on_parry_success() -> void:
 	restore(max_ward * PARRY_RESTORE_PERCENT)
+
+## Loses Ward without counting as a hit (no regen delay reset).
+func drain(amount: float) -> void:
+	if amount <= 0.0 or current_ward <= 0.0:
+		return
+	current_ward = maxf(current_ward - amount, 0.0)
+	ward_changed.emit(current_ward, max_ward)

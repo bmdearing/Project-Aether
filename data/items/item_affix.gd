@@ -39,7 +39,7 @@ class_name ItemAffix
 func get_group() -> StringName:
 	if group != &"":
 		return group
-	return StringName(affix_id) if affix_id != "" else StringName(stat_key)
+	return StringName(key())  # one modifier per stat, whatever it was rolled as
 
 ## The stat this modifier feeds, whatever name it was rolled under (StatKeys).
 func key() -> String:

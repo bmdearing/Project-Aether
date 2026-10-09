@@ -5,8 +5,6 @@ class_name UniqueWiki
 ## Find slider that starts at the character's own Magic Find; their gear's
 ## flat Item Quantity / Item Rarity are added on top.
 
-signal back_pressed
-
 const WIDTH := 980.0
 const LIST_HEIGHT := 560.0
 const MAGIC_FIND_MAX := 500.0
@@ -58,11 +56,6 @@ func multipliers() -> Dictionary:
 	}
 
 func _build() -> void:
-	var title := Label.new()
-	title.text = "Wiki  ·  Uniques & Mythics"
-	AetherStyle.title_label(title, 26)
-	add_child(title)
-
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 12)
 	add_child(row)
@@ -105,13 +98,6 @@ func _build() -> void:
 	_list.add_theme_constant_override("separation", 10)
 	_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(_list)
-
-	var back := Button.new()
-	back.text = "Back"
-	back.custom_minimum_size = Vector2(140, 0)
-	back.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
-	back.pressed.connect(func(): back_pressed.emit())
-	add_child(back)
 
 func _rebuild_list() -> void:
 	for child in _list.get_children():

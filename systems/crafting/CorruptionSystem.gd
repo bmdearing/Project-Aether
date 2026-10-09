@@ -98,3 +98,61 @@ static func _instantiate(outcome_name: String) -> CorruptionOutcome:
 		"ResonantEcho": return CorruptionOutcome.ResonantEcho.new()
 		"AethericSurge": return CorruptionOutcome.AethericSurge.new()
 	return CorruptionOutcome.new()
+
+## What each outcome does, for the Wiki.
+const DESCRIPTIONS := {
+	"AddImplicit": "Adds an implicit from the item type's implicit pool (up to 3).",
+	"RerandomizeValues": "Rerolls every explicit modifier's value within its tier.",
+	"AddSocket": "Adds a socket, up to the item's maximum.",
+	"RemoveSocket": "Removes a socket.",
+	"TierUp": "One modifier moves up a tier (Tier 3 becomes Tier 2).",
+	"TierDown": "One modifier moves down a tier.",
+	"AddSpecialAffix": "Adds a corrupted modifier: one of the item's own at 130% of its Tier 1 maximum.",
+	"AddExtraSocket": "Adds a socket beyond the maximum (up to +1).",
+	"ConvertAffix": "Replaces one modifier with a random modifier of the same pool.",
+	"AddSecondImplicit": "Adds a second implicit from the item type's pool.",
+	"ResistanceShredAura": "Implicit: nearby enemies have 8% reduced Resistances.",
+	"SkillNoCooldown": "Implicit: one ability bar slot has no cooldown but costs 40% more Mana.",
+	"Veiltouch": "Replaces one modifier with a Slate modifier (once per item).",
+	"Hollow": "Removes every explicit. Implicit: 25% increased damage, your hits drain Ward equal to 10% of their damage.",
+	"Inversion": "One resistance becomes a vulnerability; every other modifier is 20% stronger.",
+	"MawTouched": "Implicit: skills have an 8% chance to trigger twice (the second at 50% damage).",
+	"PaleBranded": "Implicit: 35% increased maximum Life, but Ward cannot be recovered.",
+	"Overcharged": "Every modifier rolls in the top 20% of its tier; one modifier is removed.",
+	"Ascendant": "The weapon's scaling grade improves by one.",
+	"Transcendent": "The item becomes a corrupted-only Unique; every modifier is lost.",
+	"Unmade": "Strips everything; the base gains 10 item levels (up to 91).",
+	"ResonantEcho": "Copies one modifier as an implicit at 60% strength.",
+	"AethericSurge": "Doubles an Esoteric modifier, or replaces a modifier with an Aetheric one.",
+}
+
+## Outcome names by tier (1-4).
+static func outcomes_in_tier(tier: int) -> Array:
+	return [_MINOR, _SIGNIFICANT, _MAJOR, _EXTREME][clampi(tier, 1, 4) - 1]
+
+## Chance a Shard of Tharsis rolls this outcome.
+static func outcome_chance(outcome_name: String) -> float:
+	var total := 0.0
+	for w in TIER_WEIGHTS.values():
+		total += w
+	for tier in TIER_WEIGHTS:
+		var names := outcomes_in_tier(tier)
+		if names.has(outcome_name):
+			return TIER_WEIGHTS[tier] / total / names.size()
+	return 0.0
+
+## Whether an outcome can change an item of this base (it otherwise lands
+## with no effect).
+static func can_change(outcome_name: String, base: Item) -> bool:
+	match outcome_name:
+		"AddImplicit", "AddSecondImplicit":
+			return not ImplicitPool.pool_for_type(base.get_item_type()).is_empty()
+		"AddSocket", "RemoveSocket", "AddExtraSocket":
+			return ItemRoller.get_socket_cap(base) > 0
+		"Ascendant":
+			return base is Weapon
+		"Inversion":
+			return SpecialCorruptionPool.defs_for(base).any(func(d: ModifierDef): return d.stat_key.contains("resistance"))
+		"Transcendent":
+			return not UniquePool.get_corrupted_uniques_for_type(base.equip_slot).is_empty()
+	return true

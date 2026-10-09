@@ -85,8 +85,10 @@ static func _thousands(n: int) -> String:
 ## The character's Item Quantity / Item Rarity / Magic Find from gear: the
 ## live Player's when there is one, else the saved equipment (main menu).
 static func character_bonuses() -> Dictionary:
-	var equipment := GameState.player_equipment as EquipmentComponent
-	if is_instance_valid(equipment) and equipment.is_inside_tree():
+	# The live Player's equipment, unless that Player is gone (back on the menu).
+	var live: Variant = GameState.player_equipment
+	var equipment := live as EquipmentComponent if is_instance_valid(live) else null
+	if equipment and equipment.is_inside_tree():
 		return equipment.compute_misc_bonuses()
 	var refs: Array = GameState.equipment_refs.duplicate()
 	if GameState.active_weapon_set < GameState.weapon_set_refs.size():

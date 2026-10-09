@@ -1,8 +1,8 @@
 extends RefCounted
 class_name CorruptionOutcome
 ## Shard of Tharsis corruption outcomes, grouped Minor/Significant/Major/
-## Extreme. Affix rolls use the real gear pool; ImplicitPool,
-## SpecialCorruptionPool and UniquePool are still stubs.
+## Extreme. Affix rolls use the real gear pool; implicits come from
+## ImplicitPool, corrupted-strength modifiers from SpecialCorruptionPool.
 
 var success: bool = true
 var reason: String = ""
@@ -23,9 +23,8 @@ class AddImplicit extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
 		if item.get_implicit_count() >= 3:
 			return
-		var implicit := ImplicitPool.get_random_for_type(item.equip_slot)
+		var implicit := ImplicitPool.get_random_for(item)
 		if implicit:
-			implicit.is_implicit = true
 			item.affixes.append(implicit)
 
 class RerandomizeValues extends CorruptionOutcome:
@@ -50,31 +49,31 @@ class RemoveSocket extends CorruptionOutcome:
 class TierUp extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
 		var upgradeable := item.affixes.filter(
-			func(a: ItemAffix): return not a.is_implicit and a.tier > 1
+			func(a: ItemAffix): return not a.is_implicit and a.tier > 1 and ItemRoller.tier_range_for(a, a.tier - 1).x >= 0.0
 		)
 		if upgradeable.is_empty():
 			return
 		var target: ItemAffix = upgradeable[randi() % upgradeable.size()]
-		target.tier -= 1
+		ItemRoller.retier(target, target.tier - 1)
 
 class TierDown extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
 		var downgradeable := item.affixes.filter(
-			func(a: ItemAffix): return not a.is_implicit and a.tier < ItemRoller.TIER_COUNT
+			func(a: ItemAffix): return not a.is_implicit and a.tier > 0 and a.tier < ItemRoller.tier_count_for(a) and ItemRoller.tier_range_for(a, a.tier + 1).x >= 0.0
 		)
 		if downgradeable.is_empty():
 			return
 		var target: ItemAffix = downgradeable[randi() % downgradeable.size()]
-		target.tier += 1
+		ItemRoller.retier(target, target.tier + 1)
 
 ## ---- Tier 2: Significant -----------------------------------------------
 
 class AddSpecialAffix extends CorruptionOutcome:
-	## Corruption-only mods (SpecialCorruptionPool, stubbed).
+	## A corrupted-strength modifier (SpecialCorruptionPool).
 	func apply(item: Item, _power_level: int) -> void:
 		if not item.can_add_prefix() and not item.can_add_suffix():
 			return
-		var special := SpecialCorruptionPool.get_random(item.item_level)
+		var special := SpecialCorruptionPool.get_random_for(item)
 		if special:
 			item.affixes.append(special)
 
@@ -103,9 +102,8 @@ class AddSecondImplicit extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
 		if item.get_implicit_count() >= 2:
 			return
-		var implicit := ImplicitPool.get_random_for_type(item.equip_slot)
+		var implicit := ImplicitPool.get_random_for(item)
 		if implicit:
-			implicit.is_implicit = true
 			item.affixes.append(implicit)
 
 class ResistanceShredAura extends CorruptionOutcome:
@@ -117,6 +115,7 @@ class ResistanceShredAura extends CorruptionOutcome:
 		aura.display_name = "Resistance Shred Aura"
 		aura.stat_key = "resistance_shred_aura"
 		aura.value = 8.0  # 8% shred to all resistances
+		aura.description = "Nearby enemies have 8% reduced Resistances"
 		aura.is_implicit = true
 		item.affixes.append(aura)
 
@@ -130,6 +129,8 @@ class SkillNoCooldown extends CorruptionOutcome:
 		implicit.display_name = "Cursed Skill"
 		implicit.stat_key = "skill_no_cooldown_extra_cost"
 		implicit.value = 40.0
+		implicit.value_max = randi_range(1, 4)  # the cursed ability bar slot
+		implicit.description = "Ability slot %d has no cooldown, but costs 40%% more Mana" % int(implicit.value_max)
 		implicit.is_implicit = true
 		item.affixes.append(implicit)
 
@@ -166,6 +167,7 @@ class Hollow extends CorruptionOutcome:
 		hollow_implicit.stat_key = "hollow_damage_ward_drain"
 		hollow_implicit.value = 25.0       # 25% increased damage
 		hollow_implicit.value_min = 10.0   # 10% ward drain
+		hollow_implicit.description = "25% increased damage; your hits drain Ward equal to 10% of the damage dealt"
 		hollow_implicit.is_implicit = true
 		item.affixes.append(hollow_implicit)
 
@@ -195,6 +197,7 @@ class MawTouched extends CorruptionOutcome:
 		implicit.stat_key = "skill_double_trigger_chance"
 		implicit.value = 8.0        # 8% chance to trigger twice
 		implicit.value_min = 50.0   # second trigger 50% damage
+		implicit.description = "Skills have an 8% chance to trigger twice; the second deals 50% damage"
 		implicit.is_implicit = true
 		item.affixes.append(implicit)
 
@@ -207,6 +210,7 @@ class PaleBranded extends CorruptionOutcome:
 		implicit.display_name = "Pale Branded"
 		implicit.stat_key = "no_ward_recovery_life_bonus"
 		implicit.value = 35.0  # 35% max life increase
+		implicit.description = "35% increased maximum Life; Ward cannot be recovered"
 		implicit.is_implicit = true
 		item.affixes.append(implicit)
 

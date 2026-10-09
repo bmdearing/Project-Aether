@@ -185,22 +185,24 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 	var copies: int = plan["copies"]
 	if _cast_lockout > 0.0:
 		return
-	if get_cooldown_remaining(ability) > 0.0:
+	var cursed_cost := 0.0 if from_page else _cursed_slot_cost(slot_index)
+	if get_cooldown_remaining(ability) > 0.0 and cursed_cost <= 0.0:
 		EventBus.ability_cast_failed.emit(_player, ability, "On cooldown")
 		return
-	if _player.mana.current_mana < ability.get_mana_cost(_player.stat_sheet) * copies:
+	var mana_cost := ability.get_mana_cost(_player.stat_sheet) * copies * (1.0 + cursed_cost / 100.0)
+	if _player.mana.current_mana < mana_cost:
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
 		return
 	# Checked before spending, since CastTimeHandler refuses mid-windup.
 	if _player.cast_time_handler.is_casting():
 		EventBus.ability_cast_failed.emit(_player, ability, "Already casting")
 		return
-	_player.mana.spend(ability.get_mana_cost(_player.stat_sheet) * copies)
+	_player.mana.spend(mana_cost)
 	_cast_lockout = ability.base_recovery_time / maxf(_player.get_action_speed_multiplier(), 0.01)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_input_action = "ability_%d" % (slot_index + 1)
 		_flame_jets_is_manual = true
-	_cooldowns[ability] = ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet)
+	_cooldowns[ability] = 0.0 if cursed_cost > 0.0 else ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet)
 	# CastTimeHandler calls _on_cast_time_completed() immediately for
 	# INSTANT/CHANNELED, or after the windup for CAST_TIME.
 	var cast: Ability = plan["ability"]
@@ -216,6 +218,7 @@ func _on_cast_time_completed(ability: Ability, cast_position: Vector3) -> void:
 	var copies: int = plan.get("copies", 1)
 	if copies <= 1:
 		_cast(ability, cast_position)
+		_maybe_trigger_twice(ability, cast_position)
 		return
 	# Unleash: aimed copies fan out, targeted copies line up across the target.
 	var right := _player.camera.global_transform.basis.x
@@ -804,3 +807,23 @@ func _enemies_near(centre: Vector3, radius: float) -> Array[Enemy]:
 		if enemy and enemy.health.is_alive() and enemy.distance_to_body(centre) <= radius:
 			result.append(enemy)
 	return result
+
+## Corrupted "Cursed Skill": the extra Mana cost (%) of the ability bar slot
+## it names (1-4), 0 when no equipped item curses this slot. That slot has
+## no cooldown.
+func _cursed_slot_cost(slot_index: int) -> float:
+	var extra := 0.0
+	for item in _player.equipment.get_all_equipped_items():
+		for affix in item.affixes:
+			if affix.stat_key == "skill_no_cooldown_extra_cost" and int(affix.value_max) == slot_index + 1:
+				extra += affix.value
+	return extra
+
+## Corrupted "Maw-Touched": a chance for a cast to go off again at
+## MAW_TOUCHED_DAMAGE.
+const MAW_TOUCHED_DAMAGE := 0.5
+
+func _maybe_trigger_twice(ability: Ability, cast_position: Vector3) -> void:
+	var chance := _player.stat_sheet.get_misc_bonus("skill_double_trigger_chance") / 100.0
+	if chance > 0.0 and ability.deals_damage() and randf() < chance:
+		_cast(ability, cast_position, MAW_TOUCHED_DAMAGE)

@@ -28,6 +28,8 @@ const AFTER_MELEE_SECONDS := 4.0
 const EXPLOSION_BLEED_RADIUS := 2.5
 const EXPLOSION_BLEED_SECONDS := 2.0
 const STUN_SECONDS := 1.0
+## Hollow corruption: your hits drain your own Ward by this share of the damage.
+const HOLLOW_WARD_DRAIN := 0.1
 
 ## Ailment application -> resource it grants.
 const ON_AILMENT := {
@@ -94,6 +96,8 @@ func _on_damage_dealt(source: Node, target: Node, amount: float, damage_type: in
 		_player.ward.restore(_bonus("ward_on_hit"))
 	if _bonus("ward_drain_on_hit") > 0.0 and enemy.get_ward() > 0.0:
 		_player.ward.restore(enemy.drain_ward(enemy.get_ward_max() * _bonus("ward_drain_on_hit") / 100.0))
+	if _bonus("hollow_damage_ward_drain") > 0.0:
+		_player.ward.drain(amount * HOLLOW_WARD_DRAIN)
 	if _bonus("stagger_chance") > 0.0 and randf() < _bonus("stagger_chance") / 100.0:
 		enemy.interrupt_attack()
 	if damage_type == Constants.DamageType.EXPLOSIVE:

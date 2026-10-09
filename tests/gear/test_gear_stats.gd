@@ -8,7 +8,7 @@ extends Node
 ## Exits 0 when every check passes. Never writes the save file.
 
 const HUB := "res://levels/hub/Hub.tscn"
-const TEST_COUNT := 10
+const TEST_COUNT := 13
 
 var _checks := 0
 var _failures := 0
@@ -46,6 +46,9 @@ func _run() -> void:
 	_test_slates()
 	_test_bases()
 	await _test_pause_wiki()
+	_test_roll_fixes()
+	_test_corruption()
+	_test_card_lines()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("gear stat tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -273,7 +276,7 @@ func _test_pause_wiki() -> void:
 	if pause:
 		pause._show_wiki(true)
 		await _frames(1)
-		_check(pause._wiki_center.visible and pause._wiki.listed_ids().size() == UniqueCatalog.DEFS.size(), "it opens the Unique wiki")
+		_check(pause._wiki_center.visible and pause._wiki.uniques.listed_ids().size() == UniqueCatalog.DEFS.size(), "it opens the Unique wiki")
 		pause._show_wiki(false)
 	_finished += 1
 
@@ -377,4 +380,80 @@ func _test_mechanics() -> void:
 	sheet.misc_bonus = saved
 	enemy.queue_free()
 	await _frames(1)
+	_finished += 1
+
+## One modifier per stat on drops, whole skill levels, implicits kept.
+func _test_roll_fixes() -> void:
+	var dupes := 0
+	var kept_implicits := 0
+	var accessories := 0
+	for i in 400:
+		var item := ItemRoller.roll(85, 5.0)
+		if item == null or item.rarity >= Constants.ItemRarity.UNIQUE:
+			continue
+		var keys := item.affixes.filter(func(a): return not a.is_implicit).map(func(a): return a.key())
+		for k in keys:
+			if keys.count(k) > 1:
+				dupes += 1
+		if item.get_item_type() in [&"ring", &"amulet", &"belt"]:
+			accessories += 1
+			if item.affixes.any(func(a): return a.is_implicit):
+				kept_implicits += 1
+	_check(dupes == 0, "no item rolls two modifiers for the same stat (%d)" % dupes)
+	_check(accessories > 0 and kept_implicits == accessories, "dropped jewellery keeps its implicit (%d/%d)" % [kept_implicits, accessories])
+	var levels := {}
+	for i in 300:
+		var r := ItemRoller.roll_tier_range("skill_level_entropic", 1.0, 2.0, 90)
+		levels[ItemRoller.roll_value("skill_level_entropic", Vector2(r["min"], r["max"]))] = r["tier"]
+	_check(levels.keys().all(func(v): return v == 1.0 or v == 2.0) and levels.get(1.0) == 2 and levels.get(2.0) == 1, "skill levels are +1 at Tier 2, +2 at Tier 1: %s" % levels)
+	_check(ItemRoller.roll_tier_range("skill_level_entropic", 1.0, 2.0, 30)["max"] == 1.0, "+2 needs item level 80")
+	_finished += 1
+
+func _test_corruption() -> void:
+	var ring := Item.new()
+	ring.equip_slot = Constants.EquipmentSlot.RING
+	_check(not ImplicitPool.pool_for_type(&"ring").is_empty() and not ImplicitPool.pool_for_type(&"greatsword").is_empty(), "implicit pools come from the bases")
+	var implicit := ImplicitPool.get_random_for(ring)
+	_check(implicit != null and implicit.is_implicit, "Add Implicit finds one")
+	var special := SpecialCorruptionPool.get_random_for(ring)
+	_check(special != null and special.description.ends_with("(Corrupted)"), "Add Special Affix rolls a corrupted modifier")
+	var affix := ItemAffix.new()
+	affix.stat_key = "flat_strength"
+	affix.tier = 3
+	var r3 := ItemRoller.tier_range_for(affix, 3)
+	affix.value_min = r3.x
+	affix.value_max = r3.y
+	affix.value = r3.y
+	ItemRoller.retier(affix, 2)
+	_check(affix.tier == 2 and is_equal_approx(affix.value, ItemRoller.tier_range_for(affix, 2).y), "Tier Up moves the value into the better tier")
+	var sheet := _player.stat_sheet
+	var saved: Dictionary = sheet.misc_bonus
+	sheet.misc_bonus = {"no_ward_recovery_life_bonus": 35.0}
+	var before_life := _player.health.max_health
+	_player._apply_derived_stats()
+	_check(_player.health.max_health > before_life * 1.3, "Pale Branded raises max Life")
+	sheet.misc_bonus = saved
+	_player._apply_derived_stats()
+	_finished += 1
+
+func _test_card_lines() -> void:
+	var w := _sword()
+	w.affixes.append(_affix("local_hybrid_weapon_damage", 20.0, "+20% increased Weapon Damage, Adds 4 to 7 Weapon Damage (Tier 6)"))
+	w.affixes.append(_affix("local_flat_weapon_damage", 3.0, "Adds 3 to 5 Weapon Damage (Tier 8)"))
+	w.affixes.append(_affix("local_increased_weapon_damage", 36.0, "+36% increased Weapon Damage (Tier 7)"))
+	w.affixes.append(_affix("generic_of_intellect", 11.0, "+11 Intellect"))
+	w.affixes.append(_affix("aetheric_of_the_invoke", 10.0, "+10 Intellect"))
+	for a in w.affixes:
+		a.affix_id = a.stat_key
+	var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+	var lines := card._merged_explicit_lines(w)
+	_check(lines.has("+56% increased Weapon Damage") and lines.has("Adds 7 to 12 Weapon Damage"), "the hybrid splits and merges with same-stat lines: %s" % [lines])
+	_check(lines.has("+21 Intellect") and lines.size() == 3, "two Intellect rolls read as one line")
+	var only_hybrid := _sword()
+	only_hybrid.affixes.append(w.affixes[0])
+	_check(card._merged_explicit_lines(only_hybrid).size() == 2, "a lone hybrid shows as two lines")
+	var base := load("res://data/armor/instances/gen_body_armour_shadow_vest.tres") as Item
+	card.display_item(base)
+	_check(not _card_text(card).contains("Maximum Evasion"), "base line names don't show as flavour")
+	card.free()
 	_finished += 1

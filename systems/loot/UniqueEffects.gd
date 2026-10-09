@@ -77,7 +77,8 @@ func _physics_process(delta: float) -> void:
 		if timed_more[id]["left"] <= 0.0:
 			timed_more.erase(id)
 	if _player and _player.ward:
-		_player.ward.recovery_blocked = has(NO_WARD_RECOVERY) or (has(NO_WARD_RECOVERY_MOVING) and is_moving())
+		_player.ward.recovery_blocked = has(NO_WARD_RECOVERY) or (has(NO_WARD_RECOVERY_MOVING) and is_moving()) \
+				or _player.stat_sheet.get_misc_bonus("no_ward_recovery_life_bonus") > 0.0  # Pale Branded corruption
 
 ## ---- Outgoing damage ---------------------------------------------------
 

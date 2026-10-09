@@ -213,7 +213,7 @@ func _test_card() -> void:
 	card.display_item(gloves)
 	var text := _card_text(card)
 	_check(_has_socket_row(card), "socket row shows once a jewel is set")
-	_check(text.contains("+15 Strength") and text.contains("+8 Life") and not text.contains("Socketed"), "main card folds jewel modifiers into the explicits")
+	_check(text.contains("+15 Strength") and text.contains("+8 to Life") and not text.contains("Socketed"), "main card folds jewel modifiers into the explicits")
 	card._showing_alt = true
 	card._render_alt_info()
 	text = _card_text(card)

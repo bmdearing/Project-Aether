@@ -7,6 +7,30 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.45: Wiki Modifiers and Corruption pages, Corruption made real, roll and card fixes (user request)
+
+- **The Wiki has tabs:** Uniques, Modifiers, Corruption (`Wiki`, main and pause menu).
+  - **Modifiers, By item:** pick a group (Melee, Ranged, Conduits, Armour, Shields, Accessories, Jewels, Slates), a base type and an item level. Every prefix and suffix it can roll, each tier's range and the item level it needs, and the chance an Orb adds that modifier and tier to a blank item (no Brands). Tiers the level can't reach are dimmed. The type's Corruption implicit pool is listed under it.
+  - **Modifiers, By modifier:** search a modifier and see every base type it rolls on (icons, named on hover) and the item level its Tier 1 needs.
+  - **Corruption:** every Shard of Tharsis outcome by severity, its chance, what it does, and slot icons lit where it can change an item of that slot.
+  - Everything is read from the roll and crafting code (`WikiCatalog`: `GearModifierPool`, `SlateModifierPool`, the resolver's candidate weights), so it can't drift.
+- **Corruption outcomes that did nothing now work:**
+  - Add Implicit / Add Second Implicit: `ImplicitPool` is the implicits the item type's bases carry (Section 25 line and accessory implicits).
+  - Add Special Affix: one of the item's own modifiers at 130% of its Tier 1 maximum, marked "(Corrupted)".
+  - Tier Up / Tier Down move the value into the new tier (`ItemRoller.retier()`); before, only the number changed.
+  - Implicits: Resistance Shred aura (enemies within 8 m), Cursed Skill (a named ability bar slot: no cooldown, +40% Mana), Hollow (+25% damage, your hits drain your Ward by 10% of the damage), Maw-Touched (8% chance a cast goes off again at 50%), Pale Branded (+35% Life, no Ward recovery). They also get card text, which they lacked.
+- **Roll fixes (user reports):**
+  - Items could roll the same stat twice (two "+Intellect" library mods). Drops and Orbs now take one modifier per stat (`StatKeys`, `ItemAffix.get_group()`).
+  - "+0 to level of all Entropic Skills": skill-level modifiers have their own tiers, +1 (Tier 2) and +2 (Tier 1, item level 80).
+  - **Dropped and shop items lost their base implicits** - the roller cleared the whole modifier list before rolling. Implicits now stay (jewellery, and the 189 weapon/armour implicits added in v4.43).
+  - Weapon library mods were blocked entirely below the doc's "T1 item level" (e.g. % Kinetic damage needed level 80). That level now gates Tier 1 only; lower tiers open earlier.
+  - Duplicate general-pool entries from older patches removed (v3.2 "+% Fire Resistance" next to v4.0 "+% to Fire Resistance", Life/Mana/regen/crit damage pairs); old items still count through `StatKeys`. Jewels use the v4.0 keys.
+- **Item cards:** same-stat lines add up on the main card ("+11 Intellect" and "+10 Intellect" read "+21 Intellect"), a hybrid splits into its two parts so they merge too; Alt still lists every modifier with its tier. Base items no longer show their line name ("Speed Line", "Maximum Ward") as flavour - only Uniques and Mythics show flavour.
+- Fixed: the Uniques page errored on the main menu after leaving a run (it read the freed Player's equipment).
+- Tests: `test_wiki` +2 (pages), `test_gear_stats` +3 (roll fixes, corruption, card lines).
+
+---
+
 ## 2026-10-08 — v4.44: The last inert modifiers get their mechanics (user request)
 
 Every modifier key in the game now feeds something (re-audited after v4.43's list of 26 inert ones).

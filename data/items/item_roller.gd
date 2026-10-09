@@ -112,15 +112,6 @@ const AFFIX_POOL := [
 	{"stat_key": "flat_armor", "defense": "armor", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Armor", "applies_to": ["armor", "shield"], "brand_tags": ["armor"]},
 	{"stat_key": "flat_ward", "defense": "ward", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Ward", "applies_to": ["armor"], "brand_tags": ["ward"]},
 	{"stat_key": "flat_evasion", "defense": "evasion", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Evasion", "applies_to": ["armor"], "brand_tags": ["evasion"]},
-	# Patch v3.2 "Revision - Resistance System": doc-exact range, matching
-	# the Ember/Frost/Volt/Void Ring implicits (+11-27%) - Esoteric is
-	# unified across Aetheric/Entropic/Pale per the patch, one stat covers
-	# all three. applies_to: [] (any item) since the doc's own examples
-	# are Rings, not armor.
-	{"stat_key": "fire_resistance_pct", "tier1_min": 11.0, "tier1_max": 27.0, "desc": "+%d%% Fire Resistance", "applies_to": [], "brand_tags": ["resistance", "fire"]},
-	{"stat_key": "cold_resistance_pct", "tier1_min": 11.0, "tier1_max": 27.0, "desc": "+%d%% Cold Resistance", "applies_to": [], "brand_tags": ["resistance", "cold"]},
-	{"stat_key": "lightning_resistance_pct", "tier1_min": 11.0, "tier1_max": 27.0, "desc": "+%d%% Lightning Resistance", "applies_to": [], "brand_tags": ["resistance", "lightning"]},
-	{"stat_key": "esoteric_resistance_pct", "tier1_min": 11.0, "tier1_max": 27.0, "desc": "+%d%% Esoteric Resistance", "applies_to": [], "brand_tags": ["resistance", "aetheric", "entropic", "pale"]},
 	{"stat_key": "flat_resilience", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Resilience", "applies_to": [], "brand_tags": ["resilience"]},
 	{"stat_key": "skill_cooldown_reduced", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% reduced skill cooldowns", "applies_to": [], "brand_tags": ["skills"]},
 	# Patch v3.8 Section 2 "Removed expressions" - max_life/life_regen/
@@ -134,14 +125,10 @@ const AFFIX_POOL := [
 	# same "real affix, no formula to feed it yet" footing flat_evasion/
 	# the 4 resistance entries/flat_resilience/skill_cooldown_reduced
 	# already had before this patch.
-	{"stat_key": "max_life", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Life", "applies_to": [], "brand_tags": []},
-	{"stat_key": "life_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Life Regeneration per second", "applies_to": [], "brand_tags": []},
-	{"stat_key": "max_mana", "tier1_min": 15.0, "tier1_max": 20.0, "desc": "+%d Mana", "applies_to": [], "brand_tags": ["resource"]},
 	{"stat_key": "mana_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Mana Regeneration per second", "applies_to": [], "brand_tags": ["resource"]},
 	{"stat_key": "attack_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Attack Speed", "applies_to": ["weapon"], "brand_tags": ["skills"]},
 	{"stat_key": "cast_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Cast Speed", "applies_to": [], "brand_tags": ["skills"]},
 	{"stat_key": "move_speed", "tier1_min": 4.0, "tier1_max": 8.0, "desc": "+%d%% increased Move Speed", "applies_to": [], "brand_tags": ["movement"]},
-	{"stat_key": "crit_damage", "tier1_min": 15.0, "tier1_max": 20.0, "desc": "+%d%% increased Critical Strike Damage", "applies_to": [], "brand_tags": []},
 	{"stat_key": "debuff_effectiveness", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% Debuff Effectiveness", "applies_to": [], "brand_tags": ["skills"]},
 	{"stat_key": "stamina", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Stamina", "applies_to": [], "brand_tags": []},
 	# Loot (v4.35): Magic Find is worth 0.5% Item Quantity + 2% Item Rarity per
@@ -327,26 +314,33 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 		Constants.ItemRarity.RARE:
 			affix_count = randi_range(RARE_AFFIX_COUNT.x, RARE_AFFIX_COUNT.y)
 
-	# A rolled item's affix list is fully re-rolled, not additive on top
-	# of the base's own hand-authored implicit(s).
-	item.affixes = []
+	# Explicits are rolled fresh; the base's implicits stay.
+	item.affixes = item.affixes.filter(func(a: ItemAffix): return a.is_implicit)
 	if item is Weapon:
 		_roll_weapon_affixes(item as Weapon, affix_count, power_level)
 	else:
 		var pool := _pool_for(item)
 		pool.shuffle()
-		for i in range(min(affix_count, pool.size())):
-			var entry: Dictionary = pool[i]
-			var rolled_tier := _roll_tier(power_level)
-			var value_range := _tier_range(entry["tier1_min"], entry["tier1_max"], rolled_tier)
-			var value: float = randf_range(value_range.x, value_range.y)
+		var used := {}
+		var entries: Array = []
+		for entry in pool:
+			var stat := StatKeys.canonical(entry["stat_key"])
+			if entries.size() < affix_count and not used.has(stat):
+				used[stat] = true
+				entries.append(entry)
+		for i in entries.size():
+			var entry: Dictionary = entries[i]
+			var rolled := roll_tier_range(entry["stat_key"], entry["tier1_min"], entry["tier1_max"], power_level)
+			var rolled_tier: int = rolled["tier"]
+			var value_range := Vector2(rolled["min"], rolled["max"])
+			var value := roll_value(entry["stat_key"], value_range)
 			var affix := ItemAffix.new()
 			affix.stat_key = entry["stat_key"]
 			affix.value = value
 			affix.value_min = value_range.x
 			affix.value_max = value_range.y
 			affix.tier = rolled_tier
-			affix.description = "%s (Tier %d)" % [format_desc(entry["desc"], value), rolled_tier]
+			affix.description = "%s (Tier %d)" % [describe_value(entry["desc"], entry["stat_key"], value), rolled_tier]
 			affix.is_prefix = i % 2 == 0
 			item.affixes.append(affix)
 
@@ -366,21 +360,26 @@ static func _tier_range(tier1_min: float, tier1_max: float, tier: int) -> Vector
 ## other tiers' requirements are spread evenly down to level 1.
 const TOP_TIER_LEVEL := 80
 
-static func tier_min_level(tier: int, tier_count: int = TIER_COUNT) -> int:
+static func tier_min_level(tier: int, tier_count: int = TIER_COUNT, top_level: int = TOP_TIER_LEVEL) -> int:
 	if tier_count <= 1:
 		return 1
-	return 1 + roundi((TOP_TIER_LEVEL - 1) * float(tier_count - tier) / float(tier_count - 1))
+	return 1 + roundi((top_level - 1) * float(tier_count - tier) / float(tier_count - 1))
 
 ## Best (lowest-numbered) tier an item of this level can roll.
-static func best_tier_for_level(level: int, tier_count: int = TIER_COUNT) -> int:
+static func best_tier_for_level(level: int, tier_count: int = TIER_COUNT, top_level: int = TOP_TIER_LEVEL) -> int:
 	for t in range(1, tier_count + 1):
-		if tier_min_level(t, tier_count) <= level:
+		if tier_min_level(t, tier_count, top_level) <= level:
 			return t
 	return tier_count
 
+## Weapon library modifiers carry the doc's "T1 item level" in min_item_level
+## (e.g. 78): their Tier 1 needs that level, lower tiers open earlier.
+static func top_level_of(source: ItemAffix) -> int:
+	return source.min_item_level if source.min_item_level > 1 else TOP_TIER_LEVEL
+
 ## A tier the level allows, weighted by GEAR_TIER_WEIGHTS (better tiers rarer).
-static func _roll_tier(power_level: int) -> int:
-	var best := best_tier_for_level(power_level)
+static func _roll_tier(power_level: int, top_level: int = TOP_TIER_LEVEL) -> int:
+	var best := best_tier_for_level(power_level, TIER_COUNT, top_level)
 	var total := 0
 	for t in range(best, TIER_COUNT + 1):
 		total += Constants.GEAR_TIER_WEIGHTS[t - 1]
@@ -403,20 +402,30 @@ const LEVELLED_TIERS := {
 	"local_flat_weapon_damage": [[80, 29.0, 34.0], [68, 24.0, 28.0], [56, 19.0, 23.0], [45, 14.0, 18.0], [34, 10.0, 13.0], [23, 7.0, 9.0], [12, 4.0, 6.0], [1, 2.0, 3.0]],
 	"local_hybrid_weapon_damage": [[80, 71.0, 85.0], [64, 59.0, 70.0], [48, 47.0, 58.0], [32, 35.0, 46.0], [16, 25.0, 34.0], [1, 15.0, 24.0]],
 }
+## "+N to level of ... Skills/Spells" (amulets): whole levels, +1 at Tier 2 and
+## +2 at Tier 1 (user decision).
+const SKILL_LEVEL_TIERS := [[80, 2.0, 2.0], [1, 1.0, 1.0]]
 const FLAT_DAMAGE_SPREAD := 1.75
 const HYBRID_FLAT_PER_PERCENT := 0.2
 
+## The modifier's own tier table, or [] when it uses Tier 1 x TIER_DECAY.
+static func levelled_table(stat_key: String) -> Array:
+	var key := StatKeys.canonical(stat_key)
+	if key.begins_with("skill_level_"):
+		return SKILL_LEVEL_TIERS
+	return LEVELLED_TIERS.get(key, [])
+
 static func has_levelled_tiers(stat_key: String) -> bool:
-	return LEVELLED_TIERS.has(StatKeys.canonical(stat_key))
+	return not levelled_table(stat_key).is_empty()
 
 ## Rows of `stat_key`'s table that `level` allows, best first.
 static func levelled_tiers_for(stat_key: String, level: int) -> Array:
-	return LEVELLED_TIERS.get(StatKeys.canonical(stat_key), []).filter(func(row): return row[0] <= level)
+	return levelled_table(stat_key).filter(func(row): return row[0] <= level)
 
 ## {"tier", "min", "max"} rolled from the table; the best allowed tier is the
 ## rarest (weights 1, 2, 3... down the allowed rows).
 static func roll_levelled_tier(stat_key: String, level: int) -> Dictionary:
-	var table: Array = LEVELLED_TIERS[StatKeys.canonical(stat_key)]
+	var table := levelled_table(stat_key)
 	var rows := levelled_tiers_for(stat_key, level)
 	if rows.is_empty():
 		rows = [table[-1]]
@@ -428,6 +437,32 @@ static func roll_levelled_tier(stat_key: String, level: int) -> Dictionary:
 			return {"tier": table.find(rows[i]) + 1, "min": rows[i][1], "max": rows[i][2]}
 	var last: Array = rows[-1]
 	return {"tier": table.find(last) + 1, "min": last[1], "max": last[2]}
+
+## {"tier", "min", "max"} for one roll of a modifier at power_level: its own
+## tier table if it has one, else a gated tier of Tier 1 x TIER_DECAY.
+static func roll_tier_range(stat_key: String, tier1_min: float, tier1_max: float, power_level: int, top_level: int = TOP_TIER_LEVEL) -> Dictionary:
+	if has_levelled_tiers(stat_key):
+		return roll_levelled_tier(stat_key, power_level)
+	var tier := _roll_tier(power_level, top_level)
+	var r := _tier_range(tier1_min, tier1_max, tier)
+	return {"tier": tier, "min": r.x, "max": r.y}
+
+## A value in range; whole numbers for table modifiers (levels, flat damage).
+static func roll_value(stat_key: String, value_range: Vector2) -> float:
+	var value := randf_range(value_range.x, value_range.y)
+	return roundf(value) if has_levelled_tiers(stat_key) else value
+
+## Up to `count` entries of `pool` whose stat isn't in `used` yet (marks them).
+static func _take_distinct(pool: Array[ItemAffix], count: int, used: Dictionary) -> Array[ItemAffix]:
+	var taken: Array[ItemAffix] = []
+	for affix in pool:
+		if taken.size() >= count:
+			break
+		if used.has(affix.key()):
+			continue
+		used[affix.key()] = true
+		taken.append(affix)
+	return taken
 
 ## Card text for a rolled value: two-number templates ("Adds %d to %d")
 ## get the flat range, the hybrid gets its % and flat range.
@@ -499,8 +534,6 @@ static func _eligible_weapon_affixes(weapon: Weapon, power_level: int, want_pref
 	for affix in _weapon_affix_cache:
 		if affix.is_prefix != want_prefix:
 			continue
-		if power_level < affix.min_item_level:
-			continue
 		# Local mods: caster ones only on real Conduits, the rest only on
 		# martial weapons - by is_conduit, not type key (worn_staff is a melee
 		# "staff" that shares the Conduit staff line's key).
@@ -528,34 +561,23 @@ static func _roll_weapon_affixes(weapon: Weapon, affix_count: int, power_level: 
 
 	var prefix_target: int = min(3, ceili(affix_count / 2.0))
 	var suffix_target: int = min(3, affix_count - prefix_target)
-	var picked: Array[ItemAffix] = []
-	picked.append_array(prefix_pool.slice(0, min(prefix_target, prefix_pool.size())))
-	picked.append_array(suffix_pool.slice(0, min(suffix_target, suffix_pool.size())))
-	# Fill any remaining budget (a pool ran dry) from whichever pool still
-	# has unused entries, still respecting the 3-per-side cap.
-	var picked_prefix_count := picked.filter(func(a: ItemAffix): return a.is_prefix).size()
-	var picked_suffix_count := picked.size() - picked_prefix_count
-	for extra in prefix_pool.slice(picked_prefix_count):
-		if picked.size() >= affix_count or picked_prefix_count >= 3:
-			break
-		picked.append(extra)
-		picked_prefix_count += 1
-	for extra in suffix_pool.slice(picked_suffix_count):
-		if picked.size() >= affix_count or picked_suffix_count >= 3:
-			break
-		picked.append(extra)
-		picked_suffix_count += 1
+	# One modifier per stat: several library mods feed the same stat (StatKeys).
+	var used := {}
+	var prefixes := _take_distinct(prefix_pool, prefix_target, used)
+	var suffixes := _take_distinct(suffix_pool, suffix_target, used)
+	var picked: Array[ItemAffix] = prefixes + suffixes
+	# Fill any remaining budget (a pool ran dry) from the other side, still
+	# respecting the 3-per-side cap.
+	if picked.size() < affix_count:
+		picked.append_array(_take_distinct(prefix_pool, mini(3 - prefixes.size(), affix_count - picked.size()), used))
+	if picked.size() < affix_count:
+		picked.append_array(_take_distinct(suffix_pool, mini(3 - suffixes.size(), affix_count - picked.size()), used))
 
 	for source in picked:
-		var rolled_tier := _roll_tier(power_level)
-		var value_range := _tier_range(source.value_min, source.value_max, rolled_tier)
-		if has_levelled_tiers(source.stat_key):
-			var rolled := roll_levelled_tier(source.stat_key, power_level)
-			rolled_tier = rolled["tier"]
-			value_range = Vector2(rolled["min"], rolled["max"])
-		var value: float = randf_range(value_range.x, value_range.y)
-		if has_levelled_tiers(source.stat_key):
-			value = roundf(value)
+		var rolled := roll_tier_range(source.stat_key, source.value_min, source.value_max, power_level, top_level_of(source))
+		var rolled_tier: int = rolled["tier"]
+		var value_range := Vector2(rolled["min"], rolled["max"])
+		var value := roll_value(source.stat_key, value_range)
 		var affix := ItemAffix.new()
 		affix.affix_id = source.affix_id
 		affix.stat_key = source.stat_key
@@ -687,4 +709,44 @@ static func _has_defense(item: Item, defense: String) -> bool:
 		"armor": return item.get("armor_value") > 0.0
 		"evasion": return item.get("evasion_value") > 0.0
 		"ward": return item.get("ward_value") > 0.0
+	return true
+
+## How many tiers a rolled modifier has (its own table, or TIER_COUNT).
+static func tier_count_for(affix: ItemAffix) -> int:
+	var table := levelled_table(affix.stat_key)
+	return table.size() if not table.is_empty() else TIER_COUNT
+
+## The value range of `tier` for a rolled modifier, or Vector2(-1, -1) when
+## its source can't be found (hand-authored, Unique, corrupted).
+static func tier_range_for(affix: ItemAffix, tier: int) -> Vector2:
+	var table := levelled_table(affix.stat_key)
+	if not table.is_empty():
+		var row: Array = table[clampi(tier, 1, table.size()) - 1]
+		return Vector2(row[1], row[2])
+	for entry in AFFIX_POOL:
+		if entry["stat_key"] == affix.stat_key:
+			return _tier_range(entry["tier1_min"], entry["tier1_max"], tier)
+	if _weapon_affix_cache.is_empty():
+		_build_weapon_affix_cache()
+	for source in _weapon_affix_cache:
+		if source.affix_id != "" and source.affix_id == affix.affix_id:
+			return _tier_range(source.value_min, source.value_max, tier)
+	return Vector2(-1.0, -1.0)
+
+## Moves a rolled modifier to `tier`, keeping its value's place in the range,
+## and rewrites its text. False when the modifier has no tier data.
+static func retier(affix: ItemAffix, tier: int) -> bool:
+	var new_range := tier_range_for(affix, tier)
+	if new_range.x < 0.0:
+		return false
+	var at := inverse_lerp(affix.value_min, affix.value_max, affix.value) if affix.value_max > affix.value_min else 1.0
+	affix.tier = tier
+	affix.value_min = new_range.x
+	affix.value_max = new_range.y
+	affix.value = lerpf(new_range.x, new_range.y, clampf(at, 0.0, 1.0))
+	if has_levelled_tiers(affix.stat_key):
+		affix.value = roundf(affix.value)
+	var template := CraftingResolver._template_for(affix)
+	if template != "":
+		affix.description = "%s (Tier %d)" % [describe_value(template, affix.stat_key, affix.value), tier]
 	return true

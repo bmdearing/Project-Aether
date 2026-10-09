@@ -29,25 +29,27 @@ static func defs_for(item: Item) -> Array[ModifierDef]:
 				defs.append(_library_def(source, best_tier, level))
 	else:
 		for entry in ItemRoller._pool_for(item):
-			defs.append(_pool_def(entry, best_tier))
+			defs.append(_pool_def(entry, best_tier, level))
 	return defs
 
-static func _pool_def(entry: Dictionary, best_tier: int) -> ModifierDef:
-	var key := "pool:%s|%d" % [entry["stat_key"], best_tier]
+static func _pool_def(entry: Dictionary, best_tier: int, level: int = 100) -> ModifierDef:
+	var levelled := ItemRoller.has_levelled_tiers(entry["stat_key"])
+	var key := "pool:%s|%d" % [entry["stat_key"], ItemRoller.levelled_tiers_for(entry["stat_key"], level).size() if levelled else best_tier]
 	if _cache.has(key):
 		return _cache[key]
 	var def := ModifierDef.new()
 	def.id = StringName(entry["stat_key"])
-	def.group = def.id
+	def.group = StringName(StatKeys.canonical(entry["stat_key"]))  # one modifier per stat
 	def.stat_key = entry["stat_key"]
 	def.text = entry["desc"]
 	def.affix_type = ModifierDef.AffixType.SUFFIX if _is_suffix(entry["stat_key"]) else ModifierDef.AffixType.PREFIX
 	def.tags = _tags(entry["brand_tags"], entry["stat_key"])
-	def.tiers = _tiers(entry["tier1_min"], entry["tier1_max"], best_tier)
+	def.tiers = _levelled_tiers(entry["stat_key"], level) if levelled else _tiers(entry["tier1_min"], entry["tier1_max"], best_tier)
 	_cache[key] = def
 	return def
 
 static func _library_def(source: ItemAffix, best_tier: int, level: int) -> ModifierDef:
+	best_tier = ItemRoller.best_tier_for_level(level, ItemRoller.TIER_COUNT, ItemRoller.top_level_of(source))
 	var id := source.affix_id if source.affix_id != "" else source.stat_key
 	var levelled := ItemRoller.has_levelled_tiers(source.stat_key)
 	var key := "lib:%s|%d" % [id, ItemRoller.levelled_tiers_for(source.stat_key, level).size() if levelled else best_tier]
@@ -55,7 +57,7 @@ static func _library_def(source: ItemAffix, best_tier: int, level: int) -> Modif
 		return _cache[key]
 	var def := ModifierDef.new()
 	def.id = StringName(id)
-	def.group = def.id
+	def.group = StringName(StatKeys.canonical(source.stat_key))  # one modifier per stat
 	def.stat_key = source.stat_key
 	def.text = source.description
 	def.affix_type = ModifierDef.AffixType.PREFIX if source.is_prefix else ModifierDef.AffixType.SUFFIX
@@ -105,7 +107,7 @@ static func _tiers(tier1_min: float, tier1_max: float, best_tier: int) -> Array[
 
 ## A LEVELLED_TIERS modifier's tiers the level allows; the best is rarest.
 static func _levelled_tiers(stat_key: String, level: int) -> Array[ModifierTier]:
-	var table: Array = ItemRoller.LEVELLED_TIERS[StatKeys.canonical(stat_key)]
+	var table := ItemRoller.levelled_table(stat_key)
 	var rows := ItemRoller.levelled_tiers_for(stat_key, level)
 	if rows.is_empty():
 		rows = [table[-1]]

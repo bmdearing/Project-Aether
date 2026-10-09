@@ -566,6 +566,10 @@ static func _template_for(affix: ItemAffix) -> String:
 	for entry in ItemRoller.AFFIX_POOL:
 		if entry["stat_key"] == affix.stat_key:
 			return entry["desc"]
+	# Retired pool names (StatKeys aliases) use their stat's current entry.
+	for entry in ItemRoller.AFFIX_POOL:
+		if StatKeys.canonical(entry["stat_key"]) == affix.key():
+			return entry["desc"]
 	if ItemRoller._weapon_affix_cache.is_empty():
 		ItemRoller._build_weapon_affix_cache()
 	for source in ItemRoller._weapon_affix_cache:

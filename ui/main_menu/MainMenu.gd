@@ -22,7 +22,7 @@ class_name MainMenu
 @onready var about_back_button: Button = $AboutPanel/VBoxContainer/AboutBackButton
 @onready var music_player: AudioStreamPlayer = $MusicPlayer
 var wiki_panel: Control
-var wiki: UniqueWiki
+var wiki: Wiki
 
 const MUSIC_PATH := "res://assets/music/lament.mp3"
 
@@ -214,7 +214,7 @@ func _show_panel(panel: Control) -> void:
 		wiki.refresh_character()
 
 ## The Wiki button (above Settings) and its panel: every Unique and Mythic
-## with its drop odds (UniqueWiki).
+## with its drop odds, modifiers and corruption outcomes (Wiki).
 func _build_wiki() -> void:
 	var button := Button.new()
 	button.name = "WikiButton"
@@ -234,7 +234,7 @@ func _build_wiki() -> void:
 	var center := CenterContainer.new()
 	center.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	wiki_panel.add_child(center)
-	wiki = UniqueWiki.new()
+	wiki = Wiki.new()
 	wiki.back_pressed.connect(_show_panel.bind(main_panel))
 	_framed(center, wiki)
 	button.pressed.connect(_show_panel.bind(wiki_panel))

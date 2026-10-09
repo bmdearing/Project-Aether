@@ -285,7 +285,7 @@ var resilience: float = 0.0
 ## resets to a flat 1.0 until/unless a gear affix drives it.
 func _apply_derived_stats() -> void:
 	# Life: Strength's +4/point + flat Life, times increased Life; regen likewise.
-	var life_mult := (unique_effects.max_life_multiplier() if unique_effects else 1.0) * (1.0 + stat_sheet.get_misc_bonus("life_increased") / 100.0)
+	var life_mult := (unique_effects.max_life_multiplier() if unique_effects else 1.0) * (1.0 + stat_sheet.get_misc_bonus("life_increased") / 100.0) * (1.0 + stat_sheet.get_misc_bonus("no_ward_recovery_life_bonus") / 100.0)
 	var flat_life := stat_sheet.get_misc_bonus("max_life") + stat_sheet.get_misc_bonus("flat_life")
 	health.set_max_health((_base_max_health + stat_sheet.get_max_life_bonus() + flat_life) * life_mult)
 	var life_regen := (stat_sheet.get_misc_bonus("life_regen") + stat_sheet.get_misc_bonus("life_regen_flat")) * (1.0 + stat_sheet.get_misc_bonus("life_regen_increased") / 100.0)

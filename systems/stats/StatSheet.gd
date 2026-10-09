@@ -199,6 +199,7 @@ func get_increased_damage_percent(damage_type: int, is_attack: bool) -> float:
 	total += get_misc_bonus(StatKeys.CATEGORY_DAMAGE_KEYS.get(category, ""))
 	if is_attack:
 		total += get_misc_bonus("increased_attack_damage")
+	total += get_misc_bonus("hollow_damage_ward_drain")  # corruption: Hollow
 	return total
 
 ## Fraction added to the base crit multiplier. crit_damage and

@@ -20,7 +20,7 @@ class_name PauseMenu
 var _is_open: bool = false
 var _settings_center: CenterContainer
 var _wiki_center: CenterContainer
-var _wiki: UniqueWiki
+var _wiki: Wiki
 var _fate_board_editor: FateBoardEditor
 var _inventory_screen: InventoryScreen
 var _abilities_screen: AbilitiesScreen
@@ -62,7 +62,7 @@ func _build_settings() -> void:
 	_settings_center.add_child(panel)
 	_build_wiki(menu, settings_button)
 
-## Wiki button under Settings: the same Unique wiki as the main menu, with
+## Wiki button under Settings: the same Wiki as the main menu, with
 ## odds from the live character's Magic Find.
 func _build_wiki(menu: Node, after: Button) -> void:
 	var wiki_button := Button.new()
@@ -83,7 +83,7 @@ func _build_wiki(menu: Node, after: Button) -> void:
 	box.set_content_margin_all(28)
 	frame.add_theme_stylebox_override("panel", box)
 	_wiki_center.add_child(frame)
-	_wiki = UniqueWiki.new()
+	_wiki = Wiki.new()
 	_wiki.back_pressed.connect(_show_wiki.bind(false))
 	frame.add_child(_wiki)
 
