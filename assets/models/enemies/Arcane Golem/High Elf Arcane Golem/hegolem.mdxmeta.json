@@ -112,9 +112,9 @@
       "unshaded": false,
       "textures": {
         "diffuse": "wargolem_main_diffuse.dds",
-        "normal": "wargolem_main_normal.dds",
-        "orm": "wargolem_main_orm.dds",
-        "emissive": "wargolem_main_emissive.dds"
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/wargolem_main_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/wargolem_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/wargolem_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Creeps/WarGolem/WarGolem_main_diffuse.dds",
@@ -147,10 +147,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "hegolem_body_diffuse.dds",
-        "normal": "human_bloodelflieutenant_main_normal.dds",
-        "orm": "human_bloodelflieutenant_main_orm.dds",
-        "emissive": "hegolem_body_emissive.dds"
+        "diffuse": "res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem Portrait/hegolem_body_diffuse.dds",
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_bloodelflieutenant_main_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_bloodelflieutenant_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem Portrait/hegolem_body_emissive.dds"
       },
       "sources": {
         "diffuse": "hegolem_body_diffuse.dds",
@@ -183,10 +183,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "hegolem_main_diffuse.dds",
-        "normal": "bloodfiend_main_normal.dds",
-        "orm": "bloodfiend_main_orm.dds",
-        "emissive": "hegolem_main_emissive.dds"
+        "diffuse": "res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem Portrait/hegolem_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem Portrait/hegolem_main_emissive.dds"
       },
       "sources": {
         "diffuse": "hegolem_main_diffuse.dds",
@@ -219,10 +219,10 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "hegolem_main_diffuse.dds",
-        "normal": "bloodfiend_main_normal.dds",
-        "orm": "bloodfiend_main_orm.dds",
-        "emissive": "hegolem_main_emissive.dds"
+        "diffuse": "res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem Portrait/hegolem_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/High Elf Arcane Golem Portrait/hegolem_main_emissive.dds"
       },
       "sources": {
         "diffuse": "hegolem_main_diffuse.dds",
@@ -255,10 +255,10 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_bouldertower_diffuse.dds",
-        "normal": "human_bouldertower_normal.dds",
-        "orm": "human_bouldertower_orm.dds",
-        "emissive": "human_bouldertower_emissive.dds"
+        "diffuse": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_bouldertower_diffuse.dds",
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_bouldertower_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_bouldertower_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_bouldertower_emissive.dds"
       },
       "sources": {
         "diffuse": "Buildings/Other/TowerDefenseTower/Human_BoulderTower_Diffuse.tif",
@@ -292,8 +292,8 @@
       "unshaded": false,
       "textures": {
         "diffuse": "sm_silvermoonwall_diffuse.dds",
-        "normal": "sm_silvermoonwall_normal.dds",
-        "orm": "sm_silvermoonwall_orm.dds",
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/sm_silvermoonwall_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/sm_silvermoonwall_orm.dds",
         "emissive": "sm_silvermoonwall_emissive.dds"
       },
       "sources": {
@@ -328,9 +328,9 @@
       "unshaded": false,
       "textures": {
         "diffuse": "human_highelfdragonhawkrider_rider_diffuse.dds",
-        "normal": "human_highelfdragonhawkrider_rider_v1_normal.dds",
-        "orm": "human_highelfdragonhawkrider_rider_v1_orm.dds",
-        "emissive": "human_highelfdragonhawkrider_rider_v1_emissive.dds"
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_highelfdragonhawkrider_rider_v1_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_highelfdragonhawkrider_rider_v1_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_highelfdragonhawkrider_rider_v1_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_Diffuse.tif",
@@ -364,9 +364,9 @@
       "unshaded": false,
       "textures": {
         "diffuse": "human_highelfdragonhawkrider_rider_diffuse.dds",
-        "normal": "human_highelfdragonhawkrider_rider_v1_normal.dds",
-        "orm": "human_highelfdragonhawkrider_rider_v1_orm.dds",
-        "emissive": "human_highelfdragonhawkrider_rider_v1_emissive.dds"
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_highelfdragonhawkrider_rider_v1_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_highelfdragonhawkrider_rider_v1_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_highelfdragonhawkrider_rider_v1_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Human/BloodElfDragonHawk/Human_HighElfDragonhawkRider_Rider_Diffuse.tif",
@@ -399,9 +399,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_skyfurytower_diffuse.dds",
-        "normal": "human_skyfurytower_normal.dds",
-        "orm": "human_skyfurytower_orm.dds",
+        "diffuse": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_skyfurytower_diffuse.dds",
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_skyfurytower_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/human_skyfurytower_orm.dds",
         "emissive": null
       },
       "sources": {

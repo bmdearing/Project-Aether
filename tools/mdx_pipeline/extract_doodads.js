@@ -71,3 +71,6 @@ for (const [family, kit] of Object.entries(manifest.families)) {
   }
 }
 fetcher.close();
+// Cap texture resolution and drop duplicate copies (see README: Texture budget).
+require("./texture_budget").apply(path.join(root, "assets/models"));
+require("./dedupe_textures").dedupe();

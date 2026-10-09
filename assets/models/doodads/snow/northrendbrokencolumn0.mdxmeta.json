@@ -35,9 +35,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "nr_prop_columnbroken_v1_diffuse.dds",
-        "normal": "nr_prop_columnbroken_v1_normal.dds",
-        "orm": "nr_prop_columnbroken_v1_orm.dds",
+        "diffuse": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_diffuse.dds",
+        "normal": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_normal.dds",
+        "orm": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -60,9 +60,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "nr_prop_columnbroken_v1_diffuse.dds",
-        "normal": "nr_prop_columnbroken_v1_normal.dds",
-        "orm": "nr_prop_columnbroken_v1_orm.dds",
+        "diffuse": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_diffuse.dds",
+        "normal": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_normal.dds",
+        "orm": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -85,9 +85,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "nr_prop_columnbroken_v1_diffuse.dds",
-        "normal": "nr_prop_columnbroken_v1_normal.dds",
-        "orm": "nr_prop_columnbroken_v1_orm.dds",
+        "diffuse": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_diffuse.dds",
+        "normal": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_normal.dds",
+        "orm": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -110,9 +110,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "nr_prop_columnbroken_v1_diffuse.dds",
-        "normal": "nr_prop_columnbroken_v1_normal.dds",
-        "orm": "nr_prop_columnbroken_v1_orm.dds",
+        "diffuse": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_diffuse.dds",
+        "normal": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_normal.dds",
+        "orm": "res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_orm.dds",
         "emissive": null
       },
       "sources": {

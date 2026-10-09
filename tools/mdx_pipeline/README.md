@@ -174,6 +174,33 @@ sheets under `ground/`). Then rerun the wrapper build. Doodads are a newer
 MDX revision (v1800): see `mdx_load.js` for the light/camera fix-ups and
 `mdx_to_gltf.js` for the zero-weight fallback to classic matrix groups.
 
+## Texture budget (2026-10-09)
+
+Godot ships `.dds` files as-is (no import step), so their size on disk is
+their size in the build. `convert_all.js` and `extract_doodads.js` finish
+with two passes over `assets/models/`; run them by hand after dropping in a
+model pack by any other route:
+
+```
+node texture_budget.js [--dry-run]
+node dedupe_textures.js [--dry-run]
+```
+
+- `texture_budget.js` caps the longest side by dropping top mip levels.
+  The remaining mips are the original filtered, block-compressed levels, so
+  nothing is re-encoded. Caps: model diffuse/normal 1024, ORM/emissive 512.
+  Ground sheets (`*/ground/`) keep full diffuse/normal, since they're atlases
+  of 256 px cells seen at the player's feet; their ORM is capped at 1024.
+  The role comes from the file name (`normal`, `orm`, `emissive`/`emmissive`/
+  `glow`, otherwise diffuse). A close-up at 1440p of the Threshold Knight
+  showed no visible difference after cutting 2048 maps to 1024.
+- `dedupe_textures.js` keeps one copy of each byte-identical `.dds` and
+  points every `res://` reference (scenes, resources, scripts) and sidecar
+  entry at it. Sidecar entries for shared copies hold a `res://` path instead
+  of a basename. `texture_links.json` records removed -> kept, and
+  `mdx_sidecar.js` uses it, so reconverting a model resolves to the shared
+  copy. If a removed copy is re-extracted, the next pass removes it again.
+
 ## Not yet implemented
 
 - WC3 Hermite/Bezier interpolation is approximated as linear;

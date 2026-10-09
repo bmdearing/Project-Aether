@@ -744,8 +744,8 @@
       "unshaded": false,
       "textures": {
         "diffuse": "human_footman_main_diffuse.dds",
-        "normal": "human_footman_main_normal.dds",
-        "orm": "human_footman_main_orm.dds",
+        "normal": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_normal.dds",
+        "orm": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -812,8 +812,8 @@
       "unshaded": false,
       "textures": {
         "diffuse": "human_footman_helmet_diffuse.dds",
-        "normal": "human_footman_helmet_normal.dds",
-        "orm": "human_footman_helmet_orm.dds",
+        "normal": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_helmet_normal.dds",
+        "orm": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_helmet_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -846,8 +846,8 @@
       "unshaded": false,
       "textures": {
         "diffuse": "human_footman_pauldron_diffuse.dds",
-        "normal": "human_footman_pauldron_normal.dds",
-        "orm": "human_footman_pauldron_orm.dds",
+        "normal": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_pauldron_normal.dds",
+        "orm": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_pauldron_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -948,8 +948,8 @@
       "unshaded": false,
       "textures": {
         "diffuse": "human_footman_main_diffuse.dds",
-        "normal": "human_footman_main_normal.dds",
-        "orm": "human_footman_main_orm.dds",
+        "normal": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_normal.dds",
+        "orm": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_orm.dds",
         "emissive": null
       },
       "sources": {

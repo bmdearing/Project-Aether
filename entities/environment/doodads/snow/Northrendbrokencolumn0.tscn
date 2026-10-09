@@ -1,9 +1,9 @@
 [gd_scene load_steps=10 format=3]
 
 [ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_dub0q"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_prop_columnbroken_v1_diffuse.dds" id="2_b1dq0"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_prop_columnbroken_v1_normal.dds" id="3_d7kc5"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_prop_columnbroken_v1_orm.dds" id="4_b01de"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_diffuse.dds" id="2_b1dq0"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_normal.dds" id="3_d7kc5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/nr_prop_columnbroken_v1_orm.dds" id="4_b01de"]
 [ext_resource type="PackedScene" path="res://assets/models/doodads/snow/northrendbrokencolumn0.glb" id="5_w5xy1"]
 
 [sub_resource type="ORMMaterial3D" id="ORMMaterial3D_r861f"]

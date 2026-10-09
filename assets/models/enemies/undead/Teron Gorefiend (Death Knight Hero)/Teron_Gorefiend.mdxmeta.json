@@ -508,9 +508,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_male_corpse_diffuse.dds",
-        "normal": "human_male_corpse_normal.dds",
-        "orm": "human_male_corpse_orm.dds",
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -544,9 +544,9 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_male_corpse_diffuse.dds",
-        "normal": "human_male_corpse_normal.dds",
-        "orm": "human_male_corpse_orm.dds",
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -1012,9 +1012,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_male_corpse_diffuse.dds",
-        "normal": "human_male_corpse_normal.dds",
-        "orm": "human_male_corpse_orm.dds",
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -1048,9 +1048,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_male_corpse_diffuse.dds",
-        "normal": "human_male_corpse_normal.dds",
-        "orm": "human_male_corpse_orm.dds",
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -1084,9 +1084,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_male_corpse_diffuse.dds",
-        "normal": "human_male_corpse_normal.dds",
-        "orm": "human_male_corpse_orm.dds",
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -1120,9 +1120,9 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_male_corpse_diffuse.dds",
-        "normal": "human_male_corpse_normal.dds",
-        "orm": "human_male_corpse_orm.dds",
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -1156,9 +1156,9 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_male_corpse_diffuse.dds",
-        "normal": "human_male_corpse_normal.dds",
-        "orm": "human_male_corpse_orm.dds",
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -1192,9 +1192,9 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_male_corpse_diffuse.dds",
-        "normal": "human_male_corpse_normal.dds",
-        "orm": "human_male_corpse_orm.dds",
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -1229,9 +1229,9 @@
       "unshaded": false,
       "textures": {
         "diffuse": "gorefiend_hood_diffuse.dds",
-        "normal": "human_halahkthelifebringer_main_normal.dds",
-        "orm": "human_halahkthelifebringer_main_orm.dds",
-        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_orm.dds",
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_emissive.dds"
       },
       "sources": {
         "diffuse": "gorefiend_hood_diffuse.dds",
@@ -1265,9 +1265,9 @@
       "unshaded": false,
       "textures": {
         "diffuse": "gorefiend_hood_diffuse.dds",
-        "normal": "human_halahkthelifebringer_main_normal.dds",
-        "orm": "human_halahkthelifebringer_main_orm.dds",
-        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_orm.dds",
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_emissive.dds"
       },
       "sources": {
         "diffuse": "gorefiend_hood_diffuse.dds",
@@ -1769,9 +1769,9 @@
       "unshaded": false,
       "textures": {
         "diffuse": "gorefiend_hood_diffuse.dds",
-        "normal": "human_halahkthelifebringer_main_normal.dds",
-        "orm": "human_halahkthelifebringer_main_orm.dds",
-        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_orm.dds",
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_emissive.dds"
       },
       "sources": {
         "diffuse": "gorefiend_hood_diffuse.dds",
@@ -2164,10 +2164,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_halahkthelifebringer_main_diffuse.dds",
-        "normal": "human_halahkthelifebringer_main_normal.dds",
-        "orm": "human_halahkthelifebringer_main_orm.dds",
-        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_orm.dds",
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",
@@ -2200,10 +2200,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_halahkthelifebringer_main_diffuse.dds",
-        "normal": "human_halahkthelifebringer_main_normal.dds",
-        "orm": "human_halahkthelifebringer_main_orm.dds",
-        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_orm.dds",
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",
@@ -2236,10 +2236,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_halahkthelifebringer_main_diffuse.dds",
-        "normal": "human_halahkthelifebringer_main_normal.dds",
-        "orm": "human_halahkthelifebringer_main_orm.dds",
-        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_orm.dds",
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",
@@ -2272,10 +2272,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_halahkthelifebringer_main_diffuse.dds",
-        "normal": "human_halahkthelifebringer_main_normal.dds",
-        "orm": "human_halahkthelifebringer_main_orm.dds",
-        "emissive": "human_halahkthelifebringer_main_emissive.dds"
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_orm.dds",
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",

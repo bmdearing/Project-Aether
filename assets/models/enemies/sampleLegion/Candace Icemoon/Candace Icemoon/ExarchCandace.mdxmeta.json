@@ -410,8 +410,8 @@
       "unshaded": false,
       "textures": {
         "diffuse": "CandaceWD.dds",
-        "normal": "human_jainaproudmoore_weapon_normal.dds",
-        "orm": "human_jainaproudmoore_weapon_orm.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/human_jainaproudmoore_weapon_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/human_jainaproudmoore_weapon_orm.dds",
         "emissive": "CandaceWE.dds"
       },
       "sources": {
@@ -905,9 +905,9 @@
       "unshaded": false,
       "textures": {
         "diffuse": "CandacePD1.dds",
-        "normal": "bloodfiend_main_normal.dds",
-        "orm": "bloodfiend_main_orm.dds",
-        "emissive": "bloodfiend_main_emissive.dds"
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_emissive.dds"
       },
       "sources": {
         "diffuse": "CandacePD1.dds",
@@ -1070,8 +1070,8 @@
       "unshaded": false,
       "textures": {
         "diffuse": "CandacePD3.dds",
-        "normal": "warlock_main_normal.dds",
-        "orm": "warlock_main_orm.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/warlock_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/warlock_main_orm.dds",
         "emissive": "CandacePE3.dds"
       },
       "sources": {
@@ -1125,8 +1125,8 @@
       "unshaded": false,
       "textures": {
         "diffuse": "CandacePD3.dds",
-        "normal": "warlock_main_normal.dds",
-        "orm": "warlock_main_orm.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/warlock_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/warlock_main_orm.dds",
         "emissive": "CandacePE3.dds"
       },
       "sources": {

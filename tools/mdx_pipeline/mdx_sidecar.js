@@ -3,6 +3,7 @@
 // (materials) and MdxModel.gd at runtime (visibility).
 const fs = require("fs");
 const path = require("path");
+const { loadLinks, resPath } = require("./dedupe_textures");
 
 // Reforged pre-1200 (v1000) materials list one texture per layer in a fixed
 // slot order; v1200 puts every slot on a single layer as explicit IDs.
@@ -38,7 +39,10 @@ function resolveTexture(model, id, modelDir, dirListing) {
   const base = tex.Image.split(/[\\/]/).pop();
   const stem = base.replace(/\.[^.]+$/, "");
   const match = dirListing.find((f) => f.toLowerCase() === `${stem}.dds`.toLowerCase());
-  return { file: match || null, source: tex.Image };
+  // A copy removed by dedupe_textures.js resolves to the kept file's res:// path.
+  const dir = resPath(modelDir).toLowerCase() + "/";
+  const linked = match ? null : Object.entries(loadLinks()).find(([from]) => from.toLowerCase() === `${dir}${stem}.dds`.toLowerCase());
+  return { file: match || (linked && linked[1]) || null, source: tex.Image };
 }
 
 function alphaAt(anim, frame) {

@@ -83,10 +83,10 @@
       "two_sided": true,
       "unshaded": true,
       "textures": {
-        "diffuse": "Progenitor_Stars_Diffuse.dds",
-        "normal": "normal.dds",
-        "orm": "orm.dds",
-        "emissive": "Progenitor_Stars_Diffuse.dds"
+        "diffuse": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Stars_Diffuse.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Stars_Diffuse.dds"
       },
       "sources": {
         "diffuse": "Progenitor_Stars_Diffuse.dds",
@@ -116,9 +116,9 @@
       "unshaded": false,
       "textures": {
         "diffuse": null,
-        "normal": "Progenit_Main_Normal.dds",
-        "orm": "orm.dds",
-        "emissive": "Progenitor_Main_Emissive.dds"
+        "normal": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenit_Main_Normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Main_Emissive.dds"
       },
       "sources": {
         "diffuse": "Textures\\Black32.dds",
@@ -147,10 +147,10 @@
       "two_sided": true,
       "unshaded": true,
       "textures": {
-        "diffuse": "Progenitor_Stars_Diffuse.dds",
-        "normal": "normal.dds",
-        "orm": "orm.dds",
-        "emissive": "Progenitor_Stars_Diffuse.dds"
+        "diffuse": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Stars_Diffuse.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Stars_Diffuse.dds"
       },
       "sources": {
         "diffuse": "Progenitor_Stars_Diffuse.dds",
@@ -179,10 +179,10 @@
       "two_sided": true,
       "unshaded": true,
       "textures": {
-        "diffuse": "Progenitor_Stars_Diffuse.dds",
-        "normal": "normal.dds",
-        "orm": "orm.dds",
-        "emissive": "Progenitor_Stars_Diffuse.dds"
+        "diffuse": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Stars_Diffuse.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Stars_Diffuse.dds"
       },
       "sources": {
         "diffuse": "Progenitor_Stars_Diffuse.dds",
@@ -211,10 +211,10 @@
       "two_sided": true,
       "unshaded": true,
       "textures": {
-        "diffuse": "Progenitor_Stars_Diffuse.dds",
-        "normal": "normal.dds",
-        "orm": "orm.dds",
-        "emissive": "Progenitor_Stars_Diffuse.dds"
+        "diffuse": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Stars_Diffuse.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Stars_Diffuse.dds"
       },
       "sources": {
         "diffuse": "Progenitor_Stars_Diffuse.dds",
@@ -308,7 +308,7 @@
       "unshaded": false,
       "textures": {
         "diffuse": "outland_blight_diffuse.dds",
-        "normal": "outland_blight_normal.dds",
+        "normal": "res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/north_blight_normal.dds",
         "orm": "Progenitor_Planets_Orm.dds",
         "emissive": "outland_blight_diffuse.dds"
       },

@@ -137,10 +137,13 @@ func _build_material(dir: String, g: Dictionary, black: bool) -> Material:
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	return mat
 
+## file is a basename in the model's folder, or a res:// path to a copy shared
+## with another model (see tools/mdx_pipeline/dedupe_textures.js).
 func _texture(dir: String, file: String) -> Texture2D:
-	var tex := load(dir + file) as Texture2D
+	var file_path := file if file.begins_with("res://") else dir + file
+	var tex := load(file_path) as Texture2D
 	if tex == null:
-		push_error("build_mdx_wrappers: failed to load %s" % (dir + file))
+		push_error("build_mdx_wrappers: failed to load %s" % file_path)
 	return tex
 
 ## "unchartered_cutthroat" -> "UncharteredCutthroatModel"

@@ -118,7 +118,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Main_Diffuse.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Main_Diffuse.dds",
         "normal": "undead_malganis_main_normal.dds",
         "orm": "undead_malganis_main_orm.dds",
         "emissive": "undead_malganis_main_emissive.dds"
@@ -155,8 +155,8 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Armor_Diffuse.dds",
-        "normal": "Dreadknight_Armor_Normal.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Normal.dds",
         "orm": "Dreadknight_Armor_ORM.dds",
         "emissive": "undead_tichondrius_attach_emissive.dds"
       },
@@ -192,7 +192,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Helmet.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Helmet.dds",
         "normal": "undead_tichondrius_main_normal.dds",
         "orm": "undead_tichondrius_main_orm.dds",
         "emissive": "undead_tichondrius_main_emissive.dds"
@@ -229,8 +229,8 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Armor_Diffuse.dds",
-        "normal": "Dreadknight_Armor_Normal.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Normal.dds",
         "orm": "Dreadknight_Armor_ORM.dds",
         "emissive": "undead_tichondrius_attach_emissive.dds"
       },
@@ -266,7 +266,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Helmet.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Helmet.dds",
         "normal": "undead_tichondrius_main_normal.dds",
         "orm": "undead_tichondrius_main_orm.dds",
         "emissive": "undead_tichondrius_main_emissive.dds"
@@ -303,7 +303,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Helmet.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Helmet.dds",
         "normal": "undead_dalvengyr_main_normal.dds",
         "orm": "undead_dalvengyr_main_orm.dds",
         "emissive": "undead_dalvengyr_main_emissive.dds"
@@ -340,8 +340,8 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Armor_Diffuse.dds",
-        "normal": "Dreadknight_Armor_Normal.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Normal.dds",
         "orm": "Dreadknight_Armor_ORM.dds",
         "emissive": "undead_tichondrius_attach_emissive.dds"
       },
@@ -377,8 +377,8 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Armor_Diffuse.dds",
-        "normal": "Dreadknight_Armor_Normal.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Normal.dds",
         "orm": "Dreadknight_Armor_ORM.dds",
         "emissive": "undead_tichondrius_attach_emissive.dds"
       },
@@ -414,8 +414,8 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Armor_Diffuse.dds",
-        "normal": "Dreadknight_Armor_Normal.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Normal.dds",
         "orm": "Dreadknight_Armor_ORM.dds",
         "emissive": "undead_tichondrius_attach_emissive.dds"
       },
@@ -451,8 +451,8 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Armor_Diffuse.dds",
-        "normal": "Dreadknight_Armor_Normal.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Armor_Normal.dds",
         "orm": "Dreadknight_Armor_ORM.dds",
         "emissive": "undead_tichondrius_attach_emissive.dds"
       },
@@ -488,10 +488,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Helmet.dds",
-        "normal": "bloodfiend_main_normal.dds",
-        "orm": "bloodfiend_main_orm.dds",
-        "emissive": "bloodfiend_main_emissive.dds"
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Helmet.dds",
+        "normal": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem/bloodfiend_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Dreadknight_Helmet.dds",
@@ -525,7 +525,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Helmet.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Helmet.dds",
         "normal": "undead_tichondrius_main_normal.dds",
         "orm": "undead_tichondrius_main_orm.dds",
         "emissive": "undead_tichondrius_main_emissive.dds"
@@ -710,7 +710,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Helmet.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Helmet.dds",
         "normal": "undead_varimathras_main_normal.dds",
         "orm": "undead_varimathras_main_orm.dds",
         "emissive": "undead_varimathras_main_emissive.dds"
@@ -747,7 +747,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "Dreadknight_Helmet.dds",
+        "diffuse": "res://assets/models/enemies/undead/Nathrezim - Dreadknight/Nathrezim - Dreadknight (Portrait)/Dreadknight_Helmet.dds",
         "normal": "undead_varimathras_main_normal.dds",
         "orm": "undead_varimathras_main_orm.dds",
         "emissive": "undead_varimathras_main_emissive.dds"

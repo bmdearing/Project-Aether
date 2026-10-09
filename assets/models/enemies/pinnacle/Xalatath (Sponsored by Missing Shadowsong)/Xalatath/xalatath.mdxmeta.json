@@ -90,10 +90,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_head_diffuse.dds",
-        "normal": "xalatath_head_normal.dds",
-        "orm": "xalatath_head_orm.dds",
-        "emissive": "xalatath_head_emissive.dds"
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_emissive.dds"
       },
       "sources": {
         "diffuse": "xalatath_head_diffuse.dds",
@@ -123,7 +123,7 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_eyebrow_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_eyebrow_diffuse.dds",
         "normal": "human_sorceress_hair_normal.dds",
         "orm": "human_sorceress_hair_orm.dds",
         "emissive": null
@@ -156,8 +156,8 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_main_diffuse.dds",
-        "normal": "xalatath_main_normal.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_main_normal.dds",
         "orm": "nightelf_warden_main_orm.dds",
         "emissive": "nightelf_warden_main_emissive.dds"
       },
@@ -189,8 +189,8 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_main_diffuse.dds",
-        "normal": "xalatath_main_normal.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_main_normal.dds",
         "orm": "nightelf_warden_main_orm.dds",
         "emissive": "nightelf_warden_main_emissive.dds"
       },
@@ -321,10 +321,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_orb_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_orb_diffuse.dds",
         "normal": "human_kaelthas_armor_normal.dds",
         "orm": "human_kaelthas_armor_orm.dds",
-        "emissive": "xalatath_orb_emissive.dds"
+        "emissive": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_orb_emissive.dds"
       },
       "sources": {
         "diffuse": "xalatath_orb_diffuse.dds",
@@ -387,7 +387,7 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_hair_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_hair_diffuse.dds",
         "normal": "nightelf_archernightelf_hair_normal.dds",
         "orm": "nightelf_archernightelf_hair_orm.dds",
         "emissive": null
@@ -420,7 +420,7 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_softhair_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_softhair_diffuse.dds",
         "normal": "human_arthasmenethilfrost_hair_normal.dds",
         "orm": "human_arthasmenethilfrost_hair_orm.dds",
         "emissive": null
@@ -453,7 +453,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_pauldron_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_pauldron_diffuse.dds",
         "normal": "nightelf_warden_cloak_normal.dds",
         "orm": "nightelf_warden_cloak_orm.dds",
         "emissive": null
@@ -486,7 +486,7 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_pauldron_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_pauldron_diffuse.dds",
         "normal": "nightelf_warden_cloak_normal.dds",
         "orm": "nightelf_warden_cloak_orm.dds",
         "emissive": null
@@ -585,10 +585,10 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_head_diffuse.dds",
-        "normal": "xalatath_head_normal.dds",
-        "orm": "xalatath_head_orm.dds",
-        "emissive": "xalatath_head_emissive.dds"
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_emissive.dds"
       },
       "sources": {
         "diffuse": "xalatath_head_diffuse.dds",
@@ -717,8 +717,8 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_main_diffuse.dds",
-        "normal": "xalatath_main_normal.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_main_normal.dds",
         "orm": "nightelf_warden_main_orm.dds",
         "emissive": "nightelf_warden_main_emissive.dds"
       },
@@ -816,10 +816,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "human_antonidas_main_diffuse.dds",
-        "normal": "human_antonidas_main_normal.dds",
-        "orm": "human_antonidas_main_orm.dds",
-        "emissive": "human_antonidas_main_emissive.dds"
+        "diffuse": "res://assets/models/enemies/Arcane Golem/Kirin Tor Arcane Golem/human_antonidas_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/Arcane Golem/Kirin Tor Arcane Golem/human_antonidas_main_normal.dds",
+        "orm": "res://assets/models/enemies/Arcane Golem/Kirin Tor Arcane Golem/human_antonidas_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Arcane Golem/Kirin Tor Arcane Golem/human_antonidas_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Human/Antonidas/Human_Antonidas_Main_Diffuse.tif",
@@ -882,10 +882,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "xalatath_head_diffuse.dds",
-        "normal": "xalatath_head_normal.dds",
-        "orm": "xalatath_head_orm.dds",
-        "emissive": "xalatath_head_emissive.dds"
+        "diffuse": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath Portrait/xalatath_head_emissive.dds"
       },
       "sources": {
         "diffuse": "xalatath_head_diffuse.dds",

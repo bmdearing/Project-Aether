@@ -111,7 +111,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "bloodgolem_skirt_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem Portrait/bloodgolem_skirt_diffuse.dds",
         "normal": "wargolem_main_normal.dds",
         "orm": "wargolem_main_orm.dds",
         "emissive": "wargolem_main_emissive.dds"
@@ -183,7 +183,7 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "bloodgolem_main_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem Portrait/bloodgolem_main_diffuse.dds",
         "normal": "bloodfiend_main_normal.dds",
         "orm": "bloodfiend_main_orm.dds",
         "emissive": "bloodfiend_main_emissive.dds"
@@ -219,7 +219,7 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "bloodgolem_main_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem Portrait/bloodgolem_main_diffuse.dds",
         "normal": "bloodfiend_main_normal.dds",
         "orm": "bloodfiend_main_orm.dds",
         "emissive": "bloodfiend_main_emissive.dds"
@@ -291,10 +291,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "sm_silvermoonwall_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem Portrait/sm_silvermoonwall_diffuse.dds",
         "normal": "sm_silvermoonwall_normal.dds",
         "orm": "sm_silvermoonwall_orm.dds",
-        "emissive": "sm_silvermoonwall_emissive.dds"
+        "emissive": "res://assets/models/enemies/Arcane Golem/Blood Elf Arcane Golem Portrait/sm_silvermoonwall_emissive.dds"
       },
       "sources": {
         "diffuse": "sm_silvermoonwall_diffuse.dds",

@@ -1,8 +1,8 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_rv8om"]
-[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/Progenitor_Stars_Diffuse.dds" id="2_3l1oj"]
-[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/orm.dds" id="3_143n4"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor Portrait/Progenitor_Stars_Diffuse.dds" id="2_3l1oj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/orm.dds" id="3_143n4"]
 [ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/neutral_nagabuildup_water_diffuse.dds" id="4_8lrxb"]
 [ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/neutral_nagabuildup_water_emissive.dds" id="5_osm2u"]
 [ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/neutral_nagabuildup_water_normal.dds" id="6_6ptrn"]
@@ -11,7 +11,7 @@
 [ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/north_blight_normal.dds" id="9_i7l71"]
 [ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/Progenitor_Planets_Orm.dds" id="10_w5bli"]
 [ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/outland_blight_diffuse.dds" id="11_ufhla"]
-[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/outland_blight_normal.dds" id="12_w7arw"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/north_blight_normal.dds" id="12_w7arw"]
 [ext_resource type="PackedScene" path="res://assets/models/enemies/pinnacle/LordOfTheElements/Progenitor (Sponsored by Missing Shadowsong)/Progenitor/Progenitor1.glb" id="13_qemjd"]
 [ext_resource type="PackedScene" path="res://entities/enemies/base/HumanoidAnimTree.tscn" id="14_22chr"]
 

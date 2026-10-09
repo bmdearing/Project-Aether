@@ -201,10 +201,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "PODMD2.dds",
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Portrait V2/PODMD2.dds",
         "normal": "queenofsuffering_main_normal.dds",
         "orm": "queenofsuffering_main_orm.dds",
-        "emissive": "PODMO.dds"
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Portrait V2/PODMO.dds"
       },
       "sources": {
         "diffuse": "PODMD2.dds",
@@ -239,10 +239,10 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "PODMD2.dds",
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Portrait V2/PODMD2.dds",
         "normal": "queenofsuffering_main_normal.dds",
         "orm": "queenofsuffering_main_orm.dds",
-        "emissive": "PODMO.dds"
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Portrait V2/PODMO.dds"
       },
       "sources": {
         "diffuse": "PODMD2.dds",
