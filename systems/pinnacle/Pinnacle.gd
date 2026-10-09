@@ -14,6 +14,19 @@ const BOSSES := {
 	"herald_of_the_maw": {"name": "Herald of the Maw", "scene": "res://entities/enemies/xalatath/Xalatath.tscn"},
 }
 
+## The Herald of the Maw's exclusive Lens: its drop chance rises with each
+## Anchor pylon still standing when she dies (MawArena). Placeholder odds.
+const MAW_LENS_BASE_CHANCE := 0.04
+const MAW_LENS_CHANCE_PER_PYLON := 0.04
+
+static func maw_lens_chance(pylons_standing: int) -> float:
+	return MAW_LENS_BASE_CHANCE + MAW_LENS_CHANCE_PER_PYLON * clampi(pylons_standing, 0, MawArena.PYLONS.size())
+
+## Builds the Herald's exclusive Lens. The Lens item is still being
+## designed, so this returns null and nothing drops yet.
+static func make_maw_lens(_item_level: int) -> Item:
+	return null
+
 static func roll_fragment() -> StringName:
 	return FRAGMENT_IDS[randi() % FRAGMENT_IDS.size()]
 

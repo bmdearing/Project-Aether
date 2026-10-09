@@ -8,6 +8,10 @@ class_name BossBrain
 ## ability if it has one.
 
 signal phase_changed(phase: int)
+## A ground ability landed (slams, blasts, pull slams, a hazard appearing).
+signal ground_struck(ability: BossAbility, center: Vector3, radius: float)
+## A hazard pool ran out.
+signal hazard_ended(ability: BossAbility, center: Vector3, radius: float)
 
 ## Seconds between two abilities, and before the first.
 const GLOBAL_GAP := 1.4
@@ -155,6 +159,7 @@ func _slam(a: BossAbility) -> void:
 	await _wait(a.telegraph)
 	if _alive():
 		_hit_circle(center, a.radius, a)
+		ground_struck.emit(a, center, a.radius)
 
 func _blast(a: BossAbility) -> void:
 	_boss.begin_attack_telegraph(a.telegraph)
@@ -176,6 +181,7 @@ func _delayed_circle(spot: Vector3, a: BossAbility) -> void:
 	await _wait(a.telegraph)
 	if _alive():
 		_hit_circle(spot, a.radius, a)
+		ground_struck.emit(a, spot, a.radius)
 
 func _hazard(a: BossAbility) -> void:
 	var spot := _player.global_position
@@ -188,6 +194,7 @@ func _hazard(a: BossAbility) -> void:
 	var marker := BossTelegraph.circle(_scene(), spot, a.radius, 0.01, _tint(a))
 	marker.persist = true
 	_hazards.append({"node": marker, "center": spot, "ability": a, "left": a.duration, "tick": 0.0})
+	ground_struck.emit(a, spot, a.radius)
 
 func _tick_hazards(delta: float) -> void:
 	for h in _hazards.duplicate():
@@ -201,6 +208,7 @@ func _tick_hazards(delta: float) -> void:
 			if is_instance_valid(h["node"]):
 				h["node"].queue_free()
 			_hazards.erase(h)
+			hazard_ended.emit(h["ability"], h["center"], h["ability"].radius)
 
 func _clear_hazards() -> void:
 	for h in _hazards:
@@ -225,6 +233,8 @@ func _charge(a: BossAbility) -> void:
 		var step := CHARGE_SPEED * get_physics_process_delta_time()
 		_boss._pull = dir * CHARGE_SPEED
 		travelled += step
+		if _boss.blocks_charge(dir):
+			return
 		if not hit and _player and _flat_distance(_boss.global_position, _player.global_position) <= CHARGE_HIT_RADIUS:
 			hit = true
 			_damage_player(a)
@@ -261,24 +271,26 @@ func _summon(a: BossAbility) -> void:
 		_boss.get_parent().add_child(unit)
 		unit.global_position = _boss.global_position + Vector3(cos(angle), 0.1, sin(angle)) * 3.0
 		_summoned.append(unit)
+		_boss.on_unit_summoned(unit)
 
 func _pull(a: BossAbility) -> void:
+	var center := _boss.get_pull_center()
 	_boss.begin_attack_telegraph(a.telegraph + 0.8)
-	BossTelegraph.circle(_scene(), _boss.global_position, a.max_range, a.telegraph, Color(0.6, 0.3, 0.9))
+	BossTelegraph.circle(_scene(), center, a.max_range, a.telegraph, Color(0.6, 0.3, 0.9))
 	await _wait(a.telegraph)
 	if not _alive() or _player == null:
 		return
-	var to_boss := _boss.global_position - _player.global_position
-	to_boss.y = 0.0
-	var distance := to_boss.length() - PULL_STOP_DISTANCE
-	if distance > 0.0 and to_boss.length() <= a.max_range:
+	var to_center := center - _player.global_position
+	to_center.y = 0.0
+	var distance := to_center.length() - a.pull_stop
+	if distance > 0.0 and to_center.length() <= a.max_range and not _boss.is_player_anchored(_player):
 		# An impulse decays at Player.IMPULSE_FRICTION, travelling v^2 / 2f.
-		_player.apply_impulse(to_boss.normalized() * sqrt(2.0 * Player.IMPULSE_FRICTION * distance))
-	var center := _boss.global_position
+		_player.apply_impulse(to_center.normalized() * sqrt(2.0 * Player.IMPULSE_FRICTION * distance))
 	BossTelegraph.circle(_scene(), center, a.radius, 0.8, _tint(a))
 	await _wait(0.8)
 	if _alive():
 		_hit_circle(center, a.radius, a)
+		ground_struck.emit(a, center, a.radius)
 
 ## ---- Damage --------------------------------------------------------------
 

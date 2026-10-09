@@ -7,6 +7,28 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.48: The Herald of the Maw's arena (user design)
+
+The Herald now has her own arena, and the fight revolves around the floor. `PinnacleArena` builds a `MawArena` for her in place of the crescent. The Lord of the Elements keeps the crescent.
+- **The arena** (`levels/pinnacle_boss/maw/`): a round floor 44m across, floating over the void.
+  - Dais (r 0–6, 4 plates), sealed until phase 3.
+  - Inner ring (r 6–13, 8 plates): can crack, never falls, so there is always floor.
+  - Outer ring (r 13–22, 8 plates): cracks, then falls.
+  - **No wall at the edge. Falling off kills** (user decision). If the Herald ends up in the void, she is put back on the inner ring. Any other enemy that falls dies.
+- **Cracked plates** (user decision): standing on one builds Entropic stacks, +1 per second up to 10. Each 0.5s tick deals 0.6% of max Life per stack, before Entropic resistance. Stepping off clears the stacks. The plate glows hotter as the stacks rise.
+- **Four Anchor pylons** (`MawPylon`), one per Maw Fragment (Ash N, Storm E, Hollow S where you enter, Tide W). Each stands on its own spire out of the void.
+  - They block shots, from both sides.
+  - Her **Shadow Lunge** into a pylon stuns her for 2s (`Enemy.blocks_charge()`).
+  - Within 4m of a pylon (the ring on the floor) you're anchored against **Unmaking**'s pull (`Enemy.is_player_anchored()`).
+  - **Exclusive Lens** (user decision): every pylon still standing when she dies raises her Lens drop chance: 4% + 4% per pylon, placeholder odds (`Pinnacle.maw_lens_chance()`). The exclusive Lens itself isn't designed yet: `Pinnacle.make_maw_lens()` returns null, so nothing drops until it's filled in.
+- **Phases:**
+  - Phase 1: a **Void Rift** pool that runs out cracks the plates under it. Any later ground hit on a cracked outer plate (Rift, Collapse, Unmaking's slam) shakes it for 1s, then drops it.
+  - Phase 2: **Call the Hollow** Mindbenders don't fight (`MawChannel`). Each walks to the pylon with the fewest channellers, nearest first, and channels a beam at it for 8s. The pylon flickers harder as the channel nears its end. A finished channel shatters the pylon, and the two outer plates beside it fall. Killing the Mindbender stops the channel. If no pylon is left, Mindbenders fight normally.
+  - Phase 3: the dais shakes for 2.4s and falls, which opens **the Maw**, a violet pit at the centre. **Unmaking** now pulls you to the pit's lip (`Enemy.get_pull_center()`, new `BossAbility.pull_stop`) and slams the ring around it, unless a pylon anchors you. From then on, the Maw eats one random outer plate every 25s, with a 3s warning.
+- **Herald sized up** to 1.4x, with her reach extended to match (attack range 3.5 → 4.8, stop distance 3 → 4).
+- **BossBrain** gets `ground_struck` / `hazard_ended` signals and calls `Enemy.on_unit_summoned()`. **Enemy** gets `move_target`: walk to, and face, a node instead of the player.
+- Tests: `tests/bosses` gains `_test_maw_arena` (33 checks): layout, cracking and falling, Entropic stacks, pylon anchor and Lunge stun, the Mindbender channel, the Maw opening, the pull and anchor, the Maw's bites, and the void. Checked in-engine with screenshots of the layout, first-person view and open Maw. The first boss-suite run after the class-cache rebuild failed several timing-based checks, including existing Lord checks. Three reruns passed 108/108.
+
 ## 2026-10-08 — v4.47: Lenses and Fate Board placement rules (user design)
 
 - **Lenses** (new item, placeholder name): socketed into Slates, removed freely (Ctrl+right-click the Slate in the inventory). Each has a radius - Small 2, Medium 3, Large 4 tiles from its host Slate - one **radius modifier**, and jewel-style modifiers by rarity (Uncommon 1, Rare 2) that count as yours while the host is placed. Radius modifiers (`LensRoller.RADIUS_MODS`):

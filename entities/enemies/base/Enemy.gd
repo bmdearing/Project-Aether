@@ -292,9 +292,10 @@ func _update_model(delta: float) -> void:
 	if _model_root == null or not health.is_alive():
 		return
 	if is_instance_valid(_player):
-		var to_player := _player.global_position - global_position
+		var heading_for_target := is_instance_valid(move_target)
+		var to_player := (move_target.global_position if heading_for_target else _player.global_position) - global_position
 		to_player.y = 0.0
-		if to_player.length() > 0.1 and (to_player.length() <= chase_range or is_in_combat()):
+		if to_player.length() > 0.1 and (to_player.length() <= chase_range or is_in_combat() or heading_for_target):
 			var target_yaw := atan2(to_player.x, to_player.z) + model_forward_yaw_offset - global_rotation.y
 			_model_root.rotation.y = lerp_angle(_model_root.rotation.y, target_yaw, clamp(MODEL_TURN_SPEED * delta, 0.0, 1.0))
 	if _anim_controller:
@@ -404,6 +405,9 @@ func get_outgoing_damage_multiplier() -> float:
 ## (Black Hole's pull). Goes through move_and_slide(), so it can't push an
 ## enemy through walls.
 var _pull := Vector3.ZERO
+## When set, the enemy walks to and faces this node instead of the player
+## (a Herald's Mindbender heading for an Anchor pylon).
+var move_target: Node3D = null
 
 func apply_pull(pull_velocity: Vector3) -> void:
 	_pull += Vector3(pull_velocity.x, 0.0, pull_velocity.z)
@@ -515,7 +519,9 @@ func _update_chase() -> void:
 		else:
 			return
 
-	var to_player: Vector3 = _player.global_position - global_position
+	var heading_for_target := is_instance_valid(move_target)
+	var goal: Vector3 = move_target.global_position if heading_for_target else _player.global_position
+	var to_player: Vector3 = goal - global_position
 	to_player.y = 0.0
 	var dist := to_player.length()
 
@@ -531,7 +537,7 @@ func _update_chase() -> void:
 	# A hit from outside chase_range (landed or dodged - take_damage() marks
 	# combat before its dodge roll) still pulls the enemy in, for the same
 	# grace window the health bar uses.
-	if (dist > _detection_range() and not is_in_combat()) or dist < 0.001:
+	if (dist > _detection_range() and not is_in_combat() and not heading_for_target) or dist < 0.001:
 		velocity.x = 0.0
 		velocity.z = 0.0
 		return
@@ -720,15 +726,15 @@ func _roll_drop(rarity_mult: float) -> void:
 		_spawn_pickup(JewelRoller.roll(_compute_item_level(), rarity_mult))
 		return
 
+	if randf() <= LENS_DROP_CHANCE:
+		_spawn_pickup(LensRoller.roll(_compute_item_level(), rarity_mult))
+		return
+
 	if randf() <= AMMO_DROP_CHANCE:
 		var ammo := _roll_ammo_drop()
 		if ammo:
 			_spawn_pickup(ammo)
 			return
-
-	if randf() <= LENS_DROP_CHANCE:
-		_spawn_pickup(LensRoller.roll(_compute_item_level(), rarity_mult))
-		return
 
 	if randf() > BASE_LOOT_DROP_CHANCE:
 		return
@@ -741,14 +747,14 @@ func _roll_drop(rarity_mult: float) -> void:
 const AMMO_DROP_CHANCE := 0.15
 ## Socketable jewels (JewelRoller), rolled just before ammo.
 const JEWEL_DROP_CHANCE := 0.04
+## Lenses (LensRoller), for Slate sockets; rolled just after jewels.
+const LENS_DROP_CHANCE := 0.025
 
 func _roll_ammo_drop() -> Item:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player == null:
 		return null
 	var ammo_type := _get_preferred_ammo_type(player)
-## Lenses (LensRoller), for Slate sockets; rolled just after jewels.
-const LENS_DROP_CHANCE := 0.025
 	if ammo_type == Constants.AmmoType.ARROW:
 		return null  # arrows are infinite, never drop
 	var ammo_id: String = Constants.AMMO_TYPE_PICKUP_ID.get(ammo_type, "")
@@ -907,6 +913,22 @@ func get_cast_origin() -> Vector3:
 ## Called by BossBrain as an ability is telegraphed at `target`, landing
 ## after `delay` seconds; bosses override it for casting effects.
 func on_ability_telegraph(_ability: BossAbility, _target: Vector3, _delay: float) -> void:
+	pass
+
+## Where a PULL ability drags the player and slams.
+func get_pull_center() -> Vector3:
+	return global_position
+
+## True when the player can't be pulled (the Herald's Anchor pylons).
+func is_player_anchored(_player_node: Player) -> bool:
+	return false
+
+## Called every step of a CHARGE; true ends it early.
+func blocks_charge(_direction: Vector3) -> bool:
+	return false
+
+## Called for each unit a SUMMON ability brings in.
+func on_unit_summoned(_unit: Enemy) -> void:
 	pass
 
 ## Set by a BossBrain child: abilities, phases and the casting lock.

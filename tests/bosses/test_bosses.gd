@@ -7,7 +7,7 @@ extends Node
 
 const ARENA := "res://levels/pinnacle_boss/PinnacleArena.tscn"
 const FIGMENT_BOSS := "res://entities/enemies/figment_boss/FigmentBoss.tscn"
-const TEST_COUNT := 7
+const TEST_COUNT := 8
 
 var _checks := 0
 var _failures := 0
@@ -42,6 +42,7 @@ func _run() -> void:
 	_test_reality_engine()
 	await _test_pinnacle_arena()
 	await _test_lord_sigils()
+	await _test_maw_arena()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("boss tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -344,4 +345,127 @@ func _test_lord_sigils() -> void:
 	_check(get_tree().get_nodes_in_group("element_sigil").is_empty(), "the sigils fade when he dies")
 	arena.queue_free()
 	await _frames(2)
+	_finished += 1
+
+## Herald of the Maw: her round arena over the void, its plates, the Anchor
+## pylons, the Maw opening in phase 3, and death off the edge.
+func _test_maw_arena() -> void:
+	GameState.pending_pinnacle = "herald_of_the_maw"
+	var arena: PinnacleArena = load(ARENA).instantiate()
+	add_child(arena)
+	await _frames(3)
+	var maw := arena.maw
+	var herald := arena.boss as Xalatath
+	_check(maw != null and herald != null, "the Herald gets the Maw arena")
+	if maw == null or herald == null:
+		arena.queue_free()
+		return
+	_check(arena.get_node_or_null("Boundary") == null, "there's no wall at the edge")
+	_check(maw.dais_plates.size() == 4 and maw.inner_plates.size() == 8 and maw.outer_plates.size() == 8, "dais, inner and outer rings of plates")
+	_check(maw.pylons.size() == 4 and maw.pylons_standing() == 4, "four Anchor pylons")
+	_check(is_equal_approx(herald._model_root.scale.x, 1.4), "she's sized up")
+	var player := get_tree().get_first_node_in_group("player") as Player
+	_player = player
+	_check(maw.plate_at(player.global_position) != null and maw.plate_at(herald.global_position) != null, "both start on the floor")
+	_check(herald.arena() == maw, "she finds her arena")
+	player.set_physics_process(false)
+	herald.set_physics_process(false)
+	herald.boss_brain.set_physics_process(false)
+	for n in ["MeleeAttack", "RangedAttack"]:
+		herald.get_node(n).set_physics_process(false)
+	herald.boss_brain._player = player
+
+	# Void Rift running out cracks the floor; a hit drops cracked outer plates only.
+	var rift := herald.boss_brain.find("void_rift")
+	var outer: MawPlate = maw.outer_plates[2]
+	var inner: MawPlate = maw.inner_plates[2]
+	for plate in [outer, inner]:
+		herald.boss_brain.hazard_ended.emit(rift, maw.to_global(plate.center_local()), rift.radius)
+	_check(outer.state == MawPlate.State.CRACKED and inner.state == MawPlate.State.CRACKED, "an expired Void Rift cracks the plates under it")
+	_check(maw.dais_plates.all(func(p): return p.state == MawPlate.State.INTACT), "the dais doesn't crack")
+	for plate in [outer, inner]:
+		herald.boss_brain.ground_struck.emit(rift, maw.to_global(plate.center_local()), 2.0)
+	_check(outer.state == MawPlate.State.FALLING, "a hit on a cracked outer plate drops it")
+	_check(inner.state == MawPlate.State.CRACKED, "inner plates never fall")
+	await _seconds(MawArena.STRIKE_FALL_WARNING + 0.2)
+	var shapes_off := outer.get_children().filter(func(c): return c is CollisionShape3D).all(func(c): return c.disabled)
+	_check(outer.state == MawPlate.State.GONE and shapes_off, "the fallen plate is gone, collision and all")
+
+	# Standing on a cracked plate builds Entropic stacks; stepping off clears them.
+	player.global_position = maw.to_global(inner.center_local()) + Vector3(0, 0.1, 0)
+	_heal_player()
+	await _seconds(2.1)
+	_check(maw.entropy_stacks >= 1.5, "stacks build on a cracked plate (%.1f)" % maw.entropy_stacks)
+	_check(_hurt() > 0.0, "and they hurt")
+	player.global_position = maw.to_global(maw.inner_plates[5].center_local()) + Vector3(0, 0.1, 0)
+	await _frames(2)
+	_check(maw.entropy_stacks == 0.0, "stepping off an intact plate clears them")
+
+	# Pylons: shelter against the pull, stun a Lunge, raise the Lens odds.
+	var storm: MawPylon = maw.pylons[1]
+	player.global_position = storm.global_position + Vector3(-2.0, 0.1, 0)
+	_check(herald.is_player_anchored(player), "a pylon anchors a player beside it")
+	player.global_position = storm.global_position + Vector3(-6.0, 0.1, 0)
+	_check(not herald.is_player_anchored(player), "but not one out of its reach")
+	var reach := herald.body_radius + MawPylon.RADIUS + 0.2
+	herald.global_position = storm.global_position + Vector3(0, 0.05, reach)
+	_check(not herald.blocks_charge(Vector3(0, 0, 1)), "lunging away from a pylon goes on")
+	_check(herald.blocks_charge(Vector3(0, 0, -1)) and herald.status_effects.is_stunned(), "lunging into a pylon stuns her")
+	herald.status_effects.clear_all_effects()
+	_check(Pinnacle.maw_lens_chance(4) > Pinnacle.maw_lens_chance(3) and Pinnacle.maw_lens_chance(0) > 0.0, "each standing pylon raises the Lens chance")
+
+	# A summoned Mindbender walks to a pylon and shatters it with a channel.
+	var unit := EnemyRoster.create_unit("veilborne_mindbender")
+	arena.add_child(unit)
+	unit.global_position = maw.to_global(Vector3(0, 0.1, -15.0))
+	await _frames(2)
+	unit.set_physics_process(false)
+	herald.on_unit_summoned(unit)
+	var channels := unit.get_children().filter(func(c): return c is MawChannel)
+	var ash: MawPylon = maw.pylons[0]
+	_check(channels.size() == 1 and channels[0].pylon == ash and unit.move_target == ash, "a Mindbender heads for the nearest pylon")
+	_check(not unit.get_node("RangedAttack").is_physics_processing(), "and doesn't fight on the way")
+	if channels.size() == 1:
+		channels[0].progress = 0.95
+		await _seconds(0.6)
+	_check(not ash.alive and maw.pylons_standing() == 3, "a finished channel shatters the pylon")
+	_check(maw.outer_plates[0].state == MawPlate.State.FALLING and maw.outer_plates[7].state == MawPlate.State.FALLING, "the plates beside it give way")
+	await _frames(2)
+	_check(unit.move_target == maw.pylons[3] or unit.move_target == maw.pylons[1], "the Mindbender moves on to another pylon")
+	unit.health.apply_damage(unit.health.max_health * 10.0)
+	await _frames(2)
+
+	# Phase 3: the dais falls into the Maw, and Unmaking pulls toward it.
+	herald.global_position = maw.to_global(Vector3(-9.5, 0.05, 0))
+	herald.boss_brain.phase_changed.emit(3)
+	_check(maw.maw_open and maw.dais_plates.all(func(p): return p.state == MawPlate.State.FALLING), "phase 3 opens the Maw")
+	_check(herald.get_pull_center().distance_to(maw.maw_center()) < 0.01, "Unmaking pulls to the Maw")
+	await _seconds(MawArena.MAW_OPEN_WARNING + 0.2)
+	_check(maw.dais_plates.all(func(p): return p.state == MawPlate.State.GONE), "the dais is gone")
+	var unmaking := herald.boss_brain.find("unmaking")
+	_heal_player()
+	player.global_position = maw.to_global(Vector3(11.5, 0.1, 0))
+	herald.boss_brain.cast(unmaking)
+	await _seconds(unmaking.telegraph + 0.1)
+	_check(player._impulse.x < -1.0, "an unanchored player is dragged toward the Maw")
+	await _seconds(1.0)
+	_heal_player()
+	player.global_position = storm.global_position + Vector3(-2.0, 0.1, 0)
+	herald.boss_brain.cast(unmaking)
+	await _seconds(unmaking.telegraph + 0.1)
+	_check(player._impulse.length() < 0.01, "an anchored player holds")
+	await _seconds(1.0)
+	var bitten := maw.bite()
+	_check(bitten != null and bitten.state == MawPlate.State.FALLING, "the open Maw eats an outer plate")
+
+	# The void: the Herald is put back on the inner ring, anything else dies.
+	herald.global_position = maw.to_global(Vector3(0, -20, 0))
+	await _frames(2)
+	_check(herald.global_position.y > -1.0 and maw.plate_at(herald.global_position) in maw.inner_plates, "the Herald is pulled back from the void")
+	player.global_position = maw.to_global(Vector3(30, -20, 0))
+	await _frames(2)
+	_check(not player.health.is_alive(), "falling off the edge kills")
+	get_tree().paused = false  # the death screen pauses
+	arena.queue_free()
+	await _frames(3)
 	_finished += 1

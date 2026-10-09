@@ -1,8 +1,9 @@
 extends Node3D
 class_name PinnacleArena
-## First Pinnacle boss arena: a crescent with the boss in its belly and an
-## invisible boundary wall. Spawns the Player, the chosen Pinnacle boss and
-## the UI suite itself (same order as GeneratedMap), so it runs standalone
+## Pinnacle boss arena. For the Lord of the Elements: a crescent with the
+## boss in its belly and an invisible boundary wall. For the Herald of the
+## Maw: a MawArena (round floor over the void, Anchor pylons) instead.
+## Spawns the Player, the chosen Pinnacle boss and the UI suite itself (same order as GeneratedMap), so it runs standalone
 ## (F6). Reached from the Reality Engine with a full set of Maw Fragments
 ## (Pinnacle.enter() picks the boss); killing it opens a portal to the Hub.
 ##
@@ -38,7 +39,13 @@ const PLAYER_SCENE := preload("res://entities/player/Player.tscn")
 ## The portal home appears this far in front of the player spawn.
 const PORTAL_OFFSET := Vector3(0, 0, 3.0)
 
+## Pinnacle.BOSSES id of the boss this arena is for.
+const MAW_BOSS_ID := "herald_of_the_maw"
+
 var boss: Enemy
+## The Herald's layout, built instead of the crescent (null for the Lord).
+var maw: MawArena
+var _boss_id := ""
 var _floor_mat: ShaderMaterial
 var _ember_process: ParticleProcessMaterial
 var _ember_mat: StandardMaterial3D
@@ -86,11 +93,15 @@ void fragment() {
 func _ready() -> void:
 	GameState.initialize_standalone()
 	child_entered_tree.connect(_on_child_entered)
+	_boss_id = _take_boss_id()
 	_build_environment()
 	_build_lighting()
-	_build_floor()
-	_build_boundary_walls()
-	_build_spawn_markers()
+	if _boss_id == MAW_BOSS_ID:
+		_build_maw()
+	else:
+		_build_floor()
+		_build_boundary_walls()
+		_build_spawn_markers(BOSS_SPAWN_LOCAL, PLAYER_SPAWN_LOCAL)
 	_build_embers()
 	_spawn_player()
 	_spawn_boss()
@@ -100,32 +111,40 @@ func _spawn_player() -> void:
 	var player: Player = PLAYER_SCENE.instantiate()
 	add_child(player)
 	player.global_position = $PlayerSpawnPoint.global_position
-	player.look_at(Vector3(BAY_SPAWN_LOCAL.x, player.global_position.y, BAY_SPAWN_LOCAL.z))
+	var focus := to_global(Vector3.ZERO if maw else BAY_SPAWN_LOCAL)
+	player.look_at(Vector3(focus.x, player.global_position.y, focus.z))
 
 ## GameState.pending_pinnacle's boss, or a random one when run standalone.
-func _spawn_boss() -> void:
+func _take_boss_id() -> String:
 	var boss_id := GameState.pending_pinnacle
 	if not Pinnacle.BOSSES.has(boss_id):
 		boss_id = Pinnacle.BOSSES.keys().pick_random()
 	GameState.pending_pinnacle = ""
-	boss = (load(Pinnacle.BOSSES[boss_id]["scene"]) as PackedScene).instantiate()
+	return boss_id
+
+func _spawn_boss() -> void:
+	boss = (load(Pinnacle.BOSSES[_boss_id]["scene"]) as PackedScene).instantiate()
 	boss.rank = Constants.EnemyRank.BOSS
 	if boss is PinnacleBoss:
-		(boss as PinnacleBoss).pinnacle_id = boss_id
+		(boss as PinnacleBoss).pinnacle_id = _boss_id
 	add_child(boss)
 	boss.global_position = to_global(BAY_SPAWN_LOCAL) if boss.immovable else $BossSpawnPoint.global_position
 	if boss.has_signal("element_changed"):
 		boss.element_changed.connect(_on_element_changed)
 		_on_element_changed(boss.get("current_element"))
+	if maw:
+		maw.bind_boss(boss)
+		_on_element_changed(Constants.DamageType.ENTROPIC)
 	boss.health.died.connect(_on_boss_died)
 
-## A portal home appears by the entry once the boss falls.
+## A portal home appears by the entry once the boss falls (on the Maw's
+## inner ring, which never falls).
 func _on_boss_died() -> void:
 	var portal := Portal.new()
 	portal.destination = Portal.Destination.HUB
 	portal.taken.connect(_go_home)
 	add_child(portal)
-	portal.global_position = $PlayerSpawnPoint.global_position + PORTAL_OFFSET
+	portal.global_position = to_global(MawArena.PORTAL_SPOT) if maw else $PlayerSpawnPoint.global_position + PORTAL_OFFSET
 
 func _go_home() -> void:
 	SaveManager.save_game()
@@ -264,16 +283,28 @@ func _build_boundary_walls() -> void:
 
 	add_child(root)
 
-func _build_spawn_markers() -> void:
+func _build_spawn_markers(boss_spawn: Vector3, player_spawn: Vector3) -> void:
 	var boss_marker := Marker3D.new()
 	boss_marker.name = "BossSpawnPoint"
-	boss_marker.position = BOSS_SPAWN_LOCAL
+	boss_marker.position = boss_spawn
 	add_child(boss_marker)
 
 	var player_marker := Marker3D.new()
 	player_marker.name = "PlayerSpawnPoint"
-	player_marker.position = PLAYER_SPAWN_LOCAL
+	player_marker.position = player_spawn
 	add_child(player_marker)
+
+## The Herald of the Maw's round floor, pylons and Maw (MawArena), with no
+## edge wall: falling off kills.
+func _build_maw() -> void:
+	maw = MawArena.new()
+	maw.name = "MawArena"
+	add_child(maw)
+	_build_spawn_markers(MawArena.BOSS_SPAWN, MawArena.PLAYER_SPAWN)
+	var key := get_node("BayLight") as OmniLight3D
+	key.position = Vector3(0, 9.0, 0)
+	key.omni_range = 30.0
+	key.light_energy = 1.6
 
 func _build_embers() -> void:
 	var particles := GPUParticles3D.new()
