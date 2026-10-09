@@ -142,6 +142,32 @@ const ALIASES := {
 	"cold_of_the_frost": "ward_on_chill",
 	"pale_of_the_threshold": "ward_on_pallid",
 	"aetheric_consuming": "ward_drain_on_hit",
+	# Ailment and debuff strength (StatusEffectComponent.effect_multiplier())
+	"cold_biting": "chill_effect",
+	"lightning_galvanised": "shock_effect",
+	"entropic_unraveling": "unraveling_effect",
+	"pale_hollowing": "pallid_effect",
+	"increased_ailment_effectiveness": "ailment_effectiveness",
+	"cold_crystallising": "freeze_threshold_reduction",
+	"kinetic_pulverising": "armor_shred_effect",
+	"increased_armor_shred_effectiveness": "armor_shred_effect",
+	# Stagger: Stance damage dealt, interrupting hits, and the Staggered state
+	"increased_stagger_effect": "stagger_effect",
+	"excl_shattering": "stagger_effect",
+	"kinetic_concussive": "stagger_chance",
+	"explosive_volatile": "explosion_stun_chance",
+	"explosive_shrapnel": "explosion_bleed",
+	"kinetic_hammering": "damage_vs_staggered",
+	"excl_of_the_colossus": "damage_vs_staggered",
+	"increased_damage_vs_broken": "damage_vs_staggered",
+	# Situational
+	"excl_assassins_mark": "damage_vs_unaware",
+	"excl_of_the_shadow": "stealth_effect",
+	"increased_spell_damage_in_stance": "spell_damage_in_stance",
+	"excl_of_the_counterstrike": "riposte_counter_damage",
+	"entropic_dissolving": "unraveled_damage_reduction",
+	"pale_withering": "pallid_damage_taken",
+	"pale_of_fading": "increased_ward",
 }
 
 static func canonical(key: String) -> String:

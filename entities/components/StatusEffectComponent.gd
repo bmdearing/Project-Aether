@@ -38,6 +38,12 @@ const ELECTROCUTE_DURATION := 1.0
 const UNRAVELING_DURATION := 5.0
 const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.3  # all Esoteric damage
 
+## Aetherburn: an Aetheric DoT (the hit's share spread over its duration) that
+## also burns the target's Ward (an enemy) or Mana (the player) by as much.
+const AETHERBURN_DURATION := 4.0
+const AETHERBURN_TICK_INTERVAL := 0.5
+const AETHERBURN_DAMAGE_PERCENT := 0.8
+
 ## Caltrops' slow, refreshed every tick while standing in the field, so the
 ## duration only needs to outlast one tick.
 const SLOW_DURATION := 0.75
@@ -65,6 +71,12 @@ var _ignite_source: Node
 var _bleed_ticker: float = 0.0
 var _bleed_tick_damage: float = 0.0
 var _bleed_source: Node
+var _aetherburn_ticker: float = 0.0
+var _aetherburn_tick_damage: float = 0.0
+var _aetherburn_source: Node
+## effect_id -> strength when applied (1.0 = base), from the source's
+## "effectiveness" gear (effect_multiplier()).
+var _magnitude: Dictionary = {}
 var _armor_shred_stacks: int = 0
 var _suppressed_stacks: int = 0
 ## Set per application from the caster's tick-rate bonus.
@@ -82,6 +94,8 @@ func _process(delta: float) -> void:
 		_tick_ignite(delta)
 	if has_effect("bleed"):
 		_tick_bleed(delta)
+	if has_effect("aetherburn"):
+		_tick_aetherburn(delta)
 	_tick_resistance_shred(delta)
 
 func apply_resistance_shred(percent: float) -> void:
@@ -112,11 +126,11 @@ func _tick_resistance_shred(delta: float) -> void:
 ## on-hit effects (GearEffects) can skip ticks.
 static var emitting_dot := false
 
-const AILMENT_IDS := ["ignite", "bleed", "chill", "shock", "electrocute", "unraveling", "pallid", "scorch"]
+const AILMENT_IDS := ["ignite", "bleed", "chill", "shock", "electrocute", "unraveling", "pallid", "scorch", "aetherburn"]
 ## Ailments with no gear chance stat of their own borrow another's.
 const CHANCE_STAT_ALIAS := {"scorch": "ignite"}
 ## Ailments a plain hit can cause from "+% chance to cause X" gear alone.
-const GEAR_PROC_AILMENTS := ["ignite", "bleed", "chill", "shock", "electrocute", "unraveling", "pallid"]
+const GEAR_PROC_AILMENTS := ["ignite", "bleed", "chill", "shock", "electrocute", "unraveling", "pallid", "aetherburn"]
 
 static func is_ailment(effect_id: String) -> bool:
 	return AILMENT_IDS.has(effect_id.trim_prefix("enhanced:"))
@@ -177,12 +191,13 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 			_emit_applied("shock")
 		"bleed":
 			_bleed_source = source
-			_bleed_tick_damage = hit_damage * BLEED_DAMAGE_PERCENT * _ailment_damage_multiplier(source, "bleed") / (BLEED_DURATION / BLEED_TICK_INTERVAL)
+			_bleed_tick_damage = hit_damage * BLEED_DAMAGE_PERCENT * _ailment_damage_multiplier(source, "bleed") * effect_multiplier(source, "bleed") / (BLEED_DURATION / BLEED_TICK_INTERVAL)
 			_bleed_ticker = BLEED_TICK_INTERVAL
 			_timers["bleed"] = BLEED_DURATION * _duration_multiplier(source, "bleed")
 			_emit_applied("bleed")
 		"armor_shred":
 			_armor_shred_stacks = mini(_armor_shred_stacks + 1, ARMOR_SHRED_MAX_STACKS)
+			_magnitude["armor_shred"] = effect_multiplier(source, "armor_shred")
 			_timers["armor_shred"] = ARMOR_SHRED_DURATION
 			_emit_applied("armor_shred", _armor_shred_stacks)
 		"suppressed":
@@ -192,6 +207,12 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 		"pallid":
 			_apply_timed("pallid", PALLID_DURATION, source)
 			_emit_applied("pallid")
+		"aetherburn":
+			_aetherburn_source = source
+			_aetherburn_tick_damage = hit_damage * AETHERBURN_DAMAGE_PERCENT * _ailment_damage_multiplier(source, "aetherburn") * effect_multiplier(source, "aetherburn") / (AETHERBURN_DURATION / AETHERBURN_TICK_INTERVAL)
+			_aetherburn_ticker = AETHERBURN_TICK_INTERVAL
+			_timers["aetherburn"] = AETHERBURN_DURATION * _duration_multiplier(source, "aetherburn")
+			_emit_applied("aetherburn")
 		"guard_break":
 			_timers["guard_break"] = ShieldBlock.GUARD_BREAK_STUN
 			_emit_applied("guard_break")
@@ -210,10 +231,10 @@ const INTIMIDATED_DAMAGE_TAKEN := 0.2
 
 ## Pallid enemies deal less damage.
 func get_outgoing_damage_multiplier() -> float:
-	return 1.0 - PALLID_DAMAGE_REDUCTION if has_effect("pallid") else 1.0
+	return 1.0 - minf(PALLID_DAMAGE_REDUCTION * get_magnitude("pallid"), 0.9) if has_effect("pallid") else 1.0
 
 func get_armor_multiplier() -> float:
-	return 1.0 - ARMOR_SHRED_PER_STACK * _armor_shred_stacks if has_effect("armor_shred") else 1.0
+	return maxf(1.0 - ARMOR_SHRED_PER_STACK * _armor_shred_stacks * get_magnitude("armor_shred"), 0.0) if has_effect("armor_shred") else 1.0
 
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
@@ -225,14 +246,14 @@ func clear_all_effects() -> void:
 	_resistance_shred_sources.clear()
 
 func is_stunned() -> bool:
-	return has_effect("electrocute") or has_effect("freeze") or has_effect("guard_break")
+	return has_effect("electrocute") or has_effect("freeze") or has_effect("guard_break") or has_effect("stun")
 
 func get_move_speed_multiplier() -> float:
 	if is_stunned() or has_effect("entangle"):
 		return 0.0
 	var multiplier := 1.0
 	if has_effect("chill"):
-		multiplier *= 1.0 - CHILL_MOVE_SLOW_PERCENT
+		multiplier *= 1.0 - minf(CHILL_MOVE_SLOW_PERCENT * get_magnitude("chill"), 0.9)
 	if has_effect("slow"):
 		multiplier *= 1.0 - SLOW_MOVE_SLOW_PERCENT
 	if has_effect("suppressed"):
@@ -245,7 +266,7 @@ func get_action_speed_multiplier() -> float:
 func get_damage_taken_multiplier(damage_type: Constants.DamageType) -> float:
 	var multiplier := 1.0
 	if has_effect("unraveling") and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.ESOTERIC:
-		multiplier *= 1.0 + UNRAVELING_DAMAGE_TAKEN_PERCENT
+		multiplier *= 1.0 + UNRAVELING_DAMAGE_TAKEN_PERCENT * get_magnitude("unraveling")
 	if has_effect("intimidated"):
 		multiplier *= 1.0 + INTIMIDATED_DAMAGE_TAKEN
 	if damage_type == Constants.DamageType.FIRE:
@@ -261,11 +282,12 @@ func get_scorch_multiplier() -> float:
 ## Lightning only; the caller applies it on top of get_damage_taken_multiplier().
 func get_shock_multiplier() -> float:
 	if has_effect("shock"):
-		return 1.0 + SHOCK_DAMAGE_INCREASE
+		return 1.0 + SHOCK_DAMAGE_INCREASE * get_magnitude("shock")
 	return 1.0
 
 func _apply_timed(effect_id: String, base_duration: float, source: Node) -> void:
 	var duration := base_duration * _duration_multiplier(source, effect_id)
+	_magnitude[effect_id] = effect_multiplier(source, effect_id)
 	_timers[effect_id] = max(_timers.get(effect_id, 0.0), duration)
 
 ## The CHILL_STACKS_TO_FREEZE-th Chill upgrades to Freeze.
@@ -273,7 +295,7 @@ func _apply_chill(source: Node) -> void:
 	if has_effect("freeze"):
 		return
 	_chill_stacks += 1
-	if _chill_stacks >= CHILL_STACKS_TO_FREEZE:
+	if _chill_stacks >= freeze_stacks_needed(source):
 		if has_effect("chill"):
 			_timers.erase("chill")
 			_emit_expired("chill")
@@ -290,6 +312,7 @@ func _apply_ignite(source: Node, hit_damage: float) -> void:
 	_ignite_source = source
 	var source_stats: StatSheet = source.stat_sheet if source is Player else null
 	var total_damage := hit_damage * IGNITE_DAMAGE_PERCENT
+	total_damage *= effect_multiplier(source, "ignite")
 	if source_stats:
 		total_damage *= _ailment_damage_multiplier(source, "ignite")
 	var tick_interval := IGNITE_TICK_INTERVAL
@@ -365,3 +388,48 @@ func _emit_applied(effect_id: String, stacks: int = 1) -> void:
 func _emit_expired(effect_id: String) -> void:
 	EventBus.status_effect_expired.emit(_owner, effect_id)
 	effect_expired.emit(effect_id)
+
+func _tick_aetherburn(delta: float) -> void:
+	_aetherburn_ticker -= delta
+	if _aetherburn_ticker > 0.0:
+		return
+	_aetherburn_ticker += AETHERBURN_TICK_INTERVAL
+	var dmg := _aetherburn_tick_damage
+	if _owner is Player:
+		dmg *= 1.0 - _owner.get_dot_mitigation()
+		_owner.take_damage(dmg, Constants.DamageType.AETHERIC, _aetherburn_source, Player.HitKind.DOT)
+		_owner.mana.spend(dmg)
+	elif _owner is Enemy:
+		_owner.take_damage(dmg, Constants.DamageType.AETHERIC, true, false, true)
+		_owner.drain_ward(dmg)
+	emitting_dot = true
+	EventBus.damage_dealt.emit(_aetherburn_source, _owner, dmg, Constants.DamageType.AETHERIC, false, false)
+	emitting_dot = false
+
+## Debuffs whose strength scales with "debuff effectiveness"; every ailment
+## also scales with "ailment effectiveness".
+const DEBUFF_IDS := ["chill", "shock", "unraveling", "pallid", "electrocute", "slow", "suppressed", "intimidated"]
+
+## How strong an effect the source applies: 1 + its "<id>_effect" gear
+## (Chill/Shock/Unraveling/Pallid effectiveness), plus ailment and debuff
+## effectiveness where they apply.
+static func effect_multiplier(source: Node, effect_id: String) -> float:
+	var player := source as Player
+	if player == null or player.stat_sheet == null:
+		return 1.0
+	var sheet := player.stat_sheet
+	var percent := sheet.get_misc_bonus(effect_id + "_effect")
+	if is_ailment(effect_id):
+		percent += sheet.get_misc_bonus("ailment_effectiveness")
+	if DEBUFF_IDS.has(effect_id):
+		percent += sheet.get_misc_bonus("debuff_effectiveness")
+	return 1.0 + percent / 100.0
+
+func get_magnitude(effect_id: String) -> float:
+	return _magnitude.get(effect_id, 1.0)
+
+## Chill stacks that Freeze, lowered by the source's "reduced Freeze threshold".
+static func freeze_stacks_needed(source: Node) -> int:
+	var player := source as Player
+	var reduction := player.stat_sheet.get_misc_bonus("freeze_threshold_reduction") / 100.0 if player and player.stat_sheet else 0.0
+	return maxi(1, roundi(CHILL_STACKS_TO_FREEZE * (1.0 - reduction)))

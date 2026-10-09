@@ -98,7 +98,10 @@ func is_stealthed() -> bool:
 	return Vector2(_player.velocity.x, _player.velocity.z).length() <= b.stealth_max_speed
 
 func get_detection_multiplier() -> float:
-	return _active_behavior().stealth_detection_multiplier if is_stealthed() else 1.0
+	if not is_stealthed():
+		return 1.0
+	# "increased Stealth effect" gear shrinks detection range further.
+	return _active_behavior().stealth_detection_multiplier / (1.0 + _player.stat_sheet.get_misc_bonus("stealth_effect") / 100.0)
 
 func is_flurrying() -> bool:
 	return _flurry_left > 0

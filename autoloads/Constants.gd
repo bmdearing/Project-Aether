@@ -89,6 +89,7 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 	"slow": DamageType.PIERCING,  # Caltrops
 	"shock": DamageType.LIGHTNING,
 	"scorch": DamageType.FIRE,
+	"aetherburn": DamageType.AETHERIC,
 }
 
 ## Stackable crafting currency, held like the Orbs. Older saves held them as
@@ -154,12 +155,14 @@ const STATUS_EFFECT_NAME := {
 	"shock": "Shocked",
 	"scorch": "Scorched",
 	"guard_break": "Guard Broken",
+	"stun": "Stunned",
 	"bleed": "Bleeding",
 	"armor_shred": "Armor Shred",
 	"entangle": "Entangled",
 	"suppressed": "Suppressed",
 	"marked": "Marked",
 	"pallid": "Pallid",
+	"aetherburn": "Aetherburn",
 }
 
 # Thematic stat per damage type (SlateRoller's Main Stat line). Damage

@@ -181,6 +181,10 @@ var misc_bonus: Dictionary = {}
 func get_misc_bonus(key: String) -> float:
 	return misc_bonus.get(key, 0.0) + slate_misc_bonus.get(key, 0.0)
 
+## True while the player holds a weapon stance (Player keeps it in sync),
+## for "increased Spell damage while in stance".
+var in_stance: bool = false
+
 ## Placed Slates' non-attribute modifiers, by canonical key (ChainCalculator.
 ## slate_misc_bonuses()), added on top of gear's.
 var slate_misc_bonus: Dictionary = {}

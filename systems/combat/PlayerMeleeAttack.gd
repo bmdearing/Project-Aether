@@ -538,6 +538,8 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 		target.stance.apply_attack_stance_damage(final_damage, damage_type)
 	EventBus.damage_dealt.emit(_player, target, final_damage, damage_type, false, is_critical)
 	target.status_effects.roll_gear_ailments(_player, final_damage)
+	if _player.gear_effects:
+		_player.gear_effects.note_melee_hit()
 	EventBus.melee_attack_executed.emit(_player, final_damage, damage_type, motion_value)
 	EventBus.hit_landed.emit(is_critical, is_critical_spot, not target.health.is_alive())
 	if is_counter:

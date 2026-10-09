@@ -21,12 +21,16 @@ func _ready() -> void:
 	current_stance = max_stance
 
 func apply_parry_damage(amount: float) -> void:
-	_deplete(amount)
+	_deplete(amount * _stagger_multiplier())
 
 func apply_attack_stance_damage(raw_amount: float, damage_type: Constants.DamageType) -> void:
 	var category: Constants.DamageCategory = Constants.DAMAGE_TYPE_CATEGORY[damage_type]
 	var weight: float = CATEGORY_WEIGHT.get(category, 0.5)
-	_deplete(raw_amount * weight * ATTACK_STANCE_DAMAGE_MULTIPLIER)
+	_deplete(raw_amount * weight * ATTACK_STANCE_DAMAGE_MULTIPLIER * _stagger_multiplier())
+
+## The player's "increased Stagger effect": every Stance drain here comes from them.
+func _stagger_multiplier() -> float:
+	return 1.0 + GearEffects.player_bonus(get_tree(), "stagger_effect") / 100.0 if is_inside_tree() else 1.0
 
 func _deplete(amount: float) -> void:
 	if current_stance <= 0.0:

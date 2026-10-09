@@ -7,18 +7,18 @@ there. Most recent first.
 
 ---
 
-## 2026-10-08 — v4.42: Code-drawn item icons, compact paper doll (user request)
+## 2026-10-08 — v4.44: The last inert modifiers get their mechanics (user request)
 
-- **Every inventory thing has an icon now.** The old sprite packs (only 10 items had a picture) are no longer used. `IconArt` draws vector icons in code, and `ItemIcon` shows them in the grid, stash, paper doll, shop rows, Fate Board palette and the HUD weapon plate.
-  - **Currency:** each Orb is a coloured sphere with its own symbol (anchor for Anchoring, dice for Reckoning, ...). Brands are hexagonal plates with their category's glyph (flame, snowflake, bolt, shield, P/S...). Edicts are scrolls with a coloured wax seal. Infusion/Shrivening Stones, the Shard of Tharsis and Crystallized Aether each have their own shape.
-  - **Maw Fragments** are four quarters of one toothed ring (Ash, Tides, Storms, Hollows), each in its own colour, with the rest of the ring shown faintly.
-  - **Figments** are diamond mirrors with the tier number on them, coloured from blue (tier 1) to red (tier 10).
-  - **Slates** show their actual tile shape in their damage-type colour (hybrids alternate colours).
-  - **Gear** gets a simple silhouette for every base type (swords, axes, polearms, bows, pistols, long guns, staves, books, shields, armour pieces, jewellery). These are placeholders until real models and renders exist.
-  - Icons keep their item's footprint aspect, so they fit any block or slot. Stack counts are drawn in the bottom-right corner. Item names are no longer printed on grid blocks; hover for the card.
-- **Paper doll laid out like Path of Exile.** Slots are now sized in inventory cells: weapons 2x4 either side, helmet 2x2, body 2x3, belt 2x1, rings and amulet 1x1, gloves and boots 2x2. The doll is much smaller and its icons are the same scale as the grid. Empty slots show a faint silhouette of what goes there; hover for the slot name.
-- `Item.icon_path` is removed, along with the item card's title icon. Old saves that carry it load fine (the key is ignored). `assets/sprites` is no longer referenced.
-- UI capture harness: new `icons` (contact sheet of every icon) and `inventory_icons` modes; the `fateboard` mode now puts two Slates in the palette.
+Every modifier key in the game now feeds something (re-audited after v4.43's list of 26 inert ones).
+- **Ailment and debuff strength** (`StatusEffectComponent.effect_multiplier()`): each effect remembers how strong its source made it. "Chill effect" slows more, "Shock bonus" adds more Lightning damage taken, "Unraveling/Pallid effectiveness" scale theirs, "Ailment effectiveness" scales every ailment (Ignite/Bleed damage included), "Debuff effectiveness" every debuff, "Armour Shred effectiveness" each Armour Shred stack. Slows and Pallid cap at 90%.
+- **Freeze threshold:** "% reduced Freeze threshold" lowers the Chills needed to Freeze (3, so 30-35% makes it 2).
+- **Aetherburn** is a real ailment (Master v3: "Aether DoT that also burns the target's resource pool"): 80% of the hit as Aetheric damage over 4 s, each tick also burning as much of an enemy's Ward (or the player's Mana). The Aetherburn chance, damage, duration and "vs Aetherburn" modifiers now have something to act on.
+- **Stagger** builds on the existing Stance bar: "Stagger effect" makes your hits drain enemy Stance faster (towards a Composure Break); "chance to Stagger" interrupts the enemy's attack. An enemy is **Staggered** for 1.5 s after an interrupt or while Broken, which is what "damage vs Staggered/Broken" checks.
+- **Explosions** (Explosive hits): a chance to Stun (1 s, a new "Stunned" status) and a 2.5 m Bleed zone carrying 2 s of its per-second damage.
+- **Situational:** damage vs unaware enemies (hit before they were in combat), damage for 4 s after a melee hit, Spell damage while in stance (`StatSheet.in_stance`), Counterstrike adds its share of the Riposte's hit, stronger Stealth shrinks enemy detection further.
+- **Debuffs on enemies:** Unraveled enemies deal less damage and Pallid enemies take more, from your gear (`GearEffects.player_bonus()`). "Ward Threshold" is the Ward pool, as everywhere else.
+- Numbers (1.5 s Stagger, 1 s Stun, 4 s after-melee window, 80% Aetherburn) are first guesses.
+- Tests: `test_gear_stats` grows to 77 checks.
 
 ---
 
@@ -46,6 +46,21 @@ there. Most recent first.
   - **Not added (needs your call):** the doc's experimental ranged weapons (Rail Carbine, Voltage Pistol, Pressurized Rifle, Thermal Pistol, Jet Rifle) and four Conduits (Focus, Seal, Charm, Lantern) - they need firing behaviour / stances designed.
 - **Wiki in the pause menu**, under Settings, using the live character's Magic Find.
 - Tests: new `tests/gear` (62 checks).
+
+---
+
+## 2026-10-08 — v4.42: Code-drawn item icons, compact paper doll (user request)
+
+- **Every inventory thing has an icon now.** The old sprite packs (only 10 items had a picture) are no longer used. `IconArt` draws vector icons in code, and `ItemIcon` shows them in the grid, stash, paper doll, shop rows, Fate Board palette and the HUD weapon plate.
+  - **Currency:** each Orb is a coloured sphere with its own symbol (anchor for Anchoring, dice for Reckoning, ...). Brands are hexagonal plates with their category's glyph (flame, snowflake, bolt, shield, P/S...). Edicts are scrolls with a coloured wax seal. Infusion/Shrivening Stones, the Shard of Tharsis and Crystallized Aether each have their own shape.
+  - **Maw Fragments** are four quarters of one toothed ring (Ash, Tides, Storms, Hollows), each in its own colour, with the rest of the ring shown faintly.
+  - **Figments** are diamond mirrors with the tier number on them, coloured from blue (tier 1) to red (tier 10).
+  - **Slates** show their actual tile shape in their damage-type colour (hybrids alternate colours).
+  - **Gear** gets a simple silhouette for every base type (swords, axes, polearms, bows, pistols, long guns, staves, books, shields, armour pieces, jewellery). These are placeholders until real models and renders exist.
+  - Icons keep their item's footprint aspect, so they fit any block or slot. Stack counts are drawn in the bottom-right corner. Item names are no longer printed on grid blocks; hover for the card.
+- **Paper doll laid out like Path of Exile.** Slots are now sized in inventory cells: weapons 2x4 either side, helmet 2x2, body 2x3, belt 2x1, rings and amulet 1x1, gloves and boots 2x2. The doll is much smaller and its icons are the same scale as the grid. Empty slots show a faint silhouette of what goes there; hover for the slot name.
+- `Item.icon_path` is removed, along with the item card's title icon. Old saves that carry it load fine (the key is ignored). `assets/sprites` is no longer referenced.
+- UI capture harness: new `icons` (contact sheet of every icon) and `inventory_icons` modes; the `fateboard` mode now puts two Slates in the palette.
 
 ---
 

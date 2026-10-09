@@ -391,6 +391,8 @@ func _apply_map_modifiers() -> void:
 
 func get_outgoing_damage_multiplier() -> float:
 	var mult := status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0
+	if status_effects and status_effects.has_effect("unraveling"):
+		mult *= 1.0 - minf(GearEffects.player_bonus(get_tree(), "unraveled_damage_reduction") / 100.0, 0.9)
 	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
 	if rarity_component:
 		mult *= rarity_component.get_damage_multiplier()
@@ -420,8 +422,18 @@ func apply_knockback(impulse: Vector3) -> void:
 	if impulse.y > 0.0:
 		velocity.y = maxf(velocity.y, impulse.y)
 
+## Staggered: interrupted in the last STAGGER_SECONDS, or Broken (Composure).
+const STAGGER_SECONDS := 1.5
+var _staggered_until_msec: int = 0
+## Whether the latest hit landed before this enemy was in combat (unaware).
+var last_hit_was_unaware: bool = false
+
+func is_staggered() -> bool:
+	return Time.get_ticks_msec() < _staggered_until_msec or (composure != null and composure.is_broken)
+
 ## Cancels a wind-up or strike in progress and plays the stagger reaction.
 func interrupt_attack() -> void:
+	_staggered_until_msec = Time.get_ticks_msec() + int(STAGGER_SECONDS * 1000.0)
 	for path in ["MeleeAttack", "RangedAttack"]:
 		var attack := get_node_or_null(path)
 		if attack and attack.has_method("interrupt"):
@@ -795,6 +807,8 @@ func _spawn_slate_pickup(slate: Slate) -> void:
 ## is_dot: a damage-over-time tick - smaller floating number.
 ## ignore_armor: War Pick's Armor Pierce.
 func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false, is_dot: bool = false, ignore_armor: bool = false) -> bool:
+	if not is_dot:
+		last_hit_was_unaware = not is_in_combat()
 	_last_combat_msec = Time.get_ticks_msec()
 	if invulnerable:
 		return false
@@ -807,6 +821,8 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 	var status_multiplier := status_effects.get_damage_taken_multiplier(damage_type) if status_effects else 1.0
 	if status_effects and damage_type == Constants.DamageType.LIGHTNING:
 		status_multiplier *= status_effects.get_shock_multiplier()
+	if status_effects and status_effects.has_effect("pallid"):
+		status_multiplier *= 1.0 + GearEffects.player_bonus(get_tree(), "pallid_damage_taken") / 100.0
 	var mitigated := amount * multiplier * status_multiplier
 	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
 	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0 and not is_dot and not ignore_armor:

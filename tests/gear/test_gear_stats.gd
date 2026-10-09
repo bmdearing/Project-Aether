@@ -8,7 +8,7 @@ extends Node
 ## Exits 0 when every check passes. Never writes the save file.
 
 const HUB := "res://levels/hub/Hub.tscn"
-const TEST_COUNT := 9
+const TEST_COUNT := 10
 
 var _checks := 0
 var _failures := 0
@@ -42,6 +42,7 @@ func _run() -> void:
 	_test_damage_stats()
 	_test_resources()
 	await _test_gear_effects()
+	await _test_mechanics()
 	_test_slates()
 	_test_bases()
 	await _test_pause_wiki()
@@ -274,4 +275,106 @@ func _test_pause_wiki() -> void:
 		await _frames(1)
 		_check(pause._wiki_center.visible and pause._wiki.listed_ids().size() == UniqueCatalog.DEFS.size(), "it opens the Unique wiki")
 		pause._show_wiki(false)
+	_finished += 1
+
+func _enemy_near() -> Enemy:
+	var enemy := EnemyRoster.create_unit("hollowed_shambler")
+	_hub.add_child(enemy)
+	enemy.set_physics_process(false)
+	enemy.global_position = _player.global_position + Vector3(0, 0, -2)
+	return enemy
+
+## The modifiers that needed a mechanic: ailment strength, Freeze threshold,
+## Aetherburn, Stagger, explosion procs, debuff modifiers, stealth, stance.
+func _test_mechanics() -> void:
+	var sheet := _player.stat_sheet
+	var saved: Dictionary = sheet.misc_bonus
+	var enemy := _enemy_near()
+	await _frames(2)
+	var status := enemy.status_effects
+	sheet.misc_bonus = {}
+	status.apply_effect("chill", _player)
+	var base_slow := status.get_move_speed_multiplier()
+	status.clear_all_effects()
+	sheet.misc_bonus = {"chill_effect": 100.0}
+	status.apply_effect("chill", _player)
+	_check(status.get_move_speed_multiplier() < base_slow, "Chill effectiveness slows more (%.2f < %.2f)" % [status.get_move_speed_multiplier(), base_slow])
+	status.clear_all_effects()
+	sheet.misc_bonus = {"shock_effect": 100.0, "ailment_effectiveness": 0.0}
+	status.apply_effect("shock", _player)
+	_check(is_equal_approx(status.get_shock_multiplier(), 1.0 + StatusEffectComponent.SHOCK_DAMAGE_INCREASE * 2.0), "Shock effectiveness doubles its bonus")
+	status.clear_all_effects()
+	sheet.misc_bonus = {"freeze_threshold_reduction": 34.0}
+	_check(StatusEffectComponent.freeze_stacks_needed(_player) == 2, "reduced Freeze threshold freezes on fewer Chills")
+	status.apply_effect("chill", _player)
+	status.apply_effect("chill", _player)
+	_check(status.has_effect("freeze"), "two Chills freeze with it")
+	status.clear_all_effects()
+	sheet.misc_bonus = {}
+	enemy._ward_pool = 500.0
+	enemy._ward_current = 500.0
+	status.apply_effect("aetherburn", _player, 400.0)
+	_check(status.has_effect("aetherburn") and StatusEffectComponent.AILMENT_IDS.has("aetherburn"), "Aetherburn is a real ailment")
+	await get_tree().create_timer(0.7).timeout
+	_check(enemy.get_ward() < 500.0, "Aetherburn ticks burn Ward (%.0f)" % enemy.get_ward())
+	status.clear_all_effects()
+
+	# Stagger
+	enemy._ward_pool = 0.0
+	enemy._ward_current = 0.0
+	sheet.misc_bonus = {}
+	enemy.stance.reset()
+	enemy.stance.apply_attack_stance_damage(100.0, Constants.DamageType.KINETIC)
+	var plain_drain := enemy.stance.max_stance - enemy.stance.current_stance
+	enemy.stance.reset()
+	sheet.misc_bonus = {"stagger_effect": 100.0}
+	enemy.stance.apply_attack_stance_damage(100.0, Constants.DamageType.KINETIC)
+	_check(is_equal_approx(enemy.stance.max_stance - enemy.stance.current_stance, plain_drain * 2.0), "Stagger effect doubles Stance damage")
+	enemy.stance.reset()
+	_check(not enemy.is_staggered(), "not Staggered by default")
+	sheet.misc_bonus = {"stagger_chance": 100.0, "damage_vs_staggered": 100.0}
+	enemy.health.max_health = 100000.0
+	enemy.health.current_health = 50000.0
+	var before := enemy.health.current_health
+	EventBus.damage_dealt.emit(_player, enemy, 100.0, Constants.DamageType.KINETIC, false, false)
+	_check(enemy.is_staggered(), "Stagger chance staggers")
+	_check(before - enemy.health.current_health > 50.0, "Staggered enemies take the bonus")
+	sheet.misc_bonus = {"explosion_stun_chance": 100.0}
+	EventBus.damage_dealt.emit(_player, enemy, 100.0, Constants.DamageType.EXPLOSIVE, false, false)
+	_check(status.is_stunned(), "explosions can Stun")
+	status.clear_all_effects()
+	sheet.misc_bonus = {"explosion_bleed": 20.0}
+	EventBus.damage_dealt.emit(_player, enemy, 100.0, Constants.DamageType.EXPLOSIVE, false, false)
+	_check(status.has_effect("bleed"), "explosions leave a Bleed")
+	status.clear_all_effects()
+
+	# Debuff modifiers
+	sheet.misc_bonus = {}
+	var out_plain := enemy.get_outgoing_damage_multiplier()
+	status.apply_effect("unraveling", _player)
+	sheet.misc_bonus = {"unraveled_damage_reduction": 20.0}
+	_check(is_equal_approx(enemy.get_outgoing_damage_multiplier(), out_plain * 0.8), "Unraveled enemies deal less damage")
+	status.clear_all_effects()
+	sheet.misc_bonus = {}
+	status.apply_effect("pallid", _player)
+	before = enemy.health.current_health
+	enemy.take_damage(100.0, Constants.DamageType.PALE, true)
+	var pallid_plain := before - enemy.health.current_health
+	sheet.misc_bonus = {"pallid_damage_taken": 50.0}
+	before = enemy.health.current_health
+	enemy.take_damage(100.0, Constants.DamageType.PALE, true)
+	_check(before - enemy.health.current_health > pallid_plain * 1.4, "Pallid enemies take more damage")
+	status.clear_all_effects()
+
+	# Spell damage while in stance
+	var spell := load("res://data/abilities/instances/cinder_lance.tres") as Ability
+	sheet.misc_bonus = {"spell_damage_in_stance": 100.0}
+	sheet.in_stance = false
+	var out_of_stance := spell.predict_damage_range(sheet).y
+	sheet.in_stance = true
+	_check(spell.predict_damage_range(sheet).y > out_of_stance * 1.3, "Spell damage in stance applies only in stance")
+	sheet.in_stance = false
+	sheet.misc_bonus = saved
+	enemy.queue_free()
+	await _frames(1)
 	_finished += 1

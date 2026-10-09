@@ -226,6 +226,8 @@ func _ready() -> void:
 	cast_time_handler.cast_completed.connect(ability_cast._on_cast_time_completed)
 	weapon_stance.stance_entered.connect(stance_attack._on_stance_entered)
 	weapon_stance.stance_exited.connect(stance_attack._on_stance_exited)
+	weapon_stance.stance_entered.connect(func(): stat_sheet.in_stance = true)
+	weapon_stance.stance_exited.connect(func(): stat_sheet.in_stance = false)
 	_apply_saved_loadout()
 	_apply_saved_experience()
 	_apply_saved_fate_board()

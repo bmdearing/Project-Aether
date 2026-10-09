@@ -81,6 +81,8 @@ func execute_riposte(target: Enemy, weapon: Weapon, base_motion_value: float, da
 
 	# Patch v4.0 "Increased Riposte Damage" - flat % on top of the whole roll.
 	var final_damage: float = hit["final_damage"] * (1.0 + player.stat_sheet.get_misc_bonus("increased_riposte_damage") / 100.0)
+	# Counterstrike: bonus damage equal to a share of the Riposte's own hit.
+	final_damage += hit["final_damage"] * player.stat_sheet.get_misc_bonus("riposte_counter_damage") / 100.0
 
 	target.take_damage(final_damage, damage_type)
 	EventBus.damage_dealt.emit(player, target, final_damage, damage_type, false, hit["is_critical"])
