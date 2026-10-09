@@ -21,7 +21,7 @@ Grab the latest build from the [Releases page](https://github.com/bmdearing/Proj
 | Windows 64-bit | `ProjectAether-<version>-windows.zip` | Unzip, run `ProjectAether.exe` |
 | Linux 64-bit | `ProjectAether-<version>-linux.tar.gz` | `tar -xzf` it, run `./ProjectAether.x86_64` |
 
-Each build is a single self-contained executable (about 900 MB to download).
+Each build is a single self-contained executable (about 430 MB to download).
 
 ## Features
 
