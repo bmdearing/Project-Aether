@@ -7,6 +7,13 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.49: Free Pinnacle entry for testing (user request)
+
+- `Pinnacle.free_entry` (on for now): the Reality Engine opens either Pinnacle boss without Maw Fragments and doesn't spend any. Its entries read "Free (testing)". Set it to false to restore the four-fragment cost.
+- The boss test turns it off to keep checking the real fragment gate, and checks the "Free (testing)" label.
+
+---
+
 ## 2026-10-08 — v4.48: The Herald of the Maw's arena (user design)
 
 The Herald now has her own arena, and the fight revolves around the floor. `PinnacleArena` builds a `MawArena` for her in place of the crescent. The Lord of the Elements keeps the crescent.

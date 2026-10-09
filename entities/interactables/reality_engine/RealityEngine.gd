@@ -52,7 +52,7 @@ func _pinnacle_entries() -> Array:
 		var boss_id: String = id
 		entries.append({
 			"label": "Pinnacle: %s" % Pinnacle.BOSSES[boss_id]["name"],
-			"cost_text": "%d/%d Fragments" % [have, Pinnacle.FRAGMENT_IDS.size()],
+			"cost_text": "Free (testing)" if Pinnacle.free_entry else "%d/%d Fragments" % [have, Pinnacle.FRAGMENT_IDS.size()],
 			"fail_text": "Need all 4",
 			"button_label": "Open",
 			"color": Constants.ITEM_RARITY_COLOR[Constants.ItemRarity.UNIQUE],

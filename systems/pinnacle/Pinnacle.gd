@@ -51,9 +51,13 @@ static func consume_set(inventory: GridInventory) -> bool:
 		inventory.remove_currency(id)
 	return true
 
-## Spends a set and loads the arena with boss_id.
+## Testing switch: the Reality Engine opens Pinnacle bosses without
+## spending (or holding) Maw Fragments. Set false to restore the cost.
+static var free_entry := true
+
+## Spends a set (unless free_entry) and loads the arena with boss_id.
 static func enter(tree: SceneTree, boss_id: String) -> bool:
-	if not BOSSES.has(boss_id) or not consume_set(GameState.inventory):
+	if not BOSSES.has(boss_id) or not (free_entry or consume_set(GameState.inventory)):
 		return false
 	GameState.pending_pinnacle = boss_id
 	GameState.active_map = null

@@ -247,10 +247,15 @@ func _test_reality_engine() -> void:
 	var engine := RealityEngine.new()
 	var saved := GameState.inventory
 	GameState.inventory = GridInventory.new()
+	var free := Pinnacle.free_entry
+	Pinnacle.free_entry = true
+	_check(engine._pinnacle_entries().all(func(e): return e["cost_text"] == "Free (testing)"), "free entry shows on the Reality Engine")
+	Pinnacle.free_entry = false
 	var entries := engine._pinnacle_entries()
 	_check(entries.size() == Pinnacle.BOSSES.size(), "the Reality Engine lists every Pinnacle boss")
 	_check(entries.all(func(e): return e["cost_text"] == "0/4 Fragments"), "and how many fragments you hold")
 	_check(not entries[0]["on_buy"].call(), "it won't open without a full set")
+	Pinnacle.free_entry = free
 	GameState.inventory = saved
 	engine.free()
 	_finished += 1
