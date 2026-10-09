@@ -463,17 +463,7 @@ func _rune_disc(pos: Vector3, size: float, speed: float, energy: float) -> void:
 	add_child(mi)
 
 func _glow_particle_material(base: Color) -> StandardMaterial3D:
-	var tex := GradientTexture2D.new()
-	tex.fill = GradientTexture2D.FILL_RADIAL
-	tex.fill_from = Vector2(0.5, 0.5)
-	tex.fill_to = Vector2(1.0, 0.5)
-	var grad := Gradient.new()
-	grad.set_color(0, Color(1, 1, 1, 1))
-	grad.set_color(1, Color(1, 1, 1, 0))
-	grad.add_point(0.25, Color(1, 1, 1, 0.6))
-	tex.gradient = grad
-	tex.width = 64
-	tex.height = 64
+	var tex := GlowTexture.radial(Vector2(0.25, 0.6))
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA

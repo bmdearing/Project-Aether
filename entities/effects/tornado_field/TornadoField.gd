@@ -172,16 +172,7 @@ func _add_shell(base_r: float, top_r: float, height: float, light: Color, dark: 
 	_shell_mats.append(mat)
 
 func _soft_material(color: Color, billboard: bool) -> StandardMaterial3D:
-	var tex := GradientTexture2D.new()
-	tex.fill = GradientTexture2D.FILL_RADIAL
-	tex.fill_from = Vector2(0.5, 0.5)
-	tex.fill_to = Vector2(1.0, 0.5)
-	var grad := Gradient.new()
-	grad.set_color(0, Color(1, 1, 1, 1))
-	grad.set_color(1, Color(1, 1, 1, 0))
-	tex.gradient = grad
-	tex.width = 64
-	tex.height = 64
+	var tex := GlowTexture.radial()
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA

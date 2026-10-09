@@ -31,6 +31,7 @@ var pending_flipped: bool = false
 
 var _hover_cell: Vector2i = Vector2i(-1, -1)
 var _background: ColorRect
+var _outline_layer: Control
 var _cells_dirty: bool = true
 var _scroll_container: ScrollContainer
 var _lmb_press_pos: Vector2 = Vector2.ZERO
@@ -51,6 +52,8 @@ func _apply_zoom() -> void:
 	custom_minimum_size = extent
 	if _background:
 		_background.size = extent
+	if _outline_layer:
+		_outline_layer.size = extent
 	queue_redraw()
 
 ## Wheel zoom that keeps the point under the cursor fixed. The scroll offset
@@ -91,6 +94,15 @@ func _setup_background() -> void:
 	_background.material = mat
 	add_child(_background)
 	move_child(_background, 0)
+	# Outlines go on a layer above the Slate fills: the background child draws
+	# over this control's own _draw().
+	_outline_layer = Control.new()
+	_outline_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_outline_layer.draw.connect(func():
+		if show_outlines and board:
+			_draw_outlines(board.get_occupied_cells()))
+	_outline_layer.size = _background.size
+	add_child(_outline_layer)
 
 func set_board(b: FateBoard) -> void:
 	board = b
@@ -189,8 +201,8 @@ func _draw() -> void:
 		return
 
 	_draw_lens_radii()
-	if show_outlines:
-		_draw_outlines(occupied)
+	if _outline_layer:
+		_outline_layer.queue_redraw()
 
 	if pending_slate and _in_bounds(_hover_cell):
 		var preview_cells := pending_slate.get_transformed_shape(pending_rotation, pending_flipped)
@@ -256,23 +268,26 @@ func _draw_cell(cell: Vector2i, color: Color) -> void:
 static var show_outlines := false
 
 func _draw_outlines(occupied: Dictionary) -> void:
-	var w := maxf(2.0, _cell_px * 0.09)
+	var w := maxf(1.5, _cell_px * 0.04)
 	var inset := w * 0.5
+	var index := 0
 	for id in board.placements:
 		var data: FateBoard.PlacedSlateData = board.placements[id]
-		var color := Color.from_hsv(fposmod(float(hash(id) % 997) / 997.0, 1.0), 0.55, 1.0)
+		# Golden-ratio hue steps keep neighbouring Slates' colours far apart.
+		var color := Color.from_hsv(fposmod(index * 0.618034, 1.0), 0.35, 1.0, 0.55)
+		index += 1
 		for c in data.cells:
 			if not _in_bounds(c):
 				continue
 			var r := Rect2(c.x * _cell_px, c.y * _cell_px, _cell_px, _cell_px).grow(-inset)
 			if occupied.get(c + Vector2i.UP, "") != id:
-				draw_line(r.position, Vector2(r.end.x, r.position.y), color, w)
+				_outline_layer.draw_line(r.position, Vector2(r.end.x, r.position.y), color, w)
 			if occupied.get(c + Vector2i.DOWN, "") != id:
-				draw_line(Vector2(r.position.x, r.end.y), r.end, color, w)
+				_outline_layer.draw_line(Vector2(r.position.x, r.end.y), r.end, color, w)
 			if occupied.get(c + Vector2i.LEFT, "") != id:
-				draw_line(r.position, Vector2(r.position.x, r.end.y), color, w)
+				_outline_layer.draw_line(r.position, Vector2(r.position.x, r.end.y), color, w)
 			if occupied.get(c + Vector2i.RIGHT, "") != id:
-				draw_line(Vector2(r.end.x, r.position.y), r.end, color, w)
+				_outline_layer.draw_line(Vector2(r.end.x, r.position.y), r.end, color, w)
 
 const LENS_RADIUS_COLOR := Color(0.55, 0.9, 0.85, 0.14)
 const LENS_EDGE_COLOR := Color(0.55, 0.9, 0.85, 0.55)

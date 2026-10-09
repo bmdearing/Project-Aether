@@ -21,7 +21,6 @@ const DOLL_GAP := 4
 @onready var inventory_grid: InventoryGridView = $HBox/SidePanel/InventoryPanel/InventoryScroll/InventoryGrid
 @onready var inventory_panel: VBoxContainer = $HBox/SidePanel/InventoryPanel
 @onready var status_label: Label = $HBox/SidePanel/StatusLabel
-@onready var close_button: Button = $HBox/SidePanel/CloseButton
 @onready var stats_panel: VBoxContainer = $HBox/StatsPanel
 @onready var hint_label: Label = $HBox/SidePanel/HintLabel
 
@@ -66,7 +65,7 @@ const CURSOR_ICON_SIZE := 46.0
 var _cursor_icon: ItemIcon
 const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
 const PREVIEW_LINES := 5
-const STATUS_LINES := 5
+const STATUS_LINES := 3
 const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows stats. Hold Alt over an item for details."
 
 func _ready() -> void:
@@ -80,7 +79,6 @@ func _ready() -> void:
 	visible = false
 	add_to_group("inventory_screen")
 	add_to_group("blocking_menu")
-	close_button.pressed.connect(close)
 	_doll_rows = [
 		{"button": slot_helmet, "slot": Constants.EquipmentSlot.HELMET, "label": "Helmet", "cells": Rect2i(3, 0, 2, 2), "ghost": &"helmet"},
 		{"button": slot_body_armour, "slot": Constants.EquipmentSlot.BODY_ARMOUR, "label": "Body Armour", "cells": Rect2i(3, 2, 2, 3), "ghost": &"body_armour"},
@@ -114,6 +112,10 @@ func _ready() -> void:
 	inventory_grid.drop_failed.connect(func(): status_label.text = "That doesn't fit there.")
 	_ammo_label = Label.new()
 	inventory_panel.add_child(_ammo_label)
+	# Messages and the hint sit under the grid, so the doll and grid never move.
+	side_panel.move_child(status_label, -1)
+	side_panel.move_child(hint_label, -1)
+	hint_label.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
 
 ## Sizes the doll slots from inventory cells so equipped icons match the grid.
 func _layout_doll() -> void:

@@ -586,14 +586,7 @@ func _ensure_flame_jets_fx() -> void:
 	ramp.add_point(0.7, Color(0.75, 0.15, 0.05, 0.45))
 	ramp.set_color(ramp.get_point_count() - 1, Color(0.2, 0.05, 0.02, 0.0))
 	p.color_ramp = ramp
-	var tex := GradientTexture2D.new()
-	tex.fill = GradientTexture2D.FILL_RADIAL
-	tex.fill_from = Vector2(0.5, 0.5)
-	tex.fill_to = Vector2(1.0, 0.5)
-	var soft := Gradient.new()
-	soft.set_color(0, Color(1, 1, 1, 1))
-	soft.set_color(1, Color(1, 1, 1, 0))
-	tex.gradient = soft
+	var tex := GlowTexture.radial()
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA

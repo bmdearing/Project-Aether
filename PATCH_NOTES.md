@@ -7,6 +7,14 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.61: Hub mote textures, inventory layout, Slate outlines (user reports)
+
+- **Hub motes drew as big hard squares** (user screenshot, not reproduced here): the particles kept their colour and billboarding but lost their soft round texture, a `GradientTexture2D` that fills itself in through a deferred update. Particle sprites now come from `GlowTexture.radial()`, which bakes the falloff into an `ImageTexture` up front (cached), used by the Hub motes and flakes, Tornado and the spell particle material.
+- **Inventory overflowed the screen**: the fixed-height status block added in v4.60 sat between the title and the paper doll, pushing the grid and the Close button off the bottom. Status and hint now sit under the grid (still fixed height, so nothing moves while crafting), the Close button is gone (Esc, B or Tab), and the layout starts below the Tab strip.
+- **Show Slate outlines did nothing**: they were drawn in the grid's own `_draw()`, which the Slate-fill background child covers. They're on their own layer above it now, thin and faint, with golden-ratio hue steps so neighbours differ.
+
+---
+
 ## 2026-10-09 — v4.60: Stash affinities and search, PoE-style currency tab, Figment tab, Spells screen, Tab menu, minimap and compass, item comparison, treasure chests (user batch)
 
 - **Stash.** Tabs have affinities (`Stash.affinities`, category -> tab): anything sent to the stash goes to its category's tab first, then the open tab, then the first that takes it. Currency, Slates, Uniques and Figments start pointed at their own tabs; right-click any tab to set what it collects (a ◆ marks a tab collecting something other than its own kind). New **Figment tab** (`GridInventory.Accepts.FIGMENT`); old saves gain it and default affinities on load. **Search** across names and modifiers fades misses in both grids and every tab view and counts hits on each tab. The right side is one fixed-size page under wrapping tabs, so switching tabs no longer resizes the screen.

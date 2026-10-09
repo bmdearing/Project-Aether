@@ -16,7 +16,7 @@ color = Color(0, 0, 0, 0.75)
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 24.0
-offset_top = 24.0
+offset_top = 40.0
 offset_right = -24.0
 offset_bottom = -24.0
 theme_override_constants/separation = 24
@@ -128,6 +128,3 @@ text = "Inventory"
 
 [node name="InventoryGrid" type="Control" parent="HBox/SidePanel/InventoryPanel/InventoryScroll"]
 script = ExtResource("3")
-
-[node name="CloseButton" type="Button" parent="HBox/SidePanel"]
-text = "Close (Esc)"
