@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.56: Threshold Knight's weapon and shield, Booming Blade on the ground, smoother crafting (user reports)
+
+- **Threshold Knight held nothing:** his sword and shield hung frozen in the bind pose while he animated. The model (Teron Gorefiend, kit-bashed) carries three classic geosets (the blade, the shield and a weapon trim) with no per-vertex skin weights; they bind to the hand bones through MDX matrix groups, which the converter skipped, leaving them unskinned. `mdx_to_gltf.js` now binds such geosets through their matrix groups (up to four nodes, equal weights). Reconverted the Knight; a scan of every roster model found no other affected unit. Checked by rendering him frozen mid-idle and mid-attack (`tests/ui_capture/capture_model.tscn`, new): the sword now swings with his hand.
+- **Booming Blade** now comes off you along the ground like Spark, but goes in a straight line without tracking: `SparkCrawler.straight` runs flat along its heading at 16 m/s for the spell's range (22 m) and stops at walls. Each enemy takes at most one Booming Blade impact per 0.1s from all of them (`HitCooldown`). Cooldown between volleys (0.45s) and bolt count are unchanged.
+- **Crafting felt janky:** every craft, and every Orb pick-up, deleted and rebuilt every block in the grid. The block under the cursor vanished, taking its tooltip and the Orb preview with it until the mouse moved. `InventoryGridView.refresh()` now updates blocks in place (restyle, move, new icon/count; only gone entries are freed), so the crafted item keeps its hover and its tooltip updates live. A picked-up Orb, stone or Jewel now rides on the cursor, with its stack count, until it's used or put back.
+- Chain tooltip said "Strength, Vitality..."; Vitality is gone. Now "Strength, Agility, Intellect".
+- Tests: the inventory suite checks the cursor icon and that a craft keeps the item's block; `tests/v451` counts Booming Blade's ground bolts. The `test_roster_ammo` clip "failures" reported in v4.51 were the old 4.5.1 test binary importing this project's .glb models with no animations at all. Under 4.7.1 (the project's version) the clips are all there, so suites should run with the 4.7.1 binary.
+
+---
+
 ## 2026-10-09 — v4.55: Gear slot roles (user request)
 
 Every slot now has a job. Before, attributes, Cast Speed, Move Speed, Stamina, cooldowns and Mana Regen rolled on every piece, and rings had almost no offence.

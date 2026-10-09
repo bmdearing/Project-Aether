@@ -40,15 +40,19 @@ const PIERCING_BOLT_SCENE := preload("res://entities/effects/piercing_bolt/Pierc
 ## Fired as a piercing bolt from the crosshair.
 const PIERCING_BOLT_ABILITY_IDS := ["cinder_lance", "thunder_javelin"]
 const THUNDER_SWEEP_BOLT_COUNT := 8
-const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sweep": 18.0, "booming_blade": 34.0}
+const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sweep": 18.0}
 
 ## Booming Blade: a toggle (GameState.booming_blade_on). While on, every melee
-## swing (PlayerMeleeAttack._enter_strike) fires lightning bolts straight
+## swing (PlayerMeleeAttack._enter_strike) sends lightning along the ground
 ## ahead, at most once per BOOMING_BLADE_COOLDOWN, one more bolt every
 ## BOOMING_BLADE_LEVELS_PER_BOLT spell levels. Turning it off is free.
 const BOOMING_BLADE_COOLDOWN := 0.45
 const BOOMING_BLADE_LEVELS_PER_BOLT := 5
 const BOOMING_BLADE_SPREAD_DEG := 7.0
+## Ground bolts like Spark's crawlers, but running straight; each enemy
+## takes at most one impact per BOOMING_BLADE_HIT_INTERVAL from all of them.
+const BOOMING_BLADE_SPEED := 16.0
+const BOOMING_BLADE_HIT_INTERVAL := 0.1
 ## Fan spacing for a Conduit's additional projectiles on single bolts.
 const EXTRA_BOLT_SPREAD_DEG := 6.0
 var _booming_blade_cd: float = 0.0
@@ -713,8 +717,6 @@ func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D)
 	if ability.ability_id == "thunder_sweep":
 		bolt.follow_ground = true
 		bolt.max_distance = ability.get_radius(_player.stat_sheet)
-	elif ability.ability_id == "booming_blade":
-		bolt.max_distance = ability.get_radius(_player.stat_sheet)
 	# Configured before entering the tree so _ready() colours it by damage type.
 	_player.get_tree().current_scene.add_child(bolt)
 	bolt.global_transform = xform
@@ -866,13 +868,23 @@ func on_melee_swing() -> void:
 		return
 	_booming_blade_cd = BOOMING_BLADE_COOLDOWN
 	var count := booming_blade_bolt_count(ability, _player.stat_sheet)
-	var xform := _player.camera.global_transform
-	xform.origin += -xform.basis.z * 0.6 + Vector3.DOWN * 0.25
+	var forward := -_player.camera.global_transform.basis.z
+	forward.y = 0.0
+	forward = forward.normalized() if forward.length() > 0.01 else -_player.global_transform.basis.z
 	for i in count:
 		var yaw := BOOMING_BLADE_SPREAD_DEG * (i - (count - 1) / 2.0)
-		var bolt_xform := xform
-		bolt_xform.basis = Basis(Vector3.UP, deg_to_rad(yaw)) * xform.basis
-		_spawn_bolt(ability, 1.0, bolt_xform)
+		var crawler: SparkCrawler = SPARK_CRAWLER_SCENE.instantiate()
+		crawler.straight = true
+		crawler.heading = forward.rotated(Vector3.UP, deg_to_rad(yaw))
+		crawler.speed = BOOMING_BLADE_SPEED * ability.get_projectile_speed_multiplier(_player.stat_sheet)
+		crawler.range_m = ability.get_radius(_player.stat_sheet)
+		crawler.hit_key = &"booming_blade"
+		crawler.hit_interval = BOOMING_BLADE_HIT_INTERVAL
+		crawler.ability = ability
+		crawler.stat_sheet = _player.stat_sheet
+		crawler.source = _player
+		_player.get_tree().current_scene.add_child(crawler)
+		crawler.global_position = _player.global_position + forward * 0.6
 
 static func booming_blade_bolt_count(ability: Ability, stat_sheet: StatSheet) -> int:
 	return 1 + ability.get_effective_level(stat_sheet) / BOOMING_BLADE_LEVELS_PER_BOLT + (stat_sheet.conduit_additional_projectiles if stat_sheet else 0)

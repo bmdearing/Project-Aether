@@ -101,14 +101,14 @@ func _test_booming_blade() -> void:
 	var cast := player.ability_cast
 	cast._cast(blade, player.global_position)
 	_check(GameState.booming_blade_on, "casting turns Booming Blade on")
-	var before := _count_bolts()
+	var before := _count_blade_crawlers()
 	cast.on_melee_swing()
 	await _frames(1)
 	var expected := PlayerAbilityCast.booming_blade_bolt_count(blade, player.stat_sheet)
-	_check(_count_bolts() - before == expected, "a swing fires %d bolt(s) (%d)" % [expected, _count_bolts() - before])
+	_check(_count_blade_crawlers() - before == expected, "a swing sends %d straight ground bolt(s) (%d)" % [expected, _count_blade_crawlers() - before])
 	cast.on_melee_swing()
 	await _frames(1)
-	_check(_count_bolts() - before == expected, "the 0.45s cooldown stops a second volley")
+	_check(_count_blade_crawlers() - before == expected, "the 0.45s cooldown stops a second volley")
 	blade.level = 15
 	_check(PlayerAbilityCast.booming_blade_bolt_count(blade, player.stat_sheet) > expected, "higher levels fire more bolts")
 	blade.level = 1
@@ -132,6 +132,9 @@ func _test_booming_blade() -> void:
 
 func _count_bolts() -> int:
 	return get_tree().root.find_children("*", "PiercingBolt", true, false).size()
+
+func _count_blade_crawlers() -> int:
+	return get_tree().root.find_children("*", "SparkCrawler", true, false).filter(func(c): return c.straight).size()
 
 func _test_jewels_and_butterfly() -> void:
 	var jewel := Jewel.new()

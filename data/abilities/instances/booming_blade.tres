@@ -6,7 +6,7 @@
 script = ExtResource("1")
 ability_id = "booming_blade"
 display_name = "Booming Blade"
-description = "Thunder gathers in your blade. Once cast it stays on: every melee attack hurls lightning straight ahead. Cast again to let it fade."
+description = "Thunder gathers in your blade. Once cast it stays on: every melee attack sends lightning racing along the ground in a straight line. Cast again to let it fade."
 damage_type = 5
 motion_value = 0.4
 scaling_grade = 4

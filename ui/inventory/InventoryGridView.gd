@@ -22,19 +22,36 @@ var inventory: GridInventory
 var highlight: Callable
 ## Optional (entry) -> String: usage hint at the bottom of a currency tooltip.
 var currency_hint: Callable
+var _blocks: Dictionary = {}  # GridInventory.Entry -> EntryBlock
 
 func set_inventory(inv: GridInventory) -> void:
 	inventory = inv
 	refresh()
 
+## Updates the blocks in place: an entry that's still there keeps its block
+## (restyled, moved, new icon/count), so the one under the cursor keeps its
+## hover and tooltip through a craft instead of being torn down and rebuilt.
 func refresh() -> void:
-	for child in get_children():
-		child.queue_free()
 	if inventory == null:
+		for block in _blocks.values():
+			block.queue_free()
+		_blocks.clear()
 		return
 	custom_minimum_size = Vector2(inventory.width, inventory.height) * cell_size
+	var live := {}
 	for entry in inventory.get_entries():
-		add_child(_make_block(entry))
+		var block: EntryBlock = _blocks.get(entry)
+		if block == null or not is_instance_valid(block):
+			block = _make_block(entry)
+			add_child(block)
+			_blocks[entry] = block
+		else:
+			_update_block(block)
+		live[entry] = true
+	for entry in _blocks.keys():
+		if not live.has(entry):
+			_blocks[entry].queue_free()
+			_blocks.erase(entry)
 	queue_redraw()
 
 func _draw() -> void:
@@ -50,21 +67,24 @@ func _make_block(entry: GridInventory.Entry) -> EntryBlock:
 	var block := EntryBlock.new()
 	block.view = self
 	block.entry = entry
+	block.item_icon = ItemIcon.fill(block)
+	block.socket_overlay = SocketOverlay.new()
+	block.add_child(block.socket_overlay)
+	block.pressed.connect(func(): entry_clicked.emit(self, entry))
+	block.mouse_entered.connect(func(): entry_hovered.emit(self, entry))
+	_update_block(block)
+	return block
+
+func _update_block(block: EntryBlock) -> void:
+	var entry := block.entry
 	block.position = Vector2(entry.position) * cell_size + Vector2.ONE
 	block.size = Vector2(entry.size) * cell_size - Vector2(2, 2)
 	block.tooltip_text = describe(entry)
 	var border: Color = highlight.call(entry) if highlight.is_valid() else Color.TRANSPARENT
 	_style(block, _color_for(entry), border)
-	var icon := ItemIcon.fill(block)
-	icon.content = entry.content
-	icon.count = entry.count
-	if not entry.is_currency() and entry.content is Item:
-		var overlay := SocketOverlay.new()
-		block.add_child(overlay)
-		overlay.item = entry.content
-	block.pressed.connect(func(): entry_clicked.emit(self, entry))
-	block.mouse_entered.connect(func(): entry_hovered.emit(self, entry))
-	return block
+	block.item_icon.content = entry.content
+	block.item_icon.count = entry.count
+	block.socket_overlay.item = entry.content if not entry.is_currency() and entry.content is Item else null
 
 static func describe(entry: GridInventory.Entry) -> String:
 	if entry.is_currency():
@@ -125,6 +145,8 @@ func _drop_data(at_position: Vector2, data: Variant) -> void:
 class EntryBlock extends Button:
 	var view: InventoryGridView
 	var entry: GridInventory.Entry
+	var item_icon: ItemIcon
+	var socket_overlay: SocketOverlay
 
 	func _get_drag_data(at_position: Vector2) -> Variant:
 		var preview := ItemIcon.new()

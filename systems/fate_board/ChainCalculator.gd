@@ -156,7 +156,7 @@ static func explanation() -> String:
 	var lines := PackedStringArray([
 		"Chains",
 		"Slates that touch edge to edge and share a tag form a chain.",
-		"Each chain amplifies the attribute lines (Strength, Vitality...) of every",
+		"Each chain amplifies the attribute lines (Strength, Agility, Intellect) of every",
 		"Slate in it by its bonus. Other modifiers count at face value.",
 		"Hybrid Slates and bridging Lenses count toward the chains of both tags.",
 		"",

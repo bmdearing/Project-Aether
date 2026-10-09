@@ -60,6 +60,10 @@ var _active_brands: ActiveBrands
 ## A jewel picked up from the grid, waiting to be clicked into a socket.
 var _held_jewel: Jewel
 const ARMED_BORDER := Color(1.0, 0.82, 0.3)
+## The picked-up Orb, stone or Jewel rides on the cursor until it's used or
+## put back.
+const CURSOR_ICON_SIZE := 46.0
+var _cursor_icon: ItemIcon
 const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
 const PREVIEW_LINES := 5
 const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows stats. Hold Alt over an item for details."
@@ -68,6 +72,10 @@ func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
 	AetherStyle.style_screen(self)
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	_cursor_icon = ItemIcon.new()
+	_cursor_icon.size = Vector2.ONE * CURSOR_ICON_SIZE
+	_cursor_icon.visible = false
+	add_child(_cursor_icon)
 	visible = false
 	add_to_group("inventory_screen")
 	add_to_group("blocking_menu")
@@ -687,3 +695,15 @@ func _item_color(item: Item) -> Color:
 
 func _on_equip_failed(reason: String) -> void:
 	status_label.text = "Can't equip: %s" % reason
+
+func _process(_delta: float) -> void:
+	var held: Variant = _held_jewel if _held_jewel else (_armed if _armed != &"" else null)
+	_cursor_icon.visible = _is_open and held != null
+	if not _cursor_icon.visible:
+		return
+	if not is_same(_cursor_icon.content, held):
+		_cursor_icon.content = held
+	_cursor_icon.count = GameState.inventory.count_of(_armed) if _armed != &"" else 0
+	# Held just above-left of the pointer, so the cursor tip stays on the target.
+	_cursor_icon.position = get_viewport().get_mouse_position() - Vector2(CURSOR_ICON_SIZE * 0.75, CURSOR_ICON_SIZE * 0.75)
+	_cursor_icon.move_to_front()

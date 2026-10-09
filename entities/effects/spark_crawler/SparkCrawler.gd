@@ -4,6 +4,10 @@ class_name SparkCrawler
 ## toward it at TURN_SPEED; wanders when nothing is within SEEK_RADIUS. Can
 ## hit the same enemy repeatedly, at most once per HIT_INTERVAL - shared by
 ## every crawler (HitCooldown), so a cast's sparks can't stack on one enemy.
+##
+## straight = true (Booming Blade): no seeking or wandering, it runs flat
+## along its heading at speed for range metres, stops at walls, and uses
+## its own hit_key / hit_interval.
 
 const MOVE_SPEED := 5.0
 const TURN_SPEED := 3.0  # rad/s
@@ -19,6 +23,12 @@ var ability: Ability
 var stat_sheet: StatSheet
 var source: Node
 var damage_multiplier: float = 1.0
+var straight: bool = false
+var speed: float = MOVE_SPEED
+var range_m: float = 0.0
+var hit_key: StringName = &"spark"
+var hit_interval: float = HIT_INTERVAL
+var _travelled: float = 0.0
 
 var _wander_timer: float = 0.0
 var _wander_target: Vector3 = Vector3.FORWARD
@@ -26,7 +36,8 @@ var _wander_target: Vector3 = Vector3.FORWARD
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
 func _ready() -> void:
-	get_tree().create_timer(LIFETIME).timeout.connect(queue_free)
+	if not straight:
+		get_tree().create_timer(LIFETIME).timeout.connect(queue_free)
 	if mesh and ability:
 		var mat := StandardMaterial3D.new()
 		mat.albedo_color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
@@ -36,6 +47,14 @@ func _ready() -> void:
 		mesh.material_override = mat
 
 func _physics_process(delta: float) -> void:
+	if straight:
+		if not _advance_straight(delta):
+			return
+	else:
+		_advance_seeking(delta)
+	_hit_enemies_in_reach()
+
+func _advance_seeking(delta: float) -> void:
 	var target := _find_nearest_enemy()
 	var desired: Vector3 = heading
 	if target:
@@ -51,6 +70,23 @@ func _physics_process(delta: float) -> void:
 	if heading.length() > 0.01:
 		look_at(global_position + heading, Vector3.UP)
 
+## False once it has hit a wall or run its range (and freed itself).
+func _advance_straight(delta: float) -> bool:
+	var step := heading * speed * delta
+	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.3, global_position + Vector3.UP * 0.3 + step)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if hit and hit["collider"] is StaticBody3D and absf(hit["normal"].y) < 0.6:
+		queue_free()
+		return false
+	global_position += step
+	look_at(global_position + heading, Vector3.UP)
+	_travelled += step.length()
+	if range_m > 0.0 and _travelled >= range_m:
+		queue_free()
+		return false
+	return true
+
+func _hit_enemies_in_reach() -> void:
 	if ability == null or stat_sheet == null:
 		return
 	for enemy in get_tree().get_nodes_in_group("enemy"):
@@ -58,7 +94,7 @@ func _physics_process(delta: float) -> void:
 			continue
 		if enemy.distance_to_body(global_position) > HIT_RADIUS:
 			continue
-		if not HitCooldown.try_hit(&"spark", enemy, HIT_INTERVAL):
+		if not HitCooldown.try_hit(hit_key, enemy, hit_interval):
 			continue
 		var hit := ability.roll_damage(stat_sheet)
 		var damage: float = hit["final_damage"] * damage_multiplier

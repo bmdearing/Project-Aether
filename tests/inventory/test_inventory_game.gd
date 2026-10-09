@@ -48,7 +48,8 @@ func _run() -> void:
 	_test_fate_board()
 	_test_shop_refund()
 	_test_migration()
-	_check(_finished == 7, "every test function ran to the end (%d/7)" % _finished)
+	await _test_crafting_fluidity()
+	_check(_finished == 8, "every test function ran to the end (%d/8)" % _finished)
 	print("inventory game tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -263,4 +264,29 @@ func _test_migration() -> void:
 		in_stash += tab.get_entries().size()
 	var fits := int(Constants.INVENTORY_SIZE.x / 2.0) * int(Constants.INVENTORY_SIZE.y / 3.0)  # 2x3 body armours
 	_check(GameState.inventory.get_entries().size() == fits and GameState.inventory.get_entries().size() + in_stash == 30, "migration overflow goes to the stash")
+	_finished += 1
+
+## Picking up an Orb puts it on the cursor, and crafting updates the grid in
+## place: the crafted item keeps its block, so its hover and tooltip survive.
+func _test_crafting_fluidity() -> void:
+	GameState.inventory = GridInventory.new()
+	var item := _armor(Constants.EquipmentSlot.HELMET, "Craft Test Helm")
+	item.rarity = Constants.ItemRarity.COMMON
+	GameState.add_to_inventory(item)
+	GameState.inventory.add(&"quickening", 3)
+	_screen.open()
+	await _frames(2)
+	var block_before = _screen.inventory_grid._blocks.get(_entry_for(item))
+	_screen._on_currency_right_clicked(&"quickening")
+	await _frames(2)
+	_check(_screen._cursor_icon.visible and _screen._cursor_icon.content == &"quickening", "a picked-up Orb rides on the cursor")
+	_check(_screen.inventory_grid._blocks.get(_entry_for(item)) == block_before, "picking up an Orb doesn't rebuild the grid")
+	_screen._use_armed_on(item)
+	await _frames(2)
+	var block_after = _screen.inventory_grid._blocks.get(_entry_for(item))
+	_check(block_before != null and block_after == block_before and is_instance_valid(block_after), "crafting keeps the item's block (hover and tooltip survive)")
+	_screen._disarm()
+	await _frames(2)
+	_check(not _screen._cursor_icon.visible, "putting the Orb back clears the cursor")
+	_screen.close()
 	_finished += 1

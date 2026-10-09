@@ -174,6 +174,24 @@ function buildGeometry(model, gltf, buffers, bufferViews, accessors) {
       }
     }
 
+    // Geosets with no skin weights at all (classic MDX, e.g. a weapon or
+    // shield kit-bashed onto an HD model) bind through matrix groups: each
+    // vertex follows up to four nodes equally. Left unskinned, they froze
+    // in the bind pose while the body animated.
+    if (!joints && geoset.Groups && geoset.Groups.length) {
+      joints = new Uint8Array(vertCount * 4);
+      weights = new Uint8Array(vertCount * 4);
+      for (let v = 0; v < vertCount; ++v) {
+        const group = (geoset.Groups[geoset.VertexGroup && geoset.VertexGroup.length > v ? geoset.VertexGroup[v] : 0] || []).filter((n) => n < model.Nodes.length).slice(0, 4);
+        if (!group.length) group.push(0);
+        const share = Math.floor(255 / group.length);
+        group.forEach((node, c) => {
+          joints[v * 4 + c] = node;
+          weights[v * 4 + c] = c === 0 ? 255 - share * (group.length - 1) : share;
+        });
+      }
+    }
+
     const indices = geoset.Faces; // already Uint16Array triangle list
 
     const posView = buffers.add(positions);
