@@ -7,6 +7,18 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.63: Ascendant spells (user request)
+
+- **Ascendants cast their own suite of spells** between their ordinary attacks, telegraphed on the ground like boss abilities:
+  - **Synod Vindicator** (Aetheric): *Judgement* (three strikes on and around you, Aetherburn), *Consecrate* (slam around itself when you're close), *Vindicate* (charge).
+  - **Legion Dreadknight** (Entropic): *Dread Grasp* (pulls you in, then slams; Unraveling), *Blight Pool* (rot pool under you for 5 s; Unraveling), *Death March* (charge).
+  - **Veilborne Cantor** (Pale): *Pale Litany* (fan of five bolts), *Hollow Choir* (burst where you stand; Pallid), *Call the Veil* (summons two Mindbenders, 20 s cooldown).
+- Built on the boss `BossBrain` with no phases (`AscendantSpells`, attached by `EnemyRarityComponent._late_setup()`, so Archon twins get them too). New `BossBrain` options: `global_gap`/`opening_gap` (Ascendants wait 3.5 s between spells, 2 s before the first) and `require_sight`: they only cast while in combat with a clear line to you, so nothing lands through walls from an Ascendant you haven't met. Damage is the Ascendant's own hit × 0.8-1.4, so its rarity and affixes (Empowered, Archon) scale it.
+- Monsters wiki page lists each Ascendant's spells.
+- Tests: `test_enemy_rarity` gains `_test_ascendant_spells` (spellbook per unit, escorts have none, casts when in combat and in sight); `test_wiki` checks the spells are listed. Fixed two unescaped `%` in old test messages.
+
+---
+
 ## 2026-10-09 — v4.62: Crafting review: Brands steer removals, Orb previews on item cards, Life/Critical Brands (user request)
 
 - **Brands now narrow what an Orb takes away, not just what it adds.** Tag and positional Brands restrict which existing modifier Severance removes, which ones Absolution strips, which one Recasting replaces (the replacement must match too) and which one Anchoring locks. Fire Brand + Severance removes a Fire modifier; Fire + Suffix narrows to Fire suffixes. If nothing matches, the craft fails with nothing spent. Before, tag Brands were ignored by removals and only filtered Recasting's *added* modifier. A Brand used this way is consumed like any other (Preservation still keeps it).

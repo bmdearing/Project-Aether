@@ -241,6 +241,7 @@ func _test_status_and_monster_pages() -> void:
 	add_child(monsters)
 	await _frames(1)
 	_check(monsters.shown.size() == affix_count and affix_count >= 20 and monsters.shown.has("pack_volatile") and monsters.shown.has("ascendant_blink"), "the Monsters page lists every affix (%d)" % monsters.shown.size())
+	_check(monsters.spells_shown.size() == 9 and monsters.spells_shown.has("judgement") and monsters.spells_shown.has("call_the_veil"), "the Monsters page lists every Ascendant spell (%d)" % monsters.spells_shown.size())
 	monsters.queue_free()
 	await _frames(1)
 	_finished += 1

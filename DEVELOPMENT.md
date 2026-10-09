@@ -822,6 +822,13 @@ above (Rank still only drives drop item level). Rolled **per pack** in
     that split its Life, each dealing 65% of its damage). ×3 Life and ×1.5
     damage on top of an elite-class unit. Shown on the boss-style bar while
     no boss is fighting you.
+    Each also casts its unit's own spells (`AscendantSpells.SPELLBOOKS`,
+    run by a phaseless `BossBrain` with `require_sight`: only in combat,
+    only with a clear line to you, 3.5 s between spells). Vindicator
+    (Aetheric): Judgement, Consecrate, Vindicate. Dreadknight (Entropic):
+    Dread Grasp, Blight Pool, Death March. Cantor (Pale): Pale Litany,
+    Hollow Choir, Call the Veil (two Mindbenders). Listed on the Monsters
+    wiki page.
 Affixes are data: stat lines (more damage/Life, move/attack speed, damage
 taken, regeneration, Ward, leech, on-hit status, unstoppable), an optional
 aura, and a `mechanic` id the component runs. Health bars list each rare

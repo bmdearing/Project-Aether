@@ -8,6 +8,8 @@ const LIST_HEIGHT := 590.0
 
 ## Affix ids in the order shown, for tests.
 var shown: Array[String] = []
+## Ascendant spell ids, likewise.
+var spells_shown: Array[String] = []
 
 func _ready() -> void:
 	add_theme_constant_override("separation", 8)
@@ -30,6 +32,8 @@ func _ready() -> void:
 		text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		text.custom_minimum_size = Vector2(WIDTH - 20.0, 0)
 		list.add_child(text)
+		for book in tier["spellbooks"]:
+			list.add_child(_spellbook_row(book, color))
 		for affix in tier["affixes"]:
 			shown.append(affix.affix_id)
 			list.add_child(_affix_row(affix, color))
@@ -50,6 +54,20 @@ func _affix_row(affix: EnemyAffix, color: Color) -> PanelContainer:
 	text.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	text.custom_minimum_size = Vector2(WIDTH - 40.0, 0)
 	box.add_child(text)
+	return panel
+
+func _spellbook_row(book: Dictionary, color: Color) -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", AetherStyle.glass_box(Color(color, 0.3), Color(0.05, 0.05, 0.08, 0.85), 1, 8.0))
+	var box := VBoxContainer.new()
+	panel.add_child(box)
+	box.add_child(ModifierWiki._text("%s  ·  Spells" % book["name"], 16, color.lightened(0.25)))
+	for spell: BossAbility in book["spells"]:
+		spells_shown.append(spell.id)
+		var line := ModifierWiki._text("%s: %s" % [spell.display_name, spell.description], 13, AetherStyle.TEXT)
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		line.custom_minimum_size = Vector2(WIDTH - 40.0, 0)
+		box.add_child(line)
 	return panel
 
 static func _num(v: float) -> String:

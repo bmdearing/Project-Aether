@@ -35,6 +35,10 @@ var phase_thresholds: Array[float] = []
 var phase_openers: Dictionary = {}
 ## Cooldown speed per phase (index 0 = phase 1).
 var phase_cooldown_scale: Array[float] = [1.0, 0.85, 0.7]
+var global_gap: float = GLOBAL_GAP
+var opening_gap: float = OPENING_GAP
+## Only casts while its enemy is in combat and can see the player (Ascendants).
+var require_sight: bool = false
 
 var phase: int = 1
 var casting: bool = false
@@ -49,6 +53,7 @@ var _summoned: Array[Node] = []
 func _ready() -> void:
 	_boss = get_parent() as Enemy
 	_boss.boss_brain = self
+	_gap = opening_gap
 
 func _physics_process(delta: float) -> void:
 	if _boss == null or not _boss.health.is_alive():
@@ -68,6 +73,8 @@ func _physics_process(delta: float) -> void:
 		return
 	var dist := _flat_distance(_boss.global_position, _player.global_position)
 	if dist > ENGAGE_RANGE:
+		return
+	if require_sight and not (_boss.is_in_combat() and _can_see_player()):
 		return
 	var ability := _pick(dist)
 	if ability:
@@ -149,7 +156,7 @@ func cast(a: BossAbility) -> void:
 		return
 	casting = false
 	_cooldowns[a.id] = a.cooldown
-	_gap = GLOBAL_GAP * _cooldown_scale()
+	_gap = global_gap * _cooldown_scale()
 
 func _slam(a: BossAbility) -> void:
 	var center := _boss.global_position
@@ -318,6 +325,22 @@ func _tint(a: BossAbility) -> Color:
 	return Constants.DAMAGE_TYPE_COLOR.get(_type(a), Color(1.0, 0.25, 0.15))
 
 ## ---- Helpers -------------------------------------------------------------
+
+## Nothing but other enemies between the cast origin and the player's chest.
+func _can_see_player() -> bool:
+	var space := _boss.get_world_3d().direct_space_state
+	var exclude: Array[RID] = [_boss.get_rid()]
+	var target := _player.global_position + Vector3(0, 1.0, 0)
+	for i in 4:
+		var query := PhysicsRayQueryParameters3D.create(_boss.get_cast_origin(), target)
+		query.exclude = exclude
+		var hit := space.intersect_ray(query)
+		if hit.is_empty() or hit.get("collider") == _player:
+			return true
+		if not hit.get("collider") is Enemy:
+			return false
+		exclude.append((hit["collider"] as Enemy).get_rid())
+	return false
 
 func _alive() -> bool:
 	return is_instance_valid(self) and is_instance_valid(_boss) and _boss.health.is_alive() and is_inside_tree()

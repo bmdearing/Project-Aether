@@ -17,6 +17,8 @@ enum Kind { SLAM, BLAST, HAZARD, CHARGE, VOLLEY, SUMMON, PULL }
 
 var id: String = ""
 var display_name: String = ""
+## Shown on the wiki.
+var description: String = ""
 var kind: Kind = Kind.SLAM
 var cooldown: float = 8.0
 var telegraph: float = 1.2

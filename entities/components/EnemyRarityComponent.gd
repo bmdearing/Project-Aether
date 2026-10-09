@@ -8,7 +8,8 @@ class_name EnemyRarityComponent
 ##               (stat lines on every enemy within its radius) and maybe a
 ##               second Champion affix.
 ##   Ascendant - a stronger unit (ASCENDANT_UNITS) with two affixes from its
-##               own pool, shown on the boss-style health bar.
+##               own pool and its unit's spellbook (AscendantSpells), shown
+##               on the boss-style health bar.
 ##
 ## Only exposes queries for stats: Enemy applies the scaling itself, because
 ## this child's _ready() runs before the parent has set its base health.
@@ -68,6 +69,8 @@ func _late_setup() -> void:
 		return
 	if is_unstoppable() and _enemy.status_effects:
 		_enemy.status_effects.immune_to = UNSTOPPABLE_IMMUNITIES
+	if rarity == Constants.EnemyRarity.ASCENDANT and _enemy.definition:
+		AscendantSpells.attach(_enemy, _enemy.definition.resource_path.get_file().get_basename())
 	_build_visuals()
 
 ## ---- Stat queries -------------------------------------------------------

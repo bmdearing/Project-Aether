@@ -247,11 +247,19 @@ const RARITY_INTENT := {
 	Constants.EnemyRarity.NORMAL: "No modifiers.",
 	Constants.EnemyRarity.ELITE: "The whole pack is Elite and shares one pack affix.",
 	Constants.EnemyRarity.CHAMPION: "Leads a pack of Normal enemies. Its aura affects every enemy nearby, whether it spawned with them or not.",
-	Constants.EnemyRarity.ASCENDANT: "A Synod Vindicator, Legion Dreadknight or Veilborne Cantor: stronger, scarier, with affixes from its own pool. Shown on the large health bar.",
+	Constants.EnemyRarity.ASCENDANT: "A Synod Vindicator, Legion Dreadknight or Veilborne Cantor: stronger, scarier, with affixes from its own pool and a suite of spells of its own. Shown on the large health bar.",
 }
 
 ## {"rarity", "name", "color", "chance" (per pack), "life", "damage", "text",
-## "affixes": [EnemyAffix]} per tier.
+## "affixes": [EnemyAffix], "spellbooks": [{"name", "spells": [BossAbility]}]} per tier.
+## {"name": unit display name, "spells": [BossAbility]} per Ascendant unit.
+static func ascendant_spellbooks() -> Array:
+	var books := []
+	for unit_id in Constants.ASCENDANT_UNITS:
+		var definition := EnemyRoster.load_definition(unit_id)
+		books.append({"name": definition.display_name if definition else unit_id.capitalize(), "spells": AscendantSpells.abilities_for(unit_id)})
+	return books
+
 static func monster_tiers() -> Array:
 	var total := 0.0
 	for w in Constants.ENEMY_PACK_RARITY_WEIGHTS.values():
@@ -270,5 +278,6 @@ static func monster_tiers() -> Array:
 			"chance": Constants.ENEMY_PACK_RARITY_WEIGHTS[rarity] / total,
 			"life": Constants.ENEMY_RARITY_HEALTH_MULT.get(rarity, 1.0), "damage": Constants.ENEMY_RARITY_DAMAGE_MULT.get(rarity, 1.0),
 			"text": RARITY_INTENT[rarity], "affixes": affixes,
+			"spellbooks": ascendant_spellbooks() if rarity == Constants.EnemyRarity.ASCENDANT else [],
 		})
 	return tiers

@@ -11,7 +11,7 @@ const SPOT := Vector3(600, 0, 600)
 var _checks := 0
 var _failures := 0
 var _finished := 0
-const TEST_COUNT := 7
+const TEST_COUNT := 8
 var _map: GeneratedMap
 
 func _ready() -> void:
@@ -42,6 +42,7 @@ func _run() -> void:
 	await _test_elite_pack()
 	await _test_champion_aura()
 	await _test_ascendant()
+	await _test_ascendant_spells()
 	await _test_mechanics()
 	await _test_volatile()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
@@ -183,6 +184,43 @@ func _test_ascendant() -> void:
 		await _frames(2)
 	_finished += 1
 
+## Each Ascendant casts its unit's spellbook; its escorts don't.
+func _test_ascendant_spells() -> void:
+	var ids: Array[String] = ["unchartered_brigand"]
+	var pack := _pack(ids, Constants.EnemyRarity.ASCENDANT)
+	await _frames(2)
+	var ascendant: Enemy = null
+	for e in pack:
+		if e.rarity_component.rarity == Constants.EnemyRarity.ASCENDANT:
+			ascendant = e
+		else:
+			_check(e.boss_brain == null, "an escort has no spells")
+	_check(ascendant != null, "the pack has an Ascendant")
+	if ascendant:
+		var unit_id := ascendant.definition.resource_path.get_file().get_basename()
+		var brain := ascendant.boss_brain
+		_check(brain != null and brain.require_sight and brain.phase_thresholds.is_empty(), "the Ascendant has a phaseless spellbook that needs sight of you")
+		if brain:
+			var expected: Array = AscendantSpells.SPELLBOOKS[unit_id].map(func(f): return f["id"])
+			_check(brain.abilities.map(func(a: BossAbility): return a.id) == expected, "%s casts its own spells" % unit_id)
+			var player := get_tree().get_first_node_in_group("player") as Player
+			if player:
+				player.global_position = ascendant.global_position + Vector3(8, 0.2, 0)
+				ascendant._last_combat_msec = Time.get_ticks_msec()
+				var cast := false
+				for i in 240:
+					await get_tree().physics_frame
+					if not is_instance_valid(brain):
+						break
+					ascendant._last_combat_msec = Time.get_ticks_msec()
+					if brain.casting or not brain._cooldowns.is_empty():
+						cast = true
+						break
+				_check(cast, "in combat and in sight, it casts a spell")
+	_clear(get_tree().get_nodes_in_group("enemy").filter(func(e): return e.global_position.distance_to(SPOT) < 30.0))
+	await _frames(2)
+	_finished += 1
+
 func _test_mechanics() -> void:
 	var ids: Array[String] = ["unchartered_brigand", "unchartered_brigand", "unchartered_brigand"]
 	var pack := _pack(ids, Constants.EnemyRarity.ELITE)
@@ -210,7 +248,7 @@ func _test_mechanics() -> void:
 	golem.status_effects.apply_effect("chill")
 	golem.interrupt_attack()
 	_check(not golem.status_effects.has_effect("chill") and not golem.is_staggered(), "Juggernaut ignores Chill and staggers")
-	_check(golem.get_ward_max() >= golem.health.max_health * 0.39, "Arcane Shell grants Ward of 40% Life (%.0f / %.0f)" % [golem.get_ward_max(), golem.health.max_health])
+	_check(golem.get_ward_max() >= golem.health.max_health * 0.39, "Arcane Shell grants Ward of 40%% Life (%.0f / %.0f)" % [golem.get_ward_max(), golem.health.max_health])
 	_clear([golem])
 
 	var iron := EnemyRoster.create_unit("unchartered_enforcer")
@@ -222,7 +260,7 @@ func _test_mechanics() -> void:
 	await _frames(3)
 	var hp := iron.health.current_health
 	iron.take_damage(100.0, Constants.DamageType.FIRE)
-	_check(is_equal_approx(hp - iron.health.current_health, 70.0), "Ironclad takes 30% less damage (%.1f)" % (hp - iron.health.current_health))
+	_check(is_equal_approx(hp - iron.health.current_health, 70.0), "Ironclad takes 30%% less damage (%.1f)" % (hp - iron.health.current_health))
 	_clear([iron])
 	await _frames(2)
 	_finished += 1
