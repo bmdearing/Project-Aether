@@ -7,7 +7,7 @@ extends Node
 ## Exits 0 when every check passes. Never writes the save file.
 
 const HUB := "res://levels/hub/Hub.tscn"
-const TEST_COUNT := 6
+const TEST_COUNT := 7
 const A := FateBoard.ANCHOR_CELL
 
 var _checks := 0
@@ -36,6 +36,7 @@ func _run() -> void:
 	_test_lens_effects()
 	_test_amplify()
 	await _test_inventory()
+	_test_slate_card()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("lens tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -212,4 +213,22 @@ func _test_inventory() -> void:
 	screen.close()
 	hub.queue_free()
 	await _frames(1)
+	_finished += 1
+
+## A Slate's card lists each socketed Lens's rolled modifiers, not just its radius line.
+func _test_slate_card() -> void:
+	var slate := _slate(Constants.DamageType.FIRE)
+	slate.sockets = 1
+	var lens := _lens("amplify_attributes", 3, -1, 10.0)
+	var affix := ItemAffix.new()
+	affix.stat_key = "flat_strength"
+	affix.description = "+12 to Strength"
+	affix.value = 12.0
+	lens.affixes.append(affix)
+	slate.lenses.append(lens)
+	var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+	card.display_slate(slate)
+	var texts := card._content().get_children().filter(func(c): return c is Label).map(func(l): return l.text)
+	_check(texts.any(func(t): return String(t).contains("Strength")), "the Slate's card shows its Lens's rolled modifier (%s)" % [texts])
+	card.free()
 	_finished += 1

@@ -56,6 +56,6 @@ enum AffixCategory { PACK, CHAMPION, ASCENDANT }
 
 @export_group("Mechanic")
 ## EnemyRarityComponent.MECHANIC_* ("frenzy", "volatile", "soul_eater",
-## "blink", "nova"), "" for none.
+## "blink", "nova", "archon"), "" for none.
 @export var mechanic: StringName = &""
 @export var mechanic_value: float = 0.0

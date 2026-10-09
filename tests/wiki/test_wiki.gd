@@ -7,7 +7,7 @@ extends Node
 
 const HUB := "res://levels/hub/Hub.tscn"
 const MAIN_MENU := "res://ui/main_menu/MainMenu.tscn"
-const TEST_COUNT := 7
+const TEST_COUNT := 8
 
 var _checks := 0
 var _failures := 0
@@ -36,6 +36,7 @@ func _run() -> void:
 	await _test_stash_screen()
 	await _test_modifier_pages()
 	await _test_corruption_page()
+	await _test_status_and_monster_pages()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("wiki tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -219,3 +220,27 @@ func total_outcomes() -> int:
 	for tier in 4:
 		n += CorruptionSystem.outcomes_in_tier(tier + 1).size()
 	return n
+
+## Status Effects and Monsters pages: every effect and every monster affix.
+func _test_status_and_monster_pages() -> void:
+	var rows := WikiCatalog.status_effects()
+	_check(rows.all(func(r): return r["text"] != "" and r["name"] != ""), "every status effect is named and described")
+	var unravel: Dictionary = rows.filter(func(r): return r["id"] == "unraveling")[0]
+	_check(unravel["ailment"] and unravel["types"] == ["Entropic"], "Unraveling is an ailment caused by Entropic damage")
+	var page := StatusWiki.new()
+	add_child(page)
+	await _frames(1)
+	_check(page.shown.size() == rows.size() and page.shown.has("bleed") and page.shown.has("intimidated"), "the Status Effects page lists every effect (%d)" % page.shown.size())
+	page.queue_free()
+	var tiers := WikiCatalog.monster_tiers()
+	_check(tiers.size() == 4, "four monster tiers")
+	var affix_count := 0
+	for t in tiers:
+		affix_count += (t["affixes"] as Array).size()
+	var monsters := MonsterWiki.new()
+	add_child(monsters)
+	await _frames(1)
+	_check(monsters.shown.size() == affix_count and affix_count >= 20 and monsters.shown.has("pack_volatile") and monsters.shown.has("ascendant_blink"), "the Monsters page lists every affix (%d)" % monsters.shown.size())
+	monsters.queue_free()
+	await _frames(1)
+	_finished += 1

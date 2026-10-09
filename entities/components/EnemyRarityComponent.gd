@@ -18,6 +18,8 @@ const MECHANIC_VOLATILE := &"volatile"
 const MECHANIC_SOUL_EATER := &"soul_eater"
 const MECHANIC_BLINK := &"blink"
 const MECHANIC_NOVA := &"nova"
+## Spawns as a pair (GeneratedMap._spawn_pack()); the split is its stat lines.
+const MECHANIC_ARCHON := &"archon"
 
 const AURA_TICK := 0.4
 ## An aura buff lasts this long after its Champion last reached the enemy.

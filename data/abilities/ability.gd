@@ -105,7 +105,7 @@ func apply_statuses(enemy: Enemy, source: Node, hit_damage: float) -> void:
 		return
 	for effect_id in applies_status_effects:
 		enemy.status_effects.try_apply(effect_id, source, hit_damage, get_status_chance(effect_id.trim_prefix("enhanced:")))
-	enemy.status_effects.roll_gear_ailments(source, hit_damage, applies_status_effects)
+	enemy.status_effects.roll_gear_ailments(source, hit_damage, damage_type, applies_status_effects)
 
 func has_tag(tag: StringName) -> bool:
 	return tags.has(tag)

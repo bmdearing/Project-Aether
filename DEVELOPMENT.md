@@ -477,7 +477,10 @@ channels for as long as the key is held and Mana lasts. Slate auto-cast
 fires at most every 2s. **Status chance**: each spell rolls
 `Ability.status_chance` per hit for each of its statuses, plus the
 caster's "+% chance to cause X" gear (`StatusEffectComponent.try_apply()`);
-weapon hits roll gear chance alone (`roll_gear_ailments()`). Stance riders
+weapon hits roll gear chance alone (`roll_gear_ailments()`). Gear chance only
+works through hits of the matching damage (`AILMENT_DAMAGE_TYPES`: Ignite
+Fire, Chill Cold, Shock/Electrocute Lightning, Unraveling Entropic,
+Aetherburn Aetheric, Pallid Pale, Bleed any physical). Stance riders
 that aren't ailments (Armor Shred, Suppressed, Slow, Entangle) always land.
 `ui/ability_bar/` shows equipped abilities
 with a cooldown wipe and Mana cost; `ui/abilities/AbilitiesScreen.gd` is
@@ -815,7 +818,8 @@ above (Rank still only drives drop item level). Rolled **per pack** in
     two affixes from its own pool: Unyielding, Juggernaut (ignores slows,
     stuns, staggers, knockback), Arcane Shell (Ward that refills), Empowered,
     Soul Eater (stronger as enemies die nearby), Blink Strike (teleports
-    beside you), Frost Nova (telegraphed Chilling nova). ×3 Life and ×1.5
+    beside you), Frost Nova (telegraphed Chilling nova), Archon (spawns as two
+    that split its Life, each dealing 65% of its damage). ×3 Life and ×1.5
     damage on top of an elite-class unit. Shown on the boss-style bar while
     no boss is fighting you.
 Affixes are data: stat lines (more damage/Life, move/attack speed, damage

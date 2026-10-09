@@ -234,6 +234,9 @@ func _render_slate(slate: Slate) -> void:
 		_add_stat_line("Lens sockets: %d / %d" % [slate.lenses.size(), slate.sockets])
 		for lens in slate.lenses:
 			_add_mod_line("%s: %s" % [lens.display_name, lens.radius_text()], LENS_COLOR)
+			# Its rolled (jewel) modifiers count on the Slate at face value.
+			for affix in lens.affixes:
+				_add_mod_line(_affix_text(affix, _showing_alt), SOCKETED_COLOR)
 	if not footer_lines.is_empty():
 		_add_separator()
 		for line in footer_lines:

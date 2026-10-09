@@ -118,8 +118,15 @@ func _test_status_chance() -> void:
 	_check(dummy.status_effects.try_apply("armor_shred", _player, 0.0, 0.0), "stance riders that are not ailments always land")
 	dummy.status_effects.clear_all_effects()
 	_player.stat_sheet.misc_bonus["ailment_chance_bleed"] = 100.0
-	dummy.status_effects.roll_gear_ailments(_player, 50.0)
+	dummy.status_effects.roll_gear_ailments(_player, 50.0, Constants.DamageType.KINETIC)
 	_check(dummy.status_effects.has_effect("bleed"), "a plain hit procs an ailment from gear chance alone")
+	dummy.status_effects.clear_all_effects()
+	_player.stat_sheet.misc_bonus["ailment_chance_unraveling"] = 100.0
+	dummy.status_effects.roll_gear_ailments(_player, 50.0, Constants.DamageType.KINETIC)
+	_check(not dummy.status_effects.has_effect("unraveling"), "a Kinetic hit can't Unravel from gear chance (needs Entropic damage)")
+	dummy.status_effects.roll_gear_ailments(_player, 50.0, Constants.DamageType.ENTROPIC)
+	_check(dummy.status_effects.has_effect("unraveling"), "an Entropic hit can")
+	_player.stat_sheet.misc_bonus.erase("ailment_chance_unraveling")
 	_player.stat_sheet.misc_bonus.erase("ailment_chance_bleed")
 	_player.stat_sheet.misc_bonus["increased_ailment_duration_ignite"] = 100.0
 	dummy.status_effects.apply_effect("ignite", _player, 100.0)

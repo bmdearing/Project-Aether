@@ -199,3 +199,73 @@ static func _row_order(a: Dictionary, b: Dictionary) -> bool:
 	if a["prefix"] != b["prefix"]:
 		return a["prefix"]
 	return a["chance"] > b["chance"]
+
+## ---- Status effects ------------------------------------------------------
+
+## Every status effect, ailments first: {"id", "name", "ailment", "types"
+## (damage type names that can cause it from gear chance), "text"}. Numbers
+## are read from StatusEffectComponent so the page can't drift from the game.
+static func status_effects() -> Array:
+	var pct := func(f: float) -> String: return "%d%%" % roundi(f * 100.0)
+	var texts := {
+		"ignite": "Fire damage over %.0fs: %s of the hit that caused it." % [StatusEffectComponent.IGNITE_DURATION, pct.call(StatusEffectComponent.IGNITE_DAMAGE_PERCENT)],
+		"bleed": "Physical damage over %.0fs that ignores Armour: %s of the hit." % [StatusEffectComponent.BLEED_DURATION, pct.call(StatusEffectComponent.BLEED_DAMAGE_PERCENT)],
+		"chill": "%s slower movement for %.1fs. %d Chills at once Freeze." % [pct.call(StatusEffectComponent.CHILL_MOVE_SLOW_PERCENT), StatusEffectComponent.CHILL_DURATION, StatusEffectComponent.CHILL_STACKS_TO_FREEZE],
+		"freeze": "Can't move or act for %.1fs. Caused by %d stacks of Chill." % [StatusEffectComponent.FREEZE_DURATION, StatusEffectComponent.CHILL_STACKS_TO_FREEZE],
+		"shock": "Takes %s more Lightning damage for %.0fs. Doesn't stun." % [pct.call(StatusEffectComponent.SHOCK_DAMAGE_INCREASE), StatusEffectComponent.SHOCK_DURATION],
+		"electrocute": "Stunned for %.1fs." % StatusEffectComponent.ELECTROCUTE_DURATION,
+		"unraveling": "Takes %s more Esoteric (Aetheric, Entropic, Pale) damage for %.0fs." % [pct.call(StatusEffectComponent.UNRAVELING_DAMAGE_TAKEN_PERCENT), StatusEffectComponent.UNRAVELING_DURATION],
+		"pallid": "Deals %s less damage for %.0fs." % [pct.call(StatusEffectComponent.PALLID_DAMAGE_REDUCTION), StatusEffectComponent.PALLID_DURATION],
+		"aetherburn": "Aetheric damage over %.0fs (%s of the hit) that also burns as much Ward, or Mana on you." % [StatusEffectComponent.AETHERBURN_DURATION, pct.call(StatusEffectComponent.AETHERBURN_DAMAGE_PERCENT)],
+		"scorch": "Each stack: %s more Fire damage taken, Ignite included, up to %d stacks for %.0fs." % [pct.call(StatusEffectComponent.SCORCH_DAMAGE_PER_STACK), StatusEffectComponent.SCORCH_MAX_STACKS, StatusEffectComponent.SCORCH_DURATION],
+		"slow": "%s slower movement while it lasts (Caltrops)." % pct.call(StatusEffectComponent.SLOW_MOVE_SLOW_PERCENT),
+		"armor_shred": "Each stack strips %s of Armour, up to %d stacks for %.0fs." % [pct.call(StatusEffectComponent.ARMOR_SHRED_PER_STACK), StatusEffectComponent.ARMOR_SHRED_MAX_STACKS, StatusEffectComponent.ARMOR_SHRED_DURATION],
+		"suppressed": "Each stack: %s slower movement, up to %d stacks for %.0fs (Machine Pistol)." % [pct.call(StatusEffectComponent.SUPPRESSED_SLOW_PER_STACK), StatusEffectComponent.SUPPRESSED_MAX_STACKS, StatusEffectComponent.SUPPRESSED_DURATION],
+		"intimidated": "Takes %s more damage of every type (Intimidating Shout)." % pct.call(StatusEffectComponent.INTIMIDATED_DAMAGE_TAKEN),
+		"stun": "Can't move or act for a moment.",
+		"guard_break": "Its guard is broken: briefly stunned.",
+		"entangle": "Rooted in place (Whip).",
+		"marked": "Marked by a ranged stance: your shots deal more to it.",
+	}
+	var rows := []
+	for id in texts:
+		var types: Array = StatusEffectComponent.AILMENT_DAMAGE_TYPES.get(id, [])
+		rows.append({
+			"id": id, "name": Constants.STATUS_EFFECT_NAME.get(id, String(id).capitalize()),
+			"ailment": StatusEffectComponent.AILMENT_IDS.has(id), "types": types.map(func(t): return Constants.DAMAGE_TYPE_NAME.get(t, "?")),
+			"text": texts[id],
+		})
+	rows.sort_custom(func(a, b): return a["ailment"] and not b["ailment"])
+	return rows
+
+## ---- Monster rarity ------------------------------------------------------
+
+const RARITY_INTENT := {
+	Constants.EnemyRarity.NORMAL: "No modifiers.",
+	Constants.EnemyRarity.ELITE: "The whole pack is Elite and shares one pack affix.",
+	Constants.EnemyRarity.CHAMPION: "Leads a pack of Normal enemies. Its aura affects every enemy nearby, whether it spawned with them or not.",
+	Constants.EnemyRarity.ASCENDANT: "A Synod Vindicator, Legion Dreadknight or Veilborne Cantor: stronger, scarier, with affixes from its own pool. Shown on the large health bar.",
+}
+
+## {"rarity", "name", "color", "chance" (per pack), "life", "damage", "text",
+## "affixes": [EnemyAffix]} per tier.
+static func monster_tiers() -> Array:
+	var total := 0.0
+	for w in Constants.ENEMY_PACK_RARITY_WEIGHTS.values():
+		total += w
+	var category := {
+		Constants.EnemyRarity.ELITE: EnemyAffix.AffixCategory.PACK,
+		Constants.EnemyRarity.CHAMPION: EnemyAffix.AffixCategory.CHAMPION,
+		Constants.EnemyRarity.ASCENDANT: EnemyAffix.AffixCategory.ASCENDANT,
+	}
+	var tiers := []
+	for rarity in Constants.ENEMY_PACK_RARITY_WEIGHTS:
+		var affixes: Array = EnemyRarityComponent.affixes_for_category(category[rarity]) if category.has(rarity) else []
+		affixes.sort_custom(func(a, b): return a.display_name < b.display_name)
+		tiers.append({
+			"rarity": rarity, "name": Constants.ENEMY_RARITY_NAME[rarity], "color": Constants.ENEMY_RARITY_NAME_COLOR[rarity],
+			"chance": Constants.ENEMY_PACK_RARITY_WEIGHTS[rarity] / total,
+			"life": Constants.ENEMY_RARITY_HEALTH_MULT.get(rarity, 1.0), "damage": Constants.ENEMY_RARITY_DAMAGE_MULT.get(rarity, 1.0),
+			"text": RARITY_INTENT[rarity], "affixes": affixes,
+		})
+	return tiers

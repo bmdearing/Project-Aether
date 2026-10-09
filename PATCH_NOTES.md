@@ -7,6 +7,18 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.59: Ailments need matching damage, Status Effects and Monsters wiki pages, Lens mods on Slate cards, Archon (user reports)
+
+- **Ailments only from matching damage.** A Kinetic Tornado could Unravel: gear "+% chance to cause X" rolled every ailment on every hit, whatever its damage. `StatusEffectComponent.AILMENT_DAMAGE_TYPES` now ties each to its damage (Ignite Fire, Chill Cold, Shock and Electrocute Lightning, Unraveling Entropic, Aetherburn Aetheric, Pallid Pale, Bleed any physical), and `roll_gear_ailments()` takes the hit's damage type from every caller (melee, ranged, projectiles, spells). A spell's own listed statuses are unchanged (they all already match their damage; the Pallid conduit page still grants Pallid by design).
+- **Wiki: Status Effects page.** Every status effect with what it does, ailments first with the damage that causes them from gear. Numbers come straight from `StatusEffectComponent`'s constants.
+- **Wiki: Monsters page.** The four rarity tiers (per-pack odds, Life and damage multipliers, what the tier means) and every affix each can roll, with auras and drop bonuses marked.
+- **Lens modifiers on Slates:** a Slate's card showed each socketed Lens's radius line but not its rolled modifiers, which do count on the Slate. They're listed under the Lens now (with tiers under Alt).
+- **Archon** (new Ascendant affix, user design): the Ascendant comes as two of the same unit that split its Life (−50% each) and each deal 65% of its damage. The split is the affix's own stat lines; `GeneratedMap._spawn_pack()` adds the twin with the same affixes.
+- **Ward on hit / The Unpaid Wall "not working":** not a bug. The save has **The Pale Eye** equipped, whose "You cannot recover Ward" blocks every Ward gain (`WardComponent.recovery_blocked`): on hit, on block, on kill and natural recharge. Both work without it. Asked the user whether "recover" should mean only natural recharge.
+- Tests: `tests/combat_pass` checks a Kinetic hit can't Unravel from gear and an Entropic one can; `tests/wiki` checks both new pages list everything; `tests/lens` checks the Slate card; `tests/enemy_rarity` checks Archon spawns a half-Life pair.
+
+---
+
 ## 2026-10-09 — v4.58: Enemy rarity tiers made real: Elite pack affixes, Champion auras, Ascendant units (user design)
 
 The Patch v3.9 rarity tiers existed as multipliers and four mostly inert affixes. The user's direction: Elites carry pack affixes that affect the whole pack, Champions' auras really affect the mobs around them, and Ascendants are stronger, scarier mobs (the Vindicator, Dreadknight and Cantor) with their own affix pool, not hunters.

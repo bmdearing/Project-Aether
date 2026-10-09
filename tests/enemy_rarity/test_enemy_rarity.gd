@@ -156,12 +156,30 @@ func _test_ascendant() -> void:
 	for i in 3:
 		var pack := _pack(ids, Constants.EnemyRarity.ASCENDANT)
 		var ascendants := pack.filter(func(e: Enemy): return e.rarity_component.rarity == Constants.EnemyRarity.ASCENDANT)
-		_check(ascendants.size() == 1 and Constants.ASCENDANT_UNITS.has(ascendants[0].definition.resource_path.get_file().get_basename()), "an Ascendant pack is led by a Vindicator, Dreadknight or Cantor (%s)" % (ascendants[0].definition.resource_path.get_file().get_basename() if not ascendants.is_empty() else "-"))
-		_check(pack.size() <= 1 + Constants.ASCENDANT_ESCORTS, "with at most %d escorts" % Constants.ASCENDANT_ESCORTS)
+		_check((ascendants.size() == 1 or (ascendants.size() == 2 and ascendants[0].rarity_component.has_mechanic(EnemyRarityComponent.MECHANIC_ARCHON))) and Constants.ASCENDANT_UNITS.has(ascendants[0].definition.resource_path.get_file().get_basename()), "an Ascendant pack is led by a Vindicator, Dreadknight or Cantor (%s)" % (ascendants[0].definition.resource_path.get_file().get_basename() if not ascendants.is_empty() else "-"))
+		_check(pack.size() - ascendants.size() <= Constants.ASCENDANT_ESCORTS, "with at most %d escorts" % Constants.ASCENDANT_ESCORTS)
 		if not ascendants.is_empty():
 			var affixes: Array = ascendants[0].rarity_component.affixes
 			_check(affixes.size() == 2 and affixes.all(func(a: EnemyAffix): return a.category == EnemyAffix.AffixCategory.ASCENDANT), "it rolls two affixes from the Ascendant pool")
 		_clear(pack)
+		await _frames(2)
+	# Archon comes as a pair: keep rolling Ascendant packs until one rolls it.
+	var archon_pair: Array = []
+	for attempt in 60:
+		var pack := _pack(ids, Constants.EnemyRarity.ASCENDANT)
+		var archons := pack.filter(func(e: Enemy): return e.rarity_component.has_mechanic(EnemyRarityComponent.MECHANIC_ARCHON))
+		if not archons.is_empty():
+			archon_pair = archons
+			break
+		_clear(pack)
+		await _frames(1)
+	_check(archon_pair.size() == 2, "an Archon Ascendant comes as two (%d)" % archon_pair.size())
+	if archon_pair.size() == 2:
+		var first: EnemyRarityComponent = archon_pair[0].rarity_component
+		var base_life: float = Constants.ENEMY_RARITY_HEALTH_MULT[Constants.EnemyRarity.ASCENDANT]
+		_check(first.get_health_multiplier() <= base_life * 0.5 * 1.31 + 0.01, "each Archon has half the Life")
+		_check(archon_pair[0].definition == archon_pair[1].definition, "both are the same unit")
+		_clear(get_tree().get_nodes_in_group("enemy").filter(func(e): return e.global_position.distance_to(SPOT) < 20.0))
 		await _frames(2)
 	_finished += 1
 

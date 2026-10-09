@@ -134,6 +134,25 @@ const CHANCE_STAT_ALIAS := {"scorch": "ignite"}
 ## Ailments a plain hit can cause from "+% chance to cause X" gear alone.
 const GEAR_PROC_AILMENTS := ["ignite", "bleed", "chill", "shock", "electrocute", "unraveling", "pallid", "aetherburn"]
 
+## The damage a hit must deal to cause each ailment from gear chance alone:
+## a Kinetic Tornado can't Unravel just because the caster has Unraveling
+## chance. Bleed comes from any physical hit.
+const AILMENT_DAMAGE_TYPES := {
+	"ignite": [Constants.DamageType.FIRE],
+	"chill": [Constants.DamageType.COLD],
+	"shock": [Constants.DamageType.LIGHTNING],
+	"electrocute": [Constants.DamageType.LIGHTNING],
+	"unraveling": [Constants.DamageType.ENTROPIC],
+	"aetherburn": [Constants.DamageType.AETHERIC],
+	"pallid": [Constants.DamageType.PALE],
+	"bleed": [Constants.DamageType.KINETIC, Constants.DamageType.PIERCING, Constants.DamageType.EXPLOSIVE],
+}
+
+## Whether a hit of damage_type can cause effect_id through gear chance.
+static func damage_can_cause(effect_id: String, damage_type: int) -> bool:
+	var types: Array = AILMENT_DAMAGE_TYPES.get(effect_id.trim_prefix("enhanced:"), [])
+	return types.is_empty() or types.has(damage_type)
+
 static func is_ailment(effect_id: String) -> bool:
 	return AILMENT_IDS.has(effect_id.trim_prefix("enhanced:"))
 
@@ -153,12 +172,13 @@ func try_apply(effect_id: String, source: Node, hit_damage: float, base_chance: 
 	return true
 
 ## Weapon hits (and spells, for ailments they don't already carry) proc
-## ailments purely from the attacker's "+% chance to cause X" gear.
-func roll_gear_ailments(source: Node, hit_damage: float, skip: Array = []) -> void:
+## ailments purely from the attacker's "+% chance to cause X" gear, but only
+## those the hit's damage_type can cause (AILMENT_DAMAGE_TYPES).
+func roll_gear_ailments(source: Node, hit_damage: float, damage_type: int, skip: Array = []) -> void:
 	if not source is Player:
 		return
 	for effect_id in GEAR_PROC_AILMENTS:
-		if skip.has(effect_id) or skip.has("enhanced:" + effect_id):
+		if skip.has(effect_id) or skip.has("enhanced:" + effect_id) or not damage_can_cause(effect_id, damage_type):
 			continue
 		var chance := get_chance_bonus(source, effect_id)
 		if chance > 0.0 and randf() < chance:

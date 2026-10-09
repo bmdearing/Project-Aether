@@ -436,7 +436,7 @@ func _direct_hit(enemy: Enemy, amount: float, damage_type: Constants.DamageType,
 		enemy.stance.apply_attack_stance_damage(amount, damage_type)
 	enemy.flash_hit()
 	EventBus.damage_dealt.emit(_player, enemy, amount, damage_type, false, is_critical)
-	enemy.status_effects.roll_gear_ailments(_player, amount)
+	enemy.status_effects.roll_gear_ailments(_player, amount, damage_type)
 	EventBus.hit_landed.emit(is_critical, false, not enemy.health.is_alive())
 
 func _play_fire_animation(_weapon: Weapon) -> void:

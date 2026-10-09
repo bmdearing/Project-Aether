@@ -717,6 +717,12 @@ func _spawn_pack(unit_ids: Array[String], center: Vector3, forced_rarity: int = 
 		EnemyRarityComponent.attach(enemy, member_rarity, rolled, members)
 		members.append(enemy)
 		_spawn_enemy(enemy, center + offset)
+		# Archon: a twin with the same affixes (each has half the Life, 65% damage).
+		if member_rarity == Constants.EnemyRarity.ASCENDANT and rolled.any(func(x: EnemyAffix): return x.mechanic == EnemyRarityComponent.MECHANIC_ARCHON):
+			var twin := EnemyRoster.create_unit(unit_ids[i])
+			EnemyRarityComponent.attach(twin, member_rarity, rolled.duplicate(), members)
+			members.append(twin)
+			_spawn_enemy(twin, center + offset + Vector3(PACK_RING_RADIUS, 0, 0))
 
 ## Anything spawned without a rarity (the boss, summons) is Normal, so it can
 ## still receive Champion auras.

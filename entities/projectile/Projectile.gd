@@ -79,7 +79,7 @@ func _hit_enemy(enemy: Enemy) -> void:
 		enemy.stance.apply_attack_stance_damage(final_amount, damage_type)
 	EventBus.damage_dealt.emit(source, enemy, final_amount, damage_type, false, is_critical)
 	if enemy.status_effects:
-		enemy.status_effects.roll_gear_ailments(source, final_amount)
+		enemy.status_effects.roll_gear_ailments(source, final_amount, damage_type)
 	if on_hit.is_valid():
 		on_hit.call(enemy, final_amount)
 	if source is Player:
