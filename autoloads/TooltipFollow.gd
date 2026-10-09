@@ -34,6 +34,8 @@ func _input(event: InputEvent) -> void:
 		_mouse = event.position
 	if event is InputEventMouseButton:
 		_refresh_left = 0.0  # a click usually changes what's hovered
+	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_C and (event.ctrl_pressed or event.meta_pressed) and is_instance_valid(_source):
+		_copy_hovered()
 
 func _process(delta: float) -> void:
 	var root := get_tree().root
@@ -121,6 +123,44 @@ static func _ignore_mouse(node: Node) -> void:
 		node.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for child in node.get_children():
 		_ignore_mouse(child)
+
+## Ctrl+C over anything with a card copies it as text (ItemText).
+func _copy_hovered() -> void:
+	var content = null
+	var count := 1
+	if _source is FateBoardGrid:
+		var board: FateBoard = (_source as FateBoardGrid).board
+		if board and board.placements.has(_text):
+			content = board.placements[_text].slate
+	elif "entry" in _source and _source.get("entry") is GridInventory.Entry:
+		content = _source.get("entry").content
+		count = _source.get("entry").count
+	elif "id" in _source and _source.get("id") is StringName:
+		content = _source.get("id")
+		count = int(_source.get("count"))
+	else:
+		for key in ["item", "slate", "ability"]:
+			if key in _source and _source.get(key) != null:
+				content = _source.get(key)
+				break
+	var text := ItemText.of(content, count) if content != null else ""
+	if text == "":
+		return
+	DisplayServer.clipboard_set(text)
+	get_viewport().set_input_as_handled()
+	_toast("Copied to clipboard")
+
+func _toast(message: String) -> void:
+	var label := Label.new()
+	label.text = message
+	label.add_theme_color_override("font_color", AetherStyle.GOLD_BRIGHT)
+	label.add_theme_color_override("font_outline_color", Color.BLACK)
+	label.add_theme_constant_override("outline_size", 5)
+	label.position = _mouse + Vector2(14, -28)
+	add_child(label)
+	var tween := label.create_tween()
+	tween.tween_property(label, "modulate:a", 0.0, 0.9).set_delay(0.5)
+	tween.tween_callback(label.queue_free)
 
 ## Whatever tooltip is up right now (null when none), for tests.
 func current() -> Control:

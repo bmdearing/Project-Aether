@@ -22,6 +22,8 @@ var inventory: GridInventory
 var highlight: Callable
 ## Optional (entry) -> String: usage hint at the bottom of a currency tooltip.
 var currency_hint: Callable
+## Optional (entry) -> bool: true fades the entry (a stash search miss).
+var dimmed: Callable
 var _blocks: Dictionary = {}  # GridInventory.Entry -> EntryBlock
 
 func set_inventory(inv: GridInventory) -> void:
@@ -70,6 +72,11 @@ func _make_block(entry: GridInventory.Entry) -> EntryBlock:
 	block.item_icon = ItemIcon.fill(block)
 	block.socket_overlay = SocketOverlay.new()
 	block.add_child(block.socket_overlay)
+	block.mark_overlay = Control.new()
+	block.mark_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	block.add_child(block.mark_overlay)
+	block.mark_overlay.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	block.mark_overlay.draw.connect(_draw_mark.bind(block))
 	block.pressed.connect(func(): entry_clicked.emit(self, entry))
 	block.mouse_entered.connect(func(): entry_hovered.emit(self, entry))
 	_update_block(block)
@@ -85,6 +92,8 @@ func _update_block(block: EntryBlock) -> void:
 	block.item_icon.content = entry.content
 	block.item_icon.count = entry.count
 	block.socket_overlay.item = entry.content if not entry.is_currency() and entry.content is Item else null
+	block.mark_overlay.queue_redraw()
+	block.modulate.a = 0.22 if dimmed.is_valid() and dimmed.call(entry) else 1.0
 
 static func describe(entry: GridInventory.Entry) -> String:
 	if entry.is_currency():
@@ -121,6 +130,47 @@ func _style(button: Button, color: Color, border: Color = Color.TRANSPARENT) -> 
 			box.set_border_width_all(3)
 			button.add_theme_stylebox_override(state, box)
 
+const TRASH_COLOR := Color(0.9, 0.25, 0.2)
+const FAVORED_COLOR := Color(1.0, 0.8, 0.3)
+
+## A Trash cross or Favored star in the block's top-right corner.
+func _draw_mark(block: EntryBlock) -> void:
+	var item: Item = null if block.entry.is_currency() else block.entry.content as Item
+	if item == null or item.mark == Item.Mark.NONE:
+		return
+	var c := Vector2(block.size.x - 10.0, 10.0)
+	var ci := block.mark_overlay
+	ci.draw_circle(c, 8.0, Color(0, 0, 0, 0.75))
+	if item.mark == Item.Mark.TRASH:
+		ci.draw_line(c + Vector2(-4, -4), c + Vector2(4, 4), TRASH_COLOR, 2.5)
+		ci.draw_line(c + Vector2(-4, 4), c + Vector2(4, -4), TRASH_COLOR, 2.5)
+	else:
+		var star := PackedVector2Array()
+		for i in 10:
+			var r := 6.5 if i % 2 == 0 else 2.8
+			star.append(c + Vector2.from_angle(-PI / 2.0 + i * PI / 5.0) * r)
+		ci.draw_colored_polygon(star, FAVORED_COLOR)
+
+## Hover an item and press mark_trash / mark_favored to toggle that mark.
+func _unhandled_input(event: InputEvent) -> void:
+	if not is_visible_in_tree() or not (event.is_action_pressed("mark_trash") or event.is_action_pressed("mark_favored")):
+		return
+	var block := _hovered_block()
+	if block == null or block.entry.is_currency() or not block.entry.content is Item:
+		return
+	var item: Item = block.entry.content
+	var mark := Item.Mark.TRASH if event.is_action_pressed("mark_trash") else Item.Mark.FAVORED
+	item.mark = Item.Mark.NONE if item.mark == mark else mark
+	_update_block(block)
+	get_viewport().set_input_as_handled()
+
+func _hovered_block() -> EntryBlock:
+	var mouse := get_global_mouse_position()
+	for block in _blocks.values():
+		if is_instance_valid(block) and block.get_global_rect().has_point(mouse):
+			return block
+	return null
+
 ## Top-left cell for a drag that grabbed the block at grab_offset.
 func cell_for(local_pos: Vector2, grab_offset: Vector2) -> Vector2i:
 	var p := local_pos - grab_offset + Vector2(cell_size, cell_size) * 0.5
@@ -147,6 +197,7 @@ class EntryBlock extends Button:
 	var entry: GridInventory.Entry
 	var item_icon: ItemIcon
 	var socket_overlay: SocketOverlay
+	var mark_overlay: Control
 
 	func _get_drag_data(at_position: Vector2) -> Variant:
 		var preview := ItemIcon.new()
@@ -178,6 +229,7 @@ class EntryBlock extends Button:
 			return card
 		if entry.content is Slate:
 			card.display_slate(entry.content)
-		else:
-			card.display_item(entry.content)
-		return card
+			return card
+		card.compare_against = ItemCompare.equipped_for(entry.content)
+		card.display_item(entry.content)
+		return ItemCompare.wrap(card, entry.content)

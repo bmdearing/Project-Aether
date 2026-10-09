@@ -84,7 +84,11 @@ func get_conduit_cast_speed_bonus() -> float:
 @export var scaling_grade: Constants.ScalingGrade = Constants.ScalingGrade.C
 @export var native_damage_type: Constants.DamageType = Constants.DamageType.KINETIC
 @export var infused_damage_type: Constants.DamageType = -1  # -1 = not infused, uses native scaling
-@export var is_two_handed: bool = false
+## Fist weapons arm both hands, so they're always two-handed.
+const FIST_TYPES: Array[String] = ["Gauntlet", "Pressure Fist", "Spell Gauntlet"]
+@export var is_two_handed: bool = false:
+	get:
+		return is_two_handed or FIST_TYPES.has(weapon_type)
 @export var is_ranged: bool = false
 
 ## Implementation Brief v4.2 - ranged ammo/fire behavior, values set per

@@ -137,7 +137,7 @@ func _test_stacks() -> void:
 
 func _test_special_tabs() -> void:
 	var stash := Stash.create_default()
-	_check(stash.tabs.size() == Constants.STASH_TAB_COUNT + 2, "stash has general + 2 special tabs")
+	_check(stash.tabs.size() == Constants.STASH_TAB_COUNT + 3, "stash has general + 3 special tabs")
 	var currency := stash.get_tab(GridInventory.Accepts.CURRENCY)
 	var slates := stash.get_tab(GridInventory.Accepts.SLATE)
 	_check(currency.width == Constants.STASH_CURRENCY_TAB_SIZE.x and slates.height == Constants.STASH_SLATE_TAB_SIZE.y, "special tab sizes from Constants")

@@ -126,6 +126,7 @@ func _ready() -> void:
 	_build_layout()
 	_spawn_player()
 	_spawn_enemies()
+	_spawn_chests()
 	randomize()
 	if not restore.is_empty():
 		_apply_restore(restore)
@@ -295,6 +296,7 @@ func capture_state() -> Dictionary:
 		"portal": _vec_to_array(portal_pos),
 		"player": _vec_to_array(player_pos),
 		"player_yaw": _portal_player_yaw,
+		"chests_opened": _opened_chest_indices(),
 	}
 
 func _apply_restore(state: Dictionary) -> void:
@@ -334,17 +336,29 @@ func _apply_restore(state: Dictionary) -> void:
 		add_child(pickup)
 
 	var player := get_tree().get_first_node_in_group("player") as Player
+	for i in state.get("chests_opened", []):
+		if int(i) >= 0 and int(i) < _chests.size():
+			_chests[int(i)].set_opened()
+	var portal_pos := _array_to_vec(state.get("portal", []))
 	if player:
 		player.global_position = _array_to_vec(state.get("player", []))
-		player.rotation.y = float(state.get("player_yaw", 0.0))
+		player.rotation.y = facing_away(portal_pos, player.global_position, float(state.get("player_yaw", 0.0)))
 	_portal_player_position = _array_to_vec(state.get("player", []))
 	_portal_player_yaw = float(state.get("player_yaw", 0.0))
-	_portal = _add_portal(_array_to_vec(state.get("portal", [])))
+	_portal = _add_portal(portal_pos)
 	if _boss != null and (not is_instance_valid(_boss) or _boss.is_queued_for_deletion() or not _boss.is_inside_tree()):
 		_open_completion_portal()
 
 const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPickup.tscn")
 const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
+
+## Yaw that faces from `from` towards `at` and beyond (player forward is -Z);
+## `fallback` when the two are on top of each other.
+static func facing_away(from: Vector3, at: Vector3, fallback: float) -> float:
+	var away := Vector2(at.x - from.x, at.z - from.z)
+	if away.length() < 0.05:
+		return fallback
+	return atan2(-away.x, -away.y)
 
 static func _vec_to_array(v: Vector3) -> Array:
 	return [v.x, v.y, v.z]
@@ -669,6 +683,60 @@ func _spawn_enemies() -> void:
 			var base := _cell_to_world(cell) + (side * (1.0 if i == 0 else -1.0) if packs > 1 else Vector3.ZERO)
 			var center := base + Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))
 			_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_NORMAL), center)
+
+## Treasure chests: CHEST_COUNT of them in random rooms other than the start
+## and the Vault, in a free corner (rooms) or off-centre (open layouts).
+## Seeded with the map, so a portal return rebuilds the same ones.
+const CHEST_COUNT := Vector2i(2, 3)
+const CHEST_CLEARANCE := 1.2
+var _chests: Array[TreasureChest] = []
+
+func _spawn_chests() -> void:
+	var cells: Array[Vector2i] = []
+	for cell in graph.rooms:
+		var room: MapGraph.RoomData = graph.rooms[cell]
+		if not room.is_start and not room.is_vault:
+			cells.append(cell)
+	cells.sort()
+	var count := mini(randi_range(CHEST_COUNT.x, CHEST_COUNT.y), cells.size())
+	for i in count:
+		var cell: Vector2i = cells.pop_at(randi() % cells.size())
+		var spot := _chest_spot(cell)
+		var chest := TreasureChest.new()
+		chest.rotation.y = randf() * TAU
+		add_child(chest)
+		chest.global_position = spot
+		_chests.append(chest)
+	_ground_chests.call_deferred()
+
+func _chest_spot(cell: Vector2i) -> Vector3:
+	var origin := _cell_to_world(cell)
+	var half: Vector2 = room_half.get(cell, Vector2.ONE * cell_size * 0.4)
+	var corners: Array[Vector2] = [Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1), Vector2(-1, -1)]
+	corners.shuffle()
+	var inset := 0.75 if layout.kind == MapLayout.Kind.ROOMS else 0.35
+	for corner in corners:
+		var pos := origin + Vector3(corner.x * half.x * inset, 0, corner.y * half.y * inset)
+		var rect := Rect2(Vector2(pos.x, pos.z) - Vector2.ONE * CHEST_CLEARANCE, Vector2.ONE * CHEST_CLEARANCE * 2.0)
+		if _dresser == null or not _dresser._overlaps(rect):
+			if _dresser:
+				_dresser.reserve(rect)
+			return pos
+	return origin + Vector3(half.x * 0.3, 0, 0)
+
+## Sits each chest on the floor once the level's colliders are in the physics world.
+func _ground_chests() -> void:
+	await get_tree().physics_frame
+	for chest in _chests:
+		if is_instance_valid(chest):
+			chest.settle()
+
+func _opened_chest_indices() -> Array:
+	var opened := []
+	for i in _chests.size():
+		if is_instance_valid(_chests[i]) and _chests[i].is_opened():
+			opened.append(i)
+	return opened
 
 ## Open layouts: packs_per_cell packs near each cell's centre; the Vault
 ## holds only its boss.

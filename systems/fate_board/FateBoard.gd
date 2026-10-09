@@ -120,6 +120,49 @@ func remove_slate(placement_id: String) -> void:
 	EventBus.aether_budget_changed.emit(aether_used, aether_capacity)
 	GameState.sync_fate_board(self)
 
+## Sets a Lens into a placed Slate's free socket. Returns "" on success,
+## otherwise why not. A hand-authored Slate is copied first so the shared
+## resource isn't changed.
+func socket_lens(placement_id: String, lens: Lens) -> String:
+	var data: PlacedSlateData = placements.get(placement_id)
+	if data == null:
+		return "no_slate"
+	if data.slate.free_sockets() <= 0:
+		return "no_free_socket" if data.slate.sockets > 0 else "no_sockets"
+	if data.slate.resource_path != "":
+		data.slate = data.slate.duplicate(true)
+	data.slate.lenses.append(lens)
+	EventBus.slate_lenses_changed.emit(placement_id)
+	GameState.sync_fate_board(self)
+	return ""
+
+## True when taking this Slate off would cut another placed Slate off from
+## the anchor. A Slate that was already cut off (an old save) doesn't count.
+func removal_breaks_chain(placement_id: String) -> bool:
+	var before := _connected_to_anchor("")
+	var after := _connected_to_anchor(placement_id)
+	for id in before:
+		if id != placement_id and not after.has(id):
+			return true
+	return false
+
+## Placement ids reachable from the anchor through edge-touching Slates,
+## ignoring `without`.
+func _connected_to_anchor(without: String) -> Dictionary:
+	var reached := {}
+	var seen := {ANCHOR_CELL: true}
+	var stack: Array[Vector2i] = [ANCHOR_CELL]
+	while not stack.is_empty():
+		var cell: Vector2i = stack.pop_back()
+		for dir in _ADJACENT_DIRS:
+			var next: Vector2i = cell + dir
+			if seen.has(next) or not _occupied_cells.has(next) or _occupied_cells[next] == without:
+				continue
+			seen[next] = true
+			reached[_occupied_cells[next]] = true
+			stack.append(next)
+	return reached
+
 func get_occupied_cells() -> Dictionary:
 	return _occupied_cells
 

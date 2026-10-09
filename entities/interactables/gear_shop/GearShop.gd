@@ -67,6 +67,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_open_shop()
 
 func _open_shop() -> void:
+	var sold := sell_trash()
 	var entries: Array = []
 	for item in _stock:
 		entries.append({
@@ -79,7 +80,7 @@ func _open_shop() -> void:
 	var sell_entries: Array = []
 	for content in GameState.get_inventory_items():
 		var item := content as Item
-		if item == null:
+		if item == null or item.mark == Item.Mark.FAVORED:
 			continue
 		sell_entries.append({
 			"label": item.display_name,
@@ -93,6 +94,18 @@ func _open_shop() -> void:
 		"cost": REROLL_COST,
 		"on_action": func(): _reroll_and_reopen(),
 	}, sell_entries)
+	if sold.x > 0:
+		_get_shop_screen().set_notice("Sold %d Trash item%s for %d Gold." % [sold.x, "" if sold.x == 1 else "s", sold.y])
+
+## Sells every carried item marked Trash. Returns (items sold, Gold gained).
+static func sell_trash() -> Vector2i:
+	var sold := Vector2i.ZERO
+	for content in GameState.get_inventory_items():
+		var item := content as Item
+		if item and item.mark == Item.Mark.TRASH and GameState.remove_from_inventory(item):
+			sold += Vector2i(1, sell_price(item))
+	GameState.gold += sold.y
+	return sold
 
 static func sell_price(item: Item) -> int:
 	return SELL_PRICE_BY_RARITY.get(item.rarity, 5)

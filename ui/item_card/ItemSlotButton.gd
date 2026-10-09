@@ -28,6 +28,8 @@ var ability: Ability:
 		ability = value
 		_refresh_icon()
 var draggable: bool = false
+## Shows the equipped item(s) this item would replace beside its card.
+var compare: bool = false
 ## false for invisible tooltip-only buttons laid over custom-drawn widgets.
 var show_icon: bool = true:
 	set(value):
@@ -111,7 +113,11 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 		return null
 	var card: ItemCard = ITEM_CARD_SCENE.instantiate()
 	if item:
+		if compare:
+			card.compare_against = ItemCompare.equipped_for(item)
 		card.display_item(item)
+		if compare:
+			return ItemCompare.wrap(card, item)
 	elif slate:
 		card.display_slate(slate)
 	else:

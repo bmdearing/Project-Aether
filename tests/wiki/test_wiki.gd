@@ -138,7 +138,7 @@ func _test_stash_screen() -> void:
 	screen.open()
 	screen._select_tab(GameState.stash.tabs.size())
 	await _frames(1)
-	_check(screen.is_unique_tab_open() and screen._unique_view.visible and not screen._stash_scroll.visible, "the last tab is the Unique tab")
+	_check(screen.is_unique_tab_open() and screen._unique_view.visible and not screen._stash_view.visible, "the last tab is the Unique tab")
 	_check(screen._unique_view.get_child_count() == UniqueCatalog.DEFS.size(), "it has a slot per Unique and Mythic")
 	var eye := _unique("the_pale_eye")
 	GameState.add_to_inventory(eye)
@@ -149,7 +149,7 @@ func _test_stash_screen() -> void:
 	GameState.add_to_inventory(second)
 	var second_entry: GridInventory.Entry = GameState.inventory.get_entries().filter(func(e): return e.content == second)[0]
 	screen._on_entry_right_clicked(screen._carried_view, second_entry)
-	_check(GameState.inventory.has_content(second) and screen._status.text.contains("already holds"), "a second copy stays in the inventory")
+	_check(not GameState.inventory.has_content(second) and GameState.stash.tabs.any(func(t): return t.has_content(second)), "a second copy goes to a general tab")
 	GameState.remove_from_inventory(second)
 	screen._withdraw_unique("the_pale_eye")
 	_check(GameState.inventory.has_content(eye) and not GameState.stash.uniques.has("the_pale_eye"), "clicking a filled slot takes it back")

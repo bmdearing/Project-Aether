@@ -105,6 +105,22 @@ static func slate_stat_bonuses(board: FateBoard, chains: Array[ChainResult]) -> 
 					totals[lens_stat] = totals.get(lens_stat, 0.0) + affix.value
 	return totals
 
+## What a placed Slate's attribute lines are multiplied by: its best chain's
+## bonus times the Lenses covering it (the same sum slate_stat_bonuses uses).
+static func attribute_multiplier(board: FateBoard, placement_id: String) -> float:
+	var data: FateBoard.PlacedSlateData = board.placements.get(placement_id)
+	if data == null:
+		return 1.0
+	var bonus := 0.0
+	for result in compute_chains(board):
+		if result.placement_ids.has(placement_id):
+			bonus = maxf(bonus, result.bonus_percent)
+	return (1.0 + bonus) * lens_multiplier(board, data, true)
+
+## A lone Slate's multiplier: it forms a chain of its own tiles.
+static func lone_multiplier(slate: Slate) -> float:
+	return 1.0 + _bonus_for_tile_count(slate.get_size())
+
 static func _bonus_for_tile_count(tile_count: int) -> float:
 	var bonus := 0.0
 	var remaining := tile_count

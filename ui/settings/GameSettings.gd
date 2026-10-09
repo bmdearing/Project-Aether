@@ -19,7 +19,8 @@ const REMAPPABLE := [
 	["ability_1", "Spell 1"], ["ability_2", "Spell 2"], ["ability_3", "Spell 3"], ["ability_4", "Spell 4"],
 	["interact", "Interact / Pick Up"], ["return_to_hub", "Portal to Hub"],
 	["open_inventory", "Inventory"], ["open_character", "Character"], ["open_abilities", "Abilities"],
-	["open_fate_board", "Fate Board"], ["open_map", "Map"],
+	["open_fate_board", "Fate Board"], ["open_map", "Map"], ["open_menu", "Menu (cycle screens)"],
+	["mark_trash", "Mark Item as Trash"], ["mark_favored", "Mark Item as Favored"],
 	["fate_board_rotate", "Rotate Slate"], ["fate_board_flip", "Flip Slate"],
 ]
 

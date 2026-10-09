@@ -72,7 +72,7 @@ static func _def_for(entry: Dictionary, best_tier: int, value_scale: float) -> M
 	def.text = entry["desc"]
 	def.affix_type = ModifierDef.AffixType.SUFFIX if GearModifierPool._is_suffix(entry["stat_key"]) else ModifierDef.AffixType.PREFIX
 	def.tags = GearModifierPool._tags(entry["brand_tags"], entry["stat_key"])
-	def.item_types = [&"jewel"]
+	def.item_types = [&"jewel", &"lens"]
 	for t in range(best_tier, TIER_COUNT + 1):
 		var range_ := tier_range(entry["tier1_min"], entry["tier1_max"], t, value_scale)
 		var tier := ModifierTier.new()

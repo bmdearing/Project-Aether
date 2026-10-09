@@ -63,4 +63,9 @@ func _refresh() -> void:
 			roundi(player.global_position.x / map.cell_size),
 			roundi(player.global_position.z / map.cell_size),
 		)
-	view.render(map.graph, player_cell)
+	var player_pos := Vector2(NAN, NAN)
+	var yaw := 0.0
+	if player:
+		player_pos = Vector2(player.global_position.x, player.global_position.z) / map.cell_size
+		yaw = player.global_rotation.y
+	view.render(map.graph, player_cell, player_pos, yaw)

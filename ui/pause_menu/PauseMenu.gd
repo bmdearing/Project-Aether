@@ -26,6 +26,9 @@ var _inventory_screen: InventoryScreen
 var _abilities_screen: AbilitiesScreen
 var _character_screen: CharacterScreen
 var _map_screen: MapScreen
+var _tab_strip: MenuTabStrip
+## The screen Tab opens when none is open (MenuTabStrip.SCREENS index).
+var _last_tab := 0
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -45,6 +48,9 @@ func _ready() -> void:
 	main_menu_button.pressed.connect(_on_main_menu_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 	_build_settings()
+	_tab_strip = MenuTabStrip.new()
+	_tab_strip.tab_chosen.connect(_switch_to_tab)
+	add_sibling.call_deferred(_tab_strip)  # its own layer, not hidden with this menu
 
 func _build_settings() -> void:
 	var settings_button := Button.new()
@@ -96,6 +102,27 @@ func _show_wiki(open_wiki: bool) -> void:
 func _show_settings(open_settings: bool) -> void:
 	_settings_center.visible = open_settings
 	resume_button.get_parent().get_parent().visible = not open_settings
+
+## Tab cycles the main screens (Shift+Tab backwards), opening the last one
+## used when none is open. Read in _input: GUI focus would eat Tab otherwise.
+func _input(event: InputEvent) -> void:
+	if not event.is_action_pressed("open_menu") or (_is_open and (_settings_center.visible or _wiki_center.visible)):
+		return
+	get_viewport().set_input_as_handled()
+	var current := MenuTabStrip.open_index(get_tree())
+	if current < 0:
+		_switch_to_tab(_last_tab)
+		return
+	var step := -1 if Input.is_key_pressed(KEY_SHIFT) else 1
+	_switch_to_tab(posmod(current + step, MenuTabStrip.SCREENS.size()))
+
+func _switch_to_tab(index: int) -> void:
+	var screen := get_tree().get_first_node_in_group(MenuTabStrip.SCREENS[index][0])
+	if screen == null:
+		return
+	_last_tab = index
+	if not screen.is_open():
+		_toggle_screen(screen)
 
 func _unhandled_input(event: InputEvent) -> void:
 	# P/B/N/C/M jump straight to the target screen (closing whatever else

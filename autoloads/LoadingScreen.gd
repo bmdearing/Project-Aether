@@ -20,7 +20,7 @@ const TIPS := [
 	"Hold Alt over an item to see its modifier tiers and ranges.",
 	"Slates that touch and share a tag form a chain. Longer chains amplify their attributes more.",
 	"Press T to open a portal home. Your Figment waits for you to come back.",
-	"Spells level up with gold and Crystallized Aether in the Abilities screen (N).",
+	"Spells level up with gold and Crystallized Aether on the Spells screen (K).",
 	"Jewels socket permanently: right-click one, then click the item to set it in.",
 	"Magic Find raises both the number of drops and their rarity.",
 	"Killing a Figment's boss opens a portal home on the altar of its chamber.",

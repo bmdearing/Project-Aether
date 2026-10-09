@@ -5,7 +5,7 @@ class_name GridInventory
 ## (StringName), takes one cell, and stacks to Constants.MAX_STACK per cell.
 ## Also serves as a crafting currency source (count_of/remove_currency).
 
-enum Accepts { ANY, CURRENCY, SLATE }
+enum Accepts { ANY, CURRENCY, SLATE, FIGMENT }
 
 class Entry:
 	## Item, Slate, or StringName for a currency stack.
@@ -54,6 +54,8 @@ func accepts_content(content) -> bool:
 			return content is StringName
 		Accepts.SLATE:
 			return content is Slate
+		Accepts.FIGMENT:
+			return content is FigmentItem
 	return content is StringName or content is Item or content is Slate
 
 func can_place(content, pos: Vector2i, ignore: Entry = null) -> bool:

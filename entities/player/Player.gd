@@ -216,6 +216,7 @@ func _ready() -> void:
 	equipment.equipment_changed.connect(_on_equipment_changed)
 	EventBus.slate_placed.connect(func(_id, _pos): _apply_fate_board_bonuses())
 	EventBus.slate_removed.connect(func(_id, _pos): _apply_fate_board_bonuses())
+	EventBus.slate_lenses_changed.connect(func(_id): _apply_fate_board_bonuses())
 	EventBus.item_stats_changed.connect(_on_item_stats_changed)
 	# Wired here, not in either component's own _ready() - Godot calls a
 	# child's _ready() before its parent's, so PlayerAbilityCast._ready()

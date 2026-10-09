@@ -26,6 +26,8 @@ signal slate_placed(slate_id: String, grid_position: Vector2i)
 signal slate_removed(slate_id: String, grid_position: Vector2i)
 signal chain_recalculated(chain_id: int, tile_count: int, bonus_percent: float)
 signal aether_budget_changed(used: int, capacity: int)
+## A Lens was set into a Slate already on the Fate Board.
+signal slate_lenses_changed(placement_id: String)
 
 signal ward_depleted(target: Node)
 signal ward_restored(target: Node, amount: float)

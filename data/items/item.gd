@@ -48,6 +48,12 @@ class_name Item
 @export var is_corrupted: bool = false
 @export var is_craftable: bool = true
 
+## Trash: sold automatically when the Gear Shop opens. Favored: can't be
+## sold and is left off the shop's sell list. Toggled by hovering it in a
+## grid and pressing mark_trash / mark_favored.
+enum Mark { NONE, TRASH, FAVORED }
+@export var mark: Mark = Mark.NONE
+
 ## Section 25's real per-tier data (user request 2026-08-30: build the
 ## actual tiered base-type system, not just one representative item per
 ## type). item_level is the tier's authored "Level" column - the

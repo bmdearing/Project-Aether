@@ -721,23 +721,43 @@ func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D)
 	_player.get_tree().current_scene.add_child(bolt)
 	bolt.global_transform = xform
 
-## Teleports horizontally along the camera's facing, stopping short of walls.
-## The ray starts at camera height: from the feet it would graze the floor
-## and report a 0-distance hit.
+## Teleports along the camera's aim, up included: the player's own body is
+## swept so it stops short of walls, floors and ceilings. Looking down while
+## grounded blinks flat instead of into the floor. A blink that ends against
+## a wall whose top is within BLINK_MANTLE_HEIGHT climbs onto it.
 func _perform_blink() -> void:
-	var camera := _player.camera
-	var ray_origin := camera.global_position
-	var direction := -camera.global_transform.basis.z
-	direction.y = 0.0
+	var direction := -_player.camera.global_transform.basis.z
+	if direction.y < 0.0 and _player.is_on_floor():
+		direction.y = 0.0
 	if direction.length() < 0.01:
 		direction = -_player.global_transform.basis.z
 	direction = direction.normalized()
-	var space_state := _player.get_world_3d().direct_space_state
-	var query := PhysicsRayQueryParameters3D.create(ray_origin, ray_origin + direction * BLINK_DISTANCE)
-	query.exclude = [_player.get_rid()]
-	var result := space_state.intersect_ray(query)
-	var distance: float = max(ray_origin.distance_to(result["position"]) - 0.5, 0.0) if result else BLINK_DISTANCE
-	_player.global_position += direction * distance
+	var motion := direction * BLINK_DISTANCE
+	var from := _player.global_transform
+	var hit := _player.move_and_collide(motion, true)
+	var travel := motion if hit == null else hit.get_travel()
+	var target := from.translated(travel)
+	if hit and absf(hit.get_normal().y) < 0.5:
+		target = _blink_mantle(target, Vector3(direction.x, 0.0, direction.z))
+	_player.global_position = target.origin
+	_player.velocity.y = maxf(_player.velocity.y, 0.0)
+
+const BLINK_MANTLE_HEIGHT := 3.0
+const BLINK_MANTLE_REACH := 1.2
+
+## Lifts the end point over a wall's edge when the body fits on top of it.
+func _blink_mantle(at: Transform3D, flat_dir: Vector3) -> Transform3D:
+	if flat_dir.length() < 0.1:
+		return at
+	var step := flat_dir.normalized() * BLINK_MANTLE_REACH
+	for lift: float in [1.0, 2.0, BLINK_MANTLE_HEIGHT]:
+		var up := Vector3.UP * lift
+		if _player.test_move(at, up):
+			return at
+		var raised := at.translated(up)
+		if not _player.test_move(raised, step):
+			return raised.translated(step)
+	return at
 
 ## Crosshair raycast hit, capped at MAX_TARGET_RANGE. With no hit, falls back
 ## to the plane at the player's feet.

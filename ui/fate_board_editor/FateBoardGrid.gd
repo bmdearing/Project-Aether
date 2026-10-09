@@ -166,6 +166,7 @@ func _make_custom_tooltip(for_text: String) -> Object:
 		return null
 	var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
 	card.footer_lines = ChainCalculator.chain_lines_for(board, for_text)
+	card.slate_amplifier = ChainCalculator.attribute_multiplier(board, for_text)
 	card.display_slate(board.placements[for_text].slate)
 	return card
 
@@ -188,6 +189,8 @@ func _draw() -> void:
 		return
 
 	_draw_lens_radii()
+	if show_outlines:
+		_draw_outlines(occupied)
 
 	if pending_slate and _in_bounds(_hover_cell):
 		var preview_cells := pending_slate.get_transformed_shape(pending_rotation, pending_flipped)
@@ -247,6 +250,29 @@ func _draw_cell(cell: Vector2i, color: Color) -> void:
 		return
 	var rect := Rect2(cell.x * _cell_px + 1, cell.y * _cell_px + 1, _cell_px - 2, _cell_px - 2)
 	draw_rect(rect, color)
+
+## Thick outline round each placed Slate in its own colour, so neighbours
+## of one tag can be told apart.
+static var show_outlines := false
+
+func _draw_outlines(occupied: Dictionary) -> void:
+	var w := maxf(2.0, _cell_px * 0.09)
+	var inset := w * 0.5
+	for id in board.placements:
+		var data: FateBoard.PlacedSlateData = board.placements[id]
+		var color := Color.from_hsv(fposmod(float(hash(id) % 997) / 997.0, 1.0), 0.55, 1.0)
+		for c in data.cells:
+			if not _in_bounds(c):
+				continue
+			var r := Rect2(c.x * _cell_px, c.y * _cell_px, _cell_px, _cell_px).grow(-inset)
+			if occupied.get(c + Vector2i.UP, "") != id:
+				draw_line(r.position, Vector2(r.end.x, r.position.y), color, w)
+			if occupied.get(c + Vector2i.DOWN, "") != id:
+				draw_line(Vector2(r.position.x, r.end.y), r.end, color, w)
+			if occupied.get(c + Vector2i.LEFT, "") != id:
+				draw_line(r.position, Vector2(r.position.x, r.end.y), color, w)
+			if occupied.get(c + Vector2i.RIGHT, "") != id:
+				draw_line(Vector2(r.end.x, r.position.y), r.end, color, w)
 
 const LENS_RADIUS_COLOR := Color(0.55, 0.9, 0.85, 0.14)
 const LENS_EDGE_COLOR := Color(0.55, 0.9, 0.85, 0.55)

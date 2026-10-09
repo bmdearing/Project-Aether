@@ -66,6 +66,7 @@ const CURSOR_ICON_SIZE := 46.0
 var _cursor_icon: ItemIcon
 const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
 const PREVIEW_LINES := 5
+const STATUS_LINES := 5
 const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows stats. Hold Alt over an item for details."
 
 func _ready() -> void:
@@ -105,6 +106,10 @@ func _ready() -> void:
 	inventory_grid.highlight = _highlight_for
 	inventory_grid.currency_hint = _hint_for
 	hint_label.text = HINT
+	# Fixed height: craft messages come and go, and the doll and grid below
+	# mustn't move with them.
+	status_label.max_lines_visible = STATUS_LINES
+	status_label.custom_minimum_size.y = status_label.get_line_height() * STATUS_LINES
 	stats_panel.visible = false
 	inventory_grid.drop_failed.connect(func(): status_label.text = "That doesn't fit there.")
 	_ammo_label = Label.new()

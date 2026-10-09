@@ -25,6 +25,7 @@ var _used := false
 
 func _ready() -> void:
 	monitoring = true
+	add_to_group("portal")
 	monitorable = false
 	var color := COLOR_TO_HUB if destination == Destination.HUB else COLOR_TO_MAP
 

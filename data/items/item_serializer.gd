@@ -52,6 +52,7 @@ static func to_dict(item: Item) -> Dictionary:
 		"unique_id": item.unique_id,
 		"affixes": affixes,
 		"is_corrupted": item.is_corrupted,
+		"mark": item.mark,
 		"is_craftable": item.is_craftable,
 		"sockets": item.sockets,
 		"sockets_rolled": item.sockets_rolled,
@@ -148,6 +149,7 @@ static func from_dict(d: Dictionary) -> Item:
 	item.flavor_text = d.get("flavor_text", "")
 	item.unique_id = d.get("unique_id", "")
 	item.is_corrupted = d.get("is_corrupted", false)
+	item.mark = clampi(int(d.get("mark", 0)), 0, Item.Mark.size() - 1) as Item.Mark
 	item.is_craftable = d.get("is_craftable", true)
 
 	var affixes: Array[ItemAffix] = []

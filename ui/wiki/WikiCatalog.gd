@@ -11,6 +11,7 @@ const SLOT_TYPES := [&"greatsword", &"kite_shield", &"helmet", &"body_armour", &
 
 static var _types: Dictionary = {}   # group -> Array[Dictionary] {"name", "key", "base"}
 static var _index: Array = []        # By-modifier rows, built on first use
+static var _resolver: CraftingResolver  # one shared, read-only here
 
 ## Base types in a group: {"name": display name, "key": item type, "base": a
 ## representative Item or Slate}.
@@ -118,7 +119,9 @@ static func _top_level(def: ModifierDef) -> int:
 ##  "tiers": [{"tier", "min", "max", "level", "chance"}]}
 static func modifier_rows(base: Resource, level: int) -> Array:
 	var full := _defs(base, MAX_LEVEL)
-	var resolver := CraftingResolver.create_default()
+	if _resolver == null:
+		_resolver = CraftingResolver.create_default()
+	var resolver := _resolver
 	var target := CraftTarget.wrap(_blank(base, level))
 	var ctx := resolver._resolve_brands(&"quickening", null)
 	var none: Array[ItemAffix] = []

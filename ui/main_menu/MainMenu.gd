@@ -243,7 +243,24 @@ func _on_continue_pressed() -> void:
 	GameState.game_started = true
 	LoadingScreen.change_scene(GameState.HUB_SCENE)
 
+## With a save on disk, New Game asks first: it deletes that save.
 func _on_new_game_pressed() -> void:
+	if not SaveManager.has_save():
+		_start_new_game()
+		return
+	var confirm := ConfirmationDialog.new()
+	confirm.title = "Start a New Game?"
+	confirm.dialog_text = "You have a saved game. Starting a new game deletes it.\nAre you sure?"
+	confirm.ok_button_text = "Start New Game"
+	confirm.cancel_button_text = "Cancel"
+	confirm.confirmed.connect(_start_new_game)
+	confirm.visibility_changed.connect(func():
+		if not confirm.visible:
+			confirm.queue_free())
+	add_child(confirm)
+	confirm.popup_centered()
+
+func _start_new_game() -> void:
 	GameState.reset_to_defaults()
 	SaveManager.delete_save()
 	GameState.game_started = true

@@ -123,6 +123,8 @@ func _ready() -> void:
 	_build_enemy_counter()
 	EventBus.enemy_count_changed.connect(_on_enemy_count_changed)
 	add_child(LootLookCard.new())
+	add_child(Minimap.new())
+	add_child(Compass.new())
 	_build_inventory_full_label()
 	EventBus.inventory_full.connect(_on_inventory_full)
 

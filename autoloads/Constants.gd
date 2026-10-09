@@ -459,8 +459,11 @@ const INVENTORY_SIZE := Vector2i(14, 7)
 const MAX_STACK := 100
 const STASH_TAB_COUNT := 4
 const STASH_TAB_SIZE := Vector2i(12, 12)
-const STASH_CURRENCY_TAB_SIZE := Vector2i(12, 8)
+## The currency tab is shown as one slot per currency (CurrencyTabView); its
+## grid is only storage, sized for many full stacks of each.
+const STASH_CURRENCY_TAB_SIZE := Vector2i(30, 30)
 const STASH_SLATE_TAB_SIZE := Vector2i(12, 12)
+const STASH_FIGMENT_TAB_SIZE := Vector2i(12, 12)
 
 ## ---- Portals ---------------------------------------------------------------
 ## Portals per map run; -1 = unlimited.

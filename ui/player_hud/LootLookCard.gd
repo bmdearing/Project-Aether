@@ -38,6 +38,7 @@ func _process(_delta: float) -> void:
 		if target and target.slate:
 			_card.display_slate(target.slate)
 		elif target:
+			_card.compare_against = ItemCompare.equipped_for(target.item)
 			_card.display_item(target.item)
 	_card.visible = target != null
 	_prompt.visible = target != null

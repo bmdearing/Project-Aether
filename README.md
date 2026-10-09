@@ -46,7 +46,10 @@ Each build is a single self-contained executable (about 430 MB to download).
 | Swap weapon set (tap) / stance page (hold) | X |
 | Interact | E |
 | Portal to the Hub | T |
-| Inventory / Character / Abilities / Fate Board / Map | B / C / N / P / M |
+| Inventory / Character / Spells / Fate Board / Map | B / C / K / P / M |
+| Menu: open the last screen, then cycle screens (Shift: backwards) | Tab |
+| Mark hovered item as Trash / Favored | Z / V |
+| Copy hovered item as text | Ctrl+C |
 | Pause | Esc |
 
 Every key can be rebound in Settings > Controls.

@@ -11,6 +11,8 @@ const SLOT_SIZE := Vector2(172, 58)
 const COLUMNS := 3
 
 var stash: Stash
+## Optional (def, item) -> bool: true fades the slot (a stash search miss).
+var dimmed: Callable
 
 func _ready() -> void:
 	columns = COLUMNS
@@ -29,6 +31,8 @@ func refresh() -> void:
 		slot.custom_minimum_size = SLOT_SIZE
 		slot.tooltip_text = def["name"]
 		slot.clicked.connect(func(): slot_clicked.emit(def["id"]))
+		if dimmed.is_valid() and dimmed.call(def, slot.item):
+			slot.modulate.a = 0.25
 		add_child(slot)
 
 class UniqueSlot extends Control:

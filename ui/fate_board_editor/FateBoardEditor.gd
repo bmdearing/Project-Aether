@@ -28,6 +28,8 @@ var _flipped: bool = false
 ## placement for a Slate that requires one.
 var _pending_designated_ability_id: String = ""
 var _designate_ability_ids: Array[String] = []
+## A Lens picked from the palette, waiting to be clicked onto a placed Slate.
+var _held_lens: Lens
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -41,6 +43,13 @@ func _ready() -> void:
 	close_button.pressed.connect(close)
 	designate_option.item_selected.connect(_on_designate_option_selected)
 	chain_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	var outlines := CheckButton.new()
+	outlines.text = "Show Slate outlines"
+	outlines.button_pressed = FateBoardGrid.show_outlines
+	outlines.toggled.connect(func(on: bool):
+		FateBoardGrid.show_outlines = on
+		grid.queue_redraw())
+	aether_label.add_sibling(outlines)
 
 func is_open() -> bool:
 	return _is_open
@@ -69,7 +78,10 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not _is_open:
 		return
 	if event.is_action_pressed("ui_cancel"):
-		close()
+		if _held_lens:
+			_on_drop_requested()
+		else:
+			close()
 		get_viewport().set_input_as_handled()
 	elif event.is_action_pressed("fate_board_rotate"):
 		_rotation_steps = (_rotation_steps + 1) % 4
@@ -84,6 +96,15 @@ func _populate_palette() -> void:
 	for content in GameState.get_inventory_items():
 		if content is Slate:
 			_add_palette_entry(content)
+	var lenses := GameState.get_inventory_items().filter(func(c): return c is Lens)
+	if lenses.is_empty():
+		return
+	var header := Label.new()
+	header.text = "Lenses - click one, then a placed Slate with a free socket"
+	header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	palette_list.add_child(header)
+	for lens in lenses:
+		_add_lens_entry(lens)
 
 func _add_palette_entry(slate: Slate) -> void:
 	var tag_name: String = slate.category_tag_override if slate.category_tag_override != "" else Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
@@ -94,7 +115,21 @@ func _add_palette_entry(slate: Slate) -> void:
 	button.pressed.connect(_on_palette_selected.bind(slate))
 	palette_list.add_child(button)
 
+func _add_lens_entry(lens: Lens) -> void:
+	var button := ItemSlotButton.new()
+	button.text = "%s (%s)" % [lens.display_name, lens.radius_text()]
+	button.tooltip_text = lens.display_name
+	button.item = lens
+	button.pressed.connect(_on_lens_selected.bind(lens))
+	palette_list.add_child(button)
+
+func _on_lens_selected(lens: Lens) -> void:
+	_on_drop_requested()
+	_held_lens = lens
+	status_label.text = "Click a placed Slate with a free socket to set %s. Lenses set on the board stay there. Right-click or Esc to put it back." % lens.display_name
+
 func _on_palette_selected(slate: Slate) -> void:
+	_held_lens = null
 	_selected_slate = slate
 	_rotation_steps = 0
 	_flipped = false
@@ -136,6 +171,7 @@ func _on_designate_option_selected(index: int) -> void:
 	_pending_designated_ability_id = _designate_ability_ids[index] if index >= 0 and index < _designate_ability_ids.size() else ""
 
 func _on_drop_requested() -> void:
+	_held_lens = null
 	_selected_slate = null
 	grid.set_pending(null, 0, false)
 	selected_label.text = ""
@@ -143,9 +179,18 @@ func _on_drop_requested() -> void:
 	designate_option.visible = false
 
 func _on_cell_clicked(cell: Vector2i, button_index: int) -> void:
+	if _held_lens:
+		if button_index == MOUSE_BUTTON_LEFT:
+			_socket_held_lens(cell)
+		else:
+			_on_drop_requested()
+		return
 	if button_index == MOUSE_BUTTON_RIGHT or _selected_slate == null:
 		var occupied := _board.get_occupied_cells()
 		if occupied.has(cell):
+			if _board.removal_breaks_chain(occupied[cell]):
+				status_label.text = "Can't remove that Slate: other Slates connect to the center through it. Remove the outer ones first."
+				return
 			var removed: Slate = _board.placements[occupied[cell]].slate
 			if removed.resource_path != "":
 				removed = removed.duplicate(true)
@@ -180,6 +225,29 @@ func _on_cell_clicked(cell: Vector2i, button_index: int) -> void:
 			_refresh_aether()
 			_refresh_chains()
 			_populate_palette()
+
+const _LENS_FAILURES := {
+	"no_slate": "Click a placed Slate to set the Lens into.",
+	"no_free_socket": "That Slate has no free socket.",
+	"no_sockets": "That Slate has no sockets.",
+}
+
+## Sets the held Lens into the placed Slate at cell. Permanent while it's on the board.
+func _socket_held_lens(cell: Vector2i) -> void:
+	var occupied := _board.get_occupied_cells()
+	var reason := _board.socket_lens(occupied.get(cell, ""), _held_lens) if occupied.has(cell) else "no_slate"
+	if reason != "":
+		status_label.text = _LENS_FAILURES.get(reason, reason)
+		return
+	GameState.remove_from_inventory(_held_lens)
+	var lens_name := _held_lens.display_name
+	_on_drop_requested()
+	status_label.text = "%s set." % lens_name
+	grid.mark_cells_dirty()
+	grid.queue_redraw()
+	_refresh_aether()
+	_refresh_chains()
+	_populate_palette()
 
 func _is_slate_available(slate: Slate) -> bool:
 	return GameState.inventory.has_content(slate)

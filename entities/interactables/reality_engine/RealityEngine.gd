@@ -1,7 +1,7 @@
 extends Node3D
 class_name RealityEngine
 ## The Reality Engine (map device). Interacting lists every carried
-## Figment (via ShopScreen) plus an always-free Tier 1 run. Choosing one
+## or stashed Figment (via ShopScreen) plus an always-free Tier 1 run. Choosing one
 ## consumes it and loads GameState.MAP_SCENE with its modifiers. A full set
 ## of Maw Fragments opens a Pinnacle boss instead (Pinnacle.enter()).
 
@@ -37,6 +37,8 @@ func _open_selection() -> void:
 	for item in GameState.get_inventory_items():
 		if item is FigmentItem:
 			entries.append(_entry_for(item as FigmentItem))
+	for figment in GameState.stash.get_figments():
+		entries.append(_entry_for(figment, true))
 	entries.append_array(_pinnacle_entries())
 	_get_shop_screen().open_with("Reality Engine", entries, {
 		"label": "Enter a Free Tier %d Figment" % FREE_TIER,
@@ -61,9 +63,9 @@ func _pinnacle_entries() -> Array:
 		})
 	return entries
 
-func _entry_for(figment: FigmentItem) -> Dictionary:
+func _entry_for(figment: FigmentItem, in_stash: bool = false) -> Dictionary:
 	return {
-		"label": "%s (%d Aether-warped)" % [figment.display_name, figment.affixes.size()],
+		"label": "%s (%d Aether-warped)%s" % [figment.display_name, figment.affixes.size(), " - Stash" if in_stash else ""],
 		"cost": 0,
 		"button_label": "Enter",
 		"color": Constants.ITEM_RARITY_COLOR.get(figment.rarity, Color.WHITE),
@@ -79,8 +81,8 @@ func _entry_for(figment: FigmentItem) -> Dictionary:
 ## it never had to be before. Same pattern DeathScreen/MainMenu/PauseMenu
 ## already follow for their own scene changes.
 func _enter(figment: FigmentItem, owned: bool = false) -> void:
-	if owned:
-		GameState.remove_from_inventory(figment)
+	if owned and not GameState.remove_from_inventory(figment):
+		GameState.stash.remove_content(figment)
 	GameState.active_map = figment
 	SaveManager.save_game()
 	get_tree().paused = false

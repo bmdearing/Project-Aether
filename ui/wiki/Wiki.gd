@@ -1,12 +1,12 @@
 extends VBoxContainer
 class_name Wiki
-## The Wiki (main menu and pause menu): tabs for Uniques, Modifiers,
+## The Wiki (main menu and pause menu): tabs for Uniques, Modifiers, Lenses,
 ## Corruption, Status Effects and Monsters. Pages are built the first time
 ## they're opened.
 
 signal back_pressed
 
-const PAGES := ["Uniques", "Modifiers", "Corruption", "Status Effects", "Monsters"]
+const PAGES := ["Uniques", "Modifiers", "Lenses", "Corruption", "Status Effects", "Monsters"]
 const PAGE_HEIGHT := 650.0
 
 var uniques: UniqueWiki
@@ -14,6 +14,7 @@ var modifiers: ModifierWiki
 var corruption: CorruptionWiki
 var statuses: StatusWiki
 var monsters: MonsterWiki
+var lenses: LensWiki
 var current_page: String = "Uniques"
 
 var _tabs: HBoxContainer
@@ -63,7 +64,10 @@ func show_page(page: String) -> void:
 	elif page == "Monsters" and monsters == null:
 		monsters = MonsterWiki.new()
 		_holder.add_child(monsters)
-	var by_page := {"Uniques": uniques, "Modifiers": modifiers, "Corruption": corruption, "Status Effects": statuses, "Monsters": monsters}
+	elif page == "Lenses" and lenses == null:
+		lenses = LensWiki.new()
+		_holder.add_child(lenses)
+	var by_page := {"Uniques": uniques, "Modifiers": modifiers, "Corruption": corruption, "Status Effects": statuses, "Monsters": monsters, "Lenses": lenses}
 	for name in by_page:
 		if by_page[name]:
 			by_page[name].visible = name == page

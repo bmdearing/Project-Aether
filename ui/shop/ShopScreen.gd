@@ -16,6 +16,7 @@ class_name ShopScreen
 @onready var close_button: Button = $CenterContainer/VBox/CloseButton
 
 var _is_open: bool = false
+var _notice: Label
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -26,6 +27,10 @@ func _ready() -> void:
 	add_to_group("shop_screen")
 	add_to_group("blocking_menu")
 	close_button.pressed.connect(close)
+	_notice = Label.new()
+	_notice.add_theme_color_override("font_color", AetherStyle.GOLD)
+	_notice.visible = false
+	gold_label.add_sibling(_notice)
 
 func is_open() -> bool:
 	return _is_open
@@ -50,6 +55,12 @@ func open_with(title: String, entries: Array, action: Dictionary = {}, sell_entr
 		_build_sell_list(sell_entries)
 	_build_action(action)
 	_refresh_gold_label()
+	_notice.visible = false
+
+## A line under the Gold total (e.g. what was auto-sold on opening).
+func set_notice(text: String) -> void:
+	_notice.text = text
+	_notice.visible = text != ""
 
 func close() -> void:
 	_is_open = false
@@ -120,6 +131,7 @@ func _build_row(entry: Dictionary) -> HBoxContainer:
 	icon.tooltip_text = entry.get("label", " ")  # non-empty so the ItemCard hover hook actually fires (see ItemSlotButton._make_custom_tooltip)
 	if entry.get("item"):
 		icon.item = entry["item"]
+		icon.compare = true
 	elif entry.get("ability"):
 		icon.ability = entry["ability"]
 	var accent: Color = entry.get("color", AetherStyle.GOLD)

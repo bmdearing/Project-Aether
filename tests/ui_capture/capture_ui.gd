@@ -43,6 +43,21 @@ func _run() -> void:
 			EventBus.player_died.emit()
 		"icons":
 			_show_icon_sheet()
+		"stash", "stash_currency":
+			_fill_stash(mode == "stash_currency")
+		"spell_assign":
+			var spells := _screen("abilities_screen") as AbilitiesScreen
+			spells.open()
+			await get_tree().process_frame
+			spells._open_assign(spells._owned_abilities[0])
+			spells._assign_panel.position = Vector2(700, 300)
+		"spell_web":
+			var spells := _screen("abilities_screen") as AbilitiesScreen
+			spells.open()
+			await get_tree().process_frame
+			spells._open_web(spells._owned_abilities[0])
+		"compare":
+			_show_compare(player)
 		"inventory_icons":
 			_fill_icon_inventory()
 			_screen("inventory_screen").open(false)
@@ -50,6 +65,44 @@ func _run() -> void:
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(out)
 	get_tree().quit()
+
+func _fill_stash(currency: bool) -> void:
+	var stash := GameState.stash
+	for id in [&"quickening", &"grafting", &"tempering", &"brand_fire", &"edict_spell", &"maw_fragment_ash", &"crystallized_aether"]:
+		stash.get_tab(GridInventory.Accepts.CURRENCY).add(id, randi_range(3, 4200))
+	stash.get_tab(GridInventory.Accepts.CURRENCY).add(&"severance", 51000)
+	for k in 10:
+		stash.tabs[0].add(ItemRoller.roll(30, 3.0))
+	var screen := _screen("stash_screen") as StashScreen
+	screen.open()
+	if currency:
+		screen._select_tab(stash.tabs.find(stash.get_tab(GridInventory.Accepts.CURRENCY)))
+	else:
+		screen._search.text = "life"
+		screen._apply_search()
+
+## An inventory item's hover card beside the worn one.
+func _show_compare(player: Player) -> void:
+	var helmet: Item = null
+	var worn: Item = null
+	for i in 600:
+		var item := ItemRoller.roll(40, 3.0)
+		if item and item.equip_slot == Constants.EquipmentSlot.HELMET:
+			if worn == null:
+				worn = item
+			elif helmet == null:
+				helmet = item
+				break
+	player.equipment.equip(worn, true)
+	var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+	card.compare_against = ItemCompare.equipped_for(helmet)
+	card.display_item(helmet)
+	var shown := ItemCompare.wrap(card, helmet)
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	get_tree().root.add_child(layer)
+	layer.add_child(shown)
+	shown.position = Vector2(400, 120)
 
 func _screen(group: String) -> Node:
 	return get_tree().get_first_node_in_group(group)

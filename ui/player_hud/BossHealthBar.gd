@@ -59,8 +59,8 @@ func _ready() -> void:
 	grow_horizontal = 2
 	offset_left = -WIDTH / 2.0
 	offset_right = WIDTH / 2.0
-	offset_top = 14.0
-	offset_bottom = 14.0 + NAME_HEIGHT + HEIGHT
+	offset_top = 46.0  # under the Compass
+	offset_bottom = 46.0 + NAME_HEIGHT + HEIGHT
 
 	_ward_back = ColorRect.new()
 	_ward_back.color = Color(AetherStyle.AETHER, 0.18)

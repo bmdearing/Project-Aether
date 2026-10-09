@@ -96,6 +96,7 @@ var figment_tree_unlocked_nodes: Array[String] = []
 
 func _ready() -> void:
 	EventBus.figment_completed.connect(_on_figment_completed)
+	add_child(BasePreloader.new())
 	EventBus.player_died.connect(_on_player_died)
 
 func _on_figment_completed(figment: FigmentItem) -> void:
@@ -118,7 +119,7 @@ func sync_fate_board(board: FateBoard) -> void:
 	for placement_id in board.placements:
 		var p: FateBoard.PlacedSlateData = board.placements[placement_id]
 		var slate_ref
-		if p.slate.resource_path != "":
+		if p.slate.resource_path != "" and p.slate.lenses.is_empty():
 			slate_ref = p.slate.resource_path
 		else:
 			slate_ref = SlateSerializer.to_dict(p.slate)

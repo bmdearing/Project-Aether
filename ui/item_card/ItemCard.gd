@@ -61,6 +61,13 @@ var _showing_alt: bool = false
 ## Context lines from the host, shown at the bottom of a Slate card (its
 ## chains on the Fate Board).
 var footer_lines: Array[String] = []
+## Multiplier on a Slate's attribute lines from its chain and Lenses, shown
+## in brackets after each one. Below 0: the Slate isn't placed, so it shows
+## what it gives as a chain of its own.
+var slate_amplifier: float = -1.0
+## Equipped items this card's item is compared with (ItemCompare): a
+## "Equipping this" section lists what changes.
+var compare_against: Array[Item] = []
 
 ## Not @onready - ItemSlotButton builds a card via instantiate() and
 ## calls display_item()/etc. on it immediately, before it's ever added
@@ -206,6 +213,20 @@ func _render_item(item: Item) -> void:
 		_add_separator()
 		for line in _requirement_lines(item):
 			_add_mod_line(line, REQUIREMENT_UNMET_COLOR)
+	for worn in compare_against:
+		_add_separator()
+		_add_mod_line("Equipping this instead of %s:" % worn.display_name, HINT_COLOR)
+		var changes := ItemCompare.diff_lines(item, worn)
+		if changes.is_empty():
+			_add_mod_line("No stat changes", STAT_LABEL_COLOR)
+		for change in changes:
+			_add_mod_line(change["text"], ItemCompare.GAIN_COLOR if change["gain"] else ItemCompare.LOSS_COLOR)
+	if item.mark != Item.Mark.NONE:
+		_add_separator()
+		if item.mark == Item.Mark.TRASH:
+			_add_mod_line("Marked as Trash: sold when you open the Gear Shop.", ItemCompare.LOSS_COLOR)
+		else:
+			_add_mod_line("Favored: kept off the shop's sell list.", AetherStyle.GOLD)
 
 func _render_slate(slate: Slate) -> void:
 	_clear()
@@ -224,7 +245,9 @@ func _render_slate(slate: Slate) -> void:
 	if slate.modifiers.size() > 0:
 		_add_separator()
 		for mod in slate.modifiers:
-			_add_mod_line(mod.description, MORE_MOD_COLOR if mod.is_more_multiplier else AFFIX_COLOR)
+			_add_mod_line(_slate_mod_text(mod, slate), MORE_MOD_COLOR if mod.is_more_multiplier else AFFIX_COLOR)
+		if slate_amplifier < 0.0 and slate.modifiers.any(func(m: SlateModifier): return EquipmentComponent.AFFIX_STAT_KEYS.has(m.stat_key)):
+			_add_mod_line("Bracketed: as a chain of its own %d tiles (+%.0f%%). Bigger chains on the Fate Board raise it." % [slate.get_size(), (ChainCalculator.lone_multiplier(slate) - 1.0) * 100.0], HINT_COLOR)
 	if slate.explicits.size() > 0:
 		_add_separator()
 		for affix in slate.explicits:
@@ -249,6 +272,20 @@ func _render_slate(slate: Slate) -> void:
 ## removed from the main card (Scaling Grade moved to Alt Info); Cast
 ## Type added; status effects now show their real display name
 ## (Constants.STATUS_EFFECT_NAME), not the raw id.
+## "+6 Strength (+6.4 Strength)": an attribute line with its chain-boosted
+## value. Other lines count at face value, so they're shown as written.
+func _slate_mod_text(mod: SlateModifier, slate: Slate) -> String:
+	var key := mod.stat_key
+	if not EquipmentComponent.AFFIX_STAT_KEYS.has(key):
+		return mod.description
+	var amplifier := slate_amplifier if slate_amplifier >= 0.0 else ChainCalculator.lone_multiplier(slate)
+	var stat_name: String = Constants.Stat.keys()[EquipmentComponent.AFFIX_STAT_KEYS[key]].capitalize()
+	var base := mod.description
+	var label_at := base.rfind(" (")
+	if label_at > 0 and base.ends_with(" Stat)"):
+		base = base.substr(0, label_at)
+	return "%s (%+.1f %s)" % [base, mod.value * amplifier, stat_name]
+
 func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 	_clear()
 	var element_color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, AFFIX_COLOR)
