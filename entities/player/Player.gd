@@ -294,7 +294,7 @@ func _apply_derived_stats() -> void:
 
 	# Mana: Intellect's +3/point + flat Mana, times increased Mana; regen likewise.
 	var flat_mana := stat_sheet.get_misc_bonus("max_mana") + stat_sheet.get_misc_bonus("flat_mana")
-	mana.max_mana = (_base_max_mana + stat_sheet.get_mana_from_stats() + flat_mana) * (1.0 + stat_sheet.get_misc_bonus("mana_increased") / 100.0)
+	mana.set_max_mana((_base_max_mana + stat_sheet.get_mana_from_stats() + flat_mana) * (1.0 + stat_sheet.get_misc_bonus("mana_increased") / 100.0))
 	mana.regen_per_second = (_base_mana_regen + stat_sheet.get_misc_bonus("mana_regen")) * (1.0 + stat_sheet.get_misc_bonus("mana_regen_increased") / 100.0)
 
 	# Evasion (gear x Agility's increased%) - refreshed here for display;

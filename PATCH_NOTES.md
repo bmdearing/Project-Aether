@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.50: Negative modifier wording, full Mana on entering an area (user reports)
+
+- **"+-30% to Cold Resistance"** (Seal of the Lesser Sun): the main item card merges modifiers on the same stat into one line using the regular affix template, and a negative total was printed straight into "+%d". `ItemRoller.describe_value()` now writes a negative value through `negated_template()`. Increased/reduced and more/less swap and the "+" goes; with no such word, the "+" becomes "-".
+  - Seal of the Lesser Sun: "-30% to Cold Resistance". Widow's Patience: "25% reduced Attack Speed" (was "+-25% increased"). Crown of the Ninth Bell: "50% increased Mana cost of skills" (was "-50% reduced"; Alt view keeps its own "Spells cost 50% more Mana").
+  - The Alt view was already right: unique modifiers format their own text with the absolute value.
+- **Mana never full after a scene change:** a new Player starts at the base 100 Mana, and gear then raised the maximum without adding the difference (your save: 102 / 325 on entering the Hub, 5.85/s regen). Life already used `set_max_health()`, which adds an increase. `ManaComponent.set_max_mana()` now does the same, so you arrive full.
+- Tests: `tests/gear` checks the three negative wordings and the Mana pool on a raised or lowered maximum.
+
+---
+
 ## 2026-10-08 — v4.49: Free Pinnacle entry for testing (user request)
 
 - `Pinnacle.free_entry` (on for now): the Reality Engine opens either Pinnacle boss without Maw Fragments and doesn't spend any. Its entries read "Free (testing)". Set it to false to restore the four-fragment cost.

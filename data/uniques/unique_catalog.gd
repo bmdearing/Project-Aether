@@ -112,7 +112,7 @@ const DEFS := [
 		"mods": [
 			["unique_more_fire_damage", 20.0, 30.0, "%d%% more Fire damage"],
 			["ailment_chance_ignite", 20.0, 20.0, "+%d%% chance to cause Ignite"],
-			["cold_resistance_pct", -30.0, -30.0, "-%d%% Cold Resistance"],
+			["cold_resistance_pct", -30.0, -30.0, "-%d%% to Cold Resistance"],
 		],
 	},
 	{

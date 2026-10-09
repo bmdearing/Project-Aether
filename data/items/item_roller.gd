@@ -467,6 +467,9 @@ static func _take_distinct(pool: Array[ItemAffix], count: int, used: Dictionary)
 ## Card text for a rolled value: two-number templates ("Adds %d to %d")
 ## get the flat range, the hybrid gets its % and flat range.
 static func describe_value(template: String, stat_key: String, value: float) -> String:
+	if value < 0.0:
+		template = negated_template(template)
+		value = -value
 	match StatKeys.canonical(stat_key):
 		"local_flat_weapon_damage":
 			return template % [roundi(value), roundi(value * FLAT_DAMAGE_SPREAD)]
@@ -476,6 +479,17 @@ static func describe_value(template: String, stat_key: String, value: float) -> 
 	if template.contains("%.1f"):
 		return template % value
 	return template % round(value) if "%" in template else template
+
+## A template for a negative value, filled with the value's magnitude:
+## increased/reduced and more/less swap and a leading "+" goes ("+%d%%
+## increased Attack Speed" at -25 reads "25% reduced Attack Speed"); with
+## no such word the "+" becomes "-" ("-30% to Cold Resistance").
+static func negated_template(template: String) -> String:
+	var swaps := {" increased ": " reduced ", " reduced ": " increased ", " more ": " less ", " less ": " more "}
+	for word in swaps:
+		if template.contains(word):
+			return template.trim_prefix("+").replace(word, swaps[word])
+	return "-" + template.substr(1) if template.begins_with("+") else template
 
 ## Patch v3.9 Weapon Affix Library - data/affixes/weapons/<type>/*.tres,
 ## loaded once and cached (~96 files, same one-time-scan reasoning as
