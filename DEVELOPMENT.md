@@ -908,7 +908,11 @@ equippable from `InventoryScreen`, or stays on the ground if there's no room; a 
   corrupted items only take Opening and Tempering.
 - **Modifier pools**: real gear rolls from `GearModifierPool` (built from
   `ItemRoller.AFFIX_POOL` and the weapon affix library with the same
-  eligibility rules drops use, 5 tiers gated by item level); Slates from
+  eligibility rules drops use, 5 tiers gated by item level). Each slot has
+  a role through `AFFIX_POOL`'s `slots` lists (v4.55): Gloves and Rings
+  offence, Amulet build-defining, Helmet caster/utility, Body and Shield
+  major defence, Boots mobility, Belt sustain; attributes, Resilience, Life
+  and resistances are filler everywhere; Slates from
   `SlateModifierPool` (their own tags only: a Cold Slate rolls Cold
   modifiers, a Fire/Cold Hybrid Fire and Cold ones; each damage type and
   Spell has 2 prefixes and 3 suffixes so Forging's 4 always fit). Gear and

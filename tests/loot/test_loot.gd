@@ -152,6 +152,21 @@ func _test_gear_modifiers() -> void:
 	var plate_keys := _pool_keys(plate)
 	_check(plate_keys.has("increased_armor") and plate_keys.has("flat_ward") and not plate_keys.has("increased_evasion"), "an Armour/Ward base rolls both of those and no Evasion")
 	var amulet_keys := _pool_keys(amulet)
+	var ring_slot := Item.new()
+	ring_slot.equip_slot = Constants.EquipmentSlot.RING
+	var ring_keys := _pool_keys(ring_slot)
+	var boots := Armor.new()
+	boots.equip_slot = Constants.EquipmentSlot.BOOTS
+	var shield := Shield.new()
+	shield.equip_slot = Constants.EquipmentSlot.OFFHAND
+	shield.armor_value = 50.0
+	var shield_keys := _pool_keys(shield)
+	_check(ring_keys.has("crit_damage_increased") and ring_keys.has("fire_penetration") and ring_keys.has("elemental_dmg_increased"), "rings roll offence")
+	_check(ring_keys.has("fire_resistance") and ring_keys.has("flat_life") and ring_keys.has("flat_armor") and ring_keys.has("flat_ward") and ring_keys.has("flat_evasion"), "rings take resistances, Life and flat defences as filler")
+	_check(_pool_keys(boots).has("move_speed") and not ring_keys.has("move_speed") and not glove_keys.has("move_speed") and not shield_keys.has("move_speed"), "Move Speed is a boots modifier")
+	_check(glove_keys.has("cast_speed") and not hood_keys.has("cast_speed") and not _pool_keys(boots).has("cast_speed"), "Cast Speed sits on gloves and accessories")
+	_check(shield_keys.has("block_chance_bonus") and shield_keys.has("parry_window_duration") and shield_keys.has("reduced_physical_taken") and shield_keys.has("flat_life") and shield_keys.has("life_increased") and shield_keys.has("ward_on_parry"), "shields roll block, parry and major defences")
+	_check(not shield_keys.has("crit_chance_increased") and not shield_keys.has("cast_speed"), "shields roll no offence")
 	_check(glove_keys.has("item_rarity") and glove_keys.has("magic_find") and not glove_keys.has("item_quantity"), "armour rolls Item Rarity and Magic Find, not Quantity")
 	_check(amulet_keys.has("item_quantity") and amulet_keys.has("item_rarity") and amulet_keys.has("magic_find"), "accessories roll all three")
 	var sword := load("res://data/weapons/instances/crude_greatsword.tres") as Weapon

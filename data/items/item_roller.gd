@@ -91,14 +91,18 @@ const TIER_DECAY := 0.8
 ## are derived via _tier_range(). "applies_to": [] means any base item
 ## type; otherwise a list of category strings (see _pool_for()).
 ##
+## "slots" (EquipmentSlot) narrow armour, shields and accessories; weapons
+## ignore them. Slot roles (v4.55): Gloves offence (hits, ailments, speed,
+## crit, Riposte); Rings offence (crit, damage %, Penetration) with
+## resistances, Life and flat defences as filler; Amulet build-defining
+## (skill levels, damage, Aether); Helmet caster and utility; Body and Shield
+## the major defences (Shield also block and parry); Boots mobility and
+## defence; Belt sustain and resources. Attributes, Resilience, Life and
+## resistances roll everywhere as filler.
+##
 ## "brand_tags": the category tags this entry carries. GearModifierPool turns
 ## them into ModifierDef tags (what Rev2 Category Brands filter on), and
-## Shard of Tharsis outcomes use _pool_for_brand_tag(). Evasion/
-## Resistance/Resilience/Skills have no other stat anywhere in this
-## project to hang a REAL affix off yet (same as flat_armor/flat_ward
-## already were before this - DEVELOPMENT.md gap #18: descriptive-only, not
-## aggregated into a formula), so their 4 entries below just extend that
-## same existing gap rather than opening a new one.
+## Shard of Tharsis outcomes use _pool_for_brand_tag().
 const AFFIX_POOL := [
 	# Patch v3.8: six stats collapsed to three (renamed in v4.8).
 	{"stat_key": "flat_strength", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Strength", "applies_to": [], "brand_tags": ["kinetic", "piercing", "explosive"]},
@@ -107,13 +111,13 @@ const AFFIX_POOL := [
 	# physical_dmg_increased removed (Patch v4.0) - superseded by the new
 	# "increased_physical_damage" entry below, doc-exact value (28-34%,
 	# was this entry's own invented 16-20%).
-	{"stat_key": "elemental_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Elemental damage", "applies_to": ["weapon"], "brand_tags": ["fire", "cold", "lightning"]},
-	{"stat_key": "esoteric_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Esoteric damage", "applies_to": ["weapon"], "brand_tags": ["aetheric", "entropic", "pale"]},
-	{"stat_key": "flat_armor", "defense": "armor", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Armor", "applies_to": ["armor", "shield"], "brand_tags": ["armor"]},
-	{"stat_key": "flat_ward", "defense": "ward", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Ward", "applies_to": ["armor"], "brand_tags": ["ward"]},
-	{"stat_key": "flat_evasion", "defense": "evasion", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Evasion", "applies_to": ["armor"], "brand_tags": ["evasion"]},
+	{"stat_key": "elemental_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Elemental damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["fire", "cold", "lightning"]},
+	{"stat_key": "esoteric_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Esoteric damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["aetheric", "entropic", "pale"]},
+	{"stat_key": "flat_armor", "defense": "armor", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Armor", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["armor"]},
+	{"stat_key": "flat_ward", "defense": "ward", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Ward", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["ward"]},
+	{"stat_key": "flat_evasion", "defense": "evasion", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Evasion", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["evasion"]},
 	{"stat_key": "flat_resilience", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Resilience", "applies_to": [], "brand_tags": ["resilience"]},
-	{"stat_key": "skill_cooldown_reduced", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% reduced skill cooldowns", "applies_to": [], "brand_tags": ["skills"]},
+	{"stat_key": "skill_cooldown_reduced", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% reduced skill cooldowns", "applies_to": ["armor"], "slots": [0], "brand_tags": ["skills"]},
 	# Patch v3.8 Section 2 "Removed expressions" - max_life/life_regen/
 	# max_mana/mana_regen/attack_speed/cast_speed/move_speed used to
 	# derive from a character stat (Vitality/Instinct/Intellect), now
@@ -125,125 +129,125 @@ const AFFIX_POOL := [
 	# same "real affix, no formula to feed it yet" footing flat_evasion/
 	# the 4 resistance entries/flat_resilience/skill_cooldown_reduced
 	# already had before this patch.
-	{"stat_key": "mana_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Mana Regeneration per second", "applies_to": [], "brand_tags": ["resource"]},
-	{"stat_key": "attack_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Attack Speed", "applies_to": ["weapon"], "brand_tags": ["skills"]},
-	{"stat_key": "cast_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Cast Speed", "applies_to": [], "brand_tags": ["skills"]},
-	{"stat_key": "move_speed", "tier1_min": 4.0, "tier1_max": 8.0, "desc": "+%d%% increased Move Speed", "applies_to": [], "brand_tags": ["movement"]},
-	{"stat_key": "debuff_effectiveness", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% Debuff Effectiveness", "applies_to": [], "brand_tags": ["skills"]},
-	{"stat_key": "stamina", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Stamina", "applies_to": [], "brand_tags": []},
+	{"stat_key": "mana_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Mana Regeneration per second", "applies_to": ["armor", "item"], "slots": [0, 9, 10], "brand_tags": ["resource"]},
+	{"stat_key": "attack_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Attack Speed", "applies_to": ["weapon", "armor", "item"], "slots": [2, 11], "brand_tags": ["skills"]},
+	{"stat_key": "cast_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Cast Speed", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["skills"]},
+	{"stat_key": "move_speed", "tier1_min": 4.0, "tier1_max": 8.0, "desc": "+%d%% increased Move Speed", "applies_to": ["armor"], "slots": [3], "brand_tags": ["movement"]},
+	{"stat_key": "debuff_effectiveness", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% Debuff Effectiveness", "applies_to": ["armor", "item"], "slots": [0, 9], "brand_tags": ["skills"]},
+	{"stat_key": "stamina", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Stamina", "applies_to": ["armor", "item"], "slots": [1, 3, 10], "brand_tags": []},
 	# Loot (v4.35): Magic Find is worth 0.5% Item Quantity + 2% Item Rarity per
 	# point (Loot.gd). Armour and accessories only; Quantity on accessories only.
-	{"stat_key": "item_rarity", "tier1_min": 14.0, "tier1_max": 20.0, "desc": "%d%% increased Item Rarity", "applies_to": ["armor", "item"], "brand_tags": []},
-	{"stat_key": "item_quantity", "tier1_min": 4.0, "tier1_max": 6.0, "desc": "%d%% increased Item Quantity", "applies_to": ["item"], "brand_tags": []},
-	{"stat_key": "magic_find", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d Magic Find", "applies_to": ["armor", "item"], "brand_tags": []},
+	{"stat_key": "item_rarity", "tier1_min": 14.0, "tier1_max": 20.0, "desc": "%d%% increased Item Rarity", "applies_to": ["armor", "item"], "slots": [0, 1, 2, 3, 9, 10, 11], "brand_tags": []},
+	{"stat_key": "item_quantity", "tier1_min": 4.0, "tier1_max": 6.0, "desc": "%d%% increased Item Quantity", "applies_to": ["item"], "slots": [9, 10, 11], "brand_tags": []},
+	{"stat_key": "magic_find", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d Magic Find", "applies_to": ["armor", "item"], "slots": [0, 1, 2, 3, 9, 10, 11], "brand_tags": []},
 
 	# Patch v4.0 Ailment Build Mod Pool - [type] = bleed/ignite/chill/
 	# electrocute/shock/aetherburn/unraveling/pallid, 8 distinct affixes
 	# per mod. Weapons+Gloves = [PRIMARY_WEAPON, GLOVES].
-	{"stat_key": "ailment_chance_bleed", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Bleed", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": []},
-	{"stat_key": "ailment_chance_ignite", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Ignite", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": []},
-	{"stat_key": "ailment_chance_chill", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Chill", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": []},
-	{"stat_key": "ailment_chance_electrocute", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Electrocute", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": []},
-	{"stat_key": "ailment_chance_shock", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Shock", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": []},
-	{"stat_key": "ailment_chance_aetherburn", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Aetherburn", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": []},
-	{"stat_key": "ailment_chance_unraveling", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Unraveling", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": []},
-	{"stat_key": "ailment_chance_pallid", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Pallid", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": []},
-	{"stat_key": "increased_ailment_damage_bleed", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Bleed damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "increased_ailment_damage_ignite", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Ignite damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "increased_ailment_damage_chill", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Chill damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "increased_ailment_damage_electrocute", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Electrocute damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "increased_ailment_damage_shock", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Shock damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "increased_ailment_damage_aetherburn", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Aetherburn damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "increased_ailment_damage_unraveling", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Unraveling damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "increased_ailment_damage_pallid", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Pallid damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "dot_multiplier", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% more Damage over Time (rare)", "applies_to": ["weapon"], "brand_tags": []},
-	{"stat_key": "ailment_tick_rate", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% faster Ailment Tick Rate", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": []},
-	{"stat_key": "increased_ailment_duration_bleed", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Bleed duration", "applies_to": ["weapon", "armor"], "slots": [4, 0, 9], "brand_tags": []},
-	{"stat_key": "increased_ailment_duration_ignite", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Ignite duration", "applies_to": ["weapon", "armor"], "slots": [4, 0, 9], "brand_tags": []},
-	{"stat_key": "increased_ailment_duration_chill", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Chill duration", "applies_to": ["weapon", "armor"], "slots": [4, 0, 9], "brand_tags": []},
-	{"stat_key": "increased_ailment_duration_electrocute", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Electrocute duration", "applies_to": ["weapon", "armor"], "slots": [4, 0, 9], "brand_tags": []},
-	{"stat_key": "increased_ailment_duration_shock", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Shock duration", "applies_to": ["weapon", "armor"], "slots": [4, 0, 9], "brand_tags": []},
-	{"stat_key": "increased_ailment_duration_aetherburn", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Aetherburn duration", "applies_to": ["weapon", "armor"], "slots": [4, 0, 9], "brand_tags": []},
-	{"stat_key": "increased_ailment_duration_unraveling", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Unraveling duration", "applies_to": ["weapon", "armor"], "slots": [4, 0, 9], "brand_tags": []},
-	{"stat_key": "increased_ailment_duration_pallid", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Pallid duration", "applies_to": ["weapon", "armor"], "slots": [4, 0, 9], "brand_tags": []},
-	{"stat_key": "ailment_ignore_chance", "tier1_min": 14.0, "tier1_max": 18.0, "desc": "+%d%% chance to ignore Ailments", "applies_to": ["armor"], "slots": [0, 1, 9], "brand_tags": []},
+	{"stat_key": "ailment_chance_bleed", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Bleed", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "ailment_chance_ignite", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Ignite", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "ailment_chance_chill", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Chill", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "ailment_chance_electrocute", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Electrocute", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "ailment_chance_shock", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Shock", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "ailment_chance_aetherburn", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Aetherburn", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "ailment_chance_unraveling", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Unraveling", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "ailment_chance_pallid", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Pallid", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "increased_ailment_damage_bleed", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Bleed damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
+	{"stat_key": "increased_ailment_damage_ignite", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Ignite damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
+	{"stat_key": "increased_ailment_damage_chill", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Chill damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
+	{"stat_key": "increased_ailment_damage_electrocute", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Electrocute damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
+	{"stat_key": "increased_ailment_damage_shock", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Shock damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
+	{"stat_key": "increased_ailment_damage_aetherburn", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Aetherburn damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
+	{"stat_key": "increased_ailment_damage_unraveling", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Unraveling damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
+	{"stat_key": "increased_ailment_damage_pallid", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Pallid damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
+	{"stat_key": "dot_multiplier", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% more Damage over Time (rare)", "applies_to": ["weapon", "item"], "slots": [9], "brand_tags": []},
+	{"stat_key": "ailment_tick_rate", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% faster Ailment Tick Rate", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "increased_ailment_duration_bleed", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Bleed duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
+	{"stat_key": "increased_ailment_duration_ignite", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Ignite duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
+	{"stat_key": "increased_ailment_duration_chill", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Chill duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
+	{"stat_key": "increased_ailment_duration_electrocute", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Electrocute duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
+	{"stat_key": "increased_ailment_duration_shock", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Shock duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
+	{"stat_key": "increased_ailment_duration_aetherburn", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Aetherburn duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
+	{"stat_key": "increased_ailment_duration_unraveling", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Unraveling duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
+	{"stat_key": "increased_ailment_duration_pallid", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Pallid duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
+	{"stat_key": "ailment_ignore_chance", "tier1_min": 14.0, "tier1_max": 18.0, "desc": "+%d%% chance to ignore Ailments", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 10], "brand_tags": []},
 
 	# Patch v4.0 Physical Hit Build Mod Pool (increased_kinetic/piercing/
 	# explosive_damage live in the Patch v3.9 weapon-specific .tres pool
 	# instead, renamed to these exact stat_keys - see tools/
 	# rename_v39_weapon_affixes.gd)
-	{"stat_key": "increased_physical_damage", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Physical damage", "applies_to": ["weapon"], "brand_tags": ["kinetic", "piercing", "explosive"]},
-	{"stat_key": "crit_chance_increased", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Critical Strike Chance", "applies_to": ["weapon"], "slots": [4, 11, 9], "brand_tags": []},
-	{"stat_key": "crit_damage_increased", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Critical Strike Bonus", "applies_to": ["weapon"], "slots": [4, 9], "brand_tags": []},
+	{"stat_key": "increased_physical_damage", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Physical damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["kinetic", "piercing", "explosive"]},
+	{"stat_key": "crit_chance_increased", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Critical Strike Chance", "applies_to": ["weapon", "armor", "item"], "slots": [2, 9, 11], "brand_tags": []},
+	{"stat_key": "crit_damage_increased", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Critical Strike Bonus", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": []},
 
 	# Patch v4.0 Spell Hit Build Mod Pool - Conduits use weapon_kind, not
 	# slots (a conduit can occupy PRIMARY_WEAPON or OFFHAND).
-	{"stat_key": "increased_spell_damage", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Spell damage", "applies_to": ["weapon", "armor"], "weapon_kind": "conduit", "slots": [0, 9], "brand_tags": ["fire", "cold", "lightning", "aetheric", "entropic", "pale"]},
-	{"stat_key": "skill_effect_duration", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Skill Effect Duration", "applies_to": ["weapon", "armor"], "weapon_kind": "conduit", "slots": [0, 9], "brand_tags": []},
-	{"stat_key": "mana_cost_reduction", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "%d%% reduced Mana cost of skills", "applies_to": ["weapon", "item"], "weapon_kind": "conduit", "slots": [11, 10], "brand_tags": ["resource"]},
-	{"stat_key": "cooldown_recovery_rate", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% increased Cooldown Recovery Rate", "applies_to": ["weapon", "item"], "weapon_kind": "conduit", "slots": [10], "brand_tags": []},
+	{"stat_key": "increased_spell_damage", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Spell damage", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 11], "weapon_kind": "conduit", "brand_tags": ["fire", "cold", "lightning", "aetheric", "entropic", "pale"]},
+	{"stat_key": "skill_effect_duration", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Skill Effect Duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "weapon_kind": "conduit", "brand_tags": []},
+	{"stat_key": "mana_cost_reduction", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "%d%% reduced Mana cost of skills", "applies_to": ["weapon", "armor", "item"], "slots": [0, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
+	{"stat_key": "cooldown_recovery_rate", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% increased Cooldown Recovery Rate", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "weapon_kind": "conduit", "brand_tags": []},
 
 	# Patch v4.0 Ranged Build Mod Pool
-	{"stat_key": "increased_aoe_radius", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Area of Effect", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "increased_area_damage", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Area damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
+	{"stat_key": "increased_aoe_radius", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Area of Effect", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
+	{"stat_key": "increased_area_damage", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Area damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
 	{"stat_key": "reduced_projectile_speed", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "%d%% reduced Projectile Speed", "applies_to": ["weapon"], "weapon_kind": "ranged", "brand_tags": []},
 
 	# Patch v4.0 Parry/Riposte Build Mod Pool - Melee Weapons via
 	# weapon_kind, Shields via the "shield" category (equip_slot OFFHAND
 	# already covers Body Armour separately where listed).
-	{"stat_key": "parry_window_duration", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Parry Window Duration", "applies_to": ["weapon", "shield"], "weapon_kind": "melee", "brand_tags": []},
-	{"stat_key": "ward_on_parry", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% of max Ward restored on successful Parry", "applies_to": ["weapon", "shield", "armor"], "weapon_kind": "melee", "slots": [1], "brand_tags": ["ward"]},
+	{"stat_key": "parry_window_duration", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Parry Window Duration", "applies_to": ["weapon", "shield"], "slots": [6], "weapon_kind": "melee", "brand_tags": []},
+	{"stat_key": "ward_on_parry", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% of max Ward restored on successful Parry", "applies_to": ["weapon", "armor", "shield"], "slots": [1, 6], "weapon_kind": "melee", "brand_tags": ["ward"]},
 	{"stat_key": "increased_riposte_damage", "tier1_min": 34.0, "tier1_max": 44.0, "desc": "+%d%% increased Riposte damage", "applies_to": ["armor"], "slots": [2], "brand_tags": []},
-	{"stat_key": "riposte_crit_chance", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "Riposte has +%d%% increased Critical Strike Chance", "applies_to": ["weapon", "shield"], "weapon_kind": "melee", "brand_tags": []},
+	{"stat_key": "riposte_crit_chance", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "Riposte has +%d%% increased Critical Strike Chance", "applies_to": ["weapon", "shield"], "slots": [6], "weapon_kind": "melee", "brand_tags": []},
 
 	# Patch v4.0 Healing/Sustain Mod Pool (flat_ward already existed pre-v4.0)
-	{"stat_key": "life_regen_flat", "tier1_min": 28.0, "tier1_max": 36.0, "desc": "Regenerate %d Life per second", "applies_to": ["armor", "item"], "slots": [0, 1, 2, 3, 9, 10], "brand_tags": []},
-	{"stat_key": "life_regen_increased", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Life Regeneration", "applies_to": ["armor", "item"], "slots": [0, 1, 2, 3, 9, 10], "brand_tags": []},
-	{"stat_key": "flat_life", "tier1_min": 88.0, "tier1_max": 110.0, "desc": "+%d to Life", "applies_to": ["armor", "item"], "slots": [0, 1, 2, 3, 9, 10, 11], "brand_tags": []},
-	{"stat_key": "life_increased", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Life", "applies_to": ["armor", "item"], "slots": [0, 1, 2, 3, 9, 10], "brand_tags": []},
-	{"stat_key": "mana_regen_increased", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Mana Regeneration", "applies_to": ["armor", "weapon", "item"], "weapon_kind": "conduit", "slots": [0, 1, 2, 3, 9], "brand_tags": ["resource"]},
-	{"stat_key": "flat_mana", "tier1_min": 68.0, "tier1_max": 90.0, "desc": "+%d to Mana", "applies_to": ["armor", "weapon", "item"], "weapon_kind": "conduit", "slots": [0, 1, 2, 3, 9, 11], "brand_tags": ["resource"]},
-	{"stat_key": "mana_increased", "tier1_min": 14.0, "tier1_max": 18.0, "desc": "+%d%% increased Mana", "applies_to": ["armor", "weapon", "item"], "weapon_kind": "conduit", "slots": [0, 1, 2, 3, 9], "brand_tags": ["resource"]},
-	{"stat_key": "ward_recovery_increased", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward Recovery", "applies_to": ["armor", "item"], "slots": [0, 1, 2, 3, 9], "brand_tags": ["ward"]},
+	{"stat_key": "life_regen_flat", "tier1_min": 28.0, "tier1_max": 36.0, "desc": "Regenerate %d Life per second", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": []},
+	{"stat_key": "life_regen_increased", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Life Regeneration", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": []},
+	{"stat_key": "flat_life", "tier1_min": 88.0, "tier1_max": 110.0, "desc": "+%d to Life", "applies_to": ["armor", "shield", "item"], "brand_tags": []},
+	{"stat_key": "life_increased", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Life", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": []},
+	{"stat_key": "mana_regen_increased", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Mana Regeneration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
+	{"stat_key": "flat_mana", "tier1_min": 68.0, "tier1_max": 90.0, "desc": "+%d to Mana", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
+	{"stat_key": "mana_increased", "tier1_min": 14.0, "tier1_max": 18.0, "desc": "+%d%% increased Mana", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
+	{"stat_key": "ward_recovery_increased", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward Recovery", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 6, 9, 10], "brand_tags": ["ward"]},
 
 	# Patch v4.0 Offensive Mod Pool
-	{"stat_key": "fire_penetration", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Fire Penetration", "applies_to": ["weapon", "item"], "slots": [4, 9], "brand_tags": ["fire"]},
-	{"stat_key": "cold_penetration", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Cold Penetration", "applies_to": ["weapon", "item"], "slots": [4, 9], "brand_tags": ["cold"]},
-	{"stat_key": "lightning_penetration", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Lightning Penetration", "applies_to": ["weapon", "item"], "slots": [4, 9], "brand_tags": ["lightning"]},
-	{"stat_key": "elemental_penetration", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "+%d%% Elemental Penetration", "applies_to": ["weapon", "item"], "slots": [4, 9], "brand_tags": ["fire", "cold", "lightning"]},
-	{"stat_key": "physical_shred", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Physical Shred", "applies_to": ["weapon", "armor"], "slots": [4, 2], "brand_tags": ["kinetic", "piercing", "explosive"]},
+	{"stat_key": "fire_penetration", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Fire Penetration", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["fire"]},
+	{"stat_key": "cold_penetration", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Cold Penetration", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["cold"]},
+	{"stat_key": "lightning_penetration", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Lightning Penetration", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["lightning"]},
+	{"stat_key": "elemental_penetration", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "+%d%% Elemental Penetration", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["fire", "cold", "lightning"]},
+	{"stat_key": "physical_shred", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Physical Shred", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": ["kinetic", "piercing", "explosive"]},
 
 	# Patch v4.0 Retaliation Mod Pool
-	{"stat_key": "increased_retaliation_damage", "tier1_min": 54.0, "tier1_max": 64.0, "desc": "+%d%% increased Retaliation damage", "applies_to": ["weapon", "shield", "armor"], "slots": [1, 2], "brand_tags": []},
+	{"stat_key": "increased_retaliation_damage", "tier1_min": 54.0, "tier1_max": 64.0, "desc": "+%d%% increased Retaliation damage", "applies_to": ["weapon", "armor", "shield"], "slots": [1, 2, 6], "brand_tags": []},
 	# Patch v4.3: replaces the never-implemented "of Warding" (Block Threshold). Flat
 	# points added to the shield's own block chance (see StatSheet.get_block_chance_bonus()).
-	{"stat_key": "block_chance_bonus", "tier1_min": 8.0, "tier1_max": 10.0, "desc": "+%d%% increased Block Chance", "applies_to": ["shield"], "brand_tags": []},
-	{"stat_key": "retaliate_on_block", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "Triggers Retaliation on Block", "applies_to": ["shield"], "brand_tags": []},
+	{"stat_key": "block_chance_bonus", "tier1_min": 8.0, "tier1_max": 10.0, "desc": "+%d%% increased Block Chance", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
+	{"stat_key": "retaliate_on_block", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "Triggers Retaliation on Block", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
 
 	# Patch v4.0 Defensive Mod Pool
-	{"stat_key": "reduced_physical_taken", "tier1_min": 9.0, "tier1_max": 11.0, "desc": "%d%% reduced Physical Damage taken", "applies_to": ["armor", "shield"], "slots": [1, 0], "brand_tags": []},
-	{"stat_key": "reduced_elemental_taken", "tier1_min": 9.0, "tier1_max": 11.0, "desc": "%d%% reduced Elemental Damage taken", "applies_to": ["armor", "shield"], "slots": [1, 0], "brand_tags": []},
-	{"stat_key": "reduced_esoteric_taken", "tier1_min": 9.0, "tier1_max": 11.0, "desc": "%d%% reduced Esoteric Damage taken", "applies_to": ["armor", "shield"], "slots": [1, 0], "brand_tags": []},
-	{"stat_key": "ward_delay_reduction", "tier1_min": 0.8, "tier1_max": 1.2, "desc": "Faster Ward Delay by %.1f seconds", "applies_to": ["armor", "item"], "slots": [1, 0, 9], "brand_tags": ["ward"]},
-	{"stat_key": "armor_to_elemental", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "%d%% of Armor applies to Elemental", "applies_to": ["armor", "item"], "slots": [1, 0, 9], "brand_tags": []},
-	{"stat_key": "evasion_to_spells", "tier1_min": 14.0, "tier1_max": 18.0, "desc": "%d%% of Evasion applies to Spell Hits", "applies_to": ["armor", "item"], "slots": [1, 3, 9], "brand_tags": ["evasion"]},
-	{"stat_key": "dash_speed", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Dash Speed", "applies_to": ["armor"], "slots": [3, 2, 10], "brand_tags": ["movement"]},
-	{"stat_key": "damage_from_mana", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "%d%% of Damage taken from Mana before Life", "applies_to": ["armor", "item"], "slots": [1, 0, 9], "brand_tags": ["resource"]},
+	{"stat_key": "reduced_physical_taken", "tier1_min": 9.0, "tier1_max": 11.0, "desc": "%d%% reduced Physical Damage taken", "applies_to": ["armor", "shield"], "slots": [1, 6], "brand_tags": []},
+	{"stat_key": "reduced_elemental_taken", "tier1_min": 9.0, "tier1_max": 11.0, "desc": "%d%% reduced Elemental Damage taken", "applies_to": ["armor", "shield"], "slots": [1, 6], "brand_tags": []},
+	{"stat_key": "reduced_esoteric_taken", "tier1_min": 9.0, "tier1_max": 11.0, "desc": "%d%% reduced Esoteric Damage taken", "applies_to": ["armor", "shield"], "slots": [1, 6], "brand_tags": []},
+	{"stat_key": "ward_delay_reduction", "tier1_min": 0.8, "tier1_max": 1.2, "desc": "Faster Ward Delay by %.1f seconds", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 6, 9, 10], "brand_tags": ["ward"]},
+	{"stat_key": "armor_to_elemental", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "%d%% of Armor applies to Elemental", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 9], "brand_tags": []},
+	{"stat_key": "evasion_to_spells", "tier1_min": 14.0, "tier1_max": 18.0, "desc": "%d%% of Evasion applies to Spell Hits", "applies_to": ["armor", "shield"], "slots": [1, 3, 6], "brand_tags": ["evasion"]},
+	{"stat_key": "dash_speed", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Dash Speed", "applies_to": ["armor"], "slots": [3], "brand_tags": ["movement"]},
+	{"stat_key": "damage_from_mana", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "%d%% of Damage taken from Mana before Life", "applies_to": ["armor", "item"], "slots": [0, 1, 9], "brand_tags": ["resource"]},
 	{"stat_key": "all_elemental_resistance", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "+%d%% to all Elemental Resistances", "applies_to": ["armor", "shield", "item"], "brand_tags": ["fire", "cold", "lightning"]},
 	{"stat_key": "esoteric_resistance", "tier1_min": 22.0, "tier1_max": 28.0, "desc": "+%d%% to Esoteric Resistance", "applies_to": ["armor", "shield", "item"], "brand_tags": ["resistance", "aetheric", "entropic", "pale"]},
 	{"stat_key": "fire_resistance", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% to Fire Resistance", "applies_to": ["armor", "shield", "item"], "brand_tags": ["resistance", "fire"]},
 	{"stat_key": "cold_resistance", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% to Cold Resistance", "applies_to": ["armor", "shield", "item"], "brand_tags": ["resistance", "cold"]},
 	{"stat_key": "lightning_resistance", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% to Lightning Resistance", "applies_to": ["armor", "shield", "item"], "brand_tags": ["resistance", "lightning"]},
-	{"stat_key": "phys_as_fire", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "%d%% Physical Damage taken as Fire", "applies_to": ["armor", "item"], "slots": [0, 1, 9], "brand_tags": []},
-	{"stat_key": "phys_as_cold", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "%d%% Physical Damage taken as Cold", "applies_to": ["armor", "item"], "slots": [0, 1, 9], "brand_tags": []},
-	{"stat_key": "phys_as_lightning", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "%d%% Physical Damage taken as Lightning", "applies_to": ["armor", "item"], "slots": [0, 1, 9], "brand_tags": []},
+	{"stat_key": "phys_as_fire", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "%d%% Physical Damage taken as Fire", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 9], "brand_tags": []},
+	{"stat_key": "phys_as_cold", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "%d%% Physical Damage taken as Cold", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 9], "brand_tags": []},
+	{"stat_key": "phys_as_lightning", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "%d%% Physical Damage taken as Lightning", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 9], "brand_tags": []},
 
 	# Patch v4.0 Armor Base Specific Mods (flat_ward/flat_armor/flat_evasion
 	# pre-existing, "Varies by type" per the doc - no new T1 given for those)
-	{"stat_key": "increased_ward", "defense": "ward", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward", "applies_to": ["armor"], "brand_tags": ["ward"]},
-	{"stat_key": "increased_armor", "defense": "armor", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Armor", "applies_to": ["armor", "shield"], "brand_tags": ["armor"]},
-	{"stat_key": "increased_evasion", "defense": "evasion", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Evasion", "applies_to": ["armor"], "brand_tags": ["evasion"]},
-	{"stat_key": "hybrid_defense_life", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d to primary defense and Life (hybrid)", "applies_to": ["armor"], "brand_tags": []},
+	{"stat_key": "increased_ward", "defense": "ward", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["ward"]},
+	{"stat_key": "increased_armor", "defense": "armor", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Armor", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["armor"]},
+	{"stat_key": "increased_evasion", "defense": "evasion", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Evasion", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["evasion"]},
+	{"stat_key": "hybrid_defense_life", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d to primary defense and Life (hybrid)", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": []},
 
 	# Patch v4.0 Amulet Exclusive Mod Pool - Prefix, +1-2 at T1 (item level
 	# 80+), lower tiers +1 only. "Among the rarest amulet rolls" - kept at
@@ -701,7 +705,7 @@ static func _pool_for(item: Item) -> Array:
 		if defense != "" and (item is Armor or item is Shield) and not _has_defense(item, defense):
 			continue
 		var slots: Array = entry.get("slots", [])
-		if not slots.is_empty() and not slots.has(item.equip_slot):
+		if not slots.is_empty() and not item is Weapon and not slots.has(item.equip_slot):
 			continue
 		var weapon_kind: String = entry.get("weapon_kind", "")
 		if weapon_kind != "" and item is Weapon:

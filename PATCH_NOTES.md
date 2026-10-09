@@ -7,6 +7,29 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.55: Gear slot roles (user request)
+
+Every slot now has a job. Before, attributes, Cast Speed, Move Speed, Stamina, cooldowns and Mana Regen rolled on every piece, and rings had almost no offence.
+
+| Slot | Role | Rolls (besides filler) |
+|---|---|---|
+| Gloves | Offence | Attack/Cast Speed, crit chance, ailment chance/damage/tick rate, Shred, AoE, Riposte, Retaliation |
+| Rings | Offence | Crit chance and bonus, Elemental/Esoteric/Physical damage, Spell damage, Penetration, Attack/Cast Speed. Filler: resistances, Life, flat Armour/Ward/Evasion |
+| Amulet | Build-defining | Skill levels, Aether, damage %, crit, Penetration, Spell damage, cooldowns, ailment duration, DoT, Mana, some defence |
+| Helmet | Caster and utility | Spell damage, cooldowns, Mana and Mana cost, AoE, skill duration, ailment damage/duration, debuffs, defences |
+| Body | Major defence | Damage taken reductions, damage taken as another type, Armour to Elemental, Evasion to spells, Ward on Parry, Stamina, defences |
+| Shield | Block, parry, major defence | Block, Parry window, Ward on Parry, Riposte crit, damage taken reductions, Life and % Life, regen, Ward recovery and delay, conversions, ailment avoidance, Retaliation, defences |
+| Boots | Mobility and defence | Move Speed and Dash Speed (boots only), Evasion to spells, Stamina, defences |
+| Belt | Sustain | Life, regen, Mana and Mana cost, Ward recovery and delay, Stamina, ailment avoidance |
+
+- Filler everywhere: attributes, Resilience, Life and resistances. Item Rarity and Magic Find stay on armour and accessories, Item Quantity on accessories.
+- Shields previously lost every entry with a `slots` list that didn't name the offhand slot (damage taken reductions, Ward on Parry, Retaliation, Ward delay). They roll them now.
+- Amulets previously never rolled Spell damage or Skill Effect Duration: those entries listed the amulet slot but only the armour category.
+- `ItemRoller._pool_for()` ignores `slots` on weapons, which roll from the weapon library anyway (the pool still feeds weapon corruption). The lists were blocking Conduit-only entries such as Mana and Spell damage.
+- Body defence values are not scaled up over other slots yet; body bases already carry the most Armour/Evasion/Ward.
+
+---
+
 ## 2026-10-09 — v4.54: Projectile Speed, additional projectiles, Riposte damage (user request)
 
 - **Projectile Speed rolls again.** It was a weapon-only `AFFIX_POOL` entry, and weapons roll from the weapon library, so it never dropped. It's now a library suffix on ranged weapons and Conduits (18-26% at Tier 1). It also speeds up bow and gun shots now, not only projectile spells.
