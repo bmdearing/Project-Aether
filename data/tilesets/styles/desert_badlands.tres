@@ -58,3 +58,4 @@ light_color = Color(1, 1, 1, 1)
 light_energy = 0
 light_range = 8
 room_light_energy = 0
+branch_stop_chance = 0.55

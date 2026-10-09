@@ -1,0 +1,44 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_nxduu"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_structures_archway_diffuse.dds" id="2_qnil4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_structures_archway_normal.dds" id="3_78tlk"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_structures_archway_orm.dds" id="4_dgoxh"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/snow/nrockarch.glb" id="5_lwxy4"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_tnw20"]
+albedo_texture = ExtResource("2_qnil4")
+orm_texture = ExtResource("4_dgoxh")
+normal_enabled = true
+normal_texture = ExtResource("3_78tlk")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_g5ebc"]
+albedo_texture = ExtResource("2_qnil4")
+orm_texture = ExtResource("4_dgoxh")
+normal_enabled = true
+normal_texture = ExtResource("3_78tlk")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_d2120"]
+albedo_texture = ExtResource("2_qnil4")
+orm_texture = ExtResource("4_dgoxh")
+normal_enabled = true
+normal_texture = ExtResource("3_78tlk")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6ae3i"]
+albedo_texture = ExtResource("2_qnil4")
+orm_texture = ExtResource("4_dgoxh")
+normal_enabled = true
+normal_texture = ExtResource("3_78tlk")
+
+[node name="Nrockarch" type="Node3D"]
+script = ExtResource("1_nxduu")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_tnw20"),
+1: SubResource("ORMMaterial3D_g5ebc"),
+2: SubResource("ORMMaterial3D_d2120"),
+3: SubResource("ORMMaterial3D_6ae3i")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." instance=ExtResource("5_lwxy4")]

@@ -1,0 +1,275 @@
+{
+  "source": "north_iceclaw4.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.2372191619873045,
+      -0.3224519920349121,
+      -1.344085235595703
+    ],
+    "max": [
+      1.4500530395507811,
+      3.673223876953125,
+      1.2399857940673826
+    ],
+    "height": 3.995675868988037
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 133,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 167,
+      "end": 667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 700,
+      "end": 867,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 900,
+      "end": 60900,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "NR_Env_IceClaws_v5_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_enviroment_iceclaws_diffuse.dds",
+        "normal": "nr_enviroment_iceclaws_normal.dds",
+        "orm": "nr_enviroment_iceclaws_orm.dds",
+        "emissive": "nr_enviroment_iceclaws_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_ORM.tif",
+        "emissive": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "NR_Env_IceClaws_v5_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_enviroment_iceclaws_diffuse.dds",
+        "normal": "nr_enviroment_iceclaws_normal.dds",
+        "orm": "nr_enviroment_iceclaws_orm.dds",
+        "emissive": "nr_enviroment_iceclaws_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_ORM.tif",
+        "emissive": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "NR_Env_IceClaws_v5_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_enviroment_iceclaws_diffuse.dds",
+        "normal": "nr_enviroment_iceclaws_normal.dds",
+        "orm": "nr_enviroment_iceclaws_orm.dds",
+        "emissive": "nr_enviroment_iceclaws_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_ORM.tif",
+        "emissive": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "NR_Env_IceClaws_v5_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_enviroment_iceclaws_diffuse.dds",
+        "normal": "nr_enviroment_iceclaws_normal.dds",
+        "orm": "nr_enviroment_iceclaws_orm.dds",
+        "emissive": "nr_enviroment_iceclaws_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_ORM.tif",
+        "emissive": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "NR_Env_IceClaws_v5_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_enviroment_iceclaws_diffuse.dds",
+        "normal": "nr_enviroment_iceclaws_normal.dds",
+        "orm": "nr_enviroment_iceclaws_orm.dds",
+        "emissive": "nr_enviroment_iceclaws_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_ORM.tif",
+        "emissive": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "NR_Env_IceClaws_v5_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_enviroment_iceclaws_diffuse.dds",
+        "normal": "nr_enviroment_iceclaws_normal.dds",
+        "orm": "nr_enviroment_iceclaws_orm.dds",
+        "emissive": "nr_enviroment_iceclaws_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_ORM.tif",
+        "emissive": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "NR_Env_IceClaws_v5_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_enviroment_iceclaws_diffuse.dds",
+        "normal": "nr_enviroment_iceclaws_normal.dds",
+        "orm": "nr_enviroment_iceclaws_orm.dds",
+        "emissive": "nr_enviroment_iceclaws_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_ORM.tif",
+        "emissive": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "NR_Env_IceClaws_v5_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_enviroment_iceclaws_diffuse.dds",
+        "normal": "nr_enviroment_iceclaws_normal.dds",
+        "orm": "nr_enviroment_iceclaws_orm.dds",
+        "emissive": "nr_enviroment_iceclaws_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_ORM.tif",
+        "emissive": "Doodads/Northrend/Rocks/North_IceClaw/NR_Enviroment_IceClaws_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true
+      }
+    }
+  ]
+}

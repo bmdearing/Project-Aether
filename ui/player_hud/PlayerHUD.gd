@@ -474,7 +474,7 @@ func _update_enemy_health_bars() -> void:
 		bar.set_health(enemy.health.current_health, enemy.health.max_health)
 		bar.set_ward(enemy.get_ward(), enemy.get_ward_max())
 		var world_pos := enemy.global_position + Vector3(0, enemy.body_height + ENEMY_HEALTH_BAR_HEIGHT_OFFSET, 0)
-		if camera.is_position_behind(world_pos):
+		if camera.is_position_behind(world_pos) or not _has_line_of_sight(camera, enemy):
 			bar.visible = false
 		else:
 			bar.visible = true
@@ -504,6 +504,30 @@ func _update_boss_bar(boss: Enemy) -> void:
 		marks = boss.boss_brain.phase_thresholds
 	_boss_bar.set_phase_marks(marks)
 
+
+## True when the camera can see the enemy's head or middle. Other enemies in
+## the way don't count as cover, only walls and props do.
+func _has_line_of_sight(camera: Camera3D, enemy: Enemy) -> bool:
+	var space_state := _player.get_world_3d().direct_space_state
+	var origin := camera.global_position
+	for height in [enemy.body_height * 0.9, enemy.body_height * 0.5]:
+		var target := enemy.global_position + Vector3(0, height, 0)
+		var exclude: Array[RID] = [_player.get_rid()]
+		var blocked := false
+		for i in 4:
+			var query := PhysicsRayQueryParameters3D.create(origin, target)
+			query.exclude = exclude
+			var hit := space_state.intersect_ray(query)
+			if hit.is_empty():
+				break
+			if hit.get("collider") is Enemy:
+				exclude.append((hit["collider"] as Enemy).get_rid())
+				continue
+			blocked = true
+			break
+		if not blocked:
+			return true
+	return false
 func _get_hovered_enemy_id(camera: Camera3D) -> int:
 	var origin := camera.global_position
 	var forward := -camera.global_transform.basis.z

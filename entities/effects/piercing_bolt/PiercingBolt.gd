@@ -44,6 +44,8 @@ func _physics_process(delta: float) -> void:
 	var space := get_world_3d().direct_space_state
 	var from := global_position
 	var exclude: Array[RID] = []
+	if not is_instance_valid(source):
+		source = null  # the shooter left (scene change, death); hits still land, unattributed
 	if source is CollisionObject3D:
 		exclude.append(source.get_rid())
 	for i in 8:

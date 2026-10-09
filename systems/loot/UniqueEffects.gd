@@ -29,6 +29,7 @@ const WARD_ON_BLOCK := "unique_ward_on_block"
 const SPELL_DAMAGE_TAKEN := "unique_spell_damage_taken"
 const PATIENT_SHOT := "unique_patient_shot"
 const DAMAGE_TAKEN := "unique_damage_taken"
+const DAMAGE_FROM_MOVE_SPEED := "unique_damage_from_move_speed"
 
 const DEBT_MAX_STACKS := 20
 const PATIENT_SHOT_SECONDS := 2.0

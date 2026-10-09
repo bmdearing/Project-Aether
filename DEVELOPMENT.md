@@ -24,7 +24,7 @@ Trinity Rule archetypes) were pulled from this source and match it exactly.
 
 ## What's implemented
 
-**UI style (v4.33)**: everything draws through `ui/theme/AetherStyle.gd` (palette, fonts, plates, dividers, dials) and the project theme `ui/theme/aether_theme.tres` (regenerate with `Godot --headless --path . --script res://tools/build_ui_theme.gd` after changing `build_theme()`). Full-screen menus use `layer = AetherStyle.SCREEN_LAYER` plus `AetherStyle.style_screen(self)`, and the HUD hides while one is open. Tooltips follow the cursor (`TooltipFollow` autoload). `tests/ui_capture/shot.sh` screenshots UI states.
+**UI style (v4.33)**: everything draws through `ui/theme/AetherStyle.gd` (palette, fonts, plates, dividers, dials) and the project theme `ui/theme/aether_theme.tres` (regenerate with `Godot --headless --path . --script res://tools/build_ui_theme.gd` after changing `build_theme()`). Full-screen menus use `layer = AetherStyle.SCREEN_LAYER` plus `AetherStyle.style_screen(self)`, and the HUD hides while one is open. Tooltips are drawn by the `TooltipFollow` autoload, not Godot's popup (its delay is set out of reach): it reads the hovered control's tooltip every frame, so a tooltip shows at once, swaps the moment the cursor crosses into another slot, follows the cursor and rebuilds every 0.25s to track changes. Controls still supply content through `tooltip_text`/`_get_tooltip()` and `_make_custom_tooltip()`. Scene changes go through the `LoadingScreen` autoload (`LoadingScreen.change_scene(path)`): a threaded load behind a plate with the destination, a tip and a progress bar. `tests/ui_capture/shot.sh` screenshots UI states.
 
 **Player** (`entities/player/Player.gd`): first-person `CharacterBody3D`
 (WASD relative to body facing, mouse look, jump, sprint, crouch, slide).
@@ -981,55 +981,66 @@ those are static hand-built scenes with no such graph.
 **Procedural map generation** (`systems/level_generation/MapGraph.gd`,
 `levels/generated_map/GeneratedMap.gd`): a fresh, differently-shaped Map
 every time you enter one — no fixed seed. **Each Figment type has its own
-layout rules** (`MapLayout`, chosen by `MapTileset.layout`):
-  - **Dungeon** (Cellblock, Undercroft, Mine, Foundry Pit) - `rooms`:
-    the walled room grid described below.
-  - **Dunes** - `open_field`: one open 112 m field, no interior walls.
-    A 4x4 cell grid (`MapGraph.generate_full_grid()`) drives spawning
+layout rules** (`MapLayout`, chosen by `MapTileset.layout`), and each style
+then reshapes its kind through the tileset's Layout fields (grid size, room
+count, how winding the graph is, room sizes, corridor width, wall height,
+pillar chance, cave outcrops, mound count/size, pass width, cliff height),
+so styles of one kind play differently (v4.51):
+  - **Dungeon** - `rooms`: rooms of varied rectangular size joined by
+    walled corridors. Cellblock: many small cells on long narrow corridors,
+    bushy with dead ends. Undercroft: few huge pillared halls, 6.5 m walls.
+    Mine: a long winding chain of rough rooms with rock outcrops along the
+    walls. Foundry Pit: big halls with 7.5 m walls. Frozen Crypt (Snow):
+    mid-sized colonnaded rooms.
+  - **Open field** (Dunes, Tundra, Frostwood): one open field, no interior
+    walls. A cell grid (`MapGraph.generate_full_grid()`) drives spawning
     and the Map screen; the start is the middle of one edge and the
-    Vault is the far side. 1-3 walkable dune mounds per cell, tall dune
-    ridges plus an invisible wall around the edge, scattered rocks/
-    plants, 1-2 packs per cell, the boss on a raised dune crest with two
-    ramps and its elite pack in front.
-  - **Badlands** - `canyon`: 6-8 open 26 m basins on a spanning tree,
-    separated by jagged cliff lines (jittered rock blocks, 6-10 m tall).
-    Connected basins meet through one 8-12 m pass at a random spot along
-    the shared edge; spires and rocks for cover; the boss on a mesa with
-    ramps. Geometry for both open layouts is `TerrainBuilder.gd`.
+    Vault is the far side. Walkable mounds (Tundra: big rolling hills;
+    Frostwood: nearly flat, dense trees via `scatter_scale`), ridges plus
+    an invisible wall around the edge, 1-2 packs per cell, the boss on a
+    raised crest with two ramps.
+  - **Canyon** (Badlands, Glacier Pass): open basins on a spanning tree,
+    separated by jagged cliff lines. Connected basins meet through one
+    pass; Glacier Pass is a long winding chain with narrower passes and
+    taller ice cliffs. The boss stands on a mesa with ramps. Geometry for
+    both open layouts is `TerrainBuilder.gd`.
 The rest of this section describes the Dungeon (`rooms`) layout. Split into two layers on
 purpose: `MapGraph.gd` is pure data (no `Node3D`, no geometry) — a
-randomized spanning-tree room-and-corridor layout on a 5x5 grid,
+randomized spanning-tree room-and-corridor layout on a grid,
 guaranteeing every room is reachable from the start room. `GeneratedMap.gd`
 turns that graph into actual walls/floors (simple `BoxMesh`/`PlaneMesh`
 pieces), dressed by the Figment's tileset style (below). The generation
 *algorithm* doesn't know or care what the rooms are made of.
-  - **Walls**: every room boundary is either solid or has a doorway gap
-    where a connection exists, built from real `StaticBody3D` collision,
-    not just open floor. Every doorway also gets a floor bridge closing
-    the footprint-to-footprint gap between adjacent rooms
-    (`_build_doorway_bridges()`) — the room footprint (13m) is smaller
-    than the grid spacing (16m), so without this every doorway in every
-    map had an unfloored gap, not just the Vault's intentional one.
-  - **Jumps**: the Vault room (farthest room from the start, by graph
-    distance) has a split floor — a gap the player must jump across to
-    reach an elevated platform. A full-footprint safety floor sits a
-    shallow 0.5m below the whole room, so a missed jump is a small
-    stumble, never a fall through the world.
-  - **Vault**: an elite pack on the main floor and the FigmentBoss on the
-    jump platform.
+  - **Rooms and corridors**: each room is centred in its grid cell with a
+    footprint rolled from the style's range (`room_half`); walls sit just
+    outside the floor with a doorway wherever a connection exists, and
+    every connection is a walled corridor from doorway to doorway. Cells
+    are sized so a corridor always fits between the biggest room and the
+    boss room. Big enough rooms may get four pillars, and big rooms hold a
+    second pack.
+  - **Boss room** (the Vault, farthest from the start): larger than the
+    style's biggest room, one flat floor with nothing to fall into (the
+    old jump-gap platform trapped bosses), four pillars, and a glowing
+    altar opposite the entrance. Killing the boss opens a portal home on
+    the altar (`boss_portal_point`; the top of the dais in open layouts),
+    outside the portal limit.
   - **Tilesets** (`data/tilesets/`, plan: the Tileset Plan doc): each
     Figment rolls a random `MapTileset` style (`FigmentItem.tileset_id`,
     named "<Style> Figment"; older Figments get a random one on entry).
-    Built so far: Dungeon (Cellblock, Undercroft, Mine, Foundry Pit) and
-    Desert (Dunes, Badlands). A style sets the floor and wall WC3 ground
+    Built so far: Dungeon (Cellblock, Undercroft, Mine, Foundry Pit),
+    Desert (Dunes, Badlands) and Snow (Tundra, Frostwood, Glacier Pass,
+    Frozen Crypt). A style sets the floor and wall WC3 ground
     textures (`shaders/wc3_ground.gdshader` picks one of the sheet's
     variant tiles per 2.3 m cell, with noise patches of a second ground),
     the doodads, and the light, fog and sun. `RoomDresser` places an arch
     fitted to every doorway, props backed against walls clear of doorways,
     torches/braziers with a `FlickerLight`, corner clusters, and floor
-    props off the central cross paths; the Vault keeps them off its gap.
+    props. Every prop claims its footprint, and nothing is placed over
+    another prop, a pillar, the altar, a doorway, the doorway-to-doorway
+    lanes or the pack area. Trees collide only at the trunk.
     Doodads are WC3 models extracted by `tools/mdx_pipeline/
-    extract_doodads.js` (`doodads.json`) into `assets/models/doodads/`,
+    extract_doodads.js` (`doodads.json`; `replaceable` names the WC3
+    replaceable texture for models like trees) into `assets/models/doodads/`,
     with wrappers in `entities/environment/doodads/`. Beach/Shore/Strand
     and the other coastal Desert styles need water and aren't built.
   - `levels/test_arena/TestArena.tscn` still exists as a static hand-built
@@ -1245,12 +1256,15 @@ C while the inventory is open toggles its stats column instead. None of the five
 11. **Reality Engine / Hub scope cuts**: a real Figment-selection UI now
     exists (reuses `ShopScreen` - see the Hub section above), but leaving
     a Map is still always manual, not triggered by clearing enemies or
-    completing the boss (killing the boss only fires
-    `EventBus.figment_completed` for Figment Tree points - it doesn't
-    end the run). Settings (title screen and pause menu, shared
+    completing the boss (killing the boss fires
+    `EventBus.figment_completed` for Figment Tree points and opens a
+    portal home on the boss room's altar, but doesn't end the run). Settings (title screen and pause menu, shared
     `SettingsPanel`, saved to `user://settings.cfg` by `GameSettings` so
     New Game doesn't reset them): Mouse Sensitivity, Field of View,
-    Master Volume, Fullscreen, V-Sync. Master volume
+    Master Volume, Fullscreen, V-Sync, plus a Controls tab that rebinds every
+    gameplay action to one key or mouse button (`GameSettings.REMAPPABLE`;
+    a key taken from another action swaps over; Reset to Defaults). "Press E"
+    prompts follow the Interact binding. Master volume
     now has real audio to affect (Main Menu music + procedural rain/
     thunder, see the Main Menu background section above) but nothing
     plays in the Hub/Map yet.

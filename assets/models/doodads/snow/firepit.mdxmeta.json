@@ -1,0 +1,152 @@
+{
+  "source": "firepit.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.0616868209838866,
+      -0.018161998987197874,
+      -1.0209006271362304
+    ],
+    "max": [
+      1.0088081817626953,
+      0.8502101669311523,
+      0.8895276260375976
+    ],
+    "height": 0.8683721659183502
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 700,
+      "end": 1367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 1400,
+      "end": 2067,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "FirePit_rig:NR_Props_FirePit_mesh",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepit_diffuse.dds",
+        "normal": "nr_props_firepit_normal.dds",
+        "orm": "nr_props_firepit_orm.dds",
+        "emissive": "nr_props_firepit_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "FirePit_rigNR_Props_FirePit_mesh_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepit_diffuse.dds",
+        "normal": "nr_props_firepit_normal.dds",
+        "orm": "nr_props_firepit_orm.dds",
+        "emissive": "nr_props_firepit_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "FirePit_rigNR_Props_FirePit_mesh_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepit_diffuse.dds",
+        "normal": "nr_props_firepit_normal.dds",
+        "orm": "nr_props_firepit_orm.dds",
+        "emissive": "nr_props_firepit_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "FirePit_rigNR_Props_FirePit_mesh_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepit_diffuse.dds",
+        "normal": "nr_props_firepit_normal.dds",
+        "orm": "nr_props_firepit_orm.dds",
+        "emissive": "nr_props_firepit_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePit/NR_Props_FirePit_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_rotwf"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_structures_rubble_v1_diffuse.dds" id="2_e1dv2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_structures_rubble_v1_normal.dds" id="3_i6nle"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_structures_rubble_v1_orm.dds" id="4_mns54"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/snow/northrendrubble0.glb" id="5_732h2"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_mq314"]
+albedo_texture = ExtResource("2_e1dv2")
+orm_texture = ExtResource("4_mns54")
+normal_enabled = true
+normal_texture = ExtResource("3_i6nle")
+
+[node name="Northrendrubble0" type="Node3D"]
+script = ExtResource("1_rotwf")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_mq314")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand"
+
+[node name="Model" type="Node3D" parent="." instance=ExtResource("5_732h2")]

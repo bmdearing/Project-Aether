@@ -135,6 +135,13 @@ func play_death() -> void:
 	if animation_set and not animation_set.death_alt.is_empty() and randf() < 0.5 and (_player == null or _player.has_animation(animation_set.death_alt)):
 		(_tree.tree_root.get_node("Death") as AnimationNodeAnimation).animation = animation_set.death_alt
 	_tree.set(CONDITION_PATH + "is_dead", true)
+	# Death interrupts: drop pending one-shot triggers (an attack pulsed this
+	# frame would win the transition order) and jump straight to the clip
+	# instead of waiting on a transition or a swing's follow-through.
+	for condition in ["attack_triggered", "hit_triggered", "stagger_triggered"]:
+		_tree.set(CONDITION_PATH + condition, false)
+	if _state_machine:
+		_state_machine.start(&"Death", true)
 
 func set_speed(speed: float) -> void:
 	if _tree == null or _dead:

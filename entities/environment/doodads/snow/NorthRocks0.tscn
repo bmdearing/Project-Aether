@@ -1,0 +1,44 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_6mivi"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_environment_rocks_diffuse.dds" id="2_0noj4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_environment_rocks_normal.dds" id="3_56b6q"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_environment_rocks_orm.dds" id="4_o2pbf"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/snow/north_rocks0.glb" id="5_xg6u7"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_02kwb"]
+albedo_texture = ExtResource("2_0noj4")
+orm_texture = ExtResource("4_o2pbf")
+normal_enabled = true
+normal_texture = ExtResource("3_56b6q")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vjsvf"]
+albedo_texture = ExtResource("2_0noj4")
+orm_texture = ExtResource("4_o2pbf")
+normal_enabled = true
+normal_texture = ExtResource("3_56b6q")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_f0ywb"]
+albedo_texture = ExtResource("2_0noj4")
+orm_texture = ExtResource("4_o2pbf")
+normal_enabled = true
+normal_texture = ExtResource("3_56b6q")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_j3fwh"]
+albedo_texture = ExtResource("2_0noj4")
+orm_texture = ExtResource("4_o2pbf")
+normal_enabled = true
+normal_texture = ExtResource("3_56b6q")
+
+[node name="NorthRocks0" type="Node3D"]
+script = ExtResource("1_6mivi")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_02kwb"),
+1: SubResource("ORMMaterial3D_vjsvf"),
+2: SubResource("ORMMaterial3D_f0ywb"),
+3: SubResource("ORMMaterial3D_j3fwh")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." instance=ExtResource("5_xg6u7")]

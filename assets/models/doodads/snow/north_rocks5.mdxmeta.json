@@ -1,0 +1,130 @@
+{
+  "source": "north_rocks5.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.157200241088867,
+      -0.10112759685516357,
+      -1.2096287841796873
+    ],
+    "max": [
+      1.2368034667968748,
+      2.036555969238281,
+      1.4191452026367186
+    ],
+    "height": 2.1376835660934446
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Lords_Rock_V6_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_environment_rocks_diffuse.dds",
+        "normal": "nr_environment_rocks_normal.dds",
+        "orm": "nr_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Lords_Rock_V6_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_environment_rocks_diffuse.dds",
+        "normal": "nr_environment_rocks_normal.dds",
+        "orm": "nr_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Lords_Rock_V6_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_environment_rocks_diffuse.dds",
+        "normal": "nr_environment_rocks_normal.dds",
+        "orm": "nr_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Lords_Rock_V6_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_environment_rocks_diffuse.dds",
+        "normal": "nr_environment_rocks_normal.dds",
+        "orm": "nr_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Northrend/Rocks/North_Rocks/NR_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

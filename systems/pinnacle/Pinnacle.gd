@@ -63,5 +63,5 @@ static func enter(tree: SceneTree, boss_id: String) -> bool:
 	GameState.active_map = null
 	SaveManager.save_game()
 	tree.paused = false
-	tree.change_scene_to_file(ARENA_SCENE)
+	LoadingScreen.change_scene(ARENA_SCENE)
 	return true

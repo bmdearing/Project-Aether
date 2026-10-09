@@ -58,6 +58,9 @@ var _current_slate: Slate = null
 var _current_ability: Ability = null
 var _current_stat_sheet: StatSheet = null
 var _showing_alt: bool = false
+## Context lines from the host, shown at the bottom of a Slate card (its
+## chains on the Fate Board).
+var footer_lines: Array[String] = []
 
 ## Not @onready - ItemSlotButton builds a card via instantiate() and
 ## calls display_item()/etc. on it immediately, before it's ever added
@@ -231,6 +234,10 @@ func _render_slate(slate: Slate) -> void:
 		_add_stat_line("Lens sockets: %d / %d" % [slate.lenses.size(), slate.sockets])
 		for lens in slate.lenses:
 			_add_mod_line("%s: %s" % [lens.display_name, lens.radius_text()], LENS_COLOR)
+	if not footer_lines.is_empty():
+		_add_separator()
+		for line in footer_lines:
+			_add_mod_line(line, HINT_COLOR)
 	if slate.implicit_flavor_text != "":
 		_add_separator()
 		_add_flavor(slate.implicit_flavor_text)
@@ -734,8 +741,11 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		lines.append("Item Rarity: +%.0f%%" % ((m.loot_rarity_multiplier - 1.0) * 100.0))
 	return lines
 
+## Removed now, not just queued: a queued child still counts toward this
+## frame's size, which made the card jump when its content changed.
 func _clear() -> void:
 	for child in _content().get_children():
+		_content().remove_child(child)
 		child.queue_free()
 
 ## Every card is an engraved plate: dark glass, a frame (gold for items, the

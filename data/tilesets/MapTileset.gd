@@ -15,6 +15,28 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 ## "open_field", "canyon").
 @export var layout: String = "rooms"
 
+## Layout shape for this style, so styles sharing a layout kind still play
+## differently. Zero (or -1 for chances) keeps the layout kind's default.
+@export_group("Layout")
+@export var grid_size: int = 0
+@export var room_count: Vector2i = Vector2i.ZERO
+## Lower = long winding chains, higher = bushy with dead ends.
+@export var branch_stop_chance: float = -1.0
+@export var cell_size: float = 0.0
+## Rooms: per-axis footprint range, corridor width, wall height, pillar chance.
+@export var room_size: Vector2 = Vector2.ZERO
+@export var corridor_width: float = 0.0
+@export var wall_height: float = 0.0
+@export var pillar_chance: float = -1.0
+## Rooms: rough rock outcrops along the walls (mines, caves).
+@export var cave_walls: bool = false
+## Open fields: mounds per cell and their size.
+@export var mounds_per_cell: Vector2i = Vector2i(-1, -1)
+@export var mound_scale: float = 1.0
+## Canyons: pass width and cliff height multipliers.
+@export var pass_width_scale: float = 1.0
+@export var cliff_height_scale: float = 1.0
+
 @export_group("Ground")
 @export var floor_albedo: Texture2D
 @export var floor_normal: Texture2D
@@ -44,6 +66,8 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 @export var floor_props_per_room: Vector2i = Vector2i(0, 2)
 @export var clusters_per_room: Vector2i = Vector2i(2, 4)
 @export var lights_per_room: int = 2
+## Multiplies the open layouts' loose scatter per cell (a forest wants more).
+@export var scatter_scale: float = 1.0
 
 @export_group("Atmosphere")
 @export var background_color: Color = Color(0.05, 0.05, 0.06)

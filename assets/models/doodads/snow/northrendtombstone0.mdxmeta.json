@@ -1,0 +1,130 @@
+{
+  "source": "northrendtombstone0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.7164845809936523,
+      -1.26,
+      -0.7564086227416992
+    ],
+    "max": [
+      0.7458912048339843,
+      1.8266940307617185,
+      0.7769987869262694
+    ],
+    "height": 3.0866940307617186
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "NR_Props_Tombstone_V1_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_tombstone_v1_diffuse.dds",
+        "normal": "nr_props_tombstone_v1_normal.dds",
+        "orm": "nr_props_tombstone_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "NR_Props_Tombstone_V1_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_tombstone_v1_diffuse.dds",
+        "normal": "nr_props_tombstone_v1_normal.dds",
+        "orm": "nr_props_tombstone_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "NR_Props_Tombstone_V1_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_tombstone_v1_diffuse.dds",
+        "normal": "nr_props_tombstone_v1_normal.dds",
+        "orm": "nr_props_tombstone_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "NR_Props_Tombstone_V1_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_tombstone_v1_diffuse.dds",
+        "normal": "nr_props_tombstone_v1_normal.dds",
+        "orm": "nr_props_tombstone_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendTombStone/NR_Props_Tombstone_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

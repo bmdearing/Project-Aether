@@ -86,6 +86,8 @@ var stance_page: int = 0
 
 ## Ability ids unlocked via SkillTome or SpellTestShop.
 var owned_ability_ids: Array[String] = []
+## Booming Blade is a toggle that stays on across areas until cast again.
+var booming_blade_on: bool = false
 
 ## Figment Tree points: one per tier of each completed Figment.
 var figment_tree_points: int = 0
@@ -137,13 +139,14 @@ func reset_to_defaults() -> void:
 	ability_loadout_paths = DEFAULT_ABILITY_LOADOUT_PATHS.duplicate()
 	ability_levels = {}
 	owned_ability_ids = []
+	booming_blade_on = false
 	_reset_all_ability_levels()
 	player_level = 1
 	player_xp = 0.0
 	fate_board_placements = []
 	inventory = GridInventory.new()
 	stash = Stash.create_default()
-	gold = 1000000  # dev/testing convenience
+	gold = 0
 	figment_tree_points = 0
 	figment_tree_unlocked_nodes = []
 	shield_on_rmb = true
@@ -160,7 +163,7 @@ func initialize_standalone() -> void:
 	if game_started:
 		return
 	player_level = 5
-	gold = 1000000
+	gold = 0
 	game_started = true
 
 ## Scans the whole instances directory (not a fixed list) since a Tome-

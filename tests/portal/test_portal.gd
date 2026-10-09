@@ -86,12 +86,12 @@ func _test_round_trip(round_index: int) -> void:
 	await _frames(5)
 	_check(spawned.size() >= 2, "round %d: map spawned enemies" % round_index)
 
+	# Ordinary enemies only: the boss's death opens the completion portal.
 	var killed: Array[int] = []
-	for index in spawned.keys().slice(0, 2):
-		for child in map.get_children():
-			if child is Enemy and int(child.get_meta(&"spawn_index")) == index:
-				child.health.apply_damage(1.0e9)
-				killed.append(index)
+	for child in map.get_children():
+		if killed.size() < 2 and child is Enemy and not child is FigmentBoss:
+			killed.append(int(child.get_meta(&"spawn_index")))
+			child.health.apply_damage(1.0e9)
 	# Kills can drop loot beside the player; keep it on the ground for the
 	# before/after comparison instead of letting the player walk it up.
 	for child in map.get_children():

@@ -40,7 +40,16 @@ const PIERCING_BOLT_SCENE := preload("res://entities/effects/piercing_bolt/Pierc
 ## Fired as a piercing bolt from the crosshair.
 const PIERCING_BOLT_ABILITY_IDS := ["cinder_lance", "thunder_javelin"]
 const THUNDER_SWEEP_BOLT_COUNT := 8
-const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sweep": 18.0}
+const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sweep": 18.0, "booming_blade": 34.0}
+
+## Booming Blade: a toggle (GameState.booming_blade_on). While on, every melee
+## swing (PlayerMeleeAttack._enter_strike) fires lightning bolts straight
+## ahead, at most once per BOOMING_BLADE_COOLDOWN, one more bolt every
+## BOOMING_BLADE_LEVELS_PER_BOLT spell levels. Turning it off is free.
+const BOOMING_BLADE_COOLDOWN := 0.45
+const BOOMING_BLADE_LEVELS_PER_BOLT := 5
+const BOOMING_BLADE_SPREAD_DEG := 7.0
+var _booming_blade_cd: float = 0.0
 
 ## Frost Armor: a self-buff; while active, enemy melee hits call
 ## trigger_frost_armor_retaliation() (from EnemyMeleeAttack._resolve_hit()).
@@ -103,6 +112,7 @@ func _physics_process(delta: float) -> void:
 	for ability in _cooldowns.keys():
 		_cooldowns[ability] = max(0.0, _cooldowns[ability] - delta)
 	_cast_lockout = maxf(0.0, _cast_lockout - delta)
+	_booming_blade_cd = maxf(0.0, _booming_blade_cd - delta)
 	if _frost_armor_remaining > 0.0:
 		_frost_armor_remaining = max(0.0, _frost_armor_remaining - delta)
 	_frost_armor_burst_cd = maxf(0.0, _frost_armor_burst_cd - delta)
@@ -178,6 +188,10 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 	var ability: Ability = _slot_ability(slot_index, from_page)
 	if ability == null:
 		return
+	if ability.ability_id == "booming_blade" and GameState.booming_blade_on:
+		GameState.booming_blade_on = false
+		_flash_ring(_player.global_position, 1.4, ability, Color(0.6, 0.6, 0.7))
+		return
 	var plan := _player.caster_stance.prepare_cast(ability, from_page)
 	if plan.has("error"):
 		EventBus.ability_cast_failed.emit(_player, ability, plan["error"])
@@ -245,6 +259,11 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 	if ability.ability_id == "purge":
 		_player.status_effects.clear_all_effects()
 		_flash_ring(_player.global_position, 3.0, ability, Color(0.85, 0.95, 1.0))
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "booming_blade":
+		GameState.booming_blade_on = true
+		_flash_ring(_player.global_position, 1.4, ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "frost_armor":
@@ -686,6 +705,8 @@ func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D)
 	if ability.ability_id == "thunder_sweep":
 		bolt.follow_ground = true
 		bolt.max_distance = ability.get_radius(_player.stat_sheet)
+	elif ability.ability_id == "booming_blade":
+		bolt.max_distance = ability.get_radius(_player.stat_sheet)
 	# Configured before entering the tree so _ready() colours it by damage type.
 	_player.get_tree().current_scene.add_child(bolt)
 	bolt.global_transform = xform
@@ -827,3 +848,23 @@ func _maybe_trigger_twice(ability: Ability, cast_position: Vector3) -> void:
 	var chance := _player.stat_sheet.get_misc_bonus("skill_double_trigger_chance") / 100.0
 	if chance > 0.0 and ability.deals_damage() and randf() < chance:
 		_cast(ability, cast_position, MAW_TOUCHED_DAMAGE)
+
+## Called by PlayerMeleeAttack at the start of every melee strike.
+func on_melee_swing() -> void:
+	if not GameState.booming_blade_on or _booming_blade_cd > 0.0:
+		return
+	var ability := _resolve_ability_by_id("booming_blade")
+	if ability == null:
+		return
+	_booming_blade_cd = BOOMING_BLADE_COOLDOWN
+	var count := booming_blade_bolt_count(ability, _player.stat_sheet)
+	var xform := _player.camera.global_transform
+	xform.origin += -xform.basis.z * 0.6 + Vector3.DOWN * 0.25
+	for i in count:
+		var yaw := BOOMING_BLADE_SPREAD_DEG * (i - (count - 1) / 2.0)
+		var bolt_xform := xform
+		bolt_xform.basis = Basis(Vector3.UP, deg_to_rad(yaw)) * xform.basis
+		_spawn_bolt(ability, 1.0, bolt_xform)
+
+static func booming_blade_bolt_count(ability: Ability, stat_sheet: StatSheet) -> int:
+	return 1 + ability.get_effective_level(stat_sheet) / BOOMING_BLADE_LEVELS_PER_BOLT

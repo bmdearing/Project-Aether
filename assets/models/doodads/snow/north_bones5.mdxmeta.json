@@ -1,0 +1,130 @@
+{
+  "source": "north_bones5.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.5568739318847655,
+      -0.1584990005493164,
+      -1.7477801971435545
+    ],
+    "max": [
+      1.5134471740722655,
+      1.073134780883789,
+      1.7481960296630858
+    ],
+    "height": 1.2316337814331053
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BR_Props_Bones_V06_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_bones_v6_diffuse.dds",
+        "normal": "nr_props_bones_v6_normal.dds",
+        "orm": "nr_props_bones_v6_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_Normal.tif",
+        "orm": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BR_Props_Bones_V06_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_bones_v6_diffuse.dds",
+        "normal": "nr_props_bones_v6_normal.dds",
+        "orm": "nr_props_bones_v6_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_Normal.tif",
+        "orm": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "BR_Props_Bones_V06_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_bones_v6_diffuse.dds",
+        "normal": "nr_props_bones_v6_normal.dds",
+        "orm": "nr_props_bones_v6_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_Normal.tif",
+        "orm": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "BR_Props_Bones_V06_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_bones_v6_diffuse.dds",
+        "normal": "nr_props_bones_v6_normal.dds",
+        "orm": "nr_props_bones_v6_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_Normal.tif",
+        "orm": "Doodads/Northrend/Props/North_Bones/NR_Props_Bones_V6_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

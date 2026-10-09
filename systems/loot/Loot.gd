@@ -48,8 +48,10 @@ static func rarity_percent(bonuses: Dictionary) -> float:
 	return bonuses.get(RARITY_KEY, 0.0) + bonuses.get(MAGIC_FIND_KEY, 0.0) * MAGIC_FIND_RARITY
 
 static func player_bonuses() -> Dictionary:
-	var equipment := GameState.player_equipment as EquipmentComponent
-	return equipment.compute_misc_bonuses() if equipment else {}
+	var equipment: Variant = GameState.player_equipment
+	if not is_instance_valid(equipment):
+		return {}  # no live player (between scenes)
+	return (equipment as EquipmentComponent).compute_misc_bonuses()
 
 ## {"quantity": multiplier, "rarity": multiplier} for a kill: the player's
 ## gear, the active Figment and the enemy's affixes, added together.

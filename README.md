@@ -25,7 +25,7 @@ Each build is a single self-contained executable (about 900 MB to download).
 
 ## Features
 
-- **Hub and Figments:** procedurally generated maps (rooms, open fields, canyons), Vault rooms, portals home, and pinnacle bosses.
+- **Hub and Figments:** procedurally generated maps (dungeons, open fields and canyons in Dungeon, Desert and Snow styles, each with its own layout), Vault rooms, portals home, and pinnacle bosses.
 - **Weighty first-person combat:** light, heavy and charged attacks; parry, riposte and counter hits; hit-stop; and weapon stances for every weapon family.
 - **Every weapon feels different:** each weapon family has its own attack, recoil, reload and bow-draw animations, and casters get channelled stances.
 - **Ranged weapons:** magazines, reloading, fire modes and spread for pistols, rifles, shotguns, bows and crossbows.
@@ -48,6 +48,8 @@ Each build is a single self-contained executable (about 900 MB to download).
 | Portal to the Hub | T |
 | Inventory / Character / Abilities / Fate Board / Map | B / C / N / P / M |
 | Pause | Esc |
+
+Every key can be rebound in Settings > Controls.
 
 ## Building from source
 

@@ -84,11 +84,12 @@ func _enter(figment: FigmentItem, owned: bool = false) -> void:
 	GameState.active_map = figment
 	SaveManager.save_game()
 	get_tree().paused = false
-	get_tree().change_scene_to_file(GameState.MAP_SCENE)
+	LoadingScreen.change_scene(GameState.MAP_SCENE)
 
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:
 		_player_in_range = true
+		GameSettings.refresh_interact_prompt(prompt_label)
 		prompt_label.visible = true
 
 func _on_body_exited(body: Node3D) -> void:

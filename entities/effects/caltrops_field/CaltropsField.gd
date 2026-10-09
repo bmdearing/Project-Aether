@@ -7,6 +7,8 @@ class_name CaltropsField
 const DURATION := 5.0
 const TICK_INTERVAL := 0.5
 const TICK_DAMAGE_PERCENT := 0.3  # each tick = 30% of a fresh damage roll
+## Overlapping fields share a per-enemy cooldown (HitCooldown).
+const HIT_INTERVAL := 0.15
 
 var _radius: float = 4.0
 var _ability: Ability
@@ -88,6 +90,8 @@ func _physics_process(delta: float) -> void:
 		if not enemy is Enemy:
 			continue
 		if enemy.distance_to_body(global_position) > _radius:
+			continue
+		if not HitCooldown.try_hit(&"caltrops", enemy, HIT_INTERVAL):
 			continue
 		var hit := _ability.roll_damage(_stat_sheet)
 		var damage: float = hit["final_damage"] * TICK_DAMAGE_PERCENT

@@ -193,12 +193,12 @@ func _on_return_to_hub_pressed() -> void:
 		return
 	SaveManager.save_game()
 	get_tree().paused = false
-	get_tree().change_scene_to_file(GameState.HUB_SCENE)
+	LoadingScreen.change_scene(GameState.HUB_SCENE)
 
 func _on_main_menu_pressed() -> void:
 	SaveManager.save_game()
 	get_tree().paused = false
-	get_tree().change_scene_to_file(GameState.MAIN_MENU_SCENE)
+	LoadingScreen.change_scene(GameState.MAIN_MENU_SCENE)
 
 func _on_quit_pressed() -> void:
 	SaveManager.save_game()

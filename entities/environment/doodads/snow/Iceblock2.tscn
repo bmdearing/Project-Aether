@@ -1,0 +1,53 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_odow5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_environment_iceblock_v3_diffuse.dds" id="2_g3tu8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_environment_iceblock_v3_emissive.dds" id="3_htoys"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_environment_iceblock_v3_normal.dds" id="4_gmeaj"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_environment_iceblock_v3_orm.dds" id="5_1ceql"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/snow/iceblock2.glb" id="6_4whjp"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_qkoxv"]
+albedo_texture = ExtResource("2_g3tu8")
+orm_texture = ExtResource("5_1ceql")
+emission_enabled = true
+emission_texture = ExtResource("3_htoys")
+normal_enabled = true
+normal_texture = ExtResource("4_gmeaj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_c47ck"]
+albedo_texture = ExtResource("2_g3tu8")
+orm_texture = ExtResource("5_1ceql")
+emission_enabled = true
+emission_texture = ExtResource("3_htoys")
+normal_enabled = true
+normal_texture = ExtResource("4_gmeaj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_y68w4"]
+albedo_texture = ExtResource("2_g3tu8")
+orm_texture = ExtResource("5_1ceql")
+emission_enabled = true
+emission_texture = ExtResource("3_htoys")
+normal_enabled = true
+normal_texture = ExtResource("4_gmeaj")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_76a5w"]
+albedo_texture = ExtResource("2_g3tu8")
+orm_texture = ExtResource("5_1ceql")
+emission_enabled = true
+emission_texture = ExtResource("3_htoys")
+normal_enabled = true
+normal_texture = ExtResource("4_gmeaj")
+
+[node name="Iceblock2" type="Node3D"]
+script = ExtResource("1_odow5")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_qkoxv"),
+1: SubResource("ORMMaterial3D_c47ck"),
+2: SubResource("ORMMaterial3D_y68w4"),
+3: SubResource("ORMMaterial3D_76a5w")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." instance=ExtResource("6_4whjp")]

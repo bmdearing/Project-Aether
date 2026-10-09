@@ -149,7 +149,7 @@ func _on_boss_died() -> void:
 func _go_home() -> void:
 	SaveManager.save_game()
 	get_tree().paused = false
-	get_tree().change_scene_to_file(GameState.HUB_SCENE)
+	LoadingScreen.change_scene(GameState.HUB_SCENE)
 
 func _spawn_ui() -> void:
 	for scene in GeneratedMap.UI_SCENES:

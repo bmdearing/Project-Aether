@@ -16,8 +16,25 @@ class_name Weapon
 @export var rolled_base_damage: float = 0.0
 
 ## The base's own range, before this weapon's modifiers.
+## Per-type damage scale for ranged weapons, so sustained single-target DPS
+## lands near melee's instead of 2-8x above it (full-auto guns fired 10-15
+## base-damage shots a second). Tuned with tests/balance/probe_dps.tscn:
+## unaimed guns and bows sit around 95-115 DPS, the best one-handed melee
+## around 150 and two-handers around 165 with their cleave on top; aiming
+## still adds AIMED_DAMAGE_MULTIPLIER. Applies to the shown range too.
+const RANGED_DAMAGE_SCALE := {
+	"Machine Gun": 0.13, "Machine Pistol": 0.18, "Submachine Gun": 0.185,
+	"Battle Rifle": 0.38, "Service Pistol": 0.43, "Revolver": 0.52,
+	"Loaded Shotgun": 0.65, "Lever Action Rifle": 0.57, "Bolt Action Rifle": 0.64,
+	"Pump Action Shotgun": 0.88, "Longbow": 0.78, "Shortbow": 0.8, "Bow": 0.8,
+	"Crossbow": 1.63,
+}
+
+func damage_scale() -> float:
+	return RANGED_DAMAGE_SCALE.get(weapon_type, 1.0) if is_ranged else 1.0
+
 func get_base_range() -> Vector2:
-	return Vector2(base_damage_min, base_damage_max)
+	return Vector2(base_damage_min, base_damage_max) * damage_scale()
 
 ## Per-hit range: the base plus flat added damage from its own modifiers.
 func get_damage_range() -> Vector2:
@@ -40,7 +57,7 @@ func get_flat_added_damage() -> Vector2:
 				flat = maxf(roundf(affix.value * ItemRoller.HYBRID_FLAT_PER_PERCENT), 1.0)
 		if flat > 0.0:
 			added += Vector2(flat, roundf(flat * ItemRoller.FLAT_DAMAGE_SPREAD))
-	return added
+	return added * damage_scale()
 
 ## The type this weapon's hits deal: its Infusion when infused, else native.
 func get_damage_type() -> Constants.DamageType:

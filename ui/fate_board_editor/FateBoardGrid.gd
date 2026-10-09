@@ -165,6 +165,7 @@ func _make_custom_tooltip(for_text: String) -> Object:
 	if board == null or not board.placements.has(for_text):
 		return null
 	var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+	card.footer_lines = ChainCalculator.chain_lines_for(board, for_text)
 	card.display_slate(board.placements[for_text].slate)
 	return card
 
@@ -181,7 +182,7 @@ func _draw() -> void:
 
 	var occupied: Dictionary = board.get_occupied_cells() if board else {}
 	_draw_walls(occupied)
-	_draw_cell(FateBoard.ANCHOR_CELL, ANCHOR_COLOR)
+	_draw_anchor()
 
 	if board == null:
 		return
@@ -233,6 +234,13 @@ func _refresh_cell_background() -> void:
 			img.set_pixel(cell.x, cell.y, color)
 	var tex := ImageTexture.create_from_image(img)
 	(_background.material as ShaderMaterial).set_shader_parameter("cell_data", tex)
+
+## The starting point: a solid gold block Slates attach to but never cover.
+func _draw_anchor() -> void:
+	var rect := Rect2(Vector2(FateBoard.ANCHOR_CELL) * _cell_px, Vector2(_cell_px, _cell_px))
+	draw_rect(rect, Color(0.32, 0.25, 0.1, 1.0))
+	draw_rect(rect.grow(-3), ANCHOR_COLOR)
+	draw_rect(rect, AetherStyle.GOLD, false, 2.0)
 
 func _draw_cell(cell: Vector2i, color: Color) -> void:
 	if not _in_bounds(cell):

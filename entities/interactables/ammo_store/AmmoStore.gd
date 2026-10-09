@@ -21,7 +21,8 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if _player and Time.get_ticks_msec() >= _message_until_msec:
-		prompt_label.text = "Press E to Resupply: %d Gold" % get_resupply_cost(_player)
+		prompt_label.set_meta(&"prompt_template", "Press E to Resupply: %d Gold" % get_resupply_cost(_player))
+		GameSettings.refresh_interact_prompt(prompt_label)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _player and event.is_action_pressed("interact"):
@@ -96,6 +97,7 @@ func _show_message(text: String) -> void:
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:
 		_player = body
+		GameSettings.refresh_interact_prompt(prompt_label)
 		prompt_label.visible = true
 
 func _on_body_exited(body: Node3D) -> void:

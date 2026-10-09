@@ -1,0 +1,130 @@
+{
+  "source": "ice_snowrock5.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9590633926391601,
+      -0.4325003929138183,
+      -0.8357706298828125
+    ],
+    "max": [
+      0.9012257995605468,
+      1.117931396484375,
+      0.7705134201049804
+    ],
+    "height": 1.5504317893981931
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "snowyrockV6_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_environment_snowyrock_v1_v10_diffuse.dds",
+        "normal": "icg_environment_snowyrock_v1_v10_normal.dds",
+        "orm": "icg_environment_snowyrock_v1_v10_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_Normal.tif",
+        "orm": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "snowyrockV6_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_environment_snowyrock_v1_v10_diffuse.dds",
+        "normal": "icg_environment_snowyrock_v1_v10_normal.dds",
+        "orm": "icg_environment_snowyrock_v1_v10_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_Normal.tif",
+        "orm": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "snowyrockV6_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_environment_snowyrock_v1_v10_diffuse.dds",
+        "normal": "icg_environment_snowyrock_v1_v10_normal.dds",
+        "orm": "icg_environment_snowyrock_v1_v10_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_Normal.tif",
+        "orm": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "snowyrockV6_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_environment_snowyrock_v1_v10_diffuse.dds",
+        "normal": "icg_environment_snowyrock_v1_v10_normal.dds",
+        "orm": "icg_environment_snowyrock_v1_v10_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_Normal.tif",
+        "orm": "Doodads/Icecrown/Rocks/Ice_SnowRock/ICG_Environment_SnowyRock_V1_V10_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,130 @@
+{
+  "source": "icecrownpillar0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9253835678100585,
+      0.004417199939489364,
+      -0.9250811691284179
+    ],
+    "max": [
+      0.9326357803344726,
+      5.160689758300781,
+      0.9282617797851562
+    ],
+    "height": 5.156272558361292
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 6700,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "ICG_Props_Pillar_V1_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_props_pillar_v1_diffuse.dds",
+        "normal": "icg_props_pillar_v1_normal.dds",
+        "orm": "icg_props_pillar_v1_orm.dds",
+        "emissive": "icg_props_pillar_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Normal.tif",
+        "orm": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_ORM.tif",
+        "emissive": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "ICG_Props_Pillar_V1_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_props_pillar_v1_diffuse.dds",
+        "normal": "icg_props_pillar_v1_normal.dds",
+        "orm": "icg_props_pillar_v1_orm.dds",
+        "emissive": "icg_props_pillar_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Normal.tif",
+        "orm": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_ORM.tif",
+        "emissive": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "ICG_Props_Pillar_V1_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_props_pillar_v1_diffuse.dds",
+        "normal": "icg_props_pillar_v1_normal.dds",
+        "orm": "icg_props_pillar_v1_orm.dds",
+        "emissive": "icg_props_pillar_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Normal.tif",
+        "orm": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_ORM.tif",
+        "emissive": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "ICG_Props_Pillar_V1_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_props_pillar_v1_diffuse.dds",
+        "normal": "icg_props_pillar_v1_normal.dds",
+        "orm": "icg_props_pillar_v1_orm.dds",
+        "emissive": "icg_props_pillar_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Normal.tif",
+        "orm": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_ORM.tif",
+        "emissive": "Doodads/Icecrown/Props/IceCrownPillar/ICG_Props_Pillar_V1_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

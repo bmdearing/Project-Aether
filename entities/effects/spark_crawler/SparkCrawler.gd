@@ -2,7 +2,8 @@ extends Node3D
 class_name SparkCrawler
 ## Spark ground crawler. Re-targets the nearest enemy every frame and turns
 ## toward it at TURN_SPEED; wanders when nothing is within SEEK_RADIUS. Can
-## hit the same enemy repeatedly, at most once per HIT_INTERVAL.
+## hit the same enemy repeatedly, at most once per HIT_INTERVAL - shared by
+## every crawler (HitCooldown), so a cast's sparks can't stack on one enemy.
 
 const MOVE_SPEED := 5.0
 const TURN_SPEED := 3.0  # rad/s
@@ -19,7 +20,6 @@ var stat_sheet: StatSheet
 var source: Node
 var damage_multiplier: float = 1.0
 
-var _hit_timers: Dictionary = {}  # Enemy -> float seconds remaining before it can be hit again
 var _wander_timer: float = 0.0
 var _wander_target: Vector3 = Vector3.FORWARD
 
@@ -36,9 +36,6 @@ func _ready() -> void:
 		mesh.material_override = mat
 
 func _physics_process(delta: float) -> void:
-	for enemy in _hit_timers.keys():
-		_hit_timers[enemy] = max(0.0, _hit_timers[enemy] - delta)
-
 	var target := _find_nearest_enemy()
 	var desired: Vector3 = heading
 	if target:
@@ -61,9 +58,8 @@ func _physics_process(delta: float) -> void:
 			continue
 		if enemy.distance_to_body(global_position) > HIT_RADIUS:
 			continue
-		if _hit_timers.get(enemy, 0.0) > 0.0:
+		if not HitCooldown.try_hit(&"spark", enemy, HIT_INTERVAL):
 			continue
-		_hit_timers[enemy] = HIT_INTERVAL
 		var hit := ability.roll_damage(stat_sheet)
 		var damage: float = hit["final_damage"] * damage_multiplier
 		enemy.take_damage(damage, ability.damage_type)

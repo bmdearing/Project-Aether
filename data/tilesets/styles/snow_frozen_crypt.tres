@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="MapTileset" load_steps=26 format=3]
+
+[ext_resource type="Script" path="res://data/tilesets/MapTileset.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/ground/ice_tiledbricks_diffuse.dds" id="2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/ground/ice_tiledbricks_normal.dds" id="3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/ground/ice_tiledbricks_orm.dds" id="4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/ground/ice_runebricks_diffuse.dds" id="5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/ground/ice_runebricks_normal.dds" id="6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/ground/ice_runebricks_orm.dds" id="7"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/ground/ice_blackbricks_diffuse.dds" id="8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/ground/ice_blackbricks_normal.dds" id="9"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/ground/ice_blackbricks_orm.dds" id="10"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/IcecrownStonearch.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Icecrownpillar0.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Icecrownobelisk0.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Northrendbrokencolumn0.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Northrendobilisk.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Northrendtombstone0.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Iceblock0.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Northrendgrave.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/NorthBones0.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Northrendrubble0.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Iceblock2.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/IceRock2.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/IceSnowrock0.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/NorthRocks0.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/snow/Icetorch.tscn" id="25"]
+
+[resource]
+script = ExtResource("1")
+id = "snow_frozen_crypt"
+display_name = "Frozen Crypt"
+family = "snow"
+layout = "rooms"
+floor_albedo = ExtResource("2")
+floor_normal = ExtResource("3")
+floor_orm = ExtResource("4")
+floor_wide = false
+patch_albedo = ExtResource("5")
+patch_normal = ExtResource("6")
+patch_orm = ExtResource("7")
+patch_wide = false
+patch_amount = 0.3
+wall_albedo = ExtResource("8")
+wall_normal = ExtResource("9")
+wall_orm = ExtResource("10")
+wall_wide = false
+archways = Array[PackedScene]([ExtResource("11")])
+wall_props = Array[PackedScene]([ExtResource("12"), ExtResource("13"), ExtResource("14"), ExtResource("15"), ExtResource("16"), ExtResource("17")])
+floor_props = Array[PackedScene]([ExtResource("18"), ExtResource("19"), ExtResource("20"), ExtResource("21")])
+clusters = Array[PackedScene]([ExtResource("22"), ExtResource("23"), ExtResource("24")])
+wall_lights = Array[PackedScene]([ExtResource("25")])
+lights_per_room = 2
+background_color = Color(0.01, 0.015, 0.03, 1)
+ambient_color = Color(0.35, 0.45, 0.62, 1)
+ambient_energy = 0.7
+sun_energy = 0
+sun_color = Color(1, 1, 1, 1)
+fog_color = Color(0.04, 0.07, 0.12, 1)
+fog_density = 0.02
+light_color = Color(0.55, 0.78, 1, 1)
+light_energy = 3.2
+light_range = 9
+room_light_energy = 1
+grid_size = 5
+room_count = Vector2i(8, 10)
+branch_stop_chance = 0.5
+room_size = Vector2(14, 18)
+corridor_width = 3.5
+wall_height = 5.0
+pillar_chance = 0.85

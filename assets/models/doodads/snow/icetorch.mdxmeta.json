@@ -1,0 +1,141 @@
+{
+  "source": "icetorch.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.0292292251586914,
+      -0.003126600086688995,
+      -0.9831906051635741
+    ],
+    "max": [
+      1.0292292251586914,
+      1.9129500274658202,
+      0.9831906051635741
+    ],
+    "height": 1.9160766275525092
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 12433,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 12467,
+      "end": 13467,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "SkullTorch_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_props_skulltorch_diffuse.dds",
+        "normal": "icg_props_skulltorch_normal.dds",
+        "orm": "icg_props_skulltorch_orm.dds",
+        "emissive": "icg_props_skulltorch_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Normal.tif",
+        "orm": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_ORM.tif",
+        "emissive": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "SkullTorch_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_props_skulltorch_diffuse.dds",
+        "normal": "icg_props_skulltorch_normal.dds",
+        "orm": "icg_props_skulltorch_orm.dds",
+        "emissive": "icg_props_skulltorch_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Normal.tif",
+        "orm": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_ORM.tif",
+        "emissive": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "SkullTorch_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_props_skulltorch_diffuse.dds",
+        "normal": "icg_props_skulltorch_normal.dds",
+        "orm": "icg_props_skulltorch_orm.dds",
+        "emissive": "icg_props_skulltorch_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Normal.tif",
+        "orm": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_ORM.tif",
+        "emissive": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "SkullTorch_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_props_skulltorch_diffuse.dds",
+        "normal": "icg_props_skulltorch_normal.dds",
+        "orm": "icg_props_skulltorch_orm.dds",
+        "emissive": "icg_props_skulltorch_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Normal.tif",
+        "orm": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_ORM.tif",
+        "emissive": "Doodads/Icecrown/Props/IceTorch/ICG_Props_SkullTorch_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    }
+  ]
+}

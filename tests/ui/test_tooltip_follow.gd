@@ -1,8 +1,8 @@
 extends Control
 ## TooltipFollow: placement beside the cursor (edge flips, never covering the
-## cursor), and the per-frame follow on a stand-in tooltip window. A real
-## hover can't be driven here: Godot cancels tooltips whenever the OS cursor
-## is outside the window. Also checks every item slot builds its card.
+## cursor), and the live tooltip driven by pushed mouse motion (instant show, follow,
+## swap between controls, refresh, hide).
+## Also checks every item slot builds its card.
 ## Run: Godot --headless --path . res://tests/ui/test_tooltip_follow.tscn --quit-after 2000
 ## Exits 0 when every check passes.
 
@@ -52,25 +52,51 @@ func _test_placement() -> void:
 	_finished += 1
 
 func _test_follow() -> void:
-	var fake := PopupPanel.new()
-	fake.theme_type_variation = TooltipFollow.TOOLTIP_VARIATION
-	var label := Label.new()
-	label.text = "stand-in tooltip"
-	fake.add_child(label)
-	get_tree().root.add_child(fake)
-	fake.popup(Rect2i(0, 0, 200, 80))
+	var a := Button.new()
+	a.text = "A"
+	a.tooltip_text = "first tooltip"
+	a.position = Vector2(100, 100)
+	a.size = Vector2(200, 60)
+	add_child(a)
+	var b := Button.new()
+	b.text = "B"
+	b.tooltip_text = "second tooltip"
+	b.position = Vector2(100, 300)
+	b.size = Vector2(200, 60)
+	add_child(b)
 	await _frames(2)
-	_check(TooltipFollow.find_tooltip(get_tree().root) == fake, "finds the tooltip window")
-	for target in [Vector2(300, 200), Vector2(420, 260)]:
-		var e := InputEventMouseMotion.new()
-		e.position = target
-		e.global_position = target
-		TooltipFollow._input(e)
-		await _frames(2)
-		var expected := TooltipFollow.place(target, Vector2(fake.size), get_tree().root.get_visible_rect().size)
-		_check(Vector2(fake.position).distance_to(expected) < 1.5, "tooltip follows the cursor to %s (at %s)" % [target, fake.position])
-	fake.queue_free()
+	for target in [Vector2(150, 120), Vector2(260, 140)]:
+		_move(target)
+		await _frames(3)
+		var tip := TooltipFollow.current()
+		_check(tip != null and _tip_text(tip) == "first tooltip", "a hovered control's tooltip shows with no delay")
+		if tip:
+			var expected := TooltipFollow.place(target, tip.size, get_tree().root.get_visible_rect().size)
+			_check(tip.position.distance_to(expected) < 1.5, "tooltip follows the cursor to %s (at %s)" % [target, tip.position])
+	_move(Vector2(150, 320))
+	await _frames(3)
+	var tip2 := TooltipFollow.current()
+	_check(tip2 != null and _tip_text(tip2) == "second tooltip", "moving onto another control swaps the tooltip at once")
+	b.tooltip_text = "changed"
+	await _frames(int(TooltipFollow.REFRESH_SEC * 60.0) + 30)
+	tip2 = TooltipFollow.current()
+	_check(tip2 != null and _tip_text(tip2) == "changed", "a showing tooltip picks up changed content")
+	_move(Vector2(900, 900))
+	await _frames(2)
+	_check(TooltipFollow.current() == null, "the tooltip hides when nothing with a tooltip is hovered")
+	a.queue_free()
+	b.queue_free()
 	_finished += 1
+
+func _move(pos: Vector2) -> void:
+	var e := InputEventMouseMotion.new()
+	e.position = pos
+	e.global_position = pos
+	get_viewport().push_input(e, true)
+
+func _tip_text(tip: Control) -> String:
+	var label := tip.find_child("*", true, false) as Label
+	return label.text if label else ""
 
 func _test_every_slot_builds_a_card() -> void:
 	var card_scene := load("res://ui/item_card/ItemCard.tscn") as PackedScene

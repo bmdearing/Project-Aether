@@ -45,6 +45,21 @@ for (const [family, kit] of Object.entries(manifest.families)) {
       console.log(`  ${role}: ${path.basename(mdx)}`);
     }
   }
+  // Models drawn with a WC3 replaceable texture (trees) have no texture of
+  // their own: every untextured geoset gets the one named in kit.replaceable.
+  for (const [model, stem] of Object.entries(kit.replaceable || {})) {
+    const metaPath = path.join(dir, model.replace(/.mdx$/i, ".mdxmeta.json"));
+    if (!fs.existsSync(metaPath)) continue;
+    const base = path.basename(stem);
+    for (const map of GROUND_MAPS) writeIfMissing(path.join(dir, `${base}_${map}.dds`), `${MOD_PREFIX}${stem}_${map}.dds`);
+    const meta = JSON.parse(fs.readFileSync(metaPath, "utf8"));
+    for (const g of meta.geosets) {
+      if (g.textures.diffuse) continue;
+      for (const map of GROUND_MAPS) g.textures[map] = `${base}_${map}.dds`;
+    }
+    fs.writeFileSync(metaPath, JSON.stringify(meta, null, 2));
+    console.log(`  replaceable: ${model} -> ${base}`);
+  }
   const grounds = manifest.grounds[family];
   for (const layout of ["wide", "narrow"]) {
     for (const ground of grounds[layout]) {

@@ -1,0 +1,130 @@
+{
+  "source": "northrendgrave.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.716220733642578,
+      -1.2583223876953125,
+      -1.5107022399902343
+    ],
+    "max": [
+      2.3595301208496093,
+      1.932533981323242,
+      2.1610799560546874
+    ],
+    "height": 3.1908563690185545
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "NR_Props_GraveStone_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_gravestone_diffuse.dds",
+        "normal": "nr_props_gravestone_normal.dds",
+        "orm": "nr_props_gravestone_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "NR_Props_GraveStone_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_gravestone_diffuse.dds",
+        "normal": "nr_props_gravestone_normal.dds",
+        "orm": "nr_props_gravestone_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "NR_Props_GraveStone_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_gravestone_diffuse.dds",
+        "normal": "nr_props_gravestone_normal.dds",
+        "orm": "nr_props_gravestone_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "NR_Props_GraveStone_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_gravestone_diffuse.dds",
+        "normal": "nr_props_gravestone_normal.dds",
+        "orm": "nr_props_gravestone_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendGrave/NR_Props_GraveStone_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

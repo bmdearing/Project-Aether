@@ -1,0 +1,130 @@
+{
+  "source": "northrendobilisk.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.1760246276855468,
+      -0.004055399984121322,
+      -1.162193389892578
+    ],
+    "max": [
+      1.175214660644531,
+      3.755268127441406,
+      1.1737926177978515
+    ],
+    "height": 3.7593235274255274
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Northrend_Props_Obelisk_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_obelisk_diffuse.dds",
+        "normal": "nr_props_obelisk_normal.dds",
+        "orm": "nr_props_obelisk_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Northrend_Props_Obelisk_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_obelisk_diffuse.dds",
+        "normal": "nr_props_obelisk_normal.dds",
+        "orm": "nr_props_obelisk_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Northrend_Props_Obelisk_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_obelisk_diffuse.dds",
+        "normal": "nr_props_obelisk_normal.dds",
+        "orm": "nr_props_obelisk_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Northrend_Props_Obelisk_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_obelisk_diffuse.dds",
+        "normal": "nr_props_obelisk_normal.dds",
+        "orm": "nr_props_obelisk_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_Normal.tif",
+        "orm": "Doodads/Northrend/Props/NorthrendObilisk/NR_Props_Obelisk_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

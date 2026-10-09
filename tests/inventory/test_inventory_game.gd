@@ -181,21 +181,21 @@ func _test_fate_board() -> void:
 	var palette_slates := editor.palette_list.get_children().filter(func(b): return not b.is_queued_for_deletion() and b.slate == slate)
 	_check(palette_slates.size() == 1, "palette lists carried slates")
 	editor._selected_slate = slate
-	editor._on_cell_clicked(FateBoard.ANCHOR_CELL, MOUSE_BUTTON_LEFT)
+	editor._on_cell_clicked(FateBoard.ANCHOR_CELL + Vector2i(1, 0), MOUSE_BUTTON_LEFT)
 	_check(GameState.fate_board.placements.size() == 1 and not GameState.inventory.has_content(slate), "placing moves the slate out of the grid")
 	_check(GameState.fate_board_placements.size() == 1 and GameState.fate_board_placements[0]["slate_ref"] is Dictionary, "placed rolled slate saved as full data")
-	editor._on_cell_clicked(FateBoard.ANCHOR_CELL, MOUSE_BUTTON_RIGHT)
+	editor._on_cell_clicked(FateBoard.ANCHOR_CELL + Vector2i(1, 0), MOUSE_BUTTON_RIGHT)
 	_check(GameState.fate_board.placements.is_empty() and GameState.inventory.has_content(slate), "removing returns the slate to the grid")
 
 	editor._selected_slate = slate
-	editor._on_cell_clicked(FateBoard.ANCHOR_CELL, MOUSE_BUTTON_LEFT)
+	editor._on_cell_clicked(FateBoard.ANCHOR_CELL + Vector2i(1, 0), MOUSE_BUTTON_LEFT)
 	var saved := GameState.inventory
 	GameState.inventory = GridInventory.new(1, 1)
 	GameState.inventory.add(&"quickening")
-	editor._on_cell_clicked(FateBoard.ANCHOR_CELL, MOUSE_BUTTON_RIGHT)
+	editor._on_cell_clicked(FateBoard.ANCHOR_CELL + Vector2i(1, 0), MOUSE_BUTTON_RIGHT)
 	_check(GameState.fate_board.placements.size() == 1, "removal refused when the grid is full")
 	GameState.inventory = saved
-	editor._on_cell_clicked(FateBoard.ANCHOR_CELL, MOUSE_BUTTON_RIGHT)
+	editor._on_cell_clicked(FateBoard.ANCHOR_CELL + Vector2i(1, 0), MOUSE_BUTTON_RIGHT)
 	editor.close()
 	_finished += 1
 
@@ -205,6 +205,7 @@ func _test_shop_refund() -> void:
 	var saved := GameState.inventory
 	GameState.inventory = GridInventory.new(1, 1)
 	GameState.inventory.add(&"quickening")
+	GameState.gold = 1000  # new games start with none
 	var gold := GameState.gold
 	var item := _weapon("Dagger", false)
 	var label := Label.new()

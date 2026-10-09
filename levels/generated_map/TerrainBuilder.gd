@@ -54,13 +54,13 @@ func build_open_field(graph: MapGraph, cell_size: float) -> void:
 		var room: MapGraph.RoomData = graph.rooms[cell]
 		if room.is_start or room.is_vault:
 			continue
-		for i in randi_range(MOUNDS_PER_CELL.x, MOUNDS_PER_CELL.y):
+		for i in randi_range(_map.layout.mounds_per_cell.x, _map.layout.mounds_per_cell.y):
 			var offset := Vector3(randf_range(-0.45, 0.45), 0.0, randf_range(-0.45, 0.45)) * cell_size
 			_build_mound(_map._cell_to_world(cell) + offset)
 
 func _build_mound(pos: Vector3) -> void:
-	var radius := randf_range(DUNE_MOUND_RADIUS.x, DUNE_MOUND_RADIUS.y)
-	var height := randf_range(DUNE_MOUND_HEIGHT.x, DUNE_MOUND_HEIGHT.y)
+	var radius := randf_range(DUNE_MOUND_RADIUS.x, DUNE_MOUND_RADIUS.y) * _map.layout.mound_scale
+	var height := randf_range(DUNE_MOUND_HEIGHT.x, DUNE_MOUND_HEIGHT.y) * _map.layout.mound_scale
 	_add_ellipsoid(pos + Vector3(0, -height * DUNE_MOUND_SINK, 0), radius, height, _floor_mat)
 
 ## Tall dune ridges along every edge, plus an invisible wall just outside so
@@ -102,12 +102,12 @@ func build_canyon(graph: MapGraph, cell_size: float) -> void:
 			var p := origin + Vector3(corner.x, 0, corner.y) * half
 			corners[Vector2i(roundi(p.x), roundi(p.z))] = p
 	for p in corners.values():
-		_add_cliff_block(p, Vector3(CORNER_PILLAR_SIZE, randf_range(CLIFF_HEIGHT.x, CLIFF_HEIGHT.y), CORNER_PILLAR_SIZE), randf() * TAU)
+		_add_cliff_block(p, Vector3(CORNER_PILLAR_SIZE, randf_range(CLIFF_HEIGHT.x, CLIFF_HEIGHT.y) * _map.layout.cliff_height_scale, CORNER_PILLAR_SIZE), randf() * TAU)
 
 ## Cliffs along a connected edge, leaving one opening somewhere along it.
 func _build_pass(edge_centre: Vector3, along: Vector3, cell_size: float) -> void:
 	var half := cell_size / 2.0
-	var width := randf_range(PASS_WIDTH.x, PASS_WIDTH.y)
+	var width := randf_range(PASS_WIDTH.x, PASS_WIDTH.y) * _map.layout.pass_width_scale
 	var slack := half - width / 2.0 - PASS_END_MARGIN
 	var offset := randf_range(-slack, slack) if slack > 0.0 else 0.0
 	var gap_lo := offset - width / 2.0
@@ -126,7 +126,7 @@ func _build_cliff_line(from: Vector3, to: Vector3) -> void:
 	while t < length:
 		var block_len := minf(randf_range(CLIFF_LENGTH.x, CLIFF_LENGTH.y), length - t + 1.0)
 		var pos := from + dir * (t + block_len / 2.0) + normal * randf_range(-CLIFF_JITTER, CLIFF_JITTER)
-		var size := Vector3(randf_range(CLIFF_DEPTH.x, CLIFF_DEPTH.y), randf_range(CLIFF_HEIGHT.x, CLIFF_HEIGHT.y), block_len)
+		var size := Vector3(randf_range(CLIFF_DEPTH.x, CLIFF_DEPTH.y), randf_range(CLIFF_HEIGHT.x, CLIFF_HEIGHT.y) * _map.layout.cliff_height_scale, block_len)
 		_add_cliff_block(pos, size, base_yaw + deg_to_rad(randf_range(-CLIFF_YAW_JITTER_DEG, CLIFF_YAW_JITTER_DEG)))
 		t += CLIFF_STEP
 
@@ -216,8 +216,8 @@ func scatter_doodads(dresser: RoomDresser, tileset: MapTileset, graph: MapGraph,
 				var offset := Vector3(randf_range(-max_off, max_off), 0, randf_range(-max_off, max_off))
 				if offset.length() < SCATTER_MIN_FROM_CENTRE or (centre + offset).distance_to(spawn) < SCATTER_MIN_FROM_SPAWN:
 					continue
-				dresser._place_loose(centre + offset, pool.pick_random())
-				break
+				if dresser.place_loose(centre + offset, pool.pick_random()):
+					break
 
 func _add_ellipsoid(pos: Vector3, radius: float, height: float, material: Material) -> void:
 	var sphere := SphereMesh.new()

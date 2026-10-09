@@ -40,6 +40,7 @@ func _ready() -> void:
 	grid.drop_requested.connect(_on_drop_requested)
 	close_button.pressed.connect(close)
 	designate_option.item_selected.connect(_on_designate_option_selected)
+	chain_label.mouse_filter = Control.MOUSE_FILTER_STOP
 
 func is_open() -> bool:
 	return _is_open
@@ -186,6 +187,7 @@ func _is_slate_available(slate: Slate) -> bool:
 const _FAILURE_MESSAGES := {
 	"insufficient_aether": "Can't place: not enough Aether.",
 	"cell_occupied": "Can't place: that cell is already occupied.",
+	"anchor_cell": "Can't place: the starting point is solid. Build out from beside it.",
 	"not_connected": "Can't place: Slates must connect to the anchor or an already-placed Slate.",
 	"tag_not_connected": "Can't place: a Slate must touch the anchor or a placed Slate it shares a tag with (Hybrid Slates and Lenses can bridge).",
 }
@@ -204,4 +206,6 @@ func _refresh_chains() -> void:
 		var tag_name: String = Constants.DAMAGE_TYPE_NAME.get(r.tag, "?")
 		lines.append("%s chain: %d tiles, +%.2f%%" % [tag_name, r.tile_count, r.bonus_percent * 100.0])
 		EventBus.chain_recalculated.emit(i, r.tile_count, r.bonus_percent)
-	chain_label.text = "\n".join(lines) if lines.size() > 0 else "No chains yet"
+	chain_label.text = ("\n".join(lines) if lines.size() > 0 else "No chains yet") + "\n(hover for how chains work)"
+	var summary := "\n\nYour chains:\n" + "\n".join(lines) if lines.size() > 0 else ""
+	chain_label.tooltip_text = ChainCalculator.explanation() + summary

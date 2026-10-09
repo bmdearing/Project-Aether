@@ -1,0 +1,101 @@
+[gd_scene load_steps=15 format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_8h1xt"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_enviroment_iceclaws_diffuse.dds" id="2_1t7xm"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_enviroment_iceclaws_emissive.dds" id="3_pllom"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_enviroment_iceclaws_normal.dds" id="4_8bft3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_enviroment_iceclaws_orm.dds" id="5_ldxk3"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/snow/north_iceclaw0.glb" id="6_drbms"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_607wd"]
+albedo_texture = ExtResource("2_1t7xm")
+orm_texture = ExtResource("5_ldxk3")
+emission_enabled = true
+emission_texture = ExtResource("3_pllom")
+normal_enabled = true
+normal_texture = ExtResource("4_8bft3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uoawl"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_1t7xm")
+orm_texture = ExtResource("5_ldxk3")
+emission_enabled = true
+emission_texture = ExtResource("3_pllom")
+normal_enabled = true
+normal_texture = ExtResource("4_8bft3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_l48f1"]
+albedo_texture = ExtResource("2_1t7xm")
+orm_texture = ExtResource("5_ldxk3")
+emission_enabled = true
+emission_texture = ExtResource("3_pllom")
+normal_enabled = true
+normal_texture = ExtResource("4_8bft3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_wgbau"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_1t7xm")
+orm_texture = ExtResource("5_ldxk3")
+emission_enabled = true
+emission_texture = ExtResource("3_pllom")
+normal_enabled = true
+normal_texture = ExtResource("4_8bft3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_catjw"]
+albedo_texture = ExtResource("2_1t7xm")
+orm_texture = ExtResource("5_ldxk3")
+emission_enabled = true
+emission_texture = ExtResource("3_pllom")
+normal_enabled = true
+normal_texture = ExtResource("4_8bft3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_w3b5k"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_1t7xm")
+orm_texture = ExtResource("5_ldxk3")
+emission_enabled = true
+emission_texture = ExtResource("3_pllom")
+normal_enabled = true
+normal_texture = ExtResource("4_8bft3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4fkog"]
+albedo_texture = ExtResource("2_1t7xm")
+orm_texture = ExtResource("5_ldxk3")
+emission_enabled = true
+emission_texture = ExtResource("3_pllom")
+normal_enabled = true
+normal_texture = ExtResource("4_8bft3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_go78p"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_1t7xm")
+orm_texture = ExtResource("5_ldxk3")
+emission_enabled = true
+emission_texture = ExtResource("3_pllom")
+normal_enabled = true
+normal_texture = ExtResource("4_8bft3")
+
+[node name="NorthIceclaw0" type="Node3D"]
+script = ExtResource("1_8h1xt")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_607wd"),
+1: SubResource("ORMMaterial3D_uoawl"),
+2: SubResource("ORMMaterial3D_l48f1"),
+3: SubResource("ORMMaterial3D_wgbau"),
+4: SubResource("ORMMaterial3D_catjw"),
+5: SubResource("ORMMaterial3D_w3b5k"),
+6: SubResource("ORMMaterial3D_4fkog"),
+7: SubResource("ORMMaterial3D_go78p")
+}
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." instance=ExtResource("6_drbms")]

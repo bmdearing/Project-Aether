@@ -31,6 +31,7 @@ AudioManager="*res://systems/audio/AudioManager.gd"
 SoundLib="*res://systems/audio/SoundLib.gd"
 KillBox="*res://autoloads/KillBox.gd"
 TooltipFollow="*res://autoloads/TooltipFollow.gd"
+LoadingScreen="*res://autoloads/LoadingScreen.gd"
 
 [display]
 
@@ -42,7 +43,7 @@ window/stretch/aspect="expand"
 [gui]
 
 theme/custom="res://ui/theme/aether_theme.tres"
-timers/tooltip_delay_sec=0.03
+timers/tooltip_delay_sec=100000.0
 
 [input]
 

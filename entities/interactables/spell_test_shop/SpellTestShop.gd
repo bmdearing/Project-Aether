@@ -63,6 +63,7 @@ func _grant(ability_id: String) -> void:
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:
 		_player_in_range = true
+		GameSettings.refresh_interact_prompt(prompt_label)
 		prompt_label.visible = true
 
 func _on_body_exited(body: Node3D) -> void:

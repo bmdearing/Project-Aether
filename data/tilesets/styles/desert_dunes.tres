@@ -59,3 +59,4 @@ light_color = Color(1, 1, 1, 1)
 light_energy = 0
 light_range = 8
 room_light_energy = 0
+mounds_per_cell = Vector2i(1, 3)

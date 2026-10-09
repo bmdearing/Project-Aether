@@ -1,0 +1,219 @@
+{
+  "source": "firepittrashed.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9397746276855468,
+      -0.07366679763793944,
+      -0.925597801208496
+    ],
+    "max": [
+      1.0153079681396484,
+      0.47110501098632807,
+      0.8915526123046874
+    ],
+    "height": 0.5447718086242676
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 700,
+      "end": 1700,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "NR_Props_FirePitTrashed_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepittrashed_diffuse.dds",
+        "normal": "nr_props_firepittrashed_normal.dds",
+        "orm": "nr_props_firepittrashed_orm.dds",
+        "emissive": "nr_props_firepittrashed_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "NR_Props_FirePitTrashed_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepittrashed_diffuse.dds",
+        "normal": "nr_props_firepittrashed_normal.dds",
+        "orm": "nr_props_firepittrashed_orm.dds",
+        "emissive": "nr_props_firepittrashed_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "NR_Props_FirePitTrashed_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepittrashed_diffuse.dds",
+        "normal": "nr_props_firepittrashed_normal.dds",
+        "orm": "nr_props_firepittrashed_orm.dds",
+        "emissive": "nr_props_firepittrashed_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "NR_Props_FirePitTrashed_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepittrashed_diffuse.dds",
+        "normal": "nr_props_firepittrashed_normal.dds",
+        "orm": "nr_props_firepittrashed_orm.dds",
+        "emissive": "nr_props_firepittrashed_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "NR_Props_FirePitTrashed_geo_LOD1_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepittrashed_diffuse.dds",
+        "normal": "nr_props_firepittrashed_normal.dds",
+        "orm": "nr_props_firepittrashed_orm.dds",
+        "emissive": "nr_props_firepittrashed_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "NR_Props_FirePitTrashed_geo_LOD2_001",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepittrashed_diffuse.dds",
+        "normal": "nr_props_firepittrashed_normal.dds",
+        "orm": "nr_props_firepittrashed_orm.dds",
+        "emissive": "nr_props_firepittrashed_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "NR_Props_FirePitTrashed_geo_LOD3_001",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_props_firepittrashed_diffuse.dds",
+        "normal": "nr_props_firepittrashed_normal.dds",
+        "orm": "nr_props_firepittrashed_orm.dds",
+        "emissive": "nr_props_firepittrashed_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Diffuse.tif",
+        "normal": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Normal.tif",
+        "orm": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_ORM.tif",
+        "emissive": "Doodads/Northrend/Props/FirePitTrashed/NR_Props_FirePitTrashed_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    }
+  ]
+}

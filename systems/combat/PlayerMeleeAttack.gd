@@ -70,13 +70,15 @@ const STRIKE_CONTACT_START := 0.6
 ## anything else (including ranged types, which never reach this class
 ## at all - see Player._physics_process()'s is_ranged dispatch) falls
 ## back to base_motion_value.
+## v4.51: every melee type tuned so sustained DPS (hit / swing time, see
+## tests/balance/probe_dps.tscn) lands near 150 for one-handers, 155 for
+## blunt/polearm one-handers and 165 for two-handers, which also cleave.
+## Slow weapons get the biggest hits.
 const WEAPON_TYPE_MOTION_VALUE := {
-	"Dagger": 0.65,
-	"Greatsword": 1.1,
-	"Greataxe": 1.15,
-	"Rapier": 0.55,
-	"Staff": 1.0,
-	"Gauntlet": 0.5,
+	"Dagger": 1.08, "Rapier": 0.86, "Saber": 1.0, "Shortsword": 1.03, "Cutlass": 1.22,
+	"Pressure Fist": 1.26, "Mace": 1.2, "Spear": 1.22, "War Pick": 1.65, "Whip": 1.6,
+	"Shock Lance": 1.88, "Halberd": 1.64, "Greataxe": 2.0, "Greatsword": 2.0, "Claymore": 2.13,
+	"Staff": 1.0, "Gauntlet": 0.5,
 }
 
 ## Per-weapon swing duration multiplier (via _effective_duration()), so a
@@ -390,6 +392,8 @@ func _enter_strike() -> void:
 		_player.apply_impulse(forward.normalized() * LUNGE_PER_WEIGHT * weight)
 	if _stance_release.has("on_contact"):
 		(_stance_release["on_contact"] as Callable).call()
+	if _player.ability_cast:
+		_player.ability_cast.on_melee_swing()
 
 func _end_strike() -> void:
 	if _hitbox:

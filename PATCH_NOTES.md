@@ -7,6 +7,63 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.51: Tooltips, dungeon rework, Snow tileset, Booming Blade, gun/melee balance, rebinding (user batch)
+
+**Tooltips** (user: "ultra dynamic, auto-updating and following the cursor"). Godot's popup tooltip waits out a delay, keeps its content frozen once shown and only moves after the fact. `TooltipFollow` now draws the tooltip itself on a top CanvasLayer:
+- Every frame it reads the hovered control (`Viewport.gui_get_hovered_control()`) and its tooltip text, walking up through PASS parents like Godot. A tooltip shows the frame the cursor arrives and swaps the moment it crosses into another slot or Fate Board cell.
+- The tooltip is rebuilt every 0.25s (and on any click), so crafts, equips and stat changes show while you hover. A rebuilt card stays invisible for one frame while it lays out, so it never flashes at the wrong size. `ItemCard._clear()` now removes old lines at once: queued lines still counted toward the size, which made the card jump on Alt.
+- The tooltip ignores the mouse, so it can't steal hover. The native tooltip is pushed out of reach (`tooltip_delay_sec = 100000`); controls still use `tooltip_text` / `_make_custom_tooltip()`.
+- **Fate Board chains:** hovering the chain summary explains chains (same-tag adjacency, attributes only, Hybrids/Lenses) with the tier table and your current chains. A placed Slate's card lists the chains it's in.
+
+**Fate Board starting point** is solid: no Slate can cover it (`anchor_cell` refusal), and it draws as a gold block. Saves that already covered it still load.
+
+**Dungeon rework** (user: more expansive and realistic, bosses stuck in the boss-room floor, bigger boss room, fewer overlapping doodads):
+- Rooms are rolled rectangles centred in larger cells, joined by walled corridors from doorway to doorway (the old rooms were 13 m boxes on a 16 m grid with 3 m floor patches between them). Big rooms may get four pillars and a second pack.
+- **Boss room:** the jump-gap platform and its sunken safety floor are gone. That was the stuck-boss bug: a boss that stepped off the 4 m platform landed in the 0.5 m-deep gap and couldn't get back up. The room is now one flat floor, larger than the style's biggest room, with four pillars and an altar opposite the entrance.
+- **Completion portal:** killing a Figment's boss opens a portal home on the altar (the top of the dais in open layouts). It doesn't count toward the portal limit and comes back if you return through your own portal.
+- **Doodads** claim their footprint in `RoomDresser`; nothing is placed over another prop, a pillar, the altar, doorways, the doorway-to-doorway lanes or the pack area. Props that can't fit are skipped.
+
+**Styles play differently** (user: "the layouts are basically the same, a different palette each time"). `MapTileset` has Layout fields that reshape its layout kind; `MapLayout._apply_style()` reads them:
+- Cellblock: 10-14 small cells (12-15 m) on long 3 m corridors, bushy with dead ends.
+- Undercroft: 6-8 huge pillared halls (20-26 m), 6.5 m walls, wide corridors.
+- Mine: a long winding chain (branch-stop 0.08) of rough rooms with rock outcrops jutting from the walls.
+- Foundry Pit: big halls with 7.5 m walls. Frozen Crypt: mid-sized colonnaded rooms.
+- Tundra: big rolling hills. Frostwood: nearly flat, dense trees (`scatter_scale` 1.8). Glacier Pass: a long winding canyon with narrower passes and 1.5x cliffs.
+- The boss room scales with the style (its biggest room + 5 m, 20-32 m), and cells widen so a corridor always fits.
+
+**Snow tileset** (4 map types: Tundra, Frostwood, Glacier Pass, Frozen Crypt). 29 Northrend/Icecrown doodads and 10 ground sheets extracted with `extract_doodads.js snow` (about 265 MB). Northrend trees draw with WC3's replaceable texture slot and converted untextured; `doodads.json` families can now name a `replaceable` texture that fills those geosets. Trees collide (and claim floor) only at the trunk.
+
+**Portals were inconsistent** (user report). Two causes:
+- A portal only reacted on the frame the player *entered* it. Walking in during its 0.6 s arming delay, or standing in it when it armed, did nothing until you stepped out and back in. Portals now check for the player every physics frame once armed, and the trigger radius grew from 0.9 to 1.1 m.
+- An opened portal went 2.5 m ahead even into a wall, where it couldn't be reached. `open_portal()` now tries forward, then the sides, then behind.
+
+**Load screens:** a `LoadingScreen` autoload replaces every `change_scene_to_file()`. It loads the next scene on a background thread behind a plate showing the destination (Figment name, style, tier), a gameplay tip and a progress bar, keeps it up while the new scene builds, then fades out.
+
+**Guns outpaced melee** (user report). Measured with the new `tests/balance/probe_dps.tscn` (strongest base of each type, the game's own damage and timing): full-auto guns did 540-815 sustained DPS, semi-auto guns 160-280, the best melee about 150. Before guns' +40% aimed bonus and safe range.
+- `Weapon.RANGED_DAMAGE_SCALE` scales each ranged type's damage range (shown on the card too), putting unaimed guns and bows at 95-116 DPS. Crossbows were the weakest ranged weapon at 67 and are now 110.
+- Every melee type has a motion value (`WEAPON_TYPE_MOTION_VALUE`, which used to cover 6 types): one-handers about 150, blunt/polearm one-handers 155, two-handers 165, with cleave on top. Slow weapons now hit much harder per swing.
+- Judgment call: aimed guns still reach about 135-160, roughly melee-level DPS from range at an ammo cost. Easy to move with the scale table.
+
+**Combat fixes:**
+- **Monster deaths:** an attack pulsed the same frame won the state machine's transition order, so a dying enemy finished its swing before falling. `play_death()` clears pending triggers and jumps straight to the death clip.
+- **Spark / Caltrops:** a per-enemy 0.15 s hit cooldown shared by every copy (`HitCooldown`). Several sparks, or overlapping fields, can't stack hits on one enemy. Spark's cooldown used to be per crawler.
+- **Enemy health bars** hide when walls or props block line of sight to the enemy's head and middle. Other enemies don't count as cover.
+- `PiercingBolt` no longer errors when its shooter is gone (scene change mid-flight), and `Loot.player_bonuses()` survives a freed player.
+
+**New content:**
+- **Booming Blade** (Lightning spell, 20 Mana): cast once and it stays on, across areas, until cast again (turning it off is free). While on, every melee swing fires lightning bolts straight ahead, at most every 0.45 s: 1 bolt, +1 every 5 spell levels. The ability bar slot glows while it's on. Not a Slate auto-cast.
+- **Butterfly** (Unique crossbow): your damage is increased by 60% of your increased Movement Speed (+30% Movement Speed = +18% increased damage), plus 15-25% Movement Speed and 10-15% Attack Speed. Its other two lines are Claude's.
+- **Jewels:** new "increased Weapon Damage" line (up to 40%); Attack Speed now rolls up to 15% and Critical Strike Chance up to 20% (Tier 1 maxima, `JewelModifierPool.OWN_RANGES`).
+- **Control rebinding:** Settings has General and Controls tabs. Click a binding and press any key or mouse button (Esc cancels); a key taken from another action swaps over. Reset to Defaults. Saved in `settings.cfg`. The Hub's "Press E" prompts follow the Interact binding.
+
+**Smaller:**
+- Ward on the Life globe keeps its width and drains from the top down.
+- The 1,000,000 starting gold for testers is gone; new games start at 0. Existing saves keep their gold.
+
+Tests: new `tests/v451` (67 checks) covers each item above. `tests/portal` now kills two ordinary enemies, since killing the boss correctly opens the completion portal. The inventory shop test sets its own gold. The 11 `test_roster_ammo` clip failures ("Attack 1 not found") predate this batch: same count on a clean checkout.
+
+---
+
 ## 2026-10-08 — v4.50: Negative modifier wording, full Mana on entering an area (user reports)
 
 - **"+-30% to Cold Resistance"** (Seal of the Lesser Sun): the main item card merges modifiers on the same stat into one line using the regular affix template, and a negative total was printed straight into "+%d". `ItemRoller.describe_value()` now writes a negative value through `negated_template()`. Increased/reduced and more/less swap and the "+" goes; with no such word, the "+" becomes "-".

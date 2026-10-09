@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "booming_blade"
+display_name = "Booming Blade"
+description = "Thunder gathers in your blade. Once cast it stays on: every melee attack hurls lightning straight ahead. Cast again to let it fade."
+damage_type = 5
+motion_value = 0.4
+scaling_grade = 4
+cooldown_seconds = 0.0
+resource_cost = 20.0
+can_trigger_riposte = false
+is_auto_cast_eligible = false
+applies_status_effects = Array[String](["shock"])
+status_chance = 0.2
+radius = 22.0
+base_crit_chance = 0.06
+base_damage_min = 14.0
+base_damage_max = 22.0
+tags = Array[StringName]([&"projectile", &"utility"])
+unleashable = false

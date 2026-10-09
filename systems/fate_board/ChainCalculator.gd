@@ -150,3 +150,29 @@ static func lens_multiplier(board: FateBoard, data: FateBoard.PlacedSlateData, a
 		elif effect["mod"] == "amplify_attributes" and attributes:
 			percent += effect["value"]
 	return 1.0 + percent / 100.0
+
+## How chains work, with the tier table, for tooltips.
+static func explanation() -> String:
+	var lines := PackedStringArray([
+		"Chains",
+		"Slates that touch edge to edge and share a tag form a chain.",
+		"Each chain amplifies the attribute lines (Strength, Vitality...) of every",
+		"Slate in it by its bonus. Other modifiers count at face value.",
+		"Hybrid Slates and bridging Lenses count toward the chains of both tags.",
+		"",
+		"Bonus per tile in the chain:",
+	])
+	for tier in Constants.CHAIN_BONUS_TIERS:
+		var range_text := "%d+" % tier["min"] if tier["max"] > 9999 else "%d-%d" % [tier["min"], tier["max"]]
+		lines.append("  Tiles %s: +%.2f%% each" % [range_text, tier["per_tile"] * 100.0])
+	lines.append("")
+	lines.append("e.g. 20 tiles = +%.0f%%, 40 tiles = +%.0f%%" % [_bonus_for_tile_count(20) * 100.0, _bonus_for_tile_count(40) * 100.0])
+	return "\n".join(lines)
+
+## The chains a placed Slate belongs to, one line each, for its hover card.
+static func chain_lines_for(board: FateBoard, placement_id: String) -> Array[String]:
+	var lines: Array[String] = []
+	for result in compute_chains(board):
+		if result.placement_ids.has(placement_id):
+			lines.append("%s chain: %d tiles, +%.2f%% attributes" % [Constants.DAMAGE_TYPE_NAME.get(result.tag, "?"), result.tile_count, result.bonus_percent * 100.0])
+	return lines

@@ -241,13 +241,13 @@ func _build_wiki() -> void:
 
 func _on_continue_pressed() -> void:
 	GameState.game_started = true
-	get_tree().change_scene_to_file(GameState.HUB_SCENE)
+	LoadingScreen.change_scene(GameState.HUB_SCENE)
 
 func _on_new_game_pressed() -> void:
 	GameState.reset_to_defaults()
 	SaveManager.delete_save()
 	GameState.game_started = true
-	get_tree().change_scene_to_file(GameState.HUB_SCENE)
+	LoadingScreen.change_scene(GameState.HUB_SCENE)
 
 func _on_quit_pressed() -> void:
 	SaveManager.save_game()

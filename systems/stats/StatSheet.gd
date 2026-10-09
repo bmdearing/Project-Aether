@@ -200,6 +200,9 @@ func get_increased_damage_percent(damage_type: int, is_attack: bool) -> float:
 	if is_attack:
 		total += get_misc_bonus("increased_attack_damage")
 	total += get_misc_bonus("hollow_damage_ward_drain")  # corruption: Hollow
+	# Butterfly: a share of increased Movement Speed as increased damage.
+	if unique_effects and unique_effects.has(UniqueEffects.DAMAGE_FROM_MOVE_SPEED):
+		total += get_misc_bonus("move_speed") * unique_effects.value(UniqueEffects.DAMAGE_FROM_MOVE_SPEED) / 100.0
 	return total
 
 ## Fraction added to the base crit multiplier. crit_damage and

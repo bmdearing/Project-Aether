@@ -21,7 +21,6 @@ class RoomData:
 	var cell: Vector2i
 	var is_start: bool = false
 	var is_vault: bool = false
-	var has_jump_platform: bool = false
 	var distance_from_start: int = 0
 	var connections: Array[Vector2i] = []
 
@@ -67,7 +66,6 @@ static func generate_full_grid(size: int) -> MapGraph:
 		var d: Vector2i = cell - graph.start_cell
 		graph.rooms[cell].distance_from_start = absi(d.x) + absi(d.y)
 	graph._assign_special_rooms()
-	graph.rooms[graph.vault_cell].has_jump_platform = false
 	return graph
 
 ## Named has_connection(), not is_connected() - Object already declares a
@@ -123,9 +121,8 @@ func _unvisited_neighbors(cell: Vector2i) -> Array[Vector2i]:
 			result.append(n)
 	return result
 
-## Vault = the room with the greatest graph distance from start - gets
-## denser enemies and a jump-gap floor split in GeneratedMap.gd. Only one
-## per map for now.
+## Vault = the room with the greatest graph distance from start: the boss
+## room (GeneratedMap). One per map.
 func _assign_special_rooms() -> void:
 	var farthest: Vector2i = start_cell
 	var farthest_dist := -1
@@ -136,4 +133,3 @@ func _assign_special_rooms() -> void:
 			farthest = cell
 	vault_cell = farthest
 	rooms[vault_cell].is_vault = true
-	rooms[vault_cell].has_jump_platform = true

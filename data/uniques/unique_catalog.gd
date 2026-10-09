@@ -134,6 +134,16 @@ const DEFS := [
 			["attack_speed", -25.0, -25.0, "%d%% reduced Attack Speed"],
 		],
 	},
+	{
+		"id": "butterfly", "name": "Butterfly", "rarity": Constants.ItemRarity.UNIQUE,
+		"base_type": "crossbow", "weight": 100.0,
+		"flavor": "Never where the blade expects. Always where the bolt lands.",
+		"mods": [
+			["unique_damage_from_move_speed", 60.0, 60.0, "Increases your damage by %d%% of your increased Movement Speed"],
+			["move_speed", 15.0, 25.0, "+%d%% increased Movement Speed"],
+			["attack_speed", 10.0, 15.0, "+%d%% increased Attack Speed"],
+		],
+	},
 	# ---- Corrupted only (Shard of Tharsis, Transcendent) ----
 	{
 		"id": "debt_of_tharsis", "name": "The Debt of Tharsis", "rarity": Constants.ItemRarity.UNIQUE,

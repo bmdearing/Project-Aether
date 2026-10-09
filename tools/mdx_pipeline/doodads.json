@@ -1,5 +1,5 @@
 {
-  "_comment": "Tileset doodad kits for extract_doodads.js. Each family's models are pulled from the wc3_install named in models.json into dir, with their textures, and converted at scale. Roles decide placement in GeneratedMap: archway = every doorway, wall = against a wall facing in, floor = loose in the room, cluster = corners and edges, light = wall-mounted light source, support = along walls (corridor beams).",
+  "_comment": "Tileset doodad kits for extract_doodads.js. Each family's models are pulled from the wc3_install named in models.json into dir, with their textures, and converted at scale. Roles decide placement in GeneratedMap: archway = every doorway, wall = against a wall facing in, floor = loose in the room, cluster = corners and edges, light = wall-mounted light source, support = along walls (corridor beams). replaceable (optional) maps a model to the WC3 replaceable texture (CASC path stem) its untextured geosets use, e.g. trees.",
   "families": {
     "dungeon": {
       "dir": "assets/models/doodads/dungeon",
@@ -112,6 +112,60 @@
           "doodads/icecrown/rocks/icecrown_crystal/icecrown_crystal6.mdx"
         ]
       }
+    },
+    "snow": {
+      "dir": "assets/models/doodads/snow",
+      "scale": 0.018,
+      "roles": {
+        "archway": [
+          "doodads/northrend/structures/nrockarch/nrockarch.mdx",
+          "doodads/icecrown/structures/icecrown_stonearch/icecrown_stonearch.mdx"
+        ],
+        "wall": [
+          "doodads/icecrown/props/icecrownpillar/icecrownpillar0.mdx",
+          "doodads/icecrown/props/icecrownobelisk/icecrownobelisk0.mdx",
+          "doodads/northrend/props/northrendbrokencolumn/northrendbrokencolumn0.mdx",
+          "doodads/northrend/props/northrendobilisk/northrendobilisk.mdx",
+          "doodads/northrend/props/northrendtombstone/northrendtombstone0.mdx",
+          "doodads/icecrown/rocks/iceblock/iceblock0.mdx"
+        ],
+        "floor": [
+          "doodads/northrend/props/north_bones/north_bones0.mdx",
+          "doodads/northrend/props/north_bones/north_bones5.mdx",
+          "doodads/northrend/props/firepittrashed/firepittrashed.mdx",
+          "doodads/northrend/props/northrendgrave/northrendgrave.mdx",
+          "doodads/northrend/structures/northrendrubble/northrendrubble0.mdx",
+          "doodads/icecrown/rocks/iceblock/iceblock2.mdx"
+        ],
+        "cluster": [
+          "doodads/northrend/rocks/north_rocks/north_rocks0.mdx",
+          "doodads/northrend/rocks/north_rocks/north_rocks5.mdx",
+          "doodads/icecrown/rocks/ice_snowrock/ice_snowrock0.mdx",
+          "doodads/icecrown/rocks/ice_snowrock/ice_snowrock5.mdx",
+          "doodads/northrend/plants/north_thorns/north_thorns0.mdx",
+          "doodads/northrend/plants/north_thorns/north_thorns3.mdx",
+          "doodads/icecrown/rocks/ice_rock/ice_rock2.mdx"
+        ],
+        "spire": [
+          "doodads/northrend/rocks/north_iceclaw/north_iceclaw0.mdx",
+          "doodads/northrend/rocks/north_iceclaw/north_iceclaw4.mdx",
+          "doodads/icecrown/rocks/glacier/glacier0.mdx"
+        ],
+        "tree": [
+          "doodads/terrain/northrendtree/northrendtree0.mdx",
+          "doodads/terrain/northrendtree/northrendtree3.mdx",
+          "doodads/terrain/northrendtree/northrendtree6.mdx"
+        ],
+        "light": [
+          "doodads/icecrown/props/icetorch/icetorch.mdx",
+          "doodads/northrend/props/firepit/firepit.mdx"
+        ]
+      },
+      "replaceable": {
+        "northrendtree0.mdx": "replaceabletextures/northrendtreeicy/northtreeicy",
+        "northrendtree3.mdx": "replaceabletextures/northrendtreeicy/northtreeicy",
+        "northrendtree6.mdx": "replaceabletextures/northrendtreeicy/northtreeicy"
+      }
     }
   },
   "grounds": {
@@ -154,6 +208,22 @@
       "narrow": [
         "dalaran/dalaran_whitemarble",
         "dalaran/dalaran_blackmarble"
+      ]
+    },
+    "snow": {
+      "wide": [
+        "northrend/north_snow",
+        "northrend/north_ice",
+        "northrend/north_dirt",
+        "northrend/north_rock",
+        "icecrown/ice_snow"
+      ],
+      "narrow": [
+        "northrend/north_snowrock",
+        "icecrown/ice_runebricks",
+        "icecrown/ice_tiledbricks",
+        "icecrown/ice_blackbricks",
+        "icecrown/ice_darkice"
       ]
     }
   }

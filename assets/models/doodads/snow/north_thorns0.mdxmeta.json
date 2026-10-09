@@ -1,0 +1,130 @@
+{
+  "source": "north_thorns0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.4585255584716796,
+      -0.28134899711608885,
+      -1.303982940673828
+    ],
+    "max": [
+      1.9804860076904296,
+      2.613276123046875,
+      1.4459058380126952
+    ],
+    "height": 2.8946251201629636
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "NR_Environment_VinesThorny_V1",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_environment_vinesthorny_v1_diffuse.dds",
+        "normal": "nr_environment_vinesthorny_v1_normal.dds",
+        "orm": "nr_environment_vinesthorny_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_Diffuse.tif",
+        "normal": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_Normal.tif",
+        "orm": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "NR_Environment_VinesThorny_V1_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_environment_vinesthorny_v1_diffuse.dds",
+        "normal": "nr_environment_vinesthorny_v1_normal.dds",
+        "orm": "nr_environment_vinesthorny_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_Diffuse.tif",
+        "normal": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_Normal.tif",
+        "orm": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "NR_Environment_VinesThorny_V1_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_environment_vinesthorny_v1_diffuse.dds",
+        "normal": "nr_environment_vinesthorny_v1_normal.dds",
+        "orm": "nr_environment_vinesthorny_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_Diffuse.tif",
+        "normal": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_Normal.tif",
+        "orm": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "NR_Environment_VinesThorny_V1_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nr_environment_vinesthorny_v1_diffuse.dds",
+        "normal": "nr_environment_vinesthorny_v1_normal.dds",
+        "orm": "nr_environment_vinesthorny_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_Diffuse.tif",
+        "normal": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_Normal.tif",
+        "orm": "Doodads/Northrend/Plants/North_Thorns/NR_Environment_VinesThorny_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

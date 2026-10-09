@@ -1,0 +1,406 @@
+{
+  "source": "northrendtree3.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.091347946166992,
+      -2.1195,
+      -2.501730010986328
+    ],
+    "max": [
+      2.3653619384765623,
+      5.525351806640624,
+      2.5057260131835934
+    ],
+    "height": 7.644851806640625
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 3033,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 3367,
+      "end": 4867,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 4900,
+      "end": 7900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Eattree 1",
+      "start": 7933,
+      "end": 9933,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "lordaeron_tree_00:nt3_main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": false,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "lordaeron_tree_00:nt3_leaves_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "lordaeron_tree_00:nt3_death_main_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "lordaeron_tree_00nt3_main_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": false,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "lordaeron_tree_00nt3_main_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": false,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "lordaeron_tree_00nt3_main_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": false,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "lordaeron_tree_00nt3_leaves_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "lordaeron_tree_00nt3_leaves_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 8,
+      "name": "lordaeron_tree_00nt3_leaves_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 9,
+      "name": "lordaeron_tree_00nt3_death_main_geo_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 10,
+      "name": "lordaeron_tree_00nt3_death_main_geo_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 11,
+      "name": "lordaeron_tree_00nt3_death_main_geo_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northtreeicy_diffuse.dds",
+        "normal": "northtreeicy_normal.dds",
+        "orm": "northtreeicy_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": false
+      }
+    }
+  ]
+}

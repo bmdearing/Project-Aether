@@ -11,18 +11,29 @@ class_name GeneratedMap
 ## layout, unknown until _ready()); the UI suite is static-equivalent,
 ## instantiated after the Player so its player-group lookups succeed.
 
-const CELL_SIZE := 16.0
-const ROOM_FOOTPRINT := 13.0
-const WALL_HEIGHT := 4.0
-const WALL_THICKNESS := 0.4
+## Dungeon (ROOMS) layout: rooms of varied rectangular size, centred in
+## their grid cells and joined by walled corridors from doorway to doorway.
+## Every floor is flat - the Vault used to have a jump gap that trapped bosses.
+const CELL_SIZE := 30.0
+## Per-axis footprint range of an ordinary room; the start room is smaller,
+## the Vault (boss room) larger.
+const ROOM_SIZE := Vector2(15.0, 23.0)
+const START_ROOM_SIZE := 14.0
+const BOSS_ROOM_SIZE := 27.0
+const WALL_HEIGHT := 5.0
+const WALL_THICKNESS := 0.6
 const DOORWAY_WIDTH := 4.0
-
-## Vault room: a safety floor sits under the whole room at -0.5m so a
-## missed jump is a stumble, not a fall through the world.
-const JUMP_PLATFORM_HEIGHT := 1.2
-const JUMP_PLATFORM_DEPTH := 4.0
-const JUMP_GAP_DEPTH := 3.0
-const SAFETY_FLOOR_DROP := 0.5
+const CORRIDOR_WIDTH := 4.0
+## Rooms at least this big on both axes may get four pillars.
+const PILLAR_ROOM_MIN := 18.0
+const PILLAR_CHANCE := 0.6
+const PILLAR_SIZE := 1.4
+## Second enemy pack in rooms with at least this much floor area.
+const BIG_ROOM_AREA := 380.0
+## Boss room: the altar (where the completion portal opens) sits this far
+## in from the wall opposite the entrance.
+const ALTAR_INSET := 4.5
+const ALTAR_RADIUS := 2.4
 
 ## Fallback colours, used only when no MapTileset style loads.
 const ROOM_FLOOR_COLORS := [
@@ -33,11 +44,10 @@ const ROOM_FLOOR_COLORS := [
 ]
 const VAULT_FLOOR_COLOR := Color(0.32, 0.24, 0.06)
 const WALL_COLOR := Color(0.22, 0.2, 0.19)
-const PLATFORM_COLOR := Color(0.5, 0.4, 0.15)
 
 const PLAYER_SCENE := preload("res://entities/player/Player.tscn")
 ## "One Vault per Map" guarantees exactly one Figment boss per Map, on the
-## Vault's platform (see FigmentBoss.gd).
+## boss room (see FigmentBoss.gd).
 const FIGMENT_BOSS_SCENE := preload("res://entities/enemies/figment_boss/FigmentBoss.tscn")
 
 ## Added after _spawn_player() - Godot readies children before parents,
@@ -85,6 +95,11 @@ var tileset_id: String = ""
 var _next_spawn_index := 0
 var _dead_spawn_indices: Array[int] = []
 var _portal: Portal
+## Rooms layout: cell -> Vector2 half-extents (x, z) of that room.
+var room_half: Dictionary = {}
+## Where the portal home opens when the Figment's boss dies.
+var boss_portal_point: Vector3
+var _completion_portal: Portal
 var _portal_player_position: Vector3
 var _portal_player_yaw: float
 
@@ -104,6 +119,7 @@ func _ready() -> void:
 	seed(map_seed)
 	_apply_tileset(_pick_tileset(restore.get("tileset_id", "")))
 	EventBus.enemy_died.connect(_on_enemy_died)
+	EventBus.figment_completed.connect(_on_figment_completed)
 	layout = MapLayout.for_tileset(tileset)
 	cell_size = layout.cell_size
 	graph = layout.generate_graph()
@@ -123,19 +139,24 @@ func _ready() -> void:
 func _build_layout() -> void:
 	match layout.kind:
 		MapLayout.Kind.ROOMS:
+			_roll_room_sizes()
 			for cell in graph.rooms:
 				_build_room(graph.rooms[cell])
-			_build_doorway_bridges()
+			_build_corridors()
 		MapLayout.Kind.OPEN_FIELD:
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
 			_terrain.build_open_field(graph, cell_size)
 			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
-			_spawn_vault_boss(_terrain.build_dais(_cell_to_world(graph.vault_cell), 1.6, _floor_mat))
+			var dune_crest := _terrain.build_dais(_cell_to_world(graph.vault_cell), 1.6, _floor_mat)
+			boss_portal_point = dune_crest
+			_spawn_vault_boss(dune_crest)
 		MapLayout.Kind.CANYON:
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
 			_terrain.build_canyon(graph, cell_size)
 			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
-			_spawn_vault_boss(_terrain.build_dais(_cell_to_world(graph.vault_cell), 2.0, _wall_mat))
+			var mesa := _terrain.build_dais(_cell_to_world(graph.vault_cell), 2.0, _wall_mat)
+			boss_portal_point = mesa
+			_spawn_vault_boss(mesa)
 
 func _spawn_vault_boss(pos: Vector3) -> void:
 	_boss = FIGMENT_BOSS_SCENE.instantiate()
@@ -167,19 +188,41 @@ func open_portal() -> bool:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player == null:
 		return false
-	var forward := -player.global_transform.basis.z
-	forward.y = 0.0
-	forward = forward.normalized() if forward.length() > 0.01 else Vector3.FORWARD
 	if is_instance_valid(_portal):
 		_portal.queue_free()
 	_portal_player_position = player.global_position
 	_portal_player_yaw = player.rotation.y
-	var pos := _ground_point(player.global_position + forward * PORTAL_DISTANCE, player.global_position.y)
+	var pos := _ground_point(_clear_portal_spot(player), player.global_position.y)
 	_portal = _add_portal(pos)
 	GameState.portals_opened += 1
 	EventBus.portal_opened.emit(pos)
 	return true
 
+
+## PORTAL_DISTANCE ahead of the player, or, when a wall or prop is in the
+## way, the first of the other three directions with room (the roomiest one
+## if none has). A portal used to land inside the wall you faced.
+func _clear_portal_spot(player: Player) -> Vector3:
+	var forward := -player.global_transform.basis.z
+	forward.y = 0.0
+	forward = forward.normalized() if forward.length() > 0.01 else Vector3.FORWARD
+	var space := get_world_3d().direct_space_state
+	var origin := player.global_position + Vector3.UP * 1.0
+	var need := PORTAL_DISTANCE + Portal.RADIUS
+	var best_dir := forward
+	var best_room := -1.0
+	for turn in [0.0, PI / 2.0, -PI / 2.0, PI]:
+		var dir := forward.rotated(Vector3.UP, turn)
+		var query := PhysicsRayQueryParameters3D.create(origin, origin + dir * need)
+		query.exclude = [player.get_rid()]
+		var hit := space.intersect_ray(query)
+		var room := need if hit.is_empty() else origin.distance_to(hit["position"])
+		if room >= need:
+			return player.global_position + dir * PORTAL_DISTANCE
+		if room > best_room:
+			best_room = room
+			best_dir = dir
+	return player.global_position + best_dir * maxf(best_room - Portal.RADIUS - 0.2, 0.0)
 const PORTAL_DISTANCE := 2.5
 const GROUND_PROBE_UP := 2.0
 const GROUND_PROBE_DOWN := 6.0
@@ -204,12 +247,23 @@ func _add_portal(pos: Vector3) -> Portal:
 	portal.global_position = pos
 	return portal
 
+
+## The boss's death completes the Figment and opens a portal home at a fixed
+## spot: the boss room's altar, or the top of the dais in open layouts.
+## It doesn't count toward the portal limit.
+func _on_figment_completed(_figment: FigmentItem) -> void:
+	_open_completion_portal.call_deferred()
+
+func _open_completion_portal() -> void:
+	if is_instance_valid(_completion_portal):
+		return
+	_completion_portal = _add_portal(boss_portal_point)
 ## Saves this map's state and goes to the Hub.
 func leave_through_portal() -> void:
 	GameState.portal_map_state = capture_state()
 	SaveManager.save_game()
 	get_tree().paused = false
-	get_tree().change_scene_to_file(GameState.HUB_SCENE)
+	LoadingScreen.change_scene(GameState.HUB_SCENE)
 
 ## JSON-safe snapshot: the seed rebuilds the layout and spawns; on top of
 ## that go the defeated enemies, the loot on the ground, and the portal.
@@ -286,6 +340,8 @@ func _apply_restore(state: Dictionary) -> void:
 	_portal_player_position = _array_to_vec(state.get("player", []))
 	_portal_player_yaw = float(state.get("player_yaw", 0.0))
 	_portal = _add_portal(_array_to_vec(state.get("portal", [])))
+	if _boss != null and (not is_instance_valid(_boss) or _boss.is_queued_for_deletion() or not _boss.is_inside_tree()):
+		_open_completion_portal()
 
 const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPickup.tscn")
 const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
@@ -307,7 +363,7 @@ func _apply_tileset(style: MapTileset) -> void:
 	sun.visible = style.sun_energy > 0.0
 	sun.light_energy = style.sun_energy
 	sun.light_color = style.sun_color
-	_dresser = RoomDresser.new(style, self, ROOM_FOOTPRINT, WALL_THICKNESS, DOORWAY_WIDTH)
+	_dresser = RoomDresser.new(style, self, WALL_THICKNESS, DOORWAY_WIDTH)
 
 func _on_enemy_died(enemy: Node) -> void:
 	if enemy.has_meta(&"spawn_index"):
@@ -318,10 +374,9 @@ func _on_enemy_died(enemy: Node) -> void:
 func _emit_enemy_count() -> void:
 	EventBus.enemy_count_changed.emit(_living_enemies.size(), _enemies_total)
 
-## Rooms (13m footprint) sit CELL_SIZE (16m) apart, so each doorway
-## needs a floor bridge closing the 3m gap. Each connection is processed
-## once via a canonical pair key, not twice from both rooms' side.
-func _build_doorway_bridges() -> void:
+## Each connection becomes a walled corridor between the two rooms' doorways.
+## Each pair is built once via a canonical key, not twice from both sides.
+func _build_corridors() -> void:
 	var built := {}
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
@@ -330,20 +385,36 @@ func _build_doorway_bridges() -> void:
 			if built.has(key):
 				continue
 			built[key] = true
-			_build_bridge(cell, neighbor)
+			_build_corridor(cell, neighbor)
 
 func _pair_key(a: Vector2i, b: Vector2i) -> String:
 	var lo := a if (a.x < b.x or (a.x == b.x and a.y < b.y)) else b
 	var hi := b if lo == a else a
 	return "%s|%s" % [lo, hi]
 
-func _build_bridge(a: Vector2i, b: Vector2i) -> void:
-	var mid := (_cell_to_world(a) + _cell_to_world(b)) / 2.0
-	var delta: Vector2i = b - a
-	var gap_size := CELL_SIZE - ROOM_FOOTPRINT
-	var size_x: float = gap_size if delta.x != 0 else DOORWAY_WIDTH
-	var size_z: float = DOORWAY_WIDTH if delta.x != 0 else gap_size
-	_build_floor(mid, size_x, size_z, 0.0, _random_floor_color())
+func _build_corridor(a: Vector2i, b: Vector2i) -> void:
+	var d := Vector3(b.x - a.x, 0, b.y - a.y)
+	var half_a: Vector2 = room_half[a]
+	var half_b: Vector2 = room_half[b]
+	var reach_a: float = half_a.x if d.x != 0.0 else half_a.y
+	var reach_b: float = half_b.x if d.x != 0.0 else half_b.y
+	var from := _cell_to_world(a) + d * reach_a
+	var to := _cell_to_world(b) - d * reach_b
+	var length := from.distance_to(to)
+	var mid := (from + to) / 2.0
+	var along_x := d.x != 0.0
+	# The floor runs a little into both rooms so there's no seam at the doorway.
+	_build_floor(mid, length + 0.6 if along_x else layout.corridor_width, layout.corridor_width if along_x else length + 0.6, 0.0, _random_floor_color())
+	var side := Vector3(0, 0, 1) if along_x else Vector3(1, 0, 0)
+	for s in [-1.0, 1.0]:
+		_add_wall_segment(mid + side * s * (layout.corridor_width + WALL_THICKNESS) / 2.0, length, along_x)
+	if tileset and tileset.room_light_energy > 0.0 and length > 6.0:
+		var light := OmniLight3D.new()
+		light.light_color = tileset.light_color
+		light.light_energy = tileset.room_light_energy * 0.8
+		light.omni_range = maxf(length * 0.7, 5.0)
+		light.position = mid + Vector3(0, layout.wall_height - 1.0, 0)
+		add_child(light)
 
 func _spawn_ui() -> void:
 	for scene in UI_SCENES:
@@ -352,44 +423,157 @@ func _spawn_ui() -> void:
 func _cell_to_world(cell: Vector2i) -> Vector3:
 	return Vector3(cell.x * cell_size, 0.0, cell.y * cell_size)
 
+## Footprints are rolled up front so corridors know where each room's walls are.
+func _roll_room_sizes() -> void:
+	room_half = {}
+	for cell in graph.rooms:
+		var room: MapGraph.RoomData = graph.rooms[cell]
+		var size := Vector2(randf_range(layout.room_size.x, layout.room_size.y), randf_range(layout.room_size.x, layout.room_size.y))
+		if room.is_start:
+			size = Vector2.ONE * minf(START_ROOM_SIZE, layout.room_size.y)
+		elif room.is_vault:
+			size = Vector2.ONE * layout.boss_room_size
+		room_half[cell] = size / 2.0
+
 func _build_room(room: MapGraph.RoomData) -> void:
 	var origin := _cell_to_world(room.cell)
-	if room.has_jump_platform:
-		_build_split_floor(origin, room)
-	else:
-		_build_floor(origin, ROOM_FOOTPRINT, ROOM_FOOTPRINT, 0.0, _random_floor_color())
+	var half: Vector2 = room_half[room.cell]
+	_build_floor(origin, half.x * 2.0, half.y * 2.0, 0.0, VAULT_FLOOR_COLOR if room.is_vault else _random_floor_color())
 
 	var open_sides: Array = []
 	for dir in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
 		var neighbor: Vector2i = room.cell + dir
 		var connected: bool = room.connections.has(neighbor)
-		_build_wall_side(origin, dir, connected)
+		_build_wall_side(origin, half, dir, connected)
 		if connected:
 			open_sides.append(dir)
+
+	if room.is_vault:
+		_build_boss_room(origin, half, open_sides)
+	elif minf(half.x, half.y) * 2.0 >= minf(PILLAR_ROOM_MIN, layout.room_size.y - 1.0) and randf() < layout.pillar_chance:
+		for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]:
+			_add_pillar(origin + Vector3(corner.x * half.x * 0.5, 0, corner.y * half.y * 0.5))
+	if layout.cave_walls and not room.is_vault:
+		_add_outcrops(origin, half, open_sides)
 	if _dresser:
-		# The Vault keeps its dressing on the main floor, off the jump gap and platform.
-		var max_z := -ROOM_FOOTPRINT / 2.0 + (ROOM_FOOTPRINT - JUMP_PLATFORM_DEPTH - JUMP_GAP_DEPTH) - 0.3 if room.has_jump_platform else INF
-		_dresser.dress(origin, open_sides, -INF, max_z)
+		_dresser.dress(origin, half, open_sides, room.is_vault)
+	if tileset and tileset.room_light_energy > 0.0:
+		var fill := OmniLight3D.new()
+		fill.light_color = tileset.light_color
+		fill.light_energy = tileset.room_light_energy
+		fill.omni_range = maxf(half.x, half.y) * 1.7
+		fill.position = origin + Vector3(0, layout.wall_height - 0.6, 0)
+		add_child(fill)
 
 func _random_floor_color() -> Color:
 	return ROOM_FLOOR_COLORS[randi() % ROOM_FLOOR_COLORS.size()]
 
-## Vault-only: splits the footprint along Z into a main floor and an
-## elevated platform with a gap between them, plus a full safety floor
-## underneath. The Figment's boss stands on the platform as the jump's
-## payoff - killing it "completes" the Figment (EventBus.figment_completed).
-func _build_split_floor(origin: Vector3, room: MapGraph.RoomData) -> void:
-	_build_floor(origin, ROOM_FOOTPRINT, ROOM_FOOTPRINT, -SAFETY_FLOOR_DROP, VAULT_FLOOR_COLOR)
+## The boss room: one flat floor (nothing to fall into or get stuck on), four
+## pillars for cover, and an altar opposite the entrance where the portal
+## home opens once the boss dies. The boss waits between the centre and the altar.
+func _build_boss_room(origin: Vector3, half: Vector2, open_sides: Array) -> void:
+	var entrance: Vector2i = open_sides[0] if not open_sides.is_empty() else Vector2i.DOWN
+	var back := -Vector3(entrance.x, 0, entrance.y)
+	var back_reach: float = half.x if entrance.x != 0 else half.y
+	for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]:
+		_add_pillar(origin + Vector3(corner.x * (half.x - 5.5), 0, corner.y * (half.y - 5.5)))
+	var altar := origin + back * (back_reach - ALTAR_INSET)
+	_add_altar(altar)
+	boss_portal_point = altar
+	_spawn_vault_boss(origin + back * 3.0 + Vector3(0, 0.05, 0))
 
-	var main_depth := ROOM_FOOTPRINT - JUMP_PLATFORM_DEPTH - JUMP_GAP_DEPTH
-	var half := ROOM_FOOTPRINT / 2.0
-	var main_center_z := -half + main_depth / 2.0
-	_build_floor(origin + Vector3(0, 0, main_center_z), ROOM_FOOTPRINT, main_depth, 0.0, VAULT_FLOOR_COLOR)
+## Cave rooms: rough rock shoulders jutting from the walls, clear of doorways,
+## so a mine room isn't a clean box.
+const OUTCROPS_PER_ROOM := Vector2i(4, 7)
+const OUTCROP_WIDTH := Vector2(1.6, 3.4)
+const OUTCROP_DEPTH := Vector2(0.8, 2.0)
 
-	var platform_center_z := half - JUMP_PLATFORM_DEPTH / 2.0
-	_build_floor(origin + Vector3(0, 0, platform_center_z), ROOM_FOOTPRINT, JUMP_PLATFORM_DEPTH, JUMP_PLATFORM_HEIGHT, PLATFORM_COLOR)
+func _add_outcrops(origin: Vector3, half: Vector2, open_sides: Array) -> void:
+	for i in randi_range(OUTCROPS_PER_ROOM.x, OUTCROPS_PER_ROOM.y):
+		var dir: Vector2i = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT].pick_random()
+		var along_len: float = half.x if dir.y != 0 else half.y
+		var t := randf_range(-along_len + 1.5, along_len - 1.5)
+		if dir in open_sides and absf(t) < layout.corridor_width / 2.0 + 2.0:
+			continue
+		var width := randf_range(OUTCROP_WIDTH.x, OUTCROP_WIDTH.y)
+		var depth := randf_range(OUTCROP_DEPTH.x, OUTCROP_DEPTH.y)
+		var height := layout.wall_height * randf_range(0.55, 1.0)
+		var wall_dist: float = half.y if dir.y != 0 else half.x
+		var along := Vector3(1, 0, 0) if dir.y != 0 else Vector3(0, 0, 1)
+		var pos := origin + Vector3(dir.x, 0, dir.y) * (wall_dist - depth / 2.0 + 0.2) + along * t
+		var size := Vector3(width, height, depth) if dir.y != 0 else Vector3(depth, height, width)
+		var body := StaticBody3D.new()
+		body.position = pos + Vector3(0, height / 2.0, 0)
+		body.rotation.y = randf_range(-0.25, 0.25)
+		add_child(body)
+		var mesh := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = size
+		mesh.mesh = box
+		mesh.material_override = _wall_mat if _wall_mat else _plain_material(WALL_COLOR)
+		body.add_child(mesh)
+		var collision := CollisionShape3D.new()
+		var shape := BoxShape3D.new()
+		shape.size = size
+		collision.shape = shape
+		body.add_child(collision)
+		if _dresser:
+			var r := maxf(size.x, size.z) / 2.0 + 0.3
+			_dresser.reserve(Rect2(Vector2(pos.x, pos.z) - Vector2.ONE * r, Vector2.ONE * r * 2.0))
 
-	_spawn_vault_boss(origin + Vector3(0, JUMP_PLATFORM_HEIGHT + 0.05, platform_center_z))
+## A full-height square column with collision; reserved so props avoid it.
+func _add_pillar(pos: Vector3) -> void:
+	var body := StaticBody3D.new()
+	body.position = pos + Vector3(0, layout.wall_height / 2.0, 0)
+	add_child(body)
+	var size := Vector3(PILLAR_SIZE, layout.wall_height, PILLAR_SIZE)
+	var mesh := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = size
+	mesh.mesh = box
+	mesh.material_override = _wall_mat if _wall_mat else _plain_material(WALL_COLOR)
+	body.add_child(mesh)
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = size
+	collision.shape = shape
+	body.add_child(collision)
+	if _dresser:
+		_dresser.reserve(Rect2(Vector2(pos.x, pos.z) - Vector2.ONE * PILLAR_SIZE, Vector2.ONE * PILLAR_SIZE * 2.0))
+
+## A glowing rune circle flush with the floor - no collision, so nothing can
+## catch on it.
+func _add_altar(pos: Vector3) -> void:
+	var color: Color = tileset.light_color if tileset else Color(0.6, 0.8, 1.0)
+	var ring := MeshInstance3D.new()
+	var disc := CylinderMesh.new()
+	disc.top_radius = ALTAR_RADIUS
+	disc.bottom_radius = ALTAR_RADIUS
+	disc.height = 0.04
+	ring.mesh = disc
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = Color(color, 0.55)
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.emission_enabled = true
+	mat.emission = color
+	mat.emission_energy_multiplier = 0.8
+	ring.material_override = mat
+	ring.position = pos + Vector3(0, 0.03, 0)
+	add_child(ring)
+	var glow := OmniLight3D.new()
+	glow.light_color = color
+	glow.light_energy = 1.2
+	glow.omni_range = 6.0
+	glow.position = pos + Vector3(0, 1.5, 0)
+	add_child(glow)
+	if _dresser:
+		_dresser.reserve(Rect2(Vector2(pos.x, pos.z) - Vector2.ONE * (ALTAR_RADIUS + 1.0), Vector2.ONE * (ALTAR_RADIUS + 1.0) * 2.0))
+
+func _plain_material(color: Color) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.roughness = 0.9
+	return mat
 
 func _build_floor(center: Vector3, size_x: float, size_z: float, height: float, color: Color) -> void:
 	var body := StaticBody3D.new()
@@ -416,23 +600,15 @@ func _build_floor(center: Vector3, size_x: float, size_z: float, height: float, 
 	collision.shape = shape
 	body.add_child(collision)
 
-func _build_wall_side(origin: Vector3, dir: Vector2i, connected: bool) -> void:
-	var half := ROOM_FOOTPRINT / 2.0
+func _build_wall_side(origin: Vector3, half: Vector2, dir: Vector2i, connected: bool) -> void:
 	var horizontal := dir == Vector2i.UP or dir == Vector2i.DOWN  # spans X, faces +/-Z
-	var side_offset: Vector3
-	match dir:
-		Vector2i.UP: side_offset = Vector3(0, 0, -half)
-		Vector2i.DOWN: side_offset = Vector3(0, 0, half)
-		Vector2i.LEFT: side_offset = Vector3(-half, 0, 0)
-		_: side_offset = Vector3(half, 0, 0)
-
+	var side_offset := Vector3(dir.x * (half.x + WALL_THICKNESS / 2.0), 0, dir.y * (half.y + WALL_THICKNESS / 2.0))
+	# Walls sit just outside the floor and overlap at the corners.
+	var length: float = (half.x if horizontal else half.y) * 2.0 + WALL_THICKNESS * 2.0
 	if not connected:
-		_add_wall_segment(origin + side_offset, ROOM_FOOTPRINT, horizontal)
+		_add_wall_segment(origin + side_offset, length, horizontal)
 		return
-
-	var segment_length := (ROOM_FOOTPRINT - DOORWAY_WIDTH) / 2.0
-	if segment_length <= 0.1:
-		return  # doorway too wide for this footprint - shouldn't happen with current constants
+	var segment_length := (length - DOORWAY_WIDTH) / 2.0
 	var along := Vector3(1, 0, 0) if horizontal else Vector3(0, 0, 1)
 	var reach := DOORWAY_WIDTH / 2.0 + segment_length / 2.0
 	_add_wall_segment(origin + side_offset - along * reach, segment_length, horizontal)
@@ -441,10 +617,10 @@ func _build_wall_side(origin: Vector3, dir: Vector2i, connected: bool) -> void:
 func _add_wall_segment(center: Vector3, length: float, horizontal: bool) -> void:
 	interior_wall_count += 1
 	var body := StaticBody3D.new()
-	body.position = center + Vector3(0, WALL_HEIGHT / 2.0, 0)
+	body.position = center + Vector3(0, layout.wall_height / 2.0, 0)
 	add_child(body)
 
-	var size := Vector3(length, WALL_HEIGHT, WALL_THICKNESS) if horizontal else Vector3(WALL_THICKNESS, WALL_HEIGHT, length)
+	var size := Vector3(length, layout.wall_height, WALL_THICKNESS) if horizontal else Vector3(WALL_THICKNESS, layout.wall_height, length)
 
 	var mesh_instance := MeshInstance3D.new()
 	var box := BoxMesh.new()
@@ -485,8 +661,14 @@ func _spawn_enemies() -> void:
 		var room: MapGraph.RoomData = graph.rooms[cell]
 		if room.is_start or room.is_vault:
 			continue
-		var center := _cell_to_world(cell) + Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))
-		_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_NORMAL), center)
+		var half: Vector2 = room_half[cell]
+		var packs := 2 if half.x * half.y * 4.0 >= BIG_ROOM_AREA else 1
+		for i in packs:
+			# A second pack stands off to one side of the room, not on the first.
+			var side := Vector3(half.x * 0.35, 0, 0) if half.x >= half.y else Vector3(0, 0, half.y * 0.35)
+			var base := _cell_to_world(cell) + (side * (1.0 if i == 0 else -1.0) if packs > 1 else Vector3.ZERO)
+			var center := base + Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))
+			_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_NORMAL), center)
 
 ## Open layouts: packs_per_cell packs near each cell's centre; the Vault
 ## holds only its boss.

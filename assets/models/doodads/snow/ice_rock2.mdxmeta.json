@@ -1,0 +1,130 @@
+{
+  "source": "ice_rock2.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.2369564514160156,
+      -0.4340898056030273,
+      -1.419668975830078
+    ],
+    "max": [
+      1.3017977600097654,
+      2.672550109863281,
+      1.4175954437255858
+    ],
+    "height": 3.1066399154663085
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Ice_Rock_V3_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_environment_rocks_v1_v8_diffuse.dds",
+        "normal": "icg_environment_rocks_v1_v8_normal.dds",
+        "orm": "icg_environment_rocks_v1_v8_orm.dds",
+        "emissive": "icg_environment_rocks_v1_v8_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Normal.tif",
+        "orm": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_ORM.tif",
+        "emissive": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Ice_Rock_V3_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_environment_rocks_v1_v8_diffuse.dds",
+        "normal": "icg_environment_rocks_v1_v8_normal.dds",
+        "orm": "icg_environment_rocks_v1_v8_orm.dds",
+        "emissive": "icg_environment_rocks_v1_v8_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Normal.tif",
+        "orm": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_ORM.tif",
+        "emissive": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Ice_Rock_V3_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_environment_rocks_v1_v8_diffuse.dds",
+        "normal": "icg_environment_rocks_v1_v8_normal.dds",
+        "orm": "icg_environment_rocks_v1_v8_orm.dds",
+        "emissive": "icg_environment_rocks_v1_v8_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Normal.tif",
+        "orm": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_ORM.tif",
+        "emissive": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Ice_Rock_V3_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icg_environment_rocks_v1_v8_diffuse.dds",
+        "normal": "icg_environment_rocks_v1_v8_normal.dds",
+        "orm": "icg_environment_rocks_v1_v8_orm.dds",
+        "emissive": "icg_environment_rocks_v1_v8_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Diffuse.tif",
+        "normal": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Normal.tif",
+        "orm": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_ORM.tif",
+        "emissive": "Doodads/Icecrown/Rocks/Ice_Rock/ICG_Environment_Rocks_V1_V8_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

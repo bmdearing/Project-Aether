@@ -1,0 +1,44 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_8di3o"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_props_gravestone_diffuse.dds" id="2_bmqdo"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_props_gravestone_normal.dds" id="3_8xouh"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/snow/nr_props_gravestone_orm.dds" id="4_6j06u"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/snow/northrendgrave.glb" id="5_4vbss"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_sfpfk"]
+albedo_texture = ExtResource("2_bmqdo")
+orm_texture = ExtResource("4_6j06u")
+normal_enabled = true
+normal_texture = ExtResource("3_8xouh")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_t1mjm"]
+albedo_texture = ExtResource("2_bmqdo")
+orm_texture = ExtResource("4_6j06u")
+normal_enabled = true
+normal_texture = ExtResource("3_8xouh")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5xtpr"]
+albedo_texture = ExtResource("2_bmqdo")
+orm_texture = ExtResource("4_6j06u")
+normal_enabled = true
+normal_texture = ExtResource("3_8xouh")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_leh6b"]
+albedo_texture = ExtResource("2_bmqdo")
+orm_texture = ExtResource("4_6j06u")
+normal_enabled = true
+normal_texture = ExtResource("3_8xouh")
+
+[node name="Northrendgrave" type="Node3D"]
+script = ExtResource("1_8di3o")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_sfpfk"),
+1: SubResource("ORMMaterial3D_t1mjm"),
+2: SubResource("ORMMaterial3D_5xtpr"),
+3: SubResource("ORMMaterial3D_leh6b")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." instance=ExtResource("5_4vbss")]

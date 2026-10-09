@@ -20,7 +20,7 @@ const STAT_KEYS := [
 	"increased_physical_damage", "increased_spell_damage", "elemental_dmg_increased", "esoteric_dmg_increased",
 	"increased_area_damage", "dot_multiplier",
 	"fire_resistance", "cold_resistance", "lightning_resistance", "esoteric_resistance",
-	"attack_speed", "cast_speed", "move_speed",
+	"attack_speed", "cast_speed", "move_speed", "increased_attack_damage",
 	"crit_chance_increased", "crit_damage_increased",
 	"increased_aoe_radius", "skill_effect_duration",
 	"item_rarity", "magic_find",
@@ -29,6 +29,14 @@ const STAT_KEYS := [
 	"increased_ailment_damage_bleed", "increased_ailment_damage_ignite", "increased_ailment_damage_chill",
 	"increased_ailment_damage_electrocute", "increased_ailment_damage_shock", "increased_ailment_damage_aetherburn",
 	"increased_ailment_damage_unraveling", "increased_ailment_damage_pallid",
+]
+
+## Jewel-only lines with their own Tier 1 range (taken as is, not scaled by
+## VALUE_SCALE). Where a key is also in STAT_KEYS, this range replaces it.
+const OWN_RANGES := [
+	{"stat_key": "increased_attack_damage", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Weapon Damage", "brand_tags": ["kinetic", "piercing", "explosive"]},
+	{"stat_key": "attack_speed", "tier1_min": 12.0, "tier1_max": 15.0, "desc": "+%d%% increased Attack Speed", "brand_tags": ["skills"]},
+	{"stat_key": "crit_chance_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Critical Strike Chance", "brand_tags": []},
 ]
 
 static var _cache: Dictionary = {}  # "<stat_key>|<best tier>" -> ModifierDef
@@ -41,16 +49,19 @@ static func best_tier_for(item_level: int) -> int:
 static func defs_for(jewel: Item) -> Array[ModifierDef]:
 	var best_tier := best_tier_for(jewel.item_level)
 	var defs: Array[ModifierDef] = []
+	var own_keys := OWN_RANGES.map(func(e: Dictionary) -> String: return e["stat_key"])
 	for entry in ItemRoller.AFFIX_POOL:
-		if STAT_KEYS.has(entry["stat_key"]):
-			defs.append(_def_for(entry, best_tier))
+		if STAT_KEYS.has(entry["stat_key"]) and not own_keys.has(entry["stat_key"]):
+			defs.append(_def_for(entry, best_tier, VALUE_SCALE))
+	for entry in OWN_RANGES:
+		defs.append(_def_for(entry, best_tier, 1.0))
 	return defs
 
-static func tier_range(tier1_min: float, tier1_max: float, tier: int) -> Vector2:
-	var scale: float = VALUE_SCALE * pow(TIER_DECAY, tier - 1)
+static func tier_range(tier1_min: float, tier1_max: float, tier: int, value_scale: float = VALUE_SCALE) -> Vector2:
+	var scale: float = value_scale * pow(TIER_DECAY, tier - 1)
 	return Vector2(tier1_min * scale, tier1_max * scale)
 
-static func _def_for(entry: Dictionary, best_tier: int) -> ModifierDef:
+static func _def_for(entry: Dictionary, best_tier: int, value_scale: float) -> ModifierDef:
 	var key := "%s|%d" % [entry["stat_key"], best_tier]
 	if _cache.has(key):
 		return _cache[key]
@@ -63,7 +74,7 @@ static func _def_for(entry: Dictionary, best_tier: int) -> ModifierDef:
 	def.tags = GearModifierPool._tags(entry["brand_tags"], entry["stat_key"])
 	def.item_types = [&"jewel"]
 	for t in range(best_tier, TIER_COUNT + 1):
-		var range_ := tier_range(entry["tier1_min"], entry["tier1_max"], t)
+		var range_ := tier_range(entry["tier1_min"], entry["tier1_max"], t, value_scale)
 		var tier := ModifierTier.new()
 		tier.tier = t
 		tier.value_min = range_.x
