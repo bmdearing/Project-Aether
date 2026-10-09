@@ -600,8 +600,8 @@ Hand Damage includes it. Crit Chance/Spell Damage/Attack Speed/Cast Speed
 follow the same rule - one value, blue when a **local mod** changes it
 (v4.10, `local_*` stat keys in `data/affixes/weapons/generic|conduit/`:
 local Weapon Damage and Crit apply to that weapon's own hits via
-`Weapon._base_hit()`, a Conduit's local Spell Damage applies to every
-spell; local Attack Speed/Cast Speed are display-only so far). Spell
+`Weapon._base_hit()`, local Attack Speed to that weapon's attacks, and a
+primary Conduit's local Spell Damage and Cast Speed to every spell). Spell
 cards show "Level N", the tag line, the spell's base damage (blue with
 modifiers applied), and any over-cap bonuses; the
 character screen's Main Hand/Offhand Damage shows the per-hit range at
@@ -702,10 +702,11 @@ build against, same as this one did - none exist in the doc yet.
 
 **Slates now do something** - two mechanical pathways out of the Fate
 Board, both landing on `StatSheet`:
-1. **Stat contribution** (Section 10's "Stats Per Tile": 0.6 Main
+1. **Stat contribution** (Section 10's "Stats Per Tile": 0.3 Main
    Stat/tile keyed by the Slate's tag via `Constants.
-   DAMAGE_TYPE_MAIN_STAT`, 0.3 Random Stat/tile, 5+ tile Slates only -
-   v4.9 cut these from 1.7/0.8) sums across every PLACED Slate into
+   DAMAGE_TYPE_MAIN_STAT`, 0.15 Random Stat/tile, 5+ tile Slates only -
+   v4.9 cut these from 1.7/0.8 to 0.6/0.3, v4.53 halved them again so
+   chains carry more of a board's attributes) sums across every PLACED Slate into
    `StatSheet.slate_bonus`, same channel gear's `flat_<stat>` affixes
    use. Since v4.9 each Slate's stat lines are multiplied by (1 + the
    bonus of the chain it sits in) (`ChainCalculator.
@@ -908,7 +909,9 @@ equippable from `InventoryScreen`, or stays on the ground if there's no room; a 
 - **Modifier pools**: real gear rolls from `GearModifierPool` (built from
   `ItemRoller.AFFIX_POOL` and the weapon affix library with the same
   eligibility rules drops use, 5 tiers gated by item level); Slates from
-  `SlateModifierPool` (their own tags plus generic/spell/attack). Gear and
+  `SlateModifierPool` (their own tags only: a Cold Slate rolls Cold
+  modifiers, a Fire/Cold Hybrid Fire and Cold ones; each damage type and
+  Spell has 2 prefixes and 3 suffixes so Forging's 4 always fit). Gear and
   Slate pools never mix. Test content can register its own pools.
 - **Aether Tolerance** (Slates only): each Slate rolls a crafting budget on
   drop; each Orb spends a random amount; at 0 the Slate is finished. Gear

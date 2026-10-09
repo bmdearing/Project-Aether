@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_slate"]
+
+[resource]
+script = ExtResource("1_slate")
+tag = "piercing"
+description = "+%d%% increased Bleed duration"
+stat_key = "increased_ailment_duration_bleed"
+value = 12.0
+value_min = 12.0
+value_max = 28.0
+tier = 1
+is_prefix = false
+affix_id = "piercing_bleed_duration"
+display_name = "Piercing Barb"
+damage_type = 1

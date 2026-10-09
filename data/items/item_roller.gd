@@ -319,14 +319,19 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 	if item is Weapon:
 		_roll_weapon_affixes(item as Weapon, affix_count, power_level)
 	else:
+		# Prefix/suffix by stat, as Orbs classify it, within the rarity's limits.
 		var pool := _pool_for(item)
 		pool.shuffle()
 		var used := {}
 		var entries: Array = []
+		var limits: Vector2i = Constants.AFFIX_LIMITS_GEAR.get(item.rarity, Vector2i.ZERO)
+		var side_counts := {true: 0, false: 0}
 		for entry in pool:
 			var stat := StatKeys.canonical(entry["stat_key"])
-			if entries.size() < affix_count and not used.has(stat):
+			var is_prefix := not GearModifierPool._is_suffix(entry["stat_key"])
+			if entries.size() < affix_count and not used.has(stat) and side_counts[is_prefix] < (limits.x if is_prefix else limits.y):
 				used[stat] = true
+				side_counts[is_prefix] += 1
 				entries.append(entry)
 		for i in entries.size():
 			var entry: Dictionary = entries[i]
@@ -341,7 +346,7 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 			affix.value_max = value_range.y
 			affix.tier = rolled_tier
 			affix.description = "%s (Tier %d)" % [describe_value(entry["desc"], entry["stat_key"], value), rolled_tier]
-			affix.is_prefix = i % 2 == 0
+			affix.is_prefix = not GearModifierPool._is_suffix(entry["stat_key"])
 			item.affixes.append(affix)
 
 	# An empty eligible pool (low power_level, narrow base) can still leave

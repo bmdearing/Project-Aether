@@ -63,10 +63,17 @@ func _test_real_gear() -> void:
 	var dup_groups := 0
 	var missing_stat := 0
 	var weapon_types_ok := true
+	var mislabelled := 0
 	for i in ROLLS:
 		var item := ItemRoller.roll(30 + i % 50)
 		if item == null:
 			continue
+		if not item is Weapon and item.rarity < Constants.ItemRarity.UNIQUE:
+			for a in _explicits(item):
+				if a.is_prefix == GearModifierPool._is_suffix(a.stat_key):
+					mislabelled += 1
+			if not _within_limits(item):
+				bad_limits += 1
 		item.tolerance = 500
 		var start_rarity := item.rarity
 		var orb := &"quickening" if start_rarity == Constants.ItemRarity.COMMON else &"absolution"
@@ -104,7 +111,8 @@ func _test_real_gear() -> void:
 	_check(crafted > ROLLS / 2, "forging works on most real drops (%d/%d)" % [crafted, ROLLS])
 	_check(weapons > 0 and weapon_types_ok, "weapons roll only their eligible library modifiers")
 	_check(bad_preview == 0, "real-pool preview probabilities sum to 1")
-	_check(bad_limits == 0, "real crafts respect rarity limits")
+	_check(bad_limits == 0, "real drops and crafts respect rarity limits")
+	_check(mislabelled == 0, "dropped gear labels prefixes and suffixes the way Orbs do (%d wrong)" % mislabelled)
 	_check(dup_groups == 0, "no duplicate modifier groups on real items")
 	_check(missing_stat == 0, "rolled real modifiers have stat keys and descriptions")
 
@@ -149,13 +157,30 @@ func _test_real_slates() -> void:
 			continue
 		ok += 1
 		var allowed := slate.get_slate_tags()
-		allowed.append_array(SlateModifierPool.UNTYPED_TAGS)
 		for a in slate.explicits:
 			if not a.def.tags.any(func(t): return allowed.has(t)):
 				on_tag = false
 		_check(_within_limits(slate) and slate.explicits.size() >= 3, "slate forging gives 3-4 within limits")
 	_check(ok == 30, "forging works on every real slate drop (%d/30)" % ok)
-	_check(on_tag, "slates only roll modifiers for their own tags or untyped ones")
+	_check(on_tag, "slates only roll modifiers for their own tags")
+	# Forging can add 4, so every tag needs 2 prefixes and 2 suffixes of its own.
+	for tag in SlateRoller.REAL_DAMAGE_TYPES.map(func(t): return Constants.DAMAGE_TYPE_NAME[t].to_lower()) + ["spell"]:
+		var pool := SlateAffixPool.get_pool_for_tag(tag)
+		var prefixes := pool.filter(func(a: SlateAffix): return a.is_prefix).size()
+		_check(prefixes >= 2 and pool.size() - prefixes >= 2, "%s Slates have 2+ prefixes and 2+ suffixes (%d/%d)" % [tag, prefixes, pool.size() - prefixes])
+	var hybrid := Slate.new()
+	hybrid.shape_cells = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 0)]
+	hybrid.tag = Constants.DamageType.FIRE
+	hybrid.is_hybrid = true
+	hybrid.secondary_tag = Constants.DamageType.COLD
+	CraftingResolver.roll_tolerance(hybrid)
+	var hybrid_tags := SlateModifierPool.defs_for(hybrid).map(func(d: ModifierDef): return d.tags[0])
+	_check(hybrid_tags.has(&"fire") and hybrid_tags.has(&"cold") and hybrid_tags.all(func(t): return t == &"fire" or t == &"cold"), "a Fire/Cold Hybrid rolls only Fire and Cold modifiers")
+	var spell_slate := hybrid.duplicate(true) as Slate
+	spell_slate.is_hybrid = false
+	spell_slate.category_tag_override = "Spell"
+	_check(SlateModifierPool.defs_for(spell_slate).all(func(d: ModifierDef): return d.tags[0] == &"spell"), "a Spell Slate rolls only Spell modifiers")
+	_check(resolver.apply(spell_slate, &"forging").success, "forging works on a Spell Slate")
 	var original := SlateRoller.roll(10, 20.0)
 	var copy := SlateSerializer.from_dict(JSON.parse_string(JSON.stringify(SlateSerializer.to_dict(original))))
 	_check(copy != null and copy.rarity == original.rarity and copy.explicits.size() == original.explicits.size(), "slate round trip keeps rarity and modifiers")

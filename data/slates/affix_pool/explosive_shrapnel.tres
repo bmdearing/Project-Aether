@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_slate"]
+
+[resource]
+script = ExtResource("1_slate")
+tag = "explosive"
+description = "Explosions leave a Bleed zone for 2 seconds (%d%% per second)"
+stat_key = "explosion_bleed"
+value = 6.0
+value_min = 6.0
+value_max = 14.0
+tier = 1
+affix_id = "explosive_shrapnel"
+display_name = "Explosive Shrapnel"
+damage_type = 2

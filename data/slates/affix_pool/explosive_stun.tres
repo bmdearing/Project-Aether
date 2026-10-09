@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_slate"]
+
+[resource]
+script = ExtResource("1_slate")
+tag = "explosive"
+description = "Explosions have %d%% chance to Stun"
+stat_key = "explosion_stun_chance"
+value = 8.0
+value_min = 8.0
+value_max = 20.0
+tier = 1
+is_prefix = false
+affix_id = "explosive_stun"
+display_name = "Explosive Concussion"
+damage_type = 2

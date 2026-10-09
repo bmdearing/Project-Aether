@@ -120,6 +120,11 @@ func _test_weapon_mods() -> void:
 				if a.key() == "local_flat_weapon_damage" or a.key() == "local_hybrid_weapon_damage":
 					rolled_any_flat = true
 	_check(rolled_any_flat, "flat and hybrid damage mods roll on drops")
+	var conduit := _sword()
+	conduit.affixes.append(_affix("local_increased_cast_speed", 15.0))
+	_check(conduit.get_conduit_cast_speed_bonus() == 0.0, "local Cast Speed only counts on a Conduit")
+	conduit.is_conduit = true
+	_check(is_equal_approx(conduit.get_conduit_cast_speed_bonus(), 15.0), "a Conduit's local Cast Speed reaches the character")
 	_finished += 1
 
 func _card_text(card: ItemCard) -> String:

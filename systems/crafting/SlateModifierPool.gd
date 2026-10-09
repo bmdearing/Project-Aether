@@ -2,17 +2,16 @@ extends RefCounted
 class_name SlateModifierPool
 ## The &"slate" ModifierPool for real Slates, built from SlateAffixPool's
 ## data/slates/affix_pool/ entries. A Slate only rolls modifiers for its own
-## tag(s) plus the untyped generic/spell/attack ones. Each entry's
-## value_min/value_max is its Tier 1 range; lower tiers decay like gear.
+## tag(s): a Cold Slate rolls Cold modifiers, a Fire/Cold Hybrid Fire and Cold
+## ones. Each entry's value_min/value_max is its Tier 1 range; lower tiers
+## decay like gear.
 
 const TIER_COUNT := 3
-const UNTYPED_TAGS: Array[StringName] = [&"generic", &"spell", &"attack"]
 
 static var _cache: Dictionary = {}  # affix_id -> ModifierDef
 
 static func defs_for(slate: Slate) -> Array[ModifierDef]:
 	var allowed: Array[StringName] = slate.get_slate_tags()
-	allowed.append_array(UNTYPED_TAGS)
 	var defs: Array[ModifierDef] = []
 	for tag in SlateAffixPool.get_all_tags():
 		if not allowed.has(StringName(tag)):

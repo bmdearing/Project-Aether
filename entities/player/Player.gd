@@ -314,9 +314,10 @@ func _apply_derived_stats() -> void:
 	# derived value on this component already is.
 	ward.regen_delay_reduction = stat_sheet.get_ward_delay_reduction()
 
-	# Cast Speed: gear-affix-only now too, feeds the same StatSheet pool
-	# Patch v3.7's CastTimeHandler already reads.
-	stat_sheet.cast_speed_bonus = stat_sheet.get_misc_bonus("cast_speed")
+	# Cast Speed: gear affixes plus the primary Conduit's local Cast Speed,
+	# into the StatSheet pool CastTimeHandler reads.
+	var primary := equipment.primary_weapon if equipment else null
+	stat_sheet.cast_speed_bonus = stat_sheet.get_misc_bonus("cast_speed") + (primary.get_conduit_cast_speed_bonus() if primary else 0.0)
 	# Gear's Cooldown Recovery Rate, then the Slate affix that converts part
 	# of Cast Speed into it.
 	stat_sheet.cooldown_recovery_rate = stat_sheet.get_misc_bonus("cooldown_recovery_rate")

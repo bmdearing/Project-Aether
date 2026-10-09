@@ -12,9 +12,10 @@ const SIZE_BRACKETS := [
 ]
 
 ## Fixed stats per tile (not rolled); placed Slates' chains amplify them.
-## Main Stat follows the tag; Random Stat may match it.
-const MAIN_STAT_PER_TILE := 0.6
-const RANDOM_STAT_PER_TILE := 0.3
+## Main Stat follows the tag; Random Stat may match it. Kept low so chains
+## carry more of a board's attributes.
+const MAIN_STAT_PER_TILE := 0.3
+const RANDOM_STAT_PER_TILE := 0.15
 
 const HYBRID_CHANCE := 0.15
 

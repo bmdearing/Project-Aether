@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_slate"]
+
+[resource]
+script = ExtResource("1_slate")
+tag = "lightning"
+description = "+%d%% Lightning Penetration"
+stat_key = "lightning_penetration"
+value = 6.0
+value_min = 6.0
+value_max = 12.0
+tier = 1
+is_prefix = false
+affix_id = "lightning_penetration"
+display_name = "Lightning Piercing"
+damage_type = 5

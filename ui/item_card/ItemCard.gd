@@ -606,8 +606,8 @@ func _add_value_line(label: String, label_color: Color, base_text: String, modif
 
 ## Crit Chance, Spell Power, and Attack/Cast Speed, each with its local mod
 ## (v4.10) shown as a blue modified value. Local weapon damage and crit
-## (Weapon._base_hit()) and attack speed (Player.get_action_speed_multiplier())
-## are real; local spell damage and cast speed are display-only for now.
+## (Weapon._base_hit()), attack speed (Player.get_action_speed_multiplier())
+## and a primary Conduit's spell damage and cast speed are all real.
 func _add_weapon_value_lines(w: Weapon) -> void:
 	if w.is_conduit and w.get_conduit_spell_damage_bonus() > 0.0:
 		_add_value_line("Spell Damage", STAT_COLOR, "+%.0f%%" % w.get_conduit_spell_damage_bonus())

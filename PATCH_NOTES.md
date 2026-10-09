@@ -7,6 +7,35 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.53: Item and Slate modifier audit (user request)
+
+**Slates roll only their own tags' modifiers** (user: "Cold slates roll only cold mods, Fire and cold slates only roll fire and cold mods"). `SlateModifierPool` no longer adds the generic/spell/attack pools; a Spell Slate rolls only Spell modifiers. Each tag had 1 prefix and 2 suffixes, too few for Forging's 3-4 modifiers on a Rare (2 prefixes, 2 suffixes), so every damage type and Spell gets one more of each. All of them use stats the game already reads:
+
+| Tag | New prefix | New suffix |
+|---|---|---|
+| Kinetic | 12-28% increased damage against Staggered enemies | 6-14% chance to Stagger on hit |
+| Piercing | 12-28% increased damage beyond melee range | 12-28% increased Bleed duration |
+| Explosive | Explosions leave a Bleed zone (6-14% per second) | Explosions have 8-20% chance to Stun |
+| Fire / Cold / Lightning | 12-28% increased damage against Ignited / Chilled / Shocked enemies | 6-12% Fire / Cold / Lightning Penetration |
+| Aetheric | 12-28% increased damage against enemies with Aetherburn | 12-28% increased Aetherburn duration |
+| Entropic / Pale | 12-28% increased damage against Unraveling / Pallid enemies | 8-20% increased Unraveling / Pallid effect |
+| Spell | 12-28% increased Mana Regeneration | (already had 3) |
+
+Ranges are Tier 1, as before. The generic pool stays for Veiltouch corruption; the attack pool no longer rolls anywhere.
+
+**Slate attributes halved** (user: encourage chain bonuses): `MAIN_STAT_PER_TILE` 0.6 -> 0.3, `RANDOM_STAT_PER_TILE` 0.3 -> 0.15. Chains still amplify them and still give their tag's increased damage. Slates already dropped keep their lines.
+
+**Audit fixes**
+- **Dropped gear labelled prefixes and suffixes by position**, alternating, while Orbs label them by stat (`GearModifierPool._is_suffix()`). About half the modifiers on dropped armour and accessories carried the wrong label, which changed what Grafting, Edicts and the limits allowed next. `ItemRoller.roll()` now labels by stat and keeps within the rarity's prefix/suffix limits. Weapons already did this. Items already dropped keep their labels.
+- **A Conduit's local Cast Speed did nothing.** The card showed it but cast time ignored it. The primary Conduit's local Cast Speed now adds to Cast Speed (`Weapon.get_conduit_cast_speed_bonus()`), like its local Spell Damage.
+
+**Audit findings left as they are**
+- `projectile_speed`, `reduced_projectile_speed` and `increased_riposte_damage` in `ItemRoller.AFFIX_POOL` are weapon-only, and weapons roll from the weapon library instead, so they never roll. Riposte damage still rolls from the library (`excl_riposte_edge`).
+- The hand-made `sample_entropic_slate` has three lines with no effect (per Wound, Unraveling chance, Esoteric damage vs Unraveling). Hand-made Slates only appear in tests and UI captures.
+- Every other modifier from gear, weapons, implicits, jewels and Slates feeds a stat the game reads.
+
+---
+
 ## 2026-10-09 — v4.52: Spell icons (user request)
 
 - **Every spell has its own icon** (`SpellArt`), drawn in code like the item icons: a dark disc in the spell's colour with a picture of what it does. Meteor is a burning rock with a fire trail, Black Hole a spiral around a dark centre, Stormcall a cloud with a forking bolt, Tornado a funnel, warcries a symbol inside sound waves, and so on for all 24. A spell without its own art shows its damage type's symbol.

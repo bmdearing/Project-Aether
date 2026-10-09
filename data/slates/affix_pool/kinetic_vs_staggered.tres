@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_slate"]
+
+[resource]
+script = ExtResource("1_slate")
+tag = "kinetic"
+description = "+%d%% increased damage against Staggered enemies"
+stat_key = "damage_vs_staggered"
+value = 12.0
+value_min = 12.0
+value_max = 28.0
+tier = 1
+affix_id = "kinetic_vs_staggered"
+display_name = "Kinetic Hammer"
+damage_type = 0

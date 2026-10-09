@@ -71,6 +71,12 @@ func get_conduit_spell_damage_bonus() -> float:
 		return 0.0
 	return (get_local_multiplier("local_increased_spell_damage") - 1.0) * 100.0
 
+## A Conduit's local "increased Cast Speed", as a percent.
+func get_conduit_cast_speed_bonus() -> float:
+	if not is_conduit:
+		return 0.0
+	return (get_local_multiplier("local_increased_cast_speed") - 1.0) * 100.0
+
 @export var scaling_grade: Constants.ScalingGrade = Constants.ScalingGrade.C
 @export var native_damage_type: Constants.DamageType = Constants.DamageType.KINETIC
 @export var infused_damage_type: Constants.DamageType = -1  # -1 = not infused, uses native scaling
