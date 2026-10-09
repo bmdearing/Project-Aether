@@ -1,7 +1,7 @@
 extends CanvasLayer
 class_name AbilityBar
 ## The four equipped spells as one engraved plate of gem-cut tiles: element
-## tint and initials, Mana cost, key on a diamond below, a dial sweep while
+## tint and spell icon, Mana cost, key on a diamond below, a dial sweep while
 ## a spell recharges, dimmed when there isn't enough Mana. An invisible
 ## ItemSlotButton sits on each tile so hovering still shows the spell card.
 ## Casting happens in PlayerAbilityCast; this only displays.
@@ -137,12 +137,6 @@ func get_slot_ability(index: int) -> Ability:
 func get_player() -> Player:
 	return _player
 
-static func initials(text: String) -> String:
-	var words := text.split(" ", false)
-	if words.size() >= 2:
-		return (words[0][0] + words[1][0]).to_upper()
-	return text.left(2).capitalize()
-
 class SkillPlate extends Control:
 	var bar: AbilityBar
 	var _flash: Dictionary = {}  # slot index -> seconds left
@@ -178,8 +172,7 @@ class SkillPlate extends Control:
 				inner.append(c + (v - c) * 0.8)
 			draw_colored_polygon(inner, Color(element, 0.14))
 			AetherStyle.outline(self, inner, Color(element, 0.45), 1.0)
-			var glyph_color := element.darkened(0.55) if starved else element.lerp(Color.WHITE, 0.15)
-			AetherStyle.text(self, AetherStyle.title(), Vector2(rect.position.x, c.y + 10.0), AbilityBar.initials(ability.display_name), 26, glyph_color, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
+			SpellArt.draw(self, ability, rect.grow(-7.0))
 			if player:
 				var remaining := player.ability_cast.get_cooldown_remaining(ability)
 				var total := ability.get_final_cooldown(player.get_action_speed_multiplier(), player.stat_sheet)

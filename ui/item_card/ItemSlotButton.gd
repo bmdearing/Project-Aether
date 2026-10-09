@@ -4,7 +4,7 @@ class_name ItemSlotButton
 ## Holding Alt swaps the card to Alt Info in place. Set exactly one of
 ## item/slate/ability.
 ##
-## The item or slate draws as an ItemIcon: filling the button when it has no
+## The item, slate or ability draws as an ItemIcon: filling the button when it has no
 ## text, or in a square at its left edge beside the text. ghost_key draws a
 ## faint silhouette while the slot is empty.
 ##
@@ -23,7 +23,10 @@ var slate: Slate:
 	set(value):
 		slate = value
 		_refresh_icon()
-var ability: Ability
+var ability: Ability:
+	set(value):
+		ability = value
+		_refresh_icon()
 var draggable: bool = false
 ## false for invisible tooltip-only buttons laid over custom-drawn widgets.
 var show_icon: bool = true:
@@ -54,7 +57,9 @@ func _refresh_icon() -> void:
 	if _icon == null:
 		return
 	_sockets.item = item if show_icon else null
-	var content = (item if item else slate) if show_icon else null
+	var content = null
+	if show_icon:
+		content = item if item else (slate if slate else ability)
 	_icon.content = content
 	_icon.ghost_key = ghost_key if show_icon else &""
 	var beside_text := content != null and text != ""

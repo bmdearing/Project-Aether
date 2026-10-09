@@ -214,9 +214,8 @@ func _refresh_equipped_row() -> void:
 		var button := buttons[i]
 		var ability: Ability = _ability_loadout.slots[i]
 		button.ability = ability
-		# Initials in the element colour, like the HUD bar; the card has the name.
 		var accent: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE) if ability else AetherStyle.GOLD_FAINT
-		button.text = AbilityBar.initials(ability.display_name) if ability else "-"
+		button.text = "" if ability else "-"
 		button.tooltip_text = ability.display_name if ability else ""
 		AetherStyle.style_slot_button(button, accent)
 		button.add_theme_font_size_override("font_size", 22)

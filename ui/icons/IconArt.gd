@@ -143,6 +143,8 @@ class Pen:
 
 ## Art key for an Item, Slate or currency id.
 static func key_of(content) -> StringName:
+	if content is Ability:
+		return &"spell"
 	if content is StringName:
 		return content
 	if content is Slate:
@@ -170,6 +172,9 @@ static func fit(rect: Rect2, aspect: float, pad: float = 0.08) -> Rect2:
 	return Rect2(inner.position + (inner.size - s) * 0.5, s)
 
 static func draw(ci: CanvasItem, content, rect: Rect2) -> void:
+	if content is Ability:
+		SpellArt.draw(ci, content, rect)
+		return
 	var key := key_of(content)
 	if key == &"":
 		return
@@ -198,6 +203,9 @@ static func _draw_key(pen: Pen, key: StringName, content, accent: Color) -> void
 		return
 	if content is Jewel:
 		_jewel(pen, accent)
+		return
+	if content is SkillTome:
+		_skill_tome(pen, content)
 		return
 	if ORBS.has(k):
 		_orb(pen, ORBS[k][0], ORBS[k][1])
@@ -425,6 +433,16 @@ static func _slate_colour(slate: Slate, secondary: bool) -> Color:
 
 static func _slate_blank(pen: Pen) -> void:
 	pen.poly([0.12, 0.08, 0.88, 0.08, 0.94, 0.14, 0.94, 0.86, 0.88, 0.92, 0.12, 0.92, 0.06, 0.86, 0.06, 0.14], SLATE_STONE)
+
+## A book in its spell's colour with the spell's icon on the cover.
+static func _skill_tome(pen: Pen, tome: SkillTome) -> void:
+	var ability: Ability = load(tome.ability_path) as Ability if tome.ability_path != "" else null
+	if ability == null:
+		_book(pen, Color(0.2, 0.32, 0.6), GOLD, "star")
+		return
+	_book(pen, SpellArt.colour_of(ability).darkened(0.55), GOLD, "")
+	var side := 0.44 * pen.unit()
+	SpellArt.draw(pen.ci, ability, Rect2(pen.v(0.54, 0.48) - Vector2(side, side) * 0.5, Vector2(side, side)))
 
 static func _jewel(pen: Pen, c: Color) -> void:
 	pen.ci.draw_circle(pen.v(0.5, 0.5), 0.4 * pen.unit(), pen.col(Color(c, 0.14)))

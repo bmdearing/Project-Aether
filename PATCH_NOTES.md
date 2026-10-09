@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.52: Spell icons (user request)
+
+- **Every spell has its own icon** (`SpellArt`), drawn in code like the item icons: a dark disc in the spell's colour with a picture of what it does. Meteor is a burning rock with a fire trail, Black Hole a spiral around a dark centre, Stormcall a cloud with a forking bolt, Tornado a funnel, warcries a symbol inside sound waves, and so on for all 24. A spell without its own art shows its damage type's symbol.
+- The icons replace the two-letter initials on the HUD ability bar (Mana cost, cooldown dial and key number still draw on top) and on the Abilities screen's equipped slots. The Abilities list rows show the icon beside the name.
+- **Skill Tomes** in the inventory are now books in their spell's colour with that spell's icon on the cover.
+- `AbilityBar.initials()` is removed (nothing uses it now). The UI capture `icons` mode adds every spell and a Skill Tome.
+
+---
+
 ## 2026-10-09 — v4.51: Tooltips, dungeon rework, Snow tileset, Booming Blade, gun/melee balance, rebinding (user batch)
 
 **Tooltips** (user: "ultra dynamic, auto-updating and following the cursor"). Godot's popup tooltip waits out a delay, keeps its content frozen once shown and only moves after the fact. `TooltipFollow` now draws the tooltip itself on a top CanvasLayer:

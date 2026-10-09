@@ -142,7 +142,8 @@ func _show_uniques() -> void:
 		card.display_item(UniqueRoller.build(UniqueCatalog.get_def(ids[i]), 80))
 		card.position = Vector2(40 + i * 470, 60)
 
-## Every IconArt key at its footprint: gear types, currency, Slates, Figments.
+## Every IconArt key at its footprint: gear types, currency, Slates, Figments,
+## then every spell at 80px.
 func _show_icon_sheet() -> void:
 	var layer := CanvasLayer.new()
 	layer.layer = 100
@@ -172,13 +173,18 @@ func _show_icon_sheet() -> void:
 		contents.append(FigmentRoller.roll(tier))
 	for k in 3:
 		contents.append(JewelRoller.roll(20, 1.0 + k * 2.0))
-	contents.append(load("res://data/abilities/skill_tome.gd").new())
+	for path in DirAccess.get_files_at("res://data/abilities/instances"):
+		if path.ends_with(".tres"):
+			contents.append(load("res://data/abilities/instances/" + path))
+	var tome: SkillTome = load("res://data/abilities/skill_tome.gd").new()
+	tome.ability_path = "res://data/abilities/instances/meteor.tres"
+	contents.append(tome)
 	for content in contents:
 		var fp := GridInventory.footprint_of(content)
 		if content is StringName:
 			fp = FootprintTable.footprint_for_type(content)
 		var cell := Panel.new()
-		cell.custom_minimum_size = Vector2(fp) * 40.0
+		cell.custom_minimum_size = Vector2(fp) * (80.0 if content is Ability else 40.0)
 		var icon := ItemIcon.fill(cell)
 		icon.content = content
 		icon.count = 7 if content is StringName and fp == Vector2i.ONE else 0

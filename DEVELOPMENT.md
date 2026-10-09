@@ -543,6 +543,9 @@ Item, Slate and currency id draws as a code-drawn vector icon
 `ItemSlotButton`, and the HUD weapon plate), fitted at its footprint aspect.
 New item types or currency ids need an arm in `IconArt._draw_key()`;
 unknown ones fall back to a gold orb with their first letter.
+Abilities route to `ui/icons/SpellArt.gd` (one function per ability_id, used by
+the HUD AbilityBar, the Abilities screen and Skill Tome covers); a new spell
+needs an arm there or it shows its damage type's glyph.
 
 **Throwable Stacks** (`data/items/ThrowableStack.gd`, Patch v3.5 Section
 3): a stackable inventory consumable, not an equipment slot - `Player.
