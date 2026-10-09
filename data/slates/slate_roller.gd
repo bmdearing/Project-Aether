@@ -78,6 +78,7 @@ static func roll(power_level: int = 1, rarity_multiplier: float = 1.0) -> Slate:
 
 	slate.modifiers = _roll_modifiers(slate.tag, tile_count, power_level)
 	slate.aether_cost = tile_count + RARITY_AETHER_BONUS.get(bracket_rarity, 0)
+	slate.sockets = _roll_sockets(tile_count)
 	CraftingResolver.roll_tolerance(slate)
 	roll_rarity_modifiers(slate, Loot.roll_rarity(rarity_multiplier))
 	return slate
@@ -133,3 +134,16 @@ static func _stat_modifier(stat: Constants.Stat, value: float, label: String) ->
 	modifier.value = value
 	modifier.description = "+%.1f %s (%s)" % [value, Constants.Stat.keys()[stat].capitalize(), label]
 	return modifier
+
+## Lens sockets: none on small (keystone-sized) Slates; 0-2 from 5 tiles up.
+const SOCKET_WEIGHTS := [50, 35, 15]
+
+static func _roll_sockets(tile_count: int) -> int:
+	if tile_count < 5:
+		return 0
+	var pick := randi() % 100
+	for i in SOCKET_WEIGHTS.size():
+		pick -= SOCKET_WEIGHTS[i]
+		if pick < 0:
+			return i
+	return 0

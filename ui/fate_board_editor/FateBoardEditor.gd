@@ -187,6 +187,7 @@ const _FAILURE_MESSAGES := {
 	"insufficient_aether": "Can't place: not enough Aether.",
 	"cell_occupied": "Can't place: that cell is already occupied.",
 	"not_connected": "Can't place: Slates must connect to the anchor or an already-placed Slate.",
+	"tag_not_connected": "Can't place: a Slate must touch the anchor or a placed Slate it shares a tag with (Hybrid Slates and Lenses can bridge).",
 }
 
 func _on_placement_failed(reason: String) -> void:

@@ -43,7 +43,9 @@ text = ""
 
 [node name="SelectedLabel" type="Label" parent="HBox/SidePanel"]
 autowrap_mode = 3
-text = "Select a Slate below, then click the grid to place it. Right-click to remove a placed Slate, or drop a held one. Drag with LMB to pan. R rotates, Q flips."
+text = "Select a Slate below, then click the grid to place it. Right-click to remove a placed Slate, or drop a held one. Drag with LMB to pan. R rotates, Q flips.
+
+A Slate must touch the anchor or a Slate it shares a tag with. Slates further out cost more Aether. Lens radii show as outlined areas."
 
 [node name="DesignateOption" type="OptionButton" parent="HBox/SidePanel"]
 visible = false

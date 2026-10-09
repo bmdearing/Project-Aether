@@ -4,7 +4,7 @@ class_name WikiCatalog
 ## code drops and Orbs use (GearModifierPool, SlateModifierPool, the
 ## CraftingResolver's candidate weights), so the page can't drift from play.
 
-const GROUPS := ["Melee", "Ranged", "Conduits", "Armour", "Shields", "Accessories", "Jewels", "Slates"]
+const GROUPS := ["Melee", "Ranged", "Conduits", "Armour", "Shields", "Accessories", "Jewels", "Lenses", "Slates"]
 const MAX_LEVEL := 100
 ## One base per equipment slot for the Corruption page's slot icons.
 const SLOT_TYPES := [&"greatsword", &"kite_shield", &"helmet", &"body_armour", &"gloves", &"boots", &"ring", &"amulet", &"belt"]
@@ -55,6 +55,7 @@ static func _build_types() -> void:
 		var display: String = (base as Weapon).weapon_type if base is Weapon else String(type).capitalize()
 		_types[group].append({"name": display, "key": StringName(type), "base": base})
 	_types["Jewels"].append({"name": "Jewel", "key": &"jewel", "base": Jewel.new()})
+	_types["Lenses"].append({"name": "Lens", "key": &"lens", "base": Lens.new()})
 	for tag in SlateRoller.REAL_DAMAGE_TYPES:
 		var slate := Slate.new()
 		slate.tag = tag

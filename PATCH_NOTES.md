@@ -7,6 +7,25 @@ there. Most recent first.
 
 ---
 
+## 2026-10-08 — v4.47: Lenses and Fate Board placement rules (user design)
+
+- **Lenses** (new item, placeholder name): socketed into Slates, removed freely (Ctrl+right-click the Slate in the inventory). Each has a radius - Small 2, Medium 3, Large 4 tiles from its host Slate - one **radius modifier**, and jewel-style modifiers by rarity (Uncommon 1, Rare 2) that count as yours while the host is placed. Radius modifiers (`LensRoller.RADIUS_MODS`):
+  - "<Tag> Slates in radius have X% stronger modifiers" (20-40%)
+  - "Attribute lines of Slates in radius are X% stronger" (20-40%)
+  - "Slates in radius also count as <Tag> for chains and connections"
+  - "Slates in radius can be placed without a matching connection"
+  - "Slates in radius cost 1 less Aether (minimum 1)"
+  Lenses drop like Jewels (2.5% per drop roll), show on the Slate's card, have their own icon, appear in the Wiki's Modifiers page (Lenses group), and their radii are drawn on the Fate Board (also around a held Slate's Lenses while placing it).
+- **Slate sockets:** Slates of 5+ tiles roll 0-2 Lens sockets (50/35/15%); small, keystone-sized Slates get none.
+- **Placement rules** (`FateBoard`):
+  - **Tag connection:** a new Slate must touch the anchor or a placed Slate it shares a tag with. Hybrid Slates bridge two tags; Lenses can bridge or waive the rule.
+  - **Distance cost:** +1 Aether per 5 tiles from the anchor (`AETHER_RING_SIZE`), -1 per "cheap" Lens, minimum 1. What a Slate paid is saved and refunded on removal.
+  - **Saved boards keep their Slates** (user decision): rules apply to new placements only, so once an offending Slate is removed they apply again. Slates restored from an older save are charged their base cost.
+- Chains count a Slate in a chain of each of its tags (own, Hybrid, Lens-bridged); a Hybrid now counts in both its chains instead of only whichever was found first.
+- Tests: new `tests/lens` (rolls, saves, rules, every radius modifier, socketing).
+
+---
+
 ## 2026-10-08 — v4.46: Requirements follow defences, shield cards, implicit wording, loot over the void, permanent jewels (user request)
 
 - **Requirements are worked out from the item** (`ItemRequirements`), one rule for the card and the equip check: character level from item level (Brief v3.8d's table), weapons by type, and armour and shields by the stat behind their defence - Armour needs Strength, Evasion Agility, Ward Intellect; a hybrid needs both (the larger defence as primary). Jewellery needs only level. Before, shields were mapped by hand (Ward shields asked for Strength), body armour, helmets, gloves and boots had no stat requirement, and an older "Requires Level/Requires X Strength" pair was always printed and was what actually blocked equipping.

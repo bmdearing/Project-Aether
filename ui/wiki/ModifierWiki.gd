@@ -160,6 +160,8 @@ func _show_item() -> void:
 		_list.add_child(_modifier_row(row))
 	if base is Item and not (base is Jewel):
 		_add_implicit_pool(base)
+	if base is Lens:
+		_add_radius_mods()
 
 func _modifier_row(row: Dictionary) -> PanelContainer:
 	var locked: bool = row["chance"] <= 0.0
@@ -247,3 +249,13 @@ static func _text(text: String, size_px: int, color: Color) -> Label:
 	label.add_theme_font_size_override("font_size", size_px)
 	label.add_theme_color_override("font_color", color)
 	return label
+
+## A Lens's radius modifier: one per Lens, rolled alongside its jewel modifiers.
+func _add_radius_mods() -> void:
+	_list.add_child(_text("Radius modifiers (one per Lens; radius Small 2, Medium 3 or Large 4 tiles)", 17, ItemCard.LENS_COLOR))
+	for id in LensRoller.RADIUS_MODS:
+		var def: Dictionary = LensRoller.RADIUS_MODS[id]
+		var text := String(def["text"]).replace("{tag}", "<Damage type>")
+		text = text.replace("{v}", "%d-%d" % [def["min"], def["max"]]) if def["max"] > def["min"] else text.replace("{v}", str(int(def["min"])))
+		var share := 100.0 / LensRoller.RADIUS_MODS.size()
+		_list.add_child(_text("%s   (%.0f%% of Lenses)" % [text, share], 14, ItemCard.LENS_COLOR.lightened(0.2)))

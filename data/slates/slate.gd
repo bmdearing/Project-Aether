@@ -35,6 +35,14 @@ class_name Slate
 @export var active_edict: EdictDef
 @export var is_corrupted: bool = false
 
+## Lens sockets (0-2, on Slates of 5+ tiles) and the Lenses in them. Lenses
+## come out freely, unlike gear Jewels.
+@export var sockets: int = 0
+@export var lenses: Array[Lens] = []
+
+func free_sockets() -> int:
+	return maxi(sockets - lenses.size(), 0)
+
 ## Lowercase tag names the Orb crafting system matches Category Brands against.
 func get_slate_tags() -> Array[StringName]:
 	var tags: Array[StringName] = []

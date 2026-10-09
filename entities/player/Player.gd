@@ -437,7 +437,7 @@ func _apply_saved_fate_board() -> void:
 		var origin := Vector2i(int(origin_raw[0]), int(origin_raw[1])) if origin_raw is Array and origin_raw.size() == 2 else Vector2i.ZERO
 		fate_board.place_slate(
 			slate, origin, int(entry.get("rotation_steps", 0)), bool(entry.get("flipped", false)),
-			str(entry.get("designated_ability_id", "")), true
+			str(entry.get("designated_ability_id", "")), true, int(entry.get("aether_paid", -1))
 		)
 
 ## slate_ref is a resource_path String (hand-authored Slate) or full

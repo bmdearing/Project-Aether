@@ -193,6 +193,9 @@ static func _draw_key(pen: Pen, key: StringName, content, accent: Color) -> void
 	if content is FigmentItem:
 		_figment(pen, content.tier)
 		return
+	if content is Lens:
+		_lens(pen, accent)
+		return
 	if content is Jewel:
 		_jewel(pen, accent)
 		return
@@ -218,6 +221,7 @@ static func _draw_key(pen: Pen, key: StringName, content, accent: Color) -> void
 		"shard_of_tharsis": _tharsis(pen)
 		"figment": _figment(pen, 1)
 		"jewel": _jewel(pen, accent)
+		"lens": _lens(pen, accent)
 		"skill_tome": _book(pen, Color(0.2, 0.32, 0.6), GOLD, "star")
 		"slate": _slate_blank(pen)
 		# Armour and jewellery
@@ -428,6 +432,15 @@ static func _jewel(pen: Pen, c: Color) -> void:
 	pen.poly([0.3, 0.2, 0.7, 0.2, 0.62, 0.42, 0.38, 0.42], c.lightened(0.35))
 	pen.poly([0.38, 0.42, 0.62, 0.42, 0.5, 0.88], c)
 	pen.shine(0.4, 0.28, 0.04)
+
+## A glass lens in a brass rim.
+static func _lens(pen: Pen, c: Color) -> void:
+	var centre := pen.v(0.5, 0.5)
+	var r := 0.36 * pen.unit()
+	pen.ci.draw_circle(centre, r * 1.18, pen.col(BRONZE.darkened(0.3)))
+	pen.ci.draw_circle(centre, r, pen.col(Color(c.lightened(0.2), 0.55)))
+	pen.ci.draw_arc(centre, r * 0.7, PI * 1.1, PI * 1.6, 12, pen.col(Color(1, 1, 1, 0.7)), maxf(1.0, r * 0.12), true)
+	pen.ci.draw_arc(centre, r * 1.18, 0.0, TAU, 32, pen.col(OUTLINE), maxf(1.0, r * 0.08), true)
 
 # --- armour & jewellery -------------------------------------------------------
 

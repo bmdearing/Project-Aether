@@ -102,6 +102,8 @@ const HINT_COLOR := Color(0.6, 0.75, 0.6)
 const SOCKETED_COLOR := Color(0.55, 0.85, 0.9)
 const UNIQUE_MOD_COLOR := Color(0.95, 0.68, 0.38)
 const JEWEL_HINT := "Right-click to pick up, then click an item with a free socket. Socketing is permanent."
+const LENS_HINT := "Right-click to pick up, then click a Slate with a free socket. Ctrl+right-click the Slate to take it out."
+const LENS_COLOR := Color(0.55, 0.9, 0.85)
 
 ## Orbs, Brands, Edicts and stones: name, stack size, what it does and how to use it.
 func display_currency(id: StringName, count: int, hint: String = "") -> void:
@@ -172,6 +174,10 @@ func _render_item(item: Item) -> void:
 		_add_mod_line(StatKeys.implicit_text(affix), IMPLICIT_COLOR)
 	if implicits.size() > 0 and (explicits.size() > 0 or not item.get_socketed_jewels().is_empty()):
 		_add_separator()
+	if item is Lens and (item as Lens).radius_text() != "":
+		_add_mod_line((item as Lens).radius_text(), LENS_COLOR)
+		if not item.affixes.is_empty():
+			_add_separator()
 	var mod_color := UNIQUE_MOD_COLOR if item.rarity >= Constants.ItemRarity.UNIQUE else AFFIX_COLOR
 	for line in _merged_explicit_lines(item):
 		_add_mod_line(line, mod_color)
@@ -179,7 +185,7 @@ func _render_item(item: Item) -> void:
 		_add_stance_lines(item as Weapon, true)
 	if item is Jewel:
 		_add_separator()
-		_add_mod_line(JEWEL_HINT, HINT_COLOR)
+		_add_mod_line(LENS_HINT if item is Lens else JEWEL_HINT, HINT_COLOR)
 	if item.reflect_source:
 		_add_separator()
 		_add_mod_line("Reflecting %s" % item.reflect_source.display_name, STAT_LABEL_COLOR)
@@ -220,6 +226,11 @@ func _render_slate(slate: Slate) -> void:
 		_add_separator()
 		for affix in slate.explicits:
 			_add_mod_line(_affix_text(affix, false), AFFIX_COLOR)
+	if slate.sockets > 0:
+		_add_separator()
+		_add_stat_line("Lens sockets: %d / %d" % [slate.lenses.size(), slate.sockets])
+		for lens in slate.lenses:
+			_add_mod_line("%s: %s" % [lens.display_name, lens.radius_text()], LENS_COLOR)
 	if slate.implicit_flavor_text != "":
 		_add_separator()
 		_add_flavor(slate.implicit_flavor_text)
@@ -658,6 +669,8 @@ func _item_badge(item: Item) -> String:
 	return "ITEM"
 
 func _item_type_line(item: Item) -> String:
+	if item is Lens:
+		return "Lens  ·  Radius %d" % (item as Lens).radius
 	if item is Jewel:
 		return "Jewel"
 	if item is Weapon:

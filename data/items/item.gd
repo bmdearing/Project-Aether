@@ -171,6 +171,8 @@ func is_equipment() -> bool:
 func get_item_type() -> StringName:
 	if item_type != &"":
 		return item_type
+	if self is Lens:
+		return &"lens"
 	if self is Jewel:
 		return &"jewel"
 	if self is FigmentItem:

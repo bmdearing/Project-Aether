@@ -336,8 +336,10 @@ func _on_entry_right_clicked(_view: InventoryGridView, entry: GridInventory.Entr
 		_toggle_held_jewel(entry.content)
 	elif _held_jewel:
 		_socket_into(entry.content)
+	elif entry.content is Slate and Input.is_key_pressed(KEY_CTRL) and not (entry.content as Slate).lenses.is_empty():
+		_take_lenses_out(entry.content)
 	elif entry.content is Slate:
-		status_label.text = "Slates are placed from the Fate Board."
+		status_label.text = "Slates are placed from the Fate Board. Ctrl+right-click one to take its Lenses out."
 	elif entry.content is FigmentItem:
 		_empower_figment(entry.content)
 	elif _is_equippable(entry.content):
@@ -363,6 +365,9 @@ func _release_jewel() -> void:
 
 func _socket_into(target: Resource) -> void:
 	var jewel := _held_jewel
+	if jewel is Lens:
+		_lens_into(jewel as Lens, target)
+		return
 	if not (target is Item) or not target.is_equipment():
 		status_label.text = "Jewels go into the sockets of gear."
 		return
@@ -378,6 +383,35 @@ func _socket_into(target: Resource) -> void:
 	_held_jewel = null
 	status_label.text = "Jewel set into %s." % item.display_name
 	_after_socket_change(item)
+
+## A Lens goes into a Slate's free socket (in the grid; placed Slates come
+## off the board first).
+func _lens_into(lens: Lens, target: Resource) -> void:
+	if not target is Slate:
+		status_label.text = "Lenses go into the sockets of Slates."
+		return
+	var slate := target as Slate
+	if slate.free_sockets() <= 0:
+		status_label.text = "%s has no free socket." % slate.display_name if slate.sockets > 0 else "%s has no sockets." % slate.display_name
+		return
+	GameState.remove_from_inventory(lens)
+	slate.lenses.append(lens)
+	_held_jewel = null
+	status_label.text = "Lens set into %s." % slate.display_name
+	_build_inventory_grid()
+
+## Lenses come out freely, back into the grid as far as room allows.
+func _take_lenses_out(slate: Slate) -> void:
+	var moved := 0
+	for lens in slate.lenses.duplicate():
+		if not GameState.add_to_inventory(lens):
+			break
+		slate.lenses.erase(lens)
+		moved += 1
+	status_label.text = "Took %d Lens%s out of %s." % [moved, "" if moved == 1 else "es", slate.display_name]
+	if not slate.lenses.is_empty():
+		status_label.text += " No room for the rest."
+	_build_inventory_grid()
 
 func _after_socket_change(item: Item) -> void:
 	EventBus.item_sockets_changed.emit(item)

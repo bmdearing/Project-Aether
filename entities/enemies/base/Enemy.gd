@@ -726,6 +726,10 @@ func _roll_drop(rarity_mult: float) -> void:
 			_spawn_pickup(ammo)
 			return
 
+	if randf() <= LENS_DROP_CHANCE:
+		_spawn_pickup(LensRoller.roll(_compute_item_level(), rarity_mult))
+		return
+
 	if randf() > BASE_LOOT_DROP_CHANCE:
 		return
 	var item := ItemRoller.roll(_compute_item_level(), rarity_mult)
@@ -743,6 +747,8 @@ func _roll_ammo_drop() -> Item:
 	if player == null:
 		return null
 	var ammo_type := _get_preferred_ammo_type(player)
+## Lenses (LensRoller), for Slate sockets; rolled just after jewels.
+const LENS_DROP_CHANCE := 0.025
 	if ammo_type == Constants.AmmoType.ARROW:
 		return null  # arrows are infinite, never drop
 	var ammo_id: String = Constants.AMMO_TYPE_PICKUP_ID.get(ammo_type, "")

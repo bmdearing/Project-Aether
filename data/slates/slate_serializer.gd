@@ -36,6 +36,8 @@ static func to_dict(slate: Slate) -> Dictionary:
 		"implicit_flavor_text": slate.implicit_flavor_text,
 		"modifiers": modifiers,
 		"explicits": explicits,
+		"sockets": slate.sockets,
+		"lenses": slate.lenses.map(func(l: Lens): return ItemSerializer.to_dict(l)),
 		"is_corrupted": slate.is_corrupted,
 		"tolerance": slate.tolerance,
 		"tolerance_max": slate.tolerance_max,
@@ -84,5 +86,12 @@ static func from_dict(d: Dictionary) -> Slate:
 	slate.explicits = explicits
 	slate.is_corrupted = d.get("is_corrupted", false)
 	ItemSerializer.read_craft_state(slate, d)
+	slate.sockets = int(d.get("sockets", 0))
+	var lenses: Array[Lens] = []
+	for l in d.get("lenses", []):
+		var lens := ItemSerializer.from_dict(l) as Lens
+		if lens:
+			lenses.append(lens)
+	slate.lenses = lenses
 
 	return slate

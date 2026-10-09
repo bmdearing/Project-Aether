@@ -186,12 +186,20 @@ func _draw() -> void:
 	if board == null:
 		return
 
+	_draw_lens_radii()
+
 	if pending_slate and _in_bounds(_hover_cell):
 		var preview_cells := pending_slate.get_transformed_shape(pending_rotation, pending_flipped)
 		var valid := board.can_place(pending_slate, _hover_cell, pending_rotation, pending_flipped)
 		var tint := VALID_PREVIEW_COLOR if valid else INVALID_PREVIEW_COLOR
 		for local_cell in preview_cells:
 			_draw_cell(_hover_cell + local_cell, tint)
+		if valid:
+			var world: Array[Vector2i] = []
+			for local_cell in preview_cells:
+				world.append(_hover_cell + local_cell)
+			for lens in pending_slate.lenses:
+				_draw_radius(world, lens.radius)
 
 ## Draws a line on a cell edge unless both sides belong to the same
 ## placed Slate - same Slate reads as one solid shape, different Slates
@@ -231,3 +239,35 @@ func _draw_cell(cell: Vector2i, color: Color) -> void:
 		return
 	var rect := Rect2(cell.x * _cell_px + 1, cell.y * _cell_px + 1, _cell_px - 2, _cell_px - 2)
 	draw_rect(rect, color)
+
+const LENS_RADIUS_COLOR := Color(0.55, 0.9, 0.85, 0.14)
+const LENS_EDGE_COLOR := Color(0.55, 0.9, 0.85, 0.55)
+
+## Every placed Lens's radius, as a faint tint with an outline.
+func _draw_lens_radii() -> void:
+	for id in board.placements:
+		var data: FateBoard.PlacedSlateData = board.placements[id]
+		for lens in data.slate.lenses:
+			_draw_radius(data.cells, lens.radius)
+
+func _draw_radius(host_cells: Array[Vector2i], radius: int) -> void:
+	var cells := FateBoard.radius_cells(host_cells, radius)
+	var inside := {}
+	for c in cells:
+		inside[c] = true
+	for c in cells:
+		if not _in_bounds(c):
+			continue
+		var rect := Rect2(c.x * _cell_px, c.y * _cell_px, _cell_px, _cell_px)
+		draw_rect(rect, LENS_RADIUS_COLOR)
+		for dir in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+			if inside.has(c + dir):
+				continue
+			var a := rect.position
+			var b := rect.position
+			match dir:
+				Vector2i.UP: b += Vector2(_cell_px, 0)
+				Vector2i.DOWN: a += Vector2(0, _cell_px); b = a + Vector2(_cell_px, 0)
+				Vector2i.LEFT: b += Vector2(0, _cell_px)
+				Vector2i.RIGHT: a += Vector2(_cell_px, 0); b = a + Vector2(0, _cell_px)
+			draw_line(a, b, LENS_EDGE_COLOR, 1.5)

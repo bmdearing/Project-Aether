@@ -13,25 +13,33 @@ class ChainResult:
 	var bonus_percent: float = 0.0
 	var placement_ids: Array[String] = []
 
-## Returns Array[ChainResult], one per distinct connected same-tag group.
+## Returns Array[ChainResult], one per distinct connected same-tag group. A
+## Slate with several tags (Hybrid, or bridged by a Lens) counts in a chain
+## of each.
 static func compute_chains(board: FateBoard) -> Array[ChainResult]:
-	var visited_cells := {}
+	var visited_by_tag := {}  # tag -> {cell: true}
 	var results: Array[ChainResult] = []
+	var tags_of := {}
+	for placement_id in board.placements:
+		tags_of[placement_id] = board.placed_tags(board.placements[placement_id])
 
 	for placement_id in board.placements.keys():
 		var data: FateBoard.PlacedSlateData = board.placements[placement_id]
-		for start_cell in data.cells:
-			if visited_cells.has(start_cell):
-				continue
-			var chain := _flood_fill(board, start_cell, data.slate.tag, visited_cells)
-			if chain.tile_count > 0:
-				chain.tag = data.slate.tag
-				chain.bonus_percent = _bonus_for_tile_count(chain.tile_count)
-				results.append(chain)
+		for tag in tags_of[placement_id]:
+			var visited: Dictionary = visited_by_tag.get(tag, {})
+			visited_by_tag[tag] = visited
+			for start_cell in data.cells:
+				if visited.has(start_cell):
+					continue
+				var chain := _flood_fill(board, start_cell, tag, visited, tags_of)
+				if chain.tile_count > 0:
+					chain.tag = tag
+					chain.bonus_percent = _bonus_for_tile_count(chain.tile_count)
+					results.append(chain)
 
 	return results
 
-static func _flood_fill(board: FateBoard, start_cell: Vector2i, tag: Constants.DamageType, visited_cells: Dictionary) -> ChainResult:
+static func _flood_fill(board: FateBoard, start_cell: Vector2i, tag: int, visited_cells: Dictionary, tags_of: Dictionary) -> ChainResult:
 	var result := ChainResult.new()
 	var occupied := board.get_occupied_cells()
 	var stack: Array[Vector2i] = [start_cell]
@@ -45,12 +53,8 @@ static func _flood_fill(board: FateBoard, start_cell: Vector2i, tag: Constants.D
 			continue
 
 		var placement_id: String = occupied[cell]
-		var data: FateBoard.PlacedSlateData = board.placements[placement_id]
-
-		# Same-tag membership, OR this cell belongs to a Hybrid Slate touching this tag.
-		var matches_tag := data.slate.tag == tag
-		var hybrid_bridges := data.slate.is_hybrid and (data.slate.tag == tag or data.slate.secondary_tag == tag)
-		if not (matches_tag or hybrid_bridges):
+		# Member if the Slate carries this tag (its own, Hybrid, or a Lens bridge).
+		if not tags_of[placement_id].has(tag):
 			continue
 
 		visited_cells[cell] = true
@@ -88,11 +92,17 @@ static func slate_stat_bonuses(board: FateBoard, chains: Array[ChainResult]) -> 
 	var totals := {}
 	for placement_id in board.placements:
 		var data: FateBoard.PlacedSlateData = board.placements[placement_id]
-		var amplifier: float = 1.0 + chain_bonus_by_placement.get(placement_id, 0.0)
+		var amplifier: float = (1.0 + chain_bonus_by_placement.get(placement_id, 0.0)) * lens_multiplier(board, data, true)
 		for modifier in data.slate.modifiers:
 			if EquipmentComponent.AFFIX_STAT_KEYS.has(modifier.stat_key):
 				var stat: Constants.Stat = EquipmentComponent.AFFIX_STAT_KEYS[modifier.stat_key]
 				totals[stat] = totals.get(stat, 0.0) + modifier.value * amplifier
+		# Lenses' own (jewel) modifiers count at face value.
+		for lens in data.slate.lenses:
+			for affix in lens.affixes:
+				if EquipmentComponent.AFFIX_STAT_KEYS.has(affix.key()):
+					var lens_stat: Constants.Stat = EquipmentComponent.AFFIX_STAT_KEYS[affix.key()]
+					totals[lens_stat] = totals.get(lens_stat, 0.0) + affix.value
 	return totals
 
 static func _bonus_for_tile_count(tile_count: int) -> float:
@@ -114,11 +124,29 @@ static func slate_misc_bonuses(board: FateBoard) -> Dictionary:
 	var totals := {}
 	for placement_id in board.placements:
 		var data: FateBoard.PlacedSlateData = board.placements[placement_id]
+		var amplifier := lens_multiplier(board, data, false)
 		for modifier in data.slate.modifiers:
 			var key := StatKeys.canonical(modifier.stat_key)
 			if EquipmentComponent.is_misc_key(key):
-				totals[key] = totals.get(key, 0.0) + modifier.value
+				totals[key] = totals.get(key, 0.0) + modifier.value * amplifier
 		for affix in data.slate.explicits:
 			if EquipmentComponent.is_misc_key(affix.key()):
-				totals[affix.key()] = totals.get(affix.key(), 0.0) + affix.value
+				totals[affix.key()] = totals.get(affix.key(), 0.0) + affix.value * amplifier
+		for lens in data.slate.lenses:
+			for affix in lens.affixes:
+				if EquipmentComponent.is_misc_key(affix.key()):
+					totals[affix.key()] = totals.get(affix.key(), 0.0) + affix.value
 	return totals
+
+## How much stronger Lenses in range make a placed Slate's modifiers:
+## "<Tag> Slates in radius have X% stronger modifiers" for its tags, plus
+## "Attribute lines ... X% stronger" when attributes is true.
+static func lens_multiplier(board: FateBoard, data: FateBoard.PlacedSlateData, attributes: bool) -> float:
+	var percent := 0.0
+	var tags := board.placed_tags(data)
+	for effect in board.lens_effects_at(data.cells):
+		if effect["mod"] == "amplify_tag" and tags.has(effect["tag"]):
+			percent += effect["value"]
+		elif effect["mod"] == "amplify_attributes" and attributes:
+			percent += effect["value"]
+	return 1.0 + percent / 100.0

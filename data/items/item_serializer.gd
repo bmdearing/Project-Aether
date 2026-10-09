@@ -64,6 +64,11 @@ static func to_dict(item: Item) -> Dictionary:
 	}
 	if not item.socketed.is_empty():
 		d["socketed"] = item.socketed.map(func(j: Item): return to_dict(j))
+	if item is Lens:
+		d["radius"] = item.radius
+		d["radius_mod"] = item.radius_mod
+		d["radius_value"] = item.radius_value
+		d["radius_tag"] = item.radius_tag
 	if item is SkillTome:
 		d["ability_id"] = item.ability_id
 		d["ability_path"] = item.ability_path
@@ -160,6 +165,11 @@ static func from_dict(d: Dictionary) -> Item:
 	item.quality = d.get("quality", 0)
 	read_craft_state(item, d)
 
+	if item is Lens:
+		item.radius = int(d.get("radius", 2))
+		item.radius_mod = d.get("radius_mod", "")
+		item.radius_value = float(d.get("radius_value", 0.0))
+		item.radius_tag = int(d.get("radius_tag", -1))
 	if item is SkillTome:
 		item.ability_id = d.get("ability_id", "")
 		item.ability_path = d.get("ability_path", "")
@@ -219,10 +229,13 @@ static func _new_of_class(tag: String) -> Item:
 		"FigmentItem": return FigmentItem.new()
 		"SkillTome": return SkillTome.new()
 		"AmmoPack": return AmmoPack.new()
+		"Lens": return Lens.new()
 		"Jewel": return Jewel.new()
 	return Item.new()
 
 static func _class_tag(item: Item) -> String:
+	if item is Lens:
+		return "Lens"
 	if item is Jewel:
 		return "Jewel"
 	if item is SkillTome:
