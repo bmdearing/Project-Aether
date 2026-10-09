@@ -4,12 +4,13 @@
 
 [resource]
 script = ExtResource("1")
-affix_id = "champion_aura_damage"
-display_name = "Warlord's Presence"
+affix_id = "champion_aura_haste"
+display_name = "Aura of Haste"
 category = 1
-description = "Aura: nearby enemies deal 30% more damage."
+description = "Aura: nearby enemies move and attack 20% faster."
 item_rarity_bonus = 25
 item_quantity_bonus = 15
-more_damage = 30
+move_speed = 20
+attack_speed = 20
 has_aura = true
 aura_radius = 10

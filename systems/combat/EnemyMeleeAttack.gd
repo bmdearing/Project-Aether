@@ -68,13 +68,13 @@ func _sibling_attacking() -> bool:
 
 func _enter_telegraph() -> void:
 	_state = State.TELEGRAPH
-	_timer = telegraph_duration
-	_enemy.begin_attack_telegraph(telegraph_duration)
+	_timer = telegraph_duration / _enemy.get_attack_speed_multiplier()
+	_enemy.begin_attack_telegraph(_timer)
 	EventBus.enemy_attack_telegraphed.emit(_enemy)
 
 func _enter_strike() -> void:
 	_state = State.STRIKE
-	_timer = strike_duration
+	_timer = strike_duration / _enemy.get_attack_speed_multiplier()
 	_resolved_this_strike = false
 	if _hitbox:
 		_hitbox.monitoring = true
@@ -86,7 +86,7 @@ func _end_strike() -> void:
 
 func _enter_recovery() -> void:
 	_state = State.RECOVERY
-	_timer = recovery_duration
+	_timer = recovery_duration / _enemy.get_attack_speed_multiplier()
 
 func _poll_hitbox() -> void:
 	if _resolved_this_strike or not _hitbox:
@@ -116,7 +116,10 @@ func _resolve_hit(player: Player) -> void:
 		EventBus.enemy_attack_resolved.emit(_enemy, player, false, false)
 		return
 	if not parried:
-		player.take_damage(damage_amount * _enemy.get_outgoing_damage_multiplier(), damage_type, _enemy, Player.HitKind.ATTACK, true)
+		var dealt := damage_amount * _enemy.get_outgoing_damage_multiplier()
+		player.take_damage(dealt, _enemy.convert_attack_type(damage_type), _enemy, Player.HitKind.ATTACK, true)
+		if _enemy.rarity_component:
+			_enemy.rarity_component.on_hit_player(player, dealt)
 		# Frost Armor retaliates only against landed hits.
 		if player.ability_cast:
 			player.ability_cast.trigger_frost_armor_retaliation(_enemy)

@@ -108,6 +108,27 @@ func _ready() -> void:
 func set_boss_name(text: String) -> void:
 	_label.text = text
 
+## Orange for an Ascendant, gold for a boss.
+func set_name_color(color: Color) -> void:
+	_label.add_theme_color_override("font_color", color)
+
+## An Ascendant's affixes, under the bar.
+func set_subtitle(text: String) -> void:
+	if _subtitle == null:
+		_subtitle = Label.new()
+		_subtitle.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_subtitle.add_theme_font_override("font", AetherStyle.serif_italic())
+		_subtitle.add_theme_font_size_override("font_size", 15)
+		_subtitle.add_theme_color_override("font_color", Color(1.0, 0.72, 0.45))
+		_subtitle.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+		_subtitle.position = Vector2(0, NAME_HEIGHT + HEIGHT + 4.0)
+		_subtitle.size = Vector2(WIDTH, 20)
+		_subtitle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		add_child(_subtitle)
+	_subtitle.text = text
+
+var _subtitle: Label
+
 ## Diamonds on the frame where the boss changes phase (health fractions).
 func set_phase_marks(marks: Array[float]) -> void:
 	if _frame.marks != marks:

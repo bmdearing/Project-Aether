@@ -4,10 +4,10 @@
 
 [resource]
 script = ExtResource("1")
-affix_id = "ascendant_resilient"
-display_name = "Unyielding"
+affix_id = "ascendant_arcane_shell"
+display_name = "Arcane Shell"
 category = 2
-description = "Regenerates 1.5% of its Life per second."
+description = "Ward equal to 40% of its Life, which refills 4 seconds after it was last hit."
 item_rarity_bonus = 50
 item_quantity_bonus = 30
-life_regen = 1.5
+ward_percent = 40

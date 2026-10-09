@@ -4,10 +4,11 @@
 
 [resource]
 script = ExtResource("1")
-affix_id = "ascendant_resilient"
-display_name = "Unyielding"
+affix_id = "ascendant_blink"
+display_name = "Blink Strike"
 category = 2
-description = "Regenerates 1.5% of its Life per second."
+description = "Teleports beside you every few seconds when you keep your distance."
 item_rarity_bonus = 50
 item_quantity_bonus = 30
-life_regen = 1.5
+mechanic = &"blink"
+mechanic_value = 6

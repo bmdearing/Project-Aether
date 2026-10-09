@@ -4,12 +4,12 @@
 
 [resource]
 script = ExtResource("1")
-affix_id = "champion_aura_damage"
-display_name = "Warlord's Presence"
+affix_id = "champion_aura_fortitude"
+display_name = "Aura of Fortitude"
 category = 1
-description = "Aura: nearby enemies deal 30% more damage."
+description = "Aura: nearby enemies take 25% less damage."
 item_rarity_bonus = 25
 item_quantity_bonus = 15
-more_damage = 30
+damage_taken = -25
 has_aura = true
 aura_radius = 10

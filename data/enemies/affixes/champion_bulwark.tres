@@ -4,11 +4,10 @@
 
 [resource]
 script = ExtResource("1")
-affix_id = "pack_aggressive"
-display_name = "Driven"
-category = 0
-description = "The pack moves 25% faster and deals 20% more damage."
-item_rarity_bonus = 15
+affix_id = "champion_bulwark"
+display_name = "Bulwark"
+category = 1
+description = "50% more Life."
+item_rarity_bonus = 20
 item_quantity_bonus = 10
-more_damage = 20
-move_speed = 25
+more_life = 50

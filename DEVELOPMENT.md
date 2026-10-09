@@ -328,8 +328,8 @@ melee up close, Entropic bolts beyond 5 m (`EnemyRangedAttack.min_range`).
 Only basic attacks exist: no pack roles, synergies, status riders, blocks,
 spells or channels yet. `GeneratedMap` spawns packs from
 `Constants.ENEMY_PACKS_NORMAL` (Unchartered, Hollowed, Synod golem and
-Veilborne packs) and one elite pack in the Vault from
-`ENEMY_PACKS_VAULT_ELITE`, alongside its FigmentBoss. `TestArena` has one
+Veilborne packs); the boss room holds only its FigmentBoss. The Vindicator,
+Dreadknight and Cantor spawn as Ascendants (Enemy Rarity, below). `TestArena` has one
 of each unit in a row. `directorate_soldier.tres` has no model and isn't
 spawned.
 
@@ -793,25 +793,36 @@ hitting, and more rewarding (XP/Gold scale too). Invented growth curve
 sourced, Section 24 defers Map/tier balance entirely.
 
 **Enemy Rarity** (`entities/components/EnemyRarityComponent.gd`,
-`data/enemies/EnemyAffix.gd`, Patch v3.9, 2026-09-06): a SECOND, fully
-independent tier axis from `Constants.EnemyRank` above — Rank still
-drives loot item-level exactly as before; Rarity (`NORMAL`/`ELITE`/
-`CHAMPION`/`ASCENDANT`, spawn-weighted via `Constants.
-ENEMY_RARITY_SPAWN_WEIGHTS`, rolled by `GeneratedMap._spawn_enemy()`)
-drives health/damage multipliers (invented: 1.5x/1.2x, 3.0x/1.6x,
-8.0x/2.4x for Elite/Champion/Ascendant), name color on the floating
-health bar (blue/yellow/orange), and rolled `EnemyAffix` .tres resources
-(`data/enemies/affixes/` — 4 starters seeded: `dreamer`, `pack_aggressive`,
-`champion_aura_damage`, `ascendant_resilient`). Stat scaling is applied
-from `Enemy._apply_map_modifiers()`/`get_outgoing_damage_multiplier()`,
-not the component's own `_ready()` — the exact same child-before-parent
-`_ready()` ordering bug this project has been bitten by before would
-otherwise apply. Champion auras and drop-conversion tier/count scaling
-are visual-placeholder/stub only; Ascendant still uses the regular
-floating health bar, not the Boss-style one the doc describes (a real
-gap, flagged in `PATCH_NOTES.md` — routing a non-Boss-rank enemy through
-the singleton `BossHealthBar` slot needs a real answer for what happens
-if a real Boss is also in combat, which nothing has specified yet).
+`data/enemies/EnemyAffix.gd`, `data/enemies/affixes/`; Patch v3.9 plus user
+direction 2026-10-09): a tier axis separate from `Constants.EnemyRank`
+above (Rank still only drives drop item level). Rolled **per pack** in
+`GeneratedMap._spawn_pack()` (`Constants.ENEMY_PACK_RARITY_WEIGHTS`
+70/20/8/2); bosses and summons are Normal.
+  - **Normal**: no modifiers.
+  - **Elite** (blue): the whole pack is Elite and shares one pack affix that
+    every member carries: Driven, Swift, Ironclad, Frenzied (survivors
+    enrage when a packmate dies), Volatile (explodes after a ground warning
+    when it dies), Frostbitten / Searing (hits Chill / Ignite), Bloodthirsty
+    (leech and regeneration). ×1.5 Life, ×1.2 damage.
+  - **Champion** (yellow): one leader of an otherwise Normal pack, with one
+    real aura (Warlord's Presence, Haste, Fortitude, Renewal) that applies its
+    stat lines to every enemy within 10 m, the Champion included and whether
+    or not they spawned with it (a ring on the ground marks the reach), plus a
+    50% chance of a second Champion affix (Dreamer, Bulwark or another aura).
+    ×3 Life, ×1.6 damage.
+  - **Ascendant** (orange): a Synod Vindicator, Legion Dreadknight or
+    Veilborne Cantor (`ASCENDANT_UNITS`) with up to two Normal escorts and
+    two affixes from its own pool: Unyielding, Juggernaut (ignores slows,
+    stuns, staggers, knockback), Arcane Shell (Ward that refills), Empowered,
+    Soul Eater (stronger as enemies die nearby), Blink Strike (teleports
+    beside you), Frost Nova (telegraphed Chilling nova). ×3 Life and ×1.5
+    damage on top of an elite-class unit. Shown on the boss-style bar while
+    no boss is fighting you.
+Affixes are data: stat lines (more damage/Life, move/attack speed, damage
+taken, regeneration, Ward, leech, on-hit status, unstoppable), an optional
+aura, and a `mechanic` id the component runs. Health bars list each rare
+enemy's affixes. Stat scaling is read by `Enemy` (`rarity_component`), not
+applied in the component's own `_ready()` (children ready before parents).
 
 **Figment Tree** (`systems/figment_tree/`) - scaffolding only, per direct
 request ("prepare legs for a Figment Tree ... not "build it"). A real,

@@ -91,6 +91,8 @@ func _hit_player(player: Player) -> void:
 	var parried: bool = source != null and player.parry_handler and player.parry_handler.attempt_parry(source, player.ward)
 	if not parried:
 		player.take_damage(damage_amount, damage_type, source, Player.HitKind.SPELL if is_spell_projectile else Player.HitKind.ATTACK)
+		if is_instance_valid(source) and source is Enemy and (source as Enemy).rarity_component:
+			(source as Enemy).rarity_component.on_hit_player(player, damage_amount)
 	EventBus.enemy_attack_resolved.emit(source, player, true, parried)
 
 ## Which impact sound set to use. Enemies/the player are "flesh"; any

@@ -7,6 +7,21 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.58: Enemy rarity tiers made real: Elite pack affixes, Champion auras, Ascendant units (user design)
+
+The Patch v3.9 rarity tiers existed as multipliers and four mostly inert affixes. The user's direction: Elites carry pack affixes that affect the whole pack, Champions' auras really affect the mobs around them, and Ascendants are stronger, scarier mobs (the Vindicator, Dreadknight and Cantor) with their own affix pool, not hunters.
+- **Rolled per pack**, not per enemy (`Constants.ENEMY_PACK_RARITY_WEIGHTS` 70/20/8/2, `GeneratedMap._spawn_pack()`); bosses and summons are Normal. Per-enemy rolls used to make "Elite packs" impossible: each member rolled its own tier and its own pack affix.
+  - **Elite:** every member is Elite and shares one pack affix (8 now: Driven, Swift, Ironclad, Frenzied, Volatile, Frostbitten, Searing, Bloodthirsty).
+  - **Champion:** one leader of an otherwise Normal pack, with one aura (Warlord's Presence, Haste, Fortitude, Renewal) and a 50% chance of a second Champion affix (Dreamer, Bulwark, or another aura). An aura re-broadcasts every 0.4s to every enemy within 10m, the Champion included, whether they spawned with it or not, and fades 0.9s after it stops reaching them. A gold ring on the ground shows its reach.
+  - **Ascendant:** one of `ASCENDANT_UNITS` (Vindicator, Dreadknight, Cantor) with up to two Normal escorts from the pack it replaced, and two affixes from its own pool (Unyielding, Juggernaut, Arcane Shell, Empowered, Soul Eater, Blink Strike, Frost Nova). Shown on the top boss-style bar, orange, with its affixes, while no boss is fighting you (the doc's "boss-style health bar"; a boss in combat keeps the bar).
+- **Affixes are data** (`EnemyAffix`): stat lines (more damage/Life, move/attack speed, damage taken, regeneration, Ward, leech, on-hit status, unstoppable), an optional aura, and a `mechanic` id (`frenzy`, `volatile`, `soul_eater`, `blink`, `nova`) that `EnemyRarityComponent` runs. `Enemy` reads them through `rarity_component`: move speed in the chase, attack speed divides every attack timer (Chill/action-speed slows now slow enemy attacks too), damage taken in `take_damage()`, Ward in `_reset_ward()`, unstoppable in pulls, knockback, staggers and status immunity. Dreamer's damage conversion is now applied to melee and ranged attacks (it was data only).
+- **Health bars** list each rare enemy's affixes ("Ironclad", "Aura of Renewal · Bulwark") above its name.
+- **Judgment calls, easy to retune:** Ascendant multipliers dropped from ×8 Life / ×2.4 damage to ×3 / ×1.5, since they now sit on elite-class units (280 base Life, ×8 would out-last a Figment boss). All affix numbers and the 70/20/8/2 pack odds are Claude's placeholders.
+- Fixed on the way: the component's Juggernaut immunity read the enemy's status component in its own `_ready()`, before the enemy was ready (the project's child-before-parent bug class); setup now waits a frame. Normal enemies no longer skip processing, so an Aura of Renewal heals them.
+- Tests: new `tests/enemy_rarity` (51 checks): pools, pack odds, a shared Elite affix, a Champion aura reaching an outsider but not a far enemy and fading after the Champion dies, Renewal healing, Ascendant units and pool, Frenzied, Juggernaut, Arcane Shell, Ironclad, Volatile. `tests/ui_capture/capture_map.tscn ... rarity` screenshots an Elite pack, a Champion pack and an Ascendant in front of the player.
+
+---
+
 ## 2026-10-09 — v4.56: Threshold Knight's weapon and shield, Booming Blade on the ground, smoother crafting (user reports)
 
 - **Threshold Knight held nothing:** his sword and shield hung frozen in the bind pose while he animated. The model (Teron Gorefiend, kit-bashed) carries three classic geosets (the blade, the shield and a weapon trim) with no per-vertex skin weights; they bind to the hand bones through MDX matrix groups, which the converter skipped, leaving them unskinned. `mdx_to_gltf.js` now binds such geosets through their matrix groups (up to four nodes, equal weights). Reconverted the Knight; a scan of every roster model found no other affected unit. Checked by rendering him frozen mid-idle and mid-attack (`tests/ui_capture/capture_model.tscn`, new): the sword now swings with his hand.

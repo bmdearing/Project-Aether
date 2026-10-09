@@ -451,6 +451,13 @@ func _update_enemy_health_bars() -> void:
 
 	var seen_ids := {}
 	var active_boss: Enemy = null
+	# An Ascendant takes the boss-style bar when no boss is fighting you.
+	var boss_fighting := false
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var e := node as Enemy
+		if e and e.rank == Constants.EnemyRank.BOSS and e.health.is_alive() and e.is_in_combat():
+			boss_fighting = true
+			break
 	for node in get_tree().get_nodes_in_group("enemy"):
 		var enemy := node as Enemy
 		if enemy == null or not enemy.health.is_alive():
@@ -458,7 +465,9 @@ func _update_enemy_health_bars() -> void:
 		var id := enemy.get_instance_id()
 		if not (id == hovered_id or enemy.is_in_combat()):
 			continue
-		if enemy.rank == Constants.EnemyRank.BOSS:
+		var rarity_component := enemy.rarity_component
+		var ascendant := rarity_component != null and rarity_component.rarity == Constants.EnemyRarity.ASCENDANT
+		if enemy.rank == Constants.EnemyRank.BOSS or (ascendant and not boss_fighting and active_boss == null):
 			if active_boss == null:
 				active_boss = enemy
 			continue
@@ -469,8 +478,8 @@ func _update_enemy_health_bars() -> void:
 			add_child(bar)
 			_enemy_bars[id] = bar
 		bar.set_enemy_name(enemy.get_display_name())
-		var rarity_component := enemy.get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
 		bar.set_name_color(rarity_component.get_name_color() if rarity_component else Color.WHITE)
+		bar.set_affix_text(rarity_component.get_affix_names() if rarity_component else "")
 		bar.set_health(enemy.health.current_health, enemy.health.max_health)
 		bar.set_ward(enemy.get_ward(), enemy.get_ward_max())
 		var world_pos := enemy.global_position + Vector3(0, enemy.body_height + ENEMY_HEALTH_BAR_HEIGHT_OFFSET, 0)
@@ -497,6 +506,10 @@ func _update_boss_bar(boss: Enemy) -> void:
 		add_child(_boss_bar)
 	_boss_bar.visible = true
 	_boss_bar.set_boss_name(boss.get_display_name())
+	var rarity_component := boss.rarity_component
+	var ascendant := rarity_component != null and rarity_component.rarity == Constants.EnemyRarity.ASCENDANT
+	_boss_bar.set_name_color(rarity_component.get_name_color() if ascendant else AetherStyle.GOLD_BRIGHT)
+	_boss_bar.set_subtitle(rarity_component.get_affix_names() if ascendant else "")
 	_boss_bar.set_health(boss.health.current_health, boss.health.max_health)
 	_boss_bar.set_ward(boss.get_ward(), boss.get_ward_max())
 	var marks: Array[float] = []

@@ -177,10 +177,37 @@ func _level_scaled_damage(level: int) -> float:
 ## Refills the Ward pool to definition.ward_percent of current max health.
 ## Called whenever max health is (re)derived, so it tracks tier/rarity scaling.
 func _reset_ward() -> void:
-	if definition == null or definition.ward_percent <= 0.0:
+	var percent := (definition.ward_percent if definition else 0.0) + (rarity_component.get_ward_percent() if rarity_component else 0.0)
+	if percent <= 0.0:
 		return
-	_ward_pool = health.max_health * definition.ward_percent
+	_ward_pool = health.max_health * percent
 	_ward_current = _ward_pool
+
+## Refills Ward once delay seconds have passed since the last hit taken.
+func recharge_ward_if_idle(delay: float) -> void:
+	if _ward_current < _ward_pool and Time.get_ticks_msec() - _last_damaged_msec >= int(delay * 1000.0):
+		_ward_current = _ward_pool
+
+var _last_damaged_msec: int = -100000
+
+## The EnemyRarityComponent added at spawn, or null (looked up lazily: it's
+## attached after the enemy is created).
+var rarity_component: EnemyRarityComponent:
+	get:
+		if _rarity_component == null or not is_instance_valid(_rarity_component):
+			_rarity_component = get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
+		return _rarity_component
+var _rarity_component: EnemyRarityComponent
+
+## Rarity affixes and Champion auras on top of Map scaling.
+func get_attack_speed_multiplier() -> float:
+	var mult := rarity_component.get_attack_speed_multiplier() if rarity_component else 1.0
+	return maxf(mult * (status_effects.get_action_speed_multiplier() if status_effects else 1.0), 0.1)
+
+## The type an attack deals: a damage-conversion affix (Dreamer) overrides it.
+func convert_attack_type(damage_type: int) -> int:
+	var converted := rarity_component.get_damage_conversion() if rarity_component else -1
+	return converted if converted != -1 else damage_type
 
 ## Replaces the placeholder capsule with the definition's model and, if the
 ## model carries an "AnimationTree" node and the definition an AnimationSet,
@@ -367,10 +394,7 @@ const MOB_LEVELS_PER_TIER := 2
 ## Applies Map tier/affix scaling and the rarity health multiplier (which
 ## applies even without an active Map).
 func _apply_map_modifiers() -> void:
-	var rarity_mult := 1.0
-	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
-	if rarity_component:
-		rarity_mult = rarity_component.get_health_multiplier()
+	var rarity_mult := rarity_component.get_health_multiplier() if rarity_component else 1.0
 	if GameState.active_map == null:
 		if rarity_mult != 1.0:
 			health.max_health *= rarity_mult
@@ -394,7 +418,6 @@ func get_outgoing_damage_multiplier() -> float:
 	var mult := status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0
 	if status_effects and status_effects.has_effect("unraveling"):
 		mult *= 1.0 - minf(GearEffects.player_bonus(get_tree(), "unraveled_damage_reduction") / 100.0, 0.9)
-	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
 	if rarity_component:
 		mult *= rarity_component.get_damage_multiplier()
 	if GameState.active_map == null:
@@ -410,6 +433,8 @@ var _pull := Vector3.ZERO
 var move_target: Node3D = null
 
 func apply_pull(pull_velocity: Vector3) -> void:
+	if rarity_component and rarity_component.is_unstoppable():
+		return
 	_pull += Vector3(pull_velocity.x, 0.0, pull_velocity.z)
 
 ## Melee hit shove: horizontal velocity that bleeds off over a few frames.
@@ -418,7 +443,7 @@ const KNOCKBACK_FRICTION := 22.0
 const BOSS_KNOCKBACK_SCALE := 0.25
 
 func apply_knockback(impulse: Vector3) -> void:
-	if immovable:
+	if immovable or (rarity_component and rarity_component.is_unstoppable()):
 		return
 	if rank == Constants.EnemyRank.BOSS:
 		impulse *= BOSS_KNOCKBACK_SCALE
@@ -446,6 +471,8 @@ func is_staggered() -> bool:
 
 ## Cancels a wind-up or strike in progress and plays the stagger reaction.
 func interrupt_attack() -> void:
+	if rarity_component and rarity_component.is_unstoppable():
+		return
 	_staggered_until_msec = Time.get_ticks_msec() + int(STAGGER_SECONDS * 1000.0)
 	for path in ["MeleeAttack", "RangedAttack"]:
 		var attack := get_node_or_null(path)
@@ -543,7 +570,7 @@ func _update_chase() -> void:
 		return
 
 	var dir := to_player / dist
-	var speed := move_speed * status_effects.get_move_speed_multiplier()
+	var speed := move_speed * status_effects.get_move_speed_multiplier() * (rarity_component.get_move_speed_multiplier() if rarity_component else 1.0)
 	if retreat_distance > 0.0 and dist < retreat_distance:
 		velocity.x = -dir.x * speed
 		velocity.z = -dir.z * speed
@@ -679,7 +706,6 @@ func _drop_gold() -> void:
 ## Otherwise Item Quantity scales the number of drop rolls and Item Rarity
 ## the quality of each.
 func _maybe_drop_loot() -> void:
-	var rarity_component := get_node_or_null("EnemyRarityComponent") as EnemyRarityComponent
 	if rarity_component:
 		var conversion_affix := rarity_component.get_drop_conversion_affix()
 		if conversion_affix:
@@ -844,6 +870,9 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		status_multiplier *= status_effects.get_shock_multiplier()
 	if status_effects and status_effects.has_effect("pallid"):
 		status_multiplier *= 1.0 + GearEffects.player_bonus(get_tree(), "pallid_damage_taken") / 100.0
+	if rarity_component:
+		status_multiplier *= rarity_component.get_damage_taken_multiplier()
+	_last_damaged_msec = Time.get_ticks_msec()
 	var mitigated := amount * multiplier * status_multiplier
 	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
 	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0 and not is_dot and not ignore_armor:

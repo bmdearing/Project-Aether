@@ -684,17 +684,45 @@ func _spawn_enemies_open() -> void:
 			var offset := Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)) * cell_size * OPEN_PACK_SPREAD
 			_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_NORMAL), center + offset)
 
-func _spawn_pack(unit_ids: Array[String], center: Vector3) -> void:
+## Rarity is rolled per pack (EnemyRarityComponent): an Elite pack shares one
+## pack affix; a Champion leads an otherwise Normal pack; an Ascendant pack
+## is one of Constants.ASCENDANT_UNITS with up to ASCENDANT_ESCORTS escorts.
+func _spawn_pack(unit_ids: Array[String], center: Vector3, forced_rarity: int = -1) -> void:
+	var rarity: Constants.EnemyRarity = EnemyRarityComponent.roll_pack_rarity() if forced_rarity < 0 else forced_rarity as Constants.EnemyRarity
+	if rarity == Constants.EnemyRarity.ASCENDANT:
+		var leader_id: String = Constants.ASCENDANT_UNITS.pick_random()
+		var escorts := unit_ids.slice(0, mini(unit_ids.size(), randi_range(0, Constants.ASCENDANT_ESCORTS)))
+		unit_ids = [leader_id] as Array[String]
+		unit_ids.append_array(escorts)
+	var shared: Array[EnemyAffix] = []
+	if rarity == Constants.EnemyRarity.ELITE:
+		shared = EnemyRarityComponent.roll_affixes(rarity)
+	var leader := 0 if rarity == Constants.EnemyRarity.ASCENDANT else randi() % unit_ids.size()
+	var members: Array = []
 	var start_angle := randf() * TAU
 	for i in unit_ids.size():
 		var offset := Vector3.ZERO
 		if unit_ids.size() > 1:
 			var angle := start_angle + TAU * i / unit_ids.size()
 			offset = Vector3(cos(angle), 0, sin(angle)) * PACK_RING_RADIUS
-		_spawn_enemy(EnemyRoster.create_unit(unit_ids[i]), center + offset)
+		var enemy := EnemyRoster.create_unit(unit_ids[i])
+		var member_rarity := Constants.EnemyRarity.NORMAL
+		var rolled: Array[EnemyAffix] = []
+		if rarity == Constants.EnemyRarity.ELITE:
+			member_rarity = rarity
+			rolled = shared
+		elif rarity != Constants.EnemyRarity.NORMAL and i == leader:
+			member_rarity = rarity
+			rolled = EnemyRarityComponent.roll_affixes(rarity)
+		EnemyRarityComponent.attach(enemy, member_rarity, rolled, members)
+		members.append(enemy)
+		_spawn_enemy(enemy, center + offset)
 
+## Anything spawned without a rarity (the boss, summons) is Normal, so it can
+## still receive Champion auras.
 func _spawn_enemy(enemy: Enemy, pos: Vector3) -> void:
-	EnemyRarityComponent.roll_and_attach(enemy)
+	if enemy.get_node_or_null("EnemyRarityComponent") == null:
+		EnemyRarityComponent.attach_normal(enemy)
 	enemy.set_meta(&"spawn_index", _next_spawn_index)
 	_next_spawn_index += 1
 	add_child(enemy)

@@ -4,10 +4,11 @@
 
 [resource]
 script = ExtResource("1")
-affix_id = "ascendant_resilient"
-display_name = "Unyielding"
+affix_id = "ascendant_juggernaut"
+display_name = "Juggernaut"
 category = 2
-description = "Regenerates 1.5% of its Life per second."
+description = "Can't be slowed, stunned, staggered or knocked back. 30% more Life."
 item_rarity_bonus = 50
 item_quantity_bonus = 30
-life_regen = 1.5
+more_life = 30
+unstoppable = true

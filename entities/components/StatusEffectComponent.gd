@@ -62,6 +62,8 @@ const SCORCH_DAMAGE_PER_STACK := 0.08
 ## Resistance Shred: each application is an independent source.
 const RESISTANCE_SHRED_DURATION := 8.0
 
+## Effects this owner ignores (an Ascendant Juggernaut's crowd control).
+var immune_to: Array = []
 var _timers: Dictionary = {}  # effect_id -> float seconds remaining
 var _chill_stacks: int = 0
 var _scorch_stacks: int = 0
@@ -164,6 +166,8 @@ func roll_gear_ailments(source: Node, hit_damage: float, skip: Array = []) -> vo
 
 ## hit_damage sets Ignite/Bleed's DoT total; other effects ignore it.
 func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.0) -> void:
+	if immune_to.has(effect_id.trim_prefix("enhanced:")):
+		return
 	if _owner is Player and is_ailment(effect_id) and randf() < _owner.stat_sheet.get_ailment_ignore_chance():
 		return
 	if effect_id.begins_with("enhanced:"):
@@ -223,6 +227,8 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 
 ## Fixed-length effects with no other logic (Whip's Entangle root).
 func apply_timed_effect(effect_id: String, duration: float) -> void:
+	if immune_to.has(effect_id):
+		return
 	_timers[effect_id] = maxf(_timers.get(effect_id, 0.0), duration)
 	_emit_applied(effect_id)
 

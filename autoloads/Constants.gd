@@ -313,12 +313,12 @@ const ENEMY_RARITY_NAME_COLOR := {
 const ENEMY_RARITY_HEALTH_MULT := {
 	EnemyRarity.ELITE: 1.5,
 	EnemyRarity.CHAMPION: 3.0,
-	EnemyRarity.ASCENDANT: 8.0,
+	EnemyRarity.ASCENDANT: 3.0,  # on top of an elite-class unit (280 base Life), not a 55 Life brigand
 }
 const ENEMY_RARITY_DAMAGE_MULT := {
 	EnemyRarity.ELITE: 1.2,
 	EnemyRarity.CHAMPION: 1.6,
-	EnemyRarity.ASCENDANT: 2.4,
+	EnemyRarity.ASCENDANT: 1.5,
 }
 
 ## Mob level curve (EnemyDefinition.mob_level / archetype_category), invented
@@ -344,13 +344,17 @@ const MOB_BASE_DAMAGE := {
 	"boss": 45.0,
 }
 
-## Placeholder rarity spawn weights.
-const ENEMY_RARITY_SPAWN_WEIGHTS := {
-	EnemyRarity.NORMAL: 75.0,
+## Rarity is rolled per pack (EnemyRarityComponent.roll_pack_rarity()):
+## Elite = the whole pack, Champion = one leader, Ascendant = one of
+## ASCENDANT_UNITS with up to ASCENDANT_ESCORTS Normal escorts.
+const ENEMY_PACK_RARITY_WEIGHTS := {
+	EnemyRarity.NORMAL: 70.0,
 	EnemyRarity.ELITE: 20.0,
-	EnemyRarity.CHAMPION: 4.0,
-	EnemyRarity.ASCENDANT: 1.0,
+	EnemyRarity.CHAMPION: 8.0,
+	EnemyRarity.ASCENDANT: 2.0,
 }
+const ASCENDANT_UNITS := ["synod_vindicator", "legion_dreadknight", "veilborne_cantor"]
+const ASCENDANT_ESCORTS := 2
 
 ## Placeholder pack tables for GeneratedMap, rolled by EnemyRoster.roll_pack().
 ## Each unit entry is [unit_id or Array of unit_ids, min, max] - an Array

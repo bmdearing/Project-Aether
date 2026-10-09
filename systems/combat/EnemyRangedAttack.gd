@@ -69,13 +69,13 @@ func _sibling_attacking() -> bool:
 
 func _enter_windup() -> void:
 	_state = State.WINDUP
-	_timer = windup_duration
-	_enemy.begin_attack_telegraph(windup_duration)
+	_timer = windup_duration / _enemy.get_attack_speed_multiplier()
+	_enemy.begin_attack_telegraph(_timer)
 	EventBus.enemy_attack_telegraphed.emit(_enemy)
 
 func _fire() -> void:
 	_state = State.COOLDOWN
-	_timer = cooldown_duration
+	_timer = cooldown_duration / _enemy.get_attack_speed_multiplier()
 	if not is_instance_valid(_player):
 		return
 
@@ -88,7 +88,7 @@ func _fire() -> void:
 
 	var projectile: Projectile = PROJECTILE_SCENE.instantiate()
 	projectile.damage_amount = damage_amount * _enemy.get_outgoing_damage_multiplier()
-	projectile.damage_type = damage_type
+	projectile.damage_type = _enemy.convert_attack_type(damage_type)
 	projectile.source = _enemy
 	projectile.speed = projectile_speed
 	_enemy.get_tree().current_scene.add_child(projectile)
