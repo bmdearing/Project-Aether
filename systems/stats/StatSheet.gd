@@ -167,6 +167,8 @@ func apply_cast_speed_to_cooldown_conversion(conversion_percent: float) -> void:
 ## Increased Spell damage % from the equipped primary Conduit, pushed in by
 ## Player._on_equipment_changed().
 var conduit_spell_damage_bonus: float = 0.0
+## Extra projectiles the primary Conduit gives projectile spells.
+var conduit_additional_projectiles: int = 0
 
 ## Pushed in by Player._apply_derived_stats(). stat_evasion_bonus is the
 ## total Evasion Rating, for display. finesse_crit_bonus (pre-v4.8 name) is

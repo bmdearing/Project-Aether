@@ -30,6 +30,8 @@ const BASE_FIRE_COOLDOWN := 0.5
 ## system exists yet (Section 11: motion values live on skills).
 @export var base_motion_value: float = 1.0
 @export var projectile_speed: float = 25.0
+## Fan spacing for a bow's additional arrows.
+const EXTRA_ARROW_SPREAD_DEG := 5.0
 
 ## Right-click-hold aim (WeaponStance) rewards firing with a flat damage
 ## bonus and halves the weapon's spread; the weapon's RangedStanceBehavior
@@ -304,8 +306,18 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		_cone_shot(weapon, st, motion_value, weapon.pellet_spread_degrees * st.spread_multiplier, damage_type)
 		cosmetic = true
 
+	var speed := projectile_speed * maxf(1.0 + (_player.stat_sheet.get_misc_bonus("projectile_speed") - _player.stat_sheet.get_misc_bonus("reduced_projectile_speed")) / 100.0, 0.2)
+	# Additional arrows fan out around the aim line, each a full shot.
+	var arrows := 1 if cosmetic or pellets == 0 else 1 + weapon.get_local_count("local_additional_arrows")
+	var shots: Array[Transform3D] = []
+	for a in arrows:
+		var shot := socket_transform
+		shot.basis = Basis(Vector3.UP, deg_to_rad(EXTRA_ARROW_SPREAD_DEG * (a - (arrows - 1) / 2.0))) * shot.basis
+		for i in range(pellets):
+			shots.append(shot)
+
 	# One shot's damage is split across the pellets; each rolls its own crit.
-	for i in range(pellets):
+	for aim_transform in shots:
 		var hit := weapon.roll_damage(motion_value / pellets, _player.stat_sheet)
 
 		var projectile: Projectile = PROJECTILE_SCENE.instantiate()
@@ -313,7 +325,7 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		projectile.is_critical = hit["is_critical"]
 		projectile.damage_type = damage_type
 		projectile.source = _player
-		projectile.speed = projectile_speed
+		projectile.speed = speed
 		projectile.cosmetic = cosmetic
 		projectile.damage_modifier = _damage_modifier.bind(st)
 		if st:
@@ -321,16 +333,16 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 			projectile.on_hit = _on_projectile_hit.bind(st)
 		_player.get_tree().current_scene.add_child(projectile)
 
-		var spawn_transform := socket_transform
+		var spawn_transform := aim_transform
 		if spread > 0.0:
 			var spread_rad := deg_to_rad(spread)
-			var fire_dir := (-socket_transform.basis.z).normalized()
+			var fire_dir := (-aim_transform.basis.z).normalized()
 			# Point inside an ellipse (full spread sideways, half up/down), so no
 			# pellet ever lands outside the weapon's stated half-angle.
 			var radius := sqrt(randf())
 			var theta := randf() * TAU
 			fire_dir = fire_dir.rotated(Vector3.UP, cos(theta) * radius * spread_rad)
-			fire_dir = fire_dir.rotated(socket_transform.basis.x.normalized(), sin(theta) * radius * spread_rad * 0.5)
+			fire_dir = fire_dir.rotated(aim_transform.basis.x.normalized(), sin(theta) * radius * spread_rad * 0.5)
 			spawn_transform.basis = Basis.looking_at(fire_dir.normalized(), Vector3.UP)
 		projectile.global_transform = spawn_transform
 

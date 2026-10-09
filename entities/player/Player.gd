@@ -246,6 +246,7 @@ func _on_equipment_changed() -> void:
 	# Primary-slot Conduit only; an offhand Conduit doesn't contribute.
 	var primary := equipment.primary_weapon
 	stat_sheet.conduit_spell_damage_bonus = primary.get_conduit_spell_damage_bonus() if primary else 0.0
+	stat_sheet.conduit_additional_projectiles = primary.get_conduit_additional_projectiles() if primary else 0
 	_apply_derived_stats()
 	if arm_rig:
 		arm_rig.set_loadout(equipment.primary_weapon, equipment.offhand)

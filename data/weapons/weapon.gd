@@ -71,6 +71,10 @@ func get_conduit_spell_damage_bonus() -> float:
 		return 0.0
 	return (get_local_multiplier("local_increased_spell_damage") - 1.0) * 100.0
 
+## A Conduit's local "Spells fire +N additional Projectiles".
+func get_conduit_additional_projectiles() -> int:
+	return get_local_count("local_additional_spell_projectiles") if is_conduit else 0
+
 ## A Conduit's local "increased Cast Speed", as a percent.
 func get_conduit_cast_speed_bonus() -> float:
 	if not is_conduit:
@@ -199,6 +203,14 @@ func get_local_multiplier(stat_key: String) -> float:
 		if key == stat_key or (stat_key == "local_increased_weapon_damage" and key == "local_hybrid_weapon_damage"):
 			mult += affix.value / 100.0
 	return mult
+
+## Sum of this weapon's whole-number local modifier, e.g. "local_additional_arrows".
+func get_local_count(stat_key: String) -> int:
+	var total := 0.0
+	for affix in affixes:
+		if affix.key() == stat_key:
+			total += affix.value
+	return int(total)
 
 ## Flat Critical Strike Chance from this weapon's own modifiers, as a fraction.
 func get_local_flat_crit_chance() -> float:

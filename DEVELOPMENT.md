@@ -873,7 +873,7 @@ power unlocks access to better tiers, not a guaranteed roll of one.
 **Weapons roll from a separate, real affix library as of Patch v3.9**
 (`data/affixes/weapons/<type>/*.tres`, 96 files across the 9 damage types
 + generic + base-type-exclusive, `ItemAffix.weapon_type_filter` gates the
-exclusives — transcribed directly from the Patch v3.9 doc's own Tier-1
+exclusives by type key or by kind, "melee"/"ranged"/"conduit" — transcribed directly from the Patch v3.9 doc's own Tier-1
 tables) instead of the generic `AFFIX_POOL` below for Rare weapons
 specifically — split into real prefix/suffix pools (max 3 each, no
 duplicate `stat_key`s), still scaled through the exact same tier-decay

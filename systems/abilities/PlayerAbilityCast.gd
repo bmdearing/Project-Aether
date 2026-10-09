@@ -49,6 +49,8 @@ const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sw
 const BOOMING_BLADE_COOLDOWN := 0.45
 const BOOMING_BLADE_LEVELS_PER_BOLT := 5
 const BOOMING_BLADE_SPREAD_DEG := 7.0
+## Fan spacing for a Conduit's additional projectiles on single bolts.
+const EXTRA_BOLT_SPREAD_DEG := 6.0
 var _booming_blade_cd: float = 0.0
 
 ## Frost Armor: a self-buff; while active, enemy melee hits call
@@ -654,19 +656,24 @@ func trigger_frost_armor_retaliation(attacker: Enemy) -> void:
 	_flash_ring(centre, radius, _frost_armor_ability)
 
 func _fire_piercing_bolt(ability: Ability, damage_multiplier: float) -> void:
-	var xform := _player.camera.global_transform
-	xform.basis = Basis(Vector3.UP, deg_to_rad(_aim_yaw_offset)) * xform.basis
-	_spawn_bolt(ability, damage_multiplier, xform)
+	var count := 1 + _player.stat_sheet.conduit_additional_projectiles
+	for i in count:
+		var xform := _player.camera.global_transform
+		var yaw := _aim_yaw_offset + EXTRA_BOLT_SPREAD_DEG * (i - (count - 1) / 2.0)
+		xform.basis = Basis(Vector3.UP, deg_to_rad(yaw)) * xform.basis
+		_spawn_bolt(ability, damage_multiplier, xform)
 
 ## Ground bolts in a full horizontal circle around the player.
 func _fire_radiating_bolts(ability: Ability, damage_multiplier: float) -> void:
 	var origin := _player.global_position + Vector3(0, 0.3, 0)
-	for i in range(THUNDER_SWEEP_BOLT_COUNT):
-		var angle := TAU * i / float(THUNDER_SWEEP_BOLT_COUNT)
+	var count := THUNDER_SWEEP_BOLT_COUNT + _player.stat_sheet.conduit_additional_projectiles
+	for i in range(count):
+		var angle := TAU * i / float(count)
 		var xform := Transform3D(Basis(Vector3.UP, angle), origin)
 		_spawn_bolt(ability, damage_multiplier, xform)
 
-## SPARK_COUNT crawlers fanned out ahead of the caster; each seeks on its own.
+## SPARK_COUNT crawlers (plus a Conduit's extra projectiles) fanned out ahead
+## of the caster; each seeks on its own.
 func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
 	var forward := -_player.camera.global_transform.basis.z
 	forward.y = 0.0
@@ -674,8 +681,9 @@ func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
 		forward = -_player.global_transform.basis.z
 	forward = forward.normalized().rotated(Vector3.UP, deg_to_rad(_aim_yaw_offset))
 	var origin := _player.global_position + forward * 0.5
-	for i in range(SPARK_COUNT):
-		var offset_deg := SPARK_SPREAD_DEG * (i - (SPARK_COUNT - 1) / 2.0)
+	var count := SPARK_COUNT + _player.stat_sheet.conduit_additional_projectiles
+	for i in range(count):
+		var offset_deg := SPARK_SPREAD_DEG * (i - (count - 1) / 2.0)
 		var heading: Vector3 = forward.rotated(Vector3.UP, deg_to_rad(offset_deg))
 		var crawler: SparkCrawler = SPARK_CRAWLER_SCENE.instantiate()
 		crawler.heading = heading
@@ -867,4 +875,4 @@ func on_melee_swing() -> void:
 		_spawn_bolt(ability, 1.0, bolt_xform)
 
 static func booming_blade_bolt_count(ability: Ability, stat_sheet: StatSheet) -> int:
-	return 1 + ability.get_effective_level(stat_sheet) / BOOMING_BLADE_LEVELS_PER_BOLT
+	return 1 + ability.get_effective_level(stat_sheet) / BOOMING_BLADE_LEVELS_PER_BOLT + (stat_sheet.conduit_additional_projectiles if stat_sheet else 0)

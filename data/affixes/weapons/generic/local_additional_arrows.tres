@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+description = "+%d additional Arrows"
+stat_key = "local_additional_arrows"
+value = 1.0
+value_min = 1.0
+value_max = 1.0
+affix_id = "local_additional_arrows"
+display_name = "Volleying"
+min_item_level = 1
+is_generic = false
+weapon_type_filter = Array[String](["shortbow", "longbow"])
+is_local = true

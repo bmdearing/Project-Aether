@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="ItemAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+description = "+%d%% increased Riposte damage"
+stat_key = "increased_riposte_damage"
+value = 34.0
+value_min = 34.0
+value_max = 44.0
+affix_id = "riposte_damage"
+display_name = "Countering"
+min_item_level = 1
+is_generic = false
+weapon_type_filter = Array[String](["melee"])

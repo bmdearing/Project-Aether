@@ -7,6 +7,18 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.54: Projectile Speed, additional projectiles, Riposte damage (user request)
+
+- **Projectile Speed rolls again.** It was a weapon-only `AFFIX_POOL` entry, and weapons roll from the weapon library, so it never dropped. It's now a library suffix on ranged weapons and Conduits (18-26% at Tier 1). It also speeds up bow and gun shots now, not only projectile spells.
+- **Additional projectiles**, a rare prefix with three tiers: +1 (any level), +2 (item level 40), +3 (item level 75).
+  - Bows (Shortbow, Longbow): "+N additional Arrows". Each extra arrow is a full shot, fanned 5 degrees apart. Rain of Arrows and the braced cone shot are unchanged.
+  - Conduits: "Spells fire +N additional Projectiles", from the primary Conduit like its local Spell Damage. Cinder Lance and Thunder Javelin fan extra bolts, Thunder Sweep adds bolts to its ring, Spark adds crawlers and Booming Blade adds bolts. Winter's Eye stays a single orb.
+  - Rarity: drops offer them in only 30% of rolls, and Orbs weight their tiers 1/2/3 against roughly 100 for an ordinary modifier.
+- **Riposte damage** rolls on melee weapons (library, 34-44%) and gloves (34-44%). The weapon-only gear entry never rolled. Rapier/Saber keep their stronger exclusive Riposte's Edge; an item gets only one of the two.
+- The weapon library's `weapon_type_filter` accepts "melee", "ranged" and "conduit" as well as type keys (`ItemRoller.weapon_kind()`).
+
+---
+
 ## 2026-10-09 — v4.53: Item and Slate modifier audit (user request)
 
 **Slates roll only their own tags' modifiers** (user: "Cold slates roll only cold mods, Fire and cold slates only roll fire and cold mods"). `SlateModifierPool` no longer adds the generic/spell/attack pools; a Spell Slate rolls only Spell modifiers. Each tag had 1 prefix and 2 suffixes, too few for Forging's 3-4 modifiers on a Rare (2 prefixes, 2 suffixes), so every damage type and Spell gets one more of each. All of them use stats the game already reads:
@@ -30,7 +42,7 @@ Ranges are Tier 1, as before. The generic pool stays for Veiltouch corruption; t
 - **A Conduit's local Cast Speed did nothing.** The card showed it but cast time ignored it. The primary Conduit's local Cast Speed now adds to Cast Speed (`Weapon.get_conduit_cast_speed_bonus()`), like its local Spell Damage.
 
 **Audit findings left as they are**
-- `projectile_speed`, `reduced_projectile_speed` and `increased_riposte_damage` in `ItemRoller.AFFIX_POOL` are weapon-only, and weapons roll from the weapon library instead, so they never roll. Riposte damage still rolls from the library (`excl_riposte_edge`).
+- `projectile_speed`, `reduced_projectile_speed` and `increased_riposte_damage` in `ItemRoller.AFFIX_POOL` are weapon-only, and weapons roll from the weapon library instead, so they never roll. (v4.54 fixed Projectile Speed and Riposte damage.)
 - The hand-made `sample_entropic_slate` has three lines with no effect (per Wound, Unraveling chance, Esoteric damage vs Unraveling). Hand-made Slates only appear in tests and UI captures.
 - Every other modifier from gear, weapons, implicits, jewels and Slates feeds a stat the game reads.
 

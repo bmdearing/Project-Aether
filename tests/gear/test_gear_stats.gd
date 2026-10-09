@@ -125,6 +125,23 @@ func _test_weapon_mods() -> void:
 	_check(conduit.get_conduit_cast_speed_bonus() == 0.0, "local Cast Speed only counts on a Conduit")
 	conduit.is_conduit = true
 	_check(is_equal_approx(conduit.get_conduit_cast_speed_bonus(), 15.0), "a Conduit's local Cast Speed reaches the character")
+	conduit.affixes.append(_affix("local_additional_spell_projectiles", 2.0))
+	_check(conduit.get_conduit_additional_projectiles() == 2, "a Conduit's additional projectiles count")
+	_check(ItemRoller.levelled_tiers_for("local_additional_arrows", 100).map(func(r): return r[1]) == [3.0, 2.0, 1.0] and ItemRoller.levelled_tiers_for("local_additional_arrows", 1).size() == 1, "additional projectiles come in +1/+2/+3 tiers, gated by level")
+	var bow := _sword()
+	bow.weapon_type = "Longbow"
+	bow.is_ranged = true
+	var keys_for := func(w: Weapon) -> Array:
+		return (ItemRoller._eligible_weapon_affixes(w, 100, true) + ItemRoller._eligible_weapon_affixes(w, 100, false)).map(func(a: ItemAffix): return a.stat_key)
+	var bow_keys: Array = keys_for.call(bow)
+	var conduit_keys: Array = keys_for.call(conduit)
+	var sword_keys: Array = keys_for.call(_sword())
+	_check(bow_keys.has("local_additional_arrows") and bow_keys.has("projectile_speed") and not bow_keys.has("increased_riposte_damage"), "bows roll additional arrows and Projectile Speed")
+	_check(conduit_keys.has("local_additional_spell_projectiles") and conduit_keys.has("projectile_speed") and not conduit_keys.has("local_additional_arrows"), "Conduits roll additional spell projectiles and Projectile Speed")
+	_check(sword_keys.has("increased_riposte_damage") and not sword_keys.has("projectile_speed") and not sword_keys.has("local_additional_arrows"), "melee weapons roll Riposte damage")
+	var gloves := Armor.new()
+	gloves.equip_slot = Constants.EquipmentSlot.GLOVES
+	_check(ItemRoller._pool_for(gloves).any(func(e): return e["stat_key"] == "increased_riposte_damage"), "gloves roll Riposte damage")
 	_finished += 1
 
 func _card_text(card: ItemCard) -> String:

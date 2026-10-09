@@ -44,6 +44,7 @@ func _run() -> void:
 	await _test_breath_control()
 	await _test_dig_in()
 	await _test_tracer_round()
+	await _test_extra_arrows()
 	print("ranged stance tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -328,3 +329,22 @@ func _test_tracer_round() -> void:
 	await _tap(0.5)
 	var second := _lost(target) - first
 	_check(second > first * 1.3, "shots on the marked target hit harder (%.0f vs %.0f)" % [second, first])
+
+func _projectile_count() -> int:
+	return get_tree().current_scene.get_children().filter(func(n): return n is Projectile and not n.is_queued_for_deletion()).size()
+
+func _test_extra_arrows() -> void:
+	var bow := await _reset("Longbow")
+	var extra := ItemAffix.new()
+	extra.stat_key = "local_additional_arrows"
+	extra.value = 2.0
+	bow.affixes.append(extra)
+	await _tap(0.05)
+	_check(_projectile_count() == 3, "a bow with +2 additional Arrows fires 3 (%d)" % _projectile_count())
+	var speeds := get_tree().current_scene.get_children().filter(func(n): return n is Projectile).map(func(p): return p.speed)
+	_player.stat_sheet.misc_bonus["projectile_speed"] = 50.0
+	await _reset("Longbow")
+	await _tap(0.05)
+	var faster := get_tree().current_scene.get_children().filter(func(n): return n is Projectile and not n.is_queued_for_deletion()).map(func(p): return p.speed)
+	_check(not speeds.is_empty() and not faster.is_empty() and is_equal_approx(faster[0], speeds[0] * 1.5), "Projectile Speed speeds up arrows")
+	_player.stat_sheet.misc_bonus.erase("projectile_speed")

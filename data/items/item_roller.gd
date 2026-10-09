@@ -186,7 +186,6 @@ const AFFIX_POOL := [
 	# Patch v4.0 Ranged Build Mod Pool
 	{"stat_key": "increased_aoe_radius", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Area of Effect", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
 	{"stat_key": "increased_area_damage", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Area damage", "applies_to": ["weapon", "armor"], "slots": [4, 2, 0], "brand_tags": []},
-	{"stat_key": "projectile_speed", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Projectile Speed", "applies_to": ["weapon"], "weapon_kind": "ranged", "brand_tags": ["movement"]},
 	{"stat_key": "reduced_projectile_speed", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "%d%% reduced Projectile Speed", "applies_to": ["weapon"], "weapon_kind": "ranged", "brand_tags": []},
 
 	# Patch v4.0 Parry/Riposte Build Mod Pool - Melee Weapons via
@@ -194,7 +193,7 @@ const AFFIX_POOL := [
 	# already covers Body Armour separately where listed).
 	{"stat_key": "parry_window_duration", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Parry Window Duration", "applies_to": ["weapon", "shield"], "weapon_kind": "melee", "brand_tags": []},
 	{"stat_key": "ward_on_parry", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% of max Ward restored on successful Parry", "applies_to": ["weapon", "shield", "armor"], "weapon_kind": "melee", "slots": [1], "brand_tags": ["ward"]},
-	{"stat_key": "increased_riposte_damage", "tier1_min": 54.0, "tier1_max": 64.0, "desc": "+%d%% increased Riposte damage", "applies_to": ["weapon"], "weapon_kind": "melee", "brand_tags": []},
+	{"stat_key": "increased_riposte_damage", "tier1_min": 34.0, "tier1_max": 44.0, "desc": "+%d%% increased Riposte damage", "applies_to": ["armor"], "slots": [2], "brand_tags": []},
 	{"stat_key": "riposte_crit_chance", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "Riposte has +%d%% increased Critical Strike Chance", "applies_to": ["weapon", "shield"], "weapon_kind": "melee", "brand_tags": []},
 
 	# Patch v4.0 Healing/Sustain Mod Pool (flat_ward already existed pre-v4.0)
@@ -401,11 +400,15 @@ static func _roll_tier(power_level: int, top_level: int = TOP_TIER_LEVEL) -> int
 ## is "Adds X to (X x FLAT_DAMAGE_SPREAD)"; the hybrid's value is its %
 ## part and its flat part is HYBRID_FLAT_PER_PERCENT of that.
 const DAMAGE_PERCENT_TIERS := [[80, 160.0, 190.0], [68, 128.0, 155.0], [56, 105.0, 127.0], [45, 85.0, 104.0], [34, 68.0, 84.0], [23, 53.0, 67.0], [12, 40.0, 52.0], [1, 30.0, 39.0]]
+## Additional arrows / spell projectiles: +1, +2, +3.
+const ADDITIONAL_PROJECTILE_TIERS := [[75, 3.0, 3.0], [40, 2.0, 2.0], [1, 1.0, 1.0]]
 const LEVELLED_TIERS := {
 	"local_increased_weapon_damage": DAMAGE_PERCENT_TIERS,
 	"local_increased_spell_damage": DAMAGE_PERCENT_TIERS,
 	"local_flat_weapon_damage": [[80, 29.0, 34.0], [68, 24.0, 28.0], [56, 19.0, 23.0], [45, 14.0, 18.0], [34, 10.0, 13.0], [23, 7.0, 9.0], [12, 4.0, 6.0], [1, 2.0, 3.0]],
 	"local_hybrid_weapon_damage": [[80, 71.0, 85.0], [64, 59.0, 70.0], [48, 47.0, 58.0], [32, 35.0, 46.0], [16, 25.0, 34.0], [1, 15.0, 24.0]],
+	"local_additional_arrows": ADDITIONAL_PROJECTILE_TIERS,
+	"local_additional_spell_projectiles": ADDITIONAL_PROJECTILE_TIERS,
 }
 ## "+N to level of ... Skills/Spells" (amulets): whole levels, +1 at Tier 2 and
 ## +2 at Tier 1 (user decision).
@@ -504,7 +507,9 @@ static func negated_template(template: String) -> String:
 ## _roll_tier() below, rather than a bespoke per-affix tier table.
 const WEAPON_AFFIX_DIR := "res://data/affixes/weapons/"
 ## v4.10 local mods that belong on Conduits (every other local is martial).
-const CONDUIT_LOCAL_KEYS := ["local_increased_spell_damage", "local_increased_cast_speed"]
+const CONDUIT_LOCAL_KEYS := ["local_increased_spell_damage", "local_increased_cast_speed", "local_additional_spell_projectiles"]
+## Weapon modifiers that make it onto only this share of drops' pools.
+const RARE_WEAPON_MODIFIERS := {"local_additional_arrows": 0.3, "local_additional_spell_projectiles": 0.3}
 static var _weapon_affix_cache: Array[ItemAffix] = []
 
 static func _build_weapon_affix_cache() -> void:
@@ -529,6 +534,11 @@ static func _build_weapon_affix_cache() -> void:
 		subdir = root.get_next()
 	root.list_dir_end()
 
+static func weapon_kind(weapon: Weapon) -> String:
+	if weapon.is_conduit:
+		return "conduit"
+	return "ranged" if weapon.is_ranged else "melee"
+
 ## Same base_line_id (stripped of "_lineN") -> weapon_type -> item_id-
 ## substring fallback chain tools/repair_item_requirements.gd already
 ## established for resolving a weapon's real type key.
@@ -542,8 +552,9 @@ static func _weapon_type_key(weapon: Weapon) -> String:
 
 ## Eligible = generic, OR matches the weapon's own (infused-aware) damage
 ## type, OR is a base-type exclusive whose weapon_type_filter contains
-## this weapon's resolved type key - AND available at this power_level
-## (brief's own algorithm: "available at item level").
+## this weapon's resolved type key or its kind ("melee", "ranged",
+## "conduit") - AND available at this power_level (brief's own algorithm:
+## "available at item level").
 static func _eligible_weapon_affixes(weapon: Weapon, power_level: int, want_prefix: bool) -> Array[ItemAffix]:
 	if _weapon_affix_cache.is_empty():
 		_build_weapon_affix_cache()
@@ -562,7 +573,7 @@ static func _eligible_weapon_affixes(weapon: Weapon, power_level: int, want_pref
 		if not matches and affix.weapon_type_filter.is_empty():
 			matches = affix.damage_type == dtype
 		elif not matches:
-			matches = affix.weapon_type_filter.has(type_key)
+			matches = affix.weapon_type_filter.has(type_key) or affix.weapon_type_filter.has(weapon_kind(weapon))
 		if matches:
 			result.append(affix)
 	return result
@@ -573,8 +584,9 @@ static func _eligible_weapon_affixes(weapon: Weapon, power_level: int, want_pref
 ## favors prefixes first, then falls back to whichever pool still has
 ## eligible, unused entries if the other runs dry.
 static func _roll_weapon_affixes(weapon: Weapon, affix_count: int, power_level: int) -> void:
-	var prefix_pool := _eligible_weapon_affixes(weapon, power_level, true)
-	var suffix_pool := _eligible_weapon_affixes(weapon, power_level, false)
+	var is_offered := func(a: ItemAffix) -> bool: return randf() < RARE_WEAPON_MODIFIERS.get(a.stat_key, 1.0)
+	var prefix_pool := _eligible_weapon_affixes(weapon, power_level, true).filter(is_offered)
+	var suffix_pool := _eligible_weapon_affixes(weapon, power_level, false).filter(is_offered)
 	prefix_pool.shuffle()
 	suffix_pool.shuffle()
 

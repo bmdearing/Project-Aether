@@ -119,6 +119,13 @@ func _test_booming_blade() -> void:
 	cast._try_cast(0, player.global_position)
 	_check(not GameState.booming_blade_on and is_equal_approx(player.mana.current_mana, mana), "casting again turns it off for free")
 	GameState.booming_blade_on = false
+	var javelin := load("res://data/abilities/instances/thunder_javelin.tres") as Ability
+	var bolts := _count_bolts()
+	player.stat_sheet.conduit_additional_projectiles = 2
+	cast._fire_piercing_bolt(javelin, 1.0)
+	await _frames(1)
+	_check(_count_bolts() - bolts == 3, "a Conduit's +2 additional Projectiles fires 3 bolts (%d)" % (_count_bolts() - bolts))
+	player.stat_sheet.conduit_additional_projectiles = 0
 	arena.queue_free()
 	await _frames(2)
 	_finished += 1
