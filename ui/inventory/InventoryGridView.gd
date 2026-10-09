@@ -24,6 +24,9 @@ var highlight: Callable
 var currency_hint: Callable
 ## Optional (entry) -> bool: true fades the entry (a stash search miss).
 var dimmed: Callable
+## Optional (target) -> CraftPreview: passed to item cards to mark what a
+## picked-up Orb would do.
+var craft_preview: Callable
 var _blocks: Dictionary = {}  # GridInventory.Entry -> EntryBlock
 
 func set_inventory(inv: GridInventory) -> void:
@@ -227,6 +230,7 @@ class EntryBlock extends Button:
 		if entry.is_currency():
 			card.display_currency(entry.content, entry.count, view.currency_hint.call(entry) if view.currency_hint.is_valid() else "")
 			return card
+		card.craft_preview_for = view.craft_preview
 		if entry.content is Slate:
 			card.display_slate(entry.content)
 			return card

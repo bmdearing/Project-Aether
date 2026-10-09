@@ -1,7 +1,7 @@
 extends Node
 ## Screenshots real UI states in the Hub for visual review.
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_ui.tscn --resolution 1920x1080 -- <out.png> <mode>
-## Modes: hud, inventory, inventory_icons, icons, character, abilities, fateboard, map, pause, shop, stash, card, sockets, uniques, death
+## Modes: hud, inventory, inventory_icons, icons, character, abilities, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -67,6 +67,8 @@ func _run() -> void:
 			spells._open_web(spells._owned_abilities[0])
 		"compare":
 			_show_compare(player)
+		"craft_preview":
+			_show_craft_preview()
 		"inventory_icons":
 			_fill_icon_inventory()
 			_screen("inventory_screen").open(false)
@@ -112,6 +114,42 @@ func _show_compare(player: Player) -> void:
 	get_tree().root.add_child(layer)
 	layer.add_child(shown)
 	shown.position = Vector2(400, 120)
+
+## Rare gear and a Lens as their cards show them with an Orb picked up:
+## Severance under a Resistance Brand, Recasting under a Fire Brand.
+func _show_craft_preview() -> void:
+	var resolver := CraftingResolver.create_default()
+	var bag := CurrencyBag.new()
+	for id in [&"brand_resistance", &"brand_fire"]:
+		bag.add_currency(id, 3)
+	var rare: Item = null
+	for i in 400:
+		var item := ItemRoller.roll(70, 30.0)
+		if item and not item is Weapon and item.rarity == Constants.ItemRarity.RARE and resolver.preview(item, &"severance", _active(bag, &"brand_resistance")).is_valid():
+			rare = item
+			break
+	var lens := LensRoller.roll(80, 50.0)
+	lens.rarity = Constants.ItemRarity.COMMON
+	CraftTarget.wrap(lens).set_explicits([])
+	resolver.apply(lens, &"forging")
+	var layer := CanvasLayer.new()
+	layer.layer = 100
+	get_tree().root.add_child(layer)
+	var x := 60.0
+	for pair in [[rare, &"severance", &"brand_resistance"], [lens, &"recasting", &"brand_fire"], [lens, &"anchoring", &""]]:
+		var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
+		var orb: StringName = pair[1]
+		var brand: StringName = pair[2]
+		card.craft_preview_for = func(target: Resource) -> CraftPreview: return resolver.preview(target, orb, _active(bag, brand) if brand != &"" else null)
+		layer.add_child(card)
+		card.display_item(pair[0])
+		card.position = Vector2(x, 80)
+		x += 400.0
+
+func _active(bag: CurrencyBag, id: StringName) -> ActiveBrands:
+	var active := ActiveBrands.new(bag)
+	active.activate(id)
+	return active
 
 func _screen(group: String) -> Node:
 	return get_tree().get_first_node_in_group(group)

@@ -66,7 +66,7 @@ var _cursor_icon: ItemIcon
 const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
 const PREVIEW_LINES := 5
 const STATUS_LINES := 3
-const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows stats. Hold Alt over an item for details."
+const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it; hovering an item with an Orb shows which modifiers it would touch. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows stats. Hold Alt over an item for details."
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -103,6 +103,7 @@ func _ready() -> void:
 	inventory_grid.entry_hovered.connect(_on_entry_hovered)
 	inventory_grid.highlight = _highlight_for
 	inventory_grid.currency_hint = _hint_for
+	inventory_grid.craft_preview = _craft_preview_for
 	hint_label.text = HINT
 	# Fixed height: craft messages come and go, and the doll and grid below
 	# mustn't move with them.
@@ -537,6 +538,14 @@ func _use_stone(id: StringName, target: Resource) -> Dictionary:
 			return CraftingSystem.corrupt(target, power_level)
 	return {"success": false, "message": "That can't be used here."}
 
+## The picked-up Orb's preview on target, for its card; null without one.
+func _craft_preview_for(target: Resource) -> CraftPreview:
+	if not _is_open or _resolver == null or not Constants.ORB_IDS.has(_armed):
+		return null
+	if not (target is Item or target is Slate) or target is FigmentItem or target.resource_path != "":
+		return null
+	return _resolver.preview(target, _armed, _active_brands)
+
 ## Hovering an item with an Orb picked up previews the outcomes.
 func _on_entry_hovered(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
 	if _armed == &"" or entry.is_currency() or not Constants.ORB_IDS.has(_armed):
@@ -553,6 +562,10 @@ func _preview_text(target: Resource) -> String:
 	var lines: Array[String] = [orb_name + ": " + CurrencyText.description_of(_armed)]
 	if not p.applied_brands.is_empty():
 		lines.append("Brands used: " + ", ".join(p.applied_brands.map(func(b): return CurrencyText.name_of(b))))
+	if not p.affected.is_empty():
+		var hits := p.affected.size()
+		var total := CraftTarget.wrap(target).get_explicits().size()
+		lines.append("Can touch %d of %d modifiers (marked on the item's card)." % [hits, total])
 	var outcomes := p.outcomes.duplicate()
 	outcomes.sort_custom(func(a, b): return a["probability"] > b["probability"])
 	var shown: Array[String] = []

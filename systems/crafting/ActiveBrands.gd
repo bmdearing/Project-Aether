@@ -21,9 +21,12 @@ func deactivate(id: StringName) -> void:
 	_ids.erase(id)
 
 func is_active(id: StringName) -> bool:
-	return _ids.has(id)
+	return get_ids().has(id)
 
+## Active Brands still carried: one stashed or used up elsewhere drops out.
 func get_ids() -> Array[StringName]:
+	if carried != null:
+		_ids.assign(_ids.filter(func(id: StringName): return carried.count_of(id) > 0))
 	return _ids.duplicate()
 
 func consume(id: StringName) -> void:

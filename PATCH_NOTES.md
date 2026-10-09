@@ -7,6 +7,19 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.62: Crafting review: Brands steer removals, Orb previews on item cards, Life/Critical Brands (user request)
+
+- **Brands now narrow what an Orb takes away, not just what it adds.** Tag and positional Brands restrict which existing modifier Severance removes, which ones Absolution strips, which one Recasting replaces (the replacement must match too) and which one Anchoring locks. Fire Brand + Severance removes a Fire modifier; Fire + Suffix narrows to Fire suffixes. If nothing matches, the craft fails with nothing spent. Before, tag Brands were ignored by removals and only filtered Recasting's *added* modifier. A Brand used this way is consumed like any other (Preservation still keeps it).
+- **Item cards show what the picked-up Orb would do.** Hovering an item or Slate with an Orb in hand marks each modifier `[Remove 33%]`, `[Replace 50%]`, `[Anchor 25%]` or `[Reroll]`, dims the safe ones `[Safe]`, then names the Orb, the Brands it'll use, and the modifiers it can add with their odds (or why it can't be used). The card refreshes after each craft. (`CraftPreview.affected`, `ItemCard.craft_preview_for`, `InventoryGridView.craft_preview`.)
+- **Most Jewel and Lens modifiers had no tags, so no Brand could reach them** (ailments, crit, life: roughly half the pool). `GearModifierPool` now derives tags: ailment lines take their ailment's damage types (Ignite -> Fire, Bleed -> Kinetic/Piercing/Explosive, ...), and life, critical, resistance (incl. all elemental resistance, which was missing it), armour and mana lines get theirs. New **Life Brand** and **Critical Brand** (drop like the other Brands; currency tab and icons included).
+- **Modifiers rolled by drops or loaded from a save have no ModifierDef**, so their tags are found from the matching pool def (`CraftingResolver.affix_tags()`).
+- **Lens control:** Orb of Reckoning on a Lens also rerolls its radius modifier's value (e.g. "23% stronger" -> 20-40%). Note: the v0.4.0 release still has the v4.60 bug where every Orb on a Lens failed with "No modifier fits", likely what a friend's Lens crafting ran into.
+- **Bugs:** Reckoning left fractional values on whole-number modifiers (flat weapon damage, other levelled-tier lines); it now rounds them like a fresh roll. An active Brand that was stashed or used up elsewhere stayed "active" and steered the preview; it now drops out.
+- Error and currency texts explain the new rules (Brand, Severance, Absolution, Recasting, Anchoring, Reckoning descriptions; "nothing to remove" names Brands as a cause).
+- Tests: `tests/crafting/test_crafting.gd` gains `_test_removal_brands` (Severance/Recasting/Absolution/Anchoring under Brands, combined Brands, no-match failure at no cost, preview marks, stale Brands); `test_real_pools.gd` gains `_test_real_brand_control` (derived tags, Brand Severance on real drops, Lens steering and radius reroll, Reckoning rounding) and a card check in the Hub test. `tests/ui_capture` gained a `craft_preview` mode.
+
+---
+
 ## 2026-10-09 — v4.61: Hub mote textures, inventory layout, Slate outlines (user reports)
 
 - **Hub motes drew as big hard squares** (user screenshot, not reproduced here): the particles kept their colour and billboarding but lost their soft round texture, a `GradientTexture2D` that fills itself in through a deferred update. Particle sprites now come from `GlowTexture.radial()`, which bakes the falloff into an `ImageTexture` up front (cached), used by the Hub motes and flakes, Tornado and the spell particle material.

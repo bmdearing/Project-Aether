@@ -12,6 +12,13 @@ class_name GearModifierPool
 const SUFFIX_KEYWORDS := ["resistance", "speed", "regen", "cooldown", "crit", "debuff", "stamina", "ailment", "skill_level", "rarity", "magic_find"]
 ## Old Brand category tags -> the Rev2 Brand tags they correspond to.
 const TAG_ALIASES := {"resource": &"mana", "movement": &"speed"}
+## Stat_key words -> Brand tags, for lines with no brand_tags of their own.
+const DERIVED_TAGS := {
+	"life": [&"life"], "crit": [&"critical"], "resistance": [&"resistance"],
+	"elemental_taken": [&"resistance"], "esoteric_taken": [&"resistance"],
+	"physical_taken": [&"armor"], "armor_to": [&"armor"],
+	"riposte": [&"attack"], "parry": [&"attack"], "mana": [&"mana"],
+}
 
 ## "<source key>|<best tier>" -> ModifierDef, so a def is the same object
 ## every time it's offered (preview merges outcomes by identity).
@@ -91,6 +98,18 @@ static func _tags(source_tags: Array, stat_key: String) -> Array[StringName]:
 		tags.append(&"attack")
 	if stat_key.contains("speed") and not tags.has(&"speed"):
 		tags.append(&"speed")
+	for word in DERIVED_TAGS:
+		if stat_key.contains(word):
+			for tag in DERIVED_TAGS[word]:
+				if not tags.has(tag):
+					tags.append(tag)
+	# Ailment lines follow the damage that causes the ailment.
+	var ailment := stat_key.get_slice("_", stat_key.get_slice_count("_") - 1)
+	if stat_key.contains("ailment") and StatusEffectComponent.AILMENT_DAMAGE_TYPES.has(ailment):
+		for damage_type in StatusEffectComponent.AILMENT_DAMAGE_TYPES[ailment]:
+			var tag := StringName(String(Constants.DAMAGE_TYPE_NAME[damage_type]).to_lower())
+			if not tags.has(tag):
+				tags.append(tag)
 	return tags
 
 static func _tiers(tier1_min: float, tier1_max: float, best_tier: int) -> Array[ModifierTier]:

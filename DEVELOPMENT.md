@@ -935,16 +935,27 @@ equippable from `InventoryScreen`, or stays on the ground if there's no room; a 
 - **Aether Tolerance** (Slates only): each Slate rolls a crafting budget on
   drop; each Orb spends a random amount; at 0 the Slate is finished. Gear
   has no budget and can be crafted indefinitely.
-- **Brands & Edicts** (`data/crafting/brands/`, `edicts/`): 18 tag Brands,
+- **Brands & Edicts** (`data/crafting/brands/`, `edicts/`): 20 tag Brands,
   Prefix/Suffix, Preservation, and Vestige support; tags combine (Fire +
-  Cold needs both). Brands must be carried and activated
-  (`ActiveBrands`); Edicts sit on the item until its next resolved craft.
+  Cold needs both). Tag and positional Brands narrow both what an Orb adds
+  and which existing modifier Severance, Absolution, Recasting (removed and
+  added) and Anchoring pick; Reckoning and Tempering ignore them. A modifier
+  with no `def` (drop-rolled, or loaded from a save) gets its tags from the
+  matching pool def (`CraftingResolver.affix_tags()`). `GearModifierPool`
+  derives tags for lines with none of their own: ailment lines take their
+  ailment's damage types, plus life, critical, resistance, armour, mana.
+  Brands must be carried and activated
+  (`ActiveBrands`; one no longer carried drops out); Edicts sit on the item
+  until its next resolved craft.
   All player-facing names/errors live in `data/crafting/currency_text.tres`.
 - **Crafting in the Inventory** (the old K screen is gone): right-click a
   Brand to activate it (red border, applies to the next Orb); right-click an
   Orb, Edict or stone to pick it up (gold border), then click a grid item or
-  paper-doll slot to use it - hovering an item first previews the Orb's
-  likely outcomes. Esc or right-clicking the currency again puts it back.
+  paper-doll slot to use it - hovering an item first previews the Orb: its
+  card marks each modifier the Orb would remove, replace, anchor or reroll
+  (with the chance) and dims the safe ones, then lists what it can add
+  (`CraftPreview.affected`, `ItemCard.craft_preview_for`). Reckoning on a
+  Lens also rerolls its radius modifier's value. Esc or right-clicking the currency again puts it back.
   Hand-authored starting gear must be unequipped first (it becomes its own
   copy). Right-clicking a Figment empowers it. Currency drops from enemies
   as loot pickups; currency tooltips explain each one.

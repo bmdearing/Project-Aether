@@ -68,6 +68,10 @@ var slate_amplifier: float = -1.0
 ## Equipped items this card's item is compared with (ItemCompare): a
 ## "Equipping this" section lists what changes.
 var compare_against: Array[Item] = []
+## (target) -> CraftPreview, or null when no Orb is picked up. While it
+## returns one, the card marks the modifiers the Orb would touch and lists
+## what it can add.
+var craft_preview_for: Callable
 
 ## Not @onready - ItemSlotButton builds a card via instantiate() and
 ## calls display_item()/etc. on it immediately, before it's ever added
@@ -82,6 +86,7 @@ func display_item(item: Item) -> void:
 	_showing_alt = false
 	if not EventBus.item_rarity_changed.is_connected(_on_item_rarity_changed):
 		EventBus.item_rarity_changed.connect(_on_item_rarity_changed)
+	_connect_craft_refresh()
 	_render_item(item)
 
 ## Patch v3.9 - keeps a showing card's border/title color live if the
@@ -96,6 +101,7 @@ func display_slate(slate: Slate) -> void:
 	_current_slate = slate
 	_current_ability = null
 	_showing_alt = false
+	_connect_craft_refresh()
 	_render_slate(slate)
 
 func display_ability(ability: Ability, stat_sheet: StatSheet = null) -> void:
@@ -189,8 +195,16 @@ func _render_item(item: Item) -> void:
 		if not item.affixes.is_empty():
 			_add_separator()
 	var mod_color := UNIQUE_MOD_COLOR if item.rarity >= Constants.ItemRarity.UNIQUE else AFFIX_COLOR
-	for line in _merged_explicit_lines(item):
-		_add_mod_line(line, mod_color)
+	var preview := _craft_preview(item)
+	if preview != null and not preview.affected.is_empty():
+		# One line per modifier, so each can be marked; jewel lines follow.
+		_add_craft_marked_lines(explicits, preview)
+		for jewel in item.get_socketed_jewels():
+			for affix in jewel.affixes:
+				_add_mod_line(_affix_text(affix, false), SOCKETED_COLOR)
+	else:
+		for line in _merged_explicit_lines(item):
+			_add_mod_line(line, mod_color)
 	if item is Weapon:
 		_add_stance_lines(item as Weapon, true)
 	if item is Jewel:
@@ -227,6 +241,7 @@ func _render_item(item: Item) -> void:
 			_add_mod_line("Marked as Trash: sold when you open the Gear Shop.", ItemCompare.LOSS_COLOR)
 		else:
 			_add_mod_line("Favored: kept off the shop's sell list.", AetherStyle.GOLD)
+	_add_craft_section(preview)
 
 func _render_slate(slate: Slate) -> void:
 	_clear()
@@ -248,10 +263,14 @@ func _render_slate(slate: Slate) -> void:
 			_add_mod_line(_slate_mod_text(mod, slate), MORE_MOD_COLOR if mod.is_more_multiplier else AFFIX_COLOR)
 		if slate_amplifier < 0.0 and slate.modifiers.any(func(m: SlateModifier): return EquipmentComponent.AFFIX_STAT_KEYS.has(m.stat_key)):
 			_add_mod_line("Bracketed: as a chain of its own %d tiles (+%.0f%%). Bigger chains on the Fate Board raise it." % [slate.get_size(), (ChainCalculator.lone_multiplier(slate) - 1.0) * 100.0], HINT_COLOR)
+	var preview := _craft_preview(slate)
 	if slate.explicits.size() > 0:
 		_add_separator()
-		for affix in slate.explicits:
-			_add_mod_line(_affix_text(affix, false), AFFIX_COLOR)
+		if preview != null and not preview.affected.is_empty():
+			_add_craft_marked_lines(slate.explicits, preview)
+		else:
+			for affix in slate.explicits:
+				_add_mod_line(_affix_text(affix, false), AFFIX_COLOR)
 	if slate.sockets > 0:
 		_add_separator()
 		_add_stat_line("Lens sockets: %d / %d" % [slate.lenses.size(), slate.sockets])
@@ -267,6 +286,89 @@ func _render_slate(slate: Slate) -> void:
 	if slate.implicit_flavor_text != "":
 		_add_separator()
 		_add_flavor(slate.implicit_flavor_text)
+	_add_craft_section(preview)
+
+## ---- Orb preview ------------------------------------------------------
+
+const CRAFT_EFFECT_TEXT := {&"remove": "Remove", &"replace": "Replace", &"anchor": "Anchor", &"reroll": "Reroll"}
+const CRAFT_EFFECT_COLOR := {
+	&"remove": Color(1.0, 0.42, 0.32), &"replace": Color(1.0, 0.62, 0.25),
+	&"anchor": Color(0.45, 0.9, 1.0), &"reroll": Color(1.0, 0.86, 0.35),
+}
+const CRAFT_SAFE_COLOR := Color(0.5, 0.5, 0.52)
+const CRAFT_OUTCOME_LINES := 6
+
+func _craft_preview(target: Resource) -> CraftPreview:
+	if not craft_preview_for.is_valid():
+		return null
+	return craft_preview_for.call(target) as CraftPreview
+
+## Re-renders after a craft on the shown item, so the marks stay current
+## while the tooltip is up.
+func _connect_craft_refresh() -> void:
+	if not EventBus.craft_completed.is_connected(_on_craft_completed):
+		EventBus.craft_completed.connect(_on_craft_completed)
+
+func _on_craft_completed(target: Resource, _result: CraftResult) -> void:
+	if _showing_alt or not is_inside_tree():
+		return
+	if target == _current_item:
+		_render_item(_current_item)
+	elif target == _current_slate:
+		_render_slate(_current_slate)
+
+## Each explicit with what the Orb would do to it, or dimmed when it's safe.
+func _add_craft_marked_lines(explicits: Array, preview: CraftPreview) -> void:
+	for affix: ItemAffix in explicits:
+		var mark: Dictionary = {}
+		for entry in preview.affected:
+			if entry["affix"] == affix:
+				mark = entry
+		var text := _affix_text(affix, false)
+		if affix.anchored:
+			text += "  (Anchored)"
+		if mark.is_empty():
+			_add_mod_line("[Safe]  " + text, CRAFT_SAFE_COLOR)
+			continue
+		var label: String = CRAFT_EFFECT_TEXT.get(mark["effect"], "")
+		var chance: float = mark["probability"]
+		if chance < 0.999:
+			label += " %.0f%%" % (chance * 100.0)
+		_add_mod_line("[%s]  %s" % [label, text], CRAFT_EFFECT_COLOR.get(mark["effect"], HINT_COLOR))
+
+## What the picked-up Orb would do: why it can't, or the Brands it uses and
+## the modifiers it can add.
+func _add_craft_section(preview: CraftPreview) -> void:
+	if preview == null:
+		return
+	_add_separator()
+	var orb_name := CurrencyText.name_of(preview.orb_id)
+	if not preview.is_valid():
+		_add_mod_line("%s: %s" % [orb_name, CurrencyText.error_message(CraftResult.error_name(preview.error))], REQUIREMENT_UNMET_COLOR)
+		return
+	_add_mod_line(orb_name, CURRENCY_COLOR)
+	if not preview.applied_brands.is_empty():
+		_add_mod_line("Brands: " + ", ".join(preview.applied_brands.map(func(b): return CurrencyText.name_of(b))), BRAND_COLOR)
+	if preview.outcomes.is_empty():
+		return
+	var outcomes := preview.outcomes.duplicate()
+	outcomes.sort_custom(func(a, b): return a["probability"] > b["probability"])
+	# Tiers of one modifier are summed: the line is what matters, tier odds are in Alt.
+	var by_line: Dictionary = {}
+	for o in outcomes:
+		var def: ModifierDef = o["def"]
+		var text := (def.text if def.text != "" else String(def.id)).replace("%d", "#").replace("%%", "%").replace("%s", "#")
+		by_line[text] = by_line.get(text, 0.0) + float(o["probability"])
+	var lines := by_line.keys()
+	lines.sort_custom(func(a, b): return by_line[a] > by_line[b])
+	var heading := "Adds one of %d modifiers:" % lines.size()
+	if preview.add_count > 1:
+		heading = "Adds %d modifiers from %d:" % [preview.add_count, lines.size()]
+	_add_mod_line(heading, HINT_COLOR)
+	for text in lines.slice(0, CRAFT_OUTCOME_LINES):
+		_add_mod_line("%s  (%.0f%%)" % [text, by_line[text] * 100.0], STAT_COLOR)
+	if lines.size() > CRAFT_OUTCOME_LINES:
+		_add_mod_line("...and %d more. Brands narrow the pool." % (lines.size() - CRAFT_OUTCOME_LINES), SUBTITLE_COLOR)
 
 ## Patch v3.8 Section 4: Motion Value/Predicted Damage/Scaling Grade
 ## removed from the main card (Scaling Grade moved to Alt Info); Cast

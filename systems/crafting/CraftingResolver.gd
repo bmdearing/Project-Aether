@@ -104,13 +104,25 @@ func preview(item: Resource, orb_id: StringName, active_brands: ActiveBrands = n
 			var share := 1.0 / branches.size()
 			for branch in branches:
 				p.removals.append({"affix": branch["affix"], "probability": share})
+				p.affected.append({"affix": branch["affix"], "effect": &"replace", "probability": share})
 				_merge_outcomes(p.outcomes, branch["candidates"], share)
 			p.add_count = 1
 		OrbKind.REMOVE:
-			var removable := _removable(explicits, ctx, edict)
+			var removable := _removable(t, explicits, ctx, edict)
 			var chance := 1.0 if orb_id == &"absolution" else 1.0 / removable.size()
 			for affix in removable:
 				p.removals.append({"affix": affix, "probability": chance})
+				p.affected.append({"affix": affix, "effect": &"remove", "probability": chance})
+		OrbKind.OTHER:
+			match orb_id:
+				&"anchoring":
+					var options := _anchorable(t, explicits, ctx)
+					for affix in options:
+						p.affected.append({"affix": affix, "effect": &"anchor", "probability": 1.0 / options.size()})
+				&"reckoning":
+					for affix in explicits:
+						if not _locked(affix, edict) and affix.value_max > affix.value_min:
+							p.affected.append({"affix": affix, "effect": &"reroll", "probability": 1.0})
 	return p
 
 func apply(item: Resource, orb_id: StringName, active_brands: ActiveBrands = null) -> CraftResult:
@@ -145,6 +157,10 @@ func apply(item: Resource, orb_id: StringName, active_brands: ActiveBrands = nul
 	elif orb_id == &"opening":
 		t.set_sockets(sim["sockets"])
 		result.sockets_rolled_to = sim["sockets"]
+	elif orb_id == &"reckoning" and item is Lens:
+		var range_ := _lens_radius_range(t)
+		if range_.y > range_.x:
+			(item as Lens).radius_value = roundf(rng.randf_range(range_.x, range_.y))
 	result.added = sim["added"]
 	result.removed = sim["removed"]
 	result.anchored = sim["anchored"]
@@ -212,16 +228,18 @@ func _check(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: EdictDef
 		&"recasting":
 			if rarity != Constants.ItemRarity.RARE:
 				return E.INVALID_TARGET
-			if _removable(explicits, ctx, edict).is_empty():
+			if _removable(t, explicits, ctx, edict).is_empty():
 				return E.NOTHING_TO_REMOVE
 		&"severance", &"absolution":
-			if _removable(explicits, ctx, edict).is_empty():
+			if _removable(t, explicits, ctx, edict).is_empty():
 				return E.NOTHING_TO_REMOVE
 		&"anchoring":
 			if explicits.size() < Constants.ANCHORING_MIN_MODIFIERS:
 				return E.TOO_FEW_MODIFIERS
 			if explicits.filter(func(a: ItemAffix): return a.anchored).size() >= Constants.MAX_ANCHORED_MODIFIERS:
 				return E.ALREADY_ANCHORED
+			if _anchorable(t, explicits, ctx).is_empty():
+				return E.NO_VALID_OUTCOME
 		&"tempering":
 			if t.is_slate or not t.can_temper():
 				return E.INVALID_TARGET
@@ -233,6 +251,8 @@ func _check(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: EdictDef
 			if t.sockets_rolled() or t.get_sockets() > 0:
 				return E.SOCKETS_ALREADY_ROLLED
 		&"reckoning":
+			if _lens_radius_range(t).y > _lens_radius_range(t).x:
+				return E.NONE
 			if explicits.is_empty():
 				return E.TOO_FEW_MODIFIERS
 			if not explicits.any(func(a: ItemAffix): return not _locked(a, edict)):
@@ -276,7 +296,7 @@ func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: Edict
 			explicits.append(affix)
 			out["added"].append(affix)
 		OrbKind.REMOVE:
-			var removable := _removable(explicits, ctx, edict)
+			var removable := _removable(t, explicits, ctx, edict)
 			if orb_id == &"severance":
 				var chosen: ItemAffix = removable[rng.randi_range(0, removable.size() - 1)]
 				removable.clear()
@@ -289,7 +309,7 @@ func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: Edict
 		OrbKind.OTHER:
 			match orb_id:
 				&"anchoring":
-					var options := explicits.filter(func(a: ItemAffix): return not a.anchored)
+					var options := _anchorable(t, explicits, ctx)
 					var chosen: ItemAffix = options[rng.randi_range(0, options.size() - 1)]
 					var copy := chosen.duplicate() as ItemAffix
 					copy.anchored = true
@@ -308,6 +328,8 @@ func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: Edict
 							continue
 						var copy := affix.duplicate() as ItemAffix
 						copy.value = rng.randf_range(copy.value_min, copy.value_max)
+						if ItemRoller.has_levelled_tiers(copy.stat_key):
+							copy.value = roundf(copy.value)
 						_describe(copy)
 						explicits[i] = copy
 	out["rarity"] = rarity
@@ -316,7 +338,8 @@ func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: Edict
 ## ---- Brands ------------------------------------------------------------
 
 ## Which active Brands apply to this Orb, what they restrict, and which of
-## them the craft consumes.
+## them the craft consumes. Category and positional Brands narrow both what
+## an Orb adds and which existing modifier it removes, replaces or anchors.
 func _resolve_brands(orb_id: StringName, active: ActiveBrands) -> Dictionary:
 	var applied: Array[StringName] = []
 	var categories: Array[BrandDef] = []
@@ -325,7 +348,7 @@ func _resolve_brands(orb_id: StringName, active: ActiveBrands) -> Dictionary:
 	var has_suffix := false
 	var preservation: BrandDef = null
 	var kind := _kind(orb_id)
-	if active != null and kind != OrbKind.OTHER:
+	if active != null and (kind != OrbKind.OTHER or orb_id == &"anchoring"):
 		for id in active.get_ids():
 			var def: BrandDef = brand_defs.get(id)
 			if def == null:
@@ -334,7 +357,7 @@ func _resolve_brands(orb_id: StringName, active: ActiveBrands) -> Dictionary:
 				preservation = def
 				continue
 			if def.is_vestige():
-				if kind != OrbKind.REMOVE and def.applies_to_orbs.has(orb_id):
+				if (kind == OrbKind.ADD or kind == OrbKind.RECAST) and def.applies_to_orbs.has(orb_id):
 					applied.append(id)
 					vestige_pools.append(def.vestige_pool)
 				continue
@@ -345,7 +368,7 @@ func _resolve_brands(orb_id: StringName, active: ActiveBrands) -> Dictionary:
 			elif def.positional == BrandDef.Positional.SUFFIX_ONLY:
 				has_suffix = true
 				used = true
-			if def.is_category() and kind != OrbKind.REMOVE:
+			if def.is_category():
 				categories.append(def)
 				used = true
 			if used:
@@ -357,6 +380,12 @@ func _resolve_brands(orb_id: StringName, active: ActiveBrands) -> Dictionary:
 	elif has_suffix and not has_prefix:
 		positional = BrandDef.Positional.SUFFIX_ONLY
 
+	var required: Array[StringName] = []
+	for brand in categories:
+		for tag in brand.tags:
+			if not required.has(tag):
+				required.append(tag)
+
 	var consumed: Array[StringName] = applied.duplicate()
 	if preservation != null and not applied.is_empty():
 		applied.append(preservation.id)
@@ -364,7 +393,7 @@ func _resolve_brands(orb_id: StringName, active: ActiveBrands) -> Dictionary:
 		consumed.append(preservation.id)
 	return {
 		"applied": applied, "consumed": consumed, "categories": categories,
-		"positional": positional, "vestige_pools": vestige_pools,
+		"positional": positional, "vestige_pools": vestige_pools, "required_tags": required,
 	}
 
 ## ---- Candidate filter --------------------------------------------------
@@ -376,13 +405,10 @@ func _candidates(t: CraftTarget, explicits: Array[ItemAffix], rarity: int, ctx: 
 		return result
 
 	var slate_tags := t.get_slate_tags()
-	var required: Array[StringName] = []
 	for brand: BrandDef in ctx["categories"]:
 		if t.is_slate and not brand.tags.any(func(tag: StringName): return slate_tags.has(tag)):
 			return result
-		for tag in brand.tags:
-			if not required.has(tag):
-				required.append(tag)
+	var required: Array[StringName] = ctx["required_tags"]
 	var excluded: Array[StringName] = []
 	if edict != null:
 		excluded = edict.excludes_tags
@@ -438,30 +464,70 @@ func _open_types(t: CraftTarget, explicits: Array[ItemAffix], rarity: int, posit
 		open.append(SUFFIX)
 	return open
 
-func _removable(explicits: Array[ItemAffix], ctx: Dictionary, edict: EdictDef) -> Array[ItemAffix]:
-	var positional: int = ctx["positional"]
+func _removable(t: CraftTarget, explicits: Array[ItemAffix], ctx: Dictionary, edict: EdictDef) -> Array[ItemAffix]:
 	var result: Array[ItemAffix] = []
 	for a in explicits:
-		if a.anchored or _locked(a, edict):
-			continue
-		if positional == BrandDef.Positional.PREFIX_ONLY and not a.is_prefix:
-			continue
-		if positional == BrandDef.Positional.SUFFIX_ONLY and a.is_prefix:
-			continue
-		result.append(a)
+		if not a.anchored and not _locked(a, edict) and _matches_brands(t, a, ctx):
+			result.append(a)
 	return result
+
+func _anchorable(t: CraftTarget, explicits: Array[ItemAffix], ctx: Dictionary) -> Array[ItemAffix]:
+	var result: Array[ItemAffix] = []
+	for a in explicits:
+		if not a.anchored and _matches_brands(t, a, ctx):
+			result.append(a)
+	return result
+
+## An existing modifier passes the positional Brand and carries every
+## category Brand's tag.
+func _matches_brands(t: CraftTarget, affix: ItemAffix, ctx: Dictionary) -> bool:
+	var positional: int = ctx["positional"]
+	if positional == BrandDef.Positional.PREFIX_ONLY and not affix.is_prefix:
+		return false
+	if positional == BrandDef.Positional.SUFFIX_ONLY and affix.is_prefix:
+		return false
+	var required: Array[StringName] = ctx["required_tags"]
+	if required.is_empty():
+		return true
+	var tags := affix_tags(t, affix)
+	return required.all(func(tag: StringName): return tags.has(tag))
+
+## A rolled modifier's Brand tags. Modifiers restored from a save or rolled
+## by drops have no def, so they're matched to the pool's def by id or stat.
+func affix_tags(t: CraftTarget, affix: ItemAffix) -> Array[StringName]:
+	if affix.def != null:
+		return affix.def.tags
+	var key := StringName(affix.key())
+	for def in _pool_defs(t, []):
+		if def.id == affix.modifier_id or (affix.affix_id != "" and String(def.id) == affix.affix_id) or def.id == StringName(affix.stat_key) or def.group == key:
+			return def.tags
+	var source_tags: Array = []
+	for entry in ItemRoller.AFFIX_POOL:
+		if entry["stat_key"] == affix.stat_key:
+			source_tags = entry["brand_tags"]
+	var tags := GearModifierPool._tags(source_tags, affix.stat_key)
+	if affix.damage_type != -1:
+		tags.append(StringName(String(Constants.DAMAGE_TYPE_NAME.get(affix.damage_type, "")).to_lower()))
+	return tags
 
 ## Recasting only removes a modifier when something can be added back, so
 ## each branch is a removable modifier plus the candidates left after it goes.
 func _recast_branches(t: CraftTarget, explicits: Array[ItemAffix], rarity: int, ctx: Dictionary, edict: EdictDef) -> Array[Dictionary]:
 	var branches: Array[Dictionary] = []
-	for affix in _removable(explicits, ctx, edict):
+	for affix in _removable(t, explicits, ctx, edict):
 		var rest := explicits.duplicate()
 		rest.erase(affix)
 		var cands := _candidates(t, rest, rarity, ctx, edict)
 		if not cands.is_empty():
 			branches.append({"affix": affix, "candidates": cands})
 	return branches
+
+## A Lens's radius modifier value range (Reckoning rerolls it too); zero otherwise.
+func _lens_radius_range(t: CraftTarget) -> Vector2:
+	if not t.resource is Lens:
+		return Vector2.ZERO
+	var def: Dictionary = LensRoller.RADIUS_MODS.get((t.resource as Lens).radius_mod, {})
+	return Vector2(def.get("min", 0.0), def.get("max", 0.0))
 
 func _locked(affix: ItemAffix, edict: EdictDef) -> bool:
 	if edict == null:

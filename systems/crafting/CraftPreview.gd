@@ -11,6 +11,9 @@ var orb_id: StringName
 var outcomes: Array[Dictionary] = []
 var removals: Array[Dictionary] = []
 var add_count: int = 0
+## Existing modifiers the Orb would touch: {affix: ItemAffix, effect:
+## &"remove" | &"replace" | &"anchor" | &"reroll", probability: float}.
+var affected: Array[Dictionary] = []
 var applied_brands: Array[StringName] = []
 var consumed_brands: Array[StringName] = []
 

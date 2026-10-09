@@ -34,8 +34,9 @@ func _run() -> void:
 	_test_real_slates()
 	_test_legacy_brands()
 	_test_currency_drops()
+	_test_real_brand_control()
 	await _test_hub_crafting()
-	_check(_finished == 5, "every test function ran to the end (%d/5)" % _finished)
+	_check(_finished == 6, "every test function ran to the end (%d/6)" % _finished)
 	print("real pool tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -215,6 +216,96 @@ func _test_currency_drops() -> void:
 	_check(seen.size() >= 30, "currency drops cover the table (%d ids)" % seen.size())
 	_finished += 1
 
+func _brands(ids: Array) -> ActiveBrands:
+	var bag := CurrencyBag.new()
+	for id in ids:
+		bag.add_currency(StringName(id), 5)
+	var active := ActiveBrands.new(bag)
+	for id in ids:
+		active.activate(StringName(id))
+	return active
+
+## Brands steering real drops and Lenses: drop-rolled modifiers carry no def,
+## so their tags come from the pool lookup.
+func _test_real_brand_control() -> void:
+	var resolver := _resolver()
+	var t := CraftTarget.wrap(Item.new())
+	var probe := ItemAffix.new()
+	probe.stat_key = "ailment_chance_ignite"
+	_check(resolver.affix_tags(t, probe).has(&"fire"), "ignite chance is a fire modifier")
+	probe.stat_key = "flat_life"
+	_check(resolver.affix_tags(t, probe).has(&"life"), "flat life is a life modifier")
+	probe.stat_key = "crit_chance_increased"
+	_check(resolver.affix_tags(t, probe).has(&"critical"), "crit chance is a critical modifier")
+	probe.stat_key = "all_elemental_resistance"
+	_check(resolver.affix_tags(t, probe).has(&"resistance"), "all elemental resistance is a resistance modifier")
+	for brand in [&"brand_life", &"brand_critical"]:
+		_check(resolver.brand_defs.has(brand) and Constants.CURRENCY_DROP_WEIGHTS.has(brand) and CurrencyText.name_of(brand) != String(brand), "%s exists, drops and has a name" % brand)
+
+	# Severance with a Brand on drop-rolled rares never removes an off-tag modifier.
+	seed(4242)
+	var checked := 0
+	var off_tag := 0
+	for i in ROLLS * 4:
+		var item := ItemRoller.roll(60 + i % 30, 30.0)
+		if item == null or item.rarity != Constants.ItemRarity.RARE:
+			continue
+		var target := CraftTarget.wrap(item)
+		for brand_id in [&"brand_resistance", &"brand_life", &"brand_fire", &"brand_critical"]:
+			var tag: StringName = resolver.brand_defs[brand_id].tags[0]
+			var p := resolver.preview(item, &"severance", _brands([brand_id]))
+			if not p.is_valid():
+				continue
+			var r := resolver.apply(item, &"severance", _brands([brand_id]))
+			checked += 1
+			if not r.success or not resolver.affix_tags(target, r.removed[0]).has(tag):
+				off_tag += 1
+			break
+	_check(checked >= 3, "brand severance found real rares to work on (%d)" % checked)
+	_check(off_tag == 0, "brand severance only removes matching modifiers on drops (%d off)" % off_tag)
+
+	# A Lens: Brands reach its ailment/crit/life lines, Reckoning rerolls the radius.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = 4
+	var lens := LensRoller.roll(80, 1.0, rng)
+	lens.radius_mod = "amplify_tag"
+	lens.radius_value = 20.0
+	CraftTarget.wrap(lens).set_explicits([])
+	lens.rarity = Constants.ItemRarity.COMMON
+	for brand_id in [&"brand_life", &"brand_critical", &"brand_fire"]:
+		var p := resolver.preview(lens, &"quickening", _brands([brand_id]))
+		_check(p.is_valid() and not p.outcomes.is_empty(), "%s steers a Lens" % brand_id)
+	var r := resolver.apply(lens, &"forging", _brands([&"brand_fire"]))
+	_check(r.success and r.added.size() == 4, "forging fills a Lens")
+	var values := {}
+	for i in 12:
+		resolver.apply(lens, &"reckoning")
+		values[lens.radius_value] = true
+		_check(lens.radius_value >= 20.0 and lens.radius_value <= 40.0, "reckoning keeps the radius value in range")
+	_check(values.size() > 1, "reckoning rerolls a Lens's radius value")
+	var fire_lines := _explicits(lens).filter(func(a: ItemAffix): return resolver.affix_tags(CraftTarget.wrap(lens), a).has(&"fire")).size()
+	var p := resolver.preview(lens, &"severance", _brands([&"brand_fire"]))
+	_check(p.is_valid() and p.affected.size() == fire_lines, "fire brand severance on a Lens marks its fire lines")
+
+	# Reckoning keeps whole-number modifiers whole.
+	var w := Weapon.new()
+	w.item_level = 80
+	var flat := ItemAffix.new()
+	flat.stat_key = "local_flat_weapon_damage"
+	flat.value_min = 24.0
+	flat.value_max = 28.0
+	flat.value = 25.0
+	flat.tier = 2
+	flat.is_prefix = true
+	w.rarity = Constants.ItemRarity.UNCOMMON
+	w.affixes = [flat]
+	var whole := true
+	for i in 10:
+		resolver.apply(w, &"reckoning")
+		whole = whole and is_equal_approx(_explicits(w)[0].value, roundf(_explicits(w)[0].value))
+	_check(whole, "reckoning rounds levelled-tier values")
+	_finished += 1
+
 func _test_hub_crafting() -> void:
 	GameState.reset_to_defaults()
 	GameState.game_started = false
@@ -268,6 +359,18 @@ func _test_hub_crafting() -> void:
 	screen._on_entry_clicked(screen.inventory_grid, ring_entry)
 	_check(ring.rarity == Constants.ItemRarity.UNCOMMON and _explicits(ring)[0].def.tags.has(&"cold"), "clicking an item applies the orb with the active brand")
 	_check(GameState.inventory.count_of(&"quickening") == 2 and GameState.inventory.count_of(&"brand_cold") == 1, "crafting consumes from the grid")
+	# With Severance picked up, the ring's card marks the modifier it would remove.
+	GameState.inventory.add(&"severance")
+	screen._armed = &"severance"
+	var card: ItemCard = InventoryGridView.ITEM_CARD_SCENE.instantiate()
+	card.craft_preview_for = screen.inventory_grid.craft_preview
+	add_child(card)
+	card.display_item(ring)
+	var card_text := "
+".join(card._content().get_children().filter(func(c): return c is Label).map(func(l: Label): return l.text))
+	_check(card_text.contains("[Remove]") and card_text.contains("Orb of Severance"), "the card marks what the picked-up orb removes")
+	card.queue_free()
+	screen._armed = &""
 	GameState.inventory.add(&"edict_spell")
 	screen._armed = &"edict_spell"
 	screen._on_entry_right_clicked(screen.inventory_grid, ring_entry)

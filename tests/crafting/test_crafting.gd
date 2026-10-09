@@ -33,6 +33,7 @@ func _run() -> void:
 	_test_progression()
 	_test_forging()
 	_test_tag_brands()
+	_test_removal_brands()
 	_test_positional_and_preservation()
 	_test_slate_category_brands()
 	_test_vestige()
@@ -44,7 +45,7 @@ func _run() -> void:
 	_test_corrupted()
 	_test_preview()
 	_test_signals_and_text()
-	_check(_finished == 14, "every test function ran to the end (%d/14)" % _finished)
+	_check(_finished == 15, "every test function ran to the end (%d/15)" % _finished)
 	print("crafting tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -249,11 +250,82 @@ func _test_tag_brands() -> void:
 	_check(_bag.count_of(&"quickening") == orb_before and _bag.count_of(&"brand_fire") == fire_before, "failed craft consumes no orb or brand")
 	_check(active.is_active(&"brand_fire") and active.is_active(&"brand_lightning"), "failed craft leaves brands active")
 	_check(g.tolerance == 1000 and g.rarity == Constants.ItemRarity.COMMON and _explicits(g).is_empty(), "failed craft leaves item untouched")
-	# Tag Brands do nothing on removal-only Orbs and aren't consumed.
-	var rare := _rare_gear()
-	active = _brands(["brand_fire"])
-	r = _resolver.apply(rare, &"severance", active)
-	_check(r.success and active.is_active(&"brand_fire") and r.consumed_brands.is_empty(), "tag brand unused by severance")
+	_finished += 1
+
+## A rare with one fire prefix, one cold prefix and one fire suffix: the
+## fixture for Brands narrowing removal, replacement and anchoring.
+func _branded_rare() -> Weapon:
+	var g := _gear()
+	_resolver.apply(g, &"quickening", _brands(["brand_fire", "brand_prefix", "brand_preservation"]))
+	_resolver.apply(g, &"elevation", _brands(["brand_cold", "brand_prefix"]))
+	_resolver.apply(g, &"ascendant", _brands(["brand_fire", "brand_suffix"]))
+	return g
+
+func _fire_count(target: Resource) -> int:
+	return _explicits(target).filter(func(a: ItemAffix): return a.def.tags.has(&"fire")).size()
+
+func _test_removal_brands() -> void:
+	_setup(29)
+	var fixture := _branded_rare()
+	_check(_explicits(fixture).size() == 3 and _fire_count(fixture) >= 2, "branded rare fixture")
+	for i in 20:
+		var g := _branded_rare()
+		var non_fire := _explicits(g).filter(func(a: ItemAffix): return not a.def.tags.has(&"fire"))
+		var active := _brands(["brand_fire"])
+		var fire_before := _bag.count_of(&"brand_fire")
+		var r := _resolver.apply(g, &"severance", active)
+		_check(r.success and r.removed.size() == 1 and r.removed[0].def.tags.has(&"fire"), "fire brand severance removes a fire modifier")
+		_check(non_fire.all(func(a: ItemAffix): return _explicits(g).has(a)), "fire brand severance keeps non-fire modifiers")
+		_check(_bag.count_of(&"brand_fire") == fire_before - 1 and r.consumed_brands.has(&"brand_fire"), "removal consumes the brand")
+
+	for i in 20:
+		var g := _branded_rare()
+		var r := _resolver.apply(g, &"recasting", _brands(["brand_fire"]))
+		_check(r.success and r.removed[0].def.tags.has(&"fire") and r.added[0].def.tags.has(&"fire"), "fire brand recasting replaces fire with fire")
+
+	var g := _branded_rare()
+	var keep := _explicits(g).filter(func(a: ItemAffix): return not a.def.tags.has(&"fire"))
+	var r := _resolver.apply(g, &"absolution", _brands(["brand_fire"]))
+	_check(r.success and _fire_count(g) == 0 and _explicits(g).size() == keep.size() and keep.all(func(a: ItemAffix): return _explicits(g).has(a)), "fire brand absolution strips only fire modifiers")
+
+	# Brands combine: fire + suffix picks only the fire suffix.
+	g = _branded_rare()
+	var p := _resolver.preview(g, &"severance", _brands(["brand_fire", "brand_suffix"]))
+	_check(p.is_valid() and p.affected.size() == 1 and not p.affected[0]["affix"].is_prefix, "fire+suffix narrows to the fire suffix")
+
+	# Nothing matches: the craft fails and consumes nothing.
+	g = _branded_rare()
+	var active := _brands(["brand_ward"])
+	var ward_before := _bag.count_of(&"brand_ward")
+	var orb_before := _bag.count_of(&"severance")
+	r = _resolver.apply(g, &"severance", active)
+	_check(r.error == E.NOTHING_TO_REMOVE and _bag.count_of(&"brand_ward") == ward_before and _bag.count_of(&"severance") == orb_before, "unmatched brand blocks severance at no cost")
+	_check(_resolver.preview(g, &"severance", active).error == E.NOTHING_TO_REMOVE, "preview agrees")
+
+	# Anchoring with a Brand anchors a matching modifier.
+	for i in 10:
+		g = _branded_rare()
+		r = _resolver.apply(g, &"anchoring", _brands(["brand_cold"]))
+		_check(r.success and r.anchored.def.tags.has(&"cold"), "cold brand anchors the cold modifier")
+
+	# Preview marks exactly what can be touched.
+	g = _branded_rare()
+	p = _resolver.preview(g, &"severance", _brands(["brand_fire"]))
+	_check(p.affected.size() == _fire_count(g) and p.affected.all(func(e): return e["effect"] == &"remove"), "severance preview marks the fire modifiers")
+	p = _resolver.preview(g, &"absolution")
+	_check(p.affected.size() == 3 and p.affected.all(func(e): return is_equal_approx(e["probability"], 1.0)), "absolution marks everything at 100%")
+	p = _resolver.preview(g, &"reckoning")
+	_check(p.affected.size() == 3 and p.affected[0]["effect"] == &"reroll", "reckoning marks rerolls")
+	p = _resolver.preview(g, &"recasting")
+	_check(p.affected.all(func(e): return e["effect"] == &"replace"), "recasting marks replacements")
+
+	# An active Brand that's no longer carried drops out.
+	var bag := CurrencyBag.new()
+	bag.add_currency(&"brand_fire", 1)
+	var stale := ActiveBrands.new(bag)
+	stale.activate(&"brand_fire")
+	bag.remove_currency(&"brand_fire", 1)
+	_check(not stale.is_active(&"brand_fire") and stale.get_ids().is_empty(), "a brand no longer carried isn't active")
 	_finished += 1
 
 func _test_positional_and_preservation() -> void:

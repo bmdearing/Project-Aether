@@ -40,6 +40,8 @@ const BRAND_KINDS := {
 	"ward": [Color(0.55, 0.75, 0.95), "ward"],
 	"resistance": [Color(0.8, 0.6, 0.4), "shield_tri"],
 	"resilience": [Color(0.85, 0.35, 0.4), "heart"],
+	"life": [Color(0.9, 0.18, 0.22), "plus"],
+	"critical": [Color(0.95, 0.8, 0.3), "diamond"],
 	"attack": [Color(0.85, 0.35, 0.25), "sword"],
 	"spell": [SPELL_TAG_COLOR, "star"],
 	"mana": [Color(0.3, 0.5, 0.95), "drop"],

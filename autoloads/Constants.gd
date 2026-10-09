@@ -482,7 +482,8 @@ const CURRENCY_DROP_WEIGHTS := {
 	&"brand_cold": 12, &"brand_lightning": 12, &"brand_aetheric": 12, &"brand_entropic": 12,
 	&"brand_pale": 12, &"brand_armor": 12, &"brand_evasion": 12, &"brand_ward": 12,
 	&"brand_resistance": 12, &"brand_resilience": 12, &"brand_mana": 12, &"brand_spell": 12,
-	&"brand_attack": 12, &"brand_speed": 12, &"brand_prefix": 10, &"brand_suffix": 10,
+	&"brand_attack": 12, &"brand_speed": 12, &"brand_life": 12, &"brand_critical": 12,
+	&"brand_prefix": 10, &"brand_suffix": 10,
 	&"brand_preservation": 3,
 	&"edict_prefix": 6, &"edict_suffix": 6, &"edict_spell": 6, &"edict_attack": 6,
 }

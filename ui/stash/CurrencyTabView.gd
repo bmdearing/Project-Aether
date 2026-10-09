@@ -19,9 +19,9 @@ const STONES: Array[StringName] = [&"infusion_stone", &"shrivening_stone", &"sha
 const FRAGMENTS: Array[StringName] = [&"maw_fragment_ash", &"maw_fragment_tide", &"maw_fragment_storm", &"maw_fragment_hollow"]
 const DAMAGE_BRANDS: Array[StringName] = [&"brand_kinetic", &"brand_piercing", &"brand_explosive", &"brand_fire", &"brand_cold",
 	&"brand_lightning", &"brand_aetheric", &"brand_entropic", &"brand_pale"]
-const DEFENCE_BRANDS: Array[StringName] = [&"brand_armor", &"brand_evasion", &"brand_ward", &"brand_resistance", &"brand_resilience", &"brand_mana"]
+const DEFENCE_BRANDS: Array[StringName] = [&"brand_armor", &"brand_evasion", &"brand_ward", &"brand_resistance", &"brand_resilience", &"brand_life", &"brand_mana"]
 const EDICTS: Array[StringName] = [&"edict_prefix", &"edict_suffix", &"edict_spell", &"edict_attack"]
-const OTHER_BRANDS: Array[StringName] = [&"brand_spell", &"brand_attack", &"brand_speed", &"brand_prefix", &"brand_suffix", &"brand_preservation"]
+const OTHER_BRANDS: Array[StringName] = [&"brand_spell", &"brand_attack", &"brand_critical", &"brand_speed", &"brand_prefix", &"brand_suffix", &"brand_preservation"]
 const COLUMNS := 12
 
 ## Each group: top-left in slot units, columns, ids.
