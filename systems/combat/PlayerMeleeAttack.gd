@@ -73,12 +73,13 @@ const STRIKE_CONTACT_START := 0.6
 ## v4.51: every melee type tuned so sustained DPS (hit / swing time, see
 ## tests/balance/probe_dps.tscn) lands near 150 for one-handers, 155 for
 ## blunt/polearm one-handers and 165 for two-handers, which also cleave.
+## v4.72: all x1.45 (about 218 / 225 / 240) so weapons keep up with spells.
 ## Slow weapons get the biggest hits.
 const WEAPON_TYPE_MOTION_VALUE := {
-	"Dagger": 1.08, "Rapier": 0.86, "Saber": 1.0, "Shortsword": 1.03, "Cutlass": 1.22,
-	"Pressure Fist": 1.26, "Mace": 1.2, "Spear": 1.22, "War Pick": 1.65, "Whip": 1.6,
-	"Shock Lance": 1.88, "Halberd": 1.64, "Greataxe": 2.0, "Greatsword": 2.0, "Claymore": 2.13,
-	"Staff": 1.0, "Gauntlet": 0.5,
+	"Dagger": 1.57, "Rapier": 1.25, "Saber": 1.45, "Shortsword": 1.49, "Cutlass": 1.77,
+	"Pressure Fist": 1.83, "Mace": 1.74, "Spear": 1.77, "War Pick": 2.39, "Whip": 2.32,
+	"Shock Lance": 2.73, "Halberd": 2.38, "Greataxe": 2.90, "Greatsword": 2.90, "Claymore": 3.09,
+	"Staff": 1.45, "Gauntlet": 0.72,
 }
 
 ## Per-weapon swing duration multiplier (via _effective_duration()), so a
@@ -165,7 +166,8 @@ var _stance_release: Dictionary = {}
 const SWING_SHAPES := {
 	"thrust": {"reach": 3.2, "half_angle": 18.0, "splash": 0.5, "max_targets": 3},
 	"slash": {"reach": 2.7, "half_angle": 50.0, "splash": 0.6, "max_targets": 4},
-	"heavy": {"reach": 3.2, "half_angle": 70.0, "splash": 0.75, "max_targets": 6},
+	# v4.72: two-handers sweep wider and harder so they hold their own against area spells.
+	"heavy": {"reach": 3.6, "half_angle": 85.0, "splash": 0.9, "max_targets": 8},
 	"whip": {"reach": 4.2, "half_angle": 30.0, "splash": 0.5, "max_targets": 3},
 	"fist": {"reach": 2.1, "half_angle": 30.0, "splash": 0.4, "max_targets": 2},
 }

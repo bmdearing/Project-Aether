@@ -164,9 +164,13 @@ func get_final_cooldown(action_speed_multiplier: float, stat_sheet: StatSheet = 
 	var floor_cooldown := cooldown_seconds * (1.0 - Constants.MAX_COOLDOWN_REDUCTION)
 	return max(reduced, floor_cooldown)
 
+## v4.72: each level past the first costs MANA_GROWTH_PER_LEVEL more (x1.76 at
+## level 20), so a high-level spell can't be cast endlessly for free.
+const MANA_GROWTH_PER_LEVEL := 0.04
+
 func get_mana_cost(stat_sheet: StatSheet = null) -> float:
 	var reduction := stat_sheet.get_misc_bonus("mana_cost_reduction") / 100.0 if stat_sheet else 0.0
-	return resource_cost * (1.0 - clampf(reduction, -1.0, 0.75)) * (1.0 - clampf(web_value(SkillWeb.MANA_COST) / 100.0, 0.0, 0.6))  # negative = costs more (Crown of the Ninth Bell)
+	return resource_cost * (1.0 + MANA_GROWTH_PER_LEVEL * maxi(level - 1, 0)) * (1.0 - clampf(reduction, -1.0, 0.75)) * (1.0 - clampf(web_value(SkillWeb.MANA_COST) / 100.0, 0.0, 0.6))  # negative = costs more (Crown of the Ninth Bell)
 
 func get_radius(stat_sheet: StatSheet = null) -> float:
 	if not has_tag(TAG_AREA):
