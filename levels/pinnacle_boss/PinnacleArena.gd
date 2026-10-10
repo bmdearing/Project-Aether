@@ -41,10 +41,12 @@ const PORTAL_OFFSET := Vector3(0, 0, 3.0)
 
 ## Pinnacle.BOSSES id of the boss this arena is for.
 const MAW_BOSS_ID := "herald_of_the_maw"
+const SAND_BOSS_ID := "ataras"
 
 var boss: Enemy
 ## The Herald's layout, built instead of the crescent (null for the Lord).
 var maw: MawArena
+var sand: SandArena
 var _boss_id := ""
 var _floor_mat: ShaderMaterial
 var _ember_process: ParticleProcessMaterial
@@ -98,6 +100,8 @@ func _ready() -> void:
 	_build_lighting()
 	if _boss_id == MAW_BOSS_ID:
 		_build_maw()
+	elif _boss_id == SAND_BOSS_ID:
+		_build_sand()
 	else:
 		_build_floor()
 		_build_boundary_walls()
@@ -111,7 +115,7 @@ func _spawn_player() -> void:
 	var player: Player = PLAYER_SCENE.instantiate()
 	add_child(player)
 	player.global_position = $PlayerSpawnPoint.global_position
-	var focus := to_global(Vector3.ZERO if maw else BAY_SPAWN_LOCAL)
+	var focus := to_global(Vector3.ZERO if maw or sand else BAY_SPAWN_LOCAL)
 	player.look_at(Vector3(focus.x, player.global_position.y, focus.z))
 
 ## GameState.pending_pinnacle's boss, or a random one when run standalone.
@@ -135,6 +139,8 @@ func _spawn_boss() -> void:
 	if maw:
 		maw.bind_boss(boss)
 		_on_element_changed(Constants.DamageType.ENTROPIC)
+	if sand:
+		sand.bind_boss(boss)
 	boss.health.died.connect(_on_boss_died)
 
 ## A portal home appears by the entry once the boss falls (on the Maw's
@@ -144,7 +150,7 @@ func _on_boss_died() -> void:
 	portal.destination = Portal.Destination.HUB
 	portal.taken.connect(_go_home)
 	add_child(portal)
-	portal.global_position = to_global(MawArena.PORTAL_SPOT) if maw else $PlayerSpawnPoint.global_position + PORTAL_OFFSET
+	portal.global_position = to_global(MawArena.PORTAL_SPOT) if maw else (to_global(SandArena.PORTAL_SPOT) if sand else $PlayerSpawnPoint.global_position + PORTAL_OFFSET)
 
 func _go_home() -> void:
 	SaveManager.save_game()
@@ -305,6 +311,25 @@ func _build_maw() -> void:
 	key.position = Vector3(0, 9.0, 0)
 	key.omni_range = 30.0
 	key.light_energy = 1.6
+
+## Ataras's sand arena (SandArena): a round sand floor ringed by rock, lit
+## warm like a desert evening.
+func _build_sand() -> void:
+	sand = SandArena.new()
+	sand.name = "SandArena"
+	add_child(sand)
+	_build_spawn_markers(SandArena.BOSS_SPAWN, SandArena.PLAYER_SPAWN)
+	var key := get_node("BayLight") as OmniLight3D
+	key.position = Vector3(0, 12.0, 0)
+	key.omni_range = 40.0
+	key.light_energy = 2.0
+	key.light_color = Color(1.0, 0.82, 0.6)
+	var sun := DirectionalLight3D.new()
+	sun.rotation_degrees = Vector3(-38, 30, 0)
+	sun.light_color = Color(1.0, 0.78, 0.55)
+	sun.light_energy = 1.1
+	sun.shadow_enabled = true
+	add_child(sun)
 
 func _build_embers() -> void:
 	var particles := GPUParticles3D.new()

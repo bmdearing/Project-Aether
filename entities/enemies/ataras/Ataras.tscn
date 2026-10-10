@@ -1,0 +1,10 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://entities/enemies/units/MeleeUnit.tscn" id="1"]
+[ext_resource type="Script" path="res://entities/enemies/ataras/Ataras.gd" id="2"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/ataras.tres" id="3"]
+
+[node name="Ataras" instance=ExtResource("1")]
+script = ExtResource("2")
+rank = 3
+definition = ExtResource("3")

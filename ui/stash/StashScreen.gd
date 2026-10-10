@@ -89,7 +89,16 @@ func _build() -> void:
 
 	var left := VBoxContainer.new()
 	columns.add_child(left)
-	left.add_child(_label("Inventory", 18))
+	var carried_head := HBoxContainer.new()
+	left.add_child(carried_head)
+	var carried_title := _label("Inventory", 18)
+	carried_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	carried_head.add_child(carried_title)
+	var dump := Button.new()
+	dump.text = "Dump to Stash"
+	dump.tooltip_text = "Sends everything carried to the tab its category has an affinity for (right-click a tab to set them). Favored items and things with no affinity stay."
+	dump.pressed.connect(_on_dump_pressed)
+	carried_head.add_child(dump)
 	_carried_view = _make_view()
 	left.add_child(_carried_view)
 
@@ -294,6 +303,34 @@ func _on_entry_right_clicked(view: InventoryGridView, entry: GridInventory.Entry
 	elif not send(view.inventory, entry, GameState.inventory):
 		_status.text = "No room for that."
 	_refresh()
+
+func _on_dump_pressed() -> void:
+	var moved := dump_by_affinity()
+	_status.text = "Stashed %d item%s." % [moved, "" if moved == 1 else "s"] if moved > 0 else "Nothing carried has a tab to go to."
+	_refresh()
+
+## Dump: every carried entry whose category has an affinity goes to that
+## tab. Favored items stay. Returns how many entries moved (or partly moved).
+func dump_by_affinity() -> int:
+	var stash := GameState.stash
+	var moved := 0
+	for entry in GameState.inventory.get_entries().duplicate():
+		var content = entry.content
+		if content is Item and (content as Item).mark == Item.Mark.FAVORED:
+			continue
+		for category in Stash.categories_of(content):
+			if not stash.affinities.has(category):
+				continue
+			var index: int = stash.affinities[category]
+			if index == Stash.UNIQUE_TAB:
+				if stash.store_unique(content):
+					GameState.inventory.remove(entry)
+					moved += 1
+					break
+			elif stash.tab_can_take(index, category) and send(GameState.inventory, entry, stash.tabs[index]):
+				moved += 1
+				break
+	return moved
 
 ## Sends a carried entry into the stash: its category's tab first, then the
 ## open tab, then the first tab that takes it. Returns false if none had room.

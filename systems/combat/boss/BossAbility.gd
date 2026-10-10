@@ -10,10 +10,11 @@ class_name BossAbility
 ##   SUMMON - `count` roster units (`unit_id`) around the boss.
 ##   PULL   - drags the player in, then slams around the boss (or the
 ##            boss's Enemy.get_pull_center()).
+##   CUSTOM - the boss runs it itself (Enemy.cast_custom()).
 ## Damage is the boss's own attack damage times `damage_mult`; damage_type -1
 ## asks the boss (Enemy.get_ability_damage_type(), e.g. the Lord's element).
 
-enum Kind { SLAM, BLAST, HAZARD, CHARGE, VOLLEY, SUMMON, PULL }
+enum Kind { SLAM, BLAST, HAZARD, CHARGE, VOLLEY, SUMMON, PULL, CUSTOM }
 
 var id: String = ""
 var display_name: String = ""

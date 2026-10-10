@@ -213,6 +213,8 @@ func _test_currency_drops() -> void:
 	for i in 2000:
 		seen[Constants.roll_currency_drop()] = true
 	_check(seen.keys().all(func(id): return Constants.CURRENCY_DROP_WEIGHTS.has(id) and CurrencyText.name_of(id) != String(id)), "currency drops are real currency ids")
+	var w := Constants.CURRENCY_DROP_WEIGHTS
+	_check([&"quickening", &"elevation", &"forging"].all(func(id): return w[id] > w[&"severance"] * 2), "every rarity upgrade drops well above Severance")
 	_check(seen.size() >= 30, "currency drops cover the table (%d ids)" % seen.size())
 	_finished += 1
 

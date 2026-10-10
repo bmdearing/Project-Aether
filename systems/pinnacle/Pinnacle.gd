@@ -12,6 +12,7 @@ const FRAGMENT_IDS: Array[StringName] = [&"maw_fragment_ash", &"maw_fragment_tid
 const BOSSES := {
 	"lord_of_the_elements": {"name": "Lord of the Elements", "scene": "res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn"},
 	"herald_of_the_maw": {"name": "Herald of the Maw", "scene": "res://entities/enemies/xalatath/Xalatath.tscn"},
+	"ataras": {"name": "Ataras", "scene": "res://entities/enemies/ataras/Ataras.tscn"},
 }
 
 ## The Herald of the Maw's exclusive Lens: its drop chance rises with each

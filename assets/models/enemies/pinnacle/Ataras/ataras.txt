@@ -1,0 +1,18 @@
+For Claude to Read
+
+Ataras is a new pinnacle boss.
+His arena is a sandy location that becomes perilous at 50% hp
+
+Three wedges, one wedge becomes the safe place.
+
+He has several moves
+A Slash
+2x Fast Slashes then a thrust
+
+He summons sand globes that can be killed. These shoot projectiles at the player every 2 seconds. These do little damage
+
+After 50% and the arena becomes safe again,
+
+He casts Ticking Time
+For 4 seconds, as players move, ground beneath them become marked
+These permanently become physical DoT spaces

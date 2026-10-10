@@ -79,6 +79,20 @@ func _test_stash_affinity() -> void:
 	GameState.inventory.add(&"quickening", 30)
 	screen.deposit(GameState.inventory.get_entries()[0])
 	_check(stash.get_tab(GridInventory.Accepts.CURRENCY).count_of(&"quickening") == 30, "currency went to the Currency tab")
+	# Dump to Stash: affinity items go, favored and affinity-less ones stay.
+	var w2 := _gear(func(i): return i is Weapon and i.unique_id == "")
+	var kept := _gear(func(i): return i is Weapon and i.unique_id == "")
+	kept.mark = Item.Mark.FAVORED
+	var armour := _gear(func(i): return i.is_equipment() and not i is Weapon and i.unique_id == "" and i.equip_slot in [Constants.EquipmentSlot.HELMET, Constants.EquipmentSlot.BODY_ARMOUR, Constants.EquipmentSlot.GLOVES, Constants.EquipmentSlot.BOOTS])
+	GameState.inventory.add(w2)
+	GameState.inventory.add(kept)
+	GameState.inventory.add(&"tempering", 5)
+	if armour:
+		GameState.inventory.add(armour)
+	var moved := screen.dump_by_affinity()
+	_check(stash.tabs[2].has_content(w2) and stash.get_tab(GridInventory.Accepts.CURRENCY).count_of(&"tempering") == 5, "Dump to Stash sends items to their affinity tabs (%d moved)" % moved)
+	_check(GameState.inventory.has_content(kept), "favored items stay")
+	_check(armour == null or GameState.inventory.has_content(armour), "items with no affinity stay")
 	_check(screen.matches(weapon, weapon.display_name.to_lower()), "search matches an item by name")
 	_check(not screen.matches(weapon, "zzqqxx"), "search misses nonsense")
 	_check(screen.matches(&"quickening", "quickening"), "search matches currency by name")

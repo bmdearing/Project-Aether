@@ -1075,6 +1075,15 @@ func is_player_anchored(_player_node: Player) -> bool:
 func blocks_charge(_direction: Vector3) -> bool:
 	return false
 
+## A CUSTOM BossAbility: the boss's own move. Bosses override it (as a
+## coroutine; BossBrain awaits it).
+func cast_custom(_ability: BossAbility) -> void:
+	await get_tree().process_frame
+
+## False holds a ready ability back (e.g. until an arena event is over).
+func can_use_ability(_ability: BossAbility) -> bool:
+	return true
+
 ## Called for each unit a SUMMON ability brings in.
 func on_unit_summoned(_unit: Enemy) -> void:
 	pass

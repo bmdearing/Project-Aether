@@ -19,9 +19,13 @@ func _ready() -> void:
 	brain.name = "BossBrain"
 	for fields in abilities():
 		brain.abilities.append(BossAbility.make(fields))
-	brain.phase_thresholds = PHASE_THRESHOLDS
+	brain.phase_thresholds = phase_thresholds()
 	brain.phase_openers = phase_openers()
 	add_child(brain)
+
+## Health fractions that start each next phase; overridden per boss.
+func phase_thresholds() -> Array[float]:
+	return PHASE_THRESHOLDS
 
 ## BossAbility field dictionaries; overridden per boss.
 func abilities() -> Array:

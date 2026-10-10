@@ -91,7 +91,7 @@ func _pick(dist: float) -> BossAbility:
 	var ready: Array[BossAbility] = []
 	var total := 0.0
 	for a in abilities:
-		if a.min_phase <= phase and is_ready(a) and dist >= a.min_range and dist <= a.max_range:
+		if a.min_phase <= phase and is_ready(a) and dist >= a.min_range and dist <= a.max_range and _boss.can_use_ability(a):
 			ready.append(a)
 			total += a.weight
 	var roll := randf() * total
@@ -153,6 +153,8 @@ func cast(a: BossAbility) -> void:
 			await _summon(a)
 		BossAbility.Kind.PULL:
 			await _pull(a)
+		BossAbility.Kind.CUSTOM:
+			await _boss.cast_custom(a)
 	if not _alive():
 		return
 	casting = false

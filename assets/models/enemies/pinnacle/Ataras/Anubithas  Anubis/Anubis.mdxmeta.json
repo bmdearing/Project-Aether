@@ -1,0 +1,559 @@
+{
+  "source": "Anubis.mdx",
+  "version": 1000,
+  "scale": 0.02,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9844729614257812,
+      0.0005283235386013984,
+      -1.0948292541503906
+    ],
+    "max": [
+      1.1295677185058595,
+      2.4893586730957034,
+      1.0899356842041017
+    ],
+    "height": 2.4888303495571016
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 300,
+      "end": 3300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 3600,
+      "end": 5267,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 5567,
+      "end": 6567,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 6867,
+      "end": 8533,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 8833,
+      "end": 10999,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 11299,
+      "end": 12965,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 13265,
+      "end": 16931,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 17231,
+      "end": 17997,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "human_SirGregoryEdmunson_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_sirgregoryedmunson_main_diffuse.dds",
+        "normal": "human_sirgregoryedmunson_main_normal.dds",
+        "orm": "human_sirgregoryedmunson_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Main_Normal.tif",
+        "orm": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "human_SirGregoryEdmunson_rig:book_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_sirgregoryedmunson_book_diffuse.dds",
+        "normal": "human_sirgregoryedmunson_book_normal.dds",
+        "orm": "human_sirgregoryedmunson_book_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Book_Diffuse.tif",
+        "normal": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Book_Normal.tif",
+        "orm": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Book_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "lod": -1,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_kelthuzad_main_diffuse.dds",
+        "normal": "undead_kelthuzad_main_normal.dds",
+        "orm": "undead_kelthuzad_main_orm.dds",
+        "emissive": "undead_kelthuzad_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Main_Diffuse.tif",
+        "normal": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Main_Normal.tif",
+        "orm": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Main_ORM.tif",
+        "emissive": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "",
+      "lod": -1,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_sirgregoryedmunson_weapon_diffuse.dds",
+        "normal": "human_sirgregoryedmunson_weapon_normal.dds",
+        "orm": "human_sirgregoryedmunson_weapon_orm.dds",
+        "emissive": "human_sirgregoryedmunson_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Weapon_Diffuse.tif",
+        "normal": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Weapon_Normal.tif",
+        "orm": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Weapon_ORM.tif",
+        "emissive": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "",
+      "lod": -1,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_kelthuzad_pauldron_diffuse.dds",
+        "normal": "undead_kelthuzad_pauldron_normal.dds",
+        "orm": "undead_kelthuzad_pauldron_orm.dds",
+        "emissive": "undead_kelthuzad_pauldron_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Pauldron_Diffuse.tif",
+        "normal": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Pauldron_Normal.tif",
+        "orm": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Pauldron_ORM.tif",
+        "emissive": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Pauldron_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "",
+      "lod": -1,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_main_diffuse.dds",
+        "normal": "undead_obsidianstatue_main_normal.dds",
+        "orm": "undead_obsidianstatue_main_orm.dds",
+        "emissive": "undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "",
+      "lod": -1,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_rokhan_main_diffuse.dds",
+        "normal": "orc_rokhan_main_normal.dds",
+        "orm": "orc_rokhan_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Orc/Rokhan/Orc_Rokhan_Main_Diffuse.tif",
+        "normal": "Units/Orc/Rokhan/Orc_Rokhan_Main_Normal.tif",
+        "orm": "Units/Orc/Rokhan/Orc_Rokhan_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "",
+      "lod": -1,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_sirgregoryedmunson_weapon_diffuse.dds",
+        "normal": "human_sirgregoryedmunson_weapon_normal.dds",
+        "orm": "human_sirgregoryedmunson_weapon_orm.dds",
+        "emissive": "human_sirgregoryedmunson_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Weapon_Diffuse.tif",
+        "normal": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Weapon_Normal.tif",
+        "orm": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Weapon_ORM.tif",
+        "emissive": "Units/Human/HeroPaladinBoss2/Human_SirGregoryEdmunson_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "",
+      "lod": -1,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "draeneiwatcher_weapon_diffuse.dds",
+        "normal": "draeneiwatcher_weapon_normal.dds",
+        "orm": "draeneiwatcher_weapon_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Other/DranaiWatcher/DraeneiWatcher_Weapon_Diffuse.tif",
+        "normal": "Units/Other/DranaiWatcher/DraeneiWatcher_Weapon_Normal.tif",
+        "orm": "Units/Other/DranaiWatcher/DraeneiWatcher_Weapon_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "",
+      "lod": -1,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_kelthuzad_collar_diffuse.dds",
+        "normal": "undead_kelthuzad_collar_normal.dds",
+        "orm": "undead_kelthuzad_collar_orm.dds",
+        "emissive": "undead_kelthuzad_collar_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Collar_Diffuse.tif",
+        "normal": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Collar_Normal.tif",
+        "orm": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Collar_ORM.tif",
+        "emissive": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Collar_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "",
+      "lod": -1,
+      "material_id": 10,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "Valkyr_diffuse.dds",
+        "normal": "human_resurrect_normal.dds",
+        "orm": "human_resurrect_orm.dds",
+        "emissive": "human_resurrect_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Valkyr_diffuse.dds",
+        "normal": "Abilities/Spells/Human/Resurrect/Human_Resurrect_Normal.tif",
+        "orm": "Abilities/Spells/Human/Resurrect/Human_Resurrect_ORM.tif",
+        "emissive": "Abilities/Spells/Human/Resurrect/Human_Resurrect_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "",
+      "lod": -1,
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_kelthuzad_head_diffuse.dds",
+        "normal": "undead_kelthuzad_head_normal.dds",
+        "orm": "undead_kelthuzad_head_orm.dds",
+        "emissive": "undead_kelthuzad_head_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Head_Diffuse.tif",
+        "normal": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Head_Normal.tif",
+        "orm": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Head_ORM.tif",
+        "emissive": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Head_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "",
+      "lod": -1,
+      "material_id": 12,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_kelthuzad_pauldron_diffuse.dds",
+        "normal": "undead_kelthuzad_pauldron_normal.dds",
+        "orm": "undead_kelthuzad_pauldron_orm.dds",
+        "emissive": "undead_kelthuzad_pauldron_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Pauldron_Diffuse.tif",
+        "normal": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Pauldron_Normal.tif",
+        "orm": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Pauldron_ORM.tif",
+        "emissive": "Units/Undead/HeroLichCIN/Undead_KelThuzad_Pauldron_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "",
+      "lod": -1,
+      "material_id": 13,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptlord_pauldron_diffuse.dds",
+        "normal": "undead_cryptlord_pauldron_normal.dds",
+        "orm": "undead_cryptlord_pauldron_orm.dds",
+        "emissive": "undead_cryptlord_pauldron_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/HeroCryptLord/Undead_CryptLord_Pauldron_Diffuse.tif",
+        "normal": "Units/Undead/HeroCryptLord/Undead_CryptLord_Pauldron_Normal.tif",
+        "orm": "Units/Undead/HeroCryptLord/Undead_CryptLord_Pauldron_ORM.tif",
+        "emissive": "Units/Undead/HeroCryptLord/Undead_CryptLord_Pauldron_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "",
+      "lod": -1,
+      "material_id": 14,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "warlock_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/warlock_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/warlock_main_orm.dds",
+        "emissive": "warlock_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/Warlock/Warlock_Main_Diffuse.tif",
+        "normal": "Units/Demon/Warlock/Warlock_Main_Normal.tif",
+        "orm": "Units/Demon/Warlock/Warlock_Main_ORM.tif",
+        "emissive": "Units/Demon/Warlock/Warlock_Main_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Dissipate": true,
+        "Walk 1": true
+      }
+    }
+  ]
+}

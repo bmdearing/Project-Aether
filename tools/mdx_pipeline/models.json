@@ -91,6 +91,11 @@
       "unit": "xalatath",
       "mdx": "assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/xalatath.mdx",
       "scale": 0.031
+    },
+    {
+      "unit": "ataras",
+      "mdx": "assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/Anubis.mdx",
+      "scale": 0.02
     }
   ]
 }

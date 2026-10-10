@@ -273,8 +273,11 @@ func _test_pinnacle_arena() -> void:
 		var expected: String = Pinnacle.BOSSES[boss_id]["name"]
 		_check(boss is PinnacleBoss and boss.get_display_name().contains(expected), "%s: the arena spawns the chosen boss (%s)" % [boss_id, boss.get_display_name()])
 		_check(GameState.pending_pinnacle == "", "%s: the choice is used up" % boss_id)
-		_check(boss.boss_brain.phase_thresholds.size() == 2 and boss.boss_brain.phase_openers.size() == 2, "%s: three phases, each opening with an ability" % boss_id)
-		_check(boss.boss_brain.abilities.any(func(a): return a.min_phase == 3), "%s: phase 3 unlocks new abilities" % boss_id)
+		# Each later phase opens with an ability and unlocks new ones (Ataras
+		# has two phases; the others three).
+		var phases: int = boss.boss_brain.phase_thresholds.size() + 1
+		_check(phases >= 2 and boss.boss_brain.phase_openers.size() == phases - 1, "%s: %d phases, each later one opening with an ability" % [boss_id, phases])
+		_check(boss.boss_brain.abilities.any(func(a): return a.min_phase == phases), "%s: the last phase unlocks new abilities" % boss_id)
 		boss.health.apply_damage(boss.health.max_health * 2.0)
 		await _frames(3)
 		var portal := arena.get_children().filter(func(n): return n is Portal)
@@ -288,11 +291,21 @@ func _test_pinnacle_arena() -> void:
 
 ## Lord of the Elements: hovers in the bay, wide body, orbs become sigils
 ## that cut the damage of other elements and raise his current one.
+## A boss landing a lucky hit on the test's player used to kill it, and the
+## death screen paused the tree, stalling every timed check after it.
+func _sturdy_player() -> void:
+	get_tree().paused = false
+	var player := get_tree().get_first_node_in_group("player") as Player
+	if player:
+		player.health.max_health = 1.0e7
+		player.health.current_health = 1.0e7
+
 func _test_lord_sigils() -> void:
 	GameState.pending_pinnacle = "lord_of_the_elements"
 	var arena: PinnacleArena = load(ARENA).instantiate()
 	add_child(arena)
 	await _frames(3)
+	_sturdy_player()
 	var lord := arena.boss as LordOfTheElements
 	_check(lord != null and lord.immovable, "the Lord hovers in place")
 	var bay := arena.to_global(PinnacleArena.BAY_SPAWN_LOCAL)
@@ -359,6 +372,7 @@ func _test_maw_arena() -> void:
 	var arena: PinnacleArena = load(ARENA).instantiate()
 	add_child(arena)
 	await _frames(3)
+	_sturdy_player()
 	var maw := arena.maw
 	var herald := arena.boss as Xalatath
 	_check(maw != null and herald != null, "the Herald gets the Maw arena")

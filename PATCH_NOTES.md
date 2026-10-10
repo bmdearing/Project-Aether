@@ -7,6 +7,31 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.69: Ataras, currency rarity, Dump to Stash (user requests)
+
+- **Ataras, the third Pinnacle boss** (`entities/enemies/ataras/`, from `assets/models/enemies/pinnacle/Ataras/ataras.txt`). A jackal-headed lord of the sands; the model is Anubithas / Anubis by Mr Ogre man and vindorei (Hive Workshop, credited). He's offered at the Reality Engine like the other two.
+  - **Arena** (`SandArena`): a round sand floor ringed by rock spires, lit warm.
+  - **Slash:** his ordinary melee attack.
+  - **Sandstorm Cuts:** two fast slashes around him, then a thrust down a line.
+  - **Sand Globes:** three floating globes that can be killed. Each fires a weak sand bolt at you every 2 seconds, up to 5 at once.
+  - **Shifting Sands** (his 50% phase opener): the floor splits into three wedges. Two turn to quicksand after a 3-second warning: 4% of max Life per half second (Kinetic), and slows. Only the third is safe. After 14 seconds the sand settles.
+  - **Ticking Time** (only once the sand has settled): for 4 seconds the ground you cross is marked, then every mark becomes a permanent sand trap (2.5% of max Life per half second).
+  - Pinnacle bosses can now set their own phase thresholds (`PinnacleBoss.phase_thresholds()`). BossBrain has a CUSTOM kind (`Enemy.cast_custom()`) and lets a boss hold an ability back (`Enemy.can_use_ability()`).
+- **Currency rarity** (`Constants.CURRENCY_DROP_WEIGHTS`), tiered:
+  - **Common:** Quickening, Grafting, Tempering, Opening.
+  - **Uncommon:** Elevation, Forging, Reckoning, Recasting, Absolution.
+  - **Rare:** Ascendant, Severance (the Annulment equivalent, 8 out of ~900), Anchoring.
+  - Every rarity upgrade (Quickening, Elevation, Forging) now drops well above Severance, which used to outdrop Elevation.
+  - Brands and Edicts were 12 each over 25 kinds, nearly half the Orbs' total weight. They're now 2 to 5 each, about a seventh of drops.
+- **Dump to Stash:** a button above the carried inventory in the stash sends everything to the tab its category has an affinity for. Favored items and things with no affinity stay.
+- Tools: `tests/ui_capture/capture_pinnacle` screenshots a Pinnacle arena, optionally past phase 2. `capture_map` gains a `minion` view.
+- Tests:
+  - `tests/ataras`: the arena, wedges (safe vs quicksand), Ticking Time gating and traps, globes shoot and die, Sandstorm Cuts.
+  - `test_v460`: Dump to Stash.
+  - `test_real_pools`: rarity upgrades outdrop Severance.
+
+---
+
 ## 2026-10-09 — v4.68: Reap, Wraith and Minions (user request)
 
 - **Reap** (Aetheric, Area, no cooldown, 18 Mana): a spectral scythe sweeps a 110° cone in front of you for heavy damage, with a pale arc showing the sweep. Web twists:

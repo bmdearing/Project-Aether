@@ -473,19 +473,24 @@ const GEAR_TIER_WEIGHTS: Array[int] = [4, 10, 20, 30, 36]
 ## Placeholder Orb roll weight per Slate tier (index 0 = Tier 1).
 const SLATE_TIER_WEIGHTS: Array[int] = [10, 30, 60]
 
-## Placeholder drop weights for crafting currency (Enemy._maybe_drop_loot()).
+## Drop weights for crafting currency (Enemy._maybe_drop_loot()), tiered:
+##   common    - Quickening, Grafting, Tempering, Opening
+##   uncommon  - Elevation, Forging, Reckoning, Recasting, Absolution
+##   rare      - Ascendant, Severance (the Annulment), Anchoring
+## Every rarity upgrade (Common -> Uncommon -> Rare) outdrops Severance.
+## Brands and Edicts are many small weights: together about a seventh of drops.
 const CURRENCY_DROP_WEIGHTS := {
-	&"quickening": 120, &"grafting": 100, &"severance": 60, &"reckoning": 50, &"tempering": 60,
-	&"elevation": 40, &"recasting": 35, &"ascendant": 25, &"absolution": 20, &"opening": 20,
-	&"forging": 10, &"anchoring": 6,
-	&"brand_kinetic": 12, &"brand_piercing": 12, &"brand_explosive": 12, &"brand_fire": 12,
-	&"brand_cold": 12, &"brand_lightning": 12, &"brand_aetheric": 12, &"brand_entropic": 12,
-	&"brand_pale": 12, &"brand_armor": 12, &"brand_evasion": 12, &"brand_ward": 12,
-	&"brand_resistance": 12, &"brand_resilience": 12, &"brand_mana": 12, &"brand_spell": 12,
-	&"brand_attack": 12, &"brand_speed": 12, &"brand_life": 12, &"brand_critical": 12, &"brand_minion": 10,
-	&"brand_prefix": 10, &"brand_suffix": 10,
-	&"brand_preservation": 3,
-	&"edict_prefix": 6, &"edict_suffix": 6, &"edict_spell": 6, &"edict_attack": 6,
+	&"quickening": 200, &"grafting": 160, &"tempering": 120, &"opening": 90,
+	&"elevation": 50, &"forging": 25, &"reckoning": 40, &"recasting": 40, &"absolution": 35,
+	&"ascendant": 12, &"severance": 8, &"anchoring": 4,
+	&"brand_kinetic": 5, &"brand_piercing": 5, &"brand_explosive": 5, &"brand_fire": 5,
+	&"brand_cold": 5, &"brand_lightning": 5, &"brand_aetheric": 5, &"brand_entropic": 5,
+	&"brand_pale": 5, &"brand_armor": 5, &"brand_evasion": 5, &"brand_ward": 5,
+	&"brand_resistance": 5, &"brand_resilience": 5, &"brand_mana": 5, &"brand_spell": 5,
+	&"brand_attack": 5, &"brand_speed": 5, &"brand_life": 5, &"brand_critical": 5, &"brand_minion": 5,
+	&"brand_prefix": 4, &"brand_suffix": 4,
+	&"brand_preservation": 2,
+	&"edict_prefix": 3, &"edict_suffix": 3, &"edict_spell": 3, &"edict_attack": 3,
 }
 
 static func roll_currency_drop() -> StringName:

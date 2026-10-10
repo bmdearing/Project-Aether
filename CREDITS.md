@@ -34,6 +34,7 @@ Warcraft III custom models from [Hive Workshop](https://www.hiveworkshop.com), c
 | Nathrezim - Dreadknight | Raddazong | [hiveworkshop.com/threads/333116](https://www.hiveworkshop.com/threads/nathrezim-dreadknight.333116/) |
 | Teron Gorefiend (Death Knight Hero) | drew1011 | [hiveworkshop.com/threads/371374](https://www.hiveworkshop.com/threads/teron-gorefiend-death-knight-hero.371374/) |
 | Zombie Footman | dehme | [hiveworkshop.com/threads/328353](https://www.hiveworkshop.com/threads/zombie-footman.328353/) |
+| Anubithas / Anubis (Ataras) | Mr Ogre man, vindorei | [hiveworkshop.com/threads/336393](https://www.hiveworkshop.com/threads/anubithas-anubis.336393/) |
 
 ## 3D models: environment
 
