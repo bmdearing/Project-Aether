@@ -9,7 +9,7 @@ const ABILITY_DIR := "res://data/abilities/instances/"
 var _checks := 0
 var _failures := 0
 var _finished := 0
-const TEST_COUNT := 17
+const TEST_COUNT := 18
 
 var _arena: Node3D
 var _player: Player
@@ -51,6 +51,7 @@ func _run() -> void:
 	await _test_flame_jets_walls()
 	await _test_caltrops_and_inferno()
 	await _test_scorch()
+	await _test_shatter()
 	await _test_every_spell_casts()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("spell tests: %d checks, %d failures" % [_checks, _failures])
@@ -420,4 +421,35 @@ func _test_every_spell_casts() -> void:
 		await _frames(2)
 	await _wait(3.0)
 	_check(true, "all spells cast")
+	_finished += 1
+
+## Shatter breaks every ailment for a hit in its element; Freeze is worth more
+## than Chill; an enemy without ailments takes nothing.
+func _test_shatter() -> void:
+	await _reset_effects()
+	var shatter := _ability("shatter")
+	var clean := _dummy(Vector3(-2, 0, 0))
+	var chilled := _dummy(Vector3(0, 0, 0))
+	var frozen := _dummy(Vector3(2, 0, 0))
+	var many := _dummy(Vector3(0, 0, 2))
+	await _frames(2)
+	chilled.status_effects.apply_effect("chill", null)
+	for i in StatusEffectComponent.CHILL_STACKS_TO_FREEZE:
+		frozen.status_effects.apply_effect("chill", null)
+	_check(frozen.status_effects.has_effect("freeze"), "three Chills freeze the dummy")
+	for id in ["ignite", "unraveling", "shock"]:
+		many.status_effects.apply_effect(id, null, 10.0)
+	var types := {}
+	var on_dealt := func(_s, target, _amount, damage_type, _spell, _crit):
+		if target == many:
+			types[damage_type] = true
+	EventBus.damage_dealt.connect(on_dealt)
+	_cast._cast(shatter, Vector3.ZERO)
+	await _frames(2)
+	EventBus.damage_dealt.disconnect(on_dealt)
+	_check(_lost(clean) == 0.0, "shatter does nothing to an enemy without ailments")
+	_check(_lost(chilled) > 0.0 and not chilled.status_effects.has_effect("chill"), "shatter breaks Chill for damage")
+	_check(_lost(frozen) > _lost(chilled) * 2.0, "a broken Freeze hits harder than Chill (%.0f vs %.0f)" % [_lost(frozen), _lost(chilled)])
+	_check(not many.status_effects.has_effect("ignite") and not many.status_effects.has_effect("unraveling") and not many.status_effects.has_effect("shock"), "every ailment is removed")
+	_check(types.has(Constants.DamageType.FIRE) and types.has(Constants.DamageType.ENTROPIC) and types.has(Constants.DamageType.LIGHTNING), "each burst uses its ailment's element (%s)" % [types.keys()])
 	_finished += 1

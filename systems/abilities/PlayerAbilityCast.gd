@@ -320,6 +320,10 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		_warcry(ability, damage_multiplier)
 		EventBus.ability_cast.emit(_player, ability)
 		return
+	if ability.ability_id == "shatter":
+		_cast_shatter(ability, cast_position, damage_multiplier, apply_composure)
+		EventBus.ability_cast.emit(_player, ability)
+		return
 	if ability.ability_id == "purge":
 		_player.status_effects.clear_all_effects()
 		if ability.has_twist("second_wind"):
@@ -440,6 +444,41 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 	_damage_area(ability, cast_position, ability.get_radius(_player.stat_sheet), damage_multiplier, apply_composure, wave, Callable())
 	_play_range_effect(ability, cast_position)
 	EventBus.ability_cast.emit(_player, ability)
+
+## Shatter: Resonance adds this much per ailment broken beyond the first;
+## Splinter carries part of each break to enemies nearby.
+const SHATTER_RESONANCE := 0.25
+const SHATTER_SPLINTER_SHARE := 0.4
+const SHATTER_SPLINTER_RADIUS := 3.0
+
+## Breaks every ailment on the enemies in the area: each one becomes a hit
+## in its own element, worth the spell's damage times its weight
+## (StatusEffectComponent.SHATTER_VALUES). Enemies without ailments take nothing.
+func _cast_shatter(ability: Ability, centre: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
+	var radius := ability.get_radius(_player.stat_sheet)
+	_play_range_effect(ability, centre)
+	for enemy in _enemies_by_distance(centre, radius):
+		var broken := enemy.status_effects.shatter_ailments()
+		var resonance := 1.0 + SHATTER_RESONANCE * maxi(broken.size() - 1, 0) if ability.has_twist("resonance") else 1.0
+		for entry in broken:
+			if not is_instance_valid(enemy) or not enemy.health.is_alive():
+				break
+			var hit := ability.roll_damage(_player.stat_sheet)
+			var damage: float = hit["final_damage"] * damage_multiplier * float(entry[1]) * resonance
+			var damage_type: Constants.DamageType = entry[2]
+			_shatter_hit(enemy, damage, damage_type, hit["is_critical"], apply_composure)
+			_flash_ring(enemy.global_position + Vector3.UP * 0.1, 1.2, ability, Constants.DAMAGE_TYPE_COLOR.get(damage_type, Color.WHITE))
+			if ability.has_twist("splinter"):
+				for other in _enemies_by_distance(enemy.global_position, SHATTER_SPLINTER_RADIUS):
+					if other != enemy:
+						_shatter_hit(other, damage * SHATTER_SPLINTER_SHARE, damage_type, false, apply_composure)
+
+func _shatter_hit(enemy: Enemy, damage: float, damage_type: Constants.DamageType, is_critical: bool, apply_composure: bool) -> void:
+	if not enemy.take_damage(damage, damage_type, true):
+		return
+	if apply_composure and enemy.stance:
+		enemy.stance.apply_attack_stance_damage(damage, damage_type)
+	EventBus.damage_dealt.emit(_player, enemy, damage, damage_type, false, is_critical)
 
 const IMPACT_ABILITY_IDS := ["comet"]
 const WAVE_ABILITY_IDS := ["ice_pulse", "static_discharge", "entropic_decay"]

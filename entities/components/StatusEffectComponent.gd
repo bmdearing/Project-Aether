@@ -265,6 +265,33 @@ func get_armor_multiplier() -> float:
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
 
+## Shatter: every ailment on this owner and what breaking it is worth,
+## [effect_id, weight, damage type], removing each. Harder-to-apply ailments
+## weigh more; Scorch counts per stack.
+const SHATTER_VALUES := {
+	"freeze": [3.0, Constants.DamageType.COLD],
+	"chill": [1.0, Constants.DamageType.COLD],
+	"ignite": [1.2, Constants.DamageType.FIRE],
+	"scorch": [0.4, Constants.DamageType.FIRE],
+	"shock": [1.0, Constants.DamageType.LIGHTNING],
+	"electrocute": [2.0, Constants.DamageType.LIGHTNING],
+	"unraveling": [1.5, Constants.DamageType.ENTROPIC],
+	"bleed": [1.0, Constants.DamageType.KINETIC],
+	"pallid": [1.5, Constants.DamageType.PALE],
+	"aetherburn": [1.5, Constants.DamageType.AETHERIC],
+}
+
+func shatter_ailments() -> Array:
+	var broken: Array = []
+	for effect_id in SHATTER_VALUES:
+		if not has_effect(effect_id):
+			continue
+		var value: Array = SHATTER_VALUES[effect_id]
+		var weight: float = value[0] * (_scorch_stacks if effect_id == "scorch" else 1)
+		broken.append([effect_id, weight, value[1]])
+		_expire(effect_id)
+	return broken
+
 ## Purge: expires every effect (firing the normal expiry signals).
 func clear_all_effects() -> void:
 	for effect_id in _timers.keys().duplicate():

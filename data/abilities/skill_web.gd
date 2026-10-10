@@ -160,6 +160,10 @@ const TWISTS := {
 		{"id": "ward_feast", "name": "Ward Feast", "description": "Every 4 Ward consumed adds damage, instead of every 7.", "ring": 2},
 		{"id": "spectral_host", "name": "Spectral Host", "description": "Summons two wraiths that split the Ward between them.", "ring": 3, "requires": ["bound_soul", "ward_feast"]},
 	],
+	"shatter": [
+		{"id": "resonance", "name": "Resonance", "description": "Each ailment broken on an enemy beyond the first adds 25% to all of its bursts.", "ring": 2},
+		{"id": "splinter", "name": "Splinter", "description": "Every burst also hits enemies within 3 metres for 40% of its damage.", "ring": 3, "requires": ["resonance", "potency_2"]},
+	],
 	"purge": [
 		{"id": "second_wind", "name": "Second Wind", "description": "Also restores 10% of your maximum Life.", "ring": 2},
 	],

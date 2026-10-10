@@ -40,6 +40,7 @@ static func draw(ci: CanvasItem, ability: Ability, rect: Rect2) -> void:
 		"cinder_lance": _cinder_lance(pen, c)
 		"comet": _meteor(pen, c) if ability.has_twist("molten_core") else _comet(pen, c)
 		"reap": _reap(pen, c)
+		"shatter": _shatter(pen, c)
 		"wraith": _wraith(pen, c)
 		"entropic_decay": _entropic_decay(pen, c)
 		"flame_jets": _flame_jets(pen, c)
@@ -253,6 +254,16 @@ static func _reap(pen: IconArt.Pen, c: Color) -> void:
 	pen.stroke_px(pen.pts([0.6, 0.2, 0.8, 0.22, 0.9, 0.36, 0.84, 0.5]), Color(1, 1, 1, 0.85), _width(pen, 0.018))
 	for a in [0.0, 0.5, 1.0]:
 		_glow(pen, 0.38 + a * 0.12, 0.66 - a * 0.18, 0.06, c, 0.3)
+
+static func _shatter(pen: IconArt.Pen, c: Color) -> void:
+	# A crystal breaking apart, shards flying out in four elements.
+	_glow(pen, 0.5, 0.5, 0.3, c, 0.22)
+	pen.poly([0.5, 0.3, 0.6, 0.46, 0.54, 0.66, 0.44, 0.62, 0.4, 0.44], ICE)
+	pen.stroke_px(pen.pts([0.5, 0.3, 0.48, 0.48, 0.54, 0.66]), Color(1, 1, 1, 0.8), _width(pen, 0.014))
+	var elements := [FIRE_CORE, ICE, BOLT, Color(0.7, 0.45, 1.0)]
+	for i in 4:
+		var a := -PI * 0.75 + i * PI * 0.5
+		_shard(pen, Vector2(0.5, 0.5) + Vector2(cos(a), sin(a)) * 0.3, a, 0.11, elements[i])
 
 static func _wraith(pen: IconArt.Pen, c: Color) -> void:
 	_glow(pen, 0.5, 0.5, 0.36, c, 0.18)
