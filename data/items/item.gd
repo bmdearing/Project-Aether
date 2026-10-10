@@ -29,6 +29,11 @@ class_name Item
 ## 0 to Constants.QUALITY_CAP, raised by the Orb of Tempering. On a weapon
 ## each point is 1% more weapon damage (Weapon.get_quality_multiplier()).
 @export var quality: int = 0
+## Extra room above Constants.QUALITY_CAP (the Tempered Limit corruption).
+@export var quality_cap_bonus: int = 0
+
+func get_quality_cap() -> int:
+	return Constants.QUALITY_CAP + quality_cap_bonus
 ## Orb crafting state (see CraftingResolver). sockets_rolled marks the one
 ## Orb of Opening use; tolerance is the lifetime crafting budget, rolled on drop.
 @export var sockets_rolled: bool = false

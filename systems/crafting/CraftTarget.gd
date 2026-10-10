@@ -103,6 +103,9 @@ func can_temper() -> bool:
 func get_quality() -> int:
 	return 0 if is_slate else (resource as Item).quality
 
+func get_quality_cap() -> int:
+	return Constants.QUALITY_CAP if is_slate else (resource as Item).get_quality_cap()
+
 func set_quality(value: int) -> void:
 	if not is_slate:
 		(resource as Item).quality = value

@@ -243,7 +243,7 @@ func _check(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: EdictDef
 		&"tempering":
 			if t.is_slate or not t.can_temper():
 				return E.INVALID_TARGET
-			if t.get_quality() >= Constants.QUALITY_CAP:
+			if t.get_quality() >= t.get_quality_cap():
 				return E.QUALITY_CAPPED
 		&"opening":
 			if t.is_slate or t.resource is Jewel:
@@ -317,7 +317,7 @@ func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: Edict
 					out["anchored"] = copy
 				&"tempering":
 					var gain := rng.randi_range(Constants.TEMPERING_QUALITY_GAIN.x, Constants.TEMPERING_QUALITY_GAIN.y)
-					out["quality"] = mini(Constants.QUALITY_CAP, t.get_quality() + gain)
+					out["quality"] = mini(t.get_quality_cap(), t.get_quality() + gain)
 					out["quality_gained"] = out["quality"] - t.get_quality()
 				&"opening":
 					out["sockets"] = rng.randi_range(mini(1, t.get_max_sockets()), t.get_max_sockets())  # always at least one

@@ -545,6 +545,10 @@ func _test_tempering() -> void:
 	ring.tolerance = 100
 	_check(_resolver.apply(ring, &"tempering").error == E.INVALID_TARGET, "tempering rejects a ring")
 	_check(_resolver.apply(_slate(), &"tempering").error == E.INVALID_TARGET, "tempering rejects slates")
+	# Tempered Limit lifts one item's cap by 15.
+	var limit_sword := Weapon.new()
+	CorruptionOutcome.TemperedLimit.new().apply(limit_sword, 1)
+	_check(limit_sword.get_quality_cap() == Constants.QUALITY_CAP + 15 and Constants.QUALITY_CAP == 25, "Tempered Limit raises the quality cap from 25 to 40")
 	# Quality multiplies the weapon's damage.
 	var sword := Weapon.new()
 	sword.base_damage_min = 100.0

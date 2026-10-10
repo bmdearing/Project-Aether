@@ -18,7 +18,7 @@ const _MINOR := [
 ]
 const _SIGNIFICANT := [
 	"AddSpecialAffix", "AddExtraSocket", "ConvertAffix", "AddSecondImplicit",
-	"ResistanceShredAura", "SkillNoCooldown",
+	"ResistanceShredAura", "SkillNoCooldown", "TemperedLimit",
 ]
 const _MAJOR := [
 	"Veiltouch", "Hollow", "Inversion", "MawTouched", "PaleBranded", "Overcharged",
@@ -97,6 +97,7 @@ static func _instantiate(outcome_name: String) -> CorruptionOutcome:
 		"Unmade": return CorruptionOutcome.Unmade.new()
 		"ResonantEcho": return CorruptionOutcome.ResonantEcho.new()
 		"AethericSurge": return CorruptionOutcome.AethericSurge.new()
+		"TemperedLimit": return CorruptionOutcome.TemperedLimit.new()
 	return CorruptionOutcome.new()
 
 ## What each outcome does, for the Wiki.
@@ -107,6 +108,7 @@ const DESCRIPTIONS := {
 	"RemoveSocket": "Removes a socket.",
 	"TierUp": "One modifier moves up a tier (Tier 3 becomes Tier 2).",
 	"TierDown": "One modifier moves down a tier.",
+	"TemperedLimit": "The item's maximum quality rises by 15% (Orbs of Tempering still work on corrupted items).",
 	"AddSpecialAffix": "Adds a corrupted modifier: one of the item's own at 130% of its Tier 1 maximum.",
 	"AddExtraSocket": "Adds a socket beyond the maximum (up to +1).",
 	"ConvertAffix": "Replaces one modifier with a random modifier of the same pool.",
@@ -147,6 +149,8 @@ static func can_change(outcome_name: String, base: Item) -> bool:
 	match outcome_name:
 		"AddImplicit", "AddSecondImplicit":
 			return not ImplicitPool.pool_for_type(base.get_item_type()).is_empty()
+		"TemperedLimit":
+			return base is Weapon or base is Armor
 		"AddSocket", "RemoveSocket", "AddExtraSocket":
 			return ItemRoller.get_socket_cap(base) > 0
 		"Ascendant":

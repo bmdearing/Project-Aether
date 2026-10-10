@@ -445,7 +445,9 @@ const STARTING_TOLERANCE_BY_ITEM_TYPE := {
 	&"slate": Vector2i(30, 50),
 }
 
-const QUALITY_CAP := 20
+const QUALITY_CAP := 25
+## The "Tempered Limit" corruption outcome raises one item's quality cap by this much.
+const CORRUPT_QUALITY_CAP_BONUS := 15
 const TEMPERING_QUALITY_GAIN := Vector2i(2, 4)
 const FORGING_MODIFIERS_GEAR := 4
 const FORGING_MODIFIERS_SLATE := Vector2i(3, 4)

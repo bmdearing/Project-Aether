@@ -257,6 +257,13 @@ class Transcendent extends CorruptionOutcome:
 		item.flavor_text = new_unique.flavor_text
 		EventBus.item_transcended.emit(item)
 
+## Tempered Limit: the item's quality cap rises by CORRUPT_QUALITY_CAP_BONUS
+## (Orbs of Tempering still work on corrupted items).
+class TemperedLimit extends CorruptionOutcome:
+	func apply(item: Item, _power_level: int) -> void:
+		if item is Weapon or item is Armor:
+			item.quality_cap_bonus += Constants.CORRUPT_QUALITY_CAP_BONUS
+
 class Unmade extends CorruptionOutcome:
 	## Strip everything into a max-item-level base (91, the catalog ceiling).
 	func apply(item: Item, _power_level: int) -> void:
