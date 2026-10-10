@@ -26,7 +26,6 @@ var _spiral_angle: float = 0.0
 const ICICLE_FLIGHT := 0.14
 const SPIRAL_STEP := 2.4  # radians between consecutive icicle launch points
 const DETONATE_MULTIPLIER := 2.0
-const RANGE_EFFECT_SCENE := preload("res://entities/effects/ability_range_effect/AbilityRangeEffect.tscn")
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
@@ -37,10 +36,7 @@ func play(_radius: float, color: Color, ability: Ability, stat_sheet: StatSheet,
 	_source = source
 	_color = color
 	_duration = MAX_DURATION * ability.get_duration_multiplier(stat_sheet)
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = color.lightened(0.3)
-	mesh.material_override = mat
+	_build_visuals()
 
 func _physics_process(delta: float) -> void:
 	if _detonated:
@@ -78,19 +74,14 @@ func _launch_icicle(enemy: Enemy) -> void:
 	_spiral_angle += SPIRAL_STEP
 	var start := global_position + Vector3(cos(_spiral_angle), 0.25 * sin(_spiral_angle * 0.5), sin(_spiral_angle)) * 0.5
 	var shard := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(0.07, 0.07, 0.55)
-	shard.mesh = box
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = _color.lightened(0.55)
-	shard.material_override = mat
+	shard.mesh = _icicle_mesh()
 	shard.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	get_parent().add_child(shard)
 	shard.global_position = start
 	var aim := enemy.global_position + Vector3.UP
 	if start.distance_to(aim) > 0.05:
 		shard.look_at(aim, Vector3.UP)
+		shard.rotate_object_local(Vector3.RIGHT, -PI * 0.5)  # prism tip (+Y) leads
 	var tween := shard.create_tween()
 	tween.tween_property(shard, "global_position", aim, ICICLE_FLIGHT)
 	tween.tween_callback(_icicle_hit.bind(enemy))
@@ -117,8 +108,85 @@ func _detonate() -> void:
 		enemy.take_damage(damage, _ability.damage_type)
 		EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
 		_ability.apply_statuses(enemy, _source, damage)
-	var ring: AbilityRangeEffect = RANGE_EFFECT_SCENE.instantiate()
-	get_parent().add_child(ring)
-	ring.global_position = Vector3(global_position.x, _target.y + 0.05, global_position.z)
-	ring.play(_ability.get_radius(_stat_sheet), _color.lightened(0.3))
+	_detonation_fx(_ability.get_radius(_stat_sheet))
 	queue_free()
+
+## ---- Visuals -----------------------------------------------------------------
+
+const ICE := Color(0.6, 0.85, 1.0)
+const ICE_CORE := Color(0.85, 0.96, 1.0)
+const ORBIT_SHARDS := 3
+
+static var _icicle: PrismMesh
+
+## A glowing eye of ice: bright core in a cold halo, shards orbiting it,
+## frost mist shed as it travels and a light.
+func _build_visuals() -> void:
+	var core := StandardMaterial3D.new()
+	core.albedo_color = Color(0.55, 0.8, 1.0)
+	core.emission_enabled = true
+	core.emission = Color(0.4, 0.7, 1.0)
+	core.emission_energy_multiplier = 0.8
+	core.rim_enabled = true
+	core.rim = 1.0
+	core.roughness = 0.2
+	mesh.material_override = core
+	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var halo := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2.ONE * 1.8
+	halo.mesh = quad
+	var halo_mat := SpellFx.glow_material(Color(ICE, 0.7), true, BaseMaterial3D.BILLBOARD_ENABLED)
+	halo_mat.vertex_color_use_as_albedo = false
+	halo.material_override = halo_mat
+	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(halo)
+	for i in ORBIT_SHARDS:
+		var shard := MeshInstance3D.new()
+		shard.mesh = _icicle_mesh()
+		var a := TAU * i / ORBIT_SHARDS
+		shard.position = Vector3(cos(a), 0.0, sin(a)) * 0.55
+		shard.rotation = Vector3(0.4, -a, 0.0)
+		shard.scale = Vector3.ONE * 0.7
+		shard.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mesh.add_child(shard)  # the orb mesh spins, carrying them round
+	var mist := SpellFx.emitter(self, 40, 0.9)
+	mist.local_coords = false
+	mist.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	mist.emission_sphere_radius = 0.35
+	mist.direction = Vector3.DOWN
+	mist.spread = 60.0
+	mist.initial_velocity_min = 0.2
+	mist.initial_velocity_max = 0.6
+	mist.scale_amount_min = 0.25
+	mist.scale_amount_max = 0.5
+	mist.scale_amount_curve = SpellFx.curve(0.6, 1.4)
+	mist.color_ramp = SpellFx.ramp(Color(ICE, 0.0), Color(ICE, 0.35), 0.2)
+	mist.mesh = SpellFx.glow_quad()
+	mist.emitting = true
+	var light := OmniLight3D.new()
+	light.light_color = ICE
+	light.light_energy = 1.6
+	light.omni_range = 4.0
+	add_child(light)
+
+## A pointed shard of glowing ice along -Z, shared by every icicle.
+func _icicle_mesh() -> PrismMesh:
+	if _icicle == null:
+		_icicle = PrismMesh.new()
+		_icicle.size = Vector3(0.1, 0.6, 0.1)
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.albedo_color = ICE_CORE
+		_icicle.material = mat
+	return _icicle
+
+func _detonation_fx(radius: float) -> void:
+	var parent := get_parent()
+	var ground := Vector3(global_position.x, _target.y, global_position.z)
+	SpellFx.shockwave(parent, ground, radius, ICE, 0.4)
+	SpellFx.flash(parent, global_position, Color(ICE_CORE, 1.0), 3.0, 0.25)
+	SpellFx.light_pop(parent, global_position, ICE, 5.0, radius * 1.4, 0.5)
+	SpellFx.shards(parent, global_position, ICE_CORE, 22, Vector2(4.0, 8.0), Vector2(0.06, 0.15), 0.8, 180.0)
+	SpellFx.ground_mark(parent, ground, radius * 0.8, SpellFx.Mark.FROST, Color(0.7, 0.85, 0.95, 0.35), Color(0.85, 0.95, 1.0, 0.8), 3.0, 1.5)
+	SpellCastFx.mist_ring(parent, ground, radius, Color(ICE, 0.5))

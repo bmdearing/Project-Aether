@@ -119,6 +119,7 @@ func _build_visuals() -> void:
 	var halo_mat := SpellFx.glow_material(Color(_glow, 0.85), true, BaseMaterial3D.BILLBOARD_ENABLED)
 	halo_mat.vertex_color_use_as_albedo = false
 	halo.material_override = halo_mat
+	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	halo.position.z = -0.6
 	add_child(halo)
 

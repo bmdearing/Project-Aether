@@ -48,6 +48,7 @@ func play(radius: float, color: Color) -> void:
 	var halo_mat := SpellFx.glow_material(Color(_glow, 0.8), true, BaseMaterial3D.BILLBOARD_ENABLED)
 	halo_mat.vertex_color_use_as_albedo = false
 	halo.material_override = halo_mat
+	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	ball.add_child(halo)
 	_trail = _make_trail()
 	_add_streak(Vector3(FALL_SLANT, FALL_HEIGHT, -FALL_SLANT * 0.5).normalized())

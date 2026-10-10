@@ -20,7 +20,9 @@ var _ticker: float = 0.0
 @onready var patch: MeshInstance3D = $Patch
 
 var _duration: float = DURATION
-var _patch_mat: StandardMaterial3D
+var _rim_mat: ShaderMaterial
+var _drops: Array[Transform3D] = []
+var _multimesh: MultiMesh
 var _spike_mat: StandardMaterial3D
 
 const SPIKES_PER_SQ_M := 1.6
@@ -32,16 +34,11 @@ func play(radius: float, color: Color, ability: Ability, stat_sheet: StatSheet, 
 	_ability = ability
 	_stat_sheet = stat_sheet
 	_source = source
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	var c := color
-	c.a = 0.18
-	mat.albedo_color = c
-	patch.material_override = mat
-	patch.scale = Vector3(radius, 1.0, radius)
-	_patch_mat = mat
+	_add_rim(radius)
 	_scatter_spikes(radius)
+	var parent := get_parent()
+	SpellFx.shockwave(parent, global_position, radius, STEEL, 0.3)
+	SpellCastFx.mist_ring(parent, global_position, radius, Color(0.45, 0.4, 0.35, 0.35))
 
 ## Small four-sided spikes strewn at random over the field.
 func _scatter_spikes(radius: float) -> void:
@@ -65,7 +62,10 @@ func _scatter_spikes(radius: float) -> void:
 		var r := radius * sqrt(randf())
 		var a := randf() * TAU
 		var basis := Basis.from_euler(Vector3(randf_range(-0.5, 0.5), randf() * TAU, randf_range(-0.5, 0.5)))
-		mm.set_instance_transform(i, Transform3D(basis, Vector3(cos(a) * r, 0.07, sin(a) * r)))
+		var rest := Transform3D(basis, Vector3(cos(a) * r, 0.07, sin(a) * r))
+		_drops.append(rest)
+		mm.set_instance_transform(i, rest.translated(Vector3.UP * DROP_HEIGHT))
+	_multimesh = mm
 	var mmi := MultiMeshInstance3D.new()
 	mmi.multimesh = mm
 	mmi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -77,8 +77,9 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 		return
 	var fade := clampf((_duration - _elapsed) / FADE_TIME, 0.0, 1.0)
-	if _patch_mat and fade < 1.0:
-		_patch_mat.albedo_color.a = 0.18 * fade
+	_drop_in()
+	if _rim_mat and fade < 1.0:
+		_rim_mat.set_shader_parameter("alpha", RIM_ALPHA * fade)
 		_spike_mat.albedo_color.a = fade
 	_ticker -= delta
 	if _ticker > 0.0:
@@ -98,3 +99,48 @@ func _physics_process(delta: float) -> void:
 		enemy.take_damage(damage, Constants.DamageType.PIERCING)
 		EventBus.damage_dealt.emit(_source, enemy, damage, Constants.DamageType.PIERCING, false, hit["is_critical"])
 		enemy.status_effects.apply_effect("slow", _source)
+
+## ---- Visuals -----------------------------------------------------------------
+
+const RING_SHADER := preload("res://shaders/spell_ring.gdshader")
+const STEEL := Color(0.75, 0.78, 0.85)
+const RIM_ALPHA := 0.16
+const DROP_HEIGHT := 1.2
+const DROP_TIME := 0.25
+const DROP_STAGGER := 0.25
+
+## A faint steel rim marking the strewn area (the ring shader held still).
+func _add_rim(radius: float) -> void:
+	patch.visible = false
+	var rim := MeshInstance3D.new()
+	var plane := PlaneMesh.new()
+	plane.size = Vector2.ONE * radius * 2.0 * 1.08
+	rim.mesh = plane
+	rim.position.y = 0.04
+	_rim_mat = ShaderMaterial.new()
+	_rim_mat.shader = RING_SHADER
+	_rim_mat.set_shader_parameter("color", Color(0.55, 0.58, 0.65, 1.0))
+	_rim_mat.set_shader_parameter("progress", 1.0 / 1.08)
+	_rim_mat.set_shader_parameter("width", clampf(0.12 / radius, 0.01, 0.06))
+	_rim_mat.set_shader_parameter("wake", 0.08)
+	_rim_mat.set_shader_parameter("alpha", RIM_ALPHA)
+	rim.material_override = _rim_mat
+	rim.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(rim)
+
+## The spikes rain in over the first moments, each landing with a small
+## bounce and a glint where it strikes.
+func _drop_in() -> void:
+	if _multimesh == null or _elapsed > DROP_TIME + DROP_STAGGER + 0.1:
+		return
+	for i in _drops.size():
+		var start := DROP_STAGGER * float(i) / _drops.size()
+		var t := clampf((_elapsed - start) / DROP_TIME, 0.0, 1.0)
+		var fall := 1.0 - t * t
+		var bounce := 0.0
+		if t >= 1.0:
+			var since := _elapsed - start - DROP_TIME
+			bounce = maxf(0.0, sin(clampf(since / 0.12, 0.0, 1.0) * PI)) * 0.06
+		_multimesh.set_instance_transform(i, _drops[i].translated(Vector3.UP * (fall * DROP_HEIGHT + bounce)))
+	if _elapsed >= DROP_TIME and _elapsed - get_physics_process_delta_time() < DROP_TIME:
+		SpellFx.burst(get_parent(), global_position + Vector3.UP * 0.1, STEEL, 20, Vector2(1.0, 3.0), 0.3, Vector2(0.03, 0.06), 70.0, -6.0).emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE

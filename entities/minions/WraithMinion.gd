@@ -57,29 +57,32 @@ func _exit_tree() -> void:
 func _build_body() -> void:
 	_body = Node3D.new()
 	add_child(_body)
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.albedo_color = COLOR
-	mat.emission_enabled = true
-	mat.emission = Color(COLOR.r, COLOR.g, COLOR.b) * 0.6
+	# A shroud that flares into a tattered hem, a hood, and two cold eyes.
 	var robe := MeshInstance3D.new()
-	var cone := CylinderMesh.new()
-	cone.top_radius = 0.12
-	cone.bottom_radius = 0.45
-	cone.height = 1.3
-	robe.mesh = cone
-	robe.material_override = mat
-	robe.position = Vector3(0, -0.2, 0)
+	robe.mesh = SpellFx.tube(0.5, 0.14, 1.35, 10, 24, 0.7)
+	robe.material_override = _ghost_material(0.35)
+	robe.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	robe.position = Vector3(0, -0.85, 0)
 	_body.add_child(robe)
 	var hood := MeshInstance3D.new()
 	var sphere := SphereMesh.new()
 	sphere.radius = 0.22
-	sphere.height = 0.44
+	sphere.height = 0.5
 	hood.mesh = sphere
-	hood.material_override = mat
-	hood.position = Vector3(0, 0.55, 0)
+	hood.material_override = _ghost_material(0.0)
+	hood.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	hood.position = Vector3(0, 0.6, 0)
 	_body.add_child(hood)
+	for side in [-1.0, 1.0]:
+		var eye := MeshInstance3D.new()
+		var eye_quad := QuadMesh.new()
+		eye_quad.size = Vector2.ONE * 0.12
+		eye.mesh = eye_quad
+		var eye_mat := SpellFx.glow_material(Color(0.85, 0.97, 1.0, 1.0), true, BaseMaterial3D.BILLBOARD_ENABLED)
+		eye_mat.vertex_color_use_as_albedo = false
+		eye.material_override = eye_mat
+		eye.position = Vector3(side * 0.07, 0.6, -0.17)
+		_body.add_child(eye)
 	# Wisps trailing off the robe.
 	var wisps := CPUParticles3D.new()
 	wisps.amount = 18
@@ -171,3 +174,12 @@ func _strike(enemy: Enemy) -> void:
 	ability.apply_statuses(enemy, player, damage)
 	_body.position.z = -0.25  # a lunge the next frames ease back from
 	create_tween().tween_property(_body, "position:z", 0.0, 0.25)
+
+const GHOST_SHADER := preload("res://shaders/spell_ghost.gdshader")
+
+func _ghost_material(tatter: float) -> ShaderMaterial:
+	var mat := ShaderMaterial.new()
+	mat.shader = GHOST_SHADER
+	mat.set_shader_parameter("color", Color(COLOR.r, COLOR.g, COLOR.b))
+	mat.set_shader_parameter("tatter", tatter)
+	return mat

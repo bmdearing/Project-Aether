@@ -40,14 +40,10 @@ func _ready() -> void:
 	if not straight:
 		get_tree().create_timer(lifetime).timeout.connect(queue_free)
 	if mesh and ability:
-		var mat := StandardMaterial3D.new()
-		mat.albedo_color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		mat.emission_enabled = true
-		mat.emission = mat.albedo_color
-		mesh.material_override = mat
+		_build_visuals(Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE))
 
 func _physics_process(delta: float) -> void:
+	_crackle(delta)
 	if straight:
 		if not _advance_straight(delta):
 			return
@@ -125,3 +121,61 @@ func _tick_wander(delta: float) -> Vector3:
 		var turn := randf_range(-WANDER_TURN_RANGE, WANDER_TURN_RANGE)
 		_wander_target = heading.rotated(Vector3.UP, turn).normalized()
 	return _wander_target
+
+## ---- Visuals -----------------------------------------------------------------
+
+const ARC_INTERVAL := 0.11
+const ARC_REACH := 0.7
+const ORB_HEIGHT := 0.3
+
+var _color: Color = Color.WHITE
+var _arc_timer: float = 0.0
+var _light: OmniLight3D
+
+## A crackling ball of light skittering along the floor: glow, a spray of
+## sparks, a flickering light, and little arcs jumping down to the ground.
+func _build_visuals(color: Color) -> void:
+	_color = color
+	mesh.visible = false
+	for layer in [[0.75, Color(color, 0.55)], [0.28, Color(1.0, 0.98, 0.85, 1.0)]]:
+		var glow := MeshInstance3D.new()
+		var quad := QuadMesh.new()
+		quad.size = Vector2.ONE * float(layer[0])
+		glow.mesh = quad
+		var mat := SpellFx.glow_material(layer[1], true, BaseMaterial3D.BILLBOARD_ENABLED)
+		mat.vertex_color_use_as_albedo = false
+		glow.material_override = mat
+		glow.position.y = ORB_HEIGHT
+		glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		add_child(glow)
+	var sparks := SpellFx.emitter(self, 24, 0.25)
+	sparks.local_coords = false
+	sparks.position.y = ORB_HEIGHT
+	sparks.direction = Vector3.UP
+	sparks.spread = 180.0
+	sparks.initial_velocity_min = 1.5
+	sparks.initial_velocity_max = 3.5
+	sparks.gravity = Vector3(0, -6.0, 0)
+	sparks.scale_amount_min = 0.03
+	sparks.scale_amount_max = 0.06
+	sparks.color_ramp = SpellFx.ramp(Color(1.0, 1.0, 0.9, 1.0), Color(color, 1.0), 0.2)
+	sparks.mesh = SpellFx.glow_quad()
+	sparks.emitting = true
+	_light = OmniLight3D.new()
+	_light.light_color = color
+	_light.omni_range = 2.5
+	_light.position.y = ORB_HEIGHT
+	add_child(_light)
+
+func _crackle(delta: float) -> void:
+	if _light == null:
+		return
+	_light.light_energy = randf_range(0.8, 1.6)
+	_arc_timer -= delta
+	if _arc_timer > 0.0:
+		return
+	_arc_timer = ARC_INTERVAL
+	var from := global_position + Vector3.UP * ORB_HEIGHT
+	var angle := randf() * TAU
+	var to := global_position + Vector3(cos(angle), 0.02, sin(angle)) * randf_range(0.25, ARC_REACH)
+	LightningArc.spawn(get_parent(), from, to, _color, 0.25, false, 0)

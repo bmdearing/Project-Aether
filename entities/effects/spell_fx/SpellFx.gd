@@ -201,3 +201,54 @@ static func tube(base_r: float, top_r: float, height: float, rings: int = 12, se
 				st.set_normal(nrms[idx])
 				st.add_vertex(pos[idx])
 	return st.commit()
+
+const SWEEP_SHADER := preload("res://shaders/spell_sweep.gdshader")
+
+## A blade of light sweeping across an arc in front of `origin` (Reap's
+## scythe): a crescent band standing on a cylinder round the caster at 75% of
+## the radius, `half_deg` either side of `forward`, slanted like a slash so it
+## faces a first-person camera all along. sign -1 sweeps the other way.
+static func sweep(parent: Node, origin: Vector3, forward: Vector3, radius: float, half_deg: float, color: Color, duration: float = 0.22, sign: float = 1.0, height: float = 1.0) -> MeshInstance3D:
+	var segments := 40
+	var r := radius * 0.75
+	var half := deg_to_rad(half_deg)
+	var band := clampf(radius * 0.22, 0.5, 1.1)
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in segments:
+		var a0 := lerpf(-half, half, float(i) / segments)
+		var a1 := lerpf(-half, half, float(i + 1) / segments)
+		var u0 := float(i) / segments
+		var u1 := float(i + 1) / segments
+		# Crescent: thickest mid-swing; slanted top-left to bottom-right.
+		var h0 := band * (0.25 + 0.75 * sin(u0 * PI))
+		var h1 := band * (0.25 + 0.75 * sin(u1 * PI))
+		var s0 := (0.5 - u0) * band * 1.4 * sign
+		var s1 := (0.5 - u1) * band * 1.4 * sign
+		var quad := [
+			[Vector3(sin(a0) * r, s0 - h0 * 0.5, -cos(a0) * r), Vector2(u0, 0)],
+			[Vector3(sin(a1) * r, s1 - h1 * 0.5, -cos(a1) * r), Vector2(u1, 0)],
+			[Vector3(sin(a1) * r, s1 + h1 * 0.5, -cos(a1) * r), Vector2(u1, 1)],
+			[Vector3(sin(a0) * r, s0 + h0 * 0.5, -cos(a0) * r), Vector2(u0, 1)],
+		]
+		for idx in [0, 1, 2, 0, 2, 3]:
+			st.set_uv(quad[idx][1])
+			st.set_normal(Vector3.BACK)
+			st.add_vertex(quad[idx][0])
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	var mat := ShaderMaterial.new()
+	mat.shader = SWEEP_SHADER
+	mat.set_shader_parameter("color", color)
+	mat.set_shader_parameter("reverse", 1.0 if sign < 0.0 else 0.0)
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(mi)
+	var flat := Vector3(forward.x, 0.0, forward.z).normalized()
+	mi.global_transform = Transform3D(Basis.looking_at(flat, Vector3.UP), origin + Vector3.UP * height)
+	var tween := mi.create_tween()
+	tween.tween_method(func(v: float) -> void: mat.set_shader_parameter("sweep", v), 0.0, 1.0, duration) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_method(func(v: float) -> void: mat.set_shader_parameter("alpha", v), 1.0, 0.0, duration * 1.2)
+	tween.tween_callback(mi.queue_free)
+	return mi

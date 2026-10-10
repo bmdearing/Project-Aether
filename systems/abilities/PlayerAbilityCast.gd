@@ -483,22 +483,23 @@ func _reap(ability: Ability, damage_multiplier: float, apply_composure: bool, di
 		_hit_enemy(ability, enemy, mult, apply_composure, Callable())
 		if harvest:
 			_player.health.heal(_player.health.max_health * REAP_HARVEST_LIFE)
-	_reap_arc(origin, forward, radius, half)
+	_reap_arc(origin, forward, radius, half, direction_sign)
 	if ability.has_twist("second_swing") and direction_sign > 0.0:
 		get_tree().create_timer(REAP_SECOND_SWING_DELAY, false).timeout.connect(func():
 			if is_instance_valid(_player):
 				_reap(ability, damage_multiplier * REAP_SECOND_SWING_DAMAGE, apply_composure, -1.0))
 
-## The scythe's sweep: a pale cone that fades out.
-func _reap_arc(origin: Vector3, forward: Vector3, radius: float, half: float) -> void:
-	var arc := StancePreview.new()
-	_player.get_tree().current_scene.add_child(arc)
-	arc.draw({"cone": [origin, forward, radius, half]})
-	var mat := arc.material_override as StandardMaterial3D
-	mat.albedo_color = REAP_COLOR
-	var fade := arc.create_tween()
-	fade.tween_property(mat, "albedo_color:a", 0.0, 0.3)
-	fade.tween_callback(arc.queue_free)
+## The scythe's sweep: a spectral blade racing across the arc, souls of
+## light shed from its edge.
+func _reap_arc(origin: Vector3, forward: Vector3, radius: float, half: float, direction_sign: float) -> void:
+	var scene := _player.get_tree().current_scene
+	var tint := Color(REAP_COLOR.r, REAP_COLOR.g, REAP_COLOR.b)
+	SpellFx.sweep(scene, origin, forward, radius, half, tint, 0.25, direction_sign, 1.2)
+	SpellFx.light_pop(scene, origin + forward * radius * 0.6 + Vector3.UP, tint, 2.0, radius * 1.2, 0.3)
+	var wisps := SpellFx.burst(scene, origin + forward * radius * 0.7 + Vector3.UP * 0.9, tint, 18, Vector2(0.5, 1.5), 0.7, Vector2(0.06, 0.14), 120.0, 1.5)
+	wisps.emission_shape = CPUParticles3D.EMISSION_SHAPE_BOX
+	wisps.emission_box_extents = Vector3(radius * 0.5, 0.3, radius * 0.3)
+	wisps.look_at(wisps.global_position + forward, Vector3.UP)
 
 ## Wraith: spends all Ward on the summon (more damage per Ward stack). A
 ## new cast replaces the last one's wraiths.
@@ -882,8 +883,9 @@ func _line_blocked(from: Vector3, to: Vector3) -> bool:
 	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
 	return not hit.is_empty() and hit["collider"] is StaticBody3D
 
-## Ice shards circling the player at waist height while Frost Armor holds -
-## they pass through the bottom of the first-person view.
+## Ice crystals circling the player low, around the hips, while Frost Armor
+## holds - they cross the bottom edge of the first-person view - with frost
+## mist curling round the feet and glints of light.
 func _ensure_frost_armor_fx() -> void:
 	if is_instance_valid(_frost_armor_fx):
 		return
@@ -892,18 +894,45 @@ func _ensure_frost_armor_fx() -> void:
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	mat.albedo_color = Color(0.6, 0.85, 1.0, 0.7)
-	var box := BoxMesh.new()
-	box.size = Vector3(0.05, 0.34, 0.05)
-	box.material = mat
+	mat.albedo_color = Color(0.55, 0.82, 1.0, 0.55)
+	var crystal := PrismMesh.new()
+	crystal.size = Vector3(0.045, 0.18, 0.045)
+	crystal.material = mat
+	var glint := SpellFx.glow_material(Color(0.7, 0.9, 1.0, 0.5), true, BaseMaterial3D.BILLBOARD_ENABLED)
+	glint.vertex_color_use_as_albedo = false
+	var glint_quad := QuadMesh.new()
+	glint_quad.size = Vector2.ONE * 0.12
 	for i in FROST_SHARD_COUNT:
 		var a := TAU * i / FROST_SHARD_COUNT
 		var shard := MeshInstance3D.new()
-		shard.mesh = box
+		shard.mesh = crystal
 		shard.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		shard.position = Vector3(cos(a), 0.85 + 0.2 * sin(a * 2.0), sin(a)) * Vector3(1.05, 1.0, 1.05)
-		shard.rotation = Vector3(0.35, -a, 0.3)
+		shard.position = Vector3(cos(a) * 1.3, 0.35 + 0.1 * sin(a * 2.0), sin(a) * 1.3)
+		shard.rotation = Vector3(0.2, -a, 0.15)
 		root.add_child(shard)
+		var halo := MeshInstance3D.new()
+		halo.mesh = glint_quad
+		halo.material_override = glint
+		halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		shard.add_child(halo)
+	var mist := SpellFx.emitter(root, 24, 1.6)
+	mist.position.y = 0.1
+	mist.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	mist.emission_ring_axis = Vector3.UP
+	mist.emission_ring_radius = 1.4
+	mist.emission_ring_inner_radius = 1.0
+	mist.emission_ring_height = 0.05
+	mist.direction = Vector3.UP
+	mist.spread = 30.0
+	mist.initial_velocity_min = 0.05
+	mist.initial_velocity_max = 0.25
+	mist.tangential_accel_min = 0.3
+	mist.tangential_accel_max = 0.6
+	mist.scale_amount_min = 0.35
+	mist.scale_amount_max = 0.6
+	mist.color_ramp = SpellFx.ramp(Color(0.7, 0.9, 1.0, 0.0), Color(0.7, 0.9, 1.0, 0.08), 0.4)
+	mist.mesh = SpellFx.glow_quad()
+	mist.emitting = true
 	_player.add_child(root)
 	_frost_armor_fx = root
 

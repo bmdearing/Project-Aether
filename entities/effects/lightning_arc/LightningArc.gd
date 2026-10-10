@@ -18,15 +18,17 @@ const FLICKERS := 2
 var _from: Vector3
 var _to: Vector3
 var _half_width: float = HALF_WIDTH
+var _forks: int = FORKS
 
 ## width scales the ribbon (Stormcall's main bolt is thicker).
-static func spawn(parent: Node, from: Vector3, to: Vector3, color: Color, width: float = 1.0, sparks: bool = true) -> LightningArc:
+static func spawn(parent: Node, from: Vector3, to: Vector3, color: Color, width: float = 1.0, sparks: bool = true, forks: int = FORKS) -> LightningArc:
 	var arc := LightningArc.new()
 	parent.add_child(arc)
 	arc.global_position = Vector3.ZERO
 	arc._from = from
 	arc._to = to
 	arc._half_width = HALF_WIDTH * width
+	arc._forks = forks
 	arc._build()
 	arc._style(color)
 	if sparks:
@@ -51,7 +53,7 @@ func _build() -> void:
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var main := _path(_from, _to, JITTER)
 	_ribbon(st, main, _half_width)
-	for i in FORKS:
+	for i in _forks:
 		var start := main[randi_range(1, maxi(main.size() - 2, 1))]
 		var dir := (_to - _from).normalized()
 		var off := Vector3(randf_range(-1, 1), randf_range(-0.6, 0.6), randf_range(-1, 1)).normalized()
