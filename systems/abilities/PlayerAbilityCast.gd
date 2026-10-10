@@ -422,7 +422,7 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 			get_tree().create_timer(delay, false).timeout.connect(func():
 				if is_instance_valid(_player):
 					_damage_area(ability, spot, r * 0.5, damage_multiplier * 0.5, apply_composure, 0.0, Callable())
-					var fx: Node3D = RANGE_EFFECT_SCENE.instantiate()
+					var fx: Node3D = SPECIAL_EFFECT_SCENES["inferno"].instantiate()
 					_player.get_tree().current_scene.add_child(fx)
 					fx.global_position = spot
 					fx.call("play", r * 0.5, Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)))
@@ -705,7 +705,9 @@ func _flash_ring(pos: Vector3, radius: float, ability: Ability, color: Color = C
 	var ring: AbilityRangeEffect = RANGE_EFFECT_SCENE.instantiate()
 	_player.get_tree().current_scene.add_child(ring)
 	ring.global_position = pos + Vector3.UP * 0.05
-	ring.play(radius, color if color.a > 0.0 else Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE))
+	var tint: Color = color if color.a > 0.0 else Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+	ring.play(radius, tint)
+	SpellCastFx.play(ability.ability_id, _player.get_tree().current_scene, pos, radius, tint)
 
 ## Auto-casts spells designated on Slates with auto_cast_designated_spell
 ## (The Unbound Chorus) whenever they're off cooldown.
@@ -792,6 +794,8 @@ func _play_range_effect(ability: Ability, cast_position: Vector3) -> Node3D:
 		effect.call("play", ability.get_radius(_player.stat_sheet), color, ability, _player.stat_sheet, _player)
 	else:
 		effect.call("play", ability.get_radius(_player.stat_sheet), color)
+		if scene == RANGE_EFFECT_SCENE:
+			SpellCastFx.play(ability.ability_id, _player.get_tree().current_scene, cast_position, ability.get_radius(_player.stat_sheet), color)
 	return effect
 
 func get_move_speed_multiplier() -> float:

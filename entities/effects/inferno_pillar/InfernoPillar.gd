@@ -1,65 +1,95 @@
 extends Node3D
 class_name InfernoPillar
-## Inferno's cast VFX: a column of fire erupts from the ground at the
-## cast point (scales up fast, holds, fades while overshooting slightly
-## taller), plus embers drifting upward. Purely visual, same damage-
-## timing note as CometImpact.
+## Inferno's cast VFX: a column of fire bursts out of the ground at the cast
+## point (spell_flame.gdshader on two tubes: a wide tapering blaze and a hot
+## inner core), roars briefly and gutters out, leaving a scorch with cooling
+## embers. A flash, light and embers sell the eruption; a ring marks the
+## real reach, which is wider than the column. Purely visual, same
+## damage-timing note as CometImpact.
 
-const PILLAR_HEIGHT := 4.5
-const RISE_DURATION := 0.15
-const HOLD_DURATION := 0.35
-const FADE_DURATION := 0.3
-const EMBER_COUNT := 24
-const RING_SCENE := preload("res://entities/effects/ability_range_effect/AbilityRangeEffect.tscn")
+const FLAME_SHADER := preload("res://shaders/spell_flame.gdshader")
+const HEIGHT := 3.0
+const RISE := 0.12
+const HOLD := 0.45
+const FADE := 0.4
+const FIRE := Color(1.0, 0.45, 0.1)
+const EMBER := Color(1.0, 0.6, 0.2)
+const SMOKE := Color(0.08, 0.06, 0.05, 0.55)
 
-@onready var pillar: MeshInstance3D = $Pillar
+func play(radius: float, _color: Color) -> void:
+	var column_r := clampf(radius * 0.3, 0.5, 1.4)
+	var height := HEIGHT * clampf(column_r / 1.2, 0.6, 1.0)
+	var parent := get_parent()
+	var at := global_position
+	SpellFx.shockwave(parent, at, radius, FIRE, 0.4)
+	SpellFx.ground_mark(parent, at, maxf(column_r * 1.9, radius * 0.6), SpellFx.Mark.SCORCH, Color(0.04, 0.03, 0.02, 0.75), Color(1.0, 0.4, 0.08, 1.0), 4.0, 2.0)
+	SpellFx.flash(parent, at + Vector3.UP * 0.6, Color(1.0, 0.6, 0.25, 0.9), column_r * 4.0, 0.3)
+	SpellFx.light_pop(parent, at + Vector3.UP * 1.2, FIRE, 4.0, radius * 1.2, RISE + HOLD + FADE)
+	SpellFx.burst(parent, at + Vector3.UP * 0.3, EMBER, 30, Vector2(3.0, 7.0), 0.7, Vector2(0.05, 0.12), 50.0, -2.0)
 
-func play(radius: float, color: Color) -> void:
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	var fire_color := color
-	fire_color.a = 0.8
-	mat.albedo_color = fire_color
-	pillar.material_override = mat
+	var mats: Array[ShaderMaterial] = []
+	mats.append(_flame(column_r, column_r * 0.85, height, 6.0, 0.9))
+	mats.append(_flame(column_r * 0.5, column_r * 0.35, height * 0.85, 4.0, 0.8))
+	_embers(column_r, height)
+	_smoke(column_r, height)
 
-	var pillar_radius: float = clamp(radius * 0.45, 0.6, 2.4)
-	pillar.scale = Vector3(pillar_radius, 0.01, pillar_radius)
-	# The column is narrower than the area it engulfs - a ring marks the real reach.
-	var ring: AbilityRangeEffect = RING_SCENE.instantiate()
-	add_child(ring)
-	ring.position.y = 0.05
-	ring.play(radius, color.lightened(0.2))
-
-	_spawn_embers(color)
-
+	scale = Vector3(1.0, 0.05, 1.0)
 	var tween := create_tween()
-	tween.tween_property(pillar, "scale:y", PILLAR_HEIGHT, RISE_DURATION) \
-		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	tween.tween_interval(HOLD_DURATION)
-	tween.tween_property(mat, "albedo_color:a", 0.0, FADE_DURATION)
-	tween.parallel().tween_property(pillar, "scale:y", PILLAR_HEIGHT * 1.3, FADE_DURATION)
+	tween.tween_property(self, "scale", Vector3.ONE, RISE).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_interval(HOLD)
+	tween.tween_method(func(b: float) -> void:
+		for m in mats:
+			m.set_shader_parameter("burn", b), 1.0, 0.0, FADE).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN)
+	tween.tween_interval(0.6)
 	tween.tween_callback(queue_free)
 
-func _spawn_embers(color: Color) -> void:
-	var particles := CPUParticles3D.new()
-	particles.one_shot = true
-	particles.amount = EMBER_COUNT
-	particles.lifetime = 0.9
-	particles.explosiveness = 0.4
-	particles.direction = Vector3(0, 1, 0)
-	particles.spread = 20.0
-	particles.gravity = Vector3(0, 1.5, 0)
-	particles.initial_velocity_min = 1.5
-	particles.initial_velocity_max = 3.5
-	particles.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
-	particles.emission_sphere_radius = 0.6
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = color.lightened(0.5)
-	var ember_mesh := BoxMesh.new()
-	ember_mesh.size = Vector3(0.05, 0.05, 0.05)
-	ember_mesh.material = mat
-	particles.mesh = ember_mesh
-	add_child(particles)
-	particles.emitting = true
+func _flame(base_r: float, top_r: float, height: float, tiles: float, intensity: float) -> ShaderMaterial:
+	var mi := MeshInstance3D.new()
+	mi.mesh = SpellFx.tube(base_r, top_r, height, 14, 32, 0.8)
+	var mat := ShaderMaterial.new()
+	mat.shader = FLAME_SHADER
+	mat.set_shader_parameter("tiles", tiles)
+	mat.set_shader_parameter("period", tiles)
+	mat.set_shader_parameter("intensity", intensity)
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mi)
+	return mat
+
+func _embers(column_r: float, height: float) -> void:
+	var p := SpellFx.emitter(self, 40, 1.3)
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	p.emission_sphere_radius = column_r * 0.8
+	p.direction = Vector3.UP
+	p.spread = 25.0
+	p.initial_velocity_min = height * 0.8
+	p.initial_velocity_max = height * 1.5
+	p.damping_min = 1.0
+	p.damping_max = 2.5
+	p.tangential_accel_min = -2.0
+	p.tangential_accel_max = 2.0
+	p.scale_amount_min = 0.04
+	p.scale_amount_max = 0.1
+	p.color_ramp = SpellFx.ramp(Color(EMBER.lightened(0.4), 1.0), Color(EMBER, 1.0), 0.3)
+	p.mesh = SpellFx.glow_quad()
+	p.local_coords = false
+	p.emitting = true
+	get_tree().create_timer(RISE + HOLD, false).timeout.connect(func() -> void: p.emitting = false)
+
+func _smoke(column_r: float, height: float) -> void:
+	var p := SpellFx.emitter(self, 14, 1.6)
+	p.position.y = height * 0.75
+	p.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	p.emission_sphere_radius = column_r * 0.6
+	p.direction = Vector3.UP
+	p.spread = 30.0
+	p.initial_velocity_min = 0.8
+	p.initial_velocity_max = 1.6
+	p.scale_amount_min = column_r * 0.9
+	p.scale_amount_max = column_r * 1.6
+	p.scale_amount_curve = SpellFx.curve(0.5, 1.5)
+	p.color_ramp = SpellFx.ramp(Color(SMOKE, 0.0), SMOKE, 0.3)
+	p.mesh = SpellFx.glow_quad(false)
+	p.local_coords = false
+	p.emitting = true
+	get_tree().create_timer(RISE + HOLD + FADE * 0.5, false).timeout.connect(func() -> void: p.emitting = false)
