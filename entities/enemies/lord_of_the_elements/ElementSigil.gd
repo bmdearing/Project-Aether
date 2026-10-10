@@ -1,14 +1,12 @@
 extends Node3D
 class_name ElementSigil
 ## A sigil one of the Lord of the Elements' orbs burns into the crescent.
-## Standing in it changes the damage you take: hits of any other element are
-## reduced (PROTECTED_MULTIPLIER), hits of its own element are increased
-## (MATCHED_MULTIPLIER). So you want the sigil whose element he isn't using.
-## Player.take_damage() asks every node in the "damage_zone" group.
+## It only matters during Cataclysm: the sigil of the element he will use two
+## casts after it is the one place that survives it
+## (LordOfTheElements._cataclysm()). While Cataclysm charges every sigil
+## pulses, without saying which one is safe - tracking the cycle does.
 
 const RADIUS := 3.0
-const PROTECTED_MULTIPLIER := 0.6
-const MATCHED_MULTIPLIER := 1.25
 const FADE_IN := 0.6
 ## The orb that made it hovers this high over the centre.
 const ORB_HEIGHT := 1.6
@@ -27,7 +25,6 @@ var _age := 0.0
 var _fading := false
 
 func _ready() -> void:
-	add_to_group("damage_zone")
 	add_to_group("element_sigil")
 	var color := _color()
 	_ring_mat = _material(color, 0.9)
@@ -77,19 +74,20 @@ func contains(point: Vector3) -> bool:
 	var offset := point - global_position
 	return Vector2(offset.x, offset.z).length() <= RADIUS and absf(offset.y) < 3.0
 
-## Player.take_damage() hook: a hit of damage_type taken by player.
-func damage_multiplier_for(player: Node3D, damage_type: int) -> float:
-	if _fading or _age < FADE_IN or not contains(player.global_position):
-		return 1.0
-	return MATCHED_MULTIPLIER if damage_type == element else PROTECTED_MULTIPLIER
-
-## True while he's using this sigil's element (standing in it is a mistake).
+## True while Cataclysm is charging.
 func is_dangerous() -> bool:
-	return is_instance_valid(lord) and lord.get("current_element") == element
+	return is_instance_valid(lord) and lord.get("cataclysm_pending") == true
+
+## As Cataclysm lands: the safe sigil flashes white, the others flare red.
+var _resolve := 0.0
+var _resolve_safe := false
+
+func resolve_flash(safe: bool) -> void:
+	_resolve = 1.0
+	_resolve_safe = safe
 
 func fade_out() -> void:
 	_fading = true
-	remove_from_group("damage_zone")
 	var tween := create_tween()
 	tween.tween_property(self, "scale", Vector3(0.01, 1, 0.01), 0.5)
 	tween.tween_callback(queue_free)
@@ -103,10 +101,13 @@ func _process(delta: float) -> void:
 	var pulse := 0.5 + 0.5 * sin(_age * (9.0 if danger else 3.0))
 	var color := _color()
 	var tint := color.lerp(Color(1.0, 0.15, 0.1), 0.65) if danger else color
+	_resolve = maxf(_resolve - delta * 1.2, 0.0)
+	if _resolve > 0.0:
+		tint = tint.lerp(Color(1, 1, 1) if _resolve_safe else Color(1.0, 0.1, 0.05), _resolve)
 	var strength := (1.0 if inside else 0.55) * appear
 	_ring_mat.albedo_color = Color(tint, (0.6 + 0.4 * pulse) * strength)
 	_glyph_mat.albedo_color = Color(tint, (0.3 + 0.3 * pulse) * strength)
-	_column_mat.albedo_color = Color(color, (0.1 + 0.05 * pulse) * appear if inside and not danger else 0.0)
+	_column_mat.albedo_color = Color(tint, (0.1 + 0.05 * pulse) * appear if inside or _resolve > 0.0 else 0.0)
 	_light.light_color = tint
 	_light.light_energy = (1.6 if inside else 0.8) * appear
 	_glyph.rotation.y += delta * (0.6 if danger else 0.25)

@@ -220,6 +220,25 @@ func _tick_hazards(delta: float) -> void:
 			_hazards.erase(h)
 			hazard_ended.emit(h["ability"], h["center"], h["ability"].radius)
 
+## Ends every hazard pool overlapping the circle whose ability passes
+## `filter`; returns each as {"center", "radius"} (the Lord's cold putting
+## out his fire pools).
+func extinguish_hazards(center: Vector3, radius: float, filter: Callable) -> Array[Dictionary]:
+	var out: Array[Dictionary] = []
+	for h in _hazards.duplicate():
+		var a: BossAbility = h["ability"]
+		if _flat_distance(h["center"], center) > a.radius + radius or not filter.call(a):
+			continue
+		if is_instance_valid(h["node"]):
+			h["node"].queue_free()
+		_hazards.erase(h)
+		out.append({"center": h["center"], "radius": a.radius})
+		hazard_ended.emit(a, h["center"], a.radius)
+	return out
+
+func hazard_count() -> int:
+	return _hazards.size()
+
 func _clear_hazards() -> void:
 	for h in _hazards:
 		if is_instance_valid(h["node"]):

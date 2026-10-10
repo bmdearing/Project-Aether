@@ -405,6 +405,11 @@ func sigil_spots(count: int) -> Array[Vector3]:
 			chosen.append(c)
 	return chosen
 
+## Where the Lord of the Elements comes down in phase 3: the crescent's
+## middle, straight out from his bay.
+func lord_landing_spot() -> Vector3:
+	return to_global(band_midpoint(0.0) + Vector3(0, 0.05, 0))
+
 ## The middle of the crescent's band along the direction `angle` from -Z.
 static func band_midpoint(angle: float) -> Vector3:
 	var dir := Vector3(sin(angle), 0.0, -cos(angle))

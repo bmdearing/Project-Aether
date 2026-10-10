@@ -1,0 +1,9 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="PackedScene" path="res://entities/enemies/base/Enemy.tscn" id="1"]
+[ext_resource type="Script" path="res://entities/enemies/lord_of_the_elements/ElementOrb.gd" id="2"]
+[ext_resource type="Resource" path="res://data/enemies/definitions/element_orb.tres" id="3"]
+
+[node name="ElementOrb" instance=ExtResource("1")]
+script = ExtResource("2")
+definition = ExtResource("3")

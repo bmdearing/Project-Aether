@@ -332,27 +332,110 @@ func _test_lord_sigils() -> void:
 	_check(floor_ok, "every sigil sits on the crescent")
 	_check(lord.get_cast_origin().distance_to(lord.global_position) > 1.0, "spells leave from the active orb")
 	var player := get_tree().get_first_node_in_group("player") as Player
-	var sigil: ElementSigil = sigils.filter(func(s): return s.element == Constants.DamageType.FIRE)[0]
 	player.set_physics_process(false)
-	player.global_position = sigil.global_position + Vector3(0, 0.1, 0)
-	lord.current_element = Constants.DamageType.COLD
-	_check(is_equal_approx(sigil.damage_multiplier_for(player, Constants.DamageType.COLD), ElementSigil.PROTECTED_MULTIPLIER), "a sigil of another element protects you")
-	_check(is_equal_approx(sigil.damage_multiplier_for(player, Constants.DamageType.FIRE), ElementSigil.MATCHED_MULTIPLIER), "its own element hurts more")
-	lord.current_element = Constants.DamageType.FIRE
-	_check(sigil.is_dangerous(), "a sigil warns while he uses its element")
+	var brain := lord.boss_brain
+	brain.set_physics_process(false)  # every cast below is driven by hand
+	# The cycle and the orb you can hurt.
+	lord._set_element(Constants.DamageType.FIRE)
+	_check(lord.element_after(1) == Constants.DamageType.COLD and lord.element_after(2) == Constants.DamageType.LIGHTNING, "the cycle runs Fire, Cold, Lightning")
+	var fire_orb: ElementOrb = lord._orbs[Constants.DamageType.FIRE]["body"]
+	var cold_orb: ElementOrb = lord._orbs[Constants.DamageType.COLD]["body"]
+	_check(fire_orb != null and cold_orb != null, "every orb has a body to hit")
+	_check(fire_orb.is_exposed() and not cold_orb.is_exposed(), "only the active element's orb is exposed")
+	_check(not cold_orb.take_damage(1.0e6, Constants.DamageType.KINETIC), "a hidden orb ignores hits")
+	var lord_life := lord.health.current_health
+	fire_orb.take_damage(fire_orb.integrity_max + 1.0, Constants.DamageType.KINETIC)
+	_check(lord.is_overloaded(Constants.DamageType.FIRE), "enough damage overloads the orb")
+	_check(lord.status_effects.has_effect("stun"), "the backlash stuns him")
+	_check(is_equal_approx(lord.health.current_health, lord_life), "hitting the orb doesn't hurt his Life")
+	_check(lord.current_element != Constants.DamageType.FIRE and lord.element_after(1) != Constants.DamageType.FIRE and lord.element_after(2) != Constants.DamageType.FIRE, "Fire drops out of the cycle")
+	var second: ElementOrb = lord._orbs[lord.current_element]["body"]
+	second.take_damage(second.integrity_max + 1.0, Constants.DamageType.KINETIC)
+	_check(lord._enabled_elements().size() == 1 and not lord.is_orb_exposed(lord.current_element), "the last element left can't be overloaded")
+	lord._overloaded_until.clear()
+	lord.status_effects.clear_all_effects()
+	# Reactions between his own spells.
+	var reactions: ElementReactions = lord.reactions
+	_check(reactions != null, "he has a reaction tracker")
+	var burst := brain.find("elemental_burst")
+	var spot: Vector3 = sigils[0].global_position
+	var pool := brain.find("conflagration")
+	brain._hazards.append({"node": BossTelegraph.circle(arena, spot, pool.radius, 0.01, Color.RED), "center": spot, "ability": pool, "left": 6.0, "tick": 1.0})
+	lord._strike_elements[spot] = Constants.DamageType.COLD
+	brain.ground_struck.emit(burst, spot, burst.radius)
+	_check(brain.hazard_count() == 0 and reactions.steam.size() == 1, "cold on a fire pool puts it out as steam")
+	_check(reactions.frost.size() == 1, "cold leaves chilled ground")
+	player.global_position = spot
+	_check(lord.player_hidden() and not lord.can_use_ability(burst), "he can't aim at you inside the steam")
+	_check(lord.can_use_ability(brain.find("cataclysm")), "Cataclysm still comes")
+	player.global_position = spot + Vector3(30, 0, 0)
+	# Lightning on chilled ground near him chains into him.
+	var near_lord: Vector3 = lord.global_position + (arena.to_global(PinnacleArena.band_midpoint(0.0)) - lord.global_position).normalized() * 4.0
+	near_lord.y = spot.y
+	lord._strike_elements[near_lord] = Constants.DamageType.COLD
+	brain.ground_struck.emit(burst, near_lord, burst.radius)
+	var before: float = lord.health.current_health + lord._ward_current
+	lord._strike_elements[near_lord] = Constants.DamageType.LIGHTNING
+	brain.ground_struck.emit(burst, near_lord, burst.radius)
+	_check(lord.health.current_health + lord._ward_current < before, "lightning running along chilled ground by him hurts him (%.0f)" % (before - lord.health.current_health - lord._ward_current))
+	var frost_before := reactions.frost.size()
+	lord.status_effects.clear_all_effects()
+	before = lord.health.current_health + lord._ward_current
+	lord._strike_elements[near_lord] = Constants.DamageType.FIRE
+	brain.ground_struck.emit(burst, near_lord, burst.radius)
+	_check(reactions.frost.size() < frost_before and lord.health.current_health + lord._ward_current < before, "fire shatters chilled ground and the shards hit him")
+	lord.status_effects.clear_all_effects()
+	# Cataclysm: only the sigil two casts ahead shelters you.
+	var cataclysm := brain.find("cataclysm")
+	cataclysm.telegraph = 0.3
+	lord._set_element(Constants.DamageType.LIGHTNING)  # Cataclysm itself will be Fire, so Lightning is safe
+	var safe_sigil: ElementSigil = sigils.filter(func(s): return s.element == Constants.DamageType.LIGHTNING)[0]
+	var wrong_sigil: ElementSigil = sigils.filter(func(s): return s.element == Constants.DamageType.COLD)[0]
 	player.health.current_health = player.health.max_health
 	player.ward.current_ward = 0.0
-	var outside := player.global_position + Vector3(0, 0, 30)
-	var hit := func(pos: Vector3) -> float:
-		player.global_position = pos
-		player.health.current_health = player.health.max_health
-		player._take_damage_single(0.0, Constants.DamageType.COLD)
-		var before := player.health.current_health
-		player.take_damage(50.0, Constants.DamageType.COLD, null, Player.HitKind.DOT)
-		return before - player.health.current_health
-	var unprotected: float = hit.call(outside)
-	var protected: float = hit.call(sigil.global_position + Vector3(0, 0.1, 0))
-	_check(protected < unprotected * 0.8, "standing in the sigil really takes less (%.1f vs %.1f)" % [protected, unprotected])
+	player.global_position = safe_sigil.global_position + Vector3(0, 0.1, 0)
+	await lord._cataclysm(cataclysm)
+	_check(lord.cataclysm_safe == Constants.DamageType.LIGHTNING, "the safe sigil is the element two casts after Cataclysm")
+	_check(not lord.last_cataclysm_struck and player.health.current_health == player.health.max_health, "inside the safe sigil Cataclysm does nothing")
+	player.global_position = wrong_sigil.global_position + Vector3(0, 0.1, 0)
+	player.parry_handler.is_invulnerable = true  # it's lethal: a death screen would pause the test
+	player.parry_handler._invuln_timer = 5.0
+	lord._set_element(Constants.DamageType.LIGHTNING)
+	await lord._cataclysm(cataclysm)
+	_check(lord.last_cataclysm_struck, "any other sigil doesn't save you")
+	player.parry_handler.is_invulnerable = false
+	player.health.current_health = player.health.max_health
+	# Phase 3: he comes down and fights up close.
+	brain.phase = 3
+	await lord._descend()
+	_check(lord.descended and not lord.immovable, "in phase 3 he lands on the crescent and walks")
+	_check(lord.global_position.distance_to(arena.lord_landing_spot()) < 0.5, "he lands at the crescent's middle")
+	_check(not lord.can_use_ability(burst) and not lord.is_orb_exposed(lord.current_element), "down here no ranged spells, and the orbs are fused")
+	lord._set_element(Constants.DamageType.LIGHTNING)
+	_check(lord.can_use_ability(brain.find("fire_combo")) and not lord.can_use_ability(brain.find("cold_strike")), "the combo follows the cycle")
+	player.global_position = lord.global_position + Vector3(0, 0, 0) + (player.global_position - lord.global_position).normalized() * 3.0
+	player.global_position.y = lord.global_position.y + 0.1
+	var cold := brain.find("cold_strike")
+	cold.telegraph = 0.2
+	player.health.current_health = player.health.max_health
+	await lord.cast_custom(cold)
+	_check(player.health.current_health < player.health.max_health and player.status_effects.has_effect("freeze"), "an unparried Cold Strike freezes you")
+	player.status_effects.clear_all_effects()
+	lord.composure.end_broken_state()
+	lord.stance.reset()
+	var stance_before: float = lord.stance.current_stance
+	player.parry_handler.start_parry_window()
+	player.parry_handler.parry_window_seconds = 5.0
+	player.parry_handler.start_parry_window()
+	player.health.current_health = player.health.max_health
+	await lord.cast_custom(cold)
+	_check(player.health.current_health == player.health.max_health and lord.stance.current_stance < stance_before, "a parried blow does nothing to you and costs him Composure")
+	player.parry_handler.parry_window_seconds = 0.25
+	var feint := brain.find("lightning_feint")
+	player.health.current_health = player.health.max_health
+	player.parry_handler.start_parry_window()  # an early parry, timed to the feint
+	await lord.cast_custom(feint)
+	_check(player.health.current_health < player.health.max_health, "parrying the feint too early lets the late strike land")
 	var old := sigils.duplicate()
 	lord.boss_brain.phase_changed.emit(2)
 	await _seconds(LordOfTheElements.ORB_FLIGHT + 1.0)

@@ -1,0 +1,29 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyDefinition.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Elemental Orb"
+faction = "refined_aetherial"
+lore_description = "One of the Lord's captured planets, burning with a single element."
+mob_level = 10
+archetype_category = "light"
+base_health = 100.0
+base_damage = 0.0
+damage_type = 3
+move_speed = 0.0
+chase_range = 0.0
+stop_distance = 0.0
+is_ranged = false
+attack_range = 0.0
+attack_cooldown = 2.0
+xp_reward = 0.0
+gold_reward_min = 0
+gold_reward_max = 0
+pack_size_min = 1
+pack_size_max = 1
+weight_normal = 0
+weight_elite = 0
+weight_champion = 0
+weight_ascendant = 0
