@@ -52,6 +52,29 @@ enum CastType { INSTANT, CAST_TIME, CHANNELED }
 ## Limit-tagged spells: how many can be active at once, before bonuses.
 @export var base_limit: int = 0
 
+## Skill web points spent (SkillWeb): node id -> points. Lives on the shared
+## .tres like level; GameState.skill_webs persists it.
+var web_points: Dictionary = {}
+
+## Sum of an effect's per-point value over every allocated web node.
+func web_value(effect: StringName) -> float:
+	if web_points.is_empty():
+		return 0.0
+	var total := 0.0
+	for node: SkillWeb.WebNode in SkillWeb.nodes_for(self):
+		if node.effect == effect and web_points.has(node.id):
+			total += node.per_point * int(web_points[node.id])
+	return total
+
+## A behaviour-changing web node (twist) has a point in it.
+func has_twist(node_id: String) -> bool:
+	return int(web_points.get(node_id, 0)) > 0
+
+## Cast time after the web's Swiftness (cast speed) and gear.
+func get_cast_time(stat_sheet: StatSheet = null) -> float:
+	var t := base_cast_time / (1.0 + web_value(SkillWeb.COOLDOWN) / 100.0)
+	return stat_sheet.get_effective_cast_time(t) if stat_sheet else t
+
 const TAG_AREA := &"area"
 const TAG_PROJECTILE := &"projectile"
 const TAG_DURATION := &"duration"
@@ -97,7 +120,7 @@ func get_levels_over_cap(stat_sheet: StatSheet) -> int:
 	return maxi(get_effective_level(stat_sheet) - MAX_LEVEL, 0)
 
 func get_status_chance(effect_id: String) -> float:
-	return 1.0 if guaranteed_statuses.has(effect_id) else status_chance
+	return 1.0 if guaranteed_statuses.has(effect_id) else status_chance + web_value(SkillWeb.STATUS_CHANCE) / 100.0
 
 ## Rolls this spell's statuses, then the caster's gear-only ailment chances.
 func apply_statuses(enemy: Enemy, source: Node, hit_damage: float) -> void:
@@ -127,7 +150,7 @@ func get_base_damage_range(stat_sheet: StatSheet = null) -> Vector2:
 	return Vector2(base_damage_min, base_damage_max) * growth
 
 func get_effective_cooldown(stat_sheet: StatSheet = null) -> float:
-	var reduction := get_levels_over_cap(stat_sheet) * OVERCAP_COOLDOWN_REDUCTION
+	var reduction := get_levels_over_cap(stat_sheet) * OVERCAP_COOLDOWN_REDUCTION + web_value(SkillWeb.COOLDOWN) / 100.0
 	if stat_sheet:
 		reduction += stat_sheet.get_misc_bonus("cooldown_recovery_rate") / 100.0
 	return cooldown_seconds / (1.0 + maxf(reduction, 0.0))
@@ -142,12 +165,12 @@ func get_final_cooldown(action_speed_multiplier: float, stat_sheet: StatSheet = 
 
 func get_mana_cost(stat_sheet: StatSheet = null) -> float:
 	var reduction := stat_sheet.get_misc_bonus("mana_cost_reduction") / 100.0 if stat_sheet else 0.0
-	return resource_cost * (1.0 - clampf(reduction, -1.0, 0.75))  # negative = costs more (Crown of the Ninth Bell)
+	return resource_cost * (1.0 - clampf(reduction, -1.0, 0.75)) * (1.0 - clampf(web_value(SkillWeb.MANA_COST) / 100.0, 0.0, 0.6))  # negative = costs more (Crown of the Ninth Bell)
 
 func get_radius(stat_sheet: StatSheet = null) -> float:
 	if not has_tag(TAG_AREA):
 		return radius
-	var bonus := get_levels_over_cap(stat_sheet) * OVERCAP_AREA
+	var bonus := get_levels_over_cap(stat_sheet) * OVERCAP_AREA + web_value(SkillWeb.AREA) / 100.0
 	if stat_sheet:
 		bonus += stat_sheet.get_misc_bonus("increased_aoe_radius") / 100.0
 	return radius * (1.0 + bonus)
@@ -155,7 +178,7 @@ func get_radius(stat_sheet: StatSheet = null) -> float:
 func get_duration_multiplier(stat_sheet: StatSheet = null) -> float:
 	if not has_tag(TAG_DURATION):
 		return 1.0
-	var bonus := get_levels_over_cap(stat_sheet) * OVERCAP_DURATION
+	var bonus := get_levels_over_cap(stat_sheet) * OVERCAP_DURATION + web_value(SkillWeb.DURATION) / 100.0
 	if stat_sheet:
 		bonus += stat_sheet.get_misc_bonus("skill_effect_duration") / 100.0
 	return 1.0 + bonus
@@ -163,13 +186,13 @@ func get_duration_multiplier(stat_sheet: StatSheet = null) -> float:
 func get_projectile_speed_multiplier(stat_sheet: StatSheet = null) -> float:
 	if not has_tag(TAG_PROJECTILE):
 		return 1.0
-	var bonus := get_levels_over_cap(stat_sheet) * OVERCAP_PROJECTILE_SPEED
+	var bonus := get_levels_over_cap(stat_sheet) * OVERCAP_PROJECTILE_SPEED + web_value(SkillWeb.PROJECTILE_SPEED) / 100.0
 	if stat_sheet:
 		bonus += (stat_sheet.get_misc_bonus("projectile_speed") - stat_sheet.get_misc_bonus("reduced_projectile_speed")) / 100.0
 	return maxf(1.0 + bonus, 0.2)
 
 func get_limit(stat_sheet: StatSheet = null) -> int:
-	return base_limit + get_levels_over_cap(stat_sheet) / OVERCAP_LEVELS_PER_LIMIT
+	return base_limit + get_levels_over_cap(stat_sheet) / OVERCAP_LEVELS_PER_LIMIT + int(web_value(SkillWeb.LIMIT))
 
 func can_upgrade() -> bool:
 	return level < MAX_LEVEL
@@ -197,15 +220,26 @@ func _increased_percents(stat_sheet: StatSheet) -> Array[float]:
 	return increased
 
 func _base_hit(base_damage: float, stat_sheet: StatSheet) -> Dictionary:
-	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more, stat_sheet.unique_damage_multiplier(damage_type)]
+	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more, stat_sheet.unique_damage_multiplier(damage_type), 1.0 + web_value(SkillWeb.MORE_DAMAGE) / 100.0, web_twist_more()]
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
 		base_damage, 1.0, 0.0, scaling_grade, 0.5, _increased_percents(stat_sheet), more, damage_type
 	)
 	return {
 		"base_damage": result.final_damage,
-		"crit_chance": DamageCalculator.get_crit_chance(base_crit_chance, stat_sheet.finesse_crit_bonus),
+		"crit_chance": DamageCalculator.get_crit_chance(base_crit_chance + web_value(SkillWeb.CRIT) / 100.0, stat_sheet.finesse_crit_bonus),
 		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus()),
 	}
+
+## "More" damage from twists that trade something for damage.
+func web_twist_more() -> float:
+	var more := 1.0
+	if has_twist("heavy_mass"):
+		more *= 1.6
+	if has_twist("overcharge"):
+		more *= 1.3
+	if has_twist("blue_flame"):
+		more *= 1.4
+	return more
 
 ## Expected value (range midpoint, with crit).
 func predict_damage(stat_sheet: StatSheet) -> float:

@@ -29,6 +29,7 @@ func save_game() -> void:
 		"active_weapon_set": GameState.active_weapon_set,
 		"ability_loadout_paths": GameState.ability_loadout_paths,
 		"ability_levels": GameState.ability_levels,
+		"skill_webs": GameState.skill_webs,
 		"player_level": GameState.player_level,
 		"player_xp": GameState.player_xp,
 		"gold": GameState.gold,
@@ -49,6 +50,23 @@ func save_game() -> void:
 		"pinnacle_clears": GameState.pinnacle_clears,
 	}
 	_write_atomic(JSON.stringify(data))
+
+## Meteor became Comet's Molten Core twist (v4.67): a save that had it gets
+## Comet in its place, at Meteor's level if that was higher.
+func _migrate_meteor() -> void:
+	const METEOR := "res://data/abilities/instances/meteor.tres"
+	const COMET := "res://data/abilities/instances/comet.tres"
+	for i in GameState.ability_loadout_paths.size():
+		if GameState.ability_loadout_paths[i] == METEOR:
+			GameState.ability_loadout_paths[i] = "" if GameState.ability_loadout_paths.has(COMET) else COMET
+	if GameState.owned_ability_ids.has("meteor"):
+		GameState.owned_ability_ids.erase("meteor")
+		if not GameState.owned_ability_ids.has("comet"):
+			GameState.owned_ability_ids.append("comet")
+	if GameState.ability_levels.has("meteor"):
+		GameState.ability_levels["comet"] = maxi(int(GameState.ability_levels.get("comet", 1)), int(GameState.ability_levels["meteor"]))
+		GameState.ability_levels.erase("meteor")
+	GameState.skill_webs.erase("meteor")
 
 ## Writes to a temp file, then swaps it in; the previous save becomes the
 ## backup, so a crash mid-save never leaves only a truncated file.
@@ -130,6 +148,9 @@ func load_game() -> void:
 	GameState.portal_map_state = portal_raw if typeof(portal_raw) == TYPE_DICTIONARY else {}
 	GameState.portals_opened = int(parsed.get("portals_opened", 0))
 	GameState.player_name = str(parsed.get("player_name", ""))
+	var webs: Variant = parsed.get("skill_webs", {})
+	GameState.skill_webs = webs if webs is Dictionary else {}
+	_migrate_meteor()
 	GameState.game_mode = int(parsed.get("game_mode", GameState.GameMode.FRAGMENTED_REALITY)) as GameState.GameMode
 	GameState.deaths = int(parsed.get("deaths", 0))
 	GameState.kills = int(parsed.get("kills", 0))

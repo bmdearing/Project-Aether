@@ -457,7 +457,7 @@ func _resolve_slate_ref(ref) -> Slate:
 	return null
 
 func _apply_saved_ability_levels() -> void:
-	if GameState.ability_levels.is_empty():
+	if GameState.ability_levels.is_empty() and GameState.skill_webs.is_empty():
 		return
 	var dir_path := "res://data/abilities/instances/"
 	var dir := DirAccess.open(dir_path)
@@ -470,6 +470,13 @@ func _apply_saved_ability_levels() -> void:
 			var ability: Ability = load(dir_path + file_name) as Ability
 			if ability and GameState.ability_levels.has(ability.ability_id):
 				ability.level = clampi(int(GameState.ability_levels[ability.ability_id]), 1, Ability.MAX_LEVEL)
+			if ability and GameState.skill_webs.has(ability.ability_id):
+				var saved: Dictionary = GameState.skill_webs[ability.ability_id]
+				ability.web_points = {}
+				for node_id in saved:
+					if SkillWeb.find(ability, str(node_id)):
+						ability.web_points[str(node_id)] = int(saved[node_id])
+				SkillWeb.trim_to_available(ability)
 		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 

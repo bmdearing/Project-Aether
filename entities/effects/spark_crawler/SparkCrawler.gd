@@ -25,6 +25,7 @@ var source: Node
 var damage_multiplier: float = 1.0
 var straight: bool = false
 var speed: float = MOVE_SPEED
+var lifetime: float = LIFETIME
 var range_m: float = 0.0
 var hit_key: StringName = &"spark"
 var hit_interval: float = HIT_INTERVAL
@@ -37,7 +38,7 @@ var _wander_target: Vector3 = Vector3.FORWARD
 
 func _ready() -> void:
 	if not straight:
-		get_tree().create_timer(LIFETIME).timeout.connect(queue_free)
+		get_tree().create_timer(lifetime).timeout.connect(queue_free)
 	if mesh and ability:
 		var mat := StandardMaterial3D.new()
 		mat.albedo_color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)

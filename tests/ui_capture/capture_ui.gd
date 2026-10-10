@@ -64,7 +64,11 @@ func _run() -> void:
 			var spells := _screen("abilities_screen") as AbilitiesScreen
 			spells.open()
 			await get_tree().process_frame
-			spells._open_web(spells._owned_abilities[0])
+			# A part-built web: Comet at level 12 with Molten Core taken.
+			var comet := load("res://data/abilities/instances/comet.tres") as Ability
+			comet.level = 12
+			comet.web_points = {"potency": 3, "efficiency": 2, "reach": 2, "molten_core": 1, "reach_2": 1, "precision": 1}
+			spells._open_web(comet)
 		"compare":
 			_show_compare(player)
 		"craft_preview":
@@ -277,7 +281,7 @@ func _show_icon_sheet() -> void:
 		if path.ends_with(".tres"):
 			contents.append(load("res://data/abilities/instances/" + path))
 	var tome: SkillTome = load("res://data/abilities/skill_tome.gd").new()
-	tome.ability_path = "res://data/abilities/instances/meteor.tres"
+	tome.ability_path = "res://data/abilities/instances/comet.tres"
 	contents.append(tome)
 	for content in contents:
 		var fp := GridInventory.footprint_of(content)

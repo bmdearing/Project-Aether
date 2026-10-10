@@ -36,7 +36,7 @@ func _run() -> void:
 	GameState.game_started = false
 	await _setup()
 	await _test_comet_timing_and_bonus()
-	await _test_meteor_timing()
+	await _test_comet_timing()
 	await _test_wave()
 	await _test_stormcall_forks()
 	await _test_static_chain()
@@ -125,15 +125,15 @@ func _test_comet_timing_and_bonus() -> void:
 	_check(_lost(chilled) > _lost(plain) * 1.8, "comet hits Chilled enemies much harder (%.0f vs %.0f)" % [_lost(chilled), _lost(plain)])
 	_finished += 1
 
-func _test_meteor_timing() -> void:
+func _test_comet_timing() -> void:
 	await _reset_effects()
 	var e := _dummy(Vector3.ZERO)
 	await _frames(2)
-	_cast._cast(_ability("meteor"), Vector3.ZERO)
+	_cast._cast(_ability("comet"), Vector3.ZERO)
 	await _frames(1)
-	_check(_lost(e) == 0.0, "meteor deals no damage before it lands")
+	_check(_lost(e) == 0.0, "comet deals no damage before it lands")
 	await _wait(0.6)
-	_check(_lost(e) > 0.0, "meteor damages on impact")
+	_check(_lost(e) > 0.0, "comet damages on impact")
 	_finished += 1
 
 func _test_wave() -> void:

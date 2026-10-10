@@ -19,7 +19,6 @@ const FLAME_WALL_RETICLE_HEIGHT := 0.05  # flat ground-plan slab, not the real w
 ## reuses Comet's impact scene.
 const SPECIAL_EFFECT_SCENES := {
 	"comet": preload("res://entities/effects/comet_impact/CometImpact.tscn"),
-	"meteor": preload("res://entities/effects/comet_impact/CometImpact.tscn"),
 	"inferno": preload("res://entities/effects/inferno_pillar/InfernoPillar.tscn"),
 	"stormcall": preload("res://entities/effects/stormcall_bolt/StormcallBolt.tscn"),
 	"black_hole": preload("res://entities/effects/black_hole_field/BlackHoleField.tscn"),
@@ -121,6 +120,11 @@ func _physics_process(delta: float) -> void:
 	_booming_blade_cd = maxf(0.0, _booming_blade_cd - delta)
 	if _frost_armor_remaining > 0.0:
 		_frost_armor_remaining = max(0.0, _frost_armor_remaining - delta)
+		# Web: Shatter - the armour bursts around you as it ends.
+		if _frost_armor_remaining == 0.0 and _frost_armor_ability and _frost_armor_ability.has_twist("frost_shatter"):
+			var r := _frost_armor_ability.get_radius(_player.stat_sheet) * FROST_SHATTER_AREA
+			_damage_area(_frost_armor_ability, _player.global_position, r, FROST_SHATTER_DAMAGE, true, WAVE_DURATION, Callable())
+			_flash_ring(_player.global_position, r, _frost_armor_ability)
 	_frost_armor_burst_cd = maxf(0.0, _frost_armor_burst_cd - delta)
 	if is_instance_valid(_frost_armor_fx):
 		if _frost_armor_remaining > 0.0:
@@ -140,7 +144,8 @@ func _physics_process(delta: float) -> void:
 				_flame_jets_drain_timer -= delta
 				if _flame_jets_drain_timer <= 0.0:
 					_flame_jets_drain_timer += CHANNEL_MANA_DRAIN_INTERVAL
-					_player.mana.spend(_flame_jets_ability.get_mana_cost(_player.stat_sheet) * CHANNEL_MANA_DRAIN_PERCENT)
+					var drain := 2.0 if _flame_jets_ability.has_twist("blue_flame") else 1.0  # Blue Flame burns Mana twice as fast
+					_player.mana.spend(_flame_jets_ability.get_mana_cost(_player.stat_sheet) * CHANNEL_MANA_DRAIN_PERCENT * drain)
 					if _player.mana.current_mana <= 0.0:
 						_flame_jets_remaining = 0.0
 
@@ -252,8 +257,53 @@ func _on_cast_time_completed(ability: Ability, cast_position: Vector3) -> void:
 
 ## damage_multiplier/apply_composure are only non-default for Slate auto-casts.
 func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 1.0, apply_composure: bool = true) -> void:
+	ability = _web_variant(ability)
+	_schedule_echo(ability, cast_position, damage_multiplier, apply_composure)
+	_cast_resolved(ability, cast_position, damage_multiplier, apply_composure)
+
+## Skill web echoes: twists that make a spell go off again, weaker, a moment
+## later: twist -> [ability id, delays, damage share]. Echoes don't echo.
+const ECHOES := {
+	"thunderhead": ["stormcall", [0.5, 1.0], 0.6],
+	"lingering_rot": ["entropic_decay", [1.0], 0.6],
+	"aftershock": ["seismic_cry", [0.8], 0.5],
+	"second_pulse": ["ice_pulse", [0.4], 0.5],
+	"echo_sweep": ["thunder_sweep", [0.6], 0.7],
+	"echoing_shout": ["intimidating_shout", [2.0], 1.0],
+}
+var _echoing := false
+var _sweep_offset := 0.0
+
+func _schedule_echo(ability: Ability, cast_position: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
+	if _echoing:
+		return
+	for twist in ECHOES:
+		var e: Array = ECHOES[twist]
+		if ability.ability_id != e[0] or not ability.has_twist(twist):
+			continue
+		if twist == "second_pulse" and ability.has_twist("shard_volley"):
+			continue
+		for delay in e[1]:
+			get_tree().create_timer(delay, false).timeout.connect(_echo.bind(ability, cast_position, damage_multiplier * float(e[2]), apply_composure))
+
+func _echo(ability: Ability, cast_position: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
+	if not is_instance_valid(_player):
+		return
+	_echoing = true
+	# Self-centred spells go off around you again; targeted ones at the spot.
+	var at := cast_position if ability.is_ground_targeted or ability.ability_id == "stormcall" else _player.global_position
+	if ability.ability_id == "thunder_sweep":
+		_sweep_offset = PI / THUNDER_SWEEP_BOLT_COUNT
+	_cast_resolved(ability, at, damage_multiplier, apply_composure)
+	_sweep_offset = 0.0
+	_echoing = false
+
+func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier: float = 1.0, apply_composure: bool = true) -> void:
 	if ability.ability_id == "blink":
 		_flash_ring(_player.global_position, 1.4, ability)
+		_blink_distance = BLINK_DISTANCE * (LONG_STEP if ability.has_twist("long_step") else 1.0)
+		if ability.has_twist("purging_step"):
+			_player.status_effects.clear_all_effects()
 		_perform_blink()
 		_flash_ring(_player.global_position, 1.4, ability)
 		EventBus.ability_cast.emit(_player, ability)
@@ -264,6 +314,8 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		return
 	if ability.ability_id == "purge":
 		_player.status_effects.clear_all_effects()
+		if ability.has_twist("second_wind"):
+			_player.health.heal(_player.health.max_health * 0.1)
 		_flash_ring(_player.global_position, 3.0, ability, Color(0.85, 0.95, 1.0))
 		EventBus.ability_cast.emit(_player, ability)
 		return
@@ -292,6 +344,14 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 	# Field abilities: all damage comes from the effect scene's own ticks.
 	if ability.ability_id == "black_hole":
 		_play_range_effect(ability, cast_position)
+		# Web: Event Horizon - it collapses at the end in an Entropic blast.
+		if ability.has_twist("event_horizon"):
+			var lasts := BlackHoleField.DURATION * ability.get_duration_multiplier(_player.stat_sheet)
+			get_tree().create_timer(lasts, false).timeout.connect(func():
+				if is_instance_valid(_player):
+					var r := ability.get_radius(_player.stat_sheet)
+					_damage_area(ability, cast_position, r, damage_multiplier * EVENT_HORIZON_DAMAGE, apply_composure, 0.0, Callable())
+					_flash_ring(cast_position, r, ability))
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if PIERCING_BOLT_ABILITY_IDS.has(ability.ability_id):
@@ -316,15 +376,23 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "tornado":
-		_play_range_effect(ability, cast_position)
+		# Web: Twin Funnels - two smaller tornadoes, 60% damage each.
+		if ability.has_twist("twin_funnels"):
+			var weaker := ability.duplicate() as Ability
+			weaker.web_points = ability.web_points
+			weaker.extra_more = ability.extra_more * 0.6
+			var right := _player.camera.global_transform.basis.x
+			right.y = 0.0
+			for s in [-1.0, 1.0]:
+				_play_range_effect(weaker, cast_position + right.normalized() * s * 2.0)
+		else:
+			_play_range_effect(ability, cast_position)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 
-	# Comet/Meteor: damage lands with the falling mass, not on cast.
+	# Comet: damage lands with the falling mass, not on cast.
 	if IMPACT_ABILITY_IDS.has(ability.ability_id):
-		var impact := _play_range_effect(ability, cast_position)
-		var radius := ability.get_radius(_player.stat_sheet)
-		impact.connect("impacted", _damage_area.bind(ability, cast_position, radius, damage_multiplier, apply_composure, 0.0, Callable()))
+		_cast_comet(_web_variant(ability), cast_position, damage_multiplier, apply_composure)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "stormcall":
@@ -336,16 +404,123 @@ func _cast(ability: Ability, cast_position: Vector3, damage_multiplier: float = 
 		EventBus.ability_cast.emit(_player, ability)
 		return
 
+	# Inferno's Firestorm: three smaller columns scattered over the area.
+	if ability.ability_id == "inferno" and ability.has_twist("inferno_firestorm"):
+		var r := ability.get_radius(_player.stat_sheet)
+		for i in 3:
+			var angle := randf() * TAU
+			var spot := cast_position + Vector3(cos(angle), 0, sin(angle)) * randf_range(0.3, 1.0) * r * 0.8
+			var delay := 0.15 * i
+			get_tree().create_timer(delay, false).timeout.connect(func():
+				if is_instance_valid(_player):
+					_damage_area(ability, spot, r * 0.5, damage_multiplier * 0.5, apply_composure, 0.0, Callable())
+					var fx: Node3D = RANGE_EFFECT_SCENE.instantiate()
+					_player.get_tree().current_scene.add_child(fx)
+					fx.global_position = spot
+					fx.call("play", r * 0.5, Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)))
+		EventBus.ability_cast.emit(_player, ability)
+		return
+
+	# Ice Pulse's Shard Volley: icicles instead of the pulse.
+	if ability.ability_id == "ice_pulse" and ability.has_twist("shard_volley"):
+		_fire_shard_volley(ability, damage_multiplier)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+
 	# Ice Pulse / Entropic Decay radiate outward: hits ride the expanding ring.
 	var wave := WAVE_DURATION if WAVE_ABILITY_IDS.has(ability.ability_id) else 0.0
 	_damage_area(ability, cast_position, ability.get_radius(_player.stat_sheet), damage_multiplier, apply_composure, wave, Callable())
 	_play_range_effect(ability, cast_position)
 	EventBus.ability_cast.emit(_player, ability)
 
-const IMPACT_ABILITY_IDS := ["comet", "meteor"]
+const IMPACT_ABILITY_IDS := ["comet"]
 const WAVE_ABILITY_IDS := ["ice_pulse", "static_discharge", "entropic_decay"]
 const WAVE_DURATION := 0.35  # AbilityRangeEffect's ring expands over the same time
 const COMET_CHILLED_BONUS := 2.5  # "massively increased damage against Chilled or Frozen"
+## Skill web: Meteor Shower's three smaller comets, Heavy Mass's slower fall.
+const METEOR_SHOWER_COUNT := 3
+const METEOR_SHOWER_DAMAGE := 0.45
+const METEOR_SHOWER_AREA := 0.6
+const METEOR_SHOWER_SPREAD := 0.9  # of the full radius, from the target
+const HEAVY_MASS_FALL := 1.5
+const EVENT_HORIZON_DAMAGE := 3.0
+const FROST_SHATTER_DAMAGE := 1.5
+const FROST_SHATTER_AREA := 1.6
+const LONG_STEP := 1.6
+const SHARD_VOLLEY_BASE := 5
+const SHARD_VOLLEY_SPREAD_DEG := 9.0
+
+## A cast's copy reshaped by its web: Comet's Molten Core turns it Fire.
+## Conversions: [ability, twist, new damage type or -1, statuses it adds
+## (replacing the spell's own when the type changes), always land].
+const VARIANTS := [
+	["comet", "molten_core", Constants.DamageType.FIRE, ["ignite"], false],
+	["tornado", "firestorm", Constants.DamageType.FIRE, ["ignite"], false],
+	["flame_wall", "frost_wall", Constants.DamageType.COLD, ["chill"], false],
+	["caltrops", "barbed", -1, ["bleed"], false],
+	["inferno", "conflagration", -1, ["ignite"], true],
+	["static_discharge", "grounded", -1, ["shock"], true],
+	["frost_armor", "rime", -1, ["chill"], true],
+]
+
+func _web_variant(ability: Ability) -> Ability:
+	return web_variant(ability)
+
+static func web_variant(ability: Ability) -> Ability:
+	if ability.web_points.is_empty():
+		return ability
+	for v in VARIANTS:
+		if ability.ability_id == v[0] and ability.has_twist(v[1]):
+			var copy := ability.duplicate() as Ability
+			copy.web_points = ability.web_points
+			var statuses: Array[String] = []
+			if int(v[2]) >= 0:
+				copy.damage_type = v[2]
+			else:
+				statuses.assign(copy.applies_status_effects)
+			for s in v[3]:
+				if not statuses.has(s):
+					statuses.append(s)
+			copy.applies_status_effects = statuses
+			if v[4]:
+				copy.guaranteed_statuses = statuses.duplicate()
+			return copy
+	return ability
+
+func _cast_comet(ability: Ability, target: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
+	var radius := ability.get_radius(_player.stat_sheet)
+	var spots: Array[Vector3] = [target]
+	var mult := damage_multiplier
+	if ability.has_twist("meteor_shower"):
+		spots = []
+		var start := randf() * TAU
+		for i in METEOR_SHOWER_COUNT:
+			var angle := start + TAU * i / METEOR_SHOWER_COUNT
+			spots.append(target + Vector3(cos(angle), 0, sin(angle)) * radius * METEOR_SHOWER_SPREAD * 0.6)
+		radius *= METEOR_SHOWER_AREA
+		mult *= METEOR_SHOWER_DAMAGE
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+	for i in spots.size():
+		var impact: CometImpact = SPECIAL_EFFECT_SCENES["comet"].instantiate()
+		if ability.has_twist("heavy_mass"):
+			impact.fall_duration *= HEAVY_MASS_FALL
+		_player.get_tree().current_scene.add_child(impact)
+		impact.global_position = spots[i]
+		impact.impacted.connect(_damage_area.bind(ability, spots[i], radius, mult, apply_composure, 0.0, Callable()))
+		# Staggered a touch so a shower reads as three strikes.
+		get_tree().create_timer(0.12 * i, false).timeout.connect(impact.play.bind(radius, color))
+
+## Shard Volley: icicles fanned ahead, or Frozen Nova's full ring.
+func _fire_shard_volley(ability: Ability, damage_multiplier: float) -> void:
+	var count := SHARD_VOLLEY_BASE + int(ability.web_value(SkillWeb.PROJECTILES)) + _player.stat_sheet.conduit_additional_projectiles
+	var origin := _player.global_position + Vector3(0, 1.0, 0)
+	var forward := -_player.camera.global_transform.basis.z
+	forward.y = 0.0
+	forward = forward.normalized() if forward.length() > 0.01 else -_player.global_transform.basis.z
+	var yaw := atan2(-forward.x, -forward.z) + deg_to_rad(_aim_yaw_offset)
+	for i in count:
+		var angle := yaw + (TAU * i / float(count) if ability.has_twist("frozen_nova") else deg_to_rad(SHARD_VOLLEY_SPREAD_DEG * (i - (count - 1) / 2.0)))
+		_spawn_bolt(ability, damage_multiplier, Transform3D(Basis(Vector3.UP, angle), origin))
 ## Stormcall: full damage in the strike's core, then forks arc out to the
 ## nearest enemies in range - one more fork per enemy caught in the core.
 const STORMCALL_CORE_RADIUS := 2.5
@@ -378,8 +553,14 @@ func _hit_enemy(ability: Ability, enemy: Enemy, damage_multiplier: float, apply_
 		return
 	var hit := ability.roll_damage(_player.stat_sheet)
 	var damage: float = hit["final_damage"] * damage_multiplier
-	if ability.ability_id == "comet" and (enemy.status_effects.has_effect("chill") or enemy.status_effects.has_effect("freeze")):
-		damage *= COMET_CHILLED_BONUS
+	if ability.ability_id == "comet":
+		# Molten Core: the bonus goes to Ignited enemies instead.
+		var primed := enemy.status_effects.has_effect("ignite") if ability.has_twist("molten_core") else (enemy.status_effects.has_effect("chill") or enemy.status_effects.has_effect("freeze"))
+		if primed:
+			damage *= COMET_CHILLED_BONUS
+	# Web: Deep Freeze - Ice Pulse freezes enemies already Chilled.
+	if ability.ability_id == "ice_pulse" and ability.has_twist("deep_freeze") and enemy.status_effects.has_effect("chill"):
+		enemy.status_effects.apply_effect("freeze", _player, damage)
 	enemy.take_damage(damage, ability.damage_type)
 	if apply_composure and enemy.stance:
 		enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
@@ -417,6 +598,11 @@ func _cast_stormcall(ability: Ability, centre: Vector3, damage_multiplier: float
 
 func _cast_static_discharge(ability: Ability, centre: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
 	var radius := ability.get_radius(_player.stat_sheet)
+	# Web: Grounded - half the radius, double the damage.
+	if ability.has_twist("grounded"):
+		radius *= 0.5
+		damage_multiplier *= 2.0
+	var jumps := 3 if ability.has_twist("chain_lightning") else 1
 	var chained := {}
 	for enemy in _enemies_by_distance(centre, radius):
 		chained[enemy.get_instance_id()] = true
@@ -424,13 +610,19 @@ func _cast_static_discharge(ability: Ability, centre: Vector3, damage_multiplier
 	var scene := _player.get_tree().current_scene
 	var arc_on := func(from_enemy: Enemy) -> void:
 		LightningArc.spawn(scene, centre + Vector3.UP * ARC_HEIGHT, from_enemy.global_position + Vector3.UP * ARC_HEIGHT, color)
-		for next in _enemies_by_distance(from_enemy.global_position, STATIC_CHAIN_RANGE):
-			if chained.has(next.get_instance_id()):
-				continue
-			chained[next.get_instance_id()] = true
-			LightningArc.spawn(scene, from_enemy.global_position + Vector3.UP * ARC_HEIGHT, next.global_position + Vector3.UP * ARC_HEIGHT, color)
-			_hit_enemy(ability, next, damage_multiplier * STATIC_CHAIN_DAMAGE, apply_composure, Callable())
-			break
+		var from := from_enemy
+		for jump in jumps:
+			var found: Enemy = null
+			for next in _enemies_by_distance(from.global_position, STATIC_CHAIN_RANGE):
+				if not chained.has(next.get_instance_id()):
+					found = next
+					break
+			if found == null:
+				break
+			chained[found.get_instance_id()] = true
+			LightningArc.spawn(scene, from.global_position + Vector3.UP * ARC_HEIGHT, found.global_position + Vector3.UP * ARC_HEIGHT, color)
+			_hit_enemy(ability, found, damage_multiplier * STATIC_CHAIN_DAMAGE, apply_composure, Callable())
+			from = found
 	_damage_area(ability, centre, radius, damage_multiplier, apply_composure, WAVE_DURATION, arc_on)
 	_play_range_effect(ability, centre)
 
@@ -529,7 +721,9 @@ func _play_range_effect(ability: Ability, cast_position: Vector3) -> Node3D:
 	return effect
 
 func get_move_speed_multiplier() -> float:
-	return FLAME_JETS_MOVE_SPEED_MULTIPLIER if _flame_jets_remaining > 0.0 else 1.0
+	if _flame_jets_remaining <= 0.0 or (_flame_jets_ability and _flame_jets_ability.has_twist("walking_fire")):
+		return 1.0
+	return FLAME_JETS_MOVE_SPEED_MULTIPLIER
 
 ## Cone check against the camera's current forward direction.
 func _tick_flame_jets() -> void:
@@ -654,9 +848,18 @@ func trigger_frost_armor_retaliation(attacker: Enemy) -> void:
 
 func _fire_piercing_bolt(ability: Ability, damage_multiplier: float) -> void:
 	var count := 1 + _player.stat_sheet.conduit_additional_projectiles
+	var spread := EXTRA_BOLT_SPREAD_DEG
+	# Web: Javelin Volley (+2 at 60%) and Twin Lances (+1 at 75%, a wider V).
+	if ability.has_twist("javelin_volley"):
+		count += 2
+		damage_multiplier *= 0.6
+	if ability.has_twist("twin_lances"):
+		count += 1
+		damage_multiplier *= 0.75
+		spread = 10.0
 	for i in count:
 		var xform := _player.camera.global_transform
-		var yaw := _aim_yaw_offset + EXTRA_BOLT_SPREAD_DEG * (i - (count - 1) / 2.0)
+		var yaw := _aim_yaw_offset + spread * (i - (count - 1) / 2.0)
 		xform.basis = Basis(Vector3.UP, deg_to_rad(yaw)) * xform.basis
 		_spawn_bolt(ability, damage_multiplier, xform)
 
@@ -664,8 +867,16 @@ func _fire_piercing_bolt(ability: Ability, damage_multiplier: float) -> void:
 func _fire_radiating_bolts(ability: Ability, damage_multiplier: float) -> void:
 	var origin := _player.global_position + Vector3(0, 0.3, 0)
 	var count := THUNDER_SWEEP_BOLT_COUNT + _player.stat_sheet.conduit_additional_projectiles
+	# Web: Focused Sweep - twice the bolts, all across the front half.
+	var focused := ability.has_twist("focused_sweep")
+	var back := _player.camera.global_transform.basis.z
+	var forward_yaw := atan2(back.x, back.z) + PI
+	if focused:
+		count *= 2
 	for i in range(count):
-		var angle := TAU * i / float(count)
+		var angle := TAU * i / float(count) + _sweep_offset
+		if focused:
+			angle = forward_yaw + PI * (float(i) / maxf(count - 1, 1) - 0.5)
 		var xform := Transform3D(Basis(Vector3.UP, angle), origin)
 		_spawn_bolt(ability, damage_multiplier, xform)
 
@@ -678,11 +889,16 @@ func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
 		forward = -_player.global_transform.basis.z
 	forward = forward.normalized().rotated(Vector3.UP, deg_to_rad(_aim_yaw_offset))
 	var origin := _player.global_position + forward * 0.5
-	var count := SPARK_COUNT + _player.stat_sheet.conduit_additional_projectiles
+	var count := SPARK_COUNT + int(ability.web_value(SkillWeb.PROJECTILES)) + _player.stat_sheet.conduit_additional_projectiles
+	# Web: Overcharge (fast, short-lived) or Stalking Spark (slow, long-lived).
+	var speed_mult := 1.7 if ability.has_twist("overcharge") else (0.6 if ability.has_twist("stalking_spark") else 1.0)
+	var life_mult := 0.5 if ability.has_twist("overcharge") else (2.0 if ability.has_twist("stalking_spark") else 1.0)
 	for i in range(count):
 		var offset_deg := SPARK_SPREAD_DEG * (i - (count - 1) / 2.0)
 		var heading: Vector3 = forward.rotated(Vector3.UP, deg_to_rad(offset_deg))
 		var crawler: SparkCrawler = SPARK_CRAWLER_SCENE.instantiate()
+		crawler.speed = SparkCrawler.MOVE_SPEED * ability.get_projectile_speed_multiplier(_player.stat_sheet) * speed_mult
+		crawler.lifetime = SparkCrawler.LIFETIME * ability.get_duration_multiplier(_player.stat_sheet) * life_mult
 		crawler.heading = heading
 		crawler.ability = ability
 		crawler.stat_sheet = _player.stat_sheet
@@ -692,6 +908,18 @@ func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
 		crawler.global_position = origin
 
 func _fire_winters_eye(ability: Ability, target: Vector3) -> void:
+	# Web: Twin Eyes - two orbs either side of the target, 60% each.
+	if ability.has_twist("twin_eyes"):
+		var weaker := ability.duplicate() as Ability
+		weaker.extra_more = ability.extra_more * 0.6
+		var right := _player.camera.global_transform.basis.x
+		right.y = 0.0
+		for s in [-1.0, 1.0]:
+			_spawn_winters_eye(weaker, target + right.normalized() * s * 3.0)
+		return
+	_spawn_winters_eye(ability, target)
+
+func _spawn_winters_eye(ability: Ability, target: Vector3) -> void:
 	var orb: Node3D = SPECIAL_EFFECT_SCENES["winters_eye"].instantiate()
 	_player.get_tree().current_scene.add_child(orb)
 	orb.global_position = _player.global_position + Vector3(0, 1.0, 0)
@@ -725,7 +953,7 @@ func _perform_blink() -> void:
 	if direction.length() < 0.01:
 		direction = -_player.global_transform.basis.z
 	direction = direction.normalized()
-	var motion := direction * BLINK_DISTANCE
+	var motion := direction * _blink_distance
 	var from := _player.global_transform
 	var hit := _player.move_and_collide(motion, true)
 	var travel := motion if hit == null else hit.get_travel()
@@ -735,6 +963,7 @@ func _perform_blink() -> void:
 	_player.global_position = target.origin
 	_player.velocity.y = maxf(_player.velocity.y, 0.0)
 
+var _blink_distance := BLINK_DISTANCE
 const BLINK_MANTLE_HEIGHT := 3.0
 const BLINK_MANTLE_REACH := 1.2
 
@@ -833,6 +1062,8 @@ func _warcry(ability: Ability, damage_multiplier: float) -> void:
 		"battle_cry":
 			var more := BATTLE_CRY_MORE_DAMAGE + (ability.get_effective_level(_player.stat_sheet) - 1)
 			_player.unique_effects.add_timed_more(&"battle_cry", more, BATTLE_CRY_DURATION * duration_mult)
+			if ability.has_twist("rallying_cry"):
+				_player.health.heal(_player.health.max_health * 0.05)
 		"intimidating_shout":
 			for enemy in _enemies_near(centre, radius):
 				enemy.status_effects.apply_timed_effect("intimidated", INTIMIDATE_DURATION * duration_mult)
@@ -881,11 +1112,16 @@ func on_melee_swing() -> void:
 		return
 	_booming_blade_cd = BOOMING_BLADE_COOLDOWN
 	var count := booming_blade_bolt_count(ability, _player.stat_sheet)
+	var spread := BOOMING_BLADE_SPREAD_DEG
+	# Web: Arc Blade - two more bolts, fanned wide.
+	if ability.has_twist("arc_blade"):
+		count += 2
+		spread = 18.0
 	var forward := -_player.camera.global_transform.basis.z
 	forward.y = 0.0
 	forward = forward.normalized() if forward.length() > 0.01 else -_player.global_transform.basis.z
 	for i in count:
-		var yaw := BOOMING_BLADE_SPREAD_DEG * (i - (count - 1) / 2.0)
+		var yaw := spread * (i - (count - 1) / 2.0)
 		var crawler: SparkCrawler = SPARK_CRAWLER_SCENE.instantiate()
 		crawler.straight = true
 		crawler.heading = forward.rotated(Vector3.UP, deg_to_rad(yaw))

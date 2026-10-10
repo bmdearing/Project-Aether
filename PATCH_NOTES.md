@@ -7,6 +7,37 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.67: Skill webs (user request)
+
+- **Every spell has its own skill web** (`SkillWeb`, the Spells screen's web panel, design in `documents/Skill_Webs_Design.md`).
+  - **Points.** Each spell level above 1 gives a point for that spell only, up to 19 at level 20. Gear's +levels don't add points, so a respec never depends on gear.
+  - **Spending.** Left-click spends a point, right-click takes one back unless an outer node depends on it. Hover a node to see what it does. The inner ring is open; outer nodes need a point in a node they link from. Some twists exclude each other.
+  - **Saving.** Webs are saved per spell (`GameState.skill_webs`). If a spell's level ever drops, its web is trimmed from the outside in.
+- **Building blocks**, picked by the spell's tags, two or three tiers deep:
+  - Potency (more damage), Efficiency and Thrift (less Mana), Swiftness (cooldown recovery and cast speed)
+  - Reach (area), Velocity (projectile speed), Endurance (duration)
+  - Precision (crit), Affliction (ailment chance), Legion (limit)
+  They feed straight into the spell's numbers (`Ability.web_value()`), so cards and casts agree.
+- **Twists** (`Ability.has_twist()`), at least one for every spell:
+  - **Comet:** Molten Core (Fire, Ignites, bonus vs Ignited), Meteor Shower (3 smaller comets), Heavy Mass (+60%, slower fall).
+  - **Spark:** Static Swarm (+1 spark per point); Overcharge (faster, harder, shorter) or Stalking Spark (slower, twice as long).
+  - **Ice Pulse:** Shard Volley (5 icicles), Splinters (+1 each), Frozen Nova (full ring), Second Pulse, Deep Freeze (Freezes Chilled enemies).
+  - **Thunder Javelin:** Javelin Volley. **Cinder Lance:** Twin Lances.
+  - **Inferno:** Firestorm (3 columns), Conflagration (always Ignites). **Flame Wall:** Frost Wall. **Flame Jets:** Walking Fire (no slow), Blue Flame (+40%, double drain).
+  - **Winter's Eye:** Twin Eyes. **Stormcall:** Thunderhead (two more strikes).
+  - **Static Discharge:** Grounded (half area, double damage, Shocks) or Chain Lightning (arcs jump 3 times).
+  - **Thunder Sweep:** Focused Sweep (double bolts, front half), Echo. **Entropic Decay:** Lingering Rot.
+  - **Black Hole:** Event Horizon (collapses in a blast). **Tornado:** Firestorm (Fire, Ignites), Twin Funnels. **Caltrops:** Barbed (Bleed).
+  - **Frost Armor:** Rime (always Chills), Shatter (bursts as it ends). **Booming Blade:** Arc Blade.
+  - **Blink:** Long Step, Purging Step. **Battle Cry:** Rallying Cry. **Intimidating Shout:** Echoing Shout. **Seismic Cry:** Aftershock. **Purge:** Second Wind.
+  - More twists per spell are in the design doc.
+- **Meteor removed:** Comet's Molten Core replaces it. Saves with Meteor get Comet in its slot at Meteor's level if that was higher (`SaveManager._migrate_meteor()`).
+- The spell card on the web page shows the spell as its web makes it (Molten Core's Comet reads Fire and Ignite).
+- Spark's speed and lifetime now follow projectile speed and duration modifiers. Comet's fall time is per cast (`CometImpact.fall_duration`).
+- Tests: `tests/skill_web`, 281 checks: every spell has a web with valid links, points and rules, building blocks change the numbers, Static Swarm, Shard Volley, Molten Core and Meteor Shower behave, every twist casts cleanly, webs save and restore, Meteor saves migrate.
+
+---
+
 ## 2026-10-09 — v4.66: Forest tilesets with rivers and streams, layered ambience, city plan (user requests)
 
 - **Forest family, four styles** (open layouts, `data/tilesets/styles/forest_*.tres`):

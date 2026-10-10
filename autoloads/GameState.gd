@@ -53,6 +53,8 @@ var ability_loadout_paths: Array[String] = DEFAULT_ABILITY_LOADOUT_PATHS.duplica
 
 ## ability_id -> rank, for every ability ever upgraded.
 var ability_levels: Dictionary = {}
+## ability_id -> {web node id: points} (SkillWeb).
+var skill_webs: Dictionary = {}
 
 var player_level: int = 1
 var player_xp: float = 0.0
@@ -113,6 +115,13 @@ func _ready() -> void:
 func _on_figment_completed(figment: FigmentItem) -> void:
 	figment_tree_points += figment.tier if figment else 1
 
+## Records a spell's web after a change, for saving.
+func store_skill_web(ability: Ability) -> void:
+	if ability.web_points.is_empty():
+		skill_webs.erase(ability.ability_id)
+	else:
+		skill_webs[ability.ability_id] = ability.web_points.duplicate()
+
 func sync_equipment(equipment: EquipmentComponent) -> void:
 	equipment_refs = equipment.get_all_equipped_refs()
 
@@ -150,6 +159,7 @@ func reset_to_defaults() -> void:
 	active_weapon_set = 0
 	ability_loadout_paths = DEFAULT_ABILITY_LOADOUT_PATHS.duplicate()
 	ability_levels = {}
+	skill_webs = {}
 	owned_ability_ids = []
 	booming_blade_on = false
 	_reset_all_ability_levels()
@@ -197,6 +207,7 @@ func _reset_all_ability_levels() -> void:
 			var ability: Ability = load(dir_path + file_name) as Ability
 			if ability:
 				ability.level = 1
+				ability.web_points = {}
 		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 

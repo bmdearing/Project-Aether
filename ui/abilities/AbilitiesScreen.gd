@@ -280,7 +280,8 @@ func _build_web_page(root: VBoxContainer) -> void:
 	_web_view = SkillWebView.new()
 	_web_view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_web_view.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_web_view.custom_minimum_size = Vector2(360, 300)
+	_web_view.custom_minimum_size = Vector2(760, 520)
+	_web_view.changed.connect(_refresh_web)
 	body.add_child(_web_view)
 
 func _show_library() -> void:
@@ -299,6 +300,7 @@ func _open_web(ability: Ability) -> void:
 func _refresh_web() -> void:
 	if _web_ability == null:
 		return
+	_web_view.queue_redraw()
 	_web_title.text = _web_ability.display_name
 	_web_level.text = "Level %d/%d" % [_web_ability.level, Ability.MAX_LEVEL]
 	if _web_ability.can_upgrade():
@@ -311,7 +313,8 @@ func _refresh_web() -> void:
 		child.queue_free()
 	var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
 	var player := get_tree().get_first_node_in_group("player") as Player
-	card.display_ability(_web_ability, player.stat_sheet if player else null)
+	# Shown as its web makes it (Molten Core's Comet is Fire).
+	card.display_ability(PlayerAbilityCast.web_variant(_web_ability), player.stat_sheet if player else null)
 	_web_card_holder.add_child(card)
 
 func _can_afford(ability: Ability) -> bool:

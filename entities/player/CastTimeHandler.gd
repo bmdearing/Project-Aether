@@ -61,7 +61,7 @@ func _begin_cast(ability: Ability, cast_position: Vector3) -> void:
 	_casting = true
 	_current_ability = ability
 	_current_cast_position = cast_position
-	var cast_time: float = _player.stat_sheet.get_effective_cast_time(ability.base_cast_time)
+	var cast_time: float = ability.get_cast_time(_player.stat_sheet)
 	_cast_timer = cast_time
 	EventBus.cast_started.emit(ability, cast_time)
 

@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/skill_web/test_skill_web.gd" id="1"]
+
+[node name="TestSkillWeb" type="Node"]
+script = ExtResource("1")

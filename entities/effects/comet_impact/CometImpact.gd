@@ -17,6 +17,8 @@ const SHOCKWAVE_SCENE := preload("res://entities/effects/ability_range_effect/Ab
 
 @onready var ball: MeshInstance3D = $Ball
 
+var fall_duration: float = FALL_DURATION
+
 func play(radius: float, color: Color) -> void:
 	var mat := StandardMaterial3D.new()
 	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
@@ -26,7 +28,7 @@ func play(radius: float, color: Color) -> void:
 	ball.visible = true
 
 	var tween := create_tween()
-	tween.tween_property(ball, "position", Vector3.ZERO, FALL_DURATION) \
+	tween.tween_property(ball, "position", Vector3.ZERO, fall_duration) \
 		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_callback(_on_impact.bind(radius, color))
 
