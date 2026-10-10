@@ -18,7 +18,7 @@ const AMBIENCE_FADE_SEC := 1.5
 var _sfx_pool: Array[AudioStreamPlayer3D] = []
 var _pool_index: int = 0
 var _last_played: Dictionary = {}  # stream instance id -> msec
-var _ambience: AudioStreamPlayer
+var _ambience: Array[AudioStreamPlayer] = []
 var _ambience_id: String = ""
 
 func _ready() -> void:
@@ -28,8 +28,6 @@ func _ready() -> void:
 		player.unit_size = 8.0
 		add_child(player)
 		_sfx_pool.append(player)
-	_ambience = AudioStreamPlayer.new()
-	add_child(_ambience)
 	get_tree().node_added.connect(_on_node_added)
 	EventBus.hit_blocked.connect(func(player: Node): if player is Node3D: play_at(SoundLib.pick_random(SoundLib.library.shield_block), (player as Node3D).global_position, -4.0))
 	EventBus.loot_dropped.connect(func(_item, at: Vector3): play_at(SoundLib.pick_random(SoundLib.library.item_drop), at, -8.0))
@@ -72,23 +70,31 @@ func _on_node_added(node: Node) -> void:
 	if node is BaseButton and not node is ItemSlotButton:
 		(node as BaseButton).pressed.connect(func(): play_2d(SoundLib.library.ui_click, UI_CLICK_DB))
 
-## Crossfades to a looping ambience (Ambience.ID_*); "" fades it out.
-func play_ambience(id: String, volume_db: float = 0.0) -> void:
-	if id == _ambience_id and _ambience.playing:
+## Crossfades to a looping ambience: one Ambience.LOOPS id, or several
+## layered with optional dB offsets ("river:-9,forest"). "" fades it out.
+func play_ambience(spec: String, volume_db: float = 0.0) -> void:
+	if spec == ambience_id():
 		return
-	_ambience_id = id
-	var fade := create_tween()
-	if _ambience.playing:
-		fade.tween_property(_ambience, "volume_db", -60.0, AMBIENCE_FADE_SEC * 0.5)
-	var stream := Ambience.load_loop(id)
-	fade.tween_callback(func():
-		_ambience.stop()
-		_ambience.stream = stream
-		if stream:
-			_ambience.volume_db = -60.0
-			_ambience.play())
-	if stream:
-		fade.tween_property(_ambience, "volume_db", volume_db + Ambience.volume_db(id), AMBIENCE_FADE_SEC)
+	_ambience_id = spec
+	for old in _ambience:
+		var out := create_tween()
+		out.tween_property(old, "volume_db", -60.0, AMBIENCE_FADE_SEC * 0.5)
+		out.tween_callback(old.queue_free)
+	_ambience.clear()
+	for layer in spec.split(",", false):
+		var parts := layer.strip_edges().split(":")
+		var id := parts[0]
+		var stream := Ambience.load_loop(id)
+		if stream == null:
+			continue
+		var offset := float(parts[1]) if parts.size() > 1 else 0.0
+		var player := AudioStreamPlayer.new()
+		add_child(player)
+		player.stream = stream
+		player.volume_db = -60.0
+		player.play()
+		_ambience.append(player)
+		create_tween().tween_property(player, "volume_db", volume_db + Ambience.volume_db(id) + offset, AMBIENCE_FADE_SEC)
 
 func ambience_id() -> String:
-	return _ambience_id if _ambience.playing else ""
+	return _ambience_id if _ambience.any(func(p: AudioStreamPlayer): return is_instance_valid(p) and p.playing) else ""

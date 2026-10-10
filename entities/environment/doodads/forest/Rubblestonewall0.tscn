@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_gf5f1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/wallstone_diffuse.dds" id="2_goge1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/wallstone_normal.dds" id="3_dxkmu"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/wallstone_orm.dds" id="4_15pv3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ls_props_wallstone_diffuse.dds" id="5_decm4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ls_props_wallstone_normal.dds" id="6_2tjel"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ls_props_wallstone_orm.dds" id="7_nfp04"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/rubblestonewall0.glb" id="8_el64d"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0x0h1"]
+albedo_texture = ExtResource("2_goge1")
+orm_texture = ExtResource("4_15pv3")
+normal_enabled = true
+normal_texture = ExtResource("3_dxkmu")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vklkc"]
+albedo_texture = ExtResource("5_decm4")
+orm_texture = ExtResource("7_nfp04")
+normal_enabled = true
+normal_texture = ExtResource("6_2tjel")
+
+[node name="Rubblestonewall0" type="Node3D" unique_id=1566903204]
+script = ExtResource("1_gf5f1")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_0x0h1"),
+1: SubResource("ORMMaterial3D_vklkc")
+}
+hidden_geosets = {
+"Stand 1": PackedInt32Array(1)
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=960109428 instance=ExtResource("8_el64d")]

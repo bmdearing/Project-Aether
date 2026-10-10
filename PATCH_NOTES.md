@@ -7,6 +7,29 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.66: Forest tilesets with rivers and streams, layered ambience, city plan (user requests)
+
+- **Forest family, four styles** (open layouts, `data/tilesets/styles/forest_*.tres`):
+  - **River Valley:** a river and a stream through summer pines and Ashenvale trees. Ambience is a quiet river with birdsong over it.
+  - **Aspen Grove:** dense autumn pines on fallen-leaf ground, with a stream.
+  - **Plains:** open grassland, sparse trees, a stream.
+  - **Hills:** big rolling mounds, rocks, trees, a stream.
+  Forest maps get a tree line just inside the boundary ridges (`TerrainBuilder.build_tree_line()`). Doodads are extracted from the WC3 install: `forest` and `forest_fall` families in `tools/mdx_pipeline/doodads.json`. The extractor now skips models with no geometry instead of stopping.
+- **Rivers and streams** (`WaterBuilder`, `MapTileset.rivers`/`streams`) on open layouts:
+  - Each channel runs edge to edge along a boundary between cells and meanders, so pack spots at cell centres stay dry.
+  - Rivers are wide and deep. Invisible bank walls on collision layer 2 stop characters but not projectiles or sight lines. There's one shallow ford per cell column (left clear of reeds), so every cell stays reachable.
+  - Streams are narrow and shallow. Wading (streams and fords) slows players and enemies to 70%.
+  - Water is a flowing shader ribbon (`shaders/river_water.gdshader`) with reeds, cattails and lilypads on the banks.
+  - Routes are planned before the terrain, so mounds keep out of the water. Enemy spawns are moved out of it, and loose doodads and chests avoid it.
+  - Gameplay rays (sight, aiming, ground probes, pickups) now only hit collision layer 1, so the bank walls never block a shot, a sight line or a floor check.
+- **Lordaeron trees were tiny:** the models sit 2.1 m below their origin and stand 2.8 m tall, so only a 0.6 m tip poked out of the ground. `LordaeronTreeTall*` wrapper scenes (inheriting the generated ones, so rebuilds keep them) scale them 2.5x and lift them onto the ground.
+- **Layered ambience:** a style's `ambience_id` can layer loops with dB offsets, e.g. `river:-9,forest:2`. `AudioManager` fades each layer in and out.
+- **Bow sound:** arrows no longer play the bullet ricochet on walls (v4.65), and the bow's own fire slot stays empty until there's a real bow recording.
+- **Steampunk city plan:** `documents/Steampunk_City_Tileset_Plan.md`, five styles (Trainyard, Park, Residence, Downtown, Harbor), a new `streets` layout, the asset list from the WC3 install, and a build order.
+- Tools: `tests/ui_capture/capture_map` gains `water`, `aerial` and `treetest` views (the top view is beyond doodads' 100 m draw distance). `tests/perf/probe_doodads` counts what a map places.
+
+---
+
 ## 2026-10-09 — v4.65: Enemy pathfinding, animation fixes, new game flow, character sheet, quality fixes (user requests)
 
 - **Enemies path around things.** Each generated map bakes a navigation mesh from its static colliders (floors, walls, terrain, doodad trunks) on a worker thread at load (`GeneratedMap._bake_navigation()`). Enemies follow paths on it (`Enemy._nav_direction()`, repath every ~0.5 s or when the goal moves), fall back to heading straight at you without a mesh or across a gap, and a stuck check (trying to move, hardly moving) repaths and sidesteps. Melee enemies spread around you instead of queuing on one spot; shooters without a clear shot keep closing in around the wall instead of standing at range, and **ranged enemies no longer fire without line of sight** (`Enemy.can_see_player()`). Retreating kiters retreat along the mesh.

@@ -63,6 +63,32 @@ func _run() -> void:
 				if not existing.has(e):
 					e._last_combat_msec = Time.get_ticks_msec() + 100000
 			cam.global_transform = player.camera.global_transform
+		"treetest":
+			var player := get_tree().get_first_node_in_group("player") as Player
+			var fwd := -player.global_transform.basis.z
+			for i in 2:
+				var scene: PackedScene = load(["res://entities/environment/doodads/forest_fall/LordaeronTreeTall0.tscn", "res://entities/environment/doodads/forest/Ashentree0.tscn"][i])
+				var t := scene.instantiate() as Node3D
+				map.add_child(t)
+				t.global_position = player.global_position + fwd * 8.0 + player.global_transform.basis.x * (i * 5.0 - 2.5)
+			cam.global_transform = player.camera.global_transform
+		"aerial":
+			# Angled overview from inside the draw distance (top is out of it).
+			var centre := Vector3((map.graph.grid_size - 1) * map.cell_size / 2.0, 0, (map.graph.grid_size - 1) * map.cell_size / 2.0)
+			cam.position = centre + Vector3(0, 38, map.cell_size * map.graph.grid_size * 0.42)
+			cam.look_at(centre, Vector3.UP)
+		"water":
+			# From the bank, looking at a river's ford (or any channel's middle).
+			if map.water and not map.water.channels.is_empty():
+				var c: Dictionary = map.water.channels[0]
+				var pts: PackedVector3Array = c["points"]
+				var at := pts[pts.size() / 2]
+				for p in pts:
+					if not (c["fords"] as Array).is_empty() and absf((p.x if c["axis"] == "z" else p.z) - float(c["fords"][1 if c["fords"].size() > 1 else 0])) < 3.0:
+						at = p
+				var side := (pts[1] - pts[0]).normalized().cross(Vector3.UP)
+				cam.position = at + side * 9.0 + Vector3(0, 3.0, 0) + (pts[1] - pts[0]).normalized() * 4.0
+				cam.look_at(at, Vector3.UP)
 		"room":
 			for cell in map.graph.rooms:
 				var room: MapGraph.RoomData = map.graph.rooms[cell]

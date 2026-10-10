@@ -1,0 +1,54 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_1c7fq"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/lordaeronfalltree_diffuse.dds" id="2_fqo0k"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/lordaeronfalltree_normal.dds" id="3_ulb13"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/lordaeronsummertree_orm.dds" id="4_gav6y"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest_fall/lordaerontree0.glb" id="5_i24by"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ckexm"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_fqo0k")
+orm_texture = ExtResource("4_gav6y")
+normal_enabled = true
+normal_texture = ExtResource("3_ulb13")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_al88q"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_fqo0k")
+orm_texture = ExtResource("4_gav6y")
+normal_enabled = true
+normal_texture = ExtResource("3_ulb13")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_pjsv4"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_fqo0k")
+orm_texture = ExtResource("4_gav6y")
+normal_enabled = true
+normal_texture = ExtResource("3_ulb13")
+
+[node name="Lordaerontree0" type="Node3D" unique_id=2086388016]
+script = ExtResource("1_1c7fq")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_ckexm"),
+1: SubResource("ORMMaterial3D_al88q"),
+2: SubResource("ORMMaterial3D_pjsv4")
+}
+hidden_geosets = {
+"Birth": PackedInt32Array(1, 2),
+"Spell Eattree 1": PackedInt32Array(0, 1),
+"Stand 1": PackedInt32Array(1, 2),
+"Stand 2": PackedInt32Array(1, 2),
+"Stand 3": PackedInt32Array(1, 2),
+"Stand Hit 1": PackedInt32Array(1, 2)
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=635170801 instance=ExtResource("5_i24by")]

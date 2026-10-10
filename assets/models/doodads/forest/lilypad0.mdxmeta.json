@@ -1,0 +1,130 @@
+{
+  "source": "lilypad0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.3155652122497558,
+      0.6377904052734374,
+      -0.31654618835449216
+    ],
+    "max": [
+      0.3155652122497558,
+      0.654458381652832,
+      0.3112307968139648
+    ],
+    "height": 0.01666797637939453
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 4000,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "AV_water_ashenvaleLilyPad_rig:lp0_main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_water_lilypadsfloating_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/desert/barrenstallgrass_normal.dds",
+        "orm": "res://assets/models/doodads/desert/barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "AV_water_ashenvaleLilyPad_riglp0_main_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_water_lilypadsfloating_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/desert/barrenstallgrass_normal.dds",
+        "orm": "res://assets/models/doodads/desert/barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "AV_water_ashenvaleLilyPad_riglp0_main_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_water_lilypadsfloating_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/desert/barrenstallgrass_normal.dds",
+        "orm": "res://assets/models/doodads/desert/barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "AV_water_ashenvaleLilyPad_riglp0_main_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_water_lilypadsfloating_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/desert/barrenstallgrass_normal.dds",
+        "orm": "res://assets/models/doodads/desert/barrenstallgrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/LilyPad/AV_Water_LilyPadsFloating_V1_V3_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

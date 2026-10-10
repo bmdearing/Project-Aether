@@ -1,0 +1,522 @@
+{
+  "source": "ashentree2.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.8139860076904295,
+      -2.357352081298828,
+      -2.056787979125976
+    ],
+    "max": [
+      1.4673203887939452,
+      5.4809461669921875,
+      1.7814797973632812
+    ],
+    "height": 7.838298248291015
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 4767,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 4800,
+      "end": 5100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 5133,
+      "end": 6633,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 6667,
+      "end": 9667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Eattree 1",
+      "start": 9700,
+      "end": 11700,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "icecrownTree_rig:at2_main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": false,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "icecrownTree_rig:at2_leaves_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "icecrownTree_rig:at2_death_main_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "icecrownTree_rig:at2_death_stump_geo",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "icecrownTree_rigat2_main_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": false,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "icecrownTree_rigat2_main_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": false,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "icecrownTree_rigat2_main_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": false,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "icecrownTree_rigat2_leaves_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 8,
+      "name": "icecrownTree_rigat2_leaves_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 9,
+      "name": "icecrownTree_rigat2_leaves_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 10,
+      "name": "icecrownTree_rigat2_death_main_geo_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 11,
+      "name": "icecrownTree_rigat2_death_main_geo_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 12,
+      "name": "icecrownTree_rigat2_death_main_geo_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": false
+      }
+    },
+    {
+      "index": 13,
+      "name": "icecrownTree_rigat2_death_stump_geo_LOD1",
+      "lod": 1,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "icecrownTree_rigat2_death_stump_geo_LOD2",
+      "lod": 2,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "icecrownTree_rigat2_death_stump_geo_LOD3",
+      "lod": 3,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashentree_diffuse.dds",
+        "normal": "ashentree_normal.dds",
+        "orm": "ashentree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": true
+      }
+    }
+  ]
+}

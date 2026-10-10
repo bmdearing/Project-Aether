@@ -1,0 +1,55 @@
+{
+  "source": "ashenlogangled.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand",
+  "bounds": {
+    "min": [
+      -2.237490005493164,
+      -0.6873011856079101,
+      -2.4396479187011715
+    ],
+    "max": [
+      2.144357940673828,
+      2.0108880615234375,
+      2.6169120483398434
+    ],
+    "height": 2.6981892471313476
+  },
+  "sequences": [
+    {
+      "name": "Stand",
+      "start": 0,
+      "end": 6633,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "AV_Environment_LogAngled_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_logangled_diffuse.dds",
+        "normal": "av_environment_logangled_normal.dds",
+        "orm": "av_environment_logangled_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenLogAngled/AV_Environment_LogAngled_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenLogAngled/AV_Environment_LogAngled_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenLogAngled/AV_Environment_LogAngled_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand": true
+      }
+    }
+  ]
+}

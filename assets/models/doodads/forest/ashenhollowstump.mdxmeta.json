@@ -1,0 +1,1330 @@
+{
+  "source": "ashenhollowstump.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.1495429763793945,
+      -0.11132640266418456,
+      -1.1607173767089842
+    ],
+    "max": [
+      1.2869118347167967,
+      2.5323659362792967,
+      1.1712095947265624
+    ],
+    "height": 2.6436923389434814
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3000,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "polySurface3",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "polySurface3_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "polySurface3_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "polySurface3_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "polySurface3_LOD1_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "polySurface3_LOD2_001",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "polySurface3_LOD3_001",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "polySurface3_LOD1_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "polySurface3_LOD1_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "polySurface3_LOD1_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "polySurface3_LOD2_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "polySurface3_LOD2_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "polySurface3_LOD2_LOD3",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "polySurface3_LOD1_002",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "polySurface3_LOD2_002",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "polySurface3_LOD3_002",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 16,
+      "name": "polySurface3_LOD1_LOD1_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 17,
+      "name": "polySurface3_LOD1_LOD2_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "polySurface3_LOD1_LOD3_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "polySurface3_LOD2_LOD1_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "polySurface3_LOD2_LOD2_001",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "polySurface3_LOD2_LOD3_001",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "polySurface3_LOD3_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 23,
+      "name": "polySurface3_LOD3_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 24,
+      "name": "polySurface3_LOD3_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 25,
+      "name": "polySurface3_LOD1_001_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 26,
+      "name": "polySurface3_LOD1_001_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 27,
+      "name": "polySurface3_LOD1_001_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 28,
+      "name": "polySurface3_LOD2_001_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 29,
+      "name": "polySurface3_LOD2_001_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 30,
+      "name": "polySurface3_LOD2_001_LOD3",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 31,
+      "name": "polySurface3_LOD3_001_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 32,
+      "name": "polySurface3_LOD3_001_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 33,
+      "name": "polySurface3_LOD3_001_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 34,
+      "name": "polySurface3_LOD1_LOD1_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 35,
+      "name": "polySurface3_LOD1_LOD1_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 36,
+      "name": "polySurface3_LOD1_LOD1_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 37,
+      "name": "polySurface3_LOD1_LOD2_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 38,
+      "name": "polySurface3_LOD1_LOD2_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 39,
+      "name": "polySurface3_LOD1_LOD2_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 40,
+      "name": "polySurface3_LOD1_LOD3_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 41,
+      "name": "polySurface3_LOD1_LOD3_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 42,
+      "name": "polySurface3_LOD1_LOD3_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 43,
+      "name": "polySurface3_LOD2_LOD1_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 44,
+      "name": "polySurface3_LOD2_LOD1_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 45,
+      "name": "polySurface3_LOD2_LOD1_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 46,
+      "name": "polySurface3_LOD2_LOD2_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 47,
+      "name": "polySurface3_LOD2_LOD2_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 48,
+      "name": "polySurface3_LOD2_LOD2_LOD3",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 49,
+      "name": "polySurface3_LOD2_LOD3_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 50,
+      "name": "polySurface3_LOD2_LOD3_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 51,
+      "name": "polySurface3_LOD2_LOD3_LOD3",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_stumphollow_diffuse.dds",
+        "normal": "av_environment_stumphollow_normal.dds",
+        "orm": "av_environment_stumphollow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_Normal.tif",
+        "orm": "Doodads/Ashenvale/Props/AshenHollowStump/AV_Environment_StumpHollow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

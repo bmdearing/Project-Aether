@@ -1,0 +1,130 @@
+{
+  "source": "riverrushes0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.3043645782470703,
+      0.0002807999923825264,
+      -1.2379229736328123
+    ],
+    "max": [
+      1.2871385650634766,
+      2.227085952758789,
+      1.1976984558105468
+    ],
+    "height": 2.2268051527664063
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "riverrushes0_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/doodads/forest/av_water_lilypadsfloating_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/desert/barrenstallgrass_normal.dds",
+        "orm": "grass_002_a_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "riverrushes0_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/doodads/forest/av_water_lilypadsfloating_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/desert/barrenstallgrass_normal.dds",
+        "orm": "grass_002_a_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "riverrushes0_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/doodads/forest/av_water_lilypadsfloating_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/desert/barrenstallgrass_normal.dds",
+        "orm": "grass_002_a_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "riverrushes0_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/doodads/forest/av_water_lilypadsfloating_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/desert/barrenstallgrass_normal.dds",
+        "orm": "grass_002_a_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/RiverRushes/Grass_002_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

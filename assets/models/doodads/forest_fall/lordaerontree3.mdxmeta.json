@@ -1,0 +1,165 @@
+{
+  "source": "lordaerontree3.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.5357897987365722,
+      -2.2194000549316404,
+      -0.5440446166992187
+    ],
+    "max": [
+      0.5026734008789062,
+      0.674396987915039,
+      0.5264135856628418
+    ],
+    "height": 2.8937970428466793
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 4767,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 4800,
+      "end": 5100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 5133,
+      "end": 6633,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 6667,
+      "end": 9667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Eattree 1",
+      "start": 9700,
+      "end": 11700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 11733,
+      "end": 16500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 16533,
+      "end": 18000,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "lordaeron_tree_00:lt3_tree_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "lordaeronfalltree_diffuse.dds",
+        "normal": "lordaeronfalltree_normal.dds",
+        "orm": "res://assets/models/doodads/forest/lordaeronsummertree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": false,
+        "Stand 2": true,
+        "Stand 3": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "lordaeron_tree_00:lt3_death_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "lordaeronfalltree_diffuse.dds",
+        "normal": "lordaeronfalltree_normal.dds",
+        "orm": "res://assets/models/doodads/forest/lordaeronsummertree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": false,
+        "Stand 2": false,
+        "Stand 3": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "lordaeron_tree_00:lt3_stump_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "lordaeronfalltree_diffuse.dds",
+        "normal": "lordaeronfalltree_normal.dds",
+        "orm": "res://assets/models/doodads/forest/lordaeronsummertree_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand Hit 1": false,
+        "Death 1": true,
+        "Birth": false,
+        "Spell Eattree 1": true,
+        "Stand 2": false,
+        "Stand 3": false
+      }
+    }
+  ]
+}

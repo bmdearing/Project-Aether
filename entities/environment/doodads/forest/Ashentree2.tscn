@@ -1,0 +1,187 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_wwqxd"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ashentree_diffuse.dds" id="2_tekaf"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ashentree_normal.dds" id="3_fy6bn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ashentree_orm.dds" id="4_xhjju"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/ashentree2.glb" id="5_j654g"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_jx74m"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_1ddc4"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_r2e2v"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ihw22"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_u210w"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_21huh"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uai5c"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_fnpre"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5a2ul"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vkptd"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_t2ivt"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_kwo7r"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_moe71"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_2kxiv"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_028fu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xdg27"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_tekaf")
+orm_texture = ExtResource("4_xhjju")
+normal_enabled = true
+normal_texture = ExtResource("3_fy6bn")
+
+[node name="Ashentree2" type="Node3D" unique_id=56919838]
+script = ExtResource("1_wwqxd")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_jx74m"),
+1: SubResource("ORMMaterial3D_1ddc4"),
+2: SubResource("ORMMaterial3D_r2e2v"),
+3: SubResource("ORMMaterial3D_ihw22"),
+4: SubResource("ORMMaterial3D_u210w"),
+5: SubResource("ORMMaterial3D_21huh"),
+6: SubResource("ORMMaterial3D_uai5c"),
+7: SubResource("ORMMaterial3D_fnpre"),
+8: SubResource("ORMMaterial3D_5a2ul"),
+9: SubResource("ORMMaterial3D_vkptd"),
+10: SubResource("ORMMaterial3D_t2ivt"),
+11: SubResource("ORMMaterial3D_kwo7r"),
+12: SubResource("ORMMaterial3D_moe71"),
+13: SubResource("ORMMaterial3D_2kxiv"),
+14: SubResource("ORMMaterial3D_028fu"),
+15: SubResource("ORMMaterial3D_xdg27")
+}
+hidden_geosets = {
+"Birth": PackedInt32Array(2, 10, 11, 12),
+"Death 1": PackedInt32Array(0, 4, 5, 6),
+"Spell Eattree 1": PackedInt32Array(0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12),
+"Stand 1": PackedInt32Array(2, 3, 10, 11, 12, 13, 14, 15),
+"Stand Hit 1": PackedInt32Array(2, 3, 10, 11, 12, 13, 14, 15)
+}
+always_hidden = PackedInt32Array(4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1700584584 instance=ExtResource("5_j654g")]

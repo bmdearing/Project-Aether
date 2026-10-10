@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_io1iw"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ashengrass_diffuse.dds" id="2_pwdrt"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ashengrass_normal.dds" id="3_mjeri"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ashengrass_orm.dds" id="4_8wgxc"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/ashencattail.glb" id="5_i6urr"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_f6iqm"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_pwdrt")
+orm_texture = ExtResource("4_8wgxc")
+normal_enabled = true
+normal_texture = ExtResource("3_mjeri")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_cicwy"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_pwdrt")
+orm_texture = ExtResource("4_8wgxc")
+normal_enabled = true
+normal_texture = ExtResource("3_mjeri")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vhsbx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_pwdrt")
+orm_texture = ExtResource("4_8wgxc")
+normal_enabled = true
+normal_texture = ExtResource("3_mjeri")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xxsf1"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_pwdrt")
+orm_texture = ExtResource("4_8wgxc")
+normal_enabled = true
+normal_texture = ExtResource("3_mjeri")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ajdk2"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_pwdrt")
+orm_texture = ExtResource("4_8wgxc")
+normal_enabled = true
+normal_texture = ExtResource("3_mjeri")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_dx6qv"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_pwdrt")
+orm_texture = ExtResource("4_8wgxc")
+normal_enabled = true
+normal_texture = ExtResource("3_mjeri")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_topj4"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_pwdrt")
+orm_texture = ExtResource("4_8wgxc")
+normal_enabled = true
+normal_texture = ExtResource("3_mjeri")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_mgmxb"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_pwdrt")
+orm_texture = ExtResource("4_8wgxc")
+normal_enabled = true
+normal_texture = ExtResource("3_mjeri")
+
+[node name="Ashencattail" type="Node3D" unique_id=1446188632]
+script = ExtResource("1_io1iw")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_f6iqm"),
+1: SubResource("ORMMaterial3D_cicwy"),
+2: SubResource("ORMMaterial3D_vhsbx"),
+3: SubResource("ORMMaterial3D_xxsf1"),
+4: SubResource("ORMMaterial3D_ajdk2"),
+5: SubResource("ORMMaterial3D_dx6qv"),
+6: SubResource("ORMMaterial3D_topj4"),
+7: SubResource("ORMMaterial3D_mgmxb")
+}
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1683638923 instance=ExtResource("5_i6urr")]

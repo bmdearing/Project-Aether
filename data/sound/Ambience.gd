@@ -2,8 +2,8 @@ extends RefCounted
 class_name Ambience
 ## Looping ambience beds in assets/sfx/ambience/ (cut by
 ## tools/sfx_pipeline/process_sfx.js, loudness matched to -24 LUFS). Maps
-## pick one by id (MapTileset.ambience_id); AudioManager.play_ambience()
-## plays it.
+## pick one by id, or layer several (MapTileset.ambience_id, e.g.
+## "river:-9,forest"); AudioManager.play_ambience() plays it.
 
 const DIR := "res://assets/sfx/ambience/"
 ## id -> extra volume in dB.

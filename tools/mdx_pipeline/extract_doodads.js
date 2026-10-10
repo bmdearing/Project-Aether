@@ -41,7 +41,10 @@ for (const [family, kit] of Object.entries(manifest.families)) {
       const { unresolved } = fetcher.fetchForModel(mdx);
       unresolved.forEach((u) => console.log(`  texture not found: ${u}`));
       const glb = mdx.replace(/\.mdx$/i, ".glb");
-      if (!fs.existsSync(glb)) convert(mdx, glb, kit.scale, true);
+      if (!fs.existsSync(glb)) {
+        try { convert(mdx, glb, kit.scale, true); }
+        catch (e) { console.log(`  skipped: ${e.message}`); continue; }
+      }
       console.log(`  ${role}: ${path.basename(mdx)}`);
     }
   }

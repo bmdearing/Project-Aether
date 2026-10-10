@@ -1,0 +1,230 @@
+{
+  "source": "ashencattail.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.2919176177978515,
+      -0.1124675989151001,
+      -1.2276611938476563
+    ],
+    "max": [
+      1.1648177490234375,
+      3.019158050537109,
+      1.1636603393554688
+    ],
+    "height": 3.1316256494522094
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3000,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "cattail0",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashengrass_diffuse.dds",
+        "normal": "ashengrass_normal.dds",
+        "orm": "ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Normal.tif",
+        "orm": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "cattail0",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashengrass_diffuse.dds",
+        "normal": "ashengrass_normal.dds",
+        "orm": "ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Normal.tif",
+        "orm": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "cattail0_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashengrass_diffuse.dds",
+        "normal": "ashengrass_normal.dds",
+        "orm": "ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Normal.tif",
+        "orm": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "cattail0_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashengrass_diffuse.dds",
+        "normal": "ashengrass_normal.dds",
+        "orm": "ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Normal.tif",
+        "orm": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "cattail0_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashengrass_diffuse.dds",
+        "normal": "ashengrass_normal.dds",
+        "orm": "ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Normal.tif",
+        "orm": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "cattail0_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashengrass_diffuse.dds",
+        "normal": "ashengrass_normal.dds",
+        "orm": "ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Normal.tif",
+        "orm": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "cattail0_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashengrass_diffuse.dds",
+        "normal": "ashengrass_normal.dds",
+        "orm": "ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Normal.tif",
+        "orm": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "cattail0_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ashengrass_diffuse.dds",
+        "normal": "ashengrass_normal.dds",
+        "orm": "ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_Normal.tif",
+        "orm": "Doodads/Ashenvale/Plants/AshenCatTail/AshenGrass_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

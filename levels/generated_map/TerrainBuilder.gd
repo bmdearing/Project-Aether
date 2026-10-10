@@ -56,7 +56,11 @@ func build_open_field(graph: MapGraph, cell_size: float) -> void:
 			continue
 		for i in randi_range(_map.layout.mounds_per_cell.x, _map.layout.mounds_per_cell.y):
 			var offset := Vector3(randf_range(-0.45, 0.45), 0.0, randf_range(-0.45, 0.45)) * cell_size
-			_build_mound(_map._cell_to_world(cell) + offset)
+			var pos := _map._cell_to_world(cell) + offset
+			# Mounds stay out of rivers and streams (radius up to ~7.5 m, scaled).
+			if _map.water and _map.water.is_wet(pos, DUNE_MOUND_RADIUS.y * _map.layout.mound_scale):
+				continue
+			_build_mound(pos)
 
 func _build_mound(pos: Vector3) -> void:
 	var radius := randf_range(DUNE_MOUND_RADIUS.x, DUNE_MOUND_RADIUS.y) * _map.layout.mound_scale
@@ -195,6 +199,29 @@ func build_dais(centre: Vector3, height: float, material: Material) -> Vector3:
 		rc.shape = rs
 		ramp.add_child(rc)
 	return centre + Vector3(0, height + 0.05, 0)  # enemy origins are at the feet
+
+## Forests: a tree line just inside the boundary ridges, so the edge reads
+## as woods rather than bare mounds.
+const TREE_LINE_SPACING := 5.0
+const TREE_LINE_INSET := Vector2(8.5, 12.0)  # clear of the boundary ridges, which reach ~6 m in
+
+func build_tree_line(dresser: RoomDresser, tileset: MapTileset, graph: MapGraph, cell_size: float) -> void:
+	if dresser == null or tileset == null:
+		return
+	var trees := tileset.floor_props.filter(func(s: PackedScene): return s != null and s.resource_path.get_file().to_lower().contains("tree"))
+	if trees.is_empty():
+		return
+	var extent := cell_size * graph.grid_size
+	var half := extent / 2.0
+	var centre := Vector3((graph.grid_size - 1) * cell_size / 2.0, 0.0, (graph.grid_size - 1) * cell_size / 2.0)
+	for side in [Vector3.FORWARD, Vector3.BACK, Vector3.LEFT, Vector3.RIGHT]:
+		var along := Vector3(side.z, 0, side.x).abs()
+		var t := -half
+		while t <= half:
+			var inset := randf_range(TREE_LINE_INSET.x, TREE_LINE_INSET.y)
+			var pos: Vector3 = centre + side * (half - inset) + along * (t + randf_range(-1.5, 1.5))
+			dresser.place_loose(pos, trees.pick_random())
+			t += TREE_LINE_SPACING * randf_range(0.7, 1.3)
 
 func scatter_doodads(dresser: RoomDresser, tileset: MapTileset, graph: MapGraph, cell_size: float, count_range: Vector2i, spawn: Vector3) -> void:
 	if dresser == null or tileset == null:

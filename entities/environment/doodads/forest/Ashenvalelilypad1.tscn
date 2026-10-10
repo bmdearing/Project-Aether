@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_cobng"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/av_water_lilypadsfloating_v1_v3_diffuse.dds" id="2_e85iy"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/barrenstallgrass_normal.dds" id="3_q2gg3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/barrenstallgrass_orm.dds" id="4_6nvll"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/ashenvalelilypad1.glb" id="5_iaik0"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_83iqs"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_e85iy")
+orm_texture = ExtResource("4_6nvll")
+normal_enabled = true
+normal_texture = ExtResource("3_q2gg3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_m8y8t"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_e85iy")
+orm_texture = ExtResource("4_6nvll")
+normal_enabled = true
+normal_texture = ExtResource("3_q2gg3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_dvlkb"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_e85iy")
+orm_texture = ExtResource("4_6nvll")
+normal_enabled = true
+normal_texture = ExtResource("3_q2gg3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_bejpw"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_e85iy")
+orm_texture = ExtResource("4_6nvll")
+normal_enabled = true
+normal_texture = ExtResource("3_q2gg3")
+
+[node name="Ashenvalelilypad1" type="Node3D" unique_id=1208086617]
+script = ExtResource("1_cobng")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_83iqs"),
+1: SubResource("ORMMaterial3D_m8y8t"),
+2: SubResource("ORMMaterial3D_dvlkb"),
+3: SubResource("ORMMaterial3D_bejpw")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1373135028 instance=ExtResource("5_iaik0")]

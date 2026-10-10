@@ -1,0 +1,96 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_ubdw2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/grass_001_a_diffuse.dds" id="2_f6xow"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ashengrass_normal.dds" id="3_vt617"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/ashengrass_orm.dds" id="4_41a2o"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/grass0.glb" id="5_c0qxj"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_fmoay"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_f6xow")
+orm_texture = ExtResource("4_41a2o")
+normal_enabled = true
+normal_texture = ExtResource("3_vt617")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_c2i41"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_f6xow")
+orm_texture = ExtResource("4_41a2o")
+normal_enabled = true
+normal_texture = ExtResource("3_vt617")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_8rmso"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_f6xow")
+orm_texture = ExtResource("4_41a2o")
+normal_enabled = true
+normal_texture = ExtResource("3_vt617")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ca5c4"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_f6xow")
+orm_texture = ExtResource("4_41a2o")
+normal_enabled = true
+normal_texture = ExtResource("3_vt617")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_rhyn2"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_f6xow")
+orm_texture = ExtResource("4_41a2o")
+normal_enabled = true
+normal_texture = ExtResource("3_vt617")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_dqb26"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_f6xow")
+orm_texture = ExtResource("4_41a2o")
+normal_enabled = true
+normal_texture = ExtResource("3_vt617")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_hmq17"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_f6xow")
+orm_texture = ExtResource("4_41a2o")
+normal_enabled = true
+normal_texture = ExtResource("3_vt617")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_bcjkw"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_f6xow")
+orm_texture = ExtResource("4_41a2o")
+normal_enabled = true
+normal_texture = ExtResource("3_vt617")
+
+[node name="Grass0" type="Node3D" unique_id=1614390992]
+script = ExtResource("1_ubdw2")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_fmoay"),
+1: SubResource("ORMMaterial3D_c2i41"),
+2: SubResource("ORMMaterial3D_8rmso"),
+3: SubResource("ORMMaterial3D_ca5c4"),
+4: SubResource("ORMMaterial3D_rhyn2"),
+5: SubResource("ORMMaterial3D_dqb26"),
+6: SubResource("ORMMaterial3D_hmq17"),
+7: SubResource("ORMMaterial3D_bcjkw")
+}
+always_hidden = PackedInt32Array(1, 2, 3, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=917914448 instance=ExtResource("5_c0qxj")]

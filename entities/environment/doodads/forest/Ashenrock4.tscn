@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_i3hkl"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/av_environment_rocks_diffuse.dds" id="2_w4k8j"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/av_environment_rocks_normal.dds" id="3_3du77"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/av_environment_rocks_orm.dds" id="4_foqxt"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/ashenrock4.glb" id="5_els1q"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_fdvt3"]
+albedo_texture = ExtResource("2_w4k8j")
+orm_texture = ExtResource("4_foqxt")
+normal_enabled = true
+normal_texture = ExtResource("3_3du77")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_evecl"]
+albedo_texture = ExtResource("2_w4k8j")
+orm_texture = ExtResource("4_foqxt")
+normal_enabled = true
+normal_texture = ExtResource("3_3du77")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_neoed"]
+albedo_texture = ExtResource("2_w4k8j")
+orm_texture = ExtResource("4_foqxt")
+normal_enabled = true
+normal_texture = ExtResource("3_3du77")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ipna2"]
+albedo_texture = ExtResource("2_w4k8j")
+orm_texture = ExtResource("4_foqxt")
+normal_enabled = true
+normal_texture = ExtResource("3_3du77")
+
+[node name="Ashenrock4" type="Node3D" unique_id=1421157895]
+script = ExtResource("1_i3hkl")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_fdvt3"),
+1: SubResource("ORMMaterial3D_evecl"),
+2: SubResource("ORMMaterial3D_neoed"),
+3: SubResource("ORMMaterial3D_ipna2")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1536602431 instance=ExtResource("5_els1q")]

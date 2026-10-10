@@ -1,0 +1,54 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_acfcm"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/lordaeronsummertree_diffuse.dds" id="2_t6unk"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/lordaeronsummertree_normal.dds" id="3_g23er"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/lordaeronsummertree_orm.dds" id="4_16xcv"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/lordaerontree0.glb" id="5_a40w7"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4opk5"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_t6unk")
+orm_texture = ExtResource("4_16xcv")
+normal_enabled = true
+normal_texture = ExtResource("3_g23er")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_u32c7"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_t6unk")
+orm_texture = ExtResource("4_16xcv")
+normal_enabled = true
+normal_texture = ExtResource("3_g23er")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4cray"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_t6unk")
+orm_texture = ExtResource("4_16xcv")
+normal_enabled = true
+normal_texture = ExtResource("3_g23er")
+
+[node name="Lordaerontree0" type="Node3D" unique_id=950247720]
+script = ExtResource("1_acfcm")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_4opk5"),
+1: SubResource("ORMMaterial3D_u32c7"),
+2: SubResource("ORMMaterial3D_4cray")
+}
+hidden_geosets = {
+"Birth": PackedInt32Array(1, 2),
+"Spell Eattree 1": PackedInt32Array(0, 1),
+"Stand 1": PackedInt32Array(1, 2),
+"Stand 2": PackedInt32Array(1, 2),
+"Stand 3": PackedInt32Array(1, 2),
+"Stand Hit 1": PackedInt32Array(1, 2)
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1597544986 instance=ExtResource("5_a40w7")]

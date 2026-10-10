@@ -146,8 +146,15 @@ func _build_layout() -> void:
 				_build_room(graph.rooms[cell])
 			_build_corridors()
 		MapLayout.Kind.OPEN_FIELD:
+			if layout.rivers + layout.streams > 0:
+				water = WaterBuilder.new(self)
+				water.plan(graph, cell_size, layout.rivers, layout.streams)
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
 			_terrain.build_open_field(graph, cell_size)
+			if water:
+				water.build(tileset.water_props, _dresser)
+			if tileset.family == "forest":
+				_terrain.build_tree_line(_dresser, tileset, graph, cell_size)
 			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
 			var dune_crest := _terrain.build_dais(_cell_to_world(graph.vault_cell), 1.6, _floor_mat)
 			boss_portal_point = dune_crest
@@ -423,6 +430,11 @@ static func _array_to_vec(a: Array) -> Vector3:
 
 func _exit_tree() -> void:
 	AudioManager.play_ambience("")
+	if WaterBuilder.current == water:
+		WaterBuilder.current = null
+
+## Rivers and streams (open layouts), or null.
+var water: WaterBuilder
 
 func _apply_tileset(style: MapTileset) -> void:
 	tileset = style
@@ -871,6 +883,9 @@ func _spawn_enemy(enemy: Enemy, pos: Vector3) -> void:
 		EnemyRarityComponent.attach_normal(enemy)
 	enemy.set_meta(&"spawn_index", _next_spawn_index)
 	_next_spawn_index += 1
+	if water:
+		var cell := Vector3(roundf(pos.x / cell_size) * cell_size, pos.y, roundf(pos.z / cell_size) * cell_size)
+		pos = water.dry_point(pos, cell)
 	add_child(enemy)
 	enemy.global_position = pos
 	_living_enemies[enemy.get_instance_id()] = true

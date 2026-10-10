@@ -30,10 +30,14 @@ func _run() -> void:
 	_check(Ambience.random_thunder() != null, "thunder loads")
 	for id in MapTileset.all_ids():
 		var style := MapTileset.load_style(id)
-		_check(style.ambience_id == "" or Ambience.LOOPS.has(style.ambience_id), "%s's ambience exists" % id)
+		for layer in style.ambience_id.split(",", false):
+			_check(Ambience.LOOPS.has(layer.split(":")[0]), "%s's ambience %s exists" % [id, layer])
 	AudioManager.play_ambience("wind_gusts")
 	await get_tree().create_timer(1.2).timeout
 	_check(AudioManager.ambience_id() == "wind_gusts", "play_ambience starts the loop")
+	AudioManager.play_ambience("river:-9,forest")
+	await get_tree().create_timer(0.2).timeout
+	_check(AudioManager.ambience_id() == "river:-9,forest" and AudioManager._ambience.size() == 2, "layered ambience plays both loops")
 	AudioManager.play_ambience("")
 	await get_tree().create_timer(1.2).timeout
 	_check(AudioManager.ambience_id() == "", "an empty id fades it out")

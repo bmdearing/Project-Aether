@@ -38,6 +38,9 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 ## Canyons: pass width and cliff height multipliers.
 @export var pass_width_scale: float = 1.0
 @export var cliff_height_scale: float = 1.0
+## Open fields: deep rivers (crossed at fords) and shallow streams (WaterBuilder).
+@export var rivers: int = 0
+@export var streams: int = 0
 
 @export_group("Ground")
 @export var floor_albedo: Texture2D
@@ -64,6 +67,8 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 @export var floor_props: Array[PackedScene] = []
 @export var clusters: Array[PackedScene] = []  # rocks/plants in corners and along edges
 @export var wall_lights: Array[PackedScene] = []
+## Reeds and lilypads along rivers and streams.
+@export var water_props: Array[PackedScene] = []
 @export var wall_props_per_room: Vector2i = Vector2i(2, 4)
 @export var floor_props_per_room: Vector2i = Vector2i(0, 2)
 @export var clusters_per_room: Vector2i = Vector2i(2, 4)

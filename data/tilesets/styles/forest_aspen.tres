@@ -1,0 +1,79 @@
+[gd_resource type="Resource" script_class="MapTileset" load_steps=30 format=3]
+
+[ext_resource type="Script" path="res://data/tilesets/MapTileset.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/ground/lordf_grass_diffuse.dds" id="2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/ground/lordf_grass_normal.dds" id="3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/ground/lordf_grass_orm.dds" id="4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/ground/lordf_dirtgrass_diffuse.dds" id="5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/ground/lordf_dirtgrass_normal.dds" id="6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/ground/lordf_dirtgrass_orm.dds" id="7"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/ground/lordf_rock_diffuse.dds" id="8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/ground/lordf_rock_normal.dds" id="9"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest_fall/ground/lordf_rock_orm.dds" id="10"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Arockarch.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenhollowstump.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Rubblestonewall0.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenbrokencolumn0.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest_fall/LordaeronTreeTall0.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest_fall/LordaeronTreeTall3.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest_fall/LordaeronTreeTall6.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest_fall/LordaeronTreeTall8.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenlogstraight.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenshrooms0.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenshrooms2.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenrock1.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenrock4.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenrock7.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenrock10.tscn" id="25"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Riverrushes0.tscn" id="26"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashencattail.tscn" id="27"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Lilypad0.tscn" id="28"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/forest/Ashenvalelilypad1.tscn" id="29"]
+
+[resource]
+script = ExtResource("1")
+id = "forest_aspen"
+ambience_id = "forest"
+display_name = "Aspen Grove"
+family = "forest"
+layout = "open_field"
+floor_albedo = ExtResource("2")
+floor_normal = ExtResource("3")
+floor_orm = ExtResource("4")
+floor_wide = true
+patch_albedo = ExtResource("5")
+patch_normal = ExtResource("6")
+patch_orm = ExtResource("7")
+patch_wide = false
+patch_amount = 0.35
+floor_tint = Color(0.82, 0.78, 0.68, 1)
+wall_albedo = ExtResource("8")
+wall_normal = ExtResource("9")
+wall_orm = ExtResource("10")
+wall_wide = true
+wall_tint = Color(0.5, 0.44, 0.34, 1)
+archways = Array[PackedScene]([ExtResource("11")])
+wall_props = Array[PackedScene]([ExtResource("12"), ExtResource("13"), ExtResource("14")])
+floor_props = Array[PackedScene]([ExtResource("15"), ExtResource("16"), ExtResource("17"), ExtResource("18"), ExtResource("15"), ExtResource("16"), ExtResource("17"), ExtResource("18"), ExtResource("19"), ExtResource("20"), ExtResource("21")])
+clusters = Array[PackedScene]([ExtResource("22"), ExtResource("23"), ExtResource("24"), ExtResource("25")])
+water_props = Array[PackedScene]([ExtResource("26"), ExtResource("27"), ExtResource("28"), ExtResource("29")])
+wall_lights = Array[PackedScene]([])
+lights_per_room = 0
+scatter_scale = 1.9
+background_color = Color(0.62, 0.72, 0.82, 1)
+ambient_color = Color(0.68, 0.66, 0.6, 1)
+ambient_energy = 0.55
+sun_energy = 1.25
+sun_color = Color(1, 0.88, 0.66, 1)
+fog_color = Color(0.7, 0.72, 0.74, 1)
+fog_density = 0.008
+light_color = Color(1, 1, 1, 1)
+light_energy = 0
+light_range = 8
+room_light_energy = 0
+grid_size = 4
+cell_size = 30
+mounds_per_cell = Vector2i(0, 2)
+mound_scale = 0.9
+rivers = 0
+streams = 1

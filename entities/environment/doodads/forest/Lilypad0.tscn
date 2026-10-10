@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_bro12"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/av_water_lilypadsfloating_v1_v3_diffuse.dds" id="2_kdn8g"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/barrenstallgrass_normal.dds" id="3_qj46b"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/barrenstallgrass_orm.dds" id="4_v6dhi"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/lilypad0.glb" id="5_1t3i0"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uje6a"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_kdn8g")
+orm_texture = ExtResource("4_v6dhi")
+normal_enabled = true
+normal_texture = ExtResource("3_qj46b")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_r28sl"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_kdn8g")
+orm_texture = ExtResource("4_v6dhi")
+normal_enabled = true
+normal_texture = ExtResource("3_qj46b")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_y4xbx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_kdn8g")
+orm_texture = ExtResource("4_v6dhi")
+normal_enabled = true
+normal_texture = ExtResource("3_qj46b")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_q5gfu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_kdn8g")
+orm_texture = ExtResource("4_v6dhi")
+normal_enabled = true
+normal_texture = ExtResource("3_qj46b")
+
+[node name="Lilypad0" type="Node3D" unique_id=1567294730]
+script = ExtResource("1_bro12")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_uje6a"),
+1: SubResource("ORMMaterial3D_r28sl"),
+2: SubResource("ORMMaterial3D_y4xbx"),
+3: SubResource("ORMMaterial3D_q5gfu")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=648790752 instance=ExtResource("5_1t3i0")]

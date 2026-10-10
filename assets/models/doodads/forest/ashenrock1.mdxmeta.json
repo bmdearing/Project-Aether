@@ -1,0 +1,130 @@
+{
+  "source": "ashenrock1.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.2349962158203125,
+      -0.05569740056991577,
+      -1.0256976013183592
+    ],
+    "max": [
+      1.1367377929687499,
+      0.6827994003295897,
+      1.1864484558105468
+    ],
+    "height": 0.7384968008995055
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Lords_Rock_V1_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_rocks_diffuse.dds",
+        "normal": "av_environment_rocks_normal.dds",
+        "orm": "av_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Lords_Rock_V1_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_rocks_diffuse.dds",
+        "normal": "av_environment_rocks_normal.dds",
+        "orm": "av_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Lords_Rock_V1_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_rocks_diffuse.dds",
+        "normal": "av_environment_rocks_normal.dds",
+        "orm": "av_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Lords_Rock_V1_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_environment_rocks_diffuse.dds",
+        "normal": "av_environment_rocks_normal.dds",
+        "orm": "av_environment_rocks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_Normal.tif",
+        "orm": "Doodads/Ashenvale/Rocks/AshenRock/AV_Environment_Rocks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

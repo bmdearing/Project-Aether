@@ -37,6 +37,8 @@ var mounds_per_cell: Vector2i = TerrainBuilder.MOUNDS_PER_CELL
 var mound_scale: float = 1.0
 var pass_width_scale: float = 1.0
 var cliff_height_scale: float = 1.0
+var rivers: int = 0
+var streams: int = 0
 
 ## Space kept for the corridor between the biggest room and the boss room.
 const MIN_CORRIDOR := 4.0
@@ -75,6 +77,8 @@ func _apply_style(t: MapTileset) -> void:
 	mound_scale = t.mound_scale
 	pass_width_scale = t.pass_width_scale
 	cliff_height_scale = t.cliff_height_scale
+	rivers = t.rivers
+	streams = t.streams
 	if kind == Kind.ROOMS:
 		# The boss room outgrows the style's biggest room; cells stay wide
 		# enough for a corridor between the two.

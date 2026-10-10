@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_lowph"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/av_environment_logangled_diffuse.dds" id="2_qibem"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/av_environment_logangled_normal.dds" id="3_i528r"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/av_environment_logangled_orm.dds" id="4_ec0xi"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/ashenlogangled.glb" id="5_xqadv"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_8c4fv"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_qibem")
+orm_texture = ExtResource("4_ec0xi")
+normal_enabled = true
+normal_texture = ExtResource("3_i528r")
+
+[node name="Ashenlogangled" type="Node3D" unique_id=1387521228]
+script = ExtResource("1_lowph")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_8c4fv")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand"
+
+[node name="Model" type="Node3D" parent="." unique_id=89289110 instance=ExtResource("5_xqadv")]

@@ -195,6 +195,7 @@ func _ready() -> void:
 	status_effects.effect_applied.connect(_on_status_effect_applied)
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	add_to_group("player")
+	collision_mask |= 1 << (WaterBuilder.BANK_WALL_LAYER - 1)  # river banks
 	health.died.connect(_on_died)
 	# Captured before any gear bonus applies - the .tscn's static values
 	# are the class baseline Strength/Intellect add on top of.
@@ -767,7 +768,7 @@ func get_move_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_misc_bonus("move_speed") / 100.0
 
 func _effective_speed(base: float) -> float:
-	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier() \
+	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier() * WaterBuilder.wading_factor(global_position) \
 		* melee_attack.get_move_speed_multiplier() * ability_cast.get_move_speed_multiplier() \
 		* weapon_stance.get_move_speed_multiplier() * shield_block.get_move_speed_multiplier() \
 		* stance_attack.get_move_speed_multiplier() * stance_defense.get_move_speed_multiplier()

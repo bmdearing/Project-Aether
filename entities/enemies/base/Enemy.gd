@@ -113,6 +113,7 @@ func _ready() -> void:
 	# subclass override (FigmentBoss) awaits a death animation before super.
 	health.died.connect(func(): EventBus.enemy_died.emit(self))
 	add_to_group("enemy")
+	collision_mask |= 1 << (WaterBuilder.BANK_WALL_LAYER - 1)  # river banks
 	var head_zone := get_node_or_null("HeadZone")
 	if head_zone:
 		head_zone.add_to_group("critical_spots")
@@ -570,7 +571,7 @@ func _update_chase() -> void:
 		return
 
 	var dir := to_player / dist
-	var speed := move_speed * status_effects.get_move_speed_multiplier() * (rarity_component.get_move_speed_multiplier() if rarity_component else 1.0)
+	var speed := move_speed * status_effects.get_move_speed_multiplier() * (rarity_component.get_move_speed_multiplier() if rarity_component else 1.0) * WaterBuilder.wading_factor(global_position)
 	# A shooter without a clear shot keeps closing in (around the wall)
 	# instead of standing at range.
 	var blocked_shot := is_ranged_unit() and not heading_for_target and not can_see_player()

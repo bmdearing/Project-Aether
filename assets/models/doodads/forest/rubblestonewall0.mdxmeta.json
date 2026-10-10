@@ -1,0 +1,80 @@
+{
+  "source": "rubblestonewall0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.8572392196655273,
+      -0.05597999811172485,
+      -1.3364351806640624
+    ],
+    "max": [
+      1.0502297973632813,
+      1.3576409912109373,
+      1.0539683761596679
+    ],
+    "height": 1.4136209893226623
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "wallstone_01",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wallstone_diffuse.dds",
+        "normal": "wallstone_normal.dds",
+        "orm": "wallstone_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/RubbleStoneWall/WallStone_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/RubbleStoneWall/WallStone_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/RubbleStoneWall/WallStone_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "RubbleStoneWall_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_wallstone_diffuse.dds",
+        "normal": "ls_props_wallstone_normal.dds",
+        "orm": "ls_props_wallstone_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "C:/Users/mvirtue/Box/Classic Games/Warcraft3/assets/Art/HD//Doodads/LordaeronSummer/Props/RubbleStoneWall/LS_Props_WallStone_Diffuse.tif",
+        "normal": "C:/Users/mvirtue/Box/Classic Games/Warcraft3/assets/Art/HD//Doodads/LordaeronSummer/Props/RubbleStoneWall/LS_Props_WallStone_Normal.tif",
+        "orm": "C:/Users/mvirtue/Box/Classic Games/Warcraft3/assets/Art/HD//Doodads/LordaeronSummer/Props/RubbleStoneWall/LS_Props_WallStone_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": false
+      }
+    }
+  ]
+}

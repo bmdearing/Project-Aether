@@ -1,0 +1,230 @@
+{
+  "source": "grass0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.9545039978027343,
+      -0.06745320081710815,
+      -0.9510551834106444
+    ],
+    "max": [
+      1.0433250274658203,
+      1.3734882202148437,
+      0.9417240142822265
+    ],
+    "height": 1.4409414210319518
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "grass0_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "grass_001_a_diffuse.dds",
+        "normal": "res://assets/models/doodads/forest/ashengrass_normal.dds",
+        "orm": "res://assets/models/doodads/forest/ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "grass0_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "grass_001_a_diffuse.dds",
+        "normal": "res://assets/models/doodads/forest/ashengrass_normal.dds",
+        "orm": "res://assets/models/doodads/forest/ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "grass0_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "grass_001_a_diffuse.dds",
+        "normal": "res://assets/models/doodads/forest/ashengrass_normal.dds",
+        "orm": "res://assets/models/doodads/forest/ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "grass0_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "grass_001_a_diffuse.dds",
+        "normal": "res://assets/models/doodads/forest/ashengrass_normal.dds",
+        "orm": "res://assets/models/doodads/forest/ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "grass0_Reversed_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "grass_001_a_diffuse.dds",
+        "normal": "res://assets/models/doodads/forest/ashengrass_normal.dds",
+        "orm": "res://assets/models/doodads/forest/ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "grass0_Reversed_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "grass_001_a_diffuse.dds",
+        "normal": "res://assets/models/doodads/forest/ashengrass_normal.dds",
+        "orm": "res://assets/models/doodads/forest/ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "grass0_Reversed_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "grass_001_a_diffuse.dds",
+        "normal": "res://assets/models/doodads/forest/ashengrass_normal.dds",
+        "orm": "res://assets/models/doodads/forest/ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "grass0_Reversed_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "grass_001_a_diffuse.dds",
+        "normal": "res://assets/models/doodads/forest/ashengrass_normal.dds",
+        "orm": "res://assets/models/doodads/forest/ashengrass_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Plants/GrassTuft/Grass_001_A_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

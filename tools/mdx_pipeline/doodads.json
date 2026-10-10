@@ -166,6 +166,76 @@
         "northrendtree3.mdx": "replaceabletextures/northrendtreeicy/northtreeicy",
         "northrendtree6.mdx": "replaceabletextures/northrendtreeicy/northtreeicy"
       }
+    },
+    "forest": {
+      "dir": "assets/models/doodads/forest",
+      "scale": 0.018,
+      "roles": {
+        "wall": [
+          "doodads/ashenvale/props/ashenhollowstump/ashenhollowstump.mdx",
+          "doodads/lordaeronsummer/props/rubblestonewall/rubblestonewall0.mdx",
+          "doodads/ashenvale/structures/ashenbrokencolumn/ashenbrokencolumn0.mdx"
+        ],
+        "floor": [
+          "doodads/ashenvale/props/ashenlogstraight/ashenlogstraight.mdx",
+          "doodads/ashenvale/props/ashenlogangled/ashenlogangled.mdx",
+          "doodads/ashenvale/plants/ashenshrooms/ashenshrooms0.mdx",
+          "doodads/ashenvale/plants/ashenshrooms/ashenshrooms2.mdx",
+          "doodads/lordaeronsummer/plants/grasstuft/grass0.mdx",
+          "doodads/ashenvale/plants/ashenbush0/ashenbush0.mdx"
+        ],
+        "cluster": [
+          "doodads/ashenvale/rocks/ashenrock/ashenrock1.mdx",
+          "doodads/ashenvale/rocks/ashenrock/ashenrock4.mdx",
+          "doodads/ashenvale/rocks/ashenrock/ashenrock7.mdx",
+          "doodads/ashenvale/rocks/ashenrock/ashenrock10.mdx"
+        ],
+        "water": [
+          "doodads/lordaeronsummer/plants/riverrushes/riverrushes0.mdx",
+          "doodads/ashenvale/plants/ashencattail/ashencattail.mdx",
+          "doodads/lordaeronsummer/plants/lilypad/lilypad0.mdx",
+          "doodads/ashenvale/water/ashenvalelilypad/ashenvalelilypad1.mdx"
+        ],
+        "archway": [
+          "doodads/ashenvale/structures/arockarch/arockarch.mdx"
+        ],
+        "tree": [
+          "doodads/terrain/lordaerontree/lordaerontree0.mdx",
+          "doodads/terrain/lordaerontree/lordaerontree3.mdx",
+          "doodads/terrain/lordaerontree/lordaerontree6.mdx",
+          "doodads/terrain/lordaerontree/lordaerontree8.mdx",
+          "doodads/terrain/ashentree/ashentree0.mdx",
+          "doodads/terrain/ashentree/ashentree2.mdx",
+          "doodads/terrain/ashentree/ashentree4.mdx"
+        ]
+      },
+      "replaceable": {
+        "lordaerontree0.mdx": "replaceabletextures/lordaerontree/lordaeronsummertree",
+        "lordaerontree3.mdx": "replaceabletextures/lordaerontree/lordaeronsummertree",
+        "lordaerontree6.mdx": "replaceabletextures/lordaerontree/lordaeronsummertree",
+        "lordaerontree8.mdx": "replaceabletextures/lordaerontree/lordaeronsummertree",
+        "ashentree0.mdx": "replaceabletextures/ashenvaletree/ashentree",
+        "ashentree2.mdx": "replaceabletextures/ashenvaletree/ashentree",
+        "ashentree4.mdx": "replaceabletextures/ashenvaletree/ashentree"
+      }
+    },
+    "forest_fall": {
+      "dir": "assets/models/doodads/forest_fall",
+      "scale": 0.018,
+      "roles": {
+        "tree": [
+          "doodads/terrain/lordaerontree/lordaerontree0.mdx",
+          "doodads/terrain/lordaerontree/lordaerontree3.mdx",
+          "doodads/terrain/lordaerontree/lordaerontree6.mdx",
+          "doodads/terrain/lordaerontree/lordaerontree8.mdx"
+        ]
+      },
+      "replaceable": {
+        "lordaerontree0.mdx": "replaceabletextures/lordaerontree/lordaeronfalltree",
+        "lordaerontree3.mdx": "replaceabletextures/lordaerontree/lordaeronfalltree",
+        "lordaerontree6.mdx": "replaceabletextures/lordaerontree/lordaeronfalltree",
+        "lordaerontree8.mdx": "replaceabletextures/lordaerontree/lordaeronfalltree"
+      }
     }
   },
   "grounds": {
@@ -224,6 +294,31 @@
         "icecrown/ice_tiledbricks",
         "icecrown/ice_blackbricks",
         "icecrown/ice_darkice"
+      ]
+    },
+    "forest": {
+      "wide": [
+        "lordaeronsummer/lords_grass",
+        "lordaeronsummer/lords_grassdark",
+        "lordaeronsummer/lords_dirt",
+        "lordaeronsummer/lords_rock",
+        "ashenvale/ashen_grass",
+        "ashenvale/ashen_leaves"
+      ],
+      "narrow": [
+        "lordaeronsummer/lords_dirtgrass",
+        "lordaeronsummer/lords_dirtrough",
+        "ashenvale/ashen_dirtgrass"
+      ]
+    },
+    "forest_fall": {
+      "wide": [
+        "lordaeronfall/lordf_grass",
+        "lordaeronfall/lordf_grassdark",
+        "lordaeronfall/lordf_rock"
+      ],
+      "narrow": [
+        "lordaeronfall/lordf_dirtgrass"
       ]
     }
   }

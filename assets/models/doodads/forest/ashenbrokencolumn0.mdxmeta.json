@@ -1,0 +1,130 @@
+{
+  "source": "ashenbrokencolumn0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.0999638061523436,
+      -0.03954600048065185,
+      -1.1865239868164061
+    ],
+    "max": [
+      1.230892135620117,
+      2.8948859252929684,
+      1.2909906463623047
+    ],
+    "height": 2.9344319257736204
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 6367,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "AV_Structures_BrokenColumn_V1_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_brokencolumn_v1_diffuse.dds",
+        "normal": "av_structures_brokencolumn_v1_normal.dds",
+        "orm": "av_structures_brokencolumn_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "AV_Structures_BrokenColumn_V1_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_brokencolumn_v1_diffuse.dds",
+        "normal": "av_structures_brokencolumn_v1_normal.dds",
+        "orm": "av_structures_brokencolumn_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "AV_Structures_BrokenColumn_V1_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_brokencolumn_v1_diffuse.dds",
+        "normal": "av_structures_brokencolumn_v1_normal.dds",
+        "orm": "av_structures_brokencolumn_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "AV_Structures_BrokenColumn_V1_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_brokencolumn_v1_diffuse.dds",
+        "normal": "av_structures_brokencolumn_v1_normal.dds",
+        "orm": "av_structures_brokencolumn_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/AshenBrokenColumn/AV_Structures_BrokenColumn_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

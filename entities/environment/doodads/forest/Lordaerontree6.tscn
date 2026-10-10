@@ -1,0 +1,54 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_vr45s"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/lordaeronsummertree_diffuse.dds" id="2_2b575"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/lordaeronsummertree_normal.dds" id="3_pw38d"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/forest/lordaeronsummertree_orm.dds" id="4_gp3qr"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/forest/lordaerontree6.glb" id="5_syqhh"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_e2e2c"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_2b575")
+orm_texture = ExtResource("4_gp3qr")
+normal_enabled = true
+normal_texture = ExtResource("3_pw38d")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_alxyg"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_2b575")
+orm_texture = ExtResource("4_gp3qr")
+normal_enabled = true
+normal_texture = ExtResource("3_pw38d")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3ucyo"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_2b575")
+orm_texture = ExtResource("4_gp3qr")
+normal_enabled = true
+normal_texture = ExtResource("3_pw38d")
+
+[node name="Lordaerontree6" type="Node3D" unique_id=66354338]
+script = ExtResource("1_vr45s")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_e2e2c"),
+1: SubResource("ORMMaterial3D_alxyg"),
+2: SubResource("ORMMaterial3D_3ucyo")
+}
+hidden_geosets = {
+"Birth": PackedInt32Array(1, 2),
+"Spell Eattree 1": PackedInt32Array(0, 1),
+"Stand 1": PackedInt32Array(1, 2),
+"Stand 2": PackedInt32Array(1, 2),
+"Stand 3": PackedInt32Array(1, 2),
+"Stand Hit 1": PackedInt32Array(1, 2)
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=173320840 instance=ExtResource("5_syqhh")]
