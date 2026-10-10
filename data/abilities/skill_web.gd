@@ -32,6 +32,11 @@ class WebNode:
 	var per_point: float = 0.0
 	var requires: Array[String] = []
 	var exclusive_with: String = ""
+	## One of the spell's own nodes (TWISTS), laid out on the twist side even
+	## when it adds a value rather than switching behaviour.
+	var from_spell := false
+	## Placed in a gap of the first ring and opened by the nodes either side.
+	var auto_link := false
 	## Polar layout: ring (1 = innermost) and angle in degrees.
 	var ring: int = 1
 	var angle: float = 0.0
@@ -87,9 +92,11 @@ const TWISTS := {
 		{"id": "deep_freeze", "name": "Deep Freeze", "description": "Hits on Chilled enemies Freeze them.", "ring": 3, "requires": ["second_pulse", "shard_volley"]},
 	],
 	"thunder_javelin": [
+		{"id": "frost_javelin", "name": "Frost Javelin", "description": "The javelin is Cold instead of Lightning and Chills.", "ring": 2},
 		{"id": "javelin_volley", "name": "Javelin Volley", "description": "Throws 3 javelins in a fan, each dealing 60% damage.", "ring": 2},
 	],
 	"cinder_lance": [
+		{"id": "storm_lance", "name": "Storm Lance", "description": "The lance is Lightning instead of Fire and Shocks.", "ring": 2},
 		{"id": "twin_lances", "name": "Twin Lances", "description": "Hurls a second lance in a V, each dealing 75% damage.", "ring": 2},
 	],
 	"inferno": [
@@ -107,6 +114,7 @@ const TWISTS := {
 		{"id": "twin_eyes", "name": "Twin Eyes", "description": "Launches two orbs either side of the target, each dealing 60% damage.", "ring": 2},
 	],
 	"stormcall": [
+		{"id": "hellfire_call", "name": "Hellfire Call", "description": "The strike is Fire instead of Lightning and Ignites.", "ring": 2},
 		{"id": "thunderhead", "name": "Thunderhead", "description": "The strike repeats twice more at the same spot, 0.5 seconds apart, at 60% damage.", "ring": 2},
 	],
 	"static_discharge": [
@@ -118,6 +126,7 @@ const TWISTS := {
 		{"id": "echo_sweep", "name": "Echo", "description": "The sweep repeats 0.6 seconds later, turned half a step, at 70% damage.", "ring": 3, "requires": ["focused_sweep", "potency_2"]},
 	],
 	"entropic_decay": [
+		{"id": "pale_decay", "name": "Pale Decay", "description": "The decay is Pale instead of Entropic and leaves enemies Pallid (they deal less damage).", "ring": 2},
 		{"id": "lingering_rot", "name": "Lingering Rot", "description": "The decay spreads out again 1 second later at 60% damage.", "ring": 2},
 	],
 	"black_hole": [
@@ -151,6 +160,7 @@ const TWISTS := {
 		{"id": "aftershock", "name": "Aftershock", "description": "The slam repeats 0.8 seconds later at half strength.", "ring": 2},
 	],
 	"reap": [
+		{"id": "withering_scythe", "name": "Withering Scythe", "description": "The scythe is Entropic instead of Aetheric and Unravels.", "ring": 2},
 		{"id": "harvest", "name": "Harvest", "description": "Each enemy the scythe hits restores 1% of your maximum Life.", "ring": 2},
 		{"id": "wide_arc", "name": "Wide Arc", "description": "The sweep covers 180 degrees, but deals 25% less damage.", "ring": 2},
 		{"id": "second_swing", "name": "Second Swing", "description": "The scythe sweeps back again for 50% damage.", "ring": 3, "requires": ["harvest", "wide_arc", "potency_2"]},
@@ -177,31 +187,21 @@ static func nodes_for(ability: Ability) -> Array:
 		return _cache[ability.ability_id]
 	var nodes: Array = []
 	var present := {}
-	var ring_counts := {}
 	for b in BLOCKS:
 		if not _applies(ability, b[6]):
 			continue
 		var node := WebNode.new({"id": b[0], "name": b[1], "description": b[2] % _num(b[5]), "max_points": b[3], "effect": b[4], "per_point": b[5], "ring": b[7]})
 		present[node.id] = node
 		nodes.append(node)
-		ring_counts[node.ring] = int(ring_counts.get(node.ring, 0)) + 1
-	# Spread each ring's blocks over its right-hand side; twists take the left.
-	var placed := {}
 	for node: WebNode in nodes:
-		var i: int = placed.get(node.ring, 0)
-		var n: int = ring_counts[node.ring]
-		node.angle = -80.0 + 160.0 * (i + 0.5) / n
-		placed[node.ring] = i + 1
 		if node.ring > 1:
 			var parent: String = BLOCK_PARENT.get(node.id, "potency")
 			if not present.has(parent):
 				parent = "potency" if present.has("potency") else "efficiency"
 			node.requires.assign([parent])
 	var twists: Array = TWISTS.get(ability.ability_id, [])
-	var twist_ring_counts := {}
-	for fields in twists:
-		twist_ring_counts[fields["ring"]] = int(twist_ring_counts.get(fields["ring"], 0)) + 1
-	var twist_placed := {}
+	var twist_ids := twists.map(func(t): return t["id"])
+	var twist_nodes: Array = []
 	for fields in twists:
 		var f: Dictionary = fields.duplicate()
 		if not f.has("effect"):
@@ -210,15 +210,20 @@ static func nodes_for(ability: Ability) -> Array:
 		req.assign(f.get("requires", []))
 		f.erase("requires")
 		var node := WebNode.new(f)
-		node.requires.assign(req.filter(func(id): return present.has(id) or twists.any(func(t): return t["id"] == id)))
-		if node.requires.is_empty() and node.ring > 1:
-			node.requires.assign(["potency"] if present.has("potency") else ["efficiency"])
-		# Twists fan over the left-hand side of their ring.
-		var i: int = twist_placed.get(node.ring, 0)
-		node.angle = 100.0 + 160.0 * (i + 0.5) / int(twist_ring_counts[node.ring])
-		twist_placed[node.ring] = i + 1
+		node.from_spell = true
+		node.requires.assign(req.filter(func(id): return present.has(id) or twist_ids.has(id)))
+		# A twist that builds on another twist hangs off twists only, so its
+		# links stay on the twist side of the web.
+		var from_twists := node.requires.filter(func(id): return twist_ids.has(id))
+		if not from_twists.is_empty():
+			node.requires.assign(from_twists)
+		# Otherwise _lay_out() links it to the two first-ring nodes beside it.
+		if node.requires.is_empty():
+			node.auto_link = true
 		present[node.id] = node
-		nodes.append(node)
+		twist_nodes.append(node)
+	nodes.append_array(twist_nodes)
+	_lay_out(nodes, present)
 	_cache[ability.ability_id] = nodes
 	return nodes
 
@@ -312,3 +317,78 @@ static func trim_to_available(ability: Ability) -> void:
 				ability.web_points.erase(node.id)
 			else:
 				ability.web_points[node.id] = points_in(ability, node.id) - 1
+
+## ---- Layout ------------------------------------------------------------------
+
+## Least angle between neighbours on a ring (outer rings are longer).
+const RING_SPACING := {1: 40.0, 2: 30.0, 3: 24.0}
+
+## Angles are degrees clockwise from the top. The first ring's blocks go
+## evenly round the whole circle (Potency on top). The spell's twists sit
+## in the gaps between them, all the way round, each opened by the two
+## blocks beside it, so every branch leads somewhere different. Everything
+## else sits near what opens it, then each ring is spaced out.
+static func _lay_out(nodes: Array, by_id: Dictionary) -> void:
+	var ring1: Array = nodes.filter(func(n: WebNode): return n.ring == 1 and not n.from_spell)
+	ring1.sort_custom(func(a: WebNode, b: WebNode): return a.id == "potency" and b.id != "potency")
+	for i in ring1.size():
+		(ring1[i] as WebNode).angle = 360.0 * i / ring1.size()
+	var auto: Array = nodes.filter(func(n: WebNode): return n.auto_link)
+	for j in auto.size():
+		var node: WebNode = auto[j]
+		# The middle of a gap between first-ring blocks, gaps shared out evenly.
+		var gaps := maxi(ring1.size(), 1)
+		var gap := floori((j + 0.5) * gaps / float(auto.size()))
+		var slot := 360.0 * (gap + 0.5) / gaps
+		node.angle = slot
+		if node.ring == 1:
+			continue
+		# The two first-ring blocks either side of the slot open it.
+		var by_gap := ring1.duplicate()
+		by_gap.sort_custom(func(a: WebNode, b: WebNode): return absf(angle_difference(deg_to_rad(a.angle), deg_to_rad(slot))) < absf(angle_difference(deg_to_rad(b.angle), deg_to_rad(slot))))
+		node.requires.assign(by_gap.slice(0, mini(2, by_gap.size())).map(func(b: WebNode): return b.id))
+	for ring in [2, 3]:
+		var group: Array = nodes.filter(func(n: WebNode): return n.ring == ring)
+		for node: WebNode in group:
+			if node.auto_link:
+				continue
+			var parents: Array = node.requires.filter(func(id): return by_id.has(id) and by_id[id].ring < ring)
+			if parents.is_empty():
+				parents = node.requires.filter(func(id): return by_id.has(id) and by_id[id] != node)
+			if not parents.is_empty():
+				# Parents on opposite sides: hang it off the first, or its links would cross the web.
+				if parents.size() > 1 and parents.any(func(id): return absf(angle_difference(deg_to_rad(by_id[id].angle), deg_to_rad(by_id[parents[0]].angle))) > deg_to_rad(120.0)):
+					parents = [parents[0]]
+					node.requires.assign(parents)
+				node.angle = _mean_angle(parents.map(func(id): return by_id[id].angle))
+		_space_out(group, RING_SPACING[ring])
+
+## Pushes neighbours on a ring apart until they're `spacing` degrees apart.
+static func _space_out(group: Array, spacing: float) -> void:
+	var n := group.size()
+	if n < 2:
+		return
+	var sep := minf(spacing, 360.0 / n)
+	for _pass in 80:
+		group.sort_custom(func(a: WebNode, b: WebNode): return fposmod(a.angle, 360.0) < fposmod(b.angle, 360.0))
+		var moved := false
+		for i in n:
+			var a: WebNode = group[i]
+			var b: WebNode = group[(i + 1) % n]
+			var gap := fposmod(b.angle - a.angle, 360.0)
+			if gap < sep - 0.01:
+				var push := (sep - gap) * 0.5
+				a.angle -= push
+				b.angle += push
+				moved = true
+		if not moved:
+			break
+	for node: WebNode in group:
+		node.angle = fposmod(node.angle, 360.0)
+
+## Circular mean, in degrees.
+static func _mean_angle(angles: Array) -> float:
+	var v := Vector2.ZERO
+	for a in angles:
+		v += Vector2.from_angle(deg_to_rad(a))
+	return fposmod(rad_to_deg(v.angle()), 360.0)

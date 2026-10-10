@@ -1,7 +1,7 @@
 extends Node
 ## Screenshots real UI states in the Hub for visual review.
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_ui.tscn --resolution 1920x1080 -- <out.png> <mode>
-## Modes: hud, inventory, inventory_icons, icons, character, abilities, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview
+## Modes: hud, inventory, inventory_icons, icons, character, abilities, web <spell_id>, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -25,6 +25,12 @@ func _run() -> void:
 			_screen("character_screen").open()
 		"abilities":
 			_screen("abilities_screen").open()
+		"web":
+			var screen := _screen("abilities_screen")
+			screen.open()
+			var spell := load("res://data/abilities/instances/%s.tres" % (args[2] if args.size() > 2 else "ice_pulse")) as Ability
+			spell.level = 12
+			screen._open_web(spell)
 		"fateboard":
 			for slate_id in ["ember_lattice", "frostfire_nexus", "glacial_bastion", "stormtouched_array", "hollow_whisper", "piercing_vein"]:
 				GameState.add_to_inventory(load("res://data/slates/instances/%s.tres" % slate_id).duplicate(true))

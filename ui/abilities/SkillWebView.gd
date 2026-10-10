@@ -18,6 +18,8 @@ const TWIST_RADIUS := 21.0
 const RING_FIRST := 0.36
 const RING_STEP := 0.29
 const STRETCH := 1.45
+## Room kept clear under the web for the points text.
+const FOOTER := 72.0
 
 var _hover_id: String = ""
 
@@ -27,10 +29,10 @@ func _init() -> void:
 	resized.connect(queue_redraw)
 
 func _centre() -> Vector2:
-	return Vector2(size.x * 0.5, size.y * 0.5 - 10.0)
+	return Vector2(size.x * 0.5, (size.y - FOOTER) * 0.5)
 
 func _scale() -> float:
-	return minf(size.x, size.y - 40.0) * 0.5
+	return minf(size.x, size.y - FOOTER - 36.0) * 0.5
 
 func node_position(node: SkillWeb.WebNode) -> Vector2:
 	return _centre() + Vector2.from_angle(deg_to_rad(node.angle - 90.0)) * _ring_radius(node.ring) * Vector2(STRETCH, 1.0)

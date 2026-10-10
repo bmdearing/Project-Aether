@@ -575,6 +575,11 @@ const VARIANTS := [
 	["inferno", "conflagration", -1, ["ignite"], true],
 	["static_discharge", "grounded", -1, ["shock"], true],
 	["frost_armor", "rime", -1, ["chill"], true],
+	["thunder_javelin", "frost_javelin", Constants.DamageType.COLD, ["chill"], false],
+	["cinder_lance", "storm_lance", Constants.DamageType.LIGHTNING, ["shock"], false],
+	["stormcall", "hellfire_call", Constants.DamageType.FIRE, ["ignite"], false],
+	["entropic_decay", "pale_decay", Constants.DamageType.PALE, ["pallid"], false],
+	["reap", "withering_scythe", Constants.DamageType.ENTROPIC, ["unraveling"], false],
 ]
 
 func _web_variant(ability: Ability) -> Ability:
