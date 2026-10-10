@@ -52,6 +52,7 @@ func _run() -> void:
 	await _test_ticking_time()
 	await _test_globes()
 	await _test_cuts()
+	await _test_new_mechanics()
 	_finish()
 
 func _finish() -> void:
@@ -71,12 +72,17 @@ func _test_wedges() -> void:
 	var bad_angle := safe_angle + TAU / 3.0
 	_player.global_position = _sand.to_global(Vector3(sin(safe_angle), 0.1, cos(safe_angle)) * 10.0)
 	_heal()
+	var safe_start := _player.health.current_health
 	await _wait(1.2)
-	_check(_player.health.current_health >= _player.health.max_health - 1.0, "the safe wedge is safe")
+	_check(_player.health.current_health >= safe_start - 1.0, "the safe wedge is safe (lost %.1f)" % (safe_start - _player.health.current_health))
 	_player.global_position = _sand.to_global(Vector3(sin(bad_angle), 0.1, cos(bad_angle)) * 10.0)
 	_heal()
 	await _wait(1.2)
 	_check(_player.health.current_health < _player.health.max_health - 50.0, "the quicksand hurts")
+	# Partway through, the safe wedge moves once, after a warning.
+	var old_safe := _sand.safe_wedge
+	await _sand.shift_safe_wedge()
+	_check(_sand.safe_wedge != old_safe and _sand.wedges_active, "the safe wedge moves")
 	_sand.end_wedges()
 	_check(not _sand.wedges_dangerous and not _sand.wedges_active, "the sand settles")
 
@@ -116,3 +122,42 @@ func _test_cuts() -> void:
 	_heal()
 	await _boss.cast_custom(_boss.boss_brain.find("sandstorm_cuts"))
 	_check(_player.health.current_health < _player.health.max_health, "Sandstorm Cuts hits in front of him")
+
+## His own traps slow him and drain his Composure; the thrust can be parried;
+## an echo replays the cuts from where he stood.
+func _test_new_mechanics() -> void:
+	_boss.composure.end_broken_state()
+	_boss.stance.reset()
+	_sand.add_trap(_boss.global_position, 2.0)
+	var stance_before: float = _boss.stance.current_stance
+	await _wait(1.2)
+	_check(_boss.status_effects.has_effect("slow") and _boss.stance.current_stance < stance_before, "crossing his own trap slows him and drains his Composure")
+	_boss.composure.end_broken_state()
+	_boss.stance.reset()
+	_boss.status_effects.clear_all_effects()
+	for t in _sand.traps:
+		if is_instance_valid(t["node"]):
+			t["node"].queue_free()
+	_sand.traps.clear()
+	# Parry the thrust.
+	_player.global_position = _boss.global_position + Vector3(0, 0.1, 4.0)
+	_heal()
+	var cuts := _boss.boss_brain.find("sandstorm_cuts")
+	var echoes_before := get_tree().get_nodes_in_group("ataras_echo").size()
+	_player.parry_handler.parry_window_seconds = 10.0
+	var cast := func(): await _boss.cast_custom(cuts)
+	cast.call()
+	await _wait(2 * (Ataras.SLASH_TELEGRAPH + Ataras.SLASH_GAP) + 0.05)
+	_player.parry_handler.start_parry_window()
+	await _wait(Ataras.THRUST_TELEGRAPH + 0.2)
+	_player.parry_handler.parry_window_seconds = 0.25
+	_check(_boss.status_effects.is_stunned() and _boss.stance.current_stance < _boss.stance.max_stance, "a parried thrust staggers him")
+	_check(get_tree().get_nodes_in_group("ataras_echo").size() > echoes_before, "he leaves a sand echo where he stood")
+	_boss.status_effects.clear_all_effects()
+	# The echo replays the cuts from that spot.
+	_boss.global_position += Vector3(12, 0, 0)
+	_heal()
+	await _wait(Ataras.ECHO_DELAY + 0.1)
+	_heal()
+	await _wait(Ataras.SLASH_TELEGRAPH + 0.1)
+	_check(_player.health.current_health < _player.health.max_health, "the echo hits where he used to stand")

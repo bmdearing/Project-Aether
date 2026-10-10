@@ -142,6 +142,21 @@ func _spawn_boss() -> void:
 	if sand:
 		sand.bind_boss(boss)
 	boss.health.died.connect(_on_boss_died)
+	_play_music(Pinnacle.BOSSES[_boss_id].get("music", ""))
+
+## The boss's own track, looped for the fight.
+func _play_music(path: String) -> void:
+	if path == "" or not ResourceLoader.exists(path):
+		return
+	var stream := load(path) as AudioStream
+	if stream is AudioStreamMP3:
+		(stream as AudioStreamMP3).loop = true
+	var player := AudioStreamPlayer.new()
+	player.name = "MusicPlayer"
+	player.stream = stream
+	player.volume_db = -5.0
+	add_child(player)
+	player.play()
 
 ## A portal home appears by the entry once the boss falls (on the Maw's
 ## inner ring, which never falls).

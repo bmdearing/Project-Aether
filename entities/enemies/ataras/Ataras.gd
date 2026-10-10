@@ -4,13 +4,18 @@ class_name Ataras
 ## Anubithas / Anubis by Mr Ogre man and vindorei, Hive Workshop). Kinetic.
 ## Fought in the SandArena.
 ##   Slash: his ordinary melee attack.
-##   Sandstorm Cuts: two fast slashes around him, then a thrust ahead.
+##   Sandstorm Cuts: two fast slashes around him, then a thrust ahead. The
+##   thrust can be parried, and a parry staggers him.
+##   Echoes: after Sandstorm Cuts a sand afterimage stays where he stood and
+##   replays the cuts from there ECHO_DELAY seconds later, so you dodge what
+##   he did then and what he's doing now.
 ##   Sand Globes: floating globes that can be killed; each fires at you every
 ##   2 seconds for a little damage.
 ##   Phase 2 (50%): Shifting Sands - two of the arena's three wedges turn to
 ##   quicksand for a while (SandArena). Once the sand settles he starts
 ##   casting Ticking Time: for 4 seconds the ground you cross is marked, and
-##   every mark becomes a permanent sand trap.
+##   every mark becomes a permanent sand trap. The traps slow him and drain
+##   his Composure too (SandArena), so luring him over them opens him up.
 
 const DISPLAY_NAME := "Ataras"
 const PHASES: Array[float] = [0.5]
@@ -33,6 +38,12 @@ const TICKING_DURATION := 4.0
 const TICKING_INTERVAL := 0.4
 const TICKING_RADIUS := 1.6
 const TICKING_MARK_COLOR := Color(1.0, 0.75, 0.35, 0.5)
+
+const ECHO_DELAY := 3.0
+const ECHO_COLOR := Color(0.95, 0.78, 0.45, 0.35)
+## A parried thrust: Composure lost and how long he reels.
+const THRUST_PARRY_STANCE := 50.0
+const THRUST_PARRY_STUN := 2.0
 
 var _arena: SandArena
 var _globes: Array[Node] = []
@@ -73,7 +84,11 @@ func can_use_ability(ability: BossAbility) -> bool:
 func cast_custom(ability: BossAbility) -> void:
 	match ability.id:
 		"sandstorm_cuts":
-			await _sandstorm_cuts(ability)
+			var origin := global_position
+			var dir := _forward()
+			await _sandstorm_cuts(ability, origin, dir, false)
+			if health.is_alive():
+				_leave_echo(ability, origin, dir)
 		"sand_globes":
 			await _sand_globes(ability)
 		"shifting_sands":
@@ -92,38 +107,93 @@ func _forward() -> Vector3:
 	to.y = 0.0
 	return to.normalized() if to.length() > 0.05 else Vector3.FORWARD
 
-## Two fast slashes around him, then a thrust down a line.
-func _sandstorm_cuts(ability: BossAbility) -> void:
+## Two fast slashes around `origin`, then a thrust along `dir`. An echo
+## replays it from where he stood, without the animation or the parry.
+func _sandstorm_cuts(ability: BossAbility, origin: Vector3, dir: Vector3, echo: bool) -> void:
 	var damage := get_ability_base_damage() * ability.damage_mult
+	var tint := ECHO_COLOR if echo else Color(1.0, 0.7, 0.3)
 	for i in 2:
-		begin_attack_telegraph(SLASH_TELEGRAPH)
-		BossTelegraph.circle(get_parent(), global_position, SLASH_RADIUS, SLASH_TELEGRAPH, Color(1.0, 0.7, 0.3))
+		if not echo:
+			begin_attack_telegraph(SLASH_TELEGRAPH)
+		BossTelegraph.circle(get_parent(), origin, SLASH_RADIUS, SLASH_TELEGRAPH, tint)
 		await get_tree().create_timer(SLASH_TELEGRAPH, false).timeout
 		if not health.is_alive():
 			return
 		var p := _target_player()
-		if p and _in_slash(p.global_position):
+		if p and _in_slash(p.global_position, origin, dir if echo else _forward()):
 			p.take_damage(damage, Constants.DamageType.KINETIC, self, Player.HitKind.ATTACK)
 		await get_tree().create_timer(SLASH_GAP, false).timeout
-	var dir := _forward()
-	begin_attack_telegraph(THRUST_TELEGRAPH)
-	BossTelegraph.line(get_parent(), global_position, dir, THRUST_LENGTH, THRUST_WIDTH, THRUST_TELEGRAPH, Color(1.0, 0.55, 0.2))
+	if not echo:
+		dir = _forward()
+		origin = global_position
+		begin_attack_telegraph(THRUST_TELEGRAPH)
+	BossTelegraph.line(get_parent(), origin, dir, THRUST_LENGTH, THRUST_WIDTH, THRUST_TELEGRAPH, tint if echo else Color(1.0, 0.55, 0.2))
 	await get_tree().create_timer(THRUST_TELEGRAPH, false).timeout
 	if not health.is_alive():
 		return
 	var p := _target_player()
-	if p:
-		var rel := p.global_position - global_position
-		rel.y = 0.0
-		var along := rel.dot(dir)
-		if along >= 0.0 and along <= THRUST_LENGTH and (rel - dir * along).length() <= THRUST_WIDTH * 0.5 + 0.4:
-			p.take_damage(damage * THRUST_DAMAGE, Constants.DamageType.PIERCING, self, Player.HitKind.ATTACK)
-
-func _in_slash(point: Vector3) -> bool:
-	var rel := point - global_position
+	if p == null:
+		return
+	var rel := p.global_position - origin
 	rel.y = 0.0
-	return rel.length() <= SLASH_RADIUS + 0.4 and (rel.length() < 0.6 or rad_to_deg(_forward().angle_to(rel.normalized())) <= SLASH_HALF_ANGLE)
+	var along := rel.dot(dir)
+	if along < 0.0 or along > THRUST_LENGTH or (rel - dir * along).length() > THRUST_WIDTH * 0.5 + 0.4:
+		return
+	if not echo and p.parry_handler and p.parry_handler.attempt_parry(self, p.ward):
+		# Parried: he's thrown off balance.
+		interrupt_attack()
+		if stance:
+			stance.apply_parry_damage(THRUST_PARRY_STANCE)
+		status_effects.apply_timed_effect("stun", THRUST_PARRY_STUN)
+		EventBus.enemy_attack_resolved.emit(self, p, true, true)
+		return
+	p.take_damage(damage * THRUST_DAMAGE, Constants.DamageType.PIERCING, self, Player.HitKind.ATTACK)
 
+func _in_slash(point: Vector3, origin: Vector3, facing: Vector3) -> bool:
+	var rel := point - origin
+	rel.y = 0.0
+	return rel.length() <= SLASH_RADIUS + 0.4 and (rel.length() < 0.6 or rad_to_deg(facing.angle_to(rel.normalized())) <= SLASH_HALF_ANGLE)
+
+## A sand afterimage where he stood; it replays the cuts after ECHO_DELAY.
+func _leave_echo(ability: BossAbility, origin: Vector3, dir: Vector3) -> void:
+	var ghost := _make_ghost()
+	get_parent().add_child(ghost)
+	ghost.global_position = origin
+	ghost.look_at(origin + dir, Vector3.UP)
+	get_tree().create_timer(ECHO_DELAY, false).timeout.connect(func():
+		if not is_instance_valid(ghost):
+			return
+		if health.is_alive():
+			await _sandstorm_cuts(ability, origin, dir, true)
+		if is_instance_valid(ghost):
+			var fade := ghost.create_tween()
+			fade.tween_property(ghost, "scale", Vector3(1.0, 0.01, 1.0), 0.4)
+			fade.tween_callback(ghost.queue_free))
+
+## His model in translucent sand, frozen mid-stance.
+func _make_ghost() -> Node3D:
+	var root := Node3D.new()
+	root.add_to_group("ataras_echo")
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = ECHO_COLOR
+	if definition and definition.model_scene:
+		var model := definition.model_scene.instantiate() as Node3D
+		root.add_child(model)
+		model.scale = Vector3.ONE * definition.scale_modifier
+		model.rotation.y = definition.model_yaw_offset + PI
+		for node in model.find_children("*", "MeshInstance3D", true, false):
+			(node as MeshInstance3D).material_override = mat
+			(node as MeshInstance3D).cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	else:
+		var body := MeshInstance3D.new()
+		var capsule := CapsuleMesh.new()
+		body.mesh = capsule
+		body.position.y = 1.0
+		body.material_override = mat
+		root.add_child(body)
+	return root
 ## Globes rise around the arena and start firing.
 func _sand_globes(ability: BossAbility) -> void:
 	begin_attack_telegraph(ability.telegraph)

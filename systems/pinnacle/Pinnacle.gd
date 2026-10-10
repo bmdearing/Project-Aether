@@ -9,10 +9,11 @@ const FRAGMENT_IDS: Array[StringName] = [&"maw_fragment_ash", &"maw_fragment_tid
 
 ## Pinnacle bosses the Reality Engine offers. "Herald of the Maw" is a
 ## placeholder name (the model/ids are still Xalatath's; to be replaced).
+## "music": the fight's track, looped by PinnacleArena (optional).
 const BOSSES := {
 	"lord_of_the_elements": {"name": "Lord of the Elements", "scene": "res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn"},
-	"herald_of_the_maw": {"name": "Herald of the Maw", "scene": "res://entities/enemies/xalatath/Xalatath.tscn"},
-	"ataras": {"name": "Ataras", "scene": "res://entities/enemies/ataras/Ataras.tscn"},
+	"herald_of_the_maw": {"name": "Herald of the Maw", "scene": "res://entities/enemies/xalatath/Xalatath.tscn", "music": "res://assets/music/boss/herald.mp3"},
+	"ataras": {"name": "Ataras", "scene": "res://entities/enemies/ataras/Ataras.tscn", "music": "res://assets/music/boss/ataras.mp3"},
 }
 
 ## The Herald of the Maw's exclusive Lens: its drop chance rises with each

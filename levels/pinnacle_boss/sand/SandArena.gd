@@ -6,9 +6,11 @@ class_name SandArena
 ##   Shifting Sands (his phase 2 opener, at 50% Life): the floor splits into
 ##   three wedges. Two turn to quicksand after a warning; only the third is
 ##   safe. Quicksand hurts (a share of max Life per tick, Kinetic) and slows.
-##   After WEDGE_DURATION the sand settles and the arena is safe again.
+##   Partway through, with a warning, the safe wedge moves once to one of the
+##   others. After WEDGE_DURATION the sand settles and the arena is safe again.
 ##   Ticking Time marks (Ataras.cast_custom) turn into permanent sand traps
-##   that hurt anyone standing in them.
+##   that hurt the player standing in them, and slow Ataras and drain his
+##   Composure when he crosses them.
 
 signal wedges_ended
 
@@ -27,6 +29,12 @@ const QUICKSAND_COLOR := Color(0.32, 0.17, 0.06, 0.72)
 const WARNING_COLOR := Color(1.0, 0.4, 0.15, 0.45)
 const TRAP_COLOR := Color(0.85, 0.62, 0.3, 0.55)
 const EDGE_PILLARS := 18
+## The safe wedge moves once: this far into the quicksand, after a warning.
+const WEDGE_SHIFT_AT := 6.0
+const WEDGE_SHIFT_WARNING := 2.5
+const SHIFT_WARNING_COLOR := Color(1.0, 0.85, 0.2, 0.5)
+## Composure Ataras loses per tick standing in a trap.
+const TRAP_STANCE_DRAIN := 9.0
 
 var boss: Enemy
 var safe_wedge := -1
@@ -37,7 +45,8 @@ var traps: Array[Dictionary] = []
 
 var _player: Player
 var _tick := 0.0
-var _wedge_nodes: Array[Node3D] = []
+## wedge index -> its overlay.
+var _wedge_nodes: Dictionary = {}
 
 func _ready() -> void:
 	add_to_group("sand_arena")
@@ -113,23 +122,50 @@ func start_wedges() -> void:
 	for i in WEDGES:
 		if i == safe_wedge:
 			continue
-		var node := _sector(i, WARNING_COLOR)
-		_wedge_nodes.append(node)
+		_wedge_nodes[i] = _sector(i, WARNING_COLOR)
 	await get_tree().create_timer(WEDGE_WARNING, false).timeout
 	if not is_inside_tree():
 		return
 	wedges_dangerous = true
-	for node in _wedge_nodes:
-		((node as MeshInstance3D).material_override as StandardMaterial3D).albedo_color = QUICKSAND_COLOR
-	await get_tree().create_timer(WEDGE_DURATION, false).timeout
+	for node in _wedge_nodes.values():
+		_tint(node, QUICKSAND_COLOR)
+	await get_tree().create_timer(WEDGE_SHIFT_AT, false).timeout
+	if not is_inside_tree() or not wedges_active:
+		return
+	await shift_safe_wedge()
+	if not is_inside_tree() or not wedges_active:
+		return
+	await get_tree().create_timer(maxf(WEDGE_DURATION - WEDGE_SHIFT_AT - WEDGE_SHIFT_WARNING, 0.5), false).timeout
 	if not is_inside_tree():
 		return
 	end_wedges()
 
+## The safe wedge moves: the current one flashes a warning, then sinks while
+## one of the others clears.
+func shift_safe_wedge() -> void:
+	var old := safe_wedge
+	var next := (old + 1 + randi() % (WEDGES - 1)) % WEDGES
+	var warning := _sector(old, SHIFT_WARNING_COLOR)
+	_wedge_nodes[old] = warning
+	if _wedge_nodes.has(next):
+		_tint(_wedge_nodes[next], Color(0.95, 0.9, 0.6, 0.35))
+	await get_tree().create_timer(WEDGE_SHIFT_WARNING, false).timeout
+	if not is_inside_tree() or not wedges_active:
+		return
+	_tint(warning, QUICKSAND_COLOR)
+	if _wedge_nodes.has(next):
+		_wedge_nodes[next].queue_free()
+		_wedge_nodes.erase(next)
+	safe_wedge = next
+
+func _tint(node: Node, color: Color) -> void:
+	if is_instance_valid(node):
+		((node as MeshInstance3D).material_override as StandardMaterial3D).albedo_color = color
+
 func end_wedges() -> void:
 	wedges_dangerous = false
 	wedges_active = false
-	for node in _wedge_nodes:
+	for node in _wedge_nodes.values():
 		if is_instance_valid(node):
 			node.queue_free()
 	_wedge_nodes.clear()
@@ -179,12 +215,13 @@ func in_trap(point: Vector3) -> bool:
 func _physics_process(delta: float) -> void:
 	if not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Player
-	if _player == null or not _player.health.is_alive():
-		return
 	_tick -= delta
 	if _tick > 0.0:
 		return
 	_tick = TICK
+	_trap_boss()
+	if _player == null or not _player.health.is_alive():
+		return
 	var share := 0.0
 	if wedges_dangerous and wedge_of(_player.global_position) != safe_wedge:
 		share += WEDGE_DAMAGE
@@ -192,4 +229,13 @@ func _physics_process(delta: float) -> void:
 	if in_trap(_player.global_position):
 		share += TRAP_DAMAGE
 	if share > 0.0:
-		_player.take_damage(_player.health.max_health * share, Constants.DamageType.KINETIC, boss if is_instance_valid(boss) else null, Player.HitKind.SPELL)
+		var amount := _player.health.max_health * share * (1.0 - _player.get_dot_mitigation())
+		_player.take_damage(amount, Constants.DamageType.KINETIC, boss if is_instance_valid(boss) else null, Player.HitKind.DOT)
+
+## Ataras crossing his own traps: slowed and losing Composure.
+func _trap_boss() -> void:
+	if not is_instance_valid(boss) or not boss.health.is_alive() or not in_trap(boss.global_position):
+		return
+	boss.status_effects.apply_effect("slow", null)
+	if boss.stance:
+		boss.stance.apply_parry_damage(TRAP_STANCE_DRAIN)
