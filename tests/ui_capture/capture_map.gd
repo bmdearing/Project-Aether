@@ -72,6 +72,18 @@ func _run() -> void:
 				map.add_child(t)
 				t.global_position = player.global_position + fwd * 8.0 + player.global_transform.basis.x * (i * 5.0 - 2.5)
 			cam.global_transform = player.camera.global_transform
+		"minion":
+			# A Wraith at the player's side and a Reap sweep in front.
+			var player := get_tree().get_first_node_in_group("player") as Player
+			player.ward.current_ward = 100.0
+			var wraith := load("res://data/abilities/instances/wraith.tres") as Ability
+			player.ability_cast._cast(wraith, player.global_position)
+			await get_tree().create_timer(0.6).timeout
+			player.ability_cast._cast(load("res://data/abilities/instances/reap.tres") as Ability, player.global_position)
+			await get_tree().create_timer(0.08).timeout
+			cam.global_transform = player.camera.global_transform
+			cam.global_position += player.global_transform.basis.z * 2.5 + Vector3.UP * 1.2
+			cam.rotation.x -= 0.25
 		"aerial":
 			# Angled overview from inside the draw distance (top is out of it).
 			var centre := Vector3((map.graph.grid_size - 1) * map.cell_size / 2.0, 0, (map.graph.grid_size - 1) * map.cell_size / 2.0)

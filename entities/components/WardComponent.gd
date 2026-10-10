@@ -22,6 +22,9 @@ var restoration_multiplier: float = 1.0
 var regen_delay_reduction: float = 0.0
 ## Set by UniqueEffects (The Pale Eye, Stride of the Unwound): no restoration at all.
 var recovery_blocked: bool = false
+## Other things holding Ward recovery shut while they last (a Wraith): any
+## key present blocks it, independently of recovery_blocked.
+var recovery_locks: Dictionary = {}
 
 var _regen_delay_timer: float = 0.0
 
@@ -51,7 +54,7 @@ func absorb(incoming_damage: float) -> float:
 
 ## Every restoration source routes through here.
 func restore(amount: float) -> void:
-	if amount <= 0.0 or recovery_blocked:
+	if amount <= 0.0 or recovery_blocked or not recovery_locks.is_empty():
 		return
 	var final_amount := amount * restoration_multiplier
 	current_ward = min(max_ward, current_ward + final_amount)

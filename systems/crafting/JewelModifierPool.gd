@@ -18,7 +18,7 @@ const STAT_KEYS := [
 	"flat_life", "flat_mana", "life_regen_flat", "mana_regen",
 	"flat_armor", "flat_evasion", "flat_ward",
 	"increased_physical_damage", "increased_spell_damage", "elemental_dmg_increased", "esoteric_dmg_increased",
-	"increased_area_damage", "dot_multiplier",
+	"increased_area_damage", "dot_multiplier", "minion_damage",
 	"fire_resistance", "cold_resistance", "lightning_resistance", "esoteric_resistance",
 	"attack_speed", "cast_speed", "move_speed", "increased_attack_damage",
 	"crit_chance_increased", "crit_damage_increased",

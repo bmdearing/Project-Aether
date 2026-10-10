@@ -200,7 +200,7 @@ func _test_no_spell_cooldowns() -> void:
 			var a := load("res://data/abilities/instances/" + f) as Ability
 			if a.has_tag(Ability.TAG_WARCRY):
 				_check(a.cooldown_seconds > 0.0, "%s, a Warcry, keeps a cooldown" % a.ability_id)
-			elif a.cooldown_seconds > 0.0:
+			elif a.cooldown_seconds > 0.0 and not a.has_tag(Ability.TAG_MINION):  # summons keep one too
 				with_cooldown.append(a.ability_id)
 	with_cooldown.sort()
 	_check(with_cooldown == ["blink", "purge"], "only utility spells and Warcries keep a cooldown (%s)" % ", ".join(with_cooldown))

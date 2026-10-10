@@ -38,7 +38,9 @@ static func draw(ci: CanvasItem, ability: Ability, rect: Rect2) -> void:
 		"booming_blade": _booming_blade(pen, c)
 		"caltrops": _caltrops(pen, c)
 		"cinder_lance": _cinder_lance(pen, c)
-		"comet": _comet(pen, c)
+		"comet": _meteor(pen, c) if ability.has_twist("molten_core") else _comet(pen, c)
+		"reap": _reap(pen, c)
+		"wraith": _wraith(pen, c)
 		"entropic_decay": _entropic_decay(pen, c)
 		"flame_jets": _flame_jets(pen, c)
 		"flame_wall": _flame_wall(pen, c)
@@ -241,6 +243,23 @@ static func _meteor(pen: IconArt.Pen, c: Color) -> void:
 	pen.poly([0.48, 0.48, 0.66, 0.42, 0.82, 0.56, 0.78, 0.78, 0.58, 0.84, 0.44, 0.68], Color(0.32, 0.12, 0.08))
 	pen.stroke_px(pen.pts([0.56, 0.54, 0.64, 0.64, 0.6, 0.76]), FIRE_CORE, _width(pen, 0.025))
 	pen.stroke_px(pen.pts([0.64, 0.64, 0.76, 0.62]), FIRE_CORE, _width(pen, 0.02))
+
+# --- aetheric -----------------------------------------------------------------
+
+static func _reap(pen: IconArt.Pen, c: Color) -> void:
+	# Haft from bottom-left, a curved blade sweeping over the top.
+	pen.stroke_px(pen.pts([0.22, 0.86, 0.6, 0.2]), Color(0.42, 0.34, 0.26), _width(pen, 0.05))
+	pen.poly([0.6, 0.2, 0.8, 0.22, 0.9, 0.36, 0.84, 0.5, 0.74, 0.36, 0.58, 0.28], c)
+	pen.stroke_px(pen.pts([0.6, 0.2, 0.8, 0.22, 0.9, 0.36, 0.84, 0.5]), Color(1, 1, 1, 0.85), _width(pen, 0.018))
+	for a in [0.0, 0.5, 1.0]:
+		_glow(pen, 0.38 + a * 0.12, 0.66 - a * 0.18, 0.06, c, 0.3)
+
+static func _wraith(pen: IconArt.Pen, c: Color) -> void:
+	_glow(pen, 0.5, 0.5, 0.36, c, 0.18)
+	pen.poly([0.5, 0.18, 0.66, 0.3, 0.7, 0.56, 0.78, 0.86, 0.62, 0.78, 0.5, 0.88, 0.38, 0.78, 0.22, 0.86, 0.3, 0.56, 0.34, 0.3], Color(c, 0.85))
+	pen.poly([0.5, 0.26, 0.6, 0.34, 0.6, 0.46, 0.5, 0.5, 0.4, 0.46, 0.4, 0.34], c.darkened(0.75))
+	pen.circle(0.45, 0.4, 0.025, Color(1, 1, 1))
+	pen.circle(0.55, 0.4, 0.025, Color(1, 1, 1))
 
 # --- cold ---------------------------------------------------------------------
 

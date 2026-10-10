@@ -150,6 +150,16 @@ const TWISTS := {
 	"seismic_cry": [
 		{"id": "aftershock", "name": "Aftershock", "description": "The slam repeats 0.8 seconds later at half strength.", "ring": 2},
 	],
+	"reap": [
+		{"id": "harvest", "name": "Harvest", "description": "Each enemy the scythe hits restores 1% of your maximum Life.", "ring": 2},
+		{"id": "wide_arc", "name": "Wide Arc", "description": "The sweep covers 180 degrees, but deals 25% less damage.", "ring": 2},
+		{"id": "second_swing", "name": "Second Swing", "description": "The scythe sweeps back again for 50% damage.", "ring": 3, "requires": ["harvest", "wide_arc", "potency_2"]},
+	],
+	"wraith": [
+		{"id": "bound_soul", "name": "Bound Soul", "description": "The wraith lasts 50% longer.", "ring": 2},
+		{"id": "ward_feast", "name": "Ward Feast", "description": "Every 4 Ward consumed adds damage, instead of every 7.", "ring": 2},
+		{"id": "spectral_host", "name": "Spectral Host", "description": "Summons two wraiths that split the Ward between them.", "ring": 3, "requires": ["bound_soul", "ward_feast"]},
+	],
 	"purge": [
 		{"id": "second_wind", "name": "Second Wind", "description": "Also restores 10% of your maximum Life.", "ring": 2},
 	],

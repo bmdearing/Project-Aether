@@ -308,6 +308,14 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		_flash_ring(_player.global_position, 1.4, ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
+	if ability.ability_id == "reap":
+		_reap(ability, damage_multiplier, apply_composure, 1.0)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "wraith":
+		_summon_wraith(ability)
+		EventBus.ability_cast.emit(_player, ability)
+		return
 	if ability.has_tag(Ability.TAG_WARCRY):
 		_warcry(ability, damage_multiplier)
 		EventBus.ability_cast.emit(_player, ability)
@@ -444,6 +452,72 @@ const METEOR_SHOWER_AREA := 0.6
 const METEOR_SHOWER_SPREAD := 0.9  # of the full radius, from the target
 const HEAVY_MASS_FALL := 1.5
 const EVENT_HORIZON_DAMAGE := 3.0
+## Reap: the scythe's arc, and its web twists.
+const REAP_HALF_ANGLE := 55.0
+const REAP_WIDE_HALF_ANGLE := 90.0
+const REAP_WIDE_DAMAGE := 0.75
+const REAP_SECOND_SWING_DELAY := 0.35
+const REAP_SECOND_SWING_DAMAGE := 0.5
+const REAP_HARVEST_LIFE := 0.01
+const REAP_COLOR := Color(0.45, 0.86, 1.0, 0.7)
+## Wraith: Ward consumed per stack of more damage (WraithMinion.MORE_PER_STACK).
+const WRAITH_WARD_PER_STACK := 7.0
+const WRAITH_FEAST_WARD_PER_STACK := 4.0
+
+## Reap: everything in a cone ahead takes the hit. direction_sign -1 is
+## Second Swing's sweep back.
+func _reap(ability: Ability, damage_multiplier: float, apply_composure: bool, direction_sign: float) -> void:
+	var radius := ability.get_radius(_player.stat_sheet)
+	var half := REAP_WIDE_HALF_ANGLE if ability.has_twist("wide_arc") else REAP_HALF_ANGLE
+	var mult := damage_multiplier * (REAP_WIDE_DAMAGE if ability.has_twist("wide_arc") else 1.0)
+	var forward := -_player.camera.global_transform.basis.z
+	forward.y = 0.0
+	forward = forward.normalized() if forward.length() > 0.01 else -_player.global_transform.basis.z
+	var origin := _player.global_position
+	var harvest := ability.has_twist("harvest")
+	for enemy in _enemies_near(origin, radius):
+		var to_enemy := enemy.global_position - origin
+		to_enemy.y = 0.0
+		if to_enemy.length() > 0.5 and rad_to_deg(forward.angle_to(to_enemy.normalized())) > half:
+			continue
+		_hit_enemy(ability, enemy, mult, apply_composure, Callable())
+		if harvest:
+			_player.health.heal(_player.health.max_health * REAP_HARVEST_LIFE)
+	_reap_arc(origin, forward, radius, half)
+	if ability.has_twist("second_swing") and direction_sign > 0.0:
+		get_tree().create_timer(REAP_SECOND_SWING_DELAY, false).timeout.connect(func():
+			if is_instance_valid(_player):
+				_reap(ability, damage_multiplier * REAP_SECOND_SWING_DAMAGE, apply_composure, -1.0))
+
+## The scythe's sweep: a pale cone that fades out.
+func _reap_arc(origin: Vector3, forward: Vector3, radius: float, half: float) -> void:
+	var arc := StancePreview.new()
+	_player.get_tree().current_scene.add_child(arc)
+	arc.draw({"cone": [origin, forward, radius, half]})
+	var mat := arc.material_override as StandardMaterial3D
+	mat.albedo_color = REAP_COLOR
+	var fade := arc.create_tween()
+	fade.tween_property(mat, "albedo_color:a", 0.0, 0.3)
+	fade.tween_callback(arc.queue_free)
+
+## Wraith: spends all Ward on the summon (more damage per Ward stack). A
+## new cast replaces the last one's wraiths.
+func _summon_wraith(ability: Ability) -> void:
+	for old in get_tree().get_nodes_in_group("minion"):
+		if old is WraithMinion and (old as WraithMinion).player == _player:
+			old.queue_free()
+	var ward := _player.ward.current_ward
+	var per := WRAITH_FEAST_WARD_PER_STACK if ability.has_twist("ward_feast") else WRAITH_WARD_PER_STACK
+	var stacks := int(ward / per)
+	_player.ward.drain(ward)
+	var scene := _player.get_tree().current_scene
+	var right := _player.global_transform.basis.x
+	if ability.has_twist("spectral_host"):
+		# Two wraiths split the Ward between them.
+		for s in [-1.0, 1.0]:
+			WraithMinion.summon(scene, _player, ability, stacks / 2, 1.0, right * s * 1.2)
+	else:
+		WraithMinion.summon(scene, _player, ability, stacks, 1.0, right * 1.0)
 const FROST_SHATTER_DAMAGE := 1.5
 const FROST_SHATTER_AREA := 1.6
 const LONG_STEP := 1.6

@@ -7,6 +7,35 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.68: Reap, Wraith and Minions (user request)
+
+- **Reap** (Aetheric, Area, no cooldown, 18 Mana): a spectral scythe sweeps a 110° cone in front of you for heavy damage, with a pale arc showing the sweep. Web twists:
+  - *Harvest:* 1% of max Life per enemy hit.
+  - *Wide Arc:* 180°, 25% less damage.
+  - *Second Swing:* sweeps back for 50%.
+- **Wraith** (Aetheric, Minion, Duration): spends all of your Ward to summon a hooded shade.
+  - It flies at the nearest enemy within reach, passing through walls, and strikes with Aetheric damage.
+  - Each 7 Ward drunk adds 5% more damage. It lasts 20 seconds and can't be hurt.
+  - While it lives you can't recover Ward. `WardComponent.recovery_locks` holds this alongside The Pale Eye's block, so the two don't fight.
+  - Casting again replaces it.
+  - Web twists: *Bound Soul* (+50% duration), *Ward Feast* (every 4 Ward), *Spectral Host* (two wraiths split the Ward).
+- **Minion modifiers:**
+  - On gear: increased Minion damage (conduits, amulets, rings), Minion Attack Speed (gloves, amulets) and Minion Duration (body armour, amulets).
+  - On Jewels: Minion damage.
+  - On Spell Slates: *Spirit Binding* (Minion damage).
+  - A new **Minion Brand** steers Orbs toward them. It drops like the other Brands and sits in the currency tab.
+  - The new **Minion** tag shows on spell cards.
+- **Baseline regeneration:** every character regenerates 0.5% of maximum Life and Mana per second, on top of gear (`Player.BASE_REGEN_PERCENT`).
+- Icons for Reap and Wraith. Comet's icon turns into the molten meteor when Molten Core is taken.
+- Tests: `tests/minions`:
+  - Reap hits ahead and not behind.
+  - Wraith drinks the Ward, locks recovery and strikes. More Ward and Minion damage both mean harder hits.
+  - Recovery returns when it's gone, and Spectral Host summons two.
+  - The modifiers and Brand exist.
+  - Every new twist casts in `tests/skill_web`.
+
+---
+
 ## 2026-10-09 — v4.67: Skill webs (user request)
 
 - **Every spell has its own skill web** (`SkillWeb`, the Spells screen's web panel, design in `documents/Skill_Webs_Design.md`).

@@ -83,10 +83,11 @@ const TAG_CHANNELLING := &"channelling"
 const TAG_MOVEMENT := &"movement"
 const TAG_UTILITY := &"utility"
 const TAG_WARCRY := &"warcry"
+const TAG_MINION := &"minion"
 const TAG_NAMES := {
 	TAG_AREA: "Area of Effect", TAG_PROJECTILE: "Projectile", TAG_DURATION: "Duration",
 	TAG_LIMIT: "Limit", TAG_CHANNELLING: "Channelling", TAG_MOVEMENT: "Movement", TAG_UTILITY: "Utility",
-	TAG_WARCRY: "Warcry",
+	TAG_WARCRY: "Warcry", TAG_MINION: "Minion",
 }
 
 ## Spell level 1-20, raised with gold + Crystallized Aether. Gear's

@@ -183,6 +183,10 @@ const AFFIX_POOL := [
 	# Patch v4.0 Spell Hit Build Mod Pool - Conduits use weapon_kind, not
 	# slots (a conduit can occupy PRIMARY_WEAPON or OFFHAND).
 	{"stat_key": "increased_spell_damage", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Spell damage", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 11], "weapon_kind": "conduit", "brand_tags": ["fire", "cold", "lightning", "aetheric", "entropic", "pale"]},
+	# Minions (Wraith).
+	{"stat_key": "minion_damage", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Minion damage", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 11], "weapon_kind": "conduit", "brand_tags": ["minion"]},
+	{"stat_key": "minion_attack_speed", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "+%d%% increased Minion Attack Speed", "applies_to": ["armor", "item"], "slots": [2, 9], "brand_tags": ["minion"]},
+	{"stat_key": "minion_duration", "tier1_min": 20.0, "tier1_max": 26.0, "desc": "+%d%% increased Minion Duration", "applies_to": ["armor", "item"], "slots": [1, 9], "brand_tags": ["minion"]},
 	{"stat_key": "skill_effect_duration", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Skill Effect Duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "weapon_kind": "conduit", "brand_tags": []},
 	{"stat_key": "mana_cost_reduction", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "%d%% reduced Mana cost of skills", "applies_to": ["weapon", "armor", "item"], "slots": [0, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
 	{"stat_key": "cooldown_recovery_rate", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% increased Cooldown Recovery Rate", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "weapon_kind": "conduit", "brand_tags": []},

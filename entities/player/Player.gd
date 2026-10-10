@@ -289,19 +289,22 @@ var resilience: float = 0.0
 ## still means zero Ward, a multiplier on 0 is 0. Ward Restoration Rate
 ## is a "removed expression" (not stat-derived) - restoration_multiplier
 ## resets to a flat 1.0 until/unless a gear affix drives it.
+const BASE_REGEN_PERCENT := 0.5
+
 func _apply_derived_stats() -> void:
 	# Life: Strength's +4/point + flat Life, times increased Life; regen likewise.
 	var life_mult := (unique_effects.max_life_multiplier() if unique_effects else 1.0) * (1.0 + stat_sheet.get_misc_bonus("life_increased") / 100.0) * (1.0 + stat_sheet.get_misc_bonus("no_ward_recovery_life_bonus") / 100.0)
 	var flat_life := stat_sheet.get_misc_bonus("max_life") + stat_sheet.get_misc_bonus("flat_life")
 	health.set_max_health((_base_max_health + stat_sheet.get_max_life_bonus() + flat_life) * life_mult)
-	var life_regen := (stat_sheet.get_misc_bonus("life_regen") + stat_sheet.get_misc_bonus("life_regen_flat")) * (1.0 + stat_sheet.get_misc_bonus("life_regen_increased") / 100.0)
+	# Everyone regenerates BASE_REGEN_PERCENT of max Life/Mana per second on top of gear.
+	var life_regen := (health.max_health * BASE_REGEN_PERCENT / 100.0 + stat_sheet.get_misc_bonus("life_regen") + stat_sheet.get_misc_bonus("life_regen_flat")) * (1.0 + stat_sheet.get_misc_bonus("life_regen_increased") / 100.0)
 	health.regen_per_second = 0.0 if unique_effects and unique_effects.has(UniqueEffects.NO_LIFE_REGEN) else life_regen
 	resilience = stat_sheet.get_misc_bonus("flat_resilience")
 
 	# Mana: Intellect's +3/point + flat Mana, times increased Mana; regen likewise.
 	var flat_mana := stat_sheet.get_misc_bonus("max_mana") + stat_sheet.get_misc_bonus("flat_mana")
 	mana.set_max_mana((_base_max_mana + stat_sheet.get_mana_from_stats() + flat_mana) * (1.0 + stat_sheet.get_misc_bonus("mana_increased") / 100.0))
-	mana.regen_per_second = (_base_mana_regen + stat_sheet.get_misc_bonus("mana_regen")) * (1.0 + stat_sheet.get_misc_bonus("mana_regen_increased") / 100.0)
+	mana.regen_per_second = (_base_mana_regen + mana.max_mana * BASE_REGEN_PERCENT / 100.0 + stat_sheet.get_misc_bonus("mana_regen")) * (1.0 + stat_sheet.get_misc_bonus("mana_regen_increased") / 100.0)
 
 	# Evasion (gear x Agility's increased%) - refreshed here for display;
 	# take_damage() reads it live.
