@@ -513,6 +513,8 @@ func _test_maw_arena() -> void:
 	herald.global_position = storm.global_position + Vector3(0, 0.05, reach)
 	_check(not herald.blocks_charge(Vector3(0, 0, 1)), "lunging away from a pylon goes on")
 	_check(herald.blocks_charge(Vector3(0, 0, -1)) and herald.status_effects.is_stunned(), "lunging into a pylon stuns her")
+	_check(herald.composure.is_broken, "slamming into a pylon opens a Riposte window")
+	herald.composure.end_broken_state()
 	herald.status_effects.clear_all_effects()
 	_check(Pinnacle.maw_lens_chance(4) > Pinnacle.maw_lens_chance(3) and Pinnacle.maw_lens_chance(0) > 0.0, "each standing pylon raises the Lens chance")
 
@@ -559,6 +561,31 @@ func _test_maw_arena() -> void:
 	await _seconds(1.0)
 	var bitten := maw.bite()
 	_check(bitten != null and bitten.state == MawPlate.State.FALLING, "the open Maw eats an outer plate")
+	# Knocked back over the open Maw she clings to the lip, and hits land harder.
+	player.global_position = maw.to_global(Vector3(-12.0, 0.1, 0))
+	herald.global_position = maw.to_global(Vector3(-7.0, 0.05, 0))
+	var life_before: float = herald.health.current_health + herald._ward_current
+	herald._knock_back()
+	_check(maw.is_clinging() and herald.status_effects.is_stunned(), "with no floor behind her she clings to the lip")
+	_check(maw.plate_at(herald.global_position) != null, "she hangs on to solid floor")
+	await _seconds(MawArena.CLING_SEC + 0.2)
+	_check(not maw.is_clinging() and herald.health.current_health + herald._ward_current < life_before, "the Maw drags at her before she climbs back")
+	herald.status_effects.clear_all_effects()
+	# Feed the Maw: hitting her hard enough breaks it.
+	var feed := herald.boss_brain.find("feed_the_maw")
+	_check(herald.can_use_ability(feed), "she can feed the open Maw")
+	feed.telegraph = 0.6
+	var standing_before := maw.outer_plates.filter(func(p): return p.is_solid()).size()
+	herald.cast_custom(feed)
+	await _seconds(0.7)
+	EventBus.damage_dealt.emit(player, herald, herald.health.max_health, Constants.DamageType.KINETIC, false, false)
+	await _seconds(0.8)
+	_check(maw.outer_plates.filter(func(p): return p.is_solid()).size() == standing_before, "a broken feeding takes no plates")
+	herald.status_effects.clear_all_effects()
+	herald.cast_custom(feed)
+	await _seconds(1.4)
+	await _seconds(1.0)
+	_check(maw.outer_plates.filter(func(p): return p.is_solid()).size() <= standing_before - MawArena.FEED_PLATES, "an unbroken feeding takes two plates at once")
 
 	# The void: the Herald is put back on the inner ring, anything else dies.
 	herald.global_position = maw.to_global(Vector3(0, -20, 0))

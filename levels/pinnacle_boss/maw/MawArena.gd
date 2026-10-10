@@ -46,6 +46,19 @@ const STRIKE_FALL_WARNING := 1.0
 ## The plates beside a shattered pylon.
 const PYLON_FALL_WARNING := 1.5
 
+## Saved pylons soften phase 3: each delays the Maw's first bite and
+## weakens its opening Unmaking (Xalatath._on_phase()).
+const BITE_DELAY_PER_PYLON := 5.0
+const OPENING_WEAKEN_PER_PYLON := 0.12
+## Knocked over missing floor, the Herald clings to the lip: stunned and
+## taking more damage, then the Maw drags at her before she climbs back.
+const CLING_SEC := 4.0
+const CLING_DAMAGE_TAKEN := 1.5
+const MAW_DRAG_SHARE := 0.06
+## Feed the Maw: plates it takes at once, and the next bite's timer after.
+const FEED_PLATES := 2
+const FEED_NEXT_BITE := 12.0
+
 const ENTROPY_TICK := 0.5
 const ENTROPY_STACKS_PER_SEC := 1.0
 const ENTROPY_MAX_STACKS := 10.0
@@ -65,6 +78,8 @@ var _entropy_tick := 0.0
 var _hot_plate: MawPlate
 var _player: Player
 var _maw_light: OmniLight3D
+var _clinging := false
+var _feed_marks: Array[Node] = []
 
 func _ready() -> void:
 	add_to_group("maw_arena")
@@ -141,7 +156,7 @@ func open_maw() -> void:
 	if maw_open:
 		return
 	maw_open = true
-	_bite_timer = MAW_BITE_INTERVAL
+	_bite_timer = MAW_BITE_INTERVAL + BITE_DELAY_PER_PYLON * pylons_standing()
 	BossTelegraph.circle(self, global_position, MAW_RADIUS, MAW_OPEN_WARNING, Color(0.55, 0.2, 0.85))
 	for plate in dais_plates:
 		plate.fall(MAW_OPEN_WARNING)
@@ -156,6 +171,84 @@ func bite() -> MawPlate:
 	var plate: MawPlate = standing.pick_random()
 	plate.fall(MAW_BITE_WARNING)
 	return plate
+
+## How hard the Maw's opening hits: 1.0 with no pylons left, weaker per pylon.
+func opening_strength() -> float:
+	return 1.0 - OPENING_WEAKEN_PER_PYLON * pylons_standing()
+
+func is_clinging() -> bool:
+	return _clinging
+
+## The Herald knocked `distance` along `away`: if the floor there is gone she
+## clings to the last solid spot instead and the Maw drags at her. False
+## (and nothing happens) when there is floor behind her.
+func cling(herald: Enemy, away: Vector3, distance: float) -> bool:
+	var target := herald.global_position + away * distance
+	var plate := plate_at(target)
+	if plate and plate.is_solid():
+		return false
+	var lip := herald.global_position
+	var step := 0.25
+	var travelled := 0.0
+	while travelled < distance:
+		var next := lip + away * step
+		var under := plate_at(next)
+		if under == null or not under.is_solid():
+			break
+		lip = next
+		travelled += step
+	_clinging = true
+	herald.global_position = lip
+	herald.velocity = Vector3.ZERO
+	herald.status_effects.apply_timed_effect("stun", CLING_SEC)
+	herald.interrupt_attack()
+	BossTelegraph.circle(self, lip, 1.6, CLING_SEC, Color(0.55, 0.2, 0.85))
+	var maw_glow := Color(0.65, 0.3, 1.0)
+	for i in 4:
+		get_tree().create_timer(i * 0.9, false).timeout.connect(func():
+			if is_instance_valid(herald) and herald.health.is_alive():
+				LightningArc.spawn(self, lip + away * 1.5 + Vector3.DOWN * 2.0, herald.global_position + Vector3.UP, maw_glow))
+	get_tree().create_timer(CLING_SEC, false).timeout.connect(_end_cling.bind(herald))
+	return true
+
+func _end_cling(herald: Enemy) -> void:
+	_clinging = false
+	if not is_instance_valid(herald) or not herald.health.is_alive():
+		return
+	var amount := herald.health.max_health * MAW_DRAG_SHARE
+	herald.take_damage(amount, Constants.DamageType.ENTROPIC, true)
+	EventBus.damage_dealt.emit(get_tree().get_first_node_in_group("player"), herald, amount, Constants.DamageType.ENTROPIC, true, false)
+	if plate_at(herald.global_position) == null:
+		herald.global_position = rescue_point(herald.global_position)
+
+## Where the Herald stands to feed the Maw: on the inner ring at the lip,
+## on her side of it.
+func lip_point(from: Vector3) -> Vector3:
+	var local := to_local(from)
+	return to_global(MawPlate.direction(MawPlate.angle_of(local)) * (MAW_RADIUS + 1.2) + Vector3(0, 0.05, 0))
+
+## Feed the Maw starting: the plates it will take shake as a warning.
+func mark_feed_targets(warning: float) -> Array[MawPlate]:
+	var standing := outer_plates.filter(func(p: MawPlate): return p.is_solid())
+	standing.shuffle()
+	var out: Array[MawPlate] = []
+	for p in standing.slice(0, FEED_PLATES):
+		out.append(p)
+		var center := to_global(p.center_local())
+		_feed_marks.append(BossTelegraph.circle(self, center, 3.5, warning, Color(0.55, 0.2, 0.85)))
+	return out
+
+func feed(plates: Array[MawPlate]) -> void:
+	for p in plates:
+		if p.is_solid():
+			p.fall(0.6)
+	_bite_timer = minf(_bite_timer, FEED_NEXT_BITE)
+
+func cancel_feed(_plates: Array[MawPlate]) -> void:
+	for mark in _feed_marks:
+		if is_instance_valid(mark):
+			mark.queue_free()
+	_feed_marks.clear()
 
 func maw_center() -> Vector3:
 	return global_position
@@ -226,7 +319,7 @@ func _tick_entropy(delta: float) -> void:
 	_entropy_tick -= delta
 	if _entropy_tick <= 0.0:
 		_entropy_tick += ENTROPY_TICK
-		var amount := _player.health.max_health * ENTROPY_DAMAGE_PER_STACK * ceilf(entropy_stacks)
+		var amount := _player.health.max_health * ENTROPY_DAMAGE_PER_STACK * ceilf(entropy_stacks) * (1.0 - _player.get_dot_mitigation())
 		_player.take_damage(amount, Constants.DamageType.ENTROPIC, boss if is_instance_valid(boss) else null, Player.HitKind.DOT)
 
 ## Anything that drops below the floor: the player dies, the Herald is
