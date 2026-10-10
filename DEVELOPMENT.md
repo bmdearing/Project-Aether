@@ -240,7 +240,7 @@ Instinct/status-effect speed modifiers already do.
   shown in Alt info and can be degraded by the Shard of Tharsis.
 - **Spells (v4.14):** `the spell's own base damage at its level x
   (1 + sum Increased%) x product(More)`. Each spell has a unique level-1
-  range (`Ability.base_damage_min/max`) that grows 9.5% per level,
+  range (`Ability.base_damage_min/max`) that grows 7% per level (compounding),
   compounding. Increased% takes Intellect (1%/pt), the Chain Bonus,
   increased Spell damage, the equipped Conduit's local Spell damage, and
   whatever the spell's tags let in (e.g. increased Area damage for Area

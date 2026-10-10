@@ -19,6 +19,23 @@ there. Most recent first.
 
 ---
 
+## 2026-10-10 — v4.72: Weapons catch up with spells (user request)
+
+- **Quality:** the cap is now 25%. A new Significant corruption outcome, **Tempered Limit** (weapons and armour only), raises one item's cap by 15, to 40%. Tempering still works on corrupted items. The card shows the raised cap.
+- **Weapons**, measured with `tests/balance/probe_dps`:
+  - Melee motion values are all x1.45. Best bases now do about 216-225 DPS (one-handers) and 238-241 (two-handers).
+  - Two-handers (the "heavy" swing family) reach 3.6 m and cover 85° either side. Every target after the first takes 90%, up to 8 targets.
+  - Guns now do 195-218 DPS, Revolver 236, Bolt Action Rifle 250. The Machine Gun is trimmed to stay just under melee, as `test_v451` expects. Bows and crossbows do about 170-180.
+- **Spells**, measured with the new `tests/balance/probe_spell_dps` (baseline character, unlimited Mana):
+  - Before this change, level 20 Stormcall and Inferno did 1,300-1,450 single-target DPS to everything in their area, recastable every 0.3 s.
+  - Damage growth per level is now 7% (was 9.5%): x3.6 at level 20 instead of x5.6.
+  - Mana cost grows 4% per level (x1.76 at level 20).
+  - Cast times: Stormcall, Inferno and Shatter 1.0 s; Entropic Decay and Reap 0.6 s.
+  - Level 20 spells now land at about 110-400 DPS: Thunder Javelin 395 (single target), Flame Jets 339, Stormcall 217, Inferno 195. Gear (spell levels, conduit spell damage, Mana) still raises them. Re-check with endgame gear before tuning further.
+- Tests: `test_caster_stances` makes its sample spells instant (it tests stances, not cast times). `test_v414` checks growth for 7% per level.
+
+---
+
 ## 2026-10-10 — v4.71: Tempering, skill web layout, Spells screen, first-cast hitch (user requests)
 
 - **Sands of Time:** Time Stop is now the wand's own stance (UniqueCatalog `conduit_stance_type`, read through `Weapon.get_conduit_stance_type()`), so the card shows *Stance: Time Stop* instead of Spell Library. The text-only mod line is gone, and saved copies drop it on load.

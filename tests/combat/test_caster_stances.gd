@@ -87,6 +87,8 @@ func _spell(id: String) -> Ability:
 	a.base_damage_min = a.base_damage_max  # fixed rolls, so damage comparisons are exact
 	a.status_chance = 1.0
 	a.cooldown_seconds = 1.0  # a started cooldown is how these checks see a cast
+	a.cast_type = Ability.CastType.INSTANT  # these check stances, not cast times
+	a.base_cast_time = 0.0
 	return a
 
 func _reset(main: Weapon, off: Weapon = null, page: WeaponStance.StancePage = WeaponStance.StancePage.A) -> void:

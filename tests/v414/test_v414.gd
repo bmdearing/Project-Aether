@@ -56,7 +56,7 @@ func _test_spell_math() -> void:
 	var l1 := comet.get_base_damage_range(sheet)
 	_check(is_equal_approx(l1.x, comet.base_damage_min), "level 1 base damage is the authored minimum")
 	comet.level = 10
-	_check(comet.get_base_damage_range(sheet).x > l1.x * 2.0, "base damage grows with level")
+	_check(comet.get_base_damage_range(sheet).x > l1.x * 1.7, "base damage grows with level (7% per level, compounding)")
 	comet.level = 1
 
 	# +levels from gear stack past 20 and unlock over-cap bonuses.
