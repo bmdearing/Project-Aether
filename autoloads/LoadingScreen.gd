@@ -89,6 +89,9 @@ func _finish(scene: PackedScene) -> void:
 	else:
 		push_error("LoadingScreen: could not load the scene")
 	_bar.value = 95.0
+	await get_tree().process_frame
+	# Compile every spell's effects now, behind the plate, not on first cast.
+	await SpellWarmup.run(get_tree())
 	for i in SETTLE_FRAMES:
 		await get_tree().process_frame
 	var wait := MIN_SHOW_SEC - (Time.get_ticks_msec() - _shown_at) / 1000.0
