@@ -121,6 +121,20 @@ func _switch_to_tab(index: int) -> void:
 	if screen == null:
 		return
 	_last_tab = index
+	# Inventory and Character are the two halves of one screen: the tabs
+	# switch between them (B and C still show both together).
+	if screen is InventoryScreen or screen is CharacterScreen:
+		var inv := _inventory_screen
+		if inv:
+			var keep_mouse := _mouse_to_keep()
+			if not inv.is_open():
+				for menu in get_tree().get_nodes_in_group("blocking_menu"):
+					if menu != inv and menu.is_open():
+						menu.close()
+				close()
+			inv.set_panels(screen is CharacterScreen, screen is InventoryScreen)
+			_restore_mouse(keep_mouse)
+		return
 	if not screen.is_open():
 		_toggle_screen(screen)
 

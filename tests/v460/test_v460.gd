@@ -300,6 +300,13 @@ func _test_hub_screens() -> void:
 	pause._input(tab)
 	await _frames(1)
 	_check(MenuTabStrip.open_index(get_tree()) == 1, "Tab again moves to the Character screen")
+	pause._switch_to_tab(0)
+	await _frames(1)
+	var inv := get_tree().get_first_node_in_group("inventory_screen") as InventoryScreen
+	_check(inv.is_showing_items() and not inv.is_showing_stats(), "the Inventory tab switches back from the Character tab")
+	pause._switch_to_tab(1)
+	await _frames(1)
+	_check(inv.is_showing_stats() and not inv.is_showing_items(), "and the Character tab switches to the sheet")
 	var strip := hub.find_children("*", "MenuTabStrip", true, false)
 	_check(not strip.is_empty() and (strip[0] as CanvasLayer).visible, "tab strip shows over the screen")
 	for menu in get_tree().get_nodes_in_group("blocking_menu"):
