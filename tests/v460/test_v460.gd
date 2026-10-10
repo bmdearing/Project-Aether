@@ -289,6 +289,19 @@ func _test_hub_screens() -> void:
 	_check(player.ability_loadout.slots[AbilityLoadoutComponent.SLOT_COUNT + 1] == null, "a page never holds the same spell twice")
 	spells._open_web(spark)
 	_check(spells._web_page.visible and not spells._library.visible, "left-click opens the spell's page")
+	_check(spells._web_icon.ability == spark, "the web page shows the spell's icon")
+	spells._on_loadout_slot_pressed(2)
+	_check(player.ability_loadout.slots[2] == spark, "on its web page, clicking a slot puts the spell there")
+	spells._on_loadout_slot_pressed(2)
+	_check(player.ability_loadout.slots[2] == null, "and clicking it again takes it out")
+	var blink: Ability = spells._owned_abilities.filter(func(a): return a.ability_id == "blink")[0]
+	var slot0 := spells._page_slots[0] as AbilitiesScreen.SpellSlot
+	_check(slot0._can_drop_data(Vector2.ZERO, {"spell": blink}), "a slot accepts a dragged spell")
+	slot0._drop_data(Vector2.ZERO, {"spell": blink})
+	spells.drop_on_slot(spark, 1)
+	_check(player.ability_loadout.slots[0] == blink and player.ability_loadout.slots[1] == spark, "dropping spells fills the slots")
+	spells.drop_on_slot(blink, 1, 0)
+	_check(player.ability_loadout.slots[1] == blink and player.ability_loadout.slots[0] == spark, "dragging one slot onto another swaps them")
 	spells.close()
 	var pause := get_tree().get_first_node_in_group("full_screen_menu") as PauseMenu
 	var tab := InputEventAction.new()

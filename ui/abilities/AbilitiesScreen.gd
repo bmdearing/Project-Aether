@@ -6,7 +6,10 @@ class_name AbilitiesScreen
 ## - right click pops up a small diagram of the Spell Page (keys 1-4) and the
 ##   Stance Page (cast while holding RMB with a Spell Library conduit); the
 ##   next click on one of its slots puts the spell there.
-## The loadout rows under the grid show both pages; clicking a slot empties it.
+## - drag it onto a Spell Page or Stance Page slot.
+## The loadout rows under the grid show both pages; clicking a slot empties
+## it, and slots can be dragged onto each other to swap. On a spell's web
+## page its icon can be dragged too, and clicking a slot puts it there.
 ##
 ## Owned spells are scanned from data/abilities/instances/, filtered to
 ## GameState.owned_ability_ids. Leveling costs Gold + Crystallized Aether.
@@ -35,6 +38,8 @@ var _web_level: Label
 var _web_upgrade: Button
 var _web_card_holder: Control
 var _web_view: SkillWebView
+var _web_icon: SpellIcon
+var _slot_hint: Label
 
 ## Right-click assign popup: covers the screen so a click anywhere else closes it.
 var _assign_layer: Control
@@ -132,7 +137,8 @@ func _build() -> void:
 	root.add_child(_slot_row(0))
 	root.add_child(_section_label("Stance Page - cast while holding RMB with a Spell Library conduit"))
 	root.add_child(_slot_row(AbilityLoadoutComponent.SLOT_COUNT))
-	root.add_child(_dim_label("Click a slot to empty it."))
+	_slot_hint = _dim_label("")
+	root.add_child(_slot_hint)
 
 	_currency_label = Label.new()
 	root.add_child(_currency_label)
@@ -164,14 +170,17 @@ func _slot_row(first: int) -> HBoxContainer:
 	row.add_theme_constant_override("separation", 8)
 	for i in AbilityLoadoutComponent.SLOT_COUNT:
 		var button := _make_slot_button(SLOT_SIZE, str(i + 1) if first == 0 else "RMB %d" % (i + 1))
+		(button as SpellSlot).slot_index = first + i
 		button.pressed.connect(_on_loadout_slot_pressed.bind(first + i))
 		row.add_child(button)
 		_page_slots.append(button)
 	return row
 
-## A spell slot with a small key caption in its corner.
+## A spell slot with a small key caption in its corner. Spells can be
+## dropped on it, and it can be dragged to another slot.
 func _make_slot_button(side: float, caption: String) -> ItemSlotButton:
-	var button := ItemSlotButton.new()
+	var button := SpellSlot.new()
+	button.screen = self
 	button.custom_minimum_size = Vector2(side, side)
 	var key := Label.new()
 	key.text = caption
@@ -233,10 +242,32 @@ func _style_slot(button: ItemSlotButton, ability: Ability) -> void:
 	button.tooltip_text = ability.display_name if ability else ""
 	AetherStyle.style_slot_button(button, SpellArt.colour_of(ability) if ability else AetherStyle.GOLD_FAINT)
 
+## Library: empties the slot. On a web page: puts that spell there (or
+## takes it back out if it's already there).
 func _on_loadout_slot_pressed(slot_index: int) -> void:
-	if _ability_loadout:
-		_ability_loadout.unequip(slot_index)
-		GameState.sync_ability_loadout(_ability_loadout)
+	if _ability_loadout == null:
+		return
+	if _web_ability and _ability_loadout.slots[slot_index] != _web_ability:
+		put_in_slot(_web_ability, slot_index)
+		return
+	_ability_loadout.unequip(slot_index)
+	GameState.sync_ability_loadout(_ability_loadout)
+
+## Drag and drop: a spell onto a slot. A spell dragged from another slot
+## swaps with what's there.
+func drop_on_slot(ability: Ability, slot_index: int, from_slot: int = -1) -> void:
+	if _ability_loadout == null or ability == null:
+		return
+	if from_slot >= 0 and from_slot != slot_index:
+		var there: Ability = _ability_loadout.slots[slot_index]
+		_ability_loadout.unequip(from_slot)
+		if there:
+			put_in_slot(there, from_slot)
+	put_in_slot(ability, slot_index)
+
+func _update_slot_hint() -> void:
+	if _slot_hint:
+		_slot_hint.text = ("Click a slot to put %s there, or drag its icon. Click it again to take it out." % _web_ability.display_name) if _web_ability else "Drag spells onto the slots, or drag slots onto each other to swap. Click a slot to empty it."
 
 func _refresh_currency() -> void:
 	_currency_label.text = "Gold: %d    %s: %d" % [GameState.gold, CurrencyText.name_of(Ability.AETHER_CURRENCY), GameState.inventory.count_of(Ability.AETHER_CURRENCY)]
@@ -256,6 +287,10 @@ func _build_web_page(root: VBoxContainer) -> void:
 	back.text = "< All Spells"
 	back.pressed.connect(_show_library)
 	header.add_child(back)
+	_web_icon = SpellIcon.new()
+	_web_icon.custom_minimum_size = Vector2(48, 48)
+	_web_icon.tooltip_text = "Drag onto a slot below, or click a slot"
+	header.add_child(_web_icon)
 	_web_title = Label.new()
 	AetherStyle.title_label(_web_title, 22)
 	header.add_child(_web_title)
@@ -288,6 +323,7 @@ func _show_library() -> void:
 	_web_ability = null
 	_web_page.visible = false
 	_library.visible = true
+	_update_slot_hint()
 
 func _open_web(ability: Ability) -> void:
 	_close_assign()
@@ -295,6 +331,9 @@ func _open_web(ability: Ability) -> void:
 	_library.visible = false
 	_web_page.visible = true
 	_web_view.ability = ability
+	_web_icon.ability = ability
+	AetherStyle.style_slot_button(_web_icon, SpellArt.colour_of(ability))
+	_update_slot_hint()
 	_refresh_web()
 
 func _refresh_web() -> void:
@@ -381,18 +420,23 @@ func _close_assign() -> void:
 	if _assign_layer:
 		_assign_layer.visible = false
 
+func _assign_to(slot_index: int) -> void:
+	if _assigning:
+		put_in_slot(_assigning, slot_index)
+	_close_assign()
+
 ## Puts the spell in a slot. It leaves any other slot on that page, so a
 ## page never holds the same spell twice.
-func _assign_to(slot_index: int) -> void:
-	if _assigning and _ability_loadout:
-		var first := 0 if slot_index < AbilityLoadoutComponent.SLOT_COUNT else AbilityLoadoutComponent.SLOT_COUNT
-		for i in range(first, first + AbilityLoadoutComponent.SLOT_COUNT):
-			if i != slot_index and _ability_loadout.slots[i] == _assigning:
-				_ability_loadout.unequip(i)
-		_ability_loadout.equip(_assigning, slot_index)
-		GameState.sync_ability_loadout(_ability_loadout)
-		_status.text = "%s set to %s slot %d." % [_assigning.display_name, "Spell Page" if first == 0 else "Stance Page", slot_index - first + 1]
-	_close_assign()
+func put_in_slot(ability: Ability, slot_index: int) -> void:
+	if _ability_loadout == null or ability == null:
+		return
+	var first := 0 if slot_index < AbilityLoadoutComponent.SLOT_COUNT else AbilityLoadoutComponent.SLOT_COUNT
+	for i in range(first, first + AbilityLoadoutComponent.SLOT_COUNT):
+		if i != slot_index and _ability_loadout.slots[i] == ability:
+			_ability_loadout.unequip(i)
+	_ability_loadout.equip(ability, slot_index)
+	GameState.sync_ability_loadout(_ability_loadout)
+	_status.text = "%s set to %s slot %d." % [ability.display_name, "Spell Page" if first == 0 else "Stance Page", slot_index - first + 1]
 
 ## A spell in the grid: left and right clicks are separate signals, and a
 ## small mark shows which pages it's on.
@@ -410,6 +454,22 @@ class SpellIcon extends ItemSlotButton:
 		_marks.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 		_marks.draw.connect(_draw_marks)
 		add_child(_marks)
+
+	## Spells drag out of the grid (and the web page header) onto slots.
+	func _get_drag_data(_at_position: Vector2) -> Variant:
+		if ability == null:
+			return null
+		set_drag_preview(SpellIcon.preview(ability))
+		return {"spell": ability}
+
+	static func preview(spell: Ability) -> Control:
+		var icon := ItemSlotButton.new()
+		icon.custom_minimum_size = Vector2(56, 56)
+		icon.size = Vector2(56, 56)
+		icon.ability = spell
+		icon.modulate = Color(1, 1, 1, 0.8)
+		AetherStyle.style_slot_button(icon, SpellArt.colour_of(spell))
+		return icon
 
 	func refresh_marks() -> void:
 		if _marks:
@@ -431,3 +491,21 @@ class SpellIcon extends ItemSlotButton:
 			_marks.draw_circle(Vector2(size.x - 9, 9), 4.5, AetherStyle.GOLD_BRIGHT)
 		if on_stance:
 			_marks.draw_circle(Vector2(size.x - 9, 21), 4.5, AetherStyle.AETHER)
+
+## A Spell Page / Stance Page slot: spells drop onto it, and a filled slot
+## can be dragged onto another to swap.
+class SpellSlot extends ItemSlotButton:
+	var screen: Node
+	var slot_index: int = -1
+
+	func _get_drag_data(_at_position: Vector2) -> Variant:
+		if ability == null or slot_index < 0:
+			return null
+		set_drag_preview(SpellIcon.preview(ability))
+		return {"spell": ability, "from_slot": slot_index}
+
+	func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
+		return slot_index >= 0 and data is Dictionary and data.has("spell")
+
+	func _drop_data(_at_position: Vector2, data: Variant) -> void:
+		screen.drop_on_slot(data["spell"], slot_index, int(data.get("from_slot", -1)))
