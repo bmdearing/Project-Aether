@@ -37,13 +37,11 @@ func heal(amount: float) -> void:
 	current_health = min(max_health, current_health + amount)
 	health_changed.emit(current_health, max_health)
 
-## Preserves missing health on change: heals by the delta on an increase
-## (so gearing more Vitality doesn't just inflate the denominator), clamps
-## on a decrease.
+## Raises or lowers the cap only: current health is clamped, never topped up,
+## so equipping a Life item and taking it off again doesn't heal.
 func set_max_health(new_max: float) -> void:
-	var delta := new_max - max_health
 	max_health = new_max
-	current_health = clamp(current_health + max(delta, 0.0), 0.0, max_health)
+	current_health = clampf(current_health, 0.0, max_health)
 	health_changed.emit(current_health, max_health)
 
 func is_alive() -> bool:

@@ -93,7 +93,7 @@ func _box(size: Vector3, at: Vector3, color: Color) -> MeshInstance3D:
 
 ## Drops the chest onto the floor under it (its own collider ignored).
 func settle() -> void:
-	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 3.0, global_position + Vector3.DOWN * 6.0)
+	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 3.0, global_position + Vector3.DOWN * 6.0, 1)
 	query.collision_mask = 1
 	query.exclude = [_body.get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
@@ -169,7 +169,7 @@ func _place(pickup: Node3D) -> void:
 	get_parent().add_child(pickup)
 	var angle := randf() * TAU
 	var spot := global_position + Vector3(cos(angle), 0.0, sin(angle)) * randf_range(1.0, DROP_RADIUS)
-	var query := PhysicsRayQueryParameters3D.create(spot + Vector3.UP * 2.0, spot + Vector3.DOWN * 4.0)
+	var query := PhysicsRayQueryParameters3D.create(spot + Vector3.UP * 2.0, spot + Vector3.DOWN * 4.0, 1)
 	query.collision_mask = 1
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	spot.y = (hit["position"].y if hit else global_position.y) + 0.4

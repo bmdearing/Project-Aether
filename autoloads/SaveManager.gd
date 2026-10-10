@@ -42,6 +42,11 @@ func save_game() -> void:
 		"stash": GameState.stash.to_dict(),
 		"portal_map_state": GameState.portal_map_state,
 		"portals_opened": GameState.portals_opened,
+		"player_name": GameState.player_name,
+		"game_mode": GameState.game_mode,
+		"deaths": GameState.deaths,
+		"kills": GameState.kills,
+		"pinnacle_clears": GameState.pinnacle_clears,
 	}
 	_write_atomic(JSON.stringify(data))
 
@@ -124,6 +129,15 @@ func load_game() -> void:
 	var portal_raw = parsed.get("portal_map_state")
 	GameState.portal_map_state = portal_raw if typeof(portal_raw) == TYPE_DICTIONARY else {}
 	GameState.portals_opened = int(parsed.get("portals_opened", 0))
+	GameState.player_name = str(parsed.get("player_name", ""))
+	GameState.game_mode = int(parsed.get("game_mode", GameState.GameMode.FRAGMENTED_REALITY)) as GameState.GameMode
+	GameState.deaths = int(parsed.get("deaths", 0))
+	GameState.kills = int(parsed.get("kills", 0))
+	GameState.pinnacle_clears = {}
+	var clears: Variant = parsed.get("pinnacle_clears", {})
+	if clears is Dictionary:
+		for boss_id in clears:
+			GameState.pinnacle_clears[str(boss_id)] = int(clears[boss_id])
 	var stash_raw = parsed.get("stash")
 	if typeof(stash_raw) == TYPE_DICTIONARY:
 		GameState.stash = Stash.from_dict(stash_raw)

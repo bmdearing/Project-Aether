@@ -50,7 +50,9 @@ func _ready() -> void:
 static func open_index(tree: SceneTree) -> int:
 	for i in SCREENS.size():
 		var screen := tree.get_first_node_in_group(SCREENS[i][0])
-		if screen and screen.is_open():
+		# The inventory counts only while its grid half is up; its sheet half
+		# is the Character tab.
+		if screen and (screen.is_showing_items() if screen is InventoryScreen else screen.is_open()):
 			return i
 	return -1
 

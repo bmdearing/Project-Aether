@@ -525,7 +525,7 @@ func _test_opening() -> void:
 		var o := _gear()
 		_resolver.apply(o, &"opening")
 		seen[o.sockets] = true
-	_check(seen.size() == 4, "opening covers 0..max")
+	_check(seen.size() == 3 and not seen.has(0), "opening covers 1..max, never 0 sockets")
 	_finished += 1
 
 func _test_tempering() -> void:

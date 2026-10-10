@@ -131,12 +131,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		_toggle_screen(_fate_board_editor)
 		get_viewport().set_input_as_handled()
 		return
+	# B and C toggle the two halves of the same screen, so both can show.
 	if event.is_action_pressed("open_inventory"):
-		# Opened from the character sheet, it keeps the stats on the left.
-		var with_stats := _character_screen != null and _character_screen.is_open()
-		_toggle_screen(_inventory_screen)
-		if with_stats and _inventory_screen.is_open():
-			_inventory_screen.toggle_stats()
+		_toggle_half(false)
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("open_abilities"):
@@ -144,10 +141,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("open_character"):
-		if _inventory_screen and _inventory_screen.is_open():
-			_inventory_screen.toggle_stats()
-		else:
-			_toggle_screen(_character_screen)
+		_toggle_half(true)
 		get_viewport().set_input_as_handled()
 		return
 	if event.is_action_pressed("open_map"):
@@ -176,6 +170,21 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 			return
 		toggle()
+
+func _toggle_half(stats: bool) -> void:
+	if _inventory_screen == null:
+		return
+	if _inventory_screen.is_open():
+		if stats:
+			_inventory_screen.toggle_stats()
+		else:
+			_inventory_screen.toggle_items()
+		return
+	for menu in get_tree().get_nodes_in_group("blocking_menu"):
+		if menu.is_open():
+			menu.close()
+	close()
+	_inventory_screen.open(stats, not stats)
 
 ## Opens `screen`, closing this pause menu and any other open blocking_menu
 ## screen first - or closes `screen` if it's already the one open.

@@ -23,6 +23,8 @@ class_name MainMenu
 @onready var music_player: AudioStreamPlayer = $MusicPlayer
 var wiki_panel: Control
 var wiki: Wiki
+var new_game_panel: Control
+var new_game: NewGamePanel
 
 const MUSIC_PATH := "res://assets/music/lament.mp3"
 
@@ -40,6 +42,7 @@ func _ready() -> void:
 	settings.back_pressed.connect(_show_panel.bind(main_panel))
 	_framed(settings_panel, settings)
 	_build_wiki()
+	_build_new_game()
 	_restyle()
 
 ## ---- Look ------------------------------------------------------------------
@@ -209,6 +212,8 @@ func _show_panel(panel: Control) -> void:
 	settings_panel.visible = panel == settings_panel
 	about_panel.visible = panel == about_panel
 	wiki_panel.visible = panel == wiki_panel
+	if new_game_panel:
+		new_game_panel.visible = panel == new_game_panel
 	if panel == wiki_panel:
 		move_child(wiki_panel, get_child_count() - 1)
 		wiki.refresh_character()
@@ -243,25 +248,43 @@ func _on_continue_pressed() -> void:
 	GameState.game_started = true
 	LoadingScreen.change_scene(GameState.HUB_SCENE)
 
+func _build_new_game() -> void:
+	new_game_panel = CenterContainer.new()
+	new_game_panel.name = "NewGamePanel"
+	new_game_panel.visible = false
+	new_game_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(new_game_panel)
+	new_game = NewGamePanel.new()
+	new_game.back_pressed.connect(_show_panel.bind(main_panel))
+	new_game.confirmed.connect(_start_new_game)
+	_framed(new_game_panel, new_game)
+
+func _open_new_game() -> void:
+	new_game.reset()
+	_show_panel(new_game_panel)
+
 ## With a save on disk, New Game asks first: it deletes that save.
 func _on_new_game_pressed() -> void:
 	if not SaveManager.has_save():
-		_start_new_game()
+		_open_new_game()
 		return
 	var confirm := ConfirmationDialog.new()
 	confirm.title = "Start a New Game?"
 	confirm.dialog_text = "You have a saved game. Starting a new game deletes it.\nAre you sure?"
 	confirm.ok_button_text = "Start New Game"
 	confirm.cancel_button_text = "Cancel"
-	confirm.confirmed.connect(_start_new_game)
+	confirm.confirmed.connect(_open_new_game)
 	confirm.visibility_changed.connect(func():
 		if not confirm.visible:
 			confirm.queue_free())
 	add_child(confirm)
 	confirm.popup_centered()
 
-func _start_new_game() -> void:
+func _start_new_game(player_name: String, weapon_path: String, mode: GameState.GameMode) -> void:
 	GameState.reset_to_defaults()
+	GameState.player_name = player_name
+	GameState.game_mode = mode
+	GameState.weapon_set_refs = [[weapon_path], []]
 	SaveManager.delete_save()
 	GameState.game_started = true
 	LoadingScreen.change_scene(GameState.HUB_SCENE)

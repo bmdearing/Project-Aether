@@ -48,7 +48,7 @@ func _physics_process(delta: float) -> void:
 		return
 	var step := minf(_speed * delta, _remaining)
 	var next := global_position + _direction * step
-	var wall := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(global_position, next))
+	var wall := get_world_3d().direct_space_state.intersect_ray(PhysicsRayQueryParameters3D.create(global_position, next, 1))
 	if not wall.is_empty() and wall["collider"] is StaticBody3D:
 		_finish()
 		return

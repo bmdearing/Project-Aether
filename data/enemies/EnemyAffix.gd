@@ -49,6 +49,9 @@ enum AffixCategory { PACK, CHAMPION, ASCENDANT }
 @export var on_hit_chance: float = 0.0
 ## Ignores slows, stuns, staggers and knockback.
 @export var unstoppable: bool = false
+## Its hits also deal this % of their damage as added_damage_type.
+@export var added_damage_percent: float = 0.0
+@export var added_damage_type: Constants.DamageType = Constants.DamageType.FIRE
 
 @export_group("Aura")
 @export var has_aura: bool = false

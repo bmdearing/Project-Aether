@@ -127,6 +127,7 @@ func _ready() -> void:
 	_spawn_player()
 	_spawn_enemies()
 	_spawn_chests()
+	_bake_navigation()
 	randomize()
 	if not restore.is_empty():
 		_apply_restore(restore)
@@ -158,6 +159,60 @@ func _build_layout() -> void:
 			var mesa := _terrain.build_dais(_cell_to_world(graph.vault_cell), 2.0, _wall_mat)
 			boss_portal_point = mesa
 			_spawn_vault_boss(mesa)
+
+## ---- Navigation ----------------------------------------------------------
+## The walkable surface, baked from the map's static colliders (floors,
+## walls, terrain, doodad trunks) on a worker thread while the loading screen
+## is up. Enemies path on it (Enemy._nav_direction()).
+const NAV_CELL := 0.3
+const NAV_AGENT_RADIUS := 0.5
+const NAV_AGENT_HEIGHT := 1.8
+const NAV_MAX_CLIMB := 0.6
+const NAV_MAX_SLOPE := 50.0
+
+var nav_region: NavigationRegion3D
+var _bake_relay: RefCounted
+signal navigation_ready
+
+func _bake_navigation() -> void:
+	var map := get_world_3d().navigation_map
+	NavigationServer3D.map_set_cell_size(map, NAV_CELL)
+	NavigationServer3D.map_set_cell_height(map, NAV_CELL)
+	var navmesh := NavigationMesh.new()
+	navmesh.cell_size = NAV_CELL
+	navmesh.cell_height = NAV_CELL
+	navmesh.agent_radius = NAV_AGENT_RADIUS
+	navmesh.agent_height = NAV_AGENT_HEIGHT
+	navmesh.agent_max_climb = NAV_MAX_CLIMB
+	navmesh.agent_max_slope = NAV_MAX_SLOPE
+	navmesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
+	nav_region = NavigationRegion3D.new()
+	nav_region.name = "Navigation"
+	add_child(nav_region)
+	var source := NavigationMeshSourceGeometryData3D.new()
+	NavigationServer3D.parse_source_geometry_data(navmesh, source, self)
+	# Held here: a Callable doesn't keep its RefCounted object alive.
+	_bake_relay = _BakeRelay.new(self, navmesh)
+	NavigationServer3D.bake_from_source_geometry_data_async(navmesh, source, _bake_relay.done)
+
+## Carries the bake result back without holding the map: a map freed
+## mid-bake (leaving it quickly, tests) must not get the callback.
+class _BakeRelay extends RefCounted:
+	var _map: WeakRef
+	var _navmesh: NavigationMesh
+	func _init(map: Node, navmesh: NavigationMesh) -> void:
+		_map = weakref(map)
+		_navmesh = navmesh
+	func done() -> void:
+		var map: Object = _map.get_ref()
+		if map:
+			map.call_deferred("_on_navigation_baked", _navmesh)
+
+func _on_navigation_baked(navmesh: NavigationMesh) -> void:
+	if not is_instance_valid(nav_region):
+		return
+	nav_region.navigation_mesh = navmesh
+	navigation_ready.emit()
 
 func _spawn_vault_boss(pos: Vector3) -> void:
 	_boss = FIGMENT_BOSS_SCENE.instantiate()
@@ -214,7 +269,7 @@ func _clear_portal_spot(player: Player) -> Vector3:
 	var best_room := -1.0
 	for turn in [0.0, PI / 2.0, -PI / 2.0, PI]:
 		var dir := forward.rotated(Vector3.UP, turn)
-		var query := PhysicsRayQueryParameters3D.create(origin, origin + dir * need)
+		var query := PhysicsRayQueryParameters3D.create(origin, origin + dir * need, 1)
 		query.exclude = [player.get_rid()]
 		var hit := space.intersect_ray(query)
 		var room := need if hit.is_empty() else origin.distance_to(hit["position"])
@@ -231,7 +286,7 @@ const GROUND_PROBE_DOWN := 6.0
 ## Floor height under pos (probing from above it, so a raised floor is found
 ## too); fallback_y when there's no floor there, e.g. at a ledge.
 func _ground_point(pos: Vector3, fallback_y: float) -> Vector3:
-	var query := PhysicsRayQueryParameters3D.create(pos + Vector3.UP * GROUND_PROBE_UP, pos + Vector3.DOWN * GROUND_PROBE_DOWN)
+	var query := PhysicsRayQueryParameters3D.create(pos + Vector3.UP * GROUND_PROBE_UP, pos + Vector3.DOWN * GROUND_PROBE_DOWN, 1)
 	query.collision_mask = 1
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player:
@@ -432,6 +487,7 @@ func _build_corridor(a: Vector2i, b: Vector2i) -> void:
 		light.light_energy = tileset.room_light_energy * 0.8
 		light.omni_range = maxf(length * 0.7, 5.0)
 		light.position = mid + Vector3(0, layout.wall_height - 1.0, 0)
+		_fade_with_distance(light)
 		add_child(light)
 
 func _spawn_ui() -> void:
@@ -481,7 +537,19 @@ func _build_room(room: MapGraph.RoomData) -> void:
 		fill.light_energy = tileset.room_light_energy
 		fill.omni_range = maxf(half.x, half.y) * 1.7
 		fill.position = origin + Vector3(0, layout.wall_height - 0.6, 0)
+		_fade_with_distance(fill)
 		add_child(fill)
+
+## Far room lights fade out instead of taking one of the renderer's light
+## slots (Compatibility drops lights past its limit, and which ones changes
+## as the camera turns, so they popped in and out).
+const LIGHT_FADE_BEGIN := 55.0
+const LIGHT_FADE_LENGTH := 15.0
+
+func _fade_with_distance(light: Light3D) -> void:
+	light.distance_fade_enabled = true
+	light.distance_fade_begin = LIGHT_FADE_BEGIN
+	light.distance_fade_length = LIGHT_FADE_LENGTH
 
 func _random_floor_color() -> Color:
 	return ROOM_FLOOR_COLORS[randi() % ROOM_FLOOR_COLORS.size()]

@@ -480,7 +480,7 @@ func _sweep_strike() -> void:
 		_deal_damage(entry["enemy"], 1.0 if is_primary else float(shape["splash"]), is_primary)
 
 func _has_line_of_sight(from: Vector3, to: Vector3, target: Enemy) -> bool:
-	var query := PhysicsRayQueryParameters3D.create(from, to)
+	var query := PhysicsRayQueryParameters3D.create(from, to, 1)
 	query.exclude = [_player.get_rid(), target.get_rid()]
 	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
 	return hit.is_empty() or not (hit["collider"] is StaticBody3D)

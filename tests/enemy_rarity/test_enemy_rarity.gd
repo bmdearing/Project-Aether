@@ -178,7 +178,8 @@ func _test_ascendant() -> void:
 	if archon_pair.size() == 2:
 		var first: EnemyRarityComponent = archon_pair[0].rarity_component
 		var base_life: float = Constants.ENEMY_RARITY_HEALTH_MULT[Constants.EnemyRarity.ASCENDANT]
-		_check(first.get_health_multiplier() <= base_life * 0.5 * 1.31 + 0.01, "each Archon has half the Life")
+		# Life lines add up: Archon's -50% with Juggernaut's +30% is 0.8x.
+		_check(first.get_health_multiplier() <= base_life * (1.0 + (-50.0 + 30.0) / 100.0) + 0.01, "each Archon has half the Life")
 		_check(archon_pair[0].definition == archon_pair[1].definition, "both are the same unit")
 		_clear(get_tree().get_nodes_in_group("enemy").filter(func(e): return e.global_position.distance_to(SPOT) < 20.0))
 		await _frames(2)

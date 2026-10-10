@@ -161,8 +161,25 @@ func receive_aura(source: Node, affix: EnemyAffix) -> void:
 
 ## ---- Hit hooks (Enemy / its attacks) ----------------------------------------
 
-## A landed hit on the player: on-hit statuses and leech.
+## Damage type -> % of each hit added as that type, from its own affixes and
+## every aura reaching it.
+func get_added_damage() -> Dictionary:
+	var added := {}
+	var sources: Array = affixes.filter(func(a: EnemyAffix): return not a.has_aura)
+	var now := Time.get_ticks_msec()
+	for entry in _auras.values():
+		if now <= int(entry["until"]):
+			sources.append(entry["affix"])
+	for affix: EnemyAffix in sources:
+		if affix.added_damage_percent > 0.0:
+			added[affix.added_damage_type] = float(added.get(affix.added_damage_type, 0.0)) + affix.added_damage_percent
+	return added
+
+## A landed hit on the player: added damage, on-hit statuses and leech.
 func on_hit_player(player: Player, damage: float) -> void:
+	var added := get_added_damage()
+	for damage_type in added:
+		player.take_damage(damage * float(added[damage_type]) / 100.0, damage_type, _enemy, Player.HitKind.ATTACK)
 	for affix in affixes:
 		if affix.on_hit_status != "" and randf() < affix.on_hit_chance and player.status_effects:
 			player.status_effects.apply_effect(affix.on_hit_status, _enemy, damage)
@@ -240,9 +257,9 @@ func _try_blink() -> void:
 	var away := (_enemy.global_position - player.global_position)
 	away.y = 0.0
 	var spot := player.global_position + away.normalized() * 2.2
-	BossTelegraph.circle(_enemy.get_parent(), _enemy.global_position, 1.2, 0.35, Color(0.7, 0.4, 1.0))
+	SmokePuff.spawn(_enemy.get_parent(), _enemy.global_position, 1.3)
 	_enemy.global_position = spot + Vector3.UP * 0.1
-	BossTelegraph.circle(_enemy.get_parent(), spot, 1.2, 0.35, Color(0.7, 0.4, 1.0))
+	SmokePuff.spawn(_enemy.get_parent(), spot, 1.3)
 
 func _try_nova() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
@@ -286,7 +303,9 @@ func _build_visuals() -> void:
 			var mat := StandardMaterial3D.new()
 			mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 			mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-			mat.albedo_color = Color(get_name_color(), 0.45)
+			# Elemental banners take their element's colour.
+			var ring_color: Color = Constants.DAMAGE_TYPE_COLOR.get(affix.added_damage_type, get_name_color()) if affix.added_damage_percent > 0.0 else get_name_color()
+			mat.albedo_color = Color(ring_color, 0.45)
 			_aura_ring.material_override = mat
 			_enemy.add_child(_aura_ring)
 			break

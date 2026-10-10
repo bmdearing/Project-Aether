@@ -117,7 +117,7 @@ func _test_pickups() -> void:
 
 func _test_equip_unequip() -> void:
 	_screen.open()
-	_check(not get_tree().paused, "inventory doesn't pause")
+	_check(get_tree().paused, "the inventory pauses the game")
 	var helmet: Item = GameState.get_inventory_items().filter(func(i): return i.display_name == "Test Helm")[0]
 	_screen._on_entry_right_clicked(_screen.inventory_grid, _entry_for(helmet))
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.HELMET) == helmet and not GameState.inventory.has_content(helmet), "click equips and removes from grid")

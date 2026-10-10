@@ -79,7 +79,7 @@ func _find_target() -> LootPickup:
 
 ## Nothing solid (walls, enemies) between the camera and the drop.
 func _in_sight(origin: Vector3, pickup: LootPickup) -> bool:
-	var query := PhysicsRayQueryParameters3D.create(origin, pickup.global_position)
+	var query := PhysicsRayQueryParameters3D.create(origin, pickup.global_position, 1)
 	query.exclude = [_player.get_rid()]
 	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
 	return hit.is_empty() or (hit["position"] as Vector3).distance_to(pickup.global_position) < 0.4

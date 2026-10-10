@@ -77,6 +77,16 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 		if bonus != 0.0:
 			_add(misc_list, "%s Chain Bonus" % Constants.DAMAGE_TYPE_NAME.get(tag, "?"), "+%.1f%%" % (bonus * 100.0))
 
+## Deaths, kills and each Pinnacle boss's clears.
+static func refresh_record(list: VBoxContainer) -> void:
+	if list == null:
+		return
+	_clear(list)
+	_add(list, "Deaths", "%d" % GameState.deaths)
+	_add(list, "Monsters Slain", "%d" % GameState.kills)
+	for boss_id in Pinnacle.BOSSES:
+		_add(list, Pinnacle.BOSSES[boss_id]["name"], "%d defeated" % int(GameState.pinnacle_clears.get(boss_id, 0)))
+
 ## Null for a Shield in OFFHAND.
 static func _weapon_in(player: Player, slot: Constants.EquipmentSlot) -> Weapon:
 	if player.equipment == null:

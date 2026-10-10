@@ -391,14 +391,18 @@ func _build_status_row() -> void:
 	_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_status_row)
 
-## "Enemies: remaining / total" under the status chips. Hidden until
+## "Enemies: remaining / total" under the minimap. Hidden until
 ## GeneratedMap reports a count.
 func _build_enemy_counter() -> void:
 	_enemy_counter_label = Label.new()
+	_enemy_counter_label.anchor_left = 1.0
+	_enemy_counter_label.anchor_right = 1.0
+	_enemy_counter_label.offset_left = -Minimap.SIZE - Minimap.MARGIN
+	_enemy_counter_label.offset_right = -Minimap.MARGIN
+	_enemy_counter_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_enemy_counter_label.add_theme_font_override("font", AetherStyle.serif())
 	_enemy_counter_label.add_theme_color_override("font_color", AetherStyle.GOLD)
-	_enemy_counter_label.offset_left = STATUS_ROW_LEFT_MARGIN
-	_enemy_counter_label.offset_top = STATUS_ROW_TOP_MARGIN + STATUS_CHIP_HEIGHT + 8.0
+	_enemy_counter_label.offset_top = Minimap.MARGIN + Minimap.SIZE + 6.0
 	_enemy_counter_label.add_theme_font_size_override("font_size", 16)
 	_enemy_counter_label.add_theme_color_override("font_outline_color", Color.BLACK)
 	_enemy_counter_label.add_theme_constant_override("outline_size", 4)
@@ -530,7 +534,7 @@ func _has_line_of_sight(camera: Camera3D, enemy: Enemy) -> bool:
 		var exclude: Array[RID] = [_player.get_rid()]
 		var blocked := false
 		for i in 4:
-			var query := PhysicsRayQueryParameters3D.create(origin, target)
+			var query := PhysicsRayQueryParameters3D.create(origin, target, 1)
 			query.exclude = exclude
 			var hit := space_state.intersect_ray(query)
 			if hit.is_empty():
@@ -547,7 +551,7 @@ func _get_hovered_enemy_id(camera: Camera3D) -> int:
 	var origin := camera.global_position
 	var forward := -camera.global_transform.basis.z
 	var space_state := _player.get_world_3d().direct_space_state
-	var query := PhysicsRayQueryParameters3D.create(origin, origin + forward * ENEMY_HOVER_MAX_RANGE)
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + forward * ENEMY_HOVER_MAX_RANGE, 1)
 	query.exclude = [_player.get_rid()]
 	var result := space_state.intersect_ray(query)
 	if result and result.get("collider") is Enemy:

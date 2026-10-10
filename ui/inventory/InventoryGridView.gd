@@ -9,6 +9,8 @@ signal entry_clicked(view: InventoryGridView, entry: GridInventory.Entry)
 signal entry_right_clicked(view: InventoryGridView, entry: GridInventory.Entry)
 signal entry_hovered(view: InventoryGridView, entry: GridInventory.Entry)
 signal drop_failed
+## A left click on a cell no item covers.
+signal empty_clicked(view: InventoryGridView)
 
 const ITEM_CARD_SCENE := preload("res://ui/item_card/ItemCard.tscn")
 const CELL_COLOR := Color(0.03, 0.035, 0.06, 0.85)
@@ -58,6 +60,10 @@ func refresh() -> void:
 			_blocks[entry].queue_free()
 			_blocks.erase(entry)
 	queue_redraw()
+
+func _gui_input(event: InputEvent) -> void:
+	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		empty_clicked.emit(self)
 
 func _draw() -> void:
 	if inventory == null:

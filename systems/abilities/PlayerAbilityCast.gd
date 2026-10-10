@@ -604,7 +604,7 @@ func _ensure_flame_jets_fx() -> void:
 	_flame_jets_fx = p
 
 func _line_blocked(from: Vector3, to: Vector3) -> bool:
-	var query := PhysicsRayQueryParameters3D.create(from, to)
+	var query := PhysicsRayQueryParameters3D.create(from, to, 1)
 	query.collision_mask = 1
 	query.exclude = [_player.get_rid()]
 	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
@@ -759,7 +759,7 @@ func _get_ground_target_point() -> Vector3:
 	var origin := camera.global_position
 	var direction := -camera.global_transform.basis.z
 	var space_state := _player.get_world_3d().direct_space_state
-	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * MAX_TARGET_RANGE)
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + direction * MAX_TARGET_RANGE, 1)
 	query.exclude = [_player.get_rid()]
 	var result := space_state.intersect_ray(query)
 	if result:

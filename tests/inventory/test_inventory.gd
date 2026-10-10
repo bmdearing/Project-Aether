@@ -222,5 +222,5 @@ func _test_debug_screen() -> void:
 	_check(GameState.inventory.count_of(&"quickening") == 20, "debug screen adds currency")
 	screen.close()
 	var inventory_screen = load("res://ui/inventory/InventoryScreen.gd")
-	_check(not FileAccess.get_file_as_string(inventory_screen.resource_path).contains("paused = true"), "inventory screen no longer pauses")
+	_check(FileAccess.get_file_as_string(inventory_screen.resource_path).contains("paused = true"), "inventory screen pauses the game")
 	_finished += 1

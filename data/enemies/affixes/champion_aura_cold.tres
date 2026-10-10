@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="EnemyAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyAffix.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+affix_id = "champion_aura_cold"
+display_name = "Rimebound Banner"
+category = 1
+description = "Aura: nearby enemies add 20% of their damage as Cold."
+item_rarity_bonus = 25
+item_quantity_bonus = 15
+added_damage_percent = 20.0
+added_damage_type = 4
+has_aura = true
+aura_radius = 10

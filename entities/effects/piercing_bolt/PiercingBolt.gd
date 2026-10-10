@@ -49,7 +49,7 @@ func _physics_process(delta: float) -> void:
 	if source is CollisionObject3D:
 		exclude.append(source.get_rid())
 	for i in 8:
-		var query := PhysicsRayQueryParameters3D.create(from, from + step)
+		var query := PhysicsRayQueryParameters3D.create(from, from + step, 1)
 		query.exclude = exclude
 		var hit := space.intersect_ray(query)
 		if hit.is_empty():
@@ -69,7 +69,7 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 func _snap_to_ground(space: PhysicsDirectSpaceState3D) -> void:
-	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 1.5, global_position + Vector3.DOWN * 3.0)
+	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 1.5, global_position + Vector3.DOWN * 3.0, 1)
 	query.collision_mask = 1
 	var hit := space.intersect_ray(query)
 	if hit and hit["collider"] is StaticBody3D:

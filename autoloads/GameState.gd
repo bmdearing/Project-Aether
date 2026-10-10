@@ -79,6 +79,16 @@ var fate_board_placements: Array = []
 ## Dropped by enemies, spent at the Hub's GearShop.
 var gold: int = 0
 
+## Character record, shown on the character sheet.
+var player_name: String = ""
+## GameModes; only Fragmented Reality is playable for now.
+enum GameMode { CAMPAIGN, FRAGMENTED_REALITY }
+var game_mode: GameMode = GameMode.FRAGMENTED_REALITY
+var deaths: int = 0
+var kills: int = 0
+## Pinnacle boss id (Pinnacle.BOSSES) -> times defeated.
+var pinnacle_clears: Dictionary = {}
+
 ## Behaviors tab (inventory): RMB raises an equipped shield instead of
 ## entering the weapon stance; which stance page RMB uses.
 var shield_on_rmb: bool = true
@@ -98,6 +108,7 @@ func _ready() -> void:
 	EventBus.figment_completed.connect(_on_figment_completed)
 	add_child(BasePreloader.new())
 	EventBus.player_died.connect(_on_player_died)
+	EventBus.enemy_died.connect(func(_enemy): kills += 1)
 
 func _on_figment_completed(figment: FigmentItem) -> void:
 	figment_tree_points += figment.tier if figment else 1
@@ -148,6 +159,11 @@ func reset_to_defaults() -> void:
 	inventory = GridInventory.new()
 	stash = Stash.create_default()
 	gold = 0
+	player_name = ""
+	game_mode = GameMode.FRAGMENTED_REALITY
+	deaths = 0
+	kills = 0
+	pinnacle_clears = {}
 	figment_tree_points = 0
 	figment_tree_unlocked_nodes = []
 	shield_on_rmb = true
@@ -215,4 +231,5 @@ var returning_through_portal: bool = false
 var pending_pinnacle: String = ""
 
 func _on_player_died() -> void:
+	deaths += 1
 	portal_map_state = {}

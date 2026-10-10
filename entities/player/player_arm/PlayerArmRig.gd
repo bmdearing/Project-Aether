@@ -125,8 +125,8 @@ const RESTS := {
 		"aim": [Vector3(0.0, -0.105, -0.36), Vector3(0, 0, -1), Vector3(0, 1, 0)]},
 	&"rifle": {"rest": [Vector3(0.18, -0.21, -0.3), Vector3(-0.12, 0.03, -1), Vector3(0.12, 1, 0)],
 		"aim": [Vector3(0.0, -0.12, -0.24), Vector3(0, 0, -1), Vector3(0, 1, 0)]},
-	&"bow": {"rest": [Vector3(-0.2, -0.06, -0.52), Vector3(0.3, 1, 0), Vector3(0.3, 0, 1)],
-		"aim": [Vector3(-0.03, -0.07, -0.46), Vector3(0.06, 1, 0), Vector3(0, 0, 1)]},
+	&"bow": {"rest": [Vector3(0.2, -0.12, -0.55), Vector3(-0.2, 1, 0), Vector3(-0.1, 0, 1)],
+		"aim": [Vector3(0.12, -0.09, -0.6), Vector3(-0.05, 1, 0), Vector3(0.05, 0, 1)]},
 }
 ## Left hand holding a shield or focus, and raised for a block.
 const OFF_ITEM_REST := [Vector3(-0.27, -0.3, -0.44), Vector3(0.1, 1, -0.2), Vector3(0, 0, 1)]
@@ -218,6 +218,8 @@ const PISTOL_KICK := [
 const RIFLE_KICK := [
 	["s", 1.0, Vector3(0.0, 0.012, 0.07), Vector3(0, 0.15, -1), null, 0.25],
 ]
+## How far the string hand pulls back from the brace at full draw (aiming).
+const BOW_DRAW := 0.1
 const BOW_RELEASE := [
 	["s", 1.0, Vector3(0.0, 0.0, -0.03), Vector3(0.12, 1, -0.15), null, 0.3],
 ]
@@ -460,7 +462,7 @@ func _play_fire(windup: float, strike: float, recovery: float) -> void:
 		&"bow":
 			_start(_main_track, BOW_RELEASE, 0.0, strike, recovery, _main_rest())
 			# String hand snaps back on release, then returns to nock.
-			_start(_off_track, [["s", 1.0, Vector3(0.06, 0.03, 0.08), null, null, 0.3]], 0.0, strike, recovery * 1.6, _off_rest())
+			_start(_off_track, [["s", 1.0, Vector3(0.03, 0.015, 0.04), null, null, 0.3]], 0.0, strike, recovery * 1.6, _off_rest())
 			_bow_release_t = 0.0
 			_bow_release_len = strike + recovery * 0.9
 		&"pistol":
@@ -548,8 +550,10 @@ func _process(delta: float) -> void:
 	_off.visible = _off_mode != OffMode.HIDDEN or _off_track.active()
 
 	if SHOW_ARMS:
-		_place_arm(_right_arm, _main, _right_hand.visible or _family == &"fist", LEFT_SHOULDER if _family == &"bow" else RIGHT_SHOULDER)
-		_place_arm(_left_arm, _off, _off.visible, RIGHT_SHOULDER if _family == &"bow" else LEFT_SHOULDER)
+		# Bows: the left arm holds the bow (main) and the right draws the string.
+		var bow := _family == &"bow"
+		_place_arm(_right_arm, _main, _right_hand.visible or _family == &"fist", LEFT_SHOULDER if bow else RIGHT_SHOULDER)
+		_place_arm(_left_arm, _off, _off.visible, RIGHT_SHOULDER if bow else LEFT_SHOULDER)
 
 	_update_bow(delta)
 	_cast_glow_t = maxf(_cast_glow_t - delta, 0.0)
@@ -578,7 +582,9 @@ func _off_rest() -> Pose:
 	match _off_mode:
 		OffMode.TWO_HAND:
 			# Follows the weapon's second grip; pos only, orientation copies the main hand.
-			var p := _main_pose.pos + _main_pose.basis() * _offhand_grip
+			# A bow's string hand draws back toward the face while aiming.
+			var grip := _offhand_grip + Vector3(0, 0, BOW_DRAW * _smooth(_aim_w)) if _family == &"bow" else _offhand_grip
+			var p := _main_pose.pos + _main_pose.basis() * grip
 			return Pose.new(p, _main_pose.tip, _main_pose.face)
 		OffMode.GAUNTLET:
 			var spec: Dictionary = RESTS[&"fist"]

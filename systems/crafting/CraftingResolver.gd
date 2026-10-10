@@ -320,7 +320,7 @@ func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: Edict
 					out["quality"] = mini(Constants.QUALITY_CAP, t.get_quality() + gain)
 					out["quality_gained"] = out["quality"] - t.get_quality()
 				&"opening":
-					out["sockets"] = rng.randi_range(0, t.get_max_sockets())
+					out["sockets"] = rng.randi_range(mini(1, t.get_max_sockets()), t.get_max_sockets())  # always at least one
 				&"reckoning":
 					for i in explicits.size():
 						var affix: ItemAffix = explicits[i]

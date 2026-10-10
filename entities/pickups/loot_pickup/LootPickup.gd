@@ -24,11 +24,21 @@ const BOB_HEIGHT := 0.15
 
 var _time: float = 0.0
 
+## Extra reach for things collected on touch (currency, fragments, ammo...).
+const AUTO_PICKUP_REACH := 1.0
+
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	if not auto_pickup():
 		add_to_group(LOOK_GROUP)
 		_add_name_tag()
+	else:
+		# Collected on touch from a little further away (gear keeps its small
+		# shape, which the look-to-pick-up ray aims at).
+		var shape := $CollisionShape3D as CollisionShape3D
+		var sphere := (shape.shape as SphereShape3D).duplicate() as SphereShape3D
+		sphere.radius += AUTO_PICKUP_REACH
+		shape.shape = sphere
 	if item:
 		_apply_color(Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE))
 		if item.rarity >= Constants.ItemRarity.RARE:

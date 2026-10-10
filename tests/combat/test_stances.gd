@@ -150,7 +150,7 @@ func _test_stance_cooldown() -> void:
 
 func _test_rapier() -> void:
 	await _reset("Rapier")
-	await _charge(0.32)
+	await _charge(0.22)
 	var short := _travel()
 	_check(short > 1.3 and short < 1.8, "rapier tap lunges about 1.5 m (%.2f)" % short)
 	await _reset("Rapier")
@@ -187,9 +187,9 @@ func _test_mace() -> void:
 	await _frames(2)
 	Input.action_press("move_forward")
 	Input.action_press("stance")
-	await _seconds(0.3)
+	await _seconds(0.2)
 	var charging_from := _travel()
-	await _seconds(0.6)
+	await _seconds(0.3)
 	var moved := _travel() - charging_from
 	Input.action_release("stance")
 	Input.action_release("move_forward")

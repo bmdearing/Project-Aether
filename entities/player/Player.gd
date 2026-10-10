@@ -234,6 +234,9 @@ func _ready() -> void:
 	_apply_saved_fate_board()
 	_on_equipment_changed()  # applies stat bonuses + visuals for whatever _apply_saved_loadout() just equipped
 	_apply_fate_board_bonuses()  # re-derives StatSheet's Slate fields from whatever _apply_saved_fate_board() just restored (empty on a fresh character)
+	# Gear only raises the cap, so start each scene at the full geared Life.
+	health.current_health = health.max_health
+	health.health_changed.emit(health.current_health, health.max_health)
 
 ## Fires on every equip()/unequip(), not just at spawn - also covers a
 ## shield/weapon equipped into a previously-empty slot.

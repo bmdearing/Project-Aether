@@ -27,6 +27,10 @@ var is_critical: bool = false  # set by PlayerRangedAttack._fire() - enemy-fired
 ## multiplier read at impact (enemy -> float), an after-hit callback
 ## (enemy, damage), and cosmetic pellets that never hit anything.
 var pierce: int = 0
+## Bullets ricochet off walls; arrows and bolts thunk; anything else (spells,
+## enemy bolts) makes no wall sound.
+enum ImpactSound { NONE, BULLET, ARROW }
+var impact_sound: ImpactSound = ImpactSound.NONE
 var damage_modifier: Callable
 var on_hit: Callable
 var cosmetic: bool = false
@@ -53,7 +57,7 @@ func _on_body_entered(body: Node3D) -> void:
 		return
 	if body is Enemy and _pierced.has(body.get_instance_id()):
 		return
-	AudioManager.play_at(SoundLib.get_impact_sound(_get_surface_type(body)), global_position, -3.0)
+	_play_impact_sound(body)
 	if not is_instance_valid(source):
 		source = null  # the shooter died while this was in flight
 	if source is Player:
@@ -94,6 +98,16 @@ func _hit_player(player: Player) -> void:
 		if is_instance_valid(source) and source is Enemy and (source as Enemy).rarity_component:
 			(source as Enemy).rarity_component.on_hit_player(player, damage_amount)
 	EventBus.enemy_attack_resolved.emit(source, player, true, parried)
+
+func _play_impact_sound(body: Node) -> void:
+	var surface := _get_surface_type(body)
+	if surface != "flesh":
+		match impact_sound:
+			ImpactSound.NONE:
+				return
+			ImpactSound.ARROW:
+				surface = "wood"
+	AudioManager.play_at(SoundLib.get_impact_sound(surface), global_position, -3.0)
 
 ## Which impact sound set to use. Enemies/the player are "flesh"; any
 ## other body can opt in by joining a "surface_metal"/"surface_wood" group,

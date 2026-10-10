@@ -113,8 +113,11 @@ func play_attack(windup_sec: float) -> void:
 		node.use_custom_timeline = true
 		node.stretch_time_scale = true
 		node.timeline_length = length / speed
-	if _state_machine and _state_machine.get_current_node() == &"Attack":
+	# Jumped to directly: a pulsed trigger only fires from locomotion states,
+	# so a swing that began mid hit-reaction used to land with no animation.
+	if _state_machine:
 		_state_machine.start(&"Attack", true)
+		_enter_one_shot(&"Attack")
 	else:
 		_pulse("attack_triggered")
 
@@ -157,9 +160,13 @@ func set_speed(speed: float) -> void:
 
 ## Locomotion playback rate is ground speed / the clip's authored speed, so
 ## feet keep pace with the ground instead of sliding.
-const MIN_LOCOMOTION_RATE := 0.35
+const MIN_LOCOMOTION_RATE := 0.8
 const MAX_LOCOMOTION_RATE := 2.5
 const RATE_CHANGE_THRESHOLD := 0.08  # retiming restarts the cycle's phase mapping, so skip tiny changes
+
+## Clip speeds measured from MDX model data run high (units walked at half
+## pace or less); hand-set AnimationSet speeds are used as given.
+const MEASURED_SPEED_FACTOR := 0.7
 
 var _clip_speeds: Dictionary = {}   # state -> m/s the clip is authored for
 var _clip_rates: Dictionary = {}    # state -> playback rate currently applied
@@ -173,7 +180,7 @@ func _read_clip_speeds() -> void:
 			continue
 		var authored: float = animation_set.walk_clip_speed if state == "Walk" else animation_set.run_clip_speed
 		if authored <= 0.0 and model and model.has_method("get_clip_move_speed"):
-			authored = model.get_clip_move_speed(String(node.animation))
+			authored = model.get_clip_move_speed(String(node.animation)) * MEASURED_SPEED_FACTOR
 		if authored > 0.0:
 			_clip_speeds[state] = authored * model_scale
 
@@ -194,9 +201,41 @@ func _match_playback_speed(state: String, speed: float) -> void:
 	node.loop_mode = Animation.LOOP_LINEAR
 	node.timeline_length = _player.get_animation(node.animation).length / rate
 
-## True from the attack's wind-up until its clip finishes.
+## True from the attack's wind-up until its clip finishes, never longer than
+## the clip plus a margin: a one-shot state that doesn't end (a set whose
+## Attack falls back to a looping clip) used to root the enemy in place for
+## good while its attacks kept landing.
 func is_playing_attack() -> bool:
-	return _state_machine != null and _state_machine.get_current_node() == &"Attack"
+	return _state_machine != null and _state_machine.get_current_node() == &"Attack" and Time.get_ticks_msec() < _one_shot_until
+
+const ONE_SHOT_MARGIN_MSEC := 250
+var _one_shot_state: StringName = &""
+var _one_shot_until: int = 0
+
+func _enter_one_shot(state: StringName) -> void:
+	_one_shot_state = state
+	_one_shot_until = Time.get_ticks_msec() + int(_state_length(state) * 1000.0) + ONE_SHOT_MARGIN_MSEC
+
+## Seconds the state's clip runs at its current timeline.
+func _state_length(state: StringName) -> float:
+	var node := _tree.tree_root.get_node(state) as AnimationNodeAnimation if _tree else null
+	if node == null or _player == null or not _player.has_animation(node.animation):
+		return 1.0
+	return node.timeline_length if node.use_custom_timeline else _player.get_animation(node.animation).length
+
+## Sends a one-shot state that outstays its clip back to Idle.
+func _watch_one_shot() -> void:
+	if _state_machine == null or _dead:
+		return
+	var current := _state_machine.get_current_node()
+	if current == &"Death" or LOCOMOTION_STATES.has(current):
+		_one_shot_state = &""
+		return
+	if current != _one_shot_state:
+		_enter_one_shot(current)  # reached through a pulsed transition
+	elif Time.get_ticks_msec() > _one_shot_until:
+		_one_shot_state = &""
+		_state_machine.start(&"Idle", true)
 
 func is_playing_death() -> bool:
 	return _state_machine != null and _state_machine.get_current_node() == "Death"
@@ -242,6 +281,7 @@ var _pulses: int = 0
 func _process(delta: float) -> void:
 	if _tree == null:
 		return
+	_watch_one_shot()
 	_pending_delta = minf(_pending_delta + delta, MAX_CATCH_UP)
 	var step := lod_step()
 	if step <= 0:

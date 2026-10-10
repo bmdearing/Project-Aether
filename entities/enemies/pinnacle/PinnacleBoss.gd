@@ -32,6 +32,8 @@ func phase_openers() -> Dictionary:
 	return {}
 
 func _on_died() -> void:
+	if pinnacle_id != "":
+		GameState.pinnacle_clears[pinnacle_id] = int(GameState.pinnacle_clears.get(pinnacle_id, 0)) + 1
 	var rarity := Constants.ItemRarity.MYTHIC if randf() < MYTHIC_CHANCE else Constants.ItemRarity.UNIQUE
 	var reward := UniqueRoller.roll(rarity, _compute_item_level(), pinnacle_id)
 	if reward:

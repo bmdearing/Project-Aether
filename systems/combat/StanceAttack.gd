@@ -143,6 +143,7 @@ func cancel() -> void:
 	if not is_charging:
 		return
 	is_charging = false
+	_hide_preview()
 	_behavior = null
 	charge_ended.emit()
 
@@ -165,8 +166,48 @@ func _physics_process(delta: float) -> void:
 		_kick(FULL_CHARGE_KICK)
 	_was_full = full
 	charge_changed.emit(clampf(_held / _behavior.charge_time, 0.0, 1.0), full)
+	_update_preview()
 	if full:
 		release()
+
+var _preview: StancePreview
+
+## While charging, outlines on the ground where the attack will land at the
+## current charge (the reach grows with it).
+func _update_preview() -> void:
+	if not is_charging or _behavior == null:
+		_hide_preview()
+		return
+	var shapes := preview_shapes(_behavior, get_charge_fraction())
+	if shapes.is_empty():
+		_hide_preview()
+		return
+	if _preview == null or not is_instance_valid(_preview):
+		_preview = StancePreview.new()
+		_player.add_child(_preview)
+	_preview.visible = true
+	_preview.draw(shapes)
+
+func _hide_preview() -> void:
+	if _preview and is_instance_valid(_preview):
+		_preview.visible = false
+
+## StancePreview shapes for a stance released at charge fraction f.
+func preview_shapes(behavior: MeleeStanceBehavior, f: float) -> Dictionary:
+	var reach := lerpf(behavior.reach_min, behavior.reach_max, f)
+	var origin := _player.global_position
+	var forward := _forward()
+	match behavior.stance_type:
+		MeleeStanceBehavior.MeleeStanceType.CHARGED_THRUST, MeleeStanceBehavior.MeleeStanceType.LUNGE:
+			# The path and the spot you'll end up.
+			return {"strip": [origin, forward, reach, 0.5], "circle": [origin + forward * reach, 0.7]}
+		MeleeStanceBehavior.MeleeStanceType.EXECUTE, MeleeStanceBehavior.MeleeStanceType.OVERHEAD_SLAM, MeleeStanceBehavior.MeleeStanceType.EARTHQUAKE:
+			return {"circle": [origin + forward * reach, behavior.radius]}
+		MeleeStanceBehavior.MeleeStanceType.DISCHARGE:
+			return {"strip": [origin + forward * 0.8, forward, reach, behavior.radius * 2.0]}
+		MeleeStanceBehavior.MeleeStanceType.PRESSURE_BLAST, MeleeStanceBehavior.MeleeStanceType.CRACK, MeleeStanceBehavior.MeleeStanceType.SHATTER:
+			return {"cone": [origin, forward, reach, behavior.half_angle]}
+	return {}
 
 func release() -> void:
 	if not is_charging:
@@ -175,6 +216,7 @@ func release() -> void:
 	var full := is_full()
 	var f := get_charge_fraction()
 	is_charging = false
+	_hide_preview()
 	_behavior = null
 	charge_ended.emit()
 	if behavior.require_full_charge and not full:

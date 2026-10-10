@@ -66,7 +66,7 @@ var _cursor_icon: ItemIcon
 const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
 const PREVIEW_LINES := 5
 const STATUS_LINES := 3
-const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it; hovering an item with an Orb shows which modifiers it would touch. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows stats. Hold Alt over an item for details."
+const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it; hovering an item with an Orb shows which modifiers it would touch. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows the character sheet. Hold Alt over an item for details."
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -99,17 +99,23 @@ func _ready() -> void:
 	_build_weapon_set_indicator()
 	_build_behaviors_panel()
 	inventory_grid.entry_clicked.connect(_on_entry_clicked)
+	# Clicking empty space puts a picked-up Orb (or held Jewel) back.
+	inventory_grid.empty_clicked.connect(func(_view): _drop_held())
+	$DimBackground.gui_input.connect(func(event: InputEvent):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			_drop_held())
 	inventory_grid.entry_right_clicked.connect(_on_entry_right_clicked)
 	inventory_grid.entry_hovered.connect(_on_entry_hovered)
 	inventory_grid.highlight = _highlight_for
 	inventory_grid.currency_hint = _hint_for
 	inventory_grid.craft_preview = _craft_preview_for
-	hint_label.text = HINT
+	hint_label.text = HINT + " Hover an item and press %s to mark it Trash (sold automatically at the Gear Shop) or %s to mark it Favored (never sold)." % [GameSettings.key_name("mark_trash"), GameSettings.key_name("mark_favored")]
 	# Fixed height: craft messages come and go, and the doll and grid below
 	# mustn't move with them.
 	status_label.max_lines_visible = STATUS_LINES
 	status_label.custom_minimum_size.y = status_label.get_line_height() * STATUS_LINES
 	stats_panel.visible = false
+	_build_record_section()
 	inventory_grid.drop_failed.connect(func(): status_label.text = "That doesn't fit there.")
 	_ammo_label = Label.new()
 	inventory_panel.add_child(_ammo_label)
@@ -117,6 +123,20 @@ func _ready() -> void:
 	side_panel.move_child(status_label, -1)
 	side_panel.move_child(hint_label, -1)
 	hint_label.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+
+var _record_list: VBoxContainer
+var _stats_title: Label
+
+## Deaths, kills and Pinnacle clears, below the stat columns.
+func _build_record_section() -> void:
+	_stats_title = $HBox/StatsPanel/StatsTitle
+	var list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList
+	var title := Label.new()
+	title.text = "Record"
+	title.add_theme_font_size_override("font_size", 16)
+	list.add_child(title)
+	_record_list = VBoxContainer.new()
+	list.add_child(_record_list)
 
 ## Sizes the doll slots from inventory cells so equipped icons match the grid.
 func _layout_doll() -> void:
@@ -276,9 +296,13 @@ func _on_weapon_set_toggle_pressed() -> void:
 func is_open() -> bool:
 	return _is_open
 
-func open(show_stats: bool = false) -> void:
+## The screen has two halves: the character sheet on the left (C) and the
+## paper doll and grid on the right (B); either or both can show. The game
+## pauses while it's open.
+func open(show_stats: bool = false, show_items: bool = true) -> void:
 	_is_open = true
 	visible = true
+	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_equipment = GameState.player_equipment
 	if _equipment and not _equipment.equip_failed.is_connected(_on_equip_failed):
@@ -290,6 +314,7 @@ func open(show_stats: bool = false) -> void:
 	_held_jewel = null
 	_armed = &""
 	stats_panel.visible = show_stats
+	side_panel.visible = show_items
 	status_label.text = ""
 	_build_inventory_grid()
 	_refresh_doll()
@@ -300,15 +325,34 @@ func close() -> void:
 	visible = false
 	_armed = &""
 	_held_jewel = null
+	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
-## C while the inventory is open: stats column on the left, grid on the right.
+## C: shows or hides the character sheet; closes the screen when neither
+## half is left.
 func toggle_stats() -> void:
-	stats_panel.visible = not stats_panel.visible
+	set_panels(not stats_panel.visible, side_panel.visible)
+
+## B: shows or hides the paper doll and grid, likewise.
+func toggle_items() -> void:
+	set_panels(stats_panel.visible, not side_panel.visible)
+
+func set_panels(show_stats: bool, show_items: bool) -> void:
+	if not show_stats and not show_items:
+		close()
+		return
+	if not _is_open:
+		open(show_stats, show_items)
+		return
+	stats_panel.visible = show_stats
+	side_panel.visible = show_items
 	_refresh_stats()
 
 func is_showing_stats() -> bool:
-	return stats_panel.visible
+	return _is_open and stats_panel.visible
+
+func is_showing_items() -> bool:
+	return _is_open and side_panel.visible
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _is_open:
@@ -462,6 +506,12 @@ func _on_currency_right_clicked(id: StringName) -> void:
 	else:
 		status_label.text = CurrencyText.description_of(id)
 	inventory_grid.refresh()
+
+func _drop_held() -> void:
+	if _armed != &"":
+		_disarm()
+	elif _held_jewel:
+		_release_jewel()
 
 func _disarm() -> void:
 	_armed = &""
@@ -689,6 +739,8 @@ func _refresh_doll() -> void:
 func _refresh_stats() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	StatSummaryBuilder.refresh(offense_list, defense_list, misc_list, player)
+	StatSummaryBuilder.refresh_record(_record_list)
+	_stats_title.text = GameState.player_name if GameState.player_name != "" else "Character"
 
 func _style_slot_button(button: ItemSlotButton, item: Item) -> void:
 	button.text = ""

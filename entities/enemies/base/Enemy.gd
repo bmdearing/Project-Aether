@@ -571,17 +571,137 @@ func _update_chase() -> void:
 
 	var dir := to_player / dist
 	var speed := move_speed * status_effects.get_move_speed_multiplier() * (rarity_component.get_move_speed_multiplier() if rarity_component else 1.0)
-	if retreat_distance > 0.0 and dist < retreat_distance:
-		velocity.x = -dir.x * speed
-		velocity.z = -dir.z * speed
-	elif dist > stop_distance:
-		velocity.x = dir.x * speed
-		velocity.z = dir.z * speed
+	# A shooter without a clear shot keeps closing in (around the wall)
+	# instead of standing at range.
+	var blocked_shot := is_ranged_unit() and not heading_for_target and not can_see_player()
+	if retreat_distance > 0.0 and dist < retreat_distance and not blocked_shot:
+		var away := _nav_direction(global_position - dir * 4.0, -dir)
+		velocity.x = away.x * speed
+		velocity.z = away.z * speed
+	elif dist > stop_distance or blocked_shot:
+		var step := _nav_direction(_approach_point(goal, dist, heading_for_target), dir)
+		velocity.x = step.x * speed
+		velocity.z = step.z * speed
 	else:
 		velocity.x = 0.0
 		velocity.z = 0.0
+	_check_stuck()
 
 	_check_gap_jump()
+
+## ---- Navigation ----------------------------------------------------------
+## Paths come from the map's navigation mesh (GeneratedMap bakes one at
+## load); without one, or when the goal is off the mesh (across a gap), the
+## enemy heads straight at it as before.
+const REPATH_INTERVAL := 0.5
+const REPATH_GOAL_MOVE := 1.5
+const WAYPOINT_REACHED := 0.7
+## A path ending further than this from its goal can't reach it.
+const UNREACHABLE_SLACK := 2.5
+const STUCK_CHECK_SEC := 0.8
+const STUCK_MIN_MOVE := 0.35
+const UNSTICK_SEC := 0.45
+## Melee enemies spread around the player within this range.
+const SURROUND_RANGE := 6.0
+const SIGHT_CACHE_MSEC := 250
+
+var _path := PackedVector3Array()
+var _path_index: int = 0
+var _path_goal := Vector3.INF
+var _repath_left: float = 0.0
+var _stuck_anchor := Vector3.ZERO
+var _stuck_timer: float = 0.0
+var _unstick_dir := Vector3.ZERO
+var _unstick_left: float = 0.0
+var _surround_angle: float = randf_range(-0.9, 0.9)
+var _sight_msec: int = -SIGHT_CACHE_MSEC
+var _sight: bool = true
+
+func is_ranged_unit() -> bool:
+	return get_node_or_null("RangedAttack") != null
+
+## Clear line from this enemy's cast origin to the player's chest (other
+## enemies don't block). Cached for a quarter second.
+func can_see_player() -> bool:
+	if not is_instance_valid(_player):
+		return false
+	var now := Time.get_ticks_msec()
+	if now - _sight_msec < SIGHT_CACHE_MSEC:
+		return _sight
+	_sight_msec = now
+	var space := get_world_3d().direct_space_state
+	var exclude: Array[RID] = [get_rid()]
+	var target := _player.global_position + Vector3(0, 1.0, 0)
+	_sight = false
+	for i in 4:
+		var query := PhysicsRayQueryParameters3D.create(get_cast_origin(), target, 1)
+		query.exclude = exclude
+		var hit := space.intersect_ray(query)
+		if hit.is_empty() or hit.get("collider") == _player:
+			_sight = true
+			break
+		if not hit.get("collider") is Enemy:
+			break
+		exclude.append((hit["collider"] as Enemy).get_rid())
+	return _sight
+
+## Close to the player, melee enemies aim at a spot beside them rather
+## than all at the same point, so a pack spreads around instead of queuing.
+func _approach_point(goal: Vector3, dist: float, heading_for_target: bool) -> Vector3:
+	if heading_for_target or is_ranged_unit() or dist > SURROUND_RANGE:
+		return goal
+	var from_goal := global_position - goal
+	from_goal.y = 0.0
+	if from_goal.length() < 0.01:
+		return goal
+	return goal + from_goal.normalized().rotated(Vector3.UP, _surround_angle) * stop_distance * 0.8
+
+## Direction to walk toward goal: along the navigation path when there is
+## one, else fallback.
+func _nav_direction(goal: Vector3, fallback: Vector3) -> Vector3:
+	var dir := fallback
+	var map := get_world_3d().navigation_map
+	if NavigationServer3D.map_get_iteration_id(map) > 0 and not NavigationServer3D.map_get_regions(map).is_empty():
+		_repath_left -= get_physics_process_delta_time()
+		if _repath_left <= 0.0 or goal.distance_to(_path_goal) > REPATH_GOAL_MOVE:
+			_repath_left = REPATH_INTERVAL * randf_range(0.8, 1.2)
+			_path_goal = goal
+			_path = NavigationServer3D.map_get_path(map, global_position, goal, true)
+			_path_index = 1
+			if _path.is_empty() or _flat(_path[_path.size() - 1] - goal).length() > UNREACHABLE_SLACK:
+				_path = PackedVector3Array()
+		while _path_index < _path.size() and _flat(_path[_path_index] - global_position).length() < WAYPOINT_REACHED:
+			_path_index += 1
+		if _path_index < _path.size():
+			var to_next := _flat(_path[_path_index] - global_position)
+			if to_next.length() > 0.01:
+				dir = to_next.normalized()
+	if _unstick_left > 0.0:
+		_unstick_left -= get_physics_process_delta_time()
+		dir = (dir + _unstick_dir).normalized()
+	return dir
+
+## Trying to move but hardly moving (wedged on a corner or another enemy):
+## repath and sidestep for a moment.
+func _check_stuck() -> void:
+	var moving := Vector2(velocity.x, velocity.z).length() > 0.5
+	if not moving:
+		_stuck_timer = 0.0
+		_stuck_anchor = global_position
+		return
+	_stuck_timer += get_physics_process_delta_time()
+	if _stuck_timer < STUCK_CHECK_SEC:
+		return
+	if _flat(global_position - _stuck_anchor).length() < STUCK_MIN_MOVE:
+		_repath_left = 0.0
+		var heading := _flat(velocity).normalized()
+		_unstick_dir = heading.rotated(Vector3.UP, PI / 2.0 * (1.0 if randf() < 0.5 else -1.0))
+		_unstick_left = UNSTICK_SEC
+	_stuck_timer = 0.0
+	_stuck_anchor = global_position
+
+static func _flat(v: Vector3) -> Vector3:
+	return Vector3(v.x, 0.0, v.z)
 
 const GAP_CHECK_AHEAD := 1.0
 const GAP_PROBE_UP := 3.0       # probe ray starts this far above - must clear a raised landing like the Vault's platform
@@ -638,7 +758,7 @@ func _check_gap_jump() -> void:
 ## World Y of the floor/platform below pos, or null if none. Probes from
 ## well above pos so a raised landing is actually visible.
 func _floor_height_at(space_state: PhysicsDirectSpaceState3D, pos: Vector3):
-	var query := PhysicsRayQueryParameters3D.create(pos + Vector3(0, GAP_PROBE_UP, 0), pos + Vector3(0, -GAP_CHECK_DROP, 0))
+	var query := PhysicsRayQueryParameters3D.create(pos + Vector3(0, GAP_PROBE_UP, 0), pos + Vector3(0, -GAP_CHECK_DROP, 0), 1)
 	query.collision_mask = 1
 	query.exclude = [get_rid()]
 	var result := space_state.intersect_ray(query)
@@ -978,6 +1098,17 @@ func get_ability_damage_type() -> int:
 	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
 	return melee.damage_type if melee else (definition.damage_type if definition else Constants.DamageType.KINETIC)
 
+## In an attack's wind-up or strike, or casting (not its follow-through):
+## when a BossBrain may not start an ability.
+func is_mid_attack() -> bool:
+	if is_casting():
+		return true
+	for path in ["MeleeAttack", "RangedAttack"]:
+		var attack := get_node_or_null(path)
+		if attack and attack.has_method("is_attacking") and attack.is_attacking():
+			return true
+	return false
+
 ## Rooted in place from an attack's wind-up until its animation finishes.
 func is_attack_locked() -> bool:
 	if is_casting():
@@ -1050,7 +1181,7 @@ func _floor_below(point: Vector3, max_drop: float) -> float:
 	var space := get_world_3d().direct_space_state
 	var exclude: Array[RID] = [get_rid()]
 	for i in 4:
-		var query := PhysicsRayQueryParameters3D.create(point + Vector3.UP * 0.8, point + Vector3.DOWN * max_drop)
+		var query := PhysicsRayQueryParameters3D.create(point + Vector3.UP * 0.8, point + Vector3.DOWN * max_drop, 1)
 		query.exclude = exclude
 		var hit := space.intersect_ray(query)
 		if hit.is_empty():

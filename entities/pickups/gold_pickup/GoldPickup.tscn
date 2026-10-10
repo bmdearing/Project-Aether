@@ -3,7 +3,7 @@
 [ext_resource type="Script" path="res://entities/pickups/gold_pickup/GoldPickup.gd" id="1"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_1"]
-radius = 0.18
+radius = 1.18
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_1"]
 top_radius = 0.16

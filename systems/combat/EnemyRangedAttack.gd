@@ -52,7 +52,7 @@ func _physics_process(delta: float) -> void:
 	match _state:
 		State.IDLE:
 			var dist := _enemy.global_position.distance_to(_player.global_position)
-			if dist <= fire_range and dist >= min_range and not _sibling_attacking():
+			if dist <= fire_range and dist >= min_range and not _sibling_attacking() and _enemy.can_see_player():
 				_enter_windup()
 		State.WINDUP:
 			_timer -= delta

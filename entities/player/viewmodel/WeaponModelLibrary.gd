@@ -189,7 +189,9 @@ static func _build_bow(root: Node3D, half_length: float, brace: float) -> void:
 		_sphere(root, 0.009, prev, &"darksteel")
 	root.set_meta("bow_tip_top", Vector3(0, half_length, brace))
 	root.set_meta("bow_tip_bottom", Vector3(0, -half_length, brace))
-	root.set_meta("offhand_grip", Vector3(0.13, -0.03, 0.24))
+	# The string hand sits on the string, just behind the brace; PlayerArmRig
+	# draws it back further while aiming.
+	root.set_meta("offhand_grip", Vector3(0, -0.01, brace + 0.03))
 
 # --- guns (barrel along -Z, hand on the pistol grip at the origin) ---
 

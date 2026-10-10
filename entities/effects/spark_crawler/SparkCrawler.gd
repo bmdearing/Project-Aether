@@ -73,7 +73,7 @@ func _advance_seeking(delta: float) -> void:
 ## False once it has hit a wall or run its range (and freed itself).
 func _advance_straight(delta: float) -> bool:
 	var step := heading * speed * delta
-	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.3, global_position + Vector3.UP * 0.3 + step)
+	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 0.3, global_position + Vector3.UP * 0.3 + step, 1)
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	if hit and hit["collider"] is StaticBody3D and absf(hit["normal"].y) < 0.6:
 		queue_free()

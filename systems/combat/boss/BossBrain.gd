@@ -70,7 +70,7 @@ func _physics_process(delta: float) -> void:
 	if casting or _player == null or _boss.status_effects.is_stunned():
 		return
 	_gap -= delta
-	if _gap > 0.0 or _boss.is_attack_locked():
+	if _gap > 0.0 or _boss.is_mid_attack():
 		return
 	var dist := _flat_distance(_boss.global_position, _player.global_position)
 	if dist > ENGAGE_RANGE:
@@ -338,7 +338,7 @@ func _can_see_player() -> bool:
 	var exclude: Array[RID] = [_boss.get_rid()]
 	var target := _player.global_position + Vector3(0, 1.0, 0)
 	for i in 4:
-		var query := PhysicsRayQueryParameters3D.create(_boss.get_cast_origin(), target)
+		var query := PhysicsRayQueryParameters3D.create(_boss.get_cast_origin(), target, 1)
 		query.exclude = exclude
 		var hit := space.intersect_ray(query)
 		if hit.is_empty() or hit.get("collider") == _player:

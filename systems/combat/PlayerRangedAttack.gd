@@ -324,6 +324,8 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		projectile.damage_amount = hit["final_damage"]
 		projectile.is_critical = hit["is_critical"]
 		projectile.damage_type = damage_type
+		var arrow := weapon.ammo_type == Constants.AmmoType.ARROW or weapon.ammo_type == Constants.AmmoType.CROSSBOW_BOLT
+		projectile.impact_sound = Projectile.ImpactSound.ARROW if arrow else Projectile.ImpactSound.BULLET
 		projectile.source = _player
 		projectile.speed = speed
 		projectile.cosmetic = cosmetic
@@ -411,11 +413,11 @@ func _fire_rain(weapon: Weapon, st: RangedStanceBehavior, motion_value: float, d
 	var origin := _player.camera.global_position
 	var forward := -_player.camera.global_transform.basis.z
 	var space := _player.get_world_3d().direct_space_state
-	var query := PhysicsRayQueryParameters3D.create(origin, origin + forward * RAIN_TARGET_RANGE)
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + forward * RAIN_TARGET_RANGE, 1)
 	query.exclude = [_player.get_rid()]
 	var hit := space.intersect_ray(query)
 	var target: Vector3 = hit["position"] if not hit.is_empty() else origin + forward * RAIN_TARGET_RANGE
-	var ground := space.intersect_ray(PhysicsRayQueryParameters3D.create(target + Vector3.UP, target + Vector3.DOWN * 30.0))
+	var ground := space.intersect_ray(PhysicsRayQueryParameters3D.create(target + Vector3.UP, target + Vector3.DOWN * 30.0, 1))
 	if not ground.is_empty():
 		target = ground["position"]
 	var rain := ArrowRain.new()
