@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_ako06"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/citywallstraight_diffuse.dds" id="2_tyudv"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/citywallstraight_normal.dds" id="3_6bnhp"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/citywallstraight_orm.dds" id="4_d8f7p"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/citywallstraight.glb" id="5_vie04"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5fdr5"]
+albedo_texture = ExtResource("2_tyudv")
+orm_texture = ExtResource("4_d8f7p")
+normal_enabled = true
+normal_texture = ExtResource("3_6bnhp")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_283rf"]
+albedo_texture = ExtResource("2_tyudv")
+orm_texture = ExtResource("4_d8f7p")
+normal_enabled = true
+normal_texture = ExtResource("3_6bnhp")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_g3dnb"]
+albedo_texture = ExtResource("2_tyudv")
+orm_texture = ExtResource("4_d8f7p")
+normal_enabled = true
+normal_texture = ExtResource("3_6bnhp")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_j6250"]
+albedo_texture = ExtResource("2_tyudv")
+orm_texture = ExtResource("4_d8f7p")
+normal_enabled = true
+normal_texture = ExtResource("3_6bnhp")
+
+[node name="Citywallstraight" type="Node3D" unique_id=1889969513]
+script = ExtResource("1_ako06")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_5fdr5"),
+1: SubResource("ORMMaterial3D_283rf"),
+2: SubResource("ORMMaterial3D_g3dnb"),
+3: SubResource("ORMMaterial3D_j6250")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1013459364 instance=ExtResource("5_vie04")]

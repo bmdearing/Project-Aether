@@ -1,0 +1,305 @@
+{
+  "source": "arcaneobservatory.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.794166046142578,
+      -1.6019136199951172,
+      -4.217670043945312
+    ],
+    "max": [
+      3.759246002197265,
+      13.379957885742186,
+      4.322195892333984
+    ],
+    "height": 14.981871505737304
+  },
+  "sequences": [
+    {
+      "name": "Birth",
+      "start": 0,
+      "end": 60000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 60033,
+      "end": 65033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Work 1",
+      "start": 65067,
+      "end": 70067,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 60033,
+      "end": 65033,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 70100,
+      "end": 76767,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 76800,
+      "end": 136800,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "human_arcaneObservatory_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcaneobservatory_diffuse.dds",
+        "normal": "human_arcaneobservatory_normal.dds",
+        "orm": "human_arcaneobservatory_orm.dds",
+        "emissive": "human_arcaneobservatory_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Diffuse.tif",
+        "normal": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Normal.tif",
+        "orm": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_ORM.tif",
+        "emissive": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand Work 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "human_arcaneObservatory_rig:main_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcaneobservatory_diffuse.dds",
+        "normal": "human_arcaneobservatory_normal.dds",
+        "orm": "human_arcaneobservatory_orm.dds",
+        "emissive": "human_arcaneobservatory_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Diffuse.tif",
+        "normal": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Normal.tif",
+        "orm": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_ORM.tif",
+        "emissive": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand Work 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "human_arcaneObservatory_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcaneobservatory_diffuse.dds",
+        "normal": "human_arcaneobservatory_normal.dds",
+        "orm": "human_arcaneobservatory_orm.dds",
+        "emissive": "human_arcaneobservatory_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Diffuse.tif",
+        "normal": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Normal.tif",
+        "orm": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_ORM.tif",
+        "emissive": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand Work 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "human_arcaneObservatory_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcaneobservatory_diffuse.dds",
+        "normal": "human_arcaneobservatory_normal.dds",
+        "orm": "human_arcaneobservatory_orm.dds",
+        "emissive": "human_arcaneobservatory_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Diffuse.tif",
+        "normal": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Normal.tif",
+        "orm": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_ORM.tif",
+        "emissive": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand Work 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "human_arcaneObservatory_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcaneobservatory_diffuse.dds",
+        "normal": "human_arcaneobservatory_normal.dds",
+        "orm": "human_arcaneobservatory_orm.dds",
+        "emissive": "human_arcaneobservatory_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Diffuse.tif",
+        "normal": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Normal.tif",
+        "orm": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_ORM.tif",
+        "emissive": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand Work 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "human_arcaneObservatory_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcaneobservatory_diffuse.dds",
+        "normal": "human_arcaneobservatory_normal.dds",
+        "orm": "human_arcaneobservatory_orm.dds",
+        "emissive": "human_arcaneobservatory_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Diffuse.tif",
+        "normal": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Normal.tif",
+        "orm": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_ORM.tif",
+        "emissive": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand Work 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "human_arcaneObservatory_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcaneobservatory_diffuse.dds",
+        "normal": "human_arcaneobservatory_normal.dds",
+        "orm": "human_arcaneobservatory_orm.dds",
+        "emissive": "human_arcaneobservatory_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Diffuse.tif",
+        "normal": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Normal.tif",
+        "orm": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_ORM.tif",
+        "emissive": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand Work 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "human_arcaneObservatory_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_arcaneobservatory_diffuse.dds",
+        "normal": "human_arcaneobservatory_normal.dds",
+        "orm": "human_arcaneobservatory_orm.dds",
+        "emissive": "human_arcaneobservatory_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Diffuse.tif",
+        "normal": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Normal.tif",
+        "orm": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_ORM.tif",
+        "emissive": "Buildings/Other/ArcaneObservatory/Human_ArcaneObservatory_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand Work 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    }
+  ]
+}

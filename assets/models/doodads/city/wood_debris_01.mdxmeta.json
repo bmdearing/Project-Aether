@@ -1,0 +1,55 @@
+{
+  "source": "wood_debris_01.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand",
+  "bounds": {
+    "min": [
+      -2.012472015380859,
+      -0.01825559949874878,
+      -2.2148279571533203
+    ],
+    "max": [
+      2.012472015380859,
+      0.365651985168457,
+      2.2148279571533203
+    ],
+    "height": 0.38390758466720576
+  },
+  "sequences": [
+    {
+      "name": "Stand",
+      "start": 0,
+      "end": 16367,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Wood_Debris_01",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wood_debris_diffuse.dds",
+        "normal": "wood_debris_normal.dds",
+        "orm": "wood_debris_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/Wood Debris/Wood_Debris_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/Wood Debris/Wood_Debris_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/Wood Debris/Wood_Debris_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand": true
+      }
+    }
+  ]
+}

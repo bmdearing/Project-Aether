@@ -1,0 +1,130 @@
+{
+  "source": "tavern.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.7030780944824215,
+      -1.569293975830078,
+      -2.1429180450439453
+    ],
+    "max": [
+      2.581019989013672,
+      4.158432037353515,
+      2.0995919494628903
+    ],
+    "height": 5.727726013183593
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 6700,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Structures_Tavern",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_tavern_diffuse.dds",
+        "normal": "cs_structures_tavern_normal.dds",
+        "orm": "cs_structures_tavern_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Structures_Tavern_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_tavern_diffuse.dds",
+        "normal": "cs_structures_tavern_normal.dds",
+        "orm": "cs_structures_tavern_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Structures_Tavern_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_tavern_diffuse.dds",
+        "normal": "cs_structures_tavern_normal.dds",
+        "orm": "cs_structures_tavern_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Structures_Tavern_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_tavern_diffuse.dds",
+        "normal": "cs_structures_tavern_normal.dds",
+        "orm": "cs_structures_tavern_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/Tavern/CS_Structures_Tavern_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

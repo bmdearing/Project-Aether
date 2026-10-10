@@ -1,0 +1,79 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_ukyss"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_fountainwater_diff_0000.dds" id="2_gd415"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_fountainwater_0000_normal.dds" id="3_rdv5y"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_fountainwater_orm.dds" id="4_lsrsx"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_statue_diffuse.dds" id="5_vtfl5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_statue_normal.dds" id="6_qapkn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_statue_orm.dds" id="7_86j7x"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/city_statue.glb" id="8_2ohe6"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gihj6"]
+transparency = 1
+albedo_texture = ExtResource("2_gd415")
+orm_texture = ExtResource("4_lsrsx")
+normal_enabled = true
+normal_texture = ExtResource("3_rdv5y")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_orcrf"]
+albedo_texture = ExtResource("5_vtfl5")
+orm_texture = ExtResource("7_86j7x")
+normal_enabled = true
+normal_texture = ExtResource("6_qapkn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_l0dn7"]
+transparency = 1
+albedo_texture = ExtResource("2_gd415")
+orm_texture = ExtResource("4_lsrsx")
+normal_enabled = true
+normal_texture = ExtResource("3_rdv5y")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xoxb4"]
+albedo_texture = ExtResource("5_vtfl5")
+orm_texture = ExtResource("7_86j7x")
+normal_enabled = true
+normal_texture = ExtResource("6_qapkn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vc3dq"]
+transparency = 1
+albedo_texture = ExtResource("2_gd415")
+orm_texture = ExtResource("4_lsrsx")
+normal_enabled = true
+normal_texture = ExtResource("3_rdv5y")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_041rm"]
+albedo_texture = ExtResource("5_vtfl5")
+orm_texture = ExtResource("7_86j7x")
+normal_enabled = true
+normal_texture = ExtResource("6_qapkn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_b2rnv"]
+transparency = 1
+albedo_texture = ExtResource("2_gd415")
+orm_texture = ExtResource("4_lsrsx")
+normal_enabled = true
+normal_texture = ExtResource("3_rdv5y")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_w0lkb"]
+albedo_texture = ExtResource("5_vtfl5")
+orm_texture = ExtResource("7_86j7x")
+normal_enabled = true
+normal_texture = ExtResource("6_qapkn")
+
+[node name="CityStatue" type="Node3D" unique_id=62107604]
+script = ExtResource("1_ukyss")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_gihj6"),
+1: SubResource("ORMMaterial3D_orcrf"),
+2: SubResource("ORMMaterial3D_l0dn7"),
+3: SubResource("ORMMaterial3D_xoxb4"),
+4: SubResource("ORMMaterial3D_vc3dq"),
+5: SubResource("ORMMaterial3D_041rm"),
+6: SubResource("ORMMaterial3D_b2rnv"),
+7: SubResource("ORMMaterial3D_w0lkb")
+}
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1286939319 instance=ExtResource("8_2ohe6")]

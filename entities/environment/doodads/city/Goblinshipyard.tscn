@@ -1,0 +1,68 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_0uro6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinshipyard_diffuse.dds" id="2_ycgmb"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinshipyard_emissive.dds" id="3_gemge"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinshipyard_normal.dds" id="4_6ee4f"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinshipyard_orm.dds" id="5_poayy"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/goblinshipyard.glb" id="6_s5hi2"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6ebc6"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_ycgmb")
+orm_texture = ExtResource("5_poayy")
+emission_enabled = true
+emission_texture = ExtResource("3_gemge")
+normal_enabled = true
+normal_texture = ExtResource("4_6ee4f")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_w1n0y"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_ycgmb")
+orm_texture = ExtResource("5_poayy")
+emission_enabled = true
+emission_texture = ExtResource("3_gemge")
+normal_enabled = true
+normal_texture = ExtResource("4_6ee4f")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lxq5u"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_ycgmb")
+orm_texture = ExtResource("5_poayy")
+emission_enabled = true
+emission_texture = ExtResource("3_gemge")
+normal_enabled = true
+normal_texture = ExtResource("4_6ee4f")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_v5qyc"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_ycgmb")
+orm_texture = ExtResource("5_poayy")
+emission_enabled = true
+emission_texture = ExtResource("3_gemge")
+normal_enabled = true
+normal_texture = ExtResource("4_6ee4f")
+
+[node name="Goblinshipyard" type="Node3D" unique_id=1686539049]
+script = ExtResource("1_0uro6")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_6ebc6"),
+1: SubResource("ORMMaterial3D_w1n0y"),
+2: SubResource("ORMMaterial3D_lxq5u"),
+3: SubResource("ORMMaterial3D_v5qyc")
+}
+hidden_geosets = {
+"Death 1": PackedInt32Array(0, 1, 2, 3)
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=423197675 instance=ExtResource("6_s5hi2")]

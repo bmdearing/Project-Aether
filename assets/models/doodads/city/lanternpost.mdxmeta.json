@@ -1,0 +1,141 @@
+{
+  "source": "lanternpost.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.5158673973083495,
+      0.0006047999784350395,
+      -0.5158673973083495
+    ],
+    "max": [
+      0.5158673973083495,
+      4.470731872558593,
+      0.5158673973083495
+    ],
+    "height": 4.4701270725801585
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 3367,
+      "end": 6700,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Props_PostLantern",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_postlantern_diffuse.dds",
+        "normal": "cs_props_postlantern_normal.dds",
+        "orm": "cs_props_postlantern_orm.dds",
+        "emissive": "cs_props_postlantern_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_ORM.tif",
+        "emissive": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Props_PostLantern_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_postlantern_diffuse.dds",
+        "normal": "cs_props_postlantern_normal.dds",
+        "orm": "cs_props_postlantern_orm.dds",
+        "emissive": "cs_props_postlantern_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_ORM.tif",
+        "emissive": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Props_PostLantern_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_postlantern_diffuse.dds",
+        "normal": "cs_props_postlantern_normal.dds",
+        "orm": "cs_props_postlantern_orm.dds",
+        "emissive": "cs_props_postlantern_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_ORM.tif",
+        "emissive": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Props_PostLantern_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_postlantern_diffuse.dds",
+        "normal": "cs_props_postlantern_normal.dds",
+        "orm": "cs_props_postlantern_orm.dds",
+        "emissive": "cs_props_postlantern_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_ORM.tif",
+        "emissive": "Doodads/Cityscape/Props/LanternPost/CS_Props_PostLantern_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Death 1": true
+      }
+    }
+  ]
+}

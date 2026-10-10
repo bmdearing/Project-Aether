@@ -1,0 +1,174 @@
+{
+  "source": "barrelsunit.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6184782257080078,
+      -0.01785960030555725,
+      -0.6052283706665038
+    ],
+    "max": [
+      0.6502679901123046,
+      1.2452364349365233,
+      0.5865803833007812
+    ],
+    "height": 1.2630960352420806
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 667,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 700,
+      "end": 1533,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 1567,
+      "end": 60167,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 11",
+      "start": 60200,
+      "end": 60867,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "LS_des_barrelUnit1_rig_01:bu0_main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_barrel_diffuse.dds",
+        "normal": "ls_destructibles_barrel_normal.dds",
+        "orm": "ls_destructibles_barrel_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_Diffuse.tif",
+        "normal": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_Normal.tif",
+        "orm": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": false,
+        "Stand 11": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "LS_des_barrelUnit1_rig_01bu0_main_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_barrel_diffuse.dds",
+        "normal": "ls_destructibles_barrel_normal.dds",
+        "orm": "ls_destructibles_barrel_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_Diffuse.tif",
+        "normal": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_Normal.tif",
+        "orm": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": false,
+        "Stand 11": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "LS_des_barrelUnit1_rig_01bu0_main_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_barrel_diffuse.dds",
+        "normal": "ls_destructibles_barrel_normal.dds",
+        "orm": "ls_destructibles_barrel_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_Diffuse.tif",
+        "normal": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_Normal.tif",
+        "orm": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": false,
+        "Stand 11": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "LS_des_barrelUnit1_rig_01bu0_main_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_barrel_diffuse.dds",
+        "normal": "ls_destructibles_barrel_normal.dds",
+        "orm": "ls_destructibles_barrel_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_Diffuse.tif",
+        "normal": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_Normal.tif",
+        "orm": "Buildings/Other/BarrelsUnit/LS_Destructibles_Barrel_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": false,
+        "Stand 11": true
+      }
+    }
+  ]
+}

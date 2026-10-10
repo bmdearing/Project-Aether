@@ -1,0 +1,90 @@
+[gd_resource type="Resource" script_class="MapTileset" load_steps=40 format=3]
+
+[ext_resource type="Script" path="res://data/tilesets/MapTileset.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_squaretiles_diffuse.dds" id="2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_squaretiles_normal.dds" id="3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_squaretiles_orm.dds" id="4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_whitemarble_diffuse.dds" id="5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_whitemarble_normal.dds" id="6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_whitemarble_orm.dds" id="7"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_cliff0_diffuse.dds" id="8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_cliff0_normal.dds" id="9"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_cliff0_orm.dds" id="10"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildinglarge0.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Morecitybuilding0.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Morecitybuilding1.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingsmall00.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingsmall01.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingsmall02.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingrow2.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Merchant.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Cathedral.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Cityclocktower.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Arcaneobservatory.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Magetower.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citymaintower.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/CityFountain.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/CityStatue.tscn" id="25"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Knightstatuea.tscn" id="26"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Statuekingterenas.tscn" id="27"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/CityOblisk.tscn" id="28"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Marketstalllarge.tscn" id="29"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Marketstallsmall.tscn" id="30"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Lanternpost.tscn" id="31"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Crystallamp.tscn" id="32"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citystonebench.tscn" id="33"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Marketitemproduce.tscn" id="34"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Emptycrates2.tscn" id="35"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/BannerLong.tscn" id="36"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Pottedplant.tscn" id="37"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybush.tscn" id="38"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Flowerbedstraight.tscn" id="39"]
+
+[resource]
+script = ExtResource("1")
+id = "city_downtown"
+ambience_id = "factory_hall"
+display_name = "Downtown"
+family = "city"
+layout = "streets"
+floor_albedo = ExtResource("2")
+floor_normal = ExtResource("3")
+floor_orm = ExtResource("4")
+floor_wide = false
+patch_albedo = ExtResource("5")
+patch_normal = ExtResource("6")
+patch_orm = ExtResource("7")
+patch_wide = false
+patch_amount = 0.25
+floor_tint = Color(0.8, 0.78, 0.74, 1)
+wall_albedo = ExtResource("8")
+wall_normal = ExtResource("9")
+wall_orm = ExtResource("10")
+wall_wide = false
+wall_tint = Color(0.55, 0.53, 0.5, 1)
+buildings = Array[PackedScene]([ExtResource("11"), ExtResource("12"), ExtResource("13"), ExtResource("14"), ExtResource("15"), ExtResource("16"), ExtResource("17"), ExtResource("18")])
+landmarks = Array[PackedScene]([ExtResource("19"), ExtResource("20"), ExtResource("21"), ExtResource("22"), ExtResource("23"), ExtResource("11")])
+plaza_props = Array[PackedScene]([ExtResource("24"), ExtResource("25"), ExtResource("26"), ExtResource("27"), ExtResource("28"), ExtResource("29"), ExtResource("30")])
+street_lights = Array[PackedScene]([ExtResource("31"), ExtResource("32")])
+floor_props = Array[PackedScene]([ExtResource("33"), ExtResource("34"), ExtResource("35"), ExtResource("36")])
+clusters = Array[PackedScene]([ExtResource("37"), ExtResource("38"), ExtResource("39")])
+building_scale = 1.4
+steam_vents = 6
+background_color = Color(0.48, 0.5, 0.54, 1)
+ambient_color = Color(0.6, 0.58, 0.56, 1)
+ambient_energy = 0.55
+sun_energy = 0.9
+sun_color = Color(1, 0.88, 0.72, 1)
+fog_color = Color(0.5, 0.5, 0.52, 1)
+fog_density = 0.01
+light_color = Color(1, 0.72, 0.4, 1)
+light_energy = 1.6
+light_range = 11
+room_light_energy = 0
+lights_per_room = 0
+grid_size = 5
+cell_size = 34
+room_count = Vector2i(9, 12)
+branch_stop_chance = 0.4
+street_width = 13
+plaza_chance = 0.35

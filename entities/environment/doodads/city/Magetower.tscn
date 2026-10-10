@@ -1,0 +1,61 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_samj1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_highelvenbarracks_diffuse.dds" id="2_dd5cl"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_highelvenbarracks_normal.dds" id="3_3po33"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_highelvenbarracks_orm.dds" id="4_t7qr0"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/magetower.glb" id="5_etj3m"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ne1ce"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_dd5cl")
+orm_texture = ExtResource("4_t7qr0")
+normal_enabled = true
+normal_texture = ExtResource("3_3po33")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_u1l8t"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_dd5cl")
+orm_texture = ExtResource("4_t7qr0")
+normal_enabled = true
+normal_texture = ExtResource("3_3po33")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_jongy"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_dd5cl")
+orm_texture = ExtResource("4_t7qr0")
+normal_enabled = true
+normal_texture = ExtResource("3_3po33")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ladbp"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_dd5cl")
+orm_texture = ExtResource("4_t7qr0")
+normal_enabled = true
+normal_texture = ExtResource("3_3po33")
+
+[node name="Magetower" type="Node3D" unique_id=1985165366]
+script = ExtResource("1_samj1")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_ne1ce"),
+1: SubResource("ORMMaterial3D_u1l8t"),
+2: SubResource("ORMMaterial3D_jongy"),
+3: SubResource("ORMMaterial3D_ladbp")
+}
+hidden_geosets = {
+"Birth": PackedInt32Array(0, 1, 2, 3),
+"Death 1": PackedInt32Array(0, 1, 2, 3),
+"Decay": PackedInt32Array(0, 1, 2, 3)
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1202882267 instance=ExtResource("5_etj3m")]

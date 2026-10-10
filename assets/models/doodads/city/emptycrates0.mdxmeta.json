@@ -1,0 +1,130 @@
+{
+  "source": "emptycrates0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.7784892196655273,
+      -0.07934219741821288,
+      -0.8085114212036132
+    ],
+    "max": [
+      0.7723565826416015,
+      0.8718623657226562,
+      0.648386993408203
+    ],
+    "height": 0.9512045631408691
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 6700,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "EmptyCrate_v1",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cratesempty_low_diffuse.dds",
+        "normal": "cratesempty_low_normal.dds",
+        "orm": "cratesempty_low_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "EmptyCrate_v1_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cratesempty_low_diffuse.dds",
+        "normal": "cratesempty_low_normal.dds",
+        "orm": "cratesempty_low_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "EmptyCrate_v1_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cratesempty_low_diffuse.dds",
+        "normal": "cratesempty_low_normal.dds",
+        "orm": "cratesempty_low_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "EmptyCrate_v1_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cratesempty_low_diffuse.dds",
+        "normal": "cratesempty_low_normal.dds",
+        "orm": "cratesempty_low_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/EmptyCrates/CratesEmpty_low_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

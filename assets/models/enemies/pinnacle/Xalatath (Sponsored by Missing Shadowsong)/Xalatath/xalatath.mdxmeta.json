@@ -750,10 +750,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "warlock_main_diffuse.dds",
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/warlock_main_diffuse.dds",
         "normal": "warlock_main_normal.dds",
         "orm": "warlock_main_orm.dds",
-        "emissive": "warlock_main_emissive.dds"
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/warlock_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Demon/Warlock/Warlock_Main_Diffuse.tif",

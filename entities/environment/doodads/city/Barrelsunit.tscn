@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_b2v6a"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_destructibles_barrel_diffuse.dds" id="2_nwuig"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_destructibles_barrel_normal.dds" id="3_nje0m"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_destructibles_barrel_orm.dds" id="4_84jch"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/barrelsunit.glb" id="5_t5knt"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_67ccy"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_nwuig")
+orm_texture = ExtResource("4_84jch")
+normal_enabled = true
+normal_texture = ExtResource("3_nje0m")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5wdxl"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_nwuig")
+orm_texture = ExtResource("4_84jch")
+normal_enabled = true
+normal_texture = ExtResource("3_nje0m")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_jvlft"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_nwuig")
+orm_texture = ExtResource("4_84jch")
+normal_enabled = true
+normal_texture = ExtResource("3_nje0m")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_p2x3l"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_nwuig")
+orm_texture = ExtResource("4_84jch")
+normal_enabled = true
+normal_texture = ExtResource("3_nje0m")
+
+[node name="Barrelsunit" type="Node3D" unique_id=524303362]
+script = ExtResource("1_b2v6a")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_67ccy"),
+1: SubResource("ORMMaterial3D_5wdxl"),
+2: SubResource("ORMMaterial3D_jvlft"),
+3: SubResource("ORMMaterial3D_p2x3l")
+}
+hidden_geosets = {
+"Decay": PackedInt32Array(0, 1, 2, 3)
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=405513377 instance=ExtResource("5_t5knt")]

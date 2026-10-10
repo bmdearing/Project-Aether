@@ -1,0 +1,630 @@
+{
+  "source": "citystonebench.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6439194030761718,
+      -0.0031284001171588897,
+      -1.5286121520996092
+    ],
+    "max": [
+      0.6999461746215819,
+      1.2111749725341796,
+      1.5307362213134765
+    ],
+    "height": 1.2143033726513386
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Center_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Center_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Center_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Center_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "HandL_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "HandL_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "HandL_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "HandL_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "HandR_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "HandR_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "HandR_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "HandR_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "LegL_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "LegL_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "LegL_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "LegL_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 16,
+      "name": "LegR_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 17,
+      "name": "LegR_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "LegR_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "LegR_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "Seat_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "Seat_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "Seat_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 23,
+      "name": "Seat_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchstone_diffuse.dds",
+        "normal": "cs_props_benchstone_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityStoneBench/CS_Props_BenchStone_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

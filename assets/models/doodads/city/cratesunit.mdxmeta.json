@@ -1,0 +1,1395 @@
+{
+  "source": "cratesunit.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.8995139923095703,
+      -0.02516580033302307,
+      -0.6478704299926757
+    ],
+    "max": [
+      1.1829689483642578,
+      0.9986399917602539,
+      0.5620985870361328
+    ],
+    "height": 1.0238057920932768
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 667,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 700,
+      "end": 1533,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 1567,
+      "end": 60167,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_6b",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_5b",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_4b",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_3b",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_2b",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_1b",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_6a",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_5a",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_4a",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_3a",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_2a",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "LS_Destructibles_Crates_rig:CrateSide_1a",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "LS_Destructibles_Crates_rigCrateSide_6b_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "LS_Destructibles_Crates_rigCrateSide_6b_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "LS_Destructibles_Crates_rigCrateSide_6b_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "LS_Destructibles_Crates_rigCrateSide_5b_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 16,
+      "name": "LS_Destructibles_Crates_rigCrateSide_5b_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 17,
+      "name": "LS_Destructibles_Crates_rigCrateSide_5b_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "LS_Destructibles_Crates_rigCrateSide_4b_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "LS_Destructibles_Crates_rigCrateSide_4b_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "LS_Destructibles_Crates_rigCrateSide_4b_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "LS_Destructibles_Crates_rigCrateSide_3b_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "LS_Destructibles_Crates_rigCrateSide_3b_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 23,
+      "name": "LS_Destructibles_Crates_rigCrateSide_3b_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 24,
+      "name": "LS_Destructibles_Crates_rigCrateSide_2b_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 25,
+      "name": "LS_Destructibles_Crates_rigCrateSide_2b_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 26,
+      "name": "LS_Destructibles_Crates_rigCrateSide_2b_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 27,
+      "name": "LS_Destructibles_Crates_rigCrateSide_1b_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 28,
+      "name": "LS_Destructibles_Crates_rigCrateSide_1b_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 29,
+      "name": "LS_Destructibles_Crates_rigCrateSide_1b_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 30,
+      "name": "LS_Destructibles_Crates_rigCrateSide_6a_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 31,
+      "name": "LS_Destructibles_Crates_rigCrateSide_6a_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 32,
+      "name": "LS_Destructibles_Crates_rigCrateSide_6a_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 33,
+      "name": "LS_Destructibles_Crates_rigCrateSide_5a_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 34,
+      "name": "LS_Destructibles_Crates_rigCrateSide_5a_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 35,
+      "name": "LS_Destructibles_Crates_rigCrateSide_5a_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 36,
+      "name": "LS_Destructibles_Crates_rigCrateSide_4a_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 37,
+      "name": "LS_Destructibles_Crates_rigCrateSide_4a_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 38,
+      "name": "LS_Destructibles_Crates_rigCrateSide_4a_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 39,
+      "name": "LS_Destructibles_Crates_rigCrateSide_3a_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 40,
+      "name": "LS_Destructibles_Crates_rigCrateSide_3a_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 41,
+      "name": "LS_Destructibles_Crates_rigCrateSide_3a_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 42,
+      "name": "LS_Destructibles_Crates_rigCrateSide_2a_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 43,
+      "name": "LS_Destructibles_Crates_rigCrateSide_2a_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 44,
+      "name": "LS_Destructibles_Crates_rigCrateSide_2a_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 45,
+      "name": "LS_Destructibles_Crates_rigCrateSide_1a_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 46,
+      "name": "LS_Destructibles_Crates_rigCrateSide_1a_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 47,
+      "name": "LS_Destructibles_Crates_rigCrateSide_1a_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_destructibles_crates_v1-v2_diffuse.dds",
+        "normal": "ls_destructibles_crates_v1-v2_normal.dds",
+        "orm": "ls_destructibles_crates_v1-v2_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Diffuse.tif",
+        "normal": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_Normal.tif",
+        "orm": "Buildings/Other/CratesUnit/LS_Destructibles_Crates_V1-V2_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    }
+  ]
+}

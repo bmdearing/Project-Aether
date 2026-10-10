@@ -1,0 +1,122 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_kjs8h"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/orc_powergenerator_diffuse.dds" id="2_37p1g"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/orc_powergenerator_emissive.dds" id="3_wgbjw"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/orc_powergenerator_normal.dds" id="4_cn8wn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/orc_powergenerator_orm.dds" id="5_sva3i"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/powergenerator.glb" id="6_qslno"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_17u25"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_37p1g")
+orm_texture = ExtResource("5_sva3i")
+emission_enabled = true
+emission_texture = ExtResource("3_wgbjw")
+normal_enabled = true
+normal_texture = ExtResource("4_cn8wn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_deh2c"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_37p1g")
+orm_texture = ExtResource("5_sva3i")
+emission_enabled = true
+emission_texture = ExtResource("3_wgbjw")
+normal_enabled = true
+normal_texture = ExtResource("4_cn8wn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_l6ev6"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_37p1g")
+orm_texture = ExtResource("5_sva3i")
+emission_enabled = true
+emission_texture = ExtResource("3_wgbjw")
+normal_enabled = true
+normal_texture = ExtResource("4_cn8wn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3mcqd"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_37p1g")
+orm_texture = ExtResource("5_sva3i")
+emission_enabled = true
+emission_texture = ExtResource("3_wgbjw")
+normal_enabled = true
+normal_texture = ExtResource("4_cn8wn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_72pfd"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_37p1g")
+orm_texture = ExtResource("5_sva3i")
+emission_enabled = true
+emission_texture = ExtResource("3_wgbjw")
+normal_enabled = true
+normal_texture = ExtResource("4_cn8wn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ssllu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_37p1g")
+orm_texture = ExtResource("5_sva3i")
+emission_enabled = true
+emission_texture = ExtResource("3_wgbjw")
+normal_enabled = true
+normal_texture = ExtResource("4_cn8wn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_13dfu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_37p1g")
+orm_texture = ExtResource("5_sva3i")
+emission_enabled = true
+emission_texture = ExtResource("3_wgbjw")
+normal_enabled = true
+normal_texture = ExtResource("4_cn8wn")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_otniq"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_37p1g")
+orm_texture = ExtResource("5_sva3i")
+emission_enabled = true
+emission_texture = ExtResource("3_wgbjw")
+normal_enabled = true
+normal_texture = ExtResource("4_cn8wn")
+
+[node name="Powergenerator" type="Node3D" unique_id=1231999543]
+script = ExtResource("1_kjs8h")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_17u25"),
+1: SubResource("ORMMaterial3D_deh2c"),
+2: SubResource("ORMMaterial3D_l6ev6"),
+3: SubResource("ORMMaterial3D_3mcqd"),
+4: SubResource("ORMMaterial3D_72pfd"),
+5: SubResource("ORMMaterial3D_ssllu"),
+6: SubResource("ORMMaterial3D_13dfu"),
+7: SubResource("ORMMaterial3D_otniq")
+}
+hidden_geosets = {
+"Birth": PackedInt32Array(0, 1, 2, 3, 4, 5, 6, 7),
+"Death 1": PackedInt32Array(0, 1, 2, 3, 4, 5, 6, 7),
+"Decay": PackedInt32Array(0, 1, 2, 3, 4, 5, 6, 7)
+}
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=867365644 instance=ExtResource("6_qslno")]

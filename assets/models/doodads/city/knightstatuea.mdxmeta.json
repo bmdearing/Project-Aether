@@ -1,0 +1,196 @@
+{
+  "source": "knightstatuea.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.087279983520508,
+      -0.056473198413848874,
+      -2.5067699890136717
+    ],
+    "max": [
+      2.653038116455078,
+      9.244998413085936,
+      2.5075980834960934
+    ],
+    "height": 9.301471611499785
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 5033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 5367,
+      "end": 7033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 7367,
+      "end": 9033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 9367,
+      "end": 27367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 27700,
+      "end": 29367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 29700,
+      "end": 33033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 33367,
+      "end": 35033,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Props_Statue",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_statue_mat_diffuse.dds",
+        "normal": "cs_props_statue_mat_normal.dds",
+        "orm": "cs_props_statue_mat_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Props_Statue_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_statue_mat_diffuse.dds",
+        "normal": "cs_props_statue_mat_normal.dds",
+        "orm": "cs_props_statue_mat_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Props_Statue_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_statue_mat_diffuse.dds",
+        "normal": "cs_props_statue_mat_normal.dds",
+        "orm": "cs_props_statue_mat_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Props_Statue_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_statue_mat_diffuse.dds",
+        "normal": "cs_props_statue_mat_normal.dds",
+        "orm": "cs_props_statue_mat_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/KnightStatueA/CS_Props_Statue_Mat_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    }
+  ]
+}

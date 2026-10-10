@@ -1,0 +1,661 @@
+{
+  "source": "city_fountain.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.7220860900878905,
+      -0.014340600013732909,
+      -2.7191878967285152
+    ],
+    "max": [
+      2.7197819824218747,
+      3.8443859252929684,
+      2.720646057128906
+    ],
+    "height": 3.8587265253067016
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 1633,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 1633,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Props_Fountain",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_fountain_fountain_diffuse.dds",
+        "normal": "cs_props_fountain_fountain_normal.dds",
+        "orm": "cs_props_fountain_fountain_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Props_Fountain_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_fountain_fountain_diffuse.dds",
+        "normal": "cs_props_fountain_fountain_normal.dds",
+        "orm": "cs_props_fountain_fountain_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Props_Fountain_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_fountain_fountain_diffuse.dds",
+        "normal": "cs_props_fountain_fountain_normal.dds",
+        "orm": "cs_props_fountain_fountain_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Props_Fountain_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_fountain_fountain_diffuse.dds",
+        "normal": "cs_props_fountain_fountain_normal.dds",
+        "orm": "cs_props_fountain_fountain_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/City_Fountain/CS_Props_Fountain_Fountain_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "pCylinder5",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_fountainwater_diff_0000.dds",
+        "normal": "war3_fountainwater_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_FountainWater_Diff_0000.tif",
+        "normal": "Textures/Water/War3_FountainWater_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "pCylinder5_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_fountainwater_diff_0000.dds",
+        "normal": "war3_fountainwater_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_FountainWater_Diff_0000.tif",
+        "normal": "Textures/Water/War3_FountainWater_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "pCylinder5_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_fountainwater_diff_0000.dds",
+        "normal": "war3_fountainwater_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_FountainWater_Diff_0000.tif",
+        "normal": "Textures/Water/War3_FountainWater_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "pCylinder5_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_fountainwater_diff_0000.dds",
+        "normal": "war3_fountainwater_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_FountainWater_Diff_0000.tif",
+        "normal": "Textures/Water/War3_FountainWater_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "pCylinder9",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "pCylinder9_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "pCylinder9_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "pCylinder9_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "pCylinder8",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterfall_diff_0000.dds",
+        "normal": "war3_waterfall_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterFall_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterFall_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "pCylinder8_LOD1",
+      "lod": 1,
+      "material_id": 3,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterfall_diff_0000.dds",
+        "normal": "war3_waterfall_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterFall_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterFall_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "pCylinder8_LOD2",
+      "lod": 2,
+      "material_id": 3,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterfall_diff_0000.dds",
+        "normal": "war3_waterfall_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterFall_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterFall_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "pCylinder8_LOD3",
+      "lod": 3,
+      "material_id": 3,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterfall_diff_0000.dds",
+        "normal": "war3_waterfall_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterFall_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterFall_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 16,
+      "name": "pCylinder10",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 17,
+      "name": "pCylinder10_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "pCylinder10_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "pCylinder10_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "pCylinder11",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "pCylinder11_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "pCylinder11_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    },
+    {
+      "index": 23,
+      "name": "pCylinder11_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_waterspray_diff_0000.dds",
+        "normal": "war3_waterspray_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_WaterSpray_Diff_0000.tif",
+        "normal": "Textures/Water/War3_WaterSpray_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true
+      }
+    }
+  ]
+}

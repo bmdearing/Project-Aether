@@ -75,6 +75,8 @@ var cell_size: float = CELL_SIZE
 var interior_wall_count := 0
 var _boss: Enemy
 var _terrain: TerrainBuilder
+## City (STREETS) geometry, spawn points and counts.
+var streets: StreetBuilder
 ## Populated as rooms are spawned - used by tests to sanity-check spawn
 ## positions against actual room bounds without duplicating the layout
 ## math in the test script.
@@ -152,6 +154,8 @@ func _build_layout() -> void:
 				water.plan(graph, cell_size, layout.rivers, layout.streams)
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
 			_terrain.build_open_field(graph, cell_size)
+			if tileset.building_boundary:
+				_line_boundary_with_buildings()
 			if water:
 				water.build(tileset.water_props, _dresser)
 			if tileset.family == "forest":
@@ -160,6 +164,12 @@ func _build_layout() -> void:
 			var dune_crest := _terrain.build_dais(_cell_to_world(graph.vault_cell), 1.6, _floor_mat)
 			boss_portal_point = dune_crest
 			_spawn_vault_boss(dune_crest)
+		MapLayout.Kind.STREETS:
+			streets = StreetBuilder.new(self, tileset, _dresser, _wall_mat)
+			streets.build(graph, cell_size)
+			var court := _cell_to_world(graph.vault_cell)
+			boss_portal_point = court
+			_spawn_vault_boss(court)
 		MapLayout.Kind.CANYON:
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
 			_terrain.build_canyon(graph, cell_size)
@@ -756,6 +766,10 @@ const PACK_CENTER_JITTER := 2.5
 ## One pack per room except the start and the Vault: the Vault holds only
 ## its boss (FigmentBoss; the elites that used to guard it are now bosses).
 func _spawn_enemies() -> void:
+	if layout.kind == MapLayout.Kind.STREETS:
+		for p in streets.spawn_points:
+			_spawn_pack(EnemyRoster.roll_pack(_pack_table()), p)
+		return
 	if layout.kind != MapLayout.Kind.ROOMS:
 		_spawn_enemies_open()
 		return
@@ -786,6 +800,11 @@ func _spawn_chests() -> void:
 		if not room.is_start and not room.is_vault:
 			cells.append(cell)
 	cells.sort()
+	# Streets: dead ends first (alleys are where chests hide).
+	if layout.kind == MapLayout.Kind.STREETS:
+		var dead_ends := cells.filter(func(c: Vector2i): return (graph.rooms[c] as MapGraph.RoomData).connections.size() == 1)
+		if dead_ends.size() >= CHEST_COUNT.x:
+			cells.assign(dead_ends)
 	var count := mini(randi_range(CHEST_COUNT.x, CHEST_COUNT.y) + _extra_chests(), cells.size())
 	for i in count:
 		var cell: Vector2i = cells.pop_at(randi() % cells.size())
@@ -800,6 +819,11 @@ func _spawn_chests() -> void:
 func _chest_spot(cell: Vector2i) -> Vector3:
 	var origin := _cell_to_world(cell)
 	var half: Vector2 = room_half.get(cell, Vector2.ONE * cell_size * 0.4)
+	# Streets: a dead end's back wall, the alley's far end.
+	var room: MapGraph.RoomData = graph.rooms.get(cell)
+	if layout.kind == MapLayout.Kind.STREETS and room and room.connections.size() == 1:
+		var back := Vector2(cell - room.connections[0]).normalized()
+		return origin + Vector3(back.x, 0, back.y) * maxf(half.x - CHEST_CLEARANCE - 0.5, 0.0)
 	var corners: Array[Vector2] = [Vector2(1, 1), Vector2(-1, 1), Vector2(1, -1), Vector2(-1, -1)]
 	corners.shuffle()
 	var inset := 0.75 if layout.kind == MapLayout.Kind.ROOMS else 0.35
@@ -926,3 +950,18 @@ func _spawn_enemy(enemy: Enemy, pos: Vector3) -> void:
 	enemy.global_position = pos
 	_living_enemies[enemy.get_instance_id()] = true
 	_enemies_total += 1
+
+## Park: buildings around the field's edge instead of ridges.
+func _line_boundary_with_buildings() -> void:
+	var extent := cell_size * graph.grid_size
+	var lo := -cell_size / 2.0
+	var hi := lo + extent
+	var corners := [Vector3(lo, 0, lo), Vector3(hi, 0, lo), Vector3(hi, 0, hi), Vector3(lo, 0, hi)]
+	var segments: Array[Dictionary] = []
+	for i in 4:
+		var from: Vector3 = corners[i]
+		var to: Vector3 = corners[(i + 1) % 4]
+		var along := (to - from).normalized()
+		segments.append({"from": from, "to": to, "normal": Vector3(along.z, 0, -along.x) * -1.0, "grand": false, "water": false})
+	streets = StreetBuilder.new(self, tileset, _dresser, _wall_mat)
+	streets.line_edges(segments)

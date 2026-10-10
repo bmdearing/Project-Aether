@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_75x3v"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/archwayentrance1_diffuse.dds" id="2_ulolq"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/archwayentrance1_normal.dds" id="3_dym2o"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/archwayentrance1_orm.dds" id="4_548ca"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/archwayentrance1.glb" id="5_7qhxe"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_fwyo0"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_ulolq")
+orm_texture = ExtResource("4_548ca")
+normal_enabled = true
+normal_texture = ExtResource("3_dym2o")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3nkpq"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_ulolq")
+orm_texture = ExtResource("4_548ca")
+normal_enabled = true
+normal_texture = ExtResource("3_dym2o")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ron76"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_ulolq")
+orm_texture = ExtResource("4_548ca")
+normal_enabled = true
+normal_texture = ExtResource("3_dym2o")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lhfh0"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_ulolq")
+orm_texture = ExtResource("4_548ca")
+normal_enabled = true
+normal_texture = ExtResource("3_dym2o")
+
+[node name="Archwayentrance1" type="Node3D" unique_id=901062488]
+script = ExtResource("1_75x3v")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_fwyo0"),
+1: SubResource("ORMMaterial3D_3nkpq"),
+2: SubResource("ORMMaterial3D_ron76"),
+3: SubResource("ORMMaterial3D_lhfh0")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1943066623 instance=ExtResource("5_7qhxe")]

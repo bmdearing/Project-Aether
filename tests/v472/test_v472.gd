@@ -186,8 +186,8 @@ func _test_tree_effects() -> void:
 	for i in 600:
 		if MapTileset.family_of(FigmentRoller.roll_style()) == "snow":
 			snow += 1
-	# 4 of 14 styles are snow: ~29% unweighted; +120% weight -> ~47%.
-	_check(snow > 600 * 0.38, "style weights steer drops (%d/600 snow)" % snow)
+	# 4 of 19 styles are snow: ~21% unweighted; +120% weight -> ~37%.
+	_check(snow > 600 * 0.29, "style weights steer drops (%d/600 snow)" % snow)
 	for id in ["rewards_trunk_1", "reward_uniques_1", "reward_uniques_2", "reward_uniques_notable"]:
 		FigmentTree.unlock(id)
 	var w := Loot.rarity_weights(1.0)

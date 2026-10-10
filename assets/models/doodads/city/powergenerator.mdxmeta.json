@@ -1,0 +1,290 @@
+{
+  "source": "powergenerator.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.029896057128906,
+      -0.6973433761596679,
+      -2.029896057128906
+    ],
+    "max": [
+      2.029896057128906,
+      4.598730010986328,
+      2.029896057128906
+    ],
+    "height": 5.296073387145996
+  },
+  "sequences": [
+    {
+      "name": "Birth",
+      "start": 0,
+      "end": 36567,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 36600,
+      "end": 44600,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 36600,
+      "end": 44600,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 44633,
+      "end": 46967,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 47000,
+      "end": 105467,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "orc_powerGenerator_rig_default:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_powergenerator_diffuse.dds",
+        "normal": "orc_powergenerator_normal.dds",
+        "orm": "orc_powergenerator_orm.dds",
+        "emissive": "orc_powergenerator_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Diffuse.tif",
+        "normal": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Normal.tif",
+        "orm": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_ORM.tif",
+        "emissive": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "orc_powerGenerator_rig_default:main_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_powergenerator_diffuse.dds",
+        "normal": "orc_powergenerator_normal.dds",
+        "orm": "orc_powergenerator_orm.dds",
+        "emissive": "orc_powergenerator_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Diffuse.tif",
+        "normal": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Normal.tif",
+        "orm": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_ORM.tif",
+        "emissive": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "orc_powerGenerator_rig_defaultmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_powergenerator_diffuse.dds",
+        "normal": "orc_powergenerator_normal.dds",
+        "orm": "orc_powergenerator_orm.dds",
+        "emissive": "orc_powergenerator_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Diffuse.tif",
+        "normal": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Normal.tif",
+        "orm": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_ORM.tif",
+        "emissive": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "orc_powerGenerator_rig_defaultmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_powergenerator_diffuse.dds",
+        "normal": "orc_powergenerator_normal.dds",
+        "orm": "orc_powergenerator_orm.dds",
+        "emissive": "orc_powergenerator_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Diffuse.tif",
+        "normal": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Normal.tif",
+        "orm": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_ORM.tif",
+        "emissive": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "orc_powerGenerator_rig_defaultmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_powergenerator_diffuse.dds",
+        "normal": "orc_powergenerator_normal.dds",
+        "orm": "orc_powergenerator_orm.dds",
+        "emissive": "orc_powergenerator_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Diffuse.tif",
+        "normal": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Normal.tif",
+        "orm": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_ORM.tif",
+        "emissive": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "orc_powerGenerator_rig_defaultmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_powergenerator_diffuse.dds",
+        "normal": "orc_powergenerator_normal.dds",
+        "orm": "orc_powergenerator_orm.dds",
+        "emissive": "orc_powergenerator_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Diffuse.tif",
+        "normal": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Normal.tif",
+        "orm": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_ORM.tif",
+        "emissive": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "orc_powerGenerator_rig_defaultmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_powergenerator_diffuse.dds",
+        "normal": "orc_powergenerator_normal.dds",
+        "orm": "orc_powergenerator_orm.dds",
+        "emissive": "orc_powergenerator_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Diffuse.tif",
+        "normal": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Normal.tif",
+        "orm": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_ORM.tif",
+        "emissive": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "orc_powerGenerator_rig_defaultmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "orc_powergenerator_diffuse.dds",
+        "normal": "orc_powergenerator_normal.dds",
+        "orm": "orc_powergenerator_orm.dds",
+        "emissive": "orc_powergenerator_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Diffuse.tif",
+        "normal": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Normal.tif",
+        "orm": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_ORM.tif",
+        "emissive": "Buildings/Other/PowerGenerator/Orc_PowerGenerator_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_twadc"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_marketplace_diffuse.dds" id="2_3sdn5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_marketplace_normal.dds" id="3_0s5w4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_marketplace_orm.dds" id="4_d4sx5"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/marketplace.glb" id="5_phrif"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_d1jmi"]
+albedo_texture = ExtResource("2_3sdn5")
+orm_texture = ExtResource("4_d4sx5")
+normal_enabled = true
+normal_texture = ExtResource("3_0s5w4")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_sgy3s"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_3sdn5")
+orm_texture = ExtResource("4_d4sx5")
+normal_enabled = true
+normal_texture = ExtResource("3_0s5w4")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_e1ist"]
+albedo_texture = ExtResource("2_3sdn5")
+orm_texture = ExtResource("4_d4sx5")
+normal_enabled = true
+normal_texture = ExtResource("3_0s5w4")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_b75x3"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_3sdn5")
+orm_texture = ExtResource("4_d4sx5")
+normal_enabled = true
+normal_texture = ExtResource("3_0s5w4")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_wvin5"]
+albedo_texture = ExtResource("2_3sdn5")
+orm_texture = ExtResource("4_d4sx5")
+normal_enabled = true
+normal_texture = ExtResource("3_0s5w4")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lo4g0"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_3sdn5")
+orm_texture = ExtResource("4_d4sx5")
+normal_enabled = true
+normal_texture = ExtResource("3_0s5w4")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xu8gf"]
+albedo_texture = ExtResource("2_3sdn5")
+orm_texture = ExtResource("4_d4sx5")
+normal_enabled = true
+normal_texture = ExtResource("3_0s5w4")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uqpsd"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_3sdn5")
+orm_texture = ExtResource("4_d4sx5")
+normal_enabled = true
+normal_texture = ExtResource("3_0s5w4")
+
+[node name="Marketplace" type="Node3D" unique_id=1082819329]
+script = ExtResource("1_twadc")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_d1jmi"),
+1: SubResource("ORMMaterial3D_sgy3s"),
+2: SubResource("ORMMaterial3D_e1ist"),
+3: SubResource("ORMMaterial3D_b75x3"),
+4: SubResource("ORMMaterial3D_wvin5"),
+5: SubResource("ORMMaterial3D_lo4g0"),
+6: SubResource("ORMMaterial3D_xu8gf"),
+7: SubResource("ORMMaterial3D_uqpsd")
+}
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1561943127 instance=ExtResource("5_phrif")]

@@ -1,0 +1,1930 @@
+{
+  "source": "marketitemproduce.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.2768119659423827,
+      -0.03569580101966858,
+      -1.55774885559082
+    ],
+    "max": [
+      1.4113421630859373,
+      1.7157167358398435,
+      1.5163272399902343
+    ],
+    "height": 1.7514125368595121
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "bags_d_low_LOD1_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "bags_d_low_LOD2_001",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "bags_d_low_LOD3_001",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "bags_c_low_LOD1_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "bags_c_low_LOD2_001",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "bags_c_low_LOD3_001",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "cookies_low_LOD1_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "cookies_low_LOD2_001",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "cookies_low_LOD3_001",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "fruits_low_LOD1_001",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "fruits_low_LOD2_001",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "fruits_low_LOD3_001",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "bags_d_low_LOD1_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "bags_d_low_LOD1_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "bags_d_low_LOD2_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "bags_d_low_LOD2_LOD3",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 16,
+      "name": "bags_d_low_LOD3_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 17,
+      "name": "bags_d_low_LOD3_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "bags_c_low_LOD1_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "bags_c_low_LOD1_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "bags_c_low_LOD2_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "bags_c_low_LOD2_LOD3",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "bags_c_low_LOD3_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 23,
+      "name": "bags_c_low_LOD3_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 24,
+      "name": "cookies_low_LOD1_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 25,
+      "name": "cookies_low_LOD1_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 26,
+      "name": "cookies_low_LOD2_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 27,
+      "name": "cookies_low_LOD2_LOD3",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 28,
+      "name": "cookies_low_LOD3_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 29,
+      "name": "cookies_low_LOD3_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 30,
+      "name": "fruits_low_LOD1_LOD2",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 31,
+      "name": "fruits_low_LOD1_LOD3",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 32,
+      "name": "fruits_low_LOD2_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 33,
+      "name": "fruits_low_LOD2_LOD3",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 34,
+      "name": "fruits_low_LOD3_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 35,
+      "name": "fruits_low_LOD3_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 36,
+      "name": "bags_d_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 37,
+      "name": "bags_d_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 38,
+      "name": "bags_d_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 39,
+      "name": "bags_d_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 40,
+      "name": "bags_d_low_LOD1_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 41,
+      "name": "bags_d_low_LOD2_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 42,
+      "name": "bags_d_low_LOD3_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 43,
+      "name": "bags_c_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 44,
+      "name": "bags_c_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 45,
+      "name": "bags_c_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 46,
+      "name": "bags_c_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 47,
+      "name": "bags_c_low_LOD1_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 48,
+      "name": "bags_c_low_LOD2_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 49,
+      "name": "bags_c_low_LOD3_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 50,
+      "name": "cookies_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 51,
+      "name": "cookies_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 52,
+      "name": "cookies_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 53,
+      "name": "cookies_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 54,
+      "name": "cookies_low_LOD1_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 55,
+      "name": "cookies_low_LOD2_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 56,
+      "name": "cookies_low_LOD3_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 57,
+      "name": "fruits_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 58,
+      "name": "fruits_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 59,
+      "name": "fruits_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 60,
+      "name": "fruits_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 61,
+      "name": "fruits_low_LOD1_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 62,
+      "name": "fruits_low_LOD2_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 63,
+      "name": "fruits_low_LOD3_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 64,
+      "name": "bags_a_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 65,
+      "name": "bags_a_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 66,
+      "name": "bags_a_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 67,
+      "name": "bags_a_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 68,
+      "name": "foods_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 69,
+      "name": "foods_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 70,
+      "name": "foods_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 71,
+      "name": "foods_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 72,
+      "name": "bags_b_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 73,
+      "name": "bags_b_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 74,
+      "name": "bags_b_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 75,
+      "name": "bags_b_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_marketitemproduce_v1_diffuse.dds",
+        "normal": "cs_sh_props_marketitemproduce_v1_normal.dds",
+        "orm": "cs_sh_props_marketitemproduce_v1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/MarketItemProduce/CS_SH_Props_MarketItemProduce_V1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

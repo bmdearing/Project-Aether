@@ -1,0 +1,130 @@
+{
+  "source": "citylowwall0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.1950776672363281,
+      -0.00003060000040568411,
+      -0.4954373931884765
+    ],
+    "max": [
+      1.1765592498779296,
+      1.6093241729736327,
+      0.5057442169189452
+    ],
+    "height": 1.6093547729740383
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "CityLowWall90_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_walllow(horizontal)_diffuse.dds",
+        "normal": "cs_structures_walllow(horizontal)_normal.dds",
+        "orm": "cs_structures_walllow(horizontal)_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "CityLowWall90_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_walllow(horizontal)_diffuse.dds",
+        "normal": "cs_structures_walllow(horizontal)_normal.dds",
+        "orm": "cs_structures_walllow(horizontal)_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "CityLowWall90_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_walllow(horizontal)_diffuse.dds",
+        "normal": "cs_structures_walllow(horizontal)_normal.dds",
+        "orm": "cs_structures_walllow(horizontal)_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "CityLowWall90_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_walllow(horizontal)_diffuse.dds",
+        "normal": "cs_structures_walllow(horizontal)_normal.dds",
+        "orm": "cs_structures_walllow(horizontal)_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityLowWall0/CS_Structures_WallLow(Horizontal)_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

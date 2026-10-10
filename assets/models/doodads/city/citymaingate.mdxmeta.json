@@ -1,0 +1,138 @@
+{
+  "source": "citymaingate.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.9380419769287107,
+      -0.024460199117660522,
+      -8.322659912109375
+    ],
+    "max": [
+      1.9427040252685546,
+      10.87948828125,
+      8.424018127441405
+    ],
+    "height": 10.90394848036766
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "wall_01_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": null,
+        "normal": "cs_sh_props_replicatemaingate_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/white.blp",
+        "normal": "Doodads/Cityscape/Props/CityMainGate/CS_SH_Props_ReplicateMainGate_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [
+        "diffuse: Textures/white.blp"
+      ],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "wall_01_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": null,
+        "normal": "cs_sh_props_replicatemaingate_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/white.blp",
+        "normal": "Doodads/Cityscape/Props/CityMainGate/CS_SH_Props_ReplicateMainGate_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [
+        "diffuse: Textures/white.blp"
+      ],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "wall_01_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": null,
+        "normal": "cs_sh_props_replicatemaingate_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/white.blp",
+        "normal": "Doodads/Cityscape/Props/CityMainGate/CS_SH_Props_ReplicateMainGate_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [
+        "diffuse: Textures/white.blp"
+      ],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "wall_01_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": null,
+        "normal": "cs_sh_props_replicatemaingate_normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/white.blp",
+        "normal": "Doodads/Cityscape/Props/CityMainGate/CS_SH_Props_ReplicateMainGate_Normal.tif",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [
+        "diffuse: Textures/white.blp"
+      ],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

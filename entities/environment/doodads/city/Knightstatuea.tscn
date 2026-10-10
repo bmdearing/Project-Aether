@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_26eow"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_statue_mat_diffuse.dds" id="2_kg6w7"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_statue_mat_normal.dds" id="3_4b2js"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_statue_mat_orm.dds" id="4_6dy7u"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/knightstatuea.glb" id="5_1wb7b"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_2ygfr"]
+albedo_texture = ExtResource("2_kg6w7")
+orm_texture = ExtResource("4_6dy7u")
+normal_enabled = true
+normal_texture = ExtResource("3_4b2js")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_2ae7b"]
+albedo_texture = ExtResource("2_kg6w7")
+orm_texture = ExtResource("4_6dy7u")
+normal_enabled = true
+normal_texture = ExtResource("3_4b2js")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_2kp68"]
+albedo_texture = ExtResource("2_kg6w7")
+orm_texture = ExtResource("4_6dy7u")
+normal_enabled = true
+normal_texture = ExtResource("3_4b2js")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_hlg4c"]
+albedo_texture = ExtResource("2_kg6w7")
+orm_texture = ExtResource("4_6dy7u")
+normal_enabled = true
+normal_texture = ExtResource("3_4b2js")
+
+[node name="Knightstatuea" type="Node3D" unique_id=222773062]
+script = ExtResource("1_26eow")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_2ygfr"),
+1: SubResource("ORMMaterial3D_2ae7b"),
+2: SubResource("ORMMaterial3D_2kp68"),
+3: SubResource("ORMMaterial3D_hlg4c")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1623469868 instance=ExtResource("5_1wb7b")]

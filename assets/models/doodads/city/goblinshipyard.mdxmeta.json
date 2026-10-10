@@ -1,0 +1,163 @@
+{
+  "source": "goblinshipyard.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.5409960021972653,
+      -1.7818163909912108,
+      -2.9832841186523433
+    ],
+    "max": [
+      2.5613280944824215,
+      4.729157775878906,
+      3.177702026367187
+    ],
+    "height": 6.510974166870117
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 6667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 6667,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand Work 1",
+      "start": 6700,
+      "end": 13367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 13400,
+      "end": 15733,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "neutral_goblinShipyard_rig_default:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinshipyard_diffuse.dds",
+        "normal": "neutral_goblinshipyard_normal.dds",
+        "orm": "neutral_goblinshipyard_orm.dds",
+        "emissive": "neutral_goblinshipyard_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Diffuse.tif",
+        "normal": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Normal.tif",
+        "orm": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_ORM.tif",
+        "emissive": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "neutral_goblinShipyard_rig_defaultmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinshipyard_diffuse.dds",
+        "normal": "neutral_goblinshipyard_normal.dds",
+        "orm": "neutral_goblinshipyard_orm.dds",
+        "emissive": "neutral_goblinshipyard_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Diffuse.tif",
+        "normal": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Normal.tif",
+        "orm": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_ORM.tif",
+        "emissive": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "neutral_goblinShipyard_rig_defaultmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinshipyard_diffuse.dds",
+        "normal": "neutral_goblinshipyard_normal.dds",
+        "orm": "neutral_goblinshipyard_orm.dds",
+        "emissive": "neutral_goblinshipyard_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Diffuse.tif",
+        "normal": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Normal.tif",
+        "orm": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_ORM.tif",
+        "emissive": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "neutral_goblinShipyard_rig_defaultmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinshipyard_diffuse.dds",
+        "normal": "neutral_goblinshipyard_normal.dds",
+        "orm": "neutral_goblinshipyard_orm.dds",
+        "emissive": "neutral_goblinshipyard_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Diffuse.tif",
+        "normal": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Normal.tif",
+        "orm": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_ORM.tif",
+        "emissive": "Buildings/Other/GoblinShipyard/Neutral_GoblinShipyard_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": false
+      }
+    }
+  ]
+}

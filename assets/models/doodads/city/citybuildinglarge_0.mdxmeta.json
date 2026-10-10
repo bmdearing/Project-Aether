@@ -1,0 +1,207 @@
+{
+  "source": "citybuildinglarge_0.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -5.682060241699219,
+      -1.4604624481201172,
+      -5.2065538330078125
+    ],
+    "max": [
+      5.372010131835937,
+      7.141734008789062,
+      5.179050109863281
+    ],
+    "height": 8.602196456909178
+  },
+  "sequences": [
+    {
+      "name": "Birth",
+      "start": 0,
+      "end": 60000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 126767,
+      "end": 130100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 60033,
+      "end": 66700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 66733,
+      "end": 126733,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth Large",
+      "start": 0,
+      "end": 60000,
+      "move_speed": 0,
+      "duplicate_of": "Birth"
+    },
+    {
+      "name": "Death Large 1",
+      "start": 60033,
+      "end": 66700,
+      "move_speed": 0,
+      "duplicate_of": "Death 1"
+    },
+    {
+      "name": "Decay Large",
+      "start": 66733,
+      "end": 126733,
+      "move_speed": 0,
+      "duplicate_of": "Decay"
+    },
+    {
+      "name": "Stand Large 1",
+      "start": 126767,
+      "end": 130100,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "cityBuildingLarge0_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_citybuildinglarge_diffuse_purple.dds",
+        "normal": "cs_citybuildinglarge_normal.dds",
+        "orm": "cs_citybuildinglarge_orm.dds",
+        "emissive": "cs_citybuildinglarge_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Diffuse_Purple.tif",
+        "normal": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Normal.tif",
+        "orm": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_ORM.tif",
+        "emissive": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true,
+        "Birth Large": true,
+        "Death Large 1": true,
+        "Decay Large": true,
+        "Stand Large 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "cityBuildingLarge0_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_citybuildinglarge_diffuse_purple.dds",
+        "normal": "cs_citybuildinglarge_normal.dds",
+        "orm": "cs_citybuildinglarge_orm.dds",
+        "emissive": "cs_citybuildinglarge_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Diffuse_Purple.tif",
+        "normal": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Normal.tif",
+        "orm": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_ORM.tif",
+        "emissive": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true,
+        "Birth Large": true,
+        "Death Large 1": true,
+        "Decay Large": true,
+        "Stand Large 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "cityBuildingLarge0_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_citybuildinglarge_diffuse_purple.dds",
+        "normal": "cs_citybuildinglarge_normal.dds",
+        "orm": "cs_citybuildinglarge_orm.dds",
+        "emissive": "cs_citybuildinglarge_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Diffuse_Purple.tif",
+        "normal": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Normal.tif",
+        "orm": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_ORM.tif",
+        "emissive": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true,
+        "Birth Large": true,
+        "Death Large 1": true,
+        "Decay Large": true,
+        "Stand Large 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "cityBuildingLarge0_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_citybuildinglarge_diffuse_purple.dds",
+        "normal": "cs_citybuildinglarge_normal.dds",
+        "orm": "cs_citybuildinglarge_orm.dds",
+        "emissive": "cs_citybuildinglarge_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Diffuse_Purple.tif",
+        "normal": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Normal.tif",
+        "orm": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_ORM.tif",
+        "emissive": "Buildings/Other/CityBuildingLarge_0/CS_CityBuildingLarge_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true,
+        "Decay": true,
+        "Birth Large": true,
+        "Death Large 1": true,
+        "Decay Large": true,
+        "Stand Large 1": true
+      }
+    }
+  ]
+}

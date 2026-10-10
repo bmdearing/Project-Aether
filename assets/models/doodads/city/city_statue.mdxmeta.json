@@ -1,0 +1,320 @@
+{
+  "source": "city_statue.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.087279983520508,
+      -0.056089801311492916,
+      -2.5067699890136717
+    ],
+    "max": [
+      2.653038116455078,
+      9.244998413085936,
+      2.5075980834960934
+    ],
+    "height": 9.30108821439743
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 1633,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 0,
+      "end": 1633,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Attack 1",
+      "start": 0,
+      "end": 1633,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 1633,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Spell 1",
+      "start": 0,
+      "end": 1633,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 0,
+      "end": 1633,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Attack 2",
+      "start": 0,
+      "end": 1633,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Props_Statue",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_fountainwater_diff_0000.dds",
+        "normal": "war3_fountainwater_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_FountainWater_Diff_0000.tif",
+        "normal": "Textures/Water/War3_FountainWater_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Props_Statue",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_statue_diffuse.dds",
+        "normal": "cs_props_statue_normal.dds",
+        "orm": "cs_props_statue_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Props_Statue_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_fountainwater_diff_0000.dds",
+        "normal": "war3_fountainwater_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_FountainWater_Diff_0000.tif",
+        "normal": "Textures/Water/War3_FountainWater_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Props_Statue_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_statue_diffuse.dds",
+        "normal": "cs_props_statue_normal.dds",
+        "orm": "cs_props_statue_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "Props_Statue_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_fountainwater_diff_0000.dds",
+        "normal": "war3_fountainwater_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_FountainWater_Diff_0000.tif",
+        "normal": "Textures/Water/War3_FountainWater_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "Props_Statue_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_statue_diffuse.dds",
+        "normal": "cs_props_statue_normal.dds",
+        "orm": "cs_props_statue_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "Props_Statue_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "war3_fountainwater_diff_0000.dds",
+        "normal": "war3_fountainwater_0000_normal.dds",
+        "orm": "war3_fountainwater_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Water/War3_FountainWater_Diff_0000.tif",
+        "normal": "Textures/Water/War3_FountainWater_0000_Normal.tif",
+        "orm": "Textures/Water/War3_FountainWater_orm.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "Props_Statue_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_statue_diffuse.dds",
+        "normal": "cs_props_statue_normal.dds",
+        "orm": "cs_props_statue_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/City_Statue/CS_Props_Statue_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack 1": true,
+        "Stand 2": true,
+        "Spell 1": true,
+        "Death 1": true,
+        "Attack 2": true
+      }
+    }
+  ]
+}

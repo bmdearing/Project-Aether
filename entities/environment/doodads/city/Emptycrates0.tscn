@@ -1,0 +1,44 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_7or1k"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cratesempty_low_diffuse.dds" id="2_g578l"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cratesempty_low_normal.dds" id="3_nimlc"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cratesempty_low_orm.dds" id="4_yfxa5"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/emptycrates0.glb" id="5_4bq44"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4sxv2"]
+albedo_texture = ExtResource("2_g578l")
+orm_texture = ExtResource("4_yfxa5")
+normal_enabled = true
+normal_texture = ExtResource("3_nimlc")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xb8i5"]
+albedo_texture = ExtResource("2_g578l")
+orm_texture = ExtResource("4_yfxa5")
+normal_enabled = true
+normal_texture = ExtResource("3_nimlc")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lhxva"]
+albedo_texture = ExtResource("2_g578l")
+orm_texture = ExtResource("4_yfxa5")
+normal_enabled = true
+normal_texture = ExtResource("3_nimlc")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3fbu0"]
+albedo_texture = ExtResource("2_g578l")
+orm_texture = ExtResource("4_yfxa5")
+normal_enabled = true
+normal_texture = ExtResource("3_nimlc")
+
+[node name="Emptycrates0" type="Node3D" unique_id=1326305579]
+script = ExtResource("1_7or1k")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_4sxv2"),
+1: SubResource("ORMMaterial3D_xb8i5"),
+2: SubResource("ORMMaterial3D_lhxva"),
+3: SubResource("ORMMaterial3D_3fbu0")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1405682117 instance=ExtResource("5_4bq44")]

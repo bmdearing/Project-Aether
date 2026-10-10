@@ -1,0 +1,130 @@
+{
+  "source": "banner_long.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.9109880065917968,
+      0.05522579956054687,
+      -0.34458480834960936
+    ],
+    "max": [
+      1.9052999725341795,
+      5.802335815429687,
+      0.2811510028839111
+    ],
+    "height": 5.74711001586914
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 10033,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BannerLongBlue_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_bannerlongblue_diffuse.dds",
+        "normal": "cs_props_bannerlongblue_normal.dds",
+        "orm": "cs_props_bannerlongblue_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BannerLongBlue_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_bannerlongblue_diffuse.dds",
+        "normal": "cs_props_bannerlongblue_normal.dds",
+        "orm": "cs_props_bannerlongblue_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "BannerLongBlue_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_bannerlongblue_diffuse.dds",
+        "normal": "cs_props_bannerlongblue_normal.dds",
+        "orm": "cs_props_bannerlongblue_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "BannerLongBlue_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_bannerlongblue_diffuse.dds",
+        "normal": "cs_props_bannerlongblue_normal.dds",
+        "orm": "cs_props_bannerlongblue_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/Banner_Long/CS_Props_BannerLongBlue_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

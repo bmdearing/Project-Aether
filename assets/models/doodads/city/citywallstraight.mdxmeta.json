@@ -1,0 +1,130 @@
+{
+  "source": "citywallstraight.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.3598360900878905,
+      -0.03779640197753906,
+      -4.715369934082031
+    ],
+    "max": [
+      2.3574059143066406,
+      5.609213745117187,
+      4.846194030761718
+    ],
+    "height": 5.6470101470947265
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "CityWallStraight",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "citywallstraight_diffuse.dds",
+        "normal": "citywallstraight_normal.dds",
+        "orm": "citywallstraight_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "CityWallStraight_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "citywallstraight_diffuse.dds",
+        "normal": "citywallstraight_normal.dds",
+        "orm": "citywallstraight_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "CityWallStraight_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "citywallstraight_diffuse.dds",
+        "normal": "citywallstraight_normal.dds",
+        "orm": "citywallstraight_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "CityWallStraight_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "citywallstraight_diffuse.dds",
+        "normal": "citywallstraight_normal.dds",
+        "orm": "citywallstraight_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityWallStraight/CityWallStraight_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

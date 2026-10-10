@@ -1,0 +1,174 @@
+{
+  "source": "flowerbedstraight.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6253560104370117,
+      -0.010277999639511108,
+      -1.5532848358154296
+    ],
+    "max": [
+      0.6412103805541992,
+      1.548570602416992,
+      1.5889698028564452
+    ],
+    "height": 1.558848602056503
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 4700,
+      "end": 5000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 5333,
+      "end": 6833,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 7167,
+      "end": 67167,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell EatTree",
+      "start": 67500,
+      "end": 69500,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Environment_FlowerBedStraight",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_environment_flowerbedstraight_diffuse.dds",
+        "normal": "cs_environment_flowerbedstraight_normal.dds",
+        "orm": "cs_environment_flowerbedstraight_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell EatTree": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Environment_FlowerBedStraight_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_environment_flowerbedstraight_diffuse.dds",
+        "normal": "cs_environment_flowerbedstraight_normal.dds",
+        "orm": "cs_environment_flowerbedstraight_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell EatTree": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Environment_FlowerBedStraight_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_environment_flowerbedstraight_diffuse.dds",
+        "normal": "cs_environment_flowerbedstraight_normal.dds",
+        "orm": "cs_environment_flowerbedstraight_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell EatTree": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Environment_FlowerBedStraight_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_environment_flowerbedstraight_diffuse.dds",
+        "normal": "cs_environment_flowerbedstraight_normal.dds",
+        "orm": "cs_environment_flowerbedstraight_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/FlowerBedStraight/CS_Environment_FlowerBedStraight_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell EatTree": true
+      }
+    }
+  ]
+}

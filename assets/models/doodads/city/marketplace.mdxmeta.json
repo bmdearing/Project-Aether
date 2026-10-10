@@ -1,0 +1,275 @@
+{
+  "source": "marketplace.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.359781982421875,
+      -0.19215539360046385,
+      -2.3010839538574217
+    ],
+    "max": [
+      2.3275261230468747,
+      3.67369189453125,
+      2.312477874755859
+    ],
+    "height": 3.8658472881317136
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand Work 1",
+      "start": 3367,
+      "end": 6700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 6733,
+      "end": 9067,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "neutral_marketplace_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_marketplace_diffuse.dds",
+        "normal": "neutral_marketplace_normal.dds",
+        "orm": "neutral_marketplace_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Diffuse.tif",
+        "normal": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Normal.tif",
+        "orm": "Buildings/Other/MarketPlace/Neutral_MarketPlace_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "neutral_marketplace_rig:main_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_marketplace_diffuse.dds",
+        "normal": "neutral_marketplace_normal.dds",
+        "orm": "neutral_marketplace_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Diffuse.tif",
+        "normal": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Normal.tif",
+        "orm": "Buildings/Other/MarketPlace/Neutral_MarketPlace_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "neutral_marketplace_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_marketplace_diffuse.dds",
+        "normal": "neutral_marketplace_normal.dds",
+        "orm": "neutral_marketplace_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Diffuse.tif",
+        "normal": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Normal.tif",
+        "orm": "Buildings/Other/MarketPlace/Neutral_MarketPlace_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "neutral_marketplace_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_marketplace_diffuse.dds",
+        "normal": "neutral_marketplace_normal.dds",
+        "orm": "neutral_marketplace_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Diffuse.tif",
+        "normal": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Normal.tif",
+        "orm": "Buildings/Other/MarketPlace/Neutral_MarketPlace_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "neutral_marketplace_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_marketplace_diffuse.dds",
+        "normal": "neutral_marketplace_normal.dds",
+        "orm": "neutral_marketplace_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Diffuse.tif",
+        "normal": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Normal.tif",
+        "orm": "Buildings/Other/MarketPlace/Neutral_MarketPlace_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "neutral_marketplace_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_marketplace_diffuse.dds",
+        "normal": "neutral_marketplace_normal.dds",
+        "orm": "neutral_marketplace_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Diffuse.tif",
+        "normal": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Normal.tif",
+        "orm": "Buildings/Other/MarketPlace/Neutral_MarketPlace_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "neutral_marketplace_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_marketplace_diffuse.dds",
+        "normal": "neutral_marketplace_normal.dds",
+        "orm": "neutral_marketplace_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Diffuse.tif",
+        "normal": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Normal.tif",
+        "orm": "Buildings/Other/MarketPlace/Neutral_MarketPlace_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "neutral_marketplace_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_marketplace_diffuse.dds",
+        "normal": "neutral_marketplace_normal.dds",
+        "orm": "neutral_marketplace_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Diffuse.tif",
+        "normal": "Buildings/Other/MarketPlace/Neutral_MarketPlace_Normal.tif",
+        "orm": "Buildings/Other/MarketPlace/Neutral_MarketPlace_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    }
+  ]
+}

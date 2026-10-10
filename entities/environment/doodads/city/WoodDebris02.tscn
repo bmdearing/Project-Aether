@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_80u42"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/wood_debris_diffuse.dds" id="2_owgnk"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/wood_debris_normal.dds" id="3_oynmv"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/wood_debris_orm.dds" id="4_jc151"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/wood_debris_02.glb" id="5_48wp4"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_rs2qg"]
+albedo_texture = ExtResource("2_owgnk")
+orm_texture = ExtResource("4_jc151")
+normal_enabled = true
+normal_texture = ExtResource("3_oynmv")
+
+[node name="WoodDebris02" type="Node3D" unique_id=1071872401]
+script = ExtResource("1_80u42")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_rs2qg")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand"
+
+[node name="Model" type="Node3D" parent="." unique_id=2086452846 instance=ExtResource("5_48wp4")]

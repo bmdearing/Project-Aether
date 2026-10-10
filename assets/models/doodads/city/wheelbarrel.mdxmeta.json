@@ -1,0 +1,152 @@
+{
+  "source": "wheelbarrel.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.8163216018676758,
+      0.00037979999184608454,
+      -0.7815456161499023
+    ],
+    "max": [
+      0.815644775390625,
+      1.5594606628417969,
+      1.0273049697875976
+    ],
+    "height": 1.5590808628499506
+  },
+  "sequences": [
+    {
+      "name": "Birth",
+      "start": 0,
+      "end": 60000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 60033,
+      "end": 63367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 63400,
+      "end": 130067,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Hayline_06_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_wheel barrow_diffuse.dds",
+        "normal": "ls_props_wheel barrow_normal.dds",
+        "orm": "ls_props_wheel barrow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Hayline_06_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_wheel barrow_diffuse.dds",
+        "normal": "ls_props_wheel barrow_normal.dds",
+        "orm": "ls_props_wheel barrow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Hayline_06_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_wheel barrow_diffuse.dds",
+        "normal": "ls_props_wheel barrow_normal.dds",
+        "orm": "ls_props_wheel barrow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Hayline_06_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_wheel barrow_diffuse.dds",
+        "normal": "ls_props_wheel barrow_normal.dds",
+        "orm": "ls_props_wheel barrow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/WheelBarrel/LS_Props_Wheel barrow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true
+      }
+    }
+  ]
+}

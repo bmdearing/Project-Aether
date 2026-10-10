@@ -1,0 +1,55 @@
+{
+  "source": "sewer_pipe_large_straight_01.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand",
+  "bounds": {
+    "min": [
+      -1.9007460021972655,
+      0.0857123966217041,
+      -1.3711427764892576
+    ],
+    "max": [
+      1.9007460021972655,
+      2.871234008789062,
+      1.3711427764892576
+    ],
+    "height": 2.7855216121673583
+  },
+  "sequences": [
+    {
+      "name": "Stand",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Sewer_Pipe_Large_Straight_01",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "sewer_pipes_diffuse.dds",
+        "normal": "sewer_pipes_normal.dds",
+        "orm": "sewer_pipes_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Undercity/Props/Pipes/Sewer_Pipes_Diffuse.tif",
+        "normal": "Doodads/Undercity/Props/Pipes/Sewer_Pipes_Normal.tif",
+        "orm": "Doodads/Undercity/Props/Pipes/Sewer_Pipes_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand": true
+      }
+    }
+  ]
+}

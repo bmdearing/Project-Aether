@@ -7,13 +7,15 @@ class_name MapLayout
 ##                packs scattered over it, the boss on a raised crest.
 ##   CANYON     - Badlands: open basins joined by narrowed passes between
 ##                jagged cliffs, rock spires for cover, the boss on a mesa.
+##   STREETS    - City: junctions and plazas joined by streets, every edge
+##                lined with buildings (StreetBuilder), the boss in a courtyard.
 ## Each style then reshapes its kind through MapTileset's Layout fields (room
 ## sizes, how winding the graph is, corridor width, pillars, mounds, cliffs),
 ## so two styles of one kind don't play the same.
 ## Every layout still produces a MapGraph (cells + connections) so the Map
 ## screen, spawning and portals work the same way.
 
-enum Kind { ROOMS, OPEN_FIELD, CANYON }
+enum Kind { ROOMS, OPEN_FIELD, CANYON, STREETS }
 
 var kind: Kind = Kind.ROOMS
 var cell_size: float = GeneratedMap.CELL_SIZE
@@ -39,11 +41,14 @@ var pass_width_scale: float = 1.0
 var cliff_height_scale: float = 1.0
 var rivers: int = 0
 var streams: int = 0
+## Streets only.
+var street_width: float = 10.0
+var plaza_chance: float = 0.2
 
 ## Space kept for the corridor between the biggest room and the boss room.
 const MIN_CORRIDOR := 4.0
 
-const KIND_BY_NAME := {"rooms": Kind.ROOMS, "open_field": Kind.OPEN_FIELD, "canyon": Kind.CANYON}
+const KIND_BY_NAME := {"rooms": Kind.ROOMS, "open_field": Kind.OPEN_FIELD, "canyon": Kind.CANYON, "streets": Kind.STREETS}
 
 static func for_tileset(tileset: MapTileset) -> MapLayout:
 	var layout_name := tileset.layout if tileset else "rooms"
@@ -79,6 +84,10 @@ func _apply_style(t: MapTileset) -> void:
 	cliff_height_scale = t.cliff_height_scale
 	rivers = t.rivers
 	streams = t.streams
+	if t.street_width > 0.0:
+		street_width = t.street_width
+	if t.plaza_chance >= 0.0:
+		plaza_chance = t.plaza_chance
 	if kind == Kind.ROOMS:
 		# The boss room outgrows the style's biggest room; cells stay wide
 		# enough for a corridor between the two.
@@ -101,6 +110,12 @@ static func create(layout_kind: Kind) -> MapLayout:
 			l.branch_stop_chance = 0.5
 			l.packs_per_cell = Vector2i(1, 2)
 			l.scatter_per_cell = Vector2i(3, 5)
+		Kind.STREETS:
+			l.cell_size = 30.0
+			l.grid_size = 5
+			l.room_count = Vector2i(9, 13)
+			l.branch_stop_chance = 0.3
+			l.packs_per_cell = Vector2i(1, 2)
 	return l
 
 func generate_graph() -> MapGraph:

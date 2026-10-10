@@ -1,0 +1,152 @@
+{
+  "source": "crystallamp.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.538428611755371,
+      0.4088465881347656,
+      -0.5384196166992187
+    ],
+    "max": [
+      0.5384340019226074,
+      2.5535341186523435,
+      0.5377032051086426
+    ],
+    "height": 2.144687530517578
+  },
+  "sequences": [
+    {
+      "name": "Birth",
+      "start": 3367,
+      "end": 63367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 63700,
+      "end": 67033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 67367,
+      "end": 134033,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DL_Props_MagicalLantern_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_props_magicallantern_diffuse.dds",
+        "normal": "dl_props_magicallantern_normal.dds",
+        "orm": "dl_props_magicallantern_orm.dds",
+        "emissive": "dl_props_magicallantern_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_ORM.tif",
+        "emissive": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "DL_Props_MagicalLantern_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_props_magicallantern_diffuse.dds",
+        "normal": "dl_props_magicallantern_normal.dds",
+        "orm": "dl_props_magicallantern_orm.dds",
+        "emissive": "dl_props_magicallantern_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_ORM.tif",
+        "emissive": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DL_Props_MagicalLantern_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_props_magicallantern_diffuse.dds",
+        "normal": "dl_props_magicallantern_normal.dds",
+        "orm": "dl_props_magicallantern_orm.dds",
+        "emissive": "dl_props_magicallantern_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_ORM.tif",
+        "emissive": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "DL_Props_MagicalLantern_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "dl_props_magicallantern_diffuse.dds",
+        "normal": "dl_props_magicallantern_normal.dds",
+        "orm": "dl_props_magicallantern_orm.dds",
+        "emissive": "dl_props_magicallantern_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_ORM.tif",
+        "emissive": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": true,
+        "Stand 1": true,
+        "Death 1": true
+      }
+    }
+  ]
+}

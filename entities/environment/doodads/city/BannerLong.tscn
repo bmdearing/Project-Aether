@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_b5qxy"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_bannerlongblue_diffuse.dds" id="2_3aj3f"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_bannerlongblue_normal.dds" id="3_ykvyd"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_bannerlongblue_orm.dds" id="4_n2or6"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/banner_long.glb" id="5_obg4y"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_716oj"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_3aj3f")
+orm_texture = ExtResource("4_n2or6")
+normal_enabled = true
+normal_texture = ExtResource("3_ykvyd")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_1hrvp"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_3aj3f")
+orm_texture = ExtResource("4_n2or6")
+normal_enabled = true
+normal_texture = ExtResource("3_ykvyd")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vw60a"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_3aj3f")
+orm_texture = ExtResource("4_n2or6")
+normal_enabled = true
+normal_texture = ExtResource("3_ykvyd")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_78fjh"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_3aj3f")
+orm_texture = ExtResource("4_n2or6")
+normal_enabled = true
+normal_texture = ExtResource("3_ykvyd")
+
+[node name="BannerLong" type="Node3D" unique_id=1646419894]
+script = ExtResource("1_b5qxy")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_716oj"),
+1: SubResource("ORMMaterial3D_1hrvp"),
+2: SubResource("ORMMaterial3D_vw60a"),
+3: SubResource("ORMMaterial3D_78fjh")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=712869673 instance=ExtResource("5_obg4y")]

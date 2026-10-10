@@ -49,7 +49,8 @@ func build_open_field(graph: MapGraph, cell_size: float) -> void:
 	var extent := cell_size * graph.grid_size
 	var centre := Vector3((graph.grid_size - 1) * cell_size / 2.0, 0.0, (graph.grid_size - 1) * cell_size / 2.0)
 	_map._build_floor(centre, extent, extent, 0.0, GeneratedMap.ROOM_FLOOR_COLORS[0])
-	_build_ridge_boundary(centre, extent)
+	if not (_map.tileset and _map.tileset.building_boundary):
+		_build_ridge_boundary(centre, extent)
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
 		if room.is_start or room.is_vault:

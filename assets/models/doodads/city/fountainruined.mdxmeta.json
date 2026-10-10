@@ -1,0 +1,130 @@
+{
+  "source": "fountainruined.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.7197819824218747,
+      -0.10208339881896972,
+      -2.720646057128906
+    ],
+    "max": [
+      2.7220860900878905,
+      3.569256134033203,
+      2.7191878967285152
+    ],
+    "height": 3.6713395328521727
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "FountainRuined_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_fountainruined_diffuse.dds",
+        "normal": "cs_props_fountainruined_normal.dds",
+        "orm": "cs_props_fountainruined_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "FountainRuined_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_fountainruined_diffuse.dds",
+        "normal": "cs_props_fountainruined_normal.dds",
+        "orm": "cs_props_fountainruined_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "FountainRuined_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_fountainruined_diffuse.dds",
+        "normal": "cs_props_fountainruined_normal.dds",
+        "orm": "cs_props_fountainruined_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "FountainRuined_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_fountainruined_diffuse.dds",
+        "normal": "cs_props_fountainruined_normal.dds",
+        "orm": "cs_props_fountainruined_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/FountainRuined/CS_Props_FountainRuined_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_7cbi8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinmerchant_diffuse.dds" id="2_gpxdu"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinmerchant_emissive.dds" id="3_ws2k4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinmerchant_normal.dds" id="4_jxvmy"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinmerchant_orm.dds" id="5_sts6g"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/merchant.glb" id="6_0g6a0"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_l8eok"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_gpxdu")
+orm_texture = ExtResource("5_sts6g")
+emission_enabled = true
+emission_texture = ExtResource("3_ws2k4")
+normal_enabled = true
+normal_texture = ExtResource("4_jxvmy")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_msgyx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_gpxdu")
+orm_texture = ExtResource("5_sts6g")
+emission_enabled = true
+emission_texture = ExtResource("3_ws2k4")
+normal_enabled = true
+normal_texture = ExtResource("4_jxvmy")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_v137c"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_gpxdu")
+orm_texture = ExtResource("5_sts6g")
+emission_enabled = true
+emission_texture = ExtResource("3_ws2k4")
+normal_enabled = true
+normal_texture = ExtResource("4_jxvmy")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gwu77"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_gpxdu")
+orm_texture = ExtResource("5_sts6g")
+emission_enabled = true
+emission_texture = ExtResource("3_ws2k4")
+normal_enabled = true
+normal_texture = ExtResource("4_jxvmy")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_k2pra"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_gpxdu")
+orm_texture = ExtResource("5_sts6g")
+emission_enabled = true
+emission_texture = ExtResource("3_ws2k4")
+normal_enabled = true
+normal_texture = ExtResource("4_jxvmy")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_uje0w"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_gpxdu")
+orm_texture = ExtResource("5_sts6g")
+emission_enabled = true
+emission_texture = ExtResource("3_ws2k4")
+normal_enabled = true
+normal_texture = ExtResource("4_jxvmy")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_bltau"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_gpxdu")
+orm_texture = ExtResource("5_sts6g")
+emission_enabled = true
+emission_texture = ExtResource("3_ws2k4")
+normal_enabled = true
+normal_texture = ExtResource("4_jxvmy")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_decog"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_gpxdu")
+orm_texture = ExtResource("5_sts6g")
+emission_enabled = true
+emission_texture = ExtResource("3_ws2k4")
+normal_enabled = true
+normal_texture = ExtResource("4_jxvmy")
+
+[node name="Merchant" type="Node3D" unique_id=939870469]
+script = ExtResource("1_7cbi8")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_l8eok"),
+1: SubResource("ORMMaterial3D_msgyx"),
+2: SubResource("ORMMaterial3D_v137c"),
+3: SubResource("ORMMaterial3D_gwu77"),
+4: SubResource("ORMMaterial3D_k2pra"),
+5: SubResource("ORMMaterial3D_uje0w"),
+6: SubResource("ORMMaterial3D_bltau"),
+7: SubResource("ORMMaterial3D_decog")
+}
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1205762111 instance=ExtResource("6_0g6a0")]

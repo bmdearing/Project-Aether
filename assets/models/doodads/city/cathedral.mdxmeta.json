@@ -1,0 +1,130 @@
+{
+  "source": "cathedral.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -10.084356079101562,
+      -1.805273986816406,
+      -6.320141784667968
+    ],
+    "max": [
+      5.838965881347656,
+      14.237765991210937,
+      5.0023800659179685
+    ],
+    "height": 16.04303997802734
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 6700,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Structures_Cathedral",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_cathedral_diffuse.dds",
+        "normal": "cs_structures_cathedral_normal.dds",
+        "orm": "cs_structures_cathedral_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Structures_Cathedral_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_cathedral_diffuse.dds",
+        "normal": "cs_structures_cathedral_normal.dds",
+        "orm": "cs_structures_cathedral_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Structures_Cathedral_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_cathedral_diffuse.dds",
+        "normal": "cs_structures_cathedral_normal.dds",
+        "orm": "cs_structures_cathedral_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Structures_Cathedral_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_cathedral_diffuse.dds",
+        "normal": "cs_structures_cathedral_normal.dds",
+        "orm": "cs_structures_cathedral_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/Cathedral/CS_Structures_Cathedral_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

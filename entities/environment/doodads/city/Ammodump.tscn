@@ -1,0 +1,100 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_phgk0"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinlaboratory_diffuse.dds" id="2_b3ndx"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinlaboratory_normal.dds" id="3_i4ea3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/neutral_goblinlaboratory_orm.dds" id="4_3lfdj"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/ammodump.glb" id="5_m4132"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_bc02k"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_b3ndx")
+orm_texture = ExtResource("4_3lfdj")
+normal_enabled = true
+normal_texture = ExtResource("3_i4ea3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_mhgp6"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_b3ndx")
+orm_texture = ExtResource("4_3lfdj")
+normal_enabled = true
+normal_texture = ExtResource("3_i4ea3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0mme8"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_b3ndx")
+orm_texture = ExtResource("4_3lfdj")
+normal_enabled = true
+normal_texture = ExtResource("3_i4ea3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_mph6q"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_b3ndx")
+orm_texture = ExtResource("4_3lfdj")
+normal_enabled = true
+normal_texture = ExtResource("3_i4ea3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_riaxs"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_b3ndx")
+orm_texture = ExtResource("4_3lfdj")
+normal_enabled = true
+normal_texture = ExtResource("3_i4ea3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ug5d4"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_b3ndx")
+orm_texture = ExtResource("4_3lfdj")
+normal_enabled = true
+normal_texture = ExtResource("3_i4ea3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xpqbx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_b3ndx")
+orm_texture = ExtResource("4_3lfdj")
+normal_enabled = true
+normal_texture = ExtResource("3_i4ea3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_8wb74"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_b3ndx")
+orm_texture = ExtResource("4_3lfdj")
+normal_enabled = true
+normal_texture = ExtResource("3_i4ea3")
+
+[node name="Ammodump" type="Node3D" unique_id=831516694]
+script = ExtResource("1_phgk0")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_bc02k"),
+1: SubResource("ORMMaterial3D_mhgp6"),
+2: SubResource("ORMMaterial3D_0mme8"),
+3: SubResource("ORMMaterial3D_mph6q"),
+4: SubResource("ORMMaterial3D_riaxs"),
+5: SubResource("ORMMaterial3D_ug5d4"),
+6: SubResource("ORMMaterial3D_xpqbx"),
+7: SubResource("ORMMaterial3D_8wb74")
+}
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=2027699468 instance=ExtResource("5_m4132")]

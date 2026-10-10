@@ -1,0 +1,130 @@
+{
+  "source": "morecitybuilding1.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.0353400878906247,
+      -1.4604624481201172,
+      -7.045326232910155
+    ],
+    "max": [
+      8.018729736328124,
+      7.141734008789062,
+      3.3402779846191404
+    ],
+    "height": 8.602196456909178
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "MoreCityBuilding_V5_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_morecitybuilding_v5_diffuse.dds",
+        "normal": "cs_structures_morecitybuilding_v5_normal.dds",
+        "orm": "cs_structures_morecitybuilding_v5_orm.dds",
+        "emissive": "res://assets/models/doodads/city/cs_structures_morecitybuilding_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_ORM.tif",
+        "emissive": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "MoreCityBuilding_V5_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_morecitybuilding_v5_diffuse.dds",
+        "normal": "cs_structures_morecitybuilding_v5_normal.dds",
+        "orm": "cs_structures_morecitybuilding_v5_orm.dds",
+        "emissive": "res://assets/models/doodads/city/cs_structures_morecitybuilding_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_ORM.tif",
+        "emissive": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "MoreCityBuilding_V5_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_morecitybuilding_v5_diffuse.dds",
+        "normal": "cs_structures_morecitybuilding_v5_normal.dds",
+        "orm": "cs_structures_morecitybuilding_v5_orm.dds",
+        "emissive": "res://assets/models/doodads/city/cs_structures_morecitybuilding_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_ORM.tif",
+        "emissive": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "MoreCityBuilding_V5_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_structures_morecitybuilding_v5_diffuse.dds",
+        "normal": "cs_structures_morecitybuilding_v5_normal.dds",
+        "orm": "cs_structures_morecitybuilding_v5_orm.dds",
+        "emissive": "res://assets/models/doodads/city/cs_structures_morecitybuilding_v1_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_ORM.tif",
+        "emissive": "Doodads/Cityscape/Structures/MoreCityBuilding/CS_Structures_MoreCityBuilding_V5_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_t8hk1"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_props_magicallantern_diffuse.dds" id="2_r6p5f"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_props_magicallantern_emissive.dds" id="3_cgobn"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_props_magicallantern_normal.dds" id="4_02708"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/dl_props_magicallantern_orm.dds" id="5_rv6an"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/dl_props_magicallantern_diffuse.dds" id="2_r6p5f"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/dl_props_magicallantern_emissive.dds" id="3_cgobn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/dl_props_magicallantern_normal.dds" id="4_02708"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/dl_props_magicallantern_orm.dds" id="5_rv6an"]
 [ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/crystallamp.glb" id="6_sj24b"]
 
 [sub_resource type="ORMMaterial3D" id="ORMMaterial3D_8ti3q"]
@@ -39,7 +39,7 @@ emission_texture = ExtResource("3_cgobn")
 normal_enabled = true
 normal_texture = ExtResource("4_02708")
 
-[node name="Crystallamp" type="Node3D" unique_id=1944247238]
+[node name="Crystallamp" type="Node3D" unique_id=1839547104]
 script = ExtResource("1_t8hk1")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_8ti3q"),

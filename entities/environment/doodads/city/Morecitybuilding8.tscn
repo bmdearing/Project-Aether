@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_33wnq"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_structures_morecitybuilding_v2_diffuse.dds" id="2_a2gm7"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_citybuildingsmall_v2_emissive.dds" id="3_qut5c"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_structures_morecitybuilding_v2_normal.dds" id="4_ce65h"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_structures_morecitybuilding_v2_orm.dds" id="5_gknkk"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/morecitybuilding8.glb" id="6_8a5b7"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_52xta"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_a2gm7")
+orm_texture = ExtResource("5_gknkk")
+emission_enabled = true
+emission_texture = ExtResource("3_qut5c")
+normal_enabled = true
+normal_texture = ExtResource("4_ce65h")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_fkew1"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_a2gm7")
+orm_texture = ExtResource("5_gknkk")
+emission_enabled = true
+emission_texture = ExtResource("3_qut5c")
+normal_enabled = true
+normal_texture = ExtResource("4_ce65h")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_e7txn"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_a2gm7")
+orm_texture = ExtResource("5_gknkk")
+emission_enabled = true
+emission_texture = ExtResource("3_qut5c")
+normal_enabled = true
+normal_texture = ExtResource("4_ce65h")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_qlh0k"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_a2gm7")
+orm_texture = ExtResource("5_gknkk")
+emission_enabled = true
+emission_texture = ExtResource("3_qut5c")
+normal_enabled = true
+normal_texture = ExtResource("4_ce65h")
+
+[node name="Morecitybuilding8" type="Node3D" unique_id=263725243]
+script = ExtResource("1_33wnq")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_52xta"),
+1: SubResource("ORMMaterial3D_fkew1"),
+2: SubResource("ORMMaterial3D_e7txn"),
+3: SubResource("ORMMaterial3D_qlh0k")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=902964029 instance=ExtResource("6_8a5b7")]

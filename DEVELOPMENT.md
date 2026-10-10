@@ -1088,6 +1088,12 @@ so styles of one kind play differently (v4.51):
     Frostwood: nearly flat, dense trees via `scatter_scale`), ridges plus
     an invisible wall around the edge, 1-2 packs per cell, the boss on a
     raised crest with two ramps.
+  - **Streets** (City: Residence, Downtown, Trainyard, Harbor; v4.73):
+    `StreetBuilder`. Cells are junctions, plazas, the start square or the boss
+    courtyard; connections are streets. Each edge has a wall 2.5 m back and
+    buildings fronting the street (`MapTileset.buildings`/`landmarks`,
+    `building_scale`), lamps, props, steam vents, rails (`rails`) and a
+    waterfront (`waterfront`). Park is an open field with `building_boundary`.
   - **Canyon** (Badlands, Glacier Pass): open basins on a spanning tree,
     separated by jagged cliff lines. Connected basins meet through one
     pass; Glacier Pass is a long winding chain with narrower passes and

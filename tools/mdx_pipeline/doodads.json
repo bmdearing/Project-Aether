@@ -236,6 +236,101 @@
         "lordaerontree6.mdx": "replaceabletextures/lordaerontree/lordaeronfalltree",
         "lordaerontree8.mdx": "replaceabletextures/lordaerontree/lordaeronfalltree"
       }
+    },
+    "city": {
+      "dir": "assets/models/doodads/city",
+      "scale": 0.018,
+      "roles": {
+        "building": [
+          "buildings/other/citybuildingsmall0_0/citybuildingsmall0_0.mdx",
+          "buildings/other/citybuildingsmall0_1/citybuildingsmall0_1.mdx",
+          "buildings/other/citybuildingsmall0_2/citybuildingsmall0_2.mdx",
+          "buildings/other/citybuildinglarge_0/citybuildinglarge_0.mdx",
+          "doodads/cityscape/structures/citybuildingrow_0/citybuildingrow_0.mdx",
+          "doodads/cityscape/structures/citybuildingrow_1/citybuildingrow_1.mdx",
+          "doodads/cityscape/structures/citybuildingrow_2/citybuildingrow_2.mdx",
+          "doodads/cityscape/structures/tavern/tavern.mdx",
+          "doodads/cityscape/structures/morecitybuilding/morecitybuilding0.mdx",
+          "doodads/cityscape/structures/morecitybuilding/morecitybuilding1.mdx",
+          "doodads/cityscape/structures/morecitybuilding/morecitybuilding8.mdx",
+          "doodads/cityscape/structures/morecitybuilding/morecitybuilding9.mdx",
+          "doodads/cityscape/structures/morecitybuilding/morecitybuilding10.mdx",
+          "buildings/other/grainwarehouse/grainwarehouse.mdx",
+          "buildings/other/merchant/merchant.mdx"
+        ],
+        "landmark": [
+          "doodads/cityscape/structures/cityclocktower/cityclocktower.mdx",
+          "doodads/cityscape/structures/cathedral/cathedral.mdx",
+          "doodads/cityscape/structures/citymaintower/citymaintower.mdx",
+          "buildings/other/magetower/magetower.mdx",
+          "buildings/other/arcaneobservatory/arcaneobservatory.mdx",
+          "buildings/other/dalaranguardtower/dalaranguardtower.mdx",
+          "buildings/other/marketplace/marketplace.mdx"
+        ],
+        "industrial": [
+          "buildings/other/powergenerator/powergenerator.mdx",
+          "buildings/other/ammodump/ammodump.mdx",
+          "buildings/other/goblinshipyard/goblinshipyard.mdx",
+          "buildings/other/barrelsunit/barrelsunit.mdx",
+          "buildings/other/cratesunit/cratesunit.mdx",
+          "doodads/dungeon/props/minecart/minecart.mdx",
+          "doodads/lordaeronsummer/terrain/crates/crates0.mdx",
+          "doodads/lordaeronsummer/terrain/crates/crates1.mdx",
+          "doodads/undercity/props/pipes/sewer_pipe_large_straight_01.mdx",
+          "doodads/undercity/props/pipes/sewer_pipe_large_curve_01.mdx",
+          "doodads/dungeon/props/sewerwallpipes/sewerwallpipes0.mdx",
+          "doodads/dungeon/props/sewerwallpipes/sewerwallpipes1.mdx"
+        ],
+        "plaza": [
+          "doodads/cityscape/props/city_fountain/city_fountain.mdx",
+          "doodads/cityscape/props/fountainruined/fountainruined.mdx",
+          "doodads/cityscape/props/city_statue/city_statue.mdx",
+          "doodads/cityscape/props/knightstatuea/knightstatuea.mdx",
+          "doodads/cityscape/props/statuekingterenas/statuekingterenas.mdx",
+          "doodads/cityscape/props/marketstalllarge/marketstalllarge.mdx",
+          "doodads/cityscape/props/marketstallsmall/marketstallsmall.mdx",
+          "doodads/cityscape/props/city_oblisk/city_oblisk.mdx"
+        ],
+        "floor": [
+          "doodads/cityscape/props/citystonebench/citystonebench.mdx",
+          "doodads/cityscape/props/citywoodbench/citywoodbench.mdx",
+          "doodads/cityscape/props/emptycrates/emptycrates0.mdx",
+          "doodads/cityscape/props/emptycrates/emptycrates1.mdx",
+          "doodads/cityscape/props/emptycrates/emptycrates2.mdx",
+          "doodads/lordaeronsummer/props/haycart/haycart.mdx",
+          "doodads/lordaeronsummer/props/wheelbarrel/wheelbarrel.mdx",
+          "doodads/cityscape/props/wood debris/wood_debris_barrels_01.mdx",
+          "doodads/cityscape/props/marketitemproduce/marketitemproduce.mdx"
+        ],
+        "cluster": [
+          "doodads/cityscape/plants/citybush/citybush.mdx",
+          "doodads/cityscape/plants/flowerbedstraight/flowerbedstraight.mdx",
+          "doodads/cityscape/plants/pottedplant/pottedplant.mdx",
+          "doodads/cityscape/props/wood debris/wood_debris_01.mdx",
+          "doodads/cityscape/props/wood debris/wood_debris_02.mdx"
+        ],
+        "light": [
+          "doodads/cityscape/props/lanternpost/lanternpost.mdx",
+          "doodads/cityscape/props/crystallamp/crystallamp.mdx"
+        ],
+        "wall": [
+          "doodads/cityscape/structures/citywallstraight/citywallstraight.mdx",
+          "doodads/cityscape/structures/citywallstraightlong/citywallstraightlong.mdx",
+          "doodads/cityscape/structures/citylowwall0/citylowwall0.mdx",
+          "doodads/cityscape/structures/city_lowwall/city_lowwall.mdx",
+          "doodads/cityscape/props/irongatea/irongatea.mdx",
+          "doodads/cityscape/props/banner_long/banner_long.mdx"
+        ],
+        "archway": [
+          "doodads/cityscape/structures/archway1/archway1.mdx",
+          "doodads/cityscape/structures/archwayentrance1/archwayentrance1.mdx",
+          "doodads/cityscape/props/citymaingate/citymaingate.mdx"
+        ],
+        "harbor": [
+          "doodads/ashenvale/structures/pier/pier.mdx",
+          "doodads/ashenvale/structures/piertrashed/piertrashed.mdx"
+        ]
+      }
     }
   },
   "grounds": {
@@ -319,6 +414,24 @@
       ],
       "narrow": [
         "lordaeronfall/lordf_dirtgrass"
+      ]
+    },
+    "city": {
+      "wide": [
+        "cityscape/city_bricktiles",
+        "cityscape/city_roundtiles",
+        "cityscape/city_squaretiles",
+        "cityscape/city_dirt",
+        "cityscape/city_dirtrough",
+        "cityscape/city_grass",
+        "cityscape/city_blackmarble",
+        "cityscape/city_whitemarble",
+        "cityscaperuins/cruins_bricktiles",
+        "cityscaperuins/cruins_dirtrough"
+      ],
+      "narrow": [
+        "cityscape/city_grasstrim",
+        "cityscape/city_cliff0"
       ]
     }
   }

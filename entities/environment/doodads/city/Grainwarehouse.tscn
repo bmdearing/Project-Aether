@@ -1,0 +1,61 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_a6g52"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_grainwarehouse_diffuse.dds" id="2_5gcsg"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_grainwarehouse_normal.dds" id="3_21vg3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_grainwarehouse_orm.dds" id="4_xlm0o"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/grainwarehouse.glb" id="5_ogwfn"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_58nbv"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_5gcsg")
+orm_texture = ExtResource("4_xlm0o")
+normal_enabled = true
+normal_texture = ExtResource("3_21vg3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_sxus1"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_5gcsg")
+orm_texture = ExtResource("4_xlm0o")
+normal_enabled = true
+normal_texture = ExtResource("3_21vg3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_oksuv"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_5gcsg")
+orm_texture = ExtResource("4_xlm0o")
+normal_enabled = true
+normal_texture = ExtResource("3_21vg3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_awmu6"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_5gcsg")
+orm_texture = ExtResource("4_xlm0o")
+normal_enabled = true
+normal_texture = ExtResource("3_21vg3")
+
+[node name="Grainwarehouse" type="Node3D" unique_id=824138307]
+script = ExtResource("1_a6g52")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_58nbv"),
+1: SubResource("ORMMaterial3D_sxus1"),
+2: SubResource("ORMMaterial3D_oksuv"),
+3: SubResource("ORMMaterial3D_awmu6")
+}
+hidden_geosets = {
+"Birth": PackedInt32Array(0, 1, 2, 3),
+"Death 1": PackedInt32Array(0, 1, 2, 3),
+"Decay": PackedInt32Array(0, 1, 2, 3)
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1314266603 instance=ExtResource("5_ogwfn")]

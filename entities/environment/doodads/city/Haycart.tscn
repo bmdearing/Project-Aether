@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_vriin"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_props_haycart_diffuse.dds" id="2_7sho4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_props_haycart_normal.dds" id="3_m0vmf"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_props_haycart_orm.dds" id="4_gg7i4"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/haycart.glb" id="5_k36kw"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ray8m"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_7sho4")
+orm_texture = ExtResource("4_gg7i4")
+normal_enabled = true
+normal_texture = ExtResource("3_m0vmf")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_8dwsj"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_7sho4")
+orm_texture = ExtResource("4_gg7i4")
+normal_enabled = true
+normal_texture = ExtResource("3_m0vmf")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_h6pyb"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_7sho4")
+orm_texture = ExtResource("4_gg7i4")
+normal_enabled = true
+normal_texture = ExtResource("3_m0vmf")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_onbos"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_7sho4")
+orm_texture = ExtResource("4_gg7i4")
+normal_enabled = true
+normal_texture = ExtResource("3_m0vmf")
+
+[node name="Haycart" type="Node3D" unique_id=1887212861]
+script = ExtResource("1_vriin")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_ray8m"),
+1: SubResource("ORMMaterial3D_8dwsj"),
+2: SubResource("ORMMaterial3D_h6pyb"),
+3: SubResource("ORMMaterial3D_onbos")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1373827310 instance=ExtResource("5_k36kw")]

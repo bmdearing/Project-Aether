@@ -1,0 +1,130 @@
+{
+  "source": "citybuildingrow_1.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.236183898925781,
+      -1.4886773986816406,
+      -2.2786380615234374
+    ],
+    "max": [
+      3.236183898925781,
+      3.867425903320312,
+      2.278367935180664
+    ],
+    "height": 5.356103302001952
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "CityBuildingRow_2",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_structures_citybuildingrow_2_diffuse.dds",
+        "normal": "cs_sh_structures_citybuildingrow_2_normal.dds",
+        "orm": "cs_sh_structures_citybuildingrow_2_orm.dds",
+        "emissive": "cs_sh_structures_citybuildingrow_2_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_ORM.tif",
+        "emissive": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "CityBuildingRow_2_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_structures_citybuildingrow_2_diffuse.dds",
+        "normal": "cs_sh_structures_citybuildingrow_2_normal.dds",
+        "orm": "cs_sh_structures_citybuildingrow_2_orm.dds",
+        "emissive": "cs_sh_structures_citybuildingrow_2_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_ORM.tif",
+        "emissive": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "CityBuildingRow_2_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_structures_citybuildingrow_2_diffuse.dds",
+        "normal": "cs_sh_structures_citybuildingrow_2_normal.dds",
+        "orm": "cs_sh_structures_citybuildingrow_2_orm.dds",
+        "emissive": "cs_sh_structures_citybuildingrow_2_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_ORM.tif",
+        "emissive": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "CityBuildingRow_2_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_structures_citybuildingrow_2_diffuse.dds",
+        "normal": "cs_sh_structures_citybuildingrow_2_normal.dds",
+        "orm": "cs_sh_structures_citybuildingrow_2_orm.dds",
+        "emissive": "cs_sh_structures_citybuildingrow_2_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_ORM.tif",
+        "emissive": "Doodads/Cityscape/Structures/CityBuildingRow_1/CS_SH_Structures_CityBuildingRow_2_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

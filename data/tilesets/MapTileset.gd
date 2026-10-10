@@ -42,6 +42,28 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 @export var rivers: int = 0
 @export var streams: int = 0
 
+## Streets (City): street width, the chance a junction is a wider plaza.
+@export var street_width: float = 0.0
+@export_range(0.0, 1.0) var plaza_chance: float = -1.0
+
+@export_group("City")
+## Facades lining every street edge (front = +X), and grander ones that
+## plazas and the boss courtyard prefer.
+@export var buildings: Array[PackedScene] = []
+@export var landmarks: Array[PackedScene] = []
+## Fountains, statues and stalls in plazas; lamps along the streets.
+@export var plaza_props: Array[PackedScene] = []
+@export var street_lights: Array[PackedScene] = []
+@export var building_scale: float = 1.0
+## Trainyard: rails down the middle of every street.
+@export var rails: bool = false
+## Steam vents (SteamVent) scattered along street edges.
+@export var steam_vents: int = 0
+## Harbor: the far row's outer edge opens onto water instead of buildings.
+@export var waterfront: bool = false
+## Open fields: line the edge with buildings instead of ridges (Park).
+@export var building_boundary: bool = false
+
 @export_group("Ground")
 @export var floor_albedo: Texture2D
 @export var floor_normal: Texture2D
@@ -105,7 +127,7 @@ static func all_ids() -> PackedStringArray:
 	return ids
 
 ## Families in display order (Figment Tree, progress grid).
-const FAMILIES: Array[String] = ["dungeon", "desert", "forest", "snow"]
+const FAMILIES: Array[String] = ["dungeon", "desert", "forest", "snow", "city"]
 
 ## A style's family, read from its resource (cached).
 static var _family_cache: Dictionary = {}

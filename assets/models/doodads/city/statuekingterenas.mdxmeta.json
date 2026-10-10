@@ -1,0 +1,130 @@
+{
+  "source": "statuekingterenas.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.683026123046875,
+      0.04994459867477417,
+      -2.703888061523437
+    ],
+    "max": [
+      2.7799200439453124,
+      10.565495727539062,
+      2.786651916503906
+    ],
+    "height": 10.515551128864287
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "SH_Props_StatueKingTerenas_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_statuekingterenas_diffuse.dds",
+        "normal": "cs_sh_props_statuekingterenas_normal.dds",
+        "orm": "cs_sh_props_statuekingterenas_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "SH_Props_StatueKingTerenas_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_statuekingterenas_diffuse.dds",
+        "normal": "cs_sh_props_statuekingterenas_normal.dds",
+        "orm": "cs_sh_props_statuekingterenas_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "SH_Props_StatueKingTerenas_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_statuekingterenas_diffuse.dds",
+        "normal": "cs_sh_props_statuekingterenas_normal.dds",
+        "orm": "cs_sh_props_statuekingterenas_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "SH_Props_StatueKingTerenas_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_statuekingterenas_diffuse.dds",
+        "normal": "cs_sh_props_statuekingterenas_normal.dds",
+        "orm": "cs_sh_props_statuekingterenas_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/StatueKingTerenas/CS_SH_Props_StatueKingTerenas_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

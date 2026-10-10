@@ -48,10 +48,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dl_props_magicallantern_diffuse.dds",
-        "normal": "dl_props_magicallantern_normal.dds",
-        "orm": "dl_props_magicallantern_orm.dds",
-        "emissive": "dl_props_magicallantern_emissive.dds"
+        "diffuse": "res://assets/models/doodads/city/dl_props_magicallantern_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dl_props_magicallantern_normal.dds",
+        "orm": "res://assets/models/doodads/city/dl_props_magicallantern_orm.dds",
+        "emissive": "res://assets/models/doodads/city/dl_props_magicallantern_emissive.dds"
       },
       "sources": {
         "diffuse": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Diffuse.tif",
@@ -75,10 +75,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dl_props_magicallantern_diffuse.dds",
-        "normal": "dl_props_magicallantern_normal.dds",
-        "orm": "dl_props_magicallantern_orm.dds",
-        "emissive": "dl_props_magicallantern_emissive.dds"
+        "diffuse": "res://assets/models/doodads/city/dl_props_magicallantern_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dl_props_magicallantern_normal.dds",
+        "orm": "res://assets/models/doodads/city/dl_props_magicallantern_orm.dds",
+        "emissive": "res://assets/models/doodads/city/dl_props_magicallantern_emissive.dds"
       },
       "sources": {
         "diffuse": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Diffuse.tif",
@@ -102,10 +102,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dl_props_magicallantern_diffuse.dds",
-        "normal": "dl_props_magicallantern_normal.dds",
-        "orm": "dl_props_magicallantern_orm.dds",
-        "emissive": "dl_props_magicallantern_emissive.dds"
+        "diffuse": "res://assets/models/doodads/city/dl_props_magicallantern_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dl_props_magicallantern_normal.dds",
+        "orm": "res://assets/models/doodads/city/dl_props_magicallantern_orm.dds",
+        "emissive": "res://assets/models/doodads/city/dl_props_magicallantern_emissive.dds"
       },
       "sources": {
         "diffuse": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Diffuse.tif",
@@ -129,10 +129,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dl_props_magicallantern_diffuse.dds",
-        "normal": "dl_props_magicallantern_normal.dds",
-        "orm": "dl_props_magicallantern_orm.dds",
-        "emissive": "dl_props_magicallantern_emissive.dds"
+        "diffuse": "res://assets/models/doodads/city/dl_props_magicallantern_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dl_props_magicallantern_normal.dds",
+        "orm": "res://assets/models/doodads/city/dl_props_magicallantern_orm.dds",
+        "emissive": "res://assets/models/doodads/city/dl_props_magicallantern_emissive.dds"
       },
       "sources": {
         "diffuse": "Doodads/Cityscape/Props/CrystalLamp/DL_Props_MagicalLantern_Diffuse.tif",

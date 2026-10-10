@@ -1,0 +1,211 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_sd0wm"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_fountain_fountain_diffuse.dds" id="2_1hh58"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_fountain_fountain_normal.dds" id="3_omurp"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_fountain_fountain_orm.dds" id="4_53mx0"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_fountainwater_diff_0000.dds" id="5_f33kq"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_fountainwater_0000_normal.dds" id="6_b1eux"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_fountainwater_orm.dds" id="7_evrm5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_waterspray_diff_0000.dds" id="8_td7ao"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_waterspray_0000_normal.dds" id="9_rruk6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_waterfall_diff_0000.dds" id="10_ci6w8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/war3_waterfall_0000_normal.dds" id="11_46vrh"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/city_fountain.glb" id="12_f8swk"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_p7mpl"]
+albedo_texture = ExtResource("2_1hh58")
+orm_texture = ExtResource("4_53mx0")
+normal_enabled = true
+normal_texture = ExtResource("3_omurp")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_nossu"]
+albedo_texture = ExtResource("2_1hh58")
+orm_texture = ExtResource("4_53mx0")
+normal_enabled = true
+normal_texture = ExtResource("3_omurp")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_doxht"]
+albedo_texture = ExtResource("2_1hh58")
+orm_texture = ExtResource("4_53mx0")
+normal_enabled = true
+normal_texture = ExtResource("3_omurp")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ll8tg"]
+albedo_texture = ExtResource("2_1hh58")
+orm_texture = ExtResource("4_53mx0")
+normal_enabled = true
+normal_texture = ExtResource("3_omurp")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_twy1o"]
+transparency = 1
+albedo_texture = ExtResource("5_f33kq")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("6_b1eux")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_wei0m"]
+transparency = 1
+albedo_texture = ExtResource("5_f33kq")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("6_b1eux")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_545s2"]
+transparency = 1
+albedo_texture = ExtResource("5_f33kq")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("6_b1eux")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ejkuk"]
+transparency = 1
+albedo_texture = ExtResource("5_f33kq")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("6_b1eux")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0dyvp"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_710pf"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xygfv"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_sd8sd"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_a0h5x"]
+transparency = 1
+albedo_texture = ExtResource("10_ci6w8")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("11_46vrh")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_u760a"]
+transparency = 1
+albedo_texture = ExtResource("10_ci6w8")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("11_46vrh")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_r0ol6"]
+transparency = 1
+albedo_texture = ExtResource("10_ci6w8")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("11_46vrh")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ouge1"]
+transparency = 1
+albedo_texture = ExtResource("10_ci6w8")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("11_46vrh")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_lt5ue"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_nj8v0"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6pr2d"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_byryj"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5xr0a"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_wck6s"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_hk336"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_tjtdd"]
+transparency = 1
+albedo_texture = ExtResource("8_td7ao")
+orm_texture = ExtResource("7_evrm5")
+normal_enabled = true
+normal_texture = ExtResource("9_rruk6")
+
+[node name="CityFountain" type="Node3D" unique_id=1594717842]
+script = ExtResource("1_sd0wm")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_p7mpl"),
+1: SubResource("ORMMaterial3D_nossu"),
+2: SubResource("ORMMaterial3D_doxht"),
+3: SubResource("ORMMaterial3D_ll8tg"),
+4: SubResource("ORMMaterial3D_twy1o"),
+5: SubResource("ORMMaterial3D_wei0m"),
+6: SubResource("ORMMaterial3D_545s2"),
+7: SubResource("ORMMaterial3D_ejkuk"),
+8: SubResource("ORMMaterial3D_0dyvp"),
+9: SubResource("ORMMaterial3D_710pf"),
+10: SubResource("ORMMaterial3D_xygfv"),
+11: SubResource("ORMMaterial3D_sd8sd"),
+12: SubResource("ORMMaterial3D_a0h5x"),
+13: SubResource("ORMMaterial3D_u760a"),
+14: SubResource("ORMMaterial3D_r0ol6"),
+15: SubResource("ORMMaterial3D_ouge1"),
+16: SubResource("ORMMaterial3D_lt5ue"),
+17: SubResource("ORMMaterial3D_nj8v0"),
+18: SubResource("ORMMaterial3D_6pr2d"),
+19: SubResource("ORMMaterial3D_byryj"),
+20: SubResource("ORMMaterial3D_5xr0a"),
+21: SubResource("ORMMaterial3D_wck6s"),
+22: SubResource("ORMMaterial3D_hk336"),
+23: SubResource("ORMMaterial3D_tjtdd")
+}
+always_hidden = PackedInt32Array(1, 2, 3, 5, 6, 7, 9, 10, 11, 13, 14, 15, 17, 18, 19, 21, 22, 23)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=148075257 instance=ExtResource("12_f8swk")]

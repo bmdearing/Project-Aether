@@ -1,0 +1,260 @@
+{
+  "source": "ammodump.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -2.876472015380859,
+      -0.5125752067565917,
+      -3.684599945068359
+    ],
+    "max": [
+      2.814480010986328,
+      5.586281982421875,
+      3.4747380065917968
+    ],
+    "height": 6.098857189178466
+  },
+  "sequences": [
+    {
+      "name": "Death 1",
+      "start": 0,
+      "end": 1667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 1700,
+      "end": 2033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Work 1",
+      "start": 2067,
+      "end": 3733,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "neutral_goblinLaboratory_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinlaboratory_diffuse.dds",
+        "normal": "neutral_goblinlaboratory_normal.dds",
+        "orm": "neutral_goblinlaboratory_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Diffuse.tif",
+        "normal": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Normal.tif",
+        "orm": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Death 1": true,
+        "Stand 1": true,
+        "Stand Work 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "neutral_goblinLaboratory_rig:main_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinlaboratory_diffuse.dds",
+        "normal": "neutral_goblinlaboratory_normal.dds",
+        "orm": "neutral_goblinlaboratory_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Diffuse.tif",
+        "normal": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Normal.tif",
+        "orm": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Death 1": true,
+        "Stand 1": true,
+        "Stand Work 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "neutral_goblinLaboratory_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinlaboratory_diffuse.dds",
+        "normal": "neutral_goblinlaboratory_normal.dds",
+        "orm": "neutral_goblinlaboratory_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Diffuse.tif",
+        "normal": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Normal.tif",
+        "orm": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Death 1": true,
+        "Stand 1": true,
+        "Stand Work 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "neutral_goblinLaboratory_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinlaboratory_diffuse.dds",
+        "normal": "neutral_goblinlaboratory_normal.dds",
+        "orm": "neutral_goblinlaboratory_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Diffuse.tif",
+        "normal": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Normal.tif",
+        "orm": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Death 1": true,
+        "Stand 1": true,
+        "Stand Work 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "neutral_goblinLaboratory_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinlaboratory_diffuse.dds",
+        "normal": "neutral_goblinlaboratory_normal.dds",
+        "orm": "neutral_goblinlaboratory_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Diffuse.tif",
+        "normal": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Normal.tif",
+        "orm": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Death 1": true,
+        "Stand 1": true,
+        "Stand Work 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "neutral_goblinLaboratory_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinlaboratory_diffuse.dds",
+        "normal": "neutral_goblinlaboratory_normal.dds",
+        "orm": "neutral_goblinlaboratory_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Diffuse.tif",
+        "normal": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Normal.tif",
+        "orm": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Death 1": true,
+        "Stand 1": true,
+        "Stand Work 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "neutral_goblinLaboratory_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinlaboratory_diffuse.dds",
+        "normal": "neutral_goblinlaboratory_normal.dds",
+        "orm": "neutral_goblinlaboratory_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Diffuse.tif",
+        "normal": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Normal.tif",
+        "orm": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Death 1": true,
+        "Stand 1": true,
+        "Stand Work 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "neutral_goblinLaboratory_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_goblinlaboratory_diffuse.dds",
+        "normal": "neutral_goblinlaboratory_normal.dds",
+        "orm": "neutral_goblinlaboratory_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Diffuse.tif",
+        "normal": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_Normal.tif",
+        "orm": "Buildings/Other/AmmoDump/Neutral_GoblinLaboratory_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Death 1": true,
+        "Stand 1": true,
+        "Stand Work 1": true
+      }
+    }
+  ]
+}

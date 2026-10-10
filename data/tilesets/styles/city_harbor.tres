@@ -1,0 +1,88 @@
+[gd_resource type="Resource" script_class="MapTileset" load_steps=36 format=3]
+
+[ext_resource type="Script" path="res://data/tilesets/MapTileset.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_bricktiles_diffuse.dds" id="2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_bricktiles_normal.dds" id="3"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_bricktiles_orm.dds" id="4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_dirtrough_diffuse.dds" id="5"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_dirtrough_normal.dds" id="6"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_dirtrough_orm.dds" id="7"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_cliff0_diffuse.dds" id="8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_cliff0_normal.dds" id="9"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_cliff0_orm.dds" id="10"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Grainwarehouse.tscn" id="11"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Goblinshipyard.tscn" id="12"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingrow0.tscn" id="13"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingrow1.tscn" id="14"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingrow2.tscn" id="15"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Tavern.tscn" id="16"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingsmall00.tscn" id="17"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingsmall01.tscn" id="18"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Citybuildingsmall02.tscn" id="19"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Cityclocktower.tscn" id="20"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Merchant.tscn" id="21"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Crates1.tscn" id="22"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Marketstalllarge.tscn" id="23"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/CityOblisk.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Barrelsunit.tscn" id="25"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Lanternpost.tscn" id="26"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Crates0.tscn" id="27"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Emptycrates0.tscn" id="28"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Emptycrates2.tscn" id="29"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Minecart.tscn" id="30"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/WoodDebris01.tscn" id="31"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/WoodDebrisBarrels01.tscn" id="32"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Pottedplant.tscn" id="33"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Pier.tscn" id="34"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/city/Piertrashed.tscn" id="35"]
+
+[resource]
+script = ExtResource("1")
+id = "city_harbor"
+ambience_id = "river"
+display_name = "Harbor"
+family = "city"
+layout = "streets"
+floor_albedo = ExtResource("2")
+floor_normal = ExtResource("3")
+floor_orm = ExtResource("4")
+floor_wide = false
+patch_albedo = ExtResource("5")
+patch_normal = ExtResource("6")
+patch_orm = ExtResource("7")
+patch_wide = true
+patch_amount = 0.3
+floor_tint = Color(0.7, 0.68, 0.64, 1)
+wall_albedo = ExtResource("8")
+wall_normal = ExtResource("9")
+wall_orm = ExtResource("10")
+wall_wide = false
+wall_tint = Color(0.45, 0.44, 0.42, 1)
+buildings = Array[PackedScene]([ExtResource("11"), ExtResource("12"), ExtResource("13"), ExtResource("14"), ExtResource("15"), ExtResource("16"), ExtResource("17"), ExtResource("18"), ExtResource("19")])
+landmarks = Array[PackedScene]([ExtResource("12"), ExtResource("20"), ExtResource("21")])
+plaza_props = Array[PackedScene]([ExtResource("22"), ExtResource("23"), ExtResource("24"), ExtResource("25")])
+street_lights = Array[PackedScene]([ExtResource("26")])
+floor_props = Array[PackedScene]([ExtResource("27"), ExtResource("22"), ExtResource("25"), ExtResource("28"), ExtResource("29"), ExtResource("30")])
+clusters = Array[PackedScene]([ExtResource("31"), ExtResource("32"), ExtResource("33")])
+water_props = Array[PackedScene]([ExtResource("34"), ExtResource("35")])
+building_scale = 1.3
+steam_vents = 4
+waterfront = true
+background_color = Color(0.5, 0.56, 0.62, 1)
+ambient_color = Color(0.58, 0.6, 0.62, 1)
+ambient_energy = 0.55
+sun_energy = 0.9
+sun_color = Color(1, 0.88, 0.72, 1)
+fog_color = Color(0.52, 0.56, 0.6, 1)
+fog_density = 0.012
+light_color = Color(1, 0.72, 0.4, 1)
+light_energy = 1.6
+light_range = 11
+room_light_energy = 0
+lights_per_room = 0
+grid_size = 5
+cell_size = 30
+room_count = Vector2i(9, 13)
+branch_stop_chance = 0.35
+street_width = 11
+plaza_chance = 0.15

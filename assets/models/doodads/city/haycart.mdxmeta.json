@@ -1,0 +1,130 @@
+{
+  "source": "haycart.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6432497863769531,
+      -0.041880599498748776,
+      -1.0996631927490232
+    ],
+    "max": [
+      0.6436205749511719,
+      1.4802389373779297,
+      1.1383956298828124
+    ],
+    "height": 1.5221195368766784
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4633,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "HayCart_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_haycart_diffuse.dds",
+        "normal": "ls_props_haycart_normal.dds",
+        "orm": "ls_props_haycart_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "HayCart_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_haycart_diffuse.dds",
+        "normal": "ls_props_haycart_normal.dds",
+        "orm": "ls_props_haycart_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "HayCart_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_haycart_diffuse.dds",
+        "normal": "ls_props_haycart_normal.dds",
+        "orm": "ls_props_haycart_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "HayCart_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ls_props_haycart_diffuse.dds",
+        "normal": "ls_props_haycart_normal.dds",
+        "orm": "ls_props_haycart_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_Diffuse.tif",
+        "normal": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_Normal.tif",
+        "orm": "Doodads/LordaeronSummer/Props/HayCart/LS_Props_HayCart_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-10 — v4.73: Steampunk City family (user request)
+
+- **Five City styles** (`family = "city"`): Residence, Downtown, Trainyard and Harbor use the new `streets` layout; Park is an open field ringed with buildings. City kit extracted from the WC3 install (`doodads.json` family `city`: Lordaeron city buildings and rows, clock towers, cathedral, statues, fountains, market stalls, lamps, goblin shipyard, pipes, crates, piers) plus `cityscape` grounds.
+- **Streets layout** (`StreetBuilder`): every graph cell is a junction (street-wide), a plaza, the start square or the boss courtyard; connections are streets. Every edge gets a wall set back 2.5 m and buildings lined up in front of it (building bounds include eaves, so walls right at the line hid the facades). Walls extend at inside corners and trim at block corners so the offset walls meet. Buildings overhang square corners, fall back to the narrowest model when a gap is short, and get their own collision. Lamps with amber lights, props, steam vents (`SteamVent`: smoke puff + steam hiss), rails and sleepers (Trainyard), a quay and one water ribbon on a side with neither the start nor the boss (Harbor). Packs stand at junctions, plazas and street midpoints; chests prefer dead ends.
+- Perf (windowed, 65 enemies): Downtown 153 fps, Residence 99, Dunes 78 for comparison.
+- The Figment Tree's Terrain sector gained a City fork (Smoke and Gaslight).
+- **Follow-ups:** `tests/v473` sealing and per-style checks pass; the navmesh reachability and pack-spot-clearance checks are written but disabled (the navmesh query sees an empty map in the harness; one Downtown seed has a pack spot touching a collider). No new city ambience loops yet (reuses wind/factory/boiler/forest/river). Unused city models (walls, archways, gates, ammo dump, power generator) are extracted but not placed; the ammo dump and power generator looked Horde-made and were pulled from Trainyard.
+
+---
+
 ## 2026-10-10 — v4.72: Mapping pass: tiers 1-21, mod pools, Figment Tree (user request)
 
 - **Tiers and bands:** Figments run Tier 1-21 in three bands: Low (1-7), Mid (8-14), High (15-21). The card shows the band, Pack Size, Item Quantity and Item Rarity, and the Reality Engine marks Figments you haven't completed yet as "New".

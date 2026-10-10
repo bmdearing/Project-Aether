@@ -1,0 +1,23 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_lnl3m"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/sewer_pipes_diffuse.dds" id="2_1odfb"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/sewer_pipes_normal.dds" id="3_tmp7m"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/sewer_pipes_orm.dds" id="4_r265p"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/sewer_pipe_large_straight_01.glb" id="5_4easn"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7rsfk"]
+albedo_texture = ExtResource("2_1odfb")
+orm_texture = ExtResource("4_r265p")
+normal_enabled = true
+normal_texture = ExtResource("3_tmp7m")
+
+[node name="SewerPipeLargeStraight01" type="Node3D" unique_id=821461735]
+script = ExtResource("1_lnl3m")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_7rsfk")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand"
+
+[node name="Model" type="Node3D" parent="." unique_id=672537290 instance=ExtResource("5_4easn")]

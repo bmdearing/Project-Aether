@@ -1,0 +1,387 @@
+{
+  "source": "pier.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.648690032958984,
+      0.009369000077247619,
+      -1.7037089538574217
+    ],
+    "max": [
+      5.043005859375,
+      2.9076119384765624,
+      1.7037089538574217
+    ],
+    "height": 2.8982429383993145
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 10000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 10000,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand Work 1",
+      "start": 0,
+      "end": 10000,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 0,
+      "end": 10000,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "mesh_grp|AV_Structures_Pier",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pier_diffuse.dds",
+        "normal": "av_structures_pier_normal.dds",
+        "orm": "av_structures_pier_orm.dds",
+        "emissive": "av_structures_pier_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_ORM.tif",
+        "emissive": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "glow",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "glow_card.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": "glow_card.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/glow_card.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Doodads/Ashenvale/Structures/Pier/glow_card.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "walkPlane",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pier_diffuse.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "AV_Structures_Pier_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pier_diffuse.dds",
+        "normal": "av_structures_pier_normal.dds",
+        "orm": "av_structures_pier_orm.dds",
+        "emissive": "av_structures_pier_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_ORM.tif",
+        "emissive": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "AV_Structures_Pier_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pier_diffuse.dds",
+        "normal": "av_structures_pier_normal.dds",
+        "orm": "av_structures_pier_orm.dds",
+        "emissive": "av_structures_pier_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_ORM.tif",
+        "emissive": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "AV_Structures_Pier_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pier_diffuse.dds",
+        "normal": "av_structures_pier_normal.dds",
+        "orm": "av_structures_pier_orm.dds",
+        "emissive": "av_structures_pier_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_ORM.tif",
+        "emissive": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "glow_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "glow_card.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": "glow_card.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/glow_card.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Doodads/Ashenvale/Structures/Pier/glow_card.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "glow_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "glow_card.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": "glow_card.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/glow_card.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Doodads/Ashenvale/Structures/Pier/glow_card.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "glow_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "glow_card.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": "glow_card.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/glow_card.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Doodads/Ashenvale/Structures/Pier/glow_card.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "walkPlane_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pier_diffuse.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "walkPlane_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pier_diffuse.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "walkPlane_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pier_diffuse.dds",
+        "normal": "res://assets/models/doodads/dungeon/normal.dds",
+        "orm": "res://assets/models/doodads/dungeon/orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/Pier/AV_Structures_Pier_Diffuse.tif",
+        "normal": "Textures/normal.blp",
+        "orm": "Textures/ORM.blp",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true
+      }
+    }
+  ]
+}

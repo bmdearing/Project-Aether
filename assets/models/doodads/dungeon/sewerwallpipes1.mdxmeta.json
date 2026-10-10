@@ -34,9 +34,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dg_props_sewerwallpipes_v1_v3_diffuse.dds",
-        "normal": "dg_props_sewerwallpipes_v1_v3_normal.dds",
-        "orm": "dg_props_sewerwallpipes_v1_v3_orm.dds",
+        "diffuse": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_normal.dds",
+        "orm": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -59,9 +59,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dg_props_sewerwallpipes_v1_v3_diffuse.dds",
-        "normal": "dg_props_sewerwallpipes_v1_v3_normal.dds",
-        "orm": "dg_props_sewerwallpipes_v1_v3_orm.dds",
+        "diffuse": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_normal.dds",
+        "orm": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -84,9 +84,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dg_props_sewerwallpipes_v1_v3_diffuse.dds",
-        "normal": "dg_props_sewerwallpipes_v1_v3_normal.dds",
-        "orm": "dg_props_sewerwallpipes_v1_v3_orm.dds",
+        "diffuse": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_normal.dds",
+        "orm": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -109,9 +109,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dg_props_sewerwallpipes_v1_v3_diffuse.dds",
-        "normal": "dg_props_sewerwallpipes_v1_v3_normal.dds",
-        "orm": "dg_props_sewerwallpipes_v1_v3_orm.dds",
+        "diffuse": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_normal.dds",
+        "orm": "res://assets/models/doodads/city/dg_props_sewerwallpipes_v1_v3_orm.dds",
         "emissive": null
       },
       "sources": {

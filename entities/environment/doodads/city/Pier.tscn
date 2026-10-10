@@ -1,0 +1,120 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_alcdh"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/av_structures_pier_diffuse.dds" id="2_ke76x"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/av_structures_pier_emissive.dds" id="3_isorx"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/av_structures_pier_normal.dds" id="4_qpqwk"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/av_structures_pier_orm.dds" id="5_tkpo8"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/glow_card.dds" id="6_ahhbm"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/normal.dds" id="7_b2hpv"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/dungeon/orm.dds" id="8_51oi3"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/pier.glb" id="9_fyngx"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_agcj6"]
+albedo_texture = ExtResource("2_ke76x")
+orm_texture = ExtResource("5_tkpo8")
+emission_enabled = true
+emission_texture = ExtResource("3_isorx")
+normal_enabled = true
+normal_texture = ExtResource("4_qpqwk")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4nhey"]
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("6_ahhbm")
+orm_texture = ExtResource("8_51oi3")
+normal_enabled = true
+normal_texture = ExtResource("7_b2hpv")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0ijuj"]
+albedo_texture = ExtResource("2_ke76x")
+orm_texture = ExtResource("8_51oi3")
+normal_enabled = true
+normal_texture = ExtResource("7_b2hpv")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_f4wqp"]
+albedo_texture = ExtResource("2_ke76x")
+orm_texture = ExtResource("5_tkpo8")
+emission_enabled = true
+emission_texture = ExtResource("3_isorx")
+normal_enabled = true
+normal_texture = ExtResource("4_qpqwk")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_so5ne"]
+albedo_texture = ExtResource("2_ke76x")
+orm_texture = ExtResource("5_tkpo8")
+emission_enabled = true
+emission_texture = ExtResource("3_isorx")
+normal_enabled = true
+normal_texture = ExtResource("4_qpqwk")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_hyg4k"]
+albedo_texture = ExtResource("2_ke76x")
+orm_texture = ExtResource("5_tkpo8")
+emission_enabled = true
+emission_texture = ExtResource("3_isorx")
+normal_enabled = true
+normal_texture = ExtResource("4_qpqwk")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_2t7fs"]
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("6_ahhbm")
+orm_texture = ExtResource("8_51oi3")
+normal_enabled = true
+normal_texture = ExtResource("7_b2hpv")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_rlev1"]
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("6_ahhbm")
+orm_texture = ExtResource("8_51oi3")
+normal_enabled = true
+normal_texture = ExtResource("7_b2hpv")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gpfik"]
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("6_ahhbm")
+orm_texture = ExtResource("8_51oi3")
+normal_enabled = true
+normal_texture = ExtResource("7_b2hpv")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_io3ab"]
+albedo_texture = ExtResource("2_ke76x")
+orm_texture = ExtResource("8_51oi3")
+normal_enabled = true
+normal_texture = ExtResource("7_b2hpv")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_1sl73"]
+albedo_texture = ExtResource("2_ke76x")
+orm_texture = ExtResource("8_51oi3")
+normal_enabled = true
+normal_texture = ExtResource("7_b2hpv")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4633f"]
+albedo_texture = ExtResource("2_ke76x")
+orm_texture = ExtResource("8_51oi3")
+normal_enabled = true
+normal_texture = ExtResource("7_b2hpv")
+
+[node name="Pier" type="Node3D" unique_id=1875460011]
+script = ExtResource("1_alcdh")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_agcj6"),
+1: SubResource("ORMMaterial3D_4nhey"),
+2: SubResource("ORMMaterial3D_0ijuj"),
+3: SubResource("ORMMaterial3D_f4wqp"),
+4: SubResource("ORMMaterial3D_so5ne"),
+5: SubResource("ORMMaterial3D_hyg4k"),
+6: SubResource("ORMMaterial3D_2t7fs"),
+7: SubResource("ORMMaterial3D_rlev1"),
+8: SubResource("ORMMaterial3D_gpfik"),
+9: SubResource("ORMMaterial3D_io3ab"),
+10: SubResource("ORMMaterial3D_1sl73"),
+11: SubResource("ORMMaterial3D_4633f")
+}
+always_hidden = PackedInt32Array(3, 4, 5, 6, 7, 8, 9, 10, 11)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1283268483 instance=ExtResource("9_fyngx")]

@@ -1,0 +1,240 @@
+{
+  "source": "dalaranguardtower.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.2299633789062498,
+      -1.1397023849487304,
+      -1.2299633789062498
+    ],
+    "max": [
+      1.2299633789062498,
+      5.492808105468749,
+      1.2299633789062498
+    ],
+    "height": 6.63251049041748
+  },
+  "sequences": [
+    {
+      "name": "Birth",
+      "start": 0,
+      "end": 60000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 60033,
+      "end": 65033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 60033,
+      "end": 65033,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Birth Upgrade First",
+      "start": 65067,
+      "end": 70067,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Upgrade First",
+      "start": 70100,
+      "end": 75100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 60033,
+      "end": 65033,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Birth Upgrade Second",
+      "start": 75133,
+      "end": 80133,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Upgrade Second",
+      "start": 80167,
+      "end": 85167,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 4",
+      "start": 60033,
+      "end": 65033,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Death 1",
+      "start": 85200,
+      "end": 87867,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 87900,
+      "end": 147900,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "human_dalaranGuardTower_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_dalaranguardtower_diffuse.dds",
+        "normal": "human_dalaranguardtower_normal.dds",
+        "orm": "human_dalaranguardtower_orm.dds",
+        "emissive": "human_dalaranguardtower_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Diffuse.tif",
+        "normal": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Normal.tif",
+        "orm": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_ORM.tif",
+        "emissive": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth Upgrade First": true,
+        "Stand Upgrade First": true,
+        "Stand 3": true,
+        "Birth Upgrade Second": true,
+        "Stand Upgrade Second": true,
+        "Stand 4": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "human_dalaranGuardTower_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_dalaranguardtower_diffuse.dds",
+        "normal": "human_dalaranguardtower_normal.dds",
+        "orm": "human_dalaranguardtower_orm.dds",
+        "emissive": "human_dalaranguardtower_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Diffuse.tif",
+        "normal": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Normal.tif",
+        "orm": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_ORM.tif",
+        "emissive": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth Upgrade First": true,
+        "Stand Upgrade First": true,
+        "Stand 3": true,
+        "Birth Upgrade Second": true,
+        "Stand Upgrade Second": true,
+        "Stand 4": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "human_dalaranGuardTower_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_dalaranguardtower_diffuse.dds",
+        "normal": "human_dalaranguardtower_normal.dds",
+        "orm": "human_dalaranguardtower_orm.dds",
+        "emissive": "human_dalaranguardtower_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Diffuse.tif",
+        "normal": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Normal.tif",
+        "orm": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_ORM.tif",
+        "emissive": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth Upgrade First": true,
+        "Stand Upgrade First": true,
+        "Stand 3": true,
+        "Birth Upgrade Second": true,
+        "Stand Upgrade Second": true,
+        "Stand 4": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "human_dalaranGuardTower_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_dalaranguardtower_diffuse.dds",
+        "normal": "human_dalaranguardtower_normal.dds",
+        "orm": "human_dalaranguardtower_orm.dds",
+        "emissive": "human_dalaranguardtower_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Diffuse.tif",
+        "normal": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Normal.tif",
+        "orm": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_ORM.tif",
+        "emissive": "Buildings/Other/DalaranGuardTower/Human_DalaranGuardTower_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Birth": false,
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth Upgrade First": true,
+        "Stand Upgrade First": true,
+        "Stand 3": true,
+        "Birth Upgrade Second": true,
+        "Stand Upgrade Second": true,
+        "Stand 4": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    }
+  ]
+}

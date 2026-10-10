@@ -1,0 +1,56 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_wdpam"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_props_wheel barrow_diffuse.dds" id="2_wy8rh"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_props_wheel barrow_normal.dds" id="3_njbh2"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_props_wheel barrow_orm.dds" id="4_y0xxt"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/wheelbarrel.glb" id="5_j7d0t"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_7x05h"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wy8rh")
+orm_texture = ExtResource("4_y0xxt")
+normal_enabled = true
+normal_texture = ExtResource("3_njbh2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6ya1n"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wy8rh")
+orm_texture = ExtResource("4_y0xxt")
+normal_enabled = true
+normal_texture = ExtResource("3_njbh2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4m5ie"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wy8rh")
+orm_texture = ExtResource("4_y0xxt")
+normal_enabled = true
+normal_texture = ExtResource("3_njbh2")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_o8j1c"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_wy8rh")
+orm_texture = ExtResource("4_y0xxt")
+normal_enabled = true
+normal_texture = ExtResource("3_njbh2")
+
+[node name="Wheelbarrel" type="Node3D" unique_id=1162424223]
+script = ExtResource("1_wdpam")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_7x05h"),
+1: SubResource("ORMMaterial3D_6ya1n"),
+2: SubResource("ORMMaterial3D_4m5ie"),
+3: SubResource("ORMMaterial3D_o8j1c")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1704533988 instance=ExtResource("5_j7d0t")]

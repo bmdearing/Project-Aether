@@ -1,0 +1,174 @@
+{
+  "source": "pottedplant.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.715519775390625,
+      -0.01879020023345947,
+      -0.9081125793457031
+    ],
+    "max": [
+      0.7461611938476562,
+      2.3856479187011717,
+      0.5846382064819335
+    ],
+    "height": 2.4044381189346313
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 4700,
+      "end": 5000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 5333,
+      "end": 6833,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 7167,
+      "end": 67167,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Eattree 1",
+      "start": 67500,
+      "end": 69500,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Environment_Potted_Plant",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_environment_pottedplant_diffuse.dds",
+        "normal": "cs_environment_pottedplant_normal.dds",
+        "orm": "cs_environment_pottedplant_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Environment_Potted_Plant_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_environment_pottedplant_diffuse.dds",
+        "normal": "cs_environment_pottedplant_normal.dds",
+        "orm": "cs_environment_pottedplant_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Environment_Potted_Plant_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_environment_pottedplant_diffuse.dds",
+        "normal": "cs_environment_pottedplant_normal.dds",
+        "orm": "cs_environment_pottedplant_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Environment_Potted_Plant_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_environment_pottedplant_diffuse.dds",
+        "normal": "cs_environment_pottedplant_normal.dds",
+        "orm": "cs_environment_pottedplant_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/PottedPlant/CS_Environment_PottedPlant_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell Eattree 1": true
+      }
+    }
+  ]
+}

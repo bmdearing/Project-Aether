@@ -1,0 +1,130 @@
+{
+  "source": "cityclocktower.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.468796401977539,
+      -1.2689586639404296,
+      -1.468796401977539
+    ],
+    "max": [
+      1.468796401977539,
+      7.319987731933593,
+      1.468796401977539
+    ],
+    "height": 8.588946395874023
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 4333,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "SH_Props_MainTower",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_maintower_diffuse.dds",
+        "normal": "cs_sh_props_maintower_normal.dds",
+        "orm": "cs_sh_props_maintower_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "SH_Props_MainTower_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_maintower_diffuse.dds",
+        "normal": "cs_sh_props_maintower_normal.dds",
+        "orm": "cs_sh_props_maintower_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "SH_Props_MainTower_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_maintower_diffuse.dds",
+        "normal": "cs_sh_props_maintower_normal.dds",
+        "orm": "cs_sh_props_maintower_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "SH_Props_MainTower_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_sh_props_maintower_diffuse.dds",
+        "normal": "cs_sh_props_maintower_normal.dds",
+        "orm": "cs_sh_props_maintower_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/CityClockTower/CS_SH_Props_MainTower_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

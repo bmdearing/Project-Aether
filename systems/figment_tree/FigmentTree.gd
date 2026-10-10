@@ -121,6 +121,7 @@ static func _build() -> void:
 		_family_fork("desert", "Desert", "Shifting Sands"),
 		_family_fork("forest", "Forest", "Old Growth"),
 		_family_fork("snow", "Snow", "Long Winter"),
+		_family_fork("city", "City", "Smoke and Gaslight"),
 	])
 	_sector("Factions", -30.0, [
 		["faction_trunk_1", "Familiar Faces", "+3% Pack Size", {"pack_size": 3.0}],

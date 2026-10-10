@@ -1,0 +1,122 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_tbxh4"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_arcaneobservatory_diffuse.dds" id="2_7yh8t"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_arcaneobservatory_emissive.dds" id="3_mup4q"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_arcaneobservatory_normal.dds" id="4_ktpqb"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/human_arcaneobservatory_orm.dds" id="5_kag30"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/arcaneobservatory.glb" id="6_huprm"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_awhxx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_7yh8t")
+orm_texture = ExtResource("5_kag30")
+emission_enabled = true
+emission_texture = ExtResource("3_mup4q")
+normal_enabled = true
+normal_texture = ExtResource("4_ktpqb")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_jo7hf"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_7yh8t")
+orm_texture = ExtResource("5_kag30")
+emission_enabled = true
+emission_texture = ExtResource("3_mup4q")
+normal_enabled = true
+normal_texture = ExtResource("4_ktpqb")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_nelqm"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_7yh8t")
+orm_texture = ExtResource("5_kag30")
+emission_enabled = true
+emission_texture = ExtResource("3_mup4q")
+normal_enabled = true
+normal_texture = ExtResource("4_ktpqb")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_pafdt"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_7yh8t")
+orm_texture = ExtResource("5_kag30")
+emission_enabled = true
+emission_texture = ExtResource("3_mup4q")
+normal_enabled = true
+normal_texture = ExtResource("4_ktpqb")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_k4sbo"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_7yh8t")
+orm_texture = ExtResource("5_kag30")
+emission_enabled = true
+emission_texture = ExtResource("3_mup4q")
+normal_enabled = true
+normal_texture = ExtResource("4_ktpqb")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_kbkm6"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_7yh8t")
+orm_texture = ExtResource("5_kag30")
+emission_enabled = true
+emission_texture = ExtResource("3_mup4q")
+normal_enabled = true
+normal_texture = ExtResource("4_ktpqb")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_8g8wc"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_7yh8t")
+orm_texture = ExtResource("5_kag30")
+emission_enabled = true
+emission_texture = ExtResource("3_mup4q")
+normal_enabled = true
+normal_texture = ExtResource("4_ktpqb")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_v1mwy"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_7yh8t")
+orm_texture = ExtResource("5_kag30")
+emission_enabled = true
+emission_texture = ExtResource("3_mup4q")
+normal_enabled = true
+normal_texture = ExtResource("4_ktpqb")
+
+[node name="Arcaneobservatory" type="Node3D" unique_id=1280540652]
+script = ExtResource("1_tbxh4")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_awhxx"),
+1: SubResource("ORMMaterial3D_jo7hf"),
+2: SubResource("ORMMaterial3D_nelqm"),
+3: SubResource("ORMMaterial3D_pafdt"),
+4: SubResource("ORMMaterial3D_k4sbo"),
+5: SubResource("ORMMaterial3D_kbkm6"),
+6: SubResource("ORMMaterial3D_8g8wc"),
+7: SubResource("ORMMaterial3D_v1mwy")
+}
+hidden_geosets = {
+"Birth": PackedInt32Array(0, 1, 2, 3, 4, 5, 6, 7),
+"Death 1": PackedInt32Array(0, 1, 2, 3, 4, 5, 6, 7),
+"Decay": PackedInt32Array(0, 1, 2, 3, 4, 5, 6, 7)
+}
+always_hidden = PackedInt32Array(2, 3, 4, 5, 6, 7)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=119334040 instance=ExtResource("6_huprm")]

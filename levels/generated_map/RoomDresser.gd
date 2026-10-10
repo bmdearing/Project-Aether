@@ -168,6 +168,33 @@ func place_loose(position: Vector3, scene: PackedScene) -> bool:
 		_add_collision(node, bounds)
 	return true
 
+## Places a prop at a set position, turn and scale unless it would overlap
+## something already placed; returns it (with collision), or null.
+func place_at(position: Vector3, scene: PackedScene, yaw: float, prop_scale: float = 1.0, collide: bool = true) -> Node3D:
+	if scene == null:
+		return null
+	var node := _spawn(scene)
+	node.scale = Vector3.ONE * prop_scale
+	node.rotation.y = yaw
+	var bounds := _local_bounds(node)
+	var rect := _footprint(position, yaw, bounds, prop_scale)
+	if _overlaps(rect):
+		node.queue_free()
+		return null
+	node.position = position
+	_occupied.append(rect)
+	if collide:
+		_add_collision(node, bounds)
+	return node
+
+## Visible-mesh bounds of a scene's instance (unscaled), for layout maths.
+func measure(scene: PackedScene) -> AABB:
+	var node := _spawn(scene)
+	var bounds := _local_bounds(node)
+	_parent.remove_child(node)
+	node.free()
+	return bounds
+
 ## World XZ rectangle covering a prop's visible bounds at pos and yaw.
 func _footprint(pos: Vector3, yaw: float, bounds: AABB, s: float) -> Rect2:
 	var rect := Rect2()

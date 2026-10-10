@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_7bfyf"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cityscapebush_diffuse.dds" id="2_rnbnn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cityscapebush_normal.dds" id="3_u2uog"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cityscapebush_orm.dds" id="4_andhq"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/citybush.glb" id="5_qretf"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_h6n7g"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_rnbnn")
+orm_texture = ExtResource("4_andhq")
+normal_enabled = true
+normal_texture = ExtResource("3_u2uog")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_6j1ep"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_rnbnn")
+orm_texture = ExtResource("4_andhq")
+normal_enabled = true
+normal_texture = ExtResource("3_u2uog")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_a5rnk"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_rnbnn")
+orm_texture = ExtResource("4_andhq")
+normal_enabled = true
+normal_texture = ExtResource("3_u2uog")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_1807h"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_rnbnn")
+orm_texture = ExtResource("4_andhq")
+normal_enabled = true
+normal_texture = ExtResource("3_u2uog")
+
+[node name="Citybush" type="Node3D" unique_id=1128986826]
+script = ExtResource("1_7bfyf")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_h6n7g"),
+1: SubResource("ORMMaterial3D_6j1ep"),
+2: SubResource("ORMMaterial3D_a5rnk"),
+3: SubResource("ORMMaterial3D_1807h")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1168596503 instance=ExtResource("5_qretf")]

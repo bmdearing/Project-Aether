@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_q6841"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_postlantern_diffuse.dds" id="2_aogjh"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_postlantern_emissive.dds" id="3_o8bmd"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_postlantern_normal.dds" id="4_dmsyw"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/cs_props_postlantern_orm.dds" id="5_dfifq"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/lanternpost.glb" id="6_bmwl2"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_atthd"]
+albedo_texture = ExtResource("2_aogjh")
+orm_texture = ExtResource("5_dfifq")
+emission_enabled = true
+emission_texture = ExtResource("3_o8bmd")
+normal_enabled = true
+normal_texture = ExtResource("4_dmsyw")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_g6x2o"]
+albedo_texture = ExtResource("2_aogjh")
+orm_texture = ExtResource("5_dfifq")
+emission_enabled = true
+emission_texture = ExtResource("3_o8bmd")
+normal_enabled = true
+normal_texture = ExtResource("4_dmsyw")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_447nh"]
+albedo_texture = ExtResource("2_aogjh")
+orm_texture = ExtResource("5_dfifq")
+emission_enabled = true
+emission_texture = ExtResource("3_o8bmd")
+normal_enabled = true
+normal_texture = ExtResource("4_dmsyw")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ryp0h"]
+albedo_texture = ExtResource("2_aogjh")
+orm_texture = ExtResource("5_dfifq")
+emission_enabled = true
+emission_texture = ExtResource("3_o8bmd")
+normal_enabled = true
+normal_texture = ExtResource("4_dmsyw")
+
+[node name="Lanternpost" type="Node3D" unique_id=571534411]
+script = ExtResource("1_q6841")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_atthd"),
+1: SubResource("ORMMaterial3D_g6x2o"),
+2: SubResource("ORMMaterial3D_447nh"),
+3: SubResource("ORMMaterial3D_ryp0h")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=2106882528 instance=ExtResource("6_bmwl2")]

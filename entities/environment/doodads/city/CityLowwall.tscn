@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_cacyg"]
+[ext_resource type="PackedScene" path="res://assets/models/doodads/city/city_lowwall.glb" id="2_4mmqq"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2a84c"]
+albedo_color = Color(0.4, 0.4, 0.42, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fjsli"]
+albedo_color = Color(0.4, 0.4, 0.42, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_n7ff0"]
+albedo_color = Color(0.4, 0.4, 0.42, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_81um3"]
+albedo_color = Color(0.4, 0.4, 0.42, 1)
+
+[node name="CityLowwall" type="Node3D" unique_id=2019123049]
+script = ExtResource("1_cacyg")
+geoset_materials = {
+0: SubResource("StandardMaterial3D_2a84c"),
+1: SubResource("StandardMaterial3D_fjsli"),
+2: SubResource("StandardMaterial3D_n7ff0"),
+3: SubResource("StandardMaterial3D_81um3")
+}
+always_hidden = PackedInt32Array(1, 2, 3)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1524173997 instance=ExtResource("2_4mmqq")]

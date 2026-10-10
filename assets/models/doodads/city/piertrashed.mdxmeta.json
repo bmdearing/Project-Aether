@@ -1,0 +1,174 @@
+{
+  "source": "piertrashed.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.291570098876953,
+      0.008994600176811217,
+      -1.2621509857177733
+    ],
+    "max": [
+      3.265488006591797,
+      2.909753997802734,
+      1.2750552520751952
+    ],
+    "height": 2.9007593976259227
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 2500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 2500,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand Work 1",
+      "start": 2533,
+      "end": 31867,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 31900,
+      "end": 34233,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Portrait 1",
+      "start": 34267,
+      "end": 34600,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "PierTrashed_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pierruined_diffuse.dds",
+        "normal": "av_structures_pierruined_normal.dds",
+        "orm": "av_structures_pierruined_orm.dds",
+        "emissive": "av_structures_pierruined_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_ORM.tif",
+        "emissive": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true,
+        "Portrait 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "PierTrashed_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pierruined_diffuse.dds",
+        "normal": "av_structures_pierruined_normal.dds",
+        "orm": "av_structures_pierruined_orm.dds",
+        "emissive": "av_structures_pierruined_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_ORM.tif",
+        "emissive": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true,
+        "Portrait 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "PierTrashed_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pierruined_diffuse.dds",
+        "normal": "av_structures_pierruined_normal.dds",
+        "orm": "av_structures_pierruined_orm.dds",
+        "emissive": "av_structures_pierruined_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_ORM.tif",
+        "emissive": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true,
+        "Portrait 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "PierTrashed_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "av_structures_pierruined_diffuse.dds",
+        "normal": "av_structures_pierruined_normal.dds",
+        "orm": "av_structures_pierruined_orm.dds",
+        "emissive": "av_structures_pierruined_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Diffuse.tif",
+        "normal": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Normal.tif",
+        "orm": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_ORM.tif",
+        "emissive": "Doodads/Ashenvale/Structures/PierTrashed/AV_Structures_PierRuined_Emissive.tif"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Work 1": true,
+        "Death 1": true,
+        "Portrait 1": true
+      }
+    }
+  ]
+}

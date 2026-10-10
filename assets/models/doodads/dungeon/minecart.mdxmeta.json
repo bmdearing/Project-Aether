@@ -48,10 +48,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dg_props_minecart_main_diffuse.dds",
-        "normal": "dg_props_minecart_main_normal.dds",
-        "orm": "dg_props_minecart_main_orm.dds",
-        "emissive": "dg_props_minecart_main_emissive.dds"
+        "diffuse": "res://assets/models/doodads/city/dg_props_minecart_main_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dg_props_minecart_main_normal.dds",
+        "orm": "res://assets/models/doodads/city/dg_props_minecart_main_orm.dds",
+        "emissive": "res://assets/models/doodads/city/dg_props_minecart_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Doodads/Dungeon/Props/MineCart/DG_Props_MineCart_Main_Diffuse.tif",
@@ -75,10 +75,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dg_props_minecart_main_diffuse.dds",
-        "normal": "dg_props_minecart_main_normal.dds",
-        "orm": "dg_props_minecart_main_orm.dds",
-        "emissive": "dg_props_minecart_main_emissive.dds"
+        "diffuse": "res://assets/models/doodads/city/dg_props_minecart_main_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dg_props_minecart_main_normal.dds",
+        "orm": "res://assets/models/doodads/city/dg_props_minecart_main_orm.dds",
+        "emissive": "res://assets/models/doodads/city/dg_props_minecart_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Doodads/Dungeon/Props/MineCart/DG_Props_MineCart_Main_Diffuse.tif",
@@ -102,10 +102,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dg_props_minecart_main_diffuse.dds",
-        "normal": "dg_props_minecart_main_normal.dds",
-        "orm": "dg_props_minecart_main_orm.dds",
-        "emissive": "dg_props_minecart_main_emissive.dds"
+        "diffuse": "res://assets/models/doodads/city/dg_props_minecart_main_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dg_props_minecart_main_normal.dds",
+        "orm": "res://assets/models/doodads/city/dg_props_minecart_main_orm.dds",
+        "emissive": "res://assets/models/doodads/city/dg_props_minecart_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Doodads/Dungeon/Props/MineCart/DG_Props_MineCart_Main_Diffuse.tif",
@@ -129,10 +129,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "dg_props_minecart_main_diffuse.dds",
-        "normal": "dg_props_minecart_main_normal.dds",
-        "orm": "dg_props_minecart_main_orm.dds",
-        "emissive": "dg_props_minecart_main_emissive.dds"
+        "diffuse": "res://assets/models/doodads/city/dg_props_minecart_main_diffuse.dds",
+        "normal": "res://assets/models/doodads/city/dg_props_minecart_main_normal.dds",
+        "orm": "res://assets/models/doodads/city/dg_props_minecart_main_orm.dds",
+        "emissive": "res://assets/models/doodads/city/dg_props_minecart_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Doodads/Dungeon/Props/MineCart/DG_Props_MineCart_Main_Diffuse.tif",

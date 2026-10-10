@@ -1,9 +1,9 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_mxvli"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/ls_destructibles_crates_v1-v2_diffuse.dds" id="2_20sa0"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/ls_destructibles_crates_v1-v2_normal.dds" id="3_ojjhe"]
-[ext_resource type="Texture2D" path="res://assets/models/doodads/nexus/ls_destructibles_crates_v1-v2_orm.dds" id="4_nbg7p"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_destructibles_crates_v1-v2_diffuse.dds" id="2_20sa0"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_destructibles_crates_v1-v2_normal.dds" id="3_ojjhe"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ls_destructibles_crates_v1-v2_orm.dds" id="4_nbg7p"]
 [ext_resource type="PackedScene" path="res://assets/models/doodads/nexus/cratesunit.glb" id="5_nipjb"]
 
 [sub_resource type="ORMMaterial3D" id="ORMMaterial3D_w2m62"]
@@ -294,7 +294,7 @@ orm_texture = ExtResource("4_nbg7p")
 normal_enabled = true
 normal_texture = ExtResource("3_ojjhe")
 
-[node name="Cratesunit" type="Node3D" unique_id=1607182210]
+[node name="Cratesunit" type="Node3D" unique_id=660719557]
 script = ExtResource("1_mxvli")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_w2m62"),

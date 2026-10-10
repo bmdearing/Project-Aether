@@ -1,0 +1,174 @@
+{
+  "source": "citybush.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6935526123046875,
+      -0.011377799749374388,
+      -0.7697015991210937
+    ],
+    "max": [
+      0.632786407470703,
+      0.8722565689086913,
+      0.6455861663818359
+    ],
+    "height": 0.8836343686580658
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 1000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 1033,
+      "end": 1333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 1367,
+      "end": 2867,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 2900,
+      "end": 62900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell EatTree",
+      "start": 62933,
+      "end": 64933,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "bush",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cityscapebush_diffuse.dds",
+        "normal": "cityscapebush_normal.dds",
+        "orm": "cityscapebush_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell EatTree": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "bush_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cityscapebush_diffuse.dds",
+        "normal": "cityscapebush_normal.dds",
+        "orm": "cityscapebush_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell EatTree": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "bush_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cityscapebush_diffuse.dds",
+        "normal": "cityscapebush_normal.dds",
+        "orm": "cityscapebush_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell EatTree": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "bush_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cityscapebush_diffuse.dds",
+        "normal": "cityscapebush_normal.dds",
+        "orm": "cityscapebush_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_Normal.tif",
+        "orm": "Doodads/Cityscape/Plants/CityBush/CityscapeBush_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand Hit 1": true,
+        "Death 1": true,
+        "Birth": true,
+        "Spell EatTree": true
+      }
+    }
+  ]
+}

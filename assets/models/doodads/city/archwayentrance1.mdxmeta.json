@@ -1,0 +1,130 @@
+{
+  "source": "archwayentrance1.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.7598636474609373,
+      -0.03710340070724487,
+      -8.100611938476561
+    ],
+    "max": [
+      1.7403785705566406,
+      10.678014404296874,
+      8.088138061523438
+    ],
+    "height": 10.71511780500412
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3967,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "ArchwayEntrance_rig:ArchwayEntrance1_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "archwayentrance1_diffuse.dds",
+        "normal": "archwayentrance1_normal.dds",
+        "orm": "archwayentrance1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "ArchwayEntrance_rigArchwayEntrance1_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "archwayentrance1_diffuse.dds",
+        "normal": "archwayentrance1_normal.dds",
+        "orm": "archwayentrance1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "ArchwayEntrance_rigArchwayEntrance1_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "archwayentrance1_diffuse.dds",
+        "normal": "archwayentrance1_normal.dds",
+        "orm": "archwayentrance1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "ArchwayEntrance_rigArchwayEntrance1_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "archwayentrance1_diffuse.dds",
+        "normal": "archwayentrance1_normal.dds",
+        "orm": "archwayentrance1_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_Normal.tif",
+        "orm": "Doodads/Cityscape/Structures/ArchwayEntrance1/ArchwayEntrance1_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}

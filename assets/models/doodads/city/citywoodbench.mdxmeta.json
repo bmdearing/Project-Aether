@@ -1,0 +1,605 @@
+{
+  "source": "citywoodbench.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6121115798950195,
+      -0.004379400104284286,
+      -1.3457970428466797
+    ],
+    "max": [
+      0.30257820510864253,
+      1.2585330505371093,
+      1.344517135620117
+    ],
+    "height": 1.2629124506413936
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 3367,
+      "end": 6700,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "BackRest01_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "BackRest01_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "BackRest01_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "BackRest01_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "BackRest02_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "BackRest02_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "BackRest02_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "BackRest02_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "LArmRest_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "LArmRest_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "LArmRest_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "LArmRest_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "Nail_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "Nail_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "Nail_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "RArmRest_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 16,
+      "name": "RArmRest_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 17,
+      "name": "RArmRest_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "RArmRest_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "Seat_low",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "Seat_low_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "Seat_low_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "Seat_low_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "cs_props_benchwood_diffuse.dds",
+        "normal": "cs_props_benchwood_normal.dds",
+        "orm": "cs_props_benchwood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Diffuse.tif",
+        "normal": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_Normal.tif",
+        "orm": "Doodads/Cityscape/Props/CityWoodBench/CS_Props_BenchWood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true
+      }
+    }
+  ]
+}
