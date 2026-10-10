@@ -411,10 +411,15 @@ func _test_lord_sigils() -> void:
 	_check(lord.descended and not lord.immovable, "in phase 3 he lands on the crescent and walks")
 	_check(lord.global_position.distance_to(arena.lord_landing_spot()) < 0.5, "he lands at the crescent's middle")
 	_check(not lord.can_use_ability(burst) and not lord.is_orb_exposed(lord.current_element), "down here no ranged spells, and the orbs are fused")
+	# Hold him still with his ordinary melee off: only the combos under test may hit.
+	lord.set_physics_process(false)
+	lord.get_node("MeleeAttack").set_physics_process(false)
+	lord.status_effects.clear_all_effects()
 	lord._set_element(Constants.DamageType.LIGHTNING)
 	_check(lord.can_use_ability(brain.find("fire_combo")) and not lord.can_use_ability(brain.find("cold_strike")), "the combo follows the cycle")
 	player.global_position = lord.global_position + Vector3(0, 0, 0) + (player.global_position - lord.global_position).normalized() * 3.0
 	player.global_position.y = lord.global_position.y + 0.1
+	player.global_position = lord.global_position + Vector3(0, 0.1, 0) + (lord.global_position - arena.to_global(PinnacleArena.BAY_SPAWN_LOCAL)).normalized() * 3.0
 	var cold := brain.find("cold_strike")
 	cold.telegraph = 0.2
 	player.health.current_health = player.health.max_health
