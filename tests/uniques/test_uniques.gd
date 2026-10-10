@@ -7,7 +7,7 @@ extends Node
 
 const HUB := "res://levels/hub/Hub.tscn"
 const ITEM_CARD := "res://ui/item_card/ItemCard.tscn"
-const TEST_COUNT := 8
+const TEST_COUNT := 9
 
 var _checks := 0
 var _failures := 0
@@ -58,6 +58,7 @@ func _run() -> void:
 	_test_corrupted_unique()
 	_test_band_of_wishes()
 	_test_card()
+	await _test_sands_of_time()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("unique tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -382,4 +383,26 @@ func _test_band_of_wishes() -> void:
 	for r in old_rings:
 		if r:
 			_equipment.equip(r, true)
+	_finished += 1
+
+## Sands of Time: an Ataras-only Mythic wand whose stance stops time.
+func _test_sands_of_time() -> void:
+	var def := UniqueCatalog.get_def("sands_of_time")
+	_check(def.get("boss") == "ataras" and is_equal_approx(UniqueOdds.per_pinnacle_reward(def, "ataras"), 0.02), "Sands of Time drops only from Ataras, 2% per kill")
+	var wand := _unique("sands_of_time") as Weapon
+	_check(wand != null and wand.rarity == Constants.ItemRarity.MYTHIC and wand.is_conduit and not wand.is_offhand, "it's a Mythic main-hand conduit")
+	var old := _wearing(wand)
+	_player.weapon_stance.set_stance_page(WeaponStance.StancePage.A)
+	await _frames(2)
+	_check(_player.caster_stance.get_kind() == "time_stop", "its stance is Time Stop")
+	_enemy.process_mode = Node.PROCESS_MODE_INHERIT
+	_check(_player.caster_stance.try_time_stop(), "Time Stop starts")
+	_check(_enemy.process_mode == Node.PROCESS_MODE_DISABLED, "enemies freeze")
+	_check(not _player.caster_stance.try_time_stop(), "then it's on cooldown")
+	var life := _enemy.health.current_health
+	_enemy.take_damage(10.0, Constants.DamageType.KINETIC)
+	_check(_enemy.health.current_health < life or _enemy._ward_current >= 0.0, "frozen enemies still take hits")
+	await get_tree().create_timer(TimeStop.DURATION + 0.3).timeout
+	_check(_enemy.process_mode != Node.PROCESS_MODE_DISABLED and not TimeStop.is_running(), "time runs again after 4 seconds")
+	_take_off(wand, old)
 	_finished += 1

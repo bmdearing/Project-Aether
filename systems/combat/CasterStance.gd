@@ -38,8 +38,13 @@ const PUNCH_MOTION_VALUE := 1.2
 const REACH_STRIKE_MOTION_VALUE := 1.3
 const REACH_STRIKE_SHAPE := {"reach": 4.2, "half_angle": 14.0, "splash": 0.6, "max_targets": 2}
 
+## Sands of Time (Mythic): its stance is Time Stop instead.
+const TIME_STOP_UNIQUE := "sands_of_time"
+
 var _player: Player
 var _bolt_cooldown: float = 0.0
+## Time msec when Time Stop is ready again.
+var _time_stop_ready_msec: int = 0
 
 func _ready() -> void:
 	_player = get_parent()
@@ -62,6 +67,8 @@ func is_active() -> bool:
 
 func get_kind() -> String:
 	var source := get_source()
+	if source and source.unique_id == TIME_STOP_UNIQUE:
+		return "time_stop"
 	return source.conduit_stance_type if source else ""
 
 ## The 1-4 keys cast the stance page.
@@ -153,9 +160,24 @@ func try_stance_attack() -> bool:
 				return true
 	return weapon != null and weapon.weapon_type == "Wand" and try_primary_attack()
 
+## Sands of Time: entering stance stops time, if it's off cooldown.
+func try_time_stop() -> bool:
+	var now := Time.get_ticks_msec()
+	if now < _time_stop_ready_msec:
+		EventBus.stance_on_cooldown.emit(_player, (_time_stop_ready_msec - now) / 1000.0)
+		return false
+	if TimeStop.is_running():
+		return false
+	_time_stop_ready_msec = now + int(TimeStop.COOLDOWN * 1000.0)
+	TimeStop.start(get_tree())
+	return true
+
 ## Battlemage Staff: entering stance (RMB) is a reach strike.
 func on_stance_entered() -> void:
 	var source := get_source()
+	if get_kind() == "time_stop":
+		try_time_stop()
+		return
 	if source and source.conduit_stance_type == "battlemage" and source.weapon_type == "Staff" and _player.melee_attack.is_idle():
 		_player.melee_attack.release_stance_attack({
 			"kind": PlayerArmRig.Attack.HEAVY,
