@@ -33,6 +33,7 @@ func play(radius: float, color: Color) -> void:
 func _on_impact(radius: float, color: Color) -> void:
 	ball.visible = false
 	impacted.emit()
+	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.explosion), global_position)
 	var shockwave: AbilityRangeEffect = SHOCKWAVE_SCENE.instantiate()
 	get_parent().add_child(shockwave)
 	shockwave.global_position = global_position

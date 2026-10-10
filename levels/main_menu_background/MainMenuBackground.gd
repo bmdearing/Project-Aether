@@ -3,8 +3,8 @@ class_name MainMenuBackground
 ## Title-screen storm: a moonlit night over a dark lake, layered mountains
 ## with mist, a Dalaran spire on a crag, two layers of rain, and lightning
 ## that forks down onto the far range and lights the clouds, the lake and
-## every ridge. Rain and thunder audio are synthesized (ProceduralRain/
-## ProceduralThunder). Built in code inside MainMenu.tscn's SubViewport.
+## every ridge. Rain is a recorded loop (AudioManager ambience) and thunder
+## a random recorded clap every THUNDER_INTERVAL seconds, each with a flash. Built in code inside MainMenu.tscn's SubViewport.
 ## The menu column sits on the left, so the moon, spire and strikes are
 ## kept right of centre.
 
@@ -305,13 +305,29 @@ func _set_bolt(level: float) -> void:
 
 ## ---- Audio & flashes ---------------------------------------------------------
 
+const THUNDER_INTERVAL := Vector2(9.0, 20.0)
+const THUNDER_DB := -6.0
+
+var _thunder: AudioStreamPlayer
+
 func _build_audio() -> void:
-	add_child(ProceduralRain.new())
-	var thunder := ProceduralThunder.new()
-	thunder.min_interval_sec = 6.0
-	thunder.max_interval_sec = 15.0
-	add_child(thunder)
-	thunder.thunder_started.connect(_on_thunder_started)
+	AudioManager.play_ambience("rain")
+	_thunder = AudioStreamPlayer.new()
+	_thunder.volume_db = THUNDER_DB
+	add_child(_thunder)
+	_queue_thunder(randf_range(3.0, 6.0))
+
+func _queue_thunder(delay: float) -> void:
+	get_tree().create_timer(delay).timeout.connect(func():
+		if not is_inside_tree():
+			return
+		_thunder.stream = Ambience.random_thunder()
+		_thunder.play()
+		_on_thunder_started()
+		_queue_thunder(randf_range(THUNDER_INTERVAL.x, THUNDER_INTERVAL.y)))
+
+func _exit_tree() -> void:
+	AudioManager.play_ambience("")
 
 func _on_thunder_started() -> void:
 	var dir := _strike()

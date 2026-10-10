@@ -14,6 +14,8 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 ## Map layout rules for this Figment type - see MapLayout ("rooms",
 ## "open_field", "canyon").
 @export var layout: String = "rooms"
+## Looping ambience played on this map (Ambience.LOOPS), "" for none.
+@export var ambience_id: String = ""
 
 ## Layout shape for this style, so styles sharing a layout kind still play
 ## differently. Zero (or -1 for chances) keeps the layout kind's default.

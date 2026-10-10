@@ -24,6 +24,7 @@
 [resource]
 script = ExtResource("1")
 id = "snow_frostwood"
+ambience_id = "wind_calm"
 display_name = "Frostwood"
 family = "snow"
 layout = "open_field"

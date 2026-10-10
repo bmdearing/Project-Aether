@@ -1,8 +1,8 @@
 extends Resource
 class_name SoundLibrary
 ## Every SFX slot the game plays, as arrays (random variation) or single
-## streams. All start empty - the game runs silently until audio assets are
-## dropped into data/sound/sound_library.tres. Played through the
+## streams. Empty slots stay silent. Filled in data/sound/sound_library.tres
+## from assets/sfx/ (cut by tools/sfx_pipeline/process_sfx.js). Played through the
 ## AudioManager autoload via the SoundLib wrapper.
 
 # Ranged - per ammo type
@@ -42,6 +42,12 @@ class_name SoundLibrary
 @export var hit_armor: Array[AudioStream] = []
 @export var parry: Array[AudioStream] = []
 @export var riposte: AudioStream = null
+@export var shield_block: Array[AudioStream] = []
+## Layered over a melee hit that crits.
+@export var hit_critical: Array[AudioStream] = []
+
+# Spells
+@export var explosion: Array[AudioStream] = []
 
 # Player
 @export var player_footstep_stone: Array[AudioStream] = []
@@ -61,6 +67,9 @@ class_name SoundLibrary
 @export var item_equip: AudioStream = null
 @export var brand_use: AudioStream = null
 @export var level_up: AudioStream = null
+@export var item_drop: Array[AudioStream] = []
+@export var craft_apply: AudioStream = null
+@export var ui_click: AudioStream = null
 
 func pick_random(arr: Array[AudioStream]) -> AudioStream:
 	if arr.is_empty():

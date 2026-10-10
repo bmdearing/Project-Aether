@@ -54,6 +54,7 @@ func _ready() -> void:
 	_boss = get_parent() as Enemy
 	_boss.boss_brain = self
 	_gap = opening_gap
+	ground_struck.connect(_play_strike_sound)
 
 func _physics_process(delta: float) -> void:
 	if _boss == null or not _boss.health.is_alive():
@@ -298,6 +299,11 @@ func _pull(a: BossAbility) -> void:
 	if _alive():
 		_hit_circle(center, a.radius, a)
 		ground_struck.emit(a, center, a.radius)
+
+## Ground abilities land with a low boom; hazard pools just appear.
+func _play_strike_sound(a: BossAbility, center: Vector3, _radius: float) -> void:
+	if a.kind != BossAbility.Kind.HAZARD:
+		AudioManager.play_at(SoundLib.pick_random(SoundLib.library.explosion), center, -6.0, 0.75)
 
 ## ---- Damage --------------------------------------------------------------
 

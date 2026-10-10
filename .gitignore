@@ -13,3 +13,7 @@ builds/
 # regenerable via `npm install`, .glb outputs are build artifacts.
 tools/mdx_pipeline/node_modules/
 tools/mdx_pipeline/*.glb
+
+# Raw sound library (1 GB+, licensed source files). tools/sfx_pipeline/
+# cuts it into assets/sfx/; assets/sound/.gdignore keeps Godot out of it.
+assets/sound/

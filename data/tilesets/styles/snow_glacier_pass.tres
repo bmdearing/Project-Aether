@@ -24,6 +24,7 @@
 [resource]
 script = ExtResource("1")
 id = "snow_glacier_pass"
+ambience_id = "wind_gusts"
 display_name = "Glacier Pass"
 family = "snow"
 layout = "canyon"

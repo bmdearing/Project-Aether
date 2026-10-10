@@ -224,6 +224,7 @@ func _explode(at: Vector3) -> void:
 	var damage_type := _enemy.get_ability_damage_type() if is_instance_valid(_enemy) else Constants.DamageType.EXPLOSIVE
 	BossTelegraph.circle(map, at, VOLATILE_RADIUS, VOLATILE_DELAY, Color(1.0, 0.45, 0.1))
 	await get_tree().create_timer(VOLATILE_DELAY).timeout
+	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.explosion), at, -4.0)
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player and player.global_position.distance_to(at) <= VOLATILE_RADIUS:
 		player.take_damage(damage, damage_type, null, Player.HitKind.SPELL)

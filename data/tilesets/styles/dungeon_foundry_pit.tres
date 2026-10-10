@@ -24,6 +24,7 @@
 [resource]
 script = ExtResource("1")
 id = "dungeon_foundry_pit"
+ambience_id = "factory_hall"
 display_name = "Foundry Pit"
 family = "dungeon"
 floor_albedo = ExtResource("2")

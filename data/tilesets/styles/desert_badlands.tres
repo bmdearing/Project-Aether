@@ -25,6 +25,7 @@
 [resource]
 script = ExtResource("1")
 id = "desert_badlands"
+ambience_id = "wind_gusts"
 display_name = "Badlands"
 family = "desert"
 layout = "canyon"

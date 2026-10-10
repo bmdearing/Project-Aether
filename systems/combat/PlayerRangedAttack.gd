@@ -432,6 +432,7 @@ func _on_rain_hit(enemy: Enemy, weapon: Weapon, motion_value: float, damage_type
 func _direct_hit(enemy: Enemy, amount: float, damage_type: Constants.DamageType, is_critical: bool) -> void:
 	if not enemy.take_damage(amount, damage_type, false, true):
 		return
+	AudioManager.play_at(SoundLib.get_impact_sound("flesh"), enemy.global_position, -3.0)
 	if enemy.stance:
 		enemy.stance.apply_attack_stance_damage(amount, damage_type)
 	enemy.flash_hit()

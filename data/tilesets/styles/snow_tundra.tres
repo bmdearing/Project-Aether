@@ -28,6 +28,7 @@
 [resource]
 script = ExtResource("1")
 id = "snow_tundra"
+ambience_id = "wind_gusts"
 display_name = "Tundra"
 family = "snow"
 layout = "open_field"

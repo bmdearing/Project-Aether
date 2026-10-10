@@ -29,6 +29,7 @@
 [resource]
 script = ExtResource("1")
 id = "snow_frozen_crypt"
+ambience_id = "eerie_tunnel"
 display_name = "Frozen Crypt"
 family = "snow"
 layout = "rooms"

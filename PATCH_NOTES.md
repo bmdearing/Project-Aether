@@ -7,6 +7,18 @@ there. Most recent first.
 
 ---
 
+## 2026-10-09 — v4.64: First sound pass (user-supplied recordings)
+
+- **Sound pipeline** (`tools/sfx_pipeline/`): `process_sfx.js` cuts the raw recordings in `assets/sound/` (1.1 GB of 96 kHz/24-bit WAVs, git-ignored, hidden from Godot by `.gdignore`) into 123 game-ready Ogg files in `assets/sfx/` (12 MB). One-shots are split on silence (or at listed times for the AK take, whose plate rings confused the detector), lead-in under -30 dB trimmed so they play on time, faded, mono for 3D, peak normalised. Ambience beds are 60-90 s windows, matched to -24 LUFS (quiet recordings capped at +12 dB to keep hiss down) with the end crossfaded into the start so they loop seamlessly. `build_library.js` writes `sound_library.tres` from the output.
+- **What plays:** pistol/revolver/rifle/automatic/shotgun fire (pistol and shotgun are the revolver and rifle re-pitched), reloads (magazine inserts), dry-fire click, bullet impacts (flesh, ricochet, wood), melee flesh hits plus a bone crunch on crits, shield blocks, enemy deaths (body falls), loot hitting the ground and pickup, crafting, every button click, Comet Impact, Volatile blasts and boss/Ascendant ground strikes (a low boom).
+- **Ambience per map style** (`MapTileset.ambience_id`, `Ambience`): wind gusts on desert, tundra and glacier maps, calm wind in Frostwood, an eerie tunnel drone in the Cellblock, Undercroft and Frozen Crypt, boiler room in the Mine, steam machinery in the Foundry Pit. `AudioManager.play_ambience()` crossfades and stops when the map unloads.
+- **Main menu:** recorded rain replaces the synthesized rain, and recorded thunder claps (cut from a storm recording) replace the synthesized rumble, each still with its lightning flash. `ProceduralRain`/`ProceduralThunder` removed.
+- **AudioManager:** pool of 16, the same sound won't restart within 40 ms (a spell hitting a pack plays once, not stacked), buttons click automatically. The hit sound moved out of `Enemy.take_damage()`, where it played on every damage over time tick and doubled up with bullet impacts, into the melee and hitscan hit paths.
+- Not used yet: forest and river ambiences (no map fits them), steam bursts, blade scrapes beyond the equip slot, gear-turning loops. Still silent: melee swings, bows, crossbows, footsteps, player hurt and death, enemy voices, spell casts.
+- Tests: `tests/audio/test_audio.gd` (slots filled, every stream loads, loops loop, style ambience ids exist, ambience starts and fades, repeat guard).
+
+---
+
 ## 2026-10-09 — v4.63: Ascendant spells (user request)
 
 - **Ascendants cast their own suite of spells** between their ordinary attacks, telegraphed on the ground like boss abilities:

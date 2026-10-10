@@ -538,6 +538,9 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 
 	if not target.take_damage(final_damage, damage_type, false, true, false, _stance_release.get("ignore_armor", false)):
 		return  # dodged - no stance damage, riders, or hit feedback
+	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), target.global_position, -2.0)
+	if is_critical:
+		AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_critical), target.global_position, -4.0)
 	if target.stance:
 		target.stance.apply_attack_stance_damage(final_damage, damage_type)
 	EventBus.damage_dealt.emit(_player, target, final_damage, damage_type, false, is_critical)

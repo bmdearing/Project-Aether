@@ -366,10 +366,14 @@ static func _vec_to_array(v: Vector3) -> Array:
 static func _array_to_vec(a: Array) -> Vector3:
 	return Vector3(float(a[0]), float(a[1]), float(a[2])) if a.size() == 3 else Vector3.ZERO
 
+func _exit_tree() -> void:
+	AudioManager.play_ambience("")
+
 func _apply_tileset(style: MapTileset) -> void:
 	tileset = style
 	if style == null:
 		return
+	AudioManager.play_ambience(style.ambience_id)
 	_floor_mat = style.make_floor_material()
 	_wall_mat = style.make_wall_material()
 	$WorldEnvironment.environment = style.make_environment()

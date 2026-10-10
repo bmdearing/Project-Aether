@@ -25,6 +25,7 @@
 [resource]
 script = ExtResource("1")
 id = "dungeon_cellblock"
+ambience_id = "eerie_tunnel"
 display_name = "Cellblock"
 family = "dungeon"
 floor_albedo = ExtResource("2")

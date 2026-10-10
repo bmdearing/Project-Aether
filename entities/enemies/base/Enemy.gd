@@ -889,12 +889,10 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		if show_number:
 			_spawn_damage_number(absorbed, damage_type, DamageNumber.WARD_ALPHA, WARD_NUMBER_EXTRA_HEIGHT, is_dot)
 		if mitigated <= 0.0:
-			AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), global_position, -4.0)
 			return true
 	health.apply_damage(mitigated)
 	if show_number:
 		_spawn_damage_number(mitigated, damage_type, 1.0, 0.0, is_dot)
-	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), global_position, -2.0)
 	if _anim_controller and health.is_alive() and Time.get_ticks_msec() - _last_hit_react_msec >= HIT_REACT_MIN_INTERVAL_MSEC:
 		_last_hit_react_msec = Time.get_ticks_msec()
 		_anim_controller.play_hit_react()
