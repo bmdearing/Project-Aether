@@ -545,6 +545,14 @@ func _test_tempering() -> void:
 	ring.tolerance = 100
 	_check(_resolver.apply(ring, &"tempering").error == E.INVALID_TARGET, "tempering rejects a ring")
 	_check(_resolver.apply(_slate(), &"tempering").error == E.INVALID_TARGET, "tempering rejects slates")
+	# Quality multiplies the weapon's damage.
+	var sword := Weapon.new()
+	sword.base_damage_min = 100.0
+	sword.base_damage_max = 100.0
+	var sheet := StatSheet.new()
+	var plain := sword.predict_damage(1.0, sheet)
+	sword.quality = 20
+	_check(is_equal_approx(sword.predict_damage(1.0, sheet), plain * 1.2), "20 quality is 20%% more weapon damage (%.1f vs %.1f)" % [sword.predict_damage(1.0, sheet), plain])
 	_finished += 1
 
 func _test_corrupted() -> void:

@@ -38,6 +38,10 @@ const HITSCAN_TYPES: Array[String] = ["Revolver", "Bolt Action Rifle"]
 func is_hitscan() -> bool:
 	return is_ranged and HITSCAN_TYPES.has(weapon_type)
 
+## Quality (Orb of Tempering) multiplies the weapon's damage: +1% per point.
+func get_quality_multiplier() -> float:
+	return 1.0 + quality / 100.0
+
 func damage_scale() -> float:
 	return RANGED_DAMAGE_SCALE.get(weapon_type, 1.0) if is_ranged else 1.0
 
@@ -251,7 +255,7 @@ func get_local_crit_chance() -> float:
 ## damage type. v4.10: x this weapon's local increased Weapon Damage too.
 func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 	var damage_type := get_damage_type()
-	var boosted_base := base * (1.0 + stat_sheet.get_strength_weapon_multiplier()) * get_local_multiplier("local_increased_weapon_damage")
+	var boosted_base := base * (1.0 + stat_sheet.get_strength_weapon_multiplier()) * get_local_multiplier("local_increased_weapon_damage") * get_quality_multiplier()
 	# Section 10's Chain Bonus System, stored as a raw fraction on StatSheet,
 	# converted to the percent-units DamageCalculator.calculate() expects
 	# (each entry "e.g. 8.0 for 8%").

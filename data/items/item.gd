@@ -26,8 +26,8 @@ class_name Item
 ## Jewels set into this item, at most `sockets` of them. Their modifiers
 ## count as the item's own (get_effective_affixes()).
 @export var socketed: Array[Item] = []
-## 0 to Constants.QUALITY_CAP, raised by the Orb of Tempering. Not yet
-## applied to modifier values.
+## 0 to Constants.QUALITY_CAP, raised by the Orb of Tempering. On a weapon
+## each point is 1% more weapon damage (Weapon.get_quality_multiplier()).
 @export var quality: int = 0
 ## Orb crafting state (see CraftingResolver). sockets_rolled marks the one
 ## Orb of Opening use; tolerance is the lifetime crafting budget, rolled on drop.

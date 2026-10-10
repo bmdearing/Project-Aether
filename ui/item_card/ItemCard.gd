@@ -172,6 +172,8 @@ func _render_item(item: Item) -> void:
 	_add_subtitle(_item_type_line(item))
 	_add_separator()
 	if item is Weapon:
+		if item.quality > 0:
+			_add_value_line("Quality", STAT_COLOR, "+%d%%" % item.quality, "+%d%%" % item.quality)
 		for line in _build_attack_power_lines(item as Weapon):
 			_add_attack_power_line(line)
 		_add_weapon_value_lines(item as Weapon)
@@ -698,7 +700,7 @@ func _stat_sheet_for_card() -> StatSheet:
 ## produces one yet).
 func _build_attack_power_lines(weapon: Weapon) -> Array:
 	var lines := []
-	var local_mult := weapon.get_local_multiplier("local_increased_weapon_damage")
+	var local_mult := weapon.get_local_multiplier("local_increased_weapon_damage") * weapon.get_quality_multiplier()
 	var range := weapon.get_base_range()
 	var added := weapon.get_flat_added_damage()
 	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.get_damage_type(), Color.WHITE)
