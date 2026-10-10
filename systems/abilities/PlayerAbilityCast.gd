@@ -422,7 +422,7 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 			get_tree().create_timer(delay, false).timeout.connect(func():
 				if is_instance_valid(_player):
 					_damage_area(ability, spot, r * 0.5, damage_multiplier * 0.5, apply_composure, 0.0, Callable())
-					var fx: Node3D = SPECIAL_EFFECT_SCENES["inferno"].instantiate()
+					var fx: Node3D = RANGE_EFFECT_SCENE.instantiate()
 					_player.get_tree().current_scene.add_child(fx)
 					fx.global_position = spot
 					fx.call("play", r * 0.5, Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)))

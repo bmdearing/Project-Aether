@@ -43,7 +43,7 @@ Warcraft III custom models from [Hive Workshop](https://www.hiveworkshop.com), c
 | Trees (Looping animation) | Shadow44 | [hiveworkshop.com/threads/352772](https://www.hiveworkshop.com/threads/trees-looping-animation.352772/) |
 | Bushes Part 2 | Shadow44 | [hiveworkshop.com/threads/358136](https://www.hiveworkshop.com/threads/bushes-part-2.358136/) |
 
-Doodads in `assets/models/doodads/` (desert, dungeon and nexus props), the spell effects in `assets/models/spells/` and the shared textures some of the models above rely on are **Warcraft III: Reforged** game assets. Warcraft and Warcraft III are trademarks of Blizzard Entertainment, Inc. They are used here only as placeholders and will be replaced.
+Doodads in `assets/models/doodads/` (desert, dungeon and nexus props) and the shared textures some of the models above rely on are **Warcraft III: Reforged** game assets. Warcraft and Warcraft III are trademarks of Blizzard Entertainment, Inc. They are used here only as placeholders and will be replaced.
 
 ## Animation
 
