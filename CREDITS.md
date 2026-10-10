@@ -66,6 +66,22 @@ All three are under the SIL Open Font License 1.1; the licence texts are in `ass
 - `assets/music/lament.mp3` (main menu)
 - `assets/music/hub/hub.mp3` (Hub)
 
+## Sound effects
+
+From the Sonniss #GameAudioGDC Bundle 2024, royalty-free (no attribution
+required; credited anyway). The files in `assets/sfx/` are trimmed, re-levelled
+and in places re-pitched cuts of the original recordings by:
+
+- **BluezoneCorp**: Tiny Gears - Small Mechanism (UI ticks)
+- **Bolt**: Backyard Rain & Thunder (menu rain, thunder)
+- **CB Sounddesign**: Activation 2 (UI click)
+- **David Dumais**: Explosion SFX Pack (explosions)
+- **Dramatic Cat**: SVD Dragunov (rifle, shotgun, reloads)
+- **InMotionAudio**: Sinister Textures 1, The Forest, Wood (dungeon ambience, forest, wood impacts)
+- **Justsoundeffects**: Gore Mini Pack, Melee Weapons, Steampunk Gadgets (hits, blocks, deaths, loot drops, steam)
+- **Pole Position Production**: Dan Wesson .445 SuperMag, The Warfare 2 Library, Wind In Trees (revolver, pistol, automatic fire, wind)
+- **Stefano Cremona**: Rivers, Streams, Creeks (river)
+
 ## Tools
 
 - [war3-model](https://github.com/4eb0da/war3-model) by 4eb0da, used by the MDX-to-glTF converter in `tools/mdx_pipeline/`

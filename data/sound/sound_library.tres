@@ -1,6 +1,123 @@
-[gd_resource type="Resource" script_class="SoundLibrary" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="SoundLibrary" load_steps=91 format=3]
 
 [ext_resource type="Script" path="res://data/sound/SoundLibrary.gd" id="1"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/pistol_shot_01.ogg" id="2"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/pistol_shot_02.ogg" id="3"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/pistol_shot_03.ogg" id="4"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/pistol_shot_04.ogg" id="5"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/pistol_shot_05.ogg" id="6"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/pistol_shot_06.ogg" id="7"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/revolver_shot_01.ogg" id="8"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/revolver_shot_02.ogg" id="9"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/revolver_shot_03.ogg" id="10"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/revolver_shot_04.ogg" id="11"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/revolver_shot_05.ogg" id="12"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/revolver_shot_06.ogg" id="13"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/shotgun_shot_01.ogg" id="14"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/shotgun_shot_02.ogg" id="15"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/shotgun_shot_03.ogg" id="16"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/shotgun_shot_04.ogg" id="17"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/shotgun_shot_05.ogg" id="18"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/rifle_shot_01.ogg" id="19"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/rifle_shot_02.ogg" id="20"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/rifle_shot_03.ogg" id="21"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/rifle_shot_04.ogg" id="22"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/rifle_shot_05.ogg" id="23"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/rifle_shot_06.ogg" id="24"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/rifle_shot_07.ogg" id="25"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/rifle_shot_heavy.ogg" id="26"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/auto_shot_01.ogg" id="27"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/auto_shot_02.ogg" id="28"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/auto_shot_03.ogg" id="29"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/auto_shot_04.ogg" id="30"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/auto_shot_05.ogg" id="31"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/auto_shot_06.ogg" id="32"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/auto_shot_07.ogg" id="33"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/auto_shot_08.ogg" id="34"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/gore_splat_01.ogg" id="35"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/gore_splat_02.ogg" id="36"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/gore_splat_03.ogg" id="37"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/gore_splat_04.ogg" id="38"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/gore_splat_05.ogg" id="39"]
+[ext_resource type="AudioStream" path="res://assets/sfx/impact/ricochet_01.ogg" id="40"]
+[ext_resource type="AudioStream" path="res://assets/sfx/impact/ricochet_02.ogg" id="41"]
+[ext_resource type="AudioStream" path="res://assets/sfx/impact/ricochet_03.ogg" id="42"]
+[ext_resource type="AudioStream" path="res://assets/sfx/impact/ricochet_04.ogg" id="43"]
+[ext_resource type="AudioStream" path="res://assets/sfx/impact/wood_01.ogg" id="44"]
+[ext_resource type="AudioStream" path="res://assets/sfx/impact/wood_02.ogg" id="45"]
+[ext_resource type="AudioStream" path="res://assets/sfx/impact/wood_03.ogg" id="46"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/melee_flesh_hit_01.ogg" id="47"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/melee_flesh_hit_02.ogg" id="48"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/melee_flesh_hit_03.ogg" id="49"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/melee_flesh_hit_04.ogg" id="50"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/melee_flesh_hit_05.ogg" id="51"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/shield_block_01.ogg" id="52"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/shield_block_02.ogg" id="53"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/shield_block_03.ogg" id="54"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/shield_block_04.ogg" id="55"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/shield_block_05.ogg" id="56"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/bone_break_01.ogg" id="57"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/bone_break_02.ogg" id="58"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/bone_break_03.ogg" id="59"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/bone_break_04.ogg" id="60"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/bone_break_05.ogg" id="61"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/bone_break_06.ogg" id="62"]
+[ext_resource type="AudioStream" path="res://assets/sfx/spells/explosion.ogg" id="63"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/body_fall_01.ogg" id="64"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/body_fall_02.ogg" id="65"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/body_fall_03.ogg" id="66"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/body_fall_04.ogg" id="67"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/body_fall_05.ogg" id="68"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/body_fall_06.ogg" id="69"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/body_fall_07.ogg" id="70"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/body_fall_08.ogg" id="71"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/body_fall_09.ogg" id="72"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_01.ogg" id="73"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_02.ogg" id="74"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_03.ogg" id="75"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_04.ogg" id="76"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_05.ogg" id="77"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_06.ogg" id="78"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_07.ogg" id="79"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_08.ogg" id="80"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_09.ogg" id="81"]
+[ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_10.ogg" id="82"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/tick.ogg" id="83"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/mag_insert_01.ogg" id="84"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/mag_insert_05.ogg" id="85"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/mag_insert_03.ogg" id="86"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/mechanism.ogg" id="87"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/blade_scrape_03.ogg" id="88"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/mechanism_long.ogg" id="89"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/click.ogg" id="90"]
 
 [resource]
 script = ExtResource("1")
+pistol_fire = Array[AudioStream]([ExtResource("2"), ExtResource("3"), ExtResource("4"), ExtResource("5"), ExtResource("6"), ExtResource("7")])
+revolver_fire = Array[AudioStream]([ExtResource("8"), ExtResource("9"), ExtResource("10"), ExtResource("11"), ExtResource("12"), ExtResource("13")])
+shotgun_fire = Array[AudioStream]([ExtResource("14"), ExtResource("15"), ExtResource("16"), ExtResource("17"), ExtResource("18")])
+rifle_fire = Array[AudioStream]([ExtResource("19"), ExtResource("20"), ExtResource("21"), ExtResource("22"), ExtResource("23"), ExtResource("24"), ExtResource("25"), ExtResource("26")])
+automatic_fire = Array[AudioStream]([ExtResource("27"), ExtResource("28"), ExtResource("29"), ExtResource("30"), ExtResource("31"), ExtResource("32"), ExtResource("33"), ExtResource("34")])
+impact_flesh = Array[AudioStream]([ExtResource("35"), ExtResource("36"), ExtResource("37"), ExtResource("38"), ExtResource("39")])
+impact_metal = Array[AudioStream]([ExtResource("40"), ExtResource("41"), ExtResource("42"), ExtResource("43")])
+impact_stone = Array[AudioStream]([ExtResource("40"), ExtResource("41"), ExtResource("42"), ExtResource("43")])
+impact_wood = Array[AudioStream]([ExtResource("44"), ExtResource("45"), ExtResource("46")])
+hit_flesh = Array[AudioStream]([ExtResource("47"), ExtResource("48"), ExtResource("49"), ExtResource("50"), ExtResource("51")])
+hit_armor = Array[AudioStream]([ExtResource("52"), ExtResource("53"), ExtResource("54"), ExtResource("55"), ExtResource("56")])
+parry = Array[AudioStream]([ExtResource("52"), ExtResource("53"), ExtResource("54"), ExtResource("55"), ExtResource("56")])
+shield_block = Array[AudioStream]([ExtResource("52"), ExtResource("53"), ExtResource("54"), ExtResource("55"), ExtResource("56")])
+hit_critical = Array[AudioStream]([ExtResource("57"), ExtResource("58"), ExtResource("59"), ExtResource("60"), ExtResource("61"), ExtResource("62")])
+explosion = Array[AudioStream]([ExtResource("63")])
+enemy_death = Array[AudioStream]([ExtResource("64"), ExtResource("65"), ExtResource("66"), ExtResource("67"), ExtResource("68"), ExtResource("69"), ExtResource("70"), ExtResource("71"), ExtResource("72")])
+item_drop = Array[AudioStream]([ExtResource("73"), ExtResource("74"), ExtResource("75"), ExtResource("76"), ExtResource("77"), ExtResource("78"), ExtResource("79"), ExtResource("80"), ExtResource("81"), ExtResource("82")])
+dry_click = ExtResource("83")
+pistol_reload = ExtResource("84")
+revolver_reload = ExtResource("85")
+rifle_reload = ExtResource("86")
+bolt_cycle = ExtResource("87")
+lever_cycle = ExtResource("87")
+item_pickup = ExtResource("87")
+item_equip = ExtResource("88")
+brand_use = ExtResource("89")
+craft_apply = ExtResource("87")
+ui_click = ExtResource("90")
