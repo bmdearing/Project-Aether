@@ -7,6 +7,23 @@ there. Most recent first.
 
 ---
 
+## 2026-10-10 — v4.71: Tempering, skill web layout, Spells screen, first-cast hitch (user requests)
+
+- **Sands of Time:** Time Stop is now the wand's own stance (UniqueCatalog `conduit_stance_type`, read through `Weapon.get_conduit_stance_type()`), so the card shows *Stance: Time Stop* instead of Spell Library. The text-only mod line is gone, and saved copies drop it on load.
+- **Orb of Tempering:** quality did nothing. On a weapon it now multiplies weapon damage, +1% per point (up to +20%), and the card shows a Quality line. Armour quality still does nothing.
+- **Skill webs:**
+  - The first-ring blocks go evenly round the whole circle, with Potency on top. Each twist sits in a gap between two blocks and either of them opens it, so the twists are spread round the web and sit on different branches.
+  - Outer nodes sit next to what opens them, and each ring is spaced out.
+  - A twist that builds on another twist hangs off twists only. If its parents are on opposite sides, it hangs off the first. Links no longer cross the web.
+  - New element twists: Frost Javelin (Cold, Chill), Storm Lance (Lightning, Shock), Hellfire Call (Fire, Ignite), Pale Decay (Pale, Pallid), Withering Scythe (Entropic, Unraveling).
+- **Spells screen:**
+  - Drag a spell from the grid onto a Spell Page or Stance Page slot, or drag one slot onto another to swap them.
+  - A spell's web page shows its icon, which can be dragged too. Clicking a slot there puts that spell in it, and clicking it again takes it out.
+- **Tabs:** the Inventory tab now opens from the Character tab, and the reverse. The two are halves of one screen, so the Inventory tab used to think it was already open.
+- **First-cast hitch:** once per session, `SpellWarmup` plays every spell's effect far below the level in front of a temporary camera while the loading screen is up. The worst first cast went from 291 ms (Inferno) to 18 ms (`tests/warmup/probe_first_cast`, windowed).
+
+---
+
 ## 2026-10-10 — v4.70: Boss mechanics pass, hitscan guns, Shatter, Sands of Time (user requests)
 
 - **Lord of the Elements** (the fight asks: can you read the elemental cycle and break it?):
