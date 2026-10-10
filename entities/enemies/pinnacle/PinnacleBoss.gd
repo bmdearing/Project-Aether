@@ -1,13 +1,12 @@
 extends Enemy
 class_name PinnacleBoss
 ## Base for the Pinnacle bosses (PinnacleArena): three phases at 66% and 33%
-## health run by a BossBrain built from abilities(), extra health, and a
-## guaranteed Unique on death on top of the usual Boss loot rolls.
+## health run by a BossBrain built from abilities(), extra health, the usual
+## Boss loot rolls, and a chance at each of its own exclusive uniques
+## (UniqueCatalog "boss" + "boss_chance").
 
 const HEALTH_MULTIPLIER := 3.0
 const PHASE_THRESHOLDS: Array[float] = [0.66, 0.33]
-## Chance the guaranteed drop is a Mythic instead of a Unique.
-const MYTHIC_CHANCE := 0.1
 ## Pinnacle.BOSSES id, set by PinnacleArena; its own uniques join the reward pool.
 var pinnacle_id: String = ""
 
@@ -38,8 +37,9 @@ func phase_openers() -> Dictionary:
 func _on_died() -> void:
 	if pinnacle_id != "":
 		GameState.pinnacle_clears[pinnacle_id] = int(GameState.pinnacle_clears.get(pinnacle_id, 0)) + 1
-	var rarity := Constants.ItemRarity.MYTHIC if randf() < MYTHIC_CHANCE else Constants.ItemRarity.UNIQUE
-	var reward := UniqueRoller.roll(rarity, _compute_item_level(), pinnacle_id)
-	if reward:
-		_spawn_pickup(reward)
+	for def in UniqueCatalog.DEFS:
+		if pinnacle_id != "" and def.get("boss", "") == pinnacle_id and randf() < float(def.get("boss_chance", 0.0)):
+			var reward := UniqueRoller.build(def, _compute_item_level())
+			if reward:
+				_spawn_pickup(reward)
 	super._on_died()

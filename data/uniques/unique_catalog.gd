@@ -17,9 +17,9 @@ class_name UniqueCatalog
 ##
 ## corrupted_only entries never drop; the Shard of Tharsis' Transcendent
 ## outcome turns an item into one (UniquePool). "any" fits every gear slot.
-## "boss": a Pinnacle.BOSSES id; the unique only drops from that boss's
-## guaranteed reward, never as a world drop. Without it, a unique is a world
-## drop (and can also be a Pinnacle reward).
+## "boss": a Pinnacle.BOSSES id; the unique only drops from that boss, at
+## "boss_chance" per kill, never as a world drop. Without it, a unique is a
+## world drop.
 
 const DEFS := [
 	{

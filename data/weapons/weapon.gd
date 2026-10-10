@@ -19,16 +19,24 @@ class_name Weapon
 ## Per-type damage scale for ranged weapons, so sustained single-target DPS
 ## lands near melee's instead of 2-8x above it (full-auto guns fired 10-15
 ## base-damage shots a second). Tuned with tests/balance/probe_dps.tscn:
-## unaimed guns and bows sit around 95-115 DPS, the best one-handed melee
-## around 150 and two-handers around 165 with their cleave on top; aiming
-## still adds AIMED_DAMAGE_MULTIPLIER. Applies to the shown range too.
+## unaimed bows sit around 110-115 DPS and guns (which spend ammo) around
+## 130-145, the best one-handed melee around 150 and two-handers around 165
+## with their cleave on top. Hitscan guns (HITSCAN_TYPES) hit hardest, about
+## 175-185, since every shot must be aimed and nothing adds projectiles to them.
+## Aiming still adds AIMED_DAMAGE_MULTIPLIER. Applies to the shown range too.
 const RANGED_DAMAGE_SCALE := {
-	"Machine Gun": 0.13, "Machine Pistol": 0.18, "Submachine Gun": 0.185,
-	"Battle Rifle": 0.38, "Service Pistol": 0.43, "Revolver": 0.52,
-	"Loaded Shotgun": 0.65, "Lever Action Rifle": 0.57, "Bolt Action Rifle": 0.64,
-	"Pump Action Shotgun": 0.88, "Longbow": 0.78, "Shortbow": 0.8, "Bow": 0.8,
+	"Machine Gun": 0.178, "Machine Pistol": 0.252, "Submachine Gun": 0.258,
+	"Battle Rifle": 0.487, "Service Pistol": 0.585, "Revolver": 0.915,
+	"Loaded Shotgun": 0.759, "Lever Action Rifle": 0.766, "Bolt Action Rifle": 1.134,
+	"Pump Action Shotgun": 1.037, "Longbow": 0.78, "Shortbow": 0.8, "Bow": 0.8,
 	"Crossbow": 1.63,
 }
+
+## Guns whose shots land instantly along the aim line instead of flying.
+const HITSCAN_TYPES: Array[String] = ["Revolver", "Bolt Action Rifle"]
+
+func is_hitscan() -> bool:
+	return is_ranged and HITSCAN_TYPES.has(weapon_type)
 
 func damage_scale() -> float:
 	return RANGED_DAMAGE_SCALE.get(weapon_type, 1.0) if is_ranged else 1.0

@@ -45,6 +45,7 @@ func _run() -> void:
 	await _test_dig_in()
 	await _test_tracer_round()
 	await _test_extra_arrows()
+	await _test_hitscan()
 	print("ranged stance tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -348,3 +349,25 @@ func _test_extra_arrows() -> void:
 	var faster := get_tree().current_scene.get_children().filter(func(n): return n is Projectile and not n.is_queued_for_deletion()).map(func(p): return p.speed)
 	_check(not speeds.is_empty() and not faster.is_empty() and is_equal_approx(faster[0], speeds[0] * 1.5), "Projectile Speed speeds up arrows")
 	_player.stat_sheet.misc_bonus.erase("projectile_speed")
+
+## Revolver and Bolt Action Rifle land on the same frame they fire, far away;
+## a Service Pistol shot still flies.
+func _test_hitscan() -> void:
+	for t in ["Revolver", "Bolt Action Rifle"]:
+		var w := await _reset(t)
+		_check(w.is_hitscan(), "%s is hitscan" % t)
+		var far := _dummy(START + _forward() * 60.0)
+		await _frames(3)
+		Input.action_press("attack")
+		await _frames(4)
+		Input.action_release("attack")
+		var lost := 1.0e6 - far.health.current_health
+		_check(lost > 0.0, "%s hits a target 60 m away within four frames (%.1f)" % [t, lost])
+	var pistol := await _reset("Service Pistol")
+	_check(not pistol.is_hitscan(), "Service Pistol is not hitscan")
+	var target := _dummy(START + _forward() * 60.0)
+	await _frames(3)
+	Input.action_press("attack")
+	await _frames(4)
+	Input.action_release("attack")
+	_check(target.health.current_health == 1.0e6, "a pistol bullet is still in flight after four frames")

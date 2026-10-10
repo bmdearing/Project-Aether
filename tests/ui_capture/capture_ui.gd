@@ -26,16 +26,21 @@ func _run() -> void:
 		"abilities":
 			_screen("abilities_screen").open()
 		"fateboard":
-			for slate_id in ["ember_lattice", "frostfire_nexus"]:
+			for slate_id in ["ember_lattice", "frostfire_nexus", "glacial_bastion", "stormtouched_array", "hollow_whisper", "piercing_vein"]:
 				GameState.add_to_inventory(load("res://data/slates/instances/%s.tres" % slate_id).duplicate(true))
 			if OS.get_cmdline_user_args().has("outlines"):
 				FateBoardGrid.show_outlines = true
 				var board: FateBoard = GameState.fate_board
 				board.aether_capacity = 99
 				for slate in GameState.get_inventory_items().filter(func(c): return c is Slate):
-					for dx in range(-6, 7):
-						if board.place_slate(slate, FateBoard.ANCHOR_CELL + Vector2i(dx, 1), 0, false, "", true) != "":
-							GameState.remove_from_inventory(slate)
+					var placed := false
+					for dy in [1, -3, 4, -6]:
+						for dx in range(-12, 13):
+							if board.place_slate(slate, FateBoard.ANCHOR_CELL + Vector2i(dx, dy), 0, false, "", true) != "":
+								GameState.remove_from_inventory(slate)
+								placed = true
+								break
+						if placed:
 							break
 			_screen("fate_board_editor").open()
 		"map":

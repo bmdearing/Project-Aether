@@ -54,16 +54,15 @@ func _test_odds() -> void:
 	_check(UniqueOdds.per_gear_drop(mantle, 3.0) > UniqueOdds.per_gear_drop(mantle, 1.0), "Item Rarity raises a unique's odds")
 	_check(UniqueOdds.per_kill(mantle, Constants.EnemyRank.NORMAL, 2.0, 1.0) > UniqueOdds.per_kill(mantle, Constants.EnemyRank.NORMAL, 1.0, 1.0), "Item Quantity raises the per-kill odds")
 	_check(UniqueOdds.per_kill(mantle, Constants.EnemyRank.BOSS, 1.0, 1.0) > UniqueOdds.per_kill(mantle, Constants.EnemyRank.NORMAL, 1.0, 1.0), "bosses are likelier to drop it than normal monsters")
-	var pinnacle_total := 0.0
 	for def in _world_defs():
-		pinnacle_total += UniqueOdds.per_pinnacle_reward(def, "lord_of_the_elements")
-	_check(is_equal_approx(pinnacle_total, 1.0), "Pinnacle reward odds add up to 100%")
+		_check(UniqueOdds.per_pinnacle_reward(def, "lord_of_the_elements") == 0.0, "world uniques have no separate Pinnacle reward chance (%s)" % def["id"])
 	var debt := UniqueCatalog.get_def("debt_of_tharsis")
 	_check(UniqueOdds.per_gear_drop(debt, 1.0) == 0.0 and UniqueOdds.source_text(debt).begins_with("Shard of Tharsis"), "corrupted-only uniques never drop and name their source")
 	_check(UniqueOdds.source_text(mantle) == "World Drop", "ordinary uniques are World Drops")
-	var exclusive := {"id": "x", "name": "X", "rarity": Constants.ItemRarity.UNIQUE, "base_type": "ring", "weight": 100.0, "boss": "lord_of_the_elements", "mods": []}
+	var exclusive := {"id": "x", "name": "X", "rarity": Constants.ItemRarity.UNIQUE, "base_type": "ring", "weight": 100.0, "boss": "lord_of_the_elements", "boss_chance": 0.02, "mods": []}
 	_check(UniqueOdds.source_text(exclusive) == "Pinnacle: Lord of the Elements" and UniqueOdds.per_gear_drop(exclusive, 1.0) == 0.0, "boss-only uniques name the boss and aren't world drops")
 	_check(UniqueOdds.per_pinnacle_reward(exclusive, "herald_of_the_maw") == 0.0, "a boss-only unique never comes from the other boss")
+	_check(is_equal_approx(UniqueOdds.per_pinnacle_reward(exclusive, "lord_of_the_elements"), 0.02), "a boss-only unique drops at its own boss_chance")
 	_check(UniqueRoller.droppable(Constants.ItemRarity.UNIQUE).all(func(d): return not d.has("boss")), "the world pool has no boss-only uniques")
 	_check(UniqueRoller.range_text(mantle["mods"][0]) == "(40-50)% more Ward", "modifier ranges read like '(40-50)% more Ward'")
 	_check(UniqueOdds.format_chance(0.0025) == "0.25% (1 in 400)" and UniqueOdds.format_chance(0.0) == "—", "chance text")

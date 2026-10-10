@@ -91,6 +91,7 @@ func _setup_background() -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = NEBULA_SHADER
 	mat.set_shader_parameter("grid_size", float(GRID_SIZE))
+	mat.set_shader_parameter("line_color", GRID_LINE_COLOR)
 	_background.material = mat
 	add_child(_background)
 	move_child(_background, 0)
@@ -245,7 +246,8 @@ func _refresh_cell_background() -> void:
 			var placement_id: String = occupied[cell]
 			var data: FateBoard.PlacedSlateData = board.placements[placement_id]
 			var color: Color = Constants.DAMAGE_TYPE_COLOR.get(data.slate.tag, Color.GRAY)
-			color.a = 1.0
+			# Alpha 0.52-0.99 carries a per-placement seed: each Slate gets its own nebula.
+			color.a = 0.52 + 0.47 * float(absi(hash(placement_id)) % 1000) / 999.0
 			img.set_pixel(cell.x, cell.y, color)
 	var tex := ImageTexture.create_from_image(img)
 	(_background.material as ShaderMaterial).set_shader_parameter("cell_data", tex)

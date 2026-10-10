@@ -730,12 +730,17 @@ func _build_attack_power_lines(weapon: Weapon) -> Array:
 			line["pellets"] = weapon.pellet_count
 	return lines
 
+## Small hits (low-level full-auto guns, single pellets) keep a decimal so
+## they don't read as 0 to 1.
+static func damage_text(value: float) -> String:
+	return "%.1f" % value if value < 10.0 and not is_equal_approx(value, roundf(value)) else "%.0f" % value
+
 func _add_attack_power_line(line: Dictionary) -> void:
 	var suffix := " x%d" % line["pellets"] if line.has("pellets") else ""
-	var base_text := "%.0f to %.0f%s" % [line["lo"], line["hi"], suffix]
+	var base_text := "%s to %s%s" % [damage_text(line["lo"]), damage_text(line["hi"]), suffix]
 	var modified_text := ""
 	if line.has("boosted_lo"):
-		modified_text = "%.0f to %.0f%s" % [line["boosted_lo"], line["boosted_hi"], suffix]
+		modified_text = "%s to %s%s" % [damage_text(line["boosted_lo"]), damage_text(line["boosted_hi"]), suffix]
 	_add_value_line(line["label"], line["color"], base_text, modified_text)
 
 ## "Label: value" - one value only. When modified_text is non-empty and

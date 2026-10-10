@@ -180,11 +180,13 @@ func _toggle_half(stats: bool) -> void:
 		else:
 			_inventory_screen.toggle_items()
 		return
+	var keep_mouse := _mouse_to_keep()
 	for menu in get_tree().get_nodes_in_group("blocking_menu"):
 		if menu.is_open():
 			menu.close()
 	close()
 	_inventory_screen.open(stats, not stats)
+	_restore_mouse(keep_mouse)
 
 ## Opens `screen`, closing this pause menu and any other open blocking_menu
 ## screen first - or closes `screen` if it's already the one open.
@@ -194,11 +196,27 @@ func _toggle_screen(screen: Node) -> void:
 	if screen.is_open():
 		screen.close()
 		return
+	var keep_mouse := _mouse_to_keep()
 	for menu in get_tree().get_nodes_in_group("blocking_menu"):
 		if menu != screen and menu.is_open():
 			menu.close()
 	close()
 	screen.open()
+	_restore_mouse(keep_mouse)
+
+## Switching between open screens leaves the cursor where it was: closing one
+## recaptures the mouse and opening the next would otherwise centre it.
+## Returns (-1, -1) when no screen is open.
+func _mouse_to_keep() -> Vector2:
+	if Input.mouse_mode != Input.MOUSE_MODE_VISIBLE:
+		return Vector2(-1, -1)
+	return Vector2(DisplayServer.mouse_get_position() - DisplayServer.window_get_position())
+
+func _restore_mouse(pos: Vector2) -> void:
+	if pos.x < 0.0:
+		return
+	Input.warp_mouse(pos)
+	(func(): Input.warp_mouse(pos)).call_deferred()
 
 func toggle() -> void:
 	close() if _is_open else open()

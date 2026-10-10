@@ -30,6 +30,9 @@ var _pending_designated_ability_id: String = ""
 var _designate_ability_ids: Array[String] = []
 ## A Lens picked from the palette, waiting to be clicked onto a placed Slate.
 var _held_lens: Lens
+## The view recentres on the anchor only if the board stayed closed this long.
+const RECENTER_AFTER_SEC := 120
+var _closed_msec: int = -1
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -63,13 +66,16 @@ func open() -> void:
 	if _board and not _board.placement_failed.is_connected(_on_placement_failed):
 		_board.placement_failed.connect(_on_placement_failed)
 	grid.set_board(_board)
-	grid.center_on_anchor()
+	# Reopening soon after (Tab cycling, a quick check) keeps the view where it was.
+	if _closed_msec < 0 or Time.get_ticks_msec() - _closed_msec > RECENTER_AFTER_SEC * 1000:
+		grid.center_on_anchor()
 	_populate_palette()
 	_refresh_aether()
 	_refresh_chains()
 
 func close() -> void:
 	_is_open = false
+	_closed_msec = Time.get_ticks_msec()
 	visible = false
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED

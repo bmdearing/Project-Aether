@@ -35,12 +35,22 @@ var damage_modifier: Callable
 var on_hit: Callable
 var cosmetic: bool = false
 var _pierced: Dictionary = {}
+## Hitscan shots (Weapon.is_hitscan()) resolve on their first physics frame:
+## a ray from hitscan_origin (the camera) along the shot's direction, then a
+## tracer from the muzzle to whatever it struck.
+var hitscan_range: float = 0.0
+var hitscan_origin: Vector3
+const TRACER_TIME := 0.09
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
 func _ready() -> void:
-	monitoring = true
-	body_entered.connect(_on_body_entered)
+	if hitscan_range > 0.0:
+		if mesh:
+			mesh.visible = false
+	else:
+		monitoring = true
+		body_entered.connect(_on_body_entered)
 	get_tree().create_timer(lifetime).timeout.connect(queue_free)
 	if mesh:
 		var mat := StandardMaterial3D.new()
@@ -49,6 +59,9 @@ func _ready() -> void:
 		mesh.material_override = mat
 
 func _physics_process(delta: float) -> void:
+	if hitscan_range > 0.0:
+		_resolve_hitscan()
+		return
 	global_position += -global_transform.basis.z * speed * delta
 
 func _on_body_entered(body: Node3D) -> void:
@@ -70,10 +83,12 @@ func _on_body_entered(body: Node3D) -> void:
 			return
 	queue_free()
 
-func _hit_enemy(enemy: Enemy) -> void:
+func _hit_enemy(enemy: Enemy, aim_dir: Vector3 = Vector3.ZERO) -> void:
 	if enemy == null:
 		return
 	var is_critical_spot := enemy.is_critical_spot_point(global_position)
+	if not is_critical_spot and aim_dir != Vector3.ZERO:
+		is_critical_spot = enemy.is_critical_spot_aimed(hitscan_origin, aim_dir)
 	var final_amount := damage_amount * enemy.critical_spot_multiplier if is_critical_spot else damage_amount
 	if damage_modifier.is_valid():
 		final_amount *= damage_modifier.call(enemy)
@@ -119,3 +134,58 @@ func _get_surface_type(body: Node) -> String:
 		if body.is_in_group("surface_" + surface):
 			return surface
 	return "stone"
+
+func _resolve_hitscan() -> void:
+	var dir := -global_transform.basis.z.normalized()
+	var space := get_world_3d().direct_space_state
+	var exclude: Array[RID] = []
+	if is_instance_valid(source) and source is CollisionObject3D:
+		exclude.append((source as CollisionObject3D).get_rid())
+	var end := hitscan_origin + dir * hitscan_range
+	var muzzle := global_position
+	# Walks the ray through pierced enemies until something stops it.
+	while true:
+		var query := PhysicsRayQueryParameters3D.create(hitscan_origin, end, collision_mask)
+		query.exclude = exclude
+		var hit := space.intersect_ray(query)
+		if hit.is_empty():
+			break
+		var body := hit["collider"] as Node3D
+		global_position = hit["position"]
+		end = hit["position"]
+		if body == null or cosmetic:
+			break
+		_play_impact_sound(body)
+		if source is Player:
+			_hit_enemy(body as Enemy, dir)
+		if body is Enemy and _pierced.size() < pierce:
+			_pierced[body.get_instance_id()] = true
+			exclude.append((body as Enemy).get_rid())
+			end = hitscan_origin + dir * hitscan_range
+			continue
+		break
+	_spawn_tracer(muzzle, end)
+	queue_free()
+
+func _spawn_tracer(from: Vector3, to: Vector3) -> void:
+	var length := from.distance_to(to)
+	if length < 0.05:
+		return
+	var tracer := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = Vector3(0.025, 0.025, length)
+	tracer.mesh = box
+	tracer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(damage_type, Color.WHITE)
+	mat.albedo_color = Color(color.r, color.g, color.b, 0.9).lerp(Color(1, 0.95, 0.8, 0.9), 0.5)
+	tracer.material_override = mat
+	get_tree().current_scene.add_child(tracer)
+	tracer.global_position = (from + to) * 0.5
+	tracer.look_at_from_position(tracer.global_position, to, Vector3.UP if absf((to - from).normalized().y) < 0.99 else Vector3.RIGHT)
+	var tween := tracer.create_tween()
+	tween.tween_property(mat, "albedo_color:a", 0.0, TRACER_TIME)
+	tween.tween_callback(tracer.queue_free)

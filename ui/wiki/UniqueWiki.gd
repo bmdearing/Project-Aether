@@ -192,8 +192,9 @@ func _update_odds() -> void:
 			labels["gear"].text = "Per gear drop:  %s" % UniqueOdds.format_chance(UniqueOdds.per_gear_drop(def, mults["rarity"]))
 			labels["kill"].text = "Per monster kill:  %s" % UniqueOdds.format_chance(UniqueOdds.per_kill(def, Constants.EnemyRank.NORMAL, mults["quantity"], mults["rarity"]))
 			labels["boss"].text = "Per boss kill:  %s" % UniqueOdds.format_chance(UniqueOdds.per_kill(def, Constants.EnemyRank.BOSS, mults["quantity"], mults["rarity"]))
-		var boss_id: String = def.get("boss", Pinnacle.BOSSES.keys()[0])
-		labels["pinnacle"].text = "%s reward:  %s" % ["Pinnacle boss" if world else "Guaranteed", UniqueOdds.format_chance(UniqueOdds.per_pinnacle_reward(def, boss_id))]
+		labels["pinnacle"].visible = not world
+		if not world:
+			labels["pinnacle"].text = "Per kill:  %s" % UniqueOdds.format_chance(UniqueOdds.per_pinnacle_reward(def, def["boss"]))
 
 func _text(text: String, size_px: int, color: Color) -> Label:
 	var label := Label.new()

@@ -32,6 +32,8 @@ const BASE_FIRE_COOLDOWN := 0.5
 @export var projectile_speed: float = 25.0
 ## Fan spacing for a bow's additional arrows.
 const EXTRA_ARROW_SPREAD_DEG := 5.0
+## How far a hitscan shot reaches.
+const HITSCAN_RANGE := 120.0
 
 ## Right-click-hold aim (WeaponStance) rewards firing with a flat damage
 ## bonus and halves the weapon's spread; the weapon's RangedStanceBehavior
@@ -289,6 +291,10 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		spread = spread * st.spread_multiplier + st.spread_add_degrees
 	_aim_time = 0.0
 	var socket_transform: Transform3D = _player.weapon_socket.global_transform
+	# Hitscan shots aim straight down the crosshair; the tracer still leaves the muzzle.
+	var hitscan := weapon.is_hitscan()
+	if hitscan:
+		socket_transform.basis = _player.camera.global_transform.basis
 
 	# Steady Aim: increased crit chance for this shot only.
 	var original_crit_bonus := _player.stat_sheet.finesse_crit_bonus
@@ -307,8 +313,8 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		cosmetic = true
 
 	var speed := projectile_speed * maxf(1.0 + (_player.stat_sheet.get_misc_bonus("projectile_speed") - _player.stat_sheet.get_misc_bonus("reduced_projectile_speed")) / 100.0, 0.2)
-	# Additional arrows fan out around the aim line, each a full shot.
-	var arrows := 1 if cosmetic or pellets == 0 else 1 + weapon.get_local_count("local_additional_arrows")
+	# Additional arrows fan out around the aim line, each a full shot. Hitscan guns never add projectiles.
+	var arrows := 1 if cosmetic or pellets == 0 or hitscan else 1 + weapon.get_local_count("local_additional_arrows")
 	var shots: Array[Transform3D] = []
 	for a in arrows:
 		var shot := socket_transform
@@ -329,6 +335,9 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		projectile.source = _player
 		projectile.speed = speed
 		projectile.cosmetic = cosmetic
+		if hitscan:
+			projectile.hitscan_range = HITSCAN_RANGE
+			projectile.hitscan_origin = _player.camera.global_position
 		projectile.damage_modifier = _damage_modifier.bind(st)
 		if st:
 			projectile.pierce = st.pierce

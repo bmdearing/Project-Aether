@@ -5,7 +5,7 @@ class_name UniqueOdds
 ## the share of rolls that become gear (Enemy._roll_drop()'s category
 ## chances, taken in order), the gear's rarity (Loot.rarity_weights() with
 ## Item Rarity), then the weighted pick among that rarity's world drops
-## (UniqueRoller). Pinnacle rewards use PinnacleBoss.MYTHIC_CHANCE.
+## (UniqueRoller). A Pinnacle boss's exclusive uniques use their own boss_chance.
 
 ## Where a unique comes from, for display.
 static func source_text(def: Dictionary) -> String:
@@ -53,12 +53,12 @@ static func per_kill(def: Dictionary, rank: int, quantity_mult: float, rarity_mu
 	var rolls := Loot.base_drop_rolls(rank) * quantity_mult
 	return 1.0 - pow(1.0 - gear_share_per_roll() * per_gear_drop(def, rarity_mult), rolls)
 
-## Chance the guaranteed Pinnacle reward of boss_id is this unique.
+## Chance one kill of Pinnacle boss boss_id drops this boss-exclusive unique
+## (its boss_chance). World uniques use per_kill() at Boss rank instead.
 static func per_pinnacle_reward(def: Dictionary, boss_id: String) -> float:
-	if def.get("corrupted_only", false) or def.get("boss", boss_id) != boss_id:
+	if def.get("corrupted_only", false) or def.get("boss", "") != boss_id:
 		return 0.0
-	var rarity_odds := PinnacleBoss.MYTHIC_CHANCE if def["rarity"] == Constants.ItemRarity.MYTHIC else 1.0 - PinnacleBoss.MYTHIC_CHANCE
-	return rarity_odds * _share(def, UniqueRoller.droppable(def["rarity"], boss_id))
+	return float(def.get("boss_chance", 0.0))
 
 ## "0.42% (1 in 238)", or "—" for zero.
 static func format_chance(p: float) -> String:
