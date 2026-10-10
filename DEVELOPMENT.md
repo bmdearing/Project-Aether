@@ -780,9 +780,13 @@ feeds Figment Tree points (see below).
 
 **Lord of the Elements** (`entities/enemies/lord_of_the_elements/`): the
 first Pinnacle boss, spawned at `PinnacleArena`'s `BossSpawnPoint` with
-`rank = BOSS`. Each attack takes the next element in a fixed Fire -> Cold
--> Lightning cycle. Spells, channels and phases
-aren't built.
+`rank = BOSS`. Each attack takes the next element in a Fire -> Cold ->
+Lightning cycle. The active element's orb (`ElementOrb`) can be overloaded,
+dropping that element for 20 s; his spells react with each other
+(`ElementReactions`: steam, chained lightning, shattered ice); Cataclysm is
+survivable only in the sigil two casts ahead; in phase 3 he lands and fights
+with parryable per-element combos. The Herald (`Xalatath`, `MawArena`) and
+Ataras (`SandArena`) are described in PATCH_NOTES v4.48, v4.69 and v4.70.
 
 **Enemies also scale deterministically off the Map's own `tier`**
 (`Enemy._apply_map_modifiers()`/`get_outgoing_damage_multiplier()`), on

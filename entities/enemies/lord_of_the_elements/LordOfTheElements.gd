@@ -109,6 +109,7 @@ func _ready() -> void:
 		boss_brain.phase_changed.connect(func(_p): place_sigils())
 		boss_brain.ground_struck.connect(_on_ground_struck)
 	health.died.connect(_clear_sigils)
+	tree_exiting.connect(_free_arena_pieces)
 	place_sigils.call_deferred()
 	_setup_arena_pieces.call_deferred()
 
@@ -127,6 +128,14 @@ func _setup_arena_pieces() -> void:
 		get_parent().add_child(body)
 		body.set_integrity(health.max_health * ORB_OVERLOAD_SHARE)
 		_orbs[element]["body"] = body
+
+## Removed without dying (a test, a scene change): take the orbs and reactions too.
+func _free_arena_pieces() -> void:
+	for orb in _orbs.values():
+		if is_instance_valid(orb.get("body")):
+			orb["body"].queue_free()
+	if is_instance_valid(reactions):
+		reactions.queue_free()
 
 ## ---- The elemental cycle -------------------------------------------------
 

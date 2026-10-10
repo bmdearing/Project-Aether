@@ -43,6 +43,10 @@ func _run() -> void:
 		return
 	_boss.boss_brain.set_physics_process(false)
 	_boss.set_physics_process(false)
+	# His ordinary melee would hit the test player whenever a check puts them beside him.
+	var melee := _boss.get_node_or_null("MeleeAttack")
+	if melee:
+		melee.set_physics_process(false)
 	_player.set_physics_process(false)
 	_player.health.max_health = 5000.0
 	_heal()

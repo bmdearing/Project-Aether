@@ -7,6 +7,39 @@ there. Most recent first.
 
 ---
 
+## 2026-10-10 — v4.70: Boss mechanics pass, hitscan guns, Shatter, Sands of Time (user requests)
+
+- **Lord of the Elements** (the fight asks: can you read the elemental cycle and break it?):
+  - **Orb targets** (`ElementOrb`, an `Enemy` that follows each orb's glow): only the orb of his current element can be hurt (a white ring spins around it). Damage fills an overload meter (3.5% of his max Life) instead of killing it. Overloading drops that element from the cycle for 20 s and the backlash stuns him for 2.5 s (plus 40 Composure). The last element left can't be overloaded. Orb hits don't touch his Life.
+  - **Reactions** (`ElementReactions`): cold strikes leave chilled ground for 10 s (chills you while you stand on it). Cold landing on a Conflagration pool puts it out as a steam cloud for 7 s; while you stand in steam he won't cast aimed spells at you (blasts, pools, volleys). Lightning landing on chilled ground runs through every connected chilled patch. Fire on chilled ground shatters it into shards. Chains and shards that reach him deal 2% of his max Life, 25 Composure and a 1 s stun.
+  - **Sigils:** the hidden 0.6x / 1.25x damage multipliers are gone. **Cataclysm** (phase 2+, now a 4 s CUSTOM cast) kills anywhere except inside the sigil of the element he'll use two casts after it. During the charge every sigil pulses without showing which one is safe. As it lands, the safe one flashes white.
+  - **Phase 3:** after the Cataclysm opener he comes down onto the crescent's middle (`PinnacleArena.lord_landing_spot()`), the orbs circle his weapon arm, and he walks and fights in melee. His ranged spells and bolt stop. Each element has a parryable combo that follows the cycle: Fire (three quick blows that Ignite), Cold (1.6 s windup, one blow that Freezes), Lightning (a feint, then a late strike that Shocks). A parried blow costs him 15 Composure on top of the parry's own.
+- **Herald of the Maw:**
+  - A Shadow Lunge into a pylon now also drains 60 Composure and opens a Riposte window.
+  - A Riposte or a heavy Explosive hit (1.5% of her max Life) knocks her back 3.5 m. If there's no floor behind her she clings to the lip instead (`MawArena.cling()`): stunned for 4 s, taking 50% more damage, then the Maw drags at her (6% of her max Life) before she climbs back.
+  - Saved pylons now also soften phase 3: each delays the Maw's first bite by 5 s and weakens Unmaking by 12%.
+  - **Feed the Maw** (phase 3): she steps to the Maw's lip and channels for 3.5 s. Unbroken, two marked outer plates fall at once and the next bite comes within 12 s. Taking 4% of her max Life breaks it: the bite is off and she's staggered.
+  - Still needs a new model and ids before release (both are Blizzard's Xalatath).
+- **Ataras:**
+  - **Echoes:** after Sandstorm Cuts a sand afterimage of him stays where he stood, then replays the cuts from that spot 3 s later.
+  - Ticking Time traps now slow him and drain 9 Composure per half second while he stands in one.
+  - Shifting Sands: 6 s into the quicksand, the safe wedge moves once (2.5 s warning).
+  - The Sandstorm Cuts thrust can be parried; a parry staggers him (50 Composure, 2 s stun).
+- **Boss music:** the Herald and Ataras fights loop their own tracks (`assets/music/boss/`, `Pinnacle.BOSSES[...]["music"]`).
+- **Pinnacle rewards:** no more guaranteed Unique / Mythic. Boss-exclusive uniques drop at their own `boss_chance` per kill; world uniques come from the normal Boss loot rolls.
+- **Sands of Time** (Mythic wand, Ataras only, 2%): its stance is **Time Stop** (`TimeStop`): every enemy and enemy shot freezes for 4 s (2 s while a Pinnacle boss is alive), 60 s cooldown. 1-100% increased Cast Speed, 200-260% increased Spell Damage, +30-35% Esoteric Resistance, 10% increased Life.
+- **Shatter** (new Cold-tagged spell, ground-targeted, 22 Mana): breaks every ailment on enemies in the area. Each becomes a hit in its own element worth the spell's damage times its weight: Freeze 3x, Electrocute 2x, Unraveling / Pallid / Aetherburn 1.5x, Ignite 1.2x, Chill / Shock / Bleed 1x, Scorch 0.4x per stack. No ailments, no damage. Web twists: Resonance, Splinter.
+- **Guns:**
+  - **Revolver and Bolt Action Rifle are hitscan:** the shot lands on the frame it fires, straight down the crosshair, with a tracer from the muzzle (120 m). Additional projectiles never apply to them. They hit hardest of the guns: about 175 / 185 unaimed DPS (per shot +76%).
+  - Every other gun raised to 130-145 DPS (was 95-116); bows unchanged.
+  - Small damage values show a decimal on cards and the character sheet, so a low-level SMG reads 0.5 to 1.3 instead of 0 to 1.
+- **Fate Board:** each Slate is its own seeded nebula (domain-warped cloud, two-tone, bright core, wisps at the rim) on a dim star field; the grid lines are drawn by the shader. The view stays where you left it unless the board was closed for 2 minutes.
+- **Tab / screen switching keeps the cursor** where it was instead of re-centring it.
+- **Spears:** not reproduced. Plain attacks, held thrusts and the stance lunge all hit in an empty arena and on a real dungeon map, against every unit type. (Golems looked immune at first, but their Ward was absorbing the hits.) Waiting on details.
+- Tests: `test_bosses` (Lord orbs, reactions, Cataclysm, descent and combos; Herald pylon riposte, cling, Feed the Maw), `test_ataras` (traps on him, wedge shift, parried thrust, echoes), `test_spells` (Shatter), `test_ranged_stances` (hitscan), `test_uniques` (Sands of Time), `test_wiki` (boss_chance). The Ataras "safe wedge is safe" check was flaky: when the random safe wedge was the one Ataras stands in, his ordinary melee hit the test player. The test now turns his melee off.
+
+---
+
 ## 2026-10-09 — v4.69: Ataras, currency rarity, Dump to Stash (user requests)
 
 - **Ataras, the third Pinnacle boss** (`entities/enemies/ataras/`, from `assets/models/enemies/pinnacle/Ataras/ataras.txt`). A jackal-headed lord of the sands; the model is Anubithas / Anubis by Mr Ogre man and vindorei (Hive Workshop, credited). He's offered at the Reality Engine like the other two.
