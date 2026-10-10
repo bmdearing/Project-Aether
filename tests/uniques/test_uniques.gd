@@ -391,6 +391,7 @@ func _test_sands_of_time() -> void:
 	_check(def.get("boss") == "ataras" and is_equal_approx(UniqueOdds.per_pinnacle_reward(def, "ataras"), 0.02), "Sands of Time drops only from Ataras, 2% per kill")
 	var wand := _unique("sands_of_time") as Weapon
 	_check(wand != null and wand.rarity == Constants.ItemRarity.MYTHIC and wand.is_conduit and not wand.is_offhand, "it's a Mythic main-hand conduit")
+	_check(StanceInfo.for_conduit(wand).get("name") == "Time Stop" and not wand.affixes.any(func(a): return a.stat_key == "unique_time_stop"), "the wand's own stance is Time Stop, not Spell Library")
 	var old := _wearing(wand)
 	_player.weapon_stance.set_stance_page(WeaponStance.StancePage.A)
 	await _frames(2)

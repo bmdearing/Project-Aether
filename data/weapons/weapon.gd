@@ -194,6 +194,14 @@ func get_current_magazine() -> int:
 ## unleash_copy_count only meaningful for stance_type == "unleash".
 @export var is_conduit: bool = false
 @export var conduit_stance_type: String = ""
+## The stance this conduit really has: a unique can replace its base's
+## (UniqueCatalog "conduit_stance_type", e.g. Sands of Time's Time Stop).
+func get_conduit_stance_type() -> String:
+	if unique_id != "":
+		var def := UniqueCatalog.get_def(unique_id)
+		if def.has("conduit_stance_type"):
+			return def["conduit_stance_type"]
+	return conduit_stance_type
 @export var spell_page_tag: String = ""
 @export var unleash_copy_count: int = 0
 ## Patch v3.6 per-line extras (see CasterStance). spell_page_modifier changes

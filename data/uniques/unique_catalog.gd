@@ -76,10 +76,9 @@ const DEFS := [
 	},
 	{
 		"id": "sands_of_time", "name": "Sands of Time", "rarity": Constants.ItemRarity.MYTHIC,
-		"base_type": "wand", "weight": 100.0, "boss": "ataras", "boss_chance": 0.02,
+		"base_type": "wand", "weight": 100.0, "boss": "ataras", "boss_chance": 0.02, "conduit_stance_type": "time_stop",
 		"flavor": "He kept the last grain. Turn it over, and the world waits for you.",
 		"mods": [
-			["unique_time_stop", 1.0, 1.0, "Your Stance is Time Stop: hold Right Mouse to stop time for 4 seconds (half against Pinnacle bosses). 60 second cooldown"],
 			["local_increased_cast_speed", 1.0, 100.0, "%d%% increased Cast Speed"],
 			["local_increased_spell_damage", 200.0, 260.0, "%d%% increased Spell Damage"],
 			["esoteric_resistance", 30.0, 35.0, "+%d%% Esoteric Resistance"],

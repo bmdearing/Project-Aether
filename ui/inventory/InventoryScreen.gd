@@ -256,7 +256,7 @@ func _add_conduit_text(conduit: Weapon, how: String) -> void:
 	var info := StanceInfo.for_conduit(conduit)
 	if info.is_empty():
 		_add_text("No stance is designed for this conduit yet.")
-	elif conduit.conduit_stance_type == "passive":
+	elif conduit.get_conduit_stance_type() == "passive":
 		_add_text("%s: %s" % [info["name"], info["desc"]])
 	else:
 		_add_text("%s - %s: %s" % [how, info["name"], info["desc"]])

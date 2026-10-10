@@ -154,6 +154,9 @@ static func from_dict(d: Dictionary) -> Item:
 
 	var affixes: Array[ItemAffix] = []
 	for a in d.get("affixes", []):
+		# Sands of Time's old text-only Time Stop line: the stance is real now.
+		if a.get("stat_key", "") == "unique_time_stop":
+			continue
 		affixes.append(affix_from_dict(a))
 	item.affixes = affixes
 	item.sockets = d.get("sockets", 0)

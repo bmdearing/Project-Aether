@@ -38,9 +38,6 @@ const PUNCH_MOTION_VALUE := 1.2
 const REACH_STRIKE_MOTION_VALUE := 1.3
 const REACH_STRIKE_SHAPE := {"reach": 4.2, "half_angle": 14.0, "splash": 0.6, "max_targets": 2}
 
-## Sands of Time (Mythic): its stance is Time Stop instead.
-const TIME_STOP_UNIQUE := "sands_of_time"
-
 var _player: Player
 var _bolt_cooldown: float = 0.0
 ## Time msec when Time Stop is ready again.
@@ -67,9 +64,7 @@ func is_active() -> bool:
 
 func get_kind() -> String:
 	var source := get_source()
-	if source and source.unique_id == TIME_STOP_UNIQUE:
-		return "time_stop"
-	return source.conduit_stance_type if source else ""
+	return source.get_conduit_stance_type() if source else ""
 
 ## The 1-4 keys cast the stance page.
 func uses_spell_page() -> bool:
@@ -101,7 +96,7 @@ func prepare_cast(ability: Ability, from_spell_page: bool) -> Dictionary:
 					statuses.append("pallid")
 				cast.guaranteed_statuses = ["pallid"]
 	cast.applies_status_effects = statuses
-	match source.conduit_stance_type:
+	match source.get_conduit_stance_type():
 		"unleash":
 			if ability.unleashable:
 				plan["copies"] = maxi(source.unleash_copy_count, MIN_UNLEASH_COPIES)
@@ -146,7 +141,7 @@ func try_stance_attack() -> bool:
 		return false
 	var source := get_source()
 	var weapon := _player.get_active_weapon()
-	match source.conduit_stance_type:
+	match source.get_conduit_stance_type():
 		"mana_stars":
 			_fire_mana_star(source)
 			return true

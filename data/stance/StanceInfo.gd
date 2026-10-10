@@ -91,13 +91,16 @@ const CONDUIT := {
 	"enhanced_status": {"name": "Status Amplifier", "desc": "Stance Page spells' status effects last 50% longer."},
 	"pallid": {"name": "Pallid Page", "desc": "Stance Page spells always apply Pallid (enemies deal less damage)."},
 	"passive": {"name": "Passive", "desc": "No stance; boosts the main hand's casting."},
+	"time_stop": {"name": "Time Stop", "desc": "Press RMB to stop time: every enemy and enemy shot freezes for 4 seconds (2 while a Pinnacle boss is alive). 60 second cooldown."},
 }
 
 ## {name, desc} for a conduit's stance, with its page restriction appended.
 static func for_conduit(conduit: Weapon) -> Dictionary:
 	if conduit == null or not conduit.is_conduit:
 		return {}
-	var key := conduit.conduit_stance_type
+	var key := conduit.get_conduit_stance_type()
+	if key == "time_stop":
+		return CONDUIT["time_stop"].duplicate()
 	if key == "battlemage":
 		key = "battlemage_gauntlet" if conduit.weapon_type == "Spell Gauntlet" else "battlemage_staff"
 	if conduit.spell_page_modifier != "":
