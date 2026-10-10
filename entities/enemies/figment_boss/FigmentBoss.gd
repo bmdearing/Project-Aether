@@ -79,10 +79,11 @@ func _ready() -> void:
 	move_speed = profile["move_speed"]
 	stop_distance = profile["stop_distance"]
 	var tier: int = GameState.active_map.tier if GameState.active_map else 1
-	health.max_health = BOSS_HEALTH * (1.0 + BOSS_HEALTH_GROWTH_PER_TIER * (tier - 1))
+	health.max_health = BOSS_HEALTH * (1.0 + BOSS_HEALTH_GROWTH_PER_TIER * (tier - 1)) * (1.0 + _boss_mod("boss_life"))
 	health.current_health = health.max_health
-	xp_reward = BOSS_XP_REWARD
-	gold_reward = BOSS_GOLD_REWARD
+	var reward_mult := 1.0 + FigmentTree.effect("boss_reward") / 100.0
+	xp_reward = BOSS_XP_REWARD * reward_mult
+	gold_reward = roundi(BOSS_GOLD_REWARD * reward_mult)
 	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
 	if melee:
 		melee.damage_type = profile["damage_type"]
@@ -117,4 +118,13 @@ func _add_brain(profile: Dictionary) -> void:
 func _on_died() -> void:
 	EventBus.figment_completed.emit(GameState.active_map)
 	_spawn_currency_pickup(Pinnacle.roll_fragment())
+	if randf() * 100.0 < FigmentTree.effect("fragment_chance"):
+		_spawn_currency_pickup(Pinnacle.roll_fragment())
 	super._on_died()
+
+## The boss_* Figment mods apply to it.
+func is_map_boss_target() -> bool:
+	return true
+
+func extra_drop_rolls() -> float:
+	return FigmentTree.effect("boss_extra_rolls")

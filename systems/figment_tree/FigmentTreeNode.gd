@@ -1,12 +1,16 @@
 extends Resource
 class_name FigmentTreeNode
-## One Figment Tree node. effect_key (e.g. "loot_quantity_increase") isn't
-## read by anything yet.
+## One Figment Tree node: what it does (effects: effect key -> value, summed
+## by FigmentTree.effect()), where it sits (position, in tree units from the
+## root) and which nodes it connects to (links, both ways).
 
 @export var node_id: String
 @export var display_name: String
 @export var description: String
 @export var point_cost: int = 1
-## "" = a root-tier node, unlockable with no prerequisite.
-@export var prerequisite_node_id: String = ""
-@export var effect_key: String = ""
+@export var notable: bool = false
+@export var effects: Dictionary = {}
+@export var position: Vector2 = Vector2.ZERO
+@export var links: Array[String] = []
+## Sector name the node belongs to (for the screen's labels).
+@export var sector: String = ""

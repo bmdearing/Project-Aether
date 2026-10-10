@@ -139,7 +139,7 @@ func _spill_loot() -> void:
 	var gold: GoldPickup = GOLD_PICKUP_SCENE.instantiate()
 	gold.amount = roundi(randi_range(GOLD_RANGE.x, GOLD_RANGE.y) * (1.0 + (_tier() - 1) * 0.2))
 	_place(gold)
-	for i in Loot.roll_count(BASE_ROLLS * mods["quantity"]):
+	for i in Loot.roll_count(BASE_ROLLS * mods["quantity"] * (1.0 + FigmentTree.effect("chest_quantity") / 100.0)):
 		_roll_drop(mods["rarity"])
 
 func _roll_drop(rarity_mult: float) -> void:

@@ -138,21 +138,22 @@ func _enter_phase(new_phase: int) -> void:
 
 func cast(a: BossAbility) -> void:
 	casting = true
+	var s := _scaled(a)
 	match a.kind:
 		BossAbility.Kind.SLAM:
-			await _slam(a)
+			await _slam(s)
 		BossAbility.Kind.BLAST:
-			await _blast(a)
+			await _blast(s)
 		BossAbility.Kind.HAZARD:
-			await _hazard(a)
+			await _hazard(s)
 		BossAbility.Kind.CHARGE:
-			await _charge(a)
+			await _charge(s)
 		BossAbility.Kind.VOLLEY:
-			await _volley(a)
+			await _volley(s)
 		BossAbility.Kind.SUMMON:
-			await _summon(a)
+			await _summon(s)
 		BossAbility.Kind.PULL:
-			await _pull(a)
+			await _pull(s)
 		BossAbility.Kind.CUSTOM:
 			await _boss.cast_custom(a)
 	if not _alive():
@@ -160,6 +161,21 @@ func cast(a: BossAbility) -> void:
 	casting = false
 	_cooldowns[a.id] = a.cooldown
 	_gap = global_gap * _cooldown_scale()
+
+## The ability as this cast runs it: Figment mods scale its radius
+## (area), telegraph (cast speed, floored at MIN_TELEGRAPH_SHARE) and volley
+## count (extra projectiles). Cooldowns stay keyed by the original's id.
+func _scaled(a: BossAbility) -> BossAbility:
+	var area := _boss.get_area_multiplier()
+	var cast_speed := _boss.get_cast_speed_multiplier()
+	var extra := _boss.get_extra_projectiles() if a.kind == BossAbility.Kind.VOLLEY else 0
+	if is_equal_approx(area, 1.0) and is_equal_approx(cast_speed, 1.0) and extra == 0:
+		return a
+	var s := a.copy()
+	s.radius *= area
+	s.telegraph *= maxf(1.0 / maxf(cast_speed, 0.01), FigmentMods.MIN_TELEGRAPH_SHARE)
+	s.count += extra
+	return s
 
 func _slam(a: BossAbility) -> void:
 	var center := _boss.global_position
@@ -343,7 +359,7 @@ func _damage_player(a: BossAbility, share: float = 1.0) -> void:
 		_player.status_effects.apply_effect(a.status, _boss, amount)
 
 func _damage(a: BossAbility) -> float:
-	return _boss.get_ability_base_damage() * a.damage_mult
+	return _boss.roll_crit(_boss.get_ability_base_damage() * a.damage_mult)
 
 func _type(a: BossAbility) -> int:
 	return a.damage_type if a.damage_type >= 0 else _boss.get_ability_damage_type()

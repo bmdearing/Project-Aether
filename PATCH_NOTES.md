@@ -7,6 +7,18 @@ there. Most recent first.
 
 ---
 
+## 2026-10-10 — v4.72: Mapping pass: tiers 1-21, mod pools, Figment Tree (user request)
+
+- **Tiers and bands:** Figments run Tier 1-21 in three bands: Low (1-7), Mid (8-14), High (15-21). The card shows the band, Pack Size, Item Quantity and Item Rarity, and the Reality Engine marks Figments you haven't completed yet as "New".
+- **Three mod pools** (user's choice over strength tiers): Low rolls Pool I only, Mid I-II, High I-III, with more mods in higher bands. Pool I is mild and pays mostly Pack Size: Movement Speed, Area, Cast Speed, Boss Life. Pool II: Attack Speed, Crit Chance and Damage, extra Projectiles, Boss Area, Boss Speed. Pool III pays Quantity/Rarity: Damage, damage conversion, Boss Damage. Boss mods hit the Figment boss and Ascendants. Monsters couldn't crit before; the crit mod gives them crits at x1.5 plus its bonus. Conversion is split off the hit and mitigated as its own type. Cast speed shortens boss telegraphs, but never below 60% (Combat pillar: tells stay readable).
+- **Pack Size** is new: each pack gains that share of its size in copies of its own units.
+- **Progression:** each style is worth three Figment Tree points, one for its first clear in each band (14 styles x 3 = 42). First pass was a point per tier; the user cut it to per band since clearing every style at every tier was too much. With 42 points against an 83-node tree (about 100 points to fill), the tree is about choosing a direction. Figments drop, and can be empowered, at most one tier above your highest clear. The old rule (points = completed tier, unsaved) is gone; completions and the tree now save.
+- **Figment Tree** (`L`, also on the Tab menu): 83 nodes in six sectors: Terrain, Factions, Monsters, Rewards, Encounters, Figments. Click to allocate, right-click to refund (free), drag and wheel to pan and zoom. The left panel has the completion grid, band counts, the story milestones and a summary of active effects.
+- **Story:** placeholder for now, at the user's request. Milestones exist (first clear, Mid, High, Tier 21, 8/20/32/all band clears) with placeholder text; the final encounter, once every band of every style is cleared, is to be designed.
+- **Judgment calls to revisit:** every mod value and reward number, the mod counts per band, the drop cap (highest clear + 1), tree node values and costs, free refunds, and Ascendant packs not growing with Pack Size (their escorts are capped).
+
+---
+
 ## 2026-10-10 — v4.71: Tempering, skill web layout, Spells screen, first-cast hitch (user requests)
 
 - **Sands of Time:** Time Stop is now the wand's own stance (UniqueCatalog `conduit_stance_type`, read through `Weapon.get_conduit_stance_type()`), so the card shows *Stance: Time Stop* instead of Spell Library. The text-only mod line is gone, and saved copies drop it on load.

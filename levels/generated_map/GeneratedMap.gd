@@ -60,6 +60,7 @@ const UI_SCENES: Array[PackedScene] = [
 	preload("res://ui/abilities/AbilitiesScreen.tscn"),
 	preload("res://ui/character_screen/CharacterScreen.tscn"),
 	preload("res://ui/map_screen/MapScreen.tscn"),
+	preload("res://ui/figment_tree/FigmentTreeScreen.tscn"),
 	preload("res://ui/ability_bar/AbilityBar.tscn"),
 	preload("res://ui/player_hud/PlayerHUD.tscn"),
 	preload("res://ui/death_screen/DeathScreen.tscn"),
@@ -240,6 +241,9 @@ func _pick_tileset(saved_id: String = "") -> MapTileset:
 	if style == null:
 		tileset_id = MapTileset.random_id()
 		style = MapTileset.load_style(tileset_id)
+	# Completion (FigmentProgress) is recorded against the style actually built.
+	if GameState.active_map and GameState.active_map.tileset_id != tileset_id:
+		GameState.active_map.tileset_id = tileset_id
 	return style
 
 ## ---- Portals -----------------------------------------------------------
@@ -766,7 +770,7 @@ func _spawn_enemies() -> void:
 			var side := Vector3(half.x * 0.35, 0, 0) if half.x >= half.y else Vector3(0, 0, half.y * 0.35)
 			var base := _cell_to_world(cell) + (side * (1.0 if i == 0 else -1.0) if packs > 1 else Vector3.ZERO)
 			var center := base + Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))
-			_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_NORMAL), center)
+			_spawn_pack(EnemyRoster.roll_pack(_pack_table()), center)
 
 ## Treasure chests: CHEST_COUNT of them in random rooms other than the start
 ## and the Vault, in a free corner (rooms) or off-centre (open layouts).
@@ -782,7 +786,7 @@ func _spawn_chests() -> void:
 		if not room.is_start and not room.is_vault:
 			cells.append(cell)
 	cells.sort()
-	var count := mini(randi_range(CHEST_COUNT.x, CHEST_COUNT.y), cells.size())
+	var count := mini(randi_range(CHEST_COUNT.x, CHEST_COUNT.y) + _extra_chests(), cells.size())
 	for i in count:
 		var cell: Vector2i = cells.pop_at(randi() % cells.size())
 		var spot := _chest_spot(cell)
@@ -834,13 +838,45 @@ func _spawn_enemies_open() -> void:
 		var center := _cell_to_world(cell)
 		for i in randi_range(layout.packs_per_cell.x, layout.packs_per_cell.y):
 			var offset := Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)) * cell_size * OPEN_PACK_SPREAD
-			_spawn_pack(EnemyRoster.roll_pack(Constants.ENEMY_PACKS_NORMAL), center + offset)
+			_spawn_pack(EnemyRoster.roll_pack(_pack_table()), center + offset)
+
+## ENEMY_PACKS_NORMAL with each pack's weight scaled by the Figment Tree's
+## faction weight for its first unit's faction.
+func _pack_table() -> Array:
+	if not _weighted_packs.is_empty():
+		return _weighted_packs
+	for pack in Constants.ENEMY_PACKS_NORMAL:
+		var first: Variant = pack["units"][0][0]
+		var unit_id: String = first[0] if first is Array else first
+		var definition := EnemyRoster.load_definition(unit_id)
+		var faction := definition.faction if definition else ""
+		var weighted: Dictionary = pack.duplicate()
+		weighted["weight"] = float(pack["weight"]) * (1.0 + FigmentTree.effect("faction_weight:" + faction) / 100.0)
+		_weighted_packs.append(weighted)
+	return _weighted_packs
+var _weighted_packs: Array = []
+
+## Pack Size (the Figment's mods plus the tree): each pack gains that share
+## of its size in extra members, copies of its non-leading units.
+func _grow_pack(unit_ids: Array[String]) -> Array[String]:
+	var pack_size := (GameState.active_map.pack_size_multiplier - 1.0 if GameState.active_map else 0.0) + FigmentTree.effect("pack_size") / 100.0
+	if pack_size <= 0.0 or unit_ids.is_empty():
+		return unit_ids
+	var grown := unit_ids.duplicate()
+	for i in Loot.roll_count(unit_ids.size() * pack_size):
+		grown.append(unit_ids.pick_random())
+	return grown
+
+## The Figment Tree's extra_chest: whole 100%s add a chest, the rest is a chance.
+func _extra_chests() -> int:
+	return Loot.roll_count(FigmentTree.effect("extra_chest") / 100.0)
 
 ## Rarity is rolled per pack (EnemyRarityComponent): an Elite pack shares one
 ## pack affix; a Champion leads an otherwise Normal pack; an Ascendant pack
 ## is one of Constants.ASCENDANT_UNITS with up to ASCENDANT_ESCORTS escorts.
 func _spawn_pack(unit_ids: Array[String], center: Vector3, forced_rarity: int = -1) -> void:
 	var rarity: Constants.EnemyRarity = EnemyRarityComponent.roll_pack_rarity() if forced_rarity < 0 else forced_rarity as Constants.EnemyRarity
+	unit_ids = _grow_pack(unit_ids)
 	if rarity == Constants.EnemyRarity.ASCENDANT:
 		var leader_id: String = Constants.ASCENDANT_UNITS.pick_random()
 		var escorts := unit_ids.slice(0, mini(unit_ids.size(), randi_range(0, Constants.ASCENDANT_ESCORTS)))

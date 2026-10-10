@@ -203,7 +203,50 @@ var _rarity_component: EnemyRarityComponent
 ## Rarity affixes and Champion auras on top of Map scaling.
 func get_attack_speed_multiplier() -> float:
 	var mult := rarity_component.get_attack_speed_multiplier() if rarity_component else 1.0
+	mult *= (1.0 + map_mod("monster_attack_speed")) * (1.0 + _boss_mod("boss_speed"))
 	return maxf(mult * (status_effects.get_action_speed_multiplier() if status_effects else 1.0), 0.1)
+
+## ---- Figment mods (FigmentMods) ----------------------------------------
+
+## The Figment boss and Ascendants also take the boss_* mods.
+func is_map_boss_target() -> bool:
+	return rarity_component != null and rarity_component.rarity == Constants.EnemyRarity.ASCENDANT
+
+## The active Figment's mod as a fraction (25% -> 0.25); 0 outside a Figment.
+func map_mod(key: String) -> float:
+	return GameState.active_map.mod_value(key) / 100.0 if GameState.active_map else 0.0
+
+func _boss_mod(key: String) -> float:
+	return map_mod(key) if is_map_boss_target() else 0.0
+
+func get_map_move_speed_multiplier() -> float:
+	return (1.0 + map_mod("monster_move_speed")) * (1.0 + _boss_mod("boss_speed"))
+
+## Radius scale for this enemy's area abilities (BossBrain, novas, explosions).
+func get_area_multiplier() -> float:
+	return (1.0 + map_mod("monster_area")) * (1.0 + _boss_mod("boss_area"))
+
+## Speeds up ability telegraphs (BossBrain), never below MIN_TELEGRAPH_SHARE.
+func get_cast_speed_multiplier() -> float:
+	return (1.0 + map_mod("monster_cast_speed")) * (1.0 + _boss_mod("boss_speed"))
+
+func get_extra_projectiles() -> int:
+	return roundi(map_mod("monster_projectiles") * 100.0)
+
+## A hit's damage after the Figment's crit mod (monsters can't crit without it).
+func roll_crit(amount: float) -> float:
+	var chance := map_mod("monster_crit")
+	if chance > 0.0 and randf() < chance:
+		return amount * (FigmentMods.MONSTER_BASE_CRIT_MULTIPLIER + chance * FigmentMods.CRIT_DAMAGE_PER_CHANCE)
+	return amount
+
+## [fraction, damage type] of each hit the Figment's conversion mod turns
+## into another type (Player.take_damage() splits it), or [] for none.
+func get_map_conversion() -> Array:
+	var affix: ItemAffix = GameState.active_map.get_mod("monster_conversion") if GameState.active_map else null
+	if affix == null or affix.damage_type < 0:
+		return []
+	return [clampf(affix.value / 100.0, 0.0, 1.0), affix.damage_type]
 
 ## The type an attack deals: a damage-conversion affix (Dreamer) overrides it.
 func convert_attack_type(damage_type: int) -> int:
@@ -409,7 +452,7 @@ func _apply_map_modifiers() -> void:
 	var base_health: float = health.max_health
 	if definition:
 		base_health = _level_scaled_health(definition.mob_level + (GameState.active_map.tier - 1) * MOB_LEVELS_PER_TIER)
-	health.max_health = base_health * GameState.active_map.enemy_health_multiplier * rarity_mult
+	health.max_health = base_health * GameState.active_map.enemy_health_multiplier * rarity_mult * (1.0 + _boss_mod("boss_life"))
 	health.current_health = health.max_health
 	_reset_ward()
 	xp_reward *= tier_bonus
@@ -423,6 +466,7 @@ func get_outgoing_damage_multiplier() -> float:
 		mult *= rarity_component.get_damage_multiplier()
 	if GameState.active_map == null:
 		return mult
+	mult *= (1.0 + map_mod("monster_damage")) * (1.0 + _boss_mod("boss_damage"))
 	return GameState.active_map.enemy_damage_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_DAMAGE_GROWTH_PER_TIER) * mult
 
 ## Horizontal velocity added on top of chase movement for one physics frame
@@ -571,7 +615,7 @@ func _update_chase() -> void:
 		return
 
 	var dir := to_player / dist
-	var speed := move_speed * status_effects.get_move_speed_multiplier() * (rarity_component.get_move_speed_multiplier() if rarity_component else 1.0) * WaterBuilder.wading_factor(global_position)
+	var speed := move_speed * status_effects.get_move_speed_multiplier() * (rarity_component.get_move_speed_multiplier() if rarity_component else 1.0) * get_map_move_speed_multiplier() * WaterBuilder.wading_factor(global_position)
 	# A shooter without a clear shot keeps closing in (around the wall)
 	# instead of standing at range.
 	var blocked_shot := is_ranged_unit() and not heading_for_target and not can_see_player()
@@ -836,8 +880,19 @@ func _maybe_drop_loot() -> void:
 
 	_maybe_drop_aether()
 	var mods := Loot.multipliers(rarity_component)
-	for i in Loot.roll_count(Loot.base_drop_rolls(rank, rarity_component) * mods["quantity"]):
+	for i in Loot.roll_count((Loot.base_drop_rolls(rank, rarity_component) + extra_drop_rolls()) * mods["quantity"]):
 		_roll_drop(mods["rarity"])
+
+## Drop rolls on top of rank and rarity (Figment Tree: Ascendancy; the
+## Figment boss overrides it).
+func extra_drop_rolls() -> float:
+	if rarity_component and rarity_component.rarity == Constants.EnemyRarity.ASCENDANT:
+		return FigmentTree.effect("ascendant_extra_rolls")
+	return 0.0
+
+## A drop category's chance scale from the Figment Tree's Rewards sector.
+func _reward_mult(category: String) -> float:
+	return 1.0 + FigmentTree.effect("reward:" + category) / 100.0
 
 ## One drop roll: at most one drop, from the first category that hits.
 func _roll_drop(rarity_mult: float) -> void:
@@ -847,33 +902,33 @@ func _roll_drop(rarity_mult: float) -> void:
 			_spawn_pickup(tome)
 			return  # one drop per roll
 
-	if randf() <= CURRENCY_DROP_CHANCE:
+	if randf() <= CURRENCY_DROP_CHANCE * _reward_mult("currency"):
 		_spawn_currency_pickup(Constants.roll_currency_drop())
 		return
 
-	if randf() <= CRAFTING_CONSUMABLE_DROP_CHANCE:
+	if randf() <= CRAFTING_CONSUMABLE_DROP_CHANCE * _reward_mult("currency"):
 		_spawn_currency_pickup(StringName(Constants.CRAFTING_CONSUMABLE_IDS.pick_random()))
 		return
 
-	if randf() <= SLATE_DROP_CHANCE:
+	if randf() <= SLATE_DROP_CHANCE * _reward_mult("slates"):
 		var power_level: int = GameState.active_map.tier if GameState.active_map else 1
 		var slate := SlateRoller.roll(power_level, rarity_mult)
 		if slate:
 			_spawn_slate_pickup(slate)
 			return
 
-	if randf() <= FIGMENT_DROP_CHANCE:
+	if randf() <= FIGMENT_DROP_CHANCE * (1.0 + FigmentTree.effect("figment_drop") / 100.0):
 		var power_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
 		var figment := FigmentRoller.roll_for_drop(power_level)
 		if figment:
 			_spawn_pickup(figment)
 			return
 
-	if randf() <= JEWEL_DROP_CHANCE:
+	if randf() <= JEWEL_DROP_CHANCE * _reward_mult("jewels"):
 		_spawn_pickup(JewelRoller.roll(_compute_item_level(), rarity_mult))
 		return
 
-	if randf() <= LENS_DROP_CHANCE:
+	if randf() <= LENS_DROP_CHANCE * _reward_mult("jewels"):
 		_spawn_pickup(LensRoller.roll(_compute_item_level(), rarity_mult))
 		return
 
@@ -883,7 +938,7 @@ func _roll_drop(rarity_mult: float) -> void:
 			_spawn_pickup(ammo)
 			return
 
-	if randf() > BASE_LOOT_DROP_CHANCE:
+	if randf() > BASE_LOOT_DROP_CHANCE * _reward_mult("gear"):
 		return
 	var item := ItemRoller.roll(_compute_item_level(), rarity_mult)
 	if item == null:

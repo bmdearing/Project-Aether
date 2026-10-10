@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3]
+[gd_scene load_steps=22 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://entities/interactables/reality_engine/RealityEngine.tscn" id="2"]
@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://ui/stash/StashScreen.tscn" id="21"]
 [ext_resource type="Script" path="res://entities/interactables/portal/HubPortalSpot.gd" id="22"]
 [ext_resource type="Script" path="res://levels/hub/MemoryNexus.gd" id="23"]
+[ext_resource type="PackedScene" path="res://ui/figment_tree/FigmentTreeScreen.tscn" id="24"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -84,6 +85,8 @@ autoplay = true
 [node name="CharacterScreen" parent="." instance=ExtResource("9")]
 
 [node name="MapScreen" parent="." instance=ExtResource("11")]
+
+[node name="FigmentTreeScreen" parent="." instance=ExtResource("24")]
 
 [node name="ShopScreen" parent="." instance=ExtResource("12")]
 

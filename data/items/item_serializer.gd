@@ -57,6 +57,7 @@ static func to_dict(item: Item) -> Dictionary:
 		"sockets": item.sockets,
 		"sockets_rolled": item.sockets_rolled,
 		"quality": item.quality,
+		"quality_cap_bonus": item.quality_cap_bonus,
 		"tolerance": item.tolerance,
 		"tolerance_max": item.tolerance_max,
 		"active_edict": String(item.active_edict.id) if item.active_edict else "",
@@ -82,6 +83,7 @@ static func to_dict(item: Item) -> Dictionary:
 		d["enemy_health_multiplier"] = item.enemy_health_multiplier
 		d["loot_quantity_multiplier"] = item.loot_quantity_multiplier
 		d["loot_rarity_multiplier"] = item.loot_rarity_multiplier
+		d["pack_size_multiplier"] = item.pack_size_multiplier
 		d["tileset_id"] = item.tileset_id
 	elif item is Weapon:
 		d["weapon_type"] = item.weapon_type
@@ -168,6 +170,7 @@ static func from_dict(d: Dictionary) -> Item:
 			jewels.append(jewel)
 	item.socketed = jewels
 	item.quality = d.get("quality", 0)
+	item.quality_cap_bonus = d.get("quality_cap_bonus", 0)
 	read_craft_state(item, d)
 
 	if item is Lens:
@@ -187,6 +190,7 @@ static func from_dict(d: Dictionary) -> Item:
 		item.enemy_health_multiplier = d.get("enemy_health_multiplier", 1.0)
 		item.loot_quantity_multiplier = d.get("loot_quantity_multiplier", 1.0)
 		item.loot_rarity_multiplier = d.get("loot_rarity_multiplier", 1.0)
+		item.pack_size_multiplier = d.get("pack_size_multiplier", 1.0)
 		item.tileset_id = d.get("tileset_id", "")
 	elif item is Weapon:
 		item.weapon_type = d.get("weapon_type", "")

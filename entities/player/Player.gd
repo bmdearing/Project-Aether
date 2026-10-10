@@ -533,6 +533,15 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 	# Ground zones like the Lord of the Elements' sigils.
 	for zone in get_tree().get_nodes_in_group("damage_zone"):
 		amount *= zone.damage_multiplier_for(self, damage_type)
+	# Figment conversion mod: part of an enemy's hit arrives as another type,
+	# mitigated on its own.
+	var enemy_source := source as Enemy
+	if enemy_source and hit_kind != HitKind.DOT:
+		var conversion := enemy_source.get_map_conversion()
+		if not conversion.is_empty() and int(conversion[1]) != damage_type:
+			var converted: float = amount * float(conversion[0])
+			_take_damage_single(converted, int(conversion[1]) as Constants.DamageType, source)
+			amount -= converted
 	# Patch v4.0 Defensive Mod Pool - % Physical Damage taken as Elemental
 	# shifts BEFORE mitigation, per damage type, splitting one hit into
 	# several smaller ones the rest of this function then processes

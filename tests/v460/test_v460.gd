@@ -227,7 +227,7 @@ func _test_small_helpers() -> void:
 	var yaw := GeneratedMap.facing_away(Vector3.ZERO, Vector3(0, 0, -2), 1.0)
 	var forward := Vector3(-sin(yaw), 0, -cos(yaw))
 	_check(forward.dot(Vector3(0, 0, -1)) > 0.99, "facing away from a portal behind you")
-	_check(MenuTabStrip.SCREENS.size() == 5, "five screens in the Tab cycle")
+	_check(MenuTabStrip.SCREENS.size() == 6, "six screens in the Tab cycle (v4.72 added the Figment Tree)")
 	_check(InputMap.has_action("open_menu") and InputMap.has_action("mark_trash") and InputMap.has_action("mark_favored"), "new input actions exist")
 	var k_bound := false
 	for e in InputMap.action_get_events("open_abilities"):

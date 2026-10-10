@@ -51,6 +51,14 @@ func _run() -> void:
 			_screen("fate_board_editor").open()
 		"map":
 			_screen("map_screen").open()
+		"figment_tree":
+			for style in MapTileset.all_ids().slice(0, 9):
+				for tier in randi_range(4, 16):
+					FigmentProgress.record(style, tier + 1)
+			for id in ["terrain_trunk_1", "terrain_trunk_2", "snow_1", "snow_2", "snow_3", "snow_notable", "monsters_trunk_1",
+					"monsters_trunk_2", "ascendant_1", "ascendant_2", "ascendant_notable", "rewards_trunk_1", "reward_uniques_1"]:
+				FigmentTree.unlock(id)
+			_screen("figment_tree_screen").open()
 		"pause":
 			_find_pause(hub).open()
 		"card":

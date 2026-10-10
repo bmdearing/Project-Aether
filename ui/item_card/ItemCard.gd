@@ -172,8 +172,9 @@ func _render_item(item: Item) -> void:
 	_add_subtitle(_item_type_line(item))
 	_add_separator()
 	if item is Weapon:
-		if item.quality > 0:
-			_add_value_line("Quality", STAT_COLOR, "+%d%%" % item.quality, "+%d%%" % item.quality)
+		if item.quality > 0 or item.quality_cap_bonus > 0:
+			var q := "+%d%%" % item.quality + (" (max %d%%)" % item.get_quality_cap() if item.quality_cap_bonus > 0 else "")
+			_add_value_line("Quality", STAT_COLOR, q, q)
 		for line in _build_attack_power_lines(item as Weapon):
 			_add_attack_power_line(line)
 		_add_weapon_value_lines(item as Weapon)
@@ -883,11 +884,18 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		var style := MapTileset.load_style(m.tileset_id)
 		if style:
 			lines.append("Area: %s (%s)" % [style.display_name, style.family.capitalize()])
-		lines.append("Monster Damage: %.0f%%" % (m.enemy_damage_multiplier * 100.0))
-		lines.append("Monster Life: %.0f%%" % (m.enemy_health_multiplier * 100.0))
+		lines.append("%s Band (Tiers %d-%d)" % [FigmentMods.band_name(m.tier), FigmentMods.band_range(m.band()).x, FigmentMods.band_range(m.band()).y])
+		# Figments rolled before the mod pools (v4.72) carry these instead.
+		if not is_equal_approx(m.enemy_damage_multiplier, 1.0):
+			lines.append("Monster Damage: %.0f%%" % (m.enemy_damage_multiplier * 100.0))
+		if not is_equal_approx(m.enemy_health_multiplier, 1.0):
+			lines.append("Monster Life: %.0f%%" % (m.enemy_health_multiplier * 100.0))
+		lines.append("Pack Size: +%.0f%%" % ((m.pack_size_multiplier - 1.0) * 100.0))
 		# Added to the player's own Item Quantity/Rarity on every kill here (Loot.multipliers()).
 		lines.append("Item Quantity: +%.0f%%" % ((m.loot_quantity_multiplier - 1.0) * 100.0))
 		lines.append("Item Rarity: +%.0f%%" % ((m.loot_rarity_multiplier - 1.0) * 100.0))
+		if not FigmentProgress.is_band_completed(m.tileset_id, m.band()):
+			lines.append("First %s clear in this band: +1 Figment Tree point" % (style.display_name if style else "clear"))
 	return lines
 
 ## Removed now, not just queued: a queued child still counts toward this

@@ -767,7 +767,7 @@ now droppable** (`Enemy.gd`, 6% chance/kill, scaled near the killing
 Map's own tier via `FigmentRoller.roll_for_drop()`) and **craftable** -
 right-clicking one in the Inventory empowers it
 (Gold-gated, `CraftingSystem.empower_figment()`) that raises its tier and
-strengthens its rolls, making it harder on purpose. Leaving a Map is
+strengthens its rolls, making it harder on purpose. Tiers, mods and the tree are described below. Leaving a Map is
 manual (Pause menu's "Return to Hub," or death).
 
 **Figments have a boss, and killing it "completes" the Figment.**
@@ -796,7 +796,7 @@ doesn't guarantee either one rolls onto a given Figment), so two Tier 5
 Figments could otherwise end up just as tough as two Tier 1 Figments by
 chance alone — tier itself now always makes enemies tougher, harder-
 hitting, and more rewarding (XP/Gold scale too). Invented growth curve
-(+15% health/+10% damage/+20% XP+Gold per tier above 1) — not doc-
+(+15% health/+10% damage/+20% XP+Gold per tier above 1, up to Tier 21) — not doc-
 sourced, Section 24 defers Map/tier balance entirely.
 
 **Enemy Rarity** (`entities/components/EnemyRarityComponent.gd`,
@@ -839,15 +839,57 @@ aura, and a `mechanic` id the component runs. Health bars list each rare
 enemy's affixes. Stat scaling is read by `Enemy` (`rarity_component`), not
 applied in the component's own `_ready()` (children ready before parents).
 
-**Figment Tree** (`systems/figment_tree/`) - scaffolding only, per direct
-request ("prepare legs for a Figment Tree ... not "build it"). A real,
-tested data model (`FigmentTreeNode`) and unlock/validation logic
-(`FigmentTree.can_unlock()`/`unlock()`, spending `GameState.
-figment_tree_points` - 1 point per completed Figment's tier, invented
-rate) against 5 hand-authored stub nodes with prerequisite gating. No UI
-screen exists to spend points through yet, and no node's `effect_key`
-(e.g. `"figment_loot_quantity"`) is wired into `FigmentRoller` or loot
-generation - both explicitly left for a future pass.
+**Figment tiers, bands and mods** (`data/figments/figment_mods.gd`,
+`FigmentRoller`, v4.72, user design): tiers 1-21 in three bands, Low (1-7),
+Mid (8-14) and High (15-21). Mods come from three pools, and each band opens
+one more: Low rolls Pool I only (1-3 mods), Mid rolls I-II (2-5) and High
+rolls I-III (4-7). Values grow 5% per tier within a band. Every mod adds
+Pack Size, Item Quantity and Item Rarity (`FigmentItem.recompute_rewards()`).
+Easy mods pay mostly in Pack Size, hard ones in Quantity/Rarity.
+  - **Pool I:** monster Movement Speed, Area of Effect, Cast Speed; more Boss Life.
+  - **Pool II:** monster Attack Speed, Crit Chance and Crit Damage (monsters
+    can't crit without it; x1.5 base), extra Projectiles; more Boss Area and
+    Boss Speed (cast, attack and move).
+  - **Pool III:** monster Damage, damage conversion (30-50% to a random
+    Fire/Cold/Lightning/Aetheric/Entropic/Pale, split and mitigated separately
+    in `Player.take_damage()`); more Boss Damage.
+`boss_*` mods hit the Figment boss and Ascendants (`Enemy.is_map_boss_target()`).
+Enemy hooks: `Enemy.map_mod()`, `get_area_multiplier()`, `get_cast_speed_multiplier()`,
+`get_extra_projectiles()`, `roll_crit()`, `get_map_conversion()`. BossBrain casts
+a scaled copy of each ability (`_scaled()`): radius x area, telegraph / cast speed
+(never below 60% of the original), plus extra volley projectiles. Pack Size adds
+copies of a pack's own units (`GeneratedMap._grow_pack()`). Figments rolled
+before v4.72 keep their old monster damage/life multipliers. Empowering one
+strips those legacy mods.
+
+**Endgame progression** (`systems/figment_tree/FigmentProgress.gd`): every
+completion is recorded per style and tier (`GameState.figment_completions`,
+"style:tier"). Each style is worth three Figment Tree points, one for its
+first clear in each band (14 styles x 3 = 42; v4.72 user change from one per
+tier). Figments drop, and can
+be empowered, at most one tier above the highest tier completed, so tiers open
+one at a time. The free Reality Engine run is always Tier 1. `MILESTONES` is
+the frame for the endgame story. Its texts are placeholders: the premise is
+only that the Reality Engine is rebuilding one scattered memory, and whose it is
+and the final encounter once every band of every style is cleared are still to be designed.
+
+**Figment Tree** (`systems/figment_tree/FigmentTree.gd`, screen
+`ui/figment_tree/`, `L` / Tab menu): a passive tree that steers what spawns in
+Figments. The root is always allocated; a node needs a link to an allocated
+node; a refund is free as long as everything else still reaches the root;
+"Refund All" clears it. 83 nodes in six sectors (small nodes 1 point,
+notables 2-3): **Terrain** (style family weights for dropped Figments, plus
+notables that add Quantity in that family), **Factions** (pack weights for
+Unchartered/Hollowed/Synod/Veilborne packs, plus notables that add Rarity
+against that faction), **Monsters** (Pack Size and Elite/Champion/Ascendant
+weights; Ascendancy gives them an extra drop roll), **Rewards** (drop chance
+per category: currency, Slates, jewels/Lenses, uniques, gear), **Encounters**
+(extra chests, chest loot, boss Gold/XP, boss drop rolls, extra Maw Fragment
+chance), **Figments** (Figment drop chance, a chance for a dropped Figment to
+roll a tier up, and Deeper Reality: +1 mod). Effects are summed by
+`FigmentTree.effect(key)` and apply only inside a Figment. Known gap: changing
+the tree while a portal back into a Figment is open can reshuffle that map's
+packs when it is rebuilt.
 
 **Shops** (`entities/interactables/gear_shop/`,
 `entities/interactables/spell_test_shop/`,
@@ -1214,6 +1256,7 @@ formulas).
 | Open Abilities (equip/upgrade) directly | N |
 | Open Character Screen directly | C |
 | Open Map Screen directly | M |
+| Open Figment Tree directly | L |
 | Rotate pending Slate *(Fate Board editor only)* | R |
 | Flip pending Slate *(Fate Board editor only)* | Q |
 | Interact *(Reality Engine, shops, Stash chest - Hub only)* | E |

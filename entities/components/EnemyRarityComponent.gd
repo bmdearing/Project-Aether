@@ -239,11 +239,12 @@ func _explode(at: Vector3) -> void:
 	var map := _enemy.get_parent() if is_instance_valid(_enemy) else get_tree().current_scene
 	var damage := _enemy.get_ability_base_damage() * VOLATILE_DAMAGE_HITS if is_instance_valid(_enemy) else 20.0
 	var damage_type := _enemy.get_ability_damage_type() if is_instance_valid(_enemy) else Constants.DamageType.EXPLOSIVE
-	BossTelegraph.circle(map, at, VOLATILE_RADIUS, VOLATILE_DELAY, Color(1.0, 0.45, 0.1))
+	var radius := VOLATILE_RADIUS * (_enemy.get_area_multiplier() if is_instance_valid(_enemy) else 1.0)
+	BossTelegraph.circle(map, at, radius, VOLATILE_DELAY, Color(1.0, 0.45, 0.1))
 	await get_tree().create_timer(VOLATILE_DELAY).timeout
 	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.explosion), at, -4.0)
 	var player := get_tree().get_first_node_in_group("player") as Player
-	if player and player.global_position.distance_to(at) <= VOLATILE_RADIUS:
+	if player and player.global_position.distance_to(at) <= radius:
 		player.take_damage(damage, damage_type, null, Player.HitKind.SPELL)
 
 func _try_blink() -> void:
@@ -267,12 +268,13 @@ func _try_nova() -> void:
 		return
 	_mechanic_timers[MECHANIC_NOVA] = _mechanic_value(MECHANIC_NOVA)
 	var at := _enemy.global_position
-	BossTelegraph.circle(_enemy.get_parent(), at, NOVA_RADIUS, NOVA_TELEGRAPH, Color(0.45, 0.8, 1.0))
+	var radius := NOVA_RADIUS * _enemy.get_area_multiplier()
+	BossTelegraph.circle(_enemy.get_parent(), at, radius, NOVA_TELEGRAPH, Color(0.45, 0.8, 1.0))
 	await get_tree().create_timer(NOVA_TELEGRAPH).timeout
 	if not is_instance_valid(_enemy) or not _enemy.health.is_alive():
 		return
 	player = get_tree().get_first_node_in_group("player") as Player
-	if player and player.global_position.distance_to(_enemy.global_position) <= NOVA_RADIUS:
+	if player and player.global_position.distance_to(_enemy.global_position) <= radius:
 		player.take_damage(_enemy.get_ability_base_damage() * NOVA_DAMAGE_HITS, Constants.DamageType.COLD, _enemy, Player.HitKind.SPELL)
 		if player.status_effects:
 			player.status_effects.apply_effect("chill", _enemy)
@@ -333,7 +335,11 @@ static func affixes_for_category(category: EnemyAffix.AffixCategory) -> Array[En
 	return result
 
 static func roll_pack_rarity() -> Constants.EnemyRarity:
-	var weights: Dictionary = Constants.ENEMY_PACK_RARITY_WEIGHTS
+	var weights: Dictionary = Constants.ENEMY_PACK_RARITY_WEIGHTS.duplicate()
+	# Figment Tree: Monsters sector.
+	weights[Constants.EnemyRarity.ELITE] *= 1.0 + FigmentTree.effect("rarity_weight:elite") / 100.0
+	weights[Constants.EnemyRarity.CHAMPION] *= 1.0 + FigmentTree.effect("rarity_weight:champion") / 100.0
+	weights[Constants.EnemyRarity.ASCENDANT] *= 1.0 + FigmentTree.effect("rarity_weight:ascendant") / 100.0
 	var total := 0.0
 	for w in weights.values():
 		total += w

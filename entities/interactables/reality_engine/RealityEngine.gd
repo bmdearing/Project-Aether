@@ -65,7 +65,8 @@ func _pinnacle_entries() -> Array:
 
 func _entry_for(figment: FigmentItem, in_stash: bool = false) -> Dictionary:
 	return {
-		"label": "%s (%d Aether-warped)%s" % [figment.display_name, figment.affixes.size(), " - Stash" if in_stash else ""],
+		"label": "T%d %s (%s, %d mods)%s%s" % [figment.tier, figment.display_name, FigmentMods.band_name(figment.tier), figment.affixes.size(),
+			"" if FigmentProgress.is_band_completed(figment.tileset_id, figment.band()) else " - New (+1 point)", " - Stash" if in_stash else ""],
 		"cost": 0,
 		"button_label": "Enter",
 		"color": Constants.ITEM_RARITY_COLOR.get(figment.rarity, Color.WHITE),

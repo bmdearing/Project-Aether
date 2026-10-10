@@ -81,15 +81,20 @@ func _fire() -> void:
 
 	var origin: Vector3 = _enemy.get_cast_origin()
 	var target_pos: Vector3 = _player.global_position + Vector3(0, 0.9, 0)
-	var dir := (target_pos - origin).normalized()
-	# Muzzle offset forward of the enemy's capsule - spawning at `origin`
-	# would land inside the shooter's own collision shape.
-	var spawn_pos := origin + dir * 0.7
+	var aim := (target_pos - origin).normalized()
+	# Extra projectiles (Figment mod) fan out EXTRA_PROJECTILE_SPREAD apart.
+	var count := 1 + _enemy.get_extra_projectiles()
+	for i in count:
+		var dir := aim.rotated(Vector3.UP, deg_to_rad(EXTRA_PROJECTILE_SPREAD) * (i - (count - 1) * 0.5))
+		# Muzzle offset forward of the enemy's capsule - spawning at `origin`
+		# would land inside the shooter's own collision shape.
+		var spawn_pos := origin + dir * 0.7
+		var projectile: Projectile = PROJECTILE_SCENE.instantiate()
+		projectile.damage_amount = _enemy.roll_crit(damage_amount * _enemy.get_outgoing_damage_multiplier())
+		projectile.damage_type = _enemy.convert_attack_type(damage_type)
+		projectile.source = _enemy
+		projectile.speed = projectile_speed
+		_enemy.get_tree().current_scene.add_child(projectile)
+		projectile.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), spawn_pos)
 
-	var projectile: Projectile = PROJECTILE_SCENE.instantiate()
-	projectile.damage_amount = damage_amount * _enemy.get_outgoing_damage_multiplier()
-	projectile.damage_type = _enemy.convert_attack_type(damage_type)
-	projectile.source = _enemy
-	projectile.speed = projectile_speed
-	_enemy.get_tree().current_scene.add_child(projectile)
-	projectile.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), spawn_pos)
+const EXTRA_PROJECTILE_SPREAD := 12.0

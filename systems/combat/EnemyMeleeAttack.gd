@@ -116,7 +116,7 @@ func _resolve_hit(player: Player) -> void:
 		EventBus.enemy_attack_resolved.emit(_enemy, player, false, false)
 		return
 	if not parried:
-		var dealt := damage_amount * _enemy.get_outgoing_damage_multiplier()
+		var dealt := _enemy.roll_crit(damage_amount * _enemy.get_outgoing_damage_multiplier())
 		player.take_damage(dealt, _enemy.convert_attack_type(damage_type), _enemy, Player.HitKind.ATTACK, true)
 		if _enemy.rarity_component:
 			_enemy.rarity_component.on_hit_player(player, dealt)

@@ -39,6 +39,13 @@ var weight: float = 1.0
 ## PULL: how far from the pull's centre the player stops.
 var pull_stop: float = BossBrain.PULL_STOP_DISTANCE
 
+func copy() -> BossAbility:
+	var c := BossAbility.new()
+	for p in get_property_list():
+		if p["usage"] & PROPERTY_USAGE_SCRIPT_VARIABLE:
+			c.set(p["name"], get(p["name"]))
+	return c
+
 static func make(fields: Dictionary) -> BossAbility:
 	var a := BossAbility.new()
 	for key in fields:

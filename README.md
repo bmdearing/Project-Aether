@@ -26,6 +26,7 @@ Each build is a single self-contained executable (about 530 MB to download).
 ## Features
 
 - **Hub and Figments:** procedurally generated maps (dungeons, open fields and canyons in Dungeon, Desert and Snow styles, each with its own layout), Vault rooms, portals home, and pinnacle bosses.
+- **Endgame mapping:** Figment tiers 1-21 in Low, Mid and High bands, three pools of monster and boss modifiers that pay back in Pack Size, Item Quantity and Item Rarity, and a Figment Tree, earned by first clears, that steers which areas, factions, monsters and rewards your Figments roll.
 - **Weighty first-person combat:** light, heavy and charged attacks; parry, riposte and counter hits; hit-stop; and weapon stances for every weapon family.
 - **Every weapon feels different:** each weapon family has its own attack, recoil, reload and bow-draw animations, and casters get channelled stances.
 - **Ranged weapons:** magazines, reloading, fire modes and spread for pistols, rifles, shotguns, bows and crossbows.
@@ -46,7 +47,7 @@ Each build is a single self-contained executable (about 530 MB to download).
 | Swap weapon set (tap) / stance page (hold) | X |
 | Interact | E |
 | Portal to the Hub | T |
-| Inventory / Character / Spells / Fate Board / Map | B / C / K / P / M |
+| Inventory / Character / Spells / Fate Board / Map / Figment Tree | B / C / K / P / M / L |
 | Menu: open the last screen, then cycle screens (Shift: backwards) | Tab |
 | Mark hovered item as Trash / Favored | Z / V |
 | Copy hovered item as text | Ctrl+C |

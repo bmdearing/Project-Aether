@@ -48,6 +48,8 @@ func save_game() -> void:
 		"deaths": GameState.deaths,
 		"kills": GameState.kills,
 		"pinnacle_clears": GameState.pinnacle_clears,
+		"figment_completions": GameState.figment_completions,
+		"figment_tree_nodes": GameState.figment_tree_unlocked_nodes,
 	}
 	_write_atomic(JSON.stringify(data))
 
@@ -159,6 +161,18 @@ func load_game() -> void:
 	if clears is Dictionary:
 		for boss_id in clears:
 			GameState.pinnacle_clears[str(boss_id)] = int(clears[boss_id])
+	GameState.figment_completions = {}
+	var completions: Variant = parsed.get("figment_completions", {})
+	if completions is Dictionary:
+		for k in completions:
+			GameState.figment_completions[str(k)] = int(completions[k])
+	var tree_nodes: Array[String] = []
+	var tree_raw: Variant = parsed.get("figment_tree_nodes", [])
+	if tree_raw is Array:
+		for id in tree_raw:
+			if FigmentTree.get_node_by_id(str(id)):
+				tree_nodes.append(str(id))
+	GameState.figment_tree_unlocked_nodes = tree_nodes
 	var stash_raw = parsed.get("stash")
 	if typeof(stash_raw) == TYPE_DICTIONARY:
 		GameState.stash = Stash.from_dict(stash_raw)

@@ -63,9 +63,14 @@ static func multipliers(enemy_rarity: EnemyRarityComponent = null, player_overri
 	if map:
 		quantity += (map.loot_quantity_multiplier - 1.0) * 100.0
 		rarity += (map.loot_rarity_multiplier - 1.0) * 100.0
+		quantity += FigmentTree.effect("map_quantity") + FigmentTree.effect("family_quantity:" + MapTileset.family_of(map.tileset_id))
+		rarity += FigmentTree.effect("map_rarity")
 	if enemy_rarity:
 		quantity += enemy_rarity.get_effective_quantity_bonus()
 		rarity += enemy_rarity.get_effective_rarity_bonus()
+		var enemy := enemy_rarity.get_parent() as Enemy
+		if enemy and enemy.definition:
+			rarity += FigmentTree.effect("faction_rarity:" + enemy.definition.faction)
 	return {"quantity": maxf(1.0 + quantity / 100.0, 0.0), "rarity": maxf(1.0 + rarity / 100.0, 0.0)}
 
 ## Expected drop rolls for an enemy before Item Quantity.
@@ -98,6 +103,8 @@ static func rarity_weights(rarity_multiplier: float) -> Dictionary:
 	var weights := {}
 	for r in RARITY_WEIGHTS:
 		weights[r] = RARITY_WEIGHTS[r] * (1.0 if r == Constants.ItemRarity.COMMON else rarity_multiplier)
+		if r == Constants.ItemRarity.UNIQUE or r == Constants.ItemRarity.MYTHIC:
+			weights[r] *= 1.0 + FigmentTree.effect("reward:uniques") / 100.0
 	return weights
 
 static func _randf(rng: RandomNumberGenerator) -> float:

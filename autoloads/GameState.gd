@@ -101,9 +101,10 @@ var owned_ability_ids: Array[String] = []
 ## Booming Blade is a toggle that stays on across areas until cast again.
 var booming_blade_on: bool = false
 
-## Figment Tree points: one per tier of each completed Figment.
-var figment_tree_points: int = 0
-## Unlocked FigmentTreeNode.node_ids.
+## First clears, "style_id:tier" -> times completed (FigmentProgress). Each
+## key is one Figment Tree point.
+var figment_completions: Dictionary = {}
+## Allocated FigmentTreeNode.node_ids (the root is implicit).
 var figment_tree_unlocked_nodes: Array[String] = []
 
 func _ready() -> void:
@@ -113,7 +114,8 @@ func _ready() -> void:
 	EventBus.enemy_died.connect(func(_enemy): kills += 1)
 
 func _on_figment_completed(figment: FigmentItem) -> void:
-	figment_tree_points += figment.tier if figment else 1
+	if figment:
+		FigmentProgress.record(figment.tileset_id, figment.tier)
 
 ## Records a spell's web after a change, for saving.
 func store_skill_web(ability: Ability) -> void:
@@ -174,7 +176,7 @@ func reset_to_defaults() -> void:
 	deaths = 0
 	kills = 0
 	pinnacle_clears = {}
-	figment_tree_points = 0
+	figment_completions = {}
 	figment_tree_unlocked_nodes = []
 	shield_on_rmb = true
 	stance_page = 0

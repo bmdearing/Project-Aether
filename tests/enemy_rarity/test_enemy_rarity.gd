@@ -30,7 +30,8 @@ func _frames(n: int) -> void:
 func _run() -> void:
 	GameState.reset_to_defaults()
 	GameState.game_started = false
-	var figment := FigmentRoller.roll(1)
+	# No mods: Pack Size and the other Figment mods would skew pack checks.
+	var figment := FigmentItem.new()
 	figment.tileset_id = "dungeon_cellblock"
 	GameState.active_map = figment
 	_map = load(MAP).instantiate()

@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/figment_tree/FigmentTreeScreen.gd" id="1"]
+
+[node name="FigmentTreeScreen" type="CanvasLayer"]
+script = ExtResource("1")

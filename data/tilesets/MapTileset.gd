@@ -104,6 +104,18 @@ static func all_ids() -> PackedStringArray:
 	ids.sort()
 	return ids
 
+## Families in display order (Figment Tree, progress grid).
+const FAMILIES: Array[String] = ["dungeon", "desert", "forest", "snow"]
+
+## A style's family, read from its resource (cached).
+static var _family_cache: Dictionary = {}
+
+static func family_of(style_id: String) -> String:
+	if not _family_cache.has(style_id):
+		var style := load_style(style_id)
+		_family_cache[style_id] = style.family if style else ""
+	return _family_cache[style_id]
+
 static func random_id() -> String:
 	var ids := all_ids()
 	return ids[randi() % ids.size()] if not ids.is_empty() else ""

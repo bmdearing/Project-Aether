@@ -5,13 +5,16 @@ class_name CraftingSystem
 ## (a thin wrapper around CorruptionSystem.gd), and Figment empowering.
 ## Orb crafting is CraftingResolver.gd. The old Cube was removed in Rev2.
 
-## Figment "affixes" are enemy/loot multipliers (FigmentRoller.AFFIX_POOL),
-## not player stats, so empowering is its own Gold-priced action.
+## Figment "affixes" are FigmentMods mods, not player stats, so empowering
+## is its own Gold-priced action. It can't pass the highest tier a Figment
+## can drop at (FigmentProgress.max_drop_tier()).
 const EMPOWER_FIGMENT_GOLD_COST := 25
 
 static func empower_figment(figment: FigmentItem) -> Dictionary:
 	if figment == null:
 		return {"success": false, "message": "No Figment selected."}
+	if figment.tier >= FigmentProgress.max_drop_tier():
+		return {"success": false, "message": "Complete a Tier %d Figment to empower past it." % figment.tier if figment.tier < FigmentMods.MAX_TIER else "This Figment is already Tier %d." % FigmentMods.MAX_TIER}
 	figment.tier += 1
 	FigmentRoller.strengthen(figment)
 	return {"success": true, "message": "The Figment grows harder - now Tier %d." % figment.tier}
