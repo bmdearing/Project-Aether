@@ -201,6 +201,26 @@ node dedupe_textures.js [--dry-run]
   `mdx_sidecar.js` uses it, so reconverting a model resolves to the shared
   copy. If a removed copy is re-extracted, the next pass removes it again.
 
+## Spell effects (2026-10-09)
+
+`node mdx_fx.js <effect.mdx> [scale]` converts a WC3 spell effect: the .glb
+for its geosets (via `convert()`) plus `<effect>.fx.json` with what glTF can't
+carry - ParticleEmitter2 emitters, layer blend modes, layer/geoset alpha and
+color, texture (UV) translation - sampled at 30 Hz per sequence with
+war3-model's own Hermite/Bezier/windowing rules (`mdx_interp.js`).
+`entities/effects/mdx_effect/MdxEffect.gd` plays it in Godot.
+
+- Use the classic SD models (`war3.w3mod:abilities/spells/...`). The HD copies
+  are PopcornFX references (`.pkfx`) with no geometry or emitters.
+- Fetch their textures with `node wc3_textures.js <wc3_dir> <model.mdx> --sd`.
+  The HD textures were redrawn for PopcornFX and look wrong (green fire) on
+  the classic models.
+- Not converted yet: ribbon emitters, event objects (spawned models, ground
+  splats, sounds), texture rotation/scaling, layer shading other than
+  unshaded.
+- Look check: `tests/ui_capture/capture_effect.tscn -- <out_prefix> <fx.json>
+  <times,csv> [scale] [start] [speed] [geo|fx]` (windowed).
+
 ## Not yet implemented
 
 - WC3 Hermite/Bezier interpolation is approximated as linear;

@@ -10,6 +10,9 @@ const { loadModel } = require("./mdx_load");
 
 // Reforged keeps game-ready textures in the _hd/_de mods; cutscene copies are a fallback.
 const MOD_PREFIXES = ["war3.w3mod:_hd.w3mod:", "war3.w3mod:_de.w3mod:", "war3.w3mod:"];
+// Classic (SD) effect models need the classic textures: the HD copies were
+// redrawn for the PopcornFX versions and don't match the old layouts.
+const SD_PREFIXES = ["war3.w3mod:", "war3.w3mod:_de.w3mod:", "war3.w3mod:_hd.w3mod:"];
 const SKIP = /(^|[\\/])(black32|white|environmentmap)\.[a-z]+$/i;
 
 function normalize(texturePath) {
@@ -17,7 +20,8 @@ function normalize(texturePath) {
 }
 
 class TextureFetcher {
-  constructor(installDir) {
+  constructor(installDir, { sd = false } = {}) {
+    this.prefixes = sd ? SD_PREFIXES : MOD_PREFIXES;
     this.storage = new CascStorage(installDir);
     this.files = this.storage.listFiles();
     this.byName = new Map();
@@ -32,7 +36,7 @@ class TextureFetcher {
   // CASC path for a model's texture reference, or null.
   resolve(texturePath) {
     const rel = normalize(texturePath);
-    for (const prefix of MOD_PREFIXES) {
+    for (const prefix of this.prefixes) {
       if (this.files.has(prefix + rel)) return prefix + rel;
     }
     const candidates = (this.byName.get(rel.slice(rel.lastIndexOf("/") + 1)) || [])
@@ -81,12 +85,13 @@ function rank(key) {
 }
 
 if (require.main === module) {
-  const [, , installDir, ...models] = process.argv;
+  const sd = process.argv.includes("--sd");
+  const [, , installDir, ...models] = process.argv.filter((a) => a !== "--sd");
   if (!installDir || models.length === 0) {
-    console.error("Usage: node wc3_textures.js <wc3_install_dir> <model.mdx> [...]");
+    console.error("Usage: node wc3_textures.js <wc3_install_dir> <model.mdx> [...] [--sd]");
     process.exit(1);
   }
-  const fetcher = new TextureFetcher(installDir);
+  const fetcher = new TextureFetcher(installDir, { sd });
   for (const m of models) {
     const { fetched, unresolved } = fetcher.fetchForModel(path.resolve(m));
     console.log(`${path.basename(m)}: ${fetched.length} fetched, ${unresolved.length} unresolved`);

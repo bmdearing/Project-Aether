@@ -1,0 +1,179 @@
+{
+  "source": "flamestrike.mdx",
+  "version": 1800,
+  "scale": 0.02,
+  "idle_sequence": "birth",
+  "bounds": {
+    "min": [
+      null,
+      null,
+      null
+    ],
+    "max": [
+      null,
+      null,
+      null
+    ],
+    "height": null
+  },
+  "sequences": [
+    {
+      "name": "birth",
+      "start": 0,
+      "end": 7167,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "stand",
+      "start": 7833,
+      "end": 8500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "death",
+      "start": 9167,
+      "end": 12500,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 3,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "megablast.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\MegaBlast.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "visibility": {
+        "birth": false,
+        "stand": false,
+        "death": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 3,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "megablast.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\MegaBlast.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "visibility": {
+        "birth": false,
+        "stand": false,
+        "death": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 3,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "megablast.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\MegaBlast.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "visibility": {
+        "birth": false,
+        "stand": false,
+        "death": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 3,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "megablast.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\MegaBlast.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "visibility": {
+        "birth": false,
+        "stand": false,
+        "death": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 3,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "megablast.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\MegaBlast.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "visibility": {
+        "birth": false,
+        "stand": false,
+        "death": false
+      }
+    }
+  ]
+}
