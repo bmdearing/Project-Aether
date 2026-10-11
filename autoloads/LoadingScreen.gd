@@ -109,10 +109,9 @@ func _describe(path: String) -> void:
 	var subtitle := ""
 	if path == GameState.MAP_SCENE:
 		var map := GameState.active_map
-		var style := MapTileset.load_style(map.tileset_id) if map else null
 		title = map.display_name if map else "Figment"
-		if style:
-			subtitle = "%s  ·  %s" % [style.display_name, style.family.capitalize()]
+		if map and MapTileset.display_name_of(map.tileset_id) != "":
+			subtitle = "%s  ·  %s" % [MapTileset.display_name_of(map.tileset_id), MapTileset.family_of(map.tileset_id).capitalize()]
 		if map:
 			subtitle += ("  ·  " if subtitle != "" else "") + ("Depth %d" % map.depth if map.is_levelling() else "Tier %d" % map.tier) + "  ·  Area Level %d" % map.area_level()
 	elif path == GameState.HUB_SCENE:

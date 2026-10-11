@@ -154,8 +154,8 @@ func _test_weather() -> void:
 	atmo.time_of_day = 0.5
 	add_child(atmo)
 	await get_tree().process_frame
-	var rain := atmo.get_node_or_null("Precipitation") as CPUParticles3D
-	_check(rain != null and rain.amount >= 2000 and rain.emitting, "a storm pours rain")
+	var rain := atmo.get_node_or_null("Precipitation") as GPUParticles3D
+	_check(rain != null and rain.amount >= 1500 and rain.emitting, "a storm pours rain")
 	_check(rain != null and rain.layers == 1 << (MapAtmosphere.WEATHER_LAYER - 1), "rain stays off the minimap's layer")
 	_check(rain != null and rain.global_position.distance_to(camera.global_position) < MapAtmosphere.FALL_HEIGHT, "the rain follows the camera")
 	_check(env.fog_density > style.fog_density * 2.0, "storms thicken the fog")

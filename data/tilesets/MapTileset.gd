@@ -114,9 +114,16 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 static func load_style(style_id: String) -> MapTileset:
 	if style_id.is_empty() or not ResourceLoader.exists(STYLE_DIR + style_id + ".tres"):
 		return null
-	return load(STYLE_DIR + style_id + ".tres") as MapTileset
+	var style := load(STYLE_DIR + style_id + ".tres") as MapTileset
+	if OS.is_debug_build() and style and STYLE_INFO.has(style_id) and STYLE_INFO[style_id] != [style.display_name, style.family]:
+		push_warning("MapTileset.STYLE_INFO is out of date for %s" % style_id)
+	return style
+
+static var _ids := PackedStringArray()
 
 static func all_ids() -> PackedStringArray:
+	if not _ids.is_empty():
+		return _ids
 	var ids := PackedStringArray()
 	for f in DirAccess.get_files_at(STYLE_DIR):
 		if f.ends_with(".tres"):
@@ -124,19 +131,53 @@ static func all_ids() -> PackedStringArray:
 		elif f.ends_with(".tres.remap"):
 			ids.append(f.trim_suffix(".remap").get_basename())
 	ids.sort()
+	_ids = ids
 	return ids
 
 ## Families in display order (Figment Tree, progress grid).
 const FAMILIES: Array[String] = ["dungeon", "desert", "forest", "snow", "city"]
 
-## A style's family, read from its resource (cached).
-static var _family_cache: Dictionary = {}
+## Name and family per style, so menus, tooltips and Figment drops don't
+## load a whole style (every texture and building scene it references).
+## load_style() warns in debug builds when a style drifts from this.
+const STYLE_INFO := {
+	"city_downtown": ["Downtown", "city"],
+	"city_harbor": ["Harbor", "city"],
+	"city_park": ["Park", "city"],
+	"city_residence": ["Residence", "city"],
+	"city_trainyard": ["Trainyard", "city"],
+	"desert_badlands": ["Badlands", "desert"],
+	"desert_dunes": ["Dunes", "desert"],
+	"dungeon_cellblock": ["Cellblock", "dungeon"],
+	"dungeon_foundry_pit": ["Foundry Pit", "dungeon"],
+	"dungeon_mine": ["Mine", "dungeon"],
+	"dungeon_undercroft": ["Undercroft", "dungeon"],
+	"forest_aspen": ["Aspen Grove", "forest"],
+	"forest_hills": ["Hills", "forest"],
+	"forest_plains": ["Plains", "forest"],
+	"forest_river_valley": ["River Valley", "forest"],
+	"snow_frostwood": ["Frostwood", "snow"],
+	"snow_frozen_crypt": ["Frozen Crypt", "snow"],
+	"snow_glacier_pass": ["Glacier Pass", "snow"],
+	"snow_tundra": ["Tundra", "snow"],
+}
+
+## Styles missing from STYLE_INFO fall back to loading the resource once.
+static var _info_cache: Dictionary = {}
+
+static func _info(style_id: String) -> Array:
+	if STYLE_INFO.has(style_id):
+		return STYLE_INFO[style_id]
+	if not _info_cache.has(style_id):
+		var style := load_style(style_id)
+		_info_cache[style_id] = [style.display_name, style.family] if style else ["", ""]
+	return _info_cache[style_id]
+
+static func display_name_of(style_id: String) -> String:
+	return _info(style_id)[0]
 
 static func family_of(style_id: String) -> String:
-	if not _family_cache.has(style_id):
-		var style := load_style(style_id)
-		_family_cache[style_id] = style.family if style else ""
-	return _family_cache[style_id]
+	return _info(style_id)[1]
 
 static func random_id() -> String:
 	var ids := all_ids()

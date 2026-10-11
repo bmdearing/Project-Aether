@@ -882,9 +882,8 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		lines.append("Block Chance: %.0f%%" % (s.block_chance * 100.0))
 	elif item is FigmentItem:
 		var m := item as FigmentItem
-		var style := MapTileset.load_style(m.tileset_id)
-		if style:
-			lines.append("Area: %s (%s)" % [style.display_name, style.family.capitalize()])
+		if MapTileset.display_name_of(m.tileset_id) != "":
+			lines.append("Area: %s (%s)" % [MapTileset.display_name_of(m.tileset_id), MapTileset.family_of(m.tileset_id).capitalize()])
 		lines.append("Area Level %d" % m.area_level())
 		if m.is_levelling():
 			lines.append("Levelling stage (Depth %d of %d)" % [m.depth, AreaLevel.DEPTHS])
@@ -900,7 +899,7 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		lines.append("Item Quantity: +%.0f%%" % ((m.loot_quantity_multiplier - 1.0) * 100.0))
 		lines.append("Item Rarity: +%.0f%%" % ((m.loot_rarity_multiplier - 1.0) * 100.0))
 		if not m.is_levelling() and not FigmentProgress.is_band_completed(m.tileset_id, m.band()):
-			lines.append("First %s clear in this band: +1 Figment Tree point" % (style.display_name if style else "clear"))
+			lines.append("First %s clear in this band: +1 Figment Tree point" % (MapTileset.display_name_of(m.tileset_id) if MapTileset.display_name_of(m.tileset_id) != "" else "clear"))
 	return lines
 
 ## Removed now, not just queued: a queued child still counts toward this

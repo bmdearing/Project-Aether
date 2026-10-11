@@ -15,6 +15,7 @@ const ABILITY_DIR := "res://data/abilities/instances/"
 const SKIP_RANGE_EFFECT := ["winters_eye"]
 
 static var done := false
+const BossFx := preload("res://entities/effects/boss_fx/BossFx.gd")
 
 static func run(tree: SceneTree) -> void:
 	if done:
@@ -52,8 +53,22 @@ static func run(tree: SceneTree) -> void:
 		SpellFx.shockwave(scene, spot, 2.0, color)
 		SpellFx.sweep(scene, spot, Vector3.FORWARD, 3.0, 50.0, color)
 		LightningArc.spawn(scene, spot + Vector3.UP * 0.5, spot + Vector3(1, 2, 0), color)
+	# Boss effects, silently: impacts, wind-up glows, hazard auras, bolt dressing.
+	var holders: Array[Node] = []
+	for type in [Constants.DamageType.FIRE, Constants.DamageType.COLD, Constants.DamageType.LIGHTNING, Constants.DamageType.ENTROPIC, Constants.DamageType.KINETIC]:
+		BossFx.impact(scene, spot, 3.0, type, false)
+		var holder := Node3D.new()
+		scene.add_child(holder)
+		holder.global_position = spot
+		holders.append(holder)
+		BossFx.charge(holder, spot + Vector3.UP, type, 0.2, false)
+		BossFx.hazard_aura(holder, 2.0, type)
+		BossFx.dress_bolt(holder, type)
 	for i in FRAMES:
 		await tree.process_frame
+	for holder in holders:
+		if is_instance_valid(holder):
+			holder.queue_free()
 	for bolt in bolts:
 		if is_instance_valid(bolt):
 			bolt.queue_free()

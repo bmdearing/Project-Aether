@@ -15,8 +15,8 @@ static func roll(tier: int) -> FigmentItem:
 	figment.item_id = "rolled_figment_t%d_%d" % [tier, randi()]
 	figment.tier = clampi(tier, 1, MAX_TIER)
 	figment.tileset_id = roll_style()
-	var style := MapTileset.load_style(figment.tileset_id)
-	figment.display_name = "%s Figment" % style.display_name if style else "Tier %d Figment" % figment.tier
+	var style_name := MapTileset.display_name_of(figment.tileset_id)
+	figment.display_name = "%s Figment" % style_name if style_name != "" else "Tier %d Figment" % figment.tier
 	figment.flavor_text = "Reality bends where the Engine points it."
 	var ids := FigmentMods.ids_for_tier(figment.tier)
 	ids.shuffle()
@@ -35,8 +35,8 @@ static func roll_depth(depth: int) -> FigmentItem:
 	figment.depth = clampi(depth, 1, AreaLevel.DEPTHS)
 	figment.item_id = "rolled_figment_d%d_%d" % [figment.depth, randi()]
 	figment.tileset_id = roll_style()
-	var style := MapTileset.load_style(figment.tileset_id)
-	figment.display_name = "Shallow %s Figment" % style.display_name if style else "Depth %d Figment" % figment.depth
+	var style_name := MapTileset.display_name_of(figment.tileset_id)
+	figment.display_name = "Shallow %s Figment" % style_name if style_name != "" else "Depth %d Figment" % figment.depth
 	figment.flavor_text = "A memory near the surface. The Engine holds it easily."
 	if figment.depth >= DEPTH_MODS_FROM and randf() < 0.5:
 		var ids := FigmentMods.ids_for_tier(1)

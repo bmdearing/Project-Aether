@@ -97,6 +97,8 @@ func _click(pos: Vector2, refund: bool) -> void:
 
 func _draw() -> void:
 	var nodes := FigmentTree.all_nodes()
+	# Worked out once per draw: can_unlock() recounts points for every node.
+	var points := FigmentProgress.points_available()
 	# Links: bright between two allocated nodes, dim otherwise.
 	for node in nodes:
 		for other_id in node.links:
@@ -119,7 +121,7 @@ func _draw() -> void:
 		var c := _to_screen(node.position)
 		var r := _radius(node)
 		var allocated := FigmentTree.is_allocated(node.node_id)
-		var available := FigmentTree.can_unlock(node.node_id)
+		var available := not allocated and points >= node.point_cost and node.links.any(FigmentTree.is_allocated)
 		var tint: Color = SECTOR_COLORS.get(node.sector, AetherStyle.GOLD)
 		var fill := Color(tint, 0.95) if allocated else (Color(tint, 0.35) if available else Color(0.08, 0.09, 0.13, 0.95))
 		var ring := AetherStyle.GOLD_BRIGHT if allocated else (tint if available else AetherStyle.GOLD_DIM)

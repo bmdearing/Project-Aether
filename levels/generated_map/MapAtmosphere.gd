@@ -47,9 +47,20 @@ const FALL_HEIGHT := 14.0
 const WEATHER_LAYER := 20
 ## Thick weather never closes in tighter than this.
 const MAX_FOG_DENSITY := 0.045
+## Sky, light and fog follow the clock this often (lightning flashes every frame).
+const APPLY_INTERVAL := 0.2
 
-var time_of_day: float = 0.4
-var weather: Weather = Weather.CLEAR
+## Setting the time or weather updates the look on the next frame.
+var time_of_day: float:
+	get: return _clock
+	set(value):
+		_clock = value
+		_apply_in = 0.0
+var weather: Weather = Weather.CLEAR:
+	set(value):
+		weather = value
+		_apply_in = 0.0
+var _clock: float = 0.4
 
 var _style: MapTileset
 var _env: Environment
@@ -57,7 +68,8 @@ var _sun: DirectionalLight3D
 var _base_fog: float
 var _flash: float = 0.0
 var _thunder_in: float = 0.0
-var _fall: CPUParticles3D
+var _fall: GPUParticles3D
+var _apply_in: float = 0.0
 var _fall_offset := Vector3(0, FALL_HEIGHT * 0.6, 0)
 var _rng := RandomNumberGenerator.new()
 
@@ -112,11 +124,14 @@ func ambience_spec(base: String) -> String:
 func _process(delta: float) -> void:
 	if _style == null:
 		return
-	time_of_day = fposmod(time_of_day + delta / DAY_LENGTH, 1.0)
+	_clock = fposmod(_clock + delta / DAY_LENGTH, 1.0)
 	if weather == Weather.STORM:
 		_tick_storm(delta)
+	_apply_in -= delta
+	if _flash > 0.0 or _apply_in <= 0.0:
+		_apply_in = APPLY_INTERVAL
+		_apply()
 	_flash = maxf(_flash - delta * 3.0, 0.0)
-	_apply()
 	_follow_camera()
 
 ## Sun height: 1 at noon, -1 at midnight.
@@ -184,30 +199,105 @@ func strike() -> void:
 func _build_fall() -> void:
 	match weather:
 		Weather.RAIN, Weather.STORM:
-			_fall = _streaks(1400 if weather == Weather.RAIN else 2200, Color(0.7, 0.76, 0.9, 0.3), 26.0)
+			_fall = _rain(weather == Weather.STORM)
 		Weather.SNOW, Weather.BLIZZARD:
-			_fall = _flakes(1400 if weather == Weather.SNOW else 2400, Color(0.95, 0.97, 1.0, 0.85), 1.8 if weather == Weather.SNOW else 4.0, weather == Weather.BLIZZARD)
+			_fall = _flakes(1000 if weather == Weather.SNOW else 1600, Color(0.95, 0.97, 1.0, 0.85), 1.8 if weather == Weather.SNOW else 4.0, weather == Weather.BLIZZARD)
 		Weather.SANDSTORM:
-			_fall = _flakes(1600, Color(0.82, 0.66, 0.44, 0.55), 1.0, true)
+			_fall = _sand()
 	if _fall:
 		_fall.name = "Precipitation"
 		add_child(_fall)
+		_fall.emitting = true
 
-func _streaks(amount: int, color: Color, speed: float) -> CPUParticles3D:
-	var p := _box_emitter(amount, FALL_HEIGHT * 1.4 / speed)
-	p.direction = Vector3(0.12, -1.0, 0.0)
-	p.spread = 3.0
-	p.initial_velocity_min = speed * 0.85
-	p.initial_velocity_max = speed
-	p.particle_flag_align_y = true
-	var quad := QuadMesh.new()
-	quad.size = Vector2(0.025, 0.9)
-	quad.material = _fall_material(color, false)
-	p.mesh = quad
-	return p
+## Sand driven sideways in streaks, with big dust clouds rolling through
+## (a child emitter, so it follows the camera and goes with the sand).
+func _sand() -> GPUParticles3D:
+	var dir := Vector3(1.0, -0.08, 0.3).normalized()
+	var grains := _box_emitter(1400, 2.2)
+	grains.emission_box_extents = Vector3(FALL_AREA * 0.5, FALL_HEIGHT * 0.25, FALL_AREA * 0.5)
+	_fall_offset = Vector3(-FALL_AREA * 0.6, FALL_HEIGHT * 0.2, -FALL_AREA * 0.2)
+	grains.direction = dir
+	grains.spread = 8.0
+	grains.initial_velocity_min = 16.0
+	grains.initial_velocity_max = 22.0
+	grains.gravity = Vector3(0, -0.5, 0)
+	grains.particle_flag_align_y = true
+	var streak := QuadMesh.new()
+	streak.size = Vector2(0.035, 0.7)
+	var streak_mat := _fall_material(Color(0.62, 0.46, 0.28, 0.75), false)
+	streak_mat.distance_fade_min_distance = 1.5
+	streak_mat.distance_fade_max_distance = 4.0
+	streak.material = streak_mat
+	grains.mesh = streak
+	var sand := _on_gpu(grains)
+	var clouds := _box_emitter(70, 4.0)
+	clouds.emission_box_extents = Vector3(FALL_AREA * 0.5, FALL_HEIGHT * 0.2, FALL_AREA * 0.5)
+	clouds.direction = dir
+	clouds.spread = 10.0
+	clouds.initial_velocity_min = 8.0
+	clouds.initial_velocity_max = 12.0
+	clouds.gravity = Vector3.ZERO
+	clouds.scale_amount_min = 0.7
+	clouds.scale_amount_max = 1.4
+	var puff := QuadMesh.new()
+	puff.size = Vector2.ONE * 3.5
+	var puff_mat := _fall_material(Color(0.72, 0.56, 0.36, 0.22), true)
+	puff_mat.distance_fade_min_distance = 1.0
+	puff_mat.distance_fade_max_distance = 4.0
+	puff.material = puff_mat
+	clouds.mesh = puff
+	var dust := _on_gpu(clouds)
+	dust.name = "Dust"
+	sand.add_child(dust)
+	dust.emitting = true
+	return sand
+
+## Wind-slanted rain streaks with grey mist sheets drifting through, the
+## same build as the sandstorm (mist is a child, so it follows the camera).
+func _rain(storm: bool) -> GPUParticles3D:
+	var wind := Vector3(0.5, -1.0, 0.15) if storm else Vector3(0.25, -1.0, 0.08)
+	var speed := 30.0 if storm else 26.0
+	var drops := _box_emitter(1900 if storm else 1500, FALL_HEIGHT * 1.4 / speed)
+	_fall_offset = Vector3(-wind.x, 0.0, -wind.z) * FALL_HEIGHT * 0.6 + Vector3.UP * FALL_HEIGHT * 0.6
+	drops.direction = wind.normalized()
+	drops.spread = 4.0
+	drops.initial_velocity_min = speed * 0.85
+	drops.initial_velocity_max = speed
+	drops.particle_flag_align_y = true
+	var streak := QuadMesh.new()
+	streak.size = Vector2(0.04, 1.1)
+	var streak_mat := _fall_material(Color(0.55, 0.6, 0.72, 0.6) if storm else Color(0.62, 0.68, 0.8, 0.65), false)
+	streak_mat.distance_fade_min_distance = 1.5
+	streak_mat.distance_fade_max_distance = 4.0
+	streak.material = streak_mat
+	drops.mesh = streak
+	var rain := _on_gpu(drops)
+	var sheets := _box_emitter(80 if storm else 50, 5.0)
+	sheets.emission_box_extents = Vector3(FALL_AREA * 0.5, FALL_HEIGHT * 0.15, FALL_AREA * 0.5)
+	sheets.direction = Vector3(wind.x, 0.0, wind.z).normalized()
+	sheets.spread = 12.0
+	sheets.initial_velocity_min = 6.0 if storm else 3.0
+	sheets.initial_velocity_max = 9.0 if storm else 5.0
+	sheets.gravity = Vector3.ZERO
+	sheets.scale_amount_min = 0.8
+	sheets.scale_amount_max = 1.5
+	var puff := QuadMesh.new()
+	puff.size = Vector2.ONE * 4.0
+	var puff_mat := _fall_material(Color(0.58, 0.62, 0.7, 0.2 if storm else 0.15), true)
+	puff_mat.distance_fade_min_distance = 1.0
+	puff_mat.distance_fade_max_distance = 4.0
+	puff.material = puff_mat
+	sheets.mesh = puff
+	var mist := _on_gpu(sheets)
+	mist.name = "Mist"
+	# Down at head height and upwind, so the sheets drift past the camera.
+	mist.position = -_fall_offset + Vector3(-FALL_AREA * 0.3 * signf(wind.x), -0.3, 0.0)
+	rain.add_child(mist)
+	mist.emitting = true
+	return rain
 
 ## Snow falls slowly and drifts; blizzards and sandstorms drive it sideways.
-func _flakes(amount: int, color: Color, fall: float, driven: bool) -> CPUParticles3D:
+func _flakes(amount: int, color: Color, fall: float, driven: bool) -> GPUParticles3D:
 	var p := _box_emitter(amount, FALL_HEIGHT * 1.3 / fall if not driven else 3.5)
 	p.direction = Vector3(1.0, -0.25, 0.3).normalized() if driven else Vector3.DOWN
 	p.spread = 15.0 if driven else 25.0
@@ -224,7 +314,7 @@ func _flakes(amount: int, color: Color, fall: float, driven: bool) -> CPUParticl
 	quad.size = Vector2.ONE * (0.07 if weather == Weather.SANDSTORM else 0.13)
 	quad.material = _fall_material(color, true)
 	p.mesh = quad
-	return p
+	return _on_gpu(p)
 
 func _box_emitter(amount: int, lifetime: float) -> CPUParticles3D:
 	var p := CPUParticles3D.new()
@@ -240,6 +330,20 @@ func _box_emitter(amount: int, lifetime: float) -> CPUParticles3D:
 	# Particles live in world space, so the emitter's own bounds never cover them.
 	p.visibility_aabb = AABB(Vector3(-FALL_AREA, -FALL_HEIGHT * 2.0, -FALL_AREA), Vector3(FALL_AREA * 2.0, FALL_HEIGHT * 3.0, FALL_AREA * 2.0))
 	return p
+
+## Built as CPUParticles3D for its simple setup, then run on the GPU: a
+## thousand-plus particles (and their pre-simulated start) cost the CPU
+## nothing that way.
+func _on_gpu(cpu: CPUParticles3D) -> GPUParticles3D:
+	var gpu := GPUParticles3D.new()
+	gpu.convert_from_particles(cpu)
+	gpu.preprocess = cpu.preprocess
+	gpu.local_coords = false
+	gpu.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	gpu.layers = cpu.layers
+	gpu.visibility_aabb = cpu.visibility_aabb
+	cpu.free()
+	return gpu
 
 func _fall_material(color: Color, round: bool) -> StandardMaterial3D:
 	var mat := StandardMaterial3D.new()

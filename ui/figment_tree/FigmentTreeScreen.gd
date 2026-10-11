@@ -208,8 +208,8 @@ class ProgressGrid extends Control:
 		var ids := _ordered_ids()
 		for row in ids.size():
 			var y := (row + 1) * CELL + 2.0
-			var style := MapTileset.load_style(ids[row])
-			AetherStyle.text(self, AetherStyle.serif(), Vector2(0, y + CELL - 3.0), style.display_name if style else ids[row], 11, AetherStyle.TEXT_DIM)
+			var style_name := MapTileset.display_name_of(ids[row])
+			AetherStyle.text(self, AetherStyle.serif(), Vector2(0, y + CELL - 3.0), style_name if style_name != "" else ids[row], 11, AetherStyle.TEXT_DIM)
 			for b in 3:
 				var band_color: Color = FigmentMods.BAND_COLORS[b]
 				var rect := Rect2(LABEL_W + b * BAND_W, y, BAND_W - 4.0, CELL - 2.0)
