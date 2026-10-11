@@ -100,7 +100,7 @@ Cut from CC0 (public domain) packs on [OpenGameArt](https://opengameart.org), cr
 
 `assets/sfx/ui/not_enough_mana.ogg` is the Human "Not enough mana" warning from **Warcraft III** (Blizzard Entertainment), a placeholder that will be replaced.
 
-`assets/sfx/aurelia/` holds spell and unit sounds from **Warcraft III: Reforged** (Blizzard Entertainment), pulled from a local install by `tools/mdx_pipeline/wc3_sounds.js` (`aurelia_sounds.json` lists each file's source). Placeholders, to be replaced.
+`assets/sfx/aurelia/` and `assets/sfx/wc3/` hold spell, combat, unit and interface sounds from **Warcraft III: Reforged** (Blizzard Entertainment), as do the forest, eerie_tunnel, boiler_room and factory_hall loops in `assets/sfx/ambience/`. They're pulled from a local install by `tools/mdx_pipeline/wc3_sounds.js` and `wc3_library.js` (`aurelia_sounds.json` and `wc3_library.json` list each file's source). Placeholders, to be replaced.
 
 ## Tools
 

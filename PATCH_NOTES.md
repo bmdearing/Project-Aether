@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.86.1: Warcraft III sounds everywhere they fit
+
+- The user found the old sounds cartoony. `tools/mdx_pipeline/wc3_library.js` fills SoundLibrary slots from the local WC3 install per `wc3_library.json` and rewrites `data/sound/sound_library.tres` (files land in `assets/sfx/wc3/`).
+- Replaced: melee hits (metal slicing/chopping flesh, metal on metal for armour, parries and shield blocks), Heroic Slash for ripostes, the Blademaster's critical strike, explosions (mortar, exploding barrels), bullet hits on flesh (arrow impacts), every Pinnacle boss sound (spell casts, void casts and bursts, banshee moans, Life Drain beam, fire, frost, ice shattering as breaking glass, lightning, Impale for sand, whirlwind whooshes, summons, Battle Roar, Sargeras's roar, War Stomp), item pickup and drop, the crafting anvil, the UI click.
+- Ambience: forest (Ashenvale), eerie tunnel (dungeon cave), boiler room (sewers) and factory hall (Lordaeron city).
+- Kept on purpose: gunshots, reloads and dry fire (WC3 only has a musket and cannons), bullet ricochets and arrow thunks on walls (WC3's equivalents are swords on stone), enemy body falls (WC3 deaths are voiced screams that don't fit golems), thunder, and the rain/wind/river loops (WC3's are 6-11 s and repeat audibly; the audio test wants 30 s+). Weapon swing slots stay empty: WC3 has no swing whooshes.
+- The old files those slots used are still in `assets/sfx/`, unreferenced, for comparison.
+
+---
+
 ## 2026-10-11 — v4.86: Aurelia, the final boss
 
 - **Aurelia** (`entities/enemies/aurelia/`) replaces the Lord of the Elements at the Reality Engine. She's meant to be the final boss; for now she's a Pinnacle choice. The Lord still works (`Pinnacle.BOSSES` marks him `hidden`; `Pinnacle.offered_bosses()` is what the Reality Engine and the character sheet list).

@@ -1,0 +1,150 @@
+{
+  "_comment": "Warcraft III sounds for SoundLibrary slots and ambience loops. Run: node wc3_library.js (then Godot --headless --path . --import). Slots not listed keep their current sounds (guns, reloads, dry fire, enemy body falls, bullet ricochets and wood thunks, thunder, and the short rain/wind/river loops - WC3's are 6-11 s and repeat audibly): WC3 has no fitting modern gun sounds. Paths are CASC paths without the war3.w3mod prefix; the HD copy is preferred.",
+  "out_dir": "assets/sfx/wc3",
+  "slots": {
+    "impact_flesh": [
+      "abilities/weapons/arrow/arrowimpact.ogg",
+      "abilities/weapons/arrow/arrowimpact2.ogg",
+      "abilities/weapons/arrow/arrowimpact3.ogg"
+    ],
+    "hit_flesh": [
+      "sound/units/combat/metalmediumsliceflesh1.ogg",
+      "sound/units/combat/metalmediumsliceflesh2.ogg",
+      "sound/units/combat/metalmediumsliceflesh3.ogg",
+      "sound/units/combat/metalheavychopflesh1.ogg",
+      "sound/units/combat/metalheavychopflesh2.ogg",
+      "sound/units/combat/metalheavychopflesh3.ogg"
+    ],
+    "hit_armor": [
+      "sound/units/combat/metalmediumchopmetal1.ogg",
+      "sound/units/combat/metalmediumchopmetal2.ogg",
+      "sound/units/combat/metalmediumchopmetal3.ogg"
+    ],
+    "parry": [
+      "sound/units/combat/metalheavyslicemetal1.ogg",
+      "sound/units/combat/metalheavyslicemetal2.ogg",
+      "sound/units/combat/metalheavyslicemetal3.ogg"
+    ],
+    "shield_block": [
+      "sound/units/combat/metalmediumbashmetal1.ogg",
+      "sound/units/combat/metalmediumbashmetal2.ogg",
+      "sound/units/combat/metalmediumbashmetal3.ogg"
+    ],
+    "riposte": [
+      "abilities/spells/human/heroicslash/heroicslash1.ogg"
+    ],
+    "hit_critical": [
+      "units/orc/heroblademaster/criticalstrike.ogg"
+    ],
+    "explosion": [
+      "abilities/weapons/mortar/mortarimpact.ogg",
+      "sound/destructibles/barrelexplosion1.ogg",
+      "sound/destructibles/barrelexplosion2.ogg",
+      "sound/destructibles/barrelexplosion3.ogg"
+    ],
+    "boss_spell_cast": [
+      "abilities/spells/human/slow/sorceresscastattack1.ogg",
+      "abilities/spells/human/innerfire/priestcastattack1.ogg",
+      "abilities/weapons/witchdoctormissile/witchdoctorcastattack1.ogg"
+    ],
+    "boss_void_cast": [
+      "abilities/spells/undead/darksummoning/darksummoninglaunch1.ogg",
+      "abilities/spells/undead/deathcoil/deathcoilmissilelaunch1.ogg",
+      "abilities/weapons/necromancermissile/necromancermissilelaunch1.ogg",
+      "abilities/weapons/necromancermissile/necromancermissilelaunch2.ogg"
+    ],
+    "boss_void_burst": [
+      "abilities/spells/items/orbcorruption/orbofcorruptiontarget.ogg",
+      "abilities/spells/undead/deathcoil/deathcoilspecialart1.ogg",
+      "abilities/spells/undead/deathanddecay/deathanddecaytarget1.ogg"
+    ],
+    "boss_ghost_moan": [
+      "sound/ambient/doodadeffects/undeadfemalecry01.ogg",
+      "sound/ambient/doodadeffects/undeadfemalesigh01.ogg",
+      "sound/ambient/doodadeffects/undeadmalecry01.ogg",
+      "abilities/spells/undead/bansheeswail/bansheeswailcaster.ogg",
+      "sound/cinematics/bansheepreaggroa.ogg"
+    ],
+    "boss_beam_start": [
+      "abilities/spells/other/drain/lifedrain.ogg"
+    ],
+    "boss_beam_loop": [
+      "abilities/spells/other/drain/siphonmanaloop.ogg"
+    ],
+    "boss_fire": [
+      "abilities/weapons/fireballmissile/fireballmissiledeath.ogg",
+      "abilities/spells/human/flamestrike/flamestrikeburst.ogg",
+      "abilities/spells/demon/rainoffire/rainoffiretarget1.ogg",
+      "abilities/spells/demon/rainoffire/rainoffiretarget2.ogg",
+      "abilities/spells/demon/rainoffire/rainoffiretarget3.ogg",
+      "abilities/weapons/lordofflamemissile/firelordmissiledeath1.ogg"
+    ],
+    "boss_frost": [
+      "abilities/spells/undead/frostnova/frostnovatarget1.ogg",
+      "abilities/spells/undead/frostarmor/frostarmortarget1.ogg",
+      "abilities/spells/undead/freezingbreath/freezingbreathtarget1.ogg",
+      "abilities/spells/human/blizzard/blizzardtarget1.ogg"
+    ],
+    "boss_ice_shatter": [
+      "sound/cinematics/glassbreaking/glassbreaking1.ogg",
+      "sound/cinematics/glassbreaking/glassbreaking2.ogg",
+      "sound/cinematics/glassbreaking/glassbreaking3.ogg",
+      "abilities/spells/other/frostbolt/frostbolthit1.ogg",
+      "abilities/spells/other/frostarrows/frostarrowhit1.ogg"
+    ],
+    "boss_shock": [
+      "abilities/spells/other/monsoon/monsoonlightninghit.ogg",
+      "abilities/spells/orc/lightningshield/lightningshieldtarget.ogg",
+      "abilities/spells/human/stormbolt/stormboltlaunch.ogg",
+      "abilities/spells/orc/lightningbolt/lightningbolt.ogg"
+    ],
+    "boss_sand": [
+      "abilities/spells/undead/impale/impalehit.ogg",
+      "abilities/spells/undead/impale/impaleland.ogg",
+      "abilities/spells/undead/impale/impalelaunch1.ogg"
+    ],
+    "boss_whoosh": [
+      "units/orc/heroblademaster/blademasterwhirlwind.ogg",
+      "abilities/spells/orc/windwalk/windwalk.ogg"
+    ],
+    "boss_summon": [
+      "units/demon/infernal/infernalbirth1.ogg",
+      "abilities/spells/undead/darksummoning/darksummoningtarget1.ogg",
+      "units/human/waterelemental/summonwaterelementalcaster.ogg",
+      "abilities/spells/orc/feralspirit/feralspirittarget1.ogg"
+    ],
+    "boss_roar": [
+      "abilities/spells/nightelf/battleroar/battleroar.ogg",
+      "units/demon/doomguard/balrogattack1.ogg"
+    ],
+    "boss_deep_roar": [
+      "sound/ambient/doodadeffects/sargerasroar.ogg"
+    ],
+    "boss_heavy_impact": [
+      "sound/units/combat/rockheavybashstone1.ogg",
+      "sound/units/combat/rockheavybashstone2.ogg",
+      "sound/units/combat/rockheavybashstone3.ogg",
+      "units/orc/tauren/warstomp.ogg"
+    ],
+    "item_pickup": [
+      "sound/interface/pickupitem.ogg"
+    ],
+    "item_drop": [
+      "sound/interface/itemdropnormal.ogg",
+      "sound/interface/herodropitem1.ogg"
+    ],
+    "craft_apply": [
+      "sound/cinematics/blacksmithing/blacksmithcraftinga.ogg"
+    ],
+    "ui_click": [
+      "sound/interface/mouseclick1.ogg"
+    ]
+  },
+  "ambience_dir": "assets/sfx/ambience",
+  "ambience": {
+    "forest": "sound/ambient/ashenvale/ashenvaleday.ogg",
+    "eerie_tunnel": "sound/ambient/dungeoncave/dungeoncavequadloop1.ogg",
+    "boiler_room": "sound/ambient/sewers1ambience.ogg",
+    "factory_hall": "sound/ambient/cityscape/cityscapeday.ogg"
+  }
+}
