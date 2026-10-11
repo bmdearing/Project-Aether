@@ -21,7 +21,7 @@ there. Most recent first.
 ## 2026-10-11 — v4.85: Interior globes, white damage chunks, amulet curse corruption
 
 - **Life and Mana globes:** the sloshing liquid is gone. Each globe is a glass sphere you look into: the shader marches each pixel into the sphere through a slowly turning volume of glowing energy, with an etched back wall behind it, a fresnel rim and a glint (`StatOrb.ORB_SHADER_CODE`; the two globes' noise is offset so they don't move in step). The first interior pass looked down onto the fill from above, which made 120/200 read as about 90% full. The view is now nearly level with little refraction, so the fill's height matches the value, the top edge only breathes slightly, a bright line on the glass marks the exact level, and the empty part above it is darker. `tests/ui_capture/capture_orbs.tscn` renders the globes large at several levels (and an enemy bar mid-hit) for checking.
-- **Enemy health bars:** each hit's lost slice turns white, holds for 0.14 s, then thins and fades over 0.4 s (Borderlands style). Quick hits stack as separate chunks; healing covers chunks under the new fill. This replaces the lighter "just lost" trail. The boss bar keeps its own trail for now.
+- **Enemy and boss health bars:** each hit's lost slice turns white, holds for 0.14 s, then thins and fades over 0.4 s (Borderlands style). Quick hits stack as separate chunks; healing covers chunks under the new fill. This replaces the lighter "just lost" trail on both (the boss bar got it in v4.85.1).
 - **Amulets** can gain "Enemies can have +1 additional Curse" as a corruption implicit (Shard of Tharsis, Add Implicit or Add Second Implicit), as well as rolling it as an item level 61+ modifier.
 
 ---

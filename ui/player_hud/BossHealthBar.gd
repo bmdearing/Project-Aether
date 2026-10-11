@@ -7,19 +7,17 @@ const WIDTH := 520.0
 const HEIGHT := 18.0
 const NAME_HEIGHT := 30.0
 
-## Smooth vertical gradient fill with a pulsing edge glow, plus a damage
-## trail (trailing_fraction) driven from _process() like EnemyHealthBar.
+## Smooth vertical gradient fill with a pulsing edge glow. Lost health shows
+## as white chunks over it (ChunkLayer), the same as EnemyHealthBar.
 const SHADER_CODE := """
 shader_type canvas_item;
 
 uniform float fill_fraction : hint_range(0.0, 1.0) = 1.0;
-uniform float trailing_fraction : hint_range(0.0, 1.0) = 1.0;
 
 void fragment() {
 	vec2 uv = UV;
 	vec3 bg = vec3(0.035, 0.012, 0.012);
 	vec3 fill_col = vec3(0.55, 0.06, 0.05);
-	vec3 trail_col = vec3(0.85, 0.4, 0.35);
 
 	float pulse = 0.5 + 0.5 * sin(TIME * 2.2);
 	float edge_glow = smoothstep(fill_fraction - 0.015, fill_fraction, uv.x)
@@ -30,21 +28,16 @@ void fragment() {
 		float shade = mix(1.18, 0.82, uv.y); // clean vertical gradient, no noise
 		col = fill_col * shade;
 		col += vec3(0.45, 0.08, 0.03) * edge_glow * (0.6 + 0.5 * pulse);
-	} else if (uv.x < trailing_fraction) {
-		col = trail_col;
 	}
 
 	COLOR = vec4(col, 1.0);
 }
 """
 
-const DAMAGE_TRAIL_DURATION := 0.45
-
 var _label: Label
 var _shader_mat: ShaderMaterial
 var _fraction: float = 1.0
-var _trailing_fraction: float = 1.0
-var _trail_speed: float = 0.0  # fraction/sec, set whenever a new trail starts
+var _chunks: ChunkLayer
 var _ward_back: ColorRect
 var _ward_fill: ColorRect
 var _frame: BarFrame
@@ -99,6 +92,11 @@ func _ready() -> void:
 	bar.material = _shader_mat
 	bar.color = Color.WHITE
 	add_child(bar)
+	_chunks = ChunkLayer.new()
+	_chunks.position = bar.position
+	_chunks.size = bar.size
+	_chunks.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_chunks)
 	_frame = BarFrame.new()
 	_frame.position = bar.position
 	_frame.size = bar.size
@@ -143,20 +141,39 @@ func set_ward(current: float, max_value: float) -> void:
 func set_health(current: float, max_value: float) -> void:
 	var new_fraction: float = clamp(current / max_value, 0.0, 1.0) if max_value > 0.0 else 0.0
 	if new_fraction < _fraction:
-		_trailing_fraction = _fraction
-		_fraction = new_fraction
-		_trail_speed = (_trailing_fraction - _fraction) / DAMAGE_TRAIL_DURATION
-	else:
-		_fraction = new_fraction
-		_trailing_fraction = new_fraction
-		_trail_speed = 0.0
+		_chunks.add(new_fraction, _fraction)
+	elif new_fraction > _fraction:
+		_chunks.heal_to(new_fraction)
+	_fraction = new_fraction
 	_shader_mat.set_shader_parameter("fill_fraction", _fraction)
-	_shader_mat.set_shader_parameter("trailing_fraction", _trailing_fraction)
 
-func _process(delta: float) -> void:
-	if _trailing_fraction > _fraction:
-		_trailing_fraction = max(_fraction, _trailing_fraction - _trail_speed * delta)
-		_shader_mat.set_shader_parameter("trailing_fraction", _trailing_fraction)
+## Each hit's lost slice: white, held for EnemyHealthBar.CHUNK_HOLD, then
+## thinning and fading over CHUNK_FADE.
+class ChunkLayer extends Control:
+	var _chunks: Array[Dictionary] = []  # {"from", "to", "age"}
+
+	func add(from: float, to: float) -> void:
+		_chunks.append({"from": from, "to": to, "age": 0.0})
+		queue_redraw()
+
+	func heal_to(fraction: float) -> void:
+		_chunks = _chunks.filter(func(c: Dictionary) -> bool: return c["from"] >= fraction)
+		queue_redraw()
+
+	func _process(delta: float) -> void:
+		if _chunks.is_empty():
+			return
+		for c in _chunks:
+			c["age"] += delta
+		_chunks = _chunks.filter(func(c: Dictionary) -> bool: return c["age"] < EnemyHealthBar.CHUNK_HOLD + EnemyHealthBar.CHUNK_FADE)
+		queue_redraw()
+
+	func _draw() -> void:
+		for c in _chunks:
+			var k := clampf((float(c["age"]) - EnemyHealthBar.CHUNK_HOLD) / EnemyHealthBar.CHUNK_FADE, 0.0, 1.0)
+			var h := size.y * (1.0 - 0.75 * k)
+			var x0: float = size.x * c["from"]
+			draw_rect(Rect2(x0, (size.y - h) / 2.0, size.x * c["to"] - x0, h), Color(1.0, 1.0, 1.0, 1.0 - k))
 
 ## Gold frame with a faint inner line and diamond end caps over the shader bar.
 class BarFrame extends Control:

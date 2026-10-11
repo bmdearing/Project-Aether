@@ -30,8 +30,13 @@ func _run() -> void:
 	add_child(bar)
 	bar.set_enemy_name("Training Dummy")
 	bar.set_health(100.0, 100.0)
+	var boss := BossHealthBar.new()
+	add_child(boss)
+	boss.set_boss_name("Herald of the Maw")
+	boss.set_health(100.0, 100.0)
 	await get_tree().create_timer(wait).timeout
 	bar.set_health(60.0, 100.0)
+	boss.set_health(70.0, 100.0)
 	await get_tree().create_timer(0.1).timeout
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(out)
