@@ -3,6 +3,8 @@ extends Node
 ## Godot --path . res://tests/ui_capture/capture_weather.tscn --resolution 1600x900 -- <out.png> <style_id> <time 0-1> <weather> [seed]
 ## Weather: clear, rain, storm, snow, blizzard, sandstorm.
 
+const MapAtmosphere := preload("res://levels/generated_map/MapAtmosphere.gd")
+
 func _ready() -> void:
 	_run.call_deferred()
 

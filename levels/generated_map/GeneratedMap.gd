@@ -48,6 +48,7 @@ const ROOM_FLOOR_COLORS := [
 const VAULT_FLOOR_COLOR := Color(0.32, 0.24, 0.06)
 const WALL_COLOR := Color(0.22, 0.2, 0.19)
 
+const MapAtmosphere := preload("res://levels/generated_map/MapAtmosphere.gd")
 const PLAYER_SCENE := preload("res://entities/player/Player.tscn")
 ## "One Vault per Map" guarantees exactly one Figment boss per Map, on the
 ## boss room (see FigmentBoss.gd).

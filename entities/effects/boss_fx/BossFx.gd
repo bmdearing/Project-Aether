@@ -1,4 +1,3 @@
-class_name BossFx
 ## Spell visuals and sounds for boss abilities (BossBrain and the Pinnacle
 ## bosses), built from SpellFx parts and coloured by damage type: a charge
 ## at the hand while an ability winds up, an element-specific impact where

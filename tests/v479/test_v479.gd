@@ -11,6 +11,9 @@ var _checks := 0
 var _failures := 0
 var _finished := 0
 
+const BossFx := preload("res://entities/effects/boss_fx/BossFx.gd")
+const MapAtmosphere := preload("res://levels/generated_map/MapAtmosphere.gd")
+
 func _ready() -> void:
 	_run.call_deferred()
 

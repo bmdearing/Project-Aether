@@ -6,6 +6,7 @@ class_name Minimap
 ## top. The camera sits a little above the player's head and only sees
 ## below it, so roofs and overhangs don't cover the view.
 
+const MapAtmosphere := preload("res://levels/generated_map/MapAtmosphere.gd")
 const SIZE := 210.0
 const MARGIN := 16.0
 ## World metres across the map.

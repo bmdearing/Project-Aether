@@ -1,5 +1,4 @@
 extends Node
-class_name MapAtmosphere
 ## Day/night and weather for an outdoor Figment (GeneratedMap adds it when the
 ## style has a sun). The clock runs a full day in DAY_LENGTH seconds: the sun
 ## crosses the sky warming at dawn and dusk, sets, and a dim blue moon takes

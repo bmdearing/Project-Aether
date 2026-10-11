@@ -7,6 +7,8 @@ class_name BossBrain
 ## invulnerable roar, faster cooldowns from then on, and the phase's opening
 ## ability if it has one.
 
+const BossFx := preload("res://entities/effects/boss_fx/BossFx.gd")
+
 signal phase_changed(phase: int)
 ## A ground ability landed (slams, blasts, pull slams, a hazard appearing).
 signal ground_struck(ability: BossAbility, center: Vector3, radius: float)

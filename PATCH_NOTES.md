@@ -7,6 +7,12 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.79.1: Pinnacle bosses and the HUD broke on a stale class cache
+
+- **No Pinnacle boss, blank weapon panel:** v4.79's two new scripts (`BossFx`, `MapAtmosphere`) were reached by `class_name`. A game run before Godot rescanned the project had a global class cache without them, so `PinnacleBoss` failed to compile, and the failure cascaded through `Player` and the HUD's item scripts. No boss spawned and the weapon panel never refreshed. Both scripts are now loaded by path (`const BossFx := preload(...)` in `Enemy` and `BossBrain`, `MapAtmosphere` in `GeneratedMap` and `Minimap`), so they work with or without the cache.
+
+---
+
 ## 2026-10-11 — v4.79: Boss spell effects and sounds, Herald fixes, day/night and weather, ceilings
 
 - **Herald of the Maw: casts that did nothing.** Her melee is a casting gesture with a 4.8 m reach, but its strike sphere reached about 2.9 m. She stops at 4 m, so from there every swing played and missed. The strike sphere now grows to the attack's range (`Enemy._fit_hitbox_reach`; Ataras, at 4.2 m, had the same gap), and the swing shows as a **Void Lash** of the void out to her reach. Two smaller cases: Call the Hollow could be picked at the summon cap and bring nobody (now skipped at the cap), and her Void Beam and Feed the Maw played a stretched swing for their whole channel (they now loop her channel clip through `Enemy.begin_channel`).

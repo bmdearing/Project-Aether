@@ -4,6 +4,8 @@ extends Node
 ## Views: impacts (every element landing in a row), beam (the Herald's Void
 ## Beam), lash (her Void Lash), hazard (Void Rift and fire pools), roar.
 
+const BossFx := preload("res://entities/effects/boss_fx/BossFx.gd")
+
 func _ready() -> void:
 	_run.call_deferred()
 

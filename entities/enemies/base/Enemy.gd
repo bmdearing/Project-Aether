@@ -1135,6 +1135,9 @@ var immovable: bool = false
 func get_cast_origin() -> Vector3:
 	return global_position + Vector3(0, 0.95, 0)
 
+## Loaded by path, not class name: a stale global class cache can't break it.
+const BossFx := preload("res://entities/effects/boss_fx/BossFx.gd")
+
 ## Called by BossBrain as an ability is telegraphed at `target`, landing
 ## after `delay` seconds; bosses override it for casting effects.
 func on_ability_telegraph(_ability: BossAbility, _target: Vector3, _delay: float) -> void:
