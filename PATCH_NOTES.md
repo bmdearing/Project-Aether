@@ -7,6 +7,14 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.80.1: Spell effects drew as squares in Ataras's arena
+
+- **Cause:** the sand arena added a second directional light (a warm sun) next to the arena's own. On the Compatibility (OpenGL) renderer every directional light past the first adds a lighting pass, and that pass draws additive effects without alpha. Every glow, mote and spark came out as a solid square. Confirmed in-engine: the same additive quad was square with two directional lights and round with one, regardless of environment, glow or omni lights.
+- **Fix:** the sand arena re-colours and re-aims the arena's existing light instead of adding one (`PinnacleArena._build_sand`). Rule for new scenes: **one directional light per scene.**
+- The Hub has a single directional light, and its motes rendered round in a capture. The square-mote report there is still open.
+
+---
+
 ## 2026-10-11 — v4.80: Load-time lag, Figment Tree lag, weather looks, mobs not dying
 
 - **Mobs not dying / errors everywhere:** v4.79's boss sounds were committed but never imported, so the sound library failed to load and every sound call threw a script error. Some effects play their sound before dealing damage (Comet's impact), so the error aborted the hit. Fixed by importing (`Godot --headless --path . --import`). `SoundLib` now falls back to an empty, silent library if `sound_library.tres` ever fails to load, so a missing sound can't break gameplay again.

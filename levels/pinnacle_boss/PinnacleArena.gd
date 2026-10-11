@@ -341,12 +341,13 @@ func _build_sand() -> void:
 	key.omni_range = 40.0
 	key.light_energy = 2.0
 	key.light_color = Color(1.0, 0.82, 0.6)
-	var sun := DirectionalLight3D.new()
+	# Warm the arena's own light rather than adding a second one: on the
+	# Compatibility renderer every extra directional light adds a lighting pass
+	# that draws additive effects without alpha, as solid squares.
+	var sun := get_node("DirectionalLight3D") as DirectionalLight3D
 	sun.rotation_degrees = Vector3(-38, 30, 0)
-	sun.light_color = Color(1.0, 0.78, 0.55)
-	sun.light_energy = 1.1
-	sun.shadow_enabled = true
-	add_child(sun)
+	sun.light_color = Color(1.0, 0.8, 0.6)
+	sun.light_energy = 1.5
 
 func _build_embers() -> void:
 	var particles := GPUParticles3D.new()
