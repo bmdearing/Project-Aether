@@ -71,6 +71,7 @@ func _enter_windup() -> void:
 	_state = State.WINDUP
 	_timer = windup_duration / _enemy.get_attack_speed_multiplier()
 	_enemy.begin_attack_telegraph(_timer)
+	_enemy.on_ranged_windup(_timer)
 	EventBus.enemy_attack_telegraphed.emit(_enemy)
 
 func _fire() -> void:
@@ -96,5 +97,6 @@ func _fire() -> void:
 		projectile.speed = projectile_speed * _enemy.get_projectile_speed_multiplier()
 		_enemy.get_tree().current_scene.add_child(projectile)
 		projectile.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), spawn_pos)
+		_enemy.on_projectile_fired(projectile)
 
 const EXTRA_PROJECTILE_SPREAD := 12.0

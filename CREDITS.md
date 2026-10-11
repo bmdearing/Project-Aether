@@ -83,6 +83,17 @@ and in places re-pitched cuts of the original recordings by:
 - **Pole Position Production**: Dan Wesson .445 SuperMag, The Warfare 2 Library, Wind In Trees (revolver, pistol, automatic fire, wind)
 - **Stefano Cremona**: Rivers, Streams, Creeks (river)
 
+### CC0 boss sounds
+
+Cut from CC0 (public domain) packs on [OpenGameArt](https://opengameart.org), credited anyway; `tools/sfx_pipeline/fetch_cc0.js` lists the files:
+
+- **JaggedStone**: [Magic Spell SFX](https://opengameart.org/content/magic-spell-sfx) (spell casts)
+- **qubodup**: [3 Dark Magic Spells](https://opengameart.org/content/3-dark-magic-spells), [Energy Drain](https://opengameart.org/content/energy-drain), [Sand Spell](https://opengameart.org/content/sand-spell), [Earth Element Magic Spell](https://opengameart.org/content/earth-element-magic-spell), [Ghost Monster Voice](https://opengameart.org/content/ghost-monster-voice-moaning-growling), [Wind, hit, time morph](https://opengameart.org/content/wind-hit-time-morph) (void casts, beam, sand, moans, whooshes)
+- **Bart**: [Ice spells](https://opengameart.org/content/ice-spells); **artisticdude**: [Freeze Spell](https://opengameart.org/content/freeze-spell-0); **IgnasD**: [Ice breaking/shattering](https://opengameart.org/content/ice-breakingshattering), [Portal sound](https://opengameart.org/content/portal-sound)
+- **Ogrebane**: [Teleport Spell](https://opengameart.org/content/teleport-spell); **Farma**: [Ufo Beam](https://opengameart.org/content/ufo-beam) (void beam loop); **fvcalderan**: [Gravity Inverter](https://opengameart.org/content/gravity-inverter)
+- **FaxCorp**: [Electricity Game Sound Pack](https://opengameart.org/content/electricity-game-sound-pack); **Kenney**: [Sci-Fi Sounds](https://opengameart.org/content/sci-fi-sounds) (heavy impacts)
+- **rubberduck**: [80 CC0 RPG SFX](https://opengameart.org/content/80-cc0-rpg-sfx), [80 CC0 creature SFX #2](https://opengameart.org/content/80-cc0-creture-sfx-2) (fire spells, roars); **trazzz123**: [CC0 Deep Monster Roar](https://opengameart.org/content/cc0-deep-monster-roar)
+
 ## Tools
 
 - [war3-model](https://github.com/4eb0da/war3-model) by 4eb0da, used by the MDX-to-glTF converter in `tools/mdx_pipeline/`

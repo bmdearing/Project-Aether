@@ -59,7 +59,7 @@ func _ready() -> void:
 	_boss = get_parent() as Enemy
 	_boss.boss_brain = self
 	_gap = opening_gap
-	ground_struck.connect(_play_strike_sound)
+	ground_struck.connect(_on_ground_struck)
 
 func _physics_process(delta: float) -> void:
 	if _boss == null or not _boss.health.is_alive():
@@ -128,7 +128,11 @@ func is_ready(ability: BossAbility) -> bool:
 func _pick(dist: float) -> BossAbility:
 	var ready: Array[BossAbility] = []
 	var total := 0.0
+	var summons_full := _living_summons() >= SUMMON_CAP
 	for a in abilities:
+		# At the cap a summon would only play its cast and bring nobody.
+		if a.kind == BossAbility.Kind.SUMMON and summons_full:
+			continue
 		if a.min_phase <= phase and is_ready(a) and dist >= a.min_range and dist <= a.max_range and _boss.can_use_ability(a):
 			ready.append(a)
 			total += a.weight
@@ -138,6 +142,10 @@ func _pick(dist: float) -> BossAbility:
 		if roll < 0.0:
 			return a
 	return null
+
+func _living_summons() -> int:
+	_summoned = _summoned.filter(func(n): return is_instance_valid(n) and n.health.is_alive())
+	return _summoned.size()
 
 func find(id: String) -> BossAbility:
 	for a in abilities:
@@ -163,6 +171,7 @@ func _enter_phase(new_phase: int) -> void:
 	_boss.invulnerable = true
 	_boss.begin_attack_telegraph(PHASE_TRANSITION_SEC)
 	BossTelegraph.circle(_scene(), _boss.global_position, 3.0, PHASE_TRANSITION_SEC, Color(1.0, 0.85, 0.4))
+	BossFx.phase_roar(_boss, _boss.get_ability_damage_type(), _boss.roar_sound())
 	await get_tree().create_timer(PHASE_TRANSITION_SEC).timeout
 	if not _alive():
 		return
@@ -215,9 +224,20 @@ func _scaled(a: BossAbility) -> BossAbility:
 	s.count += extra
 	return s
 
+## The glow gathering at the hand; after the telegraph has picked the
+## element (the Lord's cycle advances there).
+func _wind_up(a: BossAbility) -> void:
+	var at := _boss.get_cast_origin()
+	if _player:
+		var ahead := _player.global_position - _boss.global_position
+		ahead.y = 0.0
+		at += ahead.normalized() * minf(_boss.body_radius + 0.3, ahead.length() * 0.5)
+	BossFx.charge(_boss, at, _type(a), a.telegraph)
+
 func _slam(a: BossAbility) -> void:
 	var center := _boss.global_position
 	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
 	BossTelegraph.circle(_scene(), center, a.radius, a.telegraph, _tint(a))
 	_boss.on_ability_telegraph(a, center, a.telegraph)
 	await _wait(a.telegraph)
@@ -227,6 +247,7 @@ func _slam(a: BossAbility) -> void:
 
 func _blast(a: BossAbility) -> void:
 	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
 	for i in a.count:
 		if not _alive() or _player == null:
 			return
@@ -250,6 +271,7 @@ func _delayed_circle(spot: Vector3, a: BossAbility) -> void:
 func _hazard(a: BossAbility) -> void:
 	var spot := _player.global_position
 	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
 	BossTelegraph.circle(_scene(), spot, a.radius, a.telegraph, _tint(a))
 	_boss.on_ability_telegraph(a, spot, a.telegraph)
 	await _wait(a.telegraph)
@@ -257,6 +279,7 @@ func _hazard(a: BossAbility) -> void:
 		return
 	var marker := BossTelegraph.circle(_scene(), spot, a.radius, 0.01, _tint(a))
 	marker.persist = true
+	BossFx.hazard_aura(marker, a.radius, _type(a))
 	_hazards.append({"node": marker, "center": spot, "ability": a, "left": a.duration, "tick": 0.0})
 	ground_struck.emit(a, spot, a.radius)
 
@@ -305,8 +328,11 @@ func _charge(a: BossAbility) -> void:
 	var dir := to_player.normalized() if to_player.length() > 0.1 else -_boss.global_transform.basis.z
 	var length := clampf(to_player.length() + 2.0, 4.0, a.max_range + 2.0)
 	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
 	BossTelegraph.line(_scene(), _boss.global_position, dir, length, CHARGE_HIT_RADIUS * 2.0, a.telegraph, _tint(a))
 	await _wait(a.telegraph)
+	if _alive():
+		BossFx.trail(_boss, _type(a), length / CHARGE_SPEED + 0.2)
 	var travelled := 0.0
 	var hit := false
 	while _alive() and travelled < length:
@@ -325,11 +351,14 @@ func _charge(a: BossAbility) -> void:
 
 func _volley(a: BossAbility) -> void:
 	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
 	await _wait(a.telegraph)
 	if not _alive() or _player == null:
 		return
 	var origin := _boss.get_cast_origin()
 	var aim := (_player.global_position + Vector3(0, 0.9, 0) - origin).normalized()
+	SpellFx.flash(_scene(), origin + aim * 1.0, BossFx.glow_of(_type(a)), 1.8, 0.2)
+	BossFx.sound(BossFx.cast_sound(_type(a)), origin, -2.0, 1.2)
 	for i in a.count:
 		var t := 0.0 if a.count == 1 else float(i) / (a.count - 1) - 0.5
 		var dir := aim.rotated(Vector3.UP, deg_to_rad(a.spread_degrees) * t)
@@ -340,10 +369,12 @@ func _volley(a: BossAbility) -> void:
 		projectile.speed = 16.0 * _boss.get_projectile_speed_multiplier()
 		_scene().add_child(projectile)
 		projectile.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), origin + dir * 1.2)
+		BossFx.dress_bolt(projectile, _type(a))
 
 func _summon(a: BossAbility) -> void:
-	_summoned = _summoned.filter(func(n): return is_instance_valid(n) and n.health.is_alive())
+	_living_summons()
 	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
 	BossTelegraph.circle(_scene(), _boss.global_position, 3.0, a.telegraph, _tint(a))
 	await _wait(a.telegraph)
 	if not _alive():
@@ -353,13 +384,16 @@ func _summon(a: BossAbility) -> void:
 		var angle := TAU * i / maxf(a.count, 1)
 		_boss.get_parent().add_child(unit)
 		unit.global_position = _boss.global_position + Vector3(cos(angle), 0.1, sin(angle)) * 3.0
+		BossFx.summon_gate(_scene(), unit.global_position, _type(a))
 		_summoned.append(unit)
 		_boss.on_unit_summoned(unit)
 
 func _pull(a: BossAbility) -> void:
 	var center := _boss.get_pull_center()
 	_boss.begin_attack_telegraph(a.telegraph + 0.8)
+	_wind_up(a)
 	BossTelegraph.circle(_scene(), center, a.max_range, a.telegraph, Color(0.6, 0.3, 0.9))
+	BossFx.vortex(_scene(), center, minf(a.max_range, 14.0), _type(a), a.telegraph + 0.8)
 	await _wait(a.telegraph)
 	if not _alive() or _player == null:
 		return
@@ -375,10 +409,10 @@ func _pull(a: BossAbility) -> void:
 		_hit_circle(center, a.radius, a)
 		ground_struck.emit(a, center, a.radius)
 
-## Ground abilities land with a low boom; hazard pools just appear.
-func _play_strike_sound(a: BossAbility, center: Vector3, _radius: float) -> void:
-	if a.kind != BossAbility.Kind.HAZARD:
-		AudioManager.play_at(SoundLib.pick_random(SoundLib.library.explosion), center, -6.0, 0.75)
+## Ground abilities land in their element; hazard pools open quieter.
+func _on_ground_struck(a: BossAbility, center: Vector3, radius: float) -> void:
+	if is_inside_tree():
+		BossFx.impact(_scene(), center, radius, _boss.strike_damage_type(a, center), a.kind != BossAbility.Kind.HAZARD)
 
 ## ---- Damage --------------------------------------------------------------
 

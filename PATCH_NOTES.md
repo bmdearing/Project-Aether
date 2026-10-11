@@ -7,6 +7,22 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.79: Boss spell effects and sounds, Herald fixes, day/night and weather, ceilings
+
+- **Herald of the Maw: casts that did nothing.** Her melee is a casting gesture with a 4.8 m reach, but its strike sphere reached about 2.9 m. She stops at 4 m, so from there every swing played and missed. The strike sphere now grows to the attack's range (`Enemy._fit_hitbox_reach`; Ataras, at 4.2 m, had the same gap), and the swing shows as a **Void Lash** of the void out to her reach. Two smaller cases: Call the Hollow could be picked at the summon cap and bring nobody (now skipped at the cap), and her Void Beam and Feed the Maw played a stretched swing for their whole channel (they now loop her channel clip through `Enemy.begin_channel`).
+- **Boss spell effects** (`BossFx`): every boss ability gathers a glow at the hand while it winds up and lands with an effect in its element: fire leaves scorch and embers, cold leaves frost shards and mist, lightning strikes from above, the void implodes, and physical hits throw dust and cracks. Hazard pools burn or seethe while they last. Charges trail sparks, summons open a gate, pulls draw a vortex and phase changes roar. Pinnacle bolts glow and trail. Boss-specific:
+  - **Herald:** Void Lash, a Void Beam with a white core, a violet sheath, sparks where it ends and a hum, and tendrils into the Maw while she feeds it.
+  - **Ataras:** sand crescents on Sandstorm Cuts (fainter on echoes), a sand-spear thrust, gates for Sand Globes, a quake on Shifting Sands and sand swirls on Ticking Time marks.
+  - **Lord:** element sweeps on his combos, a burst when Cataclysm lands, and a heavy landing when he descends.
+- **Boss sounds:** 52 new cuts plus a void-beam loop in `assets/sfx/boss/`, from CC0 OpenGameArt packs (see CREDITS). They cover spell casts, void casts and bursts, ghostly moans, fire, frost, ice shatter, shock, sand, whooshes, summons, roars and heavy impacts. Element impacts replace the single explosion every ground ability used to play. The Herald moans on phase changes and the Lord roars deep. `tools/sfx_pipeline/fetch_cc0.js` downloads the packs, `process_sfx.js boss/` cuts them, and `build_library.js` fills the new `boss_*` slots.
+- **Day and night** (outdoor maps, `MapAtmosphere`): a full day takes 15 minutes. Maps mostly start in daylight, sometimes at dawn or dusk, and sometimes at night. The sun warms near the horizon, a dim blue moon lights the night, and the sky, ambient light and fog darken with it. Night stays playable: ambient light keeps 45% of its daytime level. Leaving through a portal and coming back keeps the time of day.
+- **Weather** (outdoor maps): rolled once per map from its family. Forest and City maps get rain (30%) or thunderstorms (15%) with lightning flashes and thunder. Snow maps get snow (45%) or blizzards (15%). Deserts get sandstorms (30%). Weather dims the sun, thickens the fog, falls around you and adds its sound to the map's ambience. The minimap hides it.
+- **Ceilings** on indoor maps (Dungeon styles and the Frozen Crypt): every room and corridor is roofed at wall height. *Judgment call:* ceilings have no collision. A collider would bake into the navmesh as a roof island and catch the downward floor rays that drops and spawns use, and walls are taller than a jump.
+- **Judgment calls to revisit:** day length (15 minutes), weather odds, night brightness, and the sound picks. The sounds were chosen by pack and file name and checked for level and length, not auditioned.
+- Tests: `tests/v479` (62 checks: ceilings, day/night, weather, every BossFx piece frees itself, the boss sound slots), and `test_bosses` (Herald reach, Void Lash hits past her stop distance, channels, the summon cap).
+
+---
+
 ## 2026-10-11 — v4.78: Projectile speed map mods, slower boss Ward recovery
 
 - **New Figment mods:** "Monsters have 20-30% increased Projectile Speed" (Pool I, all monsters) and "Boss and Ascendants have 30-45% more Projectile Speed" (Pool II). They stack on bosses and Ascendants. They speed up ranged attacks and boss volleys (`Enemy.get_projectile_speed_multiplier`).

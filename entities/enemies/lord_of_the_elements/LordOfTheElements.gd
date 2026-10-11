@@ -257,6 +257,9 @@ func on_ability_telegraph(ability: BossAbility, target: Vector3, delay: float) -
 	get_parent().add_child(comet)
 	comet.launch(orb["fx"].global_position, target, maxf(delay, COMET_SPEED_MIN))
 
+func strike_damage_type(ability: BossAbility, center: Vector3) -> int:
+	return _strike_elements.get(center, ability.damage_type if ability.damage_type >= 0 else current_element)
+
 ## Every ground strike feeds the reactions: cold puts out fire pools as
 ## steam, and each element reacts with chilled ground.
 func _on_ground_struck(ability: BossAbility, center: Vector3, radius: float) -> void:
@@ -349,8 +352,13 @@ func sigils() -> Array:
 			out.append(orb["sigil"])
 	return out
 
+func roar_sound() -> AudioStream:
+	return SoundLib.library.boss_deep_roar
+
 func _cataclysm(a: BossAbility) -> void:
 	begin_attack_telegraph(a.telegraph)
+	begin_channel(a.telegraph)
+	BossFx.charge(self, get_cast_origin(), current_element, a.telegraph)
 	cataclysm_safe = element_after(2)
 	cataclysm_pending = true
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(current_element, Color.WHITE)
@@ -374,6 +382,11 @@ func _cataclysm(a: BossAbility) -> void:
 		var lethal := (player.health.max_health + (player.ward.max_ward if player.ward else 0.0)) * CATACLYSM_LETHAL
 		player.take_damage(lethal, current_element, self, Player.HitKind.SPELL)
 	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.explosion), centre, 0.0, 0.6)
+	if last_cataclysm_struck:
+		var at := player.global_position
+		BossFx.impact(arena, Vector3(at.x, centre.y, at.z), 6.0, current_element)
+	for s in safe:
+		SpellFx.light_pop(arena, s.global_position + Vector3.UP * 2.0, BossFx.glow_of(s.element), 4.0, 7.0, 1.0)
 
 func _cataclysm_comet(centre: Vector3) -> void:
 	if not is_inside_tree() or not health.is_alive():
@@ -401,6 +414,7 @@ func _descend() -> void:
 	await tween.finished
 	if not health.is_alive():
 		return
+	BossFx.impact(arena, landing, BODY_RADIUS + 2.0, Constants.DamageType.KINETIC)
 	descended = true
 	immovable = false
 	move_speed = PHASE3_MOVE_SPEED
@@ -420,6 +434,7 @@ func _combo_strike(a: BossAbility, windup: float) -> void:
 		if is_instance_valid(telegraph):
 			telegraph.queue_free()
 		return
+	_combo_fx(a)
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player == null or distance_to_body(player.global_position) > COMBO_REACH:
 		return
@@ -437,6 +452,14 @@ func _combo_strike(a: BossAbility, windup: float) -> void:
 			elif a.status != "":
 				player.status_effects.apply_effect(a.status, self, amount)
 	EventBus.enemy_attack_resolved.emit(self, player, true, parried)
+
+## Each blow sweeps in his element, with the element's own crack or roar.
+func _combo_fx(a: BossAbility) -> void:
+	var color := BossFx.glow_of(current_element)
+	var ahead := _ahead_spot()
+	var dir := (ahead - global_position).normalized()
+	SpellFx.sweep(get_parent(), global_position, dir, BODY_RADIUS + COMBO_REACH, 70.0, color, 0.22, 1.0 if randf() < 0.5 else -1.0, 1.4)
+	BossFx.impact(get_parent(), global_position + dir * (BODY_RADIUS + COMBO_REACH * 0.5), 2.0 if a.id == "cold_strike" else 1.2, current_element)
 
 ## The feint: the swing and its warning start, then he pulls it back.
 func _feint(a: BossAbility) -> void:

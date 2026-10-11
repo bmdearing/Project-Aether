@@ -483,6 +483,44 @@ func _test_maw_arena() -> void:
 		herald.get_node(n).set_physics_process(false)
 	herald.boss_brain._player = player
 
+	# Her melee lands from as far as it starts (it used to whiff from her stop distance).
+	var melee := herald.get_node("MeleeAttack") as EnemyMeleeAttack
+	var hit_sphere := herald.attack_hitbox.get_node("CollisionShape3D").shape as SphereShape3D
+	_check(hit_sphere.radius >= melee.attack_range, "her strike sphere reaches her melee range (%.1f >= %.1f)" % [hit_sphere.radius, melee.attack_range])
+	var plate_spot := maw.to_global(maw.inner_plates[4].center_local())
+	herald.global_position = plate_spot + Vector3(0, 0.05, 0)
+	player.global_position = herald.global_position + Vector3(herald.stop_distance + 0.4, 0.05, 0)
+	_heal_player()
+	melee.set_physics_process(true)
+	await _seconds(melee.telegraph_duration + melee.strike_duration + 0.3)
+	melee.set_physics_process(false)
+	melee.interrupt()
+	_check(_hurt() > 0.0, "her Void Lash hits a player just past her stop distance")
+	# Channels hold the channel clip and root her; a summon at the cap isn't picked.
+	herald.begin_channel(1.0)
+	_check(herald.is_attack_locked() and String(herald._anim_controller._state_machine.get_current_node()) == "Attack", "a channel plays and roots her")
+	var hollow := herald.boss_brain.find("call_the_hollow")
+	var full: Array[Node] = []
+	for i in BossBrain.SUMMON_CAP:
+		var dummy := EnemyRoster.create_unit("veilborne_mindbender")
+		arena.add_child(dummy)
+		dummy.process_mode = Node.PROCESS_MODE_DISABLED
+		dummy.global_position = maw.to_global(Vector3(0, 0.1, -15.0))
+		full.append(dummy)
+	herald.boss_brain._summoned = full
+	herald.boss_brain.phase = 2
+	var picked_hollow := false
+	for i in 40:
+		herald.boss_brain._cooldowns.clear()
+		var pick := herald.boss_brain._pick(10.0)
+		picked_hollow = picked_hollow or pick == hollow
+	_check(not picked_hollow, "at the summon cap Call the Hollow isn't cast")
+	for dummy in full:
+		dummy.queue_free()
+	herald.boss_brain._summoned.clear()
+	herald.boss_brain.phase = 1
+	await _frames(2)
+
 	# Void Rift running out cracks the floor; a hit drops cracked outer plates only.
 	var rift := herald.boss_brain.find("void_rift")
 	var outer: MawPlate = maw.outer_plates[2]

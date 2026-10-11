@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SoundLibrary" load_steps=91 format=3]
+[gd_resource type="Resource" script_class="SoundLibrary" load_steps=142 format=3]
 
 [ext_resource type="Script" path="res://data/sound/SoundLibrary.gd" id="1"]
 [ext_resource type="AudioStream" path="res://assets/sfx/weapon/pistol_shot_01.ogg" id="2"]
@@ -82,14 +82,65 @@
 [ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_08.ogg" id="80"]
 [ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_09.ogg" id="81"]
 [ext_resource type="AudioStream" path="res://assets/sfx/world/item_drop_10.ogg" id="82"]
-[ext_resource type="AudioStream" path="res://assets/sfx/ui/tick.ogg" id="83"]
-[ext_resource type="AudioStream" path="res://assets/sfx/weapon/mag_insert_01.ogg" id="84"]
-[ext_resource type="AudioStream" path="res://assets/sfx/weapon/mag_insert_05.ogg" id="85"]
-[ext_resource type="AudioStream" path="res://assets/sfx/weapon/mag_insert_03.ogg" id="86"]
-[ext_resource type="AudioStream" path="res://assets/sfx/ui/mechanism.ogg" id="87"]
-[ext_resource type="AudioStream" path="res://assets/sfx/combat/blade_scrape_03.ogg" id="88"]
-[ext_resource type="AudioStream" path="res://assets/sfx/ui/mechanism_long.ogg" id="89"]
-[ext_resource type="AudioStream" path="res://assets/sfx/ui/click.ogg" id="90"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/spell_cast_01.ogg" id="83"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/spell_cast_02.ogg" id="84"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/spell_cast_03.ogg" id="85"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/spell_cast_04.ogg" id="86"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/spell_cast_05.ogg" id="87"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/spell_cast_06.ogg" id="88"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/spell_cast_07.ogg" id="89"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/void_cast_01.ogg" id="90"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/void_cast_02.ogg" id="91"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/void_cast_03.ogg" id="92"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/void_burst_01.ogg" id="93"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/void_burst_02.ogg" id="94"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ghost_moan_01.ogg" id="95"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ghost_moan_02.ogg" id="96"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ghost_moan_03.ogg" id="97"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ghost_moan_04.ogg" id="98"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ghost_moan_05.ogg" id="99"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/fire_01.ogg" id="100"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/fire_02.ogg" id="101"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/fire_03.ogg" id="102"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/fire_04.ogg" id="103"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/fire_05.ogg" id="104"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/fire_06.ogg" id="105"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/fire_07.ogg" id="106"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/frost_01.ogg" id="107"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/frost_02.ogg" id="108"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/frost_03.ogg" id="109"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ice_shatter_01.ogg" id="110"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ice_shatter_02.ogg" id="111"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ice_shatter_03.ogg" id="112"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ice_shatter_04.ogg" id="113"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/ice_shatter_05.ogg" id="114"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/shock_01.ogg" id="115"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/shock_02.ogg" id="116"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/sand_01.ogg" id="117"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/sand_02.ogg" id="118"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/whoosh_01.ogg" id="119"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/whoosh_02.ogg" id="120"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/whoosh_03.ogg" id="121"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/summon_01.ogg" id="122"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/roar_01.ogg" id="123"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/roar_02.ogg" id="124"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/roar_03.ogg" id="125"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/roar_04.ogg" id="126"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/roar_05.ogg" id="127"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/roar_06.ogg" id="128"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/heavy_impact_01.ogg" id="129"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/heavy_impact_02.ogg" id="130"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/tick.ogg" id="131"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/mag_insert_01.ogg" id="132"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/mag_insert_05.ogg" id="133"]
+[ext_resource type="AudioStream" path="res://assets/sfx/weapon/mag_insert_03.ogg" id="134"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/mechanism.ogg" id="135"]
+[ext_resource type="AudioStream" path="res://assets/sfx/combat/blade_scrape_03.ogg" id="136"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/mechanism_long.ogg" id="137"]
+[ext_resource type="AudioStream" path="res://assets/sfx/ui/click.ogg" id="138"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/beam_start_01.ogg" id="139"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/void_beam_loop.ogg" id="140"]
+[ext_resource type="AudioStream" path="res://assets/sfx/boss/deep_roar_01.ogg" id="141"]
 
 [resource]
 script = ExtResource("1")
@@ -110,14 +161,30 @@ hit_critical = Array[AudioStream]([ExtResource("57"), ExtResource("58"), ExtReso
 explosion = Array[AudioStream]([ExtResource("63")])
 enemy_death = Array[AudioStream]([ExtResource("64"), ExtResource("65"), ExtResource("66"), ExtResource("67"), ExtResource("68"), ExtResource("69"), ExtResource("70"), ExtResource("71"), ExtResource("72")])
 item_drop = Array[AudioStream]([ExtResource("73"), ExtResource("74"), ExtResource("75"), ExtResource("76"), ExtResource("77"), ExtResource("78"), ExtResource("79"), ExtResource("80"), ExtResource("81"), ExtResource("82")])
-dry_click = ExtResource("83")
-pistol_reload = ExtResource("84")
-revolver_reload = ExtResource("85")
-rifle_reload = ExtResource("86")
-bolt_cycle = ExtResource("87")
-lever_cycle = ExtResource("87")
-item_pickup = ExtResource("87")
-item_equip = ExtResource("88")
-brand_use = ExtResource("89")
-craft_apply = ExtResource("87")
-ui_click = ExtResource("90")
+boss_spell_cast = Array[AudioStream]([ExtResource("83"), ExtResource("84"), ExtResource("85"), ExtResource("86"), ExtResource("87"), ExtResource("88"), ExtResource("89")])
+boss_void_cast = Array[AudioStream]([ExtResource("90"), ExtResource("91"), ExtResource("92")])
+boss_void_burst = Array[AudioStream]([ExtResource("93"), ExtResource("94")])
+boss_ghost_moan = Array[AudioStream]([ExtResource("95"), ExtResource("96"), ExtResource("97"), ExtResource("98"), ExtResource("99")])
+boss_fire = Array[AudioStream]([ExtResource("100"), ExtResource("101"), ExtResource("102"), ExtResource("103"), ExtResource("104"), ExtResource("105"), ExtResource("106")])
+boss_frost = Array[AudioStream]([ExtResource("107"), ExtResource("108"), ExtResource("109")])
+boss_ice_shatter = Array[AudioStream]([ExtResource("110"), ExtResource("111"), ExtResource("112"), ExtResource("113"), ExtResource("114")])
+boss_shock = Array[AudioStream]([ExtResource("115"), ExtResource("116")])
+boss_sand = Array[AudioStream]([ExtResource("117"), ExtResource("118")])
+boss_whoosh = Array[AudioStream]([ExtResource("119"), ExtResource("120"), ExtResource("121")])
+boss_summon = Array[AudioStream]([ExtResource("122")])
+boss_roar = Array[AudioStream]([ExtResource("123"), ExtResource("124"), ExtResource("125"), ExtResource("126"), ExtResource("127"), ExtResource("128")])
+boss_heavy_impact = Array[AudioStream]([ExtResource("129"), ExtResource("130")])
+dry_click = ExtResource("131")
+pistol_reload = ExtResource("132")
+revolver_reload = ExtResource("133")
+rifle_reload = ExtResource("134")
+bolt_cycle = ExtResource("135")
+lever_cycle = ExtResource("135")
+item_pickup = ExtResource("135")
+item_equip = ExtResource("136")
+brand_use = ExtResource("137")
+craft_apply = ExtResource("135")
+ui_click = ExtResource("138")
+boss_beam_start = ExtResource("139")
+boss_beam_loop = ExtResource("140")
+boss_deep_roar = ExtResource("141")

@@ -34,6 +34,9 @@ const BIG_ROOM_AREA := 380.0
 ## in from the wall opposite the entrance.
 const ALTAR_INSET := 4.5
 const ALTAR_RADIUS := 2.4
+## Indoor rooms and corridors are roofed. Visual only: a collider would bake
+## into the navmesh as a roof island and catch downward floor rays.
+const CEILING_THICKNESS := 0.5
 
 ## Fallback colours, used only when no MapTileset style loads.
 const ROOM_FLOOR_COLORS := [
@@ -382,6 +385,7 @@ func capture_state() -> Dictionary:
 		"player": _vec_to_array(player_pos),
 		"player_yaw": _portal_player_yaw,
 		"chests_opened": _opened_chest_indices(),
+		"time_of_day": atmosphere.time_of_day if atmosphere else 0.0,
 	}
 
 func _apply_restore(state: Dictionary) -> void:
@@ -420,6 +424,8 @@ func _apply_restore(state: Dictionary) -> void:
 		pickup.position = pos
 		add_child(pickup)
 
+	if atmosphere and state.has("time_of_day"):
+		atmosphere.time_of_day = float(state["time_of_day"])
 	var player := get_tree().get_first_node_in_group("player") as Player
 	for i in state.get("chests_opened", []):
 		if int(i) >= 0 and int(i) < _chests.size():
@@ -458,12 +464,13 @@ func _exit_tree() -> void:
 
 ## Rivers and streams (open layouts), or null.
 var water: WaterBuilder
+## Outdoor maps: the day/night clock and the weather, or null.
+var atmosphere: MapAtmosphere
 
 func _apply_tileset(style: MapTileset) -> void:
 	tileset = style
 	if style == null:
 		return
-	AudioManager.play_ambience(style.ambience_id)
 	_floor_mat = style.make_floor_material()
 	_wall_mat = style.make_wall_material()
 	$WorldEnvironment.environment = style.make_environment()
@@ -471,6 +478,12 @@ func _apply_tileset(style: MapTileset) -> void:
 	sun.visible = style.sun_energy > 0.0
 	sun.light_energy = style.sun_energy
 	sun.light_color = style.sun_color
+	if style.sun_energy > 0.0:
+		atmosphere = MapAtmosphere.new()
+		atmosphere.name = "Atmosphere"
+		atmosphere.setup(style, $WorldEnvironment.environment, sun, map_seed)
+		add_child(atmosphere)
+	AudioManager.play_ambience(atmosphere.ambience_spec(style.ambience_id) if atmosphere else style.ambience_id)
 	_dresser = RoomDresser.new(style, self, WALL_THICKNESS, DOORWAY_WIDTH)
 
 func _on_enemy_died(enemy: Node) -> void:
@@ -513,6 +526,11 @@ func _build_corridor(a: Vector2i, b: Vector2i) -> void:
 	var along_x := d.x != 0.0
 	# The floor runs a little into both rooms so there's no seam at the doorway.
 	_build_floor(mid, length + 0.6 if along_x else layout.corridor_width, layout.corridor_width if along_x else length + 0.6, 0.0, _random_floor_color())
+	if is_indoor():
+		var span := layout.corridor_width + WALL_THICKNESS * 2.0
+		# Runs between the rooms' outer wall faces; the room ceilings cover the rest.
+		var run := maxf(length - WALL_THICKNESS * 2.0, 0.1)
+		_build_ceiling(mid, run if along_x else span, span if along_x else run)
 	var side := Vector3(0, 0, 1) if along_x else Vector3(1, 0, 0)
 	for s in [-1.0, 1.0]:
 		_add_wall_segment(mid + side * s * (layout.corridor_width + WALL_THICKNESS) / 2.0, length, along_x)
@@ -548,6 +566,9 @@ func _build_room(room: MapGraph.RoomData) -> void:
 	var origin := _cell_to_world(room.cell)
 	var half: Vector2 = room_half[room.cell]
 	_build_floor(origin, half.x * 2.0, half.y * 2.0, 0.0, VAULT_FLOOR_COLOR if room.is_vault else _random_floor_color())
+
+	if is_indoor():
+		_build_ceiling(origin, half.x * 2.0 + WALL_THICKNESS * 2.0, half.y * 2.0 + WALL_THICKNESS * 2.0)
 
 	var open_sides: Array = []
 	for dir in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
@@ -720,6 +741,22 @@ func _build_floor(center: Vector3, size_x: float, size_z: float, height: float, 
 	collision.position = Vector3(0, -0.5, 0)
 	collision.shape = shape
 	body.add_child(collision)
+
+## Rooms layouts with no sun (dungeons, crypts) are underground.
+func is_indoor() -> bool:
+	return layout != null and layout.kind == MapLayout.Kind.ROOMS and (tileset == null or tileset.sun_energy <= 0.0)
+
+func _build_ceiling(center: Vector3, size_x: float, size_z: float) -> void:
+	var mesh := MeshInstance3D.new()
+	mesh.name = "Ceiling"
+	mesh.add_to_group("ceiling")
+	var box := BoxMesh.new()
+	box.size = Vector3(size_x, CEILING_THICKNESS, size_z)
+	mesh.mesh = box
+	mesh.material_override = _wall_mat if _wall_mat else _plain_material(WALL_COLOR)
+	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	mesh.position = center + Vector3(0, layout.wall_height + CEILING_THICKNESS / 2.0, 0)
+	add_child(mesh)
 
 func _build_wall_side(origin: Vector3, half: Vector2, dir: Vector2i, connected: bool) -> void:
 	var horizontal := dir == Vector2i.UP or dir == Vector2i.DOWN  # spans X, faces +/-Z

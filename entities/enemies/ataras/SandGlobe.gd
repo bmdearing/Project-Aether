@@ -53,3 +53,6 @@ func _process(delta: float) -> void:
 	if _orb:
 		_orb.rotation.y += delta * 2.5
 		_orb.position.y = 0.9 + sin(_time * 2.0) * 0.12
+
+func on_projectile_fired(projectile: Projectile) -> void:
+	BossFx.dress_bolt(projectile, Constants.DamageType.PIERCING)

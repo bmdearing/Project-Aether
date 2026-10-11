@@ -45,6 +45,7 @@ func _ready() -> void:
 	_camera.near = 0.05
 	_camera.far = 80.0
 	_camera.rotation_degrees.x = -90.0  # screen up = -Z = north
+	_camera.set_cull_mask_value(MapAtmosphere.WEATHER_LAYER, false)
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = Color(0.02, 0.025, 0.035)

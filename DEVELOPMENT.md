@@ -788,6 +788,23 @@ survivable only in the sigil two casts ahead; in phase 3 he lands and fights
 with parryable per-element combos. The Herald (`Xalatath`, `MawArena`) and
 Ataras (`SandArena`) are described in PATCH_NOTES v4.48, v4.69 and v4.70.
 
+**Boss spell effects (v4.79)** (`entities/effects/boss_fx/BossFx.gd`): every
+`BossBrain` ability gathers a glow at the boss's hand over its telegraph,
+lands with an element-specific impact (fire scorch and embers, frost shards
+and mist, a lightning bolt from above, a void implosion, dust and cracks),
+and hazards keep an aura while they last; charges trail, summons open a
+gate, pulls draw a vortex and phase changes roar. Pinnacle bolts gather at
+the hand and fly as glowing shots. The bosses add their own: the Herald's
+Void Lash, channelled Void Beam (core, sheath, sparks and a hum) and Feed
+the Maw tendrils; Ataras's sand crescents, sand-spear thrust and globe
+gates; the Lord's element sweeps on his combos and Cataclysm's burst.
+Sounds are `SoundLibrary`'s `boss_*` slots, cut from CC0 OpenGameArt packs
+(`tools/sfx_pipeline/fetch_cc0.js` downloads them into the raw library,
+`process_sfx.js boss/` cuts them). `Enemy.begin_channel()` loops a set's
+channel clip (`AnimationSet.ability_cast`, else `attack_special`) for
+channelled abilities. `tests/ui_capture/capture_boss_fx.tscn` screenshots
+the effects.
+
 **Area Level** (`systems/figment_tree/AreaLevel.gd`, v4.75, user design):
 the one number a Figment's monsters, drops and XP follow; player level
 never feeds monster stats (it gates equipping and the XP gap). Depths 1-23
@@ -1142,6 +1159,20 @@ pieces), dressed by the Figment's tileset style (below). The generation
     replaceable texture for models like trees) into `assets/models/doodads/`,
     with wrappers in `entities/environment/doodads/`. Beach/Shore/Strand
     and the other coastal Desert styles need water and aren't built.
+  - **Indoors and outdoors (v4.79)**: rooms layouts with no sun
+    (`GeneratedMap.is_indoor()`) get a ceiling slab over every room and
+    corridor at wall height. It's visual only: a collider would bake into
+    the navmesh as a roof island and catch downward floor rays. Styles with
+    a sun get a `MapAtmosphere`: a 15-minute day/night clock (sun arc warm
+    at dawn/dusk, blue moonlight, sky/ambient/fog darkened at night from
+    the style's day values) and one weather per map, rolled from the map
+    seed on its own RNG by family (forest/city: rain, storms with
+    lightning and thunder; snow: snow, blizzard; desert: sandstorm). Weather
+    dims the sun, thickens the fog (capped at `MAX_FOG_DENSITY`), falls in a
+    box that follows the camera on render layer 20 (the minimap leaves it
+    out) and layers its loop onto the style's ambience. The time of day
+    survives a portal trip. `tests/ui_capture/capture_weather.tscn`
+    screenshots any style, time and weather.
   - `levels/test_arena/TestArena.tscn` still exists as a static hand-built
     sandbox for direct-from-editor testing, but the Reality Engine no longer
     sends you there — `GameState.MAP_SCENE` now points at

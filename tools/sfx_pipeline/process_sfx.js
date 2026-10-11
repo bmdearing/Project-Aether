@@ -46,9 +46,34 @@ const ONE_SHOTS = [
 	{ src: 'ui/mainMenu/Bluezone_BC0301_tiny_gears_small_mechanism_click_complex_011.wav', out: 'ui/mechanism', stereo: true, peak: -3, merge: 1.0, threshold: -60 },
 	{ src: 'ui/mainMenu/Bluezone_BC0301_tiny_gears_small_mechanism_sequence_045.wav', out: 'ui/mechanism_long', stereo: true, peak: -3, merge: 1.0, threshold: -60 },
 	{ src: 'environment/MECHGear_Tiny Rotation 01_JSE_SG_Stereo.wav', out: 'ui/gear_turn', stereo: true, peak: -3, merge: 0.3, min: 0.3, take: 4 },
+	...BOSS_SHOTS(),
 ];
 
-// start/length in seconds; lufs: target integrated loudness.
+// Pinnacle boss sounds from the CC0 packs fetch_cc0.js downloads: one whole
+// sound per source file, numbered out_01, out_02... in list order.
+function BOSS_SHOTS() {
+	const each = (out, srcs, opts = {}) => srcs.map((src, i) => ({ src: `cc0/${src}`, out: `boss/${out}_${String(i + 1).padStart(2, '0')}`, merge: 5.0, take: 1, threshold: -60, ...opts }));
+	const range = (fmt, from, to) => Array.from({ length: to - from + 1 }, (_, i) => fmt(String(from + i).padStart(2, '0')));
+	return [
+		...each('spell_cast', range(n => `magic-spell-sfx/magical_${n.slice(1)}${{ 1: '_0', 2: '_1', 3: '_1', 4: '_1', 5: '_1', 6: '_0', 7: '_0' }[+n]}.ogg`, 1, 7)),
+		...each('void_cast', range(n => `dark-magic/dark_magic/fout-${n}.flac`, 1, 3)),
+		...each('void_burst', ['gravity/gravity_inverter_0.ogg', 'portal/PortalSFX/porta.ogg']),
+		...each('ghost_moan', range(n => `ghost-moans/qubodup-GhostMoans/wav/qubodup-GhostMoan${n}.wav`, 1, 5), { max: 3.5 }),
+		...each('beam_start', ['energy-drain/qubodup-PowerDrain.ogg'], { max: 2.0 }),
+		...each('fire', range(n => `rpg-sfx/spell_fire_${n}.ogg`, 1, 7)),
+		...each('frost', ['ice-spells/coldsnap.wav', 'ice-spells/ice.wav', 'freeze/freeze.wav']),
+		...each('ice_shatter', ['ice-shatter/IceShatters/LedasLuzta.ogg', 'ice-shatter/IceShatters/LedasLuzta2.ogg', 'ice-shatter/IceShatters/LedasLuzta33.ogg', 'ice-shatter/IceShatters/LedasLuzta4.ogg', 'ice-shatter/IceShatters/LedasLuzta5.ogg']),
+		...each('shock', ['electricity/hit.wav', 'electricity/groundhit.wav']),
+		...each('sand', ['sand-spell/sand-spell.flac', 'earth-spell/Earth Element Magic Spell_0.flac']),
+		...each('whoosh', ['timehitwind/qubodup-megaswosh1.wav', 'timehitwind/qubodup-megaswosh2.wav', 'timehitwind/60009__qubodup__swosh_22.flac']),
+		...each('summon', ['teleport/teleport.wav']),
+		...each('roar', [...range(n => `rpg-sfx/creature_roar_${n}.ogg`, 1, 3), ...range(n => `creature2/roar_${n}.ogg`, 4, 6)]),
+		...each('deep_roar', ['deep-roar/monster_roar.wav'], { max: 4.5 }),
+		...each('heavy_impact', ['kenney-scifi/Audio/lowFrequency_explosion_000.ogg', 'kenney-scifi/Audio/lowFrequency_explosion_001.ogg']),
+	];
+}
+
+// start/length in seconds; lufs: target integrated loudness (LOOP_LUFS by default).
 const LOOPS = [
 	{ src: 'ui/mainMenu/RAIN_Rain at Night Slow Crescendo Calm Suburban_BOLT_BackyardRain_UsiPro.wav', out: 'ambience/rain', start: 180, length: 90 },
 	{ src: 'environment/AMBDsgn_Factory Hall with Large Steam Mashines 02_JSE_SG.wav', out: 'ambience/factory_hall', start: 5, length: 75 },
@@ -58,6 +83,7 @@ const LOOPS = [
 	{ src: 'environment/Wind - Oak - Calm - Close - Inside Canopy - XY - MKH8060.wav', out: 'ambience/wind_calm', start: 90, length: 90 },
 	{ src: 'environment/AMBForst_Forest04_InMotionAudio_TheForestSamples.wav', out: 'ambience/forest', start: 2, length: 70 },
 	{ src: 'environment/Calm_River_02.wav', out: 'ambience/river', start: 10, length: 60 },
+	{ src: 'cc0/ufo-beam/Beam_0.ogg', out: 'boss/void_beam_loop', start: 0.1, length: 2.0, lufs: -16 },
 ];
 const LOOP_LUFS = -24;
 const LOOP_FADE = 3.0;
@@ -149,7 +175,7 @@ function loudness(file, start, len) {
 function loop(cfg) {
 	const file = path.join(RAW, cfg.src);
 	const L = cfg.length, F = LOOP_FADE;
-	const gain = Math.min(LOOP_LUFS - loudness(file, cfg.start, L + F), LOOP_MAX_GAIN);
+	const gain = Math.min((cfg.lufs ?? LOOP_LUFS) - loudness(file, cfg.start, L + F), LOOP_MAX_GAIN);
 	const out = path.join(OUT, `${cfg.out}.ogg`);
 	fs.mkdirSync(path.dirname(out), { recursive: true });
 	const graph = [

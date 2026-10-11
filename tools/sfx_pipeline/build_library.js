@@ -14,12 +14,16 @@ const ARRAYS = {
 	hit_flesh: 'combat/melee_flesh_hit_', hit_armor: 'combat/shield_block_', parry: 'combat/shield_block_',
 	shield_block: 'combat/shield_block_', hit_critical: 'combat/bone_break_', explosion: 'spells/explosion',
 	enemy_death: 'combat/body_fall_', item_drop: 'world/item_drop_',
+	boss_spell_cast: 'boss/spell_cast_', boss_void_cast: 'boss/void_cast_', boss_void_burst: 'boss/void_burst_', boss_ghost_moan: 'boss/ghost_moan_',
+	boss_fire: 'boss/fire_', boss_frost: 'boss/frost_', boss_ice_shatter: 'boss/ice_shatter_', boss_shock: 'boss/shock_', boss_sand: 'boss/sand_',
+	boss_whoosh: 'boss/whoosh_', boss_summon: 'boss/summon_', boss_roar: 'boss/roar_', boss_heavy_impact: 'boss/heavy_impact_',
 };
 const SINGLES = {
 	dry_click: 'ui/tick.ogg', pistol_reload: 'weapon/mag_insert_01.ogg', revolver_reload: 'weapon/mag_insert_05.ogg',
 	rifle_reload: 'weapon/mag_insert_03.ogg', bolt_cycle: 'ui/mechanism.ogg', lever_cycle: 'ui/mechanism.ogg',
 	item_pickup: 'ui/mechanism.ogg', item_equip: 'combat/blade_scrape_03.ogg', brand_use: 'ui/mechanism_long.ogg',
 	craft_apply: 'ui/mechanism.ogg', ui_click: 'ui/click.ogg',
+	boss_beam_start: 'boss/beam_start_01.ogg', boss_beam_loop: 'boss/void_beam_loop.ogg', boss_deep_roar: 'boss/deep_roar_01.ogg',
 };
 
 const files = [];

@@ -107,6 +107,7 @@ func play_attack(windup_sec: float) -> void:
 	if _tree == null or _dead:
 		return
 	var node := _tree.tree_root.get_node("Attack") as AnimationNodeAnimation
+	_restore_attack_clip(node)
 	if node and _player and _player.has_animation(node.animation) and windup_sec > 0.0:
 		var length := _player.get_animation(node.animation).length
 		var speed := clampf(length * animation_set.attack_hit_fraction / windup_sec, MIN_ATTACK_SPEED, MAX_ATTACK_SPEED)
@@ -120,6 +121,36 @@ func play_attack(windup_sec: float) -> void:
 		_enter_one_shot(&"Attack")
 	else:
 		_pulse("attack_triggered")
+
+## Loops the set's channel clip (ability_cast, else attack_special) in the
+## Attack state for `seconds`, then returns to Idle. False when the set has
+## no channel clip; the caller falls back to play_attack().
+func play_channel(seconds: float) -> bool:
+	if _tree == null or _dead or animation_set == null or _state_machine == null:
+		return false
+	var clip := animation_set.ability_cast if not animation_set.ability_cast.is_empty() else animation_set.attack_special
+	if clip.is_empty() or _player == null or not _player.has_animation(clip):
+		return false
+	var node := _tree.tree_root.get_node("Attack") as AnimationNodeAnimation
+	node.animation = clip
+	node.use_custom_timeline = true
+	node.stretch_time_scale = true
+	node.timeline_length = _player.get_animation(clip).length
+	node.loop_mode = Animation.LOOP_LINEAR
+	_state_machine.start(&"Attack", true)
+	_one_shot_state = &"Attack"
+	_one_shot_until = Time.get_ticks_msec() + int(seconds * 1000.0)
+	return true
+
+## A channel swapped the Attack state's clip; ordinary swings put it back.
+func _restore_attack_clip(node: AnimationNodeAnimation) -> void:
+	if node == null or animation_set == null:
+		return
+	var swing := animation_set.attack_light if not animation_set.attack_light.is_empty() else animation_set.idle
+	if node.animation != StringName(swing) and _player and _player.has_animation(swing):
+		node.animation = swing
+		node.use_custom_timeline = false
+	node.loop_mode = Animation.LOOP_NONE
 
 ## No-ops when the set has no clip for them: the idle fallback loops, so the
 ## state would never reach its end transition back to Idle.

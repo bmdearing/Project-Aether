@@ -49,6 +49,24 @@ class_name SoundLibrary
 # Spells
 @export var explosion: Array[AudioStream] = []
 
+# Pinnacle bosses (BossSfx)
+@export var boss_spell_cast: Array[AudioStream] = []
+@export var boss_void_cast: Array[AudioStream] = []
+@export var boss_void_burst: Array[AudioStream] = []
+@export var boss_ghost_moan: Array[AudioStream] = []
+@export var boss_beam_start: AudioStream = null
+@export var boss_beam_loop: AudioStream = null
+@export var boss_fire: Array[AudioStream] = []
+@export var boss_frost: Array[AudioStream] = []
+@export var boss_ice_shatter: Array[AudioStream] = []
+@export var boss_shock: Array[AudioStream] = []
+@export var boss_sand: Array[AudioStream] = []
+@export var boss_whoosh: Array[AudioStream] = []
+@export var boss_summon: Array[AudioStream] = []
+@export var boss_roar: Array[AudioStream] = []
+@export var boss_deep_roar: AudioStream = null
+@export var boss_heavy_impact: Array[AudioStream] = []
+
 # Player
 @export var player_footstep_stone: Array[AudioStream] = []
 @export var player_footstep_metal: Array[AudioStream] = []

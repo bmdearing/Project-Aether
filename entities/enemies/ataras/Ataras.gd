@@ -41,6 +41,7 @@ const TICKING_MARK_COLOR := Color(1.0, 0.75, 0.35, 0.5)
 
 const ECHO_DELAY := 3.0
 const ECHO_COLOR := Color(0.95, 0.78, 0.45, 0.35)
+const SAND_COLOR := Color(0.95, 0.72, 0.38)
 ## A parried thrust: Composure lost and how long he reels.
 const THRUST_PARRY_STANCE := 50.0
 const THRUST_PARRY_STUN := 2.0
@@ -120,7 +121,9 @@ func _sandstorm_cuts(ability: BossAbility, origin: Vector3, dir: Vector3, echo: 
 		if not health.is_alive():
 			return
 		var p := _target_player()
-		if p and _in_slash(p.global_position, origin, dir if echo else _forward()):
+		var facing := dir if echo else _forward()
+		_slash_fx(origin, facing, i, echo)
+		if p and _in_slash(p.global_position, origin, facing):
 			p.take_damage(damage, Constants.DamageType.KINETIC, self, Player.HitKind.ATTACK)
 		await get_tree().create_timer(SLASH_GAP, false).timeout
 	if not echo:
@@ -131,6 +134,7 @@ func _sandstorm_cuts(ability: BossAbility, origin: Vector3, dir: Vector3, echo: 
 	await get_tree().create_timer(THRUST_TELEGRAPH, false).timeout
 	if not health.is_alive():
 		return
+	_thrust_fx(origin, dir, echo)
 	var p := _target_player()
 	if p == null:
 		return
@@ -149,6 +153,35 @@ func _sandstorm_cuts(ability: BossAbility, origin: Vector3, dir: Vector3, echo: 
 		return
 	p.take_damage(damage * THRUST_DAMAGE, Constants.DamageType.PIERCING, self, Player.HitKind.ATTACK)
 
+## A crescent of sand across the slash, alternating sides; echoes are fainter.
+func _slash_fx(origin: Vector3, facing: Vector3, index: int, echo: bool) -> void:
+	var color := Color(SAND_COLOR, 0.45) if echo else SAND_COLOR
+	SpellFx.sweep(get_parent(), origin, facing, SLASH_RADIUS + 0.6, SLASH_HALF_ANGLE, color, 0.2, 1.0 if index % 2 == 0 else -1.0, 1.0)
+	SpellFx.burst(get_parent(), origin + facing * SLASH_RADIUS * 0.6 + Vector3.UP * 0.6, color, 18, Vector2(2, 5), 0.5, Vector2(0.08, 0.18), 80.0, -6.0)
+	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_whoosh), origin, -2.0 if echo else 2.0, 0.9 if echo else 1.0)
+
+## A spear of driven sand down the thrust's strip.
+func _thrust_fx(origin: Vector3, dir: Vector3, echo: bool) -> void:
+	var color := Color(SAND_COLOR, 0.5) if echo else SAND_COLOR
+	var p := SpellFx.emitter(get_parent(), 60, 0.5)
+	p.global_position = origin + Vector3.UP * 0.9
+	p.one_shot = true
+	p.explosiveness = 0.9
+	p.direction = dir
+	p.spread = 6.0
+	p.initial_velocity_min = THRUST_LENGTH * 2.0
+	p.initial_velocity_max = THRUST_LENGTH * 3.0
+	p.damping_min = THRUST_LENGTH * 3.0
+	p.damping_max = THRUST_LENGTH * 4.0
+	p.scale_amount_min = 0.15
+	p.scale_amount_max = 0.35
+	p.color_ramp = SpellFx.ramp(Color(color.lightened(0.3), 1.0), Color(color, 0.7), 0.15)
+	p.mesh = SpellFx.glow_quad(false)
+	p.emitting = true
+	SpellFx.free_after(p, 1.0)
+	SmokePuff.spawn(get_parent(), origin + dir * THRUST_LENGTH, 0.8, Color(0.75, 0.62, 0.42))
+	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_sand), origin + dir * THRUST_LENGTH * 0.5, -2.0 if echo else 2.0)
+
 func _in_slash(point: Vector3, origin: Vector3, facing: Vector3) -> bool:
 	var rel := point - origin
 	rel.y = 0.0
@@ -159,6 +192,7 @@ func _leave_echo(ability: BossAbility, origin: Vector3, dir: Vector3) -> void:
 	var ghost := _make_ghost()
 	get_parent().add_child(ghost)
 	ghost.global_position = origin
+	SmokePuff.spawn(get_parent(), origin, 1.0, Color(0.85, 0.7, 0.45))
 	ghost.look_at(origin + dir, Vector3.UP)
 	get_tree().create_timer(ECHO_DELAY, false).timeout.connect(func():
 		if not is_instance_valid(ghost):
@@ -197,6 +231,7 @@ func _make_ghost() -> Node3D:
 ## Globes rise around the arena and start firing.
 func _sand_globes(ability: BossAbility) -> void:
 	begin_attack_telegraph(ability.telegraph)
+	BossFx.charge(self, get_cast_origin(), Constants.DamageType.KINETIC, ability.telegraph)
 	var spots: Array[Vector3] = []
 	var centre := arena().global_position if arena() else global_position
 	for i in GLOBE_COUNT:
@@ -206,7 +241,9 @@ func _sand_globes(ability: BossAbility) -> void:
 	await get_tree().create_timer(ability.telegraph, false).timeout
 	if not health.is_alive():
 		return
+	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_sand), global_position, 0.0)
 	for spot in spots:
+		BossFx.summon_gate(get_parent(), spot, Constants.DamageType.KINETIC)
 		var globe: Enemy = GLOBE_SCENE.instantiate()
 		get_parent().add_child(globe)
 		globe.global_position = spot + Vector3.UP * SandGlobe.HOVER
@@ -221,7 +258,9 @@ func _shifting_sands() -> void:
 	if not a.wedges_ended.is_connected(_on_sands_settled):
 		a.wedges_ended.connect(_on_sands_settled)
 	a.start_wedges()
-	begin_attack_telegraph(1.2)
+	begin_channel(1.2)
+	BossFx.sound(SoundLib.library.boss_deep_roar, global_position, 0.0, 1.15)
+	SpellFx.shockwave(get_parent(), global_position + Vector3.UP * 0.05, 14.0, SAND_COLOR, 1.0)
 	await get_tree().create_timer(1.2, false).timeout
 
 func _on_sands_settled() -> void:
@@ -230,7 +269,8 @@ func _on_sands_settled() -> void:
 ## Ticking Time: for a few seconds the ground the player crosses is marked;
 ## when it ends, every mark becomes a permanent sand trap.
 func _ticking_time() -> void:
-	begin_attack_telegraph(TICKING_DURATION)
+	begin_channel(TICKING_DURATION)
+	BossFx.charge(self, get_cast_origin(), Constants.DamageType.KINETIC, TICKING_DURATION)
 	var marks: Array[Vector3] = []
 	var elapsed := 0.0
 	while elapsed < TICKING_DURATION:
@@ -239,14 +279,18 @@ func _ticking_time() -> void:
 			var spot := Vector3(p.global_position.x, (arena().global_position.y if arena() else 0.0), p.global_position.z)
 			marks.append(spot)
 			BossTelegraph.circle(get_parent(), spot, TICKING_RADIUS, TICKING_DURATION - elapsed, TICKING_MARK_COLOR)
+			SpellFx.burst(get_parent(), spot + Vector3.UP * 0.2, SAND_COLOR, 10, Vector2(1, 3), 0.6, Vector2(0.06, 0.14), 40.0, -3.0)
 		await get_tree().create_timer(TICKING_INTERVAL, false).timeout
 		elapsed += TICKING_INTERVAL
 		if not health.is_alive():
 			return
 	var a := arena()
 	if a:
+		if not marks.is_empty():
+			BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_sand), marks[-1], 0.0, 0.8)
 		for spot in marks:
 			a.add_trap(spot, TICKING_RADIUS)
+			SmokePuff.spawn(get_parent(), spot, 0.6, Color(0.8, 0.66, 0.42))
 
 func _on_died() -> void:
 	for g in _globes:

@@ -164,12 +164,25 @@ func _apply_definition() -> void:
 		melee.damage_type = definition.damage_type
 		melee.attack_range = definition.attack_range
 		melee.recovery_duration = definition.attack_cooldown
+		_fit_hitbox_reach(definition.attack_range)
 	var ranged := get_node_or_null("RangedAttack") as EnemyRangedAttack
 	if ranged:
 		ranged.damage_amount = scaled_damage
 		ranged.damage_type = definition.damage_type
 		ranged.fire_range = definition.attack_range
 		ranged.cooldown_duration = definition.attack_cooldown
+
+## The strike sphere round the body reaches as far as a swing starts from;
+## a long-reach unit (the Herald, Ataras) used to swing from out of reach
+## and never connect.
+func _fit_hitbox_reach(reach: float) -> void:
+	var shape_node := attack_hitbox.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	var sphere := shape_node.shape as SphereShape3D if shape_node else null
+	if sphere == null or sphere.radius >= reach:
+		return
+	sphere = sphere.duplicate() as SphereShape3D
+	sphere.radius = reach
+	shape_node.shape = sphere
 
 ## Level curve: Constants.MOB_BASE_* at level 1 for the definition's
 ## archetype_category, compounding per level (AreaLevel.HEALTH_GROWTH/DAMAGE_GROWTH).
@@ -1198,6 +1211,31 @@ func is_attack_locked() -> bool:
 func begin_attack_telegraph(windup_sec: float) -> void:
 	if _anim_controller:
 		_anim_controller.play_attack(windup_sec)
+
+## A channelled ability: loops the set's channel clip for `seconds`, or
+## falls back to a slowed attack swing.
+func begin_channel(seconds: float) -> void:
+	if _anim_controller and not _anim_controller.play_channel(seconds):
+		_anim_controller.play_attack(seconds)
+
+## The element a ground ability landed as (the Lord's cycle picks it per strike).
+func strike_damage_type(ability: BossAbility, _center: Vector3) -> int:
+	return ability.damage_type if ability.damage_type >= 0 else get_ability_damage_type()
+
+## EnemyRangedAttack hooks: its wind-up starting, and each shot it fires.
+func on_ranged_windup(_seconds: float) -> void:
+	pass
+
+func on_projectile_fired(_projectile: Projectile) -> void:
+	pass
+
+## Played as a boss enters a new phase (BossFx.phase_roar()).
+func roar_sound() -> AudioStream:
+	return SoundLib.pick_random(SoundLib.library.boss_roar)
+
+## Called as an EnemyMeleeAttack's strike starts; bosses show their blow.
+func on_melee_strike() -> void:
+	pass
 
 ## Several drops from one kill spread out instead of stacking in one spot.
 const DROP_SCATTER := 0.9

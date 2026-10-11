@@ -78,6 +78,7 @@ func _enter_strike() -> void:
 	_resolved_this_strike = false
 	if _hitbox:
 		_hitbox.monitoring = true
+	_enemy.on_melee_strike()
 
 func _end_strike() -> void:
 	if _hitbox:

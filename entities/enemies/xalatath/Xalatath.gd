@@ -20,6 +20,8 @@ class_name Xalatath
 ## The floor works against her too: a Riposte or a heavy Explosive hit knocks
 ## her back, and with no plate behind her she clings to the lip and the Maw
 ## drags at her (a big damage window, MawArena.cling()).
+## Her melee is a Void Lash: a casting gesture, so it shows as a sweep of the
+## void out to her reach, and its strike sphere is fitted to that reach.
 
 const DISPLAY_NAME := "Herald of the Maw"
 const BOLT_RANGE := 20.0
@@ -42,6 +44,8 @@ const BEAM_HEIGHT := 1.2
 const BEAM_TICK := 0.25
 const BEAM_TURN_DEG_PER_SEC := 20.0
 const BEAM_COLOR := Color(0.6, 0.25, 0.95)
+## Void Lash: her melee is a lash of the void out to her reach.
+const LASH_HALF_ANGLE := 50.0
 
 var feeding := false
 var _feed_damage := 0.0
@@ -131,6 +135,20 @@ func _on_died() -> void:
 			_spawn_pickup(lens)
 	super._on_died()
 
+func roar_sound() -> AudioStream:
+	return SoundLib.pick_random(SoundLib.library.boss_ghost_moan)
+
+func on_melee_strike() -> void:
+	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
+	var reach := melee.attack_range if melee else 4.0
+	var dir := _flat_to_player()
+	var color := BossFx.glow_of(Constants.DamageType.ENTROPIC)
+	SpellFx.sweep(get_parent(), global_position, dir, reach + 0.6, LASH_HALF_ANGLE, color, 0.24, 1.0 if randf() < 0.5 else -1.0, 1.1)
+	SpellFx.flash(get_parent(), get_cast_origin() + dir * 0.6, color, 2.0, 0.2)
+	SpellFx.burst(get_parent(), global_position + dir * reach * 0.7 + Vector3.UP, color, 24, Vector2(2, 5), 0.4, Vector2(0.12, 0.24), 90.0, 0.0)
+	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_whoosh), global_position, 0.0, 0.8)
+	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_void_burst), global_position + dir * reach * 0.6, -6.0, 1.2)
+
 ## ---- The floor works against her too --------------------------------------
 
 func _on_riposte(_source: Node, target: Node) -> void:
@@ -190,7 +208,9 @@ func cast_custom(a: BossAbility) -> void:
 		return
 	feeding = true
 	_feed_damage = 0.0
-	begin_attack_telegraph(a.telegraph)
+	begin_channel(a.telegraph)
+	var tendrils := _feed_tendrils(ar.maw_center(), a.telegraph)
+	BossFx.sound(roar_sound(), global_position, 0.0, 0.85)
 	var targets := ar.mark_feed_targets(a.telegraph)
 	var left := a.telegraph
 	while left > 0.0 and health.is_alive():
@@ -199,6 +219,9 @@ func cast_custom(a: BossAbility) -> void:
 		if _feed_damage >= health.max_health * FEED_BREAK_SHARE or status_effects.is_stunned():
 			break
 	feeding = false
+	if is_instance_valid(tendrils):
+		tendrils.emitting = false
+		SpellFx.free_after(tendrils, 1.0)
 	if not health.is_alive():
 		return
 	if left > 0.0:
@@ -208,7 +231,9 @@ func cast_custom(a: BossAbility) -> void:
 		if stance:
 			stance.apply_parry_damage(FEED_STANCE_DAMAGE)
 		status_effects.apply_timed_effect("stun", 1.5)
+		SpellFx.flash(get_parent(), get_cast_origin(), BEAM_COLOR, 3.0, 0.3)
 	else:
+		BossFx.impact(get_parent(), ar.maw_center(), MawArena.MAW_RADIUS, Constants.DamageType.ENTROPIC)
 		ar.feed(targets)
 
 ## ---- Void Beam -------------------------------------------------------------
@@ -219,10 +244,13 @@ func _void_beam(a: BossAbility) -> void:
 	var dir := _flat_to_player()
 	var origin := global_position
 	BossTelegraph.line(get_parent(), origin, dir, BEAM_LENGTH, BEAM_WIDTH, a.telegraph, BEAM_COLOR)
-	begin_attack_telegraph(a.telegraph + BEAM_CHANNEL_SEC)
+	begin_attack_telegraph(a.telegraph)
+	BossFx.charge(self, get_cast_origin(), Constants.DamageType.ENTROPIC, a.telegraph)
 	await get_tree().create_timer(a.telegraph, false).timeout
 	if not health.is_alive():
 		return
+	begin_channel(BEAM_CHANNEL_SEC)
+	BossFx.sound(SoundLib.library.boss_beam_start, global_position, 2.0)
 	var beam := _make_beam_mesh()
 	get_parent().add_child(beam)
 	var tick_damage := get_ability_base_damage() * a.damage_mult
@@ -244,6 +272,8 @@ func _void_beam(a: BossAbility) -> void:
 			var p := get_tree().get_first_node_in_group("player") as Player
 			if p and _beam_hits(p.global_position, origin, dir, length):
 				p.take_damage(tick_damage, Constants.DamageType.ENTROPIC, self, Player.HitKind.SPELL)
+	if is_inside_tree():
+		SpellFx.flash(get_parent(), get_cast_origin(), BEAM_COLOR, 2.5, 0.3)
 	beam.queue_free()
 
 ## How far the beam reaches before the first standing pylon in its way.
@@ -275,21 +305,92 @@ func _flat_to_player() -> Vector3:
 	to.y = 0.0
 	return to.normalized() if to.length() > 0.05 else Vector3.FORWARD
 
+## A white-hot core inside a violet sheath, sparks where it ends, a hum.
 func _make_beam_mesh() -> MeshInstance3D:
 	var beam := MeshInstance3D.new()
+	beam.mesh = _beam_cylinder(0.5)
+	beam.material_override = _beam_material(Color(BEAM_COLOR, 0.45))
+	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	for layer in [["Core", 0.16, Color(1.0, 0.9, 1.0, 1.0)], ["Inner", 0.3, Color(0.85, 0.55, 1.0, 0.6)]]:
+		var mi := MeshInstance3D.new()
+		mi.name = layer[0]
+		mi.mesh = _beam_cylinder(layer[1])
+		mi.material_override = _beam_material(layer[2])
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		beam.add_child(mi)
+	var sparks := SpellFx.emitter(beam, 40, 0.4)
+	sparks.name = "EndSparks"
+	sparks.top_level = true
+	sparks.spread = 180.0
+	sparks.initial_velocity_min = 2.0
+	sparks.initial_velocity_max = 5.0
+	sparks.gravity = Vector3(0, -6, 0)
+	sparks.scale_amount_min = 0.06
+	sparks.scale_amount_max = 0.14
+	sparks.color_ramp = SpellFx.ramp(Color(1, 1, 1, 1), Color(BEAM_COLOR.lightened(0.3), 0.9), 0.2)
+	sparks.mesh = SpellFx.glow_quad()
+	var light := OmniLight3D.new()
+	light.name = "EndLight"
+	light.top_level = true
+	light.light_color = BEAM_COLOR
+	light.light_energy = 2.5
+	light.omni_range = 5.0
+	beam.add_child(light)
+	var hum := AudioStreamPlayer3D.new()
+	hum.name = "Hum"
+	hum.top_level = true
+	hum.stream = SoundLib.library.boss_beam_loop
+	if hum.stream is AudioStreamOggVorbis:
+		(hum.stream as AudioStreamOggVorbis).loop = true
+	hum.unit_size = 10.0
+	hum.autoplay = hum.stream != null
+	beam.add_child(hum)
+	return beam
+
+static func _beam_material(color: Color) -> StandardMaterial3D:
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mat.albedo_color = color
+	return mat
+
+static func _beam_cylinder(radius: float) -> CylinderMesh:
 	var cylinder := CylinderMesh.new()
-	cylinder.top_radius = 0.5
-	cylinder.bottom_radius = 0.5
+	cylinder.top_radius = radius
+	cylinder.bottom_radius = radius
 	cylinder.height = 1.0
 	cylinder.radial_segments = 10
-	beam.mesh = cylinder
-	beam.material_override = MawPylon._glow_material(BEAM_COLOR, 4.0)
-	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	return beam
+	return cylinder
 
 func _place_beam(beam: MeshInstance3D, origin: Vector3, dir: Vector3, length: float) -> void:
 	var from := origin + Vector3(0, BEAM_HEIGHT, 0)
 	var side := dir.cross(Vector3.UP).normalized()
-	var width := BEAM_WIDTH
+	var width := BEAM_WIDTH * (1.0 + 0.08 * sin(Time.get_ticks_msec() * 0.03))
 	# The cylinder's Y axis runs along the beam.
 	beam.global_transform = Transform3D(Basis(side * width, dir * maxf(length, 0.05), side.cross(dir) * width), from + dir * length / 2.0)
+	var end := from + dir * length
+	for n in ["EndSparks", "EndLight"]:
+		(beam.get_node(n) as Node3D).global_position = end
+	# The hum follows the nearest point of the beam to the listener.
+	var hum := beam.get_node("Hum") as Node3D
+	var camera := get_viewport().get_camera_3d()
+	var t := clampf((camera.global_position - from).dot(dir), 0.0, length) if camera else 0.0
+	hum.global_position = from + dir * t
+
+## Violet motes drawn from her hands down into the Maw while she feeds it.
+func _feed_tendrils(maw_center: Vector3, seconds: float) -> CPUParticles3D:
+	var p := SpellFx.emitter(get_parent(), 50, 0.9)
+	p.global_position = get_cast_origin()
+	var down := maw_center - get_cast_origin()
+	p.direction = down.normalized()
+	p.spread = 15.0
+	p.initial_velocity_min = down.length() * 0.8
+	p.initial_velocity_max = down.length() * 1.2
+	p.scale_amount_min = 0.15
+	p.scale_amount_max = 0.35
+	p.color_ramp = SpellFx.ramp(Color(BEAM_COLOR.lightened(0.4), 0.9), Color(BEAM_COLOR, 0.7), 0.2)
+	p.mesh = SpellFx.glow_quad()
+	BossFx.charge(self, get_cast_origin(), Constants.DamageType.ENTROPIC, seconds, false)
+	return p
