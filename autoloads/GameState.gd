@@ -100,6 +100,8 @@ var stance_page: int = 0
 var owned_ability_ids: Array[String] = []
 ## Booming Blade is a toggle that stays on across areas until cast again.
 var booming_blade_on: bool = false
+## Death Shroud, the same kind of toggle.
+var death_shroud_on: bool = false
 
 ## First clears, "style_id:tier" -> times completed (FigmentProgress). Each
 ## key is one Figment Tree point.
@@ -172,6 +174,7 @@ func reset_to_defaults() -> void:
 	skill_webs = {}
 	owned_ability_ids = []
 	booming_blade_on = false
+	death_shroud_on = false
 	_reset_all_ability_levels()
 	player_level = 1
 	player_xp = 0.0

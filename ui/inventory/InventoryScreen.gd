@@ -400,6 +400,11 @@ func _unhandled_input(event: InputEvent) -> void:
 		else:
 			close()
 		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("weapon_swap") and not event.is_echo():
+		# Swaps even onto an empty set, so it can be filled from the doll.
+		_on_weapon_set_toggle_pressed()
+		_refresh_weapon_set_label()
+		get_viewport().set_input_as_handled()
 
 func _build_inventory_grid() -> void:
 	inventory_grid.set_inventory(GameState.inventory)
@@ -650,7 +655,10 @@ func _preview_text(target: Resource) -> String:
 	if not p.affected.is_empty():
 		var hits := p.affected.size()
 		var total := CraftTarget.wrap(target).get_explicits().size()
-		lines.append("Can touch %d of %d modifiers (marked on the item's card)." % [hits, total])
+		if p.affected.all(func(e): return e["effect"] == &"remove"):
+			lines.append("Can remove %d of %d modifiers (highlighted orange on the item's card)." % [hits, total])
+		else:
+			lines.append("Can touch %d of %d modifiers (marked on the item's card)." % [hits, total])
 	var outcomes := p.outcomes.duplicate()
 	outcomes.sort_custom(func(a, b): return a["probability"] > b["probability"])
 	var shown: Array[String] = []

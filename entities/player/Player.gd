@@ -608,7 +608,7 @@ func try_block_melee_hit() -> bool:
 	var shield := equipment.offhand as Shield if equipment else null
 	if shield == null or shield_block.is_raised:
 		return false  # a raised shield blocks (or doesn't) in take_damage()
-	var chance: float = min(shield.block_chance + stat_sheet.get_block_chance_bonus(), BLOCK_CHANCE_CAP)
+	var chance: float = min((shield.block_chance + stat_sheet.get_block_chance_bonus()) * stat_sheet.get_block_chance_multiplier(), BLOCK_CHANCE_CAP)
 	if randf() < chance:
 		EventBus.hit_blocked.emit(self)
 		return true

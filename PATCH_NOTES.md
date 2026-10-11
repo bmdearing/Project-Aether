@@ -7,6 +7,18 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.82: Curses, Pale spells, shield block, clearer Severance
+
+- **Severance preview:** modifiers the held Orb can remove now sit on an orange band with an orange bar and orange text on the item card (`ItemCard._add_highlighted_mod_line`). Replace marks turned rose so they can't be mistaken for removals. The inventory status line says "Can remove N of M modifiers (highlighted orange...)".
+- **Shield block:** the increased line is now a suffix, "+30-95% increased Chance to Block" (6 tiers), multiplying the shield's chance. A new prefix, "+2-8% Chance to Block" (4 tiers), adds flat points first. Block is still capped at 75%. Shields that already rolled the old 8-10 line keep it as flat points, which is what it always did.
+- **X in the inventory** swaps weapon sets, even onto an empty set (in play, an empty second set still swaps the stance page instead).
+- **Curses (new spells, ground-targeted, 6 s, +3% strength per level):** Meager (15% less damage dealt, 30% less evasion), Fracturing (30% less armour, 15% more Physical damage taken), Decompose (-25% Entropic resistance), Elemental Fragility (-20% Elemental resistance). Debuff effectiveness gear scales them. They stack with each other; there's no curse limit yet.
+- **Pale spells:** Death Shroud is a toggle like Booming Blade: enemies within 6 m are Pallid, fading a second after they leave, with a pale ring on the ground. Pale Thread links you to the enemy at the crosshair for 5 s: Pale damage every 0.25 s and 6% of max Ward per second, breaking past 18 m. Linger curses the enemy at the crosshair with 6 s of Pale damage over time and slows it by 25% ("boggled"). If that enemy dies with Linger on it, the curse moves to the two nearest enemies within 10 m. Pale Thread and Linger refuse to cast, at no cost, with no enemy near the crosshair ("No target").
+- **Out of Mana** plays Warcraft III's Human "Not enough mana" (at most once every 1.5 s). WC3 maps NoManaHuman to `KnightNoEnergy1`; the classic recording is extracted from the local install.
+- Judgment calls: "boggles a target's mind" became a slow; Death Shroud costs nothing to keep on, like Booming Blade.
+
+---
+
 ## 2026-10-11 — v4.81: Styled inventory, character sheet and stash
 
 - **Character sheet:** a header at the top left with a portrait medallion (a drawn hooded figure with Aether-lit eyes, a gold tick-marked frame and the level on a diamond badge), the character's name (the save's `player_name`, or "Nameless Wanderer"), "Level N" and an XP bar with numbers and a percentage (`CharacterHeader`). Level and XP left the Misc list, since the header shows them. Section titles are gold headings (`AetherStyle.section_header`) and stat rows are striped (`AetherStyle.row_box`).

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "decompose"
+display_name = "Decompose"
+description = "A curse of rot. Whatever held the cursed together against entropy begins to let go."
+damage_type = 7
+motion_value = 0.0
+scaling_grade = 5
+resource_cost = 18.0
+is_auto_cast_eligible = true
+is_ground_targeted = true
+radius = 4.5
+base_crit_chance = 0.0
+tags = Array[StringName]([&"curse", &"area", &"duration"])

@@ -34,6 +34,26 @@ func _ready() -> void:
 	EventBus.loot_picked_up.connect(func(_item): play_2d(SoundLib.library.item_pickup, -8.0))
 	EventBus.craft_completed.connect(func(_item, _result): play_2d(SoundLib.library.craft_apply, -6.0))
 	EventBus.craft_failed.connect(func(_item, _error, _message): play_2d(SoundLib.library.dry_click, -6.0))
+	EventBus.ability_cast_failed.connect(_on_ability_cast_failed)
+
+## Warcraft III's Human "Not enough mana", at most once per NO_MANA_VOICE_GAP_MSEC.
+const NOT_ENOUGH_MANA := preload("res://assets/sfx/ui/not_enough_mana.ogg")
+const NO_MANA_VOICE_GAP_MSEC := 1500
+var _no_mana_voice_at: int = -NO_MANA_VOICE_GAP_MSEC
+
+func _on_ability_cast_failed(caster: Node, _ability: Ability, reason: String) -> void:
+	if not caster is Player or reason != "Not enough Mana":
+		return
+	var now := Time.get_ticks_msec()
+	if now - _no_mana_voice_at < NO_MANA_VOICE_GAP_MSEC:
+		return
+	_no_mana_voice_at = now
+	var player := AudioStreamPlayer.new()  # not play_2d(): no pitch jitter on a voice
+	add_child(player)
+	player.stream = NOT_ENOUGH_MANA
+	player.volume_db = -2.0
+	player.play()
+	player.finished.connect(player.queue_free)
 
 func _guarded(stream: AudioStream) -> bool:
 	var now := Time.get_ticks_msec()

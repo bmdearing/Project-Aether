@@ -295,7 +295,7 @@ func _render_slate(slate: Slate) -> void:
 
 const CRAFT_EFFECT_TEXT := {&"remove": "Remove", &"replace": "Replace", &"anchor": "Anchor", &"reroll": "Reroll"}
 const CRAFT_EFFECT_COLOR := {
-	&"remove": Color(1.0, 0.42, 0.32), &"replace": Color(1.0, 0.62, 0.25),
+	&"remove": Color(1.0, 0.6, 0.12), &"replace": Color(1.0, 0.45, 0.6),
 	&"anchor": Color(0.45, 0.9, 1.0), &"reroll": Color(1.0, 0.86, 0.35),
 }
 const CRAFT_SAFE_COLOR := Color(0.5, 0.5, 0.52)
@@ -337,7 +337,25 @@ func _add_craft_marked_lines(explicits: Array, preview: CraftPreview) -> void:
 		var chance: float = mark["probability"]
 		if chance < 0.999:
 			label += " %.0f%%" % (chance * 100.0)
-		_add_mod_line("[%s]  %s" % [label, text], CRAFT_EFFECT_COLOR.get(mark["effect"], HINT_COLOR))
+		var color: Color = CRAFT_EFFECT_COLOR.get(mark["effect"], HINT_COLOR)
+		if mark["effect"] == &"remove":
+			_add_highlighted_mod_line("[%s]  %s" % [label, text], color)
+		else:
+			_add_mod_line("[%s]  %s" % [label, text], color)
+
+## A mod line on a tinted band with a bar at the left, for modifiers the Orb
+## can remove.
+func _add_highlighted_mod_line(text: String, color: Color) -> void:
+	_add_mod_line(text, color)
+	var label := _content().get_child(_content().get_child_count() - 1) as Label
+	var band := StyleBoxFlat.new()
+	band.bg_color = Color(color, 0.16)
+	band.border_color = color
+	band.border_width_left = 3
+	band.set_corner_radius_all(2)
+	band.content_margin_top = 2.0
+	band.content_margin_bottom = 2.0
+	label.add_theme_stylebox_override("normal", band)
 
 ## What the picked-up Orb would do: why it can't, or the Brands it uses and
 ## the modifiers it can add.

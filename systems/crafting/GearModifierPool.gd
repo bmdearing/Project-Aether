@@ -9,7 +9,7 @@ class_name GearModifierPool
 
 ## Words in an AFFIX_POOL stat_key that make it a suffix; everything else
 ## is a prefix. AFFIX_POOL has no prefix/suffix of its own.
-const SUFFIX_KEYWORDS := ["resistance", "speed", "regen", "cooldown", "crit", "debuff", "stamina", "ailment", "skill_level", "rarity", "magic_find"]
+const SUFFIX_KEYWORDS := ["resistance", "speed", "regen", "cooldown", "crit", "debuff", "stamina", "ailment", "skill_level", "rarity", "magic_find", "increased_block"]
 ## Old Brand category tags -> the Rev2 Brand tags they correspond to.
 const TAG_ALIASES := {"resource": &"mana", "movement": &"speed"}
 ## Stat_key words -> Brand tags, for lines with no brand_tags of their own.

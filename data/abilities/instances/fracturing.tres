@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "fracturing"
+display_name = "Fracturing"
+description = "A curse that finds the cracks. Armour splits and flesh gives way to every blow."
+damage_type = 0
+motion_value = 0.0
+scaling_grade = 5
+resource_cost = 18.0
+is_auto_cast_eligible = true
+is_ground_targeted = true
+radius = 4.5
+base_crit_chance = 0.0
+tags = Array[StringName]([&"curse", &"area", &"duration"])

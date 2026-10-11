@@ -14,6 +14,8 @@ const ACCENTS := {
 	"purge": Color(1.0, 0.92, 0.6),
 	"tornado": Color(0.7, 0.88, 0.82),
 	"caltrops": Color(0.78, 0.8, 0.86),
+	"fracturing": Color(0.86, 0.7, 0.5),
+	"elemental_fragility": Color(0.95, 0.72, 0.4),
 }
 const FIRE_CORE := Color(1.0, 0.85, 0.35)
 const ICE := Color(0.75, 0.93, 1.0)
@@ -57,6 +59,13 @@ static func draw(ci: CanvasItem, ability: Ability, rect: Rect2) -> void:
 		"thunder_sweep": _thunder_sweep(pen, c)
 		"tornado": _tornado(pen, c)
 		"winters_eye": _winters_eye(pen, c)
+		"meager": _curse(pen, c, "minus")
+		"fracturing": _curse(pen, c, "impact")
+		"decompose": _curse(pen, c, "void")
+		"elemental_fragility": _curse(pen, c, "burst")
+		"linger": _curse(pen, c, "spiral")
+		"death_shroud": _death_shroud(pen, c)
+		"pale_thread": _pale_thread(pen, c)
 		_:
 			var tag := String(Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "")).to_lower()
 			IconArt.glyph(pen, IconArt.DAMAGE_GLYPHS.get(tag, "star"), pen.v(0.5, 0.5), 0.6, c)
@@ -355,3 +364,30 @@ static func _thunder_sweep(pen: IconArt.Pen, c: Color) -> void:
 		var q := Vector2(0.5, 0.5) + Vector2(cos(a), sin(a)) * 0.42
 		_zigzag(pen, Vector2(0.5, 0.5) + Vector2(cos(a), sin(a)) * 0.1, q, 4, 0.03, c, 0.022)
 	pen.circle(0.5, 0.5, 0.08, BOLT)
+
+# --- curses and pale ----------------------------------------------------------
+
+## A broken sigil ring round the curse's own glyph.
+static func _curse(pen: IconArt.Pen, c: Color, inner: String) -> void:
+	var centre := pen.v(0.5, 0.5)
+	_glow(pen, 0.5, 0.5, 0.3, c, 0.15)
+	for k in 8:
+		var a0 := k * TAU / 8.0
+		pen.ci.draw_arc(centre, 0.34 * pen.unit(), a0, a0 + TAU / 8.0 * 0.62, 6, pen.col(c.lightened(0.1)), _width(pen, 0.04), true)
+	for k in 4:
+		var a := k * TAU / 4.0 + PI / 4.0
+		pen.circle(0.5 + cos(a) * 0.42, 0.5 + sin(a) * 0.42, 0.03, c)
+	IconArt.glyph(pen, inner, centre, 0.38, c.lightened(0.25))
+
+static func _death_shroud(pen: IconArt.Pen, c: Color) -> void:
+	var centre := pen.v(0.5, 0.5)
+	for i in 3:
+		pen.ci.draw_arc(centre, (0.24 + i * 0.07) * pen.unit(), 0.0, TAU, 32, pen.col(Color(c, 0.55 - i * 0.15)), _width(pen, 0.03), true)
+	IconArt.glyph(pen, "skull", centre, 0.36, c)
+
+static func _pale_thread(pen: IconArt.Pen, c: Color) -> void:
+	_glow(pen, 0.72, 0.3, 0.14, c, 0.3)
+	_zigzag(pen, Vector2(0.24, 0.76), Vector2(0.72, 0.3), 6, 0.025, Color(c, 0.9), 0.03)
+	pen.circle(0.24, 0.76, 0.07, c.lightened(0.2))
+	pen.circle(0.72, 0.3, 0.1, c.darkened(0.3))
+	pen.circle(0.72, 0.3, 0.05, c.lightened(0.3))

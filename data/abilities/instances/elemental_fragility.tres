@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "elemental_fragility"
+display_name = "Elemental Fragility"
+description = "A curse that thins the skin. Fire, frost and storm bite deeper into the cursed."
+damage_type = 3
+motion_value = 0.0
+scaling_grade = 5
+resource_cost = 18.0
+is_auto_cast_eligible = true
+is_ground_targeted = true
+radius = 4.5
+base_crit_chance = 0.0
+tags = Array[StringName]([&"curse", &"area", &"duration"])

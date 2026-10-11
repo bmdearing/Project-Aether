@@ -300,3 +300,7 @@ func get_skill_level_bonus(damage_type: Constants.DamageType) -> int:
 ## Flat addition to the shield's block_chance.
 func get_block_chance_bonus() -> float:
 	return get_misc_bonus("block_chance_bonus") / 100.0
+
+## "% increased Chance to Block", applied after the flat points.
+func get_block_chance_multiplier() -> float:
+	return 1.0 + get_misc_bonus("increased_block_chance") / 100.0

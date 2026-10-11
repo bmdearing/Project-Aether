@@ -110,6 +110,7 @@ var _ability_by_id_cache: Dictionary = {}
 
 func _ready() -> void:
 	_player = get_parent()
+	EventBus.enemy_died.connect(_on_enemy_died)
 
 func _physics_process(delta: float) -> void:
 	if _flame_jets_fx:
@@ -148,6 +149,9 @@ func _physics_process(delta: float) -> void:
 					_player.mana.spend(_flame_jets_ability.get_mana_cost(_player.stat_sheet) * CHANNEL_MANA_DRAIN_PERCENT * drain)
 					if _player.mana.current_mana <= 0.0:
 						_flame_jets_remaining = 0.0
+
+	_tick_death_shroud(delta)
+	_tick_pale_thread(delta)
 
 	for i in range(AbilityLoadoutComponent.SLOT_COUNT):
 		var action := "ability_%d" % (i + 1)
@@ -202,6 +206,13 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 	if ability.ability_id == "booming_blade" and GameState.booming_blade_on:
 		GameState.booming_blade_on = false
 		_flash_ring(_player.global_position, 1.4, ability, Color(0.6, 0.6, 0.7))
+		return
+	if ability.ability_id == "death_shroud" and GameState.death_shroud_on:
+		GameState.death_shroud_on = false
+		_flash_ring(_player.global_position, 1.4, ability, Color(0.6, 0.6, 0.7))
+		return
+	if TARGETED_ABILITY_IDS.has(ability.ability_id) and _crosshair_enemy() == null:
+		EventBus.ability_cast_failed.emit(_player, ability, "No target")
 		return
 	var plan := _player.caster_stance.prepare_cast(ability, from_page)
 	if plan.has("error"):
@@ -314,6 +325,24 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		return
 	if ability.ability_id == "wraith":
 		_summon_wraith(ability)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if CURSE_EFFECTS.has(ability.ability_id):
+		_cast_curse(ability, cast_position)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "linger":
+		_cast_linger(ability, damage_multiplier)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "pale_thread":
+		_start_pale_thread(ability, damage_multiplier)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "death_shroud":
+		GameState.death_shroud_on = true
+		_shroud_ticker = 0.0
+		_flash_ring(_player.global_position, ability.get_radius(_player.stat_sheet), ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.has_tag(Ability.TAG_WARCRY):
@@ -1288,3 +1317,247 @@ func on_melee_swing() -> void:
 
 static func booming_blade_bolt_count(ability: Ability, stat_sheet: StatSheet) -> int:
 	return 1 + ability.get_effective_level(stat_sheet) / BOOMING_BLADE_LEVELS_PER_BOLT + (stat_sheet.conduit_additional_projectiles if stat_sheet else 0)
+
+## ---- Curses and Pale spells ------------------------------------------------
+
+## Area curses: ability_id -> the status they leave (StatusEffectComponent.apply_curse()).
+const CURSE_EFFECTS := {"meager": "meager", "fracturing": "fracturing", "decompose": "decompose", "elemental_fragility": "elemental_fragility"}
+const CURSE_DURATION := 6.0
+## Curse strength per spell level above 1 (x1.57 at level 20).
+const CURSE_STRENGTH_PER_LEVEL := 0.03
+## Spells cast on the enemy nearest the crosshair; refused with no one there.
+const TARGETED_ABILITY_IDS := ["pale_thread", "linger"]
+const TARGET_RANGE := 25.0
+const TARGET_CONE_DEG := 10.0
+const PALE_COLOR := Color(0.88, 0.95, 1.0)
+
+static func curse_strength(ability: Ability, stat_sheet: StatSheet) -> float:
+	return 1.0 + CURSE_STRENGTH_PER_LEVEL * (ability.get_effective_level(stat_sheet) - 1)
+
+func _cast_curse(ability: Ability, centre: Vector3) -> void:
+	var radius := ability.get_radius(_player.stat_sheet)
+	var duration := CURSE_DURATION * ability.get_duration_multiplier(_player.stat_sheet)
+	var strength := curse_strength(ability, _player.stat_sheet)
+	_play_range_effect(ability, centre)
+	for enemy in _enemies_near(centre, radius):
+		enemy.status_effects.apply_curse(CURSE_EFFECTS[ability.ability_id], _player, duration, strength)
+
+## The live enemy whose body is closest to the crosshair's line, within
+## TARGET_CONE_DEG and TARGET_RANGE, with no wall in between.
+func _crosshair_enemy() -> Enemy:
+	var origin := _player.camera.global_position
+	var forward := -_player.camera.global_transform.basis.z
+	var max_slope := tan(deg_to_rad(TARGET_CONE_DEG))
+	var best: Enemy = null
+	var best_slope := INF
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy == null or not enemy.health.is_alive():
+			continue
+		var to := _body_centre(enemy) - origin
+		var along := to.dot(forward)
+		if along <= 0.0 or to.length() > TARGET_RANGE:
+			continue
+		var slope := maxf((to - forward * along).length() - enemy.body_radius, 0.0) / along
+		if slope <= max_slope and slope < best_slope and not _line_blocked(origin, _body_centre(enemy)):
+			best = enemy
+			best_slope = slope
+	return best
+
+static func _body_centre(enemy: Enemy) -> Vector3:
+	return enemy.global_position + Vector3.UP * enemy.body_height * 0.6
+
+## Linger: the rolled hit is spread over the curse as Pale ticks.
+const LINGER_DURATION := 6.0
+const LINGER_SPREAD_COUNT := 2
+
+func _cast_linger(ability: Ability, damage_multiplier: float) -> void:
+	var target := _crosshair_enemy()
+	if target == null:
+		return
+	var duration := LINGER_DURATION * ability.get_duration_multiplier(_player.stat_sheet)
+	var total: float = ability.roll_damage(_player.stat_sheet)["final_damage"] * damage_multiplier
+	target.status_effects.apply_linger(_player, total / (LINGER_DURATION / StatusEffectComponent.LINGER_TICK_INTERVAL), duration)
+	_flash_ring(target.global_position, 1.2, ability, PALE_COLOR)
+
+## A Lingering enemy's death passes the curse, fresh, to the nearest two
+## within Linger's radius that don't have it.
+func _on_enemy_died(node: Node) -> void:
+	var dead := node as Enemy
+	if dead == null or dead.status_effects == null or not dead.status_effects.has_effect("linger") or not is_instance_valid(_player):
+		return
+	var ability := _resolve_ability_by_id("linger")
+	var radius := ability.radius if ability else 10.0
+	var duration := LINGER_DURATION * (ability.get_duration_multiplier(_player.stat_sheet) if ability else 1.0)
+	var tick := dead.status_effects.get_linger_tick_damage()
+	var spread := 0
+	for other in _enemies_by_distance(dead.global_position, radius):
+		if spread >= LINGER_SPREAD_COUNT:
+			break
+		if other == dead or other.status_effects.has_effect("linger"):
+			continue
+		other.status_effects.apply_linger(_player, tick, duration)
+		_pale_flicker(_body_centre(dead), _body_centre(other))
+		spread += 1
+
+## Pale Thread: ticks Pale damage (base damage is per second) and restores
+## Ward while the target stays within the spell's radius.
+const PALE_THREAD_DURATION := 5.0
+const PALE_THREAD_TICK := 0.25
+## Share of max Ward restored per second while the thread holds.
+const PALE_THREAD_WARD_PER_SEC := 0.06
+## Where the thread leaves the caster, in camera space (right, down, ahead).
+const PALE_THREAD_HAND := Vector3(0.22, -0.28, -0.55)
+
+var _thread_ability: Ability
+var _thread_target: Enemy
+var _thread_multiplier: float = 1.0
+var _thread_remaining: float = 0.0
+var _thread_ticker: float = 0.0
+var _thread_beam: Node3D
+
+func _start_pale_thread(ability: Ability, damage_multiplier: float) -> void:
+	# A weaker second trigger doesn't replace a full-strength thread.
+	if _thread_remaining > 0.0 and damage_multiplier < _thread_multiplier:
+		return
+	var target := _crosshair_enemy()
+	if target == null:
+		return
+	_thread_ability = ability
+	_thread_target = target
+	_thread_multiplier = damage_multiplier
+	_thread_remaining = PALE_THREAD_DURATION * ability.get_duration_multiplier(_player.stat_sheet)
+	_thread_ticker = PALE_THREAD_TICK
+	if not is_instance_valid(_thread_beam):
+		_thread_beam = _make_beam(0.6)
+		_player.get_tree().current_scene.add_child(_thread_beam)
+	_update_thread_beam()
+
+func _tick_pale_thread(delta: float) -> void:
+	if _thread_remaining <= 0.0:
+		return
+	if not is_instance_valid(_thread_target) or not _thread_target.health.is_alive() or _thread_target.distance_to_body(_player.global_position) > _thread_ability.radius:
+		_end_pale_thread()
+		return
+	_thread_remaining -= delta
+	_thread_ticker -= delta
+	if _thread_ticker <= 0.0:
+		_thread_ticker += PALE_THREAD_TICK
+		var hit := _thread_ability.roll_damage(_player.stat_sheet)
+		var damage: float = hit["final_damage"] * _thread_multiplier * PALE_THREAD_TICK
+		_thread_target.take_damage(damage, Constants.DamageType.PALE, true, false, true)
+		StatusEffectComponent.emitting_dot = true
+		EventBus.damage_dealt.emit(_player, _thread_target, damage, Constants.DamageType.PALE, false, hit["is_critical"])
+		StatusEffectComponent.emitting_dot = false
+		_player.ward.restore(_player.ward.max_ward * PALE_THREAD_WARD_PER_SEC * PALE_THREAD_TICK)
+	if _thread_remaining <= 0.0:
+		_end_pale_thread()
+	else:
+		_update_thread_beam()
+
+func _end_pale_thread() -> void:
+	_thread_remaining = 0.0
+	_thread_target = null
+	if is_instance_valid(_thread_beam):
+		_thread_beam.queue_free()
+
+func _update_thread_beam() -> void:
+	if not is_instance_valid(_thread_beam) or not is_instance_valid(_thread_target):
+		return
+	var from := _player.camera.global_transform * PALE_THREAD_HAND
+	_place_beam(_thread_beam, from, _body_centre(_thread_target))
+	# A slow shimmer along the thread.
+	var pulse := 0.75 + 0.25 * sin(Time.get_ticks_msec() * 0.012)
+	for child in _thread_beam.get_children():
+		var mat := (child as MeshInstance3D).material_override as StandardMaterial3D
+		mat.albedo_color.a = float(child.get_meta("alpha")) * pulse
+
+## A pale core with a faint glow around it along its -Z, one unit long
+## (stretched by _place_beam()).
+func _make_beam(core_alpha: float) -> Node3D:
+	var beam := Node3D.new()
+	for layer in [[0.025, core_alpha], [0.09, core_alpha * 0.3]]:
+		var mesh := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = Vector3(layer[0], layer[0], 1.0)
+		mesh.mesh = box
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		mat.albedo_color = Color(PALE_COLOR, layer[1])
+		mesh.material_override = mat
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		mesh.set_meta("alpha", layer[1])
+		beam.add_child(mesh)
+	return beam
+
+static func _place_beam(beam: Node3D, from: Vector3, to: Vector3) -> void:
+	var length := from.distance_to(to)
+	if length < 0.01:
+		return
+	var dir := (to - from) / length
+	var up := Vector3.UP if absf(dir.y) < 0.99 else Vector3.FORWARD
+	var basis := Basis.looking_at(dir, up)
+	basis.z *= length
+	beam.global_transform = Transform3D(basis, (from + to) * 0.5)
+
+## A short-lived thread between two points (Linger passing on).
+func _pale_flicker(from: Vector3, to: Vector3) -> void:
+	var beam := _make_beam(0.8)
+	_player.get_tree().current_scene.add_child(beam)
+	_place_beam(beam, from, to)
+	var tween := beam.create_tween().set_parallel()
+	for child in beam.get_children():
+		tween.tween_property((child as MeshInstance3D).material_override, "albedo_color:a", 0.0, 0.45)
+	tween.chain().tween_callback(beam.queue_free)
+
+## Death Shroud: while toggled on, enemies within its radius are kept Pallid;
+## it fades DEATH_SHROUD_LINGER after they leave.
+const DEATH_SHROUD_PULSE := 0.4
+const DEATH_SHROUD_LINGER := 1.0
+var _shroud_ticker: float = 0.0
+var _shroud_fx: MeshInstance3D
+var _shroud_fx_radius: float = 0.0
+
+func _tick_death_shroud(delta: float) -> void:
+	if not GameState.death_shroud_on:
+		if is_instance_valid(_shroud_fx):
+			_shroud_fx.queue_free()
+		return
+	var ability := _resolve_ability_by_id("death_shroud")
+	if ability == null:
+		return
+	var radius := ability.get_radius(_player.stat_sheet)
+	_update_shroud_fx(radius)
+	_shroud_ticker -= delta
+	if _shroud_ticker > 0.0:
+		return
+	_shroud_ticker = DEATH_SHROUD_PULSE
+	for enemy in _enemies_near(_player.global_position, radius):
+		enemy.status_effects.apply_timed_effect("pallid", DEATH_SHROUD_PULSE + DEATH_SHROUD_LINGER)
+
+## A faint pale ring on the ground at the shroud's edge, following the player.
+func _update_shroud_fx(radius: float) -> void:
+	if not is_instance_valid(_shroud_fx):
+		_shroud_fx = MeshInstance3D.new()
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		mat.albedo_color = Color(PALE_COLOR, 0.35)
+		_shroud_fx.material_override = mat
+		_shroud_fx.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_player.add_child(_shroud_fx)
+		_shroud_fx_radius = 0.0
+	if not is_equal_approx(radius, _shroud_fx_radius):
+		_shroud_fx_radius = radius
+		var torus := TorusMesh.new()
+		torus.inner_radius = radius - 0.08
+		torus.outer_radius = radius
+		torus.rings = 64
+		torus.ring_segments = 4
+		_shroud_fx.mesh = torus
+	# Flat on the ground whatever way the player faces.
+	_shroud_fx.global_transform = Transform3D(Basis.from_scale(Vector3(1.0, 0.15, 1.0)), _player.global_position + Vector3.UP * 0.05)

@@ -94,6 +94,10 @@ Cut from CC0 (public domain) packs on [OpenGameArt](https://opengameart.org), cr
 - **FaxCorp**: [Electricity Game Sound Pack](https://opengameart.org/content/electricity-game-sound-pack); **Kenney**: [Sci-Fi Sounds](https://opengameart.org/content/sci-fi-sounds) (heavy impacts)
 - **rubberduck**: [80 CC0 RPG SFX](https://opengameart.org/content/80-cc0-rpg-sfx), [80 CC0 creature SFX #2](https://opengameart.org/content/80-cc0-creture-sfx-2) (fire spells, roars); **trazzz123**: [CC0 Deep Monster Roar](https://opengameart.org/content/cc0-deep-monster-roar)
 
+### Warcraft III voice line
+
+`assets/sfx/ui/not_enough_mana.ogg` is the Human "Not enough mana" warning from **Warcraft III** (Blizzard Entertainment), a placeholder that will be replaced.
+
 ## Tools
 
 - [war3-model](https://github.com/4eb0da/war3-model) by 4eb0da, used by the MDX-to-glTF converter in `tools/mdx_pipeline/`

@@ -1056,7 +1056,7 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		return false
 	var show_number := health.is_alive()
 	if can_evade and not is_spell and evasion_value > 0.0:
-		if randf() < DamageCalculator.dodge_chance(evasion_value):
+		if randf() < DamageCalculator.dodge_chance(evasion_value * (status_effects.get_evasion_multiplier() if status_effects else 1.0)):
 			EventBus.enemy_hit_dodged.emit(self)
 			return false
 	var multiplier := composure.get_damage_multiplier(is_spell) if composure else 1.0
@@ -1074,7 +1074,7 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		var armor := armor_value * (status_effects.get_armor_multiplier() if status_effects else 1.0)
 		mitigated *= (1.0 - armor / (armor + 1000.0))
 	if status_effects and (category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC):
-		var shred := status_effects.get_resistance_shred() + _aura_shred()
+		var shred := status_effects.get_resistance_shred() + _aura_shred() + status_effects.get_curse_resistance_shred(damage_type)
 		if shred > 0.0:
 			mitigated *= (1.0 - DamageCalculator.resistance_mitigation(-shred))
 	if _ward_current > 0.0:

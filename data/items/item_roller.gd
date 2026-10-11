@@ -224,9 +224,10 @@ const AFFIX_POOL := [
 
 	# Patch v4.0 Retaliation Mod Pool
 	{"stat_key": "increased_retaliation_damage", "tier1_min": 54.0, "tier1_max": 64.0, "desc": "+%d%% increased Retaliation damage", "applies_to": ["weapon", "armor", "shield"], "slots": [1, 2, 6], "brand_tags": []},
-	# Patch v4.3: replaces the never-implemented "of Warding" (Block Threshold). Flat
-	# points added to the shield's own block chance (see StatSheet.get_block_chance_bonus()).
-	{"stat_key": "block_chance_bonus", "tier1_min": 8.0, "tier1_max": 10.0, "desc": "+%d%% increased Block Chance", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
+	# Block (Player.try_block_melee_hit()): flat points added to the shield's own
+	# chance (prefix), then scaled by the increased line (suffix).
+	{"stat_key": "block_chance_bonus", "tier1_min": 7.0, "tier1_max": 8.0, "desc": "+%d%% Chance to Block", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
+	{"stat_key": "increased_block_chance", "tier1_min": 85.0, "tier1_max": 95.0, "desc": "+%d%% increased Chance to Block", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
 	{"stat_key": "retaliate_on_block", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "Triggers Retaliation on Block", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
 
 	# Patch v4.0 Defensive Mod Pool
@@ -418,6 +419,8 @@ const LEVELLED_TIERS := {
 	"local_hybrid_weapon_damage": [[80, 71.0, 85.0], [64, 59.0, 70.0], [48, 47.0, 58.0], [32, 35.0, 46.0], [16, 25.0, 34.0], [1, 15.0, 24.0]],
 	"local_additional_arrows": ADDITIONAL_PROJECTILE_TIERS,
 	"local_additional_spell_projectiles": ADDITIONAL_PROJECTILE_TIERS,
+	"block_chance_bonus": [[80, 7.0, 8.0], [56, 5.0, 6.0], [28, 3.0, 4.0], [1, 2.0, 2.0]],
+	"increased_block_chance": [[80, 85.0, 95.0], [64, 72.0, 84.0], [48, 60.0, 71.0], [32, 48.0, 59.0], [16, 38.0, 47.0], [1, 30.0, 37.0]],
 }
 ## "+N to level of ... Skills/Spells" (amulets): whole levels, +1 at Tier 2 and
 ## +2 at Tier 1 (user decision).

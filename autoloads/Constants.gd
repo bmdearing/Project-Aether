@@ -163,6 +163,11 @@ const STATUS_EFFECT_NAME := {
 	"marked": "Marked",
 	"pallid": "Pallid",
 	"aetherburn": "Aetherburn",
+	"meager": "Meager",
+	"fracturing": "Fracturing",
+	"decompose": "Decompose",
+	"elemental_fragility": "Elemental Fragility",
+	"linger": "Linger",
 }
 
 # Thematic stat per damage type (SlateRoller's Main Stat line). Damage

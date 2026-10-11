@@ -62,6 +62,19 @@ const SCORCH_DAMAGE_PER_STACK := 0.08
 ## Resistance Shred: each application is an independent source.
 const RESISTANCE_SHRED_DURATION := 8.0
 
+## Curses (PlayerAbilityCast._cast_curse()): timed debuffs whose strength is
+## set per cast (apply_curse()). Values are at strength 1.
+const MEAGER_DAMAGE_DEALT := 0.15
+const MEAGER_EVASION := 0.3
+const FRACTURING_ARMOR := 0.3
+const FRACTURING_PHYSICAL_TAKEN := 0.15
+const DECOMPOSE_RESISTANCE := 25.0
+const ELEMENTAL_FRAGILITY_RESISTANCE := 20.0
+## Linger: a Pale damage-over-time curse that boggles the mind (slower
+## movement and actions). PlayerAbilityCast spreads it when the target dies.
+const LINGER_TICK_INTERVAL := 0.5
+const LINGER_SLOW := 0.25
+
 ## Effects this owner ignores (an Ascendant Juggernaut's crowd control).
 var immune_to: Array = []
 var _timers: Dictionary = {}  # effect_id -> float seconds remaining
@@ -76,6 +89,9 @@ var _bleed_source: Node
 var _aetherburn_ticker: float = 0.0
 var _aetherburn_tick_damage: float = 0.0
 var _aetherburn_source: Node
+var _linger_ticker: float = 0.0
+var _linger_tick_damage: float = 0.0
+var _linger_source: Node
 ## effect_id -> strength when applied (1.0 = base), from the source's
 ## "effectiveness" gear (effect_multiplier()).
 var _magnitude: Dictionary = {}
@@ -98,6 +114,8 @@ func _process(delta: float) -> void:
 		_tick_bleed(delta)
 	if has_effect("aetherburn"):
 		_tick_aetherburn(delta)
+	if has_effect("linger"):
+		_tick_linger(delta)
 	_tick_resistance_shred(delta)
 
 func apply_resistance_shred(percent: float) -> void:
@@ -252,15 +270,76 @@ func apply_timed_effect(effect_id: String, duration: float) -> void:
 	_timers[effect_id] = maxf(_timers.get(effect_id, 0.0), duration)
 	_emit_applied(effect_id)
 
+## A curse at `strength` (1 = the base values above) times the source's
+## effectiveness gear. Recasting refreshes it at the new strength.
+func apply_curse(effect_id: String, source: Node, duration: float, strength: float) -> void:
+	if immune_to.has(effect_id):
+		return
+	_magnitude[effect_id] = strength * effect_multiplier(source, effect_id)
+	_timers[effect_id] = maxf(_timers.get(effect_id, 0.0), duration)
+	_emit_applied(effect_id)
+
+## Linger: tick_damage Pale damage every LINGER_TICK_INTERVAL for duration.
+func apply_linger(source: Node, tick_damage: float, duration: float) -> void:
+	if immune_to.has("linger"):
+		return
+	_linger_source = source
+	# A weaker recast (or second trigger) never lowers the ticks.
+	_linger_tick_damage = maxf(tick_damage, _linger_tick_damage) if has_effect("linger") else tick_damage
+	_linger_ticker = LINGER_TICK_INTERVAL
+	_magnitude["linger"] = effect_multiplier(source, "linger")
+	_timers["linger"] = duration
+	_emit_applied("linger")
+
+func get_linger_tick_damage() -> float:
+	return _linger_tick_damage if has_effect("linger") else 0.0
+
+func _tick_linger(delta: float) -> void:
+	_linger_ticker -= delta
+	if _linger_ticker > 0.0:
+		return
+	_linger_ticker += LINGER_TICK_INTERVAL
+	var dmg := _linger_tick_damage
+	if _owner is Player:
+		dmg *= 1.0 - _owner.get_dot_mitigation()
+		_owner.take_damage(dmg, Constants.DamageType.PALE, _linger_source, Player.HitKind.DOT)
+	elif _owner is Enemy:
+		_owner.take_damage(dmg, Constants.DamageType.PALE, true, false, true)
+	emitting_dot = true
+	EventBus.damage_dealt.emit(_linger_source, _owner, dmg, Constants.DamageType.PALE, false, false)
+	emitting_dot = false
+
 ## Intimidating Shout: takes more damage of every type.
 const INTIMIDATED_DAMAGE_TAKEN := 0.2
 
-## Pallid enemies deal less damage.
+## Pallid and Meager enemies deal less damage.
 func get_outgoing_damage_multiplier() -> float:
-	return 1.0 - minf(PALLID_DAMAGE_REDUCTION * get_magnitude("pallid"), 0.9) if has_effect("pallid") else 1.0
+	var multiplier := 1.0
+	if has_effect("pallid"):
+		multiplier *= 1.0 - minf(PALLID_DAMAGE_REDUCTION * get_magnitude("pallid"), 0.9)
+	if has_effect("meager"):
+		multiplier *= 1.0 - minf(MEAGER_DAMAGE_DEALT * get_magnitude("meager"), 0.9)
+	return multiplier
 
 func get_armor_multiplier() -> float:
-	return maxf(1.0 - ARMOR_SHRED_PER_STACK * _armor_shred_stacks * get_magnitude("armor_shred"), 0.0) if has_effect("armor_shred") else 1.0
+	var multiplier := maxf(1.0 - ARMOR_SHRED_PER_STACK * _armor_shred_stacks * get_magnitude("armor_shred"), 0.0) if has_effect("armor_shred") else 1.0
+	if has_effect("fracturing"):
+		multiplier *= maxf(1.0 - FRACTURING_ARMOR * get_magnitude("fracturing"), 0.0)
+	return multiplier
+
+## Meager: less chance to evade.
+func get_evasion_multiplier() -> float:
+	return maxf(1.0 - MEAGER_EVASION * get_magnitude("meager"), 0.0) if has_effect("meager") else 1.0
+
+## Decompose / Elemental Fragility: resistance lowered for damage_type, in
+## percent, on top of Resistance Shred.
+func get_curse_resistance_shred(damage_type: Constants.DamageType) -> float:
+	var shred := 0.0
+	if has_effect("decompose") and damage_type == Constants.DamageType.ENTROPIC:
+		shred += DECOMPOSE_RESISTANCE * get_magnitude("decompose")
+	if has_effect("elemental_fragility") and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.ELEMENTAL:
+		shred += ELEMENTAL_FRAGILITY_RESISTANCE * get_magnitude("elemental_fragility")
+	return shred
 
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
@@ -311,6 +390,8 @@ func get_move_speed_multiplier() -> float:
 		multiplier *= 1.0 - SLOW_MOVE_SLOW_PERCENT
 	if has_effect("suppressed"):
 		multiplier *= 1.0 - SUPPRESSED_SLOW_PER_STACK * _suppressed_stacks
+	if has_effect("linger"):
+		multiplier *= 1.0 - minf(LINGER_SLOW * get_magnitude("linger"), 0.9)
 	return multiplier
 
 func get_action_speed_multiplier() -> float:
@@ -322,6 +403,8 @@ func get_damage_taken_multiplier(damage_type: Constants.DamageType) -> float:
 		multiplier *= 1.0 + UNRAVELING_DAMAGE_TAKEN_PERCENT * get_magnitude("unraveling")
 	if has_effect("intimidated"):
 		multiplier *= 1.0 + INTIMIDATED_DAMAGE_TAKEN
+	if has_effect("fracturing") and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.PHYSICAL:
+		multiplier *= 1.0 + FRACTURING_PHYSICAL_TAKEN * get_magnitude("fracturing")
 	if damage_type == Constants.DamageType.FIRE:
 		multiplier *= get_scorch_multiplier()
 	return multiplier
@@ -461,7 +544,8 @@ func _tick_aetherburn(delta: float) -> void:
 
 ## Debuffs whose strength scales with "debuff effectiveness"; every ailment
 ## also scales with "ailment effectiveness".
-const DEBUFF_IDS := ["chill", "shock", "unraveling", "pallid", "electrocute", "slow", "suppressed", "intimidated"]
+const DEBUFF_IDS := ["chill", "shock", "unraveling", "pallid", "electrocute", "slow", "suppressed", "intimidated",
+	"meager", "fracturing", "decompose", "elemental_fragility", "linger"]
 
 ## How strong an effect the source applies: 1 + its "<id>_effect" gear
 ## (Chill/Shock/Unraveling/Pallid effectiveness), plus ailment and debuff
