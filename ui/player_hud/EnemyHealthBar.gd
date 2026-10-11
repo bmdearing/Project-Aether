@@ -1,20 +1,22 @@
 extends Control
 class_name EnemyHealthBar
 ## Floating bar over an enemy (hovered, or in combat): the name in its
-## rarity colour, a thin gold-framed health bar with a lighter "just lost"
-## trail that drains to catch up, and a cyan Ward strip above while the
-## enemy has Ward. Positioned every frame by PlayerHUD.
+## rarity colour, a thin gold-framed health bar, and a cyan Ward strip above
+## while the enemy has Ward. Positioned every frame by PlayerHUD.
+## Each hit's lost slice of the bar turns white, holds for a moment, then
+## fades and thins away (Borderlands style); quick hits stack as separate chunks.
 
 const WIDTH := 150.0
 const HEIGHT := 6.0
 const BAR_TOP := 26.0
 const WARD_HEIGHT := 3.0
 const WARD_GAP := 3.0
-const DAMAGE_TRAIL_DURATION := 0.45
+const CHUNK_HOLD := 0.14
+const CHUNK_FADE := 0.4
 
 var _fraction: float = 1.0
-var _trailing_fraction: float = 1.0
-var _trail_speed: float = 0.0  # fraction/sec, set whenever a new trail starts
+## Lost slices still showing: {"from", "to" (bar fractions), "age" (s)}.
+var _chunks: Array[Dictionary] = []
 var _ward_fraction: float = 0.0
 var _has_ward: bool = false
 var _name_label: Label
@@ -65,13 +67,11 @@ func set_name_color(color: Color) -> void:
 func set_health(current: float, max_value: float) -> void:
 	var new_fraction: float = clamp(current / max_value, 0.0, 1.0) if max_value > 0.0 else 0.0
 	if new_fraction < _fraction:
-		_trailing_fraction = _fraction
-		_fraction = new_fraction
-		_trail_speed = (_trailing_fraction - _fraction) / DAMAGE_TRAIL_DURATION
-	else:
-		_fraction = new_fraction
-		_trailing_fraction = new_fraction
-		_trail_speed = 0.0
+		_chunks.append({"from": new_fraction, "to": _fraction, "age": 0.0})
+	elif new_fraction > _fraction:
+		# Healing covers any chunk under the new fill.
+		_chunks = _chunks.filter(func(c: Dictionary) -> bool: return c["from"] >= new_fraction)
+	_fraction = new_fraction
 	queue_redraw()
 
 ## Ward shows as a thin strip above the health bar while the enemy has any pool.
@@ -84,9 +84,12 @@ func set_ward(current: float, max_value: float) -> void:
 		queue_redraw()
 
 func _process(delta: float) -> void:
-	if _trailing_fraction > _fraction:
-		_trailing_fraction = max(_fraction, _trailing_fraction - _trail_speed * delta)
-		queue_redraw()
+	if _chunks.is_empty():
+		return
+	for c in _chunks:
+		c["age"] += delta
+	_chunks = _chunks.filter(func(c: Dictionary) -> bool: return c["age"] < CHUNK_HOLD + CHUNK_FADE)
+	queue_redraw()
 
 func _draw() -> void:
 	if _has_ward:
@@ -94,4 +97,19 @@ func _draw() -> void:
 		draw_rect(ward, Color(AetherStyle.AETHER, 0.18))
 		if _ward_fraction > 0.0:
 			draw_rect(Rect2(ward.position, Vector2(ward.size.x * _ward_fraction, WARD_HEIGHT)), AetherStyle.AETHER)
-	AetherStyle.bar(self, Rect2(0, BAR_TOP, WIDTH, HEIGHT), _fraction, AetherStyle.LIFE.lightened(0.1), _trailing_fraction)
+	var bar := Rect2(0, BAR_TOP, WIDTH, HEIGHT)
+	AetherStyle.bar(self, bar, _fraction, AetherStyle.LIFE.lightened(0.1))
+	if _chunks.is_empty():
+		return
+	var centre_y := BAR_TOP + HEIGHT / 2.0
+	for c in _chunks:
+		var age: float = c["age"]
+		var k := clampf((age - CHUNK_HOLD) / CHUNK_FADE, 0.0, 1.0)
+		var h := HEIGHT * (1.0 - 0.75 * k)
+		var x0: float = WIDTH * c["from"]
+		# A white flash, then thinning and fading to nothing.
+		draw_rect(Rect2(x0, centre_y - h / 2.0, WIDTH * c["to"] - x0, h), Color(1.0, 1.0, 1.0, 1.0 - k))
+	# The frame stays on top of the chunks.
+	draw_rect(bar, AetherStyle.GOLD_DIM, false, 1.0)
+	AetherStyle.diamond(self, bar.position + Vector2(0, HEIGHT / 2.0), 4.5, AetherStyle.GLASS, AetherStyle.GOLD)
+	AetherStyle.diamond(self, bar.position + Vector2(WIDTH, HEIGHT / 2.0), 4.5, AetherStyle.GLASS, AetherStyle.GOLD)

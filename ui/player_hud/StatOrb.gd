@@ -1,10 +1,10 @@
 extends Control
 class_name StatOrb
-## Life/Mana globe: an animated liquid (ORB_SHADER_CODE) in a gold
+## Life/Mana globe: a glass globe with glowing energy inside (ORB_SHADER_CODE) in a gold
 ## instrument ring with tick marks, the value in the middle and the label
 ## underneath. The Life orb also shows Ward as a crystalline lattice over
 ## its right side (see OrbFrame._ward_lattice()), draining from the top
-## down as Ward is lost - deliberately not a second liquid.
+## down as Ward is lost - deliberately not a second fill.
 
 @export var radius: float = 64.0
 @export var fill_color: Color = Color.WHITE:
@@ -22,38 +22,110 @@ const LABEL_SPACE := 26.0
 const ORB_SHADER_CODE := """
 shader_type canvas_item;
 
+// Interior view of a glass globe, seen almost level: each pixel
+// enters the sphere (refracted), marches through a slowly turning volume of
+// glowing energy filled up to fill_fraction, and ends on the etched back
+// wall. The fill's top is a soft surface that breathes with the noise, not
+// a waterline. The view and refraction are kept shallow so the fill's
+// height on screen matches the value, and a bright line on the glass marks
+// the exact level.
 uniform float fill_fraction : hint_range(0.0, 1.0) = 1.0;
 uniform vec4 fill_color : source_color = vec4(0.8, 0.1, 0.1, 1.0);
 uniform vec4 bg_color : source_color = vec4(0.04, 0.05, 0.09, 0.8);
+// Offsets the noise so two globes don't move in step.
+uniform float seed = 0.0;
 
-// Waterline in [-1,1] space, rippled by two sine waves at different speeds.
-float waterline_y(float p_x, float fraction) {
-	float wave = sin(p_x * 10.0 + TIME * 2.0) * 0.025 + sin(p_x * 4.0 - TIME * 1.3) * 0.015;
-	return 1.0 - 2.0 * fraction + wave;
+const int STEPS = 22;
+
+float hash(vec3 p) {
+	p = fract(p * 0.3183099 + 0.1);
+	p *= 17.0;
+	return fract(p.x * p.y * p.z * (p.x + p.y + p.z));
+}
+
+float noise(vec3 x) {
+	vec3 i = floor(x);
+	vec3 f = fract(x);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(mix(hash(i), hash(i + vec3(1, 0, 0)), f.x), mix(hash(i + vec3(0, 1, 0)), hash(i + vec3(1, 1, 0)), f.x), f.y),
+		mix(mix(hash(i + vec3(0, 0, 1)), hash(i + vec3(1, 0, 1)), f.x), mix(hash(i + vec3(0, 1, 1)), hash(i + vec3(1, 1, 1)), f.x), f.y), f.z);
+}
+
+float fbm(vec3 p) {
+	float total = 0.0;
+	float amp = 0.5;
+	for (int i = 0; i < 3; i++) {
+		total += amp * noise(p);
+		p = p * 2.03 + vec3(1.7, 9.2, 3.1);
+		amp *= 0.5;
+	}
+	return total;
 }
 
 void fragment() {
 	vec2 p = UV * 2.0 - 1.0;
-	float dist = length(p);
-	if (dist > 1.0) {
+	float r2 = dot(p, p);
+	if (r2 > 1.0) {
 		discard;
 	}
-	vec3 col = bg_color.rgb;
-	float alpha = bg_color.a;
-	if (fill_fraction > 0.0) {
-		float waterline = waterline_y(p.x, fill_fraction);
-		if (p.y > waterline) {
-			float depth = clamp((p.y - waterline) / 2.0, 0.0, 1.0);
-			col = fill_color.rgb * mix(1.15, 0.65, depth);
-			col += vec3(smoothstep(0.06, 0.0, abs(p.y - waterline)) * 0.5);
-			alpha = fill_color.a;
+	// 3D with y up; n is the front surface point and its normal.
+	vec3 n = vec3(p.x, -p.y, sqrt(1.0 - r2));
+	vec3 view = normalize(vec3(0.0, -0.06, -1.0));
+	vec3 d = refract(view, n, 1.0 / 1.1);
+	float t_exit = -2.0 * dot(n, d);
+	float level = fill_fraction * 2.0 - 1.0;
+	float spin = TIME * 0.22 + seed;
+	float cs = cos(spin);
+	float sn = sin(spin);
+	float dt = t_exit / float(STEPS);
+	vec3 glow = vec3(0.0);
+	float trans = 1.0;
+	for (int i = 0; i < STEPS; i++) {
+		vec3 q = n + d * (dt * (float(i) + 0.5));
+		vec3 rq = vec3(cs * q.x - sn * q.z, q.y, sn * q.x + cs * q.z);
+		float wisp = fbm(rq * 2.4 + vec3(seed * 3.0, -TIME * 0.3, 0.0));
+		// The top of the fill: soft, and lifted or lowered by the wisps.
+		float top = level + (wisp - 0.5) * 0.05;
+		float inside = smoothstep(top + 0.02, top - 0.03, q.y);
+		if (fill_fraction <= 0.001) {
+			inside = 0.0;
+		}
+		float core = 1.0 - smoothstep(0.0, 1.05, length(q));
+		float density = inside * (0.3 + wisp * wisp * 1.1) * (0.55 + core);
+		// Brighter towards the heart, with hot motes where the wisps peak.
+		vec3 emit = fill_color.rgb * (0.45 + 1.7 * core * wisp) + vec3(pow(wisp, 7.0) * 1.4);
+		// The skin of the fill glows a little.
+		emit += fill_color.rgb * smoothstep(0.08, 0.0, abs(q.y - top)) * inside * 0.9;
+		float a = 1.0 - exp(-density * dt * 3.4);
+		glow += trans * a * emit;
+		trans *= 1.0 - a;
+		if (trans < 0.03) {
+			break;
 		}
 	}
-	// Glassy rim tinted by the fill, and a soft highlight top-left.
-	col += fill_color.rgb * smoothstep(0.8, 1.0, dist) * 0.3;
-	float shine = smoothstep(0.42, 0.0, length(p - vec2(-0.35, -0.45))) * 0.18;
-	col += vec3(shine);
-	COLOR = vec4(col, alpha);
+	// The inner back wall: dark glass with faint etched meridians and rings,
+	// lit by the fill in front of it.
+	vec3 back = n + d * t_exit;
+	float lat = asin(clamp(back.y, -1.0, 1.0));
+	float lon = atan(back.x, back.z);
+	float etch = max(smoothstep(0.965, 1.0, abs(sin(lat * 5.0))), smoothstep(0.975, 1.0, abs(sin(lon * 6.0))));
+	vec3 wall = bg_color.rgb * 1.3 + fill_color.rgb * etch * (0.06 + 0.22 * fill_fraction);
+	vec3 col = glow + trans * wall;
+	// The level line on the glass, at exactly fill_fraction of the height.
+	if (fill_fraction > 0.001 && fill_fraction < 0.999) {
+		float line_dist = abs(n.y - level);
+		col += mix(fill_color.rgb, vec3(1.0), 0.55) * smoothstep(0.022, 0.0, line_dist) * 0.9;
+		// Above the line the globe reads clearly empty.
+		col *= mix(1.0, 0.55, smoothstep(level - 0.01, level + 0.04, n.y));
+	}
+	// Glass: a fresnel rim, a sharp glint top-left and a faint reflection low right.
+	float fresnel = pow(1.0 - n.z, 3.0);
+	col += mix(vec3(0.62, 0.68, 0.85), fill_color.rgb, 0.45) * fresnel * 0.6;
+	vec3 light = normalize(vec3(-0.55, 0.6, 0.65));
+	float spec = pow(max(dot(reflect(-light, n), vec3(0.0, 0.0, 1.0)), 0.0), 48.0);
+	col += vec3(spec * 0.6);
+	col += vec3(smoothstep(0.9, 0.98, sqrt(r2)) * smoothstep(0.3, 0.9, p.x + p.y) * 0.07);
+	COLOR = vec4(col, max(bg_color.a, 1.0 - trans * 0.3));
 }
 """
 
@@ -82,6 +154,7 @@ func _ready() -> void:
 	_shader_mat.shader = shader
 	_shader_mat.set_shader_parameter("fill_color", fill_color)
 	_shader_mat.set_shader_parameter("bg_color", AetherStyle.GLASS)
+	_shader_mat.set_shader_parameter("seed", float(label_prefix.hash() % 97) * 0.37)
 	_visual.material = _shader_mat
 	add_child(_visual)
 	_frame = OrbFrame.new()

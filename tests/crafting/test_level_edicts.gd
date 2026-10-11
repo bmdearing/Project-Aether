@@ -20,6 +20,8 @@ func _run() -> void:
 	_test_ladder()
 	_test_edicts()
 	_test_migration()
+	_check(ImplicitPool.pool_for_type(&"amulet").any(func(a: ItemAffix): return a.stat_key == "additional_curses"), "an amulet can corrupt to +1 additional Curse")
+	_check(not ImplicitPool.pool_for_type(&"ring").any(func(a: ItemAffix): return a.stat_key == "additional_curses"), "only amulets")
 	await _test_bench()
 	print("level edict tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)

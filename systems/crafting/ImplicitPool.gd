@@ -5,6 +5,10 @@ class_name ImplicitPool
 ## implicits and accessory implicits), one per stat, at its strongest value.
 
 static var _by_type: Dictionary = {}  # item type -> Array[ItemAffix]
+## Item type -> [stat_key, value, text]: implicits only corruption grants.
+const CORRUPTION_ONLY := {
+	&"amulet": [["additional_curses", 1.0, "Enemies can have +1 additional Curse"]],
+}
 
 ## The implicits an item of `item_type` can gain from corruption.
 static func pool_for_type(item_type: StringName) -> Array[ItemAffix]:
@@ -44,4 +48,17 @@ static func _build() -> void:
 	for type in best:
 		var list: Array[ItemAffix] = []
 		list.assign(best[type].values())
+		_by_type[type] = list
+	# Corruption-only implicits no base carries.
+	for type in CORRUPTION_ONLY:
+		var list: Array[ItemAffix] = _by_type.get(type, [] as Array[ItemAffix])
+		for entry in CORRUPTION_ONLY[type]:
+			var affix := ItemAffix.new()
+			affix.stat_key = entry[0]
+			affix.value = entry[1]
+			affix.value_min = entry[1]
+			affix.value_max = entry[1]
+			affix.description = entry[2]
+			affix.is_implicit = true
+			list.append(affix)
 		_by_type[type] = list
