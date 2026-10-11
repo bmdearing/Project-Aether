@@ -727,10 +727,20 @@ func _handle_weapon_swap_input(delta: float) -> void:
 			weapon_stance.toggle_stance_page()
 	elif _x_held_time > 0.0:
 		if not _x_triggered_hold:
-			equipment.toggle_weapon_set()
-			GameState.sync_weapon_sets(equipment)
+			_tap_weapon_swap()
 		_x_held_time = 0.0
 		_x_triggered_hold = false
+
+## With an empty second set, a tap swaps the main hand's stance page instead
+## (when it has one) rather than swapping to bare hands.
+func _tap_weapon_swap() -> void:
+	var other_set := 1 - equipment.active_weapon_set
+	var other_empty := equipment.primary_weapons[other_set] == null and equipment.offhands[other_set] == null
+	if other_empty and (weapon_stance.has_page_b(equipment.primary_weapon) or weapon_stance.active_page == WeaponStance.StancePage.B):
+		weapon_stance.toggle_stance_page()
+		return
+	equipment.toggle_weapon_set()
+	GameState.sync_weapon_sets(equipment)
 
 func _handle_attack_input(delta: float) -> void:
 	if shield_block.is_raised:

@@ -9,7 +9,7 @@ class_name SandArena
 ##   Partway through, with a warning, the safe wedge moves once to one of the
 ##   others. After WEDGE_DURATION the sand settles and the arena is safe again.
 ##   Ticking Time marks (Ataras.cast_custom) turn into permanent sand traps
-##   that hurt the player standing in them, and slow Ataras and drain his
+##   that hurt and slow the player standing in them, and slow Ataras and drain his
 ##   Composure when he crosses them.
 
 signal wedges_ended
@@ -228,6 +228,7 @@ func _physics_process(delta: float) -> void:
 		_player.status_effects.apply_effect("slow", boss)
 	if in_trap(_player.global_position):
 		share += TRAP_DAMAGE
+		_player.status_effects.apply_effect("slow", boss)
 	if share > 0.0:
 		var amount := _player.health.max_health * share * (1.0 - _player.get_dot_mitigation())
 		_player.take_damage(amount, Constants.DamageType.KINETIC, boss if is_instance_valid(boss) else null, Player.HitKind.DOT)

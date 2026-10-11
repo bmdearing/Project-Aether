@@ -148,6 +148,17 @@ func _test_lens_effects() -> void:
 	cheap_board.place_slate(cheap_host, A + Vector2i(1, 0))
 	_check(cheap_board.placement_cost(_slate(Constants.DamageType.FIRE, 3), [A + Vector2i(3, 0), A + Vector2i(4, 0)]) == 2, "a cheap Lens takes 1 off the cost")
 	_check(cheap_board.placement_cost(_slate(Constants.DamageType.FIRE, 1), [A + Vector2i(3, 0)]) == 1, "never below 1")
+	var own_board := _board()
+	var own := _slate(Constants.DamageType.FIRE, 3)
+	own.lenses.append(_lens("cheap", 2, -1, 1.0))
+	own_board.place_slate(own, A + Vector2i(1, 0))
+	_check(own_board.aether_used == 2 and own.lensed_aether_cost() == 2, "a cheap Lens makes its own Slate cheaper (%d)" % own_board.aether_used)
+	var later := _slate(Constants.DamageType.FIRE, 3)
+	later.sockets = 1
+	var later_board := _board()
+	var later_id := later_board.place_slate(later, A + Vector2i(1, 0))
+	later_board.socket_lens(later_id, _lens("cheap", 2, -1, 1.0))
+	_check(later_board.aether_used == 2, "socketing a cheap Lens into a placed Slate refunds the Aether (%d)" % later_board.aether_used)
 	_finished += 1
 
 func _test_amplify() -> void:

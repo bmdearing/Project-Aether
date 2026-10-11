@@ -256,7 +256,7 @@ func _render_slate(slate: Slate) -> void:
 	_add_subtitle("Slate - %s" % tag_name)
 	_add_separator()
 	_add_stat_line("Size: %d tiles" % slate.get_size())
-	_add_stat_line("Aether Cost: %d" % slate.aether_cost)
+	_add_stat_line("Aether Cost: %d" % slate.lensed_aether_cost())
 	if slate.is_hybrid:
 		var secondary_name: String = Constants.DAMAGE_TYPE_NAME.get(slate.secondary_tag, "?")
 		_add_stat_line("Hybrid: bridges %s / %s chains" % [tag_name, secondary_name])

@@ -31,7 +31,7 @@ func _init() -> void:
 	damping_min = 1.5
 	damping_max = 2.5
 	var fade := Gradient.new()
-	fade.set_color(0, Color(1, 1, 1, 0.75))
+	fade.set_color(0, Color(1, 1, 1, 0.5))
 	fade.set_color(1, Color(1, 1, 1, 0.0))
 	color_ramp = fade
 	var quad := QuadMesh.new()
@@ -42,5 +42,6 @@ func _init() -> void:
 	mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	mat.vertex_color_use_as_albedo = true
 	mat.albedo_texture = GlowTexture.radial()
+	SpellFx.fade_near_camera(mat)
 	quad.material = mat
 	mesh = quad

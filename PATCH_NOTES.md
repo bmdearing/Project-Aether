@@ -7,6 +7,21 @@ there. Most recent first.
 
 ---
 
+## 2026-10-10 — v4.77: Feedback batch (stance swap, smoke, boss ward, Lenses, sand, Void Beam, bullets, ammo, Stamina)
+
+- **Weapon swap with no second set:** tapping X with an empty second weapon set now swaps your main hand's stance page (if it has a page B) instead of swapping to bare hands (`Player._tap_weapon_swap`, `WeaponStance.has_page_b`).
+- **Smoke:** smoke and dust particles fade out within 1-6 m of the camera (`SpellFx.fade_near_camera`, used by `SmokePuff` and every non-additive SpellFx material), and puffs and Inferno smoke are thinner.
+- **Pinnacle bosses recover Ward:** after 4 s without being hit they regain 25% of their Ward per second (`Enemy.regen_ward_if_idle`). Their Ward pool was also sized before the 3x Pinnacle health boost, so it was a third of what `ward_percent` called for. It now uses the boosted health.
+- **Lenses discount their own Slate:** a Slate's cost was worked out before it was on the board, so its own "cheap" Lenses never counted. They do now. Socketing a cheap Lens into a placed Slate refunds the Aether. Slate tooltips and the Fate Board list show the discounted cost (`Slate.lensed_aether_cost`).
+- **Ataras's sand traps** now slow the player as well as hurting (they already slowed him). Traps and quicksand were hurting the player, but only a little and through Ward first, so they were easy to miss. Tested in `test_bosses`.
+- **Herald of the Maw: Void Beam** (new, every phase). She channels a 5 s beam that starts aimed at you and turns after you at 20°/s. Each tick deals 0.3x her ability damage as Entropic. A standing Anchor pylon cuts the beam short, so pylons are cover. *Judgment call:* the request said portals, but the arena has no portals, so the pylons block it.
+- **Bullets fly twice as fast** (`PlayerRangedAttack.BULLET_SPEED_MULTIPLIER`). Arrows and crossbow bolts are unchanged. Bullet lifetime is halved, so range stays the same.
+- **Smarter ammo drops:** ammo only drops for guns you carry in either set or the offhand (no more random types when you carry no gun). It drops the type you're lowest on. The chance scales with need: 30% at empty, 15% at starting reserves, none at double the starting reserves (`Enemy.ammo_need`). **Bosses** (Figment and Pinnacle) drop an ammo pack 3-5 m from you, on the side away from them, every 20 s while you fight them, if you need ammo.
+- **Stamina no longer rolls** on new items or crafting (`"no_roll"` in `ItemRoller.AFFIX_POOL`). Items that already have it keep it.
+- Tests: `test_bosses` (sand traps/quicksand, Void Beam blocking, boss ammo), `test_lens` (own-Slate discount, socket refund).
+
+---
+
 ## 2026-10-10 — v4.76: Three save slots, Level 90 Test Character (user request)
 
 - **Save slots:** `SaveManager` keeps three saves (`user://save_slot<N>.json`, each with its own `.bak`). The last-used slot loads at boot. The old single save moves into Slot 1 on first launch. Continue and New Game open a slot picker (`SaveSlotPanel`) showing each slot's name, level, mode, progress (Depth or highest Tier cleared) and when it was last saved (`saved_at`, new). Continue plays or deletes a slot; New Game starts a new character, or a test character, in any slot. Overwriting or deleting a filled slot asks first.

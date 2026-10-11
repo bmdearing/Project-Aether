@@ -115,7 +115,7 @@ func _populate_palette() -> void:
 func _add_palette_entry(slate: Slate) -> void:
 	var tag_name: String = slate.category_tag_override if slate.category_tag_override != "" else Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
 	var button := ItemSlotButton.new()
-	button.text = "%s (%d tiles, %d Aether, %s)" % [slate.display_name, slate.get_size(), slate.aether_cost, tag_name]
+	button.text = "%s (%d tiles, %d Aether, %s)" % [slate.display_name, slate.get_size(), slate.lensed_aether_cost(), tag_name]
 	button.tooltip_text = slate.display_name  # non-empty just to trigger Godot's tooltip system - ItemCard replaces the actual content
 	button.slate = slate
 	button.pressed.connect(_on_palette_selected.bind(slate))

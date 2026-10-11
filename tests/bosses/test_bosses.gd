@@ -7,7 +7,7 @@ extends Node
 
 const ARENA := "res://levels/pinnacle_boss/PinnacleArena.tscn"
 const FIGMENT_BOSS := "res://entities/enemies/figment_boss/FigmentBoss.tscn"
-const TEST_COUNT := 8
+const TEST_COUNT := 9
 
 var _checks := 0
 var _failures := 0
@@ -43,6 +43,7 @@ func _run() -> void:
 	await _test_pinnacle_arena()
 	await _test_lord_sigils()
 	await _test_maw_arena()
+	await _test_sand_arena()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("boss tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -516,6 +517,10 @@ func _test_maw_arena() -> void:
 	_check(not herald.is_player_anchored(player), "but not one out of its reach")
 	var reach := herald.body_radius + MawPylon.RADIUS + 0.2
 	herald.global_position = storm.global_position + Vector3(0, 0.05, reach)
+	# Void Beam: a standing pylon cuts it short.
+	var blocked := herald.beam_length(herald.global_position, Vector3(0, 0, -1))
+	_check(absf(blocked - (reach - MawPylon.RADIUS)) < 0.1, "a pylon blocks the Void Beam (%.2f m)" % blocked)
+	_check(is_equal_approx(herald.beam_length(herald.global_position, Vector3(0, 0, 1)), Xalatath.BEAM_LENGTH), "an open line lets the beam reach full length")
 	_check(not herald.blocks_charge(Vector3(0, 0, 1)), "lunging away from a pylon goes on")
 	_check(herald.blocks_charge(Vector3(0, 0, -1)) and herald.status_effects.is_stunned(), "lunging into a pylon stuns her")
 	_check(herald.composure.is_broken, "slamming into a pylon opens a Riposte window")
@@ -600,6 +605,61 @@ func _test_maw_arena() -> void:
 	await _frames(2)
 	_check(not player.health.is_alive(), "falling off the edge kills")
 	get_tree().paused = false  # the death screen pauses
+	arena.queue_free()
+	await _frames(3)
+	_finished += 1
+
+## Ataras's sand: traps and quicksand wedges hurt and slow the player.
+func _test_sand_arena() -> void:
+	GameState.pending_pinnacle = "ataras"
+	var arena: PinnacleArena = load(ARENA).instantiate()
+	add_child(arena)
+	await _frames(3)
+	_sturdy_player()
+	var sand := arena.sand
+	var boss := arena.boss
+	var player := get_tree().get_first_node_in_group("player") as Player
+	_check(sand != null and boss is Ataras, "Ataras gets the sand arena")
+	if sand == null:
+		arena.queue_free()
+		return
+	boss.set_physics_process(false)
+	boss.boss_brain.set_physics_process(false)
+	boss.global_position = sand.to_global(Vector3(0, 0.05, -20))
+	player.set_physics_process(false)
+	player.global_position = sand.to_global(Vector3(0, 0.1, 8))
+	await _frames(2)
+	var before := player.health.current_health
+	sand.add_trap(player.global_position, 2.0)
+	await _seconds(SandArena.TICK * 3.0)
+	_check(player.health.current_health < before, "a sand trap hurts the player (%.0f -> %.0f)" % [before, player.health.current_health])
+	_check(player.status_effects.has_effect("slow"), "a sand trap slows the player")
+	sand.traps.clear()
+	player.status_effects.clear_all_effects()
+	sand.wedges_active = true
+	sand.wedges_dangerous = true
+	sand.safe_wedge = (sand.wedge_of(player.global_position) + 1) % SandArena.WEDGES
+	before = player.health.current_health
+	await _seconds(SandArena.TICK * 3.0)
+	_check(player.health.current_health < before, "quicksand hurts the player (%.0f -> %.0f)" % [before, player.health.current_health])
+	_check(player.status_effects.has_effect("slow"), "quicksand slows the player")
+	sand.end_wedges()
+	# Ammo: none without a gun; a gun-carrier short on rounds gets a pack nearby.
+	player.equipment.primary_weapons = [null, null]
+	player.equipment.offhands = [null, null]
+	_check(Enemy.ammo_need(player).is_empty(), "no gun, no ammo need")
+	var pistol := (load("res://data/weapons/instances/worn_pistol.tres") as Weapon).duplicate(true) as Weapon
+	player.equipment.primary_weapons[0] = pistol
+	var saved_reserve := AmmoInventory.get_reserve(pistol.ammo_type)
+	AmmoInventory.consume(pistol.ammo_type, saved_reserve)
+	var need := Enemy.ammo_need(player)
+	_check(not need.is_empty() and need["type"] == pistol.ammo_type and is_equal_approx(need["need"], 1.0), "an empty gun needs its own ammo")
+	boss.boss_brain._player = player
+	boss.boss_brain._ammo_timer = 0.0
+	boss.boss_brain._tick_ammo(0.1)
+	var packs := arena.get_children().filter(func(n): return n is LootPickup and n.item is AmmoPack)
+	_check(packs.size() == 1, "the boss drops an ammo pack during the fight")
+	AmmoInventory.add(pistol.ammo_type, saved_reserve)
 	arena.queue_free()
 	await _frames(3)
 	_finished += 1

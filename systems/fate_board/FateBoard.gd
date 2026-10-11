@@ -132,9 +132,17 @@ func socket_lens(placement_id: String, lens: Lens) -> String:
 	if data.slate.resource_path != "":
 		data.slate = data.slate.duplicate(true)
 	data.slate.lenses.append(lens)
+	_reprice(data)
 	EventBus.slate_lenses_changed.emit(placement_id)
 	GameState.sync_fate_board(self)
 	return ""
+
+## Re-charges a placed Slate at its current cost (after its Lenses change).
+func _reprice(data: PlacedSlateData) -> void:
+	var cost := placement_cost(data.slate, data.cells)
+	aether_used += cost - data.aether_paid
+	data.aether_paid = cost
+	EventBus.aether_budget_changed.emit(aether_used, aether_capacity)
 
 ## True when taking this Slate off would cut another placed Slate off from
 ## the anchor. A Slate that was already cut off (an old save) doesn't count.
@@ -194,15 +202,17 @@ func placed_tags(data: PlacedSlateData) -> Array[int]:
 	return tags
 
 ## Aether a Slate costs at `cells`: its own cost, +1 per AETHER_RING_SIZE
-## tiles of distance from the anchor, -1 per "cheap" Lens covering it; at least 1.
+## tiles of distance from the anchor, -1 per "cheap" Lens covering it (its
+## own Lenses included, placed or not); at least 1.
 func placement_cost(slate: Slate, cells: Array[Vector2i]) -> int:
 	var nearest := 1 << 30
 	for c in cells:
 		nearest = mini(nearest, maxi(absi(c.x - ANCHOR_CELL.x), absi(c.y - ANCHOR_CELL.y)))
 	var cost := slate.aether_cost + nearest / AETHER_RING_SIZE
 	for effect in lens_effects_at(cells):
-		if effect["mod"] == "cheap":
+		if effect["mod"] == "cheap" and (placements[effect["placement_id"]] as PlacedSlateData).slate != slate:
 			cost -= int(effect["value"])
+	cost -= slate.aether_cost - slate.lensed_aether_cost()
 	return maxi(cost, 1)
 
 ## A new Slate must touch the anchor, or a placed Slate it shares a tag with

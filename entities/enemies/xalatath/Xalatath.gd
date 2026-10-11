@@ -6,6 +6,8 @@ class_name Xalatath
 ## MawArena (PinnacleArena builds it for her): a round floor over the void
 ## with four Anchor pylons.
 ##   Phase 1: Void Rift pools crack the floor when they run out; Shadow Lunge.
+##   Void Beam: a channelled laser that turns slowly after you; standing
+##   pylons block it.
 ##   Luring the Lunge into a pylon stuns her, drains her Composure and opens
 ##   a Riposte window.
 ##   Phase 2 (66%): Mindbenders go for the pylons and shatter them;
@@ -32,6 +34,14 @@ const KNOCKBACK_DISTANCE := 3.5
 const FEED_BREAK_SHARE := 0.04
 const FEED_CHANNEL_SEC := 3.5
 const FEED_STANCE_DAMAGE := 50.0
+## Void Beam: a channelled laser that turns after the player; pylons block it.
+const BEAM_CHANNEL_SEC := 5.0
+const BEAM_LENGTH := 30.0
+const BEAM_WIDTH := 1.2
+const BEAM_HEIGHT := 1.2
+const BEAM_TICK := 0.25
+const BEAM_TURN_DEG_PER_SEC := 20.0
+const BEAM_COLOR := Color(0.6, 0.25, 0.95)
 
 var feeding := false
 var _feed_damage := 0.0
@@ -56,6 +66,8 @@ func abilities() -> Array:
 	return [
 		{"id": "void_rift", "display_name": "Void Rift", "kind": BossAbility.Kind.HAZARD, "cooldown": 9.0, "telegraph": 1.0, "radius": 3.5, "duration": 7.0, "damage_mult": 1.0, "damage_type": entropic},
 		{"id": "shadow_lunge", "display_name": "Shadow Lunge", "kind": BossAbility.Kind.CHARGE, "cooldown": 8.0, "telegraph": 0.9, "damage_mult": 1.5, "min_range": 5.0, "max_range": 16.0, "damage_type": entropic},
+		{"id": "void_beam", "display_name": "Void Beam", "kind": BossAbility.Kind.CUSTOM, "cooldown": 16.0, "telegraph": 1.0, "damage_mult": 0.3, "min_range": 6.0, "max_range": 28.0,
+			"description": "She channels a beam of the void that slowly turns to follow you. Break line of sight behind an Anchor pylon."},
 		{"id": "call_the_hollow", "display_name": "Call the Hollow", "kind": BossAbility.Kind.SUMMON, "cooldown": 30.0, "telegraph": 1.2, "count": 2, "unit_id": "veilborne_mindbender", "min_phase": 2},
 		{"id": "entropic_volley", "display_name": "Entropic Volley", "kind": BossAbility.Kind.VOLLEY, "cooldown": 8.0, "telegraph": 0.9, "count": 7, "spread_degrees": 70.0, "damage_mult": 0.8, "min_range": 4.0, "max_range": 24.0, "min_phase": 2, "damage_type": entropic},
 		{"id": "unmaking", "display_name": "Unmaking", "kind": BossAbility.Kind.PULL, "cooldown": 14.0, "telegraph": 1.1, "radius": MawArena.MAW_RADIUS + 3.5, "pull_stop": MawArena.MAW_RADIUS + 1.5, "damage_mult": 2.0, "max_range": MawArena.OUTER_RADIUS + 4.0, "min_phase": 3, "damage_type": entropic},
@@ -161,6 +173,9 @@ func can_use_ability(a: BossAbility) -> bool:
 	return true
 
 func cast_custom(a: BossAbility) -> void:
+	if a.id == "void_beam":
+		await _void_beam(a)
+		return
 	if a.id != "feed_the_maw":
 		await get_tree().process_frame
 		return
@@ -195,3 +210,86 @@ func cast_custom(a: BossAbility) -> void:
 		status_effects.apply_timed_effect("stun", 1.5)
 	else:
 		ar.feed(targets)
+
+## ---- Void Beam -------------------------------------------------------------
+
+## Channels a beam that starts on the player and turns after them at
+## BEAM_TURN_DEG_PER_SEC; a standing pylon cuts it short, so pylons are cover.
+func _void_beam(a: BossAbility) -> void:
+	var dir := _flat_to_player()
+	var origin := global_position
+	BossTelegraph.line(get_parent(), origin, dir, BEAM_LENGTH, BEAM_WIDTH, a.telegraph, BEAM_COLOR)
+	begin_attack_telegraph(a.telegraph + BEAM_CHANNEL_SEC)
+	await get_tree().create_timer(a.telegraph, false).timeout
+	if not health.is_alive():
+		return
+	var beam := _make_beam_mesh()
+	get_parent().add_child(beam)
+	var tick_damage := get_ability_base_damage() * a.damage_mult
+	var left := BEAM_CHANNEL_SEC
+	var tick := 0.0
+	while left > 0.0 and health.is_alive() and not status_effects.is_stunned():
+		await get_tree().physics_frame
+		var dt := get_physics_process_delta_time()
+		left -= dt
+		var want := _flat_to_player()
+		var turn := clampf(dir.signed_angle_to(want, Vector3.UP), -deg_to_rad(BEAM_TURN_DEG_PER_SEC) * dt, deg_to_rad(BEAM_TURN_DEG_PER_SEC) * dt)
+		dir = dir.rotated(Vector3.UP, turn).normalized()
+		origin = global_position
+		var length := beam_length(origin, dir)
+		_place_beam(beam, origin, dir, length)
+		tick -= dt
+		if tick <= 0.0:
+			tick = BEAM_TICK
+			var p := get_tree().get_first_node_in_group("player") as Player
+			if p and _beam_hits(p.global_position, origin, dir, length):
+				p.take_damage(tick_damage, Constants.DamageType.ENTROPIC, self, Player.HitKind.SPELL)
+	beam.queue_free()
+
+## How far the beam reaches before the first standing pylon in its way.
+func beam_length(origin: Vector3, dir: Vector3) -> float:
+	var length := BEAM_LENGTH
+	var a := arena()
+	if a == null:
+		return length
+	for pylon in a.pylons:
+		if not pylon.alive:
+			continue
+		var offset := pylon.global_position - origin
+		offset.y = 0.0
+		var along := offset.dot(dir)
+		var side := (offset - dir * along).length()
+		if along > 0.0 and side < MawPylon.RADIUS:
+			length = minf(length, along - sqrt(MawPylon.RADIUS * MawPylon.RADIUS - side * side))
+	return maxf(length, 0.0)
+
+func _beam_hits(point: Vector3, origin: Vector3, dir: Vector3, length: float) -> bool:
+	var rel := point - origin
+	rel.y = 0.0
+	var along := rel.dot(dir)
+	return along >= 0.0 and along <= length and (rel - dir * along).length() <= BEAM_WIDTH * 0.5 + 0.4
+
+func _flat_to_player() -> Vector3:
+	var p := get_tree().get_first_node_in_group("player") as Node3D
+	var to := (p.global_position - global_position) if p else -global_transform.basis.z
+	to.y = 0.0
+	return to.normalized() if to.length() > 0.05 else Vector3.FORWARD
+
+func _make_beam_mesh() -> MeshInstance3D:
+	var beam := MeshInstance3D.new()
+	var cylinder := CylinderMesh.new()
+	cylinder.top_radius = 0.5
+	cylinder.bottom_radius = 0.5
+	cylinder.height = 1.0
+	cylinder.radial_segments = 10
+	beam.mesh = cylinder
+	beam.material_override = MawPylon._glow_material(BEAM_COLOR, 4.0)
+	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return beam
+
+func _place_beam(beam: MeshInstance3D, origin: Vector3, dir: Vector3, length: float) -> void:
+	var from := origin + Vector3(0, BEAM_HEIGHT, 0)
+	var side := dir.cross(Vector3.UP).normalized()
+	var width := BEAM_WIDTH
+	# The cylinder's Y axis runs along the beam.
+	beam.global_transform = Transform3D(Basis(side * width, dir * maxf(length, 0.05), side.cross(dir) * width), from + dir * length / 2.0)

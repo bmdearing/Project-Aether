@@ -19,6 +19,8 @@ static func glow_material(color: Color = Color.WHITE, additive: bool = true, bil
 	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	if additive:
 		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	else:
+		fade_near_camera(mat)
 	mat.albedo_color = color
 	mat.albedo_texture = GlowTexture.radial(Vector2(0.3, 0.55)) if additive else GlowTexture.radial()
 	mat.vertex_color_use_as_albedo = true
@@ -26,6 +28,12 @@ static func glow_material(color: Color = Color.WHITE, additive: bool = true, bil
 	mat.billboard_keep_scale = true
 	mat.disable_receive_shadows = true
 	return mat
+
+## Smoke turns transparent as it nears the camera so it can't blind the player.
+static func fade_near_camera(mat: BaseMaterial3D) -> void:
+	mat.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA
+	mat.distance_fade_min_distance = 1.0
+	mat.distance_fade_max_distance = 6.0
 
 static func glow_quad(additive: bool = true) -> QuadMesh:
 	var quad := QuadMesh.new()

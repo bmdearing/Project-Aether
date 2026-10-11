@@ -134,7 +134,8 @@ const AFFIX_POOL := [
 	{"stat_key": "cast_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Cast Speed", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["skills"]},
 	{"stat_key": "move_speed", "tier1_min": 4.0, "tier1_max": 8.0, "desc": "+%d%% increased Move Speed", "applies_to": ["armor"], "slots": [3], "brand_tags": ["movement"]},
 	{"stat_key": "debuff_effectiveness", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% Debuff Effectiveness", "applies_to": ["armor", "item"], "slots": [0, 9], "brand_tags": ["skills"]},
-	{"stat_key": "stamina", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Stamina", "applies_to": ["armor", "item"], "slots": [1, 3, 10], "brand_tags": []},
+	# Stamina no longer rolls; kept so items that already have it still read.
+	{"stat_key": "stamina", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Stamina", "applies_to": ["armor", "item"], "slots": [1, 3, 10], "brand_tags": [], "no_roll": true},
 	# Loot (v4.35): Magic Find is worth 0.5% Item Quantity + 2% Item Rarity per
 	# point (Loot.gd). Armour and accessories only; Quantity on accessories only.
 	{"stat_key": "item_rarity", "tier1_min": 14.0, "tier1_max": 20.0, "desc": "%d%% increased Item Rarity", "applies_to": ["armor", "item"], "slots": [0, 1, 2, 3, 9, 10, 11], "brand_tags": []},
@@ -700,6 +701,8 @@ static func _pool_for(item: Item) -> Array:
 	var category := _category_of(item)
 	var result := []
 	for entry in AFFIX_POOL:
+		if entry.get("no_roll", false):
+			continue
 		var applies: Array = entry["applies_to"]
 		if not (applies.is_empty() or applies.has(category)):
 			continue

@@ -14,7 +14,7 @@ const HOLD := 0.45
 const FADE := 0.4
 const FIRE := Color(1.0, 0.45, 0.1)
 const EMBER := Color(1.0, 0.6, 0.2)
-const SMOKE := Color(0.08, 0.06, 0.05, 0.55)
+const SMOKE := Color(0.08, 0.06, 0.05, 0.4)
 
 func play(radius: float, _color: Color) -> void:
 	var column_r := clampf(radius * 0.3, 0.5, 1.4)

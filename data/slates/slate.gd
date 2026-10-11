@@ -40,6 +40,14 @@ class_name Slate
 @export var sockets: int = 0
 @export var lenses: Array[Lens] = []
 
+## aether_cost after its own "cheap" Lenses (at least 1), before distance.
+func lensed_aether_cost() -> int:
+	var cost := aether_cost
+	for lens in lenses:
+		if lens.radius_mod == "cheap":
+			cost -= int(lens.radius_value)
+	return maxi(cost, 1)
+
 func free_sockets() -> int:
 	return maxi(sockets - lenses.size(), 0)
 

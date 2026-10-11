@@ -30,6 +30,8 @@ const BASE_FIRE_COOLDOWN := 0.5
 ## system exists yet (Section 11: motion values live on skills).
 @export var base_motion_value: float = 1.0
 @export var projectile_speed: float = 25.0
+## Bullets fly this much faster than arrows and bolts (same reach: shorter lifetime).
+const BULLET_SPEED_MULTIPLIER := 2.0
 ## Fan spacing for a bow's additional arrows.
 const EXTRA_ARROW_SPREAD_DEG := 5.0
 ## How far a hitscan shot reaches.
@@ -333,7 +335,9 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		var arrow := weapon.ammo_type == Constants.AmmoType.ARROW or weapon.ammo_type == Constants.AmmoType.CROSSBOW_BOLT
 		projectile.impact_sound = Projectile.ImpactSound.ARROW if arrow else Projectile.ImpactSound.BULLET
 		projectile.source = _player
-		projectile.speed = speed
+		projectile.speed = speed if arrow else speed * BULLET_SPEED_MULTIPLIER
+		if not arrow:
+			projectile.lifetime /= BULLET_SPEED_MULTIPLIER
 		projectile.cosmetic = cosmetic
 		if hitscan:
 			projectile.hitscan_range = HITSCAN_RANGE

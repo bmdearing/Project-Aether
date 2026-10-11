@@ -195,6 +195,12 @@ func recharge_ward_if_idle(delay: float) -> void:
 	if _ward_current < _ward_pool and Time.get_ticks_msec() - _last_damaged_msec >= int(delay * 1000.0):
 		_ward_current = _ward_pool
 
+## Regains percent_per_second of the Ward pool once delay seconds have
+## passed since the last hit taken.
+func regen_ward_if_idle(delay: float, percent_per_second: float, delta: float) -> void:
+	if _ward_current < _ward_pool and Time.get_ticks_msec() - _last_damaged_msec >= int(delay * 1000.0):
+		_ward_current = minf(_ward_pool, _ward_current + _ward_pool * percent_per_second * delta)
+
 var _last_damaged_msec: int = -100000
 
 ## The EnemyRarityComponent added at spawn, or null (looked up lazily: it's
@@ -927,11 +933,10 @@ func _roll_drop(rarity_mult: float) -> void:
 		_spawn_pickup(LensRoller.roll(_compute_item_level(), rarity_mult))
 		return
 
-	if randf() <= AMMO_DROP_CHANCE:
-		var ammo := _roll_ammo_drop()
-		if ammo:
-			_spawn_pickup(ammo)
-			return
+	var ammo := _roll_ammo_drop()
+	if ammo:
+		_spawn_pickup(ammo)
+		return
 
 	if randf() > BASE_LOOT_DROP_CHANCE * _reward_mult("gear"):
 		return
@@ -940,8 +945,11 @@ func _roll_drop(rarity_mult: float) -> void:
 		return
 	_spawn_pickup(item)
 
-## Ammo drops prefer the type the player's ranged weapon uses.
+## Ammo drop chance with reserves at their starting level; it scales with
+## need (see ammo_need()), from double at empty to none at AMMO_FULL_SHARE.
 const AMMO_DROP_CHANCE := 0.15
+## Reserves at this multiple of AmmoInventory.STARTING_AMMO count as full.
+const AMMO_FULL_SHARE := 2.0
 ## Socketable jewels (JewelRoller), rolled just before ammo.
 const JEWEL_DROP_CHANCE := 0.04
 ## Lenses (LensRoller), for Slate sockets; rolled just after jewels.
@@ -949,34 +957,35 @@ const LENS_DROP_CHANCE := 0.025
 
 func _roll_ammo_drop() -> Item:
 	var player := get_tree().get_first_node_in_group("player") as Player
-	if player == null:
+	var need := ammo_need(player)
+	if need.is_empty() or randf() > AMMO_DROP_CHANCE * 2.0 * float(need["need"]):
 		return null
-	var ammo_type := _get_preferred_ammo_type(player)
-	if ammo_type == Constants.AmmoType.ARROW:
-		return null  # arrows are infinite, never drop
+	return make_ammo_pack(need["type"])
+
+## The gun ammo the player is shortest on: {"type", "need"}, need 0 (full) to
+## 1 (empty). Empty when no gun is equipped in either set (bows never need any).
+static func ammo_need(player: Player) -> Dictionary:
+	if player == null:
+		return {}
+	var best := {}
+	var carried: Array = []
+	carried.append_array(player.equipment.primary_weapons)
+	carried.append_array(player.equipment.offhands)
+	for weapon in carried:
+		if not (weapon is Weapon and weapon.is_ranged) or weapon.ammo_type == Constants.AmmoType.ARROW:
+			continue
+		var comfortable: float = AmmoInventory.STARTING_AMMO.get(weapon.ammo_type, 30) * AMMO_FULL_SHARE
+		var need := clampf(1.0 - AmmoInventory.get_reserve(weapon.ammo_type) / comfortable, 0.0, 1.0)
+		if best.is_empty() or need > float(best["need"]):
+			best = {"type": weapon.ammo_type, "need": need}
+	return best if not best.is_empty() and float(best["need"]) > 0.0 else {}
+
+static func make_ammo_pack(ammo_type: Constants.AmmoType) -> Item:
 	var ammo_id: String = Constants.AMMO_TYPE_PICKUP_ID.get(ammo_type, "")
 	if ammo_id.is_empty():
 		return null
 	var base := load(CRAFTING_CONSUMABLE_DIR + ammo_id + ".tres") as Item
 	return base.duplicate(true) as Item if base else null
-
-## Ammo type of the first non-bow ranged weapon in the active weapon set,
-## then the inactive one. Bows-only returns ARROW (no drop); no ranged
-## weapon at all rolls a random firearm type.
-func _get_preferred_ammo_type(player: Player) -> Constants.AmmoType:
-	var equipment := player.equipment
-	var weapons: Array = [player.get_active_weapon(), equipment.primary_weapons[1 - equipment.active_weapon_set]]
-	var saw_bow := false
-	for weapon in weapons:
-		if weapon is Weapon and weapon.is_ranged:
-			if weapon.ammo_type == Constants.AmmoType.ARROW:
-				saw_bow = true
-			else:
-				return weapon.ammo_type
-	if saw_bow:
-		return Constants.AmmoType.ARROW
-	var types := [Constants.AmmoType.PISTOL, Constants.AmmoType.RIFLE, Constants.AmmoType.SHOTGUN, Constants.AmmoType.AUTOMATIC]
-	return types[randi() % types.size()]
 
 ## Stub: only "figments" conversion exists so far.
 func _drop_converted(affix: EnemyAffix) -> void:

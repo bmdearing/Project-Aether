@@ -79,6 +79,14 @@ func _resolve_behavior(weapon: Weapon) -> StanceBehavior:
 		return _behavior_by_weapon_type[weapon.base_line_id]
 	return _behavior_by_weapon_type.get(weapon.weapon_type)
 
+## True when the weapon has a page-B behavior, i.e. toggling pages changes something.
+func has_page_b(weapon: Weapon) -> bool:
+	if weapon == null:
+		return false
+	if _behavior_by_weapon_type.is_empty():
+		_scan_behaviors()
+	return _behavior_by_weapon_type.has(weapon.weapon_type + "_b")
+
 func _scan_behaviors() -> void:
 	var dir := DirAccess.open(STANCE_INSTANCES_DIR)
 	if dir == null:
