@@ -435,10 +435,18 @@ func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 			func(id): return Constants.STATUS_EFFECT_NAME.get(id, id)
 		)
 		_add_stat_line("%.0f%% chance to apply: %s" % [ability.status_chance * 100.0, ", ".join(effect_names)])
+	var tree := get_tree() if is_inside_tree() else null
+	var player: Player = (tree.get_first_node_in_group("player") as Player) if tree else null
+	var effects := SpellEffectText.lines(ability, sheet, player)
+	if not effects.is_empty():
+		_add_separator()
+		for line in effects:
+			_add_mod_line(line, AFFIX_COLOR)
 	if ability.description != "":
 		_add_separator()
 		_add_flavor(ability.description)
 
+const SpellEffectText := preload("res://data/abilities/spell_effect_text.gd")
 const TAG_COLOR := Color(0.62, 0.66, 0.74)
 const OVERCAP_COLOR := Color(1.0, 0.78, 0.35)
 

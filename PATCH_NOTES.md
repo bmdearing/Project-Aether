@@ -7,6 +7,14 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.82.1: Spell cards show what spells actually do
+
+- Spell cards have a new section with the real numbers at the spell's level and your gear (`data/abilities/spell_effect_text.gd`, which reads the same constants the spells use, so the card can't drift from the code). Curses show each penalty (e.g. "Cursed enemies deal 15% less damage"), what lowered resistance means in damage taken, duration and curse strength (level and Debuff Effectiveness). Warcries show the buff or debuff (Battle Cry's "% more damage" with its per-level growth, Intimidating Shout's "20% more damage of every type"), radius and duration. Linger and Pale Thread show damage per tick and in total, Ward per second (also as Ward/s for your current maximum) and break range. Death Shroud, Frost Armor, Purge and Blink say what they do.
+- Every status a spell can apply is spelled out too: Chill's slow and Freeze threshold, Shock's and Unraveling's extra damage taken, Pallid's damage reduction, and Ignite, Bleed and Aetherburn as a share of the hit. Each is scaled by your effectiveness, duration and damage-over-time gear.
+- Death Shroud's Pallid now scales with Pallid and Debuff Effectiveness like other Pallid sources.
+
+---
+
 ## 2026-10-11 — v4.82: Curses, Pale spells, shield block, clearer Severance
 
 - **Severance preview:** modifiers the held Orb can remove now sit on an orange band with an orange bar and orange text on the item card (`ItemCard._add_highlighted_mod_line`). Replace marks turned rose so they can't be mistaken for removals. The inventory status line says "Can remove N of M modifiers (highlighted orange...)".

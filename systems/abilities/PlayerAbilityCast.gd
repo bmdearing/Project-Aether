@@ -1536,7 +1536,7 @@ func _tick_death_shroud(delta: float) -> void:
 		return
 	_shroud_ticker = DEATH_SHROUD_PULSE
 	for enemy in _enemies_near(_player.global_position, radius):
-		enemy.status_effects.apply_timed_effect("pallid", DEATH_SHROUD_PULSE + DEATH_SHROUD_LINGER)
+		enemy.status_effects.apply_curse("pallid", _player, DEATH_SHROUD_PULSE + DEATH_SHROUD_LINGER, 1.0)
 
 ## A faint pale ring on the ground at the shroud's edge, following the player.
 func _update_shroud_fx(radius: float) -> void:

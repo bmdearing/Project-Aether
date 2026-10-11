@@ -48,6 +48,7 @@ func _run() -> void:
 	await _test_pale_thread()
 	await _test_death_shroud()
 	await _test_no_target_and_mana()
+	_test_effect_text()
 	print("pale curse tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -179,3 +180,10 @@ func _test_no_target_and_mana() -> void:
 	await _frames(3)
 	await _cast_key(1, 0.1)
 	_check(_cast_failures.has("Not enough Mana") and AudioManager._no_mana_voice_at != voice_before, "out of Mana plays the voice line")
+
+func _test_effect_text() -> void:
+	var text := preload("res://data/abilities/spell_effect_text.gd")
+	for id in ["meager", "fracturing", "decompose", "elemental_fragility", "linger", "pale_thread", "death_shroud", "battle_cry", "intimidating_shout", "frost_armor", "ice_pulse", "entropic_decay"]:
+		var lines: Array[String] = text.lines(_spell(id), _player.stat_sheet, _player)
+		print("[%s]\n  %s" % [id, "\n  ".join(lines)])
+		_check(lines.any(func(l: String): return l.contains("%")), "%s card shows its numbers" % id)
