@@ -58,7 +58,7 @@ func _open_selection() -> void:
 func _pinnacle_entries() -> Array:
 	var have := Pinnacle.FRAGMENT_IDS.size() - Pinnacle.missing_fragments(GameState.inventory).size()
 	var entries: Array = []
-	for id in Pinnacle.BOSSES:
+	for id in Pinnacle.offered_bosses():
 		var boss_id: String = id
 		entries.append({
 			"label": "Pinnacle: %s" % Pinnacle.BOSSES[boss_id]["name"],

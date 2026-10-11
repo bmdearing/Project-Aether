@@ -1,0 +1,229 @@
+{
+  "source": "Fire_Golem.mdx",
+  "version": 1000,
+  "scale": 0.0125,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.5213737487792969,
+      -0.009148749709129335,
+      -1.6457750320434572
+    ],
+    "max": [
+      0.5213737487792969,
+      3.088137435913086,
+      1.6457750320434572
+    ],
+    "height": 3.0972861856222154
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 1967,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 2000,
+      "end": 5967,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 6000,
+      "end": 9567,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 9600,
+      "end": 11033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 11067,
+      "end": 12400,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 12433,
+      "end": 13767,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 13800,
+      "end": 14967,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Birth",
+      "start": 15000,
+      "end": 17367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 17400,
+      "end": 22267,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 22300,
+      "end": 82300,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Infernal_Rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem Portrait/fire_golem_main_diffuse.dds",
+        "normal": "infernal_main_normal.dds",
+        "orm": "infernal_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem Portrait/fire_golem_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Fire_Golem_Main_Diffuse.dds",
+        "normal": "Units/Demon/Infernal/Infernal_Main_Normal.tif",
+        "orm": "Units/Demon/Infernal/Infernal_Main_ORM.tif",
+        "emissive": "Fire_Golem_Main_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "Infernal_Rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem Portrait/fire_golem_main_diffuse.dds",
+        "normal": "infernal_main_normal.dds",
+        "orm": "infernal_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem Portrait/fire_golem_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Fire_Golem_Main_Diffuse.dds",
+        "normal": "Units/Demon/Infernal/Infernal_Main_Normal.tif",
+        "orm": "Units/Demon/Infernal/Infernal_Main_ORM.tif",
+        "emissive": "Fire_Golem_Main_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Infernal_Rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem Portrait/fire_golem_main_diffuse.dds",
+        "normal": "infernal_main_normal.dds",
+        "orm": "infernal_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem Portrait/fire_golem_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Fire_Golem_Main_Diffuse.dds",
+        "normal": "Units/Demon/Infernal/Infernal_Main_Normal.tif",
+        "orm": "Units/Demon/Infernal/Infernal_Main_ORM.tif",
+        "emissive": "Fire_Golem_Main_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Infernal_Rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem Portrait/fire_golem_main_diffuse.dds",
+        "normal": "infernal_main_normal.dds",
+        "orm": "infernal_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem Portrait/fire_golem_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Fire_Golem_Main_Diffuse.dds",
+        "normal": "Units/Demon/Infernal/Infernal_Main_Normal.tif",
+        "orm": "Units/Demon/Infernal/Infernal_Main_ORM.tif",
+        "emissive": "Fire_Golem_Main_Emissive.dds"
+      },
+      "missing": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Walk 1": true,
+        "Birth": true,
+        "Death 1": true,
+        "Decay": true
+      }
+    }
+  ]
+}

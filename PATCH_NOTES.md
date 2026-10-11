@@ -7,6 +7,23 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.86: Aurelia, the final boss
+
+- **Aurelia** (`entities/enemies/aurelia/`) replaces the Lord of the Elements at the Reality Engine. She's meant to be the final boss; for now she's a Pinnacle choice. The Lord still works (`Pinnacle.BOSSES` marks him `hidden`; `Pinnacle.offered_bosses()` is what the Reality Engine and the character sheet list).
+- Model: Dread Jaina (Retera), with the body and wings swapped to the Queen of Suffering's Reforged textures for her pale blue skin. Fire Golems: Fire Golem (Vulfar). The user may replace her model; it's only `data/enemies/definitions/aurelia.tres`.
+- **Kit:** Ice Spears (eight icicles in a star, one aimed at you; lines show their paths), Fire Wall (a quarter circle of fire rolling outward that splits down the middle, leaving a 2.4 m gap), Lightning Bolt (warning strikes on you 1.5 s then 1 s apart, then a big bolt 0.75 s after where the last one landed), and two melee moves: Staff Sweep (frost arc) and Searing Thrust (a line of flame).
+- **Phases** at 90/75/50/25%. 2: she casts faster (wind-ups and cooldowns). 3: Earth Wheel (7 or 14 quakes), one random spell upgraded. 4: two Fire Golems, another upgrade, faster again. 5: Earth Wheel (14 or 21), then "Amaterasu", two golems (topped up to two), every spell upgraded, Living Bombs.
+- **Upgrades:** Ice Spears softly track you (38°/s for 2.4 s), Fire Wall leaves one or two burning pools that go away at the next phase, Lightning Bolt has one fewer warning strike.
+- **Earth Wheel** (`AureliaArena`): two thin opposite safe wedges (22° each); 1.2 s later everything else quakes for 60% of your max Life + Ward (Kinetic, before mitigation), and the next wedges flash up at once, turned 20-34° left or right. The first set stays up 2 s so it can be found. She blinks to the hub and is immune throughout.
+- **Amaterasu:** black fire creeps in from the rim and takes the whole floor over 90 s; standing in it burns 2.75% of your current Life + Ward per second as Fire. Black flames are drawn with mixed (not additive) shaders, since additive can't make black.
+- **Fire Golems** chase you and slam a 10 m line of erupting fire that knocks you into the air (`Player.knock_up()`: no steering, jumping, dashing or attacking until you land). In the last phase a knock-up gets you a Living Bomb (3 s fuse, 5 s cooldown).
+- **Sound:** her fight uses Warcraft III spell sounds (Frost Nova, Flame Strike, Monsoon, Lightning Bolt, Earthquake, Shockwave, Rock Golem, Infernal...) pulled from the local install by the new `tools/mdx_pipeline/wc3_sounds.js`.
+- **Testing switch:** `Aurelia.testing_level` (30) fights her and her golems at level 30 instead of Area Level 90, so every phase can be reached. Set it to 0 to restore.
+- Judgment calls to revisit: the hub under her is never safe during Earth Wheel (otherwise standing in the middle skips it); the black fire starts at the rim and spreads over 90 s (a soft enrage, since a share of *current* Life can't kill on its own); golems in the last phase top up to two rather than adding two more; damage numbers (spears 0.8x, wall 1.3x, small bolts 0.5x, big bolt 2.4x, bomb 1.8x her hit); Earth Wheel shows two wedges.
+- Tests: `tests/aurelia/test_aurelia.tscn` (38 checks). Look check: `tests/ui_capture/capture_aurelia.tscn -- <out.png> <wheel|firewall|spears|lightning|amaterasu|golem|bomb> [player|overview] [delay]`.
+
+---
+
 ## 2026-10-11 — v4.83: The Pale, a sixth Figment family
 
 - Three new styles: **Bone Flats** (open field of white sand, pitted dunes, rib cages, tusks and bone spires), **Hollow Reach** (a canyon whose cliffs are covered in clustered holes) and **The Unbuilt** (a streets layout of blank chalk buildings, colonnades holding up nothing, stairs to nowhere, a giant ring and an obelisk with a floating orb).

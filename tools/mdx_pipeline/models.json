@@ -96,6 +96,16 @@
       "unit": "ataras",
       "mdx": "assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/Anubis.mdx",
       "scale": 0.02
+    },
+    {
+      "unit": "aurelia",
+      "mdx": "assets/models/enemies/pinnacle/aurelia/aurelia/EvilJaina.mdx",
+      "scale": 0.02
+    },
+    {
+      "unit": "aurelia_fire_golem",
+      "mdx": "assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem/Fire_Golem.mdx",
+      "scale": 0.0125
     }
   ]
 }

@@ -35,6 +35,8 @@ Warcraft III custom models from [Hive Workshop](https://www.hiveworkshop.com), c
 | Teron Gorefiend (Death Knight Hero) | drew1011 | [hiveworkshop.com/threads/371374](https://www.hiveworkshop.com/threads/teron-gorefiend-death-knight-hero.371374/) |
 | Zombie Footman | dehme | [hiveworkshop.com/threads/328353](https://www.hiveworkshop.com/threads/zombie-footman.328353/) |
 | Anubithas / Anubis (Ataras) | Mr Ogre man, vindorei | [hiveworkshop.com/threads/336393](https://www.hiveworkshop.com/threads/anubithas-anubis.336393/) |
+| Dread Jaina (Aurelia; body and wings retextured with the Queen of Suffering's skin) | Retera | [hiveworkshop.com/threads/336386](https://www.hiveworkshop.com/threads/dread-jaina.336386/) |
+| Fire Golem (Aurelia's golems) | Vulfar | [hiveworkshop.com/threads/326231](https://www.hiveworkshop.com/threads/fire-golem.326231/) |
 
 ## 3D models: environment
 
@@ -94,9 +96,11 @@ Cut from CC0 (public domain) packs on [OpenGameArt](https://opengameart.org), cr
 - **FaxCorp**: [Electricity Game Sound Pack](https://opengameart.org/content/electricity-game-sound-pack); **Kenney**: [Sci-Fi Sounds](https://opengameart.org/content/sci-fi-sounds) (heavy impacts)
 - **rubberduck**: [80 CC0 RPG SFX](https://opengameart.org/content/80-cc0-rpg-sfx), [80 CC0 creature SFX #2](https://opengameart.org/content/80-cc0-creture-sfx-2) (fire spells, roars); **trazzz123**: [CC0 Deep Monster Roar](https://opengameart.org/content/cc0-deep-monster-roar)
 
-### Warcraft III voice line
+### Warcraft III sounds
 
 `assets/sfx/ui/not_enough_mana.ogg` is the Human "Not enough mana" warning from **Warcraft III** (Blizzard Entertainment), a placeholder that will be replaced.
+
+`assets/sfx/aurelia/` holds spell and unit sounds from **Warcraft III: Reforged** (Blizzard Entertainment), pulled from a local install by `tools/mdx_pipeline/wc3_sounds.js` (`aurelia_sounds.json` lists each file's source). Placeholders, to be replaced.
 
 ## Tools
 

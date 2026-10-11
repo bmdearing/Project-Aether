@@ -164,6 +164,23 @@ func is_lunging() -> bool:
 func apply_impulse(impulse: Vector3) -> void:
 	_impulse += Vector3(impulse.x, 0.0, impulse.z)
 
+## Thrown straight up `height` metres (a Fire Golem's slam). Until they land
+## the player can't steer, jump, dash or attack.
+signal knocked_up
+const KNOCK_UP_MIN_SEC := 0.2
+var _knock_up_time := -1.0
+
+func knock_up(height: float) -> void:
+	velocity.y = sqrt(2.0 * _gravity * height)
+	_move_velocity = Vector3.ZERO
+	_knock_up_time = 0.0
+	_is_dashing = false
+	_is_sliding = false
+	knocked_up.emit()
+
+func is_knocked_up() -> bool:
+	return _knock_up_time >= 0.0
+
 ## Move Speed is gear-affix-only (StatSheet.misc_bonus). Attack Speed is
 ## gear + Agility (v4.8) - see get_action_speed_multiplier().
 
@@ -635,7 +652,11 @@ func _physics_process(delta: float) -> void:
 	# Electrocute/Freeze ("disrupts target action" / "full immobilization") -
 	# movement itself is already zeroed via _effective_speed()'s status
 	# multiplier below; this additionally blocks jump/parry/attack input.
-	var stunned := status_effects.is_stunned()
+	if _knock_up_time >= 0.0:
+		_knock_up_time += delta
+		if _knock_up_time > KNOCK_UP_MIN_SEC and is_on_floor():
+			_knock_up_time = -1.0
+	var stunned := status_effects.is_stunned() or is_knocked_up()
 	_coyote_timer = COYOTE_TIME if is_on_floor() else maxf(_coyote_timer - delta, 0.0)
 	_jump_buffer_timer = JUMP_BUFFER_TIME if Input.is_action_just_pressed("jump") else maxf(_jump_buffer_timer - delta, 0.0)
 	var rooted := stance_defense.is_rooted() or (stance_attack.is_charging and stance_attack.get_move_speed_multiplier() <= 0.0)
@@ -688,7 +709,7 @@ func _physics_process(delta: float) -> void:
 	else:
 		_is_crouching = crouch_held
 		var speed := _effective_speed(crouch_speed) if _is_crouching else _effective_speed(sprint_speed if sprinting else move_speed)
-		var target := move_dir * speed
+		var target := Vector3.ZERO if is_knocked_up() else move_dir * speed
 		var rate: float
 		if is_on_floor():
 			rate = GROUND_ACCELERATION if move_dir != Vector3.ZERO else GROUND_DECELERATION

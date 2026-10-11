@@ -10,8 +10,12 @@ const FRAGMENT_IDS: Array[StringName] = [&"maw_fragment_ash", &"maw_fragment_tid
 ## Pinnacle bosses the Reality Engine offers. "Herald of the Maw" is a
 ## placeholder name (the model/ids are still Xalatath's; to be replaced).
 ## "music": the fight's track, looped by PinnacleArena (optional).
+## "hidden": kept working (tests, a direct GameState.pending_pinnacle) but
+## not offered by the Reality Engine. Aurelia is the final boss; until the
+## story reaches her she is a Pinnacle choice too.
 const BOSSES := {
-	"lord_of_the_elements": {"name": "Lord of the Elements", "scene": "res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn"},
+	"aurelia": {"name": "Aurelia", "scene": "res://entities/enemies/aurelia/Aurelia.tscn"},
+	"lord_of_the_elements": {"name": "Lord of the Elements", "scene": "res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn", "hidden": true},
 	"herald_of_the_maw": {"name": "Herald of the Maw", "scene": "res://entities/enemies/xalatath/Xalatath.tscn", "music": "res://assets/music/boss/herald.mp3"},
 	"ataras": {"name": "Ataras", "scene": "res://entities/enemies/ataras/Ataras.tscn", "music": "res://assets/music/boss/ataras.mp3"},
 }
@@ -28,6 +32,14 @@ static func maw_lens_chance(pylons_standing: int) -> float:
 ## designed, so this returns null and nothing drops yet.
 static func make_maw_lens(_item_level: int) -> Item:
 	return null
+
+## The Pinnacle bosses the Reality Engine offers (BOSSES minus the hidden ones).
+static func offered_bosses() -> Array[String]:
+	var ids: Array[String] = []
+	for id in BOSSES:
+		if not BOSSES[id].get("hidden", false):
+			ids.append(id)
+	return ids
 
 static func roll_fragment() -> StringName:
 	return FRAGMENT_IDS[randi() % FRAGMENT_IDS.size()]

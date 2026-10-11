@@ -1,0 +1,31 @@
+{
+  "out_dir": "assets/sfx/aurelia",
+  "sounds": {
+    "spears_cast": "abilities/spells/undead/frostnova/frostnovatarget1.ogg",
+    "spears_launch": "abilities/spells/other/frostarrows/frostarrowlaunch1.ogg",
+    "spears_hit_1": "abilities/spells/other/frostbolt/frostbolthit1.ogg",
+    "spears_hit_2": "abilities/spells/other/frostarrows/frostarrowhit1.ogg",
+    "fire_wall_cast": "abilities/spells/human/flamestrike/flamestrikebirth1.ogg",
+    "fire_wall_roll": "abilities/spells/other/breathoffire/breathoffire1.ogg",
+    "fire_pot": "abilities/spells/nightelf/immolation/immolationtarget1.ogg",
+    "bolt_small_1": "abilities/spells/other/monsoon/monsoonlightninghit.ogg",
+    "bolt_small_2": "abilities/spells/orc/lightningshield/lightningshieldtarget.ogg",
+    "bolt_big": "abilities/spells/orc/lightningbolt/lightningbolt.ogg",
+    "bolt_big_thunder": "abilities/spells/human/stormbolt/thunderboltmissiledeath.ogg",
+    "sweep": "abilities/spells/other/breathoffrost/breathoffrost1.ogg",
+    "thrust": "abilities/weapons/fireballmissile/fireballmissilelaunch1.ogg",
+    "quake": "abilities/spells/orc/earthquake/earthquakerock.ogg",
+    "quake_wave": "abilities/spells/orc/shockwave/shockwave.ogg",
+    "quake_rumble": "abilities/spells/orc/earthquake/earthquakeloop1.ogg",
+    "golem_summon": "units/demon/infernal/infernalbirth1.ogg",
+    "golem_slam_1": "units/creeps/rockgolem/rockgolemattack1.ogg",
+    "golem_slam_2": "units/creeps/rockgolem/rockgolemattack2.ogg",
+    "golem_death": "units/creeps/rockgolem/rockgolemdeath1.ogg",
+    "bomb_plant": "abilities/weapons/fireballmissile/fireballmissilelaunch2.ogg",
+    "bomb_explode": "abilities/spells/other/tinkerrocket/tinkermissiledeath1.ogg",
+    "amaterasu_cast": "abilities/spells/undead/darksummoning/darksummoningtarget1.ogg",
+    "amaterasu_ignite": "abilities/spells/other/soulburn/soulburn1.ogg",
+    "amaterasu_loop": "abilities/spells/demon/rainoffire/rainoffireloop1.ogg",
+    "cast": "abilities/spells/human/slow/sorceresscastattack1.ogg"
+  }
+}

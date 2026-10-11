@@ -253,7 +253,8 @@ func _test_reality_engine() -> void:
 	_check(engine._pinnacle_entries().all(func(e): return e["cost_text"] == "Free (testing)"), "free entry shows on the Reality Engine")
 	Pinnacle.free_entry = false
 	var entries := engine._pinnacle_entries()
-	_check(entries.size() == Pinnacle.BOSSES.size(), "the Reality Engine lists every Pinnacle boss")
+	_check(entries.size() == Pinnacle.offered_bosses().size(), "the Reality Engine lists every offered Pinnacle boss")
+	_check(not Pinnacle.offered_bosses().has("lord_of_the_elements") and Pinnacle.offered_bosses().has("aurelia"), "Aurelia replaces the Lord of the Elements there")
 	_check(entries.all(func(e): return e["cost_text"] == "0/4 Fragments"), "and how many fragments you hold")
 	_check(not entries[0]["on_buy"].call(), "it won't open without a full set")
 	Pinnacle.free_entry = free

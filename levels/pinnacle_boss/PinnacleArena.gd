@@ -42,11 +42,13 @@ const PORTAL_OFFSET := Vector3(0, 0, 3.0)
 ## Pinnacle.BOSSES id of the boss this arena is for.
 const MAW_BOSS_ID := "herald_of_the_maw"
 const SAND_BOSS_ID := "ataras"
+const AURELIA_BOSS_ID := "aurelia"
 
 var boss: Enemy
 ## The Herald's layout, built instead of the crescent (null for the Lord).
 var maw: MawArena
 var sand: SandArena
+var aurelia: AureliaArena
 var _boss_id := ""
 var _floor_mat: ShaderMaterial
 var _ember_process: ParticleProcessMaterial
@@ -104,6 +106,8 @@ func _ready() -> void:
 		_build_maw()
 	elif _boss_id == SAND_BOSS_ID:
 		_build_sand()
+	elif _boss_id == AURELIA_BOSS_ID:
+		_build_aurelia()
 	else:
 		_build_floor()
 		_build_boundary_walls()
@@ -117,14 +121,14 @@ func _spawn_player() -> void:
 	var player: Player = PLAYER_SCENE.instantiate()
 	add_child(player)
 	player.global_position = $PlayerSpawnPoint.global_position
-	var focus := to_global(Vector3.ZERO if maw or sand else BAY_SPAWN_LOCAL)
+	var focus := to_global(Vector3.ZERO if maw or sand or aurelia else BAY_SPAWN_LOCAL)
 	player.look_at(Vector3(focus.x, player.global_position.y, focus.z))
 
 ## GameState.pending_pinnacle's boss, or a random one when run standalone.
 func _take_boss_id() -> String:
 	var boss_id := GameState.pending_pinnacle
 	if not Pinnacle.BOSSES.has(boss_id):
-		boss_id = Pinnacle.BOSSES.keys().pick_random()
+		boss_id = Pinnacle.offered_bosses().pick_random()
 	GameState.pending_pinnacle = ""
 	return boss_id
 
@@ -143,6 +147,9 @@ func _spawn_boss() -> void:
 		_on_element_changed(Constants.DamageType.ENTROPIC)
 	if sand:
 		sand.bind_boss(boss)
+	if aurelia:
+		aurelia.bind_boss(boss)
+		_on_element_changed(Constants.DamageType.COLD)
 	boss.health.died.connect(_on_boss_died)
 	_play_music(Pinnacle.BOSSES[_boss_id].get("music", ""))
 
@@ -167,7 +174,14 @@ func _on_boss_died() -> void:
 	portal.destination = Portal.Destination.HUB
 	portal.taken.connect(_go_home)
 	add_child(portal)
-	portal.global_position = to_global(MawArena.PORTAL_SPOT) if maw else (to_global(SandArena.PORTAL_SPOT) if sand else $PlayerSpawnPoint.global_position + PORTAL_OFFSET)
+	if maw:
+		portal.global_position = to_global(MawArena.PORTAL_SPOT)
+	elif sand:
+		portal.global_position = to_global(SandArena.PORTAL_SPOT)
+	elif aurelia:
+		portal.global_position = to_global(AureliaArena.PORTAL_SPOT)
+	else:
+		portal.global_position = $PlayerSpawnPoint.global_position + PORTAL_OFFSET
 
 func _go_home() -> void:
 	SaveManager.save_game()
@@ -348,6 +362,23 @@ func _build_sand() -> void:
 	sun.rotation_degrees = Vector3(-38, 30, 0)
 	sun.light_color = Color(1.0, 0.8, 0.6)
 	sun.light_energy = 1.5
+
+## Aurelia's wheel-floored arena (AureliaArena): cold moonlight from above,
+## a frost-blue key on the hub.
+func _build_aurelia() -> void:
+	aurelia = AureliaArena.new()
+	aurelia.name = "AureliaArena"
+	add_child(aurelia)
+	_build_spawn_markers(AureliaArena.BOSS_SPAWN, AureliaArena.PLAYER_SPAWN)
+	var key := get_node("BayLight") as OmniLight3D
+	key.position = Vector3(0, 12.0, 0)
+	key.omni_range = 40.0
+	key.light_energy = 1.6
+	key.light_color = Color(0.8, 0.88, 1.0)
+	var sun := get_node("DirectionalLight3D") as DirectionalLight3D
+	sun.rotation_degrees = Vector3(-60, 20, 0)
+	sun.light_color = Color(0.78, 0.82, 1.0)
+	sun.light_energy = 1.1
 
 func _build_embers() -> void:
 	var particles := GPUParticles3D.new()

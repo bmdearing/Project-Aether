@@ -84,7 +84,7 @@ static func refresh_record(list: VBoxContainer) -> void:
 	_clear(list)
 	_add(list, "Deaths", "%d" % GameState.deaths)
 	_add(list, "Monsters Slain", "%d" % GameState.kills)
-	for boss_id in Pinnacle.BOSSES:
+	for boss_id in Pinnacle.offered_bosses():
 		_add(list, Pinnacle.BOSSES[boss_id]["name"], "%d defeated" % int(GameState.pinnacle_clears.get(boss_id, 0)))
 
 ## Null for a Shield in OFFHAND.
