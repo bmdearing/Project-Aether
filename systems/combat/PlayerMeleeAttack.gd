@@ -73,13 +73,13 @@ const STRIKE_CONTACT_START := 0.6
 ## v4.51: every melee type tuned so sustained DPS (hit / swing time, see
 ## tests/balance/probe_dps.tscn) lands near 150 for one-handers, 155 for
 ## blunt/polearm one-handers and 165 for two-handers, which also cleave.
-## v4.72: all x1.45 (about 218 / 225 / 240) so weapons keep up with spells.
+## v4.72b: all x1.45, then x1.3 (about 283 / 292 / 312) so weapons keep up with spells.
 ## Slow weapons get the biggest hits.
 const WEAPON_TYPE_MOTION_VALUE := {
-	"Dagger": 1.57, "Rapier": 1.25, "Saber": 1.45, "Shortsword": 1.49, "Cutlass": 1.77,
-	"Pressure Fist": 1.83, "Mace": 1.74, "Spear": 1.77, "War Pick": 2.39, "Whip": 2.32,
-	"Shock Lance": 2.73, "Halberd": 2.38, "Greataxe": 2.90, "Greatsword": 2.90, "Claymore": 3.09,
-	"Staff": 1.45, "Gauntlet": 0.72,
+	"Dagger": 2.04, "Rapier": 1.62, "Saber": 1.89, "Shortsword": 1.94, "Cutlass": 2.30,
+	"Pressure Fist": 2.38, "Mace": 2.26, "Spear": 2.30, "War Pick": 3.11, "Whip": 3.02,
+	"Shock Lance": 3.55, "Halberd": 3.09, "Greataxe": 3.77, "Greatsword": 3.77, "Claymore": 4.02,
+	"Staff": 1.89, "Gauntlet": 0.94,
 }
 
 ## Per-weapon swing duration multiplier (via _effective_duration()), so a

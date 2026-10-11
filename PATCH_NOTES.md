@@ -51,6 +51,9 @@ there. Most recent first.
   - Mana cost grows 4% per level (x1.76 at level 20).
   - Cast times: Stormcall, Inferno and Shatter 1.0 s; Entropic Decay and Reap 0.6 s.
   - Level 20 spells now land at about 110-400 DPS: Thunder Javelin 395 (single target), Flame Jets 339, Stormcall 217, Inferno 195. Gear (spell levels, conduit spell damage, Mana) still raises them. Re-check with endgame gear before tuning further.
+- **Follow-up, same day:** after the mob patch made mapping harder, half the cut growth was restored and weapons got 30% more.
+  - Spells grow 8.25% per level (x4.5 at level 20). Level 20: Thunder Javelin 492, Flame Jets 422, Stormcall 271, Inferno 244.
+  - Every weapon type deals x1.3 more. Melee does about 283-313 DPS, guns 254-280, the hitscan guns about 300-325, and bows about 222-232.
 - Tests: `test_caster_stances` makes its sample spells instant (it tests stances, not cast times). `test_v414` checks growth for 7% per level.
 
 ---

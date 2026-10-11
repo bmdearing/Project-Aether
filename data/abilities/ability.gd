@@ -96,7 +96,7 @@ const TAG_NAMES := {
 ## shared .tres; GameState.ability_levels persists it.
 @export var level: int = 1
 const MAX_LEVEL := 20
-const DAMAGE_GROWTH_PER_LEVEL := 0.07  # v4.72: was 0.095 (x5.6 at level 20, now x3.6)
+const DAMAGE_GROWTH_PER_LEVEL := 0.0825  # x4.5 at level 20 (was 0.095 / x5.6, briefly 0.07 / x3.6)
 
 ## Per level above MAX_LEVEL.
 const OVERCAP_MORE_DAMAGE := 0.03

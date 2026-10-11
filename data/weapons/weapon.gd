@@ -19,17 +19,17 @@ class_name Weapon
 ## Per-type damage scale for ranged weapons, so sustained single-target DPS
 ## lands near melee's instead of 2-8x above it (full-auto guns fired 10-15
 ## base-damage shots a second). Tuned with tests/balance/probe_dps.tscn:
-## (v4.72) unaimed bows sit around 170-180 DPS and guns (which spend ammo)
-## around 195-218, against melee's 218-240 with cleave on top. Hitscan guns
-## (HITSCAN_TYPES) hit hardest, about 236-250, since every shot must be aimed
+## (v4.72b) unaimed bows sit around 220-230 DPS and guns (which spend ammo)
+## around 255-280, against melee's 280-315 with cleave on top. Hitscan guns
+## (HITSCAN_TYPES) hit hardest, about 305-325, since every shot must be aimed
 ## and nothing adds projectiles to them.
 ## Aiming still adds AIMED_DAMAGE_MULTIPLIER. Applies to the shown range too.
 const RANGED_DAMAGE_SCALE := {
-	"Machine Gun": 0.26, "Machine Pistol": 0.378, "Submachine Gun": 0.387,
-	"Battle Rifle": 0.73, "Service Pistol": 0.878, "Revolver": 1.235,
-	"Loaded Shotgun": 1.139, "Lever Action Rifle": 1.149, "Bolt Action Rifle": 1.531,
-	"Pump Action Shotgun": 1.556, "Longbow": 1.209, "Shortbow": 1.24, "Bow": 1.24,
-	"Crossbow": 2.527,
+	"Machine Gun": 0.338, "Machine Pistol": 0.491, "Submachine Gun": 0.503,
+	"Battle Rifle": 0.949, "Service Pistol": 1.141, "Revolver": 1.606,
+	"Loaded Shotgun": 1.481, "Lever Action Rifle": 1.494, "Bolt Action Rifle": 1.990,
+	"Pump Action Shotgun": 2.023, "Longbow": 1.572, "Shortbow": 1.612, "Bow": 1.612,
+	"Crossbow": 3.285,
 }
 
 ## Guns whose shots land instantly along the aim line instead of flying.
