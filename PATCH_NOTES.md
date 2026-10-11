@@ -38,7 +38,7 @@ there. Most recent first.
 
 ---
 
-## 2026-10-10 — v4.72: Weapons catch up with spells (user request)
+## 2026-10-10 — v4.72b: Weapons catch up with spells (user request; landed alongside the v4.72 mapping pass)
 
 - **Quality:** the cap is now 25%. A new Significant corruption outcome, **Tempered Limit** (weapons and armour only), raises one item's cap by 15, to 40%. Tempering still works on corrupted items. The card shows the raised cap.
 - **Weapons**, measured with `tests/balance/probe_dps`:
