@@ -1,0 +1,36 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/chalk.tres" id="1_y2egg"]
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/chalk_pitted.tres" id="2_wmiee"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_hdf5y"]
+size = Vector3(1, 0.3, 1)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_1282y"]
+top_radius = 0.3
+bottom_radius = 0.35
+height = 1.3
+radial_segments = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_8jb3o"]
+radius = 0.55
+height = 1.1
+radial_segments = 32
+rings = 16
+
+[node name="OrbPedestal" type="Node3D" unique_id=1085711191]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=1653339196]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+material_override = ExtResource("1_y2egg")
+mesh = SubResource("BoxMesh_hdf5y")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=292121058]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.95, 0)
+material_override = ExtResource("1_y2egg")
+mesh = SubResource("CylinderMesh_1282y")
+
+[node name="Part2" type="MeshInstance3D" parent="." unique_id=134005965]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.15, 0)
+material_override = ExtResource("2_wmiee")
+mesh = SubResource("SphereMesh_8jb3o")

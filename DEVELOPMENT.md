@@ -1159,6 +1159,17 @@ pieces), dressed by the Figment's tileset style (below). The generation
     replaceable texture for models like trees) into `assets/models/doodads/`,
     with wrappers in `entities/environment/doodads/`. Beach/Shore/Strand
     and the other coastal Desert styles need water and aren't built.
+    **Pale (v4.83)**: Bone Flats (open field), Hollow Reach (canyon) and
+    The Unbuilt (streets). Bone-white desaturated ground (`ground_desaturate`,
+    tints above 1) with clustered pits from `shaders/pale_pits.gdshaderinc`
+    (`floor_pit_amount`/`wall_pit_amount`, used by the ground shader and by
+    `pale_bone.gdshader` on the doodads). The doodad kit is primitive meshes
+    built by `tools/generate_pale_doodads.tscn` (bones, pitted boulders,
+    meaningless chalk structures and buildings) into
+    `entities/environment/doodads/pale/`. Pale styles hold the clock
+    (`fixed_time`) and roll Ashfall weather. The `pale_pit_strength` global
+    shader uniform scales every pit; Settings > Reduce Hole Patterns sets it
+    to 0.25.
   - **Indoors and outdoors (v4.79)**: rooms layouts with no sun
     (`GeneratedMap.is_indoor()`) get a ceiling slab over every room and
     corridor at wall height. It's visual only: a collider would bake into
@@ -1167,7 +1178,8 @@ pieces), dressed by the Figment's tileset style (below). The generation
     at dawn/dusk, blue moonlight, sky/ambient/fog darkened at night from
     the style's day values) and one weather per map, rolled from the map
     seed on its own RNG by family (forest/city: rain, storms with
-    lightning and thunder; snow: snow, blizzard; desert: sandstorm). Weather
+    lightning and thunder; snow: snow, blizzard; desert: sandstorm; pale:
+    ashfall). Weather
     dims the sun, thickens the fog (capped at `MAX_FOG_DENSITY`), falls in a
     box that follows the camera on render layer 20 (the minimap leaves it
     out) and layers its loop onto the style's ambience. The time of day

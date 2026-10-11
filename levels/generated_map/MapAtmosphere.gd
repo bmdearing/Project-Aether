@@ -5,18 +5,19 @@ extends Node
 ## its light, while the sky, ambient light and fog follow it from the style's
 ## own daytime values. Weather is rolled per map from the style's family and
 ## stays for the run: rain, thunderstorms (lightning and thunder), snow,
-## blizzards and sandstorms each darken the sky, thicken the fog, fall around
+## blizzards, sandstorms and ashfall (Pale) each darken the sky, thicken the fog, fall around
 ## the camera and layer their sound over the map's ambience.
 
-enum Weather { CLEAR, RAIN, STORM, SNOW, BLIZZARD, SANDSTORM }
+enum Weather { CLEAR, RAIN, STORM, SNOW, BLIZZARD, SANDSTORM, ASHFALL }
 
-const WEATHER_NAMES := ["clear", "rain", "storm", "snow", "blizzard", "sandstorm"]
+const WEATHER_NAMES := ["clear", "rain", "storm", "snow", "blizzard", "sandstorm", "ashfall"]
 ## family -> [[Weather, weight], ...]
 const WEATHER_ODDS := {
 	"forest": [[Weather.CLEAR, 0.55], [Weather.RAIN, 0.3], [Weather.STORM, 0.15]],
 	"city": [[Weather.CLEAR, 0.55], [Weather.RAIN, 0.3], [Weather.STORM, 0.15]],
 	"snow": [[Weather.CLEAR, 0.4], [Weather.SNOW, 0.45], [Weather.BLIZZARD, 0.15]],
 	"desert": [[Weather.CLEAR, 0.7], [Weather.SANDSTORM, 0.3]],
+	"pale": [[Weather.CLEAR, 0.6], [Weather.ASHFALL, 0.4]],
 }
 ## Weather -> sun dimming, fog multiplier, fog tint, ambience layer.
 const WEATHER_LOOK := {
@@ -26,6 +27,8 @@ const WEATHER_LOOK := {
 	Weather.SNOW: {"sun": 0.6, "fog": 2.0, "tint": Color(0.82, 0.86, 0.92, 0.5), "sound": "wind_calm:-2"},
 	Weather.BLIZZARD: {"sun": 0.35, "fog": 4.5, "tint": Color(0.86, 0.9, 0.95, 0.8), "sound": "wind_gusts:3"},
 	Weather.SANDSTORM: {"sun": 0.5, "fog": 5.0, "tint": Color(0.78, 0.6, 0.4, 0.8), "sound": "wind_gusts:4"},
+	# Pale flakes drifting straight down, slow and silent.
+	Weather.ASHFALL: {"sun": 0.75, "fog": 1.6, "tint": Color(0.84, 0.82, 0.78, 0.4), "sound": ""},
 }
 
 ## Seconds for a full day and night.
@@ -85,7 +88,7 @@ func setup(style: MapTileset, env: Environment, sun: DirectionalLight3D, map_see
 	_env = env
 	_sun = sun
 	_rng.seed = map_seed ^ 0x5eed_a7
-	time_of_day = roll_time(_rng)
+	time_of_day = roll_time(_rng) if style.fixed_time < 0.0 else style.fixed_time
 	weather = roll_weather(style.family, _rng)
 	_base_fog = maxf(style.fog_density, 0.004)
 	_thunder_in = _rng.randf_range(4.0, 9.0)
@@ -141,7 +144,8 @@ func ambience_spec(base: String) -> String:
 func _process(delta: float) -> void:
 	if _style == null:
 		return
-	_clock = fposmod(_clock + delta / DAY_LENGTH, 1.0)
+	if _style.fixed_time < 0.0:
+		_clock = fposmod(_clock + delta / DAY_LENGTH, 1.0)
 	if weather == Weather.STORM:
 		_tick_storm(delta)
 	_apply_in -= delta
@@ -219,6 +223,8 @@ func _build_fall() -> void:
 			_fall = _rain(weather == Weather.STORM)
 		Weather.SNOW, Weather.BLIZZARD:
 			_fall = _flakes(1000 if weather == Weather.SNOW else 1600, Color(0.95, 0.97, 1.0, 0.85), 1.8 if weather == Weather.SNOW else 4.0, weather == Weather.BLIZZARD)
+		Weather.ASHFALL:
+			_fall = _flakes(700, Color(0.9, 0.88, 0.84, 0.7), 0.9, false)
 		Weather.SANDSTORM:
 			_fall = _sand()
 	if _fall:

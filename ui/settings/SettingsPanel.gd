@@ -44,6 +44,7 @@ func _ready() -> void:
 	_add_toggle("Fullscreen", GameState.fullscreen, func(on: bool): GameState.fullscreen = on)
 	_add_toggle("V-Sync", GameState.vsync, func(on: bool): GameState.vsync = on)
 	_add_toggle("Always Show Item Sockets", GameState.always_show_sockets, func(on: bool): GameState.always_show_sockets = on)
+	_add_toggle("Reduce Hole Patterns (Pale maps)", GameState.reduce_hole_patterns, func(on: bool): GameState.reduce_hole_patterns = on)
 
 	var back := Button.new()
 	back.text = "Back"

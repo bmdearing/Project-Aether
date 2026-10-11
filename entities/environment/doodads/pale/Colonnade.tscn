@@ -1,0 +1,71 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/chalk.tres" id="1_ocjqb"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_02bjj"]
+size = Vector3(4, 8.5, 12)
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cbmca"]
+top_radius = 0.45
+height = 7.0
+radial_segments = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_2iyrw"]
+top_radius = 0.45
+height = 7.0
+radial_segments = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_i01jy"]
+top_radius = 0.45
+height = 7.0
+radial_segments = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_cddpn"]
+top_radius = 0.45
+height = 7.0
+radial_segments = 16
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_hy3yb"]
+top_radius = 0.45
+height = 7.0
+radial_segments = 16
+
+[sub_resource type="BoxMesh" id="BoxMesh_jlj28"]
+size = Vector3(1.6, 0.8, 12.4)
+
+[node name="Colonnade" type="Node3D" unique_id=1225558477]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=1296494865]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 4.25, 0)
+material_override = ExtResource("1_ocjqb")
+mesh = SubResource("BoxMesh_02bjj")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1165243596]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3.5, -4.8)
+material_override = ExtResource("1_ocjqb")
+mesh = SubResource("CylinderMesh_cbmca")
+
+[node name="Part2" type="MeshInstance3D" parent="." unique_id=61303072]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3.5, -2.4)
+material_override = ExtResource("1_ocjqb")
+mesh = SubResource("CylinderMesh_2iyrw")
+
+[node name="Part3" type="MeshInstance3D" parent="." unique_id=1120283517]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3.5, 0)
+material_override = ExtResource("1_ocjqb")
+mesh = SubResource("CylinderMesh_i01jy")
+
+[node name="Part4" type="MeshInstance3D" parent="." unique_id=1913788867]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3.5, 2.4)
+material_override = ExtResource("1_ocjqb")
+mesh = SubResource("CylinderMesh_cddpn")
+
+[node name="Part5" type="MeshInstance3D" parent="." unique_id=1466780448]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 3.5, 4.8)
+material_override = ExtResource("1_ocjqb")
+mesh = SubResource("CylinderMesh_hy3yb")
+
+[node name="Part6" type="MeshInstance3D" parent="." unique_id=4833349]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 7.4, 0)
+material_override = ExtResource("1_ocjqb")
+mesh = SubResource("BoxMesh_jlj28")

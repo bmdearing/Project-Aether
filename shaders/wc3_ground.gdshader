@@ -21,6 +21,10 @@ uniform float b_patch_size = 9.0;
 uniform float tile_size = 2.3;   // metres per WC3 terrain cell (128 units at the units' 0.018 scale)
 uniform bool wall_mode = false;
 uniform vec4 tint : source_color = vec4(1.0);
+// Pulls the sheets toward grey before tinting (the Pale family's bone white).
+uniform float desaturate : hint_range(0.0, 1.0) = 0.0;
+
+#include "res://shaders/pale_pits.gdshaderinc"
 
 varying vec3 world_pos;
 varying vec3 world_normal;
@@ -100,7 +104,21 @@ void fragment() {
 		}
 	}
 
-	ALBEDO = col * tint.rgb;
+	col = mix(col, vec3(dot(col, vec3(0.3, 0.59, 0.11))), desaturate);
+	col *= tint.rgb;
+	if (pit_amount > 0.0) {
+		float hole;
+		float rim;
+		vec2 tilt;
+		pale_pits(wall_mode ? uv * tile_size : world_pos.xz, pit_amount, hole, rim, tilt);
+		col = pale_pit_albedo(col, hole, rim);
+		vec3 n = nrm * 2.0 - 1.0;
+		n.xy += tilt;
+		nrm = normalize(n) * 0.5 + 0.5;
+		orm.r *= 1.0 - hole * 0.7;
+	}
+
+	ALBEDO = col;
 	NORMAL_MAP = nrm;
 	AO = orm.r;
 	ROUGHNESS = orm.g;

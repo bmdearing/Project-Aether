@@ -1,0 +1,85 @@
+[gd_resource type="Resource" script_class="MapTileset" format=3]
+
+[ext_resource type="Script" path="res://data/tilesets/MapTileset.gd" id="1"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_whitemarble_diffuse.dds" id="fa"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_whitemarble_normal.dds" id="fn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_whitemarble_orm.dds" id="fo"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_desert_diffuse.dds" id="pa"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_desert_normal.dds" id="pn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/desert/ground/barrens_desert_orm.dds" id="po"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_whitemarble_diffuse.dds" id="wa"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_whitemarble_normal.dds" id="wn"]
+[ext_resource type="Texture2D" path="res://assets/models/doodads/city/ground/city_whitemarble_orm.dds" id="wo"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/PitBoulderPile.tscn" id="PitBoulderPile"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/PitPebbles.tscn" id="PitPebbles"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/StairsNowhere.tscn" id="StairsNowhere"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/Monolith.tscn" id="Monolith"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/StandingRing.tscn" id="StandingRing"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/OrbPedestal.tscn" id="OrbPedestal"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/BuriedCube.tscn" id="BuriedCube"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/PaleLamp.tscn" id="PaleLamp"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/Obelisk.tscn" id="Obelisk"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/GiantRing.tscn" id="GiantRing"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/SkyStairs.tscn" id="SkyStairs"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/NicheBlock.tscn" id="NicheBlock"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/Ziggurat.tscn" id="Ziggurat"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/StairFacade.tscn" id="StairFacade"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/PittedMass.tscn" id="PittedMass"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/Colonnade.tscn" id="Colonnade"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/HiveBlock.tscn" id="HiveBlock"]
+[ext_resource type="PackedScene" path="res://entities/environment/doodads/pale/ArchNowhere.tscn" id="ArchNowhere"]
+
+[resource]
+script = ExtResource("1")
+id = "pale_unbuilt"
+display_name = "The Unbuilt"
+family = "pale"
+layout = "streets"
+ambience_id = "wind_calm"
+grid_size = 5
+cell_size = 34.0
+room_count = Vector2i(9, 12)
+branch_stop_chance = 0.4
+street_width = 13.0
+plaza_chance = 0.45
+floor_albedo = ExtResource("fa")
+floor_normal = ExtResource("fn")
+floor_orm = ExtResource("fo")
+floor_wide = false
+patch_albedo = ExtResource("pa")
+patch_normal = ExtResource("pn")
+patch_orm = ExtResource("po")
+patch_wide = true
+patch_amount = 0.4
+floor_tint = Color(1.1, 1.09, 1.06, 1)
+wall_albedo = ExtResource("wa")
+wall_normal = ExtResource("wn")
+wall_orm = ExtResource("wo")
+wall_wide = false
+wall_tint = Color(1.25, 1.23, 1.2, 1)
+floor_pit_amount = 0.08
+wall_pit_amount = 0.3
+pit_scale = 0.6
+ground_desaturate = 1.0
+buildings = Array[PackedScene]([ExtResource("NicheBlock"), ExtResource("Ziggurat"), ExtResource("StairFacade"), ExtResource("PittedMass"), ExtResource("Colonnade"), ExtResource("HiveBlock")])
+landmarks = Array[PackedScene]([ExtResource("Obelisk"), ExtResource("GiantRing"), ExtResource("SkyStairs")])
+plaza_props = Array[PackedScene]([ExtResource("OrbPedestal"), ExtResource("StairsNowhere"), ExtResource("StandingRing"), ExtResource("Monolith"), ExtResource("BuriedCube")])
+street_lights = Array[PackedScene]([ExtResource("PaleLamp")])
+building_scale = 1.0
+archways = Array[PackedScene]([ExtResource("ArchNowhere")])
+floor_props = Array[PackedScene]([ExtResource("Monolith"), ExtResource("OrbPedestal"), ExtResource("BuriedCube")])
+clusters = Array[PackedScene]([ExtResource("PitBoulderPile"), ExtResource("PitPebbles")])
+wall_lights = Array[PackedScene]([])
+lights_per_room = 0
+background_color = Color(0.84, 0.84, 0.83, 1)
+ambient_color = Color(0.76, 0.76, 0.78, 1)
+ambient_energy = 0.45
+sun_energy = 0.85
+sun_color = Color(1, 0.98, 0.95, 1)
+fog_color = Color(0.85, 0.85, 0.84, 1)
+fog_density = 0.011
+light_color = Color(0.95, 0.95, 1, 1)
+light_energy = 1.2
+light_range = 10.0
+room_light_energy = 0
+fixed_time = 0.42

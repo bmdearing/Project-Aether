@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" format=3]
+
+[ext_resource type="Shader" path="res://shaders/pale_bone.gdshader" id="1_g2waa"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_g2waa")
+shader_parameter/albedo = Color(0.92, 0.89, 0.82, 1)
+shader_parameter/mottle = Color(0.74, 0.69, 0.6, 1)
+shader_parameter/mottle_scale = 1.6
+shader_parameter/roughness = null
+shader_parameter/lump = 0.0
+shader_parameter/lump_freq = 1.4
+shader_parameter/pit_amount = 0.5
+shader_parameter/pit_scale = 0.35
+shader_parameter/pit_color = Color(0.1, 0.06, 0.055, 1)

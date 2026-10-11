@@ -1,0 +1,24 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/chalk.tres" id="1_ldnot"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_rlmkj"]
+inner_radius = 1.45
+outer_radius = 1.85
+rings = 48
+ring_segments = 16
+
+[sub_resource type="BoxMesh" id="BoxMesh_jlsc8"]
+size = Vector3(0.8, 0.3, 1.2)
+
+[node name="StandingRing" type="Node3D" unique_id=1338933784]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=937658791]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 2.05, 0)
+material_override = ExtResource("1_ldnot")
+mesh = SubResource("TorusMesh_rlmkj")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1610714938]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.15, 0)
+material_override = ExtResource("1_ldnot")
+mesh = SubResource("BoxMesh_jlsc8")

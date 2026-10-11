@@ -122,6 +122,7 @@ static func _build() -> void:
 		_family_fork("forest", "Forest", "Old Growth"),
 		_family_fork("snow", "Snow", "Long Winter"),
 		_family_fork("city", "City", "Smoke and Gaslight"),
+		_family_fork("pale", "Pale", "Bone Quiet"),
 	])
 	_sector("Factions", -30.0, [
 		["faction_trunk_1", "Familiar Faces", "+3% Pack Size", {"pack_size": 3.0}],
@@ -238,7 +239,8 @@ static func _sector(sector_name: String, angle: float, trunk: Array, forks: Arra
 		previous = node.node_id
 		radius += STEP
 	var trunk_end := previous
-	radius = maxf(radius, FORK_MIN_RADIUS)
+	# More than five forks start further out so they keep the same spacing.
+	radius = maxf(radius, FORK_MIN_RADIUS * maxf(1.0, forks.size() / 5.0))
 	for f in forks.size():
 		var fork_angle := angle + (0.0 if forks.size() == 1 else (float(f) / (forks.size() - 1) - 0.5) * FORK_SPREAD)
 		var fork_dir := Vector2.from_angle(deg_to_rad(fork_angle))

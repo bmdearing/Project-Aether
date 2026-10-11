@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/bone_lumpy.tres" id="1_eisml"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_eqyrv"]
+radius = 2.2
+height = 2.4
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_661wb"]
+radius = 1.1
+height = 1.4
+radial_segments = 32
+rings = 16
+
+[node name="PitMound" type="Node3D" unique_id=1535398528]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=1759998768]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0)
+material_override = ExtResource("1_eisml")
+mesh = SubResource("SphereMesh_eqyrv")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1565171309]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1.6, 0.2, 1.2)
+material_override = ExtResource("1_eisml")
+mesh = SubResource("SphereMesh_661wb")

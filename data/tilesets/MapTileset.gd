@@ -83,6 +83,15 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 @export var wall_wide: bool = true
 @export var wall_tint: Color = Color.WHITE
 
+@export_group("Pits")
+## Clustered holes in the ground and wall shader (Pale family), and how far
+## the ground sheets are pulled toward grey before tinting.
+@export_range(0.0, 1.0) var floor_pit_amount: float = 0.0
+@export_range(0.0, 1.0) var wall_pit_amount: float = 0.0
+@export var pit_scale: float = 0.6
+@export var pit_color: Color = Color(0.09, 0.06, 0.055)
+@export_range(0.0, 1.0) var ground_desaturate: float = 0.0
+
 @export_group("Doodads")
 @export var archways: Array[PackedScene] = []  # one per doorway, fitted to its width
 @export var wall_props: Array[PackedScene] = []
@@ -110,6 +119,8 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 @export var light_energy: float = 2.0
 @export var light_range: float = 8.0
 @export var room_light_energy: float = 0.0    # soft fill light above each room centre
+## Time of day the clock is held at (0..1, 0.5 noon); -1 runs the normal day.
+@export var fixed_time: float = -1.0
 
 static func load_style(style_id: String) -> MapTileset:
 	if style_id.is_empty() or not ResourceLoader.exists(STYLE_DIR + style_id + ".tres"):
@@ -135,7 +146,7 @@ static func all_ids() -> PackedStringArray:
 	return ids
 
 ## Families in display order (Figment Tree, progress grid).
-const FAMILIES: Array[String] = ["dungeon", "desert", "forest", "snow", "city"]
+const FAMILIES: Array[String] = ["dungeon", "desert", "forest", "snow", "city", "pale"]
 
 ## Name and family per style, so menus, tooltips and Figment drops don't
 ## load a whole style (every texture and building scene it references).
@@ -156,6 +167,9 @@ const STYLE_INFO := {
 	"forest_hills": ["Hills", "forest"],
 	"forest_plains": ["Plains", "forest"],
 	"forest_river_valley": ["River Valley", "forest"],
+	"pale_bone_flats": ["Bone Flats", "pale"],
+	"pale_hollow_reach": ["Hollow Reach", "pale"],
+	"pale_unbuilt": ["The Unbuilt", "pale"],
 	"snow_frostwood": ["Frostwood", "snow"],
 	"snow_frozen_crypt": ["Frozen Crypt", "snow"],
 	"snow_glacier_pass": ["Glacier Pass", "snow"],
@@ -191,12 +205,21 @@ func make_floor_material() -> ShaderMaterial:
 		mat.set_shader_parameter("orm_b", patch_orm)
 		mat.set_shader_parameter("wide_b", patch_wide)
 		mat.set_shader_parameter("b_amount", patch_amount)
+	_apply_pits(mat, floor_pit_amount)
 	return mat
 
 func make_wall_material() -> ShaderMaterial:
 	var mat := _ground_material(wall_albedo, wall_normal, wall_orm, wall_wide, wall_tint)
 	mat.set_shader_parameter("wall_mode", true)
+	_apply_pits(mat, wall_pit_amount)
 	return mat
+
+func _apply_pits(mat: ShaderMaterial, amount: float) -> void:
+	mat.set_shader_parameter("desaturate", ground_desaturate)
+	if amount > 0.0:
+		mat.set_shader_parameter("pit_amount", amount)
+		mat.set_shader_parameter("pit_scale", pit_scale)
+		mat.set_shader_parameter("pit_color", pit_color)
 
 func _ground_material(albedo: Texture2D, normal: Texture2D, orm: Texture2D, wide: bool, tint: Color) -> ShaderMaterial:
 	var mat := ShaderMaterial.new()

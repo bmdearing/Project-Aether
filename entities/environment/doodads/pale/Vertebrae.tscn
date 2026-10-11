@@ -1,0 +1,225 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/bone.tres" id="1_f3nq2"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_br86k"]
+radius = 0.55
+height = 0.7
+radial_segments = 32
+rings = 16
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ulb3p"]
+radius = 0.1
+height = 1.1340772
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_ps6sq"]
+radius = 0.08
+height = 0.71901697
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_vt853"]
+radius = 0.08
+height = 0.71901697
+radial_segments = 12
+rings = 4
+
+[sub_resource type="SphereMesh" id="SphereMesh_vqlrw"]
+radius = 0.488125
+height = 0.62125
+radial_segments = 32
+rings = 16
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_6fxpi"]
+radius = 0.08875
+height = 1.0064934
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_bb6on"]
+radius = 0.071
+height = 0.63812757
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_i5x0a"]
+radius = 0.071
+height = 0.63812757
+radial_segments = 12
+rings = 4
+
+[sub_resource type="SphereMesh" id="SphereMesh_1ryf5"]
+radius = 0.42625
+height = 0.5425
+radial_segments = 32
+rings = 16
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_p16pi"]
+radius = 0.0775
+height = 0.8789097
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1h77q"]
+radius = 0.062
+height = 0.55723816
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1e858"]
+radius = 0.062
+height = 0.55723816
+radial_segments = 12
+rings = 4
+
+[sub_resource type="SphereMesh" id="SphereMesh_s0yen"]
+radius = 0.364375
+height = 0.46375
+radial_segments = 32
+rings = 16
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_1cpmn"]
+radius = 0.06625
+height = 0.7513261
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_nfn0q"]
+radius = 0.053
+height = 0.47634876
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_enk3t"]
+radius = 0.053
+height = 0.47634876
+radial_segments = 12
+rings = 4
+
+[sub_resource type="SphereMesh" id="SphereMesh_3aliu"]
+radius = 0.3025
+height = 0.385
+radial_segments = 32
+rings = 16
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_c0t08"]
+radius = 0.055
+height = 0.62374246
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_0b0oo"]
+radius = 0.044
+height = 0.39545932
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_6gnjo"]
+radius = 0.044
+height = 0.39545932
+radial_segments = 12
+rings = 4
+
+[node name="Vertebrae" type="Node3D" unique_id=704520345]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=1342196630]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.25, 0, 0.15, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("SphereMesh_br86k")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1292210262]
+transform = Transform3D(-0.9635179, -0.26764384, 0, -0.26764384, 0.9635179, 0, 0, 0, -1, -0.125, 0.75, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_ulb3p")
+
+[node name="Part2" type="MeshInstance3D" parent="." unique_id=1331771927]
+transform = Transform3D(0, 0, 1, -0.9838699, 0.17888547, 0, -0.17888547, -0.9838699, 0, 0, 0.25, -0.675)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_ps6sq")
+
+[node name="Part3" type="MeshInstance3D" parent="." unique_id=715307357]
+transform = Transform3D(0, 0, 1, 0.9838699, 0.17888547, 0, -0.17888547, 0.9838699, 0, 0, 0.25, 0.675)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_vt853")
+
+[node name="Part4" type="MeshInstance3D" parent="." unique_id=321752623]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.25, 1.15, 0.133125, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("SphereMesh_vqlrw")
+
+[node name="Part5" type="MeshInstance3D" parent="." unique_id=544653784]
+transform = Transform3D(-0.9635179, -0.2676438, 0, -0.2676438, 0.9635179, 0, 0, 0, -1, 1.0390625, 0.66562504, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_6fxpi")
+
+[node name="Part6" type="MeshInstance3D" parent="." unique_id=90336241]
+transform = Transform3D(0, 0, 1, -0.9838699, 0.17888547, 0, -0.17888547, -0.9838699, 0, 1.15, 0.22187501, -0.5990625)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_bb6on")
+
+[node name="Part7" type="MeshInstance3D" parent="." unique_id=1574185402]
+transform = Transform3D(0, 0, 1, 0.9838699, 0.17888547, 0, -0.17888547, 0.9838699, 0, 1.15, 0.22187501, 0.5990625)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_i5x0a")
+
+[node name="Part8" type="MeshInstance3D" parent="." unique_id=92598249]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.25, 2.170625, 0.11625, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("SphereMesh_1ryf5")
+
+[node name="Part9" type="MeshInstance3D" parent="." unique_id=1849873884]
+transform = Transform3D(-0.9635179, -0.2676439, 0, -0.2676439, 0.9635179, 0, 0, 0, -1, 2.07375, 0.58125, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_p16pi")
+
+[node name="Part10" type="MeshInstance3D" parent="." unique_id=1638800891]
+transform = Transform3D(0, 0, 1, -0.9838699, 0.17888544, 0, -0.17888544, -0.9838699, 0, 2.170625, 0.19375, -0.523125)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_1h77q")
+
+[node name="Part11" type="MeshInstance3D" parent="." unique_id=185083357]
+transform = Transform3D(0, 0, 1, 0.9838699, 0.17888544, 0, -0.17888544, 0.9838699, 0, 2.170625, 0.19375, 0.523125)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_1e858")
+
+[node name="Part12" type="MeshInstance3D" parent="." unique_id=1358889103]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.25, 3.061875, 0.099375, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("SphereMesh_s0yen")
+
+[node name="Part13" type="MeshInstance3D" parent="." unique_id=1982655650]
+transform = Transform3D(-0.96351784, -0.26764402, 0, -0.26764402, 0.96351784, 0, 0, 0, -1, 2.9790626, 0.49687502, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_1cpmn")
+
+[node name="Part14" type="MeshInstance3D" parent="." unique_id=1336235168]
+transform = Transform3D(0, 0, 1, -0.9838699, 0.17888547, 0, -0.17888547, -0.9838699, 0, 3.061875, 0.165625, -0.44718748)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_nfn0q")
+
+[node name="Part15" type="MeshInstance3D" parent="." unique_id=1436745668]
+transform = Transform3D(0, 0, 1, 0.9838699, 0.17888547, 0, -0.17888547, 0.9838699, 0, 3.061875, 0.165625, 0.44718748)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_enk3t")
+
+[node name="Part16" type="MeshInstance3D" parent="." unique_id=1107777829]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1.25, 3.82375, 0.0825, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("SphereMesh_3aliu")
+
+[node name="Part17" type="MeshInstance3D" parent="." unique_id=266980494]
+transform = Transform3D(-0.9635179, -0.26764393, 0, -0.26764396, 0.96351784, 0, 0, 0, -1, 3.755, 0.41250002, 0)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_c0t08")
+
+[node name="Part18" type="MeshInstance3D" parent="." unique_id=1270123621]
+transform = Transform3D(0, 0, 1, -0.9838699, 0.17888547, 0, -0.17888547, -0.9838699, 0, 3.82375, 0.1375, -0.37124997)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_0b0oo")
+
+[node name="Part19" type="MeshInstance3D" parent="." unique_id=1372757070]
+transform = Transform3D(0, 0, 1, 0.9838699, 0.17888547, 0, -0.17888547, 0.9838699, 0, 3.82375, 0.1375, 0.37124997)
+material_override = ExtResource("1_f3nq2")
+mesh = SubResource("CapsuleMesh_6gnjo")

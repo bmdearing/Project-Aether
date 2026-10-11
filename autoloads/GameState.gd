@@ -35,6 +35,8 @@ var field_of_view: float = 80.0
 var vsync: bool = true
 ## Draw item sockets on inventory art all the time, not just on hover.
 var always_show_sockets: bool = false
+## Pale maps draw their clustered holes faint and sparse (trypophobia).
+var reduce_hole_patterns: bool = false
 
 ## Each entry is a resource_path String or a Dictionary
 ## (ItemSerializer.to_dict(), for rolled items with no path). Written by

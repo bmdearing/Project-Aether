@@ -1,0 +1,82 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/bone.tres" id="1_f7pnm"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_q01ip"]
+radius = 0.42
+height = 1.2501359
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_iy1yy"]
+radius = 0.36857143
+height = 1.6246902
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_0tj1f"]
+radius = 0.31714284
+height = 1.5218332
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_7w47n"]
+radius = 0.2657143
+height = 1.418976
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_c227m"]
+radius = 0.21428572
+height = 1.3161188
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_gc8p6"]
+radius = 0.16285715
+height = 1.2132616
+radial_segments = 12
+rings = 4
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_3vhy4"]
+radius = 0.111428574
+height = 1.1104044
+radial_segments = 12
+rings = 4
+
+[node name="Tusk" type="Node3D" unique_id=174438268]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=1265396259]
+transform = Transform3D(-1, 0, 0, 0, 0.99794453, 0.06408374, 0, 0.06408374, -0.99794453, 0, 0.20464642, 0.013141519)
+material_override = ExtResource("1_f7pnm")
+mesh = SubResource("CapsuleMesh_q01ip")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1812618201]
+transform = Transform3D(-1, 0, 0, 0, 0.9644656, 0.26420835, 0, 0.26420835, -0.9644656, 0, 0.83729726, 0.14353174)
+material_override = ExtResource("1_f7pnm")
+mesh = SubResource("CapsuleMesh_iy1yy")
+
+[node name="Part2" type="MeshInstance3D" parent="." unique_id=1032896459]
+transform = Transform3D(-1, 0, 0, 0, 0.85479623, 0.5189638, 0, 0.5189638, -0.85479623, 0, 1.6446378, 0.49108297)
+material_override = ExtResource("1_f7pnm")
+mesh = SubResource("CapsuleMesh_0tj1f")
+
+[node name="Part3" type="MeshInstance3D" parent="." unique_id=1599594662]
+transform = Transform3D(-1, 0, 0, 0, 0.6793691, 0.7337967, 0, 0.7337967, -0.6793691, 0, 2.32546, 1.0470252)
+material_override = ExtResource("1_f7pnm")
+mesh = SubResource("CapsuleMesh_7w47n")
+
+[node name="Part4" type="MeshInstance3D" parent="." unique_id=200649002]
+transform = Transform3D(-1, 0, 0, 0, 0.45167983, 0.8921801, 0, 0.8921801, -0.45167983, 0, 2.8273897, 1.7685909)
+material_override = ExtResource("1_f7pnm")
+mesh = SubResource("CapsuleMesh_c227m")
+
+[node name="Part5" type="MeshInstance3D" parent="." unique_id=709853751]
+transform = Transform3D(0, 0, 1, 0.9819302, 0.18924348, 0, -0.18924348, 0.9819302, 0, 0, 3.1118147, 2.6002717)
+material_override = ExtResource("1_f7pnm")
+mesh = SubResource("CapsuleMesh_gc8p6")
+
+[node name="Part6" type="MeshInstance3D" parent="." unique_id=1866373175]
+transform = Transform3D(0, 0, 1, 0.9961425, -0.087750286, 0, 0.087750286, 0.9961425, 0, 0, 3.1568546, 3.4780884)
+material_override = ExtResource("1_f7pnm")
+mesh = SubResource("CapsuleMesh_3vhy4")

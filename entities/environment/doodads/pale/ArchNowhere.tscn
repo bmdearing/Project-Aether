@@ -1,0 +1,29 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/chalk.tres" id="1_6gomo"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_w06hh"]
+size = Vector3(0.6, 4, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_mrp5w"]
+size = Vector3(0.6, 4, 0.6)
+
+[sub_resource type="BoxMesh" id="BoxMesh_nr3bm"]
+size = Vector3(0.78, 0.6, 4)
+
+[node name="ArchNowhere" type="Node3D" unique_id=1695422856]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=1352611299]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -1.4)
+material_override = ExtResource("1_6gomo")
+mesh = SubResource("BoxMesh_w06hh")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1492155412]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 1.4)
+material_override = ExtResource("1_6gomo")
+mesh = SubResource("BoxMesh_mrp5w")
+
+[node name="Part2" type="MeshInstance3D" parent="." unique_id=565408686]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.3, 0)
+material_override = ExtResource("1_6gomo")
+mesh = SubResource("BoxMesh_nr3bm")

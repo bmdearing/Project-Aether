@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/chalk.tres" id="1_l1aje"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_j87an"]
+size = Vector3(8, 3, 11)
+
+[sub_resource type="BoxMesh" id="BoxMesh_0np34"]
+size = Vector3(6.4, 3, 9)
+
+[sub_resource type="BoxMesh" id="BoxMesh_sii6l"]
+size = Vector3(4.8, 3, 7)
+
+[sub_resource type="BoxMesh" id="BoxMesh_yy7f5"]
+size = Vector3(3.2, 3, 5)
+
+[node name="Ziggurat" type="Node3D" unique_id=777370586]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=312511098]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+material_override = ExtResource("1_l1aje")
+mesh = SubResource("BoxMesh_j87an")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1413254172]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.79999995, 4.5, 0)
+material_override = ExtResource("1_l1aje")
+mesh = SubResource("BoxMesh_0np34")
+
+[node name="Part2" type="MeshInstance3D" parent="." unique_id=1575052354]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5999999, 7.5, 0)
+material_override = ExtResource("1_l1aje")
+mesh = SubResource("BoxMesh_sii6l")
+
+[node name="Part3" type="MeshInstance3D" parent="." unique_id=1946255141]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.4, 10.5, 0)
+material_override = ExtResource("1_l1aje")
+mesh = SubResource("BoxMesh_yy7f5")

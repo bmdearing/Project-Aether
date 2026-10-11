@@ -1,0 +1,13 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/chalk.tres" id="1_3hr6x"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_5ynbt"]
+size = Vector3(0.5, 5.5, 2)
+
+[node name="Monolith" type="Node3D" unique_id=544335801]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=1046250975]
+transform = Transform3D(0.99939084, -0.034899496, 0, 0.034814484, 0.9969564, -0.06975647, 0.0024344656, 0.06971398, 0.9975641, 0, 2.6, 0)
+material_override = ExtResource("1_3hr6x")
+mesh = SubResource("BoxMesh_5ynbt")

@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/chalk_pitted.tres" id="1_udyky"]
+
+[sub_resource type="TorusMesh" id="TorusMesh_aan2u"]
+inner_radius = 3.8
+outer_radius = 4.9
+rings = 48
+ring_segments = 16
+
+[node name="GiantRing" type="Node3D" unique_id=256681825]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=471683899]
+transform = Transform3D(-4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0, 1, 0, 3.6, 0)
+material_override = ExtResource("1_udyky")
+mesh = SubResource("TorusMesh_aan2u")

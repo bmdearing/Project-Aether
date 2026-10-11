@@ -33,6 +33,7 @@ static func load_and_apply() -> void:
 		GameState.field_of_view = float(cfg.get_value(SECTION, "field_of_view", GameState.field_of_view))
 		GameState.vsync = bool(cfg.get_value(SECTION, "vsync", GameState.vsync))
 		GameState.always_show_sockets = bool(cfg.get_value(SECTION, "always_show_sockets", GameState.always_show_sockets))
+		GameState.reduce_hole_patterns = bool(cfg.get_value(SECTION, "reduce_hole_patterns", GameState.reduce_hole_patterns))
 		for entry in REMAPPABLE:
 			var saved: Variant = cfg.get_value(CONTROLS, entry[0]) if cfg.has_section_key(CONTROLS, entry[0]) else null
 			if saved is Dictionary:
@@ -49,6 +50,7 @@ static func save() -> void:
 	cfg.set_value(SECTION, "field_of_view", GameState.field_of_view)
 	cfg.set_value(SECTION, "vsync", GameState.vsync)
 	cfg.set_value(SECTION, "always_show_sockets", GameState.always_show_sockets)
+	cfg.set_value(SECTION, "reduce_hole_patterns", GameState.reduce_hole_patterns)
 	for entry in REMAPPABLE:
 		var event := current_event(entry[0])
 		if event and not _is_default(entry[0], event):
@@ -57,6 +59,8 @@ static func save() -> void:
 
 static func apply() -> void:
 	AudioServer.set_bus_volume_db(AudioServer.get_bus_index("Master"), linear_to_db(maxf(GameState.master_volume, 0.0001)))
+	# Deferred: a set made this early in boot can be lost before the renderer is ready.
+	RenderingServer.global_shader_parameter_set.call_deferred(&"pale_pit_strength", 0.25 if GameState.reduce_hole_patterns else 1.0)
 	if DisplayServer.get_name() != "headless":
 		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN if GameState.fullscreen else DisplayServer.WINDOW_MODE_WINDOWED)
 		DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if GameState.vsync else DisplayServer.VSYNC_DISABLED)

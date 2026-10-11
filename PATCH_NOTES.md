@@ -7,6 +7,17 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.83: The Pale, a sixth Figment family
+
+- Three new styles: **Bone Flats** (open field of white sand, pitted dunes, rib cages, tusks and bone spires), **Hollow Reach** (a canyon whose cliffs are covered in clustered holes) and **The Unbuilt** (a streets layout of blank chalk buildings, colonnades holding up nothing, stairs to nowhere, a giant ring and an obelisk with a floating orb).
+- Holes come from a shared shader include (`shaders/pale_pits.gdshaderinc`): clusters of round pits that shrink toward the cluster's edge, plus a finer scatter between them, with dark interiors, a raised lip and bent normals so they shade as depressions. The WC3 ground shader gained `desaturate` and the pit layer; `MapTileset` gained a Pits group (`floor_pit_amount`, `wall_pit_amount`, `pit_scale`, `pit_color`, `ground_desaturate`).
+- The doodads are primitive meshes made by `tools/generate_pale_doodads.tscn` (24 scenes, 6 shared materials), not WC3 models. Re-run it after changing the kit.
+- Judgment calls: the Pale has no night. `MapTileset.fixed_time` holds the clock at late morning, because white-on-white went blue-black at night. It gets its own **Ashfall** weather (slow pale flakes, no sound) instead of reusing snow.
+- **Settings > Reduce Hole Patterns (Pale maps)** scales every pit down to a faint few (the `pale_pit_strength` global shader uniform), for players with trypophobia.
+- Figment Tree: a Pale fork ("Pale Memories", notable "Bone Quiet") in the Terrain sector. A sector with more than five forks starts them further out so spacing holds; the other sectors don't move.
+
+---
+
 ## 2026-10-11 — v4.82.2: Offhand Conduits stop pretending to be weapons
 
 - Offhand Conduits (Rod, Tome, Grimoire, Talisman, Fetish) are never swung or fired, yet their cards showed weapon damage, crit chance and attack speed, and they could roll "+% Attack Speed" (Fluid) and "+% Critical Strike Chance" (of the Sharp), which are local to the weapon and did nothing there. Flat and % weapon damage were already kept off them.

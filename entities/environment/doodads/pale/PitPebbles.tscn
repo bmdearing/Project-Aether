@@ -1,0 +1,60 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/bone_lumpy.tres" id="1_qto2r"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_8fhly"]
+radius = 0.15043753
+height = 0.21061255
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_plx7g"]
+radius = 0.2141529
+height = 0.29981408
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_xhbep"]
+radius = 0.14316443
+height = 0.2004302
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_wxpna"]
+radius = 0.17007251
+height = 0.23810151
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_8ixk1"]
+radius = 0.14733577
+height = 0.20627007
+radial_segments = 32
+rings = 16
+
+[node name="PitPebbles" type="Node3D" unique_id=136813428]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=1809349612]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3020164, 0.037609383, 0.3101228)
+material_override = ExtResource("1_qto2r")
+mesh = SubResource("SphereMesh_8fhly")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1594606299]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.49648193, 0.053538226, -0.41540727)
+material_override = ExtResource("1_qto2r")
+mesh = SubResource("SphereMesh_plx7g")
+
+[node name="Part2" type="MeshInstance3D" parent="." unique_id=742259492]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.23178613, 0.035791107, -0.3949515)
+material_override = ExtResource("1_qto2r")
+mesh = SubResource("SphereMesh_xhbep")
+
+[node name="Part3" type="MeshInstance3D" parent="." unique_id=1909974344]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.65104115, 0.042518128, 0.5479315)
+material_override = ExtResource("1_qto2r")
+mesh = SubResource("SphereMesh_wxpna")
+
+[node name="Part4" type="MeshInstance3D" parent="." unique_id=1738288961]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.41131347, 0.036833942, 0.27153236)
+material_override = ExtResource("1_qto2r")
+mesh = SubResource("SphereMesh_8ixk1")

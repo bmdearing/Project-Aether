@@ -1,0 +1,83 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/bone.tres" id="1_f7g7u"]
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/bone_lumpy.tres" id="2_5bwn5"]
+
+[sub_resource type="CylinderMesh" id="CylinderMesh_h1bhh"]
+top_radius = 0.05
+bottom_radius = 0.55
+height = 5.0
+radial_segments = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_jl3ox"]
+radius = 0.22
+height = 0.3
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_n3ygu"]
+radius = 0.22
+height = 0.3
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_pj5af"]
+radius = 0.22
+height = 0.3
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_ywp5x"]
+radius = 0.22
+height = 0.3
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_wyn5s"]
+radius = 0.22
+height = 0.3
+radial_segments = 32
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_3ofv6"]
+radius = 0.22
+height = 0.3
+radial_segments = 32
+rings = 16
+
+[node name="BoneSpire" type="Node3D" unique_id=1158630801]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=670133086]
+transform = Transform3D(0.9848077, -0.17364818, 0, 0.17364818, 0.9848077, 0, 0, 0, 1, 0, 2.4, 0)
+material_override = ExtResource("1_f7g7u")
+mesh = SubResource("CylinderMesh_h1bhh")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1588297613]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.70809484, 0.05, 0.24718763)
+material_override = ExtResource("2_5bwn5")
+mesh = SubResource("SphereMesh_jl3ox")
+
+[node name="Part2" type="MeshInstance3D" parent="." unique_id=797894897]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13587648, 0.05, 0.73758906)
+material_override = ExtResource("2_5bwn5")
+mesh = SubResource("SphereMesh_n3ygu")
+
+[node name="Part3" type="MeshInstance3D" parent="." unique_id=529618045]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.57852507, 0.05, 0.47729313)
+material_override = ExtResource("2_5bwn5")
+mesh = SubResource("SphereMesh_pj5af")
+
+[node name="Part4" type="MeshInstance3D" parent="." unique_id=814730865]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.74180126, 0.05, -0.11059317)
+material_override = ExtResource("2_5bwn5")
+mesh = SubResource("SphereMesh_ywp5x")
+
+[node name="Part5" type="MeshInstance3D" parent="." unique_id=348362444]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.30384126, 0.05, -0.6856971)
+material_override = ExtResource("2_5bwn5")
+mesh = SubResource("SphereMesh_wyn5s")
+
+[node name="Part6" type="MeshInstance3D" parent="." unique_id=1126866954]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.57285255, 0.05, -0.48408672)
+material_override = ExtResource("2_5bwn5")
+mesh = SubResource("SphereMesh_3ofv6")

@@ -1,0 +1,21 @@
+[gd_scene format=3]
+
+[ext_resource type="Material" path="res://entities/environment/doodads/pale/materials/hive.tres" id="1_4c58m"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_papil"]
+size = Vector3(7, 10, 9)
+
+[sub_resource type="BoxMesh" id="BoxMesh_m0efg"]
+size = Vector3(5, 3, 6)
+
+[node name="HiveBlock" type="Node3D" unique_id=1147545629]
+
+[node name="Part0" type="MeshInstance3D" parent="." unique_id=401799019]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
+material_override = ExtResource("1_4c58m")
+mesh = SubResource("BoxMesh_papil")
+
+[node name="Part1" type="MeshInstance3D" parent="." unique_id=1388418576]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 11.5, 0.5)
+material_override = ExtResource("1_4c58m")
+mesh = SubResource("BoxMesh_m0efg")
