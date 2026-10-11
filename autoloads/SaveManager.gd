@@ -1,26 +1,96 @@
 extends Node
-## Single JSON save at user://savegame.json, loaded at boot straight into
-## GameState. Saved on scene transitions and quit, not on a timer.
+## Three save slots (user://save_slot<N>.json). The last-used slot loads at
+## boot straight into GameState; the main menu picks or starts another.
+## Saved on scene transitions and quit, not on a timer.
 ## Not saved: current Health/Ward/Mana, player position, active_map.
 
-const SAVE_PATH := "user://savegame.json"
-const TEMP_PATH := SAVE_PATH + ".tmp"
-const BACKUP_PATH := SAVE_PATH + ".bak"
+const SLOT_COUNT := 3
+
+## The single save from before slots; moved into slot 1 on first boot.
+const LEGACY_PATH := "user://savegame.json"
+
+## The slot being played, 1..SLOT_COUNT.
+var slot: int = 1
+
+## Tests point this elsewhere so they never touch real saves.
+var slot_prefix := "user://save_slot"
+
+func slot_path(n: int, suffix: String = "") -> String:
+	return "%s%d.json%s" % [slot_prefix, n, suffix]
+
+func _path(suffix: String = "") -> String:
+	return slot_path(slot, suffix)
 ## 2: loot moved from owned_loot/owned_slates into the footprint grid.
 const INVENTORY_VERSION := 2
 
 func _ready() -> void:
+	_migrate_legacy_save()
+	slot = _last_slot()
 	load_game()
 	GameSettings.load_and_apply()
 
 func has_save() -> bool:
-	return FileAccess.file_exists(SAVE_PATH) or FileAccess.file_exists(BACKUP_PATH)
+	return slot_has_save(slot)
+
+func slot_has_save(n: int) -> bool:
+	return FileAccess.file_exists(slot_path(n)) or FileAccess.file_exists(slot_path(n, ".bak"))
+
+func has_any_save() -> bool:
+	for n in range(1, SLOT_COUNT + 1):
+		if slot_has_save(n):
+			return true
+	return false
+
+## Switches to a slot and loads it (an empty slot leaves fresh defaults).
+func select_slot(n: int) -> void:
+	slot = clampi(n, 1, SLOT_COUNT)
+	var cfg := ConfigFile.new()
+	cfg.set_value("saves", "last_slot", slot)
+	cfg.save(slot_prefix + "_meta.cfg")
+	GameState.reset_to_defaults()
+	GameState.game_started = false
+	load_game()
+
+## What the slot picker shows: {} for an empty slot.
+func slot_summary(n: int) -> Dictionary:
+	var d := _read_save(slot_path(n))
+	if d.is_empty():
+		d = _read_save(slot_path(n, ".bak"))
+	if d.is_empty():
+		return {}
+	var completions: Variant = d.get("figment_completions", {})
+	var best_tier := 0
+	if completions is Dictionary:
+		for k in completions:
+			best_tier = maxi(best_tier, int(String(k).get_slice(":", 1)))
+	return {
+		"name": str(d.get("player_name", "")),
+		"level": int(d.get("player_level", 1)),
+		"mode": int(d.get("game_mode", GameState.GameMode.FRAGMENTED_REALITY)),
+		"depth": int(d.get("depth_cleared", 0)),
+		"best_tier": best_tier,
+		"saved_at": int(d.get("saved_at", 0)),
+	}
+
+func _last_slot() -> int:
+	var cfg := ConfigFile.new()
+	if cfg.load(slot_prefix + "_meta.cfg") != OK:
+		return 1
+	return clampi(int(cfg.get_value("saves", "last_slot", 1)), 1, SLOT_COUNT)
+
+func _migrate_legacy_save() -> void:
+	if not FileAccess.file_exists(LEGACY_PATH) or slot_has_save(1):
+		return
+	DirAccess.rename_absolute(LEGACY_PATH, slot_path(1))
+	if FileAccess.file_exists(LEGACY_PATH + ".bak"):
+		DirAccess.rename_absolute(LEGACY_PATH + ".bak", slot_path(1, ".bak"))
 
 func save_game() -> void:
 	if not GameState.game_started:
 		return
 	var data := {
 		"game_started": GameState.game_started,
+		"saved_at": int(Time.get_unix_time_from_system()),
 		"mouse_sensitivity": GameState.mouse_sensitivity,
 		"master_volume": GameState.master_volume,
 		"fullscreen": GameState.fullscreen,
@@ -74,22 +144,22 @@ func _migrate_meteor() -> void:
 ## Writes to a temp file, then swaps it in; the previous save becomes the
 ## backup, so a crash mid-save never leaves only a truncated file.
 func _write_atomic(text: String) -> void:
-	var file := FileAccess.open(TEMP_PATH, FileAccess.WRITE)
+	var file := FileAccess.open(_path(".tmp"), FileAccess.WRITE)
 	if file == null:
-		push_warning("SaveManager: failed to open %s for writing (error %d)" % [TEMP_PATH, FileAccess.get_open_error()])
+		push_warning("SaveManager: failed to open %s for writing (error %d)" % [_path(".tmp"), FileAccess.get_open_error()])
 		return
 	var ok := file.store_string(text)
 	file.close()
 	if not ok:
-		push_warning("SaveManager: failed to write %s" % TEMP_PATH)
+		push_warning("SaveManager: failed to write %s" % _path(".tmp"))
 		return
-	if FileAccess.file_exists(SAVE_PATH):
-		if FileAccess.file_exists(BACKUP_PATH):
-			DirAccess.remove_absolute(BACKUP_PATH)
-		DirAccess.rename_absolute(SAVE_PATH, BACKUP_PATH)
-	var err := DirAccess.rename_absolute(TEMP_PATH, SAVE_PATH)
+	if FileAccess.file_exists(_path()):
+		if FileAccess.file_exists(_path(".bak")):
+			DirAccess.remove_absolute(_path(".bak"))
+		DirAccess.rename_absolute(_path(), _path(".bak"))
+	var err := DirAccess.rename_absolute(_path(".tmp"), _path())
 	if err != OK:
-		push_warning("SaveManager: failed to move %s into place (error %d)" % [TEMP_PATH, err])
+		push_warning("SaveManager: failed to move %s into place (error %d)" % [_path(".tmp"), err])
 
 func _read_save(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
@@ -101,9 +171,9 @@ func _read_save(path: String) -> Dictionary:
 	return parsed
 
 func load_game() -> void:
-	var parsed := _read_save(SAVE_PATH)
+	var parsed := _read_save(_path())
 	if parsed.is_empty():
-		parsed = _read_save(BACKUP_PATH)
+		parsed = _read_save(_path(".bak"))
 	if parsed.is_empty():
 		return
 
@@ -194,8 +264,10 @@ func load_game() -> void:
 	if int(parsed.get("inventory_version", 1)) < INVENTORY_VERSION:
 		_migrate_legacy_inventory(parsed)
 
-func delete_save() -> void:
-	for path in [SAVE_PATH, BACKUP_PATH, TEMP_PATH]:
+## Deletes a slot's save (the current slot by default).
+func delete_save(n: int = -1) -> void:
+	var target := slot if n < 0 else n
+	for path in [slot_path(target), slot_path(target, ".bak"), slot_path(target, ".tmp")]:
 		if FileAccess.file_exists(path):
 			DirAccess.remove_absolute(path)
 

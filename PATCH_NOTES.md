@@ -7,6 +7,14 @@ there. Most recent first.
 
 ---
 
+## 2026-10-10 — v4.76: Three save slots, Level 90 Test Character (user request)
+
+- **Save slots:** `SaveManager` keeps three saves (`user://save_slot<N>.json`, each with its own `.bak`). The last-used slot loads at boot. The old single save moves into Slot 1 on first launch. Continue and New Game open a slot picker (`SaveSlotPanel`) showing each slot's name, level, mode, progress (Depth or highest Tier cleared) and when it was last saved (`saved_at`, new). Continue plays or deletes a slot; New Game starts a new character, or a test character, in any slot. Overwriting or deleting a filled slot asks first.
+- **Level 90 Test Character** (`EndgameTestCharacter`, New Game > Level 90 Test): level 90 with the levelling stage done, Rare-heavy item level 90 gear in every slot (a melee weapon in set 1, a conduit in set 2), Thunder Javelin, Flame Jets, Stormcall and Frost Armor at level 20, 50,000 Gold, 20 of every Orb and crafting stone, 200 Crystallized Aether, 8 Slates, a full set of Maw Fragments, and Figments at each band's start and end (T1, T7, T8, T14, T15, T21) in the stash. No Tier is marked cleared, so the Figment Tree and band progress start from zero.
+- Tests can point `SaveManager.slot_prefix` elsewhere. `tests/v476` (22 checks) never touches real saves.
+
+---
+
 ## 2026-10-10 — v4.75: Area Level scaling and the levelling stage (user design)
 
 - **Area Level** (`AreaLevel`) is the one number a Figment's monsters, drops and XP follow. Player level never feeds monster stats; it only gates equipping gear and sets the XP gap, so a strong build can push content above its level.

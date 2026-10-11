@@ -3,10 +3,9 @@ class_name MainMenu
 ## Entry point (project.godot's run/main_scene). Plain Control, not a
 ## CanvasLayer overlay - no gameplay runs underneath to overlay here.
 ##
-## SaveManager loads any existing save into GameState at boot, before
-## this scene shows, so Continue (gated on SaveManager.has_save()) just
-## goes straight to the Hub. New Game resets GameState to defaults and
-## deletes the save file, so a stale Continue can't reappear. Settings are
+## Continue and New Game open the save slot picker (SaveSlotPanel): Continue
+## loads a slot (SaveManager.select_slot()) and goes to the Hub; New Game
+## starts a new character, or a Level 90 Test Character, in a chosen slot. Settings are
 ## a shared SettingsPanel, saved separately by GameSettings.
 
 @onready var continue_button: Button = $MainPanel/VBoxContainer/ContinueButton
@@ -25,13 +24,17 @@ var wiki_panel: Control
 var wiki: Wiki
 var new_game_panel: Control
 var new_game: NewGamePanel
+var slots_panel: Control
+var slots: SaveSlotPanel
+## The slot the New Game panel will start in.
+var _pending_slot := 1
 
 const MUSIC_PATH := "res://assets/music/lament.mp3"
 
 func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_play_music()
-	continue_button.disabled = not SaveManager.has_save()
+	continue_button.disabled = not SaveManager.has_any_save()
 	continue_button.pressed.connect(_on_continue_pressed)
 	new_game_button.pressed.connect(_on_new_game_pressed)
 	settings_button.pressed.connect(_show_panel.bind(settings_panel))
@@ -43,6 +46,7 @@ func _ready() -> void:
 	_framed(settings_panel, settings)
 	_build_wiki()
 	_build_new_game()
+	_build_slots()
 	_restyle()
 
 ## ---- Look ------------------------------------------------------------------
@@ -214,6 +218,8 @@ func _show_panel(panel: Control) -> void:
 	wiki_panel.visible = panel == wiki_panel
 	if new_game_panel:
 		new_game_panel.visible = panel == new_game_panel
+	if slots_panel:
+		slots_panel.visible = panel == slots_panel
 	if panel == wiki_panel:
 		move_child(wiki_panel, get_child_count() - 1)
 		wiki.refresh_character()
@@ -245,7 +251,35 @@ func _build_wiki() -> void:
 	button.pressed.connect(_show_panel.bind(wiki_panel))
 
 func _on_continue_pressed() -> void:
+	slots.open(false)
+	_show_panel(slots_panel)
+
+func _build_slots() -> void:
+	slots_panel = CenterContainer.new()
+	slots_panel.name = "SaveSlotsPanel"
+	slots_panel.visible = false
+	slots_panel.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(slots_panel)
+	slots = SaveSlotPanel.new()
+	slots.back_pressed.connect(_show_panel.bind(main_panel))
+	slots.play_slot.connect(_play_slot)
+	slots.new_character.connect(func(n: int):
+		_pending_slot = n
+		_open_new_game())
+	slots.test_character.connect(_start_test_character)
+	_framed(slots_panel, slots)
+
+func _play_slot(n: int) -> void:
+	SaveManager.select_slot(n)
 	GameState.game_started = true
+	LoadingScreen.change_scene(GameState.HUB_SCENE)
+
+func _start_test_character(n: int) -> void:
+	SaveManager.delete_save(n)
+	SaveManager.select_slot(n)
+	EndgameTestCharacter.build()
+	GameState.game_started = true
+	SaveManager.save_game()
 	LoadingScreen.change_scene(GameState.HUB_SCENE)
 
 func _build_new_game() -> void:
@@ -263,30 +297,20 @@ func _open_new_game() -> void:
 	new_game.reset()
 	_show_panel(new_game_panel)
 
-## With a save on disk, New Game asks first: it deletes that save.
+## New Game picks a slot first; filling a used slot asks there.
 func _on_new_game_pressed() -> void:
-	if not SaveManager.has_save():
-		_open_new_game()
-		return
-	var confirm := ConfirmationDialog.new()
-	confirm.title = "Start a New Game?"
-	confirm.dialog_text = "You have a saved game. Starting a new game deletes it.\nAre you sure?"
-	confirm.ok_button_text = "Start New Game"
-	confirm.cancel_button_text = "Cancel"
-	confirm.confirmed.connect(_open_new_game)
-	confirm.visibility_changed.connect(func():
-		if not confirm.visible:
-			confirm.queue_free())
-	add_child(confirm)
-	confirm.popup_centered()
+	slots.open(true)
+	_show_panel(slots_panel)
 
 func _start_new_game(player_name: String, weapon_path: String, mode: GameState.GameMode) -> void:
+	SaveManager.delete_save(_pending_slot)
+	SaveManager.select_slot(_pending_slot)
 	GameState.reset_to_defaults()
 	GameState.player_name = player_name
 	GameState.game_mode = mode
 	GameState.weapon_set_refs = [[weapon_path], []]
-	SaveManager.delete_save()
 	GameState.game_started = true
+	SaveManager.save_game()
 	LoadingScreen.change_scene(GameState.HUB_SCENE)
 
 func _on_quit_pressed() -> void:

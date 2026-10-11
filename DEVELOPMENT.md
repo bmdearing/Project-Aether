@@ -1169,8 +1169,11 @@ there). Persists across Hub<->Map scene reloads and app restarts the
 same way equipment/ability loadout does (`GameState.player_level`/
 `player_xp`, `SaveManager`).
 
-**Save/Load** (`autoloads/SaveManager.gd`): single JSON file at
-`user://savegame.json`. Persists equipment (including full data for
+**Save/Load** (`autoloads/SaveManager.gd`): three slots,
+`user://save_slot<N>.json` (v4.76; the old single save moves into slot 1),
+picked from the main menu (`SaveSlotPanel`); the last-used slot loads at
+boot. New Game can also make a Level 90 Test Character
+(`systems/dev/EndgameTestCharacter.gd`). Persists equipment (including full data for
 rolled/pathless items via `data/items/item_serializer.gd`, not just a
 path), owned rolled loot, Fate Board layout including any Spell Slate's
 designated ability (`GameState.fate_board_placements` - see Fate Board
