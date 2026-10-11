@@ -190,6 +190,9 @@ func apply_edict(item: Resource, edict_id: StringName) -> CraftResult:
 	var def: EdictDef = edict_defs.get(edict_id)
 	if t == null or def == null or t.get_rarity() >= Constants.ItemRarity.UNIQUE or t.get_active_edict() != null:
 		return _fail(item, result, E.INVALID_TARGET)
+	# Tier levels only mean something on gear.
+	if def.item_level > 0 and (not item is Item or item is Jewel or item is FigmentItem):
+		return _fail(item, result, E.INVALID_TARGET)
 	if t.is_corrupted():
 		return _fail(item, result, E.CORRUPTED)
 	if currency != null and not currency.remove_currency(edict_id, 1):
@@ -430,6 +433,8 @@ func _candidates(t: CraftTarget, explicits: Array[ItemAffix], rarity: int, ctx: 
 		for tier in def.tiers:
 			if tier.tier < tier_cap or tier.weight <= 0:
 				continue
+			if edict != null and edict.item_level > 0 and ItemRoller.def_tier_level(def, tier.tier) < edict.item_level:
+				continue
 			result.append({"def": def, "tier": tier, "weight": tier.weight})
 	return result
 
@@ -467,7 +472,7 @@ func _open_types(t: CraftTarget, explicits: Array[ItemAffix], rarity: int, posit
 func _removable(t: CraftTarget, explicits: Array[ItemAffix], ctx: Dictionary, edict: EdictDef) -> Array[ItemAffix]:
 	var result: Array[ItemAffix] = []
 	for a in explicits:
-		if not a.anchored and not _locked(a, edict) and _matches_brands(t, a, ctx):
+		if not a.anchored and not _locked(a, edict) and _matches_brands(t, a, ctx) and not _level_protected(a, edict):
 			result.append(a)
 	return result
 
@@ -663,3 +668,7 @@ static func _load_dir(path: String) -> Array[Resource]:
 		file_name = dir.get_next().trim_suffix(".remap")
 	dir.list_dir_end()
 	return found
+
+## Item-level Edicts keep removals off modifiers whose tier needs the Edict's level.
+static func _level_protected(affix: ItemAffix, edict: EdictDef) -> bool:
+	return edict != null and edict.item_level > 0 and ItemRoller.affix_tier_level(affix) >= edict.item_level

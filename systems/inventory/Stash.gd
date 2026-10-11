@@ -13,6 +13,8 @@ var tabs: Array[GridInventory] = []
 var uniques: Dictionary = {}
 ## Category -> tab index, or UNIQUE_TAB for the Unique tab.
 var affinities: Dictionary = {}
+## The Crafting Bench's item (an Item or a Slate) on the Currency tab, or null.
+var bench: Resource = null
 
 const UNIQUE_TAB := -1
 const CATEGORIES: Array[String] = ["currency", "slates", "uniques", "figments", "weapons", "armour", "accessories", "jewels"]
@@ -142,7 +144,12 @@ func to_dict() -> Dictionary:
 	var unique_data := {}
 	for id in uniques:
 		unique_data[id] = ItemSerializer.to_dict(uniques[id])
-	return {"tabs": data, "uniques": unique_data, "affinities": affinities.duplicate()}
+	var d := {"tabs": data, "uniques": unique_data, "affinities": affinities.duplicate()}
+	if bench is Slate:
+		d["bench"] = {"slate": SlateSerializer.to_dict(bench)}
+	elif bench is Item:
+		d["bench"] = {"item": ItemSerializer.to_dict(bench)}
+	return d
 
 static func from_dict(d: Dictionary) -> Stash:
 	var raw: Array = d.get("tabs", [])
@@ -171,4 +178,10 @@ static func from_dict(d: Dictionary) -> Stash:
 				stash.affinities[String(category)] = index
 	else:
 		stash.reset_affinities()
+	var saved_bench = d.get("bench")
+	if saved_bench is Dictionary:
+		if saved_bench.has("slate"):
+			stash.bench = SlateSerializer.from_dict(saved_bench["slate"])
+		elif saved_bench.has("item"):
+			stash.bench = ItemSerializer.from_dict(saved_bench["item"])
 	return stash

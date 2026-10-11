@@ -12,7 +12,7 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 		"meager", "fracturing", "decompose", "elemental_fragility":
 			var effect: String = PlayerAbilityCast.CURSE_EFFECTS[ability.ability_id]
 			var s := PlayerAbilityCast.curse_strength(ability, sheet) * _effectiveness(sheet, effect)
-			out.append("Curses every enemy in the area for %ss" % _num(PlayerAbilityCast.CURSE_DURATION * duration))
+			out.append("Curses every enemy in the area for %ss" % _num(PlayerAbilityCast.curse_duration(ability, sheet)))
 			match effect:
 				"meager":
 					out.append("Cursed enemies deal %s less damage" % _pct(minf(StatusEffectComponent.MEAGER_DAMAGE_DEALT * s, 0.9)))
@@ -32,7 +32,7 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 			out.append("Curses the enemy at your crosshair for %ss" % _num(secs))
 			out.append("Deals %s Pale damage every %ss (%s in all)" % [_range(r.x / ticks, r.y / ticks), _num(StatusEffectComponent.LINGER_TICK_INTERVAL), _range(r.x / ticks * secs / StatusEffectComponent.LINGER_TICK_INTERVAL, r.y / ticks * secs / StatusEffectComponent.LINGER_TICK_INTERVAL)])
 			out.append("Boggled: %s slower movement and actions" % _pct(minf(StatusEffectComponent.LINGER_SLOW * _effectiveness(sheet, "linger"), 0.9)))
-			out.append("If the enemy dies while cursed, Linger moves to the %d nearest enemies within %sm" % [PlayerAbilityCast.LINGER_SPREAD_COUNT, _num(ability.radius)])
+			out.append("If the enemy dies while cursed, Linger moves to the %d nearest enemies within %sm" % [PlayerAbilityCast.linger_spread_count(ability), _num(ability.radius)])
 		"pale_thread":
 			var r := ability.predict_damage_range(sheet) if sheet else ability.get_base_damage_range()
 			out.append("Links you to the enemy at your crosshair for %ss" % _num(PlayerAbilityCast.PALE_THREAD_DURATION * duration))
@@ -41,12 +41,14 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 			if player and player.ward and player.ward.max_ward > 0.0:
 				ward_line += " (%s Ward/s)" % _num(player.ward.max_ward * PlayerAbilityCast.PALE_THREAD_WARD_PER_SEC)
 			out.append(ward_line)
-			out.append("Breaks if the enemy gets more than %sm away" % _num(ability.radius))
+			out.append("Breaks if the enemy gets more than %sm away" % _num(PlayerAbilityCast.pale_thread_range(ability)))
 		"death_shroud":
 			var s := _effectiveness(sheet, "pallid")
 			out.append("Toggle: cast to wear it, cast again to take it off (free)")
 			out.append("Enemies within %sm are Pallid: they deal %s less damage" % [_num(ability.get_radius(sheet)), _pct(minf(StatusEffectComponent.PALLID_DAMAGE_REDUCTION * s, 0.9))])
 			out.append("Pallid fades %ss after they leave" % _num(PlayerAbilityCast.DEATH_SHROUD_LINGER))
+			if ability.has_twist("grave_chill"):
+				out.append("Grave Chill: they're also %s slower" % _pct(StatusEffectComponent.SLOW_MOVE_SLOW_PERCENT))
 		"battle_cry":
 			var more := PlayerAbilityCast.BATTLE_CRY_MORE_DAMAGE + (ability.get_effective_level(sheet) - 1)
 			out.append("You deal %s%% more damage for %ss" % [_num(more), _num(PlayerAbilityCast.BATTLE_CRY_DURATION * duration)])
@@ -126,6 +128,9 @@ static func _strength_line(ability: Ability, sheet: StatSheet, effect_id: String
 	var level_bonus := PlayerAbilityCast.curse_strength(ability, sheet) - 1.0
 	var gear := _effectiveness(sheet, effect_id) - 1.0
 	var text := "Curse strength: %s (+%s per level above 1)" % [_pct(1.0 + level_bonus), _pct(PlayerAbilityCast.CURSE_STRENGTH_PER_LEVEL)]
+	var web := ability.web_value(SkillWeb.CURSE_STRENGTH)
+	if web > 0.0:
+		text += ", +%s%% from Hex Potency" % _num(web)
 	if gear > 0.0:
 		text += ", %s from Debuff Effectiveness" % ("+" + _pct(gear))
 	return text

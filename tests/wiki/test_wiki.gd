@@ -171,11 +171,11 @@ func _test_modifier_pages() -> void:
 		total += r["chance"]
 	_check(is_equal_approx(total, 1.0), "Orb chances on a blank item add up to 100% (%.3f)" % total)
 	var dmg: Array = rows.filter(func(r): return r["def"].stat_key == "local_increased_weapon_damage")
-	_check(dmg.size() == 1 and dmg[0]["tiers"].size() == 8 and dmg[0]["tiers"][0]["level"] == 80 and is_equal_approx(dmg[0]["tiers"][0]["max"], 190.0), "Weapon Damage shows its 8 tiers, Tier 1 at item level 80 up to 190%")
+	_check(dmg.size() == 1 and dmg[0]["tiers"].size() == 9 and dmg[0]["tiers"][0]["level"] == 83 and is_equal_approx(dmg[0]["tiers"][0]["max"], 225.0), "Weapon Damage shows its 9 tiers, Tier 1 at item level 83 up to 225%")
 	var low := WikiCatalog.modifier_rows(sword["base"], 1)
 	var low_dmg: Array = low.filter(func(r): return r["def"].stat_key == "local_increased_weapon_damage")[0]["tiers"]
 	_check(low_dmg.filter(func(t): return t["chance"] > 0.0).size() == 1, "at item level 1 only the lowest tier can roll")
-	_check(rows.all(func(r): return r["tiers"].all(func(t): return t["level"] >= 1 and t["level"] <= 80)), "every tier names the item level it needs")
+	_check(rows.all(func(r): return r["tiers"].all(func(t): return t["level"] >= 1 and t["level"] <= 83)), "every tier names the item level it needs")
 	var kinetic := low.filter(func(r): return r["def"].stat_key == "increased_kinetic_damage")
 	_check(not kinetic.is_empty() and kinetic[0]["chance"] > 0.0, "library mods roll below their Tier 1 level (Kinetic damage at item level 1)")
 	var index := WikiCatalog.modifier_index()

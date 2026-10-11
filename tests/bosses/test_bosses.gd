@@ -559,6 +559,25 @@ func _test_maw_arena() -> void:
 	var blocked := herald.beam_length(herald.global_position, Vector3(0, 0, -1))
 	_check(absf(blocked - (reach - MawPylon.RADIUS)) < 0.1, "a pylon blocks the Void Beam (%.2f m)" % blocked)
 	_check(is_equal_approx(herald.beam_length(herald.global_position, Vector3(0, 0, 1)), Xalatath.BEAM_LENGTH), "an open line lets the beam reach full length")
+	var turns: Array[float] = []
+	for p in [1, 2, 3]:
+		herald.boss_brain.phase = p
+		turns.append(herald.beam_turn_deg_per_sec())
+	_check(turns == [20.0, 40.0, 60.0], "the Void Beam turns 20 degrees a second faster each phase (%s)" % [turns])
+	# Shadow Lunge's spin slash: phases 2 and 3 only.
+	var lunge: BossAbility = herald.boss_brain.abilities.filter(func(ab: BossAbility): return ab.id == "shadow_lunge")[0]
+	player.ward.current_ward = 0.0
+	var hp_before := player.health.current_health
+	player.global_position = herald.global_position + Vector3(2.5, 0.1, 0)
+	herald.boss_brain.phase = 1
+	herald.on_charge_end(lunge)
+	await get_tree().create_timer(Xalatath.LUNGE_SLASH_TELEGRAPH + 0.2).timeout
+	_check(is_equal_approx(player.health.current_health, hp_before), "no spin slash after a phase 1 Lunge")
+	herald.boss_brain.phase = 2
+	herald.on_charge_end(lunge)
+	await get_tree().create_timer(Xalatath.LUNGE_SLASH_TELEGRAPH + 0.2).timeout
+	_check(player.health.current_health < hp_before, "a phase 2 Lunge ends in a spin slash that hits all round her")
+	herald.boss_brain.phase = 1
 	_check(not herald.blocks_charge(Vector3(0, 0, 1)), "lunging away from a pylon goes on")
 	_check(herald.blocks_charge(Vector3(0, 0, -1)) and herald.status_effects.is_stunned(), "lunging into a pylon stuns her")
 	_check(herald.composure.is_broken, "slamming into a pylon opens a Riposte window")

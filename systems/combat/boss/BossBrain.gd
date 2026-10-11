@@ -337,6 +337,7 @@ func _charge(a: BossAbility) -> void:
 		BossFx.trail(_boss, _type(a), length / CHARGE_SPEED + 0.2)
 	var travelled := 0.0
 	var hit := false
+	var blocked := false
 	while _alive() and travelled < length:
 		await get_tree().physics_frame
 		if not _alive():
@@ -345,11 +346,15 @@ func _charge(a: BossAbility) -> void:
 		_boss._pull = dir * CHARGE_SPEED
 		travelled += step
 		if _boss.blocks_charge(dir):
-			return
+			blocked = true
+			break
 		if not hit and _player and _flat_distance(_boss.global_position, _player.global_position) <= CHARGE_HIT_RADIUS:
 			hit = true
 			_damage_player(a)
 			_player.apply_impulse(dir * 9.0)
+	# Bosses can follow an unblocked charge up (the Herald's spin slash).
+	if not blocked and _alive() and _boss.has_method("on_charge_end"):
+		_boss.call("on_charge_end", a)
 
 func _volley(a: BossAbility) -> void:
 	_boss.begin_attack_telegraph(a.telegraph)

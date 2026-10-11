@@ -72,7 +72,7 @@ func _sword() -> Weapon:
 	return w
 
 func _test_tiers() -> void:
-	_check(ItemRoller.best_tier_for_level(1) == ItemRoller.TIER_COUNT and ItemRoller.best_tier_for_level(80) == 1, "Tier 1 needs item level 80, level 1 gets the worst tier")
+	_check(ItemRoller.best_tier_for_level(1) == ItemRoller.TIER_COUNT and ItemRoller.best_tier_for_level(83) == 1 and ItemRoller.best_tier_for_level(82) == 2, "Tier 1 needs item level 83, level 1 gets the worst tier")
 	_check(ItemRoller.best_tier_for_level(40) > 1 and ItemRoller.best_tier_for_level(40) < ItemRoller.TIER_COUNT, "tiers open up with item level")
 	var low_max := 0.0
 	var high_max := 0.0
@@ -80,8 +80,8 @@ func _test_tiers() -> void:
 		low_max = maxf(low_max, ItemRoller.roll_levelled_tier("local_increased_weapon_damage", 1)["max"])
 		high_max = maxf(high_max, ItemRoller.roll_levelled_tier("local_increased_weapon_damage", 91)["max"])
 	_check(is_equal_approx(low_max, 39.0), "level 1 Weapon Damage rolls 30-39%")
-	_check(is_equal_approx(high_max, 190.0), "high-level Weapon Damage reaches 190%")
-	_check(ItemRoller.levelled_tiers_for("local_increased_spell_damage", 91).size() == 8, "Spell Damage uses the same 8-tier 30-190% table")
+	_check(is_equal_approx(high_max, 225.0), "high-level Weapon Damage reaches 225% (the item level 83 tier)")
+	_check(ItemRoller.levelled_tiers_for("local_increased_spell_damage", 91).size() == 9, "Spell Damage uses the same 9-tier 30-225% table")
 	var jewel_best := JewelModifierPool.best_tier_for(1)
 	_check(jewel_best == JewelModifierPool.TIER_COUNT and JewelModifierPool.best_tier_for(80) == 1, "jewel tiers are level-gated too")
 	_finished += 1

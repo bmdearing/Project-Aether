@@ -1332,11 +1332,17 @@ const TARGET_CONE_DEG := 10.0
 const PALE_COLOR := Color(0.88, 0.95, 1.0)
 
 static func curse_strength(ability: Ability, stat_sheet: StatSheet) -> float:
-	return 1.0 + CURSE_STRENGTH_PER_LEVEL * (ability.get_effective_level(stat_sheet) - 1)
+	return 1.0 + CURSE_STRENGTH_PER_LEVEL * (ability.get_effective_level(stat_sheet) - 1) + ability.web_value(SkillWeb.CURSE_STRENGTH) / 100.0
+
+## Web: Lingering Hex makes it last LINGERING_HEX times as long.
+const LINGERING_HEX := 1.5
+
+static func curse_duration(ability: Ability, stat_sheet: StatSheet) -> float:
+	return CURSE_DURATION * ability.get_duration_multiplier(stat_sheet) * (LINGERING_HEX if ability.has_twist("lingering_hex") else 1.0)
 
 func _cast_curse(ability: Ability, centre: Vector3) -> void:
 	var radius := ability.get_radius(_player.stat_sheet)
-	var duration := CURSE_DURATION * ability.get_duration_multiplier(_player.stat_sheet)
+	var duration := curse_duration(ability, _player.stat_sheet)
 	var strength := curse_strength(ability, _player.stat_sheet)
 	_play_range_effect(ability, centre)
 	for enemy in _enemies_near(centre, radius):
@@ -1392,13 +1398,17 @@ func _on_enemy_died(node: Node) -> void:
 	var tick := dead.status_effects.get_linger_tick_damage()
 	var spread := 0
 	for other in _enemies_by_distance(dead.global_position, radius):
-		if spread >= LINGER_SPREAD_COUNT:
+		if spread >= linger_spread_count(ability):
 			break
 		if other == dead or other.status_effects.has_effect("linger"):
 			continue
 		other.status_effects.apply_linger(_player, tick, duration)
 		_pale_flicker(_body_centre(dead), _body_centre(other))
 		spread += 1
+
+## Web: Contagion passes Linger to one more enemy.
+static func linger_spread_count(ability: Ability) -> int:
+	return LINGER_SPREAD_COUNT + (1 if ability and ability.has_twist("contagion") else 0)
 
 ## Pale Thread: ticks Pale damage (base damage is per second) and restores
 ## Ward while the target stays within the spell's radius.
@@ -1408,6 +1418,11 @@ const PALE_THREAD_TICK := 0.25
 const PALE_THREAD_WARD_PER_SEC := 0.06
 ## Where the thread leaves the caster, in camera space (right, down, ahead).
 const PALE_THREAD_HAND := Vector3(0.22, -0.28, -0.55)
+## Web: Long Thread's break range.
+const LONG_THREAD_RANGE := 26.0
+
+static func pale_thread_range(ability: Ability) -> float:
+	return LONG_THREAD_RANGE if ability.has_twist("long_thread") else ability.radius
 
 var _thread_ability: Ability
 var _thread_target: Enemy
@@ -1436,7 +1451,7 @@ func _start_pale_thread(ability: Ability, damage_multiplier: float) -> void:
 func _tick_pale_thread(delta: float) -> void:
 	if _thread_remaining <= 0.0:
 		return
-	if not is_instance_valid(_thread_target) or not _thread_target.health.is_alive() or _thread_target.distance_to_body(_player.global_position) > _thread_ability.radius:
+	if not is_instance_valid(_thread_target) or not _thread_target.health.is_alive() or _thread_target.distance_to_body(_player.global_position) > pale_thread_range(_thread_ability):
 		_end_pale_thread()
 		return
 	_thread_remaining -= delta
@@ -1537,6 +1552,8 @@ func _tick_death_shroud(delta: float) -> void:
 	_shroud_ticker = DEATH_SHROUD_PULSE
 	for enemy in _enemies_near(_player.global_position, radius):
 		enemy.status_effects.apply_curse("pallid", _player, DEATH_SHROUD_PULSE + DEATH_SHROUD_LINGER, 1.0)
+		if ability.has_twist("grave_chill"):
+			enemy.status_effects.apply_effect("slow", _player)
 
 ## A faint pale ring on the ground at the shroud's edge, following the player.
 func _update_shroud_fx(radius: float) -> void:

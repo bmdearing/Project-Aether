@@ -18,6 +18,18 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.83: Item-level Edicts, a new top tier, Crafting Bench, Herald spin slash
+
+- **New top gear tier:** gear modifiers have 6 tiers now. The old Tier 1 is Tier 2, and a new Tier 1 sits above it at a quarter more (one decay step), opening at item level 83 (item levels already reach the high 80s in the endgame and 90+ from bosses). The ladder is re-gated to 83 / 72 / 61 / 40 / 21 / 1, so the old best tier opens at 72 instead of 80 and the old Tier 2 at 61 instead of 60. % Weapon / Spell Damage (191-225%), flat weapon damage (35-41) and the hybrid line (86-101%) got an 83 row on their own tables; small whole-number lines (extra projectiles, skill levels, the new block lines) didn't. Doc-sourced weapon modifiers keep their own top level as Tier 2, with the new Tier 1 at 83. The new tier is the rarest roll (weight 2, was 4 for the old Tier 1). Jewels and Slates keep their own ladders. Corrupted special modifiers scale off the best tier, so they're a quarter stronger too.
+- **Old saves:** gear saved before this moves every tier number down one (a saved Tier 1 shows as Tier 2), values unchanged (`ItemSerializer._shift_to_new_tier_ladder`, keyed on the new `tier_ladder` field).
+- **Three item-level Edicts:** Edict of Sixty-One, Seventy-Two and Eighty-Three. On the item's next craft, any modifier added must be a tier needing at least that item level, and only modifiers whose tier needs less can be removed (Severance, Absolution, Recasting's removal), so good rolls are safe. If nothing qualifies (an Edict of 83 on an item below 83) the craft is refused at no cost. Gear only. Drop weights 3 / 1 / 0.25: the 83 is about one in 3,600 currency drops (currency rolls take fractional weights now).
+- **Stash currency tab:** groups were placed at fixed spots and overlapped (the defence Brands ran into the other Brands, extra currencies into the row above). They're now packed onto shelves automatically, so they can't overlap. The new Edicts have slots.
+- **Crafting Bench** on the currency tab: drop an item or Slate from your inventory on it, then right-click a currency to use it on that item with the stash's own currency. Right-click a Brand to switch it on (it glows) for the next bench craft. Hovering an Orb shows the bench item with what that Orb would do (removals in orange, the modifiers it can add). Click the bench to take the item back. The bench item is saved with the stash. Stones still need the inventory.
+- **Spell webs for the v4.82 spells** (each spell needs a twist): the four curses share Hex Potency (+8% curse strength per point, 3 points) and Lingering Hex (lasts 50% longer); Linger gets Contagion (spreads to 3), Pale Thread gets Long Thread (holds to 26 m), Death Shroud gets Grave Chill (shrouded enemies are also Slowed 35%). Spell cards include them.
+- **Herald of the Maw:** from phase 2, a Shadow Lunge that doesn't hit a pylon ends in a 360-degree slash (4.5 m, a 0.4 s warning ring, 80% of the Lunge's damage). The Void Beam turns 20 degrees a second faster each phase (20 / 40 / 60).
+
+---
+
 ## 2026-10-11 — v4.82.2: Offhand Conduits stop pretending to be weapons
 
 - Offhand Conduits (Rod, Tome, Grimoire, Talisman, Fetish) are never swung or fired, yet their cards showed weapon damage, crit chance and attack speed, and they could roll "+% Attack Speed" (Fluid) and "+% Critical Strike Chance" (of the Sharp), which are local to the weapon and did nothing there. Flat and % weapon damage were already kept off them.

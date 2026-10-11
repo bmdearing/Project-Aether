@@ -6,13 +6,14 @@ class_name Xalatath
 ## MawArena (PinnacleArena builds it for her): a round floor over the void
 ## with four Anchor pylons.
 ##   Phase 1: Void Rift pools crack the floor when they run out; Shadow Lunge.
-##   Void Beam: a channelled laser that turns slowly after you; standing
-##   pylons block it.
+##   Void Beam: a channelled laser that turns after you (faster each
+##   phase); standing pylons block it.
 ##   Luring the Lunge into a pylon stuns her, drains her Composure and opens
 ##   a Riposte window.
 ##   Phase 2 (66%): Mindbenders go for the pylons and shatter them;
-##   Entropic Volley. Every pylon you save anchors you against Unmaking,
-##   stays a stun wall, raises her Lens chance and weakens the Maw's opening.
+##   Entropic Volley; from here a Lunge that misses the pylons ends in a
+##   spin slash. Every pylon you save anchors you against Unmaking, stays a
+##   stun wall, raises her Lens chance and weakens the Maw's opening.
 ##   Phase 3 (33%): the Maw opens under the dais. Unmaking drags you to its
 ##   lip for a slam unless a pylon anchors you; Collapse rains blasts; Feed
 ##   the Maw: she channels at the lip for a bigger, faster bite unless you
@@ -42,7 +43,9 @@ const BEAM_LENGTH := 30.0
 const BEAM_WIDTH := 1.2
 const BEAM_HEIGHT := 1.2
 const BEAM_TICK := 0.25
+## Turn rate in phase 1; each later phase adds BEAM_TURN_PER_PHASE.
 const BEAM_TURN_DEG_PER_SEC := 20.0
+const BEAM_TURN_PER_PHASE := 20.0
 const BEAM_COLOR := Color(0.6, 0.25, 0.95)
 ## Void Lash: her melee is a lash of the void out to her reach.
 const LASH_HALF_ANGLE := 50.0
@@ -148,6 +151,36 @@ func on_melee_strike() -> void:
 	SpellFx.burst(get_parent(), global_position + dir * reach * 0.7 + Vector3.UP, color, 24, Vector2(2, 5), 0.4, Vector2(0.12, 0.24), 90.0, 0.0)
 	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_whoosh), global_position, 0.0, 0.8)
 	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_void_burst), global_position + dir * reach * 0.6, -6.0, 1.2)
+
+## Void Beam turn rate this phase: 20, 40, then 60 degrees a second.
+func beam_turn_deg_per_sec() -> float:
+	var p := boss_brain.phase if boss_brain else 1
+	return BEAM_TURN_DEG_PER_SEC + BEAM_TURN_PER_PHASE * (p - 1)
+
+## Phases 2 and 3: Shadow Lunge ends in a slash all the way round her, after
+## a short warning ring.
+const LUNGE_SLASH_RADIUS := 4.5
+const LUNGE_SLASH_TELEGRAPH := 0.4
+const LUNGE_SLASH_SHARE := 0.8
+
+func on_charge_end(a: BossAbility) -> void:
+	if a.id != "shadow_lunge" or boss_brain == null or boss_brain.phase < 2:
+		return
+	var tint: Color = Constants.DAMAGE_TYPE_COLOR[Constants.DamageType.ENTROPIC]
+	BossTelegraph.circle(get_parent(), global_position, LUNGE_SLASH_RADIUS, LUNGE_SLASH_TELEGRAPH, tint)
+	await get_tree().create_timer(LUNGE_SLASH_TELEGRAPH, false).timeout
+	if not is_instance_valid(self) or not health.is_alive() or not is_inside_tree():
+		return
+	var color := BossFx.glow_of(Constants.DamageType.ENTROPIC)
+	SpellFx.sweep(get_parent(), global_position, _flat_to_player(), LUNGE_SLASH_RADIUS + 0.6, 180.0, color, 0.3, 1.0, 1.1)
+	SpellFx.shockwave(get_parent(), global_position, LUNGE_SLASH_RADIUS, color)
+	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_whoosh), global_position, 0.0, 0.7)
+	var p := get_tree().get_first_node_in_group("player") as Player
+	if p:
+		var flat := p.global_position - global_position
+		flat.y = 0.0
+		if flat.length() <= LUNGE_SLASH_RADIUS:
+			boss_brain._damage_player(a, LUNGE_SLASH_SHARE)
 
 ## ---- The floor works against her too --------------------------------------
 
@@ -261,7 +294,8 @@ func _void_beam(a: BossAbility) -> void:
 		var dt := get_physics_process_delta_time()
 		left -= dt
 		var want := _flat_to_player()
-		var turn := clampf(dir.signed_angle_to(want, Vector3.UP), -deg_to_rad(BEAM_TURN_DEG_PER_SEC) * dt, deg_to_rad(BEAM_TURN_DEG_PER_SEC) * dt)
+		var turn_rate := deg_to_rad(beam_turn_deg_per_sec())
+		var turn := clampf(dir.signed_angle_to(want, Vector3.UP), -turn_rate * dt, turn_rate * dt)
 		dir = dir.rotated(Vector3.UP, turn).normalized()
 		origin = global_position
 		var length := beam_length(origin, dir)

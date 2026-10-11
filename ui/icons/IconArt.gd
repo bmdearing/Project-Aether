@@ -340,6 +340,15 @@ static func _edict(pen: Pen, kind: String) -> void:
 		"suffix":
 			glyph_name = "S"
 			seal_colour = Color(0.2, 0.32, 0.65)
+		"level_61":
+			glyph_name = "chevron_up"
+			seal_colour = Color(0.25, 0.55, 0.45)
+		"level_72":
+			glyph_name = "chevrons_up"
+			seal_colour = Color(0.3, 0.45, 0.75)
+		"level_83":
+			glyph_name = "star"
+			seal_colour = Color(0.85, 0.62, 0.15)
 	pen.rect(0.24, 0.18, 0.76, 0.82, PARCHMENT)
 	for y in [0.32, 0.42]:
 		pen.stroke_px(PackedVector2Array([pen.v(0.32, y), pen.v(0.68, y)]), Color(0.5, 0.42, 0.3, 0.8), 0.025 * pen.unit())

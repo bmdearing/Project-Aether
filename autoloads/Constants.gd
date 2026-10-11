@@ -473,7 +473,7 @@ const STASH_FIGMENT_TAB_SIZE := Vector2i(12, 12)
 ## Portals per map run; -1 = unlimited.
 const MAX_PORTALS := -1
 ## Placeholder Orb roll weight per gear tier (index 0 = Tier 1, the rarest).
-const GEAR_TIER_WEIGHTS: Array[int] = [4, 10, 20, 30, 36]
+const GEAR_TIER_WEIGHTS: Array[int] = [2, 4, 10, 20, 30, 36]
 ## Placeholder Orb roll weight per Slate tier (index 0 = Tier 1).
 const SLATE_TIER_WEIGHTS: Array[int] = [10, 30, 60]
 
@@ -495,13 +495,15 @@ const CURRENCY_DROP_WEIGHTS := {
 	&"brand_prefix": 4, &"brand_suffix": 4,
 	&"brand_preservation": 2,
 	&"edict_prefix": 3, &"edict_suffix": 3, &"edict_spell": 3, &"edict_attack": 3,
+	# Item-level Edicts: 83 is the chase, about one in 3,600 currency drops.
+	&"edict_level_61": 3, &"edict_level_72": 1, &"edict_level_83": 0.25,
 }
 
 static func roll_currency_drop() -> StringName:
-	var total := 0
+	var total := 0.0
 	for w in CURRENCY_DROP_WEIGHTS.values():
 		total += w
-	var roll := randi_range(0, total - 1)
+	var roll := randf() * total
 	for id in CURRENCY_DROP_WEIGHTS:
 		roll -= CURRENCY_DROP_WEIGHTS[id]
 		if roll < 0:

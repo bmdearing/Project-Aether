@@ -601,7 +601,7 @@ func _use_armed_on(target: Resource) -> void:
 		_armed = &""
 	_after_craft(target)
 
-func _describe_craft(id: StringName, result: CraftResult) -> String:
+static func _describe_craft(id: StringName, result: CraftResult) -> String:
 	var parts: Array[String] = ["%s used." % CurrencyText.name_of(id)]
 	for a in result.removed:
 		parts.append("Removed: " + a.description)

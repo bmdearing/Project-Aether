@@ -124,6 +124,11 @@ func _build() -> void:
 	_currency_view.visible = false
 	_currency_view.slot_clicked.connect(_withdraw_currency)
 	_currency_view.currency_dropped.connect(_on_currency_dropped)
+	_currency_view.slot_used.connect(_use_on_bench)
+	_currency_view.bench_clicked.connect(_take_from_bench)
+	_currency_view.bench_dropped.connect(_on_bench_dropped)
+	_currency_view.preview_for = _bench_preview
+	_currency_view.brand_active = func(id: StringName) -> bool: return _bench_brands != null and _bench_brands.is_active(id)
 	page.add_child(_currency_view)
 	_unique_view = UniqueTabView.new()
 	_unique_view.visible = false
@@ -135,7 +140,7 @@ func _build() -> void:
 
 	_status = _label("", 14)
 	root.add_child(_status)
-	var hint := _label("Drag to move items. Right-click sends an item to the other side, into the tab set for its kind. Right-click a tab to set what it collects. E or Esc closes.", 12)
+	var hint := _label("Drag to move items. Right-click sends an item to the other side, into the tab set for its kind. Right-click a tab to set what it collects. On the Currency tab, drop an item on the Crafting Bench and right-click currency to craft on it. E or Esc closes.", 12)
 	hint.modulate = Color(1, 1, 1, 0.6)
 	root.add_child(hint)
 
@@ -183,6 +188,7 @@ func _refresh() -> void:
 		_unique_view.stash = stash
 		_unique_view.refresh()
 	elif currency_open:
+		_currency_view.bench_item = stash.bench
 		_currency_view.set_inventory(tabs[_active_tab])
 	else:
 		_stash_view.set_inventory(tabs[_active_tab])
@@ -393,6 +399,81 @@ func _withdraw_currency(id: StringName, take_all: bool) -> void:
 		_status.text = ""
 	else:
 		_status.text = "No room for that."
+	_refresh()
+
+## ---- Crafting Bench ----------------------------------------------------
+## One item on the Currency tab, crafted on with the stash's own currency.
+
+var _resolver: CraftingResolver
+var _bench_brands: ActiveBrands
+
+## The resolver and Brands both draw on the stash's currency tab.
+func _bench_resolver() -> CraftingResolver:
+	var tab := GameState.stash.get_tab(GridInventory.Accepts.CURRENCY)
+	if _resolver == null:
+		_resolver = CraftingResolver.create_default()
+	_resolver.currency = tab
+	if _bench_brands == null or _bench_brands.carried != tab:
+		_bench_brands = ActiveBrands.new(tab)
+	return _resolver
+
+func _bench_preview(id: StringName) -> CraftPreview:
+	var bench := GameState.stash.bench
+	if bench == null:
+		return null
+	var resolver := _bench_resolver()
+	return resolver.preview(bench, id, _bench_brands)
+
+func _on_bench_dropped(data: Dictionary) -> void:
+	var entry: GridInventory.Entry = data["grid_entry"]
+	var source: InventoryGridView = data["view"]
+	if GameState.stash.bench != null:
+		_status.text = "Take the item on the Crafting Bench back first."
+		return
+	if source.inventory != GameState.inventory:
+		_status.text = "Put items on the bench from your inventory."
+		return
+	GameState.stash.bench = entry.content
+	source.inventory.remove(entry)
+	_status.text = ""
+	_refresh()
+
+func _take_from_bench() -> void:
+	var bench := GameState.stash.bench
+	if bench == null:
+		return
+	if GameState.add_to_inventory(bench):
+		GameState.stash.bench = null
+		_status.text = ""
+	else:
+		_status.text = "No room for that."
+	_refresh()
+
+## Right-click on a currency: an Orb or Edict on the bench item, or a Brand
+## switched on or off for the next bench craft.
+func _use_on_bench(id: StringName) -> void:
+	var bench := GameState.stash.bench
+	var resolver := _bench_resolver()
+	if bench == null:
+		_status.text = "Put an item on the Crafting Bench first (drag it from your inventory)."
+		return
+	if resolver.brand_defs.has(id):
+		if _bench_brands.is_active(id):
+			_bench_brands.deactivate(id)
+			_status.text = "%s switched off." % CurrencyText.name_of(id)
+		elif _bench_brands.activate(id):
+			_status.text = "%s switched on for the next bench craft." % CurrencyText.name_of(id)
+		_currency_view.refresh()
+		return
+	if Constants.ORB_IDS.has(id):
+		var result := resolver.apply(bench, id, _bench_brands)
+		_status.text = InventoryScreen._describe_craft(id, result) if result.success else result.get_message()
+	elif resolver.edict_defs.has(id):
+		var result := resolver.apply_edict(bench, id)
+		_status.text = "%s placed on the bench item." % CurrencyText.name_of(id) if result.success else result.get_message()
+	else:
+		_status.text = "%s can't be used on the bench. Take it to your inventory to use it." % CurrencyText.name_of(id)
+		return
 	_refresh()
 
 ## A Unique tab slot's item back into the inventory.

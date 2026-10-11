@@ -63,6 +63,7 @@ static func to_dict(item: Item) -> Dictionary:
 		"active_edict": String(item.active_edict.id) if item.active_edict else "",
 		"base_line_id": item.base_line_id,
 		"item_level": item.item_level,
+		"tier_ladder": ItemRoller.TIER_LADDER_VERSION,
 	}
 	if not item.socketed.is_empty():
 		d["socketed"] = item.socketed.map(func(j: Item): return to_dict(j))
@@ -162,6 +163,8 @@ static func from_dict(d: Dictionary) -> Item:
 			continue
 		affixes.append(affix_from_dict(a))
 	item.affixes = affixes
+	if int(d.get("tier_ladder", 1)) < ItemRoller.TIER_LADDER_VERSION:
+		_shift_to_new_tier_ladder(item)
 	item.sockets = d.get("sockets", 0)
 	item.sockets_rolled = d.get("sockets_rolled", false)
 	var jewels: Array[Item] = []
@@ -274,6 +277,17 @@ static func read_craft_state(target: Resource, d: Dictionary) -> void:
 	var edict_id: String = d.get("active_edict", "")
 	if edict_id != "" and ResourceLoader.exists(CraftingResolver.EDICTS_DIR + edict_id + ".tres"):
 		target.active_edict = load(CraftingResolver.EDICTS_DIR + edict_id + ".tres")
+
+## v4.83 put a new Tier 1 above gear's old five: an older save's gear tiers
+## each move down one number (values stay as rolled). Jewels, Slates and
+## Figments have ladders of their own.
+static func _shift_to_new_tier_ladder(item: Item) -> void:
+	if item is Jewel or item is FigmentItem:
+		return
+	for affix in item.affixes:
+		if ItemRoller.gained_new_top_tier(affix):
+			affix.description = affix.description.replace("(Tier %d)" % affix.tier, "(Tier %d)" % (affix.tier + 1))
+			affix.tier += 1
 
 static func affix_to_dict(affix: ItemAffix) -> Dictionary:
 	return {

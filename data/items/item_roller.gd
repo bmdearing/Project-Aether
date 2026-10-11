@@ -80,14 +80,17 @@ static func get_socket_category(item: Item) -> String:
 static func get_socket_cap(item: Item) -> int:
 	return Constants.MAX_SOCKETS_BY_CATEGORY.get(get_socket_category(item), 0)
 
-## 5 tiers per affix, Tier 1 best - the doc's own tier counts vary per
+## 6 tiers per affix, Tier 1 best - the doc's own tier counts vary per
 ## mod (5 to 11+); this project picks one consistent count for every affix.
-const TIER_COUNT := 5
+## v4.83 added today's Tier 1 above the old five (TIER_LADDER_VERSION).
+const TIER_COUNT := 6
+## Saves from before the new top tier store every gear tier one lower.
+const TIER_LADDER_VERSION := 2
 ## Each tier's range is TIER_DECAY of the tier above's - an invented
 ## approximation of the doc's tables' shape.
 const TIER_DECAY := 0.8
 
-## tier1_min/tier1_max define only the best (Tier 1) range - lower tiers
+## tier1_min/tier1_max define one range (Tier 2 since v4.83) - other tiers
 ## are derived via _tier_range(). "applies_to": [] means any base item
 ## type; otherwise a list of category strings (see _pool_for()).
 ##
@@ -365,19 +368,70 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 
 	return item
 
-## Tier N's range = Tier 1's range scaled by TIER_DECAY^(N-1).
+## The tier1_min/tier1_max ranges in AFFIX_POOL (and a weapon library
+## modifier's value range) are Tier 2's since v4.83; Tier 1 is them over
+## TIER_DECAY, and each tier below is TIER_DECAY of the one above.
 static func _tier_range(tier1_min: float, tier1_max: float, tier: int) -> Vector2:
-	var scale: float = pow(TIER_DECAY, tier - 1)
+	var scale: float = pow(TIER_DECAY, tier - 2)
 	return Vector2(tier1_min * scale, tier1_max * scale)
 
-## Patch v3.5: tiers are gated by item level, T1 needing level 80. The
-## other tiers' requirements are spread evenly down to level 1.
+## Patch v3.5: tiers are gated by item level. TOP_TIER_LEVEL is the level the
+## authored ranges (Tier 2) need on the old spread; gear's own ladder is
+## GEAR_TIER_LEVELS, so the Edicts of 61, 72 and 83 each open a tier.
 const TOP_TIER_LEVEL := 80
+const GEAR_TIER_LEVELS: Array[int] = [83, 72, 61, 40, 21, 1]
+## Tier 1 of a weapon library modifier with its own top level.
+const NEW_TOP_TIER_LEVEL := 83
 
 static func tier_min_level(tier: int, tier_count: int = TIER_COUNT, top_level: int = TOP_TIER_LEVEL) -> int:
+	if tier_count == TIER_COUNT:
+		if top_level == TOP_TIER_LEVEL:
+			return GEAR_TIER_LEVELS[clampi(tier, 1, TIER_COUNT) - 1]
+		# Library modifiers: Tier 2 keeps the doc's level, the rest spread below it.
+		if tier <= 1:
+			return NEW_TOP_TIER_LEVEL
+		return _spread_level(tier - 1, TIER_COUNT - 1, top_level)
+	return _spread_level(tier, tier_count, top_level)
+
+## Tiers' levels spread evenly from top_level (tier 1) down to 1.
+static func _spread_level(tier: int, tier_count: int, top_level: int) -> int:
 	if tier_count <= 1:
 		return 1
 	return 1 + roundi((top_level - 1) * float(tier_count - tier) / float(tier_count - 1))
+
+## Item level a rolled gear modifier's tier needs, or 0 when it has no tier
+## data (Uniques, hand-authored, corrupted specials).
+static func affix_tier_level(affix: ItemAffix) -> int:
+	if affix.tier <= 0 or affix.is_implicit:
+		return 0
+	var table := levelled_table(affix.stat_key)
+	if not table.is_empty():
+		return int(table[clampi(affix.tier, 1, table.size()) - 1][0])
+	if _weapon_affix_cache.is_empty():
+		_build_weapon_affix_cache()
+	for source in _weapon_affix_cache:
+		if source.affix_id != "" and source.affix_id == affix.affix_id:
+			return tier_min_level(affix.tier, TIER_COUNT, top_level_of(source))
+	return tier_min_level(affix.tier)
+
+## Item level `tier` of a gear pool ModifierDef needs (GearModifierPool).
+static func def_tier_level(def: ModifierDef, tier: int) -> int:
+	var table := levelled_table(def.stat_key)
+	if not table.is_empty():
+		return int(table[clampi(tier, 1, table.size()) - 1][0])
+	if _weapon_affix_cache.is_empty():
+		_build_weapon_affix_cache()
+	for source in _weapon_affix_cache:
+		if source.affix_id != "" and StringName(source.affix_id) == def.id:
+			return tier_min_level(tier, TIER_COUNT, top_level_of(source))
+	return tier_min_level(tier)
+
+## Whether a modifier's tiers gained the v4.83 top tier (old saves shift up).
+static func gained_new_top_tier(affix: ItemAffix) -> bool:
+	if affix.tier <= 0 or affix.is_implicit:
+		return false
+	var table := levelled_table(affix.stat_key)
+	return table.is_empty() or int(table[0][0]) == NEW_TOP_TIER_LEVEL
 
 ## Best (lowest-numbered) tier an item of this level can roll.
 static func best_tier_for_level(level: int, tier_count: int = TIER_COUNT, top_level: int = TOP_TIER_LEVEL) -> int:
@@ -409,14 +463,14 @@ static func _roll_tier(power_level: int, top_level: int = TOP_TIER_LEVEL) -> int
 ## % Weapon / Spell Damage run from 30% to 190% (user request). Flat damage
 ## is "Adds X to (X x FLAT_DAMAGE_SPREAD)"; the hybrid's value is its %
 ## part and its flat part is HYBRID_FLAT_PER_PERCENT of that.
-const DAMAGE_PERCENT_TIERS := [[80, 160.0, 190.0], [68, 128.0, 155.0], [56, 105.0, 127.0], [45, 85.0, 104.0], [34, 68.0, 84.0], [23, 53.0, 67.0], [12, 40.0, 52.0], [1, 30.0, 39.0]]
+const DAMAGE_PERCENT_TIERS := [[83, 191.0, 225.0], [80, 160.0, 190.0],[68, 128.0, 155.0], [56, 105.0, 127.0], [45, 85.0, 104.0], [34, 68.0, 84.0], [23, 53.0, 67.0], [12, 40.0, 52.0], [1, 30.0, 39.0]]
 ## Additional arrows / spell projectiles: +1, +2, +3.
 const ADDITIONAL_PROJECTILE_TIERS := [[75, 3.0, 3.0], [40, 2.0, 2.0], [1, 1.0, 1.0]]
 const LEVELLED_TIERS := {
 	"local_increased_weapon_damage": DAMAGE_PERCENT_TIERS,
 	"local_increased_spell_damage": DAMAGE_PERCENT_TIERS,
-	"local_flat_weapon_damage": [[80, 29.0, 34.0], [68, 24.0, 28.0], [56, 19.0, 23.0], [45, 14.0, 18.0], [34, 10.0, 13.0], [23, 7.0, 9.0], [12, 4.0, 6.0], [1, 2.0, 3.0]],
-	"local_hybrid_weapon_damage": [[80, 71.0, 85.0], [64, 59.0, 70.0], [48, 47.0, 58.0], [32, 35.0, 46.0], [16, 25.0, 34.0], [1, 15.0, 24.0]],
+	"local_flat_weapon_damage": [[83, 35.0, 41.0], [80, 29.0, 34.0],[68, 24.0, 28.0], [56, 19.0, 23.0], [45, 14.0, 18.0], [34, 10.0, 13.0], [23, 7.0, 9.0], [12, 4.0, 6.0], [1, 2.0, 3.0]],
+	"local_hybrid_weapon_damage": [[83, 86.0, 101.0], [80, 71.0, 85.0],[64, 59.0, 70.0], [48, 47.0, 58.0], [32, 35.0, 46.0], [16, 25.0, 34.0], [1, 15.0, 24.0]],
 	"local_additional_arrows": ADDITIONAL_PROJECTILE_TIERS,
 	"local_additional_spell_projectiles": ADDITIONAL_PROJECTILE_TIERS,
 	"block_chance_bonus": [[80, 7.0, 8.0], [56, 5.0, 6.0], [28, 3.0, 4.0], [1, 2.0, 2.0]],

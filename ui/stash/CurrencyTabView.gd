@@ -6,13 +6,24 @@ class_name CurrencyTabView
 ## Storage is still the stash's CURRENCY GridInventory; this only shows it.
 ## Click a slot to take a stack (Shift or Ctrl: as much as fits); drop
 ## currency from the inventory anywhere on the tab to store it.
+##
+## The Crafting Bench holds one item: right-click a currency to use it on
+## the bench item straight from the stash, and hover a currency to see what
+## it would do (StashScreen does the crafting).
 
 signal slot_clicked(id: StringName, take_all: bool)
 signal currency_dropped(data: Dictionary)
+## Right-click on a currency slot.
+signal slot_used(id: StringName)
+signal bench_clicked
+signal bench_dropped(data: Dictionary)
 
 const SLOT := 52.0
 const PITCH := 58.0
 const PAD := 18.0
+## Slots between groups on a shelf, and between shelves.
+const GROUP_GAP := 1.0
+const SHELF_GAP := 0.5
 const ORBS: Array[StringName] = [&"quickening", &"grafting", &"severance", &"reckoning", &"tempering", &"elevation",
 	&"recasting", &"ascendant", &"absolution", &"opening", &"forging", &"anchoring"]
 const STONES: Array[StringName] = [&"infusion_stone", &"shrivening_stone", &"shard_of_tharsis", &"crystallized_aether"]
@@ -20,28 +31,45 @@ const FRAGMENTS: Array[StringName] = [&"maw_fragment_ash", &"maw_fragment_tide",
 const DAMAGE_BRANDS: Array[StringName] = [&"brand_kinetic", &"brand_piercing", &"brand_explosive", &"brand_fire", &"brand_cold",
 	&"brand_lightning", &"brand_aetheric", &"brand_entropic", &"brand_pale"]
 const DEFENCE_BRANDS: Array[StringName] = [&"brand_armor", &"brand_evasion", &"brand_ward", &"brand_resistance", &"brand_resilience", &"brand_life", &"brand_mana"]
-const EDICTS: Array[StringName] = [&"edict_prefix", &"edict_suffix", &"edict_spell", &"edict_attack"]
+const EDICTS: Array[StringName] = [&"edict_prefix", &"edict_suffix", &"edict_spell", &"edict_attack",
+	&"edict_level_61", &"edict_level_72", &"edict_level_83"]
 const OTHER_BRANDS: Array[StringName] = [&"brand_spell", &"brand_attack", &"brand_critical", &"brand_minion", &"brand_speed", &"brand_prefix", &"brand_suffix", &"brand_preservation"]
 const COLUMNS := 12
+const BENCH := &"_bench"
+## Bench size in slots.
+const BENCH_SLOTS := 2
 
-## Each group: top-left in slot units, columns, ids.
+## Groups in order, packed left to right onto shelves COLUMNS wide
+## (_layout()), so none can overlap however many ids a group has.
 var _groups: Array[Dictionary] = [
-	{"at": Vector2(0, 0), "cols": 6, "ids": ORBS},
-	{"at": Vector2(7, 0), "cols": 2, "ids": STONES},
-	{"at": Vector2(10, 0), "cols": 2, "ids": FRAGMENTS},
-	{"at": Vector2(0, 2.5), "cols": 5, "ids": DAMAGE_BRANDS},
-	{"at": Vector2(6, 2.5), "cols": 3, "ids": DEFENCE_BRANDS},
-	{"at": Vector2(10, 2.5), "cols": 2, "ids": EDICTS},
-	{"at": Vector2(3, 5.0), "cols": 6, "ids": OTHER_BRANDS},
+	{"cols": 6, "ids": ORBS},
+	{"cols": 2, "ids": STONES},
+	{"cols": 2, "ids": FRAGMENTS},
+	{"cols": 5, "ids": DAMAGE_BRANDS},
+	{"cols": 4, "ids": DEFENCE_BRANDS},
+	{"cols": 4, "ids": OTHER_BRANDS},
+	{"cols": 4, "ids": EDICTS},
+	{"cols": BENCH_SLOTS, "ids": [] as Array[StringName], "bench": true},
 ]
 
 var inventory: GridInventory
 var currency_hint: Callable
 ## Optional (id) -> bool: true fades that slot (a stash search miss).
 var dimmed: Callable
+## The item on the Crafting Bench (an Item or a Slate), or null.
+var bench_item: Resource:
+	set(value):
+		bench_item = value
+		if _bench:
+			_bench.refresh()
+## Optional (id) -> CraftPreview of that currency on the bench item.
+var preview_for: Callable
+## Optional (id) -> bool: a Brand switched on for the next bench craft.
+var brand_active: Callable
 var _slots: Dictionary = {}  # id -> CurrencySlot
+var _bench: BenchSlot
 var _frames: Array[Rect2] = []
-var _extra_group := {"at": Vector2(0, 6.5), "cols": COLUMNS, "ids": [] as Array[StringName]}
+var _extra_group := {"cols": COLUMNS, "ids": [] as Array[StringName]}
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
@@ -65,6 +93,9 @@ func refresh() -> void:
 	for id in _slots:
 		_slots[id].count = inventory.count_of(id) if inventory else 0
 		_slots[id].modulate.a = 0.3 if dimmed.is_valid() and dimmed.call(id) else 1.0
+		_slots[id].queue_redraw()
+	if _bench:
+		_bench.refresh()
 
 func _listed(id: StringName) -> bool:
 	for g in _groups:
@@ -72,17 +103,31 @@ func _listed(id: StringName) -> bool:
 			return true
 	return false
 
+## Shelf packing: each group sits right of the last on its shelf, or starts
+## a new shelf under the tallest group of the one before.
 func _layout() -> void:
 	var groups := _groups.duplicate()
 	if not _extra_group["ids"].is_empty():
 		groups.append(_extra_group)
 	_frames.clear()
 	var extent := Vector2.ZERO
+	var cursor := Vector2.ZERO
+	var shelf_rows := 0.0
 	for g in groups:
 		var ids: Array = g["ids"]
 		var cols: int = g["cols"]
-		var origin: Vector2 = g["at"] * PITCH + Vector2(PAD, PAD)
-		var rows := ceili(float(ids.size()) / cols)
+		var rows: int = BENCH_SLOTS if g.get("bench", false) else ceili(float(ids.size()) / cols)
+		if cursor.x > 0.0 and cursor.x + cols > COLUMNS:
+			cursor = Vector2(0.0, cursor.y + shelf_rows + SHELF_GAP)
+			shelf_rows = 0.0
+		var origin: Vector2 = cursor * PITCH + Vector2(PAD, PAD)
+		if g.get("bench", false):
+			if _bench == null:
+				_bench = BenchSlot.new()
+				_bench.view = self
+				add_child(_bench)
+			_bench.position = origin
+			_bench.size = Vector2(BENCH_SLOTS, BENCH_SLOTS) * PITCH - Vector2(PITCH - SLOT, PITCH - SLOT)
 		for i in ids.size():
 			var id: StringName = ids[i]
 			var slot: CurrencySlot = _slots.get(id)
@@ -97,6 +142,8 @@ func _layout() -> void:
 		var frame := Rect2(origin - Vector2(6, 6), Vector2(cols, rows) * PITCH - Vector2(PITCH - SLOT, PITCH - SLOT) + Vector2(12, 12))
 		_frames.append(frame)
 		extent = extent.max(frame.end)
+		cursor.x += cols + GROUP_GAP
+		shelf_rows = maxf(shelf_rows, rows)
 	custom_minimum_size = extent + Vector2(PAD, PAD) - Vector2(6, 6)
 	queue_redraw()
 
@@ -126,6 +173,11 @@ func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 
 func _drop_data(_at_position: Vector2, data: Variant) -> void:
 	currency_dropped.emit(data)
+
+## Whether a currency does something on the bench item when right-clicked.
+static func is_bench_currency(id: StringName) -> bool:
+	var s := String(id)
+	return Constants.ORB_IDS.has(id) or s.begins_with("edict_") or s.begins_with("brand_")
 
 class CurrencySlot extends Button:
 	var view: CurrencyTabView
@@ -163,15 +215,35 @@ class CurrencySlot extends Button:
 	func _draw() -> void:
 		if _label:
 			_label.text = CurrencyTabView.short_count(count) if count > 0 else ""
+		# A Brand switched on for the bench glows.
+		if view.brand_active.is_valid() and view.brand_active.call(id):
+			draw_rect(Rect2(Vector2.ZERO, size).grow(-1), Color(1.0, 0.75, 0.3), false, 2.5)
 
 	func _gui_input(event: InputEvent) -> void:
-		if event is InputEventMouseButton and event.pressed and (event.button_index == MOUSE_BUTTON_LEFT or event.button_index == MOUSE_BUTTON_RIGHT):
-			view.slot_clicked.emit(id, event.shift_pressed or event.ctrl_pressed)
-			accept_event()
+		if event is InputEventMouseButton and event.pressed:
+			if event.button_index == MOUSE_BUTTON_LEFT:
+				view.slot_clicked.emit(id, event.shift_pressed or event.ctrl_pressed)
+				accept_event()
+			elif event.button_index == MOUSE_BUTTON_RIGHT:
+				view.slot_used.emit(id)
+				accept_event()
 
+	## With an item on the bench, an Orb shows the item with what the Orb
+	## would do to it (removals marked orange, the modifiers it can add).
 	func _make_custom_tooltip(_for_text: String) -> Object:
 		var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+		var bench := view.bench_item
+		if bench != null and Constants.ORB_IDS.has(id) and view.preview_for.is_valid():
+			var preview: CraftPreview = view.preview_for.call(id)
+			card.craft_preview_for = func(_t: Resource) -> CraftPreview: return preview
+			if bench is Slate:
+				card.display_slate(bench as Slate)
+			else:
+				card.display_item(bench as Item)
+			return card
 		var hint := "Click to take a stack. Shift-click to take as much as fits." if count > 0 else "None stored."
+		if bench != null and count > 0 and CurrencyTabView.is_bench_currency(id):
+			hint += " Right-click to use it on the bench item." if not String(id).begins_with("brand_") else " Right-click to switch it on for the next bench craft."
 		card.display_currency(id, count, hint)
 		return card
 
@@ -180,6 +252,66 @@ class CurrencySlot extends Button:
 
 	func _drop_data(at_position: Vector2, data: Variant) -> void:
 		view._drop_data(at_position, data)
+
+## The Crafting Bench: drop an item or Slate on it from the inventory;
+## click it to take the item back.
+class BenchSlot extends Button:
+	const BENCH_HELP := "Crafting Bench: drop an item or Slate here from your inventory, then right-click a currency on this tab to use it on that item. Hovering an Orb shows what it would do. Click the bench to take the item back."
+	var view: CurrencyTabView
+	var _icon: ItemIcon
+	var _label: Label
+
+	func _ready() -> void:
+		focus_mode = Control.FOCUS_NONE
+		AetherStyle.style_slot_button(self, AetherStyle.GOLD)
+		_icon = ItemIcon.fill(self)
+		_icon.offset_left = 10
+		_icon.offset_top = 10
+		_icon.offset_right = -10
+		_icon.offset_bottom = -10
+		_label = Label.new()
+		_label.set_anchors_preset(Control.PRESET_FULL_RECT)
+		_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		_label.add_theme_font_size_override("font_size", 12)
+		_label.add_theme_color_override("font_color", Color(AetherStyle.GOLD, 0.8))
+		_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_label.text = "Crafting Bench\n\nDrop an item here"
+		add_child(_label)
+		refresh()
+
+	func refresh() -> void:
+		if _icon == null:
+			return
+		_icon.content = view.bench_item
+		_label.visible = view.bench_item == null
+		tooltip_text = BENCH_HELP if view.bench_item == null else "bench"
+
+	func _gui_input(event: InputEvent) -> void:
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+			view.bench_clicked.emit()
+			accept_event()
+
+	func _make_custom_tooltip(_for_text: String) -> Object:
+		var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+		if view.bench_item is Slate:
+			card.display_slate(view.bench_item as Slate)
+		elif view.bench_item is Item:
+			card.display_item(view.bench_item as Item)
+		else:
+			card.queue_free()
+			return null  # the plain BENCH_HELP tooltip
+		return card
+
+	func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
+		if not (data is Dictionary and data.has("grid_entry")):
+			return false
+		var content = (data["grid_entry"] as GridInventory.Entry).content
+		return (content is Item and not content is FigmentItem) or content is Slate
+
+	func _drop_data(_at_position: Vector2, data: Variant) -> void:
+		view.bench_dropped.emit(data)
 
 static func slot_accent(id: StringName) -> Color:
 	var s := String(id)

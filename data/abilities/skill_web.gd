@@ -22,6 +22,7 @@ const STATUS_CHANCE := &"status_chance"    # + chance for the spell's own ailmen
 const LIMIT := &"limit"
 const PROJECTILES := &"projectiles"        # + projectiles (spell decides what that means)
 const TWIST := &"twist"                    # behaviour switch, read with has_twist(id)
+const CURSE_STRENGTH := &"curse_strength"  # % more curse strength (PlayerAbilityCast.curse_strength())
 
 class WebNode:
 	var id: String
@@ -73,6 +74,12 @@ const BLOCK_PARENT := {"precision": "potency", "affliction": "potency", "legion"
 ## Spell twists: id -> node fields (requires defaults to the first ring 1
 ## block). Only twists the spell code applies are listed; more come in with
 ## their spells (documents/Skill_Webs_Design.md).
+## Shared by the area curses (Meager, Fracturing, Decompose, Elemental Fragility).
+const CURSE_TWISTS := [
+	{"id": "hex_potency", "name": "Hex Potency", "description": "+8% curse strength per point.", "ring": 2, "max_points": 3, "effect": CURSE_STRENGTH, "per_point": 8.0},
+	{"id": "lingering_hex", "name": "Lingering Hex", "description": "The curse lasts 50% longer.", "ring": 2},
+]
+
 const TWISTS := {
 	"comet": [
 		{"id": "molten_core", "name": "Molten Core", "description": "Comet becomes Fire: it burns instead of chilling, and deals its bonus damage to Ignited enemies instead of Chilled ones.", "ring": 2},
@@ -124,6 +131,19 @@ const TWISTS := {
 	"thunder_sweep": [
 		{"id": "focused_sweep", "name": "Focused Sweep", "description": "Twice the bolts, all fired across the front half.", "ring": 2},
 		{"id": "echo_sweep", "name": "Echo", "description": "The sweep repeats 0.6 seconds later, turned half a step, at 70% damage.", "ring": 3, "requires": ["focused_sweep", "potency_2"]},
+	],
+	"meager": CURSE_TWISTS,
+	"fracturing": CURSE_TWISTS,
+	"decompose": CURSE_TWISTS,
+	"elemental_fragility": CURSE_TWISTS,
+	"linger": [
+		{"id": "contagion", "name": "Contagion", "description": "When the cursed enemy dies, Linger moves to the 3 nearest enemies instead of 2.", "ring": 2},
+	],
+	"pale_thread": [
+		{"id": "long_thread", "name": "Long Thread", "description": "The thread holds out to 26 metres instead of 18.", "ring": 2},
+	],
+	"death_shroud": [
+		{"id": "grave_chill", "name": "Grave Chill", "description": "Enemies inside the shroud are also Slowed (35% slower).", "ring": 2},
 	],
 	"entropic_decay": [
 		{"id": "pale_decay", "name": "Pale Decay", "description": "The decay is Pale instead of Entropic and leaves enemies Pallid (they deal less damage).", "ring": 2},
