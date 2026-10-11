@@ -13,6 +13,11 @@ const EMPOWER_FIGMENT_GOLD_COST := 25
 static func empower_figment(figment: FigmentItem) -> Dictionary:
 	if figment == null:
 		return {"success": false, "message": "No Figment selected."}
+	if figment.is_levelling():
+		if figment.depth >= FigmentProgress.max_drop_depth():
+			return {"success": false, "message": "Clear Depth %d to empower past it." % figment.depth}
+		figment.depth += 1
+		return {"success": true, "message": "The Figment sinks deeper - now Depth %d." % figment.depth}
 	if figment.tier >= FigmentProgress.max_drop_tier():
 		return {"success": false, "message": "Complete a Tier %d Figment to empower past it." % figment.tier if figment.tier < FigmentMods.MAX_TIER else "This Figment is already Tier %d." % FigmentMods.MAX_TIER}
 	figment.tier += 1

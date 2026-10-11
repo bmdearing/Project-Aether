@@ -843,7 +843,8 @@ func _item_type_line(item: Item) -> String:
 	if item is Shield:
 		return "Shield"
 	if item is FigmentItem:
-		return "Figment - Tier %d" % (item as FigmentItem).tier
+		var fig := item as FigmentItem
+		return "Figment - Depth %d" % fig.depth if fig.is_levelling() else "Figment - Tier %d" % fig.tier
 	if item is SkillTome:
 		return "Skill Tome"
 	if not item.is_equipment():
@@ -884,7 +885,11 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		var style := MapTileset.load_style(m.tileset_id)
 		if style:
 			lines.append("Area: %s (%s)" % [style.display_name, style.family.capitalize()])
-		lines.append("%s Band (Tiers %d-%d)" % [FigmentMods.band_name(m.tier), FigmentMods.band_range(m.band()).x, FigmentMods.band_range(m.band()).y])
+		lines.append("Area Level %d" % m.area_level())
+		if m.is_levelling():
+			lines.append("Levelling stage (Depth %d of %d)" % [m.depth, AreaLevel.DEPTHS])
+		else:
+			lines.append("%s Band (Tiers %d-%d)" % [FigmentMods.band_name(m.tier), FigmentMods.band_range(m.band()).x, FigmentMods.band_range(m.band()).y])
 		# Figments rolled before the mod pools (v4.72) carry these instead.
 		if not is_equal_approx(m.enemy_damage_multiplier, 1.0):
 			lines.append("Monster Damage: %.0f%%" % (m.enemy_damage_multiplier * 100.0))
@@ -894,7 +899,7 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		# Added to the player's own Item Quantity/Rarity on every kill here (Loot.multipliers()).
 		lines.append("Item Quantity: +%.0f%%" % ((m.loot_quantity_multiplier - 1.0) * 100.0))
 		lines.append("Item Rarity: +%.0f%%" % ((m.loot_rarity_multiplier - 1.0) * 100.0))
-		if not FigmentProgress.is_band_completed(m.tileset_id, m.band()):
+		if not m.is_levelling() and not FigmentProgress.is_band_completed(m.tileset_id, m.band()):
 			lines.append("First %s clear in this band: +1 Figment Tree point" % (style.display_name if style else "clear"))
 	return lines
 

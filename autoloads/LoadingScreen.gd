@@ -114,7 +114,7 @@ func _describe(path: String) -> void:
 		if style:
 			subtitle = "%s  ·  %s" % [style.display_name, style.family.capitalize()]
 		if map:
-			subtitle += ("  ·  " if subtitle != "" else "") + "Tier %d" % map.tier
+			subtitle += ("  ·  " if subtitle != "" else "") + ("Depth %d" % map.depth if map.is_levelling() else "Tier %d" % map.tier) + "  ·  Area Level %d" % map.area_level()
 	elif path == GameState.HUB_SCENE:
 		title = "The Memory Nexus"
 		subtitle = "A hub adrift in the void"

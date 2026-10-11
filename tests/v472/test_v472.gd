@@ -124,7 +124,7 @@ func _test_progress() -> void:
 	FigmentProgress.record("snow_tundra", 9)
 	_check(FigmentProgress.completed_in_band(FigmentMods.Band.MID) == 2 and FigmentProgress.completed_in_band(FigmentMods.Band.LOW) == 2, "band counts")
 	_check(FigmentProgress.total_possible() == MapTileset.all_ids().size() * 3, "possible = styles x 3 bands")
-	_check(FigmentProgress.milestone_reached(FigmentProgress.MILESTONES[0]) and not FigmentProgress.milestone_reached(FigmentProgress.MILESTONES[-1]), "milestones unlock in order")
+	_check(FigmentProgress.milestone_reached(FigmentProgress.MILESTONES[1]) and not FigmentProgress.milestone_reached(FigmentProgress.MILESTONES[-1]), "milestones unlock in order")
 	var fig := FigmentRoller.roll(10)
 	_check(not CraftingSystem.empower_figment(fig)["success"] and fig.tier == 10, "empower stops at the cap")
 	FigmentProgress.record("snow_tundra", 10)

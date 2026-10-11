@@ -21,6 +21,8 @@ class_name Enemy
 ## Invented placeholder; definitions override it.
 @export var xp_reward: float = 10.0
 @export var gold_reward: int = 5
+## Monster level: the Area Level, or the definition's own outside one.
+var level: int = 1
 
 ## Name on the hover health bar; falls back to the node's own name.
 @export var display_name: String = ""
@@ -135,6 +137,7 @@ func _ready() -> void:
 ## doesn't set those values itself.
 func _apply_definition() -> void:
 	if definition == null:
+		level = maxi(AreaLevel.current(), 1)
 		return
 	display_name = definition.display_name
 	faction = definition.faction
@@ -144,13 +147,16 @@ func _apply_definition() -> void:
 	retreat_distance = definition.retreat_distance
 	armor_value = definition.armor_value
 	evasion_value = definition.evasion_value
-	var scaled_health := _level_scaled_health(definition.mob_level)
-	var scaled_damage := _level_scaled_damage(definition.mob_level)
+	# Area Level (AreaLevel.current()) sets every monster's level; outside
+	# a Figment or Pinnacle the definition's own level stands.
+	level = AreaLevel.current() if AreaLevel.current() > 0 else definition.mob_level
+	var scaled_health := _level_scaled_health(level)
+	var scaled_damage := _level_scaled_damage(level)
 	health.max_health = scaled_health
 	health.current_health = scaled_health
 	_reset_ward()
 	xp_reward = definition.xp_reward
-	gold_reward = randi_range(definition.gold_reward_min, definition.gold_reward_max)
+	gold_reward = roundi(randi_range(definition.gold_reward_min, definition.gold_reward_max) * AreaLevel.gold_scale(level))
 
 	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
 	if melee:
@@ -165,15 +171,15 @@ func _apply_definition() -> void:
 		ranged.fire_range = definition.attack_range
 		ranged.cooldown_duration = definition.attack_cooldown
 
-## Level curve from Constants.MOB_*: base at level 1 for the definition's
-## archetype_category, growing linearly per level above 1.
-func _level_scaled_health(level: int) -> float:
+## Level curve: Constants.MOB_BASE_* at level 1 for the definition's
+## archetype_category, compounding per level (AreaLevel.HEALTH_GROWTH/DAMAGE_GROWTH).
+func _level_scaled_health(at_level: int) -> float:
 	var base_h: float = Constants.MOB_BASE_HEALTH.get(definition.archetype_category, 55.0)
-	return base_h * (1.0 + Constants.MOB_HEALTH_GROWTH_PER_LEVEL * (level - 1))
+	return base_h * AreaLevel.health_scale(at_level)
 
-func _level_scaled_damage(level: int) -> float:
+func _level_scaled_damage(at_level: int) -> float:
 	var base_d: float = Constants.MOB_BASE_DAMAGE.get(definition.archetype_category, 10.0)
-	return base_d * (1.0 + Constants.MOB_DAMAGE_GROWTH_PER_LEVEL * (level - 1))
+	return base_d * AreaLevel.damage_scale(at_level)
 
 ## Refills the Ward pool to definition.ward_percent of current max health.
 ## Called whenever max health is (re)derived, so it tracks tier/rarity scaling.
@@ -428,15 +434,9 @@ func _on_broken_state_ended() -> void:
 		_riposte_blink_tween.kill()
 	_riposte_indicator.visible = false
 
-## Per-tier scaling from the active Map, on top of its rolled enemy
-## multipliers. Health scales through the mob level curve instead
-## (MOB_LEVELS_PER_TIER).
-const TIER_DAMAGE_GROWTH_PER_TIER := 0.10
-const TIER_REWARD_GROWTH_PER_TIER := 0.20
-const MOB_LEVELS_PER_TIER := 2
-
-## Applies Map tier/affix scaling and the rarity health multiplier (which
-## applies even without an active Map).
+## Applies the Figment's monster mods and the rarity health multiplier (which
+## applies even without an active Map). Level scaling already happened in
+## _apply_definition().
 func _apply_map_modifiers() -> void:
 	var rarity_mult := rarity_component.get_health_multiplier() if rarity_component else 1.0
 	if GameState.active_map == null:
@@ -445,18 +445,10 @@ func _apply_map_modifiers() -> void:
 			health.current_health = health.max_health
 			_reset_ward()
 		return
-	var tier_bonus := 1.0 + (GameState.active_map.tier - 1) * TIER_REWARD_GROWTH_PER_TIER
-	# A definition-driven enemy's mob level rises with Map tier (tier 1 =
-	# definition.mob_level, tier 5 = +8), so the level curve is the base the
-	# multipliers below apply to. Scene-only enemies keep their own health.
-	var base_health: float = health.max_health
-	if definition:
-		base_health = _level_scaled_health(definition.mob_level + (GameState.active_map.tier - 1) * MOB_LEVELS_PER_TIER)
+	var base_health: float = _level_scaled_health(level) if definition else health.max_health
 	health.max_health = base_health * GameState.active_map.enemy_health_multiplier * rarity_mult * (1.0 + _boss_mod("boss_life"))
 	health.current_health = health.max_health
 	_reset_ward()
-	xp_reward *= tier_bonus
-	gold_reward = int(gold_reward * tier_bonus)
 
 func get_outgoing_damage_multiplier() -> float:
 	var mult := status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0
@@ -467,7 +459,7 @@ func get_outgoing_damage_multiplier() -> float:
 	if GameState.active_map == null:
 		return mult
 	mult *= (1.0 + map_mod("monster_damage")) * (1.0 + _boss_mod("boss_damage"))
-	return GameState.active_map.enemy_damage_multiplier * (1.0 + (GameState.active_map.tier - 1) * TIER_DAMAGE_GROWTH_PER_TIER) * mult
+	return GameState.active_map.enemy_damage_multiplier * mult
 
 ## Horizontal velocity added on top of chase movement for one physics frame
 ## (Black Hole's pull). Goes through move_and_slide(), so it can't push an
@@ -828,11 +820,16 @@ const FIGMENT_DROP_CHANCE := 0.06
 const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPickup.tscn")
 const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
 
+## XP for this kill: xp_reward is the level-1 value; it's credited at the
+## player's level and adjusted by the level gap (AreaLevel.xp_multiplier()).
+func earned_xp(player_level: int) -> float:
+	return xp_reward * AreaLevel.xp_scale(player_level) * AreaLevel.xp_multiplier(level, player_level)
+
 func _on_died() -> void:
 	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.enemy_death), global_position)
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player and player.experience:
-		player.experience.add_xp(xp_reward)
+		player.experience.add_xp(earned_xp(GameState.player_level))
 	if player and player.ward:
 		player.ward.restore_on_kill()
 	_drop_gold()
@@ -911,15 +908,13 @@ func _roll_drop(rarity_mult: float) -> void:
 		return
 
 	if randf() <= SLATE_DROP_CHANCE * _reward_mult("slates"):
-		var power_level: int = GameState.active_map.tier if GameState.active_map else 1
-		var slate := SlateRoller.roll(power_level, rarity_mult)
+		var slate := SlateRoller.roll(drop_area_level(), rarity_mult)
 		if slate:
 			_spawn_slate_pickup(slate)
 			return
 
 	if randf() <= FIGMENT_DROP_CHANCE * (1.0 + FigmentTree.effect("figment_drop") / 100.0):
-		var power_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
-		var figment := FigmentRoller.roll_for_drop(power_level)
+		var figment := FigmentRoller.roll_for_drop()
 		if figment:
 			_spawn_pickup(figment)
 			return
@@ -987,8 +982,7 @@ func _get_preferred_ammo_type(player: Player) -> Constants.AmmoType:
 func _drop_converted(affix: EnemyAffix) -> void:
 	match affix.drop_conversion_type:
 		"figments":
-			var power_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
-			var figment := FigmentRoller.roll_for_drop(power_level)
+			var figment := FigmentRoller.roll_for_drop()
 			if figment:
 				_spawn_pickup(figment)
 		_:
@@ -1005,8 +999,8 @@ func _maybe_drop_aether() -> void:
 	var rank_bonus: int = Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
 	if randf() > AETHER_DROP_CHANCE * (1.0 + rank_bonus * 0.5):
 		return
-	var tier: int = GameState.active_map.tier if GameState.active_map else 1
-	_spawn_currency_pickup(Ability.AETHER_CURRENCY, randi_range(AETHER_DROP_COUNT.x, AETHER_DROP_COUNT.y) + rank_bonus + (tier - 1))
+	# One more Crystallized Aether per 4 Area Levels.
+	_spawn_currency_pickup(Ability.AETHER_CURRENCY, randi_range(AETHER_DROP_COUNT.x, AETHER_DROP_COUNT.y) + rank_bonus + floori((drop_area_level() - 1) / 4.0))
 
 func _spawn_currency_pickup(currency_id: StringName, count: int = 1) -> void:
 	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()
@@ -1100,11 +1094,14 @@ func _roll_rank() -> Constants.EnemyRank:
 			return r
 	return Constants.EnemyRank.NORMAL
 
-## Area level plus the rank offset (Normal +0, Magic +1, Rare +2, Boss +5).
-## Used for gear and jewel drops; Slates/Figments use the Map tier.
+## Area Level plus the rank offset (Normal +0, Magic +1, Rare +2, Boss +5),
+## for gear, jewel and Lens drops.
 func _compute_item_level() -> int:
-	var area_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
-	return area_level + Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
+	return drop_area_level() + Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
+
+## Area Level for drops; the monster's own level outside an area.
+func drop_area_level() -> int:
+	return AreaLevel.current() if AreaLevel.current() > 0 else level
 
 ## Never moves, falls or gets pushed: it hovers where it was placed.
 var immovable: bool = false

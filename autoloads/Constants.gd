@@ -321,12 +321,9 @@ const ENEMY_RARITY_DAMAGE_MULT := {
 	EnemyRarity.ASCENDANT: 1.5,
 }
 
-## Mob level curve (EnemyDefinition.mob_level / archetype_category), invented
-## placeholder values pending playtest balance:
-##   health = MOB_BASE_HEALTH[category] * (1 + MOB_HEALTH_GROWTH_PER_LEVEL * (level - 1))
-##   damage = MOB_BASE_DAMAGE[category] * (1 + MOB_DAMAGE_GROWTH_PER_LEVEL * (level - 1))
-const MOB_HEALTH_GROWTH_PER_LEVEL := 0.15
-const MOB_DAMAGE_GROWTH_PER_LEVEL := 0.08
+## Level-1 monster stats per archetype_category. Monster level is the Area
+## Level (or EnemyDefinition.mob_level outside one); the curves compound per
+## level (AreaLevel.HEALTH_GROWTH / DAMAGE_GROWTH).
 ## v4.14 retune: a level-1 standard mob takes ~4 hits from the starter
 ## weapon (~14 per hit), a light one ~2, a heavy ~8.
 const MOB_BASE_HEALTH := {

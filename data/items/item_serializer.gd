@@ -79,6 +79,7 @@ static func to_dict(item: Item) -> Dictionary:
 		d["amount"] = item.amount
 	elif item is FigmentItem:
 		d["tier"] = item.tier
+		d["depth"] = item.depth
 		d["enemy_damage_multiplier"] = item.enemy_damage_multiplier
 		d["enemy_health_multiplier"] = item.enemy_health_multiplier
 		d["loot_quantity_multiplier"] = item.loot_quantity_multiplier
@@ -186,6 +187,7 @@ static func from_dict(d: Dictionary) -> Item:
 		item.amount = int(d.get("amount", 0))
 	elif item is FigmentItem:
 		item.tier = d.get("tier", 1)
+		item.depth = int(d.get("depth", 0))
 		item.enemy_damage_multiplier = d.get("enemy_damage_multiplier", 1.0)
 		item.enemy_health_multiplier = d.get("enemy_health_multiplier", 1.0)
 		item.loot_quantity_multiplier = d.get("loot_quantity_multiplier", 1.0)

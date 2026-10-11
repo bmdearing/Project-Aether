@@ -152,8 +152,12 @@ func refresh() -> void:
 	for b in 3:
 		var r := FigmentMods.band_range(b)
 		bands.append("%s (T%d-%d): %d" % [FigmentMods.BAND_NAMES[b], r.x, r.y, FigmentProgress.completed_in_band(b)])
-	_summary_label.text = "Highest tier completed: %d   Figments drop up to Tier %d\n%s\nEach style earns a point for its first clear in each band." % [
-		FigmentProgress.highest_tier_completed(), FigmentProgress.max_drop_tier(), "   ".join(bands)]
+	var stage := ""
+	if not FigmentProgress.levelling_complete():
+		stage = "Levelling: Depth %d of %d cleared. Clear Depth %d to open Tier 1 (Area Level %d).\n" % [
+			GameState.depth_cleared, AreaLevel.DEPTHS, AreaLevel.DEPTHS, AreaLevel.ENDGAME_BASE + 1]
+	_summary_label.text = "%sHighest tier completed: %d   Figments drop up to Tier %d\n%s\nEach style earns a point for its first clear in each band." % [
+		stage, FigmentProgress.highest_tier_completed(), FigmentProgress.max_drop_tier(), "   ".join(bands)]
 	_grid.queue_redraw()
 	_view.queue_redraw()
 	_refresh_milestones()
@@ -167,7 +171,7 @@ func _refresh_milestones() -> void:
 		var label := Label.new()
 		label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		label.custom_minimum_size.x = LEFT_WIDTH - 20.0
-		var need := ("Complete a Tier %d Figment" % int(m["tier"])) if m.has("tier") else ("Earn %d points" % (FigmentProgress.total_possible() if int(m["total"]) < 0 else int(m["total"])))
+		var need := "Clear Depth %d" % AreaLevel.DEPTHS if m.has("depth") else (("Complete a Tier %d Figment" % int(m["tier"])) if m.has("tier") else ("Earn %d points" % (FigmentProgress.total_possible() if int(m["total"]) < 0 else int(m["total"]))))
 		label.text = "%s\n%s" % [m["title"], m["text"]] if reached else "???\n%s" % need
 		label.add_theme_color_override("font_color", AetherStyle.TEXT if reached else AetherStyle.TEXT_DIM)
 		_milestones.add_child(label)

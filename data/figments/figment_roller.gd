@@ -1,6 +1,6 @@
 extends RefCounted
 class_name FigmentRoller
-## Rolls a fresh FigmentItem - either a flat request (roll(), the Reality
+## Rolls a fresh FigmentItem - a levelling Depth (roll_depth()), a flat Tier (roll(), the Reality
 ## Engine's always-available free Tier 1 offer) or a drop-scaled one
 ## (roll_for_drop(), used by Enemy.gd's loot table and chests). Mods come
 ## from FigmentMods' pools (the tier's band decides which pools open);
@@ -26,15 +26,42 @@ static func roll(tier: int) -> FigmentItem:
 	_finish(figment)
 	return figment
 
-## Lands near power_level (the killing Map's own tier, or player level in the
-## Hub) with a chance to roll a tier higher or lower, capped one tier above
-## the highest tier completed (FigmentProgress). The Figment Tree adds a
-## chance to roll one more tier up.
-static func roll_for_drop(power_level: int) -> FigmentItem:
-	var tier: int = power_level + randi_range(-1, 1)
-	if randf() * 100.0 < FigmentTree.effect("figment_tier_up"):
-		tier += 1
-	return roll(clampi(tier, 1, FigmentProgress.max_drop_tier()))
+## A levelling-stage Figment (FigmentItem.depth). Low Depths roll no mods;
+## from DEPTH_MODS_FROM on, sometimes one Pool I mod. No tree points.
+const DEPTH_MODS_FROM := 8
+
+static func roll_depth(depth: int) -> FigmentItem:
+	var figment := FigmentItem.new()
+	figment.depth = clampi(depth, 1, AreaLevel.DEPTHS)
+	figment.item_id = "rolled_figment_d%d_%d" % [figment.depth, randi()]
+	figment.tileset_id = roll_style()
+	var style := MapTileset.load_style(figment.tileset_id)
+	figment.display_name = "Shallow %s Figment" % style.display_name if style else "Depth %d Figment" % figment.depth
+	figment.flavor_text = "A memory near the surface. The Engine holds it easily."
+	if figment.depth >= DEPTH_MODS_FROM and randf() < 0.5:
+		var ids := FigmentMods.ids_for_tier(1)
+		_set_mod(figment, ids[randi() % ids.size()])
+	_finish(figment)
+	if figment.affixes.is_empty():
+		figment.rarity = Constants.ItemRarity.COMMON
+	return figment
+
+## A Figment dropped in the current area: near its Depth or Tier (one
+## lower to one higher, plus the tree's tier-up chance), capped one step past
+## the deepest Depth / highest Tier cleared. The last Depths drop Tier 1
+## once the levelling stage is done. Outside a Figment: Depth 1, or Tier 1
+## after levelling.
+static func roll_for_drop(_unused_power_level: int = -1) -> FigmentItem:
+	var source := GameState.active_map
+	var step := randi_range(-1, 1) + (1 if randf() * 100.0 < FigmentTree.effect("figment_tier_up") else 0)
+	if source and source.is_levelling():
+		var depth := source.depth + step
+		if depth > AreaLevel.DEPTHS and FigmentProgress.levelling_complete():
+			return roll(1)
+		return roll_depth(clampi(depth, 1, FigmentProgress.max_drop_depth()))
+	if source:
+		return roll(clampi(source.tier + step, 1, FigmentProgress.max_drop_tier()))
+	return roll(1) if FigmentProgress.levelling_complete() else roll_depth(1)
 
 ## A MapTileset style id, weighted by the tree's per-family weights.
 static func roll_style() -> String:

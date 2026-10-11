@@ -584,7 +584,7 @@ func _use_stone(id: StringName, target: Resource) -> Dictionary:
 		"shard_of_tharsis":
 			if not target is Item:
 				return {"success": false, "message": "The Shard only corrupts gear."}
-			var power_level: int = GameState.active_map.tier if GameState.active_map else GameState.player_level
+			var power_level: int = AreaLevel.current() if AreaLevel.current() > 0 else GameState.player_level
 			return CraftingSystem.corrupt(target, power_level)
 	return {"success": false, "message": "That can't be used here."}
 

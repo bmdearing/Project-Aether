@@ -10,6 +10,7 @@ class_name FigmentProgress
 ## placeholder until it's written.
 
 const MILESTONES := [
+	{"depth": AreaLevel.DEPTHS, "title": "Out of the Shallows", "text": "The last Depth is behind you; the Engine opens its Tier 1 Figments. [Story placeholder]"},
 	{"total": 1, "title": "The First Figment", "text": "The Reality Engine holds its first rebuilt memory. Whose it is, it won't say."},
 	{"total": 8, "title": "Echoes", "text": "The Figments begin to agree with each other. [Story placeholder]"},
 	{"tier": FigmentMods.BAND_SIZE + 1, "title": "Deeper Memory", "text": "A Mid-band Figment completed: the memories grow older and stranger. [Story placeholder]"},
@@ -19,6 +20,24 @@ const MILESTONES := [
 	{"tier": FigmentMods.MAX_TIER, "title": "The Last Tier", "text": "A Tier 21 Figment completed. [Story placeholder]"},
 	{"total": -1, "title": "Whole", "text": "Every Figment rebuilt in every band. The final encounter waits here. [Final boss to be designed]"},
 ]
+
+## ---- Levelling stage (Depths) ------------------------------------------
+
+## Done with the levelling stage: every Depth cleared, or the Campaign
+## (which replaces it) chosen.
+static func levelling_complete() -> bool:
+	return GameState.game_mode == GameState.GameMode.CAMPAIGN or GameState.depth_cleared >= AreaLevel.DEPTHS
+
+static func record_depth(depth: int) -> bool:
+	var first := depth > GameState.depth_cleared
+	GameState.depth_cleared = maxi(GameState.depth_cleared, clampi(depth, 0, AreaLevel.DEPTHS))
+	return first
+
+## Deepest Depth a dropped (or free) levelling Figment can be.
+static func max_drop_depth() -> int:
+	return clampi(GameState.depth_cleared + 1, 1, AreaLevel.DEPTHS)
+
+## ---- Endgame (Tiers) -------------------------------------------------------
 
 static func key(style_id: String, tier: int) -> String:
 	return "%s:%d" % [style_id, tier]
@@ -93,6 +112,8 @@ static func points_available() -> int:
 	return points_earned() - points_spent()
 
 static func milestone_reached(m: Dictionary) -> bool:
+	if m.has("depth"):
+		return levelling_complete()
 	if m.has("tier"):
 		return highest_tier_completed() >= int(m["tier"])
 	var need := int(m["total"])

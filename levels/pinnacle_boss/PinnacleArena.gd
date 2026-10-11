@@ -94,6 +94,8 @@ void fragment() {
 
 func _ready() -> void:
 	GameState.initialize_standalone()
+	# Area Level 90 (AreaLevel.PINNACLE) for everything spawned here.
+	GameState.in_pinnacle = true
 	child_entered_tree.connect(_on_child_entered)
 	_boss_id = _take_boss_id()
 	_build_environment()
@@ -432,3 +434,6 @@ static func band_midpoint(angle: float) -> Vector3:
 	var b := dir.dot(centre)
 	var inner := b + sqrt(b * b - centre.length_squared() + CUT_RADIUS * CUT_RADIUS)
 	return dir * (inner + OUTER_RADIUS) * 0.5
+
+func _exit_tree() -> void:
+	GameState.in_pinnacle = false

@@ -50,6 +50,7 @@ func save_game() -> void:
 		"pinnacle_clears": GameState.pinnacle_clears,
 		"figment_completions": GameState.figment_completions,
 		"figment_tree_nodes": GameState.figment_tree_unlocked_nodes,
+		"depth_cleared": GameState.depth_cleared,
 	}
 	_write_atomic(JSON.stringify(data))
 
@@ -161,6 +162,7 @@ func load_game() -> void:
 	if clears is Dictionary:
 		for boss_id in clears:
 			GameState.pinnacle_clears[str(boss_id)] = int(clears[boss_id])
+	GameState.depth_cleared = int(parsed.get("depth_cleared", 0))
 	GameState.figment_completions = {}
 	var completions: Variant = parsed.get("figment_completions", {})
 	if completions is Dictionary:

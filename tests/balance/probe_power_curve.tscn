@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/balance/probe_power_curve.gd" id="1"]
+
+[node name="ProbePowerCurve" type="Node"]
+script = ExtResource("1")

@@ -7,11 +7,11 @@ class_name FigmentBoss
 ## a second phase at half health. Its death fires EventBus.figment_completed
 ## (Figment Tree points) and drops one Maw Fragment (Pinnacle).
 ##
-## Stats are set directly rather than from a definition: a definition's level
-## curve would replace this health on every Map (see _apply_map_modifiers()).
+## Stats are set directly rather than from a definition: level-1 values,
+## scaled to the Area Level by the same curves as every monster (AreaLevel).
 
 const BOSS_HEALTH := 700.0
-const BOSS_HEALTH_GROWTH_PER_TIER := 0.35
+const RANGED_DAMAGE := 30.0
 const BOSS_XP_REWARD := 250.0
 const BOSS_GOLD_REWARD := 120
 const PHASE_TWO_AT := 0.5
@@ -78,15 +78,15 @@ func _ready() -> void:
 	display_name = profile["name"]
 	move_speed = profile["move_speed"]
 	stop_distance = profile["stop_distance"]
-	var tier: int = GameState.active_map.tier if GameState.active_map else 1
-	health.max_health = BOSS_HEALTH * (1.0 + BOSS_HEALTH_GROWTH_PER_TIER * (tier - 1)) * (1.0 + _boss_mod("boss_life"))
+	health.max_health = BOSS_HEALTH * AreaLevel.health_scale(level) * (1.0 + _boss_mod("boss_life"))
 	health.current_health = health.max_health
 	var reward_mult := 1.0 + FigmentTree.effect("boss_reward") / 100.0
 	xp_reward = BOSS_XP_REWARD * reward_mult
-	gold_reward = roundi(BOSS_GOLD_REWARD * reward_mult)
+	gold_reward = roundi(BOSS_GOLD_REWARD * reward_mult * AreaLevel.gold_scale(level))
 	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
 	if melee:
 		melee.damage_type = profile["damage_type"]
+		melee.damage_amount *= AreaLevel.damage_scale(level)  # the scene's value is level 1
 	if profile.get("ranged", false):
 		_add_ranged_attack(profile["damage_type"])
 	_install_model(definition_res.model_scene, definition_res.animation_set, definition_res.scale_modifier * profile["scale"], definition_res.model_yaw_offset)
@@ -99,7 +99,7 @@ func _add_ranged_attack(damage_type: int) -> void:
 	ranged.min_range = 3.0
 	ranged.windup_duration = 0.9
 	ranged.cooldown_duration = 2.2
-	ranged.damage_amount = 30.0
+	ranged.damage_amount = RANGED_DAMAGE * AreaLevel.damage_scale(level)
 	ranged.damage_type = damage_type
 	ranged.projectile_speed = 16.0
 	add_child(ranged)

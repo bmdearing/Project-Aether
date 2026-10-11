@@ -32,6 +32,7 @@ func _run() -> void:
 	GameState.game_started = false
 	# No mods: Pack Size and the other Figment mods would skew pack checks.
 	var figment := FigmentItem.new()
+	figment.depth = 1  # Area Level 1: level-1 monsters against the level-1 test player
 	figment.tileset_id = "dungeon_cellblock"
 	GameState.active_map = figment
 	_map = load(MAP).instantiate()

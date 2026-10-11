@@ -1,7 +1,8 @@
 extends Node3D
 class_name RealityEngine
 ## The Reality Engine (map device). Interacting lists every carried
-## or stashed Figment (via ShopScreen) plus an always-free Tier 1 run. Choosing one
+## or stashed Figment (via ShopScreen) plus a free run (the next Depth while
+## levelling, Tier 1 after). Choosing one
 ## consumes it and loads GameState.MAP_SCENE with its modifiers. A full set
 ## of Maw Fragments opens a Pinnacle boss instead (Pinnacle.enter()).
 
@@ -40,10 +41,17 @@ func _open_selection() -> void:
 	for figment in GameState.stash.get_figments():
 		entries.append(_entry_for(figment, true))
 	entries.append_array(_pinnacle_entries())
+	# The free run: the next uncleared Depth while levelling, Tier 1 after.
+	var free_label := "Enter a Free Tier %d Figment (Area Level %d)" % [FREE_TIER, AreaLevel.ENDGAME_BASE + FREE_TIER]
+	var free_roll := func(): return FigmentRoller.roll(FREE_TIER)
+	if not FigmentProgress.levelling_complete():
+		var depth := FigmentProgress.max_drop_depth()
+		free_label = "Enter a Free Depth %d Figment (Area Level %d)" % [depth, depth * AreaLevel.LEVELS_PER_DEPTH - (AreaLevel.LEVELS_PER_DEPTH - 1)]
+		free_roll = func(): return FigmentRoller.roll_depth(depth)
 	_get_shop_screen().open_with("Reality Engine", entries, {
-		"label": "Enter a Free Tier %d Figment" % FREE_TIER,
+		"label": free_label,
 		"cost": 0,
-		"on_action": func(): _enter(FigmentRoller.roll(FREE_TIER)),
+		"on_action": func(): _enter(free_roll.call()),
 	})
 
 ## One entry per Pinnacle boss; each needs a full set of Maw Fragments.
@@ -65,8 +73,7 @@ func _pinnacle_entries() -> Array:
 
 func _entry_for(figment: FigmentItem, in_stash: bool = false) -> Dictionary:
 	return {
-		"label": "T%d %s (%s, %d mods)%s%s" % [figment.tier, figment.display_name, FigmentMods.band_name(figment.tier), figment.affixes.size(),
-			"" if FigmentProgress.is_band_completed(figment.tileset_id, figment.band()) else " - New (+1 point)", " - Stash" if in_stash else ""],
+		"label": _label_for(figment) + (" - Stash" if in_stash else ""),
 		"cost": 0,
 		"button_label": "Enter",
 		"color": Constants.ITEM_RARITY_COLOR.get(figment.rarity, Color.WHITE),
@@ -99,3 +106,9 @@ func _on_body_exited(body: Node3D) -> void:
 	if body is Player:
 		_player_in_range = false
 		prompt_label.visible = false
+
+func _label_for(figment: FigmentItem) -> String:
+	if figment.is_levelling():
+		return "Depth %d %s (Area Level %d, %d mods)" % [figment.depth, figment.display_name, figment.area_level(), figment.affixes.size()]
+	return "T%d %s (Area Level %d, %s, %d mods)%s" % [figment.tier, figment.display_name, figment.area_level(), FigmentMods.band_name(figment.tier),
+		figment.affixes.size(), "" if FigmentProgress.is_band_completed(figment.tileset_id, figment.band()) else " - New (+1 point)"]

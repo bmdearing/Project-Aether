@@ -162,7 +162,7 @@ func _roll_drop(rarity_mult: float) -> void:
 	_place(pickup)
 
 func _tier() -> int:
-	return GameState.active_map.tier if GameState.active_map else maxi(GameState.player_level, 1)
+	return AreaLevel.current() if AreaLevel.current() > 0 else maxi(GameState.player_level, 1)
 
 ## Drops a pickup on the floor in a ring in front of the chest.
 func _place(pickup: Node3D) -> void:

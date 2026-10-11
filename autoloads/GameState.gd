@@ -104,6 +104,10 @@ var booming_blade_on: bool = false
 ## First clears, "style_id:tier" -> times completed (FigmentProgress). Each
 ## key is one Figment Tree point.
 var figment_completions: Dictionary = {}
+## Deepest levelling Depth cleared (Fragmented Reality; AreaLevel.DEPTHS ends it).
+var depth_cleared: int = 0
+## True while a Pinnacle arena is loaded (Area Level 90).
+var in_pinnacle: bool = false
 ## Allocated FigmentTreeNode.node_ids (the root is implicit).
 var figment_tree_unlocked_nodes: Array[String] = []
 
@@ -114,7 +118,11 @@ func _ready() -> void:
 	EventBus.enemy_died.connect(func(_enemy): kills += 1)
 
 func _on_figment_completed(figment: FigmentItem) -> void:
-	if figment:
+	if figment == null:
+		return
+	if figment.is_levelling():
+		FigmentProgress.record_depth(figment.depth)
+	else:
 		FigmentProgress.record(figment.tileset_id, figment.tier)
 
 ## Records a spell's web after a change, for saving.
@@ -178,6 +186,7 @@ func reset_to_defaults() -> void:
 	pinnacle_clears = {}
 	figment_completions = {}
 	figment_tree_unlocked_nodes = []
+	depth_cleared = 0
 	shield_on_rmb = true
 	stance_page = 0
 	portal_map_state = {}

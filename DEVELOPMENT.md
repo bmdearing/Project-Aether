@@ -345,7 +345,7 @@ ground they stood on and loses 15% of max Life.
 **Mob balance (v4.14)**: `Constants.MOB_BASE_HEALTH` light 30 / standard
 55 / heavy 110 / elite 280 / boss 1600 (a level-1 standard mob is ~4 hits
 from the starter Crude Greatsword); `MOB_BASE_DAMAGE` 5/9/15/24/45. The
-FigmentBoss has 700 Life (+35% per Figment tier) and hits for 40.
+FigmentBoss has 700 Life and hits for 40 at level 1, scaled by Area Level.
 
 All units chase the player (`chase_range`/`stop_distance`/
 `retreat_distance`), no pathfinding, and are gap-aware:
@@ -788,16 +788,20 @@ survivable only in the sigil two casts ahead; in phase 3 he lands and fights
 with parryable per-element combos. The Herald (`Xalatath`, `MawArena`) and
 Ataras (`SandArena`) are described in PATCH_NOTES v4.48, v4.69 and v4.70.
 
-**Enemies also scale deterministically off the Map's own `tier`**
-(`Enemy._apply_map_modifiers()`/`get_outgoing_damage_multiplier()`), on
-top of the Figment's own `enemy_health_multiplier`/`enemy_damage_multiplier`
-affixes. Those affixes are only a *probabilistic* bonus (`FigmentRoller`
-doesn't guarantee either one rolls onto a given Figment), so two Tier 5
-Figments could otherwise end up just as tough as two Tier 1 Figments by
-chance alone — tier itself now always makes enemies tougher, harder-
-hitting, and more rewarding (XP/Gold scale too). Invented growth curve
-(+15% health/+10% damage/+20% XP+Gold per tier above 1, up to Tier 21) — not doc-
-sourced, Section 24 defers Map/tier balance entirely.
+**Area Level** (`systems/figment_tree/AreaLevel.gd`, v4.75, user design):
+the one number a Figment's monsters, drops and XP follow; player level
+never feeds monster stats (it gates equipping and the XP gap). Depths 1-23
+(Fragmented Reality's levelling stage) are Area Level 1-67, Tier N is
+68 + N (69-89), Pinnacles are 90. Monster level = Area Level for every unit
+(flattened); health and damage compound per level (`HEALTH_GROWTH` 1.037,
+`DAMAGE_GROWTH` 1.021, tuned with `tests/balance/probe_power_curve`), with
+Figment mods, rarity and boss mods on top. Drops use Area Level + rank
+bonus as item level. XP: credited at the player's level times
+`xp_multiplier()` (zone 7 + 10% of level: below tapers to 0, above up to
++20%). The levelling stage: `FigmentItem.depth`, `FigmentRoller.roll_depth()`,
+`FigmentProgress.levelling_complete()`/`max_drop_depth()`,
+`GameState.depth_cleared`; the Reality Engine's free run is the next Depth
+until Depth 23 is cleared, then Tier 1. The Campaign skips the stage.
 
 **Enemy Rarity** (`entities/components/EnemyRarityComponent.gd`,
 `data/enemies/EnemyAffix.gd`, `data/enemies/affixes/`; Patch v3.9 plus user

@@ -7,6 +7,21 @@ there. Most recent first.
 
 ---
 
+## 2026-10-10 — v4.75: Area Level scaling and the levelling stage (user design)
+
+- **Area Level** (`AreaLevel`) is the one number a Figment's monsters, drops and XP follow. Player level never feeds monster stats; it only gates equipping gear and sets the XP gap, so a strong build can push content above its level.
+  - Fragmented Reality levels through **Depths 1-23** (Area Level 1-67, 3 per Depth). The endgame is shared with the future Campaign (which should exit at 68): **Tier N = Area Level 68 + N**, so T1-21 = 69-89. Pinnacle arenas are **90** (`GameState.in_pinnacle`).
+  - **Monster level = Area Level**, flattened across units (the user's choice): toughness differences come from archetype base stats and rarity. Outside an area, units keep their definition's own level.
+  - **Exponential curves** from the new `tests/balance/probe_power_curve` (typical rolled gear per level, gear only): typical melee DPS grows about 20x from level 1 to 89 (18 to 363) and Life about 1.65x (248 to 409). Health compounds 1.037 per level (24.6x at 89), which keeps time-to-kill near 3 s for a standard monster in every band. Damage compounds 1.021 per level (6.2x), which keeps an on-level standard hit near 6-7% of typical Life after Armour (whose formula weakens against bigger hits). The old per-tier multipliers (+10% damage, +20% XP/Gold, +2 mob levels per tier) are gone. Figment mods, rarity and boss mods still stack on top.
+  - **Drops:** item level = Area Level + rank bonus for gear, jewels, Lenses, chests and Shard corruption, so a T21 boss drops item level 94 (it was 26, which never reached the best bases or top affix tiers). Crystallized Aether: +1 per 4 Area Levels.
+  - **The Figment boss** scales its health, melee, ranged attack and Gold on the same curves (its damage never scaled before).
+  - **XP gap rule** (`AreaLevel.xp_multiplier`): the zone is 7 + 10% of your level. Monsters below you taper from 100% to 0% across the zone (at 50: nothing from 38 down). Monsters above give up to +20%, reached at the zone's edge (at 50: a level-62 monster). XP is credited at the player's level times that multiplier. Monster XP and Gold compound with level (1.165 and 1.02).
+- **Levelling stage** (Fragmented Reality only; the Campaign skips it): Depth Figments (`FigmentItem.depth`, "Shallow <Style> Figment") roll no mods below Depth 8 and sometimes one Pool I mod after, and give no tree points. The Reality Engine's free run is the next uncleared Depth until the stage ends, then Tier 1. Drops stay within one Depth of the map and never past the deepest cleared + 1. Clearing Depth 23 ends the stage: Depth 23 can then drop Tier 1, and the "Out of the Shallows" milestone unlocks. Empowering a Depth Figment takes it one Depth deeper. Cards, the Reality Engine and the loading screen show Depth/Tier and Area Level.
+- **Judgment calls to revisit:** the growth rates (from a gear-only probe; Fate Board, spells and crafting will push player power higher), XP growth 1.165 (kills per level rise about 10x from 1 to 89), Gold growth, 3 Area Levels per Depth, and Pinnacle bosses now at level 90 (they were level 10), so they are true endgame fights.
+- Tests: `tests/v475` (39 checks). `test_enemy_rarity` now runs at Depth 1, and `test_roster_ammo` checks the new curves.
+
+---
+
 ## 2026-10-10 — v4.74: Navmesh fix for every map, City follow-ups
 
 - **Navmesh never built on some maps (all layouts):** when the navigation bake finished within a frame or two of the map loading, the NavigationServer never built the region, so path queries came back empty and enemies fell back to walking straight at you. It showed up on Badlands, Downtown and Residence in a run of back-to-back maps. A bake that lands that early now waits until the region is 3 physics frames old before it's assigned (`GeneratedMap._on_navigation_baked`). Switching the region to synchronous builds did not help.

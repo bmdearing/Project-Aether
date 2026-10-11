@@ -17,6 +17,9 @@ class_name FigmentItem
 ## every pack (GeneratedMap._spawn_pack()).
 
 @export var tier: int = 1
+## Fragmented Reality's levelling stage: Depth 1-23 (AreaLevel.DEPTHS).
+## 0 = an endgame Figment, which uses `tier`.
+@export var depth: int = 0
 @export var enemy_damage_multiplier: float = 1.0
 @export var enemy_health_multiplier: float = 1.0
 @export var loot_quantity_multiplier: float = 1.0
@@ -25,6 +28,12 @@ class_name FigmentItem
 ## MapTileset style id (data/tilesets/styles/) the generated Map is built in;
 ## rolled at random. Empty = GeneratedMap picks one on entry.
 @export var tileset_id: String = ""
+
+func is_levelling() -> bool:
+	return depth > 0
+
+func area_level() -> int:
+	return AreaLevel.of_figment(self)
 
 func band() -> FigmentMods.Band:
 	return FigmentMods.band_of(tier)
