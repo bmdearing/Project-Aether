@@ -18,6 +18,17 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.84: Curse auras, curse limit, Curse Effect gear
+
+- **Hex Aura** (new ring-3 twist for Meager, Fracturing, Decompose and Elemental Fragility, after Hex Potency): the curse becomes an aura. Casting switches it on instantly (no targeting) and again switches it off for free. Every enemy within the spell's radius of you stays cursed at 25% more strength (fading a second after they leave), with a ring on the ground in the curse's colour. It drains 8% of maximum Mana per second.
+- **Death Shroud** is an aura with the same rules: its Pallid is now 1.75x strength (35% less damage dealt, up from 20%), and it drains 10% of maximum Mana per second.
+- **Drain:** base Mana regen is 5% of maximum per second, so on base regen a Death Shroud runs Mana down in about 20 s and a curse aura in about 33 s. Mana regen gear is what keeps them up. Mana cost reduction and the spell's Efficiency nodes lower the drain. When Mana can't pay, every aura switches off with the "Not enough mana" line. Several auras drain together.
+- **Curse limit:** an enemy holds one curse at a time (Linger counts). A new cast curse replaces the oldest. An aura's pulse only lands when there's room or it already holds that curse, so a cast curse isn't overwritten by an aura a moment later.
+- **New gear lines:** "+% increased Curse Effect" (helmet and amulet, about 8-18% across tiers) and "Enemies can have +1 additional Curse" (amulet only, item level 61+). Curse Effect also strengthens aura curses; Hex Potency's per-point bonus stays.
+- Spell cards show the aura strength, the drain (as a share and per second for your Mana), the curse limit with your gear, and Death Shroud's stronger Pallid.
+
+---
+
 ## 2026-10-11 — v4.83: Item-level Edicts, a new top tier, Crafting Bench, Herald spin slash
 
 - **New top gear tier:** gear modifiers have 6 tiers now. The old Tier 1 is Tier 2, and a new Tier 1 sits above it at a quarter more (one decay step), opening at item level 83 (item levels already reach the high 80s in the endgame and 90+ from bosses). The ladder is re-gated to 83 / 72 / 61 / 40 / 21 / 1, so the old best tier opens at 72 instead of 80 and the old Tier 2 at 61 instead of 60. % Weapon / Spell Damage (191-225%), flat weapon damage (35-41) and the hybrid line (86-101%) got an 83 row on their own tables; small whole-number lines (extra projectiles, skill levels, the new block lines) didn't. Doc-sourced weapon modifiers keep their own top level as Tier 2, with the new Tier 1 at 83. The new tier is the rarest roll (weight 2, was 4 for the old Tier 1). Jewels and Slates keep their own ladders. Corrupted special modifiers scale off the best tier, so they're a quarter stronger too.

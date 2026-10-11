@@ -47,6 +47,7 @@ func _run() -> void:
 	await _test_linger()
 	await _test_pale_thread()
 	await _test_death_shroud()
+	await _test_hex_aura()
 	await _test_no_target_and_mana()
 	_test_effect_text()
 	print("pale curse tests: %d checks, %d failures" % [_checks, _failures])
@@ -108,6 +109,7 @@ func _test_curses() -> void:
 	var e := _dummy(START + _forward() * 4.0)
 	await _frames(3)
 	var cast := _player.ability_cast
+	_player.stat_sheet.misc_bonus["additional_curses"] = 3.0  # room for all four
 	for id in ["meager", "fracturing", "decompose", "elemental_fragility"]:
 		cast._cast_resolved(_spell(id), e.global_position)
 	var s := e.status_effects
@@ -120,6 +122,21 @@ func _test_curses() -> void:
 	var before := _lost(e)
 	e.take_damage(100.0, Constants.DamageType.ENTROPIC, true)
 	_check(_lost(e) - before > 110.0, "Decompose: Entropic hits deal more (%.1f)" % (_lost(e) - before))
+	# The curse limit: one by default, a new curse pushes out the oldest.
+	_player.stat_sheet.misc_bonus.erase("additional_curses")
+	var f := _dummy(START + _forward() * 4.0 + Vector3(3, 0, 0))
+	await _frames(2)
+	cast._cast_resolved(_spell("meager"), f.global_position)
+	cast._cast_resolved(_spell("fracturing"), f.global_position)
+	_check(f.status_effects.get_curses() == ["fracturing"], "one curse at a time: Fracturing replaced Meager (%s)" % [f.status_effects.get_curses()])
+	_player.stat_sheet.misc_bonus["additional_curses"] = 1.0
+	cast._cast_resolved(_spell("decompose"), f.global_position)
+	_check(f.status_effects.get_curses() == ["fracturing", "decompose"], "+1 additional Curse holds two")
+	_player.stat_sheet.misc_bonus["curse_effect"] = 50.0
+	cast._cast_resolved(_spell("meager"), f.global_position)
+	_check(absf(f.status_effects.get_magnitude("meager") - 1.5) < 0.01 and f.status_effects.get_curses() == ["decompose", "meager"], "Curse Effect strengthens a curse, which pushes out the oldest")
+	_player.stat_sheet.misc_bonus.erase("curse_effect")
+	_player.stat_sheet.misc_bonus.erase("additional_curses")
 
 func _test_linger() -> void:
 	await _reset()
@@ -166,6 +183,33 @@ func _test_death_shroud() -> void:
 	var mana_before := _player.mana.current_mana
 	await _cast_key(1, 0.1)
 	_check(not GameState.death_shroud_on and _player.mana.current_mana >= mana_before, "casting again turns it off for free")
+	_check(absf(inside.status_effects.get_magnitude("pallid") - PlayerAbilityCast.DEATH_SHROUD_STRENGTH) < 0.01, "Death Shroud's Pallid is the strong one (35% less damage)")
+	# Drain: Mana falls while it's on, faster than regen, and it ends at 0.
+	_player.mana.current_mana = _player.mana.max_mana
+	await _cast_key(1, 0.2)
+	var at_start := _player.mana.current_mana
+	await _seconds(1.0)
+	_check(_player.mana.current_mana < at_start, "Death Shroud drains Mana while on (%.1f -> %.1f)" % [at_start, _player.mana.current_mana])
+	_player.mana.current_mana = 0.0
+	await _frames(3)
+	_check(not GameState.death_shroud_on and _cast_failures.has("Not enough Mana"), "it switches off when Mana runs dry")
+
+func _test_hex_aura() -> void:
+	await _reset()
+	var near := _dummy(START + _forward() * 3.0)
+	var hex := _spell("fracturing")
+	hex.web_points = {"hex_potency": 1, "hex_aura": 1}
+	_player.ability_loadout.equip(hex, 0)
+	await _frames(3)
+	await _cast_key(1, 0.6)
+	_check(GameState.hex_auras.has("fracturing"), "Hex Aura: casting switches the curse on as an aura (no targeting)")
+	_check(near.status_effects.has_effect("fracturing") and near.status_effects.get_magnitude("fracturing") > PlayerAbilityCast.HEX_AURA_STRENGTH, "the aura curses enemies near you, stronger than a cast (%.2f)" % near.status_effects.get_magnitude("fracturing"))
+	var at_start := _player.mana.current_mana
+	await _seconds(1.0)
+	_check(_player.mana.current_mana < at_start, "the curse aura drains Mana")
+	await _cast_key(1, 0.1)
+	_check(not GameState.hex_auras.has("fracturing"), "casting again switches it off")
+	hex.web_points = {}
 
 func _test_no_target_and_mana() -> void:
 	await _reset()

@@ -78,6 +78,7 @@ const BLOCK_PARENT := {"precision": "potency", "affliction": "potency", "legion"
 const CURSE_TWISTS := [
 	{"id": "hex_potency", "name": "Hex Potency", "description": "+8% curse strength per point.", "ring": 2, "max_points": 3, "effect": CURSE_STRENGTH, "per_point": 8.0},
 	{"id": "lingering_hex", "name": "Lingering Hex", "description": "The curse lasts 50% longer.", "ring": 2},
+	{"id": "hex_aura", "name": "Hex Aura", "description": "The curse becomes an aura: cast it to switch it on, and every enemy near you stays cursed, 25% stronger, while it drains 8% of your maximum Mana per second. Cast again to switch it off; it ends when your Mana runs dry.", "ring": 3, "requires": ["hex_potency"]},
 ]
 
 const TWISTS := {

@@ -25,6 +25,11 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 				"elemental_fragility":
 					out.append(_resistance_line("Fire, Cold and Lightning", StatusEffectComponent.ELEMENTAL_FRAGILITY_RESISTANCE * s))
 			out.append(_strength_line(ability, sheet, effect))
+			if ability.has_twist("hex_aura"):
+				out.append("Hex Aura: cast to switch on; enemies within %sm stay cursed at %s strength (+%s)" % [_num(ability.get_radius(sheet)), _pct(s * PlayerAbilityCast.HEX_AURA_STRENGTH), _pct(PlayerAbilityCast.HEX_AURA_STRENGTH - 1.0)])
+				out.append(_drain_line(ability, sheet, player))
+			var limit := StatusEffectComponent.CURSE_LIMIT + (maxi(int(sheet.get_misc_bonus("additional_curses")), 0) if sheet else 0)
+			out.append("Enemies hold %d curse%s at a time; a new curse replaces the oldest" % [limit, "" if limit == 1 else "s"])
 		"linger":
 			var r := ability.predict_damage_range(sheet) if sheet else ability.get_base_damage_range()
 			var secs := PlayerAbilityCast.LINGER_DURATION * duration
@@ -43,10 +48,11 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 			out.append(ward_line)
 			out.append("Breaks if the enemy gets more than %sm away" % _num(PlayerAbilityCast.pale_thread_range(ability)))
 		"death_shroud":
-			var s := _effectiveness(sheet, "pallid")
-			out.append("Toggle: cast to wear it, cast again to take it off (free)")
+			var s := _effectiveness(sheet, "pallid") * PlayerAbilityCast.DEATH_SHROUD_STRENGTH
+			out.append("Aura: cast to wear it, cast again to take it off (free)")
 			out.append("Enemies within %sm are Pallid: they deal %s less damage" % [_num(ability.get_radius(sheet)), _pct(minf(StatusEffectComponent.PALLID_DAMAGE_REDUCTION * s, 0.9))])
-			out.append("Pallid fades %ss after they leave" % _num(PlayerAbilityCast.DEATH_SHROUD_LINGER))
+			out.append(_drain_line(ability, sheet, player))
+			out.append("Pallid fades %ss after they leave" % _num(PlayerAbilityCast.AURA_LINGER))
 			if ability.has_twist("grave_chill"):
 				out.append("Grave Chill: they're also %s slower" % _pct(StatusEffectComponent.SLOW_MOVE_SLOW_PERCENT))
 		"battle_cry":
@@ -102,6 +108,14 @@ static func status_text(effect_id: String, sheet: StatSheet) -> String:
 			return "Slow: %s slower" % _pct(StatusEffectComponent.SLOW_MOVE_SLOW_PERCENT)
 	return ""
 
+## "Drains 6% of your maximum Mana per second (6/s)"; switches off when Mana runs dry.
+static func _drain_line(ability: Ability, sheet: StatSheet, player: Player) -> String:
+	var share := PlayerAbilityCast.DEATH_SHROUD_DRAIN if ability.ability_id == "death_shroud" else PlayerAbilityCast.HEX_AURA_DRAIN
+	var text := "Drains %s of your maximum Mana per second" % _pct(share * ability.get_mana_cost_multiplier(sheet))
+	if player and player.mana:
+		text += " (%s/s)" % _num(PlayerAbilityCast.aura_drain_per_second(ability, player.mana.max_mana, sheet))
+	return text + " while on; it switches off when your Mana runs dry"
+
 ## StatusEffectComponent.effect_multiplier() for a stat sheet instead of a Player.
 static func _effectiveness(sheet: StatSheet, effect_id: String) -> float:
 	if sheet == null:
@@ -111,6 +125,8 @@ static func _effectiveness(sheet: StatSheet, effect_id: String) -> float:
 		percent += sheet.get_misc_bonus("ailment_effectiveness")
 	if StatusEffectComponent.DEBUFF_IDS.has(effect_id):
 		percent += sheet.get_misc_bonus("debuff_effectiveness")
+	if StatusEffectComponent.CURSE_IDS.has(effect_id):
+		percent += sheet.get_misc_bonus("curse_effect")
 	return 1.0 + percent / 100.0
 
 static func _dot_bonus(sheet: StatSheet, effect_id: String) -> float:
@@ -132,7 +148,7 @@ static func _strength_line(ability: Ability, sheet: StatSheet, effect_id: String
 	if web > 0.0:
 		text += ", +%s%% from Hex Potency" % _num(web)
 	if gear > 0.0:
-		text += ", %s from Debuff Effectiveness" % ("+" + _pct(gear))
+		text += ", %s from Curse Effect and Debuff Effectiveness" % ("+" + _pct(gear))
 	return text
 
 static func _pct(fraction: float) -> String:

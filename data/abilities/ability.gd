@@ -171,8 +171,13 @@ func get_final_cooldown(action_speed_multiplier: float, stat_sheet: StatSheet = 
 const MANA_GROWTH_PER_LEVEL := 0.04
 
 func get_mana_cost(stat_sheet: StatSheet = null) -> float:
+	return resource_cost * (1.0 + MANA_GROWTH_PER_LEVEL * maxi(level - 1, 0)) * get_mana_cost_multiplier(stat_sheet)
+
+## Gear's mana cost reduction and the web's Efficiency, without the level
+## growth (also scales aura drains).
+func get_mana_cost_multiplier(stat_sheet: StatSheet = null) -> float:
 	var reduction := stat_sheet.get_misc_bonus("mana_cost_reduction") / 100.0 if stat_sheet else 0.0
-	return resource_cost * (1.0 + MANA_GROWTH_PER_LEVEL * maxi(level - 1, 0)) * (1.0 - clampf(reduction, -1.0, 0.75)) * (1.0 - clampf(web_value(SkillWeb.MANA_COST) / 100.0, 0.0, 0.6))  # negative = costs more (Crown of the Ninth Bell)
+	return (1.0 - clampf(reduction, -1.0, 0.75)) * (1.0 - clampf(web_value(SkillWeb.MANA_COST) / 100.0, 0.0, 0.6))  # negative = costs more (Crown of the Ninth Bell)
 
 func get_radius(stat_sheet: StatSheet = null) -> float:
 	if not has_tag(TAG_AREA):

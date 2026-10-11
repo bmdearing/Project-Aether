@@ -150,7 +150,7 @@ func _physics_process(delta: float) -> void:
 					if _player.mana.current_mana <= 0.0:
 						_flame_jets_remaining = 0.0
 
-	_tick_death_shroud(delta)
+	_tick_auras(delta)
 	_tick_pale_thread(delta)
 
 	for i in range(AbilityLoadoutComponent.SLOT_COUNT):
@@ -183,7 +183,7 @@ func _on_ability_pressed(slot_index: int) -> void:
 	var ability: Ability = _slot_ability(slot_index, from_page)
 	if ability == null:
 		return
-	if ability.is_ground_targeted:
+	if ability.is_ground_targeted and not is_hex_aura(ability):
 		if _targeting_slot != -1:
 			return
 		_targeting_slot = slot_index
@@ -209,6 +209,10 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 		return
 	if ability.ability_id == "death_shroud" and GameState.death_shroud_on:
 		GameState.death_shroud_on = false
+		_flash_ring(_player.global_position, 1.4, ability, Color(0.6, 0.6, 0.7))
+		return
+	if is_hex_aura(ability) and GameState.hex_auras.has(ability.ability_id):
+		GameState.hex_auras.erase(ability.ability_id)
 		_flash_ring(_player.global_position, 1.4, ability, Color(0.6, 0.6, 0.7))
 		return
 	if TARGETED_ABILITY_IDS.has(ability.ability_id) and _crosshair_enemy() == null:
@@ -327,6 +331,13 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		_summon_wraith(ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
+	if is_hex_aura(ability):
+		if not GameState.hex_auras.has(ability.ability_id):
+			GameState.hex_auras.append(ability.ability_id)
+		_aura_ticker = 0.0
+		_flash_ring(_player.global_position, ability.get_radius(_player.stat_sheet), ability)
+		EventBus.ability_cast.emit(_player, ability)
+		return
 	if CURSE_EFFECTS.has(ability.ability_id):
 		_cast_curse(ability, cast_position)
 		EventBus.ability_cast.emit(_player, ability)
@@ -341,7 +352,7 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		return
 	if ability.ability_id == "death_shroud":
 		GameState.death_shroud_on = true
-		_shroud_ticker = 0.0
+		_aura_ticker = 0.0
 		_flash_ring(_player.global_position, ability.get_radius(_player.stat_sheet), ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
@@ -1528,53 +1539,108 @@ func _pale_flicker(from: Vector3, to: Vector3) -> void:
 		tween.tween_property((child as MeshInstance3D).material_override, "albedo_color:a", 0.0, 0.45)
 	tween.chain().tween_callback(beam.queue_free)
 
-## Death Shroud: while toggled on, enemies within its radius are kept Pallid;
-## it fades DEATH_SHROUD_LINGER after they leave.
-const DEATH_SHROUD_PULSE := 0.4
-const DEATH_SHROUD_LINGER := 1.0
-var _shroud_ticker: float = 0.0
-var _shroud_fx: MeshInstance3D
-var _shroud_fx_radius: float = 0.0
+## Auras: Death Shroud and curses with Hex Aura, switched on and off by
+## casting. While on, they pulse their effect over every enemy within the
+## spell's radius (it fades AURA_LINGER after they leave) and drain a share of
+## maximum Mana per second (more than base regen, 5%), scaled by mana cost
+## reduction. When Mana can't
+## pay, every aura switches off. The drain is what pays for their strength.
+const AURA_PULSE := 0.4
+const AURA_LINGER := 1.0
+## Death Shroud's Pallid at this strength: 35% less damage dealt.
+const DEATH_SHROUD_STRENGTH := 1.75
+const DEATH_SHROUD_DRAIN := 0.1
+## Curse auras: stronger than the cast curse, and each drains on its own.
+const HEX_AURA_STRENGTH := 1.25
+const HEX_AURA_DRAIN := 0.08
+var _aura_ticker: float = 0.0
+var _aura_rings: Dictionary = {}  # ability_id -> {"mesh": MeshInstance3D, "radius": float}
 
-func _tick_death_shroud(delta: float) -> void:
-	if not GameState.death_shroud_on:
-		if is_instance_valid(_shroud_fx):
-			_shroud_fx.queue_free()
+func is_hex_aura(ability: Ability) -> bool:
+	return ability != null and CURSE_EFFECTS.has(ability.ability_id) and ability.has_twist("hex_aura")
+
+## Abilities switched on as auras right now.
+func active_auras() -> Array[Ability]:
+	var result: Array[Ability] = []
+	if GameState.death_shroud_on:
+		var shroud := _resolve_ability_by_id("death_shroud")
+		if shroud:
+			result.append(shroud)
+	for id in GameState.hex_auras.duplicate():
+		var hex := _resolve_ability_by_id(id)
+		if hex and hex.has_twist("hex_aura"):
+			result.append(hex)
+		else:
+			GameState.hex_auras.erase(id)  # the twist was refunded
+	return result
+
+## Mana an aura drains per second for this player.
+static func aura_drain_per_second(ability: Ability, max_mana: float, stat_sheet: StatSheet) -> float:
+	var share := DEATH_SHROUD_DRAIN if ability.ability_id == "death_shroud" else HEX_AURA_DRAIN
+	return max_mana * share * ability.get_mana_cost_multiplier(stat_sheet)
+
+func _tick_auras(delta: float) -> void:
+	var auras := active_auras()
+	var ids := auras.map(func(a: Ability): return a.ability_id)
+	for id in _aura_rings.keys():
+		if not ids.has(id):
+			if is_instance_valid(_aura_rings[id]["mesh"]):
+				_aura_rings[id]["mesh"].queue_free()
+			_aura_rings.erase(id)
+	if auras.is_empty():
 		return
-	var ability := _resolve_ability_by_id("death_shroud")
-	if ability == null:
+	var drain := 0.0
+	for a in auras:
+		drain += aura_drain_per_second(a, _player.mana.max_mana, _player.stat_sheet) * delta
+	if _player.mana.current_mana < drain:
+		GameState.death_shroud_on = false
+		GameState.hex_auras.clear()
+		EventBus.ability_cast_failed.emit(_player, auras[0], "Not enough Mana")
 		return
+	_player.mana.spend(drain)
+	for a in auras:
+		_update_aura_ring(a)
+	_aura_ticker -= delta
+	if _aura_ticker > 0.0:
+		return
+	_aura_ticker = AURA_PULSE
+	for a in auras:
+		var radius := a.get_radius(_player.stat_sheet)
+		for enemy in _enemies_near(_player.global_position, radius):
+			if a.ability_id == "death_shroud":
+				enemy.status_effects.apply_curse("pallid", _player, AURA_PULSE + AURA_LINGER, DEATH_SHROUD_STRENGTH)
+				if a.has_twist("grave_chill"):
+					enemy.status_effects.apply_effect("slow", _player)
+			else:
+				# A cast curse already holding the slot wins over the aura's pulse.
+				enemy.status_effects.apply_curse(CURSE_EFFECTS[a.ability_id], _player, AURA_PULSE + AURA_LINGER, curse_strength(a, _player.stat_sheet) * HEX_AURA_STRENGTH, false)
+
+## A faint ring on the ground at an aura's edge, in the spell's colour,
+## following the player.
+func _update_aura_ring(ability: Ability) -> void:
 	var radius := ability.get_radius(_player.stat_sheet)
-	_update_shroud_fx(radius)
-	_shroud_ticker -= delta
-	if _shroud_ticker > 0.0:
-		return
-	_shroud_ticker = DEATH_SHROUD_PULSE
-	for enemy in _enemies_near(_player.global_position, radius):
-		enemy.status_effects.apply_curse("pallid", _player, DEATH_SHROUD_PULSE + DEATH_SHROUD_LINGER, 1.0)
-		if ability.has_twist("grave_chill"):
-			enemy.status_effects.apply_effect("slow", _player)
-
-## A faint pale ring on the ground at the shroud's edge, following the player.
-func _update_shroud_fx(radius: float) -> void:
-	if not is_instance_valid(_shroud_fx):
-		_shroud_fx = MeshInstance3D.new()
+	var entry: Dictionary = _aura_rings.get(ability.ability_id, {})
+	var mesh: MeshInstance3D = entry.get("mesh")
+	if not is_instance_valid(mesh):
+		mesh = MeshInstance3D.new()
 		var mat := StandardMaterial3D.new()
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		mat.albedo_color = Color(PALE_COLOR, 0.35)
-		_shroud_fx.material_override = mat
-		_shroud_fx.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		_player.add_child(_shroud_fx)
-		_shroud_fx_radius = 0.0
-	if not is_equal_approx(radius, _shroud_fx_radius):
-		_shroud_fx_radius = radius
+		var colour := PALE_COLOR if ability.ability_id == "death_shroud" else SpellArt.colour_of(ability)
+		mat.albedo_color = Color(colour, 0.35)
+		mesh.material_override = mat
+		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		_player.add_child(mesh)
+		entry = {"mesh": mesh, "radius": 0.0}
+		_aura_rings[ability.ability_id] = entry
+	if not is_equal_approx(radius, entry["radius"]):
+		entry["radius"] = radius
 		var torus := TorusMesh.new()
 		torus.inner_radius = radius - 0.08
 		torus.outer_radius = radius
 		torus.rings = 64
 		torus.ring_segments = 4
-		_shroud_fx.mesh = torus
+		mesh.mesh = torus
 	# Flat on the ground whatever way the player faces.
-	_shroud_fx.global_transform = Transform3D(Basis.from_scale(Vector3(1.0, 0.15, 1.0)), _player.global_position + Vector3.UP * 0.05)
+	mesh.global_transform = Transform3D(Basis.from_scale(Vector3(1.0, 0.15, 1.0)), _player.global_position + Vector3.UP * 0.05)

@@ -104,6 +104,8 @@ var owned_ability_ids: Array[String] = []
 var booming_blade_on: bool = false
 ## Death Shroud, the same kind of toggle.
 var death_shroud_on: bool = false
+## Curses switched on as auras (their Hex Aura twist), by ability id.
+var hex_auras: Array[String] = []
 
 ## First clears, "style_id:tier" -> times completed (FigmentProgress). Each
 ## key is one Figment Tree point.
@@ -177,6 +179,7 @@ func reset_to_defaults() -> void:
 	owned_ability_ids = []
 	booming_blade_on = false
 	death_shroud_on = false
+	hex_auras = []
 	_reset_all_ability_levels()
 	player_level = 1
 	player_xp = 0.0

@@ -231,6 +231,9 @@ const AFFIX_POOL := [
 	# chance (prefix), then scaled by the increased line (suffix).
 	{"stat_key": "block_chance_bonus", "tier1_min": 7.0, "tier1_max": 8.0, "desc": "+%d%% Chance to Block", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
 	{"stat_key": "increased_block_chance", "tier1_min": 85.0, "tier1_max": 95.0, "desc": "+%d%% increased Chance to Block", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
+	# Curses: stronger curses (helmet, amulet), and room for one more (amulet only).
+	{"stat_key": "curse_effect", "tier1_min": 10.0, "tier1_max": 14.0, "desc": "+%d%% increased Curse Effect", "applies_to": ["armor", "item"], "slots": [0, 9], "brand_tags": ["skills"]},
+	{"stat_key": "additional_curses", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "Enemies can have +%d additional Curse", "applies_to": ["item"], "slots": [9], "brand_tags": ["skills"]},
 	{"stat_key": "retaliate_on_block", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "Triggers Retaliation on Block", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
 
 	# Patch v4.0 Defensive Mod Pool
@@ -473,6 +476,8 @@ const LEVELLED_TIERS := {
 	"local_hybrid_weapon_damage": [[83, 86.0, 101.0], [80, 71.0, 85.0],[64, 59.0, 70.0], [48, 47.0, 58.0], [32, 35.0, 46.0], [16, 25.0, 34.0], [1, 15.0, 24.0]],
 	"local_additional_arrows": ADDITIONAL_PROJECTILE_TIERS,
 	"local_additional_spell_projectiles": ADDITIONAL_PROJECTILE_TIERS,
+	# One tier only, from item level 61.
+	"additional_curses": [[61, 1.0, 1.0]],
 	"block_chance_bonus": [[80, 7.0, 8.0], [56, 5.0, 6.0], [28, 3.0, 4.0], [1, 2.0, 2.0]],
 	"increased_block_chance": [[80, 85.0, 95.0], [64, 72.0, 84.0], [48, 60.0, 71.0], [32, 48.0, 59.0], [16, 38.0, 47.0], [1, 30.0, 37.0]],
 }

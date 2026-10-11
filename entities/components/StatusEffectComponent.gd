@@ -272,8 +272,39 @@ func apply_timed_effect(effect_id: String, duration: float) -> void:
 
 ## A curse at `strength` (1 = the base values above) times the source's
 ## effectiveness gear. Recasting refreshes it at the new strength.
-func apply_curse(effect_id: String, source: Node, duration: float, strength: float) -> void:
+## Curses: an enemy holds CURSE_LIMIT of them (+ the source's "additional
+## Curses"); a new one pushes out the oldest. evict = false (aura pulses)
+## only lands when there's room or it's already on.
+const CURSE_IDS := ["meager", "fracturing", "decompose", "elemental_fragility", "linger"]
+const CURSE_LIMIT := 1
+var _curse_order: Array[String] = []
+
+static func curse_limit(source: Node) -> int:
+	var player := source as Player
+	var extra := int(player.stat_sheet.get_misc_bonus("additional_curses")) if player and player.stat_sheet else 0
+	return CURSE_LIMIT + maxi(extra, 0)
+
+## False when the curse can't land (full and evict is off).
+func _make_room_for_curse(effect_id: String, source: Node, evict: bool) -> bool:
+	if not CURSE_IDS.has(effect_id) or has_effect(effect_id):
+		return true
+	_curse_order.assign(_curse_order.filter(func(id: String): return has_effect(id)))
+	var limit := curse_limit(source)
+	if _curse_order.size() >= limit and not evict:
+		return false
+	while _curse_order.size() >= limit:
+		_expire(_curse_order[0])
+	_curse_order.append(effect_id)
+	return true
+
+func get_curses() -> Array[String]:
+	_curse_order.assign(_curse_order.filter(func(id: String): return has_effect(id)))
+	return _curse_order.duplicate()
+
+func apply_curse(effect_id: String, source: Node, duration: float, strength: float, evict: bool = true) -> void:
 	if immune_to.has(effect_id):
+		return
+	if not _make_room_for_curse(effect_id, source, evict):
 		return
 	_magnitude[effect_id] = strength * effect_multiplier(source, effect_id)
 	_timers[effect_id] = maxf(_timers.get(effect_id, 0.0), duration)
@@ -282,6 +313,8 @@ func apply_curse(effect_id: String, source: Node, duration: float, strength: flo
 ## Linger: tick_damage Pale damage every LINGER_TICK_INTERVAL for duration.
 func apply_linger(source: Node, tick_damage: float, duration: float) -> void:
 	if immune_to.has("linger"):
+		return
+	if not _make_room_for_curse("linger", source, true):
 		return
 	_linger_source = source
 	# A weaker recast (or second trigger) never lowers the ticks.
@@ -507,6 +540,7 @@ func _ailment_damage_multiplier(source: Node, effect_id: String) -> float:
 
 func _expire(effect_id: String) -> void:
 	_timers.erase(effect_id)
+	_curse_order.erase(effect_id)
 	if effect_id == "armor_shred":
 		_armor_shred_stacks = 0
 	elif effect_id == "suppressed":
@@ -560,6 +594,8 @@ static func effect_multiplier(source: Node, effect_id: String) -> float:
 		percent += sheet.get_misc_bonus("ailment_effectiveness")
 	if DEBUFF_IDS.has(effect_id):
 		percent += sheet.get_misc_bonus("debuff_effectiveness")
+	if CURSE_IDS.has(effect_id):
+		percent += sheet.get_misc_bonus("curse_effect")
 	return 1.0 + percent / 100.0
 
 func get_magnitude(effect_id: String) -> float:
