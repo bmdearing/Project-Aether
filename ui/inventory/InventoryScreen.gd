@@ -123,20 +123,53 @@ func _ready() -> void:
 	side_panel.move_child(status_label, -1)
 	side_panel.move_child(hint_label, -1)
 	hint_label.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+	_dress_panels()
 
 var _record_list: VBoxContainer
+var _record_title: Label
+var _header: CharacterHeader
+var _stats_plate: PanelContainer
+var _side_plate: PanelContainer
 var _stats_title: Label
 
 ## Deaths, kills and Pinnacle clears, below the stat columns.
 func _build_record_section() -> void:
 	_stats_title = $HBox/StatsPanel/StatsTitle
 	var list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList
-	var title := Label.new()
-	title.text = "Record"
-	title.add_theme_font_size_override("font_size", 16)
-	list.add_child(title)
+	_record_title = Label.new()
+	_record_title.text = "Record"
+	_record_title.add_theme_font_size_override("font_size", 16)
+	list.add_child(_record_title)
 	_record_list = VBoxContainer.new()
 	list.add_child(_record_list)
+
+## The character header, gold section headings and a framed plate around
+## each half. The plates follow their panel's visibility (_sync_plates()).
+func _dress_panels() -> void:
+	_stats_title.visible = false
+	($HBox/StatsPanel/StatsScroll/StatsList as Control).size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_header = CharacterHeader.new()
+	stats_panel.add_child(_header)
+	stats_panel.move_child(_header, 0)
+	var list := "HBox/StatsPanel/StatsScroll/StatsList/"
+	for label in [get_node(list + "OffenseTitle"), get_node(list + "DefenseTitle"), get_node(list + "MiscTitle"), _record_title,
+			$HBox/SidePanel/TitleLabel, $HBox/SidePanel/InventoryPanel/InventoryTitle]:
+		_ornate(label)
+	_stats_plate = AetherStyle.wrap_in_plate(stats_panel)
+	_side_plate = AetherStyle.wrap_in_plate(side_panel)
+	_sync_plates()
+
+func _ornate(label: Label) -> void:
+	var header := AetherStyle.section_header(label.text)
+	label.get_parent().add_child(header)
+	label.get_parent().move_child(header, label.get_index())
+	label.visible = false
+
+func _sync_plates() -> void:
+	if _stats_plate:
+		_stats_plate.visible = stats_panel.visible
+	if _side_plate:
+		_side_plate.visible = side_panel.visible
 
 ## Sizes the doll slots from inventory cells so equipped icons match the grid.
 func _layout_doll() -> void:
@@ -316,6 +349,7 @@ func open(show_stats: bool = false, show_items: bool = true) -> void:
 	stats_panel.visible = show_stats
 	side_panel.visible = show_items
 	status_label.text = ""
+	_sync_plates()
 	_build_inventory_grid()
 	_refresh_doll()
 	_refresh_stats()
@@ -346,6 +380,7 @@ func set_panels(show_stats: bool, show_items: bool) -> void:
 		return
 	stats_panel.visible = show_stats
 	side_panel.visible = show_items
+	_sync_plates()
 	_refresh_stats()
 
 func is_showing_stats() -> bool:
@@ -740,6 +775,8 @@ func _refresh_stats() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	StatSummaryBuilder.refresh(offense_list, defense_list, misc_list, player)
 	StatSummaryBuilder.refresh_record(_record_list)
+	if _header:
+		_header.refresh(player)
 	_stats_title.text = GameState.player_name if GameState.player_name != "" else "Character"
 
 func _style_slot_button(button: ItemSlotButton, item: Item) -> void:

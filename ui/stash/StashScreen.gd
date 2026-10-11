@@ -59,7 +59,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build() -> void:
 	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0, 0.75)
+	dim.color = Color(0.01, 0.015, 0.03, 0.84)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
 	var center := CenterContainer.new()
@@ -91,7 +91,7 @@ func _build() -> void:
 	columns.add_child(left)
 	var carried_head := HBoxContainer.new()
 	left.add_child(carried_head)
-	var carried_title := _label("Inventory", 18)
+	var carried_title := AetherStyle.section_header("Inventory")
 	carried_title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	carried_head.add_child(carried_title)
 	var dump := Button.new()
@@ -129,6 +129,9 @@ func _build() -> void:
 	_unique_view.visible = false
 	_unique_view.slot_clicked.connect(_withdraw_unique)
 	page.add_child(_unique_view)
+	# Each half framed in a glass plate.
+	AetherStyle.wrap_in_plate(left, 14)
+	AetherStyle.wrap_in_plate(right, 14)
 
 	_status = _label("", 14)
 	root.add_child(_status)

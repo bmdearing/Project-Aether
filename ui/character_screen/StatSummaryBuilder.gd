@@ -59,8 +59,6 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 	_add(defense_list, "Lightning Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.LIGHTNING)))
 	_add(defense_list, "Esoteric Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.AETHERIC)))
 
-	_add(misc_list, "Level", "%d" % player.experience.level)
-	_add(misc_list, "XP", "%.0f / %.0f" % [player.experience.xp, player.experience.xp_to_next_level()])
 	_add(misc_list, "Intellect", "%.1f" % stats.get_stat(Constants.Stat.INTELLECT))
 	_add(misc_list, "Spell Damage", "+%.0f%%" % (stats.get_spell_power_from_stats() * 100.0))
 	_add(misc_list, "Max Mana", "%.0f" % player.mana.max_mana)
@@ -120,9 +118,14 @@ static func _evasion_tooltip(evasion: float) -> String:
 	]
 
 static func _add(list: VBoxContainer, label_text: String, value_text: String, tooltip_override: String = "") -> void:
+	# Every other row is faintly lit so long columns stay easy to follow.
+	var plate := PanelContainer.new()
+	plate.add_theme_stylebox_override("panel", AetherStyle.row_box(list.get_child_count() % 2 == 1))
+	plate.tooltip_text = tooltip_override if tooltip_override != "" else STAT_TOOLTIPS.get(label_text, "")
+	plate.mouse_filter = Control.MOUSE_FILTER_STOP  # a tooltip needs a Control that receives the mouse
 	var row := HBoxContainer.new()
-	row.tooltip_text = tooltip_override if tooltip_override != "" else STAT_TOOLTIPS.get(label_text, "")
-	row.mouse_filter = Control.MOUSE_FILTER_STOP  # a tooltip needs a Control that receives the mouse
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	plate.add_child(row)
 	var label := Label.new()
 	label.text = label_text
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -134,8 +137,9 @@ static func _add(list: VBoxContainer, label_text: String, value_text: String, to
 	value.add_theme_font_size_override("font_size", 16)
 	value.add_theme_color_override("font_color", AetherStyle.TEXT)
 	row.add_child(value)
-	list.add_child(row)
+	list.add_child(plate)
 
 static func _clear(list: VBoxContainer) -> void:
 	for child in list.get_children():
+		list.remove_child(child)
 		child.queue_free()

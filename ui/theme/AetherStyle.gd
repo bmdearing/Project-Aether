@@ -360,3 +360,46 @@ static func title_label(label: Label, size_px := 22) -> void:
 	label.add_theme_color_override("font_shadow_color", SHADOW)
 	label.add_theme_constant_override("shadow_offset_x", 1)
 	label.add_theme_constant_override("shadow_offset_y", 1)
+
+## A gold section heading: a diamond, the title in spaced capitals, and a
+## rule fading out to the right.
+static func section_header(text_value: String, size_px := 15) -> Control:
+	var header := SectionHeader.new()
+	header.title = text_value
+	header.size_px = size_px
+	return header
+
+class SectionHeader extends Control:
+	var title := ""
+	var size_px := 15
+
+	func _ready() -> void:
+		custom_minimum_size.y = size_px + 14.0
+		mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	func _draw() -> void:
+		var mid := size.y * 0.5 + 2.0
+		AetherStyle.diamond(self, Vector2(5, mid), 4.0, AetherStyle.GOLD_DIM, AetherStyle.GOLD)
+		var font := AetherStyle.title()
+		var label := AetherStyle.spaced(title.to_upper())
+		AetherStyle.text(self, font, Vector2(16, mid + size_px * 0.36), label, size_px, AetherStyle.GOLD)
+		var x := 16.0 + AetherStyle.text_width(font, label, size_px) + 10.0
+		var steps := 24
+		for i in steps:
+			var t := float(i) / steps
+			var w := (size.x - x) / steps
+			draw_line(Vector2(x + w * i, mid), Vector2(x + w * (i + 1), mid), Color(AetherStyle.GOLD_DIM, 0.9 * (1.0 - t)), 1.0)
+
+## Background for a stat row; every other row is faintly lit.
+static func row_box(lit: bool) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = Color(GOLD, 0.06) if lit else Color(0, 0, 0, 0)
+	box.content_margin_left = 6
+	box.content_margin_right = 6
+	box.content_margin_top = 1
+	box.content_margin_bottom = 1
+	box.corner_radius_top_left = 2
+	box.corner_radius_top_right = 2
+	box.corner_radius_bottom_left = 2
+	box.corner_radius_bottom_right = 2
+	return box

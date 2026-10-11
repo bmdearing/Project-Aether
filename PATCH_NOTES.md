@@ -7,6 +7,14 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.81: Styled inventory, character sheet and stash
+
+- **Character sheet:** a header at the top left with a portrait medallion (a drawn hooded figure with Aether-lit eyes, a gold tick-marked frame and the level on a diamond badge), the character's name (the save's `player_name`, or "Nameless Wanderer"), "Level N" and an XP bar with numbers and a percentage (`CharacterHeader`). Level and XP left the Misc list, since the header shows them. Section titles are gold headings (`AetherStyle.section_header`) and stat rows are striped (`AetherStyle.row_box`).
+- **Inventory and stash:** each half sits in a framed glass plate (`AetherStyle.wrap_in_plate`, which the screens never used before), with the same gold headings. The stash uses the deeper veil the other screens use. The inventory's plates follow their panel, so B or C alone shows one framed half.
+- The portrait is drawn in code until characters have portrait art.
+
+---
+
 ## 2026-10-11 — v4.80.1: Spell effects drew as squares in Ataras's arena
 
 - **Cause:** the sand arena added a second directional light (a warm sun) next to the arena's own. On the Compatibility (OpenGL) renderer every directional light past the first adds a lighting pass, and that pass draws additive effects without alpha. Every glow, mote and spark came out as a solid square. Confirmed in-engine: the same additive quad was square with two directional lights and round with one, regardless of environment, glow or omni lights.
