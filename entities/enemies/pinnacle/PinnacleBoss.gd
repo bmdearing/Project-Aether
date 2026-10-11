@@ -7,9 +7,9 @@ class_name PinnacleBoss
 
 const HEALTH_MULTIPLIER := 3.0
 const PHASE_THRESHOLDS: Array[float] = [0.66, 0.33]
-## Ward refills over ~4s once the boss goes this long without being hit.
-const WARD_REGEN_DELAY := 4.0
-const WARD_REGEN_PERCENT_PER_SECOND := 0.25
+## Ward refills over ~12.5s once the boss goes this long without being hit.
+const WARD_REGEN_DELAY := 8.0
+const WARD_REGEN_PERCENT_PER_SECOND := 0.08
 ## Pinnacle.BOSSES id, set by PinnacleArena; its own uniques join the reward pool.
 var pinnacle_id: String = ""
 

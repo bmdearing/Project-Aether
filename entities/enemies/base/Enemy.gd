@@ -242,6 +242,9 @@ func get_area_multiplier() -> float:
 func get_cast_speed_multiplier() -> float:
 	return (1.0 + map_mod("monster_cast_speed")) * (1.0 + _boss_mod("boss_speed"))
 
+func get_projectile_speed_multiplier() -> float:
+	return (1.0 + map_mod("monster_projectile_speed")) * (1.0 + _boss_mod("boss_projectile_speed"))
+
 func get_extra_projectiles() -> int:
 	return roundi(map_mod("monster_projectiles") * 100.0)
 

@@ -337,7 +337,7 @@ func _volley(a: BossAbility) -> void:
 		projectile.damage_amount = _damage(a)
 		projectile.damage_type = _type(a)
 		projectile.source = _boss
-		projectile.speed = 16.0
+		projectile.speed = 16.0 * _boss.get_projectile_speed_multiplier()
 		_scene().add_child(projectile)
 		projectile.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), origin + dir * 1.2)
 

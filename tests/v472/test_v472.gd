@@ -217,7 +217,7 @@ func _test_enemy_mods() -> void:
 	add_child(holder)
 	var mods := {"monster_move_speed": 20.0, "monster_attack_speed": 25.0, "monster_damage": 40.0, "monster_area": 50.0,
 		"monster_cast_speed": 100.0, "monster_projectiles": 2.0, "monster_crit": 100.0, "monster_conversion": 40.0,
-		"boss_life": 50.0, "boss_damage": 50.0, "boss_area": 20.0, "boss_speed": 10.0}
+		"boss_life": 50.0, "boss_damage": 50.0, "boss_area": 20.0, "boss_speed": 10.0, "monster_projectile_speed": 25.0, "boss_projectile_speed": 40.0}
 	GameState.active_map = _figment_with(mods, 1)
 	var normal := EnemyRoster.create_unit("unchartered_cutthroat")
 	EnemyRarityComponent.attach_normal(normal)
@@ -231,6 +231,7 @@ func _test_enemy_mods() -> void:
 	_check(is_equal_approx(asc.get_map_move_speed_multiplier(), 1.2 * 1.1), "boss speed stacks on Ascendants")
 	_check(is_equal_approx(normal.get_area_multiplier(), 1.5) and is_equal_approx(asc.get_area_multiplier(), 1.5 * 1.2), "area mods")
 	_check(normal.get_extra_projectiles() == 2, "extra projectiles")
+	_check(is_equal_approx(normal.get_projectile_speed_multiplier(), 1.25) and is_equal_approx(asc.get_projectile_speed_multiplier(), 1.25 * 1.4), "projectile speed mods (boss one on Ascendants only)")
 	_check(normal.roll_crit(10.0) > 10.0, "crit mod lets monsters crit")
 	var conv := normal.get_map_conversion()
 	_check(conv.size() == 2 and is_equal_approx(conv[0], 0.4) and conv[1] == Constants.DamageType.FIRE, "conversion mod")

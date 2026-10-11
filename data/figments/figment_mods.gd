@@ -40,6 +40,8 @@ const MODS := {
 		"pack_size": 8.0, "quantity": 3.0, "rarity": 0.0},
 	"monster_cast_speed": {"pool": 1, "min": 10.0, "max": 15.0, "desc": "Monsters have %d%% increased Cast Speed",
 		"pack_size": 8.0, "quantity": 2.0, "rarity": 2.0},
+	"monster_projectile_speed": {"pool": 1, "min": 20.0, "max": 30.0, "desc": "Monsters have %d%% increased Projectile Speed",
+		"pack_size": 8.0, "quantity": 3.0, "rarity": 0.0},
 	"boss_life": {"pool": 1, "min": 20.0, "max": 30.0, "desc": "Boss and Ascendants have %d%% more Life",
 		"pack_size": 6.0, "quantity": 4.0, "rarity": 2.0},
 	# ---- Pool II: Mid and High ----
@@ -53,6 +55,8 @@ const MODS := {
 		"pack_size": 3.0, "quantity": 7.0, "rarity": 5.0},
 	"boss_speed": {"pool": 2, "min": 15.0, "max": 20.0, "desc": "Boss and Ascendants have %d%% more Cast, Attack and Movement Speed",
 		"pack_size": 3.0, "quantity": 8.0, "rarity": 6.0},
+	"boss_projectile_speed": {"pool": 2, "min": 30.0, "max": 45.0, "desc": "Boss and Ascendants have %d%% more Projectile Speed",
+		"pack_size": 3.0, "quantity": 7.0, "rarity": 5.0},
 	# ---- Pool III: High only, pays in Quantity/Rarity ----
 	"monster_damage": {"pool": 3, "min": 30.0, "max": 45.0, "desc": "Monsters deal %d%% increased Damage",
 		"pack_size": 2.0, "quantity": 14.0, "rarity": 10.0},

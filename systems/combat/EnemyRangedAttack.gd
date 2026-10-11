@@ -93,7 +93,7 @@ func _fire() -> void:
 		projectile.damage_amount = _enemy.roll_crit(damage_amount * _enemy.get_outgoing_damage_multiplier())
 		projectile.damage_type = _enemy.convert_attack_type(damage_type)
 		projectile.source = _enemy
-		projectile.speed = projectile_speed
+		projectile.speed = projectile_speed * _enemy.get_projectile_speed_multiplier()
 		_enemy.get_tree().current_scene.add_child(projectile)
 		projectile.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), spawn_pos)
 

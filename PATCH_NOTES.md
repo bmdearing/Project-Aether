@@ -7,6 +7,13 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.78: Projectile speed map mods, slower boss Ward recovery
+
+- **New Figment mods:** "Monsters have 20-30% increased Projectile Speed" (Pool I, all monsters) and "Boss and Ascendants have 30-45% more Projectile Speed" (Pool II). They stack on bosses and Ascendants. They speed up ranged attacks and boss volleys (`Enemy.get_projectile_speed_multiplier`).
+- **Pinnacle Ward recovery slowed:** bosses now regain 8% of max Ward per second after 8 s without being hit (it was 25% after 4 s).
+
+---
+
 ## 2026-10-10 — v4.77: Feedback batch (stance swap, smoke, boss ward, Lenses, sand, Void Beam, bullets, ammo, Stamina)
 
 - **Weapon swap with no second set:** tapping X with an empty second weapon set now swaps your main hand's stance page (if it has a page B) instead of swapping to bare hands (`Player._tap_weapon_swap`, `WeaponStance.has_page_b`).
