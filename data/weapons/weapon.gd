@@ -214,6 +214,11 @@ func get_conduit_stance_type() -> String:
 @export var spell_page_modifier: String = ""
 @export var stance_buff: String = ""
 
+## Offhand Conduits (Rod, Tome, Grimoire, Talisman, Fetish) are never swung
+## or fired, so hit damage, crit and attack speed mean nothing on them.
+func can_attack() -> bool:
+	return not (is_conduit and is_offhand)
+
 func get_base_crit_chance() -> float:
 	return Constants.WEAPON_BASE_CRIT_CHANCE.get(weapon_type, Constants.DEFAULT_BASE_CRIT_CHANCE)
 

@@ -175,8 +175,9 @@ func _render_item(item: Item) -> void:
 		if item.quality > 0 or item.quality_cap_bonus > 0:
 			var q := "+%d%%" % item.quality + (" (max %d%%)" % item.get_quality_cap() if item.quality_cap_bonus > 0 else "")
 			_add_value_line("Quality", STAT_COLOR, q, q)
-		for line in _build_attack_power_lines(item as Weapon):
-			_add_attack_power_line(line)
+		if (item as Weapon).can_attack():
+			for line in _build_attack_power_lines(item as Weapon):
+				_add_attack_power_line(line)
 		_add_weapon_value_lines(item as Weapon)
 		for line in _ranged_info_lines(item as Weapon):
 			_add_ammo_info_line(line)
@@ -636,11 +637,12 @@ func _render_alt_info() -> void:
 	_clear()
 	if _current_item is Weapon:
 		var w := _current_item as Weapon
-		_add_stat_line("Scaling Grade: %s" % Constants.grade_to_letter(w.scaling_grade))
-		if w.primary_scaling_stat != "":
-			_add_stat_line("Primary Scaling: %s" % w.primary_scaling_stat.capitalize())
-		if w.secondary_scaling_stat != "":
-			_add_stat_line("Secondary Scaling: %s" % w.secondary_scaling_stat.capitalize())
+		if w.can_attack():
+			_add_stat_line("Scaling Grade: %s" % Constants.grade_to_letter(w.scaling_grade))
+			if w.primary_scaling_stat != "":
+				_add_stat_line("Primary Scaling: %s" % w.primary_scaling_stat.capitalize())
+			if w.secondary_scaling_stat != "":
+				_add_stat_line("Secondary Scaling: %s" % w.secondary_scaling_stat.capitalize())
 		_add_stat_line("Item Level: %d" % w.item_level)
 		for line in _requirement_lines(w):
 			_add_stat_line(line)
@@ -787,11 +789,15 @@ func _add_value_line(label: String, label_color: Color, base_text: String, modif
 func _add_weapon_value_lines(w: Weapon) -> void:
 	if w.is_conduit and w.get_conduit_spell_damage_bonus() > 0.0:
 		_add_value_line("Spell Damage", STAT_COLOR, "+%.0f%%" % w.get_conduit_spell_damage_bonus())
+	var cast_speed := w.get_local_multiplier("local_increased_cast_speed")
+	if not w.can_attack():
+		if cast_speed > 1.0:
+			_add_value_line("Cast Speed", STAT_COLOR, "1.00", "%.2f" % cast_speed)
+		return
 	_add_value_line("Crit Chance", STAT_COLOR, "%s%%" % _format_num(snapped(w.get_base_crit_chance() * 100.0, 0.1)),
 		"%s%%" % _format_num(snapped(w.get_local_crit_chance() * 100.0, 0.1)))
 	# Every weapon that attacks shows its rate; blue when a local mod changes it.
 	_add_value_line("Attack Speed", STAT_COLOR, "%.2f/s" % WeaponSpeed.attacks_per_second(w, false), "%.2f/s" % WeaponSpeed.attacks_per_second(w))
-	var cast_speed := w.get_local_multiplier("local_increased_cast_speed")
 	if cast_speed > 1.0:
 		_add_value_line("Cast Speed", STAT_COLOR, "1.00", "%.2f" % cast_speed)
 

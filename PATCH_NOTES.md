@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.82.2: Offhand Conduits stop pretending to be weapons
+
+- Offhand Conduits (Rod, Tome, Grimoire, Talisman, Fetish) are never swung or fired, yet their cards showed weapon damage, crit chance and attack speed, and they could roll "+% Attack Speed" (Fluid) and "+% Critical Strike Chance" (of the Sharp), which are local to the weapon and did nothing there. Flat and % weapon damage were already kept off them.
+- `Weapon.can_attack()` is false for them. Their cards show no damage, crit or attack speed (Spell Damage and Cast Speed stay), the Alt view drops weapon scaling, comparisons skip hit/DPS/crit, and the character sheet hides the Offhand Damage/Crit rows. Neither drops nor crafting can roll the two local hit mods on them anymore (`ItemRoller._eligible_weapon_affixes`).
+- Kept: global modifiers that help spells (increased Critical Strike damage, Spell damage, Ward on hit, ailment chances). Main-hand Conduits (Wand, Staff, Athame, Spell Gauntlet) still attack and keep everything.
+- Offhand Conduits that already rolled Fluid or of the Sharp keep the line. It still does nothing; a Severance can remove it.
+
+---
+
 ## 2026-10-11 — v4.82.1: Spell cards show what spells actually do
 
 - Spell cards have a new section with the real numbers at the spell's level and your gear (`data/abilities/spell_effect_text.gd`, which reads the same constants the spells use, so the card can't drift from the code). Curses show each penalty (e.g. "Cursed enemies deal 15% less damage"), what lowered resistance means in damage taken, duration and curse strength (level and Debuff Effectiveness). Warcries show the buff or debuff (Battle Cry's "% more damage" with its per-level growth, Intimidating Shout's "20% more damage of every type"), radius and duration. Linger and Pale Thread show damage per tick and in total, Ward per second (also as Ward/s for your current maximum) and break range. Death Shroud, Frost Armor, Purge and Blink say what they do.

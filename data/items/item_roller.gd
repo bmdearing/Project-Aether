@@ -581,6 +581,12 @@ static func _eligible_weapon_affixes(weapon: Weapon, power_level: int, want_pref
 		# "staff" that shares the Conduit staff line's key).
 		if affix.is_local and weapon.is_conduit != CONDUIT_LOCAL_KEYS.has(affix.stat_key):
 			continue
+		# A weapon that never attacks gets no local hit mods (Fluid's attack
+		# speed, of the Sharp's crit chance) - they'd do nothing on it.
+		if not weapon.can_attack():
+			var key := StatKeys.canonical(affix.stat_key)
+			if key.begins_with("local_") and not CONDUIT_LOCAL_KEYS.has(key):
+				continue
 		var matches := affix.is_generic
 		if not matches and affix.weapon_type_filter.is_empty():
 			matches = affix.damage_type == dtype

@@ -69,7 +69,7 @@ static func diff_lines(item: Item, worn: Item) -> Array[Dictionary]:
 ## key -> [template, value]: core stats first, then every modifier summed by key.
 static func totals(item: Item) -> Dictionary:
 	var t := {}
-	if item is Weapon:
+	if item is Weapon and (item as Weapon).can_attack():
 		var w := item as Weapon
 		var hit := average_hit(w)
 		var aps := WeaponSpeed.attacks_per_second(w)

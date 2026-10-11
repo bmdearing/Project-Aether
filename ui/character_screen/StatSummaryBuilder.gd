@@ -42,8 +42,10 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 	_add(offense_list, "Weapon Damage", "+%.0f%%" % (stats.get_strength_weapon_multiplier() * 100.0))
 	_add(offense_list, "Main Hand Damage", _predict_damage(player, Constants.EquipmentSlot.PRIMARY_WEAPON))
 	_add(offense_list, "Main Hand Crit", _crit_summary(player, Constants.EquipmentSlot.PRIMARY_WEAPON))
-	_add(offense_list, "Offhand Damage", _predict_damage(player, Constants.EquipmentSlot.OFFHAND))
-	_add(offense_list, "Offhand Crit", _crit_summary(player, Constants.EquipmentSlot.OFFHAND))
+	var offhand := _weapon_in(player, Constants.EquipmentSlot.OFFHAND)
+	if offhand == null or offhand.can_attack():  # an offhand Conduit never hits
+		_add(offense_list, "Offhand Damage", _predict_damage(player, Constants.EquipmentSlot.OFFHAND))
+		_add(offense_list, "Offhand Crit", _crit_summary(player, Constants.EquipmentSlot.OFFHAND))
 
 	_add(defense_list, "Agility", "%.1f" % stats.get_stat(Constants.Stat.AGILITY))
 	var evasion := stats.get_total_evasion(player.equipment)
