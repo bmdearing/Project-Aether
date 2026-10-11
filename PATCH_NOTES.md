@@ -11,7 +11,7 @@ there. Most recent first.
 
 - **Cause:** the sand arena added a second directional light (a warm sun) next to the arena's own. On the Compatibility (OpenGL) renderer every directional light past the first adds a lighting pass, and that pass draws additive effects without alpha. Every glow, mote and spark came out as a solid square. Confirmed in-engine: the same additive quad was square with two directional lights and round with one, regardless of environment, glow or omni lights.
 - **Fix:** the sand arena re-colours and re-aims the arena's existing light instead of adding one (`PinnacleArena._build_sand`). Rule for new scenes: **one directional light per scene.**
-- The Hub has a single directional light, and its motes rendered round in a capture. The square-mote report there is still open.
+- **Hub motes turned square looking north-west from the centre:** the same renderer quirk from a different trigger. The one shadow-casting omni light in the game (warm, above the Hub's centre) adds a pass that draws additive effects in its range without alpha. Whether it happens depends on what the camera sees. Turning shadows on that light off fixed it; captures from three angles confirm. Directional-light shadows are fine.
 
 ---
 

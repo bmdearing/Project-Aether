@@ -560,7 +560,9 @@ func _omni(pos: Vector3, color: Color, energy: float, light_range: float) -> Omn
 	return l
 
 func _build_lights() -> void:
-	_omni(Vector3(0, 6.5, 0), WARM, 3.2, 17.0).shadow_enabled = true
+	# No shadows: on the Compatibility renderer a shadowed omni light draws
+	# additive effects in its range without alpha (the motes turned square).
+	_omni(Vector3(0, 6.5, 0), WARM, 3.2, 17.0)
 	_omni(DAIS_CENTRE + Vector3(0, 8, 2), WARM, 2.4, 16.0)
 	_omni(Vector3(-17, 5.0, -4), WARM, 2.4, 12.0)
 	_omni(Vector3(17, 5.0, -4), WARM, 2.4, 12.0)
