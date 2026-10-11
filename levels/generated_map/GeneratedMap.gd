@@ -189,6 +189,7 @@ const NAV_MAX_CLIMB := 0.6
 const NAV_MAX_SLOPE := 50.0
 
 var nav_region: NavigationRegion3D
+var _region_added_frame := 0
 var _bake_relay: RefCounted
 signal navigation_ready
 
@@ -207,6 +208,7 @@ func _bake_navigation() -> void:
 	nav_region = NavigationRegion3D.new()
 	nav_region.name = "Navigation"
 	add_child(nav_region)
+	_region_added_frame = Engine.get_physics_frames()
 	var source := NavigationMeshSourceGeometryData3D.new()
 	NavigationServer3D.parse_source_geometry_data(navmesh, source, self)
 	# Held here: a Callable doesn't keep its RefCounted object alive.
@@ -227,6 +229,13 @@ class _BakeRelay extends RefCounted:
 			map.call_deferred("_on_navigation_baked", _navmesh)
 
 func _on_navigation_baked(navmesh: NavigationMesh) -> void:
+	if not is_instance_valid(nav_region):
+		return
+	# A navmesh assigned in the region's first frame or two never got built
+	# by the NavigationServer (the region stayed empty, so enemies had no
+	# paths); a bake that finishes that quickly waits a couple of frames.
+	while Engine.get_physics_frames() - _region_added_frame < 3:
+		await get_tree().physics_frame
 	if not is_instance_valid(nav_region):
 		return
 	nav_region.navigation_mesh = navmesh

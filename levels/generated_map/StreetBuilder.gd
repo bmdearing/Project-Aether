@@ -62,6 +62,9 @@ var _street_w: float
 var _bounds: Dictionary = {}            # PackedScene -> AABB
 ## Harbor: which side of the map is water, and the outermost row/column on it.
 var _water_side := Vector2i.ZERO
+## Squares and streets (XZ), so a deep building can't reach through a thin
+## block into the street or plaza behind it.
+var _walkable: Array[Rect2] = []
 var _water_line := 0
 
 func _init(map: GeneratedMap, tileset: MapTileset, dresser: RoomDresser, wall_mat: Material) -> void:
@@ -117,6 +120,8 @@ func _plan_squares(graph: MapGraph) -> void:
 			h = randf_range(PLAZA_HALF.x, PLAZA_HALF.y)
 		half[cell] = h
 		_map.room_half[cell] = Vector2(h, h)
+		var o := _map._cell_to_world(cell)
+		_walkable.append(Rect2(o.x - h, o.z - h, h * 2.0, h * 2.0))
 
 const DIRS: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 
@@ -148,6 +153,8 @@ func _collect_edges(graph: MapGraph) -> void:
 			var a := origin + dir * h
 			var b := _map._cell_to_world(n) - dir * float(half[n])
 			var g := Vector2i(roundi(tangent.x), roundi(tangent.z))
+			var street := Rect2(Vector2(a.x, a.z), Vector2.ZERO).expand(Vector2(b.x, b.z))
+			_walkable.append(street.grow_individual(tangent.x * w, tangent.z * w, tangent.x * w, tangent.z * w))
 			_add_edge(a + tangent * w, b + tangent * w, -tangent, false, false, _street_end_inside(graph, c, g), _street_end_inside(graph, n, g))
 			_add_edge(a - tangent * w, b - tangent * w, tangent, false, false, _street_end_inside(graph, c, -g), _street_end_inside(graph, n, -g))
 
@@ -261,6 +268,8 @@ func _line_with_buildings(e: Dictionary) -> void:
 				w = b.size.z * s
 			var centre_z := (b.position.z + b.end.z) / 2.0
 			var pos := from + along * (cursor + w / 2.0) - tz * (centre_z * s) + n * (FRONT_PROTRUDE - b.end.x * s)
+			if _reaches_walkable(_dresser._footprint(pos, yaw, b, s)):
+				continue
 			var node := _dresser._spawn(scene)
 			node.scale = Vector3.ONE * s
 			node.rotation.y = yaw
@@ -540,3 +549,14 @@ func _add_building_collision(node: Node3D, b: AABB) -> void:
 	shape.position = Vector3((b.position.x + front) / 2.0, b.get_center().y, b.get_center().z)
 	body.add_child(shape)
 	node.add_child(body)
+
+## True when a building footprint (minus its eaves over its own street)
+## overlaps any square or street.
+func _reaches_walkable(footprint: Rect2) -> bool:
+	var core := footprint.grow(-(FRONT_PROTRUDE + 0.4))
+	if core.size.x <= 0.0 or core.size.y <= 0.0:
+		return false
+	for r in _walkable:
+		if core.intersects(r):
+			return true
+	return false

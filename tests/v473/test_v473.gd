@@ -77,9 +77,19 @@ func _test_streets() -> void:
 			_check(map.get_living_enemy_count() > 10, "%s spawns packs (%d)" % [label, map.get_living_enemy_count()])
 			_check(map.has_boss(), "%s has its boss" % label)
 			_check_sealed(map, label)
-			# TODO: _check_spawns_clear() and _check_reachable() are written but off:
-			# the navmesh query sees an empty map in this harness, and one Downtown
-			# seed has a pack spot touching a collider. Both need a follow-up.
+			_check_spawns_clear(map, label)
+			var waited := 0
+			while map.nav_region.navigation_mesh == null and waited < 600:
+				await get_tree().physics_frame
+				waited += 1
+			# The region only reaches queries after the nav map's next sync.
+			var nav_map := map.get_world_3d().navigation_map
+			var iteration := NavigationServer3D.map_get_iteration_id(nav_map)
+			for i in 600:
+				await get_tree().physics_frame
+				if NavigationServer3D.map_get_iteration_id(nav_map) != iteration and NavigationServer3D.map_get_closest_point(nav_map, map._cell_to_world(map.graph.start_cell)) != Vector3.ZERO:
+					break
+			_check_reachable(map, label)
 			if style_id == "city_trainyard":
 				_check(map.get_node_or_null("Sleepers") != null, "%s lays rails" % label)
 			if style_id == "city_harbor" and sb._water_side != Vector2i.ZERO:
@@ -130,6 +140,7 @@ func _check_spawns_clear(map: GeneratedMap, label: String) -> void:
 		query.collision_mask = 1
 		for hit in space.intersect_shape(query, 8):
 			if not hit["collider"] is CharacterBody3D:
+				print("  pack spot ", p, " blocked by ", (hit["collider"] as Node).get_parent().scene_file_path)
 				blocked += 1
 				break
 	_check(blocked == 0, "%s: pack spots are clear of walls and props (%d blocked)" % [label, blocked])

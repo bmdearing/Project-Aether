@@ -147,7 +147,11 @@ func _test_tilesets() -> void:
 			continue
 		for tex in ["floor_albedo", "floor_normal", "floor_orm", "wall_albedo", "wall_normal", "wall_orm"]:
 			_check(style.get(tex) != null, "%s %s set" % [id, tex])
-		_check(not style.archways.is_empty() and not style.wall_props.is_empty() and not style.clusters.is_empty(), "%s has arches, wall props and clusters" % id)
+		if style.family == "city":
+			# City styles dress streets with buildings instead of arches and wall props.
+			_check(not style.buildings.is_empty() and not style.clusters.is_empty(), "%s has buildings and clusters" % id)
+		else:
+			_check(not style.archways.is_empty() and not style.wall_props.is_empty() and not style.clusters.is_empty(), "%s has arches, wall props and clusters" % id)
 		for list in [style.archways, style.wall_props, style.floor_props, style.clusters, style.wall_lights]:
 			for scene in list:
 				_check(scene != null and scene.can_instantiate(), "%s doodad scene instantiable" % id)

@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-10 — v4.74: Navmesh fix for every map, City follow-ups
+
+- **Navmesh never built on some maps (all layouts):** when the navigation bake finished within a frame or two of the map loading, the NavigationServer never built the region, so path queries came back empty and enemies fell back to walking straight at you. It showed up on Badlands, Downtown and Residence in a run of back-to-back maps. A bake that lands that early now waits until the region is 3 physics frames old before it's assigned (`GeneratedMap._on_navigation_baked`). Switching the region to synchronous builds did not help.
+- **Deep buildings punched through thin city blocks:** a scaled `Morecitybuilding0` is 16 m deep and reached through the block into the plaza behind, covering a pack spot. `StreetBuilder` keeps the walkable rectangles (squares and streets) and rejects any building whose footprint, minus its eaves, reaches one.
+- `tests/v473` now runs its navmesh reachability and pack-spot checks (82 checks). It waits for the region to sync by physics frame count; process delta can be 0 headless, so time-based waits hung.
+- City ambience still reuses existing loops: the raw library has no train, harbor or crowd recordings to cut new ones from.
+
+---
+
 ## 2026-10-10 — v4.73: Steampunk City family (user request)
 
 - **Five City styles** (`family = "city"`): Residence, Downtown, Trainyard and Harbor use the new `streets` layout; Park is an open field ringed with buildings. City kit extracted from the WC3 install (`doodads.json` family `city`: Lordaeron city buildings and rows, clock towers, cathedral, statues, fountains, market stalls, lamps, goblin shipyard, pipes, crates, piers) plus `cityscape` grounds.
