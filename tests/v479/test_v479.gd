@@ -164,6 +164,8 @@ func _test_weather() -> void:
 	await get_tree().process_frame
 	_check(_luma(env.background_color) > calm, "lightning lights the sky")
 	_check(atmo.ambience_spec("wind_calm").contains("rain"), "storms add rain to the map's ambience")
+	atmo.weather = W.RAIN
+	_check(AudioManager._ambience_id.contains("rain") and Ambience.load_loop("rain") != null, "turning a live map to rain starts the rain loop (%s)" % AudioManager._ambience_id)
 	atmo.weather = W.SANDSTORM
 	_check(atmo.ambience_spec("wind_gusts") == "wind_gusts:4", "a sandstorm turns the wind up instead of doubling it (%s)" % atmo.ambience_spec("wind_gusts"))
 	atmo.weather = W.BLIZZARD

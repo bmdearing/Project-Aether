@@ -86,6 +86,7 @@ func play_ambience(spec: String, volume_db: float = 0.0) -> void:
 		var id := parts[0]
 		var stream := Ambience.load_loop(id)
 		if stream == null:
+			push_error("AudioManager: ambience loop '%s' is missing or not imported" % id)
 			continue
 		var offset := float(parts[1]) if parts.size() > 1 else 0.0
 		var player := AudioStreamPlayer.new()

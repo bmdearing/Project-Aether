@@ -56,10 +56,15 @@ var time_of_day: float:
 	set(value):
 		_clock = value
 		_apply_in = 0.0
+## Changing the weather on a live map swaps its particles and its sound together.
 var weather: Weather = Weather.CLEAR:
 	set(value):
 		weather = value
 		_apply_in = 0.0
+		if is_inside_tree():
+			_rebuild_weather()
+## The map's own ambience; the weather's sound layers on top (play_weather_sound()).
+var base_ambience: String = ""
 var _clock: float = 0.4
 
 var _style: MapTileset
@@ -108,6 +113,18 @@ func _ready() -> void:
 		return
 	_build_fall()
 	_apply()
+	play_weather_sound()
+
+func play_weather_sound() -> void:
+	AudioManager.play_ambience(ambience_spec(base_ambience))
+
+func _rebuild_weather() -> void:
+	if is_instance_valid(_fall):
+		_fall.queue_free()
+	_fall = null
+	_fall_offset = Vector3(0, FALL_HEIGHT * 0.6, 0)
+	_build_fall()
+	play_weather_sound()
 
 ## The map's ambience with the weather's own layer on top.
 func ambience_spec(base: String) -> String:

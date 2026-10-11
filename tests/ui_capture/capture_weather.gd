@@ -24,10 +24,6 @@ func _run() -> void:
 	var weather: int = MapAtmosphere.WEATHER_NAMES.find(args[3] if args.size() > 3 else "clear")
 	if weather != atmo.weather:
 		atmo.weather = weather as MapAtmosphere.Weather
-		if is_instance_valid(atmo._fall):
-			atmo._fall.queue_free()
-			atmo._fall = null
-		atmo._build_fall()
 	await get_tree().create_timer(2.5).timeout
 	for node in get_tree().root.find_children("*", "CanvasLayer", true, false):
 		(node as CanvasLayer).visible = false

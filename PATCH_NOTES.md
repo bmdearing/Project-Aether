@@ -7,6 +7,17 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.80: Load-time lag, Figment Tree lag, weather looks, mobs not dying
+
+- **Mobs not dying / errors everywhere:** v4.79's boss sounds were committed but never imported, so the sound library failed to load and every sound call threw a script error. Some effects play their sound before dealing damage (Comet's impact), so the error aborted the hit. Fixed by importing (`Godot --headless --path . --import`). `SoundLib` now falls back to an empty, silent library if `sound_library.tres` ever fails to load, so a missing sound can't break gameplay again.
+- **Weather lag on map load:** rain, snow and sandstorms ran up to 2,400 CPU particles and pre-simulated their whole lifetime (up to about 10 s) before the first frame. They now run on the GPU (`GPUParticles3D`, built from the same CPU setup with `convert_from_particles`) with fewer particles. Sky, sun and fog follow the day/night clock 5 times a second instead of every frame (lightning flashes still update every frame; setting the time or weather updates the next frame).
+- **Weather looks:** sandstorms showed only orange fog, so you heard the storm but saw nothing. They now have sand streaks driven sideways and big dust clouds rolling through. Rain and storms got the same treatment: heavier, wind-slanted streaks (storms slant more) and grey mist sheets drifting past. Nearby streaks fade out before they reach the camera.
+- **Figment Tree lag on open:** the progress grid loaded every map style to read its name, and each style references all of that map's textures and building scenes (about 1.25 s for all 19). It reloaded them on every redraw once they were released. `MapTileset.STYLE_INFO` now holds each style's name and family, so the tree, Figment drops (naming), Figment tooltips and the loading screen no longer load styles. Debug builds warn if a style drifts from the table. Style ids are scanned once, and the tree view counts points once per draw instead of once per node.
+- **Boss effects hitching on first use:** their materials compiled mid-fight the first time each appeared. `SpellWarmup` now also plays every element's boss impact, wind-up glow, hazard aura and bolt dressing (silently) behind the loading screen.
+- **Rain always comes with its sound:** `MapAtmosphere` now owns the weather sound (`base_ambience` + `play_weather_sound()`). Changing the weather on a live map swaps its particles and its ambience loop together, so they can't drift apart. A missing or unimported ambience loop logs an error instead of going silent.
+
+---
+
 ## 2026-10-11 — v4.79.1: Pinnacle bosses and the HUD broke on a stale class cache
 
 - **No Pinnacle boss, blank weapon panel:** v4.79's two new scripts (`BossFx`, `MapAtmosphere`) were reached by `class_name`. A game run before Godot rescanned the project had a global class cache without them, so `PinnacleBoss` failed to compile, and the failure cascaded through `Player` and the HUD's item scripts. No boss spawned and the weapon panel never refreshed. Both scripts are now loaded by path (`const BossFx := preload(...)` in `Enemy` and `BossBrain`, `MapAtmosphere` in `GeneratedMap` and `Minimap`), so they work with or without the cache.

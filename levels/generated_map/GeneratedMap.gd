@@ -483,8 +483,10 @@ func _apply_tileset(style: MapTileset) -> void:
 		atmosphere = MapAtmosphere.new()
 		atmosphere.name = "Atmosphere"
 		atmosphere.setup(style, $WorldEnvironment.environment, sun, map_seed)
+		atmosphere.base_ambience = style.ambience_id
 		add_child(atmosphere)
-	AudioManager.play_ambience(atmosphere.ambience_spec(style.ambience_id) if atmosphere else style.ambience_id)
+	else:
+		AudioManager.play_ambience(style.ambience_id)
 	_dresser = RoomDresser.new(style, self, WALL_THICKNESS, DOORWAY_WIDTH)
 
 func _on_enemy_died(enemy: Node) -> void:
