@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_krpu4")
-evasion_value = 330.0
-ward_value = 261.0
+evasion_value = 357.0
+ward_value = 295.0
 item_id = "gen_body_armour_veil_stalker"
 display_name = "Veil Stalker"
 equip_slot = 1

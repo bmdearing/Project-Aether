@@ -20,8 +20,8 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_fdi6c")
-armor_value = 164.0
-evasion_value = 309.0
+armor_value = 841.0
+evasion_value = 291.0
 item_id = "gen_helmet_ghost_cap"
 display_name = "Ghost Cap"
 max_sockets = 3

@@ -41,7 +41,7 @@ enum CastType { INSTANT, CAST_TIME, CHANNELED }
 @export var base_crit_chance: float = 0.05
 
 ## Base damage per hit at level 1, before any modifier. Grows each level
-## by DAMAGE_GROWTH_PER_LEVEL (compounding).
+## by level_growth().
 @export var base_damage_min: float = 0.0
 @export var base_damage_max: float = 0.0
 
@@ -98,7 +98,21 @@ const TAG_NAMES := {
 ## shared .tres; GameState.ability_levels persists it.
 @export var level: int = 1
 const MAX_LEVEL := 20
-const DAMAGE_GROWTH_PER_LEVEL := 0.0825  # x4.5 at level 20 (was 0.095 / x5.6, briefly 0.07 / x3.6)
+## Damage growth per level rises as the spell levels: each level-up adds
+## GROWTH_FIRST at level 2, up to GROWTH_LAST at MAX_LEVEL and beyond (x6.1 at 20).
+const GROWTH_FIRST := 0.05
+const GROWTH_LAST := 0.15
+
+## The step from level - 1 to level.
+static func growth_step(at_level: int) -> float:
+	return lerpf(GROWTH_FIRST, GROWTH_LAST, clampf(float(at_level - 2) / float(MAX_LEVEL - 2), 0.0, 1.0))
+
+## Damage multiplier at `at_level` against level 1.
+static func level_growth(at_level: int) -> float:
+	var growth := 1.0
+	for l in range(2, at_level + 1):
+		growth *= 1.0 + growth_step(l)
+	return growth
 
 ## Per level above MAX_LEVEL.
 const OVERCAP_MORE_DAMAGE := 0.03
@@ -149,7 +163,7 @@ func deals_damage() -> bool:
 	return base_damage_max > 0.0
 
 func get_base_damage_range(stat_sheet: StatSheet = null) -> Vector2:
-	var growth := pow(1.0 + DAMAGE_GROWTH_PER_LEVEL, get_effective_level(stat_sheet) - 1)
+	var growth := level_growth(get_effective_level(stat_sheet))
 	return Vector2(base_damage_min, base_damage_max) * growth
 
 func get_effective_cooldown(stat_sheet: StatSheet = null) -> float:

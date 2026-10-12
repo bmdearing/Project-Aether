@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_oc51b")
 block_chance = 0.28
-armor_value = 229.0
+armor_value = 1716.0
 item_id = "gen_pavise_titans_pavise"
 display_name = "Titan's Pavise"
 equip_slot = 6

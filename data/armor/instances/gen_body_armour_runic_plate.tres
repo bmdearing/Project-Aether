@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_mskf1")
-armor_value = 190.0
-ward_value = 366.0
+armor_value = 602.0
+ward_value = 394.0
 item_id = "gen_body_armour_runic_plate"
 display_name = "Runic Plate"
 equip_slot = 1

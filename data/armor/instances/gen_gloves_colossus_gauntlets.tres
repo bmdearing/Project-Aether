@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_eaqho")
-armor_value = 163.0
+armor_value = 1221.0
 item_id = "gen_gloves_colossus_gauntlets"
 display_name = "Colossus Gauntlets"
 equip_slot = 2

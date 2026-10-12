@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_ogp3r")
 block_chance = 0.19
-armor_value = 43.0
+armor_value = 322.0
 item_id = "gen_kite_shield_protectors_kite_shield"
 display_name = "Protector's Kite Shield"
 equip_slot = 6

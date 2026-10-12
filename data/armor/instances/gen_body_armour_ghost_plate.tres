@@ -20,8 +20,8 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_7kguj")
-armor_value = 282.0
-evasion_value = 485.0
+armor_value = 1874.0
+evasion_value = 1243.0
 item_id = "gen_body_armour_ghost_plate"
 display_name = "Ghost Plate"
 equip_slot = 1

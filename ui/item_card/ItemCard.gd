@@ -660,7 +660,7 @@ func _render_alt_info() -> void:
 		var base := _current_ability.get_base_damage_range()
 		_add_stat_line("Level 1 Damage: %.0f to %.0f" % [_current_ability.base_damage_min, _current_ability.base_damage_max])
 		_add_stat_line("Level %d Base Damage: %.0f to %.0f" % [_current_ability.level, base.x, base.y])
-		_add_stat_line("Damage Growth: +%.1f%% per level" % (Ability.DAMAGE_GROWTH_PER_LEVEL * 100.0))
+		_add_stat_line("Next level: +%.1f%% damage" % (Ability.growth_step(_current_ability.level + 1) * 100.0))
 
 ## Bug fix (2026-09-06, user-reported): returned null whenever no Player
 ## node is in the scene tree at hover time, leaving the blue stat

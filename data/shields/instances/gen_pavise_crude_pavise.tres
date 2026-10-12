@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_ahrqn")
 block_chance = 0.15
-armor_value = 21.0
+armor_value = 157.0
 item_id = "gen_pavise_crude_pavise"
 display_name = "Crude Pavise"
 equip_slot = 6

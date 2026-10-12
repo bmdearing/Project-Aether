@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_iqh1l")
-evasion_value = 830.0
-ward_value = 701.0
+evasion_value = 1057.0
+ward_value = 751.0
 item_id = "gen_body_armour_veilborn_vest"
 display_name = "Veilborn Vest"
 equip_slot = 1

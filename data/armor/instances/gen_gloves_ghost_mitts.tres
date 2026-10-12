@@ -20,8 +20,8 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_4j6tm")
-armor_value = 115.0
-evasion_value = 220.0
+armor_value = 733.0
+evasion_value = 185.0
 item_id = "gen_gloves_ghost_mitts"
 display_name = "Ghost Mitts"
 equip_slot = 2

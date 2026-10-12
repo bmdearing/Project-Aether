@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_2g4wn")
-armor_value = 401.0
-ward_value = 711.0
+armor_value = 1573.0
+ward_value = 751.0
 item_id = "gen_body_armour_bulwark_plate"
 display_name = "Bulwark Plate"
 equip_slot = 1

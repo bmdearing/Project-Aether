@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_fxria")
-armor_value = 320.0
-ward_value = 586.0
+armor_value = 1034.0
+ward_value = 619.0
 item_id = "gen_body_armour_aegis_plate"
 display_name = "Aegis Plate"
 equip_slot = 1

@@ -116,7 +116,7 @@ const AFFIX_POOL := [
 	# was this entry's own invented 16-20%).
 	{"stat_key": "elemental_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Elemental damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["fire", "cold", "lightning"]},
 	{"stat_key": "esoteric_dmg_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Esoteric damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["aetheric", "entropic", "pale"]},
-	{"stat_key": "flat_armor", "defense": "armor", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Armor", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["armor"]},
+	{"stat_key": "flat_armor", "defense": "armor", "tier1_min": 120.0, "tier1_max": 150.0, "desc": "+%d Armor", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["armor"]},
 	{"stat_key": "flat_ward", "defense": "ward", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Ward", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["ward"]},
 	{"stat_key": "flat_evasion", "defense": "evasion", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Evasion", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["evasion"]},
 	{"stat_key": "flat_resilience", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Resilience", "applies_to": [], "brand_tags": ["resilience"]},

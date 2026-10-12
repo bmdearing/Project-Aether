@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_aq8pi")
-armor_value = 201.0
+armor_value = 1506.0
 item_id = "gen_body_armour_protectors_plate"
 display_name = "Protector's Plate"
 equip_slot = 1

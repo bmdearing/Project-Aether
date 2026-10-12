@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_w6kt0")
 block_chance = 0.21
-armor_value = 63.0
+armor_value = 472.0
 item_id = "gen_kite_shield_sentinels_kite_shield"
 display_name = "Sentinel's Kite Shield"
 equip_slot = 6

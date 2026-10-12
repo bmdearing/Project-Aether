@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_8c61k")
-armor_value = 74.0
-evasion_value = 150.0
+armor_value = 373.0
+evasion_value = 128.0
 item_id = "gen_helmet_hunters_cap"
 display_name = "Hunter's Cap"
 max_sockets = 2

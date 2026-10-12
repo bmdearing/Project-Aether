@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_0tpo4")
-evasion_value = 233.0
-ward_value = 176.0
+evasion_value = 249.0
+ward_value = 205.0
 item_id = "gen_body_armour_mystic_vest"
 display_name = "Mystic Vest"
 equip_slot = 1

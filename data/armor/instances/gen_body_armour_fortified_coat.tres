@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_blrvh")
-armor_value = 50.0
+armor_value = 375.0
 item_id = "gen_body_armour_fortified_coat"
 display_name = "Fortified Coat"
 equip_slot = 1

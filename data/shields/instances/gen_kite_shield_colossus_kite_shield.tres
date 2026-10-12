@@ -21,8 +21,8 @@ is_implicit = true
 [resource]
 script = ExtResource("2_nepbw")
 block_chance = 0.28
-armor_value = 132.0
-evasion_value = 249.0
+armor_value = 1492.0
+evasion_value = 205.0
 item_id = "gen_kite_shield_colossus_kite_shield"
 display_name = "Colossus Kite Shield"
 equip_slot = 6

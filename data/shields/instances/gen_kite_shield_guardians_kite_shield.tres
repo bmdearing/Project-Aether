@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_rmywk")
 block_chance = 0.15
-armor_value = 15.0
+armor_value = 112.0
 item_id = "gen_kite_shield_guardians_kite_shield"
 display_name = "Guardian's Kite Shield"
 equip_slot = 6

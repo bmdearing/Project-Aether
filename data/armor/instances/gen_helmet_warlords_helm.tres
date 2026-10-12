@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_dafmr")
-armor_value = 106.0
+armor_value = 794.0
 item_id = "gen_helmet_warlords_helm"
 display_name = "Warlord's Helm"
 max_sockets = 3

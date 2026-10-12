@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_0vftk")
-armor_value = 230.0
+armor_value = 1723.0
 item_id = "gen_body_armour_heavy_plate"
 display_name = "Heavy Plate"
 equip_slot = 1

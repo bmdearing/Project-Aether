@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_c5gmg")
-armor_value = 134.0
+armor_value = 1004.0
 item_id = "gen_body_armour_chain_coat"
 display_name = "Chain Coat"
 equip_slot = 1

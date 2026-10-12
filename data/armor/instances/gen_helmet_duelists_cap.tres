@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_duqqf")
-armor_value = 130.0
-evasion_value = 250.0
+armor_value = 710.0
+evasion_value = 245.0
 item_id = "gen_helmet_duelists_cap"
 display_name = "Duelist's Cap"
 max_sockets = 3
