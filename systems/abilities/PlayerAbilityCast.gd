@@ -1396,7 +1396,7 @@ func _cast_linger(ability: Ability, damage_multiplier: float) -> void:
 		return
 	var duration := LINGER_DURATION * ability.get_duration_multiplier(_player.stat_sheet)
 	var total: float = ability.roll_damage(_player.stat_sheet)["final_damage"] * damage_multiplier
-	target.status_effects.apply_linger(_player, total / (LINGER_DURATION / StatusEffectComponent.LINGER_TICK_INTERVAL), duration)
+	target.status_effects.apply_linger(_player, total / LINGER_DURATION, duration)
 	_flash_ring(target.global_position, 1.2, ability, PALE_COLOR)
 
 ## A Lingering enemy's death passes Linger, fresh, to the nearest two
@@ -1408,14 +1408,14 @@ func _on_enemy_died(node: Node) -> void:
 	var ability := _resolve_ability_by_id("linger")
 	var radius := ability.radius if ability else 10.0
 	var duration := LINGER_DURATION * (ability.get_duration_multiplier(_player.stat_sheet) if ability else 1.0)
-	var tick := dead.status_effects.get_linger_tick_damage()
+	var dps := dead.status_effects.get_linger_dps()
 	var spread := 0
 	for other in _enemies_by_distance(dead.global_position, radius):
 		if spread >= linger_spread_count(ability):
 			break
 		if other == dead or other.status_effects.has_effect("linger"):
 			continue
-		other.status_effects.apply_linger(_player, tick, duration)
+		other.status_effects.apply_linger(_player, dps, duration)
 		_pale_flicker(_body_centre(dead), _body_centre(other))
 		spread += 1
 
@@ -1605,35 +1605,33 @@ func _tick_auras(delta: float) -> void:
 	_player.mana.spend(drain)
 	for a in auras:
 		_update_aura_ring(a)
+		if a.ability_id == "death_shroud" and a.has_twist("pale_pyre"):
+			_burn_pale_pyre(a, delta)
 	_aura_ticker -= delta
 	if _aura_ticker > 0.0:
 		return
 	_aura_ticker = AURA_PULSE
 	for a in auras:
-		if a.ability_id == "death_shroud" and a.has_twist("pale_pyre"):
-			_player.take_damage(_pale_pyre_per_sec() * AURA_PULSE * (1.0 - _player.get_dot_mitigation()), Constants.DamageType.PALE, null, Player.HitKind.DOT)
 		var radius := a.get_radius(_player.stat_sheet)
 		for enemy in _enemies_near(_player.global_position, radius):
 			if a.ability_id == "death_shroud":
 				enemy.status_effects.apply_curse("pallid", _player, AURA_PULSE + AURA_LINGER, DEATH_SHROUD_STRENGTH)
 				if a.has_twist("grave_chill"):
 					enemy.status_effects.apply_effect("slow", _player)
-				if a.has_twist("pale_pyre"):
-					_pale_pyre_hit(a, enemy)
 			else:
 				# A cast curse already holding the slot wins over the aura's pulse.
 				enemy.status_effects.apply_curse(CURSE_EFFECTS[a.ability_id], _player, AURA_PULSE + AURA_LINGER, curse_strength(a, _player.stat_sheet) * HEX_AURA_STRENGTH, false)
 
-## One AURA_PULSE of Pale Pyre on an enemy: Pale damage over time, the
-## pyre's share of maximum Life + Ward through the shroud's spell scaling.
-func _pale_pyre_hit(shroud: Ability, enemy: Enemy) -> void:
+## Pale Pyre, every frame: the pyre's share of maximum Life + Ward per second
+## burns you, and every enemy in the shroud through the shroud's spell scaling.
+func _burn_pale_pyre(shroud: Ability, delta: float) -> void:
 	var sheet := _player.stat_sheet
+	_player.take_damage(_pale_pyre_per_sec() * delta * (1.0 - _player.get_dot_mitigation()), Constants.DamageType.PALE, null, Player.HitKind.DOT)
 	var per_sec: float = shroud._base_hit(_pale_pyre_per_sec(), sheet)["base_damage"] * (1.0 + sheet.get_dot_multiplier())
-	var dmg := per_sec * AURA_PULSE
-	enemy.take_damage(dmg, Constants.DamageType.PALE, true, false, true)
-	enemy.status_effects.emitting_dot = true
-	EventBus.damage_dealt.emit(_player, enemy, dmg, Constants.DamageType.PALE, false, false)
-	enemy.status_effects.emitting_dot = false
+	for enemy in _enemies_near(_player.global_position, shroud.get_radius(sheet)):
+		var dmg := per_sec * delta
+		enemy.take_damage(dmg, Constants.DamageType.PALE, true, false, true)
+		enemy.status_effects.report_dot("pale_pyre", dmg, Constants.DamageType.PALE, _player, delta)
 
 func _pale_pyre_per_sec() -> float:
 	return (_player.health.max_health + _player.ward.max_ward) * PALE_PYRE_SHARE

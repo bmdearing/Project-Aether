@@ -1031,11 +1031,26 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 const DAMAGE_NUMBER_SCENE := preload("res://ui/damage_number/DamageNumber.tscn")
 const WARD_NUMBER_EXTRA_HEIGHT := 0.35  # Ward numbers sit a little above health numbers
 
+## Damage over time arrives every frame; its numbers are summed per damage
+## type and shown once per StatusEffectComponent.DOT_REPORT_INTERVAL.
+var _dot_numbers: Dictionary = {}  # damage type -> {"amount", "since" (msec)}
+
 ## Crit is always false for now: take_damage() has no crit info (callers
 ## hold it in their roll_damage() result but don't pass it through).
 func _spawn_damage_number(amount: float, damage_type: Constants.DamageType, alpha: float = 1.0, extra_height: float = 0.0, is_dot: bool = false) -> void:
 	if amount <= 0.0 or not is_inside_tree():
 		return
+	if is_dot:
+		var now := Time.get_ticks_msec()
+		var entry: Dictionary = _dot_numbers.get(damage_type, {"amount": 0.0, "since": now})
+		entry["amount"] += amount
+		if now - int(entry["since"]) < int(StatusEffectComponent.DOT_REPORT_INTERVAL * 1000.0):
+			_dot_numbers[damage_type] = entry
+			return
+		_dot_numbers.erase(damage_type)
+		amount = entry["amount"]
+		alpha = 1.0
+		extra_height = 0.0
 	var number: DamageNumber = DAMAGE_NUMBER_SCENE.instantiate()
 	get_tree().current_scene.add_child(number)
 	number.global_position = global_position + Vector3(randf_range(-0.3, 0.3), body_height - 0.1 + extra_height, randf_range(-0.3, 0.3))

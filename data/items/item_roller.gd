@@ -167,7 +167,7 @@ const AFFIX_POOL := [
 	{"stat_key": "increased_ailment_damage_unraveling", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Unraveling damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": [], "no_roll": true},
 	{"stat_key": "increased_ailment_damage_pallid", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Pallid damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": [], "no_roll": true},
 	{"stat_key": "dot_multiplier", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% more Damage over Time (rare)", "applies_to": ["weapon", "item"], "slots": [9], "brand_tags": []},
-	{"stat_key": "ailment_tick_rate", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% faster Ailment Tick Rate", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
+	{"stat_key": "ailment_tick_rate", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "Damaging Ailments deal their damage %d%% faster", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
 	{"stat_key": "increased_ailment_duration_bleed", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Bleed duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
 	{"stat_key": "increased_ailment_duration_ignite", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Ignite duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
 	{"stat_key": "increased_ailment_duration_chill", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Chill duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},

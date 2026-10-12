@@ -22,9 +22,10 @@ const PALLID_DAMAGE_REDUCTION := 0.2
 const PALLID_DURATION := 4.0
 ## "enhanced:<id>" (Fetish's Status Amplifier page) lasts this much longer.
 const ENHANCED_DURATION_MULTIPLIER := 1.5
-const BLEED_TICK_INTERVAL := 0.5
+## Damage over time is dealt every frame (damage per second x frame time);
+## its damage events and numbers are batched this often.
+const DOT_REPORT_INTERVAL := 0.5
 const BLEED_DAMAGE_PERCENT := 1.0
-const IGNITE_TICK_INTERVAL := 0.5
 const IGNITE_DAMAGE_PERCENT := 0.9  # total DoT damage = 90% of the triggering hit, spread across the duration
 
 const CHILL_DURATION := 2.5
@@ -46,7 +47,6 @@ const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.3  # all Esoteric damage
 ## Aetherburn: an Aetheric DoT (the hit's share spread over its duration) that
 ## also burns the target's Ward (an enemy) or Mana (the player) by as much.
 const AETHERBURN_DURATION := 4.0
-const AETHERBURN_TICK_INTERVAL := 0.5
 const AETHERBURN_DAMAGE_PERCENT := 0.8
 
 ## Caltrops' slow, refreshed every tick while standing in the field, so the
@@ -77,7 +77,6 @@ const DECOMPOSE_RESISTANCE := 25.0
 const ELEMENTAL_FRAGILITY_RESISTANCE := 20.0
 ## Linger: a Pale damage-over-time spell effect (not a curse) that boggles the mind (slower
 ## movement and actions). PlayerAbilityCast spreads it when the target dies.
-const LINGER_TICK_INTERVAL := 0.5
 const LINGER_SLOW := 0.25
 
 ## Effects this owner ignores (an Ascendant Juggernaut's crowd control).
@@ -85,43 +84,91 @@ var immune_to: Array = []
 var _timers: Dictionary = {}  # effect_id -> float seconds remaining
 var _chill_stacks: int = 0
 var _scorch_stacks: int = 0
-var _ignite_ticker: float = 0.0
-var _ignite_tick_damage: float = 0.0
+## Damage per second of each damaging effect while it lasts.
+var _ignite_dps: float = 0.0
 var _ignite_source: Node
-var _bleed_ticker: float = 0.0
-var _bleed_tick_damage: float = 0.0
+var _bleed_dps: float = 0.0
 var _bleed_source: Node
-var _aetherburn_ticker: float = 0.0
-var _aetherburn_tick_damage: float = 0.0
+var _aetherburn_dps: float = 0.0
 var _aetherburn_source: Node
-var _linger_ticker: float = 0.0
-var _linger_tick_damage: float = 0.0
+var _linger_dps: float = 0.0
 var _linger_source: Node
+## Damage over time waiting to be reported: key -> {"amount", "elapsed", "type", "source"}.
+var _dot_report: Dictionary = {}
 ## effect_id -> strength when applied (1.0 = base), from the source's
 ## "effectiveness" gear (effect_multiplier()).
 var _magnitude: Dictionary = {}
 var _armor_shred_stacks: int = 0
 var _suppressed_stacks: int = 0
-## Set per application from the caster's tick-rate bonus.
-var _ignite_tick_interval: float = IGNITE_TICK_INTERVAL
 var _resistance_shred_sources: Array = []  # each {"value": float, "remaining": float}
 
 @onready var _owner: Node = get_parent()
 
 func _process(delta: float) -> void:
+	_burn(delta)
 	for effect_id in _timers.keys().duplicate():
 		_timers[effect_id] -= delta
 		if _timers[effect_id] <= 0.0:
 			_expire(effect_id)
-	if has_effect("ignite"):
-		_tick_ignite(delta)
-	if has_effect("bleed"):
-		_tick_bleed(delta)
-	if has_effect("aetherburn"):
-		_tick_aetherburn(delta)
-	if has_effect("linger"):
-		_tick_linger(delta)
 	_tick_resistance_shred(delta)
+
+## This frame's share of every damaging effect, up to the end of its duration.
+func _burn(delta: float) -> void:
+	if has_effect("ignite"):
+		_deal_dot("ignite", _ignite_dps, minf(delta, _timers["ignite"]), Constants.DamageType.FIRE, _ignite_source, true)
+	if has_effect("bleed"):
+		_deal_dot("bleed", _bleed_dps, minf(delta, _timers["bleed"]), Constants.DamageType.KINETIC, _bleed_source, false)
+	if has_effect("aetherburn"):
+		var burned := _deal_dot("aetherburn", _aetherburn_dps, minf(delta, _timers["aetherburn"]), Constants.DamageType.AETHERIC, _aetherburn_source, true)
+		if _owner is Player:
+			_owner.mana.spend(burned)
+		elif _owner is Enemy:
+			_owner.drain_ward(burned)
+	if has_effect("linger"):
+		_deal_dot("linger", _linger_dps, minf(delta, _timers["linger"]), Constants.DamageType.PALE, _linger_source, true)
+
+## Deals dps x seconds of `damage_type` damage over time to the owner (never
+## evaded; the player's Resilience applies) and returns what was dealt.
+## is_spell: an enemy skips the Composure Break bonus, like spell hits.
+func _deal_dot(key: String, dps: float, seconds: float, damage_type: int, source: Node, is_spell: bool) -> float:
+	var dmg := dps * seconds
+	if dmg <= 0.0:
+		return 0.0
+	if _owner is Player:
+		dmg *= 1.0 - _owner.get_dot_mitigation()
+		_owner.take_damage(dmg, damage_type, source if is_instance_valid(source) else null, Player.HitKind.DOT)
+	elif _owner is Enemy:
+		_owner.take_damage(dmg, damage_type, is_spell, false, true)
+	report_dot(key, dmg, damage_type, source, seconds)
+	return dmg
+
+## Batches damage over time dealt to the owner into one damage event per
+## DOT_REPORT_INTERVAL per key (on-damage listeners see DoT as emitting_dot).
+func report_dot(key: String, amount: float, damage_type: int, source: Node, seconds: float) -> void:
+	var entry: Dictionary = _dot_report.get(key, {"amount": 0.0, "elapsed": 0.0})
+	entry["amount"] += amount
+	entry["elapsed"] += seconds
+	entry["type"] = damage_type
+	entry["source"] = source
+	_dot_report[key] = entry
+	if entry["elapsed"] >= DOT_REPORT_INTERVAL:
+		_flush_dot(key)
+
+func _flush_dot(key: String) -> void:
+	var entry: Dictionary = _dot_report.get(key, {})
+	_dot_report.erase(key)
+	if entry.is_empty() or entry["amount"] <= 0.0:
+		return
+	var source: Node = entry["source"] if is_instance_valid(entry["source"]) else null
+	emitting_dot = true
+	EventBus.damage_dealt.emit(source, _owner, entry["amount"], entry["type"], false, false)
+	emitting_dot = false
+
+## "+% faster Ailment Tick Rate": a damaging ailment deals the same total
+## damage over a proportionally shorter time.
+func _ailment_speed(source: Node) -> float:
+	var player := source as Player
+	return 1.0 + player.stat_sheet.get_ailment_tick_rate_bonus() if player and player.stat_sheet else 1.0
 
 func apply_resistance_shred(percent: float) -> void:
 	_resistance_shred_sources.append({"value": percent, "remaining": RESISTANCE_SHRED_DURATION})
@@ -240,9 +287,9 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 			_emit_applied("shock")
 		"bleed":
 			_bleed_source = source
-			_bleed_tick_damage = hit_damage * BLEED_DAMAGE_PERCENT * _ailment_damage_multiplier(source, "bleed") * effect_multiplier(source, "bleed") / (BLEED_DURATION / BLEED_TICK_INTERVAL)
-			_bleed_ticker = BLEED_TICK_INTERVAL
-			_timers["bleed"] = BLEED_DURATION * _duration_multiplier(source, "bleed")
+			var speed := _ailment_speed(source)
+			_bleed_dps = hit_damage * BLEED_DAMAGE_PERCENT * _ailment_damage_multiplier(source, "bleed") * effect_multiplier(source, "bleed") / BLEED_DURATION * speed
+			_timers["bleed"] = BLEED_DURATION * _duration_multiplier(source, "bleed") / speed
 			_emit_applied("bleed")
 		"armor_shred":
 			_armor_shred_stacks = mini(_armor_shred_stacks + 1, ARMOR_SHRED_MAX_STACKS)
@@ -258,9 +305,9 @@ func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.
 			_emit_applied("pallid")
 		"aetherburn":
 			_aetherburn_source = source
-			_aetherburn_tick_damage = hit_damage * AETHERBURN_DAMAGE_PERCENT * _ailment_damage_multiplier(source, "aetherburn") * effect_multiplier(source, "aetherburn") / (AETHERBURN_DURATION / AETHERBURN_TICK_INTERVAL)
-			_aetherburn_ticker = AETHERBURN_TICK_INTERVAL
-			_timers["aetherburn"] = AETHERBURN_DURATION * _duration_multiplier(source, "aetherburn")
+			var speed := _ailment_speed(source)
+			_aetherburn_dps = hit_damage * AETHERBURN_DAMAGE_PERCENT * _ailment_damage_multiplier(source, "aetherburn") * effect_multiplier(source, "aetherburn") / AETHERBURN_DURATION * speed
+			_timers["aetherburn"] = AETHERBURN_DURATION * _duration_multiplier(source, "aetherburn") / speed
 			_emit_applied("aetherburn")
 		"guard_break":
 			_timers["guard_break"] = ShieldBlock.GUARD_BREAK_STUN
@@ -317,36 +364,20 @@ func apply_curse(effect_id: String, source: Node, duration: float, strength: flo
 	_timers[effect_id] = maxf(_timers.get(effect_id, 0.0), duration)
 	_emit_applied(effect_id)
 
-## Linger: tick_damage Pale damage every LINGER_TICK_INTERVAL for duration.
+## Linger: dps Pale damage per second for duration.
 ## A spell, not a curse: it doesn't count toward the curse limit.
-func apply_linger(source: Node, tick_damage: float, duration: float) -> void:
+func apply_linger(source: Node, dps: float, duration: float) -> void:
 	if immune_to.has("linger"):
 		return
 	_linger_source = source
-	# A weaker recast (or second trigger) never lowers the ticks.
-	_linger_tick_damage = maxf(tick_damage, _linger_tick_damage) if has_effect("linger") else tick_damage
-	_linger_ticker = LINGER_TICK_INTERVAL
+	# A weaker recast (or second trigger) never lowers the burn.
+	_linger_dps = maxf(dps, _linger_dps) if has_effect("linger") else dps
 	_magnitude["linger"] = effect_multiplier(source, "linger")
 	_timers["linger"] = duration
 	_emit_applied("linger")
 
-func get_linger_tick_damage() -> float:
-	return _linger_tick_damage if has_effect("linger") else 0.0
-
-func _tick_linger(delta: float) -> void:
-	_linger_ticker -= delta
-	if _linger_ticker > 0.0:
-		return
-	_linger_ticker += LINGER_TICK_INTERVAL
-	var dmg := _linger_tick_damage
-	if _owner is Player:
-		dmg *= 1.0 - _owner.get_dot_mitigation()
-		_owner.take_damage(dmg, Constants.DamageType.PALE, _linger_source, Player.HitKind.DOT)
-	elif _owner is Enemy:
-		_owner.take_damage(dmg, Constants.DamageType.PALE, true, false, true)
-	emitting_dot = true
-	EventBus.damage_dealt.emit(_linger_source, _owner, dmg, Constants.DamageType.PALE, false, false)
-	emitting_dot = false
+func get_linger_dps() -> float:
+	return _linger_dps if has_effect("linger") else 0.0
 
 ## Intimidating Shout: takes more damage of every type.
 const INTIMIDATED_DAMAGE_TAKEN := 0.2
@@ -501,54 +532,17 @@ func _apply_chill(source: Node) -> void:
 		_apply_timed("chill", CHILL_DURATION, source)
 		_emit_applied("chill")
 
-## Re-applying refreshes rather than stacking. Damage and tick-rate bonuses
-## come from the source's gear; faster ticks keep the same total damage.
+## Re-applying refreshes rather than stacking. Damage and speed bonuses come
+## from the source's gear; a faster Ignite deals the same total sooner.
 func _apply_ignite(source: Node, hit_damage: float) -> void:
 	_ignite_source = source
-	var source_stats: StatSheet = source.stat_sheet if source is Player else null
-	var total_damage := hit_damage * IGNITE_DAMAGE_PERCENT
-	total_damage *= effect_multiplier(source, "ignite")
-	if source_stats:
+	var total_damage := hit_damage * IGNITE_DAMAGE_PERCENT * effect_multiplier(source, "ignite")
+	if source is Player:
 		total_damage *= _ailment_damage_multiplier(source, "ignite")
-	var tick_interval := IGNITE_TICK_INTERVAL
-	if source_stats:
-		tick_interval /= 1.0 + source_stats.get_ailment_tick_rate_bonus()
-	var ticks := IGNITE_DURATION / tick_interval
-	_ignite_tick_damage = total_damage / ticks
-	_ignite_ticker = tick_interval
-	_ignite_tick_interval = tick_interval
-	var duration := IGNITE_DURATION * _duration_multiplier(source, "ignite")
-	_timers["ignite"] = duration
+	var speed := _ailment_speed(source)
+	_ignite_dps = total_damage / IGNITE_DURATION * speed
+	_timers["ignite"] = IGNITE_DURATION * _duration_multiplier(source, "ignite") / speed
 	_emit_applied("ignite")
-
-func _tick_ignite(delta: float) -> void:
-	_ignite_ticker -= delta
-	if _ignite_ticker > 0.0:
-		return
-	_ignite_ticker += _ignite_tick_interval
-	var dmg := _ignite_tick_damage
-	if _owner is Player:
-		dmg *= 1.0 - _owner.get_dot_mitigation()
-		_owner.take_damage(dmg, Constants.DamageType.FIRE, _ignite_source, Player.HitKind.DOT)  # ticks are never evaded
-	elif _owner is Enemy:
-		# is_spell: ticks skip the Composure Break bonus, like spell hits.
-		_owner.take_damage(dmg, Constants.DamageType.FIRE, true, false, true)
-	emitting_dot = true
-	EventBus.damage_dealt.emit(_ignite_source, _owner, dmg, Constants.DamageType.FIRE, false, false)
-	emitting_dot = false
-
-func _tick_bleed(delta: float) -> void:
-	_bleed_ticker -= delta
-	if _bleed_ticker > 0.0:
-		return
-	_bleed_ticker += BLEED_TICK_INTERVAL
-	if _owner is Player:
-		_owner.take_damage(_bleed_tick_damage * (1.0 - _owner.get_dot_mitigation()), Constants.DamageType.KINETIC, _bleed_source, Player.HitKind.DOT)
-	elif _owner is Enemy:
-		_owner.take_damage(_bleed_tick_damage, Constants.DamageType.KINETIC, false, false, true)
-	emitting_dot = true
-	EventBus.damage_dealt.emit(_bleed_source, _owner, _bleed_tick_damage, Constants.DamageType.KINETIC, false, false)
-	emitting_dot = false
 
 ## "+% increased X duration" from the source's gear.
 func _duration_multiplier(source: Node, effect_id: String) -> float:
@@ -566,6 +560,8 @@ func _ailment_damage_multiplier(source: Node, effect_id: String) -> float:
 
 func _expire(effect_id: String) -> void:
 	_timers.erase(effect_id)
+	if _dot_report.has(effect_id):
+		_flush_dot(effect_id)
 	_curse_order.erase(effect_id)
 	if effect_id == "armor_shred":
 		_armor_shred_stacks = 0
@@ -587,23 +583,6 @@ func _emit_applied(effect_id: String, stacks: int = 1) -> void:
 func _emit_expired(effect_id: String) -> void:
 	EventBus.status_effect_expired.emit(_owner, effect_id)
 	effect_expired.emit(effect_id)
-
-func _tick_aetherburn(delta: float) -> void:
-	_aetherburn_ticker -= delta
-	if _aetherburn_ticker > 0.0:
-		return
-	_aetherburn_ticker += AETHERBURN_TICK_INTERVAL
-	var dmg := _aetherburn_tick_damage
-	if _owner is Player:
-		dmg *= 1.0 - _owner.get_dot_mitigation()
-		_owner.take_damage(dmg, Constants.DamageType.AETHERIC, _aetherburn_source, Player.HitKind.DOT)
-		_owner.mana.spend(dmg)
-	elif _owner is Enemy:
-		_owner.take_damage(dmg, Constants.DamageType.AETHERIC, true, false, true)
-		_owner.drain_ward(dmg)
-	emitting_dot = true
-	EventBus.damage_dealt.emit(_aetherburn_source, _owner, dmg, Constants.DamageType.AETHERIC, false, false)
-	emitting_dot = false
 
 ## Debuffs whose strength scales with "debuff effectiveness"; every ailment
 ## also scales with "ailment effectiveness".
