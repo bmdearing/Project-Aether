@@ -67,7 +67,8 @@ static func _random_affix_for(item: Item, pool: Array, power_level: int, exclude
 	if candidates.is_empty():
 		return null
 	var entry: Dictionary = candidates[randi() % candidates.size()]
-	var rolled := ItemRoller.roll_tier_range(entry["stat_key"], entry["tier1_min"], entry["tier1_max"], power_level)
+	var tiers := ItemRoller.entry_tiers(entry, item.equip_slot)
+	var rolled := ItemRoller.roll_tier_range(entry["stat_key"], tiers.x, tiers.y, power_level)
 	var rolled_tier: int = rolled["tier"]
 	var value_range := Vector2(rolled["min"], rolled["max"])
 	var value := ItemRoller.roll_value(entry["stat_key"], value_range)

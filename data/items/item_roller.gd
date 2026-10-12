@@ -134,7 +134,7 @@ const AFFIX_POOL := [
 	# already had before this patch.
 	{"stat_key": "mana_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Mana Regeneration per second", "applies_to": ["armor", "item"], "slots": [0, 9, 10], "brand_tags": ["resource"]},
 	{"stat_key": "attack_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Attack Speed", "applies_to": ["weapon", "armor", "item"], "slots": [2, 11], "brand_tags": ["skills"]},
-	{"stat_key": "cast_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Cast Speed", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["skills"]},
+	{"stat_key": "cast_speed", "tier1_min": 26.0, "tier1_max": 32.0, "desc": "+%d%% increased Cast Speed", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["skills"]},
 	{"stat_key": "move_speed", "tier1_min": 4.0, "tier1_max": 8.0, "desc": "+%d%% increased Move Speed", "applies_to": ["armor"], "slots": [3], "brand_tags": ["movement"]},
 	{"stat_key": "debuff_effectiveness", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% Debuff Effectiveness", "applies_to": ["armor", "item"], "slots": [0, 9], "brand_tags": ["skills"]},
 	# Stamina no longer rolls; kept so items that already have it still read.
@@ -211,7 +211,8 @@ const AFFIX_POOL := [
 	# Patch v4.0 Healing/Sustain Mod Pool (flat_ward already existed pre-v4.0)
 	{"stat_key": "life_regen_flat", "tier1_min": 28.0, "tier1_max": 36.0, "desc": "Regenerate %d Life per second", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": []},
 	{"stat_key": "life_regen_increased", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Life Regeneration", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": []},
-	{"stat_key": "flat_life", "tier1_min": 88.0, "tier1_max": 110.0, "desc": "+%d to Life", "applies_to": ["armor", "shield", "item"], "brand_tags": []},
+	# Body armour tops out at 179 Life, helmets/gloves/boots at 129 (Tier 1).
+	{"stat_key": "flat_life", "tier1_min": 88.0, "tier1_max": 110.0, "desc": "+%d to Life", "applies_to": ["armor", "shield", "item"], "slot_tiers": {1: [114.56, 143.2], 0: [82.56, 103.2], 2: [82.56, 103.2], 3: [82.56, 103.2]}, "brand_tags": []},
 	{"stat_key": "life_increased", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Life", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": []},
 	{"stat_key": "mana_regen_increased", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Mana Regeneration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
 	{"stat_key": "flat_mana", "tier1_min": 68.0, "tier1_max": 90.0, "desc": "+%d to Mana", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
@@ -350,7 +351,7 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 				entries.append(entry)
 		for i in entries.size():
 			var entry: Dictionary = entries[i]
-			var rolled := roll_tier_range(entry["stat_key"], entry["tier1_min"], entry["tier1_max"], power_level)
+			var rolled := roll_tier_range(entry["stat_key"], entry_tiers(entry, item.equip_slot).x, entry_tiers(entry, item.equip_slot).y, power_level)
 			var rolled_tier: int = rolled["tier"]
 			var value_range := Vector2(rolled["min"], rolled["max"])
 			var value := roll_value(entry["stat_key"], value_range)
@@ -821,21 +822,30 @@ static func _has_defense(item: Item, defense: String) -> bool:
 		"ward": return item.get("ward_value") > 0.0
 	return true
 
+## An AFFIX_POOL entry's Tier 2 range (tier1_min/tier1_max) for an item in
+## `slot`: its slot_tiers row when it has one for that slot.
+static func entry_tiers(entry: Dictionary, slot: int = -1) -> Vector2:
+	var by_slot: Dictionary = entry.get("slot_tiers", {})
+	if by_slot.has(slot):
+		return Vector2(by_slot[slot][0], by_slot[slot][1])
+	return Vector2(entry["tier1_min"], entry["tier1_max"])
+
 ## How many tiers a rolled modifier has (its own table, or TIER_COUNT).
 static func tier_count_for(affix: ItemAffix) -> int:
 	var table := levelled_table(affix.stat_key)
 	return table.size() if not table.is_empty() else TIER_COUNT
 
 ## The value range of `tier` for a rolled modifier, or Vector2(-1, -1) when
-## its source can't be found (hand-authored, Unique, corrupted).
-static func tier_range_for(affix: ItemAffix, tier: int) -> Vector2:
+## its source can't be found (hand-authored, Unique, corrupted). slot picks a
+## per-slot range (slot_tiers) where the modifier has one.
+static func tier_range_for(affix: ItemAffix, tier: int, slot: int = -1) -> Vector2:
 	var table := levelled_table(affix.stat_key)
 	if not table.is_empty():
 		var row: Array = table[clampi(tier, 1, table.size()) - 1]
 		return Vector2(row[1], row[2])
 	for entry in AFFIX_POOL:
 		if entry["stat_key"] == affix.stat_key:
-			return _tier_range(entry["tier1_min"], entry["tier1_max"], tier)
+			return _tier_range(entry_tiers(entry, slot).x, entry_tiers(entry, slot).y, tier)
 	if _weapon_affix_cache.is_empty():
 		_build_weapon_affix_cache()
 	for source in _weapon_affix_cache:
@@ -845,8 +855,8 @@ static func tier_range_for(affix: ItemAffix, tier: int) -> Vector2:
 
 ## Moves a rolled modifier to `tier`, keeping its value's place in the range,
 ## and rewrites its text. False when the modifier has no tier data.
-static func retier(affix: ItemAffix, tier: int) -> bool:
-	var new_range := tier_range_for(affix, tier)
+static func retier(affix: ItemAffix, tier: int, slot: int = -1) -> bool:
+	var new_range := tier_range_for(affix, tier, slot)
 	if new_range.x < 0.0:
 		return false
 	var at := inverse_lerp(affix.value_min, affix.value_max, affix.value) if affix.value_max > affix.value_min else 1.0

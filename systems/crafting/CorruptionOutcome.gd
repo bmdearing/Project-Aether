@@ -49,22 +49,22 @@ class RemoveSocket extends CorruptionOutcome:
 class TierUp extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
 		var upgradeable := item.affixes.filter(
-			func(a: ItemAffix): return not a.is_implicit and a.tier > 1 and ItemRoller.tier_range_for(a, a.tier - 1).x >= 0.0
+			func(a: ItemAffix): return not a.is_implicit and a.tier > 1 and ItemRoller.tier_range_for(a, a.tier - 1, item.equip_slot).x >= 0.0
 		)
 		if upgradeable.is_empty():
 			return
 		var target: ItemAffix = upgradeable[randi() % upgradeable.size()]
-		ItemRoller.retier(target, target.tier - 1)
+		ItemRoller.retier(target, target.tier - 1, item.equip_slot)
 
 class TierDown extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
 		var downgradeable := item.affixes.filter(
-			func(a: ItemAffix): return not a.is_implicit and a.tier > 0 and a.tier < ItemRoller.tier_count_for(a) and ItemRoller.tier_range_for(a, a.tier + 1).x >= 0.0
+			func(a: ItemAffix): return not a.is_implicit and a.tier > 0 and a.tier < ItemRoller.tier_count_for(a) and ItemRoller.tier_range_for(a, a.tier + 1, item.equip_slot).x >= 0.0
 		)
 		if downgradeable.is_empty():
 			return
 		var target: ItemAffix = downgradeable[randi() % downgradeable.size()]
-		ItemRoller.retier(target, target.tier + 1)
+		ItemRoller.retier(target, target.tier + 1, item.equip_slot)
 
 ## ---- Tier 2: Significant -----------------------------------------------
 

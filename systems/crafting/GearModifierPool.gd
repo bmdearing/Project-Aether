@@ -36,12 +36,13 @@ static func defs_for(item: Item) -> Array[ModifierDef]:
 				defs.append(_library_def(source, best_tier, level))
 	else:
 		for entry in ItemRoller._pool_for(item):
-			defs.append(_pool_def(entry, best_tier, level))
+			defs.append(_pool_def(entry, best_tier, level, item.equip_slot))
 	return defs
 
-static func _pool_def(entry: Dictionary, best_tier: int, level: int = 100) -> ModifierDef:
+static func _pool_def(entry: Dictionary, best_tier: int, level: int = 100, slot: int = -1) -> ModifierDef:
 	var levelled := ItemRoller.has_levelled_tiers(entry["stat_key"])
-	var key := "pool:%s|%d" % [entry["stat_key"], ItemRoller.levelled_tiers_for(entry["stat_key"], level).size() if levelled else best_tier]
+	var range_ := ItemRoller.entry_tiers(entry, slot)
+	var key := "pool:%s|%s|%d" % [entry["stat_key"], range_, ItemRoller.levelled_tiers_for(entry["stat_key"], level).size() if levelled else best_tier]
 	if _cache.has(key):
 		return _cache[key]
 	var def := ModifierDef.new()
@@ -51,7 +52,7 @@ static func _pool_def(entry: Dictionary, best_tier: int, level: int = 100) -> Mo
 	def.text = entry["desc"]
 	def.affix_type = ModifierDef.AffixType.SUFFIX if _is_suffix(entry["stat_key"]) else ModifierDef.AffixType.PREFIX
 	def.tags = _tags(entry["brand_tags"], entry["stat_key"])
-	def.tiers = _levelled_tiers(entry["stat_key"], level) if levelled else _tiers(entry["tier1_min"], entry["tier1_max"], best_tier)
+	def.tiers = _levelled_tiers(entry["stat_key"], level) if levelled else _tiers(range_.x, range_.y, best_tier)
 	_cache[key] = def
 	return def
 
