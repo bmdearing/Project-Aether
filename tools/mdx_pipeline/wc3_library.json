@@ -1,5 +1,5 @@
 {
-  "_comment": "Warcraft III sounds for SoundLibrary slots and ambience loops. Run: node wc3_library.js (then Godot --headless --path . --import). Slots not listed keep their current sounds (guns, reloads, dry fire, enemy body falls, bullet ricochets and wood thunks, thunder, and the short rain/wind/river loops - WC3's are 6-11 s and repeat audibly): WC3 has no fitting modern gun sounds. Paths are CASC paths without the war3.w3mod prefix; the HD copy is preferred.",
+  "_comment": "Warcraft III sounds for SoundLibrary slots and ambience loops. Run: node wc3_library.js (then Godot --headless --path . --import). Slots not listed keep their current sounds (guns, reloads, dry fire, enemy body falls, bullet ricochets and wood thunks, thunder, and the factory_hall and boiler_room machinery loops (WC3 has no machinery ambience), the short rain/wind/river loops - WC3's are 6-11 s and repeat audibly): WC3 has no fitting modern gun sounds. Paths are CASC paths without the war3.w3mod prefix; the HD copy is preferred.",
   "out_dir": "assets/sfx/wc3",
   "slots": {
     "impact_flesh": [
@@ -143,8 +143,6 @@
   "ambience_dir": "assets/sfx/ambience",
   "ambience": {
     "forest": "sound/ambient/ashenvale/ashenvaleday.ogg",
-    "eerie_tunnel": "sound/ambient/dungeoncave/dungeoncavequadloop1.ogg",
-    "boiler_room": "sound/ambient/sewers1ambience.ogg",
-    "factory_hall": "sound/ambient/cityscape/cityscapeday.ogg"
+    "eerie_tunnel": "sound/ambient/dungeoncave/dungeoncavequadloop1.ogg"
   }
 }
