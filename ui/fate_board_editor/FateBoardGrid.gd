@@ -177,7 +177,7 @@ func _get_tooltip(at_position: Vector2) -> String:
 func _make_custom_tooltip(for_text: String) -> Object:
 	if board == null or not board.placements.has(for_text):
 		return null
-	var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+	var card: ItemCard = ItemSlotButton.new_item_card()
 	card.footer_lines = ChainCalculator.chain_lines_for(board, for_text)
 	card.slate_amplifier = ChainCalculator.attribute_multiplier(board, for_text)
 	card.display_slate(board.placements[for_text].slate)

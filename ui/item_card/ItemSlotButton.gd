@@ -11,7 +11,12 @@ class_name ItemSlotButton
 ## `draggable` enables drag-and-drop between slots, emitting
 ## item_drag_dropped(source_index, target_index) by child index.
 
-const ITEM_CARD_SCENE := preload("res://ui/item_card/ItemCard.tscn")
+## Loaded on first use rather than preloaded: a preload here can resolve to
+## an empty scene when another script's preloads close a cycle back to it.
+const ITEM_CARD_PATH := "res://ui/item_card/ItemCard.tscn"
+
+static func new_item_card() -> ItemCard:
+	return (load(ITEM_CARD_PATH) as PackedScene).instantiate()
 
 signal item_drag_dropped(source_index: int, target_index: int)
 
@@ -111,7 +116,7 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 func _make_custom_tooltip(_for_text: String) -> Object:
 	if item == null and slate == null and ability == null:
 		return null
-	var card: ItemCard = ITEM_CARD_SCENE.instantiate()
+	var card: ItemCard = ItemSlotButton.new_item_card()
 	if item:
 		if compare:
 			card.compare_against = ItemCompare.equipped_for(item)

@@ -8,7 +8,7 @@ const SEPARATOR := "--------"
 
 ## content: Item, Slate, Ability or a currency id (StringName).
 static func of(content, count: int = 1) -> String:
-	var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+	var card: ItemCard = ItemSlotButton.new_item_card()
 	if content is Item:
 		card.display_item(content)
 	elif content is Slate:

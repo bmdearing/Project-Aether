@@ -350,7 +350,7 @@ func _refresh_web() -> void:
 		_web_upgrade.disabled = true
 	for child in _web_card_holder.get_children():
 		child.queue_free()
-	var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+	var card: ItemCard = ItemSlotButton.new_item_card()
 	var player := get_tree().get_first_node_in_group("player") as Player
 	# Shown as its web makes it (Molten Core's Comet is Fire).
 	card.display_ability(PlayerAbilityCast.web_variant(_web_ability), player.stat_sheet if player else null)

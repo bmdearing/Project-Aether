@@ -4,7 +4,6 @@ class_name LootLookCard
 ## beside the crosshair, with the pick-up key under it. Hold Alt for the
 ## card's details, same as in the inventory.
 
-const ITEM_CARD_SCENE := preload("res://ui/item_card/ItemCard.tscn")
 ## Gap between the crosshair and the card's left edge.
 const GAP := 64.0
 const MARGIN := 12.0
@@ -18,7 +17,7 @@ var _shown: LootPickup = null
 func _ready() -> void:
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_card = ITEM_CARD_SCENE.instantiate()
+	_card = ItemSlotButton.new_item_card()
 	_card.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_card.visible = false
 	add_child(_card)

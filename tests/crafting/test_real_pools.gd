@@ -364,7 +364,7 @@ func _test_hub_crafting() -> void:
 	# With Severance picked up, the ring's card marks the modifier it would remove.
 	GameState.inventory.add(&"severance")
 	screen._armed = &"severance"
-	var card: ItemCard = InventoryGridView.ITEM_CARD_SCENE.instantiate()
+	var card: ItemCard = ItemSlotButton.new_item_card()
 	card.craft_preview_for = screen.inventory_grid.craft_preview
 	add_child(card)
 	card.display_item(ring)

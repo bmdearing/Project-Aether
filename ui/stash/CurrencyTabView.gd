@@ -231,7 +231,7 @@ class CurrencySlot extends Button:
 	## With an item on the bench, an Orb shows the item with what the Orb
 	## would do to it (removals marked orange, the modifiers it can add).
 	func _make_custom_tooltip(_for_text: String) -> Object:
-		var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+		var card: ItemCard = ItemSlotButton.new_item_card()
 		var bench := view.bench_item
 		if bench != null and Constants.ORB_IDS.has(id) and view.preview_for.is_valid():
 			var preview: CraftPreview = view.preview_for.call(id)
@@ -294,7 +294,7 @@ class BenchSlot extends Button:
 			accept_event()
 
 	func _make_custom_tooltip(_for_text: String) -> Object:
-		var card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+		var card: ItemCard = ItemSlotButton.new_item_card()
 		if view.bench_item is Slate:
 			card.display_slate(view.bench_item as Slate)
 		elif view.bench_item is Item:

@@ -40,7 +40,7 @@ static func wrap(card: ItemCard, item: Item) -> Control:
 		label.add_theme_color_override("font_outline_color", Color.BLACK)
 		label.add_theme_constant_override("outline_size", 4)
 		column.add_child(label)
-		var other_card: ItemCard = ItemSlotButton.ITEM_CARD_SCENE.instantiate()
+		var other_card: ItemCard = ItemSlotButton.new_item_card()
 		other_card.display_item(other)
 		column.add_child(other_card)
 		row.add_child(column)

@@ -12,7 +12,6 @@ signal drop_failed
 ## A left click on a cell no item covers.
 signal empty_clicked(view: InventoryGridView)
 
-const ITEM_CARD_SCENE := preload("res://ui/item_card/ItemCard.tscn")
 const CELL_COLOR := Color(0.03, 0.035, 0.06, 0.85)
 const LINE_COLOR := Color(0.55, 0.45, 0.28, 0.28)
 const CURRENCY_COLOR := Color(0.62, 0.5, 0.22)
@@ -232,7 +231,7 @@ class EntryBlock extends Button:
 			accept_event()
 
 	func _make_custom_tooltip(_for_text: String) -> Object:
-		var card: ItemCard = ITEM_CARD_SCENE.instantiate()
+		var card: ItemCard = ItemSlotButton.new_item_card()
 		if entry.is_currency():
 			card.display_currency(entry.content, entry.count, view.currency_hint.call(entry) if view.currency_hint.is_valid() else "")
 			return card

@@ -6,7 +6,6 @@ class_name UniqueTabView
 
 signal slot_clicked(id: String)
 
-const ITEM_CARD_SCENE := preload("res://ui/item_card/ItemCard.tscn")
 const SLOT_SIZE := Vector2(172, 58)
 const COLUMNS := 3
 
@@ -51,7 +50,7 @@ class UniqueSlot extends Control:
 		var shown: Item = item if item else UniqueRoller.build(def, 1)
 		if shown == null:
 			return null
-		var card: ItemCard = ITEM_CARD_SCENE.instantiate()
+		var card: ItemCard = ItemSlotButton.new_item_card()
 		card.display_item(shown)
 		return card
 
