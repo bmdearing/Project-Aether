@@ -498,7 +498,8 @@ func _get_cast_type_label(ability: Ability) -> String:
 		Ability.CastType.INSTANT:
 			return "Instant"
 		Ability.CastType.CAST_TIME:
-			return "%.1fs Cast" % ability.base_cast_time
+			# With the character's Cast Speed and the spell's own web.
+			return "%.2fs Cast" % ability.get_cast_time(_stat_sheet_for_card())
 		Ability.CastType.CHANNELED:
 			return "Channeled"
 	return "Instant"

@@ -522,6 +522,7 @@ func _update_boss_bar(boss: Enemy) -> void:
 	_boss_bar.set_ward(boss.get_ward(), boss.get_ward_max())
 	_boss_bar.set_status_source(boss.status_effects)
 	_boss_bar.set_riposte_ready(boss.composure != null and boss.composure.is_broken)
+	_boss_bar.set_unhittable(boss.invulnerable)
 	var marks: Array[float] = []
 	if boss.boss_brain:
 		marks = boss.boss_brain.phase_thresholds

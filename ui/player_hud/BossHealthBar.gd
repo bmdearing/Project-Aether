@@ -13,6 +13,7 @@ const SHADER_CODE := """
 shader_type canvas_item;
 
 uniform float fill_fraction : hint_range(0.0, 1.0) = 1.0;
+uniform float grey : hint_range(0.0, 1.0) = 0.0;
 
 void fragment() {
 	vec2 uv = UV;
@@ -30,6 +31,8 @@ void fragment() {
 		col += vec3(0.45, 0.08, 0.03) * edge_glow * (0.6 + 0.5 * pulse);
 	}
 
+	float lum = dot(col, vec3(0.3, 0.59, 0.11));
+	col = mix(col, vec3(lum * 1.6), grey);
 	COLOR = vec4(col, 1.0);
 }
 """
@@ -118,6 +121,11 @@ func _ready() -> void:
 ## The statuses to show under the bar.
 func set_status_source(source: StatusEffectComponent) -> void:
 	_icons.source = source
+
+## Greyed out while hits can't hurt the boss (phase transitions, Earth Wheel).
+func set_unhittable(unhittable: bool) -> void:
+	_shader_mat.set_shader_parameter("grey", 1.0 if unhittable else 0.0)
+	_ward_fill.color = Color(0.6, 0.6, 0.62) if unhittable else AetherStyle.AETHER
 
 ## The bar shatters while the boss can be riposted.
 func set_riposte_ready(can_riposte: bool) -> void:
