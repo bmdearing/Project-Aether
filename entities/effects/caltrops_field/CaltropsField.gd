@@ -6,9 +6,7 @@ class_name CaltropsField
 
 const DURATION := 5.0
 const TICK_INTERVAL := 0.5
-const TICK_DAMAGE_PERCENT := 0.3  # each tick = 30% of a fresh damage roll
-## Overlapping fields share a per-enemy cooldown (HitCooldown).
-const HIT_INTERVAL := 0.15
+const TICK_DAMAGE_PERCENT := 0.3  # 30% of an expected hit per TICK_INTERVAL, dealt continuously
 
 var _radius: float = 4.0
 var _ability: Ability
@@ -81,24 +79,24 @@ func _physics_process(delta: float) -> void:
 	if _rim_mat and fade < 1.0:
 		_rim_mat.set_shader_parameter("alpha", RIM_ALPHA * fade)
 		_spike_mat.albedo_color.a = fade
-	_ticker -= delta
-	if _ticker > 0.0:
-		return
-	_ticker += TICK_INTERVAL
 	if _ability == null or _stat_sheet == null:
 		return
+	_ticker -= delta
+	var slow_now := _ticker <= 0.0
+	if slow_now:
+		_ticker += TICK_INTERVAL
+	# TICK_DAMAGE_PERCENT of an expected hit per TICK_INTERVAL, dealt continuously.
+	var dps := _ability.predict_damage(_stat_sheet) * TICK_DAMAGE_PERCENT / TICK_INTERVAL
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
 		if enemy.distance_to_body(global_position) > _radius:
 			continue
-		if not HitCooldown.try_hit(&"caltrops", enemy, HIT_INTERVAL):
-			continue
-		var hit := _ability.roll_damage(_stat_sheet)
-		var damage: float = hit["final_damage"] * TICK_DAMAGE_PERCENT
-		enemy.take_damage(damage, Constants.DamageType.PIERCING)
-		EventBus.damage_dealt.emit(_source, enemy, damage, Constants.DamageType.PIERCING, false, hit["is_critical"])
-		enemy.status_effects.apply_effect("slow", _source)
+		# Overlapping fields: only one damages an enemy each frame.
+		if HitCooldown.try_hit(&"caltrops", enemy, delta * 0.5):
+			enemy.take_dot(dps, delta, Constants.DamageType.PIERCING, _source, "caltrops")
+		if slow_now:
+			enemy.status_effects.apply_effect("slow", _source)
 
 ## ---- Visuals -----------------------------------------------------------------
 

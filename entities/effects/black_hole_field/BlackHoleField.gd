@@ -30,7 +30,6 @@ const LIGHT_ENERGY := 1.6
 
 var _radius: float = 5.0
 var _elapsed: float = 0.0
-var _ticker: float = 0.0
 var _ability: Ability
 var _stat_sheet: StatSheet
 var _source: Node
@@ -64,10 +63,8 @@ func _physics_process(delta: float) -> void:
 		_burst()
 		queue_free()
 		return
-	_ticker -= delta
-	var should_tick := _ticker <= 0.0
-	if should_tick:
-		_ticker += TICK_INTERVAL
+	# One expected hit per TICK_INTERVAL, dealt continuously.
+	var dps := _ability.predict_damage(_stat_sheet) / TICK_INTERVAL if _ability and _stat_sheet else 0.0
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
@@ -83,11 +80,8 @@ func _physics_process(delta: float) -> void:
 		# enemy took zero damage across a full second of ticks).
 		if dist >= 0.3:
 			enemy.apply_pull(to_center.normalized() * PULL_SPEED * clampf(dist / 1.5, 0.3, 1.0))
-		if should_tick and _ability and _stat_sheet:
-			var hit := _ability.roll_damage(_stat_sheet)
-			var damage: float = hit["final_damage"]
-			enemy.take_damage(damage, _ability.damage_type)
-			EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
+		if dps > 0.0:
+			enemy.take_dot(dps, delta, _ability.damage_type, _source, "black_hole")
 
 ## ---- Visuals -----------------------------------------------------------------
 

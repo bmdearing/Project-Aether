@@ -1629,9 +1629,7 @@ func _burn_pale_pyre(shroud: Ability, delta: float) -> void:
 	_player.take_damage(_pale_pyre_per_sec() * delta * (1.0 - _player.get_dot_mitigation()), Constants.DamageType.PALE, null, Player.HitKind.DOT)
 	var per_sec: float = shroud._base_hit(_pale_pyre_per_sec(), sheet)["base_damage"] * (1.0 + sheet.get_dot_multiplier())
 	for enemy in _enemies_near(_player.global_position, shroud.get_radius(sheet)):
-		var dmg := per_sec * delta
-		enemy.take_damage(dmg, Constants.DamageType.PALE, true, false, true)
-		enemy.status_effects.report_dot("pale_pyre", dmg, Constants.DamageType.PALE, _player, delta)
+		enemy.take_dot(per_sec, delta, Constants.DamageType.PALE, _player, "pale_pyre")
 
 func _pale_pyre_per_sec() -> float:
 	return (_player.health.max_health + _player.ward.max_ward) * PALE_PYRE_SHARE

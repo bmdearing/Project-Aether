@@ -59,24 +59,25 @@ func _physics_process(delta: float) -> void:
 	global_position += _heading * MOVE_SPEED * delta
 	_animate(delta)
 
-	_ticker -= delta
-	if _ticker > 0.0:
-		return
-	_ticker += TICK_INTERVAL
 	if _ability == null or _stat_sheet == null:
 		return
+	_ticker -= delta
+	var pulse := _ticker <= 0.0
+	if pulse:
+		_ticker += TICK_INTERVAL
+	# TICK_DAMAGE_PERCENT of an expected hit per TICK_INTERVAL, dealt continuously;
+	# stance damage and statuses still land once per TICK_INTERVAL.
+	var per_tick := _ability.predict_damage(_stat_sheet) * TICK_DAMAGE_PERCENT
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
 		if enemy.distance_to_body(global_position) > _radius:
 			continue
-		var hit := _ability.roll_damage(_stat_sheet)
-		var damage: float = hit["final_damage"] * TICK_DAMAGE_PERCENT
-		enemy.take_damage(damage, _ability.damage_type)
-		if enemy.stance:
-			enemy.stance.apply_attack_stance_damage(damage, _ability.damage_type)
-		EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
-		_ability.apply_statuses(enemy, _source, damage)
+		enemy.take_dot(per_tick / TICK_INTERVAL, delta, _ability.damage_type, _source, "tornado")
+		if pulse:
+			if enemy.stance:
+				enemy.stance.apply_attack_stance_damage(per_tick, _ability.damage_type)
+			_ability.apply_statuses(enemy, _source, per_tick)
 
 ## Nearest living enemy within SEEK_RADIUS steers the heading; otherwise a
 ## periodic random redirect keeps it covering ground.

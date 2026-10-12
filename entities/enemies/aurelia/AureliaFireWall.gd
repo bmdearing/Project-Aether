@@ -1,9 +1,9 @@
 extends Node3D
 class_name AureliaFireWall
 ## Aurelia's Fire Wall: a quarter circle of flame rolling outward from her.
-## Once it's SPLIT_AT out it parts in the middle, leaving a gap GAP_WIDTH
-## wide to step through; anywhere else along the arc burns. It hits a
-## player once.
+## Once it's SPLIT_AT out it parts at gap_angle (random per cast, within
+## GAP_RANGE of the middle), leaving a gap GAP_WIDTH wide to step through;
+## anywhere else along the arc burns. It hits a player once.
 
 const SPEED := 8.5
 const HALF_ARC := PI / 4.0
@@ -12,6 +12,8 @@ const SPLIT_AT := 3.0
 ## The gap opens over this many metres after SPLIT_AT.
 const SPLIT_OPEN := 1.5
 const GAP_WIDTH := 2.4
+## How far from the middle (radians) the gap may sit.
+const GAP_RANGE := HALF_ARC * 0.75
 const HEIGHT := 2.4
 const BAND := 0.7
 const SEGMENTS := 20
@@ -21,6 +23,8 @@ const FLAME_SHADER := preload("res://shaders/spell_flame.gdshader")
 signal finished(radius: float)
 
 var forward := Vector3.FORWARD
+## Where the gap sits, in radians from forward.
+var gap_angle := 0.0
 var damage := 10.0
 var source: Enemy
 
@@ -31,8 +35,9 @@ var _mesh: MeshInstance3D
 var _mat: ShaderMaterial
 var _spark_timer := 0.0
 
-static func cast(parent: Node, origin: Vector3, dir: Vector3, hit: float, from: Enemy) -> AureliaFireWall:
+static func cast(parent: Node, origin: Vector3, dir: Vector3, hit: float, from: Enemy, gap: float = 0.0) -> AureliaFireWall:
 	var wall := AureliaFireWall.new()
+	wall.gap_angle = gap
 	wall.forward = Vector3(dir.x, 0.0, dir.z).normalized()
 	wall.damage = hit
 	wall.source = from
@@ -68,7 +73,7 @@ func _physics_process(delta: float) -> void:
 	if _spark_timer <= 0.0:
 		_spark_timer = 0.08
 		var a := randf_range(-HALF_ARC, HALF_ARC)
-		if absf(a) > gap_half_angle(radius):
+		if absf(a - gap_angle) > gap_half_angle(radius):
 			SpellFx.burst(get_parent(), _point(a, radius) + Vector3.UP * 0.4, Color(1.0, 0.5, 0.15), 6, Vector2(1.5, 3.5), 0.5, Vector2(0.06, 0.14), 40.0, 2.0)
 	if radius >= MAX_RADIUS:
 		finished.emit(radius)
@@ -83,16 +88,19 @@ func _point(angle: float, r: float) -> Vector3:
 ## Two flame sheets, one each side of the gap.
 func _rebuild() -> void:
 	var gap := gap_half_angle(radius)
+	# Each sheet runs from the gap's edge out to its end of the arc.
+	var edges := {-1.0: gap_angle - gap, 1.0: gap_angle + gap}
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var basis_y := atan2(forward.x, forward.z)
-	var arc_len := (HALF_ARC - gap) * radius
 	for side in [-1.0, 1.0]:
+		var inner: float = edges[side]
+		var arc_len := absf(side * HALF_ARC - inner) * radius
 		for i in SEGMENTS:
 			var t0 := float(i) / SEGMENTS
 			var t1 := float(i + 1) / SEGMENTS
-			var a0: float = side * lerpf(gap, HALF_ARC, t0) + basis_y
-			var a1: float = side * lerpf(gap, HALF_ARC, t1) + basis_y
+			var a0: float = lerpf(inner, side * HALF_ARC, t0) + basis_y
+			var a1: float = lerpf(inner, side * HALF_ARC, t1) + basis_y
 			var p0 := Vector3(sin(a0), 0, cos(a0)) * radius
 			var p1 := Vector3(sin(a1), 0, cos(a1)) * radius
 			# UV.x in metres/3 along the sheet so tongues stay a steady size.
@@ -115,8 +123,8 @@ func _check_hit() -> void:
 	rel.y = 0.0
 	if absf(rel.length() - radius) > BAND:
 		return
-	var angle := absf(forward.signed_angle_to(rel.normalized(), Vector3.UP))
-	if angle > HALF_ARC + 0.03 or angle < gap_half_angle(rel.length()):
+	var angle := forward.signed_angle_to(rel.normalized(), Vector3.UP)
+	if absf(angle) > HALF_ARC + 0.03 or absf(angle - gap_angle) < gap_half_angle(rel.length()):
 		return
 	_hit = true
 	AureliaAilments.hit(_player, damage, Constants.DamageType.FIRE, source)

@@ -39,7 +39,6 @@ const EARTH_WHEEL_SHARE := 0.6
 
 ## Amaterasu.
 const AMATERASU_SHARE := 0.0275
-const AMATERASU_TICK := 0.5
 ## Seconds for the black fire to take the whole floor.
 const AMATERASU_SPREAD_SEC := 90.0
 const AMATERASU_WALL_HEIGHT := 2.6
@@ -69,10 +68,9 @@ var _wheel_mat: ShaderMaterial
 var _black_ground_mat: ShaderMaterial
 var _black_wall: MeshInstance3D
 var _black_smoke: CPUParticles3D
-var _amaterasu_tick := 0.0
 var _rumble: AudioStreamPlayer
 var _black_roar: AudioStreamPlayer
-## [{"node": Node3D, "center": Vector3, "damage": float, "tick": float}]
+## [{"node": Node3D, "center": Vector3, "damage" (per POT_TICK): float}]
 var _pots: Array[Dictionary] = []
 
 func _ready() -> void:
@@ -358,12 +356,9 @@ func _tick_amaterasu(delta: float) -> void:
 		return
 	amaterasu_safe_radius = maxf(amaterasu_safe_radius - RADIUS / AMATERASU_SPREAD_SEC * delta, 0.0)
 	_update_amaterasu_visuals()
-	_amaterasu_tick -= delta
-	if _amaterasu_tick > 0.0:
-		return
-	_amaterasu_tick = AMATERASU_TICK
+	# Burns continuously: AMATERASU_SHARE of current Life + Ward per second.
 	if _player and _player.health.is_alive() and in_black_fire(_player.global_position):
-		var amount := (_player.health.current_health + _player.ward.current_ward) * AMATERASU_SHARE * AMATERASU_TICK
+		var amount := (_player.health.current_health + _player.ward.current_ward) * AMATERASU_SHARE * delta
 		AureliaAilments.hit(_player, amount, Constants.DamageType.FIRE, boss, Player.HitKind.DOT)
 
 func in_black_fire(point: Vector3) -> bool:
@@ -428,7 +423,7 @@ func add_fire_pot(at: Vector3, tick_damage: float) -> void:
 	AureliaSfx.play("fire_pot", root.global_position, 0.0)
 	root.scale = Vector3.ONE * 0.2
 	root.create_tween().tween_property(root, "scale", Vector3.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	_pots.append({"node": root, "center": root.global_position, "damage": tick_damage, "tick": 0.0})
+	_pots.append({"node": root, "center": root.global_position, "damage": tick_damage})
 
 func fire_pot_count() -> int:
 	return _pots.size()
@@ -449,14 +444,11 @@ func _tick_pots(delta: float) -> void:
 	if not _boss_alive():
 		clear_fire_pots()
 		return
+	# Each pot burns its damage per POT_TICK, continuously.
 	for pot in _pots:
-		pot["tick"] -= delta
-		if pot["tick"] > 0.0:
-			continue
-		pot["tick"] = POT_TICK
 		if _player and _player.health.is_alive() and absf(_player.global_position.y - pot["center"].y) < 3.0 \
 				and Vector2(_player.global_position.x - pot["center"].x, _player.global_position.z - pot["center"].z).length() <= POT_RADIUS + 0.3:
-			AureliaAilments.hit(_player, pot["damage"], Constants.DamageType.FIRE, boss, Player.HitKind.DOT)
+			AureliaAilments.hit(_player, pot["damage"] / POT_TICK * delta, Constants.DamageType.FIRE, boss, Player.HitKind.DOT)
 
 ## ---- Call-outs --------------------------------------------------------------
 

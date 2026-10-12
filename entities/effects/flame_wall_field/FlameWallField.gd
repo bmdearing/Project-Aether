@@ -69,22 +69,22 @@ func _physics_process(delta: float) -> void:
 	if _elapsed >= _duration:
 		queue_free()
 		return
-	_ticker -= delta
-	if _ticker > 0.0:
-		return
-	_ticker += TICK_INTERVAL
 	if _ability == null or _stat_sheet == null:
 		return
+	_ticker -= delta
+	var scorch_now := _ticker <= 0.0
+	if scorch_now:
+		_ticker += TICK_INTERVAL
+	# TICK_DAMAGE_PERCENT of an expected hit per TICK_INTERVAL, dealt continuously.
+	var dps := _ability.predict_damage(_stat_sheet) * TICK_DAMAGE_PERCENT / TICK_INTERVAL
 	for enemy in _inside.duplicate():
 		if not is_instance_valid(enemy):
 			_inside.erase(enemy)
 			continue
-		var hit := _ability.roll_damage(_stat_sheet)
-		var damage: float = hit["final_damage"] * TICK_DAMAGE_PERCENT
-		enemy.take_damage(damage, _ability.damage_type)
-		EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
+		enemy.take_dot(dps, delta, _ability.damage_type, _source, "flame_wall")
 		# Standing in the fire builds Scorch.
-		enemy.status_effects.try_apply("scorch", _source, 0.0, SCORCH_CHANCE_PER_TICK)
+		if scorch_now:
+			enemy.status_effects.try_apply("scorch", _source, 0.0, SCORCH_CHANCE_PER_TICK)
 
 ## ---- Visuals -----------------------------------------------------------------
 

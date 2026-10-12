@@ -1031,6 +1031,17 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 const DAMAGE_NUMBER_SCENE := preload("res://ui/damage_number/DamageNumber.tscn")
 const WARD_NUMBER_EXTRA_HEIGHT := 0.35  # Ward numbers sit a little above health numbers
 
+## Continuous damage over time from a ground field or aura: dps x delta now,
+## reported in batches under `key` like ailments. Returns what was dealt.
+func take_dot(dps: float, delta: float, damage_type: int, source: Node, key: String) -> float:
+	var dmg := dps * delta
+	if dmg <= 0.0:
+		return 0.0
+	take_damage(dmg, damage_type, true, false, true)
+	if status_effects:
+		status_effects.report_dot(key, dmg, damage_type, source, delta)
+	return dmg
+
 ## Damage over time arrives every frame; its numbers are summed per damage
 ## type and shown once per StatusEffectComponent.DOT_REPORT_INTERVAL.
 var _dot_numbers: Dictionary = {}  # damage type -> {"amount", "since" (msec)}

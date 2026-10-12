@@ -311,14 +311,15 @@ func _fire_wall(ability: BossAbility) -> void:
 	AureliaSfx.play("cast", get_cast_origin(), -2.0)
 	var origin := Vector3(global_position.x, _floor_y(), global_position.z)
 	var aim := _forward()
+	var gap := randf_range(-AureliaFireWall.GAP_RANGE, AureliaFireWall.GAP_RANGE)
 	# The two edges of the quarter it will sweep.
 	for side in [-1.0, 1.0]:
 		BossTelegraph.line(get_parent(), origin, aim.rotated(Vector3.UP, side * PI / 4.0), 10.0, 0.5, t, FIRE)
-	BossTelegraph.line(get_parent(), origin, aim, 10.0, AureliaFireWall.GAP_WIDTH, t, Color(1.0, 0.85, 0.5, 0.6))
+	BossTelegraph.line(get_parent(), origin, aim.rotated(Vector3.UP, gap), 10.0, AureliaFireWall.GAP_WIDTH, t, Color(1.0, 0.85, 0.5, 0.6))
 	await _wait(t)
 	if not health.is_alive():
 		return
-	AureliaFireWall.cast(get_parent(), origin, aim, _damage(ability), self)
+	AureliaFireWall.cast(get_parent(), origin, aim, _damage(ability), self, gap)
 	SpellFx.flash(get_parent(), origin + aim * 1.5 + Vector3.UP, FIRE, 4.0, 0.3)
 	SpellFx.light_pop(get_parent(), origin + aim * 2.0 + Vector3.UP * 1.5, FIRE, 3.5, 7.0, 0.5)
 	AureliaSfx.play("fire_wall_cast", origin, 4.0)
@@ -327,8 +328,9 @@ func _fire_wall(ability: BossAbility) -> void:
 		var pots := randi_range(1, 2)
 		for i in pots:
 			var a := randf_range(-PI / 4.0 + 0.15, PI / 4.0 - 0.15)
-			if absf(a) < 0.18:
-				a = 0.18 * signf(a if a != 0.0 else 1.0)
+			# Keep pots out of the gap.
+			if absf(a - gap) < 0.18:
+				a = gap + 0.18 * signf(a - gap if a != gap else 1.0)
 			var r := randf_range(6.0, 14.0)
 			var spot := origin + aim.rotated(Vector3.UP, a) * r
 			var local := arena().to_local(spot)
