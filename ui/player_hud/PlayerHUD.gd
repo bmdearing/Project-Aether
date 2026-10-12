@@ -488,6 +488,8 @@ func _update_enemy_health_bars() -> void:
 		bar.set_affix_text(rarity_component.get_affix_names() if rarity_component else "")
 		bar.set_health(enemy.health.current_health, enemy.health.max_health)
 		bar.set_ward(enemy.get_ward(), enemy.get_ward_max())
+		bar.set_status_source(enemy.status_effects)
+		bar.set_riposte_ready(enemy.composure != null and enemy.composure.is_broken)
 		var world_pos := enemy.global_position + Vector3(0, enemy.body_height + ENEMY_HEALTH_BAR_HEIGHT_OFFSET, 0)
 		if camera.is_position_behind(world_pos) or not _has_line_of_sight(camera, enemy):
 			bar.visible = false
@@ -518,6 +520,8 @@ func _update_boss_bar(boss: Enemy) -> void:
 	_boss_bar.set_subtitle(rarity_component.get_affix_names() if ascendant else "")
 	_boss_bar.set_health(boss.health.current_health, boss.health.max_health)
 	_boss_bar.set_ward(boss.get_ward(), boss.get_ward_max())
+	_boss_bar.set_status_source(boss.status_effects)
+	_boss_bar.set_riposte_ready(boss.composure != null and boss.composure.is_broken)
 	var marks: Array[float] = []
 	if boss.boss_brain:
 		marks = boss.boss_brain.phase_thresholds

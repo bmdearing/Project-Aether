@@ -68,22 +68,9 @@ var body_radius: float = 0.45
 @onready var status_effects: StatusEffectComponent = $StatusEffectComponent
 @onready var attack_hitbox: Area3D = $AttackHitbox
 
-const RIPOSTE_INDICATOR_HEIGHT := 2.2
-const RIPOSTE_INDICATOR_COLOR := Color(1.0, 0.05, 0.05)
-const RIPOSTE_BLINK_INTERVAL := 0.25
-
-## Colored dots above the head, one per active status effect.
-const STATUS_ICON_HEIGHT := 2.0
-const STATUS_ICON_RADIUS := 0.08
-const STATUS_ICON_SPACING := 0.22
-const STATUS_EFFECT_IDS := ["ignite", "chill", "freeze", "electrocute", "unraveling", "slow"]
-
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var _player: Player
 var _gap_jumping: bool = false
-var _riposte_indicator: MeshInstance3D
-var _riposte_blink_tween: Tween
-var _status_icons: Dictionary = {}  # effect_id -> MeshInstance3D
 
 ## Set by _apply_model() when the definition supplies a real model.
 var _anim_controller: EnemyAnimationController
@@ -120,8 +107,6 @@ func _ready() -> void:
 	if head_zone:
 		head_zone.add_to_group("critical_spots")
 	_player = get_tree().get_first_node_in_group("player") as Player
-	_build_riposte_indicator()
-	_build_status_icons()
 	composure.broken_state_started.connect(_on_broken_state_started)
 	composure.broken_state_ended.connect(_on_broken_state_ended)
 	status_effects.effect_applied.connect(_on_status_effect_changed)
@@ -338,11 +323,6 @@ func _fit_body_to_model(model: Node3D) -> void:
 		sphere.radius = head_radius
 		head_shape.shape = sphere
 	attack_hitbox.position.y = body_height / 2.0
-	var top := body_height + 0.1
-	if _riposte_indicator:
-		_riposte_indicator.position.y = top + 0.3
-	for icon in _status_icons.values():
-		icon.position.y = top + 0.1
 
 func _model_bounds(model: Node3D) -> AABB:
 	var bounds := AABB()
@@ -400,61 +380,17 @@ func _update_model(delta: float) -> void:
 	if _anim_controller:
 		_anim_controller.set_speed(Vector2(velocity.x, velocity.z).length())
 
-func _build_status_icons() -> void:
-	for i in range(STATUS_EFFECT_IDS.size()):
-		var effect_id: String = STATUS_EFFECT_IDS[i]
-		var icon := MeshInstance3D.new()
-		var sphere := SphereMesh.new()
-		sphere.radius = STATUS_ICON_RADIUS
-		sphere.height = STATUS_ICON_RADIUS * 2.0
-		icon.mesh = sphere
-		var mat := StandardMaterial3D.new()
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		var dmg_type: Constants.DamageType = Constants.STATUS_EFFECT_DAMAGE_TYPE.get(effect_id, Constants.DamageType.KINETIC)
-		mat.albedo_color = Constants.DAMAGE_TYPE_COLOR.get(dmg_type, Color.WHITE)
-		icon.material_override = mat
-		icon.position = Vector3((i - (STATUS_EFFECT_IDS.size() - 1) / 2.0) * STATUS_ICON_SPACING, STATUS_ICON_HEIGHT, 0)
-		icon.visible = false
-		icon.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		add_child(icon)
-		_status_icons[effect_id] = icon
-
-func _on_status_effect_changed(effect_id: String) -> void:
-	var icon: MeshInstance3D = _status_icons.get(effect_id)
-	if icon:
-		icon.visible = status_effects.has_effect(effect_id)
-
-## Red light above the head, blinking while the enemy can be riposted.
-func _build_riposte_indicator() -> void:
-	_riposte_indicator = MeshInstance3D.new()
-	var sphere := SphereMesh.new()
-	sphere.radius = 0.14
-	sphere.height = 0.28
-	_riposte_indicator.mesh = sphere
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.albedo_color = RIPOSTE_INDICATOR_COLOR
-	_riposte_indicator.material_override = mat
-	_riposte_indicator.position = Vector3(0, RIPOSTE_INDICATOR_HEIGHT, 0)
-	_riposte_indicator.visible = false
-	_riposte_indicator.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(_riposte_indicator)
+## Status icons and the riposte window show on the health bars (StatusIconRow,
+## BarShatter); this stays for subclasses that react to a status change.
+func _on_status_effect_changed(_effect_id: String) -> void:
+	pass
 
 func _on_broken_state_started() -> void:
 	if _anim_controller:
 		_anim_controller.play_stagger()
-	_riposte_indicator.visible = true
-	if _riposte_blink_tween:
-		_riposte_blink_tween.kill()
-	_riposte_blink_tween = create_tween()
-	_riposte_blink_tween.set_loops()
-	_riposte_blink_tween.tween_callback(func(): _riposte_indicator.visible = false).set_delay(RIPOSTE_BLINK_INTERVAL)
-	_riposte_blink_tween.tween_callback(func(): _riposte_indicator.visible = true).set_delay(RIPOSTE_BLINK_INTERVAL)
 
 func _on_broken_state_ended() -> void:
-	if _riposte_blink_tween:
-		_riposte_blink_tween.kill()
-	_riposte_indicator.visible = false
+	pass
 
 ## Applies the Figment's monster mods and the rarity health multiplier (which
 ## applies even without an active Map). Level scaling already happened in
@@ -871,9 +807,6 @@ func _play_death_then_free() -> void:
 	var head_zone := get_node_or_null("HeadZone") as Area3D
 	if head_zone:
 		head_zone.set_deferred("monitorable", false)
-	_riposte_indicator.visible = false
-	for icon in _status_icons.values():
-		icon.visible = false
 	_anim_controller.play_death()
 	await get_tree().create_timer(_anim_controller.get_death_duration() + DEATH_LINGER_SEC).timeout
 	queue_free()

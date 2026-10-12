@@ -41,6 +41,8 @@ var _chunks: ChunkLayer
 var _ward_back: ColorRect
 var _ward_fill: ColorRect
 var _frame: BarFrame
+var _icons: StatusIconRow
+var _shatter: BarShatter
 const WARD_HEIGHT := 6.0
 
 func _ready() -> void:
@@ -102,6 +104,24 @@ func _ready() -> void:
 	_frame.size = bar.size
 	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_frame)
+	_shatter = BarShatter.new()
+	_shatter.position = bar.position
+	_shatter.size = bar.size
+	add_child(_shatter)
+	_icons = StatusIconRow.new()
+	_icons.icon_size = 22.0
+	_icons.gap = 4.0
+	_icons.position = Vector2(0, NAME_HEIGHT + HEIGHT + 6.0)
+	_icons.size = Vector2(WIDTH, 26.0)
+	add_child(_icons)
+
+## The statuses to show under the bar.
+func set_status_source(source: StatusEffectComponent) -> void:
+	_icons.source = source
+
+## The bar shatters while the boss can be riposted.
+func set_riposte_ready(can_riposte: bool) -> void:
+	_shatter.set_broken(can_riposte)
 
 func set_boss_name(text: String) -> void:
 	_label.text = text
@@ -120,6 +140,8 @@ func set_subtitle(text: String) -> void:
 		_subtitle.add_theme_color_override("font_color", Color(1.0, 0.72, 0.45))
 		_subtitle.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
 		_subtitle.position = Vector2(0, NAME_HEIGHT + HEIGHT + 4.0)
+		# The status icons move down under the affixes.
+		_icons.position.y = NAME_HEIGHT + HEIGHT + 26.0
 		_subtitle.size = Vector2(WIDTH, 20)
 		_subtitle.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_subtitle)
@@ -146,6 +168,7 @@ func set_health(current: float, max_value: float) -> void:
 		_chunks.heal_to(new_fraction)
 	_fraction = new_fraction
 	_shader_mat.set_shader_parameter("fill_fraction", _fraction)
+	_shatter.fraction = _fraction
 
 ## Each hit's lost slice: white, held for EnemyHealthBar.CHUNK_HOLD, then
 ## thinning and fading over CHUNK_FADE.

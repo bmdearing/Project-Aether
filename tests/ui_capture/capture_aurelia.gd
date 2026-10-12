@@ -47,6 +47,26 @@ func _run() -> void:
 		"bomb":
 			boss.boss_brain.phase = 5
 			boss._on_player_knocked_up(null, player)
+		"icons":
+			for id in ["ignite", "shock", "unraveling", "meager"]:
+				if id == "meager":
+					boss.status_effects.apply_curse(id, player, 6.0, 1.0)
+				else:
+					boss.status_effects.apply_effect(id, player, 50.0)
+			for i in 2:
+				boss.status_effects.apply_effect("chill", player)
+			boss.composure.enter_broken_state()
+			boss.boss_brain.phase = 4
+			await boss._summon_golems()
+			await get_tree().create_timer(0.3).timeout
+			var golem := boss.living_golems()[0] as Enemy
+			golem.status_effects.apply_effect("bleed", player, 40.0)
+			golem.status_effects.apply_effect("electrocute", player)
+			golem.status_effects.apply_timed_effect("entangle", 5.0)
+			golem.composure.enter_broken_state()
+			golem.set_physics_process(false)
+			golem.global_position = player.global_position + (boss.global_position - player.global_position).normalized() * 6.0 + Vector3(2, 0, 0)
+			golem._last_combat_msec = Time.get_ticks_msec()
 	await get_tree().create_timer(delay).timeout
 	var cam := Camera3D.new()
 	arena.add_child(cam)

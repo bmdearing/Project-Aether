@@ -5,6 +5,8 @@ class_name EnemyHealthBar
 ## while the enemy has Ward. Positioned every frame by PlayerHUD.
 ## Each hit's lost slice of the bar turns white, holds for a moment, then
 ## fades and thins away (Borderlands style); quick hits stack as separate chunks.
+## Status icons (StatusIconRow) sit under the bar, and the bar shatters
+## (BarShatter) while the enemy can be riposted.
 
 const WIDTH := 150.0
 const HEIGHT := 6.0
@@ -20,6 +22,8 @@ var _chunks: Array[Dictionary] = []
 var _ward_fraction: float = 0.0
 var _has_ward: bool = false
 var _name_label: Label
+var _icons: StatusIconRow
+var _shatter: BarShatter
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -35,6 +39,23 @@ func _ready() -> void:
 	_name_label.add_theme_constant_override("shadow_offset_y", 1)
 	_name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_name_label)
+	_shatter = BarShatter.new()
+	_shatter.position = Vector2(0, BAR_TOP)
+	_shatter.size = Vector2(WIDTH, HEIGHT)
+	add_child(_shatter)
+	_icons = StatusIconRow.new()
+	_icons.icon_size = 14.0
+	_icons.position = Vector2(0, BAR_TOP + HEIGHT + 5.0)
+	_icons.size = Vector2(WIDTH, 18.0)
+	add_child(_icons)
+
+## The statuses to show under the bar.
+func set_status_source(source: StatusEffectComponent) -> void:
+	_icons.source = source
+
+## The bar shatters while the enemy can be riposted.
+func set_riposte_ready(can_riposte: bool) -> void:
+	_shatter.set_broken(can_riposte)
 
 func set_enemy_name(text: String) -> void:
 	_name_label.text = text
@@ -72,6 +93,7 @@ func set_health(current: float, max_value: float) -> void:
 		# Healing covers any chunk under the new fill.
 		_chunks = _chunks.filter(func(c: Dictionary) -> bool: return c["from"] >= new_fraction)
 	_fraction = new_fraction
+	_shatter.fraction = _fraction
 	queue_redraw()
 
 ## Ward shows as a thin strip above the health bar while the enemy has any pool.

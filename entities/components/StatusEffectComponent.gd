@@ -376,6 +376,25 @@ func get_curse_resistance_shred(damage_type: Constants.DamageType) -> float:
 func has_effect(effect_id: String) -> bool:
 	return _timers.has(effect_id)
 
+## Every effect on now, in the order they landed (StatusIconRow).
+func active_effects() -> Array:
+	return _timers.keys()
+
+## Seconds left on an effect (0 when it's off).
+func remaining(effect_id: String) -> float:
+	return maxf(float(_timers.get(effect_id, 0.0)), 0.0)
+
+## Stacks for the stacking effects, 1 for the rest, 0 when off.
+func stacks(effect_id: String) -> int:
+	if not has_effect(effect_id):
+		return 0
+	match effect_id:
+		"chill": return _chill_stacks
+		"scorch": return _scorch_stacks
+		"armor_shred": return _armor_shred_stacks
+		"suppressed": return _suppressed_stacks
+	return 1
+
 ## Shatter: every ailment on this owner and what breaking it is worth,
 ## [effect_id, weight, damage type], removing each. Harder-to-apply ailments
 ## weigh more; Scorch counts per stack.

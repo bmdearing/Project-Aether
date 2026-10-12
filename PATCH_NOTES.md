@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.87.1: Status icons on health bars, shattering riposte bar
+
+- **Status icons under every enemy and boss bar** replace the coloured orbs over enemies' heads (`StatusIconRow`, drawn by `ui/icons/StatusIcons.gd`). One standard per effect: a glyph in the effect's colour, on a square tile for ailments, a diamond for curses and a disc for other debuffs (roots, stuns, slows, marks). Each has a sliver under it draining with its time left, and a count when it stacks (Chill, Scorch, Armour Shred, Suppressed).
+- **Riposte window:** the blinking red light over the enemy is gone. While an enemy can be riposted, the filled part of its bar shatters like a struck window (`BarShatter`): cracks race out from an impact point, a web of rings joins them, chips fall away and a glint runs along the glass until the window closes.
+- `StatusEffectComponent` gained `active_effects()`, `remaining()` and `stacks()`.
+- Not changed: the player's own status chips on the HUD are still text.
+
+---
+
 ## 2026-10-11 — v4.87: Cast times, Edict names, Linger, Aurelia's roots and ailment combos
 
 - **Cast times** (user: damaging spells get minimal cast times of 0.5-1 s by strength): Spark 0.8 s, Ice Pulse 0.75 s, Cinder Lance 0.5 s.
