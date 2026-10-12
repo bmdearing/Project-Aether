@@ -7,6 +7,7 @@ const WIDTH := 980.0
 const LIST_HEIGHT := 590.0
 const AILMENT_COLOR := Color(0.95, 0.55, 0.35)
 const EFFECT_COLOR := Color(0.6, 0.78, 0.95)
+const ICON_SIZE := 24.0
 
 ## Effect ids in the order shown, for tests.
 var shown: Array[String] = []
@@ -42,6 +43,8 @@ func _row(row: Dictionary) -> PanelContainer:
 	panel.add_child(box)
 	var head := HBoxContainer.new()
 	box.add_child(head)
+	if StatusIcons.has(row["id"]):
+		head.add_child(_icon(row["id"]))
 	head.add_child(ModifierWiki._text(row["name"], 16, color.lightened(0.3)))
 	var types: Array = row["types"]
 	if not types.is_empty():
@@ -51,3 +54,11 @@ func _row(row: Dictionary) -> PanelContainer:
 	text.custom_minimum_size = Vector2(WIDTH - 40.0, 0)
 	box.add_child(text)
 	return panel
+
+## The effect's icon as it shows under enemy and boss bars.
+func _icon(effect_id: String) -> Control:
+	var icon := Control.new()
+	icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
+	icon.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	icon.draw.connect(func(): StatusIcons.draw(icon, effect_id, Rect2(Vector2.ZERO, icon.size)))
+	return icon

@@ -122,6 +122,9 @@ static func apply_boss_level(enemy: Enemy) -> void:
 	if melee:
 		melee.damage_amount = enemy._level_scaled_damage(boss_level)
 
+func pinnacle_life() -> float:
+	return 71_000_000.0
+
 func phase_thresholds() -> Array[float]:
 	return PHASES
 

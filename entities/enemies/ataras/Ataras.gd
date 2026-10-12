@@ -55,6 +55,9 @@ func _ready() -> void:
 	super._ready()
 	display_name = DISPLAY_NAME
 
+func pinnacle_life() -> float:
+	return 65_000_000.0
+
 func phase_thresholds() -> Array[float]:
 	return PHASES
 

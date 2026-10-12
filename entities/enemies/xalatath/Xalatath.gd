@@ -68,6 +68,9 @@ func _ready() -> void:
 		boss_brain.phase_changed.connect(_on_phase)
 	EventBus.damage_dealt.connect(_on_damage_dealt)
 
+func pinnacle_life() -> float:
+	return 62_000_000.0
+
 func abilities() -> Array:
 	var entropic := Constants.DamageType.ENTROPIC
 	return [

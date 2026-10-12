@@ -289,6 +289,9 @@ func player_hidden() -> bool:
 	var player := get_tree().get_first_node_in_group("player") as Node3D
 	return player != null and reactions != null and is_instance_valid(reactions) and reactions.in_steam(player.global_position)
 
+func pinnacle_life() -> float:
+	return 68_000_000.0
+
 func abilities() -> Array:
 	var fire := Constants.DamageType.FIRE
 	var cold := Constants.DamageType.COLD

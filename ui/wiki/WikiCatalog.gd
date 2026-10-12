@@ -229,6 +229,12 @@ static func status_effects() -> Array:
 		"guard_break": "Its guard is broken: briefly stunned.",
 		"entangle": "Rooted in place (Whip).",
 		"marked": "Marked by a ranged stance: your shots deal more to it.",
+		"linger": "Pale damage over time (a spell, not a curse) that slows movement and actions by %s. When the target dies it passes to nearby enemies." % pct.call(StatusEffectComponent.LINGER_SLOW),
+		"meager": "Curse: deals %s less damage and has %s less Evasion (at base curse strength)." % [pct.call(StatusEffectComponent.MEAGER_DAMAGE_DEALT), pct.call(StatusEffectComponent.MEAGER_EVASION)],
+		"fracturing": "Curse: %s less Armour and %s more Physical damage taken (at base curse strength)." % [pct.call(StatusEffectComponent.FRACTURING_ARMOR), pct.call(StatusEffectComponent.FRACTURING_PHYSICAL_TAKEN)],
+		"decompose": "Curse: %d%% Entropic Resistance (at base curse strength)." % -roundi(StatusEffectComponent.DECOMPOSE_RESISTANCE),
+		"elemental_fragility": "Curse: %d%% Fire, Cold and Lightning Resistance (at base curse strength)." % -roundi(StatusEffectComponent.ELEMENTAL_FRAGILITY_RESISTANCE),
+		"forbidden_fire": "Aurelia's black flame, when her fire hits you while Entangled: Fire damage over time, %s of the hit per second for %.0fs. A new hit refreshes it instead of stacking." % [pct.call(ForbiddenFire.DAMAGE_SHARE), ForbiddenFire.DURATION],
 	}
 	var rows := []
 	for id in texts:

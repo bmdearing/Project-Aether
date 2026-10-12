@@ -1,11 +1,11 @@
 extends Enemy
 class_name PinnacleBoss
 ## Base for the Pinnacle bosses (PinnacleArena): three phases at 66% and 33%
-## health run by a BossBrain built from abilities(), extra health, the usual
+## health run by a BossBrain built from abilities(), a fixed baseline Life
+## (pinnacle_life(), before Figment mods), the usual
 ## Boss loot rolls, and a chance at each of its own exclusive uniques
 ## (UniqueCatalog "boss" + "boss_chance").
 
-const HEALTH_MULTIPLIER := 3.0
 const PHASE_THRESHOLDS: Array[float] = [0.66, 0.33]
 ## Ward refills over ~12.5s once the boss goes this long without being hit.
 const WARD_REGEN_DELAY := 8.0
@@ -17,9 +17,6 @@ var pinnacle_id: String = ""
 
 func _ready() -> void:
 	super._ready()
-	health.max_health *= HEALTH_MULTIPLIER
-	health.current_health = health.max_health
-	_reset_ward()
 	var brain := BossBrain.new()
 	brain.name = "BossBrain"
 	for fields in abilities():
@@ -32,6 +29,14 @@ func _physics_process(delta: float) -> void:
 	super._physics_process(delta)
 	if health.is_alive():
 		regen_ward_if_idle(WARD_REGEN_DELAY, WARD_REGEN_PERCENT_PER_SECOND, delta)
+
+## Baseline Life, before Figment and boss mods; each boss sets its own.
+func pinnacle_life() -> float:
+	return 65_000_000.0
+
+## Pinnacle Life is fixed, not level-scaled.
+func _level_scaled_health(_at_level: int) -> float:
+	return pinnacle_life()
 
 func get_cast_origin() -> Vector3:
 	return global_position + Vector3.UP * body_height * CAST_HEIGHT_SHARE
