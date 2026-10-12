@@ -89,7 +89,7 @@ static func status_text(effect_id: String, sheet: StatSheet) -> String:
 		"freeze":
 			return "Freeze: can't move or act for %ss" % _num(StatusEffectComponent.FREEZE_DURATION * d)
 		"shock":
-			return "Shock: %s more Lightning damage taken for %ss" % [_pct(StatusEffectComponent.SHOCK_DAMAGE_INCREASE * s), _num(StatusEffectComponent.SHOCK_DURATION * d)]
+			return "Shock: %s more damage taken for %ss" % [_pct(StatusEffectComponent.SHOCK_DAMAGE_INCREASE * s), _num(StatusEffectComponent.SHOCK_DURATION * d)]
 		"electrocute":
 			return "Electrocute: stunned for %ss" % _num(StatusEffectComponent.ELECTROCUTE_DURATION * d)
 		"unraveling":

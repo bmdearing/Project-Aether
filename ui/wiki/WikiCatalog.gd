@@ -215,7 +215,7 @@ static func status_effects() -> Array:
 		"bleed": "Physical damage over %.0fs that ignores Armour: %s of the hit." % [StatusEffectComponent.BLEED_DURATION, pct.call(StatusEffectComponent.BLEED_DAMAGE_PERCENT)],
 		"chill": "%s slower movement for %.1fs. %d Chills at once Freeze." % [pct.call(StatusEffectComponent.CHILL_MOVE_SLOW_PERCENT), StatusEffectComponent.CHILL_DURATION, StatusEffectComponent.CHILL_STACKS_TO_FREEZE],
 		"freeze": "Can't move or act for %.1fs. Caused by %d stacks of Chill." % [StatusEffectComponent.FREEZE_DURATION, StatusEffectComponent.CHILL_STACKS_TO_FREEZE],
-		"shock": "Takes %s more Lightning damage for %.0fs. Doesn't stun." % [pct.call(StatusEffectComponent.SHOCK_DAMAGE_INCREASE), StatusEffectComponent.SHOCK_DURATION],
+		"shock": "Takes %s more damage of every type for %.0fs. Doesn't stun." % [pct.call(StatusEffectComponent.SHOCK_DAMAGE_INCREASE), StatusEffectComponent.SHOCK_DURATION],
 		"electrocute": "Stunned for %.1fs." % StatusEffectComponent.ELECTROCUTE_DURATION,
 		"unraveling": "Takes %s more Esoteric (Aetheric, Entropic, Pale) damage for %.0fs." % [pct.call(StatusEffectComponent.UNRAVELING_DAMAGE_TAKEN_PERCENT), StatusEffectComponent.UNRAVELING_DURATION],
 		"pallid": "Deals %s less damage for %.0fs." % [pct.call(StatusEffectComponent.PALLID_DAMAGE_REDUCTION), StatusEffectComponent.PALLID_DURATION],

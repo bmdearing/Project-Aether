@@ -54,7 +54,7 @@ const AETHERBURN_DAMAGE_PERCENT := 0.8
 const SLOW_DURATION := 0.75
 const SLOW_MOVE_SLOW_PERCENT := 0.35
 
-## Shock: increased Lightning damage taken; doesn't stun, unlike Electrocute.
+## Shock: more damage taken of every type; doesn't stun, unlike Electrocute.
 const SHOCK_DURATION := 4.0
 const SHOCK_DAMAGE_INCREASE := 0.25
 
@@ -461,6 +461,7 @@ func get_damage_taken_multiplier(damage_type: Constants.DamageType) -> float:
 		multiplier *= 1.0 + UNRAVELING_DAMAGE_TAKEN_PERCENT * get_magnitude("unraveling")
 	if has_effect("intimidated"):
 		multiplier *= 1.0 + INTIMIDATED_DAMAGE_TAKEN
+	multiplier *= get_shock_multiplier()
 	if has_effect("fracturing") and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.PHYSICAL:
 		multiplier *= 1.0 + FRACTURING_PHYSICAL_TAKEN * get_magnitude("fracturing")
 	if damage_type == Constants.DamageType.FIRE:

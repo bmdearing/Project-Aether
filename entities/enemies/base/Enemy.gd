@@ -994,8 +994,6 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 			return false
 	var multiplier := composure.get_damage_multiplier(is_spell) if composure else 1.0
 	var status_multiplier := status_effects.get_damage_taken_multiplier(damage_type) if status_effects else 1.0
-	if status_effects and damage_type == Constants.DamageType.LIGHTNING:
-		status_multiplier *= status_effects.get_shock_multiplier()
 	if status_effects and status_effects.has_effect("pallid"):
 		status_multiplier *= 1.0 + GearEffects.player_bonus(get_tree(), "pallid_damage_taken") / 100.0
 	if rarity_component:
