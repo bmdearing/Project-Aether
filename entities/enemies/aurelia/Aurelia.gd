@@ -123,7 +123,7 @@ static func apply_boss_level(enemy: Enemy) -> void:
 		melee.damage_amount = enemy._level_scaled_damage(boss_level)
 
 func pinnacle_life() -> float:
-	return 71_000_000.0
+	return 30_000_000.0  # testing; design value 71M
 
 func phase_thresholds() -> Array[float]:
 	return PHASES

@@ -290,7 +290,7 @@ func player_hidden() -> bool:
 	return player != null and reactions != null and is_instance_valid(reactions) and reactions.in_steam(player.global_position)
 
 func pinnacle_life() -> float:
-	return 68_000_000.0
+	return 27_000_000.0  # testing; design value 68M
 
 func abilities() -> Array:
 	var fire := Constants.DamageType.FIRE

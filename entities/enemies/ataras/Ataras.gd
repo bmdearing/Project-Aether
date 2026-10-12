@@ -56,7 +56,7 @@ func _ready() -> void:
 	display_name = DISPLAY_NAME
 
 func pinnacle_life() -> float:
-	return 65_000_000.0
+	return 24_000_000.0  # testing; design value 65M
 
 func phase_thresholds() -> Array[float]:
 	return PHASES
