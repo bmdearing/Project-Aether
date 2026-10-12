@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("2_1tck6")
 evasion_value = 1243.0
-ward_value = 895.0
+ward_value = 448.0
 item_id = "gen_body_armour_phantom_shroud"
 display_name = "Phantom Shroud"
 equip_slot = 1

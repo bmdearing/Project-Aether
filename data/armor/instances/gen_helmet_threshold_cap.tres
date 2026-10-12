@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_ihqxp")
-ward_value = 126.0
+ward_value = 63.0
 item_id = "gen_helmet_threshold_cap"
 display_name = "Threshold Cap"
 max_sockets = 2

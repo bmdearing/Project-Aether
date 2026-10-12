@@ -145,6 +145,7 @@ const TWISTS := {
 	],
 	"death_shroud": [
 		{"id": "grave_chill", "name": "Grave Chill", "description": "Enemies inside the shroud are also Slowed (35% slower).", "ring": 2},
+		{"id": "pale_pyre", "name": "Pale Pyre", "description": "Enemies inside the shroud take Pale damage per second equal to 70% of your maximum Life and Ward, scaled by your spell damage. You burn for the same 70% yourself (reduced by Esoteric Resistance and Resilience).", "ring": 2},
 	],
 	"entropic_decay": [
 		{"id": "pale_decay", "name": "Pale Decay", "description": "The decay is Pale instead of Entropic and leaves enemies Pallid (they deal less damage).", "ring": 2},

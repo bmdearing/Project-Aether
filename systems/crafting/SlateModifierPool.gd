@@ -3,8 +3,8 @@ class_name SlateModifierPool
 ## The &"slate" ModifierPool for real Slates, built from SlateAffixPool's
 ## data/slates/affix_pool/ entries. A Slate only rolls modifiers for its own
 ## tag(s): a Cold Slate rolls Cold modifiers, a Fire/Cold Hybrid Fire and Cold
-## ones. Each entry's value_min/value_max is its Tier 1 range; lower tiers
-## decay like gear.
+## ones. Entries tagged "any" (increased Life) roll on every Slate. Each
+## entry's value_min/value_max is its Tier 1 range; lower tiers decay like gear.
 
 const TIER_COUNT := 3
 
@@ -14,7 +14,7 @@ static func defs_for(slate: Slate) -> Array[ModifierDef]:
 	var allowed: Array[StringName] = slate.get_slate_tags()
 	var defs: Array[ModifierDef] = []
 	for tag in SlateAffixPool.get_all_tags():
-		if not allowed.has(StringName(tag)):
+		if tag != "any" and not allowed.has(StringName(tag)):
 			continue
 		for source in SlateAffixPool.get_pool_for_tag(tag):
 			defs.append(_def_for(source))

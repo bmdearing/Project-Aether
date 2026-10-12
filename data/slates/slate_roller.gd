@@ -53,6 +53,10 @@ const SHAPE_TEMPLATES := [
 ## rarity like gear does, and Uncommon/Rare drops get modifiers from the
 ## Slate pool, the same way the matching Orbs would add them.
 static func roll(power_level: int = 1, rarity_multiplier: float = 1.0) -> Slate:
+	if randf() < minf(UniqueCatalog.UNIQUE_SLATE_CHANCE * rarity_multiplier, UniqueCatalog.UNIQUE_SLATE_CHANCE_CAP):
+		var unique := UniqueRoller.roll_slate()
+		if unique:
+			return unique
 	var bracket: Dictionary = SIZE_BRACKETS[randi() % SIZE_BRACKETS.size()]
 	var template := _pick_shape_template(bracket)
 	if template.is_empty():

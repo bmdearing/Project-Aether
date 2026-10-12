@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_4n5h5")
-ward_value = 656.0
+ward_value = 328.0
 item_id = "gen_body_armour_threshold_coat"
 display_name = "Threshold Coat"
 equip_slot = 1

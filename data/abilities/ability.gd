@@ -244,7 +244,15 @@ func _increased_percents(stat_sheet: StatSheet) -> Array[float]:
 		increased.append(stat_sheet.get_misc_bonus("increased_area_damage"))
 	return increased
 
+## Share of flat added damage a hit of this spell gets: its own level 1 base
+## against ADDED_DAMAGE_REFERENCE, so fast small hits (Spark) get less per hit.
+const ADDED_DAMAGE_REFERENCE := 30.0
+
+func added_damage_effectiveness() -> float:
+	return (base_damage_min + base_damage_max) * 0.5 / ADDED_DAMAGE_REFERENCE
+
 func _base_hit(base_damage: float, stat_sheet: StatSheet) -> Dictionary:
+	base_damage += stat_sheet.added_damage_from_mana("mana_as_spell_damage") * added_damage_effectiveness()
 	# Intellect multiplies the base on its own, like Strength does for weapons.
 	base_damage *= 1.0 + stat_sheet.get_spell_power_from_stats()
 	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more, stat_sheet.outgoing_more_multiplier(damage_type), 1.0 + web_value(SkillWeb.MORE_DAMAGE) / 100.0, web_twist_more()]

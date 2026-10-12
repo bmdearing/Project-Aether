@@ -173,3 +173,30 @@ static func get_def(id: String) -> Dictionary:
 		if def["id"] == id:
 			return def
 	return {}
+
+## Unique Slates: SlateRoller.roll() swaps one in for UNIQUE_SLATE_CHANCE of
+## Slate drops (times Item Rarity, at most UNIQUE_SLATE_CHANCE_CAP). Modifiers
+## are [stat_key, min, max, text] like gear uniques and reach the character
+## through the Fate Board.
+const UNIQUE_SLATE_CHANCE := 0.015
+const UNIQUE_SLATE_CHANCE_CAP := 0.1
+const SLATE_DEFS := [
+	{
+		"id": "brimming_edge", "name": "The Brimming Edge", "tag": Constants.DamageType.KINETIC, "weight": 100.0,
+		"shape": [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(1, 1)],
+		"flavor": "A full mind makes a heavy blade.",
+		"mods": [["mana_as_weapon_damage", 4.0, 6.0, "Gain %d%% of your maximum Mana as added Weapon Damage"]],
+	},
+	{
+		"id": "wellspring_codex", "name": "The Wellspring Codex", "tag": Constants.DamageType.AETHERIC, "weight": 100.0,
+		"shape": [Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1)],
+		"flavor": "Every page drinks from the same well.",
+		"mods": [["mana_as_spell_damage", 4.0, 6.0, "Gain %d%% of your maximum Mana as added Spell Damage"]],
+	},
+	{
+		"id": "mindward_seal", "name": "The Mindward Seal", "tag": Constants.DamageType.AETHERIC, "weight": 100.0,
+		"shape": [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0)],
+		"flavor": "Let the blow land on thought instead of flesh.",
+		"mods": [["damage_from_mana", 40.0, 40.0, "%d%% of Damage is taken from Mana before Life"]],
+	},
+]

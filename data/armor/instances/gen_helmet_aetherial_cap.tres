@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_c16i7")
-ward_value = 222.0
+ward_value = 111.0
 item_id = "gen_helmet_aetherial_cap"
 display_name = "Aetherial Cap"
 max_sockets = 3

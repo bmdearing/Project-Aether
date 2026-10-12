@@ -303,7 +303,7 @@ var resilience: float = 0.0
 ## Patch v3.8: Ward's BASE size still comes from armor only (flat_ward
 ## gear affixes, no baseline pool - see the ward bug fix this comment
 ## used to describe). Intellect applies an INCREASED% multiplier on it
-## (StatSheet.get_ward_increased_from_stats(), 1%/point) - zero armor
+## (StatSheet.get_ward_increased_from_stats(), 0.5%/point) - zero armor
 ## still means zero Ward, a multiplier on 0 is 0. Ward Restoration Rate
 ## is a "removed expression" (not stat-derived) - restoration_multiplier
 ## resets to a flat 1.0 until/unless a gear affix drives it.
@@ -323,6 +323,7 @@ func _apply_derived_stats() -> void:
 	# Mana: Intellect's +3/point + flat Mana, times increased Mana; regen likewise.
 	var flat_mana := stat_sheet.get_misc_bonus("max_mana") + stat_sheet.get_misc_bonus("flat_mana")
 	mana.set_max_mana((_base_max_mana + stat_sheet.get_mana_from_stats() + flat_mana) * (1.0 + stat_sheet.get_misc_bonus("mana_increased") / 100.0))
+	stat_sheet.current_max_mana = mana.max_mana
 	mana.regen_per_second = (_base_mana_regen + mana.max_mana * BASE_REGEN_PERCENT / 100.0 + stat_sheet.get_misc_bonus("mana_regen")) * (1.0 + stat_sheet.get_misc_bonus("mana_regen_increased") / 100.0)
 
 	# Evasion (gear x Agility's increased%) - refreshed here for display;

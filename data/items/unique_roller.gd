@@ -101,3 +101,32 @@ static func range_text(mod: Array) -> String:
 		return ItemRoller.format_desc(mod[3], lo)
 	var token := "\u0001"
 	return String(mod[3]).replace("%d", token).replace("%%", "%").replace(token, "(%d-%d)" % [roundi(minf(lo, hi)), roundi(maxf(lo, hi))])
+
+## A weighted pick from UniqueCatalog.SLATE_DEFS, built as a Slate.
+static func roll_slate() -> Slate:
+	var total := 0.0
+	for def in UniqueCatalog.SLATE_DEFS:
+		total += float(def["weight"])
+	var pick := randf() * total
+	for def in UniqueCatalog.SLATE_DEFS:
+		pick -= float(def["weight"])
+		if pick < 0.0:
+			return build_slate(def)
+	return null
+
+static func build_slate(def: Dictionary) -> Slate:
+	var slate := Slate.new()
+	slate.slate_id = "%s_rolled_%d" % [def["id"], randi()]
+	slate.display_name = def["name"]
+	slate.tag = def["tag"]
+	slate.rarity = Constants.SlateRarity.UNIQUE
+	var shape: Array[Vector2i] = []
+	shape.assign(def["shape"])
+	slate.shape_cells = shape
+	slate.aether_cost = shape.size() + SlateRoller.RARITY_AETHER_BONUS[Constants.SlateRarity.UNIQUE]
+	slate.implicit_flavor_text = def.get("flavor", "")
+	var explicits: Array[ItemAffix] = []
+	for mod in def["mods"]:
+		explicits.append(make_affix(mod))
+	slate.explicits = explicits
+	return slate

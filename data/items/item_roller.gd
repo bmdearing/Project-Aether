@@ -473,6 +473,7 @@ static func _roll_tier(power_level: int, top_level: int = TOP_TIER_LEVEL) -> int
 const DAMAGE_PERCENT_TIERS := [[83, 191.0, 225.0], [80, 160.0, 190.0],[68, 128.0, 155.0], [56, 105.0, 127.0], [45, 85.0, 104.0], [34, 68.0, 84.0], [23, 53.0, 67.0], [12, 40.0, 52.0], [1, 30.0, 39.0]]
 ## Additional arrows / spell projectiles: +1, +2, +3.
 const ADDITIONAL_PROJECTILE_TIERS := [[75, 3.0, 3.0], [40, 2.0, 2.0], [1, 1.0, 1.0]]
+const RESISTANCE_TIERS := [[83, 39.0, 48.0], [72, 33.0, 38.0], [61, 27.0, 32.0], [40, 22.0, 26.0], [21, 18.0, 21.0], [1, 15.0, 17.0]]
 const LEVELLED_TIERS := {
 	"local_increased_weapon_damage": DAMAGE_PERCENT_TIERS,
 	"local_increased_spell_damage": DAMAGE_PERCENT_TIERS,
@@ -482,6 +483,11 @@ const LEVELLED_TIERS := {
 	"local_additional_spell_projectiles": ADDITIONAL_PROJECTILE_TIERS,
 	# One tier only, from item level 61.
 	"additional_curses": [[61, 1.0, 1.0]],
+	# Single Resistances span 15% (Tier 6) to 48% (Tier 1).
+	"fire_resistance": RESISTANCE_TIERS,
+	"cold_resistance": RESISTANCE_TIERS,
+	"lightning_resistance": RESISTANCE_TIERS,
+	"esoteric_resistance": RESISTANCE_TIERS,
 	"block_chance_bonus": [[80, 7.0, 8.0], [56, 5.0, 6.0], [28, 3.0, 4.0], [1, 2.0, 2.0]],
 	"increased_block_chance": [[80, 85.0, 95.0], [64, 72.0, 84.0], [48, 60.0, 71.0], [32, 48.0, 59.0], [16, 38.0, 47.0], [1, 30.0, 37.0]],
 }

@@ -25,9 +25,10 @@ const STAT_KEY_RENAMES := {
 }
 const STAT_WORD_RENAMES := {"Prowess": "Strength", "Finesse": "Agility", "Resolve": "Intellect"}
 
-## v4.94 multiplied every Armour base (and flat Armour rolls) by ARMOUR_RESCALE
-## and rebalanced hybrid bases; items saved before that are updated on load.
-const ARMOUR_SCALE_VERSION := 2
+## Base defence revisions: 2 = v4.94 multiplied every Armour base (and flat
+## Armour rolls) by ARMOUR_RESCALE and rebalanced hybrids; 3 = v4.95 halved
+## Ward. Items saved before the current one take their base's defences on load.
+const ARMOUR_SCALE_VERSION := 3
 const ARMOUR_RESCALE := 3124.0 / 417.0
 
 static func migrate_stat_key(key: String) -> String:
@@ -171,8 +172,9 @@ static func from_dict(d: Dictionary) -> Item:
 	item.affixes = affixes
 	if int(d.get("tier_ladder", 1)) < ItemRoller.TIER_LADDER_VERSION:
 		_shift_to_new_tier_ladder(item)
-	var old_armour := int(d.get("armour_scale", 1)) < ARMOUR_SCALE_VERSION
-	if old_armour:
+	var defence_version := int(d.get("armour_scale", 1))
+	var old_armour := defence_version < ARMOUR_SCALE_VERSION
+	if defence_version < 2:
 		for a in item.affixes:
 			if a.stat_key == "flat_armor":
 				a.value = roundf(a.value * ARMOUR_RESCALE)
@@ -242,14 +244,14 @@ static func from_dict(d: Dictionary) -> Item:
 		item.evasion_value = d.get("evasion_value", 0.0)
 		item.ward_value = d.get("ward_value", 0.0)
 		if old_armour:
-			_migrate_defences(item, base)
+			_migrate_defences(item, base, defence_version < 2)
 	elif item is Shield:
 		item.block_chance = d.get("block_chance", 0.0)
 		item.armor_value = d.get("armor_value", 0.0)
 		item.evasion_value = d.get("evasion_value", item.evasion_value)
 		item.ward_value = d.get("ward_value", item.ward_value)
 		if old_armour:
-			_migrate_defences(item, base)
+			_migrate_defences(item, base, defence_version < 2)
 
 	return item
 
@@ -296,13 +298,13 @@ static func read_craft_state(target: Resource, d: Dictionary) -> void:
 	if edict_id != "" and ResourceLoader.exists(CraftingResolver.EDICTS_DIR + edict_id + ".tres"):
 		target.active_edict = load(CraftingResolver.EDICTS_DIR + edict_id + ".tres")
 
-## A pre-v4.94 armour or shield: its base's current defences (v4.94 rescaled
-## Armour and rebalanced hybrids), or Armour x ARMOUR_RESCALE without a base.
-static func _migrate_defences(item: Item, base: Item) -> void:
+## An armour or shield from an older defence revision: its base's current
+## defences, or (without a base) Armour x ARMOUR_RESCALE.
+static func _migrate_defences(item: Item, base: Item, rescale_armour: bool) -> void:
 	if base != null and _class_tag(base) == _class_tag(item):
 		for key in ["armor_value", "evasion_value", "ward_value"]:
 			item.set(key, base.get(key))
-	else:
+	elif rescale_armour:
 		item.set("armor_value", roundf(float(item.get("armor_value")) * ARMOUR_RESCALE))
 
 ## v4.83 put a new Tier 1 above gear's old five: an older save's gear tiers

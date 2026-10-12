@@ -84,9 +84,11 @@ func get_spell_power_from_stats() -> float:
 func get_mana_from_stats() -> float:
 	return get_stat(Constants.Stat.INTELLECT) * 3.0
 
-## Intellect: +1% increased Ward per point, multiplying gear's Ward value.
+## Intellect: +0.5% increased Ward per point, multiplying gear's Ward value.
+const WARD_PER_INTELLECT := 0.005
+
 func get_ward_increased_from_stats() -> float:
-	return get_stat(Constants.Stat.INTELLECT) * 0.01
+	return get_stat(Constants.Stat.INTELLECT) * WARD_PER_INTELLECT
 
 func get_chain_bonus(tag: Constants.DamageType) -> float:
 	return chain_bonus_by_tag.get(tag, 0.0)
@@ -287,6 +289,14 @@ func get_phys_damage_shift() -> Array:
 	if get_misc_bonus("phys_as_lightning") > 0.0:
 		shifts.append([get_misc_bonus("phys_as_lightning") / 100.0, Constants.DamageType.LIGHTNING])
 	return shifts
+
+## Maximum Mana, pushed in by Player._apply_derived_stats(), for the "% of
+## maximum Mana as added damage" modifiers (unique Slates).
+var current_max_mana: float = 0.0
+
+## Flat damage from "Gain X% of your maximum Mana as added ..." (key's total X).
+func added_damage_from_mana(key: String) -> float:
+	return current_max_mana * get_misc_bonus(key) / 100.0
 
 func get_damage_from_mana_percent() -> float:
 	return get_misc_bonus("damage_from_mana") / 100.0

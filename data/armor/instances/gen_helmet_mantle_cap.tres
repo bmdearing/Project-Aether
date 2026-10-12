@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_it7yj")
-ward_value = 279.0
+ward_value = 140.0
 item_id = "gen_helmet_mantle_cap"
 display_name = "Mantle Cap"
 max_sockets = 3

@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_chcow")
-ward_value = 114.0
+ward_value = 57.0
 item_id = "gen_boots_veilborn_boots"
 display_name = "Veilborn Boots"
 equip_slot = 3

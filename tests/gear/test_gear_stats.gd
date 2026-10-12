@@ -258,7 +258,7 @@ func _test_slates() -> void:
 	var with_mods := 0
 	for i in 200:
 		var s := SlateRoller.roll(40, 20.0)
-		if s.rarity >= Constants.SlateRarity.RARE:
+		if s.rarity >= Constants.SlateRarity.RARE and s.rarity < Constants.SlateRarity.UNIQUE:
 			rare += 1
 			if s.explicits.size() >= 3:
 				with_mods += 1

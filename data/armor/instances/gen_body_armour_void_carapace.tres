@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_d3i61")
-ward_value = 1491.0
+ward_value = 746.0
 item_id = "gen_body_armour_void_carapace"
 display_name = "Void Carapace"
 equip_slot = 1

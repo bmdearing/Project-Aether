@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_wmom4")
-ward_value = 171.0
+ward_value = 86.0
 item_id = "gen_helmet_veilborn_cap"
 display_name = "Veilborn Cap"
 max_sockets = 2

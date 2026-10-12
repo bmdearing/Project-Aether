@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_tx7km"]
+
+[resource]
+script = ExtResource("1_tx7km")
+tag = "any"
+description = "+%d%% increased Life"
+stat_key = "life_increased"
+value = 6.4
+value_min = 5.12
+value_max = 6.4
+tier = 1
+is_prefix = false
+affix_id = "any_increased_life"
+display_name = "Vital"
+is_generic = true

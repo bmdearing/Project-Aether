@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_uh0k5")
-ward_value = 342.0
+ward_value = 171.0
 item_id = "gen_helmet_void_cowl"
 display_name = "Void Cowl"
 max_sockets = 3

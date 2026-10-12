@@ -159,7 +159,7 @@ func _test_real_slates() -> void:
 		ok += 1
 		var allowed := slate.get_slate_tags()
 		for a in slate.explicits:
-			if not a.def.tags.any(func(t): return allowed.has(t)):
+			if not a.def.tags.any(func(t): return allowed.has(t) or t == &"any"):
 				on_tag = false
 		_check(_within_limits(slate) and slate.explicits.size() >= 3, "slate forging gives 3-4 within limits")
 	_check(ok == 30, "forging works on every real slate drop (%d/30)" % ok)
@@ -176,11 +176,11 @@ func _test_real_slates() -> void:
 	hybrid.secondary_tag = Constants.DamageType.COLD
 	CraftingResolver.roll_tolerance(hybrid)
 	var hybrid_tags := SlateModifierPool.defs_for(hybrid).map(func(d: ModifierDef): return d.tags[0])
-	_check(hybrid_tags.has(&"fire") and hybrid_tags.has(&"cold") and hybrid_tags.all(func(t): return t == &"fire" or t == &"cold"), "a Fire/Cold Hybrid rolls only Fire and Cold modifiers")
+	_check(hybrid_tags.has(&"fire") and hybrid_tags.has(&"cold") and hybrid_tags.all(func(t): return t == &"fire" or t == &"cold" or t == &"any"), "a Fire/Cold Hybrid rolls only Fire, Cold and any-Slate modifiers")
 	var spell_slate := hybrid.duplicate(true) as Slate
 	spell_slate.is_hybrid = false
 	spell_slate.category_tag_override = "Spell"
-	_check(SlateModifierPool.defs_for(spell_slate).all(func(d: ModifierDef): return d.tags[0] == &"spell"), "a Spell Slate rolls only Spell modifiers")
+	_check(SlateModifierPool.defs_for(spell_slate).all(func(d: ModifierDef): return d.tags[0] == &"spell" or d.tags[0] == &"any"), "a Spell Slate rolls only Spell and any-Slate modifiers")
 	_check(resolver.apply(spell_slate, &"forging").success, "forging works on a Spell Slate")
 	var original := SlateRoller.roll(10, 20.0)
 	var copy := SlateSerializer.from_dict(JSON.parse_string(JSON.stringify(SlateSerializer.to_dict(original))))

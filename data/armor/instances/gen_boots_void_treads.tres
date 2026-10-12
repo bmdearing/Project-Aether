@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_55gck")
-ward_value = 249.0
+ward_value = 125.0
 item_id = "gen_boots_void_treads"
 display_name = "Void Treads"
 equip_slot = 3

@@ -1552,6 +1552,9 @@ const AURA_LINGER := 1.0
 ## Death Shroud's Pallid at this strength: 35% less damage dealt.
 const DEATH_SHROUD_STRENGTH := 1.75
 const DEATH_SHROUD_DRAIN := 0.1
+## Pale Pyre twist: per second, this share of maximum Life + Ward burns every
+## enemy in the shroud (scaled by spell damage) and the player.
+const PALE_PYRE_SHARE := 0.7
 ## Curse auras: stronger than the cast curse, and each drains on its own.
 const HEX_AURA_STRENGTH := 1.25
 const HEX_AURA_DRAIN := 0.08
@@ -1607,15 +1610,33 @@ func _tick_auras(delta: float) -> void:
 		return
 	_aura_ticker = AURA_PULSE
 	for a in auras:
+		if a.ability_id == "death_shroud" and a.has_twist("pale_pyre"):
+			_player.take_damage(_pale_pyre_per_sec() * AURA_PULSE * (1.0 - _player.get_dot_mitigation()), Constants.DamageType.PALE, null, Player.HitKind.DOT)
 		var radius := a.get_radius(_player.stat_sheet)
 		for enemy in _enemies_near(_player.global_position, radius):
 			if a.ability_id == "death_shroud":
 				enemy.status_effects.apply_curse("pallid", _player, AURA_PULSE + AURA_LINGER, DEATH_SHROUD_STRENGTH)
 				if a.has_twist("grave_chill"):
 					enemy.status_effects.apply_effect("slow", _player)
+				if a.has_twist("pale_pyre"):
+					_pale_pyre_hit(a, enemy)
 			else:
 				# A cast curse already holding the slot wins over the aura's pulse.
 				enemy.status_effects.apply_curse(CURSE_EFFECTS[a.ability_id], _player, AURA_PULSE + AURA_LINGER, curse_strength(a, _player.stat_sheet) * HEX_AURA_STRENGTH, false)
+
+## One AURA_PULSE of Pale Pyre on an enemy: Pale damage over time, the
+## pyre's share of maximum Life + Ward through the shroud's spell scaling.
+func _pale_pyre_hit(shroud: Ability, enemy: Enemy) -> void:
+	var sheet := _player.stat_sheet
+	var per_sec: float = shroud._base_hit(_pale_pyre_per_sec(), sheet)["base_damage"] * (1.0 + sheet.get_dot_multiplier())
+	var dmg := per_sec * AURA_PULSE
+	enemy.take_damage(dmg, Constants.DamageType.PALE, true, false, true)
+	enemy.status_effects.emitting_dot = true
+	EventBus.damage_dealt.emit(_player, enemy, dmg, Constants.DamageType.PALE, false, false)
+	enemy.status_effects.emitting_dot = false
+
+func _pale_pyre_per_sec() -> float:
+	return (_player.health.max_health + _player.ward.max_ward) * PALE_PYRE_SHARE
 
 ## A faint ring on the ground at an aura's edge, in the spell's colour,
 ## following the player.

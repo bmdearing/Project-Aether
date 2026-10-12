@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_t6oct")
-ward_value = 81.0
+ward_value = 41.0
 item_id = "gen_gloves_threshold_wraps"
 display_name = "Threshold Wraps"
 equip_slot = 2

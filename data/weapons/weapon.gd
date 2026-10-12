@@ -260,6 +260,7 @@ func get_local_crit_chance() -> float:
 ## damage type. v4.10: x this weapon's local increased Weapon Damage too.
 func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dictionary:
 	var damage_type := get_damage_type()
+	base += stat_sheet.added_damage_from_mana("mana_as_weapon_damage")
 	var boosted_base := base * (1.0 + stat_sheet.get_strength_weapon_multiplier()) * get_local_multiplier("local_increased_weapon_damage") * get_quality_multiplier()
 	# Section 10's Chain Bonus System, stored as a raw fraction on StatSheet,
 	# converted to the percent-units DamageCalculator.calculate() expects

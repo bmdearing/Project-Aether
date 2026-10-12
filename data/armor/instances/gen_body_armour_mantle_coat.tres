@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("2_wv1fv")
-ward_value = 1251.0
+ward_value = 626.0
 item_id = "gen_body_armour_mantle_coat"
 display_name = "Mantle Coat"
 equip_slot = 1

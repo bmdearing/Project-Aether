@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_j80uh")
 armor_value = 805.0
-ward_value = 502.0
+ward_value = 251.0
 item_id = "gen_body_armour_warded_plate"
 display_name = "Warded Plate"
 equip_slot = 1
