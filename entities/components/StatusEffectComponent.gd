@@ -540,7 +540,9 @@ func _apply_chill(source: Node) -> void:
 	if has_effect("freeze"):
 		return
 	_chill_stacks += 1
-	if _chill_stacks >= freeze_stacks_needed(source) and not has_effect("steadfast"):
+	# Drenched (Elemental Water) Freezes one Chill sooner.
+	var needed := maxi(1, freeze_stacks_needed(source) - (1 if has_effect("drenched") else 0))
+	if _chill_stacks >= needed and not has_effect("steadfast"):
 		if has_effect("chill"):
 			_timers.erase("chill")
 			_emit_expired("chill")
