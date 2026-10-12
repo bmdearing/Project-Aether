@@ -59,7 +59,9 @@ static func get_socket_category(item: Item) -> String:
 	if item is Weapon:
 		var weapon := item as Weapon
 		if weapon.is_conduit:
-			return "conduit_offhand" if weapon.is_offhand else "conduit_main_hand"
+			if weapon.is_offhand:
+				return "conduit_offhand"
+			return "conduit_two_handed" if weapon.is_two_handed else "conduit_main_hand"
 		if weapon.is_ranged:
 			return "two_handed_ranged" if weapon.is_two_handed else "one_handed_ranged"
 		return "two_handed_melee" if weapon.is_two_handed else "one_handed_melee"

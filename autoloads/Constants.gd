@@ -115,6 +115,7 @@ const MAX_SOCKETS_BY_CATEGORY := {
 	"one_handed_ranged": 3,   # pistols, revolvers, machine pistols
 	"two_handed_ranged": 6,   # rifles, bows, shotguns, SMG, machine gun
 	"conduit_main_hand": 3,
+	"conduit_two_handed": 6,  # staves, like other two-handed weapons
 	"conduit_offhand": 3,
 	"shield": 3,
 	"body_armour": 4,
