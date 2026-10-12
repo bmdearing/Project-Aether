@@ -34,6 +34,15 @@ func _physics_process(delta: float) -> void:
 func pinnacle_life() -> float:
 	return 65_000_000.0
 
+## Every pinnacle: 50% to all Elemental and Esoteric Resistances, 12k Armour.
+const PINNACLE_RESISTANCE := 50.0
+const PINNACLE_ARMOUR := 12000.0
+
+func _apply_definition() -> void:
+	super._apply_definition()
+	armor_value = PINNACLE_ARMOUR
+	resistance = PINNACLE_RESISTANCE
+
 ## A flat Ward layer, not tied to Life.
 const PINNACLE_WARD := 250_000.0
 

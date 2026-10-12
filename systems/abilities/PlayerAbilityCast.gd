@@ -1095,6 +1095,8 @@ func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
 		crawler.stat_sheet = _player.stat_sheet
 		crawler.source = _player
 		crawler.damage_multiplier = damage_multiplier
+		# Each spark keeps its own hit cooldown per enemy.
+		crawler.hit_key = StringName("spark_%d" % crawler.get_instance_id())
 		_player.get_tree().current_scene.add_child(crawler)
 		crawler.global_position = origin
 

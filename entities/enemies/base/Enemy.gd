@@ -32,7 +32,9 @@ var level: int = 1
 @export var definition: EnemyDefinition = null
 
 var faction: String = ""
-var armor_value: float = 0.0    # flat Physical mitigation in take_damage(): armor / (armor + 1000)
+var armor_value: float = 0.0    # Physical mitigation in take_damage(), same curve as the player's (armor / (armor + 6 x hit))
+## Elemental and Esoteric Resistance (percent), lowered by Penetration and Shred.
+var resistance: float = 0.0
 var evasion_value: float = 0.0  # dodge chance vs player weapon attacks only (take_damage()'s can_evade)
 # Flat damage-absorb pool set at spawn from definition.ward_percent; no regen.
 var _ward_pool: float = 0.0
@@ -1003,11 +1005,13 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
 	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0 and not is_dot and not ignore_armor:
 		var armor := armor_value * (status_effects.get_armor_multiplier() if status_effects else 1.0)
-		mitigated *= (1.0 - armor / (armor + 1000.0))
+		mitigated *= 1.0 - DamageCalculator.physical_mitigation(armor, mitigated)
 	if status_effects and (category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC):
 		var shred := status_effects.get_resistance_shred() + _aura_shred() + status_effects.get_curse_resistance_shred(damage_type)
-		if shred > 0.0:
-			mitigated *= (1.0 - DamageCalculator.resistance_mitigation(-shred))
+		var attacker := _player.stat_sheet if is_instance_valid(_player) else null
+		var res := DamageCalculator.get_effective_resistance(resistance, damage_type, attacker, shred)
+		if res != 0.0:
+			mitigated *= 1.0 - DamageCalculator.resistance_mitigation(res)
 	if _ward_current > 0.0:
 		var absorbed: float = min(_ward_current, mitigated)
 		_ward_current -= absorbed

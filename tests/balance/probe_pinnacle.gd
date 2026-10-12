@@ -13,8 +13,9 @@ const ITEM_LEVEL := 95
 const SPELL_LEVEL := 20
 const ARMOUR_SLOTS := [Constants.EquipmentSlot.HELMET, Constants.EquipmentSlot.BODY_ARMOUR, Constants.EquipmentSlot.GLOVES,
 	Constants.EquipmentSlot.BOOTS, Constants.EquipmentSlot.AMULET, Constants.EquipmentSlot.BELT, Constants.EquipmentSlot.RING]
-## All Spark crawlers share one per-enemy hit cooldown.
-const SPARK_HITS_PER_SEC := 1.0 / SparkCrawler.HIT_INTERVAL
+## Spark hits on one stationary boss, measured at a 0.8s cast rhythm (each
+## spark has its own hit cooldown); scaled by the actual cast rhythm.
+const SPARK_HITS_PER_SEC_AT_08 := 26.4
 
 var _player: Player
 var _boss: Enemy
@@ -69,7 +70,7 @@ func _run() -> void:
 				a.level = SPELL_LEVEL
 				_spells.append(a)
 	print("PINNACLE Aurelia: %.0f Life + %.0f Ward, level %d; her ability base hit %.0f" % [_boss.health.max_health, _boss.get_ward_max(), _boss.level, _boss.get_ability_base_damage()])
-	print("PINNACLE her mitigation (damage taken per 1000): %s" % _boss_mitigation_text())
+	print("PINNACLE her mitigation (taken from a 1000 hit): %s" % _boss_mitigation_text())
 	print("PINNACLE gear at Tier %d top values, jewels %s" % [_tier, "on" if _jewels else "off"])
 	if _modes.has("melee"):
 		await _archetype("melee", null)
@@ -277,7 +278,7 @@ func _raw_dps() -> float:
 		return w.predict_damage(mv, sheet) / (PlayerMeleeAttack.swing_seconds(w.weapon_type) / _player.get_action_speed_multiplier())
 	var hit := _spell.predict_damage(sheet)
 	if _spell.ability_id == "spark":
-		return hit * SPARK_HITS_PER_SEC
+		return hit * SPARK_HITS_PER_SEC_AT_08 * 0.8 / maxf(_spell.get_cast_time(sheet), 0.05)
 	var interval := maxf(maxf(_spell.get_cast_time(sheet), _spell.base_recovery_time / maxf(_player.get_action_speed_multiplier(), 0.01)), _spell.get_effective_cooldown(sheet))
 	return hit / maxf(interval, 0.05)
 
@@ -287,21 +288,27 @@ func _damage_type() -> int:
 		return w.get_damage_type() if w else Constants.DamageType.KINETIC
 	return _spell.damage_type
 
-func _dps() -> float:
-	return _raw_dps() * _boss_taken(_damage_type(), _mode != "melee")
+func _hit_size() -> float:
+	if _mode == "melee":
+		var w := _player.equipment.primary_weapon
+		return w.predict_damage(_player.melee_attack._effective_motion_value(w), _player.stat_sheet) if w else 0.0
+	return _spell.predict_damage(_player.stat_sheet)
 
-## Share of a 1000 hit Aurelia actually loses (Life + Ward).
-func _boss_taken(damage_type: int, is_spell: bool) -> float:
+func _dps() -> float:
+	return _raw_dps() * _boss_taken(_damage_type(), _mode != "melee", maxf(_hit_size(), 1.0))
+
+## Share of a hit of `amount` Aurelia actually loses (Armour depends on its size).
+func _boss_taken(damage_type: int, is_spell: bool, amount: float = 1000.0) -> float:
 	var h := _boss.health
 	var keep_hp := h.current_health
 	var keep_ward := _boss._ward_current
 	_boss._ward_current = 0.0
 	h.current_health = h.max_health
-	_boss.take_damage(1000.0, damage_type, is_spell, false)
+	_boss.take_damage(amount, damage_type, is_spell, false)
 	var lost := h.max_health - h.current_health
 	h.current_health = keep_hp
 	_boss._ward_current = keep_ward
-	return lost / 1000.0
+	return lost / amount
 
 func _boss_mitigation_text() -> String:
 	var parts: Array[String] = []

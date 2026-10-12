@@ -107,6 +107,21 @@ func get_resistance(damage_type: Constants.DamageType) -> float:
 	var key = resistance_key_for(damage_type)
 	return equipment_resistance.get(key, 0.0) if key else 0.0
 
+## Resistance counts up to its maximum: BASE_MAX_RESISTANCE plus "+% to
+## maximum X Resistance" (jewels), never past the hard ceiling.
+const BASE_MAX_RESISTANCE := 75.0
+
+func get_max_resistance(damage_type: Constants.DamageType) -> float:
+	var key = resistance_key_for(damage_type)
+	if key == null:
+		return BASE_MAX_RESISTANCE
+	return minf(BASE_MAX_RESISTANCE + get_misc_bonus("max_%s_resistance" % key), DamageCalculator.RESISTANCE_CEILING)
+
+## What a hit is resisted by: Resistance minus Shred, capped at the maximum,
+## so Resistance above the cap soaks Shred first.
+func get_effective_resistance(damage_type: Constants.DamageType, shred: float = 0.0) -> float:
+	return minf(get_resistance(damage_type) - shred, get_max_resistance(damage_type))
+
 func set_equipment_resistance(resistance: Dictionary) -> void:
 	equipment_resistance = resistance
 

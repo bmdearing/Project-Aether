@@ -589,7 +589,7 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 		mitigated *= (1.0 - DamageCalculator.physical_mitigation(armor, mitigated))
 		mitigated *= (1.0 - stat_sheet.get_reduced_damage_taken(Constants.DamageCategory.PHYSICAL))
 	elif category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC:
-		var resistance := stat_sheet.get_resistance(damage_type) - status_effects.get_resistance_shred()
+		var resistance := stat_sheet.get_effective_resistance(damage_type, status_effects.get_resistance_shred())
 		mitigated *= (1.0 - DamageCalculator.resistance_mitigation(resistance))
 		# Patch v4.0 "% of Armor applies to Elemental" - Elemental only,
 		# per the doc's own Item Slots note (Body Armour/Helmet/Amulet,

@@ -20,6 +20,7 @@ const STAT_KEYS := [
 	"increased_physical_damage", "increased_spell_damage", "elemental_dmg_increased", "esoteric_dmg_increased",
 	"increased_area_damage", "dot_multiplier", "minion_damage",
 	"fire_resistance", "cold_resistance", "lightning_resistance", "esoteric_resistance",
+	"max_fire_resistance", "max_cold_resistance", "max_lightning_resistance", "max_esoteric_resistance",
 	"attack_speed", "cast_speed", "move_speed", "increased_attack_damage",
 	"crit_chance_increased", "crit_damage_increased",
 	"increased_aoe_radius", "skill_effect_duration",
@@ -36,6 +37,11 @@ const OWN_RANGES := [
 	{"stat_key": "increased_attack_damage", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Weapon Damage", "brand_tags": ["kinetic", "piercing", "explosive"]},
 	{"stat_key": "attack_speed", "tier1_min": 12.0, "tier1_max": 15.0, "desc": "+%d%% increased Attack Speed", "brand_tags": ["skills"]},
 	{"stat_key": "crit_chance_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Critical Strike Chance", "brand_tags": []},
+	# +1% to a maximum Resistance at every tier ("fixed": no tier decay).
+	{"stat_key": "max_fire_resistance", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "+%d%% to maximum Fire Resistance", "brand_tags": [], "fixed": true},
+	{"stat_key": "max_cold_resistance", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "+%d%% to maximum Cold Resistance", "brand_tags": [], "fixed": true},
+	{"stat_key": "max_lightning_resistance", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "+%d%% to maximum Lightning Resistance", "brand_tags": [], "fixed": true},
+	{"stat_key": "max_esoteric_resistance", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "+%d%% to maximum Esoteric Resistance", "brand_tags": [], "fixed": true},
 ]
 
 static var _cache: Dictionary = {}  # "<stat_key>|<best tier>" -> ModifierDef
@@ -73,7 +79,7 @@ static func _def_for(entry: Dictionary, best_tier: int, value_scale: float) -> M
 	def.tags = GearModifierPool._tags(entry["brand_tags"], entry["stat_key"])
 	def.item_types = [&"jewel", &"lens"]
 	for t in range(best_tier, TIER_COUNT + 1):
-		var range_ := tier_range(entry["tier1_min"], entry["tier1_max"], t, value_scale)
+		var range_ := tier_range(entry["tier1_min"], entry["tier1_max"], t, value_scale) if not entry.get("fixed", false) else Vector2(entry["tier1_min"], entry["tier1_max"])
 		var tier := ModifierTier.new()
 		tier.tier = t
 		tier.value_min = range_.x

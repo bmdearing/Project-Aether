@@ -56,10 +56,8 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 	_add(defense_list, "Armor", "%.0f" % (player.equipment.get_total_armor() if player.equipment else 0.0))
 	# StatSheet.get_resistance() already includes gear and the all-elemental
 	# bonus; Esoteric is one shared bucket, so any of its 3 damage types reads it.
-	_add(defense_list, "Fire Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.FIRE)))
-	_add(defense_list, "Cold Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.COLD)))
-	_add(defense_list, "Lightning Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.LIGHTNING)))
-	_add(defense_list, "Esoteric Resistance", "%d%%" % int(stats.get_resistance(Constants.DamageType.AETHERIC)))
+	for pair in [["Fire", Constants.DamageType.FIRE], ["Cold", Constants.DamageType.COLD], ["Lightning", Constants.DamageType.LIGHTNING], ["Esoteric", Constants.DamageType.AETHERIC]]:
+		_add(defense_list, "%s Resistance" % pair[0], "%d%% (max %d%%)" % [int(stats.get_resistance(pair[1])), int(stats.get_max_resistance(pair[1]))])
 
 	_add(misc_list, "Intellect", "%.1f" % stats.get_stat(Constants.Stat.INTELLECT))
 	_add(misc_list, "Spell Damage", "+%.0f%%" % (stats.get_spell_power_from_stats() * 100.0))

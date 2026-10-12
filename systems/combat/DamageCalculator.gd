@@ -91,8 +91,8 @@ const RESISTANCE_CEILING := 95.0
 static func resistance_mitigation(resistance_percent: float) -> float:
 	return clamp(resistance_percent, RESISTANCE_FLOOR, RESISTANCE_CEILING) / 100.0
 
-## Penetration applies first, then Resistance Shred. Not called yet: enemies
-## have no base Resistance to penetrate. attacker_stats may be null.
+## Penetration applies first, then Resistance Shred (Enemy.take_damage()).
+## attacker_stats may be null.
 static func get_effective_resistance(base_resistance: float, damage_type: Constants.DamageType, attacker_stats: StatSheet, resistance_shred: float = 0.0) -> float:
 	var pen: float = attacker_stats.get_penetration(damage_type) if attacker_stats else 0.0
 	var after_penetration: float = max(-200.0, base_resistance - pen)

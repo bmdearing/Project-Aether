@@ -2,8 +2,8 @@ extends Node3D
 class_name SparkCrawler
 ## Spark ground crawler. Re-targets the nearest enemy every frame and turns
 ## toward it at TURN_SPEED; wanders when nothing is within SEEK_RADIUS. Can
-## hit the same enemy repeatedly, at most once per HIT_INTERVAL - shared by
-## every crawler (HitCooldown), so a cast's sparks can't stack on one enemy.
+## hit the same enemy repeatedly, at most once per HIT_INTERVAL per spark
+## (_fire_spark gives each its own HitCooldown key), so sparks stack.
 ##
 ## straight = true (Booming Blade): no seeking or wandering, it runs flat
 ## along its heading at speed for range metres, stops at walls, and uses
