@@ -26,9 +26,8 @@ const STAT_KEYS := [
 	"item_rarity", "magic_find",
 	"ailment_chance_bleed", "ailment_chance_ignite", "ailment_chance_chill", "ailment_chance_electrocute",
 	"ailment_chance_shock", "ailment_chance_aetherburn", "ailment_chance_unraveling", "ailment_chance_pallid",
-	"increased_ailment_damage_bleed", "increased_ailment_damage_ignite", "increased_ailment_damage_chill",
-	"increased_ailment_damage_electrocute", "increased_ailment_damage_shock", "increased_ailment_damage_aetherburn",
-	"increased_ailment_damage_unraveling", "increased_ailment_damage_pallid",
+	# Only damaging ailments: Chill, Electrocute, Shock, Unraveling and Pallid deal none.
+	"increased_ailment_damage_bleed", "increased_ailment_damage_ignite", "increased_ailment_damage_aetherburn",
 ]
 
 ## Jewel-only lines with their own Tier 1 range (taken as is, not scaled by

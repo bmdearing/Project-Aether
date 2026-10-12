@@ -211,8 +211,8 @@ const AFFIX_POOL := [
 	# Patch v4.0 Healing/Sustain Mod Pool (flat_ward already existed pre-v4.0)
 	{"stat_key": "life_regen_flat", "tier1_min": 28.0, "tier1_max": 36.0, "desc": "Regenerate %d Life per second", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": []},
 	{"stat_key": "life_regen_increased", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Life Regeneration", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": []},
-	# Body armour tops out at 179 Life, helmets/gloves/boots at 129 (Tier 1).
-	{"stat_key": "flat_life", "tier1_min": 88.0, "tier1_max": 110.0, "desc": "+%d to Life", "applies_to": ["armor", "shield", "item"], "slot_tiers": {1: [114.56, 143.2], 0: [82.56, 103.2], 2: [82.56, 103.2], 3: [82.56, 103.2]}, "brand_tags": []},
+	# Body armour tops out at 179 Life, every other slot at 129 (Tier 1).
+	{"stat_key": "flat_life", "tier1_min": 82.56, "tier1_max": 103.2, "desc": "+%d to Life", "applies_to": ["armor", "shield", "item"], "slot_tiers": {1: [114.56, 143.2]}, "brand_tags": []},
 	{"stat_key": "life_increased", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Life", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": []},
 	{"stat_key": "mana_regen_increased", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Mana Regeneration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
 	{"stat_key": "flat_mana", "tier1_min": 68.0, "tier1_max": 90.0, "desc": "+%d to Mana", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
@@ -260,7 +260,8 @@ const AFFIX_POOL := [
 	{"stat_key": "increased_ward", "defense": "ward", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["ward"]},
 	{"stat_key": "increased_armor", "defense": "armor", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Armor", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["armor"]},
 	{"stat_key": "increased_evasion", "defense": "evasion", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Evasion", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["evasion"]},
-	{"stat_key": "hybrid_defense_life", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d to primary defense and Life (hybrid)", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": []},
+	# 40% of the slot's flat Life cap: 71.6 on body armour, 51.6 elsewhere (Tier 1).
+	{"stat_key": "hybrid_defense_life", "tier1_min": 33.02, "tier1_max": 41.28, "desc": "+%d to primary defense and Life (hybrid)", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "slot_tiers": {1: [45.82, 57.28]}, "brand_tags": []},
 
 	# Patch v4.0 Amulet Exclusive Mod Pool - Prefix, +1-2 at T1 (item level
 	# 80+), lower tiers +1 only. "Among the rarest amulet rolls" - kept at

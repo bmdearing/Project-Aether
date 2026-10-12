@@ -34,6 +34,13 @@ func _physics_process(delta: float) -> void:
 func pinnacle_life() -> float:
 	return 65_000_000.0
 
+## A flat Ward layer, not tied to Life.
+const PINNACLE_WARD := 250_000.0
+
+func _reset_ward() -> void:
+	_ward_pool = PINNACLE_WARD
+	_ward_current = _ward_pool
+
 ## Pinnacle Life is fixed, not level-scaled.
 func _level_scaled_health(_at_level: int) -> float:
 	return pinnacle_life()
