@@ -62,7 +62,7 @@ var player_level: int = 1
 var player_xp: float = 0.0
 
 ## Each level above 1 grants this much of every stat (derived, not saved).
-const STAT_GAIN_PER_LEVEL := 0.6
+const STAT_GAIN_PER_LEVEL := 0.42
 
 func get_level_stat_bonus() -> float:
 	return (player_level - 1) * STAT_GAIN_PER_LEVEL

@@ -310,8 +310,10 @@ var resilience: float = 0.0
 const BASE_REGEN_PERCENT := 0.5
 
 func _apply_derived_stats() -> void:
-	# Life: Strength's +4/point + flat Life, times increased Life; regen likewise.
-	var life_mult := (unique_effects.max_life_multiplier() if unique_effects else 1.0) * (1.0 + stat_sheet.get_misc_bonus("life_increased") / 100.0) * (1.0 + stat_sheet.get_misc_bonus("no_ward_recovery_life_bonus") / 100.0)
+	# Life: Strength's +4/point + flat Life, times increased Life and the
+	# character level's growth (AreaLevel.player_pool_scale); regen likewise.
+	var level_pool := AreaLevel.player_pool_scale(GameState.player_level)
+	var life_mult := level_pool * (unique_effects.max_life_multiplier() if unique_effects else 1.0) * (1.0 + stat_sheet.get_misc_bonus("life_increased") / 100.0) * (1.0 + stat_sheet.get_misc_bonus("no_ward_recovery_life_bonus") / 100.0)
 	var flat_life := stat_sheet.get_misc_bonus("max_life") + stat_sheet.get_misc_bonus("flat_life")
 	health.set_max_health((_base_max_health + stat_sheet.get_max_life_bonus() + flat_life) * life_mult)
 	# Everyone regenerates BASE_REGEN_PERCENT of max Life/Mana per second on top of gear.
@@ -333,7 +335,7 @@ func _apply_derived_stats() -> void:
 	# DamageCalculator.get_crit_chance()'s 2026-09-07 fix.
 	stat_sheet.finesse_crit_bonus = stat_sheet.get_crit_chance_from_stats() + stat_sheet.get_gear_crit_chance_bonus()
 
-	var ward_mult := unique_effects.ward_multiplier() if unique_effects else 1.0
+	var ward_mult := level_pool * (unique_effects.ward_multiplier() if unique_effects else 1.0)
 	ward.set_max_ward(equipment.compute_ward_bonus() * (1.0 + stat_sheet.get_ward_increased_from_stats()) * ward_mult)
 	ward.restoration_multiplier = 1.0 + stat_sheet.get_misc_bonus("ward_recovery_increased") / 100.0
 	# Patch v4.0 Faster Ward Delay - WardComponent has no StatSheet

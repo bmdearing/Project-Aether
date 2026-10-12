@@ -16,10 +16,17 @@ const PINNACLE := 90
 
 ## Monster stats compound per level above 1 (from tests/balance/probe_power_curve:
 ## typical gear DPS grows ~20x from level 1 to 89, so health grows a little
-## faster, 24.6x, to keep time-to-kill steady; damage 6.2x keeps an on-level
-## hit near 6-7% of typical Life after Armour). XP and Gold compound too.
+## faster, 24.6x, to keep time-to-kill steady). XP and Gold compound too.
+## Damage grows steeply (21x by 89) so fighting far above your level is
+## deadly, not just slow; the player's Life and Ward grow with level
+## (PLAYER_POOL_GROWTH) so an on-level hit stays where the old 1.021 damage
+## curve had it (about 7.7% of typical Life after Armour at 89). That's a
+## little more than DAMAGE_GROWTH / 1.021, since Armour stops less of a big
+## hit. Fitted with probe_power_curve; a level 14 at Area Level 74 takes about
+## 34% of their Life per standard hit (12% on the old curve).
 const HEALTH_GROWTH := 1.037
-const DAMAGE_GROWTH := 1.021
+const DAMAGE_GROWTH := 1.035
+const PLAYER_POOL_GROWTH := 1.0185
 const XP_GROWTH := 1.165
 const GOLD_GROWTH := 1.02
 
@@ -51,6 +58,10 @@ static func health_scale(level: int) -> float:
 
 static func damage_scale(level: int) -> float:
 	return pow(DAMAGE_GROWTH, maxi(level, 1) - 1)
+
+## How much the player's maximum Life and Ward grow at a character level.
+static func player_pool_scale(level: int) -> float:
+	return pow(PLAYER_POOL_GROWTH, maxi(level, 1) - 1)
 
 static func xp_scale(level: int) -> float:
 	return pow(XP_GROWTH, maxi(level, 1) - 1)

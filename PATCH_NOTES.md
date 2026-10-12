@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.89: Fighting far above your level is deadly, not just slow
+
+- A level 14 character cleared an Area Level 74 Figment (a grandfathered pre-v4.75 Tier Figment; left as-is by the user's choice). Monster health already scaled steeply (x1.037 per level), but damage only x1.021, so being 60 levels under made fights ~9x slower but only ~3.5x more dangerous.
+- **Monster damage now grows x1.035 per Area Level** (`AreaLevel.DAMAGE_GROWTH`): 21x at 89 instead of 6.2x.
+- **The player's maximum Life and Ward grow x1.0185 per character level** (`AreaLevel.player_pool_scale`, 3.0x at 89), so on-level hits stay where they were (fitted with `probe_power_curve`: about 7.7% of typical Life after Armour at 89; a few tenths of a point harder at levels 30-70). It's a bit more than the damage ratio because Armour stops less of a bigger hit.
+- Result: a level 14 at Area Level 74 takes about 34% of their Life per standard monster hit (12% before). A few levels above you is barely harder.
+- **Natural stat growth** per level is 0.42 of each stat (was 0.6), at the user's call.
+
+---
+
 ## 2026-10-11 — v4.88: Aurelia hunts combos, a demonic arena, her own music
 
 - **Combo brain.** BossBrain gained two hooks: `Enemy.ability_weight()` (multiplies a ready ability's pick weight) and `Enemy.urgent_ability()` (cast at once, skipping the gap and cooldown). Aurelia uses them: an Entangled player gets Searing Thrust if in reach, otherwise Fire Wall, once per Entangle; a Chilled/Frozen player draws Lightning Bolt and an Ignited one her cold spells (x6 weight); with no ailment on you she favours the set-up spells (Roots, Ice Spears, Fire Wall, x1.8). Entangle now lasts 2.5 s so a Fire Wall from across the arena can land in time.
