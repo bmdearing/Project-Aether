@@ -7,6 +7,21 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.87: Cast times, Edict names, Linger, Aurelia's roots and ailment combos
+
+- **Cast times** (user: damaging spells get minimal cast times of 0.5-1 s by strength): Spark 0.8 s, Ice Pulse 0.75 s, Cinder Lance 0.5 s.
+- **Item-level Edicts renamed:** 61 = Edict of Burden, 72 = Edict of Promise, 83 = Edict of Freedom.
+- **Linger is a spell, not a curse.** It no longer counts toward the curse limit or pushes your other curse off, drops the Curse tag (so Curse Effect gear no longer touches it) and its text says "afflicts".
+- **Aurelia's fourth spell, Entangling Roots** (`AureliaRoots`): five lines of roots tear up out of the ground toward you; caught, you're Entangled (rooted 2 s, and you can't dash or jump out). Upgraded: a second wave between the first lines 0.6 s later.
+- **Upgrades now start at 90%:** one spell each at 90%, 75% and 50%; all four by 25%.
+- **Ailment combos** on anything in her fight (`AureliaAilments.hit()`, used by her spells, golems, fire pools and black fire): Chilled/Frozen + Lightning -> Electrocuted and Shocked; Entangled + Fire -> **Forbidden Fire** (green fire, 80% of her hit per second for 4 s, refreshes rather than stacks); Ignited + Cold -> Pallid. Combos land before the hit, so the Shock raises the bolt that caused it.
+- **Pallid (and Meager) on the player now lower the player's damage.** Before, only enemies read them. `StatSheet.outgoing_more_multiplier()` folds them into every weapon and spell hit.
+- Sounds: Entangling Roots, Purge, Incinerate and Cripple from WC3.
+- Judgment calls: root lines, fan width and the upgrade (a second wave); Forbidden Fire's numbers; combos never remove the ailments that caused them.
+- Known: `tests/crafting/test_level_edicts` fails its bench-currency count when the last-used save slot already holds Orbs of Quickening (the test reads the real stash). Not a game bug.
+
+---
+
 ## 2026-10-11 — v4.86.1: Warcraft III sounds everywhere they fit
 
 - The user found the old sounds cartoony. `tools/mdx_pipeline/wc3_library.js` fills SoundLibrary slots from the local WC3 install per `wc3_library.json` and rewrites `data/sound/sound_library.tres` (files land in `assets/sfx/wc3/`).

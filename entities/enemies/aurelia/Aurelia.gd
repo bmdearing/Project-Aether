@@ -10,24 +10,31 @@ class_name Aurelia
 ##   middle. Upgraded: it leaves one or two fire pots, gone at the next phase.
 ##   Lightning Bolt: small strikes on you (1.5s, then 1s apart) mark where a
 ##   big bolt lands 0.75s after the last. Upgraded: one fewer warning strike.
+##   Entangling Roots: lines of roots tear up out of the ground toward you
+##   and Entangle you. Upgraded: a second wave follows between the first.
 ##   Staff Sweep and Searing Thrust: her two melee moves.
+## Ailments combine on you (AureliaAilments): Chilled/Frozen + Lightning ->
+## Electrocuted and Shocked; Entangled + Fire -> Forbidden Fire; Ignited +
+## Cold -> Pallid.
 ## Phases:
 ##   1 (100%): the simple kit.
-##   2 (90%): the fight begins - she casts faster.
-##   3 (75%): Earth Wheel, 7 or 14 quakes (immune while it turns); one spell
-##   upgrades.
-##   4 (50%): two Fire Golems; another spell upgrades; she casts faster again.
+##   2 (90%): the fight begins - she casts faster; one spell upgrades.
+##   3 (75%): Earth Wheel, 7 or 14 quakes (immune while it turns); another
+##   spell upgrades.
+##   4 (50%): two Fire Golems; a third spell upgrades; she casts faster again.
 ##   5 (25%): Earth Wheel, 14 or 21 quakes, then she calls out "Amaterasu"
 ##   and black fire starts eating the arena. Two Fire Golems chase you; a
 ##   golem knocking you up gets a Living Bomb planted in you (5s cooldown).
 ##   Every spell is upgraded.
 
-enum Spell { ICE_SPEARS, FIRE_WALL, LIGHTNING }
-const SPELL_NAMES := {Spell.ICE_SPEARS: "Ice Spears", Spell.FIRE_WALL: "Fire Wall", Spell.LIGHTNING: "Lightning Bolt"}
+enum Spell { ICE_SPEARS, FIRE_WALL, LIGHTNING, ROOTS }
+const SPELLS: Array[int] = [Spell.ICE_SPEARS, Spell.FIRE_WALL, Spell.LIGHTNING, Spell.ROOTS]
+const SPELL_NAMES := {Spell.ICE_SPEARS: "Ice Spears", Spell.FIRE_WALL: "Fire Wall", Spell.LIGHTNING: "Lightning Bolt", Spell.ROOTS: "Entangling Roots"}
 const UPGRADE_CALLOUTS := {
 	Spell.ICE_SPEARS: "Her Ice Spears hunt you",
 	Spell.FIRE_WALL: "Her Fire Wall leaves embers burning",
 	Spell.LIGHTNING: "Her lightning grows impatient",
+	Spell.ROOTS: "Her roots come in waves",
 }
 
 const DISPLAY_NAME := "Aurelia"
@@ -52,6 +59,10 @@ const SMALL_BOLT_RADIUS := 1.8
 const SMALL_BOLT_WARNING := 0.45
 const BIG_BOLT_RADIUS := 3.6
 const BIG_BOLT_DAMAGE := 2.4
+
+const ROOT_LINES := 5
+const ROOT_FAN_DEG := 40.0
+const ROOT_WAVE_GAP := 0.6
 
 const SWEEP_RADIUS := 5.0
 const SWEEP_HALF_ANGLE := 70.0
@@ -116,6 +127,7 @@ func abilities() -> Array:
 		{"id": "ice_spears", "display_name": "Ice Spears", "kind": BossAbility.Kind.CUSTOM, "cooldown": 7.0, "telegraph": 0.9, "max_range": 60.0, "damage_mult": 0.8, "damage_type": Constants.DamageType.COLD},
 		{"id": "fire_wall", "display_name": "Fire Wall", "kind": BossAbility.Kind.CUSTOM, "cooldown": 9.0, "telegraph": 1.0, "max_range": 60.0, "damage_mult": 1.3, "damage_type": Constants.DamageType.FIRE},
 		{"id": "lightning_bolt", "display_name": "Lightning Bolt", "kind": BossAbility.Kind.CUSTOM, "cooldown": 11.0, "telegraph": 0.7, "max_range": 60.0, "damage_mult": 0.5, "damage_type": Constants.DamageType.LIGHTNING},
+		{"id": "entangling_roots", "display_name": "Entangling Roots", "kind": BossAbility.Kind.CUSTOM, "cooldown": 10.0, "telegraph": 0.9, "max_range": 60.0, "damage_mult": 0.6, "damage_type": Constants.DamageType.KINETIC},
 		{"id": "staff_sweep", "display_name": "Staff Sweep", "kind": BossAbility.Kind.CUSTOM, "cooldown": 4.0, "telegraph": 0.7, "max_range": SWEEP_RADIUS, "damage_mult": 1.2, "damage_type": Constants.DamageType.COLD, "weight": 2.5},
 		{"id": "searing_thrust", "display_name": "Searing Thrust", "kind": BossAbility.Kind.CUSTOM, "cooldown": 5.0, "telegraph": 0.8, "max_range": THRUST_LENGTH - 1.0, "damage_mult": 1.4, "damage_type": Constants.DamageType.FIRE, "weight": 2.0},
 		{"id": "earth_wheel", "display_name": "Earth Wheel", "kind": BossAbility.Kind.CUSTOM, "cooldown": 9999.0, "min_phase": 3, "weight": 0.0, "max_range": 999.0},
@@ -152,16 +164,16 @@ func _on_phase_changed(p: int) -> void:
 	if a:
 		a.clear_fire_pots()
 	match p:
-		3, 4:
+		2, 3, 4:
 			_upgrade_random()
 		5:
-			for spell in [Spell.ICE_SPEARS, Spell.FIRE_WALL, Spell.LIGHTNING]:
+			for spell in SPELLS:
 				if not is_upgraded(spell):
 					upgraded.append(spell)
 
 func _upgrade_random() -> void:
 	var left: Array[int] = []
-	for spell in [Spell.ICE_SPEARS, Spell.FIRE_WALL, Spell.LIGHTNING]:
+	for spell in SPELLS:
 		if not is_upgraded(spell):
 			left.append(spell)
 	if left.is_empty():
@@ -181,6 +193,8 @@ func cast_custom(ability: BossAbility) -> void:
 			await _fire_wall(ability)
 		"lightning_bolt":
 			await _lightning_bolt(ability)
+		"entangling_roots":
+			await _entangling_roots(ability)
 		"staff_sweep":
 			await _staff_sweep(ability)
 		"searing_thrust":
@@ -331,9 +345,48 @@ func _hit_circle(center: Vector3, radius: float, amount: float, type: int, statu
 	if p == null or not p.health.is_alive() or absf(p.global_position.y - center.y) > 3.0:
 		return
 	if Vector2(p.global_position.x - center.x, p.global_position.z - center.z).length() <= radius + 0.4:
-		p.take_damage(amount, type, self, Player.HitKind.SPELL)
+		AureliaAilments.hit(p, amount, type, self)
 		if status != "" and p.status_effects:
 			p.status_effects.apply_effect(status, self, amount)
+
+## Lines of roots fanning out toward you; upgraded, a second wave fills
+## the gaps between the first.
+func _entangling_roots(ability: BossAbility) -> void:
+	var t := _t(ability.telegraph)
+	begin_attack_telegraph(t)
+	BossFx.charge(self, get_cast_origin(), Constants.DamageType.KINETIC, t, false)
+	AureliaSfx.play("roots_cast", get_cast_origin(), 0.0)
+	var origin := Vector3(global_position.x, _floor_y(), global_position.z)
+	var aim := _forward()
+	var dirs: Array[Vector3] = []
+	for i in ROOT_LINES:
+		dirs.append(aim.rotated(Vector3.UP, deg_to_rad(lerpf(-ROOT_FAN_DEG, ROOT_FAN_DEG, float(i) / (ROOT_LINES - 1)))))
+	for dir in dirs:
+		BossTelegraph.line(get_parent(), origin, dir, AureliaRoots.LENGTH, AureliaRoots.WIDTH, t, AureliaAilments.ENTANGLE_COLOR)
+	await _wait(t)
+	if not health.is_alive():
+		return
+	var shared := {"hit": false}
+	for dir in dirs:
+		AureliaRoots.send(get_parent(), origin, dir, _damage(ability), self, shared)
+	SpellFx.shockwave(get_parent(), origin + Vector3.UP * 0.05, 3.0, AureliaAilments.ENTANGLE_COLOR, 0.3)
+	AureliaSfx.play("roots_erupt", origin, 2.0)
+	if not is_upgraded(Spell.ROOTS):
+		return
+	# The second wave: between the first lines, a moment later.
+	var half := deg_to_rad(ROOT_FAN_DEG) / (ROOT_LINES - 1)
+	var second: Array[Vector3] = []
+	for i in ROOT_LINES - 1:
+		second.append(dirs[i].rotated(Vector3.UP, half))
+	for dir in second:
+		BossTelegraph.line(get_parent(), origin, dir, AureliaRoots.LENGTH, AureliaRoots.WIDTH, ROOT_WAVE_GAP, AureliaAilments.ENTANGLE_COLOR)
+	await _wait(ROOT_WAVE_GAP)
+	if not health.is_alive():
+		return
+	var shared2 := {"hit": false}
+	for dir in second:
+		AureliaRoots.send(get_parent(), origin, dir, _damage(ability), self, shared2)
+	AureliaSfx.play("roots_erupt", origin, 0.0, 0.9)
 
 ## Melee: a wide frosted sweep of the staff round her front.
 func _staff_sweep(ability: BossAbility) -> void:
@@ -355,7 +408,7 @@ func _staff_sweep(ability: BossAbility) -> void:
 	var rel := p.global_position - origin
 	rel.y = 0.0
 	if rel.length() <= SWEEP_RADIUS + 0.4 and (rel.length() < 0.6 or rad_to_deg(facing.angle_to(rel.normalized())) <= SWEEP_HALF_ANGLE):
-		p.take_damage(_damage(ability), Constants.DamageType.COLD, self, Player.HitKind.ATTACK, true)
+		AureliaAilments.hit(p, _damage(ability), Constants.DamageType.COLD, self, Player.HitKind.ATTACK, true)
 		if p.status_effects:
 			p.status_effects.apply_effect("chill", self, _damage(ability))
 
@@ -395,7 +448,7 @@ func _searing_thrust(ability: BossAbility) -> void:
 	rel.y = 0.0
 	var along := rel.dot(dir)
 	if along >= 0.0 and along <= THRUST_LENGTH and (rel - dir * along).length() <= THRUST_WIDTH * 0.5 + 0.4:
-		p.take_damage(_damage(ability), Constants.DamageType.FIRE, self, Player.HitKind.ATTACK, true)
+		AureliaAilments.hit(p, _damage(ability), Constants.DamageType.FIRE, self, Player.HitKind.ATTACK, true)
 
 ## ---- Earth Wheel, golems, Amaterasu -------------------------------------------
 

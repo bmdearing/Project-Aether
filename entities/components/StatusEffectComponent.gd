@@ -70,7 +70,7 @@ const FRACTURING_ARMOR := 0.3
 const FRACTURING_PHYSICAL_TAKEN := 0.15
 const DECOMPOSE_RESISTANCE := 25.0
 const ELEMENTAL_FRAGILITY_RESISTANCE := 20.0
-## Linger: a Pale damage-over-time curse that boggles the mind (slower
+## Linger: a Pale damage-over-time spell effect (not a curse) that boggles the mind (slower
 ## movement and actions). PlayerAbilityCast spreads it when the target dies.
 const LINGER_TICK_INTERVAL := 0.5
 const LINGER_SLOW := 0.25
@@ -275,7 +275,7 @@ func apply_timed_effect(effect_id: String, duration: float) -> void:
 ## Curses: an enemy holds CURSE_LIMIT of them (+ the source's "additional
 ## Curses"); a new one pushes out the oldest. evict = false (aura pulses)
 ## only lands when there's room or it's already on.
-const CURSE_IDS := ["meager", "fracturing", "decompose", "elemental_fragility", "linger"]
+const CURSE_IDS := ["meager", "fracturing", "decompose", "elemental_fragility"]
 const CURSE_LIMIT := 1
 var _curse_order: Array[String] = []
 
@@ -311,10 +311,9 @@ func apply_curse(effect_id: String, source: Node, duration: float, strength: flo
 	_emit_applied(effect_id)
 
 ## Linger: tick_damage Pale damage every LINGER_TICK_INTERVAL for duration.
+## A spell, not a curse: it doesn't count toward the curse limit.
 func apply_linger(source: Node, tick_damage: float, duration: float) -> void:
 	if immune_to.has("linger"):
-		return
-	if not _make_room_for_curse("linger", source, true):
 		return
 	_linger_source = source
 	# A weaker recast (or second trigger) never lowers the ticks.

@@ -225,6 +225,7 @@ func _ready() -> void:
 	unique_effects.name = "UniqueEffects"
 	add_child(unique_effects)
 	stat_sheet.unique_effects = unique_effects
+	stat_sheet.status_effects = status_effects
 	gear_effects = GearEffects.new()
 	gear_effects.name = "GearEffects"
 	add_child(gear_effects)
@@ -659,7 +660,7 @@ func _physics_process(delta: float) -> void:
 	var stunned := status_effects.is_stunned() or is_knocked_up()
 	_coyote_timer = COYOTE_TIME if is_on_floor() else maxf(_coyote_timer - delta, 0.0)
 	_jump_buffer_timer = JUMP_BUFFER_TIME if Input.is_action_just_pressed("jump") else maxf(_jump_buffer_timer - delta, 0.0)
-	var rooted := stance_defense.is_rooted() or (stance_attack.is_charging and stance_attack.get_move_speed_multiplier() <= 0.0)
+	var rooted := stance_defense.is_rooted() or status_effects.has_effect("entangle") or (stance_attack.is_charging and stance_attack.get_move_speed_multiplier() <= 0.0)
 	if _jump_buffer_timer > 0.0 and _coyote_timer > 0.0 and not stunned and not rooted:
 		velocity.y = jump_velocity
 		_jump_buffer_timer = 0.0

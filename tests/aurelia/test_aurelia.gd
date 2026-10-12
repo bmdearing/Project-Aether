@@ -59,6 +59,7 @@ func _run() -> void:
 	await _test_fire_wall()
 	await _test_icicles()
 	await _test_lightning()
+	await _test_roots_and_combos()
 	await _test_golem_and_bomb()
 	await _test_amaterasu()
 	_finish()
@@ -72,12 +73,13 @@ func _test_upgrades() -> void:
 	var speed1 := _boss.get_cast_speed_multiplier()
 	_boss.boss_brain.phase = 2
 	_check(_boss.get_cast_speed_multiplier() > speed1, "she casts faster once the fight begins")
+	_boss._on_phase_changed(2)
+	_check(_boss.upgraded.size() == 1, "the 90% phase upgrades one spell")
 	_boss._on_phase_changed(3)
-	_check(_boss.upgraded.size() == 1, "phase 3 upgrades one spell")
 	_boss._on_phase_changed(4)
-	_check(_boss.upgraded.size() == 2 and _boss.upgraded[0] != _boss.upgraded[1], "phase 4 upgrades another")
+	_check(_boss.upgraded.size() == 3 and _boss.upgraded[0] != _boss.upgraded[1] and _boss.upgraded[1] != _boss.upgraded[2], "75% and 50% each upgrade another")
 	_boss._on_phase_changed(5)
-	_check(_boss.upgraded.size() == 3, "by the last phase every spell is upgraded")
+	_check(_boss.upgraded.size() == 4, "by the last phase all four spells are upgraded")
 	_boss.upgraded.clear()
 	_boss.boss_brain.phase = 1
 
@@ -178,6 +180,45 @@ func _test_lightning() -> void:
 	var took := (Time.get_ticks_msec() - t0) / 1000.0
 	_check(_player.health.current_health < _player.health.max_health, "standing still, the bolts land on you")
 	_check(took > 1.5 + 1.0 + 0.75, "the whole cast takes the warning gaps plus the big bolt (%.2fs)" % took)
+	_heal()
+
+func _clear_status() -> void:
+	_player.status_effects.clear_all_effects()
+	for n in get_tree().get_nodes_in_group("forbidden_fire"):
+		n.free()
+
+func _test_roots_and_combos() -> void:
+	_clear_status()
+	_place(Vector3(0, 0, 4))
+	_heal()
+	_boss.global_position = _wheel.to_global(Vector3(0, 0.05, -6))
+	await _boss._entangling_roots(_boss.boss_brain.find("entangling_roots"))
+	await _wait(1.2)
+	_check(_player.status_effects.has_effect("entangle") and _player.health.current_health < _player.health.max_health, "Entangling Roots catch and root the player")
+	_check(_player.status_effects.get_move_speed_multiplier() == 0.0, "an Entangled player can't move")
+	# Entangled + fire -> Forbidden Fire.
+	_heal()
+	AureliaAilments.hit(_player, 10.0, Constants.DamageType.FIRE, _boss)
+	await _wait(1.1)
+	_check(_player.status_effects.has_effect("forbidden_fire") and get_tree().get_nodes_in_group("forbidden_fire").size() == 1, "fire on an Entangled player starts Forbidden Fire")
+	var before := _player.health.current_health
+	await _wait(1.0)
+	_check(_player.health.current_health < before, "Forbidden Fire burns over time")
+	_clear_status()
+	# Chilled + lightning -> Electrocuted and Shocked.
+	_player.status_effects.apply_effect("chill", _boss)
+	AureliaAilments.hit(_player, 10.0, Constants.DamageType.LIGHTNING, _boss)
+	_check(_player.status_effects.has_effect("electrocute") and _player.status_effects.has_effect("shock"), "lightning on a Chilled player Electrocutes and Shocks")
+	_clear_status()
+	AureliaAilments.hit(_player, 10.0, Constants.DamageType.LIGHTNING, _boss)
+	_check(not _player.status_effects.has_effect("electrocute"), "lightning alone doesn't Electrocute")
+	# Ignited + cold -> Pallid, which lowers the player's own damage.
+	_player.status_effects.apply_effect("ignite", _boss, 10.0)
+	AureliaAilments.hit(_player, 10.0, Constants.DamageType.COLD, _boss)
+	_check(_player.status_effects.has_effect("pallid"), "cold on an Ignited player makes them Pallid")
+	_check(_player.stat_sheet.outgoing_more_multiplier(Constants.DamageType.FIRE) < 1.0, "a Pallid player deals less damage")
+	_clear_status()
+	_boss.global_position = _wheel.to_global(AureliaArena.BOSS_SPAWN)
 	_heal()
 
 func _test_golem_and_bomb() -> void:

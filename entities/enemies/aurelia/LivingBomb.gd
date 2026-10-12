@@ -87,5 +87,5 @@ func _explode() -> void:
 	SmokePuff.spawn(parent, at, 1.6, Color(0.25, 0.2, 0.18))
 	AureliaSfx.play("bomb_explode", at, 6.0, 0.8)
 	AureliaSfx.play("fire_wall_cast", at, 0.0, 1.2)
-	_player.take_damage(damage, Constants.DamageType.FIRE, source, Player.HitKind.SPELL)
+	AureliaAilments.hit(_player, damage, Constants.DamageType.FIRE, source)
 	queue_free()

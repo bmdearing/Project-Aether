@@ -79,7 +79,7 @@ func _slam(dir: Vector3) -> void:
 		rel.y = 0.0
 		var along := rel.dot(dir)
 		if along >= -0.5 and along <= SLAM_LENGTH and (rel - dir * along).length() <= SLAM_WIDTH * 0.5 + 0.4:
-			p.take_damage(get_ability_base_damage() * SLAM_DAMAGE, Constants.DamageType.FIRE, self, Player.HitKind.ATTACK)
+			AureliaAilments.hit(p, get_ability_base_damage() * SLAM_DAMAGE, Constants.DamageType.FIRE, self, Player.HitKind.ATTACK)
 			p.knock_up(KNOCK_UP_HEIGHT)
 			player_knocked_up.emit(self, p)
 	await get_tree().create_timer(0.5, false).timeout

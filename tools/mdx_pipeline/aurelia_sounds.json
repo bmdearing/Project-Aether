@@ -26,6 +26,12 @@
     "amaterasu_cast": "abilities/spells/undead/darksummoning/darksummoningtarget1.ogg",
     "amaterasu_ignite": "abilities/spells/other/soulburn/soulburn1.ogg",
     "amaterasu_loop": "abilities/spells/demon/rainoffire/rainoffireloop1.ogg",
-    "cast": "abilities/spells/human/slow/sorceresscastattack1.ogg"
+    "cast": "abilities/spells/human/slow/sorceresscastattack1.ogg",
+    "roots_cast": "abilities/spells/nightelf/entanglemine/wispentanglemine.ogg",
+    "roots_erupt": "abilities/spells/nightelf/entanglingroots/entanglingrootstarget1.ogg",
+    "roots_decay": "abilities/spells/nightelf/entanglingroots/entanglingrootsdecay1.ogg",
+    "combo_electrocute": "abilities/spells/orc/purge/purgetarget1.ogg",
+    "combo_forbidden_fire": "abilities/spells/other/incinerate/incinerate1.ogg",
+    "combo_pallid": "abilities/spells/undead/cripple/crippletarget1.ogg"
   }
 }

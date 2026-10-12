@@ -232,7 +232,7 @@ func _increased_percents(stat_sheet: StatSheet) -> Array[float]:
 	return increased
 
 func _base_hit(base_damage: float, stat_sheet: StatSheet) -> Dictionary:
-	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more, stat_sheet.unique_damage_multiplier(damage_type), 1.0 + web_value(SkillWeb.MORE_DAMAGE) / 100.0, web_twist_more()]
+	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more, stat_sheet.outgoing_more_multiplier(damage_type), 1.0 + web_value(SkillWeb.MORE_DAMAGE) / 100.0, web_twist_more()]
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
 		base_damage, 1.0, 0.0, scaling_grade, 0.5, _increased_percents(stat_sheet), more, damage_type
 	)

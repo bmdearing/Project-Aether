@@ -90,6 +90,8 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 	"shock": DamageType.LIGHTNING,
 	"scorch": DamageType.FIRE,
 	"aetherburn": DamageType.AETHERIC,
+	"pallid": DamageType.PALE,
+	"forbidden_fire": DamageType.FIRE,
 }
 
 ## Stackable crafting currency, held like the Orbs. Older saves held them as
@@ -168,6 +170,7 @@ const STATUS_EFFECT_NAME := {
 	"decompose": "Decompose",
 	"elemental_fragility": "Elemental Fragility",
 	"linger": "Linger",
+	"forbidden_fire": "Forbidden Fire",
 }
 
 # Thematic stat per damage type (SlateRoller's Main Stat line). Damage

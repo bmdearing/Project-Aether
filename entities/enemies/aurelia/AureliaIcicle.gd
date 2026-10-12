@@ -97,7 +97,7 @@ func _physics_process(delta: float) -> void:
 	if is_instance_valid(_player) and _player.health.is_alive():
 		var chest := _player.global_position + Vector3.UP * 0.9
 		if global_position.distance_to(chest) <= HIT_RADIUS + 0.35:
-			_player.take_damage(damage, Constants.DamageType.COLD, source, Player.HitKind.SPELL)
+			AureliaAilments.hit(_player, damage, Constants.DamageType.COLD, source)
 			if _player.status_effects:
 				_player.status_effects.apply_effect("chill", source, damage)
 			_shatter(true)

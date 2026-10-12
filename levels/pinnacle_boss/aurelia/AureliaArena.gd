@@ -230,7 +230,7 @@ func _quake() -> void:
 	SpellFx.light_pop(self, global_position + Vector3.UP * 4.0, Color(1.0, 0.6, 0.3), 3.0, 7.0, 0.3)
 	if _player and _player.health.is_alive() and _player.global_position.y - global_position.y < 2.5 and not is_safe_from_quake(_player.global_position):
 		var amount := (_player.health.max_health + _player.ward.max_ward) * EARTH_WHEEL_SHARE
-		_player.take_damage(amount, Constants.DamageType.KINETIC, boss, Player.HitKind.SPELL)
+		AureliaAilments.hit(_player, amount, Constants.DamageType.KINETIC, boss)
 		SpellFx.shards(get_parent(), _player.global_position + Vector3.UP * 0.2, Color(0.45, 0.38, 0.3), 16, Vector2(4, 9), Vector2(0.12, 0.3), 0.9, 40.0, false)
 
 func _random_danger_spot() -> Vector3:
@@ -302,7 +302,7 @@ func _tick_amaterasu(delta: float) -> void:
 	_amaterasu_tick = AMATERASU_TICK
 	if _player and _player.health.is_alive() and in_black_fire(_player.global_position):
 		var amount := (_player.health.current_health + _player.ward.current_ward) * AMATERASU_SHARE * AMATERASU_TICK
-		_player.take_damage(amount, Constants.DamageType.FIRE, boss, Player.HitKind.DOT)
+		AureliaAilments.hit(_player, amount, Constants.DamageType.FIRE, boss, Player.HitKind.DOT)
 
 func in_black_fire(point: Vector3) -> bool:
 	if not amaterasu_active:
@@ -394,7 +394,7 @@ func _tick_pots(delta: float) -> void:
 		pot["tick"] = POT_TICK
 		if _player and _player.health.is_alive() and absf(_player.global_position.y - pot["center"].y) < 3.0 \
 				and Vector2(_player.global_position.x - pot["center"].x, _player.global_position.z - pot["center"].z).length() <= POT_RADIUS + 0.3:
-			_player.take_damage(pot["damage"], Constants.DamageType.FIRE, boss, Player.HitKind.DOT)
+			AureliaAilments.hit(_player, pot["damage"], Constants.DamageType.FIRE, boss, Player.HitKind.DOT)
 
 ## ---- Call-outs --------------------------------------------------------------
 

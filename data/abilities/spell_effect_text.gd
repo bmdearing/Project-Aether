@@ -34,10 +34,10 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 			var r := ability.predict_damage_range(sheet) if sheet else ability.get_base_damage_range()
 			var secs := PlayerAbilityCast.LINGER_DURATION * duration
 			var ticks := PlayerAbilityCast.LINGER_DURATION / StatusEffectComponent.LINGER_TICK_INTERVAL
-			out.append("Curses the enemy at your crosshair for %ss" % _num(secs))
+			out.append("Afflicts the enemy at your crosshair for %ss" % _num(secs))
 			out.append("Deals %s Pale damage every %ss (%s in all)" % [_range(r.x / ticks, r.y / ticks), _num(StatusEffectComponent.LINGER_TICK_INTERVAL), _range(r.x / ticks * secs / StatusEffectComponent.LINGER_TICK_INTERVAL, r.y / ticks * secs / StatusEffectComponent.LINGER_TICK_INTERVAL)])
 			out.append("Boggled: %s slower movement and actions" % _pct(minf(StatusEffectComponent.LINGER_SLOW * _effectiveness(sheet, "linger"), 0.9)))
-			out.append("If the enemy dies while cursed, Linger moves to the %d nearest enemies within %sm" % [PlayerAbilityCast.linger_spread_count(ability), _num(ability.radius)])
+			out.append("If the enemy dies while afflicted, Linger moves to the %d nearest enemies within %sm" % [PlayerAbilityCast.linger_spread_count(ability), _num(ability.radius)])
 		"pale_thread":
 			var r := ability.predict_damage_range(sheet) if sheet else ability.get_base_damage_range()
 			out.append("Links you to the enemy at your crosshair for %ss" % _num(PlayerAbilityCast.PALE_THREAD_DURATION * duration))

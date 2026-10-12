@@ -1384,7 +1384,7 @@ func _crosshair_enemy() -> Enemy:
 static func _body_centre(enemy: Enemy) -> Vector3:
 	return enemy.global_position + Vector3.UP * enemy.body_height * 0.6
 
-## Linger: the rolled hit is spread over the curse as Pale ticks.
+## Linger: the rolled hit is spread over the affliction as Pale ticks.
 const LINGER_DURATION := 6.0
 const LINGER_SPREAD_COUNT := 2
 
@@ -1397,7 +1397,7 @@ func _cast_linger(ability: Ability, damage_multiplier: float) -> void:
 	target.status_effects.apply_linger(_player, total / (LINGER_DURATION / StatusEffectComponent.LINGER_TICK_INTERVAL), duration)
 	_flash_ring(target.global_position, 1.2, ability, PALE_COLOR)
 
-## A Lingering enemy's death passes the curse, fresh, to the nearest two
+## A Lingering enemy's death passes Linger, fresh, to the nearest two
 ## within Linger's radius that don't have it.
 func _on_enemy_died(node: Node) -> void:
 	var dead := node as Enemy

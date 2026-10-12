@@ -138,7 +138,7 @@ const TWISTS := {
 	"decompose": CURSE_TWISTS,
 	"elemental_fragility": CURSE_TWISTS,
 	"linger": [
-		{"id": "contagion", "name": "Contagion", "description": "When the cursed enemy dies, Linger moves to the 3 nearest enemies instead of 2.", "ring": 2},
+		{"id": "contagion", "name": "Contagion", "description": "When the afflicted enemy dies, Linger moves to the 3 nearest enemies instead of 2.", "ring": 2},
 	],
 	"pale_thread": [
 		{"id": "long_thread", "name": "Long Thread", "description": "The thread holds out to 26 metres instead of 18.", "ring": 2},

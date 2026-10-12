@@ -119,7 +119,7 @@ func _check_hit() -> void:
 	if angle > HALF_ARC + 0.03 or angle < gap_half_angle(rel.length()):
 		return
 	_hit = true
-	_player.take_damage(damage, Constants.DamageType.FIRE, source, Player.HitKind.SPELL)
+	AureliaAilments.hit(_player, damage, Constants.DamageType.FIRE, source)
 	if _player.status_effects:
 		_player.status_effects.apply_effect("ignite", source, damage)
 	SpellFx.flash(get_parent(), _player.global_position + Vector3.UP, Color(1.0, 0.5, 0.15), 2.0, 0.2)
