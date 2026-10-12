@@ -4,11 +4,9 @@ class_name DamageCalculator
 ##   Power = base_weapon_damage + (stat_value x grade_multiplier)
 ##   Final Damage = Power x Motion Value x (1 + sum Increased%) x
 ##     product(More multipliers)
-## Since v4.8 the two callers use opposite halves of the power term:
-##   Weapon._base_hit(): base = weapon base x (1 + Str%), stat_value 0.0 -
-##     the grade drops out entirely.
-##   Ability._base_hit(): base 0.0, stat_value = Conduit spell power x
-##     (1 + Int%) - so power = spell power x grade.
+## Both callers pass stat_value 0.0, so the grade drops out:
+##   Weapon._base_hit(): base = weapon base x (1 + Str%) x local Weapon Damage x quality.
+##   Ability._base_hit(): base = spell base x (1 + Int%).
 ## Increased% is an additive pool, More multipliers stack multiplicatively.
 
 class DamageResult:

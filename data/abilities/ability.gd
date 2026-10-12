@@ -220,7 +220,6 @@ func get_upgrade_aether_cost() -> int:
 func _increased_percents(stat_sheet: StatSheet) -> Array[float]:
 	var increased: Array[float] = [
 		stat_sheet.get_chain_bonus(damage_type) * 100.0,
-		stat_sheet.get_spell_power_from_stats() * 100.0,
 		stat_sheet.get_misc_bonus("increased_spell_damage"),
 		stat_sheet.conduit_spell_damage_bonus,
 		stat_sheet.get_increased_damage_percent(damage_type, false),
@@ -232,6 +231,8 @@ func _increased_percents(stat_sheet: StatSheet) -> Array[float]:
 	return increased
 
 func _base_hit(base_damage: float, stat_sheet: StatSheet) -> Dictionary:
+	# Intellect multiplies the base on its own, like Strength does for weapons.
+	base_damage *= 1.0 + stat_sheet.get_spell_power_from_stats()
 	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more, stat_sheet.outgoing_more_multiplier(damage_type), 1.0 + web_value(SkillWeb.MORE_DAMAGE) / 100.0, web_twist_more()]
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
 		base_damage, 1.0, 0.0, scaling_grade, 0.5, _increased_percents(stat_sheet), more, damage_type
