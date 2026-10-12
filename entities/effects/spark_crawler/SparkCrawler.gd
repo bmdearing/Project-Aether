@@ -12,7 +12,7 @@ class_name SparkCrawler
 const MOVE_SPEED := 5.0
 const TURN_SPEED := 3.0  # rad/s
 const SEEK_RADIUS := 12.0
-const LIFETIME := 4.0
+const LIFETIME := 6.0
 const HIT_INTERVAL := 0.15
 const HIT_RADIUS := 0.7
 const WANDER_INTERVAL := 0.4
@@ -63,7 +63,7 @@ func _advance_seeking(delta: float) -> void:
 		desired = _tick_wander(delta)
 	heading = heading.lerp(desired, TURN_SPEED * delta).normalized()
 
-	global_position += heading * MOVE_SPEED * delta
+	global_position += heading * speed * delta
 	if heading.length() > 0.01:
 		look_at(global_position + heading, Vector3.UP)
 

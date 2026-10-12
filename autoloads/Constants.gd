@@ -171,6 +171,7 @@ const STATUS_EFFECT_NAME := {
 	"elemental_fragility": "Elemental Fragility",
 	"linger": "Linger",
 	"forbidden_fire": "Forbidden Fire",
+	"steadfast": "Steadfast",
 }
 
 # Thematic stat per damage type (SlateRoller's Main Stat line). Damage

@@ -35,6 +35,11 @@ const FREEZE_DURATION := 1.2
 
 const ELECTROCUTE_DURATION := 1.0
 
+## Bosses: once Electrocute or Freeze wears off they are Steadfast (immune to
+## both) for this long, so stuns can't be chained.
+const BOSS_STUN_IMMUNITY := 6.0
+const BOSS_STUN_EFFECTS := ["electrocute", "freeze"]
+
 const UNRAVELING_DURATION := 5.0
 const UNRAVELING_DAMAGE_TAKEN_PERCENT := 0.3  # all Esoteric damage
 
@@ -205,6 +210,8 @@ func roll_gear_ailments(source: Node, hit_damage: float, damage_type: int, skip:
 ## hit_damage sets Ignite/Bleed's DoT total; other effects ignore it.
 func apply_effect(effect_id: String, source: Node = null, hit_damage: float = 0.0) -> void:
 	if immune_to.has(effect_id.trim_prefix("enhanced:")):
+		return
+	if has_effect("steadfast") and BOSS_STUN_EFFECTS.has(effect_id.trim_prefix("enhanced:")):
 		return
 	if _owner is Player and is_ailment(effect_id) and randf() < _owner.stat_sheet.get_ailment_ignore_chance():
 		return
@@ -482,7 +489,7 @@ func _apply_chill(source: Node) -> void:
 	if has_effect("freeze"):
 		return
 	_chill_stacks += 1
-	if _chill_stacks >= freeze_stacks_needed(source):
+	if _chill_stacks >= freeze_stacks_needed(source) and not has_effect("steadfast"):
 		if has_effect("chill"):
 			_timers.erase("chill")
 			_emit_expired("chill")
@@ -568,6 +575,9 @@ func _expire(effect_id: String) -> void:
 	elif effect_id == "scorch":
 		_scorch_stacks = 0
 	_emit_expired(effect_id)
+	if BOSS_STUN_EFFECTS.has(effect_id) and _owner is Enemy and _owner.rank == Constants.EnemyRank.BOSS:
+		_timers["steadfast"] = BOSS_STUN_IMMUNITY
+		_emit_applied("steadfast")
 
 func _emit_applied(effect_id: String, stacks: int = 1) -> void:
 	EventBus.status_effect_applied.emit(_owner, effect_id, stacks)

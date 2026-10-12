@@ -234,6 +234,7 @@ static func status_effects() -> Array:
 		"fracturing": "Curse: %s less Armour and %s more Physical damage taken (at base curse strength)." % [pct.call(StatusEffectComponent.FRACTURING_ARMOR), pct.call(StatusEffectComponent.FRACTURING_PHYSICAL_TAKEN)],
 		"decompose": "Curse: %d%% Entropic Resistance (at base curse strength)." % -roundi(StatusEffectComponent.DECOMPOSE_RESISTANCE),
 		"elemental_fragility": "Curse: %d%% Fire, Cold and Lightning Resistance (at base curse strength)." % -roundi(StatusEffectComponent.ELEMENTAL_FRAGILITY_RESISTANCE),
+		"steadfast": "Bosses only: after Electrocute or Freeze wears off, immune to both for %.0fs (Chill still lands but won't Freeze)." % StatusEffectComponent.BOSS_STUN_IMMUNITY,
 		"forbidden_fire": "Aurelia's black flame, when her fire hits you while Entangled: Fire damage over time, %s of the hit per second for %.0fs. A new hit refreshes it instead of stacking." % [pct.call(ForbiddenFire.DAMAGE_SHARE), ForbiddenFire.DURATION],
 	}
 	var rows := []

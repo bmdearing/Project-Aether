@@ -34,6 +34,7 @@ const DEFS := {
 	"entangle": ["branch", Color(0.45, 0.8, 0.3), Kind.DEBUFF],
 	"stun": ["star", Color(1.0, 0.9, 0.5), Kind.DEBUFF],
 	"guard_break": ["star", Color(1.0, 0.6, 0.3), Kind.DEBUFF],
+	"steadfast": ["shield", Color(0.7, 0.75, 0.85), Kind.DEBUFF],
 }
 
 static func has(effect_id: String) -> bool:
