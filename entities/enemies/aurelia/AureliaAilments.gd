@@ -7,7 +7,8 @@ class_name AureliaAilments
 ##   Ignited + Cold                -> Pallid.
 ## The combo lands before the hit, so a Shock raises the bolt that caused it.
 
-const ENTANGLE_SEC := 2.0
+## Long enough for her to answer with a Fire Wall from across the arena.
+const ENTANGLE_SEC := 2.5
 const ENTANGLE_COLOR := Color(0.45, 0.8, 0.3)
 
 static func hit(p: Player, amount: float, type: int, source: Node, kind: Player.HitKind = Player.HitKind.SPELL, is_melee: bool = false) -> void:

@@ -1785,9 +1785,9 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "queenofsuffering_wings_diffuse.dds",
-        "normal": "queenofsuffering_wings_normal.dds",
-        "orm": "queenofsuffering_wings_orm.dds",
+        "diffuse": "viletemptress_wings_diffuse.dds",
+        "normal": "viletemptress_wings_normal.dds",
+        "orm": "viletemptress_wings_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -1840,9 +1840,9 @@
       "two_sided": true,
       "unshaded": false,
       "textures": {
-        "diffuse": "queenofsuffering_wings_diffuse.dds",
-        "normal": "queenofsuffering_wings_normal.dds",
-        "orm": "queenofsuffering_wings_orm.dds",
+        "diffuse": "viletemptress_wings_diffuse.dds",
+        "normal": "viletemptress_wings_normal.dds",
+        "orm": "viletemptress_wings_orm.dds",
         "emissive": null
       },
       "sources": {
@@ -1895,10 +1895,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "queenofsuffering_main_diffuse.dds",
-        "normal": "queenofsuffering_main_normal.dds",
-        "orm": "queenofsuffering_main_orm.dds",
-        "emissive": "queenofsuffering_main_emissive.dds"
+        "diffuse": "viletemptress_main_diffuse.dds",
+        "normal": "viletemptress_main_normal.dds",
+        "orm": "viletemptress_main_orm.dds",
+        "emissive": "viletemptress_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Demon/VileTemptress/VileTemptress_main_Diffuse.tif",
@@ -1950,10 +1950,10 @@
       "two_sided": false,
       "unshaded": false,
       "textures": {
-        "diffuse": "queenofsuffering_main_diffuse.dds",
-        "normal": "queenofsuffering_main_normal.dds",
-        "orm": "queenofsuffering_main_orm.dds",
-        "emissive": "queenofsuffering_main_emissive.dds"
+        "diffuse": "viletemptress_main_diffuse.dds",
+        "normal": "viletemptress_main_normal.dds",
+        "orm": "viletemptress_main_orm.dds",
+        "emissive": "viletemptress_main_emissive.dds"
       },
       "sources": {
         "diffuse": "Units/Demon/VileTemptress/VileTemptress_main_Diffuse.tif",

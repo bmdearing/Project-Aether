@@ -35,7 +35,7 @@ Warcraft III custom models from [Hive Workshop](https://www.hiveworkshop.com), c
 | Teron Gorefiend (Death Knight Hero) | drew1011 | [hiveworkshop.com/threads/371374](https://www.hiveworkshop.com/threads/teron-gorefiend-death-knight-hero.371374/) |
 | Zombie Footman | dehme | [hiveworkshop.com/threads/328353](https://www.hiveworkshop.com/threads/zombie-footman.328353/) |
 | Anubithas / Anubis (Ataras) | Mr Ogre man, vindorei | [hiveworkshop.com/threads/336393](https://www.hiveworkshop.com/threads/anubithas-anubis.336393/) |
-| Dread Jaina (Aurelia; body and wings retextured with the Queen of Suffering's skin) | Retera | [hiveworkshop.com/threads/336386](https://www.hiveworkshop.com/threads/dread-jaina.336386/) |
+| Dread Jaina (Aurelia) | Retera | [hiveworkshop.com/threads/336386](https://www.hiveworkshop.com/threads/dread-jaina.336386/) |
 | Fire Golem (Aurelia's golems) | Vulfar | [hiveworkshop.com/threads/326231](https://www.hiveworkshop.com/threads/fire-golem.326231/) |
 
 ## 3D models: environment
@@ -68,6 +68,7 @@ All three are under the SIL Open Font License 1.1; the licence texts are in `ass
 
 - `assets/music/lament.mp3` (main menu)
 - `assets/music/hub/hub.mp3` (Hub)
+- `assets/music/boss/herald.mp3`, `ataras.mp3`, `aurelia.mp3` (Pinnacle bosses; supplied by the developer)
 
 ## Sound effects
 
@@ -100,7 +101,7 @@ Cut from CC0 (public domain) packs on [OpenGameArt](https://opengameart.org), cr
 
 `assets/sfx/ui/not_enough_mana.ogg` is the Human "Not enough mana" warning from **Warcraft III** (Blizzard Entertainment), a placeholder that will be replaced.
 
-`assets/sfx/aurelia/` and `assets/sfx/wc3/` hold spell, combat, unit and interface sounds from **Warcraft III: Reforged** (Blizzard Entertainment), as do the forest and eerie_tunnel loops in `assets/sfx/ambience/`. They're pulled from a local install by `tools/mdx_pipeline/wc3_sounds.js` and `wc3_library.js` (`aurelia_sounds.json` and `wc3_library.json` list each file's source). Placeholders, to be replaced.
+`assets/sfx/aurelia/` and `assets/sfx/wc3/` hold spell, combat, unit and interface sounds from **Warcraft III: Reforged** (Blizzard Entertainment), as do the forest and eerie_tunnel loops in `assets/sfx/ambience/` and the demon rune textures in `assets/textures/aurelia_arena/`. They're pulled from a local install by `tools/mdx_pipeline/wc3_sounds.js` and `wc3_library.js` (`aurelia_sounds.json` and `wc3_library.json` list each file's source). Placeholders, to be replaced.
 
 ## Tools
 

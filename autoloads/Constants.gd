@@ -91,7 +91,7 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 	"scorch": DamageType.FIRE,
 	"aetherburn": DamageType.AETHERIC,
 	"pallid": DamageType.PALE,
-	"forbidden_fire": DamageType.FIRE,
+	"forbidden_fire": DamageType.ENTROPIC,
 }
 
 ## Stackable crafting currency, held like the Orbs. Older saves held them as

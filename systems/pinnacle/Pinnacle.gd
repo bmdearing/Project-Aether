@@ -14,7 +14,7 @@ const FRAGMENT_IDS: Array[StringName] = [&"maw_fragment_ash", &"maw_fragment_tid
 ## not offered by the Reality Engine. Aurelia is the final boss; until the
 ## story reaches her she is a Pinnacle choice too.
 const BOSSES := {
-	"aurelia": {"name": "Aurelia", "scene": "res://entities/enemies/aurelia/Aurelia.tscn"},
+	"aurelia": {"name": "Aurelia", "scene": "res://entities/enemies/aurelia/Aurelia.tscn", "music": "res://assets/music/boss/aurelia.mp3"},
 	"lord_of_the_elements": {"name": "Lord of the Elements", "scene": "res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn", "hidden": true},
 	"herald_of_the_maw": {"name": "Herald of the Maw", "scene": "res://entities/enemies/xalatath/Xalatath.tscn", "music": "res://assets/music/boss/herald.mp3"},
 	"ataras": {"name": "Ataras", "scene": "res://entities/enemies/ataras/Ataras.tscn", "music": "res://assets/music/boss/ataras.mp3"},

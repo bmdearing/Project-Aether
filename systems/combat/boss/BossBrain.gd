@@ -77,6 +77,13 @@ func _physics_process(delta: float) -> void:
 	_tick_ammo(delta)
 	if casting or _player == null or _boss.status_effects.is_stunned():
 		return
+	# A follow-up the boss can't let pass (Aurelia burning an Entangled
+	# player) skips the gap and its cooldown.
+	if not _boss.is_mid_attack():
+		var urgent: BossAbility = _boss.urgent_ability(_flat_distance(_boss.global_position, _player.global_position))
+		if urgent and urgent.min_phase <= phase:
+			cast(urgent)
+			return
 	_gap -= delta
 	if _gap > 0.0 or _boss.is_mid_attack():
 		return
@@ -137,10 +144,10 @@ func _pick(dist: float) -> BossAbility:
 			continue
 		if a.min_phase <= phase and is_ready(a) and dist >= a.min_range and dist <= a.max_range and _boss.can_use_ability(a):
 			ready.append(a)
-			total += a.weight
+			total += a.weight * _boss.ability_weight(a)
 	var roll := randf() * total
 	for a in ready:
-		roll -= a.weight
+		roll -= a.weight * _boss.ability_weight(a)
 		if roll < 0.0:
 			return a
 	return null

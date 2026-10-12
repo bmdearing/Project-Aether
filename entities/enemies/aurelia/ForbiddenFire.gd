@@ -1,7 +1,7 @@
 extends Node3D
 class_name ForbiddenFire
-## Forbidden Fire: what an Entangled player hit by Aurelia's fire suffers. A
-## sickly green blaze climbs the roots and burns DAMAGE_SHARE of the
+## Forbidden Fire: what an Entangled player hit by Aurelia's fire suffers.
+## Amaterasu's black flame climbs the roots and burns DAMAGE_SHARE of the
 ## caster's hit every second for DURATION (Fire, as damage over time). A new
 ## trigger refreshes the burn rather than stacking it.
 
@@ -9,7 +9,8 @@ const DURATION := 4.0
 const TICK := 0.5
 ## Per second, as a share of the source's ability hit.
 const DAMAGE_SHARE := 0.8
-const FLAME_SHADER := preload("res://shaders/spell_flame.gdshader")
+const FLAME_SHADER := preload("res://shaders/black_flame.gdshader")
+const VIOLET := Color(0.6, 0.15, 0.8)
 
 var _player: Player
 var _source: Node
@@ -34,7 +35,8 @@ static func ignite(p: Player, source: Node) -> void:
 	fire._per_tick = base * DAMAGE_SHARE * TICK
 	p.get_parent().add_child(fire)
 	fire.global_position = p.global_position
-	SpellFx.flash(fire.get_parent(), p.global_position + Vector3.UP, Color(0.5, 1.0, 0.3), 4.0, 0.3)
+	SpellFx.flash(fire.get_parent(), p.global_position + Vector3.UP, VIOLET, 4.0, 0.3)
+	SmokePuff.spawn(fire.get_parent(), p.global_position, 1.0, Color(0.04, 0.0, 0.06))
 	AureliaSfx.play("combo_forbidden_fire", p.global_position, 4.0)
 
 func _ready() -> void:
@@ -43,12 +45,9 @@ func _ready() -> void:
 	_flame.mesh = SpellFx.tube(0.75, 0.35, 1.5, 8, 28, 0.8)
 	var mat := ShaderMaterial.new()
 	mat.shader = FLAME_SHADER
-	mat.set_shader_parameter("hot", Color(0.85, 1.0, 0.55))
-	mat.set_shader_parameter("mid", Color(0.3, 0.95, 0.15))
-	mat.set_shader_parameter("cool", Color(0.03, 0.18, 0.02))
 	mat.set_shader_parameter("tiles", 7.0)
 	mat.set_shader_parameter("period", 7.0)
-	mat.set_shader_parameter("fill", 0.3)
+	mat.set_shader_parameter("fill", 0.34)
 	_flame.material_override = mat
 	_flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_flame)
@@ -63,11 +62,11 @@ func _ready() -> void:
 	embers.initial_velocity_max = 3.0
 	embers.scale_amount_min = 0.06
 	embers.scale_amount_max = 0.14
-	embers.color_ramp = SpellFx.ramp(Color(0.8, 1.0, 0.5, 1.0), Color(0.3, 0.9, 0.1, 0.8), 0.3)
-	embers.mesh = SpellFx.glow_quad()
+	embers.color_ramp = SpellFx.ramp(Color(0.05, 0.0, 0.08, 0.9), Color(0.03, 0.0, 0.05, 0.7), 0.3)
+	embers.mesh = SpellFx.glow_quad(false)
 	embers.emitting = true
 	var light := OmniLight3D.new()
-	light.light_color = Color(0.4, 1.0, 0.25)
+	light.light_color = VIOLET
 	light.light_energy = 1.4
 	light.omni_range = 4.0
 	light.position.y = 1.0

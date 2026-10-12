@@ -1097,6 +1097,15 @@ func cast_custom(_ability: BossAbility) -> void:
 func can_use_ability(_ability: BossAbility) -> bool:
 	return true
 
+## Multiplies a ready ability's pick weight (bosses favour combos).
+func ability_weight(_ability: BossAbility) -> float:
+	return 1.0
+
+## An ability BossBrain casts at once, skipping the gap and its cooldown
+## (null for none).
+func urgent_ability(_distance: float) -> BossAbility:
+	return null
+
 ## Called for each unit a SUMMON ability brings in.
 func on_unit_summoned(_unit: Enemy) -> void:
 	pass

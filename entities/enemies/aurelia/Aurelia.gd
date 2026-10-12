@@ -15,7 +15,10 @@ class_name Aurelia
 ##   Staff Sweep and Searing Thrust: her two melee moves.
 ## Ailments combine on you (AureliaAilments): Chilled/Frozen + Lightning ->
 ## Electrocuted and Shocked; Entangled + Fire -> Forbidden Fire; Ignited +
-## Cold -> Pallid.
+## Cold -> Pallid. She hunts for them (ability_weight, urgent_ability): an
+## Entangled player gets Searing Thrust (in reach) or Fire Wall at once, and
+## otherwise she favours whatever completes a combo on the ailments you
+## carry, or sets one up when you carry none.
 ## Phases:
 ##   1 (100%): the simple kit.
 ##   2 (90%): the fight begins - she casts faster; one spell upgrades.
@@ -156,6 +159,48 @@ func _t(seconds: float) -> float:
 
 func is_upgraded(spell: int) -> bool:
 	return upgraded.has(spell)
+
+## ---- Combo brain ---------------------------------------------------------------
+
+## Weight on a spell that completes a combo on the player's ailments, and on
+## one that sets a combo up while they carry none.
+const COMBO_WEIGHT := 6.0
+const SETUP_WEIGHT := 1.8
+const COMBO_FINISHERS := {
+	"entangle": ["searing_thrust", "fire_wall"],
+	"chill": ["lightning_bolt"],
+	"freeze": ["lightning_bolt"],
+	"ignite": ["ice_spears", "staff_sweep"],
+}
+const COMBO_SETUPS := ["entangling_roots", "ice_spears", "fire_wall"]
+
+## When she last answered an Entangle (once per Entangle).
+var _answered_entangle_msec := -100000
+
+func ability_weight(ability: BossAbility) -> float:
+	var p := _target_player()
+	if p == null or p.status_effects == null:
+		return 1.0
+	var carrying := false
+	for ailment in COMBO_FINISHERS:
+		if p.status_effects.has_effect(ailment):
+			carrying = true
+			if COMBO_FINISHERS[ailment].has(ability.id):
+				return COMBO_WEIGHT
+	return SETUP_WEIGHT if not carrying and COMBO_SETUPS.has(ability.id) else 1.0
+
+## An Entangled player is burned next: Searing Thrust if they're in reach,
+## Fire Wall otherwise, whatever its cooldown.
+func urgent_ability(distance: float) -> BossAbility:
+	var p := _target_player()
+	if p == null or p.status_effects == null or not p.status_effects.has_effect("entangle"):
+		return null
+	if Time.get_ticks_msec() - _answered_entangle_msec < AureliaAilments.ENTANGLE_SEC * 1000.0:
+		return null
+	if arena() and arena().earth_wheel_active:
+		return null
+	_answered_entangle_msec = Time.get_ticks_msec()
+	return boss_brain.find("searing_thrust" if distance <= THRUST_LENGTH - 1.0 else "fire_wall")
 
 ## ---- Phases -------------------------------------------------------------------
 

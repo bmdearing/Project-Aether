@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-11 — v4.88: Aurelia hunts combos, a demonic arena, her own music
+
+- **Combo brain.** BossBrain gained two hooks: `Enemy.ability_weight()` (multiplies a ready ability's pick weight) and `Enemy.urgent_ability()` (cast at once, skipping the gap and cooldown). Aurelia uses them: an Entangled player gets Searing Thrust if in reach, otherwise Fire Wall, once per Entangle; a Chilled/Frozen player draws Lightning Bolt and an Ignited one her cold spells (x6 weight); with no ailment on you she favours the set-up spells (Roots, Ice Spears, Fire Wall, x1.8). Entangle now lasts 2.5 s so a Fire Wall from across the arena can land in time.
+- **Forbidden Fire is black**, Amaterasu's flame (mixed black flame shader, dark embers, violet light and icon).
+- **Her original skin is back** (the model's Vile Temptress body and wings); the Queen of Suffering textures are gone.
+- **Demonic arena:** obsidian floor veined with fel violet, a Warcraft III demon seal (demonrune4) turning under the hub, a ring of 16 demon sigils (demonrune1/2/3/5/6) near the rim, dark obelisks/stalagmites/rocks instead of ice pillars, six violet fel braziers, and a violet sky, fog and light. Textures in `assets/textures/aurelia_arena/`.
+- **Music:** `assets/music/boss/aurelia.mp3` (the user's track) loops for her fight.
+
+---
+
 ## 2026-10-11 — v4.87.1: Status icons on health bars, shattering riposte bar
 
 - **Status icons under every enemy and boss bar** replace the coloured orbs over enemies' heads (`StatusIconRow`, drawn by `ui/icons/StatusIcons.gd`). One standard per effect: a glyph in the effect's colour, on a square tile for ailments, a diamond for curses and a disc for other debuffs (roots, stuns, slows, marks). Each has a sliver under it draining with its time left, and a count when it stacks (Chill, Scorch, Armour Shred, Suppressed).

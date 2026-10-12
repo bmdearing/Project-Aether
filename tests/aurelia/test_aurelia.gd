@@ -218,6 +218,23 @@ func _test_roots_and_combos() -> void:
 	_check(_player.status_effects.has_effect("pallid"), "cold on an Ignited player makes them Pallid")
 	_check(_player.stat_sheet.outgoing_more_multiplier(Constants.DamageType.FIRE) < 1.0, "a Pallid player deals less damage")
 	_clear_status()
+	# Her brain: she reaches for whatever completes a combo.
+	var brain := _boss.boss_brain
+	_player.status_effects.apply_effect("chill", _boss)
+	_check(_boss.ability_weight(brain.find("lightning_bolt")) > _boss.ability_weight(brain.find("fire_wall")), "a Chilled player draws her Lightning Bolt")
+	_clear_status()
+	_player.status_effects.apply_effect("ignite", _boss, 10.0)
+	_check(_boss.ability_weight(brain.find("ice_spears")) > 1.0 and _boss.ability_weight(brain.find("lightning_bolt")) == 1.0, "an Ignited player draws her cold")
+	_clear_status()
+	_check(_boss.ability_weight(brain.find("entangling_roots")) > 1.0, "with nothing on you she sets a combo up")
+	_player.status_effects.apply_timed_effect("entangle", 2.0)
+	var near := _boss.urgent_ability(3.0)
+	_check(near != null and near.id == "searing_thrust", "an Entangled player in reach gets Searing Thrust at once")
+	_boss._answered_entangle_msec = -100000
+	var far := _boss.urgent_ability(15.0)
+	_check(far != null and far.id == "fire_wall", "out of reach, Fire Wall")
+	_check(_boss.urgent_ability(15.0) == null, "once per Entangle")
+	_clear_status()
 	_boss.global_position = _wheel.to_global(AureliaArena.BOSS_SPAWN)
 	_heal()
 

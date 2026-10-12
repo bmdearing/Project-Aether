@@ -1,7 +1,9 @@
 extends Node3D
 class_name AureliaArena
-## Aurelia's arena, built by PinnacleArena: a round slate floor inlaid like a
-## wheel, ringed by ice pillars, with an invisible wall at the rim.
+## Aurelia's arena, built by PinnacleArena: a round obsidian floor inlaid
+## like a wheel and veined with fel light, a Warcraft III demon seal under
+## the hub and a ring of demon sigils at the rim, ringed by dark obelisks,
+## stalagmites and violet fel braziers, with an invisible wall at the rim.
 ##
 ##   Earth Wheel (earth_wheel()): thin safe wedges are marked on the floor;
 ##   EARTH_WHEEL_WARNING seconds later everything else quakes for a share of
@@ -19,6 +21,9 @@ const BOSS_SPAWN := Vector3(0, 0.05, -8.0)
 const PLAYER_SPAWN := Vector3(0, 0.1, 15.0)
 const PORTAL_SPOT := Vector3(0, 0.1, 11.0)
 const EDGE_PILLARS := 16
+const BRAZIERS := 6
+const FEL := Color(0.7, 0.2, 1.0)
+const RUNE_DIR := "res://assets/textures/aurelia_arena/"
 
 ## Earth Wheel.
 const WEDGES := 2
@@ -107,13 +112,19 @@ func _build_floor() -> void:
 	var mat := ShaderMaterial.new()
 	mat.shader = FLOOR_SHADER
 	mat.set_shader_parameter("radius", RADIUS + 4.0)
+	mat.set_shader_parameter("seal", load(RUNE_DIR + "demonrune4.dds"))
+	var runes := ["demonrune1", "demonrune2", "demonrune3", "demonrune5backup", "demonrune6"]
+	for i in runes.size():
+		mat.set_shader_parameter("rune_" + "abcde"[i], load(RUNE_DIR + runes[i] + ".dds"))
 	mesh.material_override = mat
 	body.add_child(mesh)
 
-## Ice pillars and obelisks round the rim, with an invisible ring wall.
+## Dark obelisks, stalagmites and rocks round the rim, fel braziers between
+## them, and an invisible ring wall.
 func _build_edge() -> void:
+	_build_braziers()
 	var props: Array[PackedScene] = []
-	for path in ["res://entities/environment/doodads/snow/Icecrownpillar0.tscn", "res://entities/environment/doodads/snow/Northrendbrokencolumn0.tscn", "res://entities/environment/doodads/snow/Icecrownobelisk0.tscn"]:
+	for path in ["res://entities/environment/doodads/dungeon/Dungeonobilisk.tscn", "res://entities/environment/doodads/dungeon/Dungeonstalagmite2.tscn", "res://entities/environment/doodads/dungeon/Dungeonrock6.tscn", "res://entities/environment/doodads/dungeon/Dungeonstalagmite0.tscn"]:
 		if ResourceLoader.exists(path):
 			props.append(load(path))
 	for i in EDGE_PILLARS:
@@ -134,6 +145,57 @@ func _build_edge() -> void:
 		add_child(wall)
 		wall.position = Vector3(sin(angle), 0, cos(angle)) * (RADIUS + 1.5) + Vector3.UP * 4.0
 		wall.rotation.y = angle
+
+## Violet fel fire in stone bowls round the rim.
+func _build_braziers() -> void:
+	for i in BRAZIERS:
+		var a := TAU * (i + 0.5) / BRAZIERS
+		var root := Node3D.new()
+		add_child(root)
+		root.position = Vector3(sin(a), 0, cos(a)) * (RADIUS + 1.2)
+		var bowl := MeshInstance3D.new()
+		var cyl := CylinderMesh.new()
+		cyl.top_radius = 0.75
+		cyl.bottom_radius = 0.4
+		cyl.height = 1.1
+		bowl.mesh = cyl
+		var stone_mat := StandardMaterial3D.new()
+		stone_mat.albedo_color = Color(0.06, 0.04, 0.07)
+		stone_mat.roughness = 0.6
+		bowl.material_override = stone_mat
+		bowl.position.y = 0.55
+		root.add_child(bowl)
+		var flame := MeshInstance3D.new()
+		flame.mesh = SpellFx.tube(0.6, 0.15, 2.2, 8, 24, 0.8)
+		var fmat := ShaderMaterial.new()
+		fmat.shader = FLAME_SHADER
+		fmat.set_shader_parameter("hot", Color(0.8, 0.45, 1.0))
+		fmat.set_shader_parameter("mid", Color(0.45, 0.08, 0.8))
+		fmat.set_shader_parameter("cool", Color(0.15, 0.02, 0.3))
+		fmat.set_shader_parameter("tiles", 6.0)
+		fmat.set_shader_parameter("period", 6.0)
+		fmat.set_shader_parameter("fill", 0.4)
+		flame.material_override = fmat
+		flame.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		flame.position.y = 1.05
+		root.add_child(flame)
+		var light := OmniLight3D.new()
+		light.light_color = FEL
+		light.light_energy = 2.2
+		light.omni_range = SpellFx.MAX_LIGHT_RANGE
+		light.position.y = 2.0
+		root.add_child(light)
+		var sparks := SpellFx.emitter(root, 24, 1.6)
+		sparks.position.y = 2.2
+		sparks.direction = Vector3.UP
+		sparks.spread = 25.0
+		sparks.initial_velocity_min = 1.0
+		sparks.initial_velocity_max = 2.4
+		sparks.scale_amount_min = 0.05
+		sparks.scale_amount_max = 0.12
+		sparks.color_ramp = SpellFx.ramp(Color(0.95, 0.8, 1.0, 1.0), Color(FEL, 0.8), 0.3)
+		sparks.mesh = SpellFx.glow_quad()
+		sparks.emitting = true
 
 ## ---- Earth Wheel ------------------------------------------------------------
 

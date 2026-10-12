@@ -20,7 +20,7 @@ const DEFS := {
 	"unraveling": ["spiral", Color(0.7, 0.4, 1.0), Kind.AILMENT],
 	"pallid": ["crescent", Color(0.9, 0.9, 0.82), Kind.AILMENT],
 	"aetherburn": ["rune", Color(0.35, 0.9, 1.0), Kind.AILMENT],
-	"forbidden_fire": ["flame", Color(0.45, 1.0, 0.3), Kind.AILMENT],
+	"forbidden_fire": ["flame", Color(0.62, 0.2, 0.85), Kind.AILMENT],
 	"meager": ["minus", Color(0.88, 0.86, 0.75), Kind.CURSE],
 	"fracturing": ["impact", Color(0.86, 0.7, 0.5), Kind.CURSE],
 	"decompose": ["void", Color(0.7, 0.4, 1.0), Kind.CURSE],
