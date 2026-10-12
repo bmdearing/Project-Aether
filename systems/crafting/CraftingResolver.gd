@@ -207,7 +207,8 @@ func _check(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: EdictDef
 	if not Constants.ORB_IDS.has(orb_id):
 		return E.INVALID_TARGET
 	var rarity := t.get_rarity()
-	if rarity >= Constants.ItemRarity.UNIQUE:
+	# Uniques and Mythics: only Orbs that leave their fixed modifiers alone.
+	if rarity >= Constants.ItemRarity.UNIQUE and orb_id != &"opening" and orb_id != &"tempering":
 		return E.INVALID_TARGET
 	if t.is_corrupted() and orb_id != &"opening" and orb_id != &"tempering":
 		return E.CORRUPTED

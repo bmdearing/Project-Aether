@@ -308,7 +308,7 @@ class BenchSlot extends Button:
 		if not (data is Dictionary and data.has("grid_entry")):
 			return false
 		var content = (data["grid_entry"] as GridInventory.Entry).content
-		return (content is Item and not content is FigmentItem) or content is Slate
+		return content is Item or content is Slate
 
 	func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		view.bench_dropped.emit(data)

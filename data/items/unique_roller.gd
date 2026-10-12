@@ -56,8 +56,10 @@ static func build(def: Dictionary, item_level: int = 1, base: Item = null) -> It
 		# Grade Equivalent Bonus (Mythics): one grade better than the base.
 		weapon.scaling_grade = maxi(weapon.scaling_grade - int(def.get("grade_bonus", 0)), 0)
 	if from_catalog:
+		# Sockets start unrolled: an Orb of Opening rolls them.
 		item.max_sockets = mini(item.max_sockets, ItemRoller.get_socket_cap(item))
-		item.sockets = randi() % (item.max_sockets + 1)
+		item.sockets = 0
+		item.sockets_rolled = false
 	return item
 
 ## One fixed unique modifier, rolled within its range.

@@ -580,6 +580,15 @@ func _hint_for(entry: GridInventory.Entry) -> String:
 ## Uses the picked-up Orb/Edict/stone on target (a grid or equipped item).
 func _use_armed_on(target: Resource) -> void:
 	var id := _armed
+	if target is FigmentItem and Constants.ORB_IDS.has(id):
+		var outcome := CraftingSystem.craft_figment(target, id)
+		status_label.text = outcome["message"]
+		if outcome["success"]:
+			GameState.inventory.remove_currency(id)
+			if GameState.inventory.count_of(id) <= 0:
+				_armed = &""
+		_after_craft(target)
+		return
 	if not (target is Item or target is Slate) or target is FigmentItem:
 		status_label.text = "%s can't be used on that." % CurrencyText.name_of(id)
 		return
@@ -639,6 +648,9 @@ func _craft_preview_for(target: Resource) -> CraftPreview:
 ## Hovering an item with an Orb picked up previews the outcomes.
 func _on_entry_hovered(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
 	if _armed == &"" or entry.is_currency() or not Constants.ORB_IDS.has(_armed):
+		return
+	if entry.content is FigmentItem:
+		status_label.text = "%s: %s" % [CurrencyText.name_of(_armed), "works on Figments" if CraftingSystem.FIGMENT_ORBS.has(_armed) else "no effect on Figments"]
 		return
 	if not (entry.content is Item or entry.content is Slate) or entry.content is FigmentItem:
 		return

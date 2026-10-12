@@ -214,7 +214,11 @@ func _test_progression() -> void:
 			_check(not _explicits(target).any(func(a: ItemAffix): return a.modifier_id == &"axe_only"), "%s item_type filter" % label)
 	var unique := _gear(Constants.ItemRarity.UNIQUE)
 	for orb in Constants.ORB_IDS:
+		# Opening and Tempering leave a unique's fixed modifiers alone, so they're allowed.
+		if orb == &"opening" or orb == &"tempering":
+			continue
 		_check(_resolver.apply(unique, orb).error == E.INVALID_TARGET, "unique rejects %s" % orb)
+	_check(_resolver.apply(unique, &"opening").error != E.INVALID_TARGET, "unique accepts opening")
 	_finished += 1
 
 func _test_forging() -> void:

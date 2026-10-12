@@ -419,7 +419,7 @@ func _bench_resolver() -> CraftingResolver:
 
 func _bench_preview(id: StringName) -> CraftPreview:
 	var bench := GameState.stash.bench
-	if bench == null:
+	if bench == null or bench is FigmentItem:
 		return null
 	var resolver := _bench_resolver()
 	return resolver.preview(bench, id, _bench_brands)
@@ -464,6 +464,17 @@ func _use_on_bench(id: StringName) -> void:
 		elif _bench_brands.activate(id):
 			_status.text = "%s switched on for the next bench craft." % CurrencyText.name_of(id)
 		_currency_view.refresh()
+		return
+	if bench is FigmentItem and Constants.ORB_IDS.has(id):
+		var tab := GameState.stash.get_tab(GridInventory.Accepts.CURRENCY)
+		if tab.count_of(id) <= 0:
+			_status.text = "No %s in the stash." % CurrencyText.name_of(id)
+			return
+		var outcome := CraftingSystem.craft_figment(bench, id)
+		if outcome["success"]:
+			tab.remove_currency(id)
+		_status.text = outcome["message"]
+		_refresh()
 		return
 	if Constants.ORB_IDS.has(id):
 		var result := resolver.apply(bench, id, _bench_brands)
