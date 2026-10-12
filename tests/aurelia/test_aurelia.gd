@@ -48,6 +48,8 @@ func _run() -> void:
 	_boss.boss_brain.set_physics_process(false)
 	_boss.set_physics_process(false)
 	_player.set_physics_process(false)
+	# At her level, so the level-gap multiplier stays out of these checks.
+	_player._on_leveled_up(Aurelia.boss_level)
 	_player.health.max_health = 100000.0
 	# Ward refilling between checks would soak hits the checks read off Life.
 	_player.ward.max_ward = 0.0

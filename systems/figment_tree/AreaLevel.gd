@@ -59,6 +59,15 @@ static func health_scale(level: int) -> float:
 static func damage_scale(level: int) -> float:
 	return pow(DAMAGE_GROWTH, maxi(level, 1) - 1)
 
+## Monsters further above you than your XP zone hit harder still: x1.04 per
+## level past it. A level 14 takes ~12% of their Life from a standard hit 20
+## levels up, ~63% at 40 and is one-shot from about 50 (289% at 60).
+const GAP_DAMAGE_GROWTH := 1.04
+
+static func gap_damage_multiplier(monster_level: int, player_level: int) -> float:
+	var over := monster_level - player_level - xp_zone(player_level)
+	return pow(GAP_DAMAGE_GROWTH, over) if over > 0 else 1.0
+
 ## How much the player's maximum Life and Ward grow at a character level.
 static func player_pool_scale(level: int) -> float:
 	return pow(PLAYER_POOL_GROWTH, maxi(level, 1) - 1)

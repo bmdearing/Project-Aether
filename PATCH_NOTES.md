@@ -14,6 +14,8 @@ there. Most recent first.
 - **The player's maximum Life and Ward grow x1.0185 per character level** (`AreaLevel.player_pool_scale`, 3.0x at 89), so on-level hits stay where they were (fitted with `probe_power_curve`: about 7.7% of typical Life after Armour at 89; a few tenths of a point harder at levels 30-70). It's a bit more than the damage ratio because Armour stops less of a bigger hit.
 - Result: a level 14 at Area Level 74 takes about 34% of their Life per standard monster hit (12% before). A few levels above you is barely harder.
 - **Natural stat growth** per level is 0.42 of each stat (was 0.6), at the user's call.
+- **Level-gap damage** (user: a gap that large should one-shot): monsters further above you than your XP zone (7 + 10% of your level) deal x1.04 more per level past it (`AreaLevel.gap_damage_multiplier`, applied in `Player.take_damage` for every Enemy source). A level 14 takes about 12% of their Life from a standard hit 20 levels up, 63% at 40, is one-shot from about 50 and takes 289% at 60. Within the zone nothing changes.
+- **Aurelia is level 95** (`Aurelia.boss_level`, replacing the level-30 testing switch), she and her golems both; her loot still rolls at the Pinnacle's item level. At 95 she's about 20% tougher and harder-hitting than a level 90 Pinnacle, and a level 89 player is inside the XP zone, so no gap multiplier. `test_aurelia` levels its player to 95.
 
 ---
 

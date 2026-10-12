@@ -49,7 +49,7 @@ func _physics_process(delta: float) -> void:
 
 func _apply_definition() -> void:
 	super._apply_definition()
-	Aurelia.apply_testing_level(self)
+	Aurelia.apply_boss_level(self)
 
 ## Always the same golem: no Magic or Rare rolls.
 func _roll_rank() -> Constants.EnemyRank:

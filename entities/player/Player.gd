@@ -550,6 +550,9 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 				EventBus.hit_deflected.emit(self)
 	if unique_effects:
 		amount *= unique_effects.damage_taken_multiplier(hit_kind == HitKind.SPELL)
+	# Monsters far above your level (past your XP zone) hit much harder.
+	if source is Enemy:
+		amount *= AreaLevel.gap_damage_multiplier((source as Enemy).level, GameState.player_level)
 	# Ground zones like the Lord of the Elements' sigils.
 	for zone in get_tree().get_nodes_in_group("damage_zone"):
 		amount *= zone.damage_multiplier_for(self, damage_type)

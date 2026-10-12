@@ -102,25 +102,25 @@ func _ready() -> void:
 	health.died.connect(_on_aurelia_died)
 	tree_exiting.connect(_free_golems)
 
-## Testing switch: Aurelia and her golems fight at this level instead of the
-## Pinnacle's Area Level (90), so every phase can be reached. 0 restores it.
-static var testing_level := 30
+## Aurelia and her golems fight at this level, above the other Pinnacle
+## bosses' Area Level (90): she's the final boss. 0 uses the Area Level.
+static var boss_level := 95
 
 func _apply_definition() -> void:
 	super._apply_definition()
-	apply_testing_level(self)
+	apply_boss_level(self)
 
-## Re-derives an enemy's Life and hit damage at testing_level (no-op at 0).
-static func apply_testing_level(enemy: Enemy) -> void:
-	if testing_level <= 0 or enemy.definition == null:
+## Re-derives an enemy's Life and hit damage at boss_level (no-op at 0).
+static func apply_boss_level(enemy: Enemy) -> void:
+	if boss_level <= 0 or enemy.definition == null:
 		return
-	enemy.level = testing_level
-	enemy.health.max_health = enemy._level_scaled_health(testing_level)
+	enemy.level = boss_level
+	enemy.health.max_health = enemy._level_scaled_health(boss_level)
 	enemy.health.current_health = enemy.health.max_health
 	enemy._reset_ward()
 	var melee := enemy.get_node_or_null("MeleeAttack") as EnemyMeleeAttack
 	if melee:
-		melee.damage_amount = enemy._level_scaled_damage(testing_level)
+		melee.damage_amount = enemy._level_scaled_damage(boss_level)
 
 func phase_thresholds() -> Array[float]:
 	return PHASES
