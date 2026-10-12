@@ -35,6 +35,8 @@ const DEFS := {
 	"stun": ["star", Color(1.0, 0.9, 0.5), Kind.DEBUFF],
 	"guard_break": ["star", Color(1.0, 0.6, 0.3), Kind.DEBUFF],
 	"steadfast": ["shield", Color(0.7, 0.75, 0.85), Kind.DEBUFF],
+	"drenched": ["drop", Color(0.35, 0.6, 1.0), Kind.DEBUFF],
+	"stone_skin": ["shield", Color(0.7, 0.55, 0.35), Kind.DEBUFF],
 }
 
 static func has(effect_id: String) -> bool:

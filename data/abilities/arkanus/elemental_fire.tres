@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "elemental_fire"
+display_name = "Elemental Fire"
+description = "Seven fireballs fan out where you look. A fireball that hits an Entangled enemy explodes, and enemies in the blast suffer Forbidden Flame."
+damage_type = 3
+scaling_grade = 4
+resource_cost = 2.0
+fixed_mana_cost = 2.0
+level = 20
+fixed_level = 20
+is_auto_cast_eligible = false
+applies_status_effects = Array[String](["ignite"])
+status_chance = 0.2
+base_crit_chance = 0.06
+base_damage_min = 22.0
+base_damage_max = 32.0
+radius = 4.0
+tags = Array[StringName]([&"projectile", &"area"])
+unleashable = false

@@ -29,7 +29,8 @@ static func droppable(rarity: int, boss_id: String = "") -> Array:
 static func build(def: Dictionary, item_level: int = 1, base: Item = null) -> Item:
 	var from_catalog := base == null
 	if from_catalog:
-		base = base_for(def["base_type"], item_level)
+		# "base_item": a fixed base (a Mythic's chosen staff) instead of the best of its type.
+		base = load(def["base_item"]) as Item if def.has("base_item") else base_for(def["base_type"], item_level)
 	if base == null:
 		return null
 	var item: Item = base.duplicate(true)

@@ -97,6 +97,10 @@ const TAG_NAMES := {
 ## past MAX_LEVEL, where the over-cap bonuses below apply. Lives on the
 ## shared .tres; GameState.ability_levels persists it.
 @export var level: int = 1
+## Arkanus spells: always this level (> 0), ignoring gear's +levels, and
+## always this Mana cost (>= 0), ignoring cost growth and reduction.
+@export var fixed_level: int = 0
+@export var fixed_mana_cost: float = -1.0
 const MAX_LEVEL := 20
 ## Damage growth per level rises as the spell levels: each level-up adds
 ## GROWTH_FIRST at level 2, up to GROWTH_LAST at MAX_LEVEL and beyond (x6.1 at 20).
@@ -131,6 +135,8 @@ const GOLD_COST_EXPONENT := 1.4
 const AETHER_CURRENCY := &"crystallized_aether"
 
 func get_effective_level(stat_sheet: StatSheet) -> int:
+	if fixed_level > 0:
+		return fixed_level
 	return level + (stat_sheet.get_skill_level_bonus(damage_type) if stat_sheet else 0)
 
 func get_levels_over_cap(stat_sheet: StatSheet) -> int:
@@ -185,6 +191,8 @@ func get_final_cooldown(action_speed_multiplier: float, stat_sheet: StatSheet = 
 const MANA_GROWTH_PER_LEVEL := 0.04
 
 func get_mana_cost(stat_sheet: StatSheet = null) -> float:
+	if fixed_mana_cost >= 0.0:
+		return fixed_mana_cost
 	return resource_cost * (1.0 + MANA_GROWTH_PER_LEVEL * maxi(level - 1, 0)) * get_mana_cost_multiplier(stat_sheet)
 
 ## Gear's mana cost reduction and the web's Efficiency, without the level

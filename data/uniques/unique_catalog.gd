@@ -75,6 +75,19 @@ const DEFS := [
 		],
 	},
 	{
+		"id": "arkanus", "name": "Arkanus, the Forbidden Staff", "rarity": Constants.ItemRarity.MYTHIC,
+		"base_type": "staff", "base_item": "res://data/weapons/instances/gen_staff_grand_staff.tres", "weight": 100.0, "boss": "aurelia", "boss_chance": 0.02,
+		"flavor": "Four words of power, and nothing left over for anything else.",
+		"mods": [
+			["unique_more_ailment_effect", 20.0, 30.0, "%d%% more Ailment effect"],
+			["unique_more_ailment_damage", 35.0, 50.0, "%d%% more Ailment damage"],
+			["increased_spell_damage", 105.0, 250.0, "%d%% increased Spell Damage"],
+			["unique_arkanus", 1.0, 1.0, "Your spells are replaced by Elemental Lightning, Fire, Water and Earth, each costing 2 Mana"],
+			["unique_arkanus_mana", 10.0, 10.0, "Your maximum Mana is %d, and can't be changed"],
+			["unique_arkanus_regen", 2.0, 2.0, "You regenerate %d Mana per second, and it can't be changed"],
+		],
+	},
+	{
 		"id": "sands_of_time", "name": "Sands of Time", "rarity": Constants.ItemRarity.MYTHIC,
 		"base_type": "wand", "weight": 100.0, "boss": "ataras", "boss_chance": 0.02, "conduit_stance_type": "time_stop",
 		"flavor": "He kept the last grain. Turn it over, and the world waits for you.",

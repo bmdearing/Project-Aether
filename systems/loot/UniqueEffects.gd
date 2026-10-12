@@ -30,6 +30,14 @@ const SPELL_DAMAGE_TAKEN := "unique_spell_damage_taken"
 const PATIENT_SHOT := "unique_patient_shot"
 const DAMAGE_TAKEN := "unique_damage_taken"
 const DAMAGE_FROM_MOVE_SPEED := "unique_damage_from_move_speed"
+## Arkanus, the Forbidden Staff: its spell bar, fixed Mana pool and regeneration,
+## and more Ailment effect/damage for the ailments you inflict.
+const ARKANUS := "unique_arkanus"
+const ARKANUS_MANA := "unique_arkanus_mana"
+const ARKANUS_REGEN := "unique_arkanus_regen"
+const MORE_AILMENT_EFFECT := "unique_more_ailment_effect"
+const MORE_AILMENT_DAMAGE := "unique_more_ailment_damage"
+const ARKANUS_SPELLS := ["res://data/abilities/arkanus/elemental_lightning.tres", "res://data/abilities/arkanus/elemental_fire.tres", "res://data/abilities/arkanus/elemental_water.tres", "res://data/abilities/arkanus/elemental_earth.tres"]
 
 const DEBT_MAX_STACKS := 20
 const PATIENT_SHOT_SECONDS := 2.0

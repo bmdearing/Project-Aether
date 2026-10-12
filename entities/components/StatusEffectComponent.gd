@@ -93,6 +93,10 @@ var _aetherburn_dps: float = 0.0
 var _aetherburn_source: Node
 var _linger_dps: float = 0.0
 var _linger_source: Node
+## Forbidden Flame on an enemy (Arkanus' Elemental Fire): Fire damage per second.
+## The player's own Forbidden Fire burns through ForbiddenFire.gd instead.
+var _forbidden_dps: float = 0.0
+var _forbidden_source: Node
 ## Damage over time waiting to be reported: key -> {"amount", "elapsed", "type", "source"}.
 var _dot_report: Dictionary = {}
 ## effect_id -> strength when applied (1.0 = base), from the source's
@@ -126,6 +130,8 @@ func _burn(delta: float) -> void:
 			_owner.drain_ward(burned)
 	if has_effect("linger"):
 		_deal_dot("linger", _linger_dps, minf(delta, _timers["linger"]), Constants.DamageType.PALE, _linger_source, true)
+	if has_effect("forbidden_fire") and _forbidden_dps > 0.0:
+		_deal_dot("forbidden_fire", _forbidden_dps, minf(delta, _timers["forbidden_fire"]), Constants.DamageType.FIRE, _forbidden_source, true)
 
 ## Deals dps x seconds of `damage_type` damage over time to the owner (never
 ## evaded; the player's Resilience applies) and returns what was dealt.
@@ -379,6 +385,19 @@ func apply_linger(source: Node, dps: float, duration: float) -> void:
 func get_linger_dps() -> float:
 	return _linger_dps if has_effect("linger") else 0.0
 
+## Forbidden Flame: dps Fire damage per second for duration; a stronger flame
+## replaces a weaker one.
+func apply_forbidden_flame(source: Node, dps: float, duration: float) -> void:
+	_forbidden_source = source
+	_forbidden_dps = maxf(dps, _forbidden_dps) if has_effect("forbidden_fire") else dps
+	_timers["forbidden_fire"] = maxf(_timers.get("forbidden_fire", 0.0), duration)
+	_emit_applied("forbidden_fire")
+
+## Ends an effect now (Elemental Lightning shattering a Freeze).
+func remove_effect(effect_id: String) -> void:
+	if has_effect(effect_id):
+		_expire(effect_id)
+
 ## Intimidating Shout: takes more damage of every type.
 const INTIMIDATED_DAMAGE_TAKEN := 0.2
 
@@ -556,7 +575,8 @@ func _ailment_damage_multiplier(source: Node, effect_id: String) -> float:
 	var player := source as Player
 	if player == null or player.stat_sheet == null:
 		return 1.0
-	return (1.0 + player.stat_sheet.get_ailment_damage_bonus(effect_id)) * (1.0 + player.stat_sheet.get_dot_multiplier())
+	var more := 1.0 + player.unique_effects.value(UniqueEffects.MORE_AILMENT_DAMAGE) / 100.0 if player.unique_effects else 1.0
+	return (1.0 + player.stat_sheet.get_ailment_damage_bonus(effect_id)) * (1.0 + player.stat_sheet.get_dot_multiplier()) * more
 
 func _expire(effect_id: String) -> void:
 	_timers.erase(effect_id)
@@ -604,7 +624,9 @@ static func effect_multiplier(source: Node, effect_id: String) -> float:
 		percent += sheet.get_misc_bonus("debuff_effectiveness")
 	if CURSE_IDS.has(effect_id):
 		percent += sheet.get_misc_bonus("curse_effect")
-	return 1.0 + percent / 100.0
+	# Arkanus: more Ailment effect, a separate multiplier.
+	var more := 1.0 + player.unique_effects.value(UniqueEffects.MORE_AILMENT_EFFECT) / 100.0 if is_ailment(effect_id) and player.unique_effects else 1.0
+	return (1.0 + percent / 100.0) * more
 
 func get_magnitude(effect_id: String) -> float:
 	return _magnitude.get(effect_id, 1.0)

@@ -314,6 +314,10 @@ func _echo(ability: Ability, cast_position: Vector3, damage_multiplier: float, a
 	_echoing = false
 
 func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier: float = 1.0, apply_composure: bool = true) -> void:
+	if ARKANUS_IDS.has(ability.ability_id):
+		_cast_arkanus(ability, damage_multiplier)
+		EventBus.ability_cast.emit(_player, ability)
+		return
 	if ability.ability_id == "blink":
 		_flash_ring(_player.global_position, 1.4, ability)
 		_blink_distance = BLINK_DISTANCE * (LONG_STEP if ability.has_twist("long_step") else 1.0)
@@ -1339,7 +1343,7 @@ const CURSE_DURATION := 6.0
 ## Curse strength per spell level above 1 (x1.57 at level 20).
 const CURSE_STRENGTH_PER_LEVEL := 0.03
 ## Spells cast on the enemy nearest the crosshair; refused with no one there.
-const TARGETED_ABILITY_IDS := ["pale_thread", "linger"]
+const TARGETED_ABILITY_IDS := ["pale_thread", "linger", "elemental_lightning"]
 const TARGET_RANGE := 25.0
 const TARGET_CONE_DEG := 10.0
 const PALE_COLOR := Color(0.88, 0.95, 1.0)
@@ -1663,3 +1667,127 @@ func _update_aura_ring(ability: Ability) -> void:
 		mesh.mesh = torus
 	# Flat on the ground whatever way the player faces.
 	mesh.global_transform = Transform3D(Basis.from_scale(Vector3(1.0, 0.15, 1.0)), _player.global_position + Vector3.UP * 0.05)
+
+## ---- Arkanus, the Forbidden Staff ------------------------------------------
+
+const ARKANUS_IDS := ["elemental_lightning", "elemental_fire", "elemental_water", "elemental_earth"]
+const ARKANUS_FIREBALL_SCENE := preload("res://entities/projectile/Projectile.tscn")
+## Elemental Lightning: more damage on a shattered Freeze / a Drenched target.
+const SHATTER_MORE := 1.2
+const DRENCHED_MORE := 1.1
+## Elemental Fire: fireballs fanned across this cone, at this speed and range.
+const FIREBALL_COUNT := 7
+const FIREBALL_CONE_DEG := 40.0
+const FIREBALL_SPEED := 24.0
+const FIREBALL_LIFETIME := 1.25
+## Elemental Water: Drenched and (with Stone Skin) Entangled for these long.
+const DRENCH_SECONDS := 4.0
+const WATER_ENTANGLE_SECONDS := 2.5
+## Elemental Earth: Stone Skin's duration (Player.STONE_SKIN_* for its effect).
+const STONE_SKIN_SECONDS := 5.0
+const WATER_COLOR := Color(0.35, 0.65, 1.0)
+const EARTH_COLOR := Color(0.7, 0.55, 0.35)
+
+func _cast_arkanus(ability: Ability, damage_multiplier: float) -> void:
+	match ability.ability_id:
+		"elemental_lightning":
+			_elemental_lightning(ability, damage_multiplier)
+		"elemental_fire":
+			_elemental_fire(ability, damage_multiplier)
+		"elemental_water":
+			_elemental_water(ability, damage_multiplier)
+		"elemental_earth":
+			_elemental_earth()
+
+## A bolt from the sky onto the enemy at the crosshair. A Frozen target's
+## Freeze shatters: SHATTER_MORE damage and a guaranteed Critical Strike.
+func _elemental_lightning(ability: Ability, damage_multiplier: float) -> void:
+	var target := _crosshair_enemy()
+	if target == null:
+		return
+	var sheet := _player.stat_sheet
+	var statuses := target.status_effects
+	var frozen := statuses.has_effect("freeze")
+	var r := ability.get_base_damage_range(sheet)
+	var hit: Dictionary = ability._base_hit(randf_range(r.x, r.y), sheet)
+	var crit: bool = frozen or randf() < float(hit["crit_chance"])
+	var damage: float = hit["base_damage"] * damage_multiplier * (float(hit["crit_damage_multiplier"]) if crit else 1.0)
+	var at := _body_centre(target)
+	var scene := _player.get_tree().current_scene
+	if frozen:
+		damage *= SHATTER_MORE
+		statuses.remove_effect("freeze")
+		SpellFx.shards(scene, at, Color(0.8, 0.95, 1.0), 26, Vector2(4, 8), Vector2(0.08, 0.2), 0.8, 180.0)
+	if statuses.has_effect("drenched"):
+		damage *= DRENCHED_MORE
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(Constants.DamageType.LIGHTNING, Color.WHITE)
+	LightningArc.spawn(scene, at + Vector3.UP * 12.0, at, color, 1.6)
+	SpellFx.flash(scene, at, color, 3.0, 0.25)
+	SpellFx.light_pop(scene, at + Vector3.UP, color, 4.0, 8.0, 0.4)
+	target.take_damage(damage, ability.damage_type, true)
+	if target.stance:
+		target.stance.apply_attack_stance_damage(damage, ability.damage_type)
+	EventBus.damage_dealt.emit(_player, target, damage, ability.damage_type, false, crit)
+	ability.apply_statuses(target, _player, damage)
+
+## FIREBALL_COUNT fireballs fanned across the view. One that hits an Entangled
+## enemy explodes: its damage again to everyone in the blast, plus Forbidden Flame.
+func _elemental_fire(ability: Ability, damage_multiplier: float) -> void:
+	var forward := -_player.camera.global_transform.basis.z
+	var origin := _player.camera.global_position + forward * 0.8 + Vector3.DOWN * 0.3
+	var scene := _player.get_tree().current_scene
+	for i in FIREBALL_COUNT:
+		var offset := deg_to_rad(FIREBALL_CONE_DEG) * (float(i) / float(FIREBALL_COUNT - 1) - 0.5)
+		var dir := forward.rotated(Vector3.UP, offset)
+		var hit := ability.roll_damage(_player.stat_sheet)
+		var ball: Projectile = ARKANUS_FIREBALL_SCENE.instantiate()
+		ball.damage_amount = hit["final_damage"] * damage_multiplier
+		ball.is_critical = hit["is_critical"]
+		ball.damage_type = Constants.DamageType.FIRE
+		ball.source = _player
+		ball.speed = FIREBALL_SPEED
+		ball.lifetime = FIREBALL_LIFETIME
+		ball.is_spell_projectile = true
+		ball.on_hit = func(enemy: Enemy, amount: float): _fireball_hit(ability, enemy, amount)
+		scene.add_child(ball)
+		ball.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), origin)
+	SpellFx.flash(scene, origin + forward, Constants.DAMAGE_TYPE_COLOR.get(Constants.DamageType.FIRE, Color.ORANGE), 1.5, 0.15)
+
+func _fireball_hit(ability: Ability, enemy: Enemy, amount: float) -> void:
+	if not is_instance_valid(enemy):
+		return
+	ability.apply_statuses(enemy, _player, amount)
+	if not enemy.status_effects.has_effect("entangle"):
+		return
+	var centre := _body_centre(enemy)
+	var radius := ability.get_radius(_player.stat_sheet)
+	var scene := _player.get_tree().current_scene
+	SpellFx.burst(scene, centre, Color(0.35, 0.05, 0.5), 40, Vector2(4, 9), 0.6, Vector2(0.1, 0.25))
+	SpellFx.shockwave(scene, enemy.global_position, radius, Color(0.6, 0.15, 0.8), 0.35)
+	SpellFx.light_pop(scene, centre, Color(0.6, 0.15, 0.8), 4.0, radius * 2.0, 0.4)
+	for other in _enemies_by_distance(enemy.global_position, radius):
+		other.take_damage(amount, Constants.DamageType.FIRE, true)
+		EventBus.damage_dealt.emit(_player, other, amount, Constants.DamageType.FIRE, false, false)
+		other.status_effects.apply_forbidden_flame(_player, amount * ForbiddenFire.DAMAGE_SHARE, ForbiddenFire.DURATION)
+
+## A cold nova around you: hits, Chills and Drenches; with Stone Skin it also
+## Entangles everything it reaches.
+func _elemental_water(ability: Ability, damage_multiplier: float) -> void:
+	var radius := ability.get_radius(_player.stat_sheet)
+	var centre := _player.global_position
+	var scene := _player.get_tree().current_scene
+	var entangle := _player.status_effects.has_effect("stone_skin")
+	SpellFx.shockwave(scene, centre + Vector3.UP * 0.05, radius, WATER_COLOR, 0.4)
+	SpellFx.shards(scene, centre + Vector3.UP * 0.5, WATER_COLOR, 30, Vector2(5, 9), Vector2(0.06, 0.16), 0.6, 180.0)
+	for enemy in _enemies_by_distance(centre, radius):
+		_hit_enemy(ability, enemy, damage_multiplier, true, Callable())
+		enemy.status_effects.apply_timed_effect("drenched", DRENCH_SECONDS)
+		if entangle:
+			enemy.status_effects.apply_timed_effect("entangle", WATER_ENTANGLE_SECONDS)
+
+## Stone Skin for STONE_SKIN_SECONDS (Player reads it in _take_damage_single()).
+func _elemental_earth() -> void:
+	_player.status_effects.apply_timed_effect("stone_skin", STONE_SKIN_SECONDS)
+	var scene := _player.get_tree().current_scene
+	SpellFx.burst(scene, _player.global_position + Vector3.UP * 0.6, EARTH_COLOR, 36, Vector2(2, 5), 0.6, Vector2(0.1, 0.22), 180.0, -9.0)
+	SpellFx.shockwave(scene, _player.global_position + Vector3.UP * 0.05, 2.5, EARTH_COLOR, 0.35)

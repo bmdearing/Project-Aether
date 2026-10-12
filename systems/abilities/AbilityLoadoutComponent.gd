@@ -11,6 +11,14 @@ const SLOT_COUNT := 4
 
 signal loadout_changed
 
+## While set (Arkanus), the bar casts these instead of its own slots; the
+## slots themselves stay as saved and come back when it's cleared.
+var override: Array[Ability] = []
+
+func set_override(abilities: Array[Ability]) -> void:
+	override = abilities
+	loadout_changed.emit()
+
 func equip(ability: Ability, slot_index: int) -> void:
 	if ability == null or slot_index < 0 or slot_index >= SLOT_COUNT * 2:
 		return
@@ -34,6 +42,8 @@ func unequip(slot_index: int) -> void:
 	loadout_changed.emit()
 
 func get_equipped(slot_index: int) -> Ability:
+	if not override.is_empty():
+		return override[slot_index] if slot_index >= 0 and slot_index < override.size() else null
 	return slots[slot_index] if slot_index >= 0 and slot_index < SLOT_COUNT else null
 
 func get_page2(slot_index: int) -> Ability:

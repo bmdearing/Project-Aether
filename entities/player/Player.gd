@@ -259,9 +259,21 @@ func _ready() -> void:
 
 ## Fires on every equip()/unequip(), not just at spawn - also covers a
 ## shield/weapon equipped into a previously-empty slot.
+## Arkanus replaces the spell bar with its four spells while equipped.
+func _apply_arkanus_spells() -> void:
+	var on := unique_effects != null and unique_effects.has(UniqueEffects.ARKANUS)
+	if on == not ability_loadout.override.is_empty():
+		return
+	var spells: Array[Ability] = []
+	if on:
+		for path in UniqueEffects.ARKANUS_SPELLS:
+			spells.append(load(path) as Ability)
+	ability_loadout.set_override(spells)
+
 func _on_equipment_changed() -> void:
 	if unique_effects:
 		unique_effects.refresh(equipment.get_all_equipped_items())
+	_apply_arkanus_spells()
 	stat_sheet.set_equipment_bonus(equipment.compute_stat_bonuses())
 	stat_sheet.set_equipment_resistance(equipment.compute_resistance_bonuses())
 	stat_sheet.set_misc_bonus(equipment.compute_misc_bonuses())
@@ -323,8 +335,12 @@ func _apply_derived_stats() -> void:
 	# Mana: Intellect's +3/point + flat Mana, times increased Mana; regen likewise.
 	var flat_mana := stat_sheet.get_misc_bonus("max_mana") + stat_sheet.get_misc_bonus("flat_mana")
 	mana.set_max_mana((_base_max_mana + stat_sheet.get_mana_from_stats() + flat_mana) * (1.0 + stat_sheet.get_misc_bonus("mana_increased") / 100.0))
-	stat_sheet.current_max_mana = mana.max_mana
 	mana.regen_per_second = (_base_mana_regen + mana.max_mana * BASE_REGEN_PERCENT / 100.0 + stat_sheet.get_misc_bonus("mana_regen")) * (1.0 + stat_sheet.get_misc_bonus("mana_regen_increased") / 100.0)
+	if unique_effects and unique_effects.has(UniqueEffects.ARKANUS):
+		# Arkanus fixes the Mana pool and its regeneration; nothing scales them.
+		mana.set_max_mana(unique_effects.value(UniqueEffects.ARKANUS_MANA))
+		mana.regen_per_second = unique_effects.value(UniqueEffects.ARKANUS_REGEN)
+	stat_sheet.current_max_mana = mana.max_mana
 
 	# Evasion (gear x Agility's increased%) - refreshed here for display;
 	# take_damage() reads it live.
@@ -587,6 +603,8 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
 	if category == Constants.DamageCategory.PHYSICAL:
 		var armor := equipment.get_total_armor() if equipment else 0.0
+		if status_effects.has_effect("stone_skin"):
+			armor += STONE_SKIN_ARMOUR
 		mitigated *= (1.0 - DamageCalculator.physical_mitigation(armor, mitigated))
 		mitigated *= (1.0 - stat_sheet.get_reduced_damage_taken(Constants.DamageCategory.PHYSICAL))
 	elif category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC:
@@ -604,6 +622,8 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 				var bonus_armor := equipment.get_total_armor() * armor_to_elemental_pct
 				mitigated *= (1.0 - DamageCalculator.physical_mitigation(bonus_armor, mitigated))
 		mitigated *= (1.0 - stat_sheet.get_reduced_damage_taken(category))
+		if status_effects.has_effect("stone_skin"):
+			mitigated *= 1.0 - STONE_SKIN_MAGIC_REDUCTION
 	if unique_effects:
 		mitigated = unique_effects.absorb_esoteric(mitigated, damage_type)
 		unique_effects.record_damage_taken(mitigated)
@@ -618,6 +638,11 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 	var overflow := ward.absorb(mitigated)
 	health.apply_damage(overflow)
 	EventBus.damage_dealt.emit(source, self, mitigated, damage_type, false, false)
+
+## Elemental Earth (Arkanus): Stone Skin's Armour and less Elemental and
+## Esoteric damage taken.
+const STONE_SKIN_ARMOUR := 5000.0
+const STONE_SKIN_MAGIC_REDUCTION := 0.12
 
 const BLOCK_CHANCE_CAP := 0.75
 

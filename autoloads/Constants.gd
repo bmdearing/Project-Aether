@@ -172,6 +172,8 @@ const STATUS_EFFECT_NAME := {
 	"linger": "Linger",
 	"forbidden_fire": "Forbidden Fire",
 	"steadfast": "Steadfast",
+	"drenched": "Drenched",
+	"stone_skin": "Stone Skin",
 }
 
 # Thematic stat per damage type (SlateRoller's Main Stat line). Damage

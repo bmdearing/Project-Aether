@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "elemental_earth"
+display_name = "Elemental Earth"
+description = "Coats you in Stone Skin for 5 seconds: +5,000 Armour and 12% less Elemental and Esoteric damage taken."
+damage_type = 0
+scaling_grade = 4
+resource_cost = 2.0
+fixed_mana_cost = 2.0
+level = 20
+fixed_level = 20
+is_auto_cast_eligible = false
+base_crit_chance = 0.0
+tags = Array[StringName]([&"duration"])
+unleashable = false
