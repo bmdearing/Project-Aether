@@ -281,3 +281,81 @@ static func monster_tiers() -> Array:
 			"spellbooks": ascendant_spellbooks() if rarity == Constants.EnemyRarity.ASCENDANT else [],
 		})
 	return tiers
+
+## ---- Base types ----------------------------------------------------------
+
+## Gear groups the Base Types page lists (Jewels, Lenses and Slates have no bases).
+const BASE_GROUPS := ["Melee", "Ranged", "Conduits", "Armour", "Shields", "Accessories"]
+
+static var _bases: Dictionary = {}  # group -> {type name -> Array[Item] by item level}
+
+## Every droppable base in a group, by item type: {type name: [Item]}, each
+## list in item-level order. Read from the same files loot rolls from.
+static func bases_in(group: String) -> Dictionary:
+	if _bases.is_empty():
+		_build_bases()
+	return _bases.get(group, {})
+
+static func _build_bases() -> void:
+	if ItemRoller._candidate_meta_cache.is_empty():
+		ItemRoller._build_candidate_meta_cache()
+	for group in BASE_GROUPS:
+		_bases[group] = {}
+	for path in ItemRoller._candidate_meta_cache:
+		var meta: Dictionary = ItemRoller._candidate_meta_cache[path]
+		if meta.get("item_type", "") in ["", "currency"]:
+			continue
+		var base := load(path) as Item
+		if base == null or not base.is_equipment():
+			continue
+		var group := _group_of(base)
+		if not _bases.has(group):
+			continue
+		var type: String = (base as Weapon).weapon_type if base is Weapon else String(base.get_item_type()).capitalize()
+		if not _bases[group].has(type):
+			_bases[group][type] = []
+		_bases[group][type].append(base)
+	for group in _bases:
+		for type in _bases[group]:
+			_bases[group][type].sort_custom(func(a: Item, b: Item): return a.item_level < b.item_level or (a.item_level == b.item_level and a.display_name < b.display_name))
+
+## The base's own numbers, as short text parts (damage, speed, defences...).
+static func base_stat_parts(base: Item) -> Array[String]:
+	var parts: Array[String] = []
+	if base is Weapon:
+		var w := base as Weapon
+		if w.can_attack():
+			var r := w.get_base_range()
+			var pellets := " x%d" % w.pellet_count if w.pellet_count > 1 else ""
+			parts.append("%d-%d %s%s" % [roundi(r.x), roundi(r.y), Constants.DAMAGE_TYPE_NAME.get(w.native_damage_type, "?"), pellets])
+			parts.append("%.2f/s" % WeaponSpeed.attacks_per_second(w, false))
+			parts.append("%s%% crit" % String.num(snappedf(w.get_base_crit_chance() * 100.0, 0.1)))
+		if w.is_conduit and w.get_conduit_spell_damage_bonus() > 0.0:
+			parts.append("+%.0f%% Spell Damage" % w.get_conduit_spell_damage_bonus())
+		if w.is_two_handed:
+			parts.append("Two-Handed")
+	var defences := {"Armour": base.get("armor_value"), "Evasion": base.get("evasion_value"), "Ward": base.get("ward_value")}
+	for name in defences:
+		if defences[name] != null and float(defences[name]) > 0.0:
+			parts.append("%d %s" % [roundi(float(defences[name])), name])
+	if base is Shield:
+		parts.append("%.0f%% Block" % ((base as Shield).block_chance * 100.0))
+	return parts
+
+## "Lv 44, 28 Strength" style requirement text ("" when none).
+static func base_requirement_text(base: Item) -> String:
+	var req := ItemRequirements.of(base)
+	var parts: Array[String] = []
+	if req["level"] > 1:
+		parts.append("Lv %d" % req["level"])
+	for stat in ["strength", "agility", "intellect"]:
+		if req[stat] > 0:
+			parts.append("%d %s" % [req[stat], stat.capitalize()])
+	return ", ".join(parts)
+
+static func base_implicit_text(base: Item) -> String:
+	var texts: Array[String] = []
+	for a in base.affixes:
+		if a.is_implicit and a.description != "":
+			texts.append(a.description)
+	return "; ".join(texts)

@@ -1,12 +1,12 @@
 extends VBoxContainer
 class_name Wiki
 ## The Wiki (main menu and pause menu): tabs for Uniques, Modifiers, Lenses,
-## Corruption, Status Effects and Monsters. Pages are built the first time
-## they're opened.
+## Corruption, Status Effects, Monsters, Defences and Base Types. Pages are
+## built the first time they're opened.
 
 signal back_pressed
 
-const PAGES := ["Uniques", "Modifiers", "Lenses", "Corruption", "Status Effects", "Monsters"]
+const PAGES := ["Uniques", "Modifiers", "Lenses", "Corruption", "Status Effects", "Monsters", "Defences", "Base Types"]
 const PAGE_HEIGHT := 650.0
 
 var uniques: UniqueWiki
@@ -15,6 +15,8 @@ var corruption: CorruptionWiki
 var statuses: StatusWiki
 var monsters: MonsterWiki
 var lenses: LensWiki
+var defences: DefenceWiki
+var base_types: BaseTypeWiki
 var current_page: String = "Uniques"
 
 var _tabs: HBoxContainer
@@ -64,10 +66,16 @@ func show_page(page: String) -> void:
 	elif page == "Monsters" and monsters == null:
 		monsters = MonsterWiki.new()
 		_holder.add_child(monsters)
+	elif page == "Defences" and defences == null:
+		defences = DefenceWiki.new()
+		_holder.add_child(defences)
+	elif page == "Base Types" and base_types == null:
+		base_types = BaseTypeWiki.new()
+		_holder.add_child(base_types)
 	elif page == "Lenses" and lenses == null:
 		lenses = LensWiki.new()
 		_holder.add_child(lenses)
-	var by_page := {"Uniques": uniques, "Modifiers": modifiers, "Corruption": corruption, "Status Effects": statuses, "Monsters": monsters, "Lenses": lenses}
+	var by_page := {"Uniques": uniques, "Modifiers": modifiers, "Corruption": corruption, "Status Effects": statuses, "Monsters": monsters, "Lenses": lenses, "Defences": defences, "Base Types": base_types}
 	for name in by_page:
 		if by_page[name]:
 			by_page[name].visible = name == page

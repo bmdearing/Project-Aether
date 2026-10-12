@@ -18,15 +18,11 @@ const PINNACLE := 90
 ## typical gear DPS grows ~20x from level 1 to 89, so health grows a little
 ## faster, 24.6x, to keep time-to-kill steady). XP and Gold compound too.
 ## Damage grows steeply (21x by 89) so fighting far above your level is
-## deadly, not just slow; the player's Life and Ward grow with level
-## (PLAYER_POOL_GROWTH) so an on-level hit stays where the old 1.021 damage
-## curve had it (about 7.7% of typical Life after Armour at 89). That's a
-## little more than DAMAGE_GROWTH / 1.021, since Armour stops less of a big
-## hit. Fitted with probe_power_curve; a level 14 at Area Level 74 takes about
-## 34% of their Life per standard hit (12% on the old curve).
+## deadly, not just slow. Player Life and Ward do not grow with level: late
+## Figments are survived through defences (Armour, Evasion, Resistances,
+## Block, Ward, parrying), not a bigger pool.
 const HEALTH_GROWTH := 1.037
 const DAMAGE_GROWTH := 1.035
-const PLAYER_POOL_GROWTH := 1.0185
 const XP_GROWTH := 1.165
 const GOLD_GROWTH := 1.02
 
@@ -67,10 +63,6 @@ const GAP_DAMAGE_GROWTH := 1.04
 static func gap_damage_multiplier(monster_level: int, player_level: int) -> float:
 	var over := monster_level - player_level - xp_zone(player_level)
 	return pow(GAP_DAMAGE_GROWTH, over) if over > 0 else 1.0
-
-## How much the player's maximum Life and Ward grow at a character level.
-static func player_pool_scale(level: int) -> float:
-	return pow(PLAYER_POOL_GROWTH, maxi(level, 1) - 1)
 
 static func xp_scale(level: int) -> float:
 	return pow(XP_GROWTH, maxi(level, 1) - 1)
