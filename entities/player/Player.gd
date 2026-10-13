@@ -7,13 +7,12 @@ class_name Player
 @export var move_speed: float = 6.0
 @export var sprint_speed: float = 9.0
 @export var crouch_speed: float = 3.0
-## 7.0 (was 4.5) - needed to clear the Vault's jump gap + platform rise;
-## matches Enemy.jump_velocity, tuned the same way.
-@export var jump_velocity: float = 7.0
-## Extra gravity while falling (not rising) - standard "snappier jump arc"
-## trick, doesn't touch the ascent so Vault gap-clearing (tuned assuming
-## the old symmetric gravity through the rise) is unaffected.
-const FALL_GRAVITY_MULTIPLIER := 1.7
+## Reaches the same 2.5m apex as the old 7.0 under GRAVITY_MULTIPLIER.
+@export var jump_velocity: float = 9.1
+## Heavier than default gravity so jumps and knock-ups spend less time in the air.
+const GRAVITY_MULTIPLIER := 1.7
+## Extra gravity while falling (not rising), on top of GRAVITY_MULTIPLIER.
+const FALL_GRAVITY_MULTIPLIER := 1.5
 @export var mouse_sensitivity: float = 0.0035
 @export var max_look_up_deg: float = 89.0
 @export var stat_sheet: StatSheet
@@ -81,7 +80,7 @@ func use_throwable() -> void:
 	EventBus.throwable_used.emit(active_throwable.throwable_type)
 
 var _last_active_weapon: Weapon = null
-var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
+var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity") * GRAVITY_MULTIPLIER
 var _base_max_health: float = 0.0
 var _base_max_mana: float = 0.0
 var _base_mana_regen: float = 0.0
@@ -136,8 +135,8 @@ var _dash_cooldown_remaining: float = 0.0
 ## a short skid to stop, and air momentum that's steerable but not reversible.
 const GROUND_ACCELERATION := 70.0
 const GROUND_DECELERATION := 50.0
-const AIR_ACCELERATION := 18.0
-const AIR_DECELERATION := 4.0
+const AIR_ACCELERATION := 24.0
+const AIR_DECELERATION := 10.0
 ## Late jumps off ledges and early presses before landing still jump.
 const COYOTE_TIME := 0.1
 const JUMP_BUFFER_TIME := 0.12
