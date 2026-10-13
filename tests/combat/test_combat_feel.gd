@@ -30,7 +30,7 @@ func _run() -> void:
 	await _test_contact_window_and_reaction()
 	await _test_acceleration()
 	await _test_shield_block()
-	await _test_quickstep()
+	await _test_dash_iframes()
 	await _test_combo()
 	_test_bloodless()
 	print("combat feel tests: %d checks, %d failures" % [_checks, _failures])
@@ -218,29 +218,19 @@ func _test_shield_block() -> void:
 	front.queue_free()
 	behind.queue_free()
 
-## The quickstep covers ~2.7 m, ignores hits for its i-frames (not DoT), then
-## takes hits again; with no direction held it backsteps.
-func _test_quickstep() -> void:
+## A dash ignores hits (not DoT) for its i-frames, then takes them again.
+func _test_dash_iframes() -> void:
 	_player.global_position = Vector3.ZERO
 	_player.velocity = Vector3.ZERO
 	await _frames(2)
-	var start := _player.global_position
 	_player._start_dash(_player.transform.basis.x)
 	var life := _player.health.current_health
 	_player.take_damage(10.0, Constants.DamageType.KINETIC)
-	_check(_player.health.current_health == life, "a hit during the quickstep's i-frames does nothing")
-	await get_tree().create_timer(Player.QUICKSTEP_IFRAMES + 0.1).timeout
-	var moved := (_player.global_position - start).length()
-	_check(moved > 2.0 and moved < 3.5, "the quickstep covers about 2.7 m (%.2f)" % moved)
+	_check(_player.health.current_health == life, "a hit during the dash's i-frames does nothing")
+	await get_tree().create_timer(Player.DASH_IFRAMES + 0.05).timeout
 	_player.take_damage(10.0, Constants.DamageType.KINETIC)
 	_check(_player.health.current_health < life, "hits land again once the i-frames end")
 	await get_tree().create_timer(Player.DASH_COOLDOWN).timeout
-	start = _player.global_position
-	Input.action_press("sprint")
-	await _frames(1)
-	Input.action_release("sprint")
-	await get_tree().create_timer(0.3).timeout
-	_check((_player.global_position - start).dot(_player.transform.basis.z) > 1.5, "with no direction held, Sprint backsteps")
 
 ## Three swings chain: hit 2 is a backswing, hit 3 the finisher at +10%;
 ## a press during recovery queues the next hit; a pause resets the chain.

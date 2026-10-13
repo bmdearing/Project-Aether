@@ -120,16 +120,12 @@ var _slide_speed_current: float = 0.0
 ## SLIDE_DECELERATION pattern, not integrated with it (Slide requires
 ## sprinting+crouch-tap+floor; Dash works in the air and while stationary
 ## alike, since "dash to reposition/dodge" is the point).
-## v4.99 (user: "combat should feel like Bloodborne"): a quickstep - a short,
-## fast burst (~2.7 m) with QUICKSTEP_IFRAMES of invulnerability to hits, a
-## backstep when no direction is held, and a short cooldown.
-const DASH_SPEED := 18.0
-const DASH_DURATION := 0.18
-const DASH_DECELERATION := 30.0
-const DASH_COOLDOWN := 0.55
-const QUICKSTEP_IFRAMES := 0.2
-const QUICKSTEP_SOUND := preload("res://assets/sfx/wc3/boss_whoosh_02.ogg")
-const QUICKSTEP_FOV_PUNCH := 6.0
+const DASH_SPEED := 14.0
+const DASH_DURATION := 0.2
+const DASH_DECELERATION := 20.0
+const DASH_COOLDOWN := 1.0
+## Hits (not damage over time) pass through you for this long after a dash starts.
+const DASH_IFRAMES := 0.15
 
 var _is_dashing: bool = false
 var _dash_timer: float = 0.0
@@ -554,7 +550,7 @@ enum HitKind { ATTACK, SPELL, DOT }
 func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null, hit_kind: HitKind = HitKind.ATTACK, is_melee: bool = false) -> void:
 	if parry_handler and parry_handler.is_invulnerable:
 		return
-	if hit_kind != HitKind.DOT and is_quickstepping():
+	if hit_kind != HitKind.DOT and has_dash_iframes():
 		EventBus.hit_dodged.emit(self)
 		return
 	if hit_kind != HitKind.DOT and shield_block.try_block(amount, source):
@@ -721,8 +717,8 @@ func _physics_process(delta: float) -> void:
 	# Shift stays held afterward - a tap dashes, continuing to hold still
 	# sprints normally on top of it (see the const block's own comment).
 	if Input.is_action_just_pressed("sprint") and not stunned and not rooted and not _is_dashing and not _is_sliding \
-			and _dash_cooldown_remaining <= 0.0:
-		_start_dash(move_dir if move_dir.length() > 0.1 else transform.basis.z)
+			and _dash_cooldown_remaining <= 0.0 and move_dir.length() > 0.1:
+		_start_dash(move_dir)
 
 	if Input.is_action_just_pressed("crouch") and is_on_floor() and not rooted and not _is_sliding and not _is_dashing and sprinting and move_dir.length() > 0.1:
 		_start_slide(move_dir)
@@ -741,7 +737,6 @@ func _physics_process(delta: float) -> void:
 		_move_velocity = Vector3(velocity.x, 0.0, velocity.z)
 		if _dash_timer <= 0.0:
 			_is_dashing = false
-			_move_velocity *= 0.25  # plant the feet: no slide after the step
 	elif _is_sliding:
 		_slide_timer -= delta
 		_slide_speed_current = max(_slide_speed_current - SLIDE_DECELERATION * delta, _effective_speed(crouch_speed))
@@ -881,24 +876,9 @@ func _start_dash(move_dir: Vector3) -> void:
 	_dash_direction = move_dir
 	_dash_speed_current = DASH_SPEED * (1.0 + stat_sheet.get_misc_bonus("dash_speed") / 100.0)
 	_dash_cooldown_remaining = DASH_COOLDOWN
-	_iframes_remaining = QUICKSTEP_IFRAMES
-	_quickstep_feel(move_dir)
+	_iframes_remaining = DASH_IFRAMES
 
-## Camera rolls into the step with a brief FOV punch; a whoosh and a puff of mist.
-func _quickstep_feel(move_dir: Vector3) -> void:
-	var side := move_dir.dot(transform.basis.x)
-	var back := move_dir.dot(transform.basis.z)
-	var sway := camera.get_node_or_null("CameraSway") as CameraSway
-	if sway:
-		sway.kick(Vector3(0.025 * back, 0.0, -0.06 * side))
-	var base_fov := GameState.field_of_view
-	var tween := camera.create_tween()
-	tween.tween_property(camera, "fov", base_fov + QUICKSTEP_FOV_PUNCH, 0.06)
-	tween.tween_property(camera, "fov", base_fov, 0.22).set_ease(Tween.EASE_OUT)
-	AudioManager.play_at(QUICKSTEP_SOUND, global_position, -6.0, 1.25)
-	SmokePuff.spawn(get_parent(), global_position, 0.45, Color(0.12, 0.12, 0.14))
-
-func is_quickstepping() -> bool:
+func has_dash_iframes() -> bool:
 	return _iframes_remaining > 0.0
 
 ## User request (2026-08-30): Dagger's stance special ("a rapier might
