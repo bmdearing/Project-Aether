@@ -46,6 +46,13 @@ var _ward_fill: ColorRect
 var _frame: BarFrame
 var _icons: StatusIconRow
 var _shatter: BarShatter
+var _damage_label: Label
+var _damage_boss_id: int = 0
+var _damage_last_pool: float = 0.0
+var _damage_total: float = 0.0
+var _damage_timer: float = 0.0
+## Seconds without damage before the running total clears.
+const DAMAGE_HOLD := 4.0
 const WARD_HEIGHT := 6.0
 
 func _ready() -> void:
@@ -117,6 +124,54 @@ func _ready() -> void:
 	_icons.position = Vector2(0, NAME_HEIGHT + HEIGHT + 6.0)
 	_icons.size = Vector2(WIDTH, 26.0)
 	add_child(_icons)
+	_damage_label = Label.new()
+	_damage_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	_damage_label.add_theme_font_override("font", AetherStyle.serif())
+	_damage_label.add_theme_font_size_override("font_size", 15)
+	_damage_label.add_theme_color_override("font_color", Color(1.0, 0.92, 0.8))
+	_damage_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
+	_damage_label.add_theme_constant_override("shadow_offset_x", 1)
+	_damage_label.add_theme_constant_override("shadow_offset_y", 1)
+	# Above the right end of the bar.
+	_damage_label.position = Vector2(WIDTH * 0.7, -6.0)
+	_damage_label.size = Vector2(WIDTH * 0.3, 20.0)
+	_damage_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_damage_label.visible = false
+	add_child(_damage_label)
+
+## Adds up the Life and Ward the boss loses; the total clears after
+## DAMAGE_HOLD seconds without damage, or when a different boss takes the bar.
+func track_damage(boss_id: int, pool: float) -> void:
+	if boss_id != _damage_boss_id:
+		_damage_boss_id = boss_id
+		_damage_last_pool = pool
+		_clear_damage()
+		return
+	if pool < _damage_last_pool:
+		_damage_total += _damage_last_pool - pool
+		_damage_timer = DAMAGE_HOLD
+		_damage_label.text = _with_commas(roundi(_damage_total))
+		_damage_label.visible = true
+	_damage_last_pool = pool
+
+func _process(delta: float) -> void:
+	if _damage_timer > 0.0:
+		_damage_timer -= delta
+		if _damage_timer <= 0.0:
+			_clear_damage()
+
+func _clear_damage() -> void:
+	_damage_total = 0.0
+	_damage_timer = 0.0
+	_damage_label.visible = false
+
+static func _with_commas(n: int) -> String:
+	var digits := str(n)
+	var out := ""
+	while digits.length() > 3:
+		out = "," + digits.right(3) + out
+		digits = digits.left(digits.length() - 3)
+	return digits + out
 
 ## The statuses to show under the bar.
 func set_status_source(source: StatusEffectComponent) -> void:

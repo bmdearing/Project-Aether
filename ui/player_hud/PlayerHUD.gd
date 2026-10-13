@@ -520,6 +520,7 @@ func _update_boss_bar(boss: Enemy) -> void:
 	_boss_bar.set_subtitle(rarity_component.get_affix_names() if ascendant else "")
 	_boss_bar.set_health(boss.health.current_health, boss.health.max_health)
 	_boss_bar.set_ward(boss.get_ward(), boss.get_ward_max())
+	_boss_bar.track_damage(boss.get_instance_id(), boss.health.current_health + boss.get_ward())
 	_boss_bar.set_status_source(boss.status_effects)
 	_boss_bar.set_riposte_ready(boss.composure != null and boss.composure.is_broken)
 	_boss_bar.set_unhittable(boss.invulnerable)
