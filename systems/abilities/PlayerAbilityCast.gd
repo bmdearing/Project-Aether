@@ -179,6 +179,8 @@ func get_cooldown_remaining(ability: Ability) -> float:
 	return _cooldowns.get(ability, 0.0) if ability else 0.0
 
 func _on_ability_pressed(slot_index: int) -> void:
+	if _player.is_in_visceral():
+		return
 	var from_page := _player.caster_stance.uses_spell_page()
 	var ability: Ability = _slot_ability(slot_index, from_page)
 	if ability == null:

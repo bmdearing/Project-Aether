@@ -50,6 +50,9 @@ func _physics_process(delta: float) -> void:
 				_enter_telegraph()
 		State.TELEGRAPH:
 			_timer -= delta
+			if not _told and _timer <= TELL_LEAD:
+				_told = true
+				_enemy.show_attack_tell()
 			if _timer <= 0.0:
 				_enter_strike()
 		State.STRIKE:
@@ -66,8 +69,13 @@ func _sibling_attacking() -> bool:
 	var ranged := _enemy.get_node_or_null("RangedAttack") as EnemyRangedAttack
 	return ranged != null and ranged.is_attacking() or _enemy.is_casting()
 
+## The tell shows this long before the strike (Enemy.show_attack_tell()).
+const TELL_LEAD := 0.35
+var _told := false
+
 func _enter_telegraph() -> void:
 	_state = State.TELEGRAPH
+	_told = false
 	_timer = telegraph_duration / _enemy.get_attack_speed_multiplier()
 	_enemy.begin_attack_telegraph(_timer)
 	EventBus.enemy_attack_telegraphed.emit(_enemy)

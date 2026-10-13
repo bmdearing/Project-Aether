@@ -120,12 +120,18 @@ const JAB_DURATION_MULTIPLIER := 0.6
 
 ## Impact scales with swing weight (see _swing_weight()).
 const HITSTOP_CRIT_MULT := 1.3
-const HITSTOP_KILL_MULT := 1.5
+const HITSTOP_KILL_MULT := 2.0
 const SWING_KICK := 0.012          # radians of camera lean on every strike, hit or miss
 const HIT_KICK_PITCH := 0.03       # downward camera dip on a landed hit
 const HIT_KICK_YAW := 0.025
 const KNOCKBACK_PER_WEIGHT := 2.6  # m/s of shove per unit of swing weight
 const LUNGE_PER_WEIGHT := 1.4      # m/s forward step into the strike
+const KILL_SHOVE := 6.0            # m/s the killing blow throws the body
+## Aim assist: a strike turns you up to ASSIST_MAX_DEG toward the nearest
+## enemy within ASSIST_CONE_DEG of the crosshair and reach + ASSIST_EXTRA_REACH.
+const ASSIST_CONE_DEG := 25.0
+const ASSIST_MAX_DEG := 12.0
+const ASSIST_EXTRA_REACH := 0.8
 
 ## User request (2026-08-30): "Movement speed should be reduced when
 ## attacking with a melee weapon." Applies for the whole swing (Windup
@@ -413,6 +419,7 @@ func _enter_strike() -> void:
 	if _hitbox:
 		_hitbox.monitoring = true
 	var weight := _swing_weight()
+	_assist_aim()
 	_kick_camera(Vector3(-0.5, _swing_yaw(), 0.0) * SWING_KICK * weight)
 	var forward := -_player.camera.global_transform.basis.z
 	forward.y = 0.0
@@ -457,6 +464,24 @@ func _kick_camera(amount: Vector3) -> void:
 	var sway: CameraSway = _player.camera.get_node_or_null("CameraSway") if _player.camera else null
 	if sway:
 		sway.kick(amount)
+
+func _assist_aim() -> void:
+	var forward := -_player.global_transform.basis.z
+	var reach: float = get_swing_shape()["reach"] + ASSIST_EXTRA_REACH
+	var best: Enemy = null
+	var best_angle := deg_to_rad(ASSIST_CONE_DEG)
+	for e in enemies_in_radius(_player.global_position, reach):
+		var to := e.global_position - _player.global_position
+		to.y = 0.0
+		var angle := absf(forward.signed_angle_to(to, Vector3.UP))
+		if to.length() > 0.01 and angle < best_angle:
+			best = e
+			best_angle = angle
+	if best == null:
+		return
+	var to_best := best.global_position - _player.global_position
+	var turn := clampf(forward.signed_angle_to(Vector3(to_best.x, 0.0, to_best.z), Vector3.UP), -deg_to_rad(ASSIST_MAX_DEG), deg_to_rad(ASSIST_MAX_DEG))
+	create_tween().tween_property(_player, "rotation:y", _player.rotation.y + turn, 0.06)
 
 func get_swing_shape() -> Dictionary:
 	var weapon := _player.get_active_weapon()
@@ -540,13 +565,11 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	# A melee hit on an already-broken enemy is a Riposte, not a normal
 	# swing - big bonus damage + a moment of player invulnerability,
 	# handled entirely by ParryRiposteHandler.
-	if is_primary and _player.parry_handler and _player.parry_handler.can_riposte(target):
-		var riposte_is_critical_spot := target.is_critical_spot_aimed(_player.camera.global_position, -_player.camera.global_transform.basis.z)
-		_player.parry_handler.execute_riposte(target, weapon, motion_value, damage_type)
-		BloodFx.visceral(target, _blow_direction(target))
-		_react_to_hit(target, 1.5)
-		_trigger_hit_feedback(true, false, not target.health.is_alive())
-		EventBus.hit_landed.emit(true, riposte_is_critical_spot, not target.health.is_alive())
+	# A charged attack into the back of a rank-and-file enemy is a visceral too.
+	var backstab := is_primary and _attack_type == AttackType.CHARGED and _stance_release.is_empty() \
+		and target.is_rank_and_file() and target.is_behind(_player.global_position)
+	if is_primary and _player.parry_handler and (_player.parry_handler.can_riposte(target) or backstab):
+		_begin_visceral(target, weapon, motion_value, damage_type)
 		return
 
 	var hit := weapon.roll_damage(motion_value, _player.stat_sheet)
@@ -590,8 +613,44 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 		(_stance_release["on_hit"] as Callable).call(target, final_damage)
 
 	_react_to_hit(target, damage_scale)
+	if not target.health.is_alive():
+		_shove_corpse(target, damage_scale)
+	elif (is_combo_finisher() or _attack_type == AttackType.CHARGED) and target.is_rank_and_file():
+		target.stagger()
 	if is_primary:
 		_trigger_hit_feedback(false, is_critical or is_critical_spot, not target.health.is_alive())
+
+## Locks both into the visceral (Player.start_visceral()); the damage, blood
+## and hit-stop land when the weapon rips out.
+func _begin_visceral(target: Enemy, weapon: Weapon, motion_value: float, damage_type: Constants.DamageType) -> void:
+	var dir := _blow_direction(target)
+	_state = State.RECOVERY
+	_timer = Player.VISCERAL_LOCK
+	_queued_attack = -1
+	if _hitbox:
+		_hitbox.monitoring = false
+	_player.start_visceral(target, func() -> void:
+		if not is_instance_valid(target) or not target.health.is_alive():
+			return
+		_player.parry_handler.execute_riposte(target, weapon, motion_value, damage_type, true)
+		var killed := not target.health.is_alive()
+		BloodFx.visceral(target, dir)
+		AudioManager.play_at(SoundLib.library.riposte, target.global_position)
+		if killed:
+			_shove_corpse(target, 1.5)
+		else:
+			target.interrupt_attack()  # reels from the rip-out
+		_trigger_hit_feedback(true, false, killed)
+		EventBus.hit_landed.emit(true, false, killed))
+
+func _shove_corpse(target: Enemy, scale: float) -> void:
+	target.apply_knockback(_blow_direction(target) * KILL_SHOVE * clampf(scale, 0.5, 1.5) + Vector3.UP * 2.5)
+
+## A dash cuts a swing's follow-through short.
+func cancel_recovery() -> void:
+	if _state == State.RECOVERY and not _player.is_in_visceral():
+		_timer = 0.0
+		_queued_attack = -1
 
 func _blow_direction(target: Enemy) -> Vector3:
 	var dir := target.global_position - _player.global_position

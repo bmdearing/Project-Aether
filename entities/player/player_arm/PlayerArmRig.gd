@@ -224,6 +224,14 @@ const BOW_RELEASE := [
 	["s", 1.0, Vector3(0.0, 0.0, -0.03), Vector3(0.12, 1, -0.15), null, 0.3],
 ]
 
+## Visceral attack: draw back, plunge deep, twist, then tear out down and away.
+const VISCERAL := [
+	["w", 1.0, Vector3(0.05, 0.03, 0.18), Vector3(-0.05, 0.25, -1), null, 0.45],
+	["s", 0.3, Vector3(-0.12, 0.0, -0.42), Vector3(-0.1, 0.05, -1), null, 2.4],
+	["s", 1.0, Vector3(-0.13, -0.02, -0.4), Vector3(-0.3, 0.05, -1), Vector3(0.6, 0.8, 0), 0.6],
+	["r", 0.35, Vector3(0.12, -0.18, -0.12), Vector3(0.7, -0.4, -0.6), null, 2.2],
+]
+
 ## [light, heavy, charged] clip per melee family.
 const MELEE_CLIPS := {
 	&"blade": [DIAGONAL, HORIZONTAL, OVERHEAD],
@@ -417,6 +425,10 @@ func play_attack(kind: Attack, windup: float, strike: float, recovery: float, ba
 			_start(_off_track, _mirror(clip), windup, strike, recovery, _off_rest())
 			return
 	_start(_main_track, _mirror(clip) if backswing else clip, windup, strike, recovery, _main_rest())
+
+## The visceral clip: plunged in by `plunge`, torn out over `rip`.
+func play_visceral(plunge: float, rip: float) -> void:
+	_start(_main_track, VISCERAL, 0.12, plunge - 0.12, rip, _main_rest())
 
 ## Right-click hold: melee raises a weapon guard, ranged aims down sights. The
 ## shield only comes up while ShieldBlock is actually raised.

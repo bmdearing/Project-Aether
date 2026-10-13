@@ -67,8 +67,9 @@ func can_riposte(target: Node) -> bool:
 	return composure != null and composure.is_broken
 
 ## Big hit plus brief invulnerability. Ends the target's broken state.
-func execute_riposte(target: Enemy, weapon: Weapon, base_motion_value: float, damage_type: Constants.DamageType) -> void:
-	if not can_riposte(target):
+## forced: a visceral already committed to (its rip-out, or a backstab).
+func execute_riposte(target: Enemy, weapon: Weapon, base_motion_value: float, damage_type: Constants.DamageType, forced: bool = false) -> void:
+	if not forced and not can_riposte(target):
 		return
 	var player: Player = get_parent()
 	# Riposte crit chance gear: bump finesse_crit_bonus for this one roll.
@@ -88,6 +89,9 @@ func execute_riposte(target: Enemy, weapon: Weapon, base_motion_value: float, da
 	EventBus.damage_dealt.emit(player, target, final_damage, damage_type, false, hit["is_critical"])
 
 	target.composure.end_broken_state()
-	is_invulnerable = true
-	_invuln_timer = riposte_invuln_duration
+	grant_invulnerability(riposte_invuln_duration)
 	EventBus.riposte_executed.emit(player, target)
+
+func grant_invulnerability(seconds: float) -> void:
+	is_invulnerable = true
+	_invuln_timer = maxf(_invuln_timer, seconds)

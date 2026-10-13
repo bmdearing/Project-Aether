@@ -127,6 +127,13 @@ const DASH_COOLDOWN := 1.0
 ## Hits (not damage over time) pass through you for this long after a dash starts.
 const DASH_IFRAMES := 0.15
 
+## Visceral attacks (ripostes, backstabs): both locked for VISCERAL_LOCK,
+## the player invulnerable throughout; the blow lands at VISCERAL_RIP_AT.
+const VISCERAL_LOCK := 1.1
+const VISCERAL_RIP_AT := 0.55
+const VISCERAL_FOV_PUSH := 10.0
+var _in_visceral: bool = false
+
 var _is_dashing: bool = false
 var _dash_timer: float = 0.0
 var _dash_direction: Vector3 = Vector3.ZERO
@@ -695,7 +702,7 @@ func _physics_process(delta: float) -> void:
 		_knock_up_time += delta
 		if _knock_up_time > KNOCK_UP_MIN_SEC and is_on_floor():
 			_knock_up_time = -1.0
-	var stunned := status_effects.is_stunned() or is_knocked_up()
+	var stunned := status_effects.is_stunned() or is_knocked_up() or is_in_visceral()
 	_coyote_timer = COYOTE_TIME if is_on_floor() else maxf(_coyote_timer - delta, 0.0)
 	_jump_buffer_timer = JUMP_BUFFER_TIME if Input.is_action_just_pressed("jump") else maxf(_jump_buffer_timer - delta, 0.0)
 	var rooted := stance_defense.is_rooted() or status_effects.has_effect("entangle") or (stance_attack.is_charging and stance_attack.get_move_speed_multiplier() <= 0.0)
@@ -858,6 +865,8 @@ func get_move_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_misc_bonus("move_speed") / 100.0
 
 func _effective_speed(base: float) -> float:
+	if is_in_visceral():
+		return 0.0
 	return base * get_move_speed_multiplier() * status_effects.get_move_speed_multiplier() * WaterBuilder.wading_factor(global_position) \
 		* melee_attack.get_move_speed_multiplier() * ability_cast.get_move_speed_multiplier() \
 		* weapon_stance.get_move_speed_multiplier() * shield_block.get_move_speed_multiplier() \
@@ -877,6 +886,30 @@ func _start_dash(move_dir: Vector3) -> void:
 	_dash_speed_current = DASH_SPEED * (1.0 + stat_sheet.get_misc_bonus("dash_speed") / 100.0)
 	_dash_cooldown_remaining = DASH_COOLDOWN
 	_iframes_remaining = DASH_IFRAMES
+	melee_attack.cancel_recovery()
+
+func is_in_visceral() -> bool:
+	return _in_visceral
+
+## Turns to the target, plunges the weapon in, and calls on_rip as it tears out.
+func start_visceral(target: Enemy, on_rip: Callable) -> void:
+	_in_visceral = true
+	get_tree().create_timer(VISCERAL_LOCK).timeout.connect(func() -> void: _in_visceral = false)
+	parry_handler.grant_invulnerability(VISCERAL_LOCK + 0.2)
+	target.hold_for_visceral(VISCERAL_LOCK)
+	_move_velocity = Vector3.ZERO
+	_impulse = Vector3.ZERO
+	_is_dashing = false
+	var to := target.global_position - global_position
+	if Vector2(to.x, to.z).length() > 0.01:
+		var yaw := atan2(-to.x, -to.z)
+		create_tween().tween_property(self, "rotation:y", rotation.y + angle_difference(rotation.y, yaw), 0.12)
+	if arm_rig:
+		arm_rig.play_visceral(VISCERAL_RIP_AT, VISCERAL_LOCK - VISCERAL_RIP_AT)
+	var fov := camera.create_tween()
+	fov.tween_property(camera, "fov", GameState.field_of_view - VISCERAL_FOV_PUSH, VISCERAL_RIP_AT).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
+	fov.tween_property(camera, "fov", GameState.field_of_view, VISCERAL_LOCK - VISCERAL_RIP_AT).set_ease(Tween.EASE_IN_OUT)
+	get_tree().create_timer(VISCERAL_RIP_AT).timeout.connect(on_rip)
 
 func has_dash_iframes() -> bool:
 	return _iframes_remaining > 0.0

@@ -481,6 +481,53 @@ func interrupt_attack() -> void:
 const HIT_FLASH_SEC := 0.09
 static var _hit_flash_material: StandardMaterial3D
 
+## The way the model faces, flat.
+func facing() -> Vector3:
+	var yaw := (_model_root.global_rotation.y if _model_root else global_rotation.y) - model_forward_yaw_offset
+	return Vector3(sin(yaw), 0.0, cos(yaw))
+
+## Rank-and-file only: bosses, elites, Champions, Ascendants and unstoppable
+## units shrug off staggers and backstabs.
+func is_rank_and_file() -> bool:
+	if rank == Constants.EnemyRank.BOSS or immovable:
+		return false
+	if definition and ["elite", "boss"].has(definition.archetype_category):
+		return false
+	var rc := rarity_component
+	return rc == null or (rc.rarity in [Constants.EnemyRarity.NORMAL, Constants.EnemyRarity.ELITE] and not rc.is_unstoppable())
+
+## A heavy blow breaks the attack it was winding up and rocks it briefly.
+const HEAVY_STAGGER_STUN := 0.6
+
+func stagger() -> void:
+	interrupt_attack()
+	status_effects.apply_timed_effect("stun", HEAVY_STAGGER_STUN)
+
+## Behind it: within 60 degrees of straight behind.
+func is_behind(from: Vector3) -> bool:
+	var to := from - global_position
+	to.y = 0.0
+	return to.length() > 0.01 and facing().dot(to.normalized()) < -0.5
+
+## Held still through a visceral attack.
+func hold_for_visceral(seconds: float) -> void:
+	stagger()
+	status_effects.apply_timed_effect("stun", seconds)
+
+const TELL_COLOR := Color(1.0, 0.85, 0.55)
+const TELL_SOUND := preload("res://assets/sfx/combat/blade_scrape_02.ogg")
+
+## The glint just before a blow lands: the moment to dodge or parry.
+func show_attack_tell() -> void:
+	if not is_inside_tree() or not is_instance_valid(_player):
+		return
+	var to := _player.global_position - global_position
+	to.y = 0.0
+	var at := global_position + Vector3.UP * body_height * 0.8 + to.normalized() * body_radius
+	SpellFx.flash(get_parent(), at, TELL_COLOR, 1.1, 0.18)
+	SpellFx.light_pop(get_parent(), at, TELL_COLOR, 2.0, 3.0, 0.2)
+	AudioManager.play_at(TELL_SOUND, at, -10.0, 1.4)
+
 ## Constructs throw sparks and grit when hit instead of blood (BloodFx).
 const BLOODLESS := ["golem", "element_orb", "sand_globe"]
 

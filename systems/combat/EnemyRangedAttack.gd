@@ -56,6 +56,9 @@ func _physics_process(delta: float) -> void:
 				_enter_windup()
 		State.WINDUP:
 			_timer -= delta
+			if not _told and _timer <= EnemyMeleeAttack.TELL_LEAD:
+				_told = true
+				_enemy.show_attack_tell()
 			if _timer <= 0.0:
 				_fire()
 		State.COOLDOWN:
@@ -67,8 +70,11 @@ func _sibling_attacking() -> bool:
 	var melee := _enemy.get_node_or_null("MeleeAttack") as EnemyMeleeAttack
 	return melee != null and melee.is_attacking() or _enemy.is_casting()
 
+var _told := false
+
 func _enter_windup() -> void:
 	_state = State.WINDUP
+	_told = false
 	_timer = windup_duration / _enemy.get_attack_speed_multiplier()
 	_enemy.begin_attack_telegraph(_timer)
 	_enemy.on_ranged_windup(_timer)
