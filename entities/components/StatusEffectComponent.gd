@@ -388,9 +388,12 @@ func get_linger_dps() -> float:
 	return _linger_dps if has_effect("linger") else 0.0
 
 ## Forbidden Flame: dps Fire damage per second for duration; a stronger flame
-## replaces a weaker one.
+## replaces a weaker one. From the player (Elemental Fire) it counts as an
+## ailment for Ailment damage and the DoT multiplier.
 func apply_forbidden_flame(source: Node, dps: float, duration: float) -> void:
 	_forbidden_source = source
+	if source is Player:
+		dps *= _ailment_damage_multiplier(source, "forbidden_fire")
 	_forbidden_dps = maxf(dps, _forbidden_dps) if has_effect("forbidden_fire") else dps
 	_timers["forbidden_fire"] = maxf(_timers.get("forbidden_fire", 0.0), duration)
 	_emit_applied("forbidden_fire")
