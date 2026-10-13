@@ -402,8 +402,9 @@ func set_loadout(weapon: Weapon, offhand: Item) -> void:
 func get_family() -> StringName:
 	return _family
 
-## Melee swing or ranged shot, timed to the caller's phases.
-func play_attack(kind: Attack, windup: float, strike: float, recovery: float) -> void:
+## Melee swing or ranged shot, timed to the caller's phases. `backswing`
+## mirrors the clip (a combo's second hit sweeps back the other way).
+func play_attack(kind: Attack, windup: float, strike: float, recovery: float, backswing: bool = false) -> void:
 	if kind == Attack.FIRE:
 		_play_fire(windup, strike, recovery)
 		return
@@ -415,7 +416,7 @@ func play_attack(kind: Attack, windup: float, strike: float, recovery: float) ->
 		if _fist_alt:
 			_start(_off_track, _mirror(clip), windup, strike, recovery, _off_rest())
 			return
-	_start(_main_track, clip, windup, strike, recovery, _main_rest())
+	_start(_main_track, _mirror(clip) if backswing else clip, windup, strike, recovery, _main_rest())
 
 ## Right-click hold: melee raises a weapon guard, ranged aims down sights. The
 ## shield only comes up while ShieldBlock is actually raised.

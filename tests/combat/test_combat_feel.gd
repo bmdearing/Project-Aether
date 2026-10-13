@@ -31,6 +31,8 @@ func _run() -> void:
 	await _test_acceleration()
 	await _test_shield_block()
 	await _test_quickstep()
+	await _test_combo()
+	_test_bloodless()
 	print("combat feel tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
 
@@ -239,3 +241,64 @@ func _test_quickstep() -> void:
 	Input.action_release("sprint")
 	await get_tree().create_timer(0.3).timeout
 	_check((_player.global_position - start).dot(_player.transform.basis.z) > 1.5, "with no direction held, Sprint backsteps")
+
+## Three swings chain: hit 2 is a backswing, hit 3 the finisher at +10%;
+## a press during recovery queues the next hit; a pause resets the chain.
+func _test_combo() -> void:
+	_player.set_physics_process(false)
+	_player.global_position = Vector3.ZERO
+	_equip("Saber")
+	var melee := _player.melee_attack
+	var target := _dummy(-_player.global_transform.basis.z * 1.6)
+	await _frames(3)
+	var hits: Array[float] = []
+	var steps: Array[int] = []
+	var crits := []
+	var on_dealt := func(_s, _t, _a, _type, _spell, crit): crits.append(crit)
+	EventBus.damage_dealt.connect(on_dealt)
+	for i in 4:
+		var before := target.health.current_health
+		melee.try_light_jab()
+		steps.append(melee._combo_step)
+		while melee._state != PlayerMeleeAttack.State.RECOVERY:
+			await _frames(1)
+		hits.append(before - target.health.current_health)
+		if i == 0:
+			melee.try_light_jab()  # queued during recovery
+			_check(melee._queued_attack == PlayerMeleeAttack.AttackType.JAB, "a press during recovery is queued")
+			while melee._state != PlayerMeleeAttack.State.WINDUP:
+				await _frames(1)
+			steps.append(melee._combo_step)
+			while melee._state != PlayerMeleeAttack.State.RECOVERY:
+				await _frames(1)
+			break
+	_check(steps == [0, 1], "the queued press continues the chain as hit 2 (%s)" % [steps])
+	while not melee.is_idle():
+		await _frames(1)
+	var before := target.health.current_health
+	melee.try_light_jab()
+	_check(melee.is_combo_finisher(), "the third hit is the finisher")
+	while not melee.is_idle():
+		await _frames(1)
+	var finisher := before - target.health.current_health
+	EventBus.damage_dealt.disconnect(on_dealt)
+	var first_crit: bool = crits[0]
+	var finisher_crit: bool = crits[-1]
+	if first_crit == finisher_crit:
+		_check(is_equal_approx(finisher / hits[0], PlayerMeleeAttack.COMBO_FINISHER_DAMAGE), "the finisher hits 10%% harder (%.1f vs %.1f)" % [finisher, hits[0]])
+	await get_tree().create_timer(PlayerMeleeAttack.COMBO_WINDOW + 0.2).timeout
+	melee.try_light_jab()
+	_check(melee._combo_step == 0, "a pause resets the chain")
+	while not melee.is_idle():
+		await _frames(1)
+	target.queue_free()
+	await _frames(2)
+
+func _test_bloodless() -> void:
+	for id in ["synod_warden_golem", "synod_ember_golem", "synod_aether_golem", "aurelia_fire_golem"]:
+		var e := EnemyRoster.create_unit(id)
+		_check(not e.bleeds(), "%s throws sparks, not blood" % id)
+		e.free()
+	var brigand := EnemyRoster.create_unit("unchartered_brigand")
+	_check(brigand.bleeds(), "a brigand bleeds")
+	brigand.free()

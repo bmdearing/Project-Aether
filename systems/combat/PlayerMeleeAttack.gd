@@ -18,7 +18,8 @@ class_name PlayerMeleeAttack
 ## smaller). Per user direction merging this brief into the existing
 ## architecture: the old NORMAL_COMBO_POSES/WEAPON_TYPE_COMBO_POSES combo-
 ## index cycling (repeated presses rotating through a weapon's pose list)
-## is REMOVED - the brief explicitly doesn't want a combo system. Each
+## is REMOVED - the brief explicitly doesn't want a combo system (v5.0
+## brings back a three-hit chain at the user's request: COMBO_*). Each
 ## weapon's former combo list is repurposed as a fixed per-ATTACK-TYPE
 ## pose instead (index 0 -> jab, index 1 or wraparound -> thrust) so the
 ## per-weapon pose variety already authored survives, it just no longer
@@ -137,6 +138,15 @@ const ATTACKING_MOVE_SPEED_MULTIPLIER := 0.5
 ## damage" - exact rate given, not invented.
 const COUNTER_DAMAGE_MULTIPLIER := 1.15
 
+## v5.0 (user request): jabs and thrusts chain into a three-hit combo. Hit 2
+## swings back the other way, hit 3 is the weapon's finisher (its charged
+## clip, a longer wind-up, COMBO_FINISHER_DAMAGE). Pressing attack during
+## recovery queues the next hit; COMBO_WINDOW idle seconds reset the chain.
+const COMBO_HITS := 3
+const COMBO_WINDOW := 0.5
+const COMBO_FINISHER_DAMAGE := 1.1
+const COMBO_FINISHER_WINDUP := 1.2
+
 ## Implementation Brief v3.3 Section 2 - replaces the old boolean
 ## _is_special (special vs. not) now that there are 3 distinct attack
 ## types instead of 2. "SPECIAL" naming below
@@ -154,6 +164,10 @@ var _hit_this_swing: Dictionary = {}
 var _strike_total: float = 0.0
 var _swing_side: bool = false
 var _active_hitstops: int = 0
+## Which hit of the combo the current swing is (0-2).
+var _combo_step: int = 0
+var _combo_idle: float = INF
+var _queued_attack: int = -1
 ## One charged stance release in progress (see release_stance_attack()):
 ## kind (PlayerArmRig.Attack clip), windup, motion_mult, recovery_mult, damage_type, plus
 ## optional shape (hit sweep override), on_contact (resolves the hit itself
@@ -198,26 +212,28 @@ func get_move_speed_multiplier() -> float:
 ## Implementation Brief v3.3 Section 2 - LMB tap (Player.gd's hold-time
 ## tracking releases under 0.6s), motion value x0.6, a quicker swing.
 func try_light_jab() -> void:
-	if _state != State.IDLE:
-		return
-	if _player.get_active_weapon() == null:
-		return
-	_ensure_hitbox_connected()
-	_attack_type = AttackType.JAB
-	_enter_windup()
+	_try_combo_attack(AttackType.JAB)
 
 ## Implementation Brief v3.3 Section 2 - LMB held >=0.6s then released,
 ## motion value x1.0 (identical power/timing to what the old single
 ## try_attack() always did - this is that same attack, just under its new
 ## brief-given name now that jab exists as a separate, faster option).
 func try_standard_thrust() -> void:
-	if _state != State.IDLE:
+	_try_combo_attack(AttackType.THRUST)
+
+func _try_combo_attack(type: AttackType) -> void:
+	if _state == State.RECOVERY and _stance_release.is_empty():
+		_queued_attack = type
 		return
-	if _player.get_active_weapon() == null:
+	if _state != State.IDLE or _player.get_active_weapon() == null:
 		return
+	_combo_step = (_combo_step + 1) % COMBO_HITS if _combo_idle <= COMBO_WINDOW else 0
 	_ensure_hitbox_connected()
-	_attack_type = AttackType.THRUST
+	_attack_type = type
 	_enter_windup()
+
+func is_combo_finisher() -> bool:
+	return _combo_step == COMBO_HITS - 1 and _attack_type != AttackType.CHARGED and _stance_release.is_empty()
 
 ## Called from Player._physics_process when WeaponStance.is_active and LMB
 ## is pressed (Implementation Brief v3.3 Section 2's "charged thrust" -
@@ -240,6 +256,7 @@ func try_charged_thrust() -> void:
 			_player.try_special_dash(forward.normalized())
 	_ensure_hitbox_connected()
 	_attack_type = AttackType.CHARGED
+	_combo_idle = INF
 	_enter_windup()
 
 ## The blade's own Area3D is only used for the headshot check now; swing
@@ -267,8 +284,15 @@ func _physics_process(delta: float) -> void:
 			_timer -= delta
 			if _timer <= 0.0:
 				_state = State.IDLE
+				_combo_idle = 0.0 if _attack_type != AttackType.CHARGED and _stance_release.is_empty() else INF
 				_attack_type = AttackType.THRUST
 				_stance_release = {}
+				if _queued_attack >= 0:
+					var queued := _queued_attack as AttackType
+					_queued_attack = -1
+					_try_combo_attack(queued)
+		State.IDLE:
+			_combo_idle += delta
 
 ## Plays a charged stance attack (StanceAttack's release). The arm is
 ## already wound up from the charge, so the windup is short.
@@ -336,12 +360,14 @@ func _swing_weight() -> float:
 			weight *= 0.8
 		AttackType.CHARGED:
 			weight *= 1.4
+	if is_combo_finisher():
+		weight *= 1.25
 	return weight
 
 func _windup_time() -> float:
 	if _stance_release.has("windup"):
 		return _stance_release["windup"]
-	return _effective_duration(windup_duration, MIN_WINDUP)
+	return _effective_duration(windup_duration, MIN_WINDUP) * (COMBO_FINISHER_WINDUP if is_combo_finisher() else 1.0)
 
 func _strike_time() -> float:
 	if _stance_release.has("strike"):
@@ -418,7 +444,10 @@ func _play_swing() -> void:
 			kind = PlayerArmRig.Attack.LIGHT
 		AttackType.CHARGED:
 			kind = PlayerArmRig.Attack.CHARGED
-	rig.play_attack(_stance_release.get("kind", kind), _windup_time(), _strike_time(), _recovery_time())
+	if is_combo_finisher():
+		kind = PlayerArmRig.Attack.CHARGED
+	var backswing := _combo_step == 1 and _stance_release.is_empty() and _attack_type != AttackType.CHARGED
+	rig.play_attack(_stance_release.get("kind", kind), _windup_time(), _strike_time(), _recovery_time(), backswing)
 
 ## Which way the camera leans on a strike: alternates, so successive swings rock side to side.
 func _swing_yaw() -> float:
@@ -538,6 +567,8 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	var is_counter := _target_is_attacking(target)
 	if is_counter:
 		final_damage *= COUNTER_DAMAGE_MULTIPLIER
+	if is_combo_finisher():
+		final_damage *= COMBO_FINISHER_DAMAGE
 
 	if not target.take_damage(final_damage, damage_type, false, true, false, _stance_release.get("ignore_armor", false)):
 		return  # dodged - no stance damage, riders, or hit feedback
