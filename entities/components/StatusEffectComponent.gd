@@ -205,6 +205,8 @@ func _tick_resistance_shred(delta: float) -> void:
 static var emitting_dot := false
 
 const AILMENT_IDS := ["ignite", "bleed", "chill", "shock", "electrocute", "unraveling", "pallid", "scorch", "aetherburn"]
+## Ailments that deal damage over time.
+const DAMAGING_AILMENT_IDS := ["ignite", "bleed", "aetherburn"]
 ## Ailments with no gear chance stat of their own borrow another's.
 const CHANCE_STAT_ALIAS := {"scorch": "ignite"}
 ## Ailments a plain hit can cause from "+% chance to cause X" gear alone.
@@ -626,8 +628,10 @@ static func effect_multiplier(source: Node, effect_id: String) -> float:
 		percent += sheet.get_misc_bonus("debuff_effectiveness")
 	if CURSE_IDS.has(effect_id):
 		percent += sheet.get_misc_bonus("curse_effect")
-	# Arkanus: more Ailment effect, a separate multiplier.
-	var more := 1.0 + player.unique_effects.value(UniqueEffects.MORE_AILMENT_EFFECT) / 100.0 if is_ailment(effect_id) and player.unique_effects else 1.0
+	# Arkanus: more Ailment effect, a separate multiplier. Damaging ailments
+	# take its more Ailment damage instead, so they don't get both.
+	var arkanus_effect := is_ailment(effect_id) and not DAMAGING_AILMENT_IDS.has(effect_id) and player.unique_effects != null
+	var more := 1.0 + player.unique_effects.value(UniqueEffects.MORE_AILMENT_EFFECT) / 100.0 if arkanus_effect else 1.0
 	return (1.0 + percent / 100.0) * more
 
 func get_magnitude(effect_id: String) -> float:
