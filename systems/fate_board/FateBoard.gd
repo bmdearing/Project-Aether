@@ -54,7 +54,9 @@ func _placement_failure_reason(slate: Slate, origin: Vector2i, rotation_steps: i
 			return "cell_occupied"
 		if check_rules and c == ANCHOR_CELL:
 			return "anchor_cell"
-	if not _touches_existing(cells):
+	# Restores skip this: saved order isn't placement order, so a Slate can
+	# come back before the neighbour that connects it.
+	if check_rules and not _touches_existing(cells):
 		return "not_connected"
 	if check_rules and not _tag_connected(slate, cells):
 		return "tag_not_connected"

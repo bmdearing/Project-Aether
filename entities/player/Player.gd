@@ -470,8 +470,8 @@ func _on_item_stats_changed(item: Item) -> void:
 ## each entry goes back down, which just reproduces the same array it's
 ## reading from here - harmless. A restore that legitimately can't
 ## succeed (e.g. hand-edited/corrupted save data implying overlapping
-## cells) silently drops that one placement rather than failing the
-## whole restore - place_slate() already no-ops safely on failure.
+## cells) returns that Slate to the inventory rather than failing the
+## whole restore.
 func _apply_saved_fate_board() -> void:
 	for entry in GameState.fate_board_placements:
 		if typeof(entry) != TYPE_DICTIONARY:
@@ -481,10 +481,13 @@ func _apply_saved_fate_board() -> void:
 			continue
 		var origin_raw = entry.get("origin", [0, 0])
 		var origin := Vector2i(int(origin_raw[0]), int(origin_raw[1])) if origin_raw is Array and origin_raw.size() == 2 else Vector2i.ZERO
-		fate_board.place_slate(
+		var placed := fate_board.place_slate(
 			slate, origin, int(entry.get("rotation_steps", 0)), bool(entry.get("flipped", false)),
 			str(entry.get("designated_ability_id", "")), true, int(entry.get("aether_paid", -1))
 		)
+		# Never lose a Slate the board can't take back: return it to the bag.
+		if placed == "":
+			GameState.add_to_inventory(slate)
 
 ## slate_ref is a resource_path String (hand-authored Slate) or full
 ## SlateSerializer data (a rolled drop).
