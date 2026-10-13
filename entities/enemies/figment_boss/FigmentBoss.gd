@@ -78,7 +78,7 @@ func _ready() -> void:
 	display_name = profile["name"]
 	move_speed = profile["move_speed"]
 	stop_distance = profile["stop_distance"]
-	health.max_health = BOSS_HEALTH * AreaLevel.health_scale(level) * (1.0 + _boss_mod("boss_life"))
+	health.max_health = BOSS_HEALTH * AreaLevel.health_scale(level, AreaLevel.current_tier()) * (1.0 + _boss_mod("boss_life"))
 	health.current_health = health.max_health
 	var reward_mult := 1.0 + FigmentTree.effect("boss_reward") / 100.0
 	xp_reward = BOSS_XP_REWARD * reward_mult
@@ -86,7 +86,7 @@ func _ready() -> void:
 	var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
 	if melee:
 		melee.damage_type = profile["damage_type"]
-		melee.damage_amount *= AreaLevel.damage_scale(level)  # the scene's value is level 1
+		melee.damage_amount *= AreaLevel.damage_scale(level, AreaLevel.current_tier())  # the scene's value is level 1
 	if profile.get("ranged", false):
 		_add_ranged_attack(profile["damage_type"])
 	_install_model(definition_res.model_scene, definition_res.animation_set, definition_res.scale_modifier * profile["scale"], definition_res.model_yaw_offset)
@@ -99,7 +99,7 @@ func _add_ranged_attack(damage_type: int) -> void:
 	ranged.min_range = 3.0
 	ranged.windup_duration = 0.9
 	ranged.cooldown_duration = 2.2
-	ranged.damage_amount = RANGED_DAMAGE * AreaLevel.damage_scale(level)
+	ranged.damage_amount = RANGED_DAMAGE * AreaLevel.damage_scale(level, AreaLevel.current_tier())
 	ranged.damage_type = damage_type
 	ranged.projectile_speed = 16.0
 	add_child(ranged)

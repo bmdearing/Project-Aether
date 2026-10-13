@@ -9,7 +9,7 @@ const ABILITY_DIR := "res://data/abilities/instances/"
 var _checks := 0
 var _failures := 0
 var _finished := 0
-const TEST_COUNT := 18
+const TEST_COUNT := 19
 
 var _arena: Node3D
 var _player: Player
@@ -53,6 +53,7 @@ func _run() -> void:
 	await _test_scorch()
 	await _test_shatter()
 	await _test_every_spell_casts()
+	await _test_arkanus()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("spell tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)
@@ -452,4 +453,37 @@ func _test_shatter() -> void:
 	_check(_lost(frozen) > _lost(chilled) * 2.0, "a broken Freeze hits harder than Chill (%.0f vs %.0f)" % [_lost(frozen), _lost(chilled)])
 	_check(not many.status_effects.has_effect("ignite") and not many.status_effects.has_effect("unraveling") and not many.status_effects.has_effect("shock"), "every ailment is removed")
 	_check(types.has(Constants.DamageType.FIRE) and types.has(Constants.DamageType.ENTROPIC) and types.has(Constants.DamageType.LIGHTNING), "each burst uses its ailment's element (%s)" % [types.keys()])
+	_finished += 1
+
+## Arkanus' spells land with their effects: Stone Skin's stones, Water's
+## drips and roots, Fire's Forbidden Flame on Entangled enemies, Lightning
+## shattering a Freeze.
+func _test_arkanus() -> void:
+	await _reset_effects()
+	_player.global_position = Vector3(0, 0, 30)
+	var near := _dummy(Vector3(0, 0, 28))
+	var side := _dummy(Vector3(1.5, 0, 28.5))
+	await _frames(2)
+	var spell := func(id: String) -> Ability: return load("res://data/abilities/arkanus/%s.tres" % id) as Ability
+	_cast._cast(spell.call("elemental_earth"), _player.global_position)
+	await _frames(2)
+	_check(_player.status_effects.has_effect("stone_skin") and _player.has_node("ArkanusStoneSkin"), "Elemental Earth grants Stone Skin with its stones")
+	_cast._cast(spell.call("elemental_water"), _player.global_position)
+	await _frames(2)
+	_check(near.status_effects.has_effect("drenched") and near.status_effects.has_effect("entangle"), "Elemental Water Drenches and, under Stone Skin, Entangles")
+	_check(near.has_node("ArkanusDrip") and side.has_node("ArkanusDrip"), "Drenched enemies drip")
+	var before := _lost(near)
+	_cast._cast(spell.call("elemental_fire"), _player.global_position)
+	await _wait(0.4)
+	_check(_lost(near) > before, "Elemental Fire's fireballs hit")
+	_check(near.has_node("ArkanusFlame"), "an Entangled enemy hit by a fireball burns with Forbidden Flame")
+	for i in StatusEffectComponent.CHILL_STACKS_TO_FREEZE + 1:
+		near.status_effects.apply_effect("chill", null)
+	_check(near.status_effects.has_effect("freeze"), "the target is Frozen")
+	before = _lost(near)
+	_cast._cast(spell.call("elemental_lightning"), _player.global_position)
+	await _frames(2)
+	_check(_lost(near) > before and not near.status_effects.has_effect("freeze"), "Elemental Lightning strikes and shatters the Freeze")
+	await _wait(ForbiddenFire.DURATION + 0.5)
+	_check(is_instance_valid(near) and not near.has_node("ArkanusFlame"), "Forbidden Flame's visual ends with the burn")
 	_finished += 1

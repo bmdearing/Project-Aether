@@ -142,7 +142,8 @@ func _physics_process(delta: float) -> void:
 		_attack_timer = BASE_ATTACK_INTERVAL / (1.0 + player.stat_sheet.get_misc_bonus("minion_attack_speed") / 100.0)
 		_strike(_target)
 
-func _valid(e: Enemy) -> bool:
+## Untyped: a freed target can't be passed as an Enemy.
+func _valid(e) -> bool:
 	return is_instance_valid(e) and e.health.is_alive() and e.global_position.distance_to(player.global_position) <= ability.get_radius(player.stat_sheet) + 5.0
 
 func _nearest_enemy() -> Enemy:

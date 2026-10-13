@@ -1685,8 +1685,6 @@ const DRENCH_SECONDS := 4.0
 const WATER_ENTANGLE_SECONDS := 2.5
 ## Elemental Earth: Stone Skin's duration (Player.STONE_SKIN_* for its effect).
 const STONE_SKIN_SECONDS := 5.0
-const WATER_COLOR := Color(0.35, 0.65, 1.0)
-const EARTH_COLOR := Color(0.7, 0.55, 0.35)
 
 func _cast_arkanus(ability: Ability, damage_multiplier: float) -> void:
 	match ability.ability_id:
@@ -1712,18 +1710,13 @@ func _elemental_lightning(ability: Ability, damage_multiplier: float) -> void:
 	var hit: Dictionary = ability._base_hit(randf_range(r.x, r.y), sheet)
 	var crit: bool = frozen or randf() < float(hit["crit_chance"])
 	var damage: float = hit["base_damage"] * damage_multiplier * (float(hit["crit_damage_multiplier"]) if crit else 1.0)
-	var at := _body_centre(target)
-	var scene := _player.get_tree().current_scene
 	if frozen:
 		damage *= SHATTER_MORE
 		statuses.remove_effect("freeze")
-		SpellFx.shards(scene, at, Color(0.8, 0.95, 1.0), 26, Vector2(4, 8), Vector2(0.08, 0.2), 0.8, 180.0)
-	if statuses.has_effect("drenched"):
+	var drenched := statuses.has_effect("drenched")
+	if drenched:
 		damage *= DRENCHED_MORE
-	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(Constants.DamageType.LIGHTNING, Color.WHITE)
-	LightningArc.spawn(scene, at + Vector3.UP * 12.0, at, color, 1.6)
-	SpellFx.flash(scene, at, color, 3.0, 0.25)
-	SpellFx.light_pop(scene, at + Vector3.UP, color, 4.0, 8.0, 0.4)
+	ArkanusFx.lightning(_player.get_tree().current_scene, _body_centre(target), target.global_position, frozen, drenched)
 	target.take_damage(damage, ability.damage_type, true)
 	if target.stance:
 		target.stance.apply_attack_stance_damage(damage, ability.damage_type)
@@ -1751,24 +1744,25 @@ func _elemental_fire(ability: Ability, damage_multiplier: float) -> void:
 		ball.on_hit = func(enemy: Enemy, amount: float): _fireball_hit(ability, enemy, amount)
 		scene.add_child(ball)
 		ball.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), origin)
-	SpellFx.flash(scene, origin + forward, Constants.DAMAGE_TYPE_COLOR.get(Constants.DamageType.FIRE, Color.ORANGE), 1.5, 0.15)
+		ArkanusFx.dress_fireball(ball)
+	ArkanusFx.fire_cast(scene, origin, forward)
 
 func _fireball_hit(ability: Ability, enemy: Enemy, amount: float) -> void:
 	if not is_instance_valid(enemy):
 		return
+	var scene := _player.get_tree().current_scene
+	var centre := _body_centre(enemy)
+	ArkanusFx.fireball_hit(scene, centre)
 	ability.apply_statuses(enemy, _player, amount)
 	if not enemy.status_effects.has_effect("entangle"):
 		return
-	var centre := _body_centre(enemy)
 	var radius := ability.get_radius(_player.stat_sheet)
-	var scene := _player.get_tree().current_scene
-	SpellFx.burst(scene, centre, Color(0.35, 0.05, 0.5), 40, Vector2(4, 9), 0.6, Vector2(0.1, 0.25))
-	SpellFx.shockwave(scene, enemy.global_position, radius, Color(0.6, 0.15, 0.8), 0.35)
-	SpellFx.light_pop(scene, centre, Color(0.6, 0.15, 0.8), 4.0, radius * 2.0, 0.4)
+	ArkanusFx.forbidden_blast(scene, centre, enemy.global_position, radius)
 	for other in _enemies_by_distance(enemy.global_position, radius):
 		other.take_damage(amount, Constants.DamageType.FIRE, true)
 		EventBus.damage_dealt.emit(_player, other, amount, Constants.DamageType.FIRE, false, false)
 		other.status_effects.apply_forbidden_flame(_player, amount * ForbiddenFire.DAMAGE_SHARE, ForbiddenFire.DURATION)
+		ArkanusFx.enemy_flame(other, ForbiddenFire.DURATION)
 
 ## A cold nova around you: hits, Chills and Drenches; with Stone Skin it also
 ## Entangles everything it reaches.
@@ -1777,17 +1771,16 @@ func _elemental_water(ability: Ability, damage_multiplier: float) -> void:
 	var centre := _player.global_position
 	var scene := _player.get_tree().current_scene
 	var entangle := _player.status_effects.has_effect("stone_skin")
-	SpellFx.shockwave(scene, centre + Vector3.UP * 0.05, radius, WATER_COLOR, 0.4)
-	SpellFx.shards(scene, centre + Vector3.UP * 0.5, WATER_COLOR, 30, Vector2(5, 9), Vector2(0.06, 0.16), 0.6, 180.0)
+	ArkanusFx.water(scene, centre, radius, entangle)
 	for enemy in _enemies_by_distance(centre, radius):
 		_hit_enemy(ability, enemy, damage_multiplier, true, Callable())
 		enemy.status_effects.apply_timed_effect("drenched", DRENCH_SECONDS)
+		ArkanusFx.drench(enemy, DRENCH_SECONDS)
 		if entangle:
 			enemy.status_effects.apply_timed_effect("entangle", WATER_ENTANGLE_SECONDS)
+			AureliaRoots.bind(enemy, WATER_ENTANGLE_SECONDS)
 
 ## Stone Skin for STONE_SKIN_SECONDS (Player reads it in _take_damage_single()).
 func _elemental_earth() -> void:
 	_player.status_effects.apply_timed_effect("stone_skin", STONE_SKIN_SECONDS)
-	var scene := _player.get_tree().current_scene
-	SpellFx.burst(scene, _player.global_position + Vector3.UP * 0.6, EARTH_COLOR, 36, Vector2(2, 5), 0.6, Vector2(0.1, 0.22), 180.0, -9.0)
-	SpellFx.shockwave(scene, _player.global_position + Vector3.UP * 0.05, 2.5, EARTH_COLOR, 0.35)
+	ArkanusFx.stone_skin(_player, STONE_SKIN_SECONDS)

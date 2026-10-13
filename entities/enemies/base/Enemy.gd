@@ -172,14 +172,14 @@ func _fit_hitbox_reach(reach: float) -> void:
 	shape_node.shape = sphere
 
 ## Level curve: Constants.MOB_BASE_* at level 1 for the definition's
-## archetype_category, compounding per level (AreaLevel.HEALTH_GROWTH/DAMAGE_GROWTH).
+## archetype_category, compounding per level and Figment Tier (AreaLevel).
 func _level_scaled_health(at_level: int) -> float:
 	var base_h: float = Constants.MOB_BASE_HEALTH.get(definition.archetype_category, 55.0)
-	return base_h * AreaLevel.health_scale(at_level)
+	return base_h * AreaLevel.health_scale(at_level, AreaLevel.current_tier())
 
 func _level_scaled_damage(at_level: int) -> float:
 	var base_d: float = Constants.MOB_BASE_DAMAGE.get(definition.archetype_category, 10.0)
-	return base_d * AreaLevel.damage_scale(at_level)
+	return base_d * AreaLevel.damage_scale(at_level, AreaLevel.current_tier())
 
 ## Refills the Ward pool to definition.ward_percent of current max health.
 ## Called whenever max health is (re)derived, so it tracks tier/rarity scaling.

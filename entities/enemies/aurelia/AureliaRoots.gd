@@ -37,17 +37,17 @@ static func send(parent: Node, origin: Vector3, dir: Vector3, hit: float, from: 
 	roots.global_position = origin
 	return roots
 
-## A ring of roots clamped round an Entangled player's feet for `seconds`.
-static func bind(p: Player, seconds: float) -> void:
+## A ring of roots clamped round an Entangled target's feet for `seconds`.
+static func bind(target: Node3D, seconds: float) -> void:
 	var ring := Node3D.new()
-	p.get_parent().add_child(ring)
-	ring.global_position = p.global_position
+	target.get_parent().add_child(ring)
+	ring.global_position = target.global_position
 	for i in 7:
 		var a := TAU * i / 7.0 + randf_range(-0.2, 0.2)
 		var spike := _spike(1.0, 1.4)
 		ring.add_child(spike)
 		spike.position = Vector3(cos(a), 0, sin(a)) * 0.55
-		# Leaning in over the player.
+		# Leaning in over the target.
 		spike.rotation = Vector3(sin(a) * 0.5, 0.0, -cos(a) * 0.5)
 		_grow(spike, seconds)
 	SpellFx.burst(ring, ring.global_position + Vector3.UP * 0.3, MOSS, 16, Vector2(1, 3), 0.6, Vector2(0.06, 0.14), 70.0, -4.0)

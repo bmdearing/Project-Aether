@@ -811,8 +811,10 @@ never feeds monster stats (it gates equipping and the XP gap). Depths 1-23
 (Fragmented Reality's levelling stage) are Area Level 1-67, Tier N is
 68 + N (69-89), Pinnacles are 90. Monster level = Area Level for every unit
 (flattened); health and damage compound per level (`HEALTH_GROWTH` 1.037,
-`DAMAGE_GROWTH` 1.021, tuned with `tests/balance/probe_power_curve`), with
-Figment mods, rarity and boss mods on top. Drops use Area Level + rank
+`DAMAGE_GROWTH` 1.035, tuned with `tests/balance/probe_power_curve`), and
+per Figment Tier on top (`TIER_HEALTH_GROWTH` 1.1, `TIER_DAMAGE_GROWTH`
+1.04: x7.4 Life, x2.3 damage at T21; Depths and Pinnacles don't ramp; see
+`tests/balance/probe_map_mobs`), with Figment mods, rarity and boss mods on top. Drops use Area Level + rank
 bonus as item level. XP: credited at the player's level times
 `xp_multiplier()` (zone 7 + 10% of level: below tapers to 0, above up to
 +20%). The levelling stage: `FigmentItem.depth`, `FigmentRoller.roll_depth()`,

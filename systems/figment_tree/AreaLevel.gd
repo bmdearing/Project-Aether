@@ -23,6 +23,10 @@ const PINNACLE := 90
 ## Block, Ward, parrying), not a bigger pool.
 const HEALTH_GROWTH := 1.037
 const DAMAGE_GROWTH := 1.035
+## Per Figment Tier on top (x7.4 Life, x2.3 damage at T21), for crafted
+## endgame builds; Depths and Pinnacles don't ramp (tests/balance/probe_map_mobs).
+const TIER_HEALTH_GROWTH := 1.1
+const TIER_DAMAGE_GROWTH := 1.04
 const XP_GROWTH := 1.165
 const GOLD_GROWTH := 1.02
 
@@ -49,11 +53,16 @@ static func current() -> int:
 		return PINNACLE
 	return 0
 
-static func health_scale(level: int) -> float:
-	return pow(HEALTH_GROWTH, maxi(level, 1) - 1)
+## The active Figment's Tier, or 0 (a Depth, a Pinnacle, the Hub).
+static func current_tier() -> int:
+	var figment: FigmentItem = GameState.active_map
+	return clampi(figment.tier, 1, FigmentMods.MAX_TIER) if figment and figment.depth <= 0 else 0
 
-static func damage_scale(level: int) -> float:
-	return pow(DAMAGE_GROWTH, maxi(level, 1) - 1)
+static func health_scale(level: int, tier: int = 0) -> float:
+	return pow(HEALTH_GROWTH, maxi(level, 1) - 1) * pow(TIER_HEALTH_GROWTH, tier)
+
+static func damage_scale(level: int, tier: int = 0) -> float:
+	return pow(DAMAGE_GROWTH, maxi(level, 1) - 1) * pow(TIER_DAMAGE_GROWTH, tier)
 
 ## Monsters further above you than your XP zone hit harder still: x1.04 per
 ## level past it. A level 14 takes ~12% of their Life from a standard hit 20
