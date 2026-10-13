@@ -514,6 +514,7 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	if is_primary and _player.parry_handler and _player.parry_handler.can_riposte(target):
 		var riposte_is_critical_spot := target.is_critical_spot_aimed(_player.camera.global_position, -_player.camera.global_transform.basis.z)
 		_player.parry_handler.execute_riposte(target, weapon, motion_value, damage_type)
+		BloodFx.visceral(target, _blow_direction(target))
 		_react_to_hit(target, 1.5)
 		_trigger_hit_feedback(true, false, not target.health.is_alive())
 		EventBus.hit_landed.emit(true, riposte_is_critical_spot, not target.health.is_alive())
@@ -541,6 +542,7 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	if not target.take_damage(final_damage, damage_type, false, true, false, _stance_release.get("ignore_armor", false)):
 		return  # dodged - no stance damage, riders, or hit feedback
 	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_flesh), target.global_position, -2.0)
+	BloodFx.hit(target, _blow_direction(target), _swing_weight() * damage_scale * (1.5 if is_critical or is_critical_spot else 1.0), not target.health.is_alive())
 	if is_critical:
 		AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_critical), target.global_position, -4.0)
 	if target.stance:
@@ -559,6 +561,11 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 	_react_to_hit(target, damage_scale)
 	if is_primary:
 		_trigger_hit_feedback(false, is_critical or is_critical_spot, not target.health.is_alive())
+
+func _blow_direction(target: Enemy) -> Vector3:
+	var dir := target.global_position - _player.global_position
+	dir.y = 0.0
+	return dir.normalized() if dir.length() > 0.01 else -_player.global_transform.basis.z
 
 func _react_to_hit(target: Enemy, scale: float) -> void:
 	target.flash_hit()

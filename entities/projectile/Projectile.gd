@@ -103,6 +103,8 @@ func _hit_enemy(enemy: Enemy, aim_dir: Vector3 = Vector3.ZERO) -> void:
 		on_hit.call(enemy, final_amount)
 	if source is Player:
 		EventBus.hit_landed.emit(is_critical, is_critical_spot, not enemy.health.is_alive())
+		if not is_spell_projectile:
+			BloodFx.hit(enemy, -global_transform.basis.z, 0.6 * (1.5 if is_critical_spot else 1.0), not enemy.health.is_alive())
 
 func _hit_player(player: Player) -> void:
 	if player == null:

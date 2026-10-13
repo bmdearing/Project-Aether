@@ -481,6 +481,13 @@ func interrupt_attack() -> void:
 const HIT_FLASH_SEC := 0.09
 static var _hit_flash_material: StandardMaterial3D
 
+## Constructs throw sparks and grit when hit instead of blood (BloodFx).
+const BLOODLESS := ["golem", "element_orb", "sand_globe"]
+
+func bleeds() -> bool:
+	var id := definition.resource_path.get_file() if definition else ""
+	return not BLOODLESS.any(func(word: String) -> bool: return id.contains(word))
+
 ## Brief white overlay on every mesh of the model; runs on real time so hitstop doesn't stretch it.
 func flash_hit() -> void:
 	var root: Node = _model_root if _model_root else get_node_or_null("MeshInstance3D")
