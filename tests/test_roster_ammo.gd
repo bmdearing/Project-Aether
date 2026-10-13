@@ -147,8 +147,8 @@ func _test_tilesets() -> void:
 			continue
 		for tex in ["floor_albedo", "floor_normal", "floor_orm", "wall_albedo", "wall_normal", "wall_orm"]:
 			_check(style.get(tex) != null, "%s %s set" % [id, tex])
-		if style.family == "city":
-			# City styles dress streets with buildings instead of arches and wall props.
+		if style.family == "city" or style.layout == "streets":
+			# City styles and The Unbuilt line streets with buildings instead of arches and wall props.
 			_check(not style.buildings.is_empty() and not style.clusters.is_empty(), "%s has buildings and clusters" % id)
 		else:
 			_check(not style.archways.is_empty() and not style.wall_props.is_empty() and not style.clusters.is_empty(), "%s has arches, wall props and clusters" % id)
@@ -175,9 +175,15 @@ func _test_tilesets() -> void:
 		root.add_child(map)
 		await _frames(2)
 		_check(map.tileset != null and map.tileset.id == id, "map built in style %s" % id)
+		# WC3 models, or a primitive kit scene (the Pale) from the style's own lists.
+		var kit := {}
+		for list in [map.tileset.archways, map.tileset.wall_props, map.tileset.floor_props, map.tileset.clusters, map.tileset.buildings, map.tileset.landmarks, map.tileset.plaza_props]:
+			for scene in list:
+				if scene:
+					kit[scene.resource_path] = true
 		var doodads := 0
 		for c in map.get_children():
-			if c.get_script() == mdx_model_script:
+			if c.get_script() == mdx_model_script or kit.has(c.scene_file_path):
 				doodads += 1
 		_check(doodads >= map.graph.rooms.size() * 2, "%s map dressed (%d doodads, %d rooms)" % [id, doodads, map.graph.rooms.size()])
 		_check(get_nodes_in_group("enemy").size() >= map.graph.rooms.size(), "%s map spawned enemies" % id)

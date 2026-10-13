@@ -806,7 +806,20 @@ func _spawn_player() -> void:
 	add_child(player)
 	var spawn := _cell_to_world(graph.start_cell) + Vector3(0, 1.0, 0)
 	player.global_position = spawn
+	player.rotation.y = _spawn_yaw()
 	last_player_spawn = spawn
+
+## Faces the start room's way out that leads toward the Vault, not a wall.
+func _spawn_yaw() -> float:
+	var start: MapGraph.RoomData = graph.rooms.get(graph.start_cell)
+	if start == null or start.connections.is_empty():
+		return 0.0
+	var best: Vector2i = start.connections[0]
+	for c in start.connections:
+		if Vector2(c - graph.vault_cell).length() < Vector2(best - graph.vault_cell).length():
+			best = c
+	var dir := _cell_to_world(best) - _cell_to_world(graph.start_cell)
+	return atan2(-dir.x, -dir.z)
 
 ## Packs stand in a ring this far from their own center.
 const PACK_RING_RADIUS := 1.8

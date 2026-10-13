@@ -35,12 +35,14 @@ const WEATHER_LOOK := {
 const DAY_LENGTH := 900.0
 ## Time of day: 0 midnight, 0.25 sunrise, 0.5 noon, 0.75 sunset.
 const SUNRISE := 0.25
-const MOON_ENERGY := 0.22
+const MOON_ENERGY := 0.28
 const MOON_COLOR := Color(0.55, 0.65, 0.95)
 const DUSK_COLOR := Color(1.0, 0.5, 0.25)
 const NIGHT_TINT := Color(0.16, 0.2, 0.34)
 ## Ambient light at midnight, as a share of the style's daytime ambient.
-const NIGHT_AMBIENT := 0.45
+const NIGHT_AMBIENT := 0.58
+## Weather fog thins to this share at midnight: dark fog reads as a wall.
+const NIGHT_FOG := 0.55
 const SUN_TILT := 0.35
 const THUNDER_INTERVAL := Vector2(10.0, 24.0)
 ## Precipitation falls in a box this wide around the camera, from this high.
@@ -197,7 +199,7 @@ func _apply() -> void:
 	_env.ambient_light_energy = _style.ambient_energy * lerpf(NIGHT_AMBIENT, 1.0, day) * lerpf(1.0, 0.85, tint.a) + _flash
 	_env.fog_enabled = true
 	_env.fog_light_color = sky
-	_env.fog_density = minf(_base_fog * float(look["fog"]), MAX_FOG_DENSITY)
+	_env.fog_density = minf(_base_fog * float(look["fog"]), MAX_FOG_DENSITY) * lerpf(NIGHT_FOG, 1.0, day)
 
 ## ---- Storms ---------------------------------------------------------------
 
