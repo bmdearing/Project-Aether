@@ -12,10 +12,13 @@ class_name VendorScreen
 ##   buy_price: Callable(content) -> int - Gold to buy one
 ##   sell_price: Callable(content) -> int - Gold paid for it; 0 = won't buy it
 ##   on_bought: Callable(content) (optional) - after a purchase
+##   infinite: bool (optional) - buying never draws the stock down (counts hidden);
+##     shift + right-click buys INFINITE_BULK of a currency at once
 ##   action: {label, cost, on_action} (optional) - one button under the stock (e.g. Reroll)
 ##   notice: String (optional) - a line under the Gold total
 
 const STOCK_CELL := 36
+const INFINITE_BULK := 10
 
 var config: Dictionary = {}
 var _is_open := false
@@ -23,6 +26,7 @@ var _title: Label
 var _gold: Label
 var _notice: Label
 var _hint: Label
+var _stock_label: Label
 var _stock_view: InventoryGridView
 var _inventory_view: InventoryGridView
 var _action_button: Button
@@ -57,7 +61,10 @@ func open_with(p_config: Dictionary) -> void:
 	config = p_config
 	_buyback.clear()
 	_title.text = config.get("title", "Shop")
+	var infinite: bool = config.get("infinite", false)
+	_stock_view.hide_counts = infinite
 	_stock_view.set_inventory(config["stock"])
+	_stock_label.text = "For sale - right-click to buy%s" % (", shift + right-click for %d" % INFINITE_BULK if infinite else "")
 	_inventory_view.set_inventory(GameState.inventory)
 	set_notice(config.get("notice", ""))
 	_set_hint("")
@@ -108,15 +115,20 @@ func price_to_sell(content) -> int:
 func buy(entry: GridInventory.Entry) -> bool:
 	var stock: GridInventory = config["stock"]
 	var content = entry.content
-	var price := price_to_buy(content)
+	var infinite: bool = config.get("infinite", false)
+	var amount := INFINITE_BULK if infinite and entry.is_currency() and Input.is_key_pressed(KEY_SHIFT) else 1
+	var price := price_to_buy(content) * amount
 	if GameState.gold < price:
 		_set_hint("Need %d Gold" % price)
 		return false
 	if entry.is_currency():
-		if not GameState.add_to_inventory(content, 1):
+		var left := GameState.inventory.add(content, amount)
+		if left == amount:
 			_set_hint("No room in your inventory")
 			return false
-		stock.remove_currency(content, 1)
+		price -= price_to_buy(content) * left
+		if not infinite:
+			stock.remove_currency(content, amount - left)
 	else:
 		if not GameState.add_to_inventory(content):
 			_set_hint("No room in your inventory")
@@ -186,7 +198,8 @@ func _build() -> void:
 	var left := VBoxContainer.new()
 	left.add_theme_constant_override("separation", 6)
 	columns.add_child(left)
-	left.add_child(_label("For sale - right-click to buy", 15, AetherStyle.TEXT))
+	_stock_label = _label("For sale - right-click to buy", 15, AetherStyle.TEXT)
+	left.add_child(_stock_label)
 	_stock_view = InventoryGridView.new()
 	_stock_view.cell_size = STOCK_CELL
 	_stock_view.allow_drag = false

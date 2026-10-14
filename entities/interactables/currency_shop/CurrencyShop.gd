@@ -1,17 +1,15 @@
 extends Node3D
 class_name CurrencyShop
-## Hub interactable (proximity + E, like GearShop) opening a VendorScreen:
-## every Orb and crafting consumable at PRICE Gold each, unlimited (a stack
-## of each, refilled on every purchase). "Buy BULK of each" sends them to the
-## stash's Currency tab, or the inventory when it's full.
+## Hub interactable (proximity + E, like GearShop) opening a VendorScreen with
+## infinite stock: every Orb, crafting consumable, Brand and Edict at PRICE
+## Gold each (shift + right-click buys VendorScreen.INFINITE_BULK).
 
 const PRICE := 1
-const BULK := 10
 
 @onready var prompt_label: Label3D = $PromptLabel
 
 var _player_in_range: bool = false
-var _stock := GridInventory.new(8, 2)
+var _stock := GridInventory.new(10, 5)
 
 func _ready() -> void:
 	var area: Area3D = $ProximityArea
@@ -19,21 +17,19 @@ func _ready() -> void:
 	area.body_exited.connect(_on_body_exited)
 	prompt_label.visible = false
 	for id in currency_ids():
-		_stock.add(id, Constants.MAX_STACK)
+		_stock.add(id, 1)
 
 static func currency_ids() -> Array[StringName]:
 	var ids: Array[StringName] = Constants.ORB_IDS.duplicate()
 	for id in Constants.CRAFTING_CONSUMABLE_IDS:
 		ids.append(StringName(id))
+	for dir in [CraftingResolver.BRANDS_DIR, CraftingResolver.EDICTS_DIR]:
+		var defs: Array[StringName] = []
+		for def in CraftingResolver._load_dir(dir):
+			defs.append(def.id)
+		defs.sort()
+		ids.append_array(defs)
 	return ids
-
-## Adds `count` of `id`; returns how many didn't fit anywhere.
-static func deliver(id: StringName, count: int) -> int:
-	var tab := GameState.stash.get_tab(GridInventory.Accepts.CURRENCY)
-	var left := tab.add(id, count) if tab else count
-	if left > 0:
-		left = GameState.inventory.add(id, left)
-	return left
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _player_in_range and event.is_action_pressed("interact") and not get_tree().paused:
@@ -41,18 +37,12 @@ func _unhandled_input(event: InputEvent) -> void:
 		open()
 
 func open() -> VendorScreen:
-	var ids := currency_ids()
 	return VendorScreen.open_for(get_tree(), {
 		"title": "Currency Exchange",
 		"stock": _stock,
+		"infinite": true,
 		"buy_price": func(_content) -> int: return PRICE,
 		"sell_price": func(_content) -> int: return 0,
-		"on_bought": func(content) -> void: _stock.add(content, 1),
-		"action": {"label": "Buy %d of each" % BULK, "cost": PRICE * BULK * ids.size(), "on_action": func() -> void:
-			var refund := 0
-			for id in ids:
-				refund += deliver(id, BULK) * PRICE
-			GameState.gold += refund},
 	})
 
 func _on_body_entered(body: Node3D) -> void:

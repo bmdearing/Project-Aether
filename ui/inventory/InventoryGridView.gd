@@ -31,6 +31,8 @@ var craft_preview: Callable
 ## Optional (entry) -> String: a price drawn on the block's bottom edge (shops).
 var price_text: Callable
 ## False on a shop's stock: its entries can't be dragged out, nor anything dropped in.
+## Infinite vendor stock: currency names without a count.
+var hide_counts := false
 var allow_drag := true
 var allow_drop := true
 var _blocks: Dictionary = {}  # GridInventory.Entry -> EntryBlock
@@ -99,7 +101,7 @@ func _update_block(block: EntryBlock) -> void:
 	var entry := block.entry
 	block.position = Vector2(entry.position) * cell_size + Vector2.ONE
 	block.size = Vector2(entry.size) * cell_size - Vector2(2, 2)
-	block.tooltip_text = describe(entry)
+	block.tooltip_text = describe(entry, not hide_counts)
 	var border: Color = highlight.call(entry) if highlight.is_valid() else Color.TRANSPARENT
 	_style(block, _color_for(entry), border)
 	block.item_icon.content = entry.content
@@ -108,9 +110,9 @@ func _update_block(block: EntryBlock) -> void:
 	block.mark_overlay.queue_redraw()
 	block.modulate.a = 0.22 if dimmed.is_valid() and dimmed.call(entry) else 1.0
 
-static func describe(entry: GridInventory.Entry) -> String:
+static func describe(entry: GridInventory.Entry, show_count: bool = true) -> String:
 	if entry.is_currency():
-		var text := "%s x%d" % [CurrencyText.name_of(entry.content), entry.count]
+		var text := "%s x%d" % [CurrencyText.name_of(entry.content), entry.count] if show_count else CurrencyText.name_of(entry.content)
 		var desc := CurrencyText.description_of(entry.content)
 		return text if desc == "" else "%s\n%s" % [text, desc]
 	var lines: Array[String] = [entry.content.display_name]
