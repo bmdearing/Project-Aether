@@ -620,7 +620,7 @@ func _dress_interactables() -> void:
 		_omni(engine.global_position + Vector3(0, 2.0, 0), Color(0.75, 0.55, 1.0), 1.6, 6.0)
 
 func _dress(target: Node3D, model: String, height: float) -> Node3D:
-	if target == null:
+	if target == null or target.is_queued_for_deletion():
 		return null
 	for mi in target.find_children("*", "MeshInstance3D", true, false):
 		if mi.get_parent() is StaticBody3D:

@@ -44,7 +44,7 @@ func _ready() -> void:
 ## GameState.initialize_standalone()'s player_level so standalone-shop
 ## items are never above what the player can actually equip.
 const MIN_SHOP_ITEM_LEVEL := 5
-## Uniques/Mythics always in stock at TEST_STOCK_COST, for testing them (UniqueCatalog ids).
+## Uniques/Mythics always in stock at TEST_STOCK_COST when Dev.enabled (UniqueCatalog ids).
 const TEST_STOCK := ["arkanus"]
 const TEST_STOCK_COST := 1
 
@@ -55,7 +55,7 @@ func _roll_stock() -> void:
 		var item := ItemRoller.roll(shop_item_level, 1.0)
 		if item:
 			_stock.add(item)
-	for id in TEST_STOCK:
+	for id in (TEST_STOCK if Dev.enabled else []):
 		for def in UniqueCatalog.DEFS:
 			if def["id"] == id:
 				_stock.add(UniqueRoller.build(def, shop_item_level))

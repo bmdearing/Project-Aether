@@ -12,6 +12,9 @@ var _player_in_range: bool = false
 var _stock := GridInventory.new(10, 5)
 
 func _ready() -> void:
+	if not Dev.enabled:
+		queue_free()
+		return
 	var area: Area3D = $ProximityArea
 	area.body_entered.connect(_on_body_entered)
 	area.body_exited.connect(_on_body_exited)

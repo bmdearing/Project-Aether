@@ -66,7 +66,8 @@ func _build_row(n: int) -> Control:
 	row.add_child(label)
 	if _new_mode:
 		_add_button(row, "New Character", func(): _confirm_overwrite(n, summary, func(): new_character.emit(n)))
-		_add_button(row, "Level 90 Test", func(): _confirm_overwrite(n, summary, func(): test_character.emit(n)))
+		if Dev.enabled:
+			_add_button(row, "Level 90 Test", func(): _confirm_overwrite(n, summary, func(): test_character.emit(n)))
 	else:
 		var play := _add_button(row, "Play", func(): play_slot.emit(n))
 		play.disabled = summary.is_empty()

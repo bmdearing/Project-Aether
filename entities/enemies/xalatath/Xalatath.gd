@@ -69,7 +69,7 @@ func _ready() -> void:
 	EventBus.damage_dealt.connect(_on_damage_dealt)
 
 func pinnacle_life() -> float:
-	return 20_000_000.0  # testing; design value 62M
+	return 20_000_000.0 if Dev.enabled else 62_000_000.0
 
 func abilities() -> Array:
 	var entropic := Constants.DamageType.ENTROPIC
