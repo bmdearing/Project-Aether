@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SoundLibrary" load_steps=139 format=3]
+[gd_resource type="Resource" script_class="SoundLibrary" load_steps=140 format=3]
 
 [ext_resource type="Script" path="res://data/sound/SoundLibrary.gd" id="1"]
 [ext_resource type="AudioStream" path="res://assets/sfx/weapon/pistol_shot_01.ogg" id="2"]
@@ -137,6 +137,7 @@
 [ext_resource type="AudioStream" path="res://assets/sfx/wc3/item_drop_01.ogg" id="w78"]
 [ext_resource type="AudioStream" path="res://assets/sfx/wc3/item_drop_02.ogg" id="w79"]
 [ext_resource type="AudioStream" path="res://assets/sfx/wc3/craft_apply.ogg" id="w80"]
+[ext_resource type="AudioStream" path="res://assets/sfx/wc3/level_up.ogg" id="lvlup"]
 [ext_resource type="AudioStream" path="res://assets/sfx/wc3/ui_click.ogg" id="w81"]
 
 [resource]
@@ -180,6 +181,7 @@ lever_cycle = ExtResource("135")
 item_pickup = ExtResource("w77")
 item_equip = ExtResource("136")
 brand_use = ExtResource("137")
+level_up = ExtResource("lvlup")
 craft_apply = ExtResource("w80")
 ui_click = ExtResource("w81")
 boss_beam_start = ExtResource("w40")

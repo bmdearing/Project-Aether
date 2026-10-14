@@ -407,6 +407,7 @@ func _on_leveled_up(new_level: int) -> void:
 	_apply_derived_stats()
 	EventBus.aether_budget_changed.emit(fate_board.aether_used, fate_board.aether_capacity)
 	EventBus.player_leveled_up.emit(new_level)
+	AudioManager.play_2d(SoundLib.library.level_up, -4.0)
 
 func _on_xp_changed(current: float, _needed: float) -> void:
 	GameState.player_xp = current

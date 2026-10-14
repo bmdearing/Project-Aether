@@ -136,6 +136,9 @@
     "craft_apply": [
       "sound/cinematics/blacksmithing/blacksmithcraftinga.ogg"
     ],
+    "level_up": [
+      "abilities/spells/other/levelup/levelupcaster.ogg"
+    ],
     "ui_click": [
       "sound/interface/mouseclick1.ogg"
     ]
