@@ -567,6 +567,23 @@ func interrupt_attack() -> void:
 		_anim_controller.play_stagger()
 
 const HIT_FLASH_SEC := 0.09
+## Hit stop on the struck enemy only: its animation and movement pause for
+## HIT_HOLD_MIN-HIT_HOLD_MAX seconds (bigger hits, relative to its Life, hold
+## longer), at most once per HIT_HOLD_COOLDOWN_MSEC so rapid fire can't lock it.
+const HIT_HOLD_MIN := 0.05
+const HIT_HOLD_MAX := 0.12
+const HIT_HOLD_COOLDOWN_MSEC := 200
+var _hit_hold := 0.0
+var _last_hit_hold_msec := -100000
+
+func _start_hit_hold(amount: float) -> void:
+	var now := Time.get_ticks_msec()
+	if not health.is_alive() or now - _last_hit_hold_msec < HIT_HOLD_COOLDOWN_MSEC:
+		return
+	_last_hit_hold_msec = now
+	_hit_hold = lerpf(HIT_HOLD_MIN, HIT_HOLD_MAX, clampf(amount / maxf(health.max_health, 1.0) * 5.0, 0.0, 1.0))
+	if _anim_controller:
+		_anim_controller.hold(_hit_hold)
 static var _hit_flash_material: StandardMaterial3D
 
 ## The way the model faces, flat.
@@ -644,6 +661,9 @@ func flash_hit() -> void:
 				mesh.material_overlay = null)
 
 func _physics_process(delta: float) -> void:
+	if _hit_hold > 0.0:
+		_hit_hold -= delta
+		return
 	if immovable:
 		# Hovering in place (the Lord of the Elements over the Pinnacle bay).
 		velocity = Vector3.ZERO
@@ -1154,6 +1174,9 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		var res := DamageCalculator.get_effective_resistance(resistance, damage_type, attacker, shred)
 		if res != 0.0:
 			mitigated *= 1.0 - DamageCalculator.resistance_mitigation(res)
+	# Killing blows skip it, so the body is thrown at once.
+	if not is_dot and mitigated > 0.0 and mitigated < health.current_health + _ward_current:
+		_start_hit_hold(mitigated)
 	if _ward_current > 0.0:
 		var absorbed: float = min(_ward_current, mitigated)
 		_ward_current -= absorbed

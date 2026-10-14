@@ -308,11 +308,19 @@ const LOCOMOTION_STATES: Array[StringName] = [&"Idle", &"Walk", &"Run"]
 var _pending_delta: float = 0.0
 var _lod_frame: int = 0
 var _pulses: int = 0
+## Seconds the animation stays paused (hit stop); the time is skipped, not caught up.
+var _hold: float = 0.0
+
+func hold(seconds: float) -> void:
+	_hold = maxf(_hold, seconds)
 
 func _process(delta: float) -> void:
 	if _tree == null:
 		return
 	_watch_one_shot()
+	if _hold > 0.0:
+		_hold -= delta
+		return
 	_pending_delta = minf(_pending_delta + delta, MAX_CATCH_UP)
 	var step := lod_step()
 	if step <= 0:
