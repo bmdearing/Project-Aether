@@ -88,12 +88,13 @@ const WEAPON_TYPE_MOTION_VALUE := {
 ## 2026-10-07: light weapons were too quick to read - Dagger/Rapier/Gauntlet raised.
 ## 2026-10-08: every melee and conduit type has an entry (most used to fall
 ## back to 1.0, so a Halberd swung as fast as a Rapier). Two-handers are slowest.
+## v5.0.3: the heavy two-handers (Shock Lance and up) swing 20% faster.
 const WEAPON_TYPE_SWING_DURATION_MULT := {
 	"Rapier": 0.95, "Dagger": 1.0, "Athame": 1.0, "Gauntlet": 0.9, "Spell Gauntlet": 0.95,
 	"Shortsword": 1.1, "Pressure Fist": 1.1, "Saber": 1.15, "Cutlass": 1.15,
 	"Fetish": 1.2, "Talisman": 1.2, "Rod": 1.25, "Tome": 1.3, "Grimoire": 1.3, "Whip": 1.3,
-	"Spear": 1.35, "Staff": 1.4, "Mace": 1.45, "War Pick": 1.5, "Shock Lance": 1.6,
-	"Halberd": 1.8, "Claymore": 2.2, "Greataxe": 2.3, "Greatsword": 2.4,
+	"Spear": 1.35, "Staff": 1.4, "Mace": 1.45, "War Pick": 1.5, "Shock Lance": 1.6 / 1.2,
+	"Halberd": 1.8 / 1.2, "Claymore": 2.2 / 1.2, "Greataxe": 2.3 / 1.2, "Greatsword": 2.4 / 1.2,
 }
 
 ## Seconds for one plain swing (windup + strike + recovery) before attack
