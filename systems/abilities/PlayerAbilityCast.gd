@@ -194,6 +194,11 @@ func _on_ability_pressed(slot_index: int) -> void:
 	else:
 		_try_cast(slot_index, _player.global_position, from_page)
 
+## Casts a bar slot directly (Arkanus' right-click Elemental Aether).
+func cast_slot(slot_index: int) -> void:
+	if not _player.is_in_visceral():
+		_try_cast(slot_index, _player.global_position)
+
 func _release_targeted_cast() -> void:
 	var slot_index := _targeting_slot
 	_targeting_slot = -1
@@ -1345,7 +1350,7 @@ const CURSE_DURATION := 6.0
 ## Curse strength per spell level above 1 (x1.57 at level 20).
 const CURSE_STRENGTH_PER_LEVEL := 0.03
 ## Spells cast on the enemy nearest the crosshair; refused with no one there.
-const TARGETED_ABILITY_IDS := ["pale_thread", "linger", "elemental_lightning"]
+const TARGETED_ABILITY_IDS := ["pale_thread", "linger", "elemental_lightning", "elemental_aether"]
 const TARGET_RANGE := 25.0
 const TARGET_CONE_DEG := 10.0
 const PALE_COLOR := Color(0.88, 0.95, 1.0)
@@ -1672,7 +1677,7 @@ func _update_aura_ring(ability: Ability) -> void:
 
 ## ---- Arkanus, the Forbidden Staff ------------------------------------------
 
-const ARKANUS_IDS := ["elemental_lightning", "elemental_fire", "elemental_water", "elemental_earth"]
+const ARKANUS_IDS := ["elemental_lightning", "elemental_fire", "elemental_water", "elemental_earth", "elemental_aether"]
 const ARKANUS_FIREBALL_SCENE := preload("res://entities/projectile/Projectile.tscn")
 ## Elemental Lightning: more damage on a shattered Freeze / a Drenched target.
 const SHATTER_MORE := 1.2
@@ -1687,6 +1692,9 @@ const DRENCH_SECONDS := 4.0
 const WATER_ENTANGLE_SECONDS := 2.5
 ## Elemental Earth: Stone Skin's duration (Player.STONE_SKIN_* for its effect).
 const STONE_SKIN_SECONDS := 5.0
+## Elemental Aether: more damage per element on the target (ELEMENT_GROUPS).
+const AETHER_MORE_PER_ELEMENT := 0.4
+const ELEMENT_GROUPS := [["drenched"], ["entangle"], ["chill", "freeze"], ["shock"], ["ignite", "forbidden_fire"]]
 
 func _cast_arkanus(ability: Ability, damage_multiplier: float) -> void:
 	match ability.ability_id:
@@ -1698,6 +1706,8 @@ func _cast_arkanus(ability: Ability, damage_multiplier: float) -> void:
 			_elemental_water(ability, damage_multiplier)
 		"elemental_earth":
 			_elemental_earth()
+		"elemental_aether":
+			_elemental_aether(ability, damage_multiplier)
 
 ## A bolt from the sky onto the enemy at the crosshair. A Frozen target's
 ## Freeze shatters: SHATTER_MORE damage and a guaranteed Critical Strike.
@@ -1782,6 +1792,29 @@ func _elemental_water(ability: Ability, damage_multiplier: float) -> void:
 		if entangle:
 			enemy.status_effects.apply_timed_effect("entangle", WATER_ENTANGLE_SECONDS)
 			AureliaRoots.bind(enemy, WATER_ENTANGLE_SECONDS)
+
+## Detonates on the enemy at the crosshair: AETHER_MORE_PER_ELEMENT more
+## damage for each ELEMENT_GROUPS entry on it. Nothing is consumed.
+func _elemental_aether(ability: Ability, damage_multiplier: float) -> void:
+	var target := _crosshair_enemy()
+	if target == null:
+		return
+	var elements := element_count(target)
+	var hit := ability.roll_damage(_player.stat_sheet)
+	var damage: float = hit["final_damage"] * damage_multiplier * (1.0 + AETHER_MORE_PER_ELEMENT * elements)
+	ArkanusFx.aether(_player.get_tree().current_scene, _body_centre(target), target.global_position, elements)
+	target.take_damage(damage, ability.damage_type, true)
+	if target.stance:
+		target.stance.apply_attack_stance_damage(damage, ability.damage_type)
+	EventBus.damage_dealt.emit(_player, target, damage, ability.damage_type, false, hit["is_critical"])
+
+## How many of ELEMENT_GROUPS the enemy carries.
+static func element_count(enemy: Enemy) -> int:
+	var count := 0
+	for group in ELEMENT_GROUPS:
+		if group.any(func(id: String) -> bool: return enemy.status_effects.has_effect(id)):
+			count += 1
+	return count
 
 ## Stone Skin for STONE_SKIN_SECONDS (Player reads it in _take_damage_single()).
 func _elemental_earth() -> void:

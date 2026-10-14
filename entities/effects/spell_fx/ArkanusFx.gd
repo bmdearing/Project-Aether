@@ -31,6 +31,20 @@ static func lightning(scene: Node, at: Vector3, ground: Vector3, shattered: bool
 	if drenched:
 		SpellFx.burst(scene, at, WATER, 16, Vector2(2, 5), 0.5, Vector2(0.05, 0.12), 120.0, -9.0)
 
+## ---- Elemental Aether ----------------------------------------------------
+
+const AETHER := Color(0.55, 0.85, 1.0)
+
+## Brighter and bigger for each element on the target.
+static func aether(scene: Node, at: Vector3, ground: Vector3, elements: int) -> void:
+	var power := 1.0 + 0.35 * elements
+	SpellFx.flash(scene, at, AETHER, 2.0 * power, 0.25)
+	SpellFx.light_pop(scene, at, AETHER, 3.0 * power, 6.0 * power, 0.4)
+	SpellFx.burst(scene, at, AETHER, 18 + 8 * elements, Vector2(3, 7) * power, 0.45, Vector2(0.05, 0.14), 180.0, 0.0)
+	SpellFx.shards(scene, at, Color(0.85, 0.95, 1.0), 10 + 4 * elements, Vector2(3, 6), Vector2(0.05, 0.14), 0.6, 180.0)
+	SpellFx.shockwave(scene, ground, 1.2 * power, VIOLET.lerp(AETHER, 0.5), 0.3)
+	_sound(SoundLib.library.boss_void_burst, at, 2.0, 1.15)
+
 ## ---- Elemental Fire -----------------------------------------------------------
 
 static func fire_cast(scene: Node, origin: Vector3, forward: Vector3) -> void:

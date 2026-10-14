@@ -92,6 +92,7 @@ const CONDUIT := {
 	"pallid": {"name": "Pallid Page", "desc": "Stance Page spells always apply Pallid (enemies deal less damage)."},
 	"passive": {"name": "Passive", "desc": "No stance; boosts the main hand's casting."},
 	"time_stop": {"name": "Time Stop", "desc": "Press RMB to stop time: every enemy and enemy shot freezes for 4 seconds (2 while a Pinnacle boss is alive). 60 second cooldown."},
+	"arkanus": {"name": "Elemental Aether", "desc": "Press RMB to cast Elemental Aether: Aether detonates on the enemy you look at, 40% more damage for each element on it. 2 Mana, 4 second cooldown."},
 }
 
 ## {name, desc} for a conduit's stance, with its page restriction appended.
@@ -101,6 +102,8 @@ static func for_conduit(conduit: Weapon) -> Dictionary:
 	var key := conduit.get_conduit_stance_type()
 	if key == "time_stop":
 		return CONDUIT["time_stop"].duplicate()
+	if key == "arkanus":
+		return CONDUIT["arkanus"].duplicate()
 	if key == "battlemage":
 		key = "battlemage_gauntlet" if conduit.weapon_type == "Spell Gauntlet" else "battlemage_staff"
 	if conduit.spell_page_modifier != "":

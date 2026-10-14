@@ -24,6 +24,8 @@ const SPELL_DAMAGE_BUFF := 1.25
 const ESOTERIC_DAMAGE_BUFF := 1.3
 const WARD_RESTORE_PER_CAST := 0.08   # share of max Ward
 const MIN_UNLEASH_COPIES := 2
+## Arkanus: RMB casts Elemental Aether, the fifth spell on its bar.
+const ARKANUS_AETHER_SLOT := 4
 const UNLEASH_SPREAD_DEG := 8.0
 const UNLEASH_TARGET_SPACING := 2.5
 
@@ -172,6 +174,9 @@ func on_stance_entered() -> void:
 	var source := get_source()
 	if get_kind() == "time_stop":
 		try_time_stop()
+		return
+	if get_kind() == "arkanus":
+		_player.ability_cast.cast_slot(ARKANUS_AETHER_SLOT)
 		return
 	if source and source.conduit_stance_type == "battlemage" and source.weapon_type == "Staff" and _player.melee_attack.is_idle():
 		_player.melee_attack.release_stance_attack({

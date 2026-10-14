@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "elemental_aether"
+display_name = "Elemental Aether"
+description = "Right-click: Aether detonates on the enemy you look at, 40% more damage for each element on it - Drenched, Entangled, Chilled or Frozen, Shocked, Ignited or in Forbidden Flame (up to 3x with all five)."
+damage_type = 6
+scaling_grade = 4
+resource_cost = 2.0
+fixed_mana_cost = 2.0
+cooldown_seconds = 4.0
+level = 20
+fixed_level = 20
+is_auto_cast_eligible = false
+base_crit_chance = 0.07
+base_damage_min = 80.0
+base_damage_max = 115.0
+tags = Array[StringName]([&"aetheric"])
+unleashable = false

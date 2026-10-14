@@ -37,7 +37,7 @@ const ARKANUS_MANA := "unique_arkanus_mana"
 const ARKANUS_REGEN := "unique_arkanus_regen"
 const MORE_AILMENT_EFFECT := "unique_more_ailment_effect"
 const MORE_AILMENT_DAMAGE := "unique_more_ailment_damage"
-const ARKANUS_SPELLS := ["res://data/abilities/arkanus/elemental_lightning.tres", "res://data/abilities/arkanus/elemental_fire.tres", "res://data/abilities/arkanus/elemental_water.tres", "res://data/abilities/arkanus/elemental_earth.tres"]
+const ARKANUS_SPELLS := ["res://data/abilities/arkanus/elemental_lightning.tres", "res://data/abilities/arkanus/elemental_fire.tres", "res://data/abilities/arkanus/elemental_water.tres", "res://data/abilities/arkanus/elemental_earth.tres", "res://data/abilities/arkanus/elemental_aether.tres"]
 
 const DEBT_MAX_STACKS := 20
 const PATIENT_SHOT_SECONDS := 2.0
