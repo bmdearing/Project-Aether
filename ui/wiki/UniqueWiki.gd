@@ -12,7 +12,7 @@ const MOD_COLOR := Color(0.95, 0.68, 0.38)
 const ODDS_LABEL_COLOR := Color(0.66, 0.62, 0.55)
 const COLLECTED_COLOR := Color(0.55, 0.85, 0.55)
 
-enum Filter { ALL, UNIQUE, MYTHIC }
+enum Filter { ALL, UNIQUE, MYTHIC, SLATE }
 
 var magic_find: float = 0.0
 var filter: int = Filter.ALL
@@ -25,6 +25,8 @@ var _list: VBoxContainer
 ## UniqueCatalog id -> {"gear": Label, "kill": Label, "boss": Label, "pinnacle": Label}
 var _odds_labels: Dictionary = {}
 var _entries: Dictionary = {}
+## Unique Slate id -> its odds Label.
+var _slate_odds: Dictionary = {}
 
 func _ready() -> void:
 	add_theme_constant_override("separation", 10)
@@ -79,7 +81,7 @@ func _build() -> void:
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
 	var filter_box := OptionButton.new()
-	for f in ["All", "Uniques", "Mythics"]:
+	for f in ["All", "Uniques", "Mythics", "Unique Slates"]:
 		filter_box.add_item(f)
 	filter_box.item_selected.connect(func(i: int):
 		filter = i
@@ -104,10 +106,13 @@ func _rebuild_list() -> void:
 		child.queue_free()
 	_odds_labels.clear()
 	_entries.clear()
+	_slate_odds.clear()
 	var defs := UniqueCatalog.DEFS.duplicate()
 	# Mythics first, then Uniques; catalog order within each.
 	defs.sort_custom(func(a, b): return a["rarity"] > b["rarity"])
 	for def in defs:
+		if filter == Filter.SLATE:
+			break
 		if filter == Filter.UNIQUE and def["rarity"] != Constants.ItemRarity.UNIQUE:
 			continue
 		if filter == Filter.MYTHIC and def["rarity"] != Constants.ItemRarity.MYTHIC:
@@ -115,6 +120,11 @@ func _rebuild_list() -> void:
 		var entry := _entry(def)
 		_entries[def["id"]] = entry
 		_list.add_child(entry)
+	if filter == Filter.ALL or filter == Filter.SLATE:
+		for def in UniqueCatalog.SLATE_DEFS:
+			var entry := _slate_entry(def)
+			_entries[def["id"]] = entry
+			_list.add_child(entry)
 	_update_odds()
 
 ## Ids currently listed, in order.
@@ -173,6 +183,8 @@ func _update_odds() -> void:
 		return
 	var mults := multipliers()
 	_mf_label.text = "%d" % roundi(magic_find)
+	for id in _slate_odds:
+		_slate_odds[id].text = "Per Slate drop:  %s" % UniqueOdds.format_chance(slate_chance(id, mults["rarity"]))
 	_summary.text = "Item Rarity +%.0f%%  ·  Item Quantity +%.0f%%   (%d Magic Find, plus Item Rarity +%.0f%% / Item Quantity +%.0f%% from your gear). Figment and monster bonuses add on top of these." % [
 		(mults["rarity"] - 1.0) * 100.0, (mults["quantity"] - 1.0) * 100.0, roundi(magic_find),
 		_gear.get(Loot.RARITY_KEY, 0.0), _gear.get(Loot.QUANTITY_KEY, 0.0)]
@@ -202,3 +214,76 @@ func _text(text: String, size_px: int, color: Color) -> Label:
 	label.add_theme_font_size_override("font_size", size_px)
 	label.add_theme_color_override("font_color", color)
 	return label
+
+## Chance a Slate drop is this Unique Slate: the Unique Slate chance (times
+## Item Rarity, capped), split by weight.
+static func slate_chance(id: String, rarity_mult: float) -> float:
+	var total := 0.0
+	var weight := 0.0
+	for def in UniqueCatalog.SLATE_DEFS:
+		total += float(def["weight"])
+		if def["id"] == id:
+			weight = float(def["weight"])
+	if total <= 0.0:
+		return 0.0
+	return minf(UniqueCatalog.UNIQUE_SLATE_CHANCE * rarity_mult, UniqueCatalog.UNIQUE_SLATE_CHANCE_CAP) * weight / total
+
+func _slate_entry(def: Dictionary) -> PanelContainer:
+	var color: Color = Constants.ITEM_RARITY_COLOR.get(Constants.ItemRarity.UNIQUE, Color.WHITE)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", AetherStyle.glass_box(Color(color, 0.45), Color(0.05, 0.05, 0.07, 0.85), 1, 12.0))
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 18)
+	panel.add_child(columns)
+
+	var left := VBoxContainer.new()
+	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left.add_theme_constant_override("separation", 3)
+	columns.add_child(left)
+	var name_label := _text(def["name"], 20, color)
+	name_label.add_theme_font_override("font", AetherStyle.title())
+	left.add_child(name_label)
+	var shape: Array = def["shape"]
+	var tag_name: String = Constants.DAMAGE_TYPE_NAME.get(def["tag"], "Any")
+	left.add_child(_text("Unique Slate  ·  %s  ·  %d cells, %d Aether" % [tag_name, shape.size(), shape.size() + SlateRoller.RARITY_AETHER_BONUS[Constants.SlateRarity.UNIQUE]], 13, ODDS_LABEL_COLOR))
+	for mod in def["mods"]:
+		var line := _text(UniqueRoller.range_text(mod), 14, MOD_COLOR)
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		left.add_child(line)
+	if def.get("flavor", "") != "":
+		var flavor := _text(def["flavor"], 13, Color(0.75, 0.65, 0.45))
+		flavor.add_theme_font_override("font", AetherStyle.serif_italic())
+		flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		left.add_child(flavor)
+
+	var right := VBoxContainer.new()
+	right.custom_minimum_size = Vector2(340, 0)
+	right.add_theme_constant_override("separation", 6)
+	columns.add_child(right)
+	var source := _text("Any Slate drop", 15, AetherStyle.GOLD)
+	source.add_theme_stylebox_override("normal", AetherStyle.glass_box(Color(AetherStyle.GOLD, 0.5), Color(AetherStyle.GOLD, 0.08), 1, 4.0))
+	source.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	right.add_child(source)
+	_slate_odds[def["id"]] = _text("", 13, AetherStyle.TEXT)
+	right.add_child(_slate_odds[def["id"]])
+	right.add_child(_shape_grid(shape, color))
+	return panel
+
+## The Slate's footprint as a small grid of cells.
+func _shape_grid(shape: Array, color: Color) -> GridContainer:
+	var max_x := 0
+	var max_y := 0
+	for cell in shape:
+		max_x = maxi(max_x, cell.x)
+		max_y = maxi(max_y, cell.y)
+	var grid := GridContainer.new()
+	grid.columns = max_x + 1
+	grid.add_theme_constant_override("h_separation", 2)
+	grid.add_theme_constant_override("v_separation", 2)
+	for y in max_y + 1:
+		for x in max_x + 1:
+			var rect := ColorRect.new()
+			rect.custom_minimum_size = Vector2(14, 14)
+			rect.color = Color(color, 0.8) if shape.has(Vector2i(x, y)) else Color(0, 0, 0, 0)
+			grid.add_child(rect)
+	return grid

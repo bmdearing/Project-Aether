@@ -92,7 +92,7 @@ func _test_wiki_panel() -> void:
 	var wiki := UniqueWiki.new()
 	add_child(wiki)
 	await _frames(1)
-	_check(wiki.listed_ids().size() == UniqueCatalog.DEFS.size(), "the wiki lists every Unique and Mythic")
+	_check(wiki.listed_ids().size() == UniqueCatalog.DEFS.size() + UniqueCatalog.SLATE_DEFS.size(), "the wiki lists every Unique, Mythic and Unique Slate")
 	_check(UniqueCatalog.get_def(wiki.listed_ids()[0])["rarity"] == Constants.ItemRarity.MYTHIC, "Mythics come first")
 	wiki.set_magic_find(0.0)
 	var before := _gear_odds_text(wiki, "hollowed_kings_mantle")
