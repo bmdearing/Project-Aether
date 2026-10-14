@@ -37,6 +37,7 @@ const ALTAR_RADIUS := 2.4
 ## Indoor rooms and corridors are roofed. Visual only: a collider would bake
 ## into the navmesh as a roof island and catch downward floor rays.
 const CEILING_THICKNESS := 0.5
+const CEILING_LAYER := 3
 
 ## Fallback colours, used only when no MapTileset style loads.
 const ROOM_FLOOR_COLORS := [
@@ -109,6 +110,9 @@ var boss_portal_point: Vector3
 var _completion_portal: Portal
 var _portal_player_position: Vector3
 var _portal_player_yaw: float
+## Set when the boss's completion portal was the one taken, so the trip back
+## lands beside it instead of at the map start.
+var _left_by_completion_portal := false
 
 func _ready() -> void:
 	add_to_group("generated_map")
@@ -209,6 +213,7 @@ func _bake_navigation() -> void:
 	navmesh.agent_max_climb = NAV_MAX_CLIMB
 	navmesh.agent_max_slope = NAV_MAX_SLOPE
 	navmesh.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_STATIC_COLLIDERS
+	navmesh.geometry_collision_mask = 0xFFFFFFFF & ~(1 << (CEILING_LAYER - 1))
 	nav_region = NavigationRegion3D.new()
 	nav_region.name = "Navigation"
 	add_child(nav_region)
@@ -332,7 +337,7 @@ func _ground_point(pos: Vector3, fallback_y: float) -> Vector3:
 func _add_portal(pos: Vector3) -> Portal:
 	var portal := Portal.new()
 	portal.destination = Portal.Destination.HUB
-	portal.taken.connect(leave_through_portal)
+	portal.taken.connect(leave_through_portal.bind(portal))
 	add_child(portal)
 	portal.global_position = pos
 	return portal
@@ -349,11 +354,28 @@ func _open_completion_portal() -> void:
 		return
 	_completion_portal = _add_portal(boss_portal_point)
 ## Saves this map's state and goes to the Hub.
-func leave_through_portal() -> void:
+func leave_through_portal(portal: Portal = null) -> void:
+	var player := get_tree().get_first_node_in_group("player") as Player
+	if portal != null and portal == _completion_portal and player:
+		_left_by_completion_portal = true
+		_portal_player_position = _beside_portal(portal, player)
+		_portal_player_yaw = player.rotation.y
 	GameState.portal_map_state = capture_state()
 	SaveManager.save_game()
 	get_tree().paused = false
 	LoadingScreen.change_scene(GameState.HUB_SCENE)
+
+## A step outside the portal on the side the player walked in from, so the
+## restored player isn't standing in it and sent straight back.
+func _beside_portal(portal: Portal, player: Player) -> Vector3:
+	var away := player.global_position - portal.global_position
+	away.y = 0.0
+	if away.length() < 0.05:
+		away = player.global_transform.basis.z
+		away.y = 0.0
+	away = away.normalized() if away.length() > 0.01 else Vector3.BACK
+	var spot := portal.global_position + away * (Portal.RADIUS + 1.5)
+	return _ground_point(spot, portal.global_position.y)
 
 ## JSON-safe snapshot: the seed rebuilds the layout and spawns; on top of
 ## that go the defeated enemies, the loot on the ground, and the portal.
@@ -374,15 +396,15 @@ func capture_state() -> Dictionary:
 		elif child is GoldPickup:
 			var pos: Vector3 = child.position
 			loot.append({"gold": child.amount, "pos": _vec_to_array(pos)})
-	var portal_pos: Vector3 = _portal.global_position if is_instance_valid(_portal) else last_player_spawn
-	var player_pos: Vector3 = _portal_player_position if is_instance_valid(_portal) else last_player_spawn
+	var player_pos: Vector3 = _portal_player_position if is_instance_valid(_portal) or _left_by_completion_portal else last_player_spawn
 	return {
 		"seed": map_seed,
 		"tileset_id": tileset_id,
 		"figment": ItemSerializer.to_dict(GameState.active_map) if GameState.active_map else {},
 		"dead": _dead_spawn_indices.duplicate(),
 		"loot": loot,
-		"portal": _vec_to_array(portal_pos),
+		"portal": _vec_to_array(_portal.global_position) if is_instance_valid(_portal) else [],
+		"via_completion": _left_by_completion_portal,
 		"player": _vec_to_array(player_pos),
 		"player_yaw": _portal_player_yaw,
 		"chests_opened": _opened_chest_indices(),
@@ -431,13 +453,16 @@ func _apply_restore(state: Dictionary) -> void:
 	for i in state.get("chests_opened", []):
 		if int(i) >= 0 and int(i) < _chests.size():
 			_chests[int(i)].set_opened()
-	var portal_pos := _array_to_vec(state.get("portal", []))
+	var portal_saved: Array = state.get("portal", [])
+	var portal_pos := _array_to_vec(portal_saved)
+	var came_from := boss_portal_point if state.get("via_completion", false) else portal_pos
 	if player:
 		player.global_position = _array_to_vec(state.get("player", []))
-		player.rotation.y = facing_away(portal_pos, player.global_position, float(state.get("player_yaw", 0.0)))
+		player.rotation.y = facing_away(came_from, player.global_position, float(state.get("player_yaw", 0.0)))
 	_portal_player_position = _array_to_vec(state.get("player", []))
 	_portal_player_yaw = float(state.get("player_yaw", 0.0))
-	_portal = _add_portal(portal_pos)
+	if portal_saved.size() == 3:
+		_portal = _add_portal(portal_pos)
 	if _boss != null and (not is_instance_valid(_boss) or _boss.is_queued_for_deletion() or not _boss.is_inside_tree()):
 		_open_completion_portal()
 
@@ -760,6 +785,17 @@ func _build_ceiling(center: Vector3, size_x: float, size_z: float) -> void:
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	mesh.position = center + Vector3(0, layout.wall_height + CEILING_THICKNESS / 2.0, 0)
 	add_child(mesh)
+	# Solid for the player only, on its own layer so the navmesh bake skips it
+	# (its top would bake as walkable roof) and probes on layer 1 ignore it.
+	var body := StaticBody3D.new()
+	body.collision_layer = 1 << (CEILING_LAYER - 1)
+	body.collision_mask = 0
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = box.size
+	collision.shape = shape
+	body.add_child(collision)
+	mesh.add_child(body)
 
 func _build_wall_side(origin: Vector3, half: Vector2, dir: Vector2i, connected: bool) -> void:
 	var horizontal := dir == Vector2i.UP or dir == Vector2i.DOWN  # spans X, faces +/-Z

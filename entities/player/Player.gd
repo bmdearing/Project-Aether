@@ -222,6 +222,7 @@ func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 	add_to_group("player")
 	collision_mask |= 1 << (WaterBuilder.BANK_WALL_LAYER - 1)  # river banks
+	collision_mask |= 1 << (GeneratedMap.CEILING_LAYER - 1)  # indoor ceilings
 	health.died.connect(_on_died)
 	# Captured before any gear bonus applies - the .tscn's static values
 	# are the class baseline Strength/Intellect add on top of.

@@ -64,7 +64,7 @@ func _test_ceilings() -> void:
 		_check(map.is_indoor(), "%s is indoors" % style_id)
 		_check(ceilings.size() == map.graph.rooms.size() + corridors, "%s roofs every room and corridor (%d for %d + %d)" % [style_id, ceilings.size(), map.graph.rooms.size(), corridors])
 		_check(ceilings.all(func(c): return is_equal_approx(c.position.y, map.layout.wall_height + GeneratedMap.CEILING_THICKNESS / 2.0)), "%s ceilings sit on the walls" % style_id)
-		_check(ceilings.all(func(c): return c is MeshInstance3D and c.get_children().is_empty()), "%s ceilings have no collision" % style_id)
+		_check(ceilings.all(func(c): return c is MeshInstance3D and c.get_child_count() == 1 and c.get_child(0) is StaticBody3D and c.get_child(0).collision_layer == 1 << (GeneratedMap.CEILING_LAYER - 1)), "%s ceilings are solid on the ceiling layer" % style_id)
 		_check(map.atmosphere == null, "%s has no sky or weather" % style_id)
 		map.queue_free()
 		await _frames(2)
