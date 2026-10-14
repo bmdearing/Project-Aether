@@ -78,10 +78,10 @@ func preview(item: Resource, orb_id: StringName, active_brands: ActiveBrands = n
 	if t == null:
 		p.error = E.INVALID_TARGET
 		return p
-	var ctx := _resolve_brands(orb_id, active_brands)
+	var edict := _edict_for(t, orb_id, active_brands)
+	var ctx := _resolve_brands(orb_id, active_brands, edict if t.get_active_edict() == null else null)
 	p.applied_brands = ctx["applied"]
 	p.consumed_brands = ctx["consumed"]
-	var edict := t.get_active_edict()
 	p.error = _check(t, orb_id, ctx, edict)
 	if p.error != E.NONE:
 		return p
@@ -131,8 +131,8 @@ func apply(item: Resource, orb_id: StringName, active_brands: ActiveBrands = nul
 	var t := CraftTarget.wrap(item)
 	if t == null:
 		return _fail(item, result, E.INVALID_TARGET)
-	var ctx := _resolve_brands(orb_id, active_brands)
-	var edict := t.get_active_edict()
+	var edict := _edict_for(t, orb_id, active_brands)
+	var ctx := _resolve_brands(orb_id, active_brands, edict if t.get_active_edict() == null else null)
 	var error := _check(t, orb_id, ctx, edict)
 	if error != E.NONE:
 		return _fail(item, result, error)
@@ -344,7 +344,23 @@ func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: Edict
 ## Which active Brands apply to this Orb, what they restrict, and which of
 ## them the craft consumes. Category and positional Brands narrow both what
 ## an Orb adds and which existing modifier it removes, replaces or anchors.
-func _resolve_brands(orb_id: StringName, active: ActiveBrands) -> Dictionary:
+## The Edict this craft obeys: one already on the item (placed before Edicts
+## were switched on like Brands), else the active one, for the Orbs it can
+## constrain (adding, recasting, removing, Reckoning).
+func _edict_for(t: CraftTarget, orb_id: StringName, active: ActiveBrands) -> EdictDef:
+	if t.get_active_edict() != null:
+		return t.get_active_edict()
+	if active == null or (_kind(orb_id) == OrbKind.OTHER and orb_id != &"reckoning"):
+		return null
+	for id in active.get_ids():
+		var def: EdictDef = edict_defs.get(id)
+		if def and (def.item_level == 0 or (t.resource is Item and not t.resource is Jewel and not t.resource is FigmentItem)):
+			return def
+	return null
+
+## active_edict: an Edict switched on like a Brand - applied, and consumed
+## (or kept by Preservation) with the Brands.
+func _resolve_brands(orb_id: StringName, active: ActiveBrands, active_edict: EdictDef = null) -> Dictionary:
 	var applied: Array[StringName] = []
 	var categories: Array[BrandDef] = []
 	var vestige_pools: Array[StringName] = []
@@ -390,6 +406,8 @@ func _resolve_brands(orb_id: StringName, active: ActiveBrands) -> Dictionary:
 			if not required.has(tag):
 				required.append(tag)
 
+	if active_edict != null:
+		applied.append(active_edict.id)
 	var consumed: Array[StringName] = applied.duplicate()
 	if preservation != null and not applied.is_empty():
 		applied.append(preservation.id)

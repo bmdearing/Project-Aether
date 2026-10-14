@@ -243,7 +243,7 @@ class CurrencySlot extends Button:
 			return card
 		var hint := "Click to take a stack. Shift-click to take as much as fits." if count > 0 else "None stored."
 		if bench != null and count > 0 and CurrencyTabView.is_bench_currency(id):
-			hint += " Right-click to use it on the bench item." if not String(id).begins_with("brand_") else " Right-click to switch it on for the next bench craft."
+			hint += " Right-click to switch it on for the next bench craft." if String(id).begins_with("brand_") or String(id).begins_with("edict_") else " Right-click to use it on the bench item."
 		card.display_currency(id, count, hint)
 		return card
 

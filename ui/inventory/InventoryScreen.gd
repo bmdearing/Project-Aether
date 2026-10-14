@@ -4,8 +4,8 @@ class_name InventoryScreen
 ## paper-doll equipment diagram + a stats column shown with C (StatSummaryBuilder,
 ## shared with CharacterScreen). Right-clicking an item equips it; clicking a
 ## paper-doll slot unequips into the grid if there's room. Crafting happens
-## here too: right-click a Brand to activate it, right-click an Orb/Edict/
-## stone to pick it up, then click the item to use it on. Equipped items
+## here too: right-click a Brand or Edict to activate it, right-click an
+## Orb/stone to pick it up, then click the item to use it on. Equipped items
 ## live on EquipmentComponent, not in the grid. Doesn't pause the game.
 
 const EMPTY_SLOT_COLOR := Color(0.55, 0.45, 0.28, 0.5)
@@ -66,7 +66,7 @@ var _cursor_icon: ItemIcon
 const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
 const PREVIEW_LINES := 5
 const STATUS_LINES := 3
-const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand to activate it, or an Orb, Edict or stone to pick it up, then click an item to use it; hovering an item with an Orb shows which modifiers it would touch. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows the character sheet. Hold Alt over an item for details."
+const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand or Edict to switch it on for your next Orb, or an Orb or stone to pick it up, then click an item to use it; hovering an item with an Orb shows which modifiers it would touch. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows the character sheet. Hold Alt over an item for details."
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -523,11 +523,12 @@ func _after_socket_change(item: Item) -> void:
 
 ## ---- Crafting -------------------------------------------------------
 
+## Brands and Edicts are switched on for the next Orb.
 func _is_brand(id: StringName) -> bool:
-	return _resolver != null and _resolver.brand_defs.has(id)
+	return _resolver != null and (_resolver.brand_defs.has(id) or _resolver.edict_defs.has(id))
 
 func _is_usable_currency(id: StringName) -> bool:
-	return Constants.ORB_IDS.has(id) or (_resolver != null and _resolver.edict_defs.has(id)) or Constants.CRAFTING_CONSUMABLE_IDS.has(String(id))
+	return Constants.ORB_IDS.has(id) or Constants.CRAFTING_CONSUMABLE_IDS.has(String(id))
 
 func _on_currency_right_clicked(id: StringName) -> void:
 	if _is_brand(id):
@@ -577,7 +578,7 @@ func _hint_for(entry: GridInventory.Entry) -> String:
 		return "Right-click to pick up, then click an item to use it."
 	return ""
 
-## Uses the picked-up Orb/Edict/stone on target (a grid or equipped item).
+## Uses the picked-up Orb/stone on target (a grid or equipped item).
 func _use_armed_on(target: Resource) -> void:
 	var id := _armed
 	if target is FigmentItem and Constants.ORB_IDS.has(id):
@@ -598,9 +599,6 @@ func _use_armed_on(target: Resource) -> void:
 	if Constants.ORB_IDS.has(id):
 		var result := _resolver.apply(target, id, _active_brands)
 		status_label.text = _describe_craft(id, result) if result.success else result.get_message()
-	elif _resolver.edict_defs.has(id):
-		var result := _resolver.apply_edict(target, id)
-		status_label.text = "%s applied." % CurrencyText.name_of(id) if result.success else result.get_message()
 	else:
 		var outcome := _use_stone(id, target)
 		status_label.text = outcome["message"]

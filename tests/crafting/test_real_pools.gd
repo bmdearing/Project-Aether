@@ -373,10 +373,15 @@ func _test_hub_crafting() -> void:
 	_check(card_text.contains("[Remove]") and card_text.contains("Orb of Severance"), "the card marks what the picked-up orb removes")
 	card.queue_free()
 	screen._armed = &""
+	# Edicts switch on like Brands, one at a time, and ride the next Orb.
 	GameState.inventory.add(&"edict_spell")
-	screen._armed = &"edict_spell"
-	screen._on_entry_right_clicked(screen.inventory_grid, ring_entry)
-	_check(ring.active_edict != null and GameState.inventory.count_of(&"edict_spell") == 0 and screen._armed == &"", "right-clicking an item with an edict picked up applies it")
+	GameState.inventory.add(&"edict_attack")
+	screen._on_currency_right_clicked(&"edict_spell")
+	_check(screen._active_brands.is_active(&"edict_spell") and screen._armed == &"", "right-clicking an edict switches it on")
+	screen._on_currency_right_clicked(&"edict_attack")
+	_check(screen._active_brands.is_active(&"edict_attack") and not screen._active_brands.is_active(&"edict_spell"), "one edict at a time")
+	var p := screen._resolver.preview(ring, &"grafting", screen._active_brands)
+	_check(p.consumed_brands.has(&"edict_attack") and ring.active_edict == null, "the active edict rides the next orb, not the item")
 	screen.close()
 	_check(not hub.has_node("BrandShop"), "brand shop removed from the hub")
 	hub.queue_free()

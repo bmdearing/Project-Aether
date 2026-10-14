@@ -1,8 +1,8 @@
 extends RefCounted
 class_name ActiveBrands
-## Directive Brands switched on for the next Orb. Only Brands present in the
-## carried inventory can be activated; consuming one removes a unit from it
-## and switches it off.
+## Directive Brands and Edicts switched on for the next Orb. Only those
+## present in the carried inventory can be activated; consuming one removes a
+## unit from it and switches it off. One Edict at a time.
 
 var carried: Object
 var _ids: Array[StringName] = []
@@ -13,6 +13,8 @@ func _init(p_carried: Object = null) -> void:
 func activate(id: StringName) -> bool:
 	if carried == null or carried.count_of(id) <= 0:
 		return false
+	if String(id).begins_with("edict_"):
+		_ids.assign(_ids.filter(func(other: StringName): return not String(other).begins_with("edict_")))
 	if not _ids.has(id):
 		_ids.append(id)
 	return true

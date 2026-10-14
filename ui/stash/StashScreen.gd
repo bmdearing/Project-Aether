@@ -449,7 +449,7 @@ func _take_from_bench() -> void:
 		_status.text = "No room for that."
 	_refresh()
 
-## Right-click on a currency: an Orb or Edict on the bench item, or a Brand
+## Right-click on a currency: an Orb on the bench item, or a Brand or Edict
 ## switched on or off for the next bench craft.
 func _use_on_bench(id: StringName) -> void:
 	var bench := GameState.stash.bench
@@ -457,7 +457,7 @@ func _use_on_bench(id: StringName) -> void:
 	if bench == null:
 		_status.text = "Put an item on the Crafting Bench first (drag it from your inventory)."
 		return
-	if resolver.brand_defs.has(id):
+	if resolver.brand_defs.has(id) or resolver.edict_defs.has(id):
 		if _bench_brands.is_active(id):
 			_bench_brands.deactivate(id)
 			_status.text = "%s switched off." % CurrencyText.name_of(id)
@@ -479,9 +479,6 @@ func _use_on_bench(id: StringName) -> void:
 	if Constants.ORB_IDS.has(id):
 		var result := resolver.apply(bench, id, _bench_brands)
 		_status.text = InventoryScreen._describe_craft(id, result) if result.success else result.get_message()
-	elif resolver.edict_defs.has(id):
-		var result := resolver.apply_edict(bench, id)
-		_status.text = "%s placed on the bench item." % CurrencyText.name_of(id) if result.success else result.get_message()
 	else:
 		_status.text = "%s can't be used on the bench. Take it to your inventory to use it." % CurrencyText.name_of(id)
 		return

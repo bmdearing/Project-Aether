@@ -19,6 +19,7 @@ func _run() -> void:
 	GameState.game_started = false
 	_test_ladder()
 	_test_edicts()
+	_test_active_edicts()
 	_test_migration()
 	_check(ImplicitPool.pool_for_type(&"amulet").any(func(a: ItemAffix): return a.stat_key == "additional_curses"), "an amulet can corrupt to +1 additional Curse")
 	_check(not ImplicitPool.pool_for_type(&"ring").any(func(a: ItemAffix): return a.stat_key == "additional_curses"), "only amulets")
@@ -113,6 +114,43 @@ func _test_edicts() -> void:
 	_check(not refused.success and int(r.currency.count_of(&"grafting")) == grafts, "Edict of 83 on an item level 70 item adds nothing and costs nothing")
 	var jewel := JewelRoller.roll(80, 1.0)
 	_check(jewel == null or not r.apply_edict(jewel, &"edict_level_72").success, "level Edicts are gear only")
+
+## Edicts switched on like Brands (ActiveBrands): they ride the next Orb and
+## are consumed with it; Preservation keeps them; level Edicts skip non-gear.
+func _test_active_edicts() -> void:
+	var r := _resolver()
+	var bag: CurrencyBag = r.currency
+	var bad_adds := 0
+	var adds := 0
+	for i in 12:
+		var item := _gear(90)
+		r.apply(item, &"quickening")
+		var active := ActiveBrands.new(bag)
+		_check(active.activate(&"edict_level_72"), "an Edict switches on")
+		var edicts: int = bag.count_of(&"edict_level_72")
+		var result := r.apply(item, &"grafting", active)
+		if not result.success:
+			continue
+		for a in result.added:
+			adds += 1
+			if ItemRoller.affix_tier_level(a) < 72:
+				bad_adds += 1
+		_check(bag.count_of(&"edict_level_72") == edicts - 1 and not active.is_active(&"edict_level_72") and item.active_edict == null, "the active Edict is consumed by the Orb, never placed on the item")
+	_check(adds > 0 and bad_adds == 0, "an active Edict of 72 constrains the Orb (%d added, %d below)" % [adds, bad_adds])
+	var kept := ActiveBrands.new(bag)
+	bag.add_currency(&"brand_preservation", 1)
+	kept.activate(&"edict_prefix")
+	kept.activate(&"brand_preservation")
+	var item := _gear(90)
+	r.apply(item, &"quickening")
+	var before: int = bag.count_of(&"edict_prefix")
+	_check(r.apply(item, &"grafting", kept).success and bag.count_of(&"edict_prefix") == before and kept.is_active(&"edict_prefix"), "Preservation keeps the active Edict")
+	var jewel := JewelRoller.roll(80, 1.0)
+	if jewel:
+		var on_jewel := ActiveBrands.new(bag)
+		on_jewel.activate(&"edict_level_72")
+		var p := r.preview(jewel, &"grafting", on_jewel)
+		_check(not p.consumed_brands.has(&"edict_level_72"), "a level Edict is ignored on a jewel")
 
 func _test_migration() -> void:
 	var item := _gear(90)
