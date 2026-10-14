@@ -298,10 +298,11 @@ func predict_damage_range(motion_value: float, stat_sheet: StatSheet) -> Vector2
 	var r := get_damage_range()
 	return Vector2(_base_hit(r.x, motion_value, stat_sheet)["base_damage"], _base_hit(r.y, motion_value, stat_sheet)["base_damage"])
 
-## A real hit: rolls base damage within the range, then crit.
-func roll_damage(motion_value: float, stat_sheet: StatSheet) -> Dictionary:
+## A real hit: rolls base damage within the range, then crit (always, with
+## force_crit: a head hit).
+func roll_damage(motion_value: float, stat_sheet: StatSheet, force_crit: bool = false) -> Dictionary:
 	if stat_sheet == null:
-		return {"final_damage": 0.0, "is_critical": false}
+		return {"final_damage": 0.0, "is_critical": false, "crit_multiplier": 1.0}
 	var r := get_damage_range()
 	var hit := _base_hit(randf_range(r.x, r.y), motion_value, stat_sheet)
-	return DamageCalculator.apply_crit(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
+	return DamageCalculator.apply_crit(hit["base_damage"], 1.0 if force_crit else hit["crit_chance"], hit["crit_damage_multiplier"])

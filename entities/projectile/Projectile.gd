@@ -23,6 +23,8 @@ var source: Node
 ## have no spells, only the ranged attack, which spawns attack projectiles.
 var is_spell_projectile: bool = false
 var is_critical: bool = false  # set by PlayerRangedAttack._fire() - enemy-fired shots leave this false
+## Crit damage multiplier, applied when a non-crit player shot hits the head.
+var crit_multiplier: float = 1.0
 ## Aim stance hooks (player shots): extra enemies to pass through, a damage
 ## multiplier read at impact (enemy -> float), an after-hit callback
 ## (enemy, damage), and cosmetic pellets that never hit anything.
@@ -90,19 +92,24 @@ func _hit_enemy(enemy: Enemy, aim_dir: Vector3 = Vector3.ZERO) -> void:
 	if not is_critical_spot and aim_dir != Vector3.ZERO:
 		is_critical_spot = enemy.is_critical_spot_aimed(hitscan_origin, aim_dir)
 	var final_amount := damage_amount * enemy.critical_spot_multiplier if is_critical_spot else damage_amount
+	# A head hit always crits.
+	var crit := is_critical
+	if is_critical_spot and not crit and source is Player:
+		final_amount *= crit_multiplier
+		crit = true
 	if damage_modifier.is_valid():
 		final_amount *= damage_modifier.call(enemy)
 	if not enemy.take_damage(final_amount, damage_type, false, true):
 		return  # dodged
 	if enemy.stance:
 		enemy.stance.apply_attack_stance_damage(final_amount, damage_type)
-	EventBus.damage_dealt.emit(source, enemy, final_amount, damage_type, false, is_critical)
+	EventBus.damage_dealt.emit(source, enemy, final_amount, damage_type, false, crit)
 	if enemy.status_effects:
 		enemy.status_effects.roll_gear_ailments(source, final_amount, damage_type)
 	if on_hit.is_valid():
 		on_hit.call(enemy, final_amount)
 	if source is Player:
-		EventBus.hit_landed.emit(is_critical, is_critical_spot, not enemy.health.is_alive())
+		EventBus.hit_landed.emit(crit, is_critical_spot, not enemy.health.is_alive())
 		if not is_spell_projectile:
 			BloodFx.hit(enemy, -global_transform.basis.z, 0.6 * (1.5 if is_critical_spot else 1.0), not enemy.health.is_alive())
 

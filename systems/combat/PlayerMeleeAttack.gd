@@ -572,12 +572,11 @@ func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = t
 		_begin_visceral(target, weapon, motion_value, damage_type)
 		return
 
-	var hit := weapon.roll_damage(motion_value, _player.stat_sheet)
+	# Headshot: the crosshair is on the target's head. It always crits.
+	var is_critical_spot := is_primary and target.is_critical_spot_aimed(_player.camera.global_position, -_player.camera.global_transform.basis.z)
+	var hit := weapon.roll_damage(motion_value, _player.stat_sheet, is_critical_spot)
 	var final_damage: float = hit["final_damage"] * damage_scale
 	var is_critical: bool = hit["is_critical"]
-
-	# Headshot: the crosshair is on the target's head.
-	var is_critical_spot := is_primary and target.is_critical_spot_aimed(_player.camera.global_position, -_player.camera.global_transform.basis.z)
 	if is_critical_spot:
 		final_damage *= target.critical_spot_multiplier
 

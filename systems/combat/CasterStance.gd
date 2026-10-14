@@ -202,6 +202,7 @@ func _fire_bolt(weapon: Weapon, motion_value: float, aim_at: Variant = null) -> 
 	var projectile: Projectile = PROJECTILE_SCENE.instantiate()
 	projectile.damage_amount = hit["final_damage"] * (1.0 + _player.stat_sheet.get_spell_power_from_stats())
 	projectile.is_critical = hit["is_critical"]
+	projectile.crit_multiplier = hit["crit_multiplier"]
 	projectile.damage_type = _damage_type(weapon)
 	projectile.source = _player
 	projectile.speed = PROJECTILE_SPEED

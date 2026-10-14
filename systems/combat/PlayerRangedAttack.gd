@@ -331,6 +331,7 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		var projectile: Projectile = PROJECTILE_SCENE.instantiate()
 		projectile.damage_amount = hit["final_damage"]
 		projectile.is_critical = hit["is_critical"]
+		projectile.crit_multiplier = hit["crit_multiplier"]
 		projectile.damage_type = damage_type
 		var arrow := weapon.ammo_type == Constants.AmmoType.ARROW or weapon.ammo_type == Constants.AmmoType.CROSSBOW_BOLT
 		projectile.impact_sound = Projectile.ImpactSound.ARROW if arrow else Projectile.ImpactSound.BULLET

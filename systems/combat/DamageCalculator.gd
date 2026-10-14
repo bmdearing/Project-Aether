@@ -122,6 +122,7 @@ static func apply_crit(base_damage: float, crit_chance: float, crit_damage_multi
 	return {
 		"final_damage": base_damage * crit_damage_multiplier if is_critical else base_damage,
 		"is_critical": is_critical,
+		"crit_multiplier": crit_damage_multiplier,
 	}
 
 ## Expected-value blend (not a random roll) for stat-card "Predicted Damage" display.

@@ -324,6 +324,7 @@ func _fit_body_to_model(model: Node3D) -> void:
 		var sphere := head_shape.shape.duplicate() as SphereShape3D
 		sphere.radius = head_radius
 		head_shape.shape = sphere
+		_find_head_bone(model)
 	attack_hitbox.position.y = body_height / 2.0
 
 func _model_bounds(model: Node3D) -> AABB:
@@ -343,13 +344,100 @@ func distance_to_body(point: Vector3) -> float:
 	var axis_y := clampf(point.y, global_position.y, global_position.y + body_height)
 	return maxf(point.distance_to(Vector3(global_position.x, axis_y, global_position.z)) - body_radius, 0.0)
 
+## The model's head bone, when it has one: the crit spot follows it
+## through animations. Otherwise the HeadZone at the top of the body.
+var _head_skeleton: Skeleton3D
+var _head_bone := -1
+## Centre of the head's vertices in the head bone's space.
+var _head_local := Vector3.ZERO
+## Per model scene: [bone name, head centre in bone space], or [] for none.
+static var _head_cache := {}
+
+func _find_head_bone(model: Node3D) -> void:
+	_head_skeleton = null
+	_head_bone = -1
+	var skeletons := model.find_children("*", "Skeleton3D", true, false)
+	if skeletons.is_empty():
+		return
+	var skeleton := skeletons[0] as Skeleton3D
+	var key := model.scene_file_path
+	if not _head_cache.has(key) or key == "":
+		_head_cache[key] = _measure_head(model, skeleton)
+	var entry: Array = _head_cache[key]
+	if entry.is_empty():
+		return
+	_head_bone = skeleton.find_bone(entry[0])
+	if _head_bone >= 0:
+		_head_skeleton = skeleton
+		_head_local = entry[1]
+
+## Picks the head bone (a rider's over its mount's) and averages the mesh
+## vertices mostly weighted to it or the bones under it (WC3 heads hang off
+## child bones), in the head bone's rest space.
+static func _measure_head(model: Node3D, skeleton: Skeleton3D) -> Array:
+	var best := -1
+	for i in skeleton.get_bone_count():
+		var bone := skeleton.get_bone_name(i).to_lower()
+		if not bone.contains("head") or bone.contains("end") or bone.contains("top"):
+			continue
+		if best < 0 or (skeleton.get_bone_name(best).to_lower().contains("mount") and not bone.contains("mount")):
+			best = i
+	if best < 0:
+		return []
+	var bone_name := skeleton.get_bone_name(best)
+	var head_bones := {best: true}
+	var stack: Array[int] = [best]
+	while not stack.is_empty():
+		for child in skeleton.get_bone_children(stack.pop_back()):
+			head_bones[child] = true
+			stack.append(child)
+	var to_head := skeleton.get_bone_global_rest(best).affine_inverse()
+	var sum := Vector3.ZERO
+	var count := 0
+	for node in model.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		if mi.mesh == null or mi.skin == null:
+			continue
+		var binds := {}
+		for b in mi.skin.get_bind_count():
+			var bone_index := mi.skin.get_bind_bone(b)
+			if bone_index < 0:
+				bone_index = skeleton.find_bone(mi.skin.get_bind_name(b))
+			if head_bones.has(bone_index):
+				binds[b] = true
+		if binds.is_empty():
+			continue
+		for s in mi.mesh.get_surface_count():
+			var arrays := mi.mesh.surface_get_arrays(s)
+			var verts: PackedVector3Array = arrays[Mesh.ARRAY_VERTEX]
+			if arrays[Mesh.ARRAY_BONES] == null or arrays[Mesh.ARRAY_WEIGHTS] == null or verts.is_empty():
+				continue
+			var bones: PackedInt32Array = arrays[Mesh.ARRAY_BONES]
+			var weights: PackedFloat32Array = arrays[Mesh.ARRAY_WEIGHTS]
+			var per: int = bones.size() / verts.size()
+			for v in verts.size():
+				var w := 0.0
+				for k in per:
+					if binds.has(bones[v * per + k]):
+						w += weights[v * per + k]
+				if w >= 0.5:
+					sum += to_head * verts[v]
+					count += 1
+	if count == 0:
+		return []
+	return [bone_name, sum / count]
+
 ## Head centre and radius in world space; radius 0 when there's no live HeadZone.
 func get_critical_spot() -> Dictionary:
 	var head_zone := get_node_or_null("HeadZone") as Area3D
 	if head_zone == null or not head_zone.monitorable:
 		return {"centre": Vector3.ZERO, "radius": 0.0}
 	var sphere := (head_zone.get_node("CollisionShape3D") as CollisionShape3D).shape as SphereShape3D
-	return {"centre": head_zone.global_position, "radius": sphere.radius if sphere else 0.0}
+	var radius := sphere.radius if sphere else 0.0
+	if is_instance_valid(_head_skeleton) and _head_bone >= 0:
+		var pose := _head_skeleton.global_transform * _head_skeleton.get_bone_global_pose(_head_bone)
+		return {"centre": pose * _head_local, "radius": radius}
+	return {"centre": head_zone.global_position, "radius": radius}
 
 ## Headshot test for a projectile: was it inside the head (plus margin)
 ## when it struck the body?

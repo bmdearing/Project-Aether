@@ -1738,6 +1738,7 @@ func _elemental_fire(ability: Ability, damage_multiplier: float) -> void:
 		var ball: Projectile = ARKANUS_FIREBALL_SCENE.instantiate()
 		ball.damage_amount = hit["final_damage"] * damage_multiplier
 		ball.is_critical = hit["is_critical"]
+		ball.crit_multiplier = hit["crit_multiplier"]
 		ball.damage_type = Constants.DamageType.FIRE
 		ball.source = _player
 		ball.speed = FIREBALL_SPEED
