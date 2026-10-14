@@ -201,7 +201,6 @@ func _test_fate_board() -> void:
 	_finished += 1
 
 func _test_shop_refund() -> void:
-	var shop: ShopScreen = _hub.get_node("ShopScreen")
 	var gear_shop: GearShop = _hub.get_node("GearShop")
 	var saved := GameState.inventory
 	GameState.inventory = GridInventory.new(1, 1)
@@ -209,15 +208,19 @@ func _test_shop_refund() -> void:
 	GameState.gold = 1000  # new games start with none
 	var gold := GameState.gold
 	var item := _weapon("Dagger", false)
-	var label := Label.new()
-	var button := Button.new()
-	shop._on_buy_pressed({"cost": 50, "on_buy": func(): return gear_shop._buy(item)}, button, label)
-	_check(GameState.gold == gold and label.text == "No room" and not button.disabled, "purchase with no room is refunded")
+	var stock := GridInventory.new(12, 8)
+	stock.add(item)
+	var screen := VendorScreen.open_for(get_tree(), {"stock": stock, "buy_price": func(_c): return 50, "sell_price": func(c): return GearShop.sell_price(c)})
+	var entry: GridInventory.Entry = stock.get_entries()[0]
+	_check(not screen.buy(entry) and GameState.gold == gold and stock.has_content(item), "a purchase with no room costs nothing")
 	GameState.inventory = saved
-	shop._on_buy_pressed({"cost": 50, "on_buy": func(): return gear_shop._buy(item)}, button, label)
-	_check(GameState.gold == gold - 50 and GameState.inventory.has_content(item), "purchase lands in the grid")
-	label.free()
-	button.free()
+	_check(screen.buy(entry) and GameState.gold == gold - 50 and GameState.inventory.has_content(item) and not stock.has_content(item), "a purchase lands in the grid")
+	var own: GridInventory.Entry = GameState.inventory.get_entries().filter(func(e): return e.content == item)[0]
+	_check(screen.sell(own) and GameState.gold == gold - 50 + GearShop.sell_price(item) and stock.has_content(item), "selling pays and offers it back")
+	_check(screen.price_to_buy(item) == GearShop.sell_price(item), "buyback costs what it sold for")
+	screen.close()
+	_check(not stock.has_content(item), "unsold buyback leaves when the shop closes")
+	_check(gear_shop != null, "the Hub has its Gear Shop")
 	_finished += 1
 
 func _test_migration() -> void:

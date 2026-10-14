@@ -1,7 +1,7 @@
 extends Node3D
 class_name GearShop
-## Hub interactable, same proximity+E pattern as RealityEngine, opens
-## ShopScreen. Stock is ItemRoller.roll()'d fresh once per Hub visit, or
+## Hub interactable, same proximity+E pattern as RealityEngine, opens the
+## VendorScreen. Stock is ItemRoller.roll()'d fresh once per Hub visit, or
 ## on demand via "Reroll Stock" (REROLL_COST Gold) - browsing never rerolls.
 ##
 ## Gold is an invented currency, no doc-sourced economy exists.
@@ -27,8 +27,9 @@ const SELL_PRICE_BY_RARITY := {
 @onready var prompt_label: Label3D = $PromptLabel
 
 var _player_in_range: bool = false
-var _shop_screen: ShopScreen
-var _stock: Array[Item] = []
+## The stock as a grid (STOCK_GRID cells), shown by the VendorScreen.
+var _stock := GridInventory.new(STOCK_GRID.x, STOCK_GRID.y)
+const STOCK_GRID := Vector2i(12, 8)
 
 func _ready() -> void:
 	var area: Area3D = $ProximityArea
@@ -36,14 +37,6 @@ func _ready() -> void:
 	area.body_exited.connect(_on_body_exited)
 	prompt_label.visible = false
 	_roll_stock()
-
-## Looked up lazily, not cached at _ready() - GearShop is declared before
-## ShopScreen in Hub.tscn and siblings ready in declaration order, so a
-## _ready()-time group lookup would find nothing.
-func _get_shop_screen() -> ShopScreen:
-	if not is_instance_valid(_shop_screen):
-		_shop_screen = get_tree().get_first_node_in_group("shop_screen")
-	return _shop_screen
 
 ## No Map-tier context in the Hub - player level stands in instead, floored
 ## at MIN_SHOP_ITEM_LEVEL so a level-1/standalone session (Hub launched
@@ -56,53 +49,38 @@ const TEST_STOCK := ["arkanus"]
 const TEST_STOCK_COST := 1
 
 func _roll_stock() -> void:
-	_stock = []
+	_stock = GridInventory.new(STOCK_GRID.x, STOCK_GRID.y)
 	var shop_item_level := maxi(GameState.player_level, MIN_SHOP_ITEM_LEVEL)
 	for i in range(STOCK_SIZE):
 		var item := ItemRoller.roll(shop_item_level, 1.0)
 		if item:
-			_stock.append(item)
+			_stock.add(item)
 	for id in TEST_STOCK:
 		for def in UniqueCatalog.DEFS:
 			if def["id"] == id:
-				_stock.append(UniqueRoller.build(def, shop_item_level))
+				_stock.add(UniqueRoller.build(def, shop_item_level))
 
 func _unhandled_input(event: InputEvent) -> void:
-	var shop_screen := _get_shop_screen()
-	if _player_in_range and event.is_action_pressed("interact") and shop_screen and not shop_screen.is_open():
+	if _player_in_range and event.is_action_pressed("interact") and not get_tree().paused:
 		get_viewport().set_input_as_handled()
 		_open_shop()
 
 func _open_shop() -> void:
 	var sold := sell_trash()
-	var entries: Array = []
-	for item in _stock:
-		entries.append({
-			"label": item.display_name,
-			"cost": TEST_STOCK_COST if TEST_STOCK.has(item.unique_id) else COST_BY_RARITY.get(item.rarity, 20),
-			"color": _item_color(item),
-			"item": item,
-			"on_buy": func(): _buy(item),
-		})
-	var sell_entries: Array = []
-	for content in GameState.get_inventory_items():
-		var item := content as Item
-		if item == null or item.mark == Item.Mark.FAVORED:
-			continue
-		sell_entries.append({
-			"label": item.display_name,
-			"price": sell_price(item),
-			"color": _item_color(item),
-			"item": item,
-			"on_sell": func(): return GameState.remove_from_inventory(item),
-		})
-	_get_shop_screen().open_with("Gear Shop", entries, {
-		"label": "Reroll Stock",
-		"cost": REROLL_COST,
-		"on_action": func(): _reroll_and_reopen(),
-	}, sell_entries)
-	if sold.x > 0:
-		_get_shop_screen().set_notice("Sold %d Trash item%s for %d Gold." % [sold.x, "" if sold.x == 1 else "s", sold.y])
+	VendorScreen.open_for(get_tree(), {
+		"title": "Gear Shop",
+		"stock": _stock,
+		"buy_price": buy_price,
+		"sell_price": func(content) -> int: return sell_price(content) if content is Item else 0,
+		"action": {"label": "Reroll Stock", "cost": REROLL_COST, "on_action": _reroll_and_reopen},
+		"notice": "Sold %d Trash item%s for %d Gold." % [sold.x, "" if sold.x == 1 else "s", sold.y] if sold.x > 0 else "",
+	})
+
+func buy_price(content) -> int:
+	var item := content as Item
+	if item == null:
+		return 0
+	return TEST_STOCK_COST if TEST_STOCK.has(item.unique_id) else COST_BY_RARITY.get(item.rarity, 20)
 
 ## Sells every carried item marked Trash. Returns (items sold, Gold gained).
 static func sell_trash() -> Vector2i:
@@ -117,21 +95,10 @@ static func sell_trash() -> Vector2i:
 static func sell_price(item: Item) -> int:
 	return SELL_PRICE_BY_RARITY.get(item.rarity, 5)
 
-func _buy(item: Item) -> bool:
-	if not GameState.add_to_inventory(item):
-		return false
-	_stock.erase(item)
-	return true
-
-## Re-opens rather than refreshes, so stock/button/Gold label all update
-## through the same open_with() path a normal open uses.
+## A fresh stock grid, reopened so the screen shows it.
 func _reroll_and_reopen() -> void:
 	_roll_stock()
 	_open_shop()
-
-## Rarity color, same as InventoryScreen._item_color().
-func _item_color(item: Item) -> Color:
-	return Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 
 func _on_body_entered(body: Node3D) -> void:
 	if body is Player:

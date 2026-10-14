@@ -71,6 +71,10 @@ func _run() -> void:
 			EventBus.player_died.emit()
 		"icons":
 			_show_icon_sheet()
+		"shop":
+			for i in 6:
+				GameState.add_to_inventory(ItemRoller.roll(60, 1.0))
+			(hub.get_node("GearShop") as GearShop)._open_shop()
 		"stash", "stash_currency":
 			_fill_stash(mode == "stash_currency")
 		"spell_assign":

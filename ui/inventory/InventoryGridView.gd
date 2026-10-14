@@ -28,6 +28,11 @@ var dimmed: Callable
 ## Optional (target) -> CraftPreview: passed to item cards to mark what a
 ## picked-up Orb would do.
 var craft_preview: Callable
+## Optional (entry) -> String: a price drawn on the block's bottom edge (shops).
+var price_text: Callable
+## False on a shop's stock: its entries can't be dragged out, nor anything dropped in.
+var allow_drag := true
+var allow_drop := true
 var _blocks: Dictionary = {}  # GridInventory.Entry -> EntryBlock
 
 func set_inventory(inv: GridInventory) -> void:
@@ -143,6 +148,13 @@ const FAVORED_COLOR := Color(1.0, 0.8, 0.3)
 
 ## A Trash cross or Favored star in the block's top-right corner.
 func _draw_mark(block: EntryBlock) -> void:
+	if price_text.is_valid():
+		var text: String = price_text.call(block.entry)
+		if text != "":
+			var font := get_theme_default_font()
+			var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12).x
+			block.mark_overlay.draw_rect(Rect2(Vector2(block.size.x - w - 6.0, block.size.y - 16.0), Vector2(w + 6.0, 16.0)), Color(0, 0, 0, 0.7))
+			block.mark_overlay.draw_string(font, Vector2(block.size.x - w - 3.0, block.size.y - 4.0), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 12, AetherStyle.GOLD)
 	var item: Item = null if block.entry.is_currency() else block.entry.content as Item
 	if item == null or item.mark == Item.Mark.NONE:
 		return
@@ -185,7 +197,7 @@ func cell_for(local_pos: Vector2, grab_offset: Vector2) -> Vector2i:
 	return Vector2i(floori(p.x / cell_size), floori(p.y / cell_size))
 
 func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
-	return data is Dictionary and data.has("grid_entry")
+	return allow_drop and data is Dictionary and data.has("grid_entry")
 
 func _drop_data(at_position: Vector2, data: Variant) -> void:
 	var source: InventoryGridView = data["view"]
@@ -208,6 +220,8 @@ class EntryBlock extends Button:
 	var mark_overlay: Control
 
 	func _get_drag_data(at_position: Vector2) -> Variant:
+		if not view.allow_drag:
+			return null
 		var preview := ItemIcon.new()
 		preview.content = entry.content
 		preview.count = entry.count
