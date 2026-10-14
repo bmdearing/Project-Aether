@@ -582,6 +582,14 @@ func _dress_interactables() -> void:
 	var hub := get_parent()
 	_dress(hub.get_node_or_null("GearShop"), "Arcanevault", 4.6)
 	_dress(hub.get_node_or_null("AmmoStore"), "Cratesunit", 1.3)
+	var exchange := _dress(hub.get_node_or_null("CurrencyShop"), "Magicvault", 1.6)
+	if exchange:
+		var crystal := _prop("IcecrownCrystal2", Vector3.ZERO, 0.9)
+		remove_child(crystal)
+		exchange.add_child(crystal)
+		crystal.position = Vector3(0, 2.3, 0)
+		_floaters.append([crystal, crystal.position, 0.15, 1.3, 0.0, 1.2])
+		_omni(exchange.global_position + Vector3(0, 2.6, 0), Color(1.0, 0.8, 0.4), 1.4, 4.0)
 	var spell := _dress(hub.get_node_or_null("SpellTestShop"), "Magicvault", 2.0)
 	if spell:
 		var tome := _prop("Tomeblue", Vector3.ZERO, 0.7)
