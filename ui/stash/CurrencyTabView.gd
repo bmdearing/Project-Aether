@@ -33,7 +33,7 @@ const DAMAGE_BRANDS: Array[StringName] = [&"brand_kinetic", &"brand_piercing", &
 const DEFENCE_BRANDS: Array[StringName] = [&"brand_armor", &"brand_evasion", &"brand_ward", &"brand_resistance", &"brand_resilience", &"brand_life", &"brand_mana"]
 const EDICTS: Array[StringName] = [&"edict_prefix", &"edict_suffix", &"edict_spell", &"edict_attack",
 	&"edict_level_61", &"edict_level_72", &"edict_level_83"]
-const OTHER_BRANDS: Array[StringName] = [&"brand_spell", &"brand_attack", &"brand_critical", &"brand_minion", &"brand_speed", &"brand_prefix", &"brand_suffix", &"brand_preservation"]
+const OTHER_BRANDS: Array[StringName] = [&"brand_spell", &"brand_attack", &"brand_critical", &"brand_minion", &"brand_dot", &"brand_speed", &"brand_prefix", &"brand_suffix", &"brand_preservation"]
 const COLUMNS := 12
 const BENCH := &"_bench"
 ## Bench size in slots.

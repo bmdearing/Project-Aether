@@ -49,6 +49,7 @@ const BRAND_KINDS := {
 	"preservation": [Color(0.9, 0.75, 0.35), "lock"],
 	"prefix": [Color(0.92, 0.88, 0.75), "P"],
 	"suffix": [Color(0.92, 0.88, 0.75), "S"],
+	"dot": [Color(0.55, 0.78, 0.22), "drop"],
 }
 
 const DAMAGE_GLYPHS := {

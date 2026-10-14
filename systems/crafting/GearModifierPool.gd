@@ -20,6 +20,13 @@ const DERIVED_TAGS := {
 	"riposte": [&"attack"], "parry": [&"attack"], "mana": [&"mana"],
 }
 
+const DOT_STAT_KEYS := [
+	"ailment_chance_bleed", "ailment_chance_ignite", "ailment_chance_aetherburn",
+	"increased_ailment_damage_bleed", "increased_ailment_damage_ignite", "increased_ailment_damage_aetherburn",
+	"increased_ailment_duration_bleed", "increased_ailment_duration_ignite", "increased_ailment_duration_aetherburn",
+	"dot_multiplier", "ailment_tick_rate",
+]
+
 ## "<source key>|<best tier>" -> ModifierDef, so a def is the same object
 ## every time it's offered (preview merges outcomes by identity).
 static var _cache: Dictionary = {}
@@ -104,6 +111,10 @@ static func _tags(source_tags: Array, stat_key: String) -> Array[StringName]:
 			for tag in DERIVED_TAGS[word]:
 				if not tags.has(tag):
 					tags.append(tag)
+	# Damage over Time Brand: damaging ailments (chance, damage, duration),
+	# the DoT Multiplier and ailment speed.
+	if DOT_STAT_KEYS.has(stat_key) and not tags.has(&"dot"):
+		tags.append(&"dot")
 	# Ailment lines follow the damage that causes the ailment.
 	var ailment := stat_key.get_slice("_", stat_key.get_slice_count("_") - 1)
 	if stat_key.contains("ailment") and StatusEffectComponent.AILMENT_DAMAGE_TYPES.has(ailment):

@@ -498,7 +498,7 @@ const CURRENCY_DROP_WEIGHTS := {
 	&"brand_cold": 5, &"brand_lightning": 5, &"brand_aetheric": 5, &"brand_entropic": 5,
 	&"brand_pale": 5, &"brand_armor": 5, &"brand_evasion": 5, &"brand_ward": 5,
 	&"brand_resistance": 5, &"brand_resilience": 5, &"brand_mana": 5, &"brand_spell": 5,
-	&"brand_attack": 5, &"brand_speed": 5, &"brand_life": 5, &"brand_critical": 5, &"brand_minion": 5,
+	&"brand_attack": 5, &"brand_speed": 5, &"brand_life": 5, &"brand_critical": 5, &"brand_minion": 5, &"brand_dot": 5,
 	&"brand_prefix": 4, &"brand_suffix": 4,
 	&"brand_preservation": 2,
 	&"edict_prefix": 3, &"edict_suffix": 3, &"edict_spell": 3, &"edict_attack": 3,
