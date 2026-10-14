@@ -24,12 +24,15 @@ var _spells: Array[Ability] = []
 var _mode := "melee"
 var _spell: Ability
 ## Command-line knobs (after --): tier=N fills every modifier at Tier N's top
-## value instead of Tier 1; nojewels leaves sockets empty; modes=melee,spark,spell;
+## value instead of Tier 1; nojewels leaves sockets empty; modes=melee,spark,spell,ranged
+## (ranged: every gun and bow, aimed down sights, through magazines and reloads);
 ## gear prints each build's items.
 var _tier := 1
 var _jewels := true
 var _modes: Array = ["melee", "spark", "spell"]
 var _print_gear := false
+## guns: ranged mode leaves out bows and crossbows.
+var _guns_only := false
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -42,6 +45,8 @@ func _run() -> void:
 			_jewels = false
 		elif arg.begins_with("modes="):
 			_modes = Array(arg.get_slice("=", 1).split(","))
+		elif arg == "guns":
+			_guns_only = true
 		elif arg == "gear":
 			_print_gear = true
 	SaveManager.slot_prefix = "user://probe_pinnacle_slot"
@@ -74,6 +79,8 @@ func _run() -> void:
 	print("PINNACLE gear at Tier %d top values, jewels %s" % [_tier, "on" if _jewels else "off"])
 	if _modes.has("melee"):
 		await _archetype("melee", null)
+	if _modes.has("ranged"):
+		await _archetype("ranged", null)
 	if _modes.has("spark"):
 		await _archetype("spark", _spells.filter(func(a): return a.ability_id == "spark")[0])
 	if not _modes.has("spell"):
@@ -163,6 +170,8 @@ func _weapon_fits(w: Weapon) -> bool:
 		return false
 	if _mode == "melee":
 		return not w.is_ranged and not w.is_conduit
+	if _mode == "ranged":
+		return w.is_ranged and not w.is_conduit and (not _guns_only or not [Constants.AmmoType.ARROW, Constants.AmmoType.CROSSBOW_BOLT].has(w.ammo_type))
 	return w.is_conduit
 
 func _best_base_for(slot: int) -> Item:
@@ -276,26 +285,52 @@ func _raw_dps() -> float:
 			return 0.0
 		var mv: float = _player.melee_attack._effective_motion_value(w)
 		return w.predict_damage(mv, sheet) / (PlayerMeleeAttack.swing_seconds(w.weapon_type) / _player.get_action_speed_multiplier())
+	if _mode == "ranged":
+		return _ranged_dps(_player.equipment.primary_weapon)
 	var hit := _spell.predict_damage(sheet)
 	if _spell.ability_id == "spark":
 		return hit * SPARK_HITS_PER_SEC_AT_08 * 0.8 / maxf(_spell.get_cast_time(sheet), 0.05)
 	var interval := maxf(maxf(_spell.get_cast_time(sheet), _spell.base_recovery_time / maxf(_player.get_action_speed_multiplier(), 0.01)), _spell.get_effective_cooldown(sheet))
 	return hit / maxf(interval, 0.05)
 
+## Aimed shots through a full magazine and its reload, as PlayerRangedAttack
+## fires: attack speed shortens the fire cooldown and full-auto interval, not
+## cycling (bolt/lever/pump/single-action), bow draws or reloads. Extra arrows
+## each hit in full.
+func _ranged_dps(w: Weapon) -> float:
+	if w == null:
+		return 0.0
+	var speed := _player.get_action_speed_multiplier()
+	var interval := PlayerRangedAttack.BASE_FIRE_COOLDOWN / speed
+	if w.fire_mode == Constants.FireMode.FULL_AUTO and w.fire_rate > 0.0:
+		interval = 1.0 / w.fire_rate / speed
+	elif w.fire_mode != Constants.FireMode.SEMI_AUTO:
+		interval = maxf(interval, w.cycle_time)
+	else:
+		interval = maxf(interval, w.get_draw_time())
+	var shot := w.predict_damage(PlayerRangedAttack.AIMED_DAMAGE_MULTIPLIER, _player.stat_sheet) * (1 + w.get_local_count("local_additional_arrows"))
+	if w.magazine_size <= 0:
+		return shot / interval
+	var reload := w.cycle_time * w.magazine_size if w.reload_per_shell else w.reload_time
+	return shot * w.magazine_size / (w.magazine_size * interval + reload)
+
 func _damage_type() -> int:
-	if _mode == "melee":
+	if _mode == "melee" or _mode == "ranged":
 		var w := _player.equipment.primary_weapon
 		return w.get_damage_type() if w else Constants.DamageType.KINETIC
 	return _spell.damage_type
 
 func _hit_size() -> float:
+	if _mode == "ranged":
+		var g := _player.equipment.primary_weapon
+		return g.predict_damage(PlayerRangedAttack.AIMED_DAMAGE_MULTIPLIER, _player.stat_sheet) / maxi(g.pellet_count, 1) if g else 0.0
 	if _mode == "melee":
 		var w := _player.equipment.primary_weapon
 		return w.predict_damage(_player.melee_attack._effective_motion_value(w), _player.stat_sheet) if w else 0.0
 	return _spell.predict_damage(_player.stat_sheet)
 
 func _dps() -> float:
-	return _raw_dps() * _boss_taken(_damage_type(), _mode != "melee", maxf(_hit_size(), 1.0))
+	return _raw_dps() * _boss_taken(_damage_type(), _mode != "melee" and _mode != "ranged", maxf(_hit_size(), 1.0))
 
 ## Share of a hit of `amount` Aurelia actually loses (Armour depends on its size).
 func _boss_taken(damage_type: int, is_spell: bool, amount: float = 1000.0) -> float:
