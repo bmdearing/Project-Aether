@@ -168,7 +168,7 @@ const AFFIX_POOL := [
 	{"stat_key": "increased_ailment_damage_aetherburn", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Aetherburn damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
 	{"stat_key": "increased_ailment_damage_unraveling", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Unraveling damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": [], "no_roll": true},
 	{"stat_key": "increased_ailment_damage_pallid", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Pallid damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": [], "no_roll": true},
-	{"stat_key": "dot_multiplier", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% more Damage over Time (rare)", "applies_to": ["weapon", "item"], "slots": [9], "brand_tags": []},
+	{"stat_key": "dot_multiplier", "tier1_min": 28.0, "tier1_max": 33.0, "desc": "+%d%% to Damage over Time Multiplier", "applies_to": ["weapon", "item"], "slots": [9], "brand_tags": []},
 	{"stat_key": "ailment_tick_rate", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "Damaging Ailments deal their damage %d%% faster", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": []},
 	{"stat_key": "increased_ailment_duration_bleed", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Bleed duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
 	{"stat_key": "increased_ailment_duration_ignite", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Ignite duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": []},
@@ -492,6 +492,9 @@ const LEVELLED_TIERS := {
 	"esoteric_resistance": RESISTANCE_TIERS,
 	"block_chance_bonus": [[80, 7.0, 8.0], [56, 5.0, 6.0], [28, 3.0, 4.0], [1, 2.0, 2.0]],
 	"increased_block_chance": [[80, 85.0, 95.0], [64, 72.0, 84.0], [48, 60.0, 71.0], [32, 48.0, 59.0], [16, 38.0, 47.0], [1, 30.0, 37.0]],
+	# Damage over Time Multiplier: 7% (Tier 6) to 20% (Tier 1). Jewels and
+	# Lenses scale their own from tier1_min/tier1_max (about 10-20%).
+	"dot_multiplier": [[80, 18.0, 20.0], [64, 15.0, 17.0], [48, 13.0, 14.0], [32, 11.0, 12.0], [16, 9.0, 10.0], [1, 7.0, 8.0]],
 }
 ## "+N to level of ... Skills/Spells" (amulets): whole levels, +1 at Tier 2 and
 ## +2 at Tier 1 (user decision).

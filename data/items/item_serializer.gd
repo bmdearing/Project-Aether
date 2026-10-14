@@ -35,6 +35,7 @@ static func migrate_stat_key(key: String) -> String:
 	return STAT_KEY_RENAMES.get(key, key)
 
 static func migrate_stat_text(text: String) -> String:
+	text = text.replace("more Damage over Time (rare)", "to Damage over Time Multiplier")
 	for old_word in STAT_WORD_RENAMES:
 		if text.contains(old_word):
 			var regex := RegEx.create_from_string("\\b%s\\b" % old_word)
