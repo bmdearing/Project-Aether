@@ -32,7 +32,7 @@ var level: int = 1
 @export var definition: EnemyDefinition = null
 
 var faction: String = ""
-var armor_value: float = 0.0    # Physical mitigation in take_damage(), same curve as the player's (armor / (armor + 6 x hit))
+var armor_value: float = 0.0    # Physical mitigation in take_damage(), same curve as the player's (DamageCalculator.physical_mitigation)
 ## Elemental and Esoteric Resistance (percent), lowered by Penetration and Shred.
 var resistance: float = 0.0
 var evasion_value: float = 0.0  # dodge chance vs player weapon attacks only (take_damage()'s can_evade)

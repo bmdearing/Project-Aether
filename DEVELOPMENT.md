@@ -260,7 +260,7 @@ expected-value blend for stat-card display, doesn't jitter between hover
 peeks) and `roll_damage()` (an actual random crit roll, used by real
 attacks/casts). Order of operations (Patch v3.2, superseding the Master
 doc's Ward-bracket design): Armor mitigates Physical damage (`Armor /
-(Armor + 6 x Hit Damage)`, Section 16), Resistance mitigates Elemental/
+(Armor + 30 x Hit Damage)`, Section 16), Resistance mitigates Elemental/
 Esoteric damage (`fire_resistance_pct`/`cold_resistance_pct`/
 `lightning_resistance_pct`/`esoteric_resistance_pct` gear affixes, the
 last unifying Aetheric/Entropic/Pale per the patch) - then Ward absorbs

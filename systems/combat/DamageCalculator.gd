@@ -40,11 +40,15 @@ static func calculate(
 	}
 	return result
 
-## Damage Reduction = Armor / (Armor + 6 x Hit Damage), for all Physical types.
+## Damage Reduction = Armor / (Armor + ARMOUR_HIT_FACTOR x Hit Damage), for all
+## Physical types. v5.3.2: 6 -> 30, armour about 5x weaker everywhere (starter
+## gear was stopping ~80% of on-level hits).
+const ARMOUR_HIT_FACTOR := 30.0
+
 static func physical_mitigation(armor: float, hit_damage: float) -> float:
 	if armor <= 0.0 or hit_damage <= 0.0:
 		return 0.0
-	return armor / (armor + 6.0 * hit_damage)
+	return armor / (armor + ARMOUR_HIT_FACTOR * hit_damage)
 
 ## Evasion. Dodge: an attack hit deals nothing. Deflection: the hit lands but is reduced by
 ## deflection_mitigation(). Caps are hard ceilings on the curves.

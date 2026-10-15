@@ -42,7 +42,7 @@ const EXPLAIN := {
 	"mana_cost_reduction": "Your skills and spells cost this much less Mana. Also lowers the drain of auras.",
 	"damage_from_mana": "This share of damage you take is paid from Mana before Life. Once Mana runs out, Life takes it all.",
 	"flat_armor": "Added to the Armour on your gear before % increased Armour multiplies it.",
-	"increased_armor": "Multiplies your total Armour. Armour reduces Physical hits by Armour / (Armour + 6 x the hit), so it stops small hits better than big ones.",
+	"increased_armor": "Multiplies your total Armour. Armour reduces Physical hits by Armour / (Armour + 30 x the hit), so it stops small hits better than big ones.",
 	"flat_evasion": "Added to the Evasion on your gear before % increased Evasion (and Agility's) multiplies it.",
 	"increased_evasion": "Multiplies your total Evasion. Evasion gives a chance to Dodge attack hits entirely (up to 65%) and to Deflect hits for reduced damage (up to 75%).",
 	"flat_ward": "Added to your Ward pool before % increased Ward (and Intellect's) multiplies it. Ward absorbs damage of every type before Life and recharges after a short delay.",

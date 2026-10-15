@@ -16,7 +16,7 @@ const STAT_TOOLTIPS := {
 	"Max Health": "Your Life: Strength's +4 per point plus flat Life, multiplied by % increased Life. You die when it runs out. Ward takes damage before it.",
 	"Life Regen": "Life recovered per second: 0.5% of maximum Life plus flat regeneration, multiplied by % increased Life Regeneration.",
 	"Max Ward": "Absorbs damage of every type before Life, and refills after a short time without being hit. Comes from Ward on gear, multiplied by % increased Ward and Intellect (0.5% per point).",
-	"Armor": "Reduces Physical hits by Armour / (Armour + 6 x the hit), so it stops small hits better than big ones.",
+	"Armor": "Reduces Physical hits by Armour / (Armour + 30 x the hit), so it stops small hits better than big ones.",
 	"Intellect": "Intellect: +1% increased Spell Damage, +0.5% increased Ward and +3 Mana per point. Gear can need a minimum Intellect.",
 	"Spell Damage": "% increased spell damage from Intellect (1% per point), added to your other % increased spell damage.",
 	"Max Mana": "Spent on spells and auras. Intellect gives +3 per point.",

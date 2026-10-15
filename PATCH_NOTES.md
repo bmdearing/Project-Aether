@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-15 — v5.3.2: Armour 5x weaker, Active Reload fix, silent attack tells
+
+- **Armour** now reduces Physical hits by Armour / (Armour + 30 x hit), was 6 x hit (`DamageCalculator.ARMOUR_HIT_FACTOR`). That makes armour about 5x weaker for players and monsters alike. On the user's level-25 save, 580 Armour from ilvl-1 starter gear was stopping ~80% of every on-level physical hit, which hid the v5.3.1 damage increase. A standard hit at Area Level 19 went from 0.9% to 2.6% of Life, a heavy from 2.3% to 5.2%, an elite from 4.9% to 9.4%. Elemental and Esoteric hits are unchanged. Wiki, sheet and glossary texts are updated.
+- **Fix:** the shot after a Perfect Active Reload errored before firing (no bullet, no sound). The arms also now leave the reload pose when Active Reload ends it early.
+- Enemy attack tells keep their glint but no longer play the blade-scrape "schwing".
+- `tests/balance/probe_save_hits` measures a save's character against every regular monster.
+
+---
+
 ## 2026-10-15 — v5.3.1: Revolver Active Reload, arrow drop, hills, new map screen, shared stash
 
 - **Arrows and bolts drop.** Player arrows fall at 5 m/s² and crossbow bolts at 2.5 m/s² (`Projectile.drop_gravity`), and each shot turns to follow its arc. Bullets and hitscan shots still fly straight.
