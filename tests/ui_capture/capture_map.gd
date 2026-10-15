@@ -91,6 +91,24 @@ func _run() -> void:
 			cam.global_transform = player.camera.global_transform
 			cam.global_position += player.global_transform.basis.z * 2.5 + Vector3.UP * 1.2
 			cam.rotation.x -= 0.25
+		"hill":
+			# A hill from a little off its foot, at eye height.
+			if not map.hills.is_empty():
+				var h: Dictionary = map.hills[0]
+				var c := Vector3(h["centre"].x, float(h["ground"]), h["centre"].y)
+				cam.position = c + Vector3(float(h["footprint"]) + 6.0, 1.7, 3.0)
+				cam.look_at(c + Vector3(0, float(h["height"]) * 0.5, 0), Vector3.UP)
+		"mapscreen":
+			# The M map with the start and a couple of cells explored.
+			var screen := get_tree().get_first_node_in_group("map_screen") as MapScreen
+			var n := 0
+			for cell in map.graph.rooms:
+				if n < 4:
+					screen.explored[cell] = true
+					n += 1
+			screen.explored[map.graph.start_cell] = true
+			cam.global_transform = (get_tree().get_first_node_in_group("player") as Player).camera.global_transform
+			screen.open()
 		"aerial":
 			# Angled overview from inside the draw distance (top is out of it).
 			var centre := Vector3((map.graph.grid_size - 1) * map.cell_size / 2.0, 0, (map.graph.grid_size - 1) * map.cell_size / 2.0)

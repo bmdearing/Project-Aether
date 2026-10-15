@@ -35,6 +35,10 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 ## Open fields: mounds per cell and their size.
 @export var mounds_per_cell: Vector2i = Vector2i(-1, -1)
 @export var mound_scale: float = 1.0
+## Open fields and canyons: broad walkable hills per cell (-1 = the
+## layout's default) and their size.
+@export var hills_per_cell: Vector2i = Vector2i(-1, -1)
+@export var hill_scale: float = 1.0
 ## Canyons: pass width and cliff height multipliers.
 @export var pass_width_scale: float = 1.0
 @export var cliff_height_scale: float = 1.0

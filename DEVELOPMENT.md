@@ -1048,7 +1048,7 @@ equippable from `InventoryScreen`, or stays on the ground if there's no room; a 
 - **Stash**: the chest in the Hub (E) opens 4 general tabs plus Currency and
   Slate tabs; drag between sides or right-click to send. Orbs work on
   stash items; Brands must be carried. F6 opens a debug grid view with
-  test-loot buttons.
+  test-loot buttons. The stash is shared by every save slot (`user://save_slot_stash.json`, `SaveManager.stash_path()`); the first boot with it pooled every slot's old stash into one.
 - **Portals**: T opens a portal in a generated map; walking in saves the
   map (seed, defeated enemies, loot on the ground, portal spot, Figment)
   to `GameState.portal_map_state` and the save file, and the Hub's return
@@ -1084,12 +1084,14 @@ damage types plus spell/attack/generic), not real design — scaffolding
 for a future procedural Slate-affix roll. Hand-authored Slates still use
 their own fixed `SlateModifier` list, untouched by any of this.
 
-**Map screen** (`ui/map_screen/`, `M`): a top-down schematic of the
-current generated Map's room graph — start room green, Vault gold, your
-current room outlined — reading `GeneratedMap.graph` directly (the same
-`MapGraph` data used to build the real geometry, no re-derivation). Shows
-a "no map data" message in the Hub/TestArena instead of erroring, since
-those are static hand-built scenes with no such graph.
+**Map screen** (`ui/map_screen/`, `M`): the whole generated Map photographed
+from straight above when it opens (`MapView`, an orthographic camera; roofs
+hidden for the shot), fog over cells you haven't stood in this visit, and live
+markers (you, monsters in explored cells, unopened chests, portals, start,
+Vault). Wheel zooms on the cursor, drag pans, Space centres on you. The side
+panel lists the Figment's Tier/Depth, Area Level, mods, monsters and chests
+left and cells explored. The Hub and test arenas have no generated Map and
+say so.
 
 **Procedural map generation** (`systems/level_generation/MapGraph.gd`,
 `levels/generated_map/GeneratedMap.gd`): a fresh, differently-shaped Map

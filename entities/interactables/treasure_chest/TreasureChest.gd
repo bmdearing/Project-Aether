@@ -153,7 +153,7 @@ func _roll_drop(rarity_mult: float) -> void:
 	var pickup: LootPickup = LOOT_PICKUP_SCENE.instantiate()
 	var roll := randf()
 	if roll < CURRENCY_CHANCE:
-		pickup.currency_id = Constants.roll_currency_drop()
+		pickup.currency_id = Constants.roll_currency_drop(item_level)
 	elif roll < CURRENCY_CHANCE + JEWEL_CHANCE:
 		pickup.item = JewelRoller.roll(item_level, rarity_mult)
 	elif roll < CURRENCY_CHANCE + JEWEL_CHANCE + SLATE_CHANCE:

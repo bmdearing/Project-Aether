@@ -151,12 +151,22 @@ func _dress_panels() -> void:
 	_header = CharacterHeader.new()
 	stats_panel.add_child(_header)
 	stats_panel.move_child(_header, 0)
-	var more := Button.new()
-	more.text = "More Info"
-	more.tooltip_text = "Every stat your gear, jewels, Slates and Lenses change, and where each comes from."
-	more.pressed.connect(_open_stat_details)
-	stats_panel.add_child(more)
-	stats_panel.move_child(more, 1)
+	var views := HBoxContainer.new()
+	var group := ButtonGroup.new()
+	_basic_tab = _make_toggle("Basic", group, true)
+	_basic_tab.tooltip_text = "Your main offence, defence and other totals."
+	_basic_tab.pressed.connect(_show_stat_view.bind(false))
+	_advanced_tab = _make_toggle("Advanced", group, false)
+	_advanced_tab.tooltip_text = "Every stat your gear, jewels, Slates and Lenses change, and where each comes from."
+	_advanced_tab.pressed.connect(_show_stat_view.bind(true))
+	views.add_child(_basic_tab)
+	views.add_child(_advanced_tab)
+	stats_panel.add_child(views)
+	stats_panel.move_child(views, 1)
+	_stats_scroll = $HBox/StatsPanel/StatsScroll
+	_stat_details = StatDetailsPanel.new()
+	_stat_details.visible = false
+	stats_panel.add_child(_stat_details)
 	var list := "HBox/StatsPanel/StatsScroll/StatsList/"
 	for label in [get_node(list + "OffenseTitle"), get_node(list + "DefenseTitle"), get_node(list + "MiscTitle"), _record_title,
 			$HBox/SidePanel/TitleLabel, $HBox/SidePanel/InventoryPanel/InventoryTitle]:
@@ -363,8 +373,6 @@ func open(show_stats: bool = false, show_items: bool = true) -> void:
 func close() -> void:
 	_is_open = false
 	visible = false
-	if _stat_details:
-		_stat_details.close()
 	_armed = &""
 	_held_jewel = null
 	get_tree().paused = false
@@ -798,12 +806,21 @@ func _refresh_doll() -> void:
 			_style_empty_button(button, row["label"])
 
 var _stat_details: StatDetailsPanel
+var _basic_tab: Button
+var _advanced_tab: Button
+var _stats_scroll: Control
 
-func _open_stat_details() -> void:
-	if _stat_details == null:
-		_stat_details = StatDetailsPanel.new()
-		add_child(_stat_details)
-	_stat_details.open(get_tree().get_first_node_in_group("player") as Player)
+## Basic: the stat columns. Advanced: every changed stat with its sources.
+func _show_stat_view(advanced: bool) -> void:
+	_stats_scroll.visible = not advanced
+	_stat_details.visible = advanced
+	_advanced_tab.set_pressed_no_signal(advanced)
+	_basic_tab.set_pressed_no_signal(not advanced)
+	if advanced:
+		_stat_details.refresh(get_tree().get_first_node_in_group("player") as Player)
+
+func is_showing_advanced_stats() -> bool:
+	return _stat_details != null and _stat_details.visible
 
 func _refresh_stats() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
@@ -811,6 +828,8 @@ func _refresh_stats() -> void:
 	StatSummaryBuilder.refresh_record(_record_list)
 	if _header:
 		_header.refresh(player)
+	if is_showing_advanced_stats():
+		_stat_details.refresh(player)
 	_stats_title.text = GameState.player_name if GameState.player_name != "" else "Character"
 
 func _style_slot_button(button: ItemSlotButton, item: Item) -> void:

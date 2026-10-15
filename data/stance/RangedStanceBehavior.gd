@@ -7,7 +7,7 @@ class_name RangedStanceBehavior
 
 enum RangedStanceType {
 	STEADY_AIM,       # tightens accuracy, increases crit chance
-	FAN_THE_HAMMER,   # rapid fire all chambers, forced reload after
+	ACTIVE_RELOAD,    # revolver reloads show a timing check (aiming optional)
 	SUPPRESSION,      # hits apply stacking movement slow
 	FULL_AUTO_BURST,  # continuous stream, staggers on repeated hits
 	POINT_BLANK,      # damage scales with proximity
@@ -28,17 +28,21 @@ enum RangedStanceType {
 ## Multiplies the shot's damage / spread on top of the base aim bonus.
 @export var damage_multiplier: float = 1.0
 @export var spread_multiplier: float = 1.0
-## Extra spread for weapons with none (Fan the Hammer), degrees.
+## Extra spread for weapons with none, degrees.
 @export var spread_add_degrees: float = 0.0
 ## Increased crit chance (1.0 = double).
 @export var crit_chance_increase: float = 0.0
 @export var fire_rate_multiplier: float = 1.0
-## > 0: fixed time between shots, skipping draw/cycle (Rapid Fire, Fan the Hammer).
+## > 0: fixed time between shots, skipping draw/cycle (Rapid Fire).
 @export var shot_interval: float = 0.0
 ## Extra enemies a shot passes through.
 @export var pierce: int = 0
-## Fan the Hammer: one press empties the magazine.
+## One press empties the magazine.
 @export var dump_magazine: bool = false
+## Active Reload: every reload of this weapon shows a timing check (R in the
+## zone reloads at once, its start also empowers the next cylinder; a miss
+## jams). Works whether or not you are aiming.
+@export var active_reload: bool = false
 ## Point Blank: damage multiplier at point_blank_near, falling to 1x at point_blank_far.
 @export var point_blank_max_multiplier: float = 1.0
 @export var point_blank_near: float = 2.0

@@ -138,10 +138,33 @@ func _test_outdoor(style: String) -> void:
 	var links := _links(map)
 	_check(links.size() > 0, "%s has climb links (%d)" % [style, links.size()])
 	print("%s: %d raised cells, %d terraces, %d links" % [style, map.room_floor.size(), map.terraces.size(), links.size()])
+	if style != "city_downtown":
+		_test_hills(map, style)
 	_test_route(map, style)
 	_test_boundary(map, style)
 	await _test_climb(map, style, links, true)
 	await _free_map(map)
+
+## Hills are solid where terrace_top() says, and gentle enough to walk.
+func _test_hills(map: GeneratedMap, label: String) -> void:
+	_check(not map.hills.is_empty(), "%s has hills (%d)" % [label, map.hills.size()])
+	var verified := 0
+	for h in map.hills:
+		var c: Vector2 = h["centre"]
+		var edge := Vector3(c.x + float(h["footprint"]) * 0.7, 0, c.y)
+		for p in [Vector3(c.x, 0, c.y), edge]:
+			var q := PhysicsRayQueryParameters3D.create(p + Vector3.UP * 20.0, p + Vector3.DOWN * 5.0, 1)
+			var hit := map.get_world_3d().direct_space_state.intersect_ray(q)
+			if hit.is_empty() or not String((hit["collider"] as Node).name).begins_with("Hill"):
+				continue  # a prop stands there
+			verified += 1
+			var want := map.terrace_top(p)
+			if absf(hit["position"].y - want) > 0.15:
+				_check(false, "%s: hill ground at %s is where terrace_top says (%.2f vs %s)" % [label, p, want, hit.get("position", "none")])
+				return
+		var r: float = h["r"]
+		_check(rad_to_deg(asin(float(h["footprint"]) / r)) < 32.0, "%s: hill foot is walkable" % label)
+	_check(verified > 0, "%s: hill surfaces were probed (%d)" % [label, verified])
 
 ## Mantling up the first climb link's step, catching its ledge and letting
 ## go, and (with_chaser) a melee enemy hopping up after the player.

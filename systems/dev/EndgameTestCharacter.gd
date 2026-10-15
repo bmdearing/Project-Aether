@@ -23,6 +23,7 @@ const ARMOUR_SLOTS := [Constants.EquipmentSlot.HELMET, Constants.EquipmentSlot.B
 
 static func build(player_name: String = "Endgame Test") -> void:
 	GameState.reset_to_defaults()
+	SaveManager.load_shared_stash()
 	GameState.player_name = player_name
 	GameState.game_mode = GameState.GameMode.FRAGMENTED_REALITY
 	GameState.player_level = LEVEL

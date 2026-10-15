@@ -306,6 +306,7 @@ const ENEMY_RARITY_DAMAGE_MULT := {
 ## level (AreaLevel.HEALTH_GROWTH / DAMAGE_GROWTH).
 ## v4.14 retune: a level-1 standard mob takes ~4 hits from the starter
 ## weapon (~14 per hit), a light one ~2, a heavy ~8.
+## v5.3.1: monster damage x1.5 (bosses excepted); on-level hits were too safe.
 const MOB_BASE_HEALTH := {
 	"light": 30.0,
 	"standard": 55.0,
@@ -314,10 +315,10 @@ const MOB_BASE_HEALTH := {
 	"boss": 1600.0,
 }
 const MOB_BASE_DAMAGE := {
-	"light": 5.0,
-	"standard": 9.0,
-	"heavy": 15.0,
-	"elite": 24.0,
+	"light": 7.5,
+	"standard": 13.5,
+	"heavy": 22.5,
+	"elite": 36.0,
 	"boss": 45.0,
 }
 
@@ -464,12 +465,18 @@ const CURRENCY_DROP_WEIGHTS := {
 	&"edict_level_61": 3, &"edict_level_72": 1, &"edict_level_83": 0.25,
 }
 
-static func roll_currency_drop() -> StringName:
+## Item-level Edicts only drop at or above their own level.
+const EDICT_DROP_MIN_LEVEL := {&"edict_level_61": 61, &"edict_level_72": 72, &"edict_level_83": 83}
+
+static func roll_currency_drop(item_level: int = 100) -> StringName:
 	var total := 0.0
-	for w in CURRENCY_DROP_WEIGHTS.values():
-		total += w
+	for id in CURRENCY_DROP_WEIGHTS:
+		if item_level >= int(EDICT_DROP_MIN_LEVEL.get(id, 0)):
+			total += CURRENCY_DROP_WEIGHTS[id]
 	var roll := randf() * total
 	for id in CURRENCY_DROP_WEIGHTS:
+		if item_level < int(EDICT_DROP_MIN_LEVEL.get(id, 0)):
+			continue
 		roll -= CURRENCY_DROP_WEIGHTS[id]
 		if roll < 0:
 			return id

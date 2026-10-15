@@ -127,6 +127,33 @@ func _rebuild_list() -> void:
 			_list.add_child(entry)
 	_update_odds()
 
+## Where you already hold this unique: the Unique tab, worn (either weapon
+## set), the inventory or another stash tab. "" if nowhere.
+static func owned_where(id: String) -> String:
+	if GameState.stash.uniques.has(id):
+		return "In your Unique tab"
+	var tree := Engine.get_main_loop() as SceneTree
+	var player: Player = tree.get_first_node_in_group("player") as Player if tree else null
+	if player and player.equipment:
+		var worn: Array = player.equipment.get_all_equipped_items()
+		worn.append_array(player.equipment.primary_weapons)
+		worn.append_array(player.equipment.offhands)
+		for item in worn:
+			if item and item.unique_id == id:
+				return "Equipped"
+	if _grid_has_unique(GameState.inventory, id):
+		return "In your inventory"
+	for tab in GameState.stash.tabs:
+		if _grid_has_unique(tab, id):
+			return "In your stash"
+	return ""
+
+static func _grid_has_unique(grid: GridInventory, id: String) -> bool:
+	for entry in grid.get_entries():
+		if entry.content is Item and (entry.content as Item).unique_id == id:
+			return true
+	return false
+
 ## Ids currently listed, in order.
 func listed_ids() -> Array:
 	return _entries.keys()
@@ -148,8 +175,9 @@ func _entry(def: Dictionary) -> PanelContainer:
 	var name_label := _text(def["name"], 20, color)
 	name_label.add_theme_font_override("font", AetherStyle.title())
 	name_row.add_child(name_label)
-	if GameState.stash.uniques.has(def["id"]):
-		name_row.add_child(_text("   ✓ In your Unique tab", 13, COLLECTED_COLOR))
+	var owned := owned_where(def["id"])
+	if owned != "":
+		name_row.add_child(_text("   ✓ " + owned, 13, COLLECTED_COLOR))
 	var rarity_name := "Mythic" if def["rarity"] == Constants.ItemRarity.MYTHIC else "Unique"
 	var base := "Any gear" if def["base_type"] == "any" else String(def["base_type"]).capitalize()
 	left.add_child(_text("%s  ·  %s" % [rarity_name, base], 13, ODDS_LABEL_COLOR))

@@ -74,6 +74,8 @@ signal cast_interrupted()
 signal reload_started(weapon: Weapon)
 signal reload_finished(weapon: Weapon)
 signal reload_interrupted(weapon: Weapon)
+## Revolver Active Reload outcome: "perfect", "good" or "jam".
+signal active_reload_resolved(result: String)
 signal ammo_changed(ammo_type: int, reserve_count: int)
 
 ## A melee hit stopped by the defender's shield.

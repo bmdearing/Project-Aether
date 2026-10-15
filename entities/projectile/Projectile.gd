@@ -1,6 +1,6 @@
 extends Area3D
 class_name Projectile
-## Straight-line moving projectile - no gravity/arc. Spawned by
+## Moving projectile, straight unless `drop_gravity` is set (arrows arc). Spawned by
 ## PlayerRangedAttack or EnemyRangedAttack, which set damage_amount/
 ## damage_type/source/speed BEFORE add_child() so _ready() sees them,
 ## then align global_transform to the muzzle after.
@@ -14,6 +14,10 @@ class_name Projectile
 
 @export var speed: float = 25.0
 @export var lifetime: float = 3.0
+## Downward pull in m/s^2; the shot turns to face its flight path.
+var drop_gravity: float = 0.0
+var _velocity := Vector3.ZERO
+var _launched := false
 
 var damage_amount: float = 0.0
 var damage_type: Constants.DamageType = Constants.DamageType.KINETIC
@@ -64,7 +68,16 @@ func _physics_process(delta: float) -> void:
 	if hitscan_range > 0.0:
 		_resolve_hitscan()
 		return
-	global_position += -global_transform.basis.z * speed * delta
+	if drop_gravity <= 0.0:
+		global_position += -global_transform.basis.z * speed * delta
+		return
+	if not _launched:
+		_launched = true
+		_velocity = -global_transform.basis.z * speed
+	_velocity.y -= drop_gravity * delta
+	global_position += _velocity * delta
+	if absf(_velocity.normalized().y) < 0.99:
+		look_at(global_position + _velocity, Vector3.UP)
 
 func _on_body_entered(body: Node3D) -> void:
 	if cosmetic:

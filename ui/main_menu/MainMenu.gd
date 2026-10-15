@@ -316,6 +316,7 @@ func _start_new_game(player_name: String, weapon_path: String, mode: GameState.G
 	SaveManager.delete_save(_pending_slot)
 	SaveManager.select_slot(_pending_slot)
 	GameState.reset_to_defaults()
+	SaveManager.load_shared_stash()  # the stash carries over to new characters
 	GameState.player_name = player_name
 	GameState.game_mode = mode
 	GameState.weapon_set_refs = [[weapon_path], []]

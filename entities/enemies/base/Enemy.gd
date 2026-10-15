@@ -1041,7 +1041,7 @@ func _roll_drop(rarity_mult: float) -> void:
 			return  # one drop per roll
 
 	if randf() <= CURRENCY_DROP_CHANCE * _reward_mult("currency"):
-		_spawn_currency_pickup(Constants.roll_currency_drop())
+		_spawn_currency_pickup(Constants.roll_currency_drop(_compute_item_level()))
 		return
 
 	if randf() <= CRAFTING_CONSUMABLE_DROP_CHANCE * _reward_mult("currency"):

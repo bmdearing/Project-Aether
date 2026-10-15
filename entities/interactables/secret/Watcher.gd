@@ -261,7 +261,7 @@ func _leave_hoard() -> void:
 
 func _drop_currency() -> void:
 	var pickup: LootPickup = TreasureChest.LOOT_PICKUP_SCENE.instantiate()
-	pickup.currency_id = Constants.roll_currency_drop()
+	pickup.currency_id = Constants.roll_currency_drop(AreaLevel.current() if AreaLevel.current() > 0 else GameState.player_level)
 	get_parent().add_child(pickup)
 	var angle := randf() * TAU
 	pickup.global_position = global_position + Vector3(cos(angle), 0.0, sin(angle)) * randf_range(0.9, 1.6) + Vector3.UP * 0.4

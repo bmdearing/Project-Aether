@@ -157,9 +157,12 @@ func _physics_process(delta: float) -> void:
 		var action := "ability_%d" % (i + 1)
 		if Input.is_action_just_pressed(action) and not _player.is_input_blocked():
 			_on_ability_pressed(i)
-		elif i == _targeting_slot and Input.is_action_just_released(action):
-			_release_targeted_cast()
 
+	# Polled rather than just_released: a tap inside one physics frame, or a
+	# release swallowed by UI or focus loss, would otherwise never fire and
+	# leave the reticle stuck on screen.
+	if _targeting_slot != -1 and not Input.is_action_pressed("ability_%d" % (_targeting_slot + 1)):
+		_release_targeted_cast()
 	if _targeting_slot != -1:
 		_update_reticle()
 

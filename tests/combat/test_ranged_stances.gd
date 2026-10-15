@@ -31,7 +31,7 @@ func _run() -> void:
 	await _setup()
 	await _test_resolution()
 	await _test_steady_aim()
-	await _test_fan_the_hammer()
+	await _test_revolver()
 	await _test_suppression()
 	await _test_full_auto_burst()
 	await _test_point_blank()
@@ -145,7 +145,7 @@ func _travel() -> float:
 func _test_resolution() -> void:
 	var expected := {
 		"Service Pistol": RangedStanceBehavior.RangedStanceType.STEADY_AIM,
-		"Revolver": RangedStanceBehavior.RangedStanceType.FAN_THE_HAMMER,
+		"Revolver": RangedStanceBehavior.RangedStanceType.ACTIVE_RELOAD,
 		"Machine Gun": RangedStanceBehavior.RangedStanceType.DIG_IN,
 		"Battle Rifle": RangedStanceBehavior.RangedStanceType.TRACER_ROUND,
 	}
@@ -168,13 +168,27 @@ func _test_steady_aim() -> void:
 	_check(_lost(target) > 0.0, "steady aim fires")
 	_check(is_equal_approx(_player.stat_sheet.finesse_crit_bonus, 0.25), "steady aim's crit bonus lasts only for the shot")
 
-func _test_fan_the_hammer() -> void:
+func _test_revolver() -> void:
 	var w := await _reset("Revolver")
 	_dummy(START + _forward() * 6.0)
-	await _aim()
-	await _tap(0.7)
-	_check(w.get_current_magazine() == 0, "fan the hammer empties the cylinder from one press (%d left)" % w.get_current_magazine())
-	_check(_player.ranged_attack.is_reloading(), "then forces a reload")
+	AmmoInventory.add(w.ammo_type, 100)
+	for i in 3:
+		await _tap(0.05)
+	_check(w.get_current_magazine() == w.magazine_size - 3, "revolver fires once per click with no cooldown (%d left)" % w.get_current_magazine())
+	w.current_magazine = 0
+	_player.ranged_attack._start_reload(w)
+	var check := _player.ranged_attack.get_active_reload()
+	_check(not check.is_empty(), "revolver reloads show an Active Reload check")
+	_player.ranged_attack._reload_timer = check["total"] * (1.0 - check["start"] - 0.01)
+	_player.ranged_attack.try_manual_reload()
+	_check(not _player.ranged_attack.is_reloading() and w.get_current_magazine() == w.magazine_size, "R in the zone reloads at once")
+	_check(_player.ranged_attack.get_perfect_shots() == w.magazine_size, "the start of the zone is a Perfect")
+	w.current_magazine = 0
+	_player.ranged_attack._start_reload(w)
+	_player.ranged_attack._reload_timer = _player.ranged_attack._active_reload["total"] * 0.95
+	var before := _player.ranged_attack._reload_timer
+	_player.ranged_attack.try_manual_reload()
+	_check(_player.ranged_attack.is_reloading() and _player.ranged_attack._reload_timer > before, "a miss jams the reload")
 
 func _test_suppression() -> void:
 	await _reset("Machine Pistol")

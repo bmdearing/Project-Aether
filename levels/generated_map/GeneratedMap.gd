@@ -279,6 +279,9 @@ func _spawn_vault_boss(pos: Vector3) -> void:
 func get_living_enemy_count() -> int:
 	return _living_enemies.size()
 
+func get_total_enemy_count() -> int:
+	return _enemies_total
+
 func has_boss() -> bool:
 	return is_instance_valid(_boss)
 
@@ -800,14 +803,25 @@ func _add_climb_link(low_point: Vector3, high_point: Vector3) -> void:
 ## Solid blocks whose tops stand above the ground: raised canyon basins,
 ## field terraces, street causeways. {"rect": Rect2 (XZ), "top": float}.
 var terraces: Array[Dictionary] = []
+## Hills (TerrainBuilder.build_hills): {"centre": Vector2, "ground", "footprint",
+## "height", "r" (the sphere's radius)}.
+var hills: Array[Dictionary] = []
 
-## The highest terrace top at pos (0 off every terrace), for dropping
-## props, chests and packs onto the right level.
-func terrace_top(pos: Vector3) -> float:
+## The ground height at pos: the highest terrace top (0 off every terrace),
+## raised by any hill there unless with_hills is false. For dropping props,
+## chests and packs onto the right level.
+func terrace_top(pos: Vector3, with_hills: bool = true) -> float:
 	var top := 0.0
 	for t in terraces:
 		if (t["rect"] as Rect2).has_point(Vector2(pos.x, pos.z)):
 			top = maxf(top, float(t["top"]))
+	if with_hills:
+		for h in hills:
+			var d := Vector2(pos.x, pos.z).distance_to(h["centre"])
+			var footprint: float = h["footprint"]
+			if d < footprint:
+				var r: float = h["r"]
+				top = maxf(top, float(h["ground"]) + float(h["height"]) - (r - sqrt(r * r - d * d)))
 	return top
 
 ## A climbable block from below the ground up to `top`, its top paved with

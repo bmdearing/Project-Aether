@@ -34,6 +34,9 @@ const BASE_FIRE_COOLDOWN := 0.5
 const BULLET_SPEED_MULTIPLIER := 2.0
 ## Fan spacing for a bow's additional arrows.
 const EXTRA_ARROW_SPREAD_DEG := 5.0
+## Arrows and bolts drop over distance (m/s^2); bullets fly straight.
+const ARROW_GRAVITY := 5.0
+const BOLT_GRAVITY := 2.5
 ## How far a hitscan shot reaches.
 const HITSCAN_RANGE := 120.0
 
@@ -74,6 +77,14 @@ var _aim_time: float = 0.0
 var _brace_spent: bool = false
 var _stagger_log: Dictionary = {}   # enemy instance id -> Array of hit msec
 var _mark_bonus: float = 0.0
+## Active Reload (Revolver): the timing zone of the reload in progress, as
+## fractions of its duration; empty when this reload has no check.
+const ACTIVE_RELOAD_ZONE_WIDTH := 0.2
+const ACTIVE_RELOAD_PERFECT_WIDTH := 0.06
+const ACTIVE_RELOAD_JAM := 0.5            # a miss adds this share of the reload
+const ACTIVE_RELOAD_PERFECT_DAMAGE := 1.25
+var _active_reload: Dictionary = {}
+var _perfect_shots: int = 0
 
 ## The aim stance in effect, or null when not aiming / none designed.
 func _stance() -> RangedStanceBehavior:
@@ -113,6 +124,8 @@ func _on_weapon_swapped(_player_node: Node) -> void:
 	_is_cycling = false
 	_cycle_timer = 0.0
 	_reload_weapon = null
+	_active_reload = {}
+	_perfect_shots = 0
 
 ## Stops a reload in progress on this weapon (e.g. its magazine was filled
 ## another way). The HUD hides its RELOADING label via reload_interrupted.
@@ -187,11 +200,18 @@ func _fire_one(weapon: Weapon, aimed: bool) -> void:
 				_is_cycling = true
 				_cycle_timer = draw
 
-	# Rapid Fire / Fan the Hammer: a fixed shot interval replaces draw and cycling.
+	# Rapid Fire: a fixed shot interval replaces draw and cycling.
 	if st and st.shot_interval > 0.0:
 		_is_cycling = false
 		_cycle_timer = 0.0
 		_cooldown_remaining = st.shot_interval / _player.get_action_speed_multiplier()
+	# Revolvers fire as fast as the trigger is pulled: no cooldown or hammer cycle.
+	if weapon.weapon_type == "Revolver":
+		_cooldown_remaining = 0.0
+		_is_cycling = false
+		_cycle_timer = 0.0
+	if _perfect_shots > 0:
+		_perfect_shots -= 1
 
 	if _uses_magazine(weapon) and weapon.get_current_magazine() <= 0:
 		_dump_remaining = 0
@@ -206,6 +226,11 @@ func _start_reload(weapon: Weapon) -> void:
 	_is_reloading = true
 	_reload_weapon = weapon
 	_reload_timer = reload_duration(weapon)
+	_perfect_shots = 0
+	_active_reload = {}
+	if _has_active_reload(weapon):
+		var start := randf_range(0.3, 0.75 - ACTIVE_RELOAD_ZONE_WIDTH)
+		_active_reload = {"total": _reload_timer, "start": start, "perfect": start + ACTIVE_RELOAD_PERFECT_WIDTH, "end": start + ACTIVE_RELOAD_ZONE_WIDTH, "result": ""}
 	EventBus.reload_started.emit(weapon)
 	var snd: AudioStream
 	match weapon.fire_mode:
@@ -248,6 +273,7 @@ func _finish_reload(weapon: Weapon) -> void:
 func _end_reload(weapon: Weapon) -> void:
 	_is_reloading = false
 	_reload_weapon = null
+	_active_reload = {}
 	EventBus.reload_finished.emit(weapon)
 
 ## R key.
@@ -255,9 +281,55 @@ func try_manual_reload() -> void:
 	var weapon: Weapon = _player.get_active_weapon()
 	if weapon == null or not weapon.is_ranged or not _uses_magazine(weapon):
 		return
+	if _is_reloading and not _active_reload.is_empty():
+		_attempt_active_reload(weapon)
+		return
 	if _is_reloading or weapon.get_current_magazine() >= weapon.magazine_size:
 		return
 	_start_reload(weapon)
+
+## Whether this weapon's reloads carry an Active Reload check.
+func _has_active_reload(weapon: Weapon) -> bool:
+	if weapon.reload_per_shell or _player.weapon_stance == null:
+		return false
+	var behavior := _player.weapon_stance._resolve_behavior(weapon) as RangedStanceBehavior
+	return behavior != null and behavior.active_reload
+
+## R during a checked reload: inside the zone finishes it now (its start is a
+## Perfect, empowering the next cylinder); outside, the cylinder jams. One try.
+func _attempt_active_reload(weapon: Weapon) -> void:
+	if _active_reload["result"] != "":
+		return
+	var total: float = _active_reload["total"]
+	var progress := 1.0 - _reload_timer / maxf(total, 0.001)
+	if progress >= _active_reload["start"] and progress <= _active_reload["end"]:
+		var perfect: bool = progress <= _active_reload["perfect"]
+		_finish_reload(weapon)
+		if perfect:
+			_perfect_shots = weapon.magazine_size
+		EventBus.active_reload_resolved.emit("perfect" if perfect else "good")
+		return
+	_active_reload["result"] = "jam"
+	_reload_timer += total * ACTIVE_RELOAD_JAM
+	_active_reload["total"] = total * (1.0 + ACTIVE_RELOAD_JAM)
+	_active_reload["start"] = 2.0  # no second try
+	_active_reload["end"] = 2.0
+	AudioManager.play_at(SoundLib.library.dry_click, _player.global_position)
+	EventBus.active_reload_resolved.emit("jam")
+
+## The HUD's view of the current check: progress and zone as fractions of
+## the reload, plus "jam" after a miss. Empty when no check is running.
+func get_active_reload() -> Dictionary:
+	if not _is_reloading or _active_reload.is_empty():
+		return {}
+	var total: float = _active_reload["total"]
+	var view := _active_reload.duplicate()
+	view["progress"] = clampf(1.0 - _reload_timer / maxf(total, 0.001), 0.0, 1.0)
+	return view
+
+## Rounds left that carry the Perfect reload bonus.
+func get_perfect_shots() -> int:
+	return _perfect_shots
 
 ## Pump shotgun only: stop a shell-by-shell reload so it can fire, if at
 ## least one shell is in.
@@ -309,6 +381,8 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 	var spread := weapon.pellet_spread_degrees * (AIMED_SPREAD_MULTIPLIER if aimed else 1.0)
 	if st:
 		motion_value *= st.damage_multiplier * get_aim_multiplier()
+	if _perfect_shots > 0:
+		motion_value *= ACTIVE_RELOAD_PERFECT_DAMAGE
 		spread = spread * st.spread_multiplier + st.spread_add_degrees
 	_aim_time = 0.0
 	var socket_transform: Transform3D = _player.weapon_socket.global_transform
@@ -356,6 +430,8 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		projectile.impact_sound = Projectile.ImpactSound.ARROW if arrow else Projectile.ImpactSound.BULLET
 		projectile.source = _player
 		projectile.speed = speed if arrow else speed * BULLET_SPEED_MULTIPLIER
+		if arrow and not hitscan:
+			projectile.drop_gravity = BOLT_GRAVITY if weapon.ammo_type == Constants.AmmoType.CROSSBOW_BOLT else ARROW_GRAVITY
 		if not arrow:
 			projectile.lifetime /= BULLET_SPEED_MULTIPLIER
 		projectile.cosmetic = cosmetic

@@ -57,6 +57,7 @@ func build_open_field(graph: MapGraph, cell_size: float) -> void:
 		_build_ridge_fins(graph, cell_size)
 	_map._link_terraces()
 	_reserve_link_ends()
+	build_hills(graph, cell_size, 0.3, false)
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
 		if room.is_start or room.is_vault:
@@ -67,6 +68,8 @@ func build_open_field(graph: MapGraph, cell_size: float) -> void:
 			pos.y = _map.terrace_top(pos)
 			# Mounds stay out of rivers and streams (radius up to ~7.5 m, scaled).
 			if _map.water and _map.water.is_wet(pos, DUNE_MOUND_RADIUS.y * _map.layout.mound_scale):
+				continue
+			if _near_hill(pos, DUNE_MOUND_RADIUS.y * _map.layout.mound_scale * 0.6):
 				continue
 			if _map.secret and _map.secret.blocks(pos):
 				continue
@@ -192,6 +195,7 @@ func build_canyon(graph: MapGraph, cell_size: float) -> void:
 	for c in corners.values():
 		_add_cliff_block(c["at"], Vector3(CORNER_PILLAR_SIZE, randf_range(CLIFF_HEIGHT.x, CLIFF_HEIGHT.y) * _map.layout.cliff_height_scale + float(c["lift"]), CORNER_PILLAR_SIZE), randf() * TAU)
 	_reserve_link_ends()
+	build_hills(graph, cell_size, 0.15, true)
 
 ## Cliffs along a connected edge, leaving one opening somewhere along it.
 ## Returns the opening's centre.
@@ -382,3 +386,121 @@ func _add_invisible_wall(pos: Vector3, size: Vector3) -> void:
 	shape.size = size
 	collision.shape = shape
 	body.add_child(collision)
+
+## ---- Hills: broad walkable slopes ----------------------------------------
+## Open fields and canyon basins get a few wide, low rises so the ground isn't
+## one flat plane. Each is a sphere cap, mesh and collider alike (cheap to
+## collide, unlike a hull), kept clear of terrace faces, cliffs, water, the
+## secret, climb links, the start and the Vault's dais. Their heights feed
+## GeneratedMap.terrace_top(), so packs, chests and props stand on them.
+const HILL_FOOTPRINT := Vector2(7.0, 12.5)
+const HILL_HEIGHT := Vector2(1.4, 3.4)
+## Height over footprint: 0.27 keeps the foot of a hill under ~30 degrees.
+const HILL_MAX_RISE := 0.27
+const HILL_MIN_FOOTPRINT := 5.0
+const HILL_RINGS := 12
+const HILL_SEGMENTS := 40
+const HILL_SKIRT := 0.2  # the mesh runs this far under the ground at its foot
+
+## spread: how far from a cell's centre a hill may sit, as a share of the cell.
+func build_hills(graph: MapGraph, cell_size: float, spread: float, cliffs: bool) -> void:
+	var start := _map._cell_to_world(graph.start_cell)
+	var vault := _map._cell_to_world(graph.vault_cell)
+	for cell in graph.rooms:
+		var room: MapGraph.RoomData = graph.rooms[cell]
+		if room.is_start or room.is_vault:
+			continue
+		var centre := _map._cell_to_world(cell)
+		for i in randi_range(_map.layout.hills_per_cell.x, _map.layout.hills_per_cell.y):
+			var pos := centre + Vector3(randf_range(-spread, spread), 0.0, randf_range(-spread, spread)) * cell_size
+			pos.y = _map.terrace_top(pos, false)
+			var footprint := randf_range(HILL_FOOTPRINT.x, HILL_FOOTPRINT.y) * _map.layout.hill_scale
+			var room_left := _face_clearance(pos) - 1.5
+			if cliffs:
+				room_left = minf(room_left, cell_size / 2.0 - maxf(absf(pos.x - centre.x), absf(pos.z - centre.z)) - CLIFF_DEPTH.y - 1.0)
+			footprint = minf(footprint, room_left)
+			footprint = minf(footprint, Vector2(pos.x - start.x, pos.z - start.z).length() - 5.0)
+			footprint = minf(footprint, Vector2(pos.x - vault.x, pos.z - vault.z).length() - DAIS_RADIUS - DAIS_RAMP_LENGTH - 1.5)
+			footprint = minf(footprint, _link_clearance(pos) - 1.0)
+			if _map.secret and _map.secret.access == SecretRoomBuilder.Access.OUTCROP:
+				footprint = minf(footprint, Vector2(pos.x - _map.secret.centre.x, pos.z - _map.secret.centre.z).length() - SecretRoomBuilder.OUTCROP_CLEARANCE)
+			for other in _map.hills:
+				footprint = minf(footprint, (Vector2(pos.x, pos.z) - other["centre"]).length() - float(other["footprint"]) * 0.8)
+			if footprint < HILL_MIN_FOOTPRINT * _map.layout.hill_scale:
+				continue
+			if _map.water and _map.water.is_wet(pos, footprint + 1.0):
+				continue
+			var height := minf(randf_range(HILL_HEIGHT.x, HILL_HEIGHT.y) * _map.layout.hill_scale, footprint * HILL_MAX_RISE)
+			_add_hill(pos, footprint, height)
+
+func _near_hill(pos: Vector3, margin: float) -> bool:
+	for h in _map.hills:
+		if (Vector2(pos.x, pos.z) - h["centre"]).length() < float(h["footprint"]) + margin:
+			return true
+	return false
+
+## Distance from pos to the nearest climb link end.
+func _link_clearance(pos: Vector3) -> float:
+	var best := INF
+	for child in _map.get_children():
+		if child is NavigationLink3D:
+			for p in [child.start_position, child.end_position]:
+				best = minf(best, Vector2(pos.x - p.x, pos.z - p.z).length())
+	return best
+
+## A sphere cap `height` tall whose foot is a circle of radius `footprint`
+## on the ground at pos.y.
+func _add_hill(pos: Vector3, footprint: float, height: float) -> void:
+	var r := (footprint * footprint + height * height) / (2.0 * height)
+	_map.hills.append({"centre": Vector2(pos.x, pos.z), "ground": pos.y, "footprint": footprint, "height": height, "r": r})
+	var body := StaticBody3D.new()
+	body.name = "Hill"
+	body.position = pos
+	_map.add_child(body)
+	var mesh := MeshInstance3D.new()
+	mesh.mesh = _hill_mesh(r, height, pos)
+	if _floor_mat:
+		mesh.material_override = _floor_mat
+	body.add_child(mesh)
+	var shape := SphereShape3D.new()
+	shape.radius = r
+	var collision := CollisionShape3D.new()
+	collision.shape = shape
+	collision.position = Vector3(0, height - r, 0)  # its top is the hill's top
+	body.add_child(collision)
+
+## Rings from the top down to just under the ground; UVs in world XZ so
+## the ground texture runs on across the hill.
+func _hill_mesh(r: float, height: float, origin: Vector3) -> ArrayMesh:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var foot := acos(clampf((r - height - HILL_SKIRT) / r, -1.0, 1.0))
+	st.set_normal(Vector3.UP)
+	st.set_uv(Vector2(origin.x, origin.z) * 0.25)
+	st.add_vertex(Vector3(0, height, 0))
+	for i in range(1, HILL_RINGS + 1):
+		var theta := foot * i / HILL_RINGS
+		for j in HILL_SEGMENTS:
+			var phi := TAU * j / HILL_SEGMENTS
+			var n := Vector3(sin(theta) * cos(phi), cos(theta), sin(theta) * sin(phi))
+			var v := n * r - Vector3(0, r - height, 0)
+			st.set_normal(n)
+			st.set_uv(Vector2(origin.x + v.x, origin.z + v.z) * 0.25)
+			st.add_vertex(v)
+	for j in HILL_SEGMENTS:
+		st.add_index(0)
+		st.add_index(1 + j)
+		st.add_index(1 + (j + 1) % HILL_SEGMENTS)
+	for i in range(HILL_RINGS - 1):
+		var inner := 1 + i * HILL_SEGMENTS
+		var outer := inner + HILL_SEGMENTS
+		for j in HILL_SEGMENTS:
+			var k := (j + 1) % HILL_SEGMENTS
+			st.add_index(inner + j)
+			st.add_index(outer + j)
+			st.add_index(outer + k)
+			st.add_index(inner + j)
+			st.add_index(outer + k)
+			st.add_index(inner + k)
+	st.generate_tangents()
+	return st.commit()

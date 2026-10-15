@@ -3,6 +3,7 @@ extends Node
 ## boot straight into GameState; the main menu picks or starts another.
 ## Saved on scene transitions and quit, not on a timer.
 ## Not saved: current Health/Ward/Mana, player position, active_map.
+## The stash is shared by every slot, in its own file (stash_path()).
 
 const SLOT_COUNT := 3
 
@@ -20,11 +21,15 @@ func slot_path(n: int, suffix: String = "") -> String:
 
 func _path(suffix: String = "") -> String:
 	return slot_path(slot, suffix)
+
+func stash_path(suffix: String = "") -> String:
+	return slot_prefix + "_stash.json" + suffix
 ## 2: loot moved from owned_loot/owned_slates into the footprint grid.
 const INVENTORY_VERSION := 2
 
 func _ready() -> void:
 	_migrate_legacy_save()
+	_migrate_shared_stash()
 	slot = _last_slot()
 	load_game()
 	GameSettings.load_and_apply()
@@ -110,7 +115,6 @@ func save_game() -> void:
 		"ammo_reserves": AmmoInventory.serialize(),
 		"inventory_version": INVENTORY_VERSION,
 		"grid_inventory": GameState.inventory.to_dict(),
-		"stash": GameState.stash.to_dict(),
 		"portal_map_state": GameState.portal_map_state,
 		"portals_opened": GameState.portals_opened,
 		"player_name": GameState.player_name,
@@ -122,7 +126,8 @@ func save_game() -> void:
 		"figment_tree_nodes": GameState.figment_tree_unlocked_nodes,
 		"depth_cleared": GameState.depth_cleared,
 	}
-	_write_atomic(JSON.stringify(data))
+	_write_atomic(JSON.stringify(data), _path())
+	_write_atomic(JSON.stringify(GameState.stash.to_dict()), stash_path())
 
 ## Meteor became Comet's Molten Core twist (v4.67): a save that had it gets
 ## Comet in its place, at Meteor's level if that was higher.
@@ -143,23 +148,23 @@ func _migrate_meteor() -> void:
 
 ## Writes to a temp file, then swaps it in; the previous save becomes the
 ## backup, so a crash mid-save never leaves only a truncated file.
-func _write_atomic(text: String) -> void:
-	var file := FileAccess.open(_path(".tmp"), FileAccess.WRITE)
+func _write_atomic(text: String, path: String) -> void:
+	var file := FileAccess.open(path + ".tmp", FileAccess.WRITE)
 	if file == null:
-		push_warning("SaveManager: failed to open %s for writing (error %d)" % [_path(".tmp"), FileAccess.get_open_error()])
+		push_warning("SaveManager: failed to open %s for writing (error %d)" % [path + ".tmp", FileAccess.get_open_error()])
 		return
 	var ok := file.store_string(text)
 	file.close()
 	if not ok:
-		push_warning("SaveManager: failed to write %s" % _path(".tmp"))
+		push_warning("SaveManager: failed to write %s" % (path + ".tmp"))
 		return
-	if FileAccess.file_exists(_path()):
-		if FileAccess.file_exists(_path(".bak")):
-			DirAccess.remove_absolute(_path(".bak"))
-		DirAccess.rename_absolute(_path(), _path(".bak"))
-	var err := DirAccess.rename_absolute(_path(".tmp"), _path())
+	if FileAccess.file_exists(path):
+		if FileAccess.file_exists(path + ".bak"):
+			DirAccess.remove_absolute(path + ".bak")
+		DirAccess.rename_absolute(path, path + ".bak")
+	var err := DirAccess.rename_absolute(path + ".tmp", path)
 	if err != OK:
-		push_warning("SaveManager: failed to move %s into place (error %d)" % [_path(".tmp"), err])
+		push_warning("SaveManager: failed to move %s into place (error %d)" % [path + ".tmp", err])
 
 func _read_save(path: String) -> Dictionary:
 	if not FileAccess.file_exists(path):
@@ -171,6 +176,7 @@ func _read_save(path: String) -> Dictionary:
 	return parsed
 
 func load_game() -> void:
+	load_shared_stash()
 	var parsed := _read_save(_path())
 	if parsed.is_empty():
 		parsed = _read_save(_path(".bak"))
@@ -245,9 +251,6 @@ func load_game() -> void:
 			if FigmentTree.get_node_by_id(str(id)):
 				tree_nodes.append(str(id))
 	GameState.figment_tree_unlocked_nodes = tree_nodes
-	var stash_raw = parsed.get("stash")
-	if typeof(stash_raw) == TYPE_DICTIONARY:
-		GameState.stash = Stash.from_dict(stash_raw)
 
 	var ammo_raw = parsed.get("ammo_reserves")
 	if typeof(ammo_raw) == TYPE_DICTIONARY:
@@ -350,3 +353,62 @@ func _store_migrated(content) -> void:
 		if tab.add(content) == 0:
 			return
 	push_warning("SaveManager: no room to migrate %s" % (content if content is StringName else content.display_name))
+
+## Puts the shared stash into GameState (an empty default when none is saved).
+func load_shared_stash() -> void:
+	var d := _read_save(stash_path())
+	if d.is_empty():
+		d = _read_save(stash_path(".bak"))
+	GameState.stash = Stash.from_dict(d) if not d.is_empty() else Stash.create_default()
+
+## Stashes used to live in each slot's save. The first boot with a shared
+## stash pools every slot's stash into it; an item with nowhere to go gets a
+## new tab rather than being lost.
+func _migrate_shared_stash() -> void:
+	if FileAccess.file_exists(stash_path()) or FileAccess.file_exists(stash_path(".bak")):
+		return
+	var merged: Stash = null
+	for n in range(1, SLOT_COUNT + 1):
+		var d := _read_save(slot_path(n))
+		if d.is_empty():
+			d = _read_save(slot_path(n, ".bak"))
+		var raw: Variant = d.get("stash")
+		if not raw is Dictionary:
+			continue
+		var stash := Stash.from_dict(raw)
+		if merged == null:
+			merged = stash
+		else:
+			_merge_stash(merged, stash)
+	if merged:
+		_write_atomic(JSON.stringify(merged.to_dict()), stash_path())
+
+func _merge_stash(into: Stash, from: Stash) -> void:
+	for id in from.uniques:
+		if not into.uniques.has(id):
+			into.uniques[id] = from.uniques[id]
+		else:
+			_merge_content(into, from.uniques[id], 1, 0)
+	for i in from.tabs.size():
+		for entry in from.tabs[i].get_entries():
+			_merge_content(into, entry.content, entry.count, i)
+	if into.bench == null and from.bench != null:
+		into.bench = from.bench
+	elif from.bench != null:
+		_merge_content(into, from.bench, 1, 0)
+
+func _merge_content(into: Stash, content, count: int, preferred_tab: int) -> void:
+	if preferred_tab < into.tabs.size():
+		count = into.tabs[preferred_tab].add(content, count)
+	for tab in into.tabs:
+		if count <= 0:
+			return
+		count = tab.add(content, count)
+	while count > 0:
+		var tab := GridInventory.new(Constants.STASH_TAB_SIZE.x, Constants.STASH_TAB_SIZE.y)
+		into.tabs.append(tab)
+		var left := tab.add(content, count)
+		if left == count:
+			push_warning("SaveManager: could not merge %s into the shared stash" % str(content))
+			return
+		count = left

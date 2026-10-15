@@ -1,5 +1,5 @@
 extends Node
-## Character sheet "More Info": every stat gear and Slates change, with
+## Character sheet Advanced view: every stat gear and Slates change, with
 ## sources that add up to the totals the game uses, and an explanation and
 ## a source breakdown on hover.
 ## Run: Godot --headless --path . res://tests/character/test_stat_details.tscn --quit-after 2000
@@ -74,17 +74,15 @@ func _run() -> void:
 	_check(StatGlossary.format("attack_speed", 10.0) == "+10%" and StatGlossary.format("flat_life", 50.0) == "+50", "percent and flat stats format differently")
 
 	screen.open(true, false)
-	screen._open_stat_details()
-	await _frames(2)
 	var panel := screen._stat_details
-	_check(panel != null and panel.visible, "More Info opens the details panel")
+	_check(panel != null and not panel.visible, "the sheet opens on the Basic view")
+	screen._advanced_tab.pressed.emit()
+	await _frames(2)
+	_check(panel.visible and not screen._stats_scroll.visible, "Advanced swaps the stat columns for the details")
 	var values: Array = panel.find_children("*", "Label", true, false).filter(func(l): return (l as Label).tooltip_text.contains("Test Helm"))
 	_check(not values.is_empty(), "hovering a value shows its sources")
-	var event := InputEventAction.new()
-	event.action = "ui_cancel"
-	event.pressed = true
-	panel._input(event)
-	_check(not panel.visible, "Esc closes the panel")
+	screen._basic_tab.pressed.emit()
+	_check(not panel.visible and screen._stats_scroll.visible, "Basic swaps back")
 	screen.close()
 	print("stat details tests: %d checks, %d failures" % [_checks, _failures])
 	get_tree().quit(1 if _failures > 0 else 0)

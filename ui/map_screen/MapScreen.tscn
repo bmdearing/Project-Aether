@@ -23,29 +23,47 @@ theme_override_font_sizes/font_size = 22
 text = "Map"
 horizontal_alignment = 1
 
-[node name="MapPanel" type="Control" parent="CenterContainer/VBox"]
-custom_minimum_size = Vector2(560, 560)
+[node name="Body" type="HBoxContainer" parent="CenterContainer/VBox"]
+theme_override_constants/separation = 16
 
-[node name="MapBackground" type="ColorRect" parent="CenterContainer/VBox/MapPanel"]
+[node name="MapPanel" type="Control" parent="CenterContainer/VBox/Body"]
+custom_minimum_size = Vector2(640, 640)
+clip_contents = true
+
+[node name="MapBackground" type="ColorRect" parent="CenterContainer/VBox/Body/MapPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0.02, 0.025, 0.045, 0.95)
 
-[node name="MapView" type="Control" parent="CenterContainer/VBox/MapPanel"]
+[node name="MapView" type="Control" parent="CenterContainer/VBox/Body/MapPanel"]
+clip_contents = true
+anchor_right = 1.0
+anchor_bottom = 1.0
 script = ExtResource("2")
-anchor_right = 1.0
-anchor_bottom = 1.0
-mouse_filter = 2
 
-[node name="NoDataLabel" type="Label" parent="CenterContainer/VBox/MapPanel"]
+[node name="NoDataLabel" type="Label" parent="CenterContainer/VBox/Body/MapPanel"]
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
-text = "No map data here - this screen shows a generated Map's room layout."
+text = "No map here - the map shows a Figment's area once you're inside one."
 horizontal_alignment = 1
 vertical_alignment = 1
 autowrap_mode = 3
 
-[node name="CloseButton" type="Button" parent="CenterContainer/VBox"]
+[node name="Info" type="VBoxContainer" parent="CenterContainer/VBox/Body"]
+custom_minimum_size = Vector2(260, 0)
+theme_override_constants/separation = 6
+
+[node name="Footer" type="HBoxContainer" parent="CenterContainer/VBox"]
+theme_override_constants/separation = 10
+
+[node name="HintLabel" type="Label" parent="CenterContainer/VBox/Footer"]
+size_flags_horizontal = 3
+text = "Wheel to zoom, drag to pan, Space to centre on you."
+
+[node name="CentreButton" type="Button" parent="CenterContainer/VBox/Footer"]
+text = "Centre on Me"
+
+[node name="CloseButton" type="Button" parent="CenterContainer/VBox/Footer"]
 text = "Close (Esc)"

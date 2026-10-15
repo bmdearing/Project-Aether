@@ -57,7 +57,7 @@ const MELEE := {
 
 const RANGED := {
 	"Service Pistol": {"name": "Steady Aim", "desc": "Tightens accuracy and increases crit chance while held."},
-	"Revolver": {"name": "Fan the Hammer", "desc": "Unloads every remaining chamber in rapid succession. Low accuracy, high burst, forced reload after."},
+	"Revolver": {"name": "Active Reload", "desc": "Fires as fast as you can pull the trigger. While reloading, press R as the marker crosses the zone to finish at once; hit the bright start of the zone for a Perfect reload and 25% more damage on the next cylinder. Miss and the cylinder jams, slowing the reload."},
 	"Machine Pistol": {"name": "Suppression", "desc": "Each hit applies a stacking movement slow."},
 	"Submachine Gun": {"name": "Full Auto Burst", "desc": "Dumps the magazine in a continuous stream. Staggers enemies hit repeatedly."},
 	"Loaded Shotgun": {"name": "Point Blank", "desc": "Bonus damage the closer the target. Maximum at melee range."},

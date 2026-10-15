@@ -42,6 +42,8 @@ var raised_room_chance: float = 0.3
 ## Open fields and canyons.
 var mounds_per_cell: Vector2i = TerrainBuilder.MOUNDS_PER_CELL
 var mound_scale: float = 1.0
+var hills_per_cell: Vector2i = Vector2i(0, 0)
+var hill_scale: float = 1.0
 var pass_width_scale: float = 1.0
 var cliff_height_scale: float = 1.0
 var rivers: int = 0
@@ -85,6 +87,9 @@ func _apply_style(t: MapTileset) -> void:
 	if t.mounds_per_cell.x >= 0:
 		mounds_per_cell = t.mounds_per_cell
 	mound_scale = t.mound_scale
+	if t.hills_per_cell.x >= 0:
+		hills_per_cell = t.hills_per_cell
+	hill_scale = t.hill_scale
 	pass_width_scale = t.pass_width_scale
 	cliff_height_scale = t.cliff_height_scale
 	rivers = t.rivers
@@ -108,6 +113,7 @@ static func create(layout_kind: Kind) -> MapLayout:
 			l.grid_size = 4
 			l.packs_per_cell = Vector2i(1, 2)
 			l.scatter_per_cell = Vector2i(4, 7)
+			l.hills_per_cell = Vector2i(0, 2)
 		Kind.CANYON:
 			l.cell_size = 26.0
 			l.grid_size = 5
@@ -116,6 +122,7 @@ static func create(layout_kind: Kind) -> MapLayout:
 			l.branch_stop_chance = 0.5
 			l.packs_per_cell = Vector2i(1, 2)
 			l.scatter_per_cell = Vector2i(3, 5)
+			l.hills_per_cell = Vector2i(0, 1)
 		Kind.STREETS:
 			l.cell_size = 30.0
 			l.grid_size = 5

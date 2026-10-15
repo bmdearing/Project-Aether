@@ -34,6 +34,8 @@ func _run() -> void:
 	for n in range(1, SaveManager.SLOT_COUNT + 1):
 		SaveManager.delete_save(n)
 	DirAccess.remove_absolute(TEST_PREFIX + "_meta.cfg")
+	for suffix in ["", ".bak"]:
+		DirAccess.remove_absolute(TEST_PREFIX + "_stash.json" + suffix)
 	SaveManager.slot_prefix = _real_prefix
 	SaveManager.slot = _real_slot
 	GameState.game_started = false

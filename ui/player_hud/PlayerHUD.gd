@@ -67,6 +67,7 @@ const AMMO_EMPTY_COLOR := Color(1.0, 0.2, 0.2)
 var _ammo_box: VBoxContainer
 var _magazine_label: Label
 var _reserve_label: Label
+const ACTIVE_RELOAD_BAR := preload("res://ui/player_hud/ActiveReloadBar.gd")
 var _reload_label: Label
 var _vignette: ColorRect
 var _vignette_material: ShaderMaterial
@@ -657,6 +658,7 @@ func _build_ammo_display() -> void:
 	_reload_label = _make_ammo_label(14)
 	_reload_label.text = "RELOADING"
 	_reload_label.visible = false
+	_ammo_box.add_child(ACTIVE_RELOAD_BAR.new())
 
 func _make_ammo_label(font_size: int) -> Label:
 	var label := Label.new()

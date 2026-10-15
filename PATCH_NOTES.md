@@ -7,6 +7,24 @@ there. Most recent first.
 
 ---
 
+## 2026-10-15 — v5.3.1: Revolver Active Reload, arrow drop, hills, new map screen, shared stash
+
+- **Arrows and bolts drop.** Player arrows fall at 5 m/s² and crossbow bolts at 2.5 m/s² (`Projectile.drop_gravity`), and each shot turns to follow its arc. Bullets and hitscan shots still fly straight.
+- **Item-level Edicts** (61/72/83) only drop where the drop's item level reaches their own level (`Constants.EDICT_DROP_MIN_LEVEL`): monsters, chests and the Watcher's hoard.
+- **Fix: a ground-target reticle could stay stuck on screen.** If the ability key went down and up within one physics frame (a quick tap), or its release was swallowed, the release never registered. The cast now fires as soon as the key is no longer held.
+- **Revolvers fire as fast as you click.** No fire cooldown or hammer cycle.
+- **Fan the Hammer is replaced by Active Reload** (the Revolver's stance). Every revolver reload shows a timing bar under RELOADING. Press R while the marker is in the gold zone and the reload finishes at once. Hit the bright start of the zone for a **Perfect**: 25% more damage for the next full cylinder. Miss and the cylinder **jams**: half the reload time again, and no second try.
+- **Hills.** Open fields (Dunes, forests, snow, the Pale, park) get 0-2 broad hills per cell, and canyon basins get 0-1. They're 1.4-3.4 m tall and up to ~12 m across, with feet under 30° so you can walk up them. Each hill is a sphere cap, mesh and collider alike, so it costs little to collide with. Hills stay clear of terrace faces, cliffs, water, climb links, secrets, the start and the Vault dais. `terrace_top()` includes them, so packs, chests and props stand on them. Styles can tune them with `MapTileset.hills_per_cell` / `hill_scale`.
+- **Shared stash.** All save slots use one stash (`user://save_slot_stash.json`). On the first boot, every slot's existing stash is merged into it: duplicate Uniques go into the tabs, and anything that doesn't fit gets a new tab. New characters (and the dev endgame test character) start with the shared stash.
+- **Character sheet: Basic / Advanced** toggle at the top of the sheet replaces the More Info pop-up. Advanced shows the full stat breakdown in place of the stat columns.
+- **Wiki uniques** now show "Equipped", "In your inventory" or "In your stash" as well as "In your Unique tab". Both weapon sets count as equipped.
+- **Map screen (M) rebuilt.** It shows a real top-down picture of the whole map, with fog over cells you haven't visited and markers for you, monsters in explored cells, unopened chests, portals, the start and the Vault. Wheel zooms, drag pans and Space recentres. The side panel shows Tier/Depth, Area Level, the Figment's mods, monsters and chests left, and how much you've explored.
+- **Monster damage x1.5** (light, standard, heavy and elite base damage). Bosses keep their own tuning.
+- Tests: `test_ranged_stances` checks the revolver changes instead of Fan the Hammer, `test_verticality` probes hills, `test_stat_details` checks the toggle, and `test_v476` cleans up its stash file. `capture_map` has `hill` and `mapscreen` views.
+- Judgment calls: the gravity values, all the Active Reload numbers, hill sizes and counts, the 1.5x damage, bosses being left out of the damage change, and exploration resetting when you re-enter a map through a portal.
+
+---
+
 ## 2026-10-15 — v5.3.0: Ataras rework, beefier Fire Golems, character sheet More Info
 
 - **Fire Golems** (Aurelia) have a fixed 3,000,000 Life (`FireGolem.LIFE`) instead of level-scaled Life.
