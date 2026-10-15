@@ -1,7 +1,7 @@
 class_name Dev
 ## The one switch for testing conveniences: cut Pinnacle Life, free Pinnacle
 ## entry, the Spell Testing Shop, the Currency Exchange, the Gear Shop's
-## Unique test stock and the Level 90 Test character.
+## Unique test stock, the Unique Catalogue and the Level 90 Test character.
 ## Hidden toggle: Ctrl+Shift+D on the title screen, remembered in
 ## settings.cfg. Until it's been toggled once: on in the editor and debug
 ## exports, off in release exports unless the preset has the "dev" custom

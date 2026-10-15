@@ -44,7 +44,8 @@ func _ready() -> void:
 ## GameState.initialize_standalone()'s player_level so standalone-shop
 ## items are never above what the player can actually equip.
 const MIN_SHOP_ITEM_LEVEL := 5
-## Uniques/Mythics always in stock at TEST_STOCK_COST when Dev.enabled (UniqueCatalog ids).
+## UniqueCatalog ids kept in stock at TEST_STOCK_COST when Dev.enabled (just Arkanus;
+## the Unique Catalogue has them all).
 const TEST_STOCK := ["arkanus"]
 const TEST_STOCK_COST := 1
 

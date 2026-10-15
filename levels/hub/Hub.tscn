@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://entities/interactables/reality_engine/RealityEngine.tscn" id="2"]
@@ -23,6 +23,7 @@
 [ext_resource type="Script" path="res://levels/hub/MemoryNexus.gd" id="23"]
 [ext_resource type="PackedScene" path="res://ui/figment_tree/FigmentTreeScreen.tscn" id="24"]
 [ext_resource type="PackedScene" path="res://entities/interactables/currency_shop/CurrencyShop.tscn" id="25"]
+[ext_resource type="PackedScene" path="res://entities/interactables/unique_catalogue/UniqueCatalogue.tscn" id="26"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -61,6 +62,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -19.5, 0, -0.5)
 
 [node name="CurrencyShop" parent="." instance=ExtResource("25")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13.5, 0, -9)
+
+[node name="UniqueCatalogue" parent="." instance=ExtResource("26")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0, -9)
 
 [node name="StashChest" parent="." instance=ExtResource("20")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 0, -0.5)

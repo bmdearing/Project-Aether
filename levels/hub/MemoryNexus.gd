@@ -590,6 +590,9 @@ func _dress_interactables() -> void:
 		crystal.position = Vector3(0, 2.3, 0)
 		_floaters.append([crystal, crystal.position, 0.15, 1.3, 0.0, 1.2])
 		_omni(exchange.global_position + Vector3(0, 2.6, 0), Color(1.0, 0.8, 0.4), 1.4, 4.0)
+	var catalogue := _dress(hub.get_node_or_null("UniqueCatalogue"), "Magicvault", 1.6)
+	if catalogue:
+		_omni(catalogue.global_position + Vector3(0, 2.6, 0), Constants.ITEM_RARITY_COLOR[Constants.ItemRarity.UNIQUE], 1.4, 4.0)
 	var spell := _dress(hub.get_node_or_null("SpellTestShop"), "Magicvault", 2.0)
 	if spell:
 		var tome := _prop("Tomeblue", Vector3.ZERO, 0.7)
