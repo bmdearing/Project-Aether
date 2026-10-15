@@ -7,6 +7,12 @@ there. Most recent first.
 
 ---
 
+## 2026-10-15 — v5.2.8: Heavy weapons rest over the shoulder
+
+- The Greatsword, Claymore and Greataxe idle pose angled the blade across the crosshair. The heavy family's rest pose (`PlayerArmRig.RESTS`) now leans the blade right and back over the shoulder, so it leaves the right edge of the screen. Swings start and end from the new pose cleanly.
+
+---
+
 ## 2026-10-15 — v5.2.5-v5.2.7: Item card defences, drop item levels, gun bash, scaling grades removed
 
 - **v5.2.7: Scaling grades are gone.** They never affected damage: both callers passed a stat value of 0. Removed the Weapon/Ability fields, the `ScalingGrade` enum and multiplier table, DamageCalculator's stat/grade parameters, the item card line, the Mythic Grade Equivalent Bonus, and the descriptive primary/secondary scaling stats. 705 `.tres` files dropped the dead fields. The Ascendant corruption outcome, which raised a grade and so did nothing, is now **Honed**: the weapon's base damage x1.2 (`Weapon.honed`, saved, shown in Alt info).
