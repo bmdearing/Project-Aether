@@ -51,7 +51,7 @@ var half: Dictionary = {}               # cell -> square half-size
 ## Boundary segments: {from, to, normal (into the street), grand, water}.
 var edges: Array[Dictionary] = []
 var spawn_points: Array[Vector3] = []
-## A plaza given over to the secret spire (SecretRoomBuilder), or NO_CELL.
+## A plaza given over to the secret outcrop (SecretRoomBuilder), or NO_CELL.
 const NO_CELL := Vector2i(-999, -999)
 var secret_cell := NO_CELL
 var building_count := 0
@@ -170,7 +170,7 @@ func _build_causeway(graph: MapGraph) -> void:
 	_map._add_climb_link(a_end - along * 1.1, a_end + along * 1.1 + Vector3.UP * CAUSEWAY_HEIGHT)
 	_map._add_climb_link(b_end + along * 1.1, b_end - along * 1.1 + Vector3.UP * CAUSEWAY_HEIGHT)
 
-## A random plaza away from the start, kept clear for the spire.
+## A random plaza away from the start, kept clear for the outcrop.
 func _pick_secret_square(graph: MapGraph) -> void:
 	var plazas: Array = []
 	for cell in graph.rooms:
@@ -182,7 +182,7 @@ func _pick_secret_square(graph: MapGraph) -> void:
 	plazas.sort()
 	secret_cell = plazas[randi() % plazas.size()]
 	var o := _map._cell_to_world(secret_cell)
-	var r := SecretRoomBuilder.SPIRE_CLEARANCE
+	var r := SecretRoomBuilder.OUTCROP_CLEARANCE
 	_dresser.reserve(Rect2(o.x - r, o.z - r, r * 2.0, r * 2.0))
 
 const DIRS: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]

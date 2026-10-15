@@ -77,6 +77,8 @@ func _on_body_entered(body: Node3D) -> void:
 		source = null  # the shooter died while this was in flight
 	if source is Player:
 		_hit_enemy(body as Enemy)
+		if body is CrackedWall:
+			(body as CrackedWall).strike()
 	else:
 		_hit_player(body as Player)
 	if body is Enemy and _pierced.size() <= pierce:
@@ -167,6 +169,8 @@ func _resolve_hitscan() -> void:
 		_play_impact_sound(body)
 		if source is Player:
 			_hit_enemy(body as Enemy, dir)
+			if body is CrackedWall:
+				(body as CrackedWall).strike()
 		if body is Enemy and _pierced.size() < pierce:
 			_pierced[body.get_instance_id()] = true
 			exclude.append((body as Enemy).get_rid())

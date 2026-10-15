@@ -430,6 +430,17 @@ func _enter_strike() -> void:
 		(_stance_release["on_contact"] as Callable).call()
 	if _player.ability_cast:
 		_player.ability_cast.on_melee_swing()
+	_strike_breakables()
+
+## A swing that meets a CrackedWall within reach knocks at it.
+func _strike_breakables() -> void:
+	var origin := _player.camera.global_position
+	var forward := -_player.camera.global_transform.basis.z
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + forward * float(get_swing_shape()["reach"]), 1)
+	query.exclude = [_player.get_rid()]
+	var wall := _player.get_world_3d().direct_space_state.intersect_ray(query).get("collider") as CrackedWall
+	if wall:
+		wall.strike()
 
 func _end_strike() -> void:
 	if _hitbox:

@@ -171,7 +171,7 @@ func _build_layout() -> void:
 				water = WaterBuilder.new(self)
 				water.plan(graph, cell_size, layout.rivers, layout.streams)
 			_roll_field_terraces()
-			_plan_spire()
+			_plan_outcrop()
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
 			_terrain.build_open_field(graph, cell_size)
 			if tileset.building_boundary:
@@ -182,7 +182,7 @@ func _build_layout() -> void:
 				_terrain.build_tree_line(_dresser, tileset, graph, cell_size)
 			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
 			if secret:
-				secret.build_spire()
+				secret.build_outcrop()
 			var dune_crest := _terrain.build_dais(_cell_to_world(graph.vault_cell), 1.6, _floor_mat)
 			boss_portal_point = dune_crest
 			_spawn_vault_boss(dune_crest)
@@ -190,19 +190,19 @@ func _build_layout() -> void:
 			streets = StreetBuilder.new(self, tileset, _dresser, _wall_mat)
 			streets.build(graph, cell_size)
 			if streets.secret_cell in graph.rooms:
-				secret = SecretRoomBuilder.plan_spire(self, _cell_to_world(streets.secret_cell))
-				secret.build_spire()
+				secret = SecretRoomBuilder.plan_outcrop(self, _cell_to_world(streets.secret_cell), false)
+				secret.build_outcrop()
 			var court := _cell_to_world(graph.vault_cell)
 			boss_portal_point = court
 			_spawn_vault_boss(court)
 		MapLayout.Kind.CANYON:
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
 			_roll_room_floors()
-			_plan_spire()
+			_plan_outcrop()
 			_terrain.build_canyon(graph, cell_size)
 			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
 			if secret:
-				secret.build_spire()
+				secret.build_outcrop()
 			var mesa := _terrain.build_dais(_cell_to_world(graph.vault_cell), 2.0, _wall_mat)
 			boss_portal_point = mesa
 			_spawn_vault_boss(mesa)
@@ -633,21 +633,21 @@ func _cell_to_world(cell: Vector2i) -> Vector3:
 func _wall_height_of(cell: Vector2i) -> float:
 	return room_wall_height.get(cell, layout.wall_height)
 
-## Open layouts: the secret spire stands in the middle of a cell away from the
+## Open layouts: the secret outcrop stands in a cell away from the
 ## start (and dry), whose packs and chest go elsewhere.
-func _plan_spire() -> void:
+func _plan_outcrop() -> void:
 	var cells: Array = []
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
 		if room.is_start or room.is_vault or room.distance_from_start < 2 or room_floor.has(cell):
 			continue
-		if water and water.is_wet(_cell_to_world(cell), SecretRoomBuilder.SPIRE_CLEARANCE):
+		if water and water.is_wet(_cell_to_world(cell), SecretRoomBuilder.OUTCROP_CLEARANCE):
 			continue
 		cells.append(cell)
 	if cells.is_empty():
 		return
 	cells.sort()
-	secret = SecretRoomBuilder.plan_spire(self, _cell_to_world(cells[randi() % cells.size()]))
+	secret = SecretRoomBuilder.plan_outcrop(self, _cell_to_world(cells[randi() % cells.size()]), true)
 
 ## ---- Raised rooms ---------------------------------------------------------
 ## Rooms and canyon layouts put some rooms (basins) on a plinth RAISED_FLOOR
@@ -1149,8 +1149,8 @@ func _build_wall_side(origin: Vector3, half: Vector2, dir: Vector2i, connected: 
 			_add_wall_segment(base, gap + 0.02, horizontal, bottom, 0.0, true)
 		_add_wall_segment(base, gap + 0.02, horizontal, top - origin.y - opening.z, origin.y + opening.z)
 
-## A wall box `height` tall standing on `base_y`. Only a secret window's sill
-## is `climbable`; rooms are otherwise closed boxes.
+## A wall box `height` tall standing on `base_y`. Only the sill under a secret
+## room's hole (in a raised host) is `climbable`; rooms are otherwise closed boxes.
 func _add_wall_segment(center: Vector3, length: float, horizontal: bool, height: float = -1.0, base_y: float = 0.0, climbable: bool = false) -> void:
 	if height < 0.0:
 		height = layout.wall_height
@@ -1231,7 +1231,7 @@ func _spawn_enemies() -> void:
 			# A second pack stands off to one side of the room, not on the first.
 			var side := Vector3(half.x * 0.35, 0, 0) if half.x >= half.y else Vector3(0, 0, half.y * 0.35)
 			var base := _cell_to_world(cell) + (side * (1.0 if i == 0 else -1.0) if packs > 1 else Vector3.ZERO)
-			# Clear of the secret room's stepping columns.
+			# Clear of the secret room's way in.
 			if secret and secret.host_cell == cell:
 				base -= Vector3(secret.host_dir.x, 0, secret.host_dir.y) * SECRET_HOST_PACK_SHIFT
 			var center := base + Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))

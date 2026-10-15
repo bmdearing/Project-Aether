@@ -103,19 +103,20 @@ func _run() -> void:
 				cam.position = at + side * 9.0 + Vector3(0, 3.0, 0) + (pts[1] - pts[0]).normalized() * 4.0
 				cam.look_at(at, Vector3.UP)
 		"secret":
-			# The secret's way in: the host room's wall from inside, or the spire.
+			# The secret's way in at eye height: the host room's cracked wall,
+			# or the outcrop from off its crack side.
 			var s := map.secret
-			if s and s.access == SecretRoomBuilder.Access.SPIRE:
-				var c := Vector3(s.chamber_centre.x, 0, s.chamber_centre.z)
-				cam.position = c + Vector3(13.0, 7.0, 13.0)
-				cam.look_at(c + Vector3(0, 4.0, 0), Vector3.UP)
+			if s and s.access == SecretRoomBuilder.Access.OUTCROP:
+				var n := Vector3(s.crack_dir.x, 0, s.crack_dir.y)
+				cam.position = s.centre + n * 13.0 + Vector3(n.z, 0, n.x) * 7.0 + Vector3(0, 1.7, 0)
+				cam.look_at(s.centre + Vector3(0, 3.0, 0), Vector3.UP)
 			elif s:
 				var origin := map._cell_to_world(s.host_cell)
 				var away := Vector3(s.host_dir.x, 0, s.host_dir.y)
 				var half: Vector2 = map.room_half[s.host_cell]
 				var reach: float = half.x if s.host_dir.x != 0 else half.y
-				cam.position = origin - away * (reach - 1.5) + Vector3(0, 3.0, 0) + Vector3(away.z, 0, away.x) * 2.0
-				cam.look_at(origin + away * reach + Vector3(0, 4.5, 0), Vector3.UP)
+				cam.position = origin + away * (reach - 3.5) + Vector3(0, 1.7, 0) + Vector3(away.z, 0, away.x) * 0.8
+				cam.look_at(origin + away * reach + Vector3(0, 1.3, 0), Vector3.UP)
 		"step":
 			# Down a corridor at a raised room's ledge.
 			for child in map.get_children():

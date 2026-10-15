@@ -3,46 +3,43 @@ class_name SecretRoomBuilder
 ## One hidden chamber per Figment, holding an encounter rolled from
 ## MapEncounters.SECRET_TABLE (a hoard, the Watcher, ...). Two shapes:
 ##   Rooms layouts - a chamber in an empty grid cell behind a closed wall of
-##     an ordinary room. CLIMB: a window high in the wall, reached by a run
-##     of stepping columns too tall to jump straight onto. TIMED: a barred
-##     gate at floor level; a lever in the room's far corner lifts it for a
-##     few seconds.
-##   Open fields, canyons, streets - a SPIRE: a walled chamber on a pedestal,
-##     reached by columns spiralling up around it.
+##     a room off the start-to-Vault route. The way in is a CrackedWall: a
+##     patch of that wall with hairline cracks and a little grit at its foot,
+##     broken down with a few hits.
+##   Open fields, canyons, streets - an OUTCROP: a rough rock mass shifted off
+##     its cell's centre, hollow inside. The way in is a crack in its rim,
+##     reached up two boulders among a few that lead nowhere.
 ## Everything is rolled from the map's seeded RNG, so a portal return builds
 ## the same secret; capture()/restore() carry what was done in it.
 
-enum Access { CLIMB, TIMED, SPIRE }
+enum Access { CRACKED, OUTCROP }
 
 ## Rooms: the chamber's inner footprint (along the wall, away from it) and height.
 const CHAMBER_WIDTH := 7.0
 const CHAMBER_DEPTH := 7.0
 const CHAMBER_HEIGHT := 3.4
-## CLIMB: the window's sill above the host floor, its size, and the host room's
-## wall height so the window fits under its ceiling.
-const WINDOW_SILL := 6.0
-const WINDOW_SIZE := Vector2(2.4, 2.3)
-const CLIMB_HOST_WALL := 10.0
-const COLUMN_SIZE := 1.5
-## Stepping columns in front of the window: (along the wall, out from it,
-## height). Each top is out of reach from the floor or the column before last.
-const CLIMB_COLUMNS: Array[Vector3] = [Vector3(-0.4, 5.6, 1.8), Vector3(3.0, 4.2, 3.4), Vector3(0.0, 2.6, 4.9)]
-## TIMED: the gate's size; it stays up for the sprint from the lever plus this.
-const GATE_SIZE := Vector2(2.6, 3.0)
-const GATE_GRACE := 2.0
-const SPRINT_SPEED := 9.0
-## SPIRE: pedestal (square, its top is the chamber floor) and columns.
-const SPIRE_HALF := 4.0
-const SPIRE_FLOOR := 6.6
-const SPIRE_WALL := 3.0
-const SPIRE_DOOR := Vector2(2.4, 2.4)
-const SPIRE_COLUMN_GAP := 1.8
-const SPIRE_STEP_DEGREES := 40.0
-const SPIRE_COLUMN_HEIGHTS: Array[float] = [1.8, 3.3, 4.8, 5.9]
-## How far packs and props keep from a spire's centre.
-const SPIRE_CLEARANCE := 8.5
+## The cracked patch: width along the wall, height.
+const HOLE_SIZE := Vector2(2.2, 2.6)
+## OUTCROP: the hollow's floor (square, half size) and headroom, the rock
+## skin around it, and the crack in its rim.
+const OUTCROP_HALF := 4.5
+const OUTCROP_FLOOR := 4.4
+const OUTCROP_ROOM := 2.8
+const OUTCROP_SKIN := 1.4
+const CRACK_SIZE := Vector2(1.8, 2.4)
+## The two boulders up to the crack: heights, rough size.
+const STEP_HEIGHTS: Array[float] = [1.5, 2.9]
+const STEP_SIZE := 2.4
+const DECOY_COUNT := 3
+## How far an outcrop moves off its cell's centre, toward a side with no
+## way through.
+const OUTCROP_SHIFT := 4.0
+## How far packs and props keep from an outcrop's centre.
+const OUTCROP_CLEARANCE := 9.5
+## Chamber lights stay inside their walls.
+const LIGHT_RANGE := 4.5
 
-var access: Access = Access.CLIMB
+var access: Access = Access.CRACKED
 var encounter_id: String = ""
 var encounter: Node3D
 ## Rooms only: the room the chamber hides behind, the wall it's behind, and
@@ -50,17 +47,20 @@ var encounter: Node3D
 var host_cell := Vector2i(-999, -999)
 var host_dir := Vector2i.ZERO
 var opening := Vector3.ZERO
-## Where the encounter stands, and the chamber floor's centre.
+var cracked_wall: CrackedWall
+## OUTCROP only: the rock's centre on the ground and the side its crack faces.
+var centre := Vector3.ZERO
+var crack_dir := Vector2i.ZERO
+## Where the encounter stands.
 var chamber_centre := Vector3.ZERO
 var _map: GeneratedMap
-var _gate: SecretGate
 var _found := false
 var _found_area: Area3D
 
 const DIRS: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 
 ## Picks the host room and wall, or null when no closed wall backs onto an
-## empty cell. A CLIMB host gets taller walls (set before it's built).
+## empty cell. Rooms on the way to the Vault host one only when nothing else can.
 static func plan_in_rooms(map: GeneratedMap) -> SecretRoomBuilder:
 	var candidates: Array = []
 	var cells: Array = map.graph.rooms.keys()
@@ -72,40 +72,62 @@ static func plan_in_rooms(map: GeneratedMap) -> SecretRoomBuilder:
 		var half: Vector2 = map.room_half[cell]
 		for dir in DIRS:
 			var n: Vector2i = cell + dir
-			# The column run needs room in front of the wall.
+			# Packs shift away from the wall (GeneratedMap.SECRET_HOST_PACK_SHIFT).
 			var depth: float = half.y if dir.y != 0 else half.x
 			if not room.connections.has(n) and not map.graph.rooms.has(n) and depth >= 7.0:
 				candidates.append([cell, dir])
 	if candidates.is_empty():
 		return null
+	var route := map._path_to_vault()
+	var off_route := candidates.filter(func(c): return not route.has(c[0]))
+	if not off_route.is_empty():
+		candidates = off_route
 	var pick: Array = candidates[randi() % candidates.size()]
 	var s := SecretRoomBuilder.new()
 	s._map = map
 	s.host_cell = pick[0]
 	s.host_dir = pick[1]
-	s.access = Access.CLIMB if randf() < 0.5 else Access.TIMED
-	if s.access == Access.CLIMB:
-		s.opening = Vector3(WINDOW_SIZE.x, WINDOW_SILL, WINDOW_SILL + WINDOW_SIZE.y)
-		map.room_wall_height[s.host_cell] = maxf(CLIMB_HOST_WALL, map.layout.wall_height)
-	else:
-		s.opening = Vector3(GATE_SIZE.x, 0.0, GATE_SIZE.y)
+	s.access = Access.CRACKED
+	s.opening = Vector3(HOLE_SIZE.x, 0.0, HOLE_SIZE.y)
 	s.encounter_id = MapEncounters.roll(MapEncounters.SECRET_TABLE)
 	return s
 
-## A spire at `centre`, for open layouts.
-static func plan_spire(map: GeneratedMap, centre: Vector3) -> SecretRoomBuilder:
+## An outcrop in the cell centred on `cell_centre`, for open layouts. `shift`
+## moves it toward a side of the cell with no way through.
+static func plan_outcrop(map: GeneratedMap, cell_centre: Vector3, shift: bool) -> SecretRoomBuilder:
 	var s := SecretRoomBuilder.new()
 	s._map = map
-	s.access = Access.SPIRE
-	s.chamber_centre = Vector3(centre.x, SPIRE_FLOOR, centre.z)
+	s.access = Access.OUTCROP
+	s.centre = Vector3(cell_centre.x, 0.0, cell_centre.z)
+	var shifted := Vector2i.ZERO
+	if shift:
+		var cell := Vector2i(roundi(cell_centre.x / map.cell_size), roundi(cell_centre.z / map.cell_size))
+		var room: MapGraph.RoomData = map.graph.rooms.get(cell)
+		var sides: Array[Vector2i] = []
+		for dir in DIRS:
+			if room and not room.connections.has(cell + dir) and not map.room_floor.has(cell + dir):
+				sides.append(dir)
+		if not sides.is_empty():
+			var dir: Vector2i = sides[randi() % sides.size()]
+			var pos := s.centre + Vector3(dir.x, 0, dir.y) * OUTCROP_SHIFT
+			if not (map.water and map.water.is_wet(pos, OUTCROP_CLEARANCE)):
+				s.centre = pos
+				shifted = dir
+	if shifted != Vector2i.ZERO:
+		# The crack faces along the cell's edge, not back toward its middle.
+		s.crack_dir = Vector2i(shifted.y, shifted.x) * (1 if randf() < 0.5 else -1)
+	else:
+		s.crack_dir = DIRS[randi() % DIRS.size()]
 	s.encounter_id = MapEncounters.roll(MapEncounters.SECRET_TABLE)
+	# Props may crowd round it (the boulders reserve their own ground).
 	if map._dresser:
-		map._dresser.reserve(Rect2(Vector2(centre.x, centre.z) - Vector2.ONE * SPIRE_CLEARANCE, Vector2.ONE * SPIRE_CLEARANCE * 2.0))
+		var r := OUTCROP_HALF + 1.5
+		map._dresser.reserve(Rect2(Vector2(s.centre.x, s.centre.z) - Vector2.ONE * r, Vector2.ONE * r * 2.0))
 	return s
 
-## True when `pos` is close enough to a spire that a pack there would stand in it.
+## True when `pos` is close enough to an outcrop that a pack there would stand in it.
 func blocks(pos: Vector3) -> bool:
-	return access == Access.SPIRE and Vector2(pos.x - chamber_centre.x, pos.z - chamber_centre.z).length() < SPIRE_CLEARANCE
+	return access == Access.OUTCROP and Vector2(pos.x - centre.x, pos.z - centre.z).length() < OUTCROP_CLEARANCE
 
 ## ---- Rooms: the chamber behind the host wall --------------------------------
 
@@ -117,8 +139,7 @@ func build(host_origin: Vector3, host_half: Vector2) -> void:
 	var wall_inner := host_origin + out * reach
 	var floor_y := host_origin.y + opening.y
 	var wt := GeneratedMap.WALL_THICKNESS
-	# Floor from the host wall's inner face (so the gate's threshold is solid)
-	# to the chamber's back.
+	# Floor from the host wall's inner face (under the patch) to the chamber's back.
 	var floor_len := wt + CHAMBER_DEPTH
 	var floor_mid := wall_inner + out * floor_len / 2.0
 	floor_mid.y = floor_y + 0.01
@@ -137,124 +158,107 @@ func build(host_origin: Vector3, host_half: Vector2) -> void:
 	var room_mid := wall_inner + out * (wt + CHAMBER_DEPTH / 2.0)
 	room_mid.y = floor_y
 	_map._build_ceiling(room_mid, CHAMBER_DEPTH + wt * 2.0 if host_dir.x != 0 else CHAMBER_WIDTH + wt * 2.0, CHAMBER_WIDTH + wt * 2.0 if host_dir.x != 0 else CHAMBER_DEPTH + wt * 2.0, CHAMBER_HEIGHT)
-	_add_light(room_mid + Vector3(0, CHAMBER_HEIGHT - 0.5, 0), 5.0 if access == Access.CLIMB else 2.5)
+	_add_light(room_mid + Vector3(0, CHAMBER_HEIGHT - 0.5, 0), 2.5)
 	chamber_centre = room_mid + out * 1.2
 	_add_found_area(room_mid, Vector3(size_x, CHAMBER_HEIGHT, size_z))
-	if access == Access.CLIMB:
-		_build_columns(wall_inner, out, along, host_origin.y)
-	else:
-		_build_gate(wall_inner, out, along, host_origin, host_half)
+	# The patch fills the hole the host wall leaves for it.
+	cracked_wall = CrackedWall.new()
+	cracked_wall.size = Vector3(HOLE_SIZE.x + 0.02, HOLE_SIZE.y, wt)
+	cracked_wall.material = _map._wall_mat if _map._wall_mat else _map._plain_material(GeneratedMap.WALL_COLOR)
+	cracked_wall.position = wall_inner + out * wt / 2.0
+	cracked_wall.position.y = floor_y
+	cracked_wall.rotation.y = atan2(-out.x, -out.z)
+	_map.add_child(cracked_wall)
+	if _map._dresser:
+		var lane := wall_inner - out * 1.2
+		_map._dresser.reserve(Rect2(Vector2(lane.x, lane.z) - Vector2.ONE * 1.6, Vector2.ONE * 3.2))
 	_spawn_encounter(-out)
 
-func _build_columns(wall_inner: Vector3, out: Vector3, along: Vector3, floor_y: float) -> void:
-	var flip := 1.0 if randf() < 0.5 else -1.0
-	for c in CLIMB_COLUMNS:
-		var pos := wall_inner - out * c.y + along * c.x * flip
-		pos.y = floor_y
-		_column(pos, c.z)
+## ---- Open layouts: the outcrop ------------------------------------------------
 
-func _build_gate(wall_inner: Vector3, out: Vector3, along: Vector3, host_origin: Vector3, host_half: Vector2) -> void:
-	var wt := GeneratedMap.WALL_THICKNESS
-	var gate_pos := wall_inner + out * wt / 2.0
-	gate_pos.y = host_origin.y
-	_gate = SecretGate.new()
-	_gate.size = Vector3(GATE_SIZE.x if host_dir.y != 0 else 0.25, GATE_SIZE.y, 0.25 if host_dir.y != 0 else GATE_SIZE.x)
-	_map.add_child(_gate)
-	_gate.global_position = gate_pos
-	# The lever stands in a far corner, a sprint across the room.
-	var depth: float = host_half.x if host_dir.x != 0 else host_half.y
-	var width: float = host_half.y if host_dir.x != 0 else host_half.x
-	var side := 1.0 if randf() < 0.5 else -1.0
-	var lever_pos := host_origin - out * (depth - 1.0) + along * side * (width - 1.0)
-	var lever := SecretLever.new()
-	_map.add_child(lever)
-	lever.global_position = lever_pos
-	lever.rotation.y = atan2(out.x, out.z)
-	var run := Vector2(lever_pos.x - gate_pos.x, lever_pos.z - gate_pos.z).length()
-	var open_time := run / SPRINT_SPEED + GATE_GRACE
-	lever.pulled.connect(func(): _gate.open_for(open_time))
-	# A lever inside lets the player back out.
-	var inner := SecretLever.new()
-	_map.add_child(inner)
-	inner.global_position = wall_inner + out * (wt + 0.8) + along * (GATE_SIZE.x / 2.0 + 0.9)
-	inner.global_position.y = host_origin.y
-	inner.rotation.y = atan2(-out.x, -out.z)
-	inner.pulled.connect(func(): _gate.open_for(4.0))
-	if _map._dresser:
-		_map._dresser.reserve(Rect2(Vector2(lever_pos.x, lever_pos.z) - Vector2.ONE * 1.2, Vector2.ONE * 2.4))
-		var lane := wall_inner - out * 2.0
-		_map._dresser.reserve(Rect2(Vector2(lane.x, lane.z) - Vector2.ONE * 2.2, Vector2.ONE * 4.4))
-
-## ---- Open layouts: the spire -----------------------------------------------
-
-func build_spire() -> void:
-	var c := chamber_centre
+func build_outcrop() -> void:
 	var walls_before := _map.interior_wall_count
-	var base := Vector3(c.x, 0.0, c.z)
-	# Sunk a little so uneven ground doesn't leave a gap under it.
-	_solid(base + Vector3(0, (SPIRE_FLOOR - 1.5) / 2.0, 0), Vector3(SPIRE_HALF * 2.0, SPIRE_FLOOR + 1.5, SPIRE_HALF * 2.0), false)
-	_map._build_floor(c + Vector3(0, 0.01, 0), SPIRE_HALF * 2.0, SPIRE_HALF * 2.0, 0.0, GeneratedMap.VAULT_FLOOR_COLOR)
-	var door_dir: Vector2i = DIRS[randi() % DIRS.size()]
-	var wt := GeneratedMap.WALL_THICKNESS
+	var n := Vector3(crack_dir.x, 0, crack_dir.y)
+	var top := centre + Vector3.UP * OUTCROP_FLOOR
+	var roof_y := OUTCROP_FLOOR + OUTCROP_ROOM
+	# The core: its top is the hollow's floor, its edge at the crack the ledge
+	# the last boulder reaches. Sunk so uneven ground leaves no gap under it.
+	_solid(centre + Vector3(0, (OUTCROP_FLOOR - 1.5) / 2.0, 0), Vector3(OUTCROP_HALF * 2.0, OUTCROP_FLOOR + 1.5, OUTCROP_HALF * 2.0), false)
+	_map._build_floor(top + Vector3(0, 0.01, 0), OUTCROP_HALF * 2.0, OUTCROP_HALF * 2.0, 0.0, GeneratedMap.VAULT_FLOOR_COLOR)
+	# The skin: jagged blocks down each side, standing proud of the roof.
+	var reach := OUTCROP_HALF - OUTCROP_SKIN / 2.0 + 0.3
+	var span := OUTCROP_HALF * 2.0 + OUTCROP_SKIN
 	for dir in DIRS:
-		var horizontal := dir.y != 0
-		var n := Vector3(dir.x, 0, dir.y)
-		var mid := c + n * (SPIRE_HALF - wt / 2.0)
-		var length := SPIRE_HALF * 2.0
-		if dir != door_dir:
-			_map._add_wall_segment(mid, length, horizontal, SPIRE_WALL, SPIRE_FLOOR)
+		var side_n := Vector3(dir.x, 0, dir.y)
+		var along := Vector3(absf(side_n.z), 0, absf(side_n.x))
+		var yaw := atan2(side_n.x, side_n.z)
+		var mid := centre + side_n * reach
+		if dir != crack_dir:
+			for k in [-1.0, 0.0, 1.0]:
+				var pos: Vector3 = mid + along * k * span / 3.0 + side_n * randf_range(-0.1, 0.3)
+				_rock(pos, Vector3(span / 3.0 + 0.8, roof_y + randf_range(0.3, 1.1), OUTCROP_SKIN), yaw + deg_to_rad(randf_range(-8.0, 8.0)), false)
 			continue
-		var along := Vector3(absf(n.z), 0, absf(n.x))
-		var seg := (length - SPIRE_DOOR.x) / 2.0
-		for side in [-1.0, 1.0]:
-			_map._add_wall_segment(mid + along * side * (SPIRE_DOOR.x + seg) / 2.0, seg, horizontal, SPIRE_WALL, SPIRE_FLOOR)
-		_map._add_wall_segment(mid, SPIRE_DOOR.x + 0.02, horizontal, SPIRE_WALL - SPIRE_DOOR.y, SPIRE_FLOOR + SPIRE_DOOR.y)
-	# The chamber's walls aren't room walls; open layouts still have none.
+		var piece := (span - CRACK_SIZE.x) / 2.0
+		for k in [-1.0, 1.0]:
+			_rock(mid + along * k * (CRACK_SIZE.x + piece) / 2.0, Vector3(piece, roof_y + randf_range(0.4, 1.0), OUTCROP_SKIN), yaw + deg_to_rad(randf_range(-3.0, 3.0)), false)
+		# Over the crack, and under it down to the ground: the last is the ledge.
+		_rock(mid + Vector3.UP * (OUTCROP_FLOOR + CRACK_SIZE.y), Vector3(CRACK_SIZE.x + 1.0, roof_y + 0.6 - OUTCROP_FLOOR - CRACK_SIZE.y, OUTCROP_SKIN), yaw, false)
+		_rock(mid, Vector3(CRACK_SIZE.x + 0.2, OUTCROP_FLOOR, OUTCROP_SKIN), yaw, true)
+	for corner in [Vector3(1, 0, 1), Vector3(1, 0, -1), Vector3(-1, 0, 1), Vector3(-1, 0, -1)]:
+		_rock(centre + corner * (OUTCROP_HALF - 0.2), Vector3(2.2, roof_y + randf_range(0.2, 0.9), 2.2), deg_to_rad(45.0 + randf_range(-10.0, 10.0)), false)
+	_rock(centre + Vector3.UP * roof_y, Vector3(OUTCROP_HALF * 2.0 + 0.4, 1.0, OUTCROP_HALF * 2.0 + 0.4), randf_range(-0.1, 0.1), false)
+	# The chamber isn't a room; open layouts still have no interior walls.
 	_map.interior_wall_count = walls_before
-	_map._build_ceiling(c, SPIRE_HALF * 2.0, SPIRE_HALF * 2.0, SPIRE_WALL)
-	_add_light(c + Vector3(0, SPIRE_WALL - 0.5, 0), 2.5)
-	_add_found_area(c, Vector3(SPIRE_HALF * 2.0 - 1.0, SPIRE_WALL, SPIRE_HALF * 2.0 - 1.0))
-	# The last column stands in front of the door; the rest spiral down from it.
-	var door_angle := atan2(float(door_dir.y), float(door_dir.x))
-	var turn := deg_to_rad(SPIRE_STEP_DEGREES) * (1.0 if randf() < 0.5 else -1.0)
-	var radius := SPIRE_HALF + SPIRE_COLUMN_GAP + COLUMN_SIZE / 2.0
-	var count := SPIRE_COLUMN_HEIGHTS.size()
-	for i in count:
-		var angle := door_angle - turn * (count - 1 - i)
-		_column(base + Vector3(cos(angle), 0, sin(angle)) * radius, SPIRE_COLUMN_HEIGHTS[i])
-	chamber_centre = c - Vector3(door_dir.x, 0, door_dir.y) * 1.5
-	_spawn_encounter(Vector3(door_dir.x, 0, door_dir.y))
+	_add_light(top + Vector3(0, OUTCROP_ROOM - 0.6, 0), 2.5)
+	_add_found_area(top, Vector3(OUTCROP_HALF * 2.0 - 3.0, OUTCROP_ROOM, OUTCROP_HALF * 2.0 - 3.0))
+	# Two boulders up to the crack, the lower one off to a side.
+	var along_n := Vector3(absf(n.z), 0, absf(n.x)) * (1.0 if randf() < 0.5 else -1.0)
+	var near := centre + n * (OUTCROP_HALF + 0.3 + STEP_SIZE / 2.0 - 0.1)
+	_boulder(near, STEP_HEIGHTS[1], true)
+	_boulder(near + n * (STEP_SIZE - 0.3) + along_n * 1.2, STEP_HEIGHTS[0], true)
+	# A few that lead nowhere, around the other sides.
+	var crack_angle := atan2(n.z, n.x)
+	for i in DECOY_COUNT:
+		var angle := crack_angle + deg_to_rad(randf_range(70.0, 290.0))
+		var dist := OUTCROP_HALF + randf_range(1.2, 2.4)
+		_boulder(centre + Vector3(cos(angle), 0, sin(angle)) * dist, randf_range(0.8, 2.2), false)
+	chamber_centre = top - n * 0.8
+	_spawn_encounter(n)
+
+## A rough boulder standing on the ground at `foot`, `height` tall.
+func _boulder(foot: Vector3, height: float, step: bool) -> void:
+	var w := STEP_SIZE * randf_range(0.9, 1.1) if step else randf_range(1.4, 2.6)
+	var d := STEP_SIZE * randf_range(0.9, 1.1) if step else randf_range(1.4, 2.6)
+	_rock(foot - Vector3.UP * 0.5, Vector3(w, height + 0.5, d), deg_to_rad(randf_range(-20.0, 20.0)), true)
+	if _map._dresser:
+		var r := maxf(w, d) / 2.0 + 0.8
+		_map._dresser.reserve(Rect2(Vector2(foot.x, foot.z) - Vector2.ONE * r, Vector2.ONE * r * 2.0))
+
+## A block of the layout's wall rock, `size` tall from `bottom` (its foot's
+## centre), turned by `yaw`.
+func _rock(bottom: Vector3, size: Vector3, yaw: float, climbable: bool) -> void:
+	var body := StaticBody3D.new()
+	body.position = bottom + Vector3.UP * size.y / 2.0
+	body.rotation.y = yaw
+	if not climbable:
+		# Leaning a little, so the mass reads as rock rather than masonry.
+		body.rotation.x = randf_range(-0.05, 0.05)
+		body.rotation.z = randf_range(-0.05, 0.05)
+		LedgeClimb.forbid(body)
+	_map.add_child(body)
+	_shape(body, size)
 
 ## ---- Shared pieces -----------------------------------------------------------
 
-## A stepping column from the floor up to `height`, its top edged in light.
-func _column(foot: Vector3, height: float) -> void:
-	var sink := 1.0
-	_solid(foot + Vector3(0, (height - sink) / 2.0, 0), Vector3(COLUMN_SIZE, height + sink, COLUMN_SIZE), false)
-	var cap := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(COLUMN_SIZE + 0.06, 0.08, COLUMN_SIZE + 0.06)
-	cap.mesh = box
-	var mat := StandardMaterial3D.new()
-	var color: Color = _map.tileset.light_color if _map.tileset else Color(0.9, 0.75, 0.4)
-	mat.albedo_color = color
-	mat.emission_enabled = true
-	mat.emission = color
-	mat.emission_energy_multiplier = 0.6
-	cap.material_override = mat
-	cap.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	cap.position = foot + Vector3(0, height - 0.03, 0)
-	_map.add_child(cap)
-	if _map._dresser:
-		var r := COLUMN_SIZE / 2.0 + 0.8
-		_map._dresser.reserve(Rect2(Vector2(foot.x, foot.z) - Vector2.ONE * r, Vector2.ONE * r * 2.0))
-
-func _solid(centre: Vector3, size: Vector3, no_climb: bool) -> void:
+func _solid(at: Vector3, size: Vector3, no_climb: bool) -> void:
 	var body := StaticBody3D.new()
-	body.position = centre
+	body.position = at
 	if no_climb:
 		LedgeClimb.forbid(body)
 	_map.add_child(body)
+	_shape(body, size)
+
+func _shape(body: StaticBody3D, size: Vector3) -> void:
 	var mesh := MeshInstance3D.new()
 	var box := BoxMesh.new()
 	box.size = size
@@ -271,13 +275,13 @@ func _add_light(pos: Vector3, energy: float) -> void:
 	var light := OmniLight3D.new()
 	light.light_color = Color(1.0, 0.8, 0.45)
 	light.light_energy = energy
-	light.omni_range = 7.0
+	light.omni_range = LIGHT_RANGE
 	light.position = pos
 	_map._fade_with_distance(light)
 	_map.add_child(light)
 
 ## Announces the find the first time the player steps inside.
-func _add_found_area(centre: Vector3, size: Vector3) -> void:
+func _add_found_area(at: Vector3, size: Vector3) -> void:
 	_found_area = Area3D.new()
 	_found_area.monitorable = false
 	var shape := CollisionShape3D.new()
@@ -287,7 +291,7 @@ func _add_found_area(centre: Vector3, size: Vector3) -> void:
 	shape.position.y = size.y / 2.0
 	_found_area.add_child(shape)
 	_map.add_child(_found_area)
-	_found_area.global_position = centre
+	_found_area.global_position = at
 	_found_area.body_entered.connect(func(body: Node3D):
 		if body is Player and not _found:
 			_found = true
@@ -305,12 +309,14 @@ func _spawn_encounter(facing: Vector3) -> void:
 ## ---- Portal trips --------------------------------------------------------------
 
 func capture() -> Dictionary:
-	var state := {"found": _found}
+	var state := {"found": _found, "opened": access == Access.CRACKED and not is_instance_valid(cracked_wall)}
 	if is_instance_valid(encounter) and encounter.has_method("capture_state"):
 		state["encounter"] = encounter.capture_state()
 	return state
 
 func restore(state: Dictionary) -> void:
 	_found = bool(state.get("found", false))
+	if bool(state.get("opened", false)) and is_instance_valid(cracked_wall):
+		cracked_wall.shatter(true)
 	if is_instance_valid(encounter) and encounter.has_method("restore_state"):
 		encounter.restore_state(state.get("encounter", {}))
