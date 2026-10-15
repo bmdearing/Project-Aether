@@ -153,6 +153,8 @@ const JUMP_BUFFER_TIME := 0.12
 const IMPULSE_FRICTION := 12.0
 
 var _move_velocity: Vector3 = Vector3.ZERO
+## Ledge catching and mantling; owns movement while it's busy.
+var ledge_climb: LedgeClimb
 var _lunge_velocity: Vector3 = Vector3.ZERO
 var _lunge_timer: float = 0.0
 var _impulse: Vector3 = Vector3.ZERO
@@ -201,6 +203,7 @@ func _ready() -> void:
 		stat_sheet.agility = 10.0
 		stat_sheet.intellect = 10.0
 	fate_board = FateBoard.new()
+	ledge_climb = LedgeClimb.new(self)
 	shield_block = ShieldBlock.new()
 	shield_block.name = "ShieldBlock"
 	add_child(shield_block)
@@ -707,6 +710,10 @@ func is_input_blocked() -> bool:
 	return Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and DisplayServer.get_name() != "headless"
 
 func _physics_process(delta: float) -> void:
+	if ledge_climb.busy():
+		ledge_climb.process(delta)
+		_update_crouch_visual(delta)
+		return
 	if not is_on_floor():
 		var gravity_scale := FALL_GRAVITY_MULTIPLIER if velocity.y < 0.0 else 1.0
 		velocity.y -= _gravity * gravity_scale * delta
@@ -785,6 +792,8 @@ func _physics_process(delta: float) -> void:
 
 	_update_crouch_visual(delta)
 	move_and_slide()
+	if not stunned and not rooted:
+		ledge_climb.try_catch(delta)
 
 	if stunned or is_input_blocked():
 		return

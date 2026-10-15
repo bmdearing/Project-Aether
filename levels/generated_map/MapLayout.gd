@@ -34,6 +34,8 @@ var corridor_width: float = GeneratedMap.CORRIDOR_WIDTH
 var wall_height: float = GeneratedMap.WALL_HEIGHT
 var pillar_chance: float = GeneratedMap.PILLAR_CHANCE
 var cave_walls: bool = false
+## Share of ordinary rooms raised onto a plinth (GeneratedMap.RAISED_FLOOR).
+var raised_room_chance: float = 0.3
 ## Open fields and canyons.
 var mounds_per_cell: Vector2i = TerrainBuilder.MOUNDS_PER_CELL
 var mound_scale: float = 1.0

@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/v520/test_verticality.gd" id="1"]
+
+[node name="TestVerticality" type="Node"]
+script = ExtResource("1")

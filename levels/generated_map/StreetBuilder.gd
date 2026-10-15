@@ -9,9 +9,10 @@ class_name StreetBuilder
 ## (Trainyard) and a waterfront (Harbor) dress it. Packs stand at
 ## spawn_points, which props keep clear of.
 
-## Collision height; the visible wall is lower so short buildings in front
+## Collision height, tall enough that nothing climbed or jumped from clears
+## it; the visible wall is lower so short buildings in front
 ## of it (warehouses) aren't topped by bare wall.
-const WALL_HEIGHT := 6.0
+const WALL_HEIGHT := 16.0
 const WALL_VISIBLE_HEIGHT := 3.5
 const WALL_THICKNESS := 1.0
 ## Walls stand this far behind the street line: building bounds include their
@@ -50,6 +51,9 @@ var half: Dictionary = {}               # cell -> square half-size
 ## Boundary segments: {from, to, normal (into the street), grand, water}.
 var edges: Array[Dictionary] = []
 var spawn_points: Array[Vector3] = []
+## A plaza given over to the secret spire (SecretRoomBuilder), or NO_CELL.
+const NO_CELL := Vector2i(-999, -999)
+var secret_cell := NO_CELL
 var building_count := 0
 var lamp_count := 0
 var vent_count := 0
@@ -78,6 +82,7 @@ func build(graph: MapGraph, cell_size: float) -> void:
 	if _tileset.waterfront:
 		_pick_water_side(graph)
 	_plan_squares(graph)
+	_pick_secret_square(graph)
 	var extent := cell_size * graph.grid_size
 	var centre := Vector3((graph.grid_size - 1) * cell_size / 2.0, 0.0, (graph.grid_size - 1) * cell_size / 2.0)
 	_map._build_floor(centre, extent, extent, 0.0, GeneratedMap.ROOM_FLOOR_COLORS[0])
@@ -122,6 +127,21 @@ func _plan_squares(graph: MapGraph) -> void:
 		_map.room_half[cell] = Vector2(h, h)
 		var o := _map._cell_to_world(cell)
 		_walkable.append(Rect2(o.x - h, o.z - h, h * 2.0, h * 2.0))
+
+## A random plaza away from the start, kept clear for the spire.
+func _pick_secret_square(graph: MapGraph) -> void:
+	var plazas: Array = []
+	for cell in graph.rooms:
+		var room: MapGraph.RoomData = graph.rooms[cell]
+		if not room.is_start and not room.is_vault and float(half[cell]) >= PLAZA_HALF.x - 0.1:
+			plazas.append(cell)
+	if plazas.is_empty():
+		return
+	plazas.sort()
+	secret_cell = plazas[randi() % plazas.size()]
+	var o := _map._cell_to_world(secret_cell)
+	var r := SecretRoomBuilder.SPIRE_CLEARANCE
+	_dresser.reserve(Rect2(o.x - r, o.z - r, r * 2.0, r * 2.0))
 
 const DIRS: Array[Vector2i] = [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
 
@@ -179,7 +199,8 @@ func _plan_spawns(graph: MapGraph) -> void:
 		var h: float = half[cell]
 		# Plazas keep their centre for the fountain or statue.
 		var offset := Vector3(h * 0.45 * (1 if randf() < 0.5 else -1), 0, h * 0.45 * (1 if randf() < 0.5 else -1)) if h > _street_w / 2.0 + 0.1 else Vector3.ZERO
-		_add_spawn(centre + offset)
+		if cell != secret_cell:
+			_add_spawn(centre + offset)
 		for d in [Vector2i.RIGHT, Vector2i.DOWN]:
 			var n: Vector2i = (cell as Vector2i) + d
 			if not graph.has_connection(cell, n):
@@ -211,6 +232,7 @@ func _build_wall(e: Dictionary) -> void:
 	var mid := from + along * (lo + hi) / 2.0 - n * (WALL_SETBACK + WALL_THICKNESS / 2.0)
 	var size := Vector3(hi - lo, WALL_HEIGHT, WALL_THICKNESS)
 	var body := StaticBody3D.new()
+	LedgeClimb.forbid(body)
 	body.position = mid + Vector3(0, WALL_HEIGHT / 2.0, 0)
 	body.rotation.y = atan2(-along.z, along.x)  # local X runs along the edge
 	_map.add_child(body)
@@ -357,6 +379,7 @@ func _build_quay(e: Dictionary) -> void:
 	var length := from.distance_to(to)
 	var mid := (from + to) / 2.0 - n * 0.3
 	var body := StaticBody3D.new()
+	LedgeClimb.forbid(body)
 	body.position = mid
 	body.rotation.y = atan2(-along.z, along.x)
 	_map.add_child(body)
@@ -393,7 +416,7 @@ func _dress_squares(graph: MapGraph) -> void:
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
 		var h: float = half[cell]
-		if room.is_vault or room.is_start or h <= _street_w / 2.0 + 0.1:
+		if room.is_vault or room.is_start or h <= _street_w / 2.0 + 0.1 or cell == secret_cell:
 			continue
 		var centre := _map._cell_to_world(cell)
 		_dresser.place_at(centre, pool[0] if randf() < 0.5 else pool.pick_random(), randf() * TAU)
@@ -541,6 +564,7 @@ static func _valid(scenes: Array[PackedScene]) -> Array[PackedScene]:
 ## A box from the back of the building to just behind its eaves.
 func _add_building_collision(node: Node3D, b: AABB) -> void:
 	var body := StaticBody3D.new()
+	LedgeClimb.forbid(body)
 	var shape := CollisionShape3D.new()
 	var box := BoxShape3D.new()
 	var front := b.end.x - EAVE_DEPTH / maxf(node.scale.x, 0.01)

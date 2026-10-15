@@ -101,6 +101,29 @@ func _run() -> void:
 				var side := (pts[1] - pts[0]).normalized().cross(Vector3.UP)
 				cam.position = at + side * 9.0 + Vector3(0, 3.0, 0) + (pts[1] - pts[0]).normalized() * 4.0
 				cam.look_at(at, Vector3.UP)
+		"secret":
+			# The secret's way in: the host room's wall from inside, or the spire.
+			var s := map.secret
+			if s and s.access == SecretRoomBuilder.Access.SPIRE:
+				var c := Vector3(s.chamber_centre.x, 0, s.chamber_centre.z)
+				cam.position = c + Vector3(13.0, 7.0, 13.0)
+				cam.look_at(c + Vector3(0, 4.0, 0), Vector3.UP)
+			elif s:
+				var origin := map._cell_to_world(s.host_cell)
+				var away := Vector3(s.host_dir.x, 0, s.host_dir.y)
+				var half: Vector2 = map.room_half[s.host_cell]
+				var reach: float = half.x if s.host_dir.x != 0 else half.y
+				cam.position = origin - away * (reach - 1.5) + Vector3(0, 3.0, 0) + Vector3(away.z, 0, away.x) * 2.0
+				cam.look_at(origin + away * reach + Vector3(0, 4.5, 0), Vector3.UP)
+		"step":
+			# Down a corridor at a raised room's ledge.
+			for child in map.get_children():
+				if child is NavigationLink3D:
+					var link := child as NavigationLink3D
+					var dir := (link.end_position - link.start_position) * Vector3(1, 0, 1)
+					cam.position = link.start_position - dir.normalized() * 5.0 + Vector3(0, 1.6, 0)
+					cam.look_at(link.end_position + Vector3(0, 1.0, 0), Vector3.UP)
+					break
 		"room":
 			for cell in map.graph.rooms:
 				var room: MapGraph.RoomData = map.graph.rooms[cell]

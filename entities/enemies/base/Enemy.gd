@@ -746,7 +746,8 @@ func _update_chase() -> void:
 		velocity.z = 0.0
 	_check_stuck()
 
-	_check_gap_jump()
+	if not _climb_link():
+		_check_gap_jump()
 
 ## ---- Navigation ----------------------------------------------------------
 ## Paths come from the map's navigation mesh (GeneratedMap bakes one at
@@ -861,6 +862,23 @@ func _check_stuck() -> void:
 
 static func _flat(v: Vector3) -> Vector3:
 	return Vector3(v.x, 0.0, v.z)
+
+## Crossing a raised room's step (GeneratedMap._add_climb_link()): a path point
+## well above and close means jump up to it; well below means walk off the
+## edge, which the gap check would refuse at that depth.
+const CLIMB_LINK_RISE := 1.2
+const CLIMB_LINK_REACH := 2.6
+
+func _climb_link() -> bool:
+	if _path_index >= _path.size():
+		return false
+	var next := _path[_path_index]
+	var rise := next.y - global_position.y
+	if absf(rise) < CLIMB_LINK_RISE or _flat(next - global_position).length() > CLIMB_LINK_REACH:
+		return false
+	if rise > 0.0 and is_on_floor():
+		velocity.y = sqrt(2.0 * _gravity * (rise + 0.6))
+	return true
 
 const GAP_CHECK_AHEAD := 1.0
 const GAP_PROBE_UP := 3.0       # probe ray starts this far above - must clear a raised landing like the Vault's platform

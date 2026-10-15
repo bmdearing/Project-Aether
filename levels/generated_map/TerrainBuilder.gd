@@ -61,6 +61,8 @@ func build_open_field(graph: MapGraph, cell_size: float) -> void:
 			# Mounds stay out of rivers and streams (radius up to ~7.5 m, scaled).
 			if _map.water and _map.water.is_wet(pos, DUNE_MOUND_RADIUS.y * _map.layout.mound_scale):
 				continue
+			if _map.secret and _map.secret.blocks(pos):
+				continue
 			_build_mound(pos)
 
 func _build_mound(pos: Vector3) -> void:
@@ -137,6 +139,7 @@ func _build_cliff_line(from: Vector3, to: Vector3) -> void:
 
 func _add_cliff_block(pos: Vector3, size: Vector3, yaw: float) -> void:
 	var body := StaticBody3D.new()
+	LedgeClimb.forbid(body)
 	body.position = pos + Vector3(0, size.y / 2.0 - 0.3, 0)
 	body.rotation.y = yaw
 	_map.add_child(body)
@@ -280,6 +283,7 @@ func _add_ellipsoid(pos: Vector3, radius: float, height: float, material: Materi
 
 func _add_invisible_wall(pos: Vector3, size: Vector3) -> void:
 	var body := StaticBody3D.new()
+	LedgeClimb.forbid(body)
 	body.position = pos
 	_map.add_child(body)
 	var collision := CollisionShape3D.new()

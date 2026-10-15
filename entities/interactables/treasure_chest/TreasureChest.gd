@@ -20,9 +20,14 @@ const DROP_RADIUS := 1.8
 const SIZE := Vector3(1.1, 0.7, 0.7)
 const WOOD := Color(0.36, 0.22, 0.1)
 const BRASS := Color(0.85, 0.66, 0.3)
+const GILT := Color(1.0, 0.82, 0.35)
 
 const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPickup.tscn")
 const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
+
+## A secret room's hoard: more drops, better rarity, gilded.
+var roll_scale := 1.0
+var rarity_bonus := 0.0
 
 var _opened := false
 var _player_in_range := false
@@ -43,7 +48,8 @@ func _ready() -> void:
 	shape.position.y = SIZE.y / 2.0
 	body.add_child(shape)
 	body.add_child(_box(Vector3(SIZE.x, SIZE.y * 0.62, SIZE.z), Vector3(0, SIZE.y * 0.31, 0), WOOD))
-	body.add_child(_box(Vector3(SIZE.x + 0.04, 0.08, SIZE.z + 0.04), Vector3(0, SIZE.y * 0.55, 0), BRASS))
+	var trim := GILT if roll_scale > 1.0 else BRASS
+	body.add_child(_box(Vector3(SIZE.x + 0.04, 0.08, SIZE.z + 0.04), Vector3(0, SIZE.y * 0.55, 0), trim))
 	# The lid hinges along the back edge.
 	_lid = Node3D.new()
 	_lid.position = Vector3(0, SIZE.y * 0.62, -SIZE.z / 2.0)
@@ -137,10 +143,10 @@ func set_opened() -> void:
 func _spill_loot() -> void:
 	var mods := Loot.multipliers()
 	var gold: GoldPickup = GOLD_PICKUP_SCENE.instantiate()
-	gold.amount = roundi(randi_range(GOLD_RANGE.x, GOLD_RANGE.y) * (1.0 + (_tier() - 1) * 0.2))
+	gold.amount = roundi(randi_range(GOLD_RANGE.x, GOLD_RANGE.y) * (1.0 + (_tier() - 1) * 0.2) * roll_scale)
 	_place(gold)
-	for i in Loot.roll_count(BASE_ROLLS * mods["quantity"] * (1.0 + FigmentTree.effect("chest_quantity") / 100.0)):
-		_roll_drop(mods["rarity"])
+	for i in Loot.roll_count(BASE_ROLLS * roll_scale * mods["quantity"] * (1.0 + FigmentTree.effect("chest_quantity") / 100.0)):
+		_roll_drop(mods["rarity"] + rarity_bonus)
 
 func _roll_drop(rarity_mult: float) -> void:
 	var item_level := _tier()

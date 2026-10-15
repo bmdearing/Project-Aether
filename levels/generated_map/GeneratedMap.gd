@@ -105,6 +105,12 @@ var _dead_spawn_indices: Array[int] = []
 var _portal: Portal
 ## Rooms layout: cell -> Vector2 half-extents (x, z) of that room.
 var room_half: Dictionary = {}
+## Rooms layout: cell -> floor height of a raised room (absent = 0), and
+## cell -> wall height of a room taller than the style's.
+var room_floor: Dictionary = {}
+var room_wall_height: Dictionary = {}
+## The Figment's secret room, or null when none fit.
+var secret: SecretRoomBuilder
 ## Where the portal home opens when the Figment's boss dies.
 var boss_portal_point: Vector3
 var _completion_portal: Portal
@@ -153,6 +159,8 @@ func _build_layout() -> void:
 	match layout.kind:
 		MapLayout.Kind.ROOMS:
 			_roll_room_sizes()
+			_roll_room_floors()
+			secret = SecretRoomBuilder.plan_in_rooms(self)
 			for cell in graph.rooms:
 				_build_room(graph.rooms[cell])
 			_build_corridors()
@@ -160,6 +168,7 @@ func _build_layout() -> void:
 			if layout.rivers + layout.streams > 0:
 				water = WaterBuilder.new(self)
 				water.plan(graph, cell_size, layout.rivers, layout.streams)
+			_plan_spire()
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
 			_terrain.build_open_field(graph, cell_size)
 			if tileset.building_boundary:
@@ -169,19 +178,27 @@ func _build_layout() -> void:
 			if tileset.family == "forest":
 				_terrain.build_tree_line(_dresser, tileset, graph, cell_size)
 			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
+			if secret:
+				secret.build_spire()
 			var dune_crest := _terrain.build_dais(_cell_to_world(graph.vault_cell), 1.6, _floor_mat)
 			boss_portal_point = dune_crest
 			_spawn_vault_boss(dune_crest)
 		MapLayout.Kind.STREETS:
 			streets = StreetBuilder.new(self, tileset, _dresser, _wall_mat)
 			streets.build(graph, cell_size)
+			if streets.secret_cell in graph.rooms:
+				secret = SecretRoomBuilder.plan_spire(self, _cell_to_world(streets.secret_cell))
+				secret.build_spire()
 			var court := _cell_to_world(graph.vault_cell)
 			boss_portal_point = court
 			_spawn_vault_boss(court)
 		MapLayout.Kind.CANYON:
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
+			_plan_spire()
 			_terrain.build_canyon(graph, cell_size)
 			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
+			if secret:
+				secret.build_spire()
 			var mesa := _terrain.build_dais(_cell_to_world(graph.vault_cell), 2.0, _wall_mat)
 			boss_portal_point = mesa
 			_spawn_vault_boss(mesa)
@@ -409,9 +426,13 @@ func capture_state() -> Dictionary:
 		"player_yaw": _portal_player_yaw,
 		"chests_opened": _opened_chest_indices(),
 		"time_of_day": atmosphere.time_of_day if atmosphere else 0.0,
+		"secret": secret.capture() if secret else {},
 	}
 
 func _apply_restore(state: Dictionary) -> void:
+	# First: a challenge the secret room brings back is culled with the other dead.
+	if secret:
+		secret.restore(state.get("secret", {}))
 	var dead := {}
 	for i in state.get("dead", []):
 		dead[int(i)] = true
@@ -547,8 +568,15 @@ func _build_corridor(a: Vector2i, b: Vector2i) -> void:
 	var half_b: Vector2 = room_half[b]
 	var reach_a: float = half_a.x if d.x != 0.0 else half_a.y
 	var reach_b: float = half_b.x if d.x != 0.0 else half_b.y
+	var floor_a: float = room_floor.get(a, 0.0)
+	var floor_b: float = room_floor.get(b, 0.0)
+	# The corridor runs on the lower floor; the higher room is a ledge above it.
+	var low := minf(floor_a, floor_b)
+	var top := maxf(floor_a, floor_b) + layout.wall_height
 	var from := _cell_to_world(a) + d * reach_a
 	var to := _cell_to_world(b) - d * reach_b
+	from.y = low
+	to.y = low
 	var length := from.distance_to(to)
 	var mid := (from + to) / 2.0
 	var along_x := d.x != 0.0
@@ -558,10 +586,26 @@ func _build_corridor(a: Vector2i, b: Vector2i) -> void:
 		var span := layout.corridor_width + WALL_THICKNESS * 2.0
 		# Runs between the rooms' outer wall faces; the room ceilings cover the rest.
 		var run := maxf(length - WALL_THICKNESS * 2.0, 0.1)
-		_build_ceiling(mid, run if along_x else span, span if along_x else run)
+		_build_ceiling(mid, run if along_x else span, span if along_x else run, top - low)
 	var side := Vector3(0, 0, 1) if along_x else Vector3(1, 0, 0)
 	for s in [-1.0, 1.0]:
-		_add_wall_segment(mid + side * s * (layout.corridor_width + WALL_THICKNESS) / 2.0, length, along_x)
+		_add_wall_segment(mid + side * s * (layout.corridor_width + WALL_THICKNESS) / 2.0, length, along_x, top)
+	# A doorway taller or shorter than the corridor gets a lintel over the
+	# difference, so neither side looks into the void above the other's ceiling.
+	for end in [[a, d, reach_a], [b, -d, reach_b]]:
+		var cell: Vector2i = end[0]
+		var room_top: float = room_floor.get(cell, 0.0) + _wall_height_of(cell)
+		if absf(room_top - top) > 0.01:
+			var face := _cell_to_world(cell) + (end[1] as Vector3) * (float(end[2]) + WALL_THICKNESS / 2.0)
+			var lintel_len := maxf(DOORWAY_WIDTH, layout.corridor_width) + WALL_THICKNESS * 2.0
+			_add_wall_segment(face, lintel_len, not along_x, absf(room_top - top), minf(room_top, top))
+	if floor_a != floor_b:
+		var high := a if floor_a > floor_b else b
+		var out := d if high == a else -d
+		var reach_high := reach_a if high == a else reach_b
+		var centre := _cell_to_world(high)
+		var step := centre + out * (reach_high + WALL_THICKNESS)
+		_add_climb_link(Vector3(step.x, low, step.z) + out * 1.0, centre + out * (reach_high - 1.0))
 	if tileset and tileset.room_light_energy > 0.0 and length > 6.0:
 		var light := OmniLight3D.new()
 		light.light_color = tileset.light_color
@@ -575,8 +619,101 @@ func _spawn_ui() -> void:
 	for scene in UI_SCENES:
 		add_child(scene.instantiate())
 
+## A raised room's centre is on its raised floor.
 func _cell_to_world(cell: Vector2i) -> Vector3:
-	return Vector3(cell.x * cell_size, 0.0, cell.y * cell_size)
+	return Vector3(cell.x * cell_size, room_floor.get(cell, 0.0), cell.y * cell_size)
+
+func _wall_height_of(cell: Vector2i) -> float:
+	return room_wall_height.get(cell, layout.wall_height)
+
+## Open layouts: the secret spire stands in the middle of a cell away from the
+## start (and dry), whose packs and chest go elsewhere.
+func _plan_spire() -> void:
+	var cells: Array = []
+	for cell in graph.rooms:
+		var room: MapGraph.RoomData = graph.rooms[cell]
+		if room.is_start or room.is_vault or room.distance_from_start < 2:
+			continue
+		if water and water.is_wet(_cell_to_world(cell), SecretRoomBuilder.SPIRE_CLEARANCE):
+			continue
+		cells.append(cell)
+	if cells.is_empty():
+		return
+	cells.sort()
+	secret = SecretRoomBuilder.plan_spire(self, _cell_to_world(cells[randi() % cells.size()]))
+
+## ---- Raised rooms ---------------------------------------------------------
+## Rooms layouts put some rooms on a plinth RAISED_FLOOR up: too high to jump
+## onto, so the corridor ends at a ledge to mantle (LedgeClimb). At least
+## one room on the way from the start to the Vault is raised. Enemies cross
+## the step on a NavigationLink3D (Enemy._climb_link()).
+const RAISED_FLOOR := 3.0
+
+func _roll_room_floors() -> void:
+	room_floor = {}
+	room_wall_height = {}
+	var path := _path_to_vault()
+	var raised_on_path := false
+	for cell in graph.rooms:
+		var room: MapGraph.RoomData = graph.rooms[cell]
+		if room.is_start or room.is_vault:
+			continue
+		if randf() < layout.raised_room_chance:
+			room_floor[cell] = RAISED_FLOOR
+			raised_on_path = raised_on_path or cell in path
+	if not raised_on_path and path.size() > 2 and layout.raised_room_chance > 0.0:
+		room_floor[path[path.size() / 2]] = RAISED_FLOOR
+
+## Cells from the start to the Vault, both included.
+func _path_to_vault() -> Array[Vector2i]:
+	var came_from := {graph.start_cell: graph.start_cell}
+	var queue: Array[Vector2i] = [graph.start_cell]
+	while not queue.is_empty():
+		var current: Vector2i = queue.pop_front()
+		if current == graph.vault_cell:
+			break
+		for n in graph.rooms[current].connections:
+			if not came_from.has(n):
+				came_from[n] = current
+				queue.append(n)
+	var path: Array[Vector2i] = []
+	if not came_from.has(graph.vault_cell):
+		return path
+	var c := graph.vault_cell
+	while c != graph.start_cell:
+		path.push_front(c)
+		c = came_from[c]
+	path.push_front(graph.start_cell)
+	return path
+
+## The solid block under a raised room's floor, out to its walls' outer
+## faces, so a doorway onto it shows a climbable step.
+func _build_plinth(origin: Vector3, half: Vector2) -> void:
+	var size := Vector3(half.x * 2.0 + WALL_THICKNESS * 2.0, origin.y, half.y * 2.0 + WALL_THICKNESS * 2.0)
+	var body := StaticBody3D.new()
+	body.position = Vector3(origin.x, origin.y / 2.0 - 0.02, origin.z)
+	add_child(body)
+	var mesh := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = size
+	mesh.mesh = box
+	mesh.material_override = _wall_mat if _wall_mat else _plain_material(WALL_COLOR)
+	body.add_child(mesh)
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = size
+	collision.shape = shape
+	body.add_child(collision)
+
+## Enemies' way up and down a raised room's step: from the corridor floor in
+## front of it to just inside the raised room.
+func _add_climb_link(low_point: Vector3, high_point: Vector3) -> void:
+	var link := NavigationLink3D.new()
+	link.bidirectional = true
+	add_child(link)
+	link.global_position = Vector3.ZERO
+	link.start_position = low_point
+	link.end_position = high_point
 
 ## Footprints are rolled up front so corridors know where each room's walls are.
 func _roll_room_sizes() -> void:
@@ -594,21 +731,29 @@ func _build_room(room: MapGraph.RoomData) -> void:
 	var origin := _cell_to_world(room.cell)
 	var half: Vector2 = room_half[room.cell]
 	_build_floor(origin, half.x * 2.0, half.y * 2.0, 0.0, VAULT_FLOOR_COLOR if room.is_vault else _random_floor_color())
+	if origin.y > 0.0:
+		_build_plinth(origin, half)
+	var wall_h := _wall_height_of(room.cell)
 
 	if is_indoor():
-		_build_ceiling(origin, half.x * 2.0 + WALL_THICKNESS * 2.0, half.y * 2.0 + WALL_THICKNESS * 2.0)
+		_build_ceiling(origin, half.x * 2.0 + WALL_THICKNESS * 2.0, half.y * 2.0 + WALL_THICKNESS * 2.0, wall_h)
 
 	var open_sides: Array = []
 	for dir in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
 		var neighbor: Vector2i = room.cell + dir
 		var connected: bool = room.connections.has(neighbor)
-		_build_wall_side(origin, half, dir, connected)
+		var opening := Vector3.ZERO
+		if secret and secret.host_cell == room.cell and secret.host_dir == dir:
+			opening = secret.opening
+		_build_wall_side(origin, half, dir, connected, wall_h, opening)
 		if connected:
 			open_sides.append(dir)
+	if secret and secret.host_cell == room.cell:
+		secret.build(origin, half)
 
 	if room.is_vault:
 		_build_boss_room(origin, half, open_sides)
-	elif minf(half.x, half.y) * 2.0 >= minf(PILLAR_ROOM_MIN, layout.room_size.y - 1.0) and randf() < layout.pillar_chance:
+	elif minf(half.x, half.y) * 2.0 >= minf(PILLAR_ROOM_MIN, layout.room_size.y - 1.0) and randf() < layout.pillar_chance and not (secret and secret.host_cell == room.cell):
 		for corner in [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]:
 			_add_pillar(origin + Vector3(corner.x * half.x * 0.5, 0, corner.y * half.y * 0.5))
 	if layout.cave_walls and not room.is_vault:
@@ -620,7 +765,7 @@ func _build_room(room: MapGraph.RoomData) -> void:
 		fill.light_color = tileset.light_color
 		fill.light_energy = tileset.room_light_energy
 		fill.omni_range = maxf(half.x, half.y) * 1.7
-		fill.position = origin + Vector3(0, layout.wall_height - 0.6, 0)
+		fill.position = origin + Vector3(0, minf(wall_h, layout.wall_height + 2.0) - 0.6, 0)
 		_fade_with_distance(fill)
 		add_child(fill)
 
@@ -774,7 +919,9 @@ func _build_floor(center: Vector3, size_x: float, size_z: float, height: float, 
 func is_indoor() -> bool:
 	return layout != null and layout.kind == MapLayout.Kind.ROOMS and (tileset == null or tileset.sun_energy <= 0.0)
 
-func _build_ceiling(center: Vector3, size_x: float, size_z: float) -> void:
+func _build_ceiling(center: Vector3, size_x: float, size_z: float, height: float = -1.0) -> void:
+	if height < 0.0:
+		height = layout.wall_height
 	var mesh := MeshInstance3D.new()
 	mesh.name = "Ceiling"
 	mesh.add_to_group("ceiling")
@@ -783,7 +930,7 @@ func _build_ceiling(center: Vector3, size_x: float, size_z: float) -> void:
 	mesh.mesh = box
 	mesh.material_override = _wall_mat if _wall_mat else _plain_material(WALL_COLOR)
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	mesh.position = center + Vector3(0, layout.wall_height + CEILING_THICKNESS / 2.0, 0)
+	mesh.position = center + Vector3(0, height + CEILING_THICKNESS / 2.0, 0)
 	add_child(mesh)
 	# Solid for the player only, on its own layer so the navmesh bake skips it
 	# (its top would bake as walkable roof) and probes on layer 1 ignore it.
@@ -797,27 +944,48 @@ func _build_ceiling(center: Vector3, size_x: float, size_z: float) -> void:
 	body.add_child(collision)
 	mesh.add_child(body)
 
-func _build_wall_side(origin: Vector3, half: Vector2, dir: Vector2i, connected: bool) -> void:
+## Walls run from the ground to wall_height above the room's floor (a raised
+## room's walls cover its plinth). `opening` (width, bottom, top above the
+## floor) cuts a hole in the middle of a closed side: a secret room's way in.
+func _build_wall_side(origin: Vector3, half: Vector2, dir: Vector2i, connected: bool, wall_h: float = -1.0, opening: Vector3 = Vector3.ZERO) -> void:
+	if wall_h < 0.0:
+		wall_h = layout.wall_height
 	var horizontal := dir == Vector2i.UP or dir == Vector2i.DOWN  # spans X, faces +/-Z
 	var side_offset := Vector3(dir.x * (half.x + WALL_THICKNESS / 2.0), 0, dir.y * (half.y + WALL_THICKNESS / 2.0))
+	var base := Vector3(origin.x, 0.0, origin.z) + side_offset
+	var top := origin.y + wall_h
 	# Walls sit just outside the floor and overlap at the corners.
 	var length: float = (half.x if horizontal else half.y) * 2.0 + WALL_THICKNESS * 2.0
-	if not connected:
-		_add_wall_segment(origin + side_offset, length, horizontal)
+	var gap := DOORWAY_WIDTH if connected else opening.x
+	if gap <= 0.0:
+		_add_wall_segment(base, length, horizontal, top)
 		return
-	var segment_length := (length - DOORWAY_WIDTH) / 2.0
+	var segment_length := (length - gap) / 2.0
 	var along := Vector3(1, 0, 0) if horizontal else Vector3(0, 0, 1)
-	var reach := DOORWAY_WIDTH / 2.0 + segment_length / 2.0
-	_add_wall_segment(origin + side_offset - along * reach, segment_length, horizontal)
-	_add_wall_segment(origin + side_offset + along * reach, segment_length, horizontal)
+	var reach := gap / 2.0 + segment_length / 2.0
+	_add_wall_segment(base - along * reach, segment_length, horizontal, top)
+	_add_wall_segment(base + along * reach, segment_length, horizontal, top)
+	if not connected:
+		var bottom := origin.y + opening.y
+		if bottom > 0.0:
+			_add_wall_segment(base, gap + 0.02, horizontal, bottom, 0.0, true)
+		_add_wall_segment(base, gap + 0.02, horizontal, top - origin.y - opening.z, origin.y + opening.z)
 
-func _add_wall_segment(center: Vector3, length: float, horizontal: bool) -> void:
+## A wall box `height` tall standing on `base_y`. Only a secret window's sill
+## is `climbable`; rooms are otherwise closed boxes.
+func _add_wall_segment(center: Vector3, length: float, horizontal: bool, height: float = -1.0, base_y: float = 0.0, climbable: bool = false) -> void:
+	if height < 0.0:
+		height = layout.wall_height
+	if height <= 0.01:
+		return
 	interior_wall_count += 1
 	var body := StaticBody3D.new()
-	body.position = center + Vector3(0, layout.wall_height / 2.0, 0)
+	body.position = Vector3(center.x, base_y + height / 2.0, center.z)
+	if not climbable:
+		LedgeClimb.forbid(body)
 	add_child(body)
 
-	var size := Vector3(length, layout.wall_height, WALL_THICKNESS) if horizontal else Vector3(WALL_THICKNESS, layout.wall_height, length)
+	var size := Vector3(length, height, WALL_THICKNESS) if horizontal else Vector3(WALL_THICKNESS, height, length)
 
 	var mesh_instance := MeshInstance3D.new()
 	var box := BoxMesh.new()
@@ -861,11 +1029,15 @@ func _spawn_yaw() -> float:
 const PACK_RING_RADIUS := 1.8
 const PACK_CENTER_JITTER := 2.5
 
+const SECRET_HOST_PACK_SHIFT := 4.0
+
 ## One pack per room except the start and the Vault: the Vault holds only
 ## its boss (FigmentBoss; the elites that used to guard it are now bosses).
 func _spawn_enemies() -> void:
 	if layout.kind == MapLayout.Kind.STREETS:
 		for p in streets.spawn_points:
+			if secret and secret.blocks(p):
+				continue
 			_spawn_pack(EnemyRoster.roll_pack(_pack_table()), p)
 		return
 	if layout.kind != MapLayout.Kind.ROOMS:
@@ -881,6 +1053,9 @@ func _spawn_enemies() -> void:
 			# A second pack stands off to one side of the room, not on the first.
 			var side := Vector3(half.x * 0.35, 0, 0) if half.x >= half.y else Vector3(0, 0, half.y * 0.35)
 			var base := _cell_to_world(cell) + (side * (1.0 if i == 0 else -1.0) if packs > 1 else Vector3.ZERO)
+			# Clear of the secret room's stepping columns.
+			if secret and secret.host_cell == cell:
+				base -= Vector3(secret.host_dir.x, 0, secret.host_dir.y) * SECRET_HOST_PACK_SHIFT
 			var center := base + Vector3(randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER), 0, randf_range(-PACK_CENTER_JITTER, PACK_CENTER_JITTER))
 			_spawn_pack(EnemyRoster.roll_pack(_pack_table()), center)
 
@@ -895,7 +1070,7 @@ func _spawn_chests() -> void:
 	var cells: Array[Vector2i] = []
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
-		if not room.is_start and not room.is_vault:
+		if not room.is_start and not room.is_vault and not (secret and secret.blocks(_cell_to_world(cell))):
 			cells.append(cell)
 	cells.sort()
 	# Streets: dead ends first (alleys are where chests hide).
@@ -958,6 +1133,8 @@ func _spawn_enemies_open() -> void:
 		if room.is_start or room.is_vault:
 			continue
 		var center := _cell_to_world(cell)
+		if secret and secret.blocks(center):
+			continue
 		for i in randi_range(layout.packs_per_cell.x, layout.packs_per_cell.y):
 			var offset := Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)) * cell_size * OPEN_PACK_SPREAD
 			_spawn_pack(EnemyRoster.roll_pack(_pack_table()), center + offset)
