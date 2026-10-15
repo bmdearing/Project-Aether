@@ -1325,465 +1325,108 @@ C while the inventory is open toggles its stats column instead. None of the five
 
 ## Flagged design gaps (need your call, not resolved unilaterally)
 
-1. **Ward restore-on-parry ratio**: placeholder 15% of max Ward — Section
-   07/16 both confirm this is deferred to playtesting, no number given.
-   Patch v3.2 gives real numbers for passive regen (4%/s) and on-kill
-   (5%) but not Parry specifically, so this one placeholder survives the
-   patch unchanged. Also invented and doc-unsupported: Ward's `flat_ward`-
-   only pool-size model and its `+2%` per-Enigma-point multiplier (user
-   direction, overriding the patch's own "scales through gear rolls AND
-   Enigma investment" wording, which read as Enigma contributing its own
-   flat share - the patch's 3 target bands, Low 800-1200/Moderate
-   2000-3000/High 4000-6000, were never hit by either version and aren't
-   being targeted anymore, since a fresh character now starts at exactly
-   0 Ward with no Ward-granting gear); Resistance's mitigation floor/
-   ceiling (-200%/95% - the patch caps neither explicitly, only that
-   Resistance Shred can push Resistance negative; these two numbers are
-   user-set directly, 2026-08-30, replacing this project's own earlier
-   invented 75%-cap/uncapped-floor placeholder).
-2. **Stance depletion weights**: ordering is confirmed (Blunt/Explosive
-   strong -> Piercing/ranged moderate -> Spells weakest), but no
-   percentages anywhere, so Physical 1.0 / Elemental 0.6 / Esoteric 0.35
-   remains a well-justified guess. On top of those category weights,
-   ordinary attacks now also carry a flat `ATTACK_STANCE_DAMAGE_
-   MULTIPLIER` of 0.2 (`StanceComponent.gd`) - user-reported feel issue,
-   ordinary hits were breaking Composure almost immediately and drowning
-   out Parry's own dedicated role as the primary Stance-break tool
-   (Section 07). Parry's own `apply_parry_damage()` is untouched by this,
-   still full-strength.
-3. **First-person melee weight** (Pillar 2): camera shake/kick + hitstop +
-   a swinging weapon (a real model for Greatsword/Dagger now, still the
-   placeholder blade for anything else) exist, but the docs are
-   camera-agnostic on *how it should feel* (timing, intensity), and the
-   real model's pose was tuned by eye via screenshots, not exact
-   hand-placement - worth your own live nudging for final polish.
-4. **Ability numeric tuning**: `motion_value`, `scaling_grade`,
-   `cooldown_seconds`, `resource_cost`, `radius` on every Ability instance
-   (17 now, including the 8 Section 26 additions from 2026-08-30) are
-   invented (relative to each ability's described weight) — the doc gives
-   the damage formula and flavor text but never per-ability numbers.
-5. **Fate Board UI is a bounded 150x150 grid with pan** (2026-09-01, up
-   from 32x32), not the doc's literal "effectively unlimited" board — a
-   deliberate scope cut, though large enough that hitting the edge in
-   practice is unlikely.
-6. **Inventory footprints come from a data table**
-   (`data/inventory/footprints.tres`); Crossbow, Bow and Gauntlet aren't
-   in the doc's table, so they're guessed (3x2, 3x2, 2x2). Anything not in
-   the table (Figments, Tomes, consumables, currency) is 1x1.
-7. **Armor mitigation applies one formula to all Physical damage types**:
-   Section 16 says Kinetic gets it "full," Piercing "partial," Explosive
-   a "flat reduction," but gives no ratio for the latter two.
-8. **`PlayerMeleeAttack`'s swing arcs/timings are invented placeholders.**
-   Each swing sweeps a per-family arc (thrust/slash/heavy/whip/fist:
-   reach, half-angle, splash share, target cap - `SWING_SHAPES`) every
-   Strike frame with line of sight; the enemy nearest the crosshair takes
-   full damage, the rest the splash share (50-75%, 100% on a charged
-   attack). Numbers need playtesting.
-9. **Player `StatSheet` baseline (flat `10.0`), enemy chase/kite numbers,
-   `EnemyRangedAttack` tuning, and both Player's and enemies'
-   `jump_velocity` (`7.0`, matched to each other) are all invented
-   placeholders**, not doc-sourced — the doc doesn't specify baseline
-   character stats for the vertical slice, or anything about
-   enemy/player movement/kiting/jumping behavior. Both were tuned
-   specifically so a sprinting (or even just walking) character can
-   clear the Vault's particular gap (3m wide, 1.2m rise) with real
-   margin — if either the gap or the rise ever change, this may need
-   retuning or the jump may start failing again.
-10. **Enemy Roster v1 defaults (the brief's open questions, not decided)**:
-    FigmentBoss uses the Chieftain model at boss scale - a *mounted*
-    rider, so it reads as horse + rider; `AMMO_ROUND_COST` values are
-    placeholders; the ammo store tops up to `STARTING_AMMO` (no separate
-    max-reserve cap); the Lord's element order is Fire -> Cold ->
-    Lightning; unit scale is set per model in
-    `tools/mdx_pipeline/models.json`. Unit XP/Gold rewards are invented
-    too. Every unit keeps `Enemy.tscn`'s 1.9 m collision capsule
-    regardless of model size, so the 6 m Lord and the ~4.3 m FigmentBoss
-    can be walked into visually.
-11. **Reality Engine / Hub scope cuts**: a real Figment-selection UI now
-    exists (reuses `ShopScreen` - see the Hub section above), but leaving
-    a Map is still always manual, not triggered by clearing enemies or
-    completing the boss (killing the boss fires
-    `EventBus.figment_completed` for Figment Tree points and opens a
-    portal home on the boss room's altar, but doesn't end the run). Settings (title screen and pause menu, shared
-    `SettingsPanel`, saved to `user://settings.cfg` by `GameSettings` so
-    New Game doesn't reset them): Mouse Sensitivity, Field of View,
-    Master Volume, Fullscreen, V-Sync, plus a Controls tab that rebinds every
-    gameplay action to one key or mouse button (`GameSettings.REMAPPABLE`;
-    a key taken from another action swaps over; Reset to Defaults). "Press E"
-    prompts follow the Interact binding. Master volume
-    now has real audio to affect (Main Menu music + procedural rain/
-    thunder, see the Main Menu background section above) but nothing
-    plays in the Hub/Map yet.
-12. **Ability casting is still a generic AoE-at-cast-point hit for every
-    ability** (3 of 9 add ground-targeting + bespoke impact VFX - Comet,
-    Inferno, Stormcall - but even those deal generic AoE damage on
-    landing, not their actual described mechanics: Comet's "massively
-    increased damage against Chilled/Frozen enemies," Winter's Eye's
-    traveling orb, Frost Armor's melee-retaliation trigger).
-    `applies_status_effects` IS now wired though - see
-    `StatusEffectComponent` (Ignite/Chill/Freeze/Electrocute/Unraveling/
-    Shock, Section 09) - `PlayerAbilityCast._cast()` applies each
-    ability's listed effect(s) to every enemy it hits.
-13. **Figments have no doc-sourced affix table** (none could exist - this
-    whole system is invented, not doc content at all) — the affix pool
-    and tier curve (`FigmentRoller.gd`) are invented throughout, including
-    the drop-scaling curve (`roll_for_drop()`) and the Empower Gold cost
-    (`CraftingSystem.EMPOWER_FIGMENT_GOLD_COST`). Selection/inspection UI
-    is real now (see the Hub section above) - this gap is narrower than
-    it used to be.
-14. **Resilience/DoT mitigation is wired, Debuff effectiveness isn't**
-    (`Player.get_dot_mitigation()`/`DamageCalculator.dot_mitigation()`
-    from gear `flat_resilience`; `StatusEffectComponent.
-    _debuff_effectiveness_multiplier()` is a flat 1.0 - the old six-stat
-    Intellect that drove it is gone). A Stamina pool/dodge-roll, Stagger
-    and Stun Recovery are also unwired - no such mechanics exist
-    (Electrocute/Freeze's stun is a flat, invented duration).
-15. **Critical Strike System's per-ability base crit chance is thematic
-    guesswork, not a real mechanical distinction** — the doc keys base
-    crit chance off "spell type" (single target/AoE/channeled/etc.),
-    but abilities in this project don't carry that classification (all 4
-    execute as the same generic self-centered nova, gap #12 below), so
-    each `Ability.base_crit_chance` was hand-picked per instance based on
-    which doc category its flavor text loosely resembles. Weapon crit
-    chance is the real thing, doc-exact, keyed by `weapon_type` string
-    (`Constants.WEAPON_BASE_CRIT_CHANCE`) - just only transcribed for the
-    2 weapon types this project actually has (Greatsword, Service
-    Pistol) out of the doc's ~55-entry table.
-16. **Affix tier-gating (`ItemRoller._roll_tier()`) is entirely
-    invented** — the doc defines the tier VALUE RANGES themselves (real
-    Section 16/18 data, e.g. Flat Armor Mod Tiers), but never specifies
-    what determines which tiers a given roll can reach. Gated by
-    `power_level` (Map tier, or player level as a Hub-only fallback) with
-    a simple "one tier better per power point" curve, not derived from
-    anything doc-sourced.
-17. **XP/leveling has no doc-sourced design to follow at all** — the
-    referenced sections don't define a leveling system, so the XP curve
-    and `xp_reward` per archetype are invented from genre convention.
-    Leveling grants no stat points (Section 12 explicitly rules that
-    out - see the Player section above) and now has no mechanical effect
-    beyond display and standing in as GearShop's stock-quality signal.
-18. **Loot generation picks a real base item and re-rolls rarity +
-    affixes, rather than generating a truly procedural item shape** —
-    `ItemRoller.roll()` picks a real base (weapon type, damage type,
-    scaling grade, armor values, etc.). As of the 2026-08-30 pass, that
-    base pool IS Section 25's real tiered catalog — no longer deferred.
-    `tools/generate_base_types.gd` (a headless one-shot generator, kept
-    in the repo as a real tool, not scratch) parses the design doc's own
-    Section 25 text and writes one `.tres` per tier straight into
-    `data/weapons|armor|shields/instances/` and `data/items/instances/`
-    (throwables) — ~853 generated bases across all 27 doc-detailed weapon
-    types, 4 armor slots, 8 shield lines, and 5 throwable lines, each
-    tagged with a real `item_level` (the tier's own doc "Level") and
-    `base_line_id` (which doc "Line" it belongs to). `ItemRoller.
-    _pick_base_item()` now takes a target item level, keeps only the
-    single highest-item_level tier per line that's still at or below it,
-    and rolls uniformly among those plus the untagged pre-existing
-    hand-authored singles - "always the current best base this level has
-    unlocked," per-line, same principle PoE-style ilvl-gated bases follow.
-    `Enemy._compute_item_level()` derives that target from the Map's
-    area level plus the killer's own rank offset (see gap #29 below).
-    Per-tier "Base Damage"/"Base Armor" columns are doc-exact (averaged
-    across their range); native_damage_type/is_two_handed/is_ranged per
-    weapon type are an invented-but-consistent guess (the doc never pairs
-    weapon type -> damage type anywhere) documented in the generator's
-    own `WEAPON_TYPE_META` table. Each tier's doc "Implicit" was
-    originally folded into `flavor_text` as flavor rather than a real
-    `ItemAffix` - Patch v3.6b's repair pass (`tools/repair_weapon_lines.
-    gd`) converted 504 weapon base files' implicits into real `ItemAffix`
-    entries (`is_implicit = true`), but this is still descriptive for
-    anything reached via a loot drop specifically: `ItemRoller.roll()`
-    always wipes and re-rolls `affixes` on every roll regardless of base
-    (see its own comment), so the base file's now-real implicit still
-    doesn't survive onto a rolled copy - same pre-existing behavior every
-    implicit already had, not a regression from the repair. It's real
-    data now, just not yet reachable through the one path (loot rolls)
-    that actually reaches the player. `flat_<stat>` roll affixes are real
-    (summed into `StatSheet` - see the Player section above), and
-    `flat_ward`/the 4 Resistance affixes joined them as of Patch v3.2, but
-    the damage/armor increased-% affixes (`physical_dmg_increased`,
-    `flat_armor`, etc.) are still descriptive-only — no aggregation of
-    those into the damage/armor formulas exists yet. Patch v3.6b also
-    fixed `scaling_grade` itself, which every one of those ~853 generated
-    weapons had stuck at C regardless of line identity - now set per-line
-    from Implementation Brief v3.6b's own table, real and consumed by
-    `DamageCalculator` exactly as before. That table listed up to two
-    (stat, grade) pairs per line, implying real per-weapon-line multi-
-    stat scaling - out of scope here (confirmed with the user first):
-    only the grade number is real, the stat names are stored as new,
-    purely descriptive `Weapon.primary_scaling_stat`/
-    `secondary_scaling_stat` fields, not wired into damage calculation.
-    Shortbow/Longbow (32 files) and 9 Conduit (caster weapon) types -
-    Wand/Staff/Athame/Spell Gauntlet main-hand, Rod/Grimoire/Tome/
-    Talisman/Fetish offhand (108 files, `Weapon.is_conduit`/
-    `conduit_stance_type`/`spell_page_tag`/`unleash_copy_count`) - were
-    generated the same way, extending this same catalog. Patch v3.7
-    replaced every weapon's single `base_damage` with a real roll range
-    (`base_damage_min`/`max`, `rolled_base_damage` set by `ItemRoller.
-    roll()` on an actual drop, `get_base_damage()` falls back to the
-    range's midpoint otherwise). Conduit spell power was removed in
-    v4.14 (spells carry their own base damage). The Crafting pass
-    (gap #25) extended this same pool with 4 more descriptive-only
-    entries (Evasion/Resistance/Resilience/skill cooldown) so every Brand
-    category has *something* real to roll - same gap, just wider now, not
-    a new one. Shield gained `evasion_value`/`ward_value` fields
-    alongside its original `armor_value` (matching Armor's existing
-    hybrid shape) so Buckler/Rune Shield/Warded Barrier-style lines that
-    lead with Evasion or Ward instead of Armor could be represented at
-    all - like Armor's own evasion_value/ward_value, these are
-    descriptive-only, not aggregated (only `armor_value` is real, summed
-    in `EquipmentComponent.compute_stat_bonuses()`).
-19. **Loot pickup is auto-pickup-on-touch, not a manual pickup/prompt**
-    — a judgment call, not requested verbatim; fits how often gear
-    would drop during combat better than a keypress flow, but is a
-    different UX than the Reality Engine's "walk up, press E" pattern used
-    elsewhere in this project.
-20. **Map generation parameters are invented, not doc-sourced** — grid
-    size (5x5), room count (7-10), doorway width, jump-gap size, and the
-    "one Vault per map" rule are standard roguelike-generation choices,
-    not pulled from any section of the design docs (there's no dungeon-
-    layout spec in them at all). Only one "interesting room" type exists
-    (the Vault) — more variety (traps, shrines, multiple set-piece types)
-    is natural follow-up work, not a doc gap. Rooms are also currently
-    uniform single-grid-cell boxes with no elevation variety beyond the
-    Vault's jump — flagged as a deliberate first-pass scope cut, not a
-    misreading, given how much riskier untested geometry math gets
-    without the ability to visually playtest here.
-21. **Skill Tomes unlock an ability into `AbilitiesScreen`, they don't
-    implement Patch v3.1's literal "socketed into weapon slots"
-    mechanic** — the patch doc actually describes a fairly detailed
-    system (3 skill slots per weapon, Tomes socketed per-weapon, up to 9
-    skills with both weapon slots filled), but there's no functioning
-    socket system anywhere in this project (`Item.max_sockets` is now
-    settable — Bore/Corruption, Section 20 — but nothing can be socketed
-    INTO it yet; Gems/Jewels are still explicitly not-built-yet), so
-    this pass only builds the acquisition half of the doc's replacement
-    Skill System (a flat "owns it or doesn't" unlock), not the
-    per-weapon-slot socketing half.
-22. **Gold is a brand-new invented currency with no doc-sourced economy
-    to follow** — granted by `Enemy.gold_reward` (per-archetype, same
-    relative-toughness scaling as `xp_reward`), spent at the GearShop.
-    `GearShop.COST_BY_RARITY`/`REROLL_COST` are similarly invented, not
-    derived from anything.
-23. **SpellTestShop is an explicit debug/testing tool, not designed
-    game content** — grants every ability for free per direct user
-    request ("for testing purposes"); it bypasses the SkillTome
-    acquisition path entirely and isn't meant to represent real
-    in-fiction economy the way GearShop is.
-24. **`StatusEffectComponent` only covers 5 of Section 09's 11 status
-    effects** — Ignite/Chill/Freeze/Electrocute/Unraveling, the ones with
-    a real applier today (`Ability.applies_status_effects` on the
-    elemental/esoteric spells). Bleed/Armor Shred/Stagger-Stun (Physical
-    family) have no weapon-side proc mechanic and Scorch/Aetherburn/
-    Pallid have no Fire-channel/Aetheric/Pale ability yet, so both groups
-    are left for the component to grow into once a real source exists.
-    Blind is deliberately not modeled at all — the patch doc itself defers
-    its mechanical expression, not just this project. Every duration/
-    magnitude/stack-threshold inside the component (Ignite's 4s DoT
-    dealing 50% of the triggering hit, Chill's 30% slow, 3 stacks to
-    Freeze, Electrocute's 0.8s stun, Unraveling's +25% Esoteric damage
-    taken) is invented — the doc names each effect and its qualitative
-    behavior only, no numbers, same as every other unspecified-tuning gap
-    on this list.
-25. **Orb crafting numbers are placeholders** (Crafting & Inventory Rev2
-    leaves them open): Aether Tolerance starting ranges and per-Orb cost
-    ranges (`Constants.STARTING_TOLERANCE_*`, `TOLERANCE_COST`), Orb tier
-    roll weights (`GEAR_TIER_WEIGHTS`/`SLATE_TIER_WEIGHTS`), currency drop
-    weights (`CURRENCY_DROP_WEIGHTS`, 12% per kill), inventory/stash sizes,
-    and the quality cap of 20. Defaults taken for the doc's open questions:
-    no Slate tier cap by size (`SLATE_TIER_CAP_BY_SIZE` empty), the Shard of
-    Tharsis spends no tolerance, one anchored modifier per item. Judgment
-    calls: AFFIX_POOL entries have no prefix/suffix of their own, so
-    `GearModifierPool.SUFFIX_KEYWORDS` decides; Reckoning rerolls anchored
-    modifiers too; Absolution under a positional Brand or Edict removes only
-    what's allowed and drops to the lowest rarity that still fits; several
-    active Vestiges combine their pools; Preservation is only consumed when
-    another Brand applied. Quality doesn't raise modifier values yet. Slate
-    modifiers (`data/slates/affix_pool/`) are still stubs, so crafted Slate
-    modifiers don't feed any stat. No real Vestiges exist yet (no boss pools).
-    Old Cube Brands in a save convert on load
-    (`ItemSerializer.LEGACY_BRAND_CURRENCY`; e.g. Calcine -> Fire Brand,
-    Cleave -> Orb of Anchoring, Binder -> Preservation Brand, Sever -> Orb of
-    Absolution). Corruption outcome probabilities are still invented.
-26. *(Resolved in Rev2: the inventory layout is saved with the footprint grid.)*
-27. **The Slate System's numeric/probabilistic choices beyond Section
-    10's own doc-exact numbers are invented** - the Chain Bonus tiers,
-    Main Stat by Tag table, and Slate Size/Rarity brackets are doc-exact
-    and transcribed verbatim; the Stats Per Tile values were doc-exact
-    (1.7/0.8) until v4.9 cut them to 0.6/0.3 to pair with chain
-    amplification. Everything `SlateRoller` decides beyond those (which
-    shape template within a size bracket, Hybrid chance, Aether cost) has
-    no doc-sourced formula - Section 10 states the mechanics and axes,
-    not their exact acquisition curve, same "Deferred Design" pattern as
-    Crafting (gap #25). One interpretive call worth flagging on its own:
-    Chain Bonus's output is treated as "increased damage"
-    for that tag's category, feeding the same `increased_percents` slot
-    every damage roll already accepted - the doc names the Chain Bonus
-    System and gives its numbers but never states what the resulting
-    percentage actually modifies; "increased damage of that tag" is the
-    most natural reading given everything else about it (a per-tag
-    bonus from a tag-scoped build-customization system), not a
-    transcription of doc text. Fate Board LAYOUT itself now saves too
-    (2026-08-30 fix, see Fate Board above) - both it and
-    `GameState.owned_slates` (real Slate ownership) persist.
-28. **Enemy rank (White/Blue/Rare/Boss) is a brand-new, fully invented
-    system** - no doc-sourced enemy rarity/rank design exists anywhere
-    referenced. Added 2026-08-30 specifically to give loot's new
-    `item_level` gating (gap #18) something meaningful to key off per
-    kill, per the user's own formula ("White mobs are the area level,
-    blue mobs are the area +1, rare mobs are the area +2 levels, bosses
-    are the area +5 levels" - see `Constants.ENEMY_RANK_ITEM_LEVEL_
-    OFFSET`). Regular enemies roll Normal/Magic/Rare at spawn off an
-    invented weight table (80/16/4, genre-standard shape, not doc-
-    sourced); Boss is never auto-rolled, only set explicitly by a boss
-    encounter's own scene. Deliberately scoped to item-level gating only
-    - no stat scaling (health/damage) or visual tint by rank exists yet,
-    since nothing else asked for it.
-29. **Leveling's XP curve has been retuned twice and MAX_LEVEL (100) now
-    exists** (`ExperienceComponent`, 2026-08-30 user requests) - the
-    original 25%/level curve compounded to an unreachable ~10^11 XP by
-    level 100; replaced with 6%/level to make level 100 actually
-    climbable; then replaced again with ~19.64%/level after user feedback
-    that 6% made leveling "too easy." The current rate isn't a round
-    invented number - it's solved algebraically so level 99's requirement
-    (the last one this system ever computes) lands on an exact user-given
-    target, `4294967295 - 1` (1 below the unsigned 32-bit int limit).
-    Still fully invented in the sense that no doc-sourced curve exists
-    (gap #17) - just precisely pinned instead of picked by feel.
-    `add_xp()` discards XP gained past MAX_LEVEL rather than banking it.
-30. **Fate Board Aether budget now scales with player level** (`FateBoard.
-    capacity_for_level()`, 2026-08-30 user request: "gain 2 points of
-    Aether... every time you level up. Start with 10 at level 1") -
-    replaces the previous flat `aether_capacity = 30`. Fully invented, no
-    doc-sourced acquisition curve exists (Section 10 just calls the board
-    "effectively unlimited," gated by Aether) - same "Deferred Design"
-    footing as `SlateRoller`'s other invented numbers (gap #27).
-31. **`levels/pinnacle_boss/PinnacleArena.tscn` isn't reachable from
-    normal play** - a Belial-style crescent arena (`CSGShape3D` floor and
-    invisible boundary). It spawns the Player, the Lord of the Elements and
-    the UI suite itself, so it runs standalone (F6), but no Map/Hub entry
-    point exists yet.
-32. **Item level/stat requirements are a brand-new, fully invented
-    equip-gate system** (2026-08-30) - no doc-sourced requirement system
-    exists. `Item.item_level` (already existed for loot-tier selection)
-    doubles as the level requirement; `stat_requirement`/
-    `stat_requirement_value` are new fields the Section 25 generator fills
-    in per item (a weapon's own damage-type main stat, or Vitality for
-    armor/shields which have no damage type to key off, at 0.5 per
-    `item_level`) - throwables get no stat requirement. Enforced in
-    `EquipmentComponent.equip()`, bypassed only when `Player.
-    _apply_saved_loadout()` restores a previous save (a save should
-    always restore cleanly even if a later balance change or edge case
-    would otherwise block it). The ~14 pre-Section-25 hand-authored items
-    were left untouched (`stat_requirement == -1`, `item_level` defaults
-    to 1) - trivially satisfied either way, not worth a retrofit.
-    **2026-09-06 (Patch v3.8d):** a SECOND, parallel requirement system
-    was added on top - `Item.level_requirement`/`strength_requirement`/
-    `agility_requirement`/`intellect_requirement`, populated by `tools/
-    repair_item_requirements.gd` from a more lenient level-bracket table
-    and (unlike the field above) able to require two stats on the same
-    item. Display-only for now (shown on `ItemCard`, red when unmet) -
-    the ORIGINAL `stat_requirement`/`item_level` pair above is still the
-    only one `EquipmentComponent._requirement_block_reason()` actually
-    enforces, and the two systems' numbers genuinely disagree for most
-    generated items (e.g. `item_level` 84 blocks equipping below character
-    level 84; the new field displays "Requires Level 80") until a future
-    pass repoints enforcement at the new fields.
-33. **The "own one of everything" debug/testing catalogs (Inventory
-    and Fate Board) now only cover the ORIGINAL small hand-authored sets,
-    not Section 25's generated catalog** - user report (2026-08-30):
-    "let's not add all of the new high level items to the player's
-    inventory at the start." `InventoryScreen._scan_owned_items()`
-    filters to `base_line_id == ""` (every generated tier has a real
-    line id, every pre-Section-25 single doesn't). The same always-
-    available pattern existed for `FateBoardEditor`'s Slate palette (11
-    hand-authored samples, unrelated to Section 25, just the same
-    convention) - user confirmed removing it too, so the palette now
-    shows only real `GameState.owned_slates` drops. `AbilitiesScreen` was
-    checked against the same concern and found already correctly earned-
-    only (`GameState.owned_ability_ids` defaults empty) - no change
-    needed there.
-34. **"Implementation Brief v3.3" (a written design doc the user provided
-    2026-08-31) described `WeaponStance`/`PlayerMeleeAttack` as new/stub
-    components to create at new paths, but both already existed, more
-    developed than the brief assumed** - see PATCH_NOTES.md's own entry
-    for the full reconciliation. Net result: the brief's new ideas (the
-    additive damage formula, `StanceBehavior`, jab/thrust/charged attack
-    types) are merged into the EXISTING files at their existing paths,
-    not the brief's literal new ones; the existing per-weapon motion
-    value/duration/intensity/arm-pose architecture and Windup/Strike/
-    Recovery state machine survived intact; the old combo-index cycling
-    did NOT survive (removed per user direction, honoring the brief's own
-    "no combo systems" line). The brief's Section 6 (ArmRig no-op
-    animation placeholder methods, framed as if arm animation were
-    unbuilt) was skipped entirely - real, working, screenshot-verified
-    procedural animation already exists on `PlayerArmRig.gd` from earlier
-    passes, so adding differently-named no-op stubs would just be dead
-    code. If a future brief/patch document arrives, check it against the
-    actual current file contents before implementing anything from it
-    verbatim - this is the second time in this project's history a
-    design document's assumptions about what already exists have turned
-    out to be stale (see gap #18's own Section 25 history for the first).
-35. **"Implementation Brief v3.4" (2026-08-31) had the same stale-
-    assumptions problem as v3.3, a third confirmation this is a real
-    pattern with these documents, not a one-off** - `ui/hud/HUD.tscn`
-    doesn't exist (real path `ui/player_hud/`), no `hit_position`/
-    `is_conduit`/weapon-swap input action/feature existed anywhere, and
-    "Shortbow"/"Longbow" aren't real weapon types in this project's
-    all-firearms-plus-Wand/Staff catalog. See PATCH_NOTES.md's own entry
-    for the full reconciliation - crosshair/hit markers/critical spots
-    (adapted to this project's actual Area3D-overlap hit detection, no
-    real hit_position anywhere to check a point against), dual weapon
-    sets (`EquipmentComponent.primary_weapon`/etc. are now computed
-    properties over a 2-element array, user-expanded well beyond the
-    brief's own ask once the "existing" swap feature turned out not to
-    exist), and per-line ranged/per-type melee `StanceBehavior` data.
-    Section 7 (Caster page 2) was rerouted by weapon_type per user
-    direction rather than the brief's own Conduit-slot design, which
-    conflicted with an explicit earlier decision this session ("Conduits
-    are not a slot"). Only Rapier and Cutlass's Water Slices got real
-    stance behavioral logic - everything else is data + an enum tag,
-    exactly the brief's own scope limit ("stub the behavior methods, full
-    implementation per stance is a separate pass"). Dagger's STEALTH page
-    is one exception to that limit worth calling out on its own - the
-    brief's wording allows it to have real logic, but gives no formula
-    for it (unlike Water Slices, which came with exact code), and no
-    enemy-detection-radius hook exists in this project to hang a real
-    stealth mechanic off of - left as data-only, a genuine gap rather
-    than an invented mechanic with no spec behind it.
-36. **Hit markers redesigned to an 8-state matrix, enemy health bars, and
-    a stylized boss health bar are all brand-new** (2026-08-31, user
-    reference image + request) - see PATCH_NOTES.md's own entry for the
-    full detail. `Enemy.is_in_combat()` (within `chase_range` OR damaged
-    in the last 5s) and `Enemy.display_name`/`get_display_name()` are new
-    concepts with no prior equivalent. The boss health bar keys off
-    `Constants.EnemyRank.BOSS` - "Pinnacle boss" and "uber boss" both read
-    as that one existing rank for now, nothing in this project
-    distinguishes them from each other yet. Building this surfaced a real,
-    unrelated pre-existing bug: `FigmentBoss` never actually set
-    `rank = BOSS` (fixed directly in `FigmentBoss.tscn`) - it had been
-    getting a randomly-rolled rank like any other enemy since the rank
-    system was added 2026-08-30, meaning its loot was silently never
-    dropping at the correct +5-level boss tier either.
+Checked against the code on 2026-10-15. Each item is a number or rule the
+design docs leave open, so the current value is a placeholder or judgment
+call. How each one got here is in PATCH_NOTES.md.
 
-## Explicitly not built yet (per Vertical Slice Brief scope)
+**Combat**
 
-A Gem/Jewel/weapon-socket system (Skill Tomes unlock abilities directly
-instead — see flagged gaps; Crafting's Bore/Corruption can now raise
-`Item.max_sockets`, but nothing can be socketed into it yet), a Stamina
-pool + dodge-roll (active blocking exists via `ShieldBlock`, spending Composure in its place; Instinct's per-point Stamina
-value has nothing to spend into yet), full 9-damage-type coverage, co-op,
-any skeletal character animation (`assets/animations/` has two full
-rigged animation libraries + a mannequin imported cleanly, but there's no
-`AnimationPlayer`/`AnimationTree`/skeleton pipeline anywhere in this
-project yet - a much bigger, separate undertaking than everything else
-in this list), Conduit/Secondary (Throwable) attack input, save
-persistence for mid-map state (Fate Board layout now saves - see Fate
-Board above), pathfinding/
-navigation for enemies (fine today — every generated room is an open box,
-nothing to path around within one). A status-effect system now exists
-(`StatusEffectComponent`, flagged gap #24) but only for 5 of Section 09's
-11 effects. Crafting now runs on Orbs, Brands and Edicts (Crafting &
-Inventory Rev2, see "Crafting, inventory, stash & portals" above).
+1. **Ward restore on Parry**: 15% of max Ward
+   (`WardComponent.PARRY_RESTORE_PERCENT`); the docs defer it to
+   playtesting. The Ward pool (`flat_ward` only, times Enigma's multiplier)
+   is user direction. Resistances run from -200% (`DamageCalculator.
+   RESISTANCE_FLOOR`) to a 75% maximum (jewels add +1% per element).
+2. **Stance depletion weights**: Physical 1.0 / Elemental 0.6 / Esoteric
+   0.35 follow the doc's ordering but not its numbers (it has none).
+   Ordinary attacks also carry x0.2 (`StanceComponent.
+   ATTACK_STANCE_DAMAGE_MULTIPLIER`) so Parry stays the main Stance breaker.
+3. **Melee feel** (Pillar 2): three-hit combo, hit-stop on the player and
+   the struck enemy, camera shake, visceral attacks, enemy tells, staggers,
+   aim assist and kill shove all exist. Their timings and strengths, and
+   the per-family swing arcs (`PlayerMeleeAttack.SWING_SHAPES`: reach,
+   half-angle, splash share, target cap), are tuned by eye and wait on a
+   feel pass with you.
+4. **Armour uses one formula for all Physical damage**: Section 16 says
+   Kinetic is mitigated fully, Piercing partially and Explosive by a flat
+   reduction, but gives no ratios.
+5. **Ability numbers are invented** per ability (motion value, cooldown,
+   cost, radius, cast time, base crit chance) across 33 abilities; the docs
+   give the formula and flavour only. Weapon base crit chance is doc-exact
+   (`Constants.WEAPON_BASE_CRIT_CHANCE`, 29 weapon types).
+6. **Status effect numbers are invented** (durations, magnitudes, stack
+   thresholds); the docs name each effect and its behaviour only. Built:
+   Ignite, Bleed, Scorch, Aetherburn, Chill, Freeze, Shock, Electrocute,
+   Unraveling, Pallid, Armour Shred, plus curses, Drenched, Entangle and
+   Forbidden Fire. Blind isn't modelled (the doc defers it), and Stagger is
+   a combat interrupt rather than a status.
+7. **No Stamina pool**: Dash (with i-frames) and `ShieldBlock` (spending
+   Composure) stand in for it; the Stamina gear stat feeds Composure.
+8. **Movement numbers are invented**: player jump 9.1 with x1.7 gravity,
+   enemy jump 7.0, ledge climb from 0.5 to 2.15 m, slide speeds. Raised
+   rooms, terraces and the Vault's gap are sized around these, so
+   retuning jumps needs a check against `tests/v520/test_verticality`.
+
+**Items and economy**
+
+9. **Affix tier gating is invented**: the item-level ladder 83/72/61/40/21/1
+   (`ItemRoller.GEAR_TIER_LEVELS`) and the tier weights. The tier value
+   ranges themselves are doc-sourced.
+10. **Base catalog guesses**: Section 25's tiers are doc-exact, but each
+    weapon type's damage type, two-handedness and range are a consistent
+    guess (`tools/generate_base_types.gd`'s `WEAPON_TYPE_META`).
+    Crossbow, Bow and Gauntlet inventory footprints (3x2, 3x2, 2x2) are
+    guessed too.
+11. **Equip requirements are invented**: `ItemRequirements` maps item
+    level to character level and a stat by weapon or defence type. The
+    older `Item.stat_requirement`/`stat_requirement_value` fields are still
+    on `Item` but aren't what blocks equipping.
+12. **Crafting numbers are placeholders**: Aether Tolerance ranges, Orb
+    costs and tier weights, currency drop weights, the quality cap of 20
+    (quality doesn't raise modifier values), corruption and Shard outcome
+    odds.
+13. **Gold** is an invented currency; all prices are invented.
+14. **Slates and the Fate Board**: Chain Bonus is read as increased damage
+    for its tag (the doc never says what it modifies). Shape templates,
+    Hybrid chance and Aether costs are invented. The board is a bounded
+    150x150 grid, not the doc's "effectively unlimited" one; its Aether
+    budget is 10 plus 2 per level (user request).
+15. **Figments** are an invented system: affix pool, tier curve, drop
+    scaling, and the Tier ramp on map monsters (x1.1 Life, x1.04 damage per
+    Tier).
+16. **XP and leveling**: no doc curve exists. Level 99's requirement is
+    pinned to 2^32 - 2 (user request); `MAX_LEVEL` is 100; XP past it is
+    discarded.
+17. **Enemy rank leftovers**: drop item level now follows the enemy's
+    visible rarity (Normal +0, Elite/Champion +1, Ascendant and bosses +2),
+    but the hidden Normal/Magic/Rare/Boss rank still rolls and still sets
+    Crystallized Aether drop chance and count
+    (`Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET`). Either fold it into rarity
+    or remove it.
+18. **Monster scaling is invented**: Area Level growth (Life x1.037,
+    damage x1.035 per level), the level-gap damage multiplier, pinnacle Life
+    (design 62-71M, 20-30M in Dev mode) and the flat 250k pinnacle Ward.
+
+**World**
+
+19. **Map generation parameters are invented**: grid size, room counts,
+    per-style layouts, verticality heights, one secret room per Figment,
+    `MapEncounters` weights and the Watcher's deals.
+20. **Maps don't end on their own**: killing the boss fires
+    `EventBus.figment_completed` and opens a portal home, but leaving is
+    always manual. Maps have ambience and weather but no music (the title
+    screen, Hub and pinnacle arenas do).
+21. **Enemy roster defaults** (the roster brief's open questions):
+    FigmentBoss uses the mounted Chieftain model, `AMMO_ROUND_COST` values
+    are placeholders, the ammo store tops up to `STARTING_AMMO`, the Lord's
+    elements go Fire -> Cold -> Lightning, and every unit keeps a 1.9 m
+    capsule whatever its model size.
+22. **Skill Tomes unlock an ability outright**: Patch v3.1's per-weapon
+    skill sockets (3 per weapon) aren't built. Jewel sockets exist; ability
+    sockets don't.
+
+## Explicitly not built yet
+
+A Stamina pool (gap #7), per-weapon skill sockets (gap #22), and co-op.
 
 ## Opening this project
 
