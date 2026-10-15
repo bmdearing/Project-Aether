@@ -8,7 +8,7 @@ class_name UniqueRoller
 ## boss_id adds that Pinnacle boss's own uniques to the pool. Null if there
 ## are none.
 static func roll(rarity: int, item_level: int = 1, boss_id: String = "") -> Item:
-	var defs := droppable(rarity, boss_id)
+	var defs := droppable(rarity, boss_id).filter(func(d): return boss_id != "" or base_level(d) <= item_level)
 	var total := 0.0
 	for def in defs:
 		total += float(def["weight"])
@@ -73,6 +73,14 @@ static func make_affix(mod: Array) -> ItemAffix:
 	affix.description = ItemRoller.format_desc(mod[3], absf(affix.value))
 	affix.is_local = String(mod[0]).begins_with("local_")
 	return affix
+
+## Item level of a unique's fixed base (1 when it has none). World drops
+## below it never roll that unique, so its level requirement always matches.
+static func base_level(def: Dictionary) -> int:
+	if not def.has("base_item"):
+		return 1
+	var base := load(def["base_item"]) as Item
+	return base.item_level if base else 1
 
 ## Highest-level base of the type the level allows, else its lowest.
 static func base_for(base_type: String, item_level: int) -> Item:

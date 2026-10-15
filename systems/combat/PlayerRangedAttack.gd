@@ -44,6 +44,17 @@ const AIMED_DAMAGE_MULTIPLIER := 1.4
 const AIMED_SPREAD_MULTIPLIER := 0.5
 const DRY_CLICK_COOLDOWN := 0.3
 
+## Gun bash (gun_bash, V): a quick shove with the weapon. Low damage, a
+## small knockback, and it cancels a reload in progress.
+const BASH_COOLDOWN := 0.8
+const BASH_REACH := 2.2
+const BASH_HALF_ANGLE := 40.0
+const BASH_MOTION_VALUE := 0.3
+const BASH_KNOCKBACK := 4.0
+const BASH_WINDUP := 0.08
+const BASH_STRIKE := 0.08
+const BASH_RECOVERY := 0.25
+
 var _cooldown_remaining: float = 0.0
 var _full_auto_timer: float = 0.0
 var _cycle_timer: float = 0.0
@@ -51,6 +62,7 @@ var _is_cycling: bool = false
 var _is_reloading: bool = false
 var _reload_timer: float = 0.0
 var _reload_weapon: Weapon
+var _bash_cooldown: float = 0.0
 var _player: Player
 
 ## Aim stance state (RangedStanceBehavior, see _stance()).
@@ -193,7 +205,7 @@ func _start_reload(weapon: Weapon) -> void:
 		return
 	_is_reloading = true
 	_reload_weapon = weapon
-	_reload_timer = weapon.cycle_time if weapon.reload_per_shell else weapon.reload_time
+	_reload_timer = reload_duration(weapon)
 	EventBus.reload_started.emit(weapon)
 	var snd: AudioStream
 	match weapon.fire_mode:
@@ -207,6 +219,11 @@ func _start_reload(weapon: Weapon) -> void:
 			snd = SoundLib.get_reload_sound(weapon.ammo_type)
 	AudioManager.play_at(snd, _player.global_position)
 
+## One reload (or one shell, for per-shell reloads), sped up by reload_speed.
+func reload_duration(weapon: Weapon) -> float:
+	var base := weapon.cycle_time if weapon.reload_per_shell else weapon.reload_time
+	return base / _player.get_reload_speed_multiplier()
+
 func _finish_reload(weapon: Weapon) -> void:
 	var needed := weapon.magazine_size - weapon.get_current_magazine()
 	if weapon.reload_per_shell:
@@ -219,7 +236,7 @@ func _finish_reload(weapon: Weapon) -> void:
 			_end_reload(weapon)
 			AudioManager.play_at(SoundLib.library.shotgun_reload_finish, _player.global_position)
 		else:
-			_reload_timer = weapon.cycle_time
+			_reload_timer = reload_duration(weapon)
 		EventBus.ammo_changed.emit(weapon.ammo_type, AmmoInventory.get_reserve(weapon.ammo_type))
 		return
 	var to_load := mini(needed, AmmoInventory.get_reserve(weapon.ammo_type))
@@ -269,6 +286,8 @@ func _physics_process(delta: float) -> void:
 			_dump_remaining -= 1
 			_dump_timer = st.shot_interval if st else 0.1
 			_fire_one(weapon, true)
+	if _bash_cooldown > 0.0:
+		_bash_cooldown -= delta
 	if _cooldown_remaining > 0.0:
 		_cooldown_remaining -= delta
 	if _full_auto_timer > 0.0:
@@ -455,6 +474,46 @@ func _direct_hit(enemy: Enemy, amount: float, damage_type: Constants.DamageType,
 	EventBus.damage_dealt.emit(_player, enemy, amount, damage_type, false, is_critical)
 	enemy.status_effects.roll_gear_ailments(_player, amount, damage_type)
 	EventBus.hit_landed.emit(is_critical, false, not enemy.health.is_alive())
+
+func try_bash() -> void:
+	var weapon: Weapon = _player.get_active_weapon()
+	if weapon == null or not weapon.is_ranged or _bash_cooldown > 0.0:
+		return
+	var speed := _player.get_action_speed_multiplier()
+	_bash_cooldown = BASH_COOLDOWN / speed
+	_cooldown_remaining = maxf(_cooldown_remaining, (BASH_WINDUP + BASH_STRIKE + BASH_RECOVERY) / speed)
+	cancel_reload(weapon)
+	if _player.arm_rig:
+		_player.arm_rig.play_bash(BASH_WINDUP / speed, BASH_STRIKE / speed, BASH_RECOVERY / speed)
+	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.swing_blunt), _player.global_position, -4.0)
+	get_tree().create_timer(BASH_WINDUP / speed, false).timeout.connect(_bash_strike.bind(weapon))
+
+## Hits the enemy nearest the crosshair inside the bash cone.
+func _bash_strike(weapon: Weapon) -> void:
+	if not is_instance_valid(_player) or _player.get_active_weapon() != weapon:
+		return
+	var origin := _player.camera.global_position
+	var forward := -_player.camera.global_transform.basis.z
+	var flat_forward := Vector3(forward.x, 0.0, forward.z).normalized()
+	var best: Enemy = null
+	var best_angle := BASH_HALF_ANGLE
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy == null or not enemy.health.is_alive():
+			continue
+		var flat := Vector3(enemy.global_position.x - origin.x, 0.0, enemy.global_position.z - origin.z)
+		if flat.length() - PlayerMeleeAttack.ENEMY_BODY_RADIUS > BASH_REACH:
+			continue
+		var angle := rad_to_deg(flat_forward.angle_to(flat.normalized())) if flat.length() > 0.05 else 0.0
+		if angle <= best_angle:
+			best_angle = angle
+			best = enemy
+	if best == null or not _player.melee_attack._has_line_of_sight(origin, best.global_position + Vector3(0, PlayerMeleeAttack.ENEMY_AIM_HEIGHT, 0), best):
+		return
+	var hit := weapon.roll_damage(BASH_MOTION_VALUE, _player.stat_sheet)
+	_direct_hit(best, hit["final_damage"], weapon.get_damage_type(), hit["is_critical"])
+	var push := Vector3(best.global_position.x - _player.global_position.x, 0.0, best.global_position.z - _player.global_position.z)
+	best.apply_knockback((push.normalized() if push.length() > 0.05 else flat_forward) * BASH_KNOCKBACK)
 
 func _play_fire_animation(_weapon: Weapon) -> void:
 	var rig := _player.arm_rig

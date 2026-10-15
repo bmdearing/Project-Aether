@@ -905,6 +905,8 @@ func _handle_attack_input(delta: float) -> void:
 		ranged_attack.try_attack_held(weapon_stance.is_active)
 	if Input.is_action_just_pressed("reload") and active_weapon and active_weapon.is_ranged:
 		ranged_attack.try_manual_reload()
+	if Input.is_action_just_pressed("gun_bash") and active_weapon and active_weapon.is_ranged:
+		ranged_attack.try_bash()
 
 func get_move_speed_multiplier() -> float:
 	return 1.0 + stat_sheet.get_misc_bonus("move_speed") / 100.0
@@ -923,6 +925,10 @@ func get_action_speed_multiplier() -> float:
 	var weapon := get_active_weapon()
 	var local := weapon.get_local_multiplier("local_increased_attack_speed") if weapon else 1.0
 	return (1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0 + stat_sheet.get_attack_speed_from_stats()) * local
+
+## Gear and Slate reload_speed, one increased% bracket.
+func get_reload_speed_multiplier() -> float:
+	return 1.0 + stat_sheet.get_misc_bonus("reload_speed") / 100.0
 
 func _start_dash(move_dir: Vector3) -> void:
 	_is_dashing = true

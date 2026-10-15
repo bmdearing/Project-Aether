@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_rldsp"]
+
+[resource]
+script = ExtResource("1_rldsp")
+tag = "attack"
+description = "+%d%% increased Reload Speed"
+stat_key = "reload_speed"
+value = 25.0
+value_min = 25.0
+value_max = 56.0
+tier = 1
+is_prefix = false
+affix_id = "attack_reload_speed"
+display_name = "Quick Hands"
+is_generic = true

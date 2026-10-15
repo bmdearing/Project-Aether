@@ -11,5 +11,5 @@ billboard = 1
 no_depth_test = true
 render_priority = 10
 outline_render_priority = 9
-font_size = 36
-outline_size = 10
+font_size = 48
+outline_size = 14

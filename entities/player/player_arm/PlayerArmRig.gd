@@ -426,6 +426,10 @@ func play_attack(kind: Attack, windup: float, strike: float, recovery: float, ba
 			return
 	_start(_main_track, _mirror(clip) if backswing else clip, windup, strike, recovery, _main_rest())
 
+## Gun bash: a short forward shove of the held weapon.
+func play_bash(windup: float, strike: float, recovery: float) -> void:
+	_start(_main_track, STAB, windup, strike, recovery, _main_rest())
+
 ## The visceral clip: plunged in by `plunge`, torn out over `rip`.
 func play_visceral(plunge: float, rip: float) -> void:
 	_start(_main_track, VISCERAL, 0.12, plunge - 0.12, rip, _main_rest())
@@ -490,7 +494,7 @@ func _play_fire(windup: float, strike: float, recovery: float) -> void:
 func _on_reload_started(weapon: Weapon) -> void:
 	if weapon != _weapon:
 		return
-	var total := weapon.cycle_time if weapon.reload_per_shell else weapon.reload_time
+	var total := _player.ranged_attack.reload_duration(weapon) if _player else weapon.reload_time
 	_start(_main_track, RELOAD, total * 0.2, total * 0.6, total * 0.2, _main_rest())
 	if _off_mode == OffMode.HIDDEN:
 		_start(_off_track, RELOAD_OFF_FREE, total * 0.2, total * 0.6, total * 0.2, _off_rest())

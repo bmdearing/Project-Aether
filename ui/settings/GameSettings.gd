@@ -15,7 +15,7 @@ const REMAPPABLE := [
 	["move_left", "Move Left"], ["move_right", "Move Right"],
 	["jump", "Jump"], ["sprint", "Sprint / Dash"], ["crouch", "Crouch / Slide"],
 	["attack", "Attack"], ["stance", "Stance / Aim / Shield"], ["parry", "Parry"],
-	["reload", "Reload"], ["weapon_swap", "Swap Weapons / Stance Page"],
+	["reload", "Reload"], ["gun_bash", "Gun Bash"], ["weapon_swap", "Swap Weapons / Stance Page"],
 	["ability_1", "Spell 1"], ["ability_2", "Spell 2"], ["ability_3", "Spell 3"], ["ability_4", "Spell 4"],
 	["interact", "Interact / Pick Up"], ["return_to_hub", "Portal to Hub"],
 	["open_inventory", "Inventory"], ["open_character", "Character"], ["open_abilities", "Abilities"],

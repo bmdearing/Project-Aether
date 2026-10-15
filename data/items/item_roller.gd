@@ -136,6 +136,7 @@ const AFFIX_POOL := [
 	# already had before this patch.
 	{"stat_key": "mana_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Mana Regeneration per second", "applies_to": ["armor", "item"], "slots": [0, 9, 10], "brand_tags": ["resource"]},
 	{"stat_key": "attack_speed", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Attack Speed", "applies_to": ["weapon", "armor", "item"], "slots": [2, 11], "brand_tags": ["skills"]},
+	{"stat_key": "reload_speed", "tier1_min": 53.0, "tier1_max": 61.0, "desc": "+%d%% increased Reload Speed", "applies_to": ["armor", "item"], "slots": [2, 11], "brand_tags": ["skills"]},
 	{"stat_key": "cast_speed", "tier1_min": 26.0, "tier1_max": 32.0, "desc": "+%d%% increased Cast Speed", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["skills"]},
 	{"stat_key": "move_speed", "tier1_min": 4.0, "tier1_max": 8.0, "desc": "+%d%% increased Move Speed", "applies_to": ["armor"], "slots": [3], "brand_tags": ["movement"]},
 	{"stat_key": "debuff_effectiveness", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% Debuff Effectiveness", "applies_to": ["armor", "item"], "slots": [0, 9], "brand_tags": ["skills"]},
@@ -485,6 +486,8 @@ const LEVELLED_TIERS := {
 	"local_additional_spell_projectiles": ADDITIONAL_PROJECTILE_TIERS,
 	# One tier only, from item level 61.
 	"additional_curses": [[61, 1.0, 1.0]],
+	# Reload Speed spans 20% (Tier 6) to 70% (Tier 1).
+	"reload_speed": [[83, 62.0, 70.0], [72, 53.0, 61.0], [61, 44.0, 52.0], [40, 35.0, 43.0], [21, 27.0, 34.0], [1, 20.0, 26.0]],
 	# Single Resistances span 15% (Tier 6) to 48% (Tier 1).
 	"fire_resistance": RESISTANCE_TIERS,
 	"cold_resistance": RESISTANCE_TIERS,

@@ -1,8 +1,9 @@
 extends RefCounted
 class_name UniqueCatalog
-## Every Unique and Mythic item. Each is a real base of `base_type` (an
-## Item.get_item_type() key; the best base the drop level allows) with a
-## fixed name, flavour and modifier list. A modifier is
+## Every Unique and Mythic item. Each sits on one fixed `base_item` of
+## `base_type` (an Item.get_item_type() key), so its level requirement and
+## defence type never change; world drops below that base's item level
+## skip it. It has a fixed name, flavour and modifier list. A modifier is
 ## [stat_key, min, max, text]: ordinary stat keys feed the usual stat totals,
 ## `unique_*` keys are mechanics read by UniqueEffects. Values roll between
 ## min and max; text takes the rolled value through "%d" (unsigned: the
@@ -24,7 +25,7 @@ class_name UniqueCatalog
 const DEFS := [
 	{
 		"id": "hollowed_kings_mantle", "name": "The Hollowed King's Mantle", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "body_armour", "weight": 100.0,
+		"base_type": "body_armour", "base_item": "res://data/armor/instances/gen_body_armour_threshold_coat.tres", "weight": 100.0,
 		"flavor": "It belonged to someone who lasted longer than they should have.",
 		"mods": [
 			["unique_more_ward", 40.0, 50.0, "%d%% more Ward"],
@@ -35,7 +36,7 @@ const DEFS := [
 	},
 	{
 		"id": "grevanes_accounting", "name": "Grevane's Accounting", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "belt", "weight": 100.0,
+		"base_type": "belt", "base_item": "res://data/items/instances/iron_belt.tres", "weight": 100.0,
 		"flavor": "Every debt recorded. Every debt collected.",
 		"mods": [
 			["unique_debt", 15.0, 15.0, "Every hit you take is recorded as a Debt stack (up to 20). Your next hit while standing still consumes them, dealing %d%% of the recorded damage as Retaliation damage per stack"],
@@ -44,7 +45,7 @@ const DEFS := [
 	},
 	{
 		"id": "the_pale_eye", "name": "The Pale Eye", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "amulet", "weight": 100.0,
+		"base_type": "amulet", "base_item": "res://data/items/instances/agility_pendant.tres", "weight": 100.0,
 		"flavor": "It sees what you are becoming.",
 		"mods": [
 			["unique_crit_applies_pallid", 1.0, 1.0, "Your Critical Strikes apply Pallid"],
@@ -56,7 +57,7 @@ const DEFS := [
 	},
 	{
 		"id": "unmaking_of_solen_vrath", "name": "The Unmaking of Solen Vrath", "rarity": Constants.ItemRarity.MYTHIC,
-		"base_type": "claymore", "weight": 100.0, "damage_type": Constants.DamageType.AETHERIC, "grade_bonus": 1,
+		"base_type": "claymore", "base_item": "res://data/weapons/instances/gen_claymore_colossus_claymore.tres", "weight": 100.0, "damage_type": Constants.DamageType.AETHERIC, "grade_bonus": 1,
 		"flavor": "He sought to understand what the Maw was. This is what remained of the attempt.",
 		"mods": [
 			["local_increased_weapon_damage", 60.0, 80.0, "%d%% increased Weapon Damage"],
@@ -68,7 +69,7 @@ const DEFS := [
 	},
 	{
 		"id": "band_of_wishes", "name": "Band of Wishes", "rarity": Constants.ItemRarity.MYTHIC,
-		"base_type": "ring", "weight": 100.0, "no_implicits": true,
+		"base_type": "ring", "base_item": "res://data/items/instances/iron_ring.tres", "weight": 100.0, "no_implicits": true,
 		"flavor": "Every wish it grants, you already owned.",
 		"mods": [
 			["unique_reflect_ring", 1.0, 1.0, "Reflects the modifiers of your other Ring"],
@@ -89,7 +90,7 @@ const DEFS := [
 	},
 	{
 		"id": "sands_of_time", "name": "Sands of Time", "rarity": Constants.ItemRarity.MYTHIC,
-		"base_type": "wand", "weight": 100.0, "boss": "ataras", "boss_chance": 0.02, "conduit_stance_type": "time_stop",
+		"base_type": "wand", "base_item": "res://data/weapons/instances/gen_wand_transcendent_wand.tres", "weight": 100.0, "boss": "ataras", "boss_chance": 0.02, "conduit_stance_type": "time_stop",
 		"flavor": "He kept the last grain. Turn it over, and the world waits for you.",
 		"mods": [
 			["local_increased_cast_speed", 1.0, 100.0, "%d%% increased Cast Speed"],
@@ -101,7 +102,7 @@ const DEFS := [
 	# ---- Placeholders until the Unique design session ----
 	{
 		"id": "crown_of_the_ninth_bell", "name": "Crown of the Ninth Bell", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "helmet", "weight": 100.0,
+		"base_type": "helmet", "base_item": "res://data/armor/instances/gen_helmet_threshold_cap.tres", "weight": 100.0,
 		"flavor": "Eight bells for the hours. The ninth for whoever is still listening.",
 		"mods": [
 			["skill_level_spells", 2.0, 2.0, "+%d to Level of all Spells"],
@@ -111,7 +112,7 @@ const DEFS := [
 	},
 	{
 		"id": "hands_of_the_last_toll", "name": "Hands of the Last Toll", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "gloves", "weight": 100.0,
+		"base_type": "gloves", "base_item": "res://data/armor/instances/gen_gloves_wardens_mitts.tres", "weight": 100.0,
 		"flavor": "Paid in full, every time.",
 		"mods": [
 			["attack_speed", 8.0, 12.0, "+%d%% increased Attack Speed"],
@@ -121,7 +122,7 @@ const DEFS := [
 	},
 	{
 		"id": "stride_of_the_unwound", "name": "Stride of the Unwound", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "boots", "weight": 100.0,
+		"base_type": "boots", "base_item": "res://data/armor/instances/gen_boots_striders_boots.tres", "weight": 100.0,
 		"flavor": "Stop, and the thread catches up with you.",
 		"mods": [
 			["move_speed", 20.0, 25.0, "+%d%% increased Move Speed"],
@@ -131,7 +132,7 @@ const DEFS := [
 	},
 	{
 		"id": "seal_of_the_lesser_sun", "name": "Seal of the Lesser Sun", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "ring", "weight": 100.0,
+		"base_type": "ring", "base_item": "res://data/items/instances/ember_ring.tres", "weight": 100.0,
 		"flavor": "A small sun is still a sun.",
 		"mods": [
 			["unique_more_fire_damage", 20.0, 30.0, "%d%% more Fire damage"],
@@ -141,7 +142,7 @@ const DEFS := [
 	},
 	{
 		"id": "the_unpaid_wall", "name": "The Unpaid Wall", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "kite_shield", "weight": 100.0,
+		"base_type": "kite_shield", "base_item": "res://data/shields/instances/gen_kite_shield_sentinels_kite_shield.tres", "weight": 100.0,
 		"flavor": "The masons were never paid. The wall remembers.",
 		"mods": [
 			["block_chance_bonus", 8.0, 12.0, "+%d%% Block Chance"],
@@ -151,7 +152,7 @@ const DEFS := [
 	},
 	{
 		"id": "widows_patience", "name": "Widow's Patience", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "crossbow", "weight": 100.0,
+		"base_type": "crossbow", "base_item": "res://data/weapons/instances/gen_crossbow_deadeyes_crossbow.tres", "weight": 100.0,
 		"flavor": "She only ever needed the one.",
 		"mods": [
 			["unique_patient_shot", 40.0, 60.0, "Hits deal %d%% more damage if you haven't hit an enemy for 2 seconds"],
@@ -160,7 +161,7 @@ const DEFS := [
 	},
 	{
 		"id": "butterfly", "name": "Butterfly", "rarity": Constants.ItemRarity.UNIQUE,
-		"base_type": "crossbow", "weight": 100.0,
+		"base_type": "crossbow", "base_item": "res://data/weapons/instances/gen_crossbow_phantom_crossbow.tres", "weight": 100.0,
 		"flavor": "Never where the blade expects. Always where the bolt lands.",
 		"mods": [
 			["unique_damage_from_move_speed", 60.0, 60.0, "Increases your damage by %d%% of your increased Movement Speed"],

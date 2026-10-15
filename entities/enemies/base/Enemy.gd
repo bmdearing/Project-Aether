@@ -103,6 +103,7 @@ func _ready() -> void:
 	# Separate from _on_died() so it fires at the moment of death even when a
 	# subclass override (FigmentBoss) awaits a death animation before super.
 	health.died.connect(func(): EventBus.enemy_died.emit(self))
+	EventBus.damage_dealt.connect(_on_damage_dealt_mark_crit)
 	add_to_group("enemy")
 	collision_mask |= 1 << (WaterBuilder.BANK_WALL_LAYER - 1)  # river banks
 	var head_zone := get_node_or_null("HeadZone")
@@ -1233,6 +1234,11 @@ func take_dot(dps: float, delta: float, damage_type: int, source: Node, key: Str
 ## Damage over time arrives every frame; its numbers are summed per damage
 ## type and shown once per StatusEffectComponent.DOT_REPORT_INTERVAL.
 var _dot_numbers: Dictionary = {}  # damage type -> {"amount", "since" (msec)}
+## The last direct-hit number and the frame it spawned on. Attackers emit
+## damage_dealt (with the crit flag) right after take_damage(), so a crit
+## arriving the same frame restyles that number.
+var _hit_number: DamageNumber
+var _hit_number_frame: int = -1
 
 ## Crit is always false for now: take_damage() has no crit info (callers
 ## hold it in their roll_damage() result but don't pass it through).
@@ -1254,6 +1260,14 @@ func _spawn_damage_number(amount: float, damage_type: Constants.DamageType, alph
 	get_tree().current_scene.add_child(number)
 	number.global_position = global_position + Vector3(randf_range(-0.3, 0.3), body_height - 0.1 + extra_height, randf_range(-0.3, 0.3))
 	number.setup(amount, damage_type, false, alpha, is_dot)
+	if alpha >= 1.0 and not is_dot:
+		_hit_number = number
+		_hit_number_frame = Engine.get_process_frames()
+
+func _on_damage_dealt_mark_crit(_source: Node, target: Node, _amount: float, _damage_type: int, _more: bool, is_critical: bool) -> void:
+	if is_critical and target == self and _hit_number_frame == Engine.get_process_frames() and is_instance_valid(_hit_number):
+		_hit_number.mark_crit()
+		_hit_number = null
 
 ## Weighted roll; never returns BOSS (boss scenes set it directly).
 func _roll_rank() -> Constants.EnemyRank:
