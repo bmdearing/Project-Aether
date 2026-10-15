@@ -29,6 +29,8 @@ var slots: SaveSlotPanel
 ## The slot the New Game panel will start in.
 var _pending_slot := 1
 
+var _dev_tag: Label
+
 const MUSIC_PATH := "res://assets/music/lament.mp3"
 
 func _ready() -> void:
@@ -134,6 +136,14 @@ Godot 4.7, GDScript. Endgame-first: a Memory Nexus hub with a Reality Engine tha
 	version.position = Vector2(-90, -40)
 	version.add_theme_color_override("font_color", Color(1, 1, 1, 0.35))
 	add_child(version)
+
+	_dev_tag = Label.new()
+	_dev_tag.text = "DEV MODE"
+	_dev_tag.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	_dev_tag.position = Vector2(-190, -40)
+	_dev_tag.add_theme_color_override("font_color", Color(1.0, 0.45, 0.3, 0.8))
+	_dev_tag.visible = Dev.enabled
+	add_child(_dev_tag)
 
 	var fade := ColorRect.new()
 	fade.color = Color.BLACK
@@ -316,3 +326,11 @@ func _start_new_game(player_name: String, weapon_path: String, mode: GameState.G
 func _on_quit_pressed() -> void:
 	SaveManager.save_game()
 	get_tree().quit()
+
+## Hidden: Ctrl+Shift+D flips Dev mode (Dev.gd) and remembers it.
+func _unhandled_key_input(event: InputEvent) -> void:
+	var key := event as InputEventKey
+	if key and key.pressed and not key.echo and key.keycode == KEY_D and key.ctrl_pressed and key.shift_pressed:
+		get_viewport().set_input_as_handled()
+		Dev.toggle()
+		_dev_tag.visible = Dev.enabled

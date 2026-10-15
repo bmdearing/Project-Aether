@@ -25,6 +25,7 @@ const REMAPPABLE := [
 ]
 
 static func load_and_apply() -> void:
+	Dev.load_saved()
 	var cfg := ConfigFile.new()
 	if cfg.load(PATH) == OK:
 		GameState.mouse_sensitivity = float(cfg.get_value(SECTION, "mouse_sensitivity", GameState.mouse_sensitivity))
@@ -51,6 +52,10 @@ static func save() -> void:
 	cfg.set_value(SECTION, "vsync", GameState.vsync)
 	cfg.set_value(SECTION, "always_show_sockets", GameState.always_show_sockets)
 	cfg.set_value(SECTION, "reduce_hole_patterns", GameState.reduce_hole_patterns)
+	# The hidden Dev switch (Dev.toggle()) lives in this file too; keep it.
+	var old := ConfigFile.new()
+	if old.load(PATH) == OK and old.has_section_key(Dev.SECTION, Dev.KEY):
+		cfg.set_value(Dev.SECTION, Dev.KEY, old.get_value(Dev.SECTION, Dev.KEY))
 	for entry in REMAPPABLE:
 		var event := current_event(entry[0])
 		if event and not _is_default(entry[0], event):
