@@ -101,7 +101,7 @@ class Track:
 const RESTS := {
 	&"blade": {"rest": [Vector3(0.27, -0.29, -0.46), Vector3(-0.3, 0.8, -0.5), Vector3(0.3, 0.1, 1)],
 		"guard": [Vector3(0.17, -0.2, -0.44), Vector3(-1, 0.4, -0.35), Vector3(0, 0.3, 1)]},
-	&"heavy": {"rest": [Vector3(0.22, -0.33, -0.4), Vector3(-0.5, 0.75, -0.35), Vector3(0.3, 0.2, 1)],
+	&"heavy": {"rest": [Vector3(0.29, -0.36, -0.4), Vector3(0.6, 0.75, 0.2), Vector3(0.3, 0.2, 1)],
 		"guard": [Vector3(0.16, -0.22, -0.4), Vector3(-1, 0.5, -0.3), Vector3(0, 0.3, 1)]},
 	&"thrust": {"rest": [Vector3(0.24, -0.26, -0.42), Vector3(-0.15, 0.4, -1), Vector3(0, 1, 0.3)],
 		"guard": [Vector3(0.16, -0.17, -0.5), Vector3(-0.1, 0.15, -1), Vector3(1, 0.2, 0)]},
