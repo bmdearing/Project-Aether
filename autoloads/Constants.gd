@@ -279,7 +279,7 @@ const WEAPON_BASE_CRIT_CHANCE := {
 }
 const DEFAULT_BASE_CRIT_CHANCE := 0.05
 
-## Enemy rank: offsets the item level of drops. BOSS is never auto-rolled.
+## Enemy rank: drop rolls and Aether drops. BOSS is never auto-rolled.
 enum EnemyRank { NORMAL, MAGIC, RARE, BOSS }
 
 const ENEMY_RANK_NAME := {

@@ -80,11 +80,11 @@ static func totals(item: Item) -> Dictionary:
 		t["_crit"] = ["%s%% Crit Chance", w.get_local_crit_chance() * 100.0]
 	elif item is Armor:
 		var a := item as Armor
-		_add_defences(t, a.armor_value, a.evasion_value, a.ward_value)
+		_add_defences(t, a.get_local_defence("armor"), a.get_local_defence("evasion"), a.get_local_defence("ward"))
 	elif item is Shield:
 		var s := item as Shield
-		_add_defences(t, s.armor_value, s.evasion_value, s.ward_value)
-		t["_block"] = ["%s%% Block Chance", s.block_chance * 100.0]
+		_add_defences(t, s.get_local_defence("armor"), s.get_local_defence("evasion"), s.get_local_defence("ward"))
+		t["_block"] = ["%s%% Block Chance", s.get_local_block_chance() * 100.0]
 	for affix in item.get_effective_affixes():
 		var template := CraftingResolver._template_for(affix)
 		if not template.contains("%"):

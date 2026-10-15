@@ -14,7 +14,7 @@ class_name ItemRoller
 ## tier still <= power_level - "always the current best base your level
 ## has unlocked" - then rolls uniformly among every line's current pick
 ## plus every untagged standalone base. See Enemy._compute_item_level()
-## for how a kill's own power_level is derived from area level + rank.
+## for how a kill's own power_level is derived from Area Level + rarity.
 ##
 ## Rarity -> affix count (Common 0, Uncommon 1-2, Rare RARE_AFFIX_COUNT).
 ## Rarity is a weighted roll (Loot.roll_rarity()), not set by affix count. Affix

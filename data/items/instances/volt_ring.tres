@@ -5,11 +5,11 @@
 
 [sub_resource type="Resource" id="SubResource_1"]
 script = ExtResource("2")
-description = "+19% Lightning Resistance (implicit)"
+description = "+23% Lightning Resistance (implicit)"
 stat_key = "lightning_resistance_pct"
-value = 19.0
-value_min = 11.0
-value_max = 27.0
+value = 23.0
+value_min = 16.0
+value_max = 30.0
 is_prefix = false
 is_implicit = true
 

@@ -181,6 +181,8 @@ func _render_item(item: Item) -> void:
 		_add_weapon_value_lines(item as Weapon)
 		for line in _ranged_info_lines(item as Weapon):
 			_add_ammo_info_line(line)
+	if item is Armor or item is Shield:
+		_add_defence_value_lines(item)
 	for line in _item_stat_lines(item):
 		_add_stat_line(line)
 	if not item.get_socketed_jewels().is_empty():
@@ -585,8 +587,14 @@ func _add_alt_affix_tiers(item: Item) -> void:
 	if not explicits.is_empty():
 		_add_separator()
 		for affix in explicits:
-			_add_mod_line(_affix_text(affix, true), AFFIX_COLOR)
+			_add_mod_line(_slot_tag(affix, item) + _affix_text(affix, true), AFFIX_COLOR)
 	_add_alt_socket_section(item)
+
+## Alt view's "(Pfx) "/"(Sfx) " lead-in; Uniques have no prefix/suffix split.
+func _slot_tag(affix: ItemAffix, owner: Item) -> String:
+	if owner.rarity >= Constants.ItemRarity.UNIQUE:
+		return ""
+	return "(Pfx) " if affix.is_prefix else "(Sfx) "
 
 ## Alt view: the socketed jewels' modifiers in their own section under the
 ## explicits, with ranges and tiers.
@@ -598,7 +606,7 @@ func _add_alt_socket_section(item: Item) -> void:
 	_add_mod_line("Socketed (%d/%d)" % [jewels.size(), item.sockets], STAT_LABEL_COLOR)
 	for jewel in jewels:
 		for affix in jewel.affixes:
-			_add_mod_line(_affix_text(affix, true), SOCKETED_COLOR)
+			_add_mod_line(_slot_tag(affix, jewel) + _affix_text(affix, true), SOCKETED_COLOR)
 
 ## Main card: the item's explicits with its socketed jewels folded in, one
 ## line per stat: modifiers feeding the same stat add up (two Intellect rolls
@@ -802,6 +810,18 @@ func _add_weapon_value_lines(w: Weapon) -> void:
 	if cast_speed > 1.0:
 		_add_value_line("Cast Speed", STAT_COLOR, "1.00", "%.2f" % cast_speed)
 
+## Armour/Evasion/Ward and a shield's Block Chance, in blue with this
+## item's own flat and increased modifiers applied.
+func _add_defence_value_lines(item: Item) -> void:
+	for pair in [["armor", "Armour"], ["evasion", "Evasion"], ["ward", "Ward"]]:
+		var base := float(item.get(pair[0] + "_value"))
+		var local := item.get_local_defence(pair[0])
+		if base > 0.0 or local > 0.0:
+			_add_value_line(pair[1], STAT_COLOR, "%.0f" % base, "%.0f" % local)
+	if item is Shield:
+		var s := item as Shield
+		_add_value_line("Block Chance", STAT_COLOR, "%.0f%%" % (s.block_chance * 100.0), "%.0f%%" % (s.get_local_block_chance() * 100.0))
+
 ## Magazine ("current / reserve") and Reload lines for firearms; bows get a
 ## single Draw line instead (v4.7), since they have no magazine and
 ## unlimited arrows. A weapon with
@@ -896,23 +916,6 @@ func _item_stat_lines(item: Item) -> Array[String]:
 		var w := item as Weapon
 		if w.infused_damage_type != -1:
 			lines.append("Infused: %s" % Constants.DAMAGE_TYPE_NAME.get(w.infused_damage_type, "?"))
-	elif item is Armor:
-		var a := item as Armor
-		if a.armor_value > 0.0:
-			lines.append("Armour: %.0f" % a.armor_value)
-		if a.evasion_value > 0.0:
-			lines.append("Evasion: %.0f" % a.evasion_value)
-		if a.ward_value > 0.0:
-			lines.append("Ward: %.0f" % a.ward_value)
-	elif item is Shield:
-		var s := item as Shield
-		if s.armor_value > 0.0:
-			lines.append("Armour: %.0f" % s.armor_value)
-		if s.evasion_value > 0.0:
-			lines.append("Evasion: %.0f" % s.evasion_value)
-		if s.ward_value > 0.0:
-			lines.append("Ward: %.0f" % s.ward_value)
-		lines.append("Block Chance: %.0f%%" % (s.block_chance * 100.0))
 	elif item is FigmentItem:
 		var m := item as FigmentItem
 		if MapTileset.display_name_of(m.tileset_id) != "":

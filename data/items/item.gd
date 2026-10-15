@@ -115,6 +115,25 @@ const MAX_IMPLICITS := 3
 func get_all_affixes() -> Array[ItemAffix]:
 	return affixes
 
+## This item's own modifiers for `key`, summed (socketed jewels not included).
+func own_affix_total(key: String) -> float:
+	var total := 0.0
+	for affix in affixes:
+		if affix.key() == key:
+			total += affix.value
+	return total
+
+## A defence ("armor", "evasion", "ward") with this item's own flat and
+## increased modifiers applied - the value its card shows.
+func get_local_defence(defence: String) -> float:
+	var base: Variant = get(defence + "_value")
+	var hybrid := {}
+	for affix in affixes:
+		if affix.key() == "hybrid_defense_life":
+			EquipmentComponent._add_hybrid_defense(hybrid, self, affix.value)
+	var flat: float = own_affix_total("flat_" + defence) + float(hybrid.get("flat_" + defence, 0.0))
+	return ((float(base) if base != null else 0.0) + flat) * (1.0 + own_affix_total("increased_" + defence) / 100.0)
+
 ## The item's own modifiers plus those of the jewels in its sockets, and
 ## for the Band of Wishes the other ring's too: what the stat totals read.
 func get_effective_affixes() -> Array[ItemAffix]:

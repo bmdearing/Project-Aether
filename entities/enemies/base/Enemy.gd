@@ -1268,10 +1268,22 @@ func _roll_rank() -> Constants.EnemyRank:
 			return r
 	return Constants.EnemyRank.NORMAL
 
-## Area Level plus the rank offset (Normal +0, Magic +1, Rare +2, Boss +5),
-## for gear, jewel and Lens drops.
+## Area Level plus the rarity offset (Normal +0, Elite/Champion +1,
+## Ascendant and bosses +2), for gear, jewel and Lens drops.
 func _compute_item_level() -> int:
-	return drop_area_level() + Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
+	return drop_area_level() + item_level_offset()
+
+func item_level_offset() -> int:
+	if rank == Constants.EnemyRank.BOSS:
+		return 2
+	if rarity_component == null:
+		return 0
+	match rarity_component.rarity:
+		Constants.EnemyRarity.ASCENDANT:
+			return 2
+		Constants.EnemyRarity.ELITE, Constants.EnemyRarity.CHAMPION:
+			return 1
+	return 0
 
 ## Area Level for drops; the monster's own level outside an area.
 func drop_area_level() -> int:

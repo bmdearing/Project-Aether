@@ -137,17 +137,23 @@ static func _tiers(tier1_min: float, tier1_max: float, best_tier: int) -> Array[
 	return tiers
 
 ## A LEVELLED_TIERS modifier's tiers the level allows; the best is rarest.
+## Weights are scaled so the modifier as a whole is as likely as a regular
+## one at this level (unscaled 1..N, it lost to every 2..36-weighted line).
 static func _levelled_tiers(stat_key: String, level: int) -> Array[ModifierTier]:
 	var table := ItemRoller.levelled_table(stat_key)
 	var rows := ItemRoller.levelled_tiers_for(stat_key, level)
 	if rows.is_empty():
 		rows = [table[-1]]
+	var regular_total := 0
+	for w in Constants.GEAR_TIER_WEIGHTS.slice(ItemRoller.best_tier_for_level(level) - 1):
+		regular_total += w
+	var shape_total := rows.size() * (rows.size() + 1) / 2.0
 	var tiers: Array[ModifierTier] = []
 	for i in rows.size():
 		var tier := ModifierTier.new()
 		tier.tier = table.find(rows[i]) + 1
 		tier.value_min = rows[i][1]
 		tier.value_max = rows[i][2]
-		tier.weight = i + 1
+		tier.weight = maxi(1, roundi((i + 1) * regular_total / shape_total))
 		tiers.append(tier)
 	return tiers

@@ -8,3 +8,7 @@ class_name Shield
 @export var armor_value: float = 0.0
 @export var evasion_value: float = 0.0
 @export var ward_value: float = 0.0
+
+## block_chance with this shield's own flat and increased Block modifiers.
+func get_local_block_chance() -> float:
+	return (block_chance + own_affix_total("block_chance_bonus") / 100.0) * (1.0 + own_affix_total("increased_block_chance") / 100.0)

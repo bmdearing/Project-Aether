@@ -102,6 +102,15 @@ const CROUCH_TRANSITION_SPEED := 6.0
 const SLIDE_SPEED := 12.0
 const SLIDE_DURATION := 0.5
 const SLIDE_DECELERATION := 14.0
+## Downhill (ramps, staircases' hidden ramps) a slide speeds up instead of
+## slowing: SLIDE_SLOPE_ACCELERATION x the slope's grade along the slide, up
+## to SLIDE_MAX_SPEED, and it lasts as long as the ground keeps dropping.
+## Uphill the same grade slows it. Tapping Crouch while moving downhill
+## starts a slide without sprinting.
+const SLIDE_SLOPE_ACCELERATION := 40.0
+const SLIDE_MAX_SPEED := 20.0
+## Floors flatter than this grade count as level.
+const SLIDE_MIN_GRADE := 0.08
 
 var _is_crouching: bool = false
 var _is_sliding: bool = false
@@ -750,7 +759,8 @@ func _physics_process(delta: float) -> void:
 			and _dash_cooldown_remaining <= 0.0 and move_dir.length() > 0.1:
 		_start_dash(move_dir)
 
-	if Input.is_action_just_pressed("crouch") and is_on_floor() and not rooted and not _is_sliding and not _is_dashing and sprinting and move_dir.length() > 0.1:
+	if Input.is_action_just_pressed("crouch") and is_on_floor() and not rooted and not _is_sliding and not _is_dashing and move_dir.length() > 0.1 \
+			and (sprinting or downhill_grade(move_dir) > SLIDE_MIN_GRADE):
 		_start_slide(move_dir)
 
 	if _lunge_timer > 0.0:
@@ -768,10 +778,20 @@ func _physics_process(delta: float) -> void:
 		if _dash_timer <= 0.0:
 			_is_dashing = false
 	elif _is_sliding:
-		_slide_timer -= delta
-		_slide_speed_current = max(_slide_speed_current - SLIDE_DECELERATION * delta, _effective_speed(crouch_speed))
+		var grade := downhill_grade(_slide_direction)
+		if grade > SLIDE_MIN_GRADE:
+			_slide_speed_current = minf(_slide_speed_current + SLIDE_SLOPE_ACCELERATION * grade * delta, maxf(SLIDE_MAX_SPEED, _slide_speed_current))
+			_slide_timer = maxf(_slide_timer, 0.15)
+		else:
+			_slide_timer -= delta
+			var slowdown := SLIDE_DECELERATION - SLIDE_SLOPE_ACCELERATION * minf(grade, 0.0)
+			_slide_speed_current = max(_slide_speed_current - slowdown * delta, _effective_speed(crouch_speed))
 		velocity.x = _slide_direction.x * _slide_speed_current
 		velocity.z = _slide_direction.z * _slide_speed_current
+		# Follow the slope down rather than launching off it at speed.
+		if is_on_floor() and grade > SLIDE_MIN_GRADE:
+			var n := get_floor_normal()
+			velocity.y = -(n.x * velocity.x + n.z * velocity.z) / maxf(n.y, 0.1)
 		_is_crouching = true
 		_move_velocity = Vector3(velocity.x, 0.0, velocity.z)
 		if _slide_timer <= 0.0 or not is_on_floor():
@@ -957,6 +977,15 @@ func _start_slide(move_dir: Vector3) -> void:
 	_slide_timer = SLIDE_DURATION
 	_slide_direction = move_dir
 	_slide_speed_current = max(_effective_speed(sprint_speed), SLIDE_SPEED)
+
+## How steeply the floor drops along `direction` (horizontal, unit): the
+## sine of the slope angle when heading straight down it, negative uphill,
+## 0 on level ground or in the air.
+func downhill_grade(direction: Vector3) -> float:
+	if not is_on_floor():
+		return 0.0
+	var n := get_floor_normal()
+	return Vector3(n.x, 0.0, n.z).dot(direction)
 
 func _end_slide(keep_crouching: bool) -> void:
 	_is_sliding = false
