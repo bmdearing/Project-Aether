@@ -7,6 +7,21 @@ there. Most recent first.
 
 ---
 
+## 2026-10-15 — v5.3.0: Ataras rework, beefier Fire Golems, character sheet More Info
+
+- **Fire Golems** (Aurelia) have a fixed 3,000,000 Life (`FireGolem.LIFE`) instead of level-scaled Life.
+- **Ataras: Sand Pillars.** At 85%, 65% and 45% Life he marks the ground under you; 3 s later a stone pillar bursts up there (`SandPillar`), hitting and throwing clear anyone still on it, and stays standing as solid cover. Pillars also stop his Mirage stones.
+- **Ataras: Fiery Sun** (phase 3, 35%). He blinks to the centre, immune, and raises a sun that swells overhead for 2 s, hangs for 2.5 s, then slams down. Anyone not behind a pillar (seen from the centre) takes 7,000 Fire and 5,000 Kinetic, before mitigation. Blue strips show the safe ground behind each pillar, and the sun's light casts real shadows from them. The blast brings the pillars down. Any pillars he never got to raise come up at the start of the Sun, so there's always cover.
+- **Ataras: new melee.** Jackal Fangs (three quick slashes, stepping in), Dune Reaver (a spin, then an overhead cleave down a line), Scarab Rush (a gap closer: a dash through you along a marked line, then a backhand), Desert Sweep (a wide, low 240° sweep you can jump over).
+- **Ataras: Mirage Barrage.** He blinks to four random spots, leaving a sand clone at each; each clone then marks a line at you and hurls a stone (2,500-4,000 Kinetic). Dodgeable, and pillars block the stones.
+- Ataras's phases are now 50% (Shifting Sands, as before) and 35% (Fiery Sun). Sandstorm Cuts, its echo, Sand Globes and Ticking Time are unchanged.
+- **Character sheet: More Info** (button under the character header). Lists every stat your gear, socketed jewels, Slates and Lenses change, grouped by kind (`StatDetailsPanel`). Hover a value for its sources (each item, jewel, Slate with its chain and Lens multipliers, Lens, base and level); anything the total holds that those don't explain (Figment Tree, Unique effects) shows as "Other effects". Hover a name for what the stat is and how it works (`StatGlossary`; names come from the affix templates).
+- The main sheet's hover texts were corrected (Intellect gives 0.5% Ward per point, not 1%; Spell Damage no longer mentions Conduit power) and now cover crit, offhand, resistances and Chain Bonus rows too.
+- Tests: `tests/ataras` gained the combos, pillars, Sun and Mirage (and no longer hangs: since v4.89 its level-1 player died to the level-gap multiplier and the death pause stalled the arena's timers). `tests/character/test_stat_details` is new. `capture_pinnacle` has a `sun` view.
+- Judgment calls: pillar eruption damage (1.6x his base hit), combo numbers, the Sun's timings, the 240° sweep, pillars collapsing in the Sun's blast, and Ataras being immune while he raises it.
+
+---
+
 ## 2026-10-15 — v5.2.9: Hidden enemy rank folded into visible rarity
 
 - Regular enemies no longer roll a hidden Normal/Magic/Rare rank (80/16/4). `Constants.EnemyRank` is just Normal or Boss now. Boss keeps value 3, so boss scenes load unchanged.

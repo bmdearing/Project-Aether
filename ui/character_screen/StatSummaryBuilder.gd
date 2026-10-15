@@ -5,30 +5,39 @@ class_name StatSummaryBuilder
 ## Hover text per stat row, keyed by the row's label (Patch v4.3). Rows not
 ## listed here get no tooltip.
 const STAT_TOOLTIPS := {
-	"Strength": "+1% increased Weapon Damage, +4 Life per point.",
-	"Weapon Damage": "Increased weapon base damage from Strength.",
-	"Main Hand Damage": "Estimated damage range for your main hand weapon.",
-	"Agility": "+1% increased Attack Speed, Evasion, and Critical Strike Chance per point.",
+	"Strength": "Strength: +1% increased Weapon Damage and +4 maximum Life per point. Gear can need a minimum Strength.",
+	"Weapon Damage": "% increased weapon damage from Strength (1% per point), added to your other % increased damage.",
+	"Main Hand Damage": "The damage range one hit with your main hand weapon deals before the enemy's defences, with your current stats.",
+	"Main Hand Crit": "Chance for a main hand hit to be critical, and how hard critical hits land (150% base). % increased Critical Strike Chance multiplies the weapon's own base chance.",
+	"Offhand Damage": "The damage range one hit with your offhand weapon deals before the enemy's defences, with your current stats.",
+	"Offhand Crit": "Chance for an offhand hit to be critical, and how hard critical hits land (150% base).",
+	"Agility": "Agility: +1% increased Attack Speed, Evasion and Critical Strike Chance per point. Gear can need a minimum Agility.",
 	# "Evasion Rating" is built live in _evasion_tooltip() - it shows the derived percentages.
-	"Max Health": "Total Life pool. Depleted by incoming damage.",
-	"Life Regen": "Life recovered per second passively.",
-	"Max Ward": "Secondary buffer that absorbs all damage before Health.",
-	"Armor": "Reduces Physical damage taken.",
-	"Intellect": "+1% increased Spell Damage and Ward, +3 Mana per point.",
-	"Spell Damage": "Increased Conduit spell power from Intellect.",
-	"Max Mana": "Resource pool for casting spells.",
-	"Mana Regen": "Mana recovered per second passively.",
-	"Move Speed": "Base movement speed in meters per second.",
-	"Sprint Speed": "Movement speed while sprinting.",
-	"Action Speed": "Multiplier applied to attack speed and cast speed.",
-	"Fire Resistance": "Reduces Fire damage and Ignite tick damage taken.",
-	"Cold Resistance": "Reduces Cold damage and Chill/Freeze effects.",
-	"Lightning Resistance": "Reduces Lightning damage and Electrocute.",
-	"Esoteric Resistance": "Reduces Aetheric, Entropic, and Pale damage taken.",
+	"Max Health": "Your Life: Strength's +4 per point plus flat Life, multiplied by % increased Life. You die when it runs out. Ward takes damage before it.",
+	"Life Regen": "Life recovered per second: 0.5% of maximum Life plus flat regeneration, multiplied by % increased Life Regeneration.",
+	"Max Ward": "Absorbs damage of every type before Life, and refills after a short time without being hit. Comes from Ward on gear, multiplied by % increased Ward and Intellect (0.5% per point).",
+	"Armor": "Reduces Physical hits by Armour / (Armour + 6 x the hit), so it stops small hits better than big ones.",
+	"Intellect": "Intellect: +1% increased Spell Damage, +0.5% increased Ward and +3 Mana per point. Gear can need a minimum Intellect.",
+	"Spell Damage": "% increased spell damage from Intellect (1% per point), added to your other % increased spell damage.",
+	"Max Mana": "Spent on spells and auras. Intellect gives +3 per point.",
+	"Mana Regen": "Mana recovered per second.",
+	"Move Speed": "Walking speed in metres per second, with % increased Move Speed applied.",
+	"Sprint Speed": "Sprinting speed in metres per second, with % increased Move Speed applied.",
+	"Action Speed": "How fast you attack and cast compared with normal (100%).",
 	"Item Quantity": "More drop rolls from every kill, so more of everything drops. Includes Magic Find.",
 	"Item Rarity": "Better odds that dropped items and jewels are Uncommon or Rare. Includes Magic Find.",
 	"Magic Find": "Each point gives +0.5% Item Quantity and +2% Item Rarity.",
 }
+
+## Rows that share an explanation with a stat key (resistances, Chain Bonus).
+static func _tooltip_for(label_text: String) -> String:
+	if STAT_TOOLTIPS.has(label_text):
+		return STAT_TOOLTIPS[label_text]
+	if label_text.ends_with(" Resistance"):
+		return StatGlossary.explain(label_text.trim_suffix(" Resistance").to_lower() + "_resistance")
+	if label_text.ends_with(" Chain Bonus"):
+		return "% increased damage of this type from chains of linked Slates on the Fate Board."
+	return ""
 
 static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, misc_list: VBoxContainer, player: Player) -> void:
 	_clear(offense_list)
@@ -121,7 +130,7 @@ static func _add(list: VBoxContainer, label_text: String, value_text: String, to
 	# Every other row is faintly lit so long columns stay easy to follow.
 	var plate := PanelContainer.new()
 	plate.add_theme_stylebox_override("panel", AetherStyle.row_box(list.get_child_count() % 2 == 1))
-	plate.tooltip_text = tooltip_override if tooltip_override != "" else STAT_TOOLTIPS.get(label_text, "")
+	plate.tooltip_text = tooltip_override if tooltip_override != "" else _tooltip_for(label_text)
 	plate.mouse_filter = Control.MOUSE_FILTER_STOP  # a tooltip needs a Control that receives the mouse
 	var row := HBoxContainer.new()
 	row.mouse_filter = Control.MOUSE_FILTER_IGNORE

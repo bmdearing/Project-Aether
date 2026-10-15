@@ -151,6 +151,12 @@ func _dress_panels() -> void:
 	_header = CharacterHeader.new()
 	stats_panel.add_child(_header)
 	stats_panel.move_child(_header, 0)
+	var more := Button.new()
+	more.text = "More Info"
+	more.tooltip_text = "Every stat your gear, jewels, Slates and Lenses change, and where each comes from."
+	more.pressed.connect(_open_stat_details)
+	stats_panel.add_child(more)
+	stats_panel.move_child(more, 1)
 	var list := "HBox/StatsPanel/StatsScroll/StatsList/"
 	for label in [get_node(list + "OffenseTitle"), get_node(list + "DefenseTitle"), get_node(list + "MiscTitle"), _record_title,
 			$HBox/SidePanel/TitleLabel, $HBox/SidePanel/InventoryPanel/InventoryTitle]:
@@ -357,6 +363,8 @@ func open(show_stats: bool = false, show_items: bool = true) -> void:
 func close() -> void:
 	_is_open = false
 	visible = false
+	if _stat_details:
+		_stat_details.close()
 	_armed = &""
 	_held_jewel = null
 	get_tree().paused = false
@@ -788,6 +796,14 @@ func _refresh_doll() -> void:
 			_style_slot_button(button, equipped)
 		else:
 			_style_empty_button(button, row["label"])
+
+var _stat_details: StatDetailsPanel
+
+func _open_stat_details() -> void:
+	if _stat_details == null:
+		_stat_details = StatDetailsPanel.new()
+		add_child(_stat_details)
+	_stat_details.open(get_tree().get_first_node_in_group("player") as Player)
 
 func _refresh_stats() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
