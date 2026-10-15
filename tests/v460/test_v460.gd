@@ -132,6 +132,18 @@ func _test_currency_tab() -> void:
 	_check(GameState.inventory.count_of(&"grafting") == Constants.MAX_STACK and tab.count_of(&"grafting") == 150, "a click takes one stack")
 	screen._withdraw_currency(&"grafting", true)
 	_check(GameState.inventory.count_of(&"grafting") == 250 and tab.count_of(&"grafting") == 0, "shift-click takes the rest")
+	# PoE-style: right-click picks a currency up, a click on an item uses it.
+	tab.add(&"tempering", 3)
+	var target := _gear(func(i: Item) -> bool: return i.is_equipment() and not i is FigmentItem)
+	GameState.inventory.add(target)
+	screen._refresh()
+	screen._on_currency_right_clicked(&"tempering")
+	_check(screen._held == &"tempering", "right-clicking a stash currency puts it on the cursor")
+	screen._use_held_on(target)
+	_check(tab.count_of(&"tempering") < 3 or screen._status.text != "", "clicking an item uses the held currency, paid from the stash (%s)" % screen._status.text)
+	_check(screen._held == &"", "without Shift it leaves the cursor after one use")
+	screen._on_currency_right_clicked(&"brand_fire")
+	_check(screen._held == &"", "a Brand switches on instead of going on the cursor")
 	screen.queue_free()
 	_finished += 1
 

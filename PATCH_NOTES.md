@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-15 — v5.3.3: PoE-style currency crafting from the stash, Lens on the cursor
+
+- **Stash Currency tab crafts like Path of Exile's.** Right-click a currency slot to pick it up: it sits on the cursor (with its stash count) and its slot is framed in gold. Click any item in your inventory or a stash tab to use it, paid from the stash, and hold **Shift** to keep it in hand for the next click. Right-click or Esc puts it back. Hovering an item while holding an Orb shows its craft preview. Brands and Edicts still right-click on for the next craft. The Crafting Bench stays: click it while holding a currency to use it on the bench item.
+- **Fate Board Lenses** go on the cursor when you left- or right-click one in the palette, then click a placed Slate to set it. Clicking the held Lens again puts it back.
+- **Fate Board key hint.** A line under the status now always shows the rotate and flip keys (R and Q by default; it follows rebinding). The old hint vanished as soon as a Slate was selected.
+- `InventoryScreen.use_stone()` is static now, so the stash shares the inventory's stone and Shard logic. `test_v460` checks the stash pick-up-and-use flow.
+
+---
+
 ## 2026-10-15 — v5.3.2: Armour 5x weaker, Active Reload fix, silent attack tells
 
 - **Armour** now reduces Physical hits by Armour / (Armour + 30 x hit), was 6 x hit (`DamageCalculator.ARMOUR_HIT_FACTOR`). That makes armour about 5x weaker for players and monsters alike. On the user's level-25 save, 580 Armour from ilvl-1 starter gear was stopping ~80% of every on-level physical hit, which hid the v5.3.1 damage increase. A standard hit at Area Level 19 went from 0.9% to 2.6% of Life, a heavy from 2.3% to 5.2%, an elite from 4.9% to 9.4%. Elemental and Esoteric hits are unchanged. Wiki, sheet and glossary texts are updated.

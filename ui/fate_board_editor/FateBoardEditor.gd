@@ -30,6 +30,9 @@ var _pending_designated_ability_id: String = ""
 var _designate_ability_ids: Array[String] = []
 ## A Lens picked from the palette, waiting to be clicked onto a placed Slate.
 var _held_lens: Lens
+var _cursor_icon: ItemIcon
+const CURSOR_ICON_SIZE := 46.0
+var _keys_hint: Label
 ## The view recentres on the anchor only if the board stayed closed this long.
 const RECENTER_AFTER_SEC := 120
 var _closed_msec: int = -1
@@ -53,6 +56,14 @@ func _ready() -> void:
 		FateBoardGrid.show_outlines = on
 		grid.queue_redraw())
 	aether_label.add_sibling(outlines)
+	_keys_hint = Label.new()
+	_keys_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_keys_hint.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+	status_label.add_sibling(_keys_hint)
+	_cursor_icon = ItemIcon.new()
+	_cursor_icon.size = Vector2.ONE * CURSOR_ICON_SIZE
+	_cursor_icon.visible = false
+	add_child(_cursor_icon)
 
 func is_open() -> bool:
 	return _is_open
@@ -69,12 +80,14 @@ func open() -> void:
 	# Reopening soon after (Tab cycling, a quick check) keeps the view where it was.
 	if _closed_msec < 0 or Time.get_ticks_msec() - _closed_msec > RECENTER_AFTER_SEC * 1000:
 		grid.center_on_anchor()
+	_keys_hint.text = "%s rotates and %s flips the Slate you're placing. Right-click a placed Slate to take it back." % [GameSettings.key_name("fate_board_rotate"), GameSettings.key_name("fate_board_flip")]
 	_populate_palette()
 	_refresh_aether()
 	_refresh_chains()
 
 func close() -> void:
 	_is_open = false
+	_held_lens = null
 	_closed_msec = Time.get_ticks_msec()
 	visible = false
 	get_tree().paused = false
@@ -106,7 +119,7 @@ func _populate_palette() -> void:
 	if lenses.is_empty():
 		return
 	var header := Label.new()
-	header.text = "Lenses - click one, then a placed Slate with a free socket"
+	header.text = "Lenses - click or right-click one to pick it up, then click a placed Slate with a free socket"
 	header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	palette_list.add_child(header)
 	for lens in lenses:
@@ -127,10 +140,17 @@ func _add_lens_entry(lens: Lens) -> void:
 	button.tooltip_text = lens.display_name
 	button.item = lens
 	button.pressed.connect(_on_lens_selected.bind(lens))
+	button.gui_input.connect(func(event: InputEvent):
+		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
+			_on_lens_selected(lens)
+			button.accept_event())
 	palette_list.add_child(button)
 
 func _on_lens_selected(lens: Lens) -> void:
+	var again := _held_lens == lens
 	_on_drop_requested()
+	if again:
+		return  # clicking the held Lens puts it back
 	_held_lens = lens
 	status_label.text = "Click a placed Slate with a free socket to set %s. Lenses set on the board stay there. Right-click or Esc to put it back." % lens.display_name
 
@@ -254,6 +274,16 @@ func _socket_held_lens(cell: Vector2i) -> void:
 	_refresh_aether()
 	_refresh_chains()
 	_populate_palette()
+
+## The held Lens follows the pointer, just above-left so its tip stays on the target.
+func _process(_delta: float) -> void:
+	_cursor_icon.visible = _is_open and _held_lens != null
+	if not _cursor_icon.visible:
+		return
+	if not is_same(_cursor_icon.content, _held_lens):
+		_cursor_icon.content = _held_lens
+	_cursor_icon.position = get_viewport().get_mouse_position() - Vector2(CURSOR_ICON_SIZE * 0.75, CURSOR_ICON_SIZE * 0.75)
+	_cursor_icon.move_to_front()
 
 func _is_slate_available(slate: Slate) -> bool:
 	return GameState.inventory.has_content(slate)

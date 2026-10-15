@@ -7,9 +7,10 @@ class_name CurrencyTabView
 ## Click a slot to take a stack (Shift or Ctrl: as much as fits); drop
 ## currency from the inventory anywhere on the tab to store it.
 ##
-## The Crafting Bench holds one item: right-click a currency to use it on
-## the bench item straight from the stash, and hover a currency to see what
-## it would do (StashScreen does the crafting).
+## Right-click a currency to hold it on the cursor and click any item to use
+## it, as in PoE; Brands and Edicts right-click on for the next craft. The
+## Crafting Bench holds one item to craft on here, and hovering an Orb shows
+## what it would do to it (StashScreen does the crafting).
 
 signal slot_clicked(id: StringName, take_all: bool)
 signal currency_dropped(data: Dictionary)
@@ -66,6 +67,8 @@ var bench_item: Resource:
 var preview_for: Callable
 ## Optional (id) -> bool: a Brand switched on for the next bench craft.
 var brand_active: Callable
+## Optional (id) -> bool: that currency is on the cursor.
+var held: Callable
 var _slots: Dictionary = {}  # id -> CurrencySlot
 var _bench: BenchSlot
 var _frames: Array[Rect2] = []
@@ -218,6 +221,10 @@ class CurrencySlot extends Button:
 		# A Brand switched on for the bench glows.
 		if view.brand_active.is_valid() and view.brand_active.call(id):
 			draw_rect(Rect2(Vector2.ZERO, size).grow(-1), Color(1.0, 0.75, 0.3), false, 2.5)
+		# The currency on the cursor.
+		if view.held.is_valid() and view.held.call(id):
+			draw_rect(Rect2(Vector2.ZERO, size).grow(-1), Color(1.0, 0.95, 0.7), false, 3.0)
+			draw_rect(Rect2(Vector2.ZERO, size).grow(-5), Color(1.0, 0.82, 0.3, 0.25))
 
 	func _gui_input(event: InputEvent) -> void:
 		if event is InputEventMouseButton and event.pressed:
@@ -241,9 +248,15 @@ class CurrencySlot extends Button:
 			else:
 				card.display_item(bench as Item)
 			return card
-		var hint := "Click to take a stack. Shift-click to take as much as fits." if count > 0 else "None stored."
-		if bench != null and count > 0 and CurrencyTabView.is_bench_currency(id):
-			hint += " Right-click to switch it on for the next bench craft." if String(id).begins_with("brand_") or String(id).begins_with("edict_") else " Right-click to use it on the bench item."
+		var hint := "None stored."
+		if count > 0:
+			var s := String(id)
+			if s.begins_with("brand_") or s.begins_with("edict_"):
+				hint = "Right-click to switch it on for your next craft from the stash. Click to take a stack (Shift: as much as fits)."
+			elif Constants.ORB_IDS.has(id) or Constants.CRAFTING_CONSUMABLE_IDS.has(s):
+				hint = "Right-click to pick it up, then click an item to use it (hold Shift to keep using it). Click to take a stack (Shift: as much as fits)."
+			else:
+				hint = "Click to take a stack. Shift-click to take as much as fits."
 		card.display_currency(id, count, hint)
 		return card
 
@@ -256,7 +269,7 @@ class CurrencySlot extends Button:
 ## The Crafting Bench: drop an item or Slate on it from the inventory;
 ## click it to take the item back.
 class BenchSlot extends Button:
-	const BENCH_HELP := "Crafting Bench: drop an item or Slate here from your inventory, then right-click a currency on this tab to use it on that item. Hovering an Orb shows what it would do. Click the bench to take the item back."
+	const BENCH_HELP := "Crafting Bench: drop an item or Slate here from your inventory to craft on it beside your currency. Hovering an Orb shows what it would do to it. Click the bench with a currency held to use it; click it empty-handed to take the item back."
 	var view: CurrencyTabView
 	var _icon: ItemIcon
 	var _label: Label

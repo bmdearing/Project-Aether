@@ -616,7 +616,7 @@ func _use_armed_on(target: Resource) -> void:
 		var result := _resolver.apply(target, id, _active_brands)
 		status_label.text = _describe_craft(id, result) if result.success else result.get_message()
 	else:
-		var outcome := _use_stone(id, target)
+		var outcome := use_stone(id, target)
 		status_label.text = outcome["message"]
 		if outcome["success"]:
 			GameState.inventory.remove_currency(id)
@@ -638,7 +638,7 @@ static func _describe_craft(id: StringName, result: CraftResult) -> String:
 		parts.append("Sockets: %d" % result.sockets_rolled_to)
 	return "  ".join(parts)
 
-func _use_stone(id: StringName, target: Resource) -> Dictionary:
+static func use_stone(id: StringName, target: Resource) -> Dictionary:
 	match String(id):
 		"infusion_stone":
 			return CraftingSystem.infuse(target) if target is Weapon else {"success": false, "message": "Infusion Stone only works on weapons."}

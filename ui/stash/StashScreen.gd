@@ -6,6 +6,10 @@ class_name StashScreen
 ## (right-click a tab to set them), else the open tab, else the first tab
 ## that takes it. The Currency tab is a fixed slot per currency
 ## (CurrencyTabView); the last tab is the Unique tab (UniqueTabView).
+## Crafting works as in Path of Exile: right-click a currency on the Currency
+## tab to hold it on the cursor, then click any item in the inventory or the
+## stash to use it (Shift keeps it in hand for the next click). Brands and
+## Edicts are right-clicked on for the next craft.
 ## Doesn't pause the game.
 
 const CELL := 44
@@ -25,6 +29,10 @@ const PAGE_SIZE := Vector2(744, 560)
 var _status: Label
 var _affinity_menu: PopupMenu
 var _affinity_tab := 0
+## A stash currency held on the cursor, used on the next item clicked.
+var _held: StringName = &""
+var _cursor_icon: ItemIcon
+const CURSOR_ICON_SIZE := 46.0
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -33,6 +41,10 @@ func _ready() -> void:
 	add_to_group("stash_screen")
 	add_to_group("blocking_menu")
 	_build()
+	_cursor_icon = ItemIcon.new()
+	_cursor_icon.size = Vector2.ONE * CURSOR_ICON_SIZE
+	_cursor_icon.visible = false
+	add_child(_cursor_icon)
 
 func is_open() -> bool:
 	return _is_open
@@ -47,13 +59,17 @@ func open() -> void:
 
 func close() -> void:
 	_is_open = false
+	_held = &""
 	visible = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not _is_open:
 		return
-	if event.is_action_pressed("ui_cancel") or event.is_action_pressed("interact"):
+	if event.is_action_pressed("ui_cancel") and _held != &"":
+		_drop_held()
+		get_viewport().set_input_as_handled()
+	elif event.is_action_pressed("ui_cancel") or event.is_action_pressed("interact"):
 		close()
 		get_viewport().set_input_as_handled()
 
@@ -124,7 +140,8 @@ func _build() -> void:
 	_currency_view.visible = false
 	_currency_view.slot_clicked.connect(_withdraw_currency)
 	_currency_view.currency_dropped.connect(_on_currency_dropped)
-	_currency_view.slot_used.connect(_use_on_bench)
+	_currency_view.slot_used.connect(_on_currency_right_clicked)
+	_currency_view.held = func(id: StringName) -> bool: return id == _held
 	_currency_view.bench_clicked.connect(_take_from_bench)
 	_currency_view.bench_dropped.connect(_on_bench_dropped)
 	_currency_view.preview_for = _bench_preview
@@ -140,7 +157,7 @@ func _build() -> void:
 
 	_status = _label("", 14)
 	root.add_child(_status)
-	var hint := _label("Drag to move items. Right-click sends an item to the other side, into the tab set for its kind. Right-click a tab to set what it collects. On the Currency tab, drop an item on the Crafting Bench and right-click currency to craft on it. E or Esc closes.", 12)
+	var hint := _label("Drag to move items. Right-click sends an item to the other side, into the tab set for its kind. Right-click a tab to set what it collects. On the Currency tab, right-click a currency to pick it up, then click any item to use it (hold Shift to keep using it); right-click Brands and Edicts to switch them on for the next craft. E or Esc closes.", 12)
 	hint.modulate = Color(1, 1, 1, 0.6)
 	root.add_child(hint)
 
@@ -155,6 +172,8 @@ func _make_view() -> InventoryGridView:
 	view.drop_failed.connect(func(): _status.text = "That doesn't fit there.")
 	view.changed.connect(func(): _status.text = "")
 	view.entry_right_clicked.connect(_on_entry_right_clicked)
+	view.entry_clicked.connect(_on_entry_clicked)
+	view.craft_preview = _held_preview
 	return view
 
 func _label(text: String, size: int) -> Label:
@@ -306,6 +325,9 @@ func _on_affinity_chosen(id: int) -> void:
 ## ---- Moving things ---------------------------------------------------------
 
 func _on_entry_right_clicked(view: InventoryGridView, entry: GridInventory.Entry) -> void:
+	if _held != &"":
+		_drop_held()
+		return
 	if view == _carried_view:
 		if not deposit(entry):
 			_status.text = "No room for that."
@@ -388,6 +410,9 @@ func _on_currency_dropped(data: Dictionary) -> void:
 
 ## Takes a stack (or everything that fits) of one currency into the inventory.
 func _withdraw_currency(id: StringName, take_all: bool) -> void:
+	if _held != &"":
+		_drop_held()
+		return
 	var tab := GameState.stash.get_tab(GridInventory.Accepts.CURRENCY)
 	var held := tab.count_of(id)
 	if held <= 0:
@@ -442,6 +467,9 @@ func _take_from_bench() -> void:
 	var bench := GameState.stash.bench
 	if bench == null:
 		return
+	if _held != &"":
+		_use_held_on(bench)
+		return
 	if GameState.add_to_inventory(bench):
 		GameState.stash.bench = null
 		_status.text = ""
@@ -449,40 +477,100 @@ func _take_from_bench() -> void:
 		_status.text = "No room for that."
 	_refresh()
 
-## Right-click on a currency: an Orb on the bench item, or a Brand or Edict
-## switched on or off for the next bench craft.
-func _use_on_bench(id: StringName) -> void:
-	var bench := GameState.stash.bench
+## ---- Currency on the cursor ------------------------------------------------
+
+## Right-click on a Currency tab slot: a Brand or Edict switches on or off
+## for the next craft; anything usable goes onto the cursor (again: back).
+func _on_currency_right_clicked(id: StringName) -> void:
 	var resolver := _bench_resolver()
-	if bench == null:
-		_status.text = "Put an item on the Crafting Bench first (drag it from your inventory)."
-		return
 	if resolver.brand_defs.has(id) or resolver.edict_defs.has(id):
 		if _bench_brands.is_active(id):
 			_bench_brands.deactivate(id)
 			_status.text = "%s switched off." % CurrencyText.name_of(id)
 		elif _bench_brands.activate(id):
-			_status.text = "%s switched on for the next bench craft." % CurrencyText.name_of(id)
+			_status.text = "%s switched on for your next craft from the stash." % CurrencyText.name_of(id)
 		_currency_view.refresh()
 		return
-	if bench is FigmentItem and Constants.ORB_IDS.has(id):
-		var tab := GameState.stash.get_tab(GridInventory.Accepts.CURRENCY)
-		if tab.count_of(id) <= 0:
-			_status.text = "No %s in the stash." % CurrencyText.name_of(id)
+	if not (Constants.ORB_IDS.has(id) or Constants.CRAFTING_CONSUMABLE_IDS.has(String(id))):
+		_status.text = CurrencyText.description_of(id)
+		return
+	if _held == id:
+		_drop_held()
+		return
+	if _currency_tab().count_of(id) <= 0:
+		return
+	_held = id
+	_status.text = "Click an item to use %s on it. Hold Shift to keep it in hand. Right-click or Esc puts it back." % CurrencyText.name_of(id)
+	_refresh_views()
+
+func _drop_held() -> void:
+	_held = &""
+	_status.text = ""
+	_refresh_views()
+
+func _on_entry_clicked(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
+	if _held != &"" and not entry.is_currency():
+		_use_held_on(entry.content)
+
+func _currency_tab() -> GridInventory:
+	return GameState.stash.get_tab(GridInventory.Accepts.CURRENCY)
+
+## Uses the held currency on target, paid from the Currency tab. It stays
+## held while Shift is down and some is left.
+func _use_held_on(target: Resource) -> void:
+	var id := _held
+	var tab := _currency_tab()
+	if tab.count_of(id) <= 0:
+		_drop_held()
+		return
+	var resolver := _bench_resolver()
+	if target is FigmentItem:
+		if not Constants.ORB_IDS.has(id):
+			_status.text = "%s can't be used on a Figment." % CurrencyText.name_of(id)
 			return
-		var outcome := CraftingSystem.craft_figment(bench, id)
+		var outcome := CraftingSystem.craft_figment(target, id)
 		if outcome["success"]:
 			tab.remove_currency(id)
 		_status.text = outcome["message"]
-		_refresh()
+	elif not (target is Item or target is Slate):
+		_status.text = "%s can't be used on that." % CurrencyText.name_of(id)
 		return
-	if Constants.ORB_IDS.has(id):
-		var result := resolver.apply(bench, id, _bench_brands)
+	elif Constants.ORB_IDS.has(id):
+		var result := resolver.apply(target, id, _bench_brands)
 		_status.text = InventoryScreen._describe_craft(id, result) if result.success else result.get_message()
 	else:
-		_status.text = "%s can't be used on the bench. Take it to your inventory to use it." % CurrencyText.name_of(id)
-		return
+		var outcome := InventoryScreen.use_stone(id, target)
+		if outcome["success"]:
+			tab.remove_currency(id)
+		_status.text = outcome["message"]
+	if not Input.is_key_pressed(KEY_SHIFT) or tab.count_of(id) <= 0:
+		_held = &""
+	_text_cache.erase(target.get_instance_id())
 	_refresh()
+
+## The held Orb's preview on target, for its card while hovering.
+func _held_preview(target: Resource) -> CraftPreview:
+	if _held == &"" or not Constants.ORB_IDS.has(_held):
+		return null
+	if not (target is Item or target is Slate) or target is FigmentItem or target.resource_path != "":
+		return null
+	return _bench_resolver().preview(target, _held, _bench_brands)
+
+func _refresh_views() -> void:
+	_carried_view.refresh()
+	_stash_view.refresh()
+	_currency_view.refresh()
+
+func _process(_delta: float) -> void:
+	_cursor_icon.visible = _is_open and _held != &""
+	if not _cursor_icon.visible:
+		return
+	if not is_same(_cursor_icon.content, _held):
+		_cursor_icon.content = _held
+	_cursor_icon.count = _currency_tab().count_of(_held)
+	# Just above-left of the pointer, so its tip stays on the target.
+	_cursor_icon.position = get_viewport().get_mouse_position() - Vector2(CURSOR_ICON_SIZE * 0.75, CURSOR_ICON_SIZE * 0.75)
+	_cursor_icon.move_to_front()
 
 ## A Unique tab slot's item back into the inventory.
 func _withdraw_unique(id: String) -> void:

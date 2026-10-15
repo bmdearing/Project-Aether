@@ -120,6 +120,10 @@ func _fill_stash(currency: bool) -> void:
 	screen.open()
 	if currency:
 		screen._select_tab(stash.tabs.find(stash.get_tab(GridInventory.Accepts.CURRENCY)))
+		for k in 4:
+			GameState.inventory.add(ItemRoller.roll(30, 3.0))
+		screen._refresh()
+		screen._on_currency_right_clicked(&"tempering")  # held on the cursor
 	else:
 		screen._search.text = "life"
 		screen._apply_search()
