@@ -44,6 +44,22 @@ const VIGNETTE_LOW_HEALTH_FRACTION := 0.3
 const VIGNETTE_LOW_HEALTH_COLOR := Color(0.55, 0.0, 0.02)
 const VIGNETTE_FLASH_DECAY_PER_SEC := 2.5
 const VIGNETTE_BLEND_SPEED := 6.0
+## Savage blow: one hit taking SAVAGE_HIT_FRACTION of max Life, or one of at
+## least SAVAGE_CROSS_MIN_HIT that drops you below SAVAGE_CROSS_FRACTION
+## (the minimum keeps damage-over-time ticks out). A red edge flash scaled by
+## the hit, a brief loss of colour, fading in about half a second into the
+## ordinary vignette.
+const SAVAGE_HIT_FRACTION := 0.25
+const SAVAGE_CROSS_FRACTION := 0.5
+const SAVAGE_CROSS_MIN_HIT := 0.1
+const SAVAGE_COLOR := Color(0.75, 0.02, 0.03)
+const SAVAGE_MAX_INTENSITY := 0.9
+const SAVAGE_DESATURATION := 0.6
+const SAVAGE_DECAY_PER_SEC := 1.4
+const DESATURATE_SHADER := preload("res://assets/shaders/desaturate.gdshader")
+var _savage: float = 0.0
+var _desaturate: ColorRect
+var _desaturate_material: ShaderMaterial
 ## Ammo counter: magazine large, reserve small. Ranged weapons only; bows
 ## show an infinity sign.
 const AMMO_BOX_WIDTH := 160.0
@@ -691,11 +707,30 @@ func _build_vignette() -> void:
 	_vignette.material = _vignette_material
 	add_child(_vignette)
 	move_child(_vignette, 0)
+	_desaturate = ColorRect.new()
+	_desaturate.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_desaturate.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_desaturate_material = ShaderMaterial.new()
+	_desaturate_material.shader = DESATURATE_SHADER
+	_desaturate.material = _desaturate_material
+	_desaturate.visible = false
+	add_child(_desaturate)
+	move_child(_desaturate, 0)
 
-func _update_vignette_on_health_changed(current: float, _max_value: float) -> void:
+func _update_vignette_on_health_changed(current: float, max_value: float) -> void:
 	if _vignette_last_health >= 0.0 and current < _vignette_last_health:
 		_vignette_flash = VIGNETTE_DAMAGE_FLASH_INTENSITY
+		if max_value > 0.0:
+			var hit := (_vignette_last_health - current) / max_value
+			var crossed := _vignette_last_health >= max_value * SAVAGE_CROSS_FRACTION and current < max_value * SAVAGE_CROSS_FRACTION
+			if hit >= SAVAGE_HIT_FRACTION or (crossed and hit >= SAVAGE_CROSS_MIN_HIT):
+				# A quarter of max Life flashes at 70%, half or more at full.
+				_savage = maxf(_savage, clampf(0.4 + hit * 1.2, 0.0, 1.0))
 	_vignette_last_health = current
+
+## Savage-blow strength (0-1), for tests.
+func savage_strength() -> float:
+	return _savage
 
 func _update_vignette(delta: float) -> void:
 	var base := VIGNETTE_FIGMENT_INTENSITY if GameState.active_map != null else VIGNETTE_NORMAL_INTENSITY
@@ -708,8 +743,16 @@ func _update_vignette(delta: float) -> void:
 			color = Color.BLACK.lerp(VIGNETTE_LOW_HEALTH_COLOR, danger)
 	_vignette_flash = move_toward(_vignette_flash, 0.0, VIGNETTE_FLASH_DECAY_PER_SEC * delta)
 	_vignette_intensity = lerpf(_vignette_intensity, max(base, _vignette_flash), clamp(VIGNETTE_BLEND_SPEED * delta, 0.0, 1.0))
+	# The savage flash lands at once, not blended in, and hands back as it fades.
+	_savage = move_toward(_savage, 0.0, SAVAGE_DECAY_PER_SEC * delta)
+	if _savage > 0.0:
+		_vignette_intensity = maxf(_vignette_intensity, _savage * SAVAGE_MAX_INTENSITY)
+		color = color.lerp(SAVAGE_COLOR, clampf(_savage * 2.0, 0.0, 1.0))
 	_vignette_material.set_shader_parameter("intensity", _vignette_intensity)
 	_vignette_material.set_shader_parameter("vignette_color", color)
+	_vignette_material.set_shader_parameter("inner_radius", lerpf(0.5, 0.3, _savage))
+	_desaturate.visible = _savage > 0.01
+	_desaturate_material.set_shader_parameter("amount", _savage * SAVAGE_DESATURATION)
 
 func _on_health_changed(current: float, max_value: float) -> void:
 	_life_orb.set_value(current, max_value)
