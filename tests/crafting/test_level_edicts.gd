@@ -187,6 +187,7 @@ func _test_bench() -> void:
 	view.queue_free()
 
 	var tab := GameState.stash.get_tab(GridInventory.Accepts.CURRENCY)
+	var quickenings := tab.count_of(&"quickening")
 	tab.add(&"quickening", 5)
 	GameState.inventory = GridInventory.new()
 	var item := _gear(90)
@@ -200,7 +201,7 @@ func _test_bench() -> void:
 	_check(GameState.stash.bench == item and GameState.inventory.get_entries().is_empty(), "an item dropped on the bench leaves the inventory")
 	_check(screen._bench_preview(&"quickening") != null and screen._bench_preview(&"quickening").is_valid(), "hovering an Orb previews it on the bench item")
 	screen._use_on_bench(&"quickening")
-	_check(_explicits(item).size() > 0 and tab.count_of(&"quickening") == 4, "right-clicking an Orb crafts the bench item with stash currency")
+	_check(_explicits(item).size() > 0 and tab.count_of(&"quickening") == quickenings + 4, "right-clicking an Orb crafts the bench item with stash currency")
 	var restored := Stash.from_dict(GameState.stash.to_dict())
 	_check(restored.bench is Item and _explicits(restored.bench).size() == _explicits(item).size(), "the bench item is saved with the stash")
 	screen._take_from_bench()
