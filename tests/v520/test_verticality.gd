@@ -4,8 +4,9 @@ extends Node
 ## player, secret rooms in each layout, the Watcher's deal and challenge,
 ## the timed gate. Open fields (terraces), canyons (raised basins) and
 ## streets (a causeway) need a climb to reach the Vault, bosses path without
-## the links, and boundary bodies are no_climb.
-## Run: Godot --headless --path . res://tests/v520/test_verticality.tscn --quit-after 20000
+## the links, and boundary bodies are no_climb. Dungeon staircases climb
+## without a mantle, and the first climb toward the Vault stays a ledge.
+## Run: Godot --headless --path . res://tests/v520/test_verticality.tscn --quit-after 80000
 
 const MAP := "res://levels/generated_map/GeneratedMap.tscn"
 
@@ -55,6 +56,7 @@ func _run() -> void:
 	GameState.reset_to_defaults()
 	GameState.game_started = false
 	await _test_dungeon()
+	await _test_stairs()
 	for style in ["desert_dunes", "desert_badlands", "city_downtown", "forest_river_valley"]:
 		await _test_outdoor(style)
 	await _test_gate()
@@ -80,6 +82,7 @@ func _test_dungeon() -> void:
 	if map.secret:
 		print("secret: access %d, encounter %s, host %s" % [map.secret.access, map.secret.encounter_id, map.secret.host_cell])
 	await _test_climb(map, "dungeon", links, true)
+	_test_route(map, "dungeon")
 	await _test_watcher(map)
 	_check(map.capture_state().has("secret"), "the secret room's state is saved for a portal trip")
 	await _free_map(map)
@@ -254,3 +257,50 @@ func _test_boundary(map: GeneratedMap, label: String) -> void:
 		if p.x < lo - 0.5 or p.x > hi + 0.5 or p.z < lo - 0.5 or p.z > hi + 0.5:
 			climbable += 1
 	_check(climbable == 0, "%s: boundary bodies are no_climb (%d climbable)" % [label, climbable])
+
+## Some dungeon steps are staircases: walking up one needs no mantle.
+func _test_stairs() -> void:
+	var map: GeneratedMap = null
+	var stairs: StaticBody3D = null
+	for s in range(1, 12):
+		map = _make_map("dungeon_cellblock", s)
+		for i in 4:
+			await get_tree().physics_frame
+		var found := get_tree().get_nodes_in_group(&"stairs")
+		if not found.is_empty():
+			stairs = found[0]
+			print("stairs: seed %d has %d flights" % [s, found.size()])
+			break
+		await _free_map(map)
+		map = null
+	_check(stairs != null, "some dungeon has a staircase")
+	if stairs == null:
+		return
+	await _wait_nav(map)
+	_test_route(map, "dungeon with stairs")
+	for node in get_tree().get_nodes_in_group("enemy"):
+		(node as Node).process_mode = Node.PROCESS_MODE_DISABLED
+	var out: Vector3 = stairs.get_meta(&"out")
+	var rise: float = stairs.get_meta(&"rise")
+	var foot := stairs.global_position
+	var player := get_tree().get_first_node_in_group("player") as Player
+	player.global_position = foot + out * (GeneratedMap.STAIR_STEPS * GeneratedMap.STAIR_RUN + 1.0) + Vector3.UP * 0.1
+	player.velocity = Vector3.ZERO
+	player.rotation.y = atan2(out.x, out.z)  # facing -out, up the flight
+	for i in 3:
+		await get_tree().physics_frame
+	var mantled := false
+	Input.action_press("move_forward")
+	for i in 150:
+		await get_tree().physics_frame
+		mantled = mantled or player.ledge_climb.busy()
+		if player.global_position.y > foot.y + rise - 0.2 and player.is_on_floor():
+			break
+	Input.action_release("move_forward")
+	_check(player.global_position.y > foot.y + rise - 0.2 and not mantled, "the player walks up a staircase without mantling (feet %.2f, top %.2f, mantled %s)" % [player.global_position.y, foot.y + rise, mantled])
+	var nav := map.get_world_3d().navigation_map
+	var bottom := foot + out * 3.0
+	var top := foot - out * 2.0 + Vector3.UP * rise
+	var path := NavigationServer3D.map_get_path(nav, bottom, top, true, 1)
+	_check(not path.is_empty() and path[path.size() - 1].distance_to(top) < 1.0, "enemies path up a staircase without a climb link")
+	await _free_map(map)

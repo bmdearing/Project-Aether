@@ -161,6 +161,7 @@ func _build_layout() -> void:
 		MapLayout.Kind.ROOMS:
 			_roll_room_sizes()
 			_roll_room_floors()
+			_plan_stairs()
 			secret = SecretRoomBuilder.plan_in_rooms(self)
 			for cell in graph.rooms:
 				_build_room(graph.rooms[cell])
@@ -608,7 +609,10 @@ func _build_corridor(a: Vector2i, b: Vector2i) -> void:
 		var reach_high := reach_a if high == a else reach_b
 		var centre := _cell_to_world(high)
 		var step := centre + out * (reach_high + WALL_THICKNESS)
-		_add_climb_link(Vector3(step.x, low, step.z) + out * 1.0, centre + out * (reach_high - 1.0))
+		var foot := Vector3(step.x, low, step.z)
+		var room_for_stairs := length - WALL_THICKNESS * 2.0 + STAIR_SPILL
+		if not (_stairs.has(_pair_key(a, b)) and _build_stairs(foot, out, absf(floor_a - floor_b), room_for_stairs)):
+			_add_climb_link(foot + out * 1.0, centre + out * (reach_high - 1.0))
 	if tileset and tileset.room_light_energy > 0.0 and length > 6.0:
 		var light := OmniLight3D.new()
 		light.light_color = tileset.light_color
@@ -666,6 +670,75 @@ func _roll_room_floors() -> void:
 			raised_on_path = raised_on_path or cell in path
 	if not raised_on_path and path.size() > 2 and layout.raised_room_chance > 0.0:
 		room_floor[path[path.size() / 2]] = RAISED_FLOOR
+
+## ---- Staircases (rooms layouts) -------------------------------------------
+## Some steps up to a raised room get a stone staircase down the corridor
+## instead of a bare ledge. The first climb on the way to the Vault always
+## stays a ledge, so reaching the Vault still takes a mantle. A short
+## corridor's flight runs on into the lower room (within the doorway space
+## the dresser keeps clear).
+const STAIR_CHANCE := 0.5
+const STAIR_STEPS := 10
+const STAIR_RUN := 0.42
+const STAIR_SPILL := 2.8
+## Steps are drawn; characters walk a hidden ramp along their nosings.
+const STAIR_RAMP_OVERRUN := 0.5
+var _stairs: Dictionary = {}
+
+func _plan_stairs() -> void:
+	_stairs = {}
+	var path := _path_to_vault()
+	var ledge_key := ""
+	for i in path.size() - 1:
+		if float(room_floor.get(path[i + 1], 0.0)) > float(room_floor.get(path[i], 0.0)):
+			ledge_key = _pair_key(path[i], path[i + 1])
+			break
+	for cell in graph.rooms:
+		for n in graph.rooms[cell].connections:
+			var key := _pair_key(cell, n)
+			if key == ledge_key or _stairs.has(key) or is_equal_approx(float(room_floor.get(cell, 0.0)), float(room_floor.get(n, 0.0))):
+				continue
+			if randf() < STAIR_CHANCE:
+				_stairs[key] = true
+
+## A flight from `foot` (the base of the raised room's face) out along
+## `out`, rising `rise`. False, building nothing, when it won't fit.
+func _build_stairs(foot: Vector3, out: Vector3, rise: float, room: float) -> bool:
+	var run := STAIR_STEPS * STAIR_RUN
+	if run > room:
+		return false
+	var width := minf(layout.corridor_width, DOORWAY_WIDTH)
+	var side := Vector3(absf(out.z), 0, absf(out.x))
+	var step_rise := rise / STAIR_STEPS
+	var body := StaticBody3D.new()
+	body.name = "Stairs"
+	body.add_to_group(&"stairs")
+	body.set_meta(&"out", out)
+	body.set_meta(&"rise", rise)
+	add_child(body)
+	body.global_position = foot
+	for i in STAIR_STEPS:
+		var top := (i + 1) * step_rise
+		var near := (STAIR_STEPS - 1 - i) * STAIR_RUN
+		var mesh := MeshInstance3D.new()
+		var box := BoxMesh.new()
+		box.size = side * width + Vector3.UP * top + out.abs() * (STAIR_RUN + 0.02)
+		mesh.mesh = box
+		mesh.material_override = _wall_mat if _wall_mat else _plain_material(WALL_COLOR)
+		mesh.position = out * (near + STAIR_RUN / 2.0) + Vector3.UP * (top / 2.0 - 0.01)
+		body.add_child(mesh)
+	var far := out * (run + STAIR_RAMP_OVERRUN)
+	var half_w := side * width / 2.0
+	var wedge := ConvexPolygonShape3D.new()
+	wedge.points = PackedVector3Array([
+		far - half_w, far + half_w,
+		-half_w, half_w,
+		-half_w + Vector3.UP * rise, half_w + Vector3.UP * rise,
+	])
+	var collision := CollisionShape3D.new()
+	collision.shape = wedge
+	body.add_child(collision)
+	return true
 
 ## Cells from the start to the Vault, both included.
 func _path_to_vault() -> Array[Vector2i]:

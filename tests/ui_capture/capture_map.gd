@@ -3,7 +3,8 @@ extends Node
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_map.tscn --resolution 1600x900 -- <out.png> <style_id> <view> [seed]
 ## Views: top (whole map from above), boss (inside the boss room), rarity
 ## (an Elite pack, a Champion pack and an Ascendant in front of you), spawn
-## (the player's view), room (a camera in the first ordinary room).
+## (the player's view), room (a camera in the first ordinary room), stairs (up a
+## dungeon staircase).
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -124,6 +125,14 @@ func _run() -> void:
 					cam.position = link.start_position - dir.normalized() * 5.0 + Vector3(0, 1.6, 0)
 					cam.look_at(link.end_position + Vector3(0, 1.0, 0), Vector3.UP)
 					break
+		"stairs":
+			# Up a dungeon staircase from the floor below it.
+			var flights := get_tree().get_nodes_in_group(&"stairs")
+			if not flights.is_empty():
+				var s := flights[0] as Node3D
+				var down: Vector3 = s.get_meta(&"out")
+				cam.position = s.global_position + down * 8.0 + Vector3(0, 1.7, 0) + Vector3(down.z, 0, down.x) * 0.8
+				cam.look_at(s.global_position + Vector3.UP * 2.2, Vector3.UP)
 		"room":
 			for cell in map.graph.rooms:
 				var room: MapGraph.RoomData = map.graph.rooms[cell]
