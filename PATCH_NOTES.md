@@ -7,6 +7,82 @@ there. Most recent first.
 
 ---
 
+## 2026-10-15 — v5.2.5-v5.2.7: Item card defences, drop item levels, gun bash, scaling grades removed
+
+- **v5.2.7: Scaling grades are gone.** They never affected damage: both callers passed a stat value of 0. Removed the Weapon/Ability fields, the `ScalingGrade` enum and multiplier table, DamageCalculator's stat/grade parameters, the item card line, the Mythic Grade Equivalent Bonus, and the descriptive primary/secondary scaling stats. 705 `.tres` files dropped the dead fields. The Ascendant corruption outcome, which raised a grade and so did nothing, is now **Honed**: the weapon's base damage x1.2 (`Weapon.honed`, saved, shown in Alt info).
+- **v5.2.6: Gun bash** (V, rebindable): a short-range shove with any ranged weapon, 0.3 motion value with a small knockback, and it cancels a reload.
+- **v5.2.6: Damage numbers** are larger with a thicker outline. Crits get a red outline and a pop. Crit info never reached enemy damage numbers before; they now restyle when the same frame's `damage_dealt` reports a crit.
+- **v5.2.6: Fixed unique bases.** Every unique sits on one fixed `base_item`, so its level requirement and defence type never change. World drops below that base's item level skip it.
+- **v5.2.6: Reload Speed modifier** on gloves and rings (20-70% over 6 tiers) and attack Slates (20-70% over 3 tiers).
+- **v5.2.5: Item cards** show Armour, Evasion, Ward and a shield's Block Chance with the item's own flat and increased modifiers applied (in blue), as weapon damage, crit and attack speed already did. Item compare uses the same values. Alt info marks each explicit (and socketed jewel) modifier (Pfx) or (Sfx).
+- **v5.2.5: Drop item level** is Area Level +0 for Normal, +1 for Elite/Champion and +2 for Ascendants and bosses. It used to follow the hidden random rank (+0/+1/+2/+5).
+- **v5.2.5: Downhill slides** speed up on slopes and dungeon staircases (up to 20 m/s), last while the ground keeps dropping and follow the ramp. Uphill slows them. Tapping Crouch while moving downhill starts a slide without sprinting.
+- **v5.2.5:** Ember/Frost/Volt/Void Ring resistance implicits roll 16-30%.
+- **v5.2.5: Bug fix:** weapon damage modifiers almost never came from Orbs. Table-tiered modifiers (weapon damage, resistances, block, DoT multiplier) weighted their tiers 1..N while regular ones use 2..36, so they lost most rolls. Their weights now scale to a regular modifier's total at the item's level.
+
+---
+
+## 2026-10-15 — v5.2.0-v5.2.4: Verticality, secret rooms, the Watcher
+
+- **Ledge climbing** (`LedgeClimb`): in the air, holding forward climbs any static ledge 0.5-2.15 m above the feet (a quick vault up to 1.2 m). Falling face-on without forward catches the ledge and hangs: forward or Jump climbs, Crouch or back lets go. Map boundaries, room walls and building shells are `no_climb`. Street wall collision was raised to 16 m.
+- **Dungeons** raise about 30% of rooms 3 m onto a plinth, always at least one on the way to the Vault. Lintels close the gaps above mismatched doorways. Enemies cross on `NavigationLink3D`s. v5.2.3: about half the steps up become a 10-step stone staircase down the corridor (characters walk a hidden ramp), but the first climb toward the Vault always stays a ledge.
+- **v5.2.2: Main-route verticality elsewhere.** Open fields climb in 2 m terraces over the last two steps to the Vault. Canyons raise about 35% of basins 3 m. Streets get a 3 m causeway across the longest street on the way to the Vault. Enemies cross every step on navigation links (their own navigation layer). Bosses path without them, so they never leave their level.
+- **One secret room per Figment** (`SecretRoomBuilder`). v5.2.4 hid them better: dungeon secrets sit behind a cracked patch of an off-route wall that three hits break down. Open layouts get a hollow, leaning rock outcrop entered through a crack in the rim, up two boulders among decoys. "SECRET FOUND" banner on entry. Secret state survives portal trips.
+- **`MapEncounters`:** a weighted encounter registry (groundwork for league-style content). A secret room rolls a Hoard (gilded chest, 3x drops, +100% rarity) or **the Watcher** (named the Weigher in v5.2.0, renamed in v5.2.1), a bargainer offering 3 of 5 deals. Each deal is a boon paid for with a price for the rest of the Figment, written onto the FigmentItem, or a challenge against an Ascendant pack for a hoard.
+- Tests: `tests/v520/test_verticality` (78 checks); `capture_map` gained secret, step and stairs views.
+
+---
+
+## 2026-10-14 — v5.1.4-v5.1.10: Completion portal fix, Dev mode, Shard overhaul, level-up and savage-blow effects
+
+- **v5.1.10: Savage blow.** A single hit that takes 25% of max Life, or at least 10% and drops you below half, flashes the screen edges red, widens the vignette and drains 60% of the colour, fading in about half a second. Smaller hits keep the usual dark flash.
+- **v5.1.9: Level-up banner** (`ui/level_up`): a gold edge flash and a "LEVEL N" banner whose digits roll like a clock. One banner and one sound per XP grant. This replaces v5.1.8's world glow. v5.0.5 added the WC3 level-up sound.
+- **v5.1.8: Shard of Tharsis** has four equal results: No Change, Bricked (Unmade or Hollow), Blessed (an implicit or a good effect) and Exalted (both). Each result only uses outcomes that change the item, so a Shard is never a silent no-op. A Shard implicit replaces the item's implicits, with no cap. Neutral or mixed outcomes left the roll. New `tests/crafting/test_shard`.
+- **v5.1.8: Weapon modifier cleanup.** Fourteen modifiers no longer roll on weapons; existing items keep them. Damage vs full-Life enemies is removed from the game and stripped from saved items. Orb of Anchoring neither narrows on nor spends Brands. Aurelia's Earth Wheel calls out its length (7/14/21 quakes).
+- **v5.1.5-v5.1.7: Dev mode** (`systems/dev/Dev.gd`): one switch for testing conveniences. It's on in the editor and debug builds and off in release exports, and Ctrl+Shift+D on the title screen toggles it (saved, with a "DEV MODE" tag). With it off: pinnacles use their design Life and cost Maw Fragments, and the Spell Testing Shop, Currency Exchange, test uniques, Level 90 Test character and the new **Unique Catalogue** (every Unique, Mythic and Unique Slate, free) are gone.
+- **v5.1.4:** taking the boss's completion portal home and then the Hub's Portal to Map now lands you beside the completion portal, not at the map start. Indoor ceilings got a player-only collider (layer 3) so you can't jump through them.
+- `probe_pinnacle` gained a ranged mode (and guns-only) that fires the way `PlayerRangedAttack` does.
+- Two stale tests fixed: the bench craft count now starts from the stash's starting Quickenings, and the wiki list includes Unique Slates.
+
+---
+
+## 2026-10-13 — v5.1-v5.1.3: Visceral attacks, enemy tells, staggers; Currency Exchange; Edicts switch on
+
+- **Visceral attacks** (ripostes, and charged attacks into the back of a rank-and-file enemy): player and enemy are locked for 1.1 s, with the player invulnerable. The weapon plunges in, twists and tears out at 0.55 s, when the damage, blood and hit-stop land. The camera pushes in.
+- A dash cuts a swing's follow-through short. Enemy blows glint 0.35 s before they land. Combo finishers and charged attacks stagger rank-and-file enemies out of their attacks. Swings turn you up to 12° toward an enemy within 25° of the crosshair. Killing blows throw the body, and kill hit-stop is 2x.
+- **v5.1.1-v5.1.2: Currency Exchange** in the Hub sells every Orb, crafting consumable, Brand and Edict (47) at 1 Gold from infinite stock (Shift + right-click buys 10). Dev-only since v5.1.5.
+- **v5.1.3: Edicts switch on like Brands:** right-click to arm one for the next Orb, which consumes it (Preservation keeps it). One Edict at a time. Edicts no longer go onto items; one already on an item from an older save still applies.
+
+---
+
+## 2026-10-13 — v4.99-v5.0.9: Bloodborne combat pass, three-hit combo, head crits, vendor screen
+
+Version numbers v5.0.1 and v5.0.2 were each used twice; both pairs are listed.
+
+- **v4.99: Blood** (`BloodFx`): blood is thrown along every melee and gun hit, with gore on heavy blows and pools on kills. Golems, orbs and globes throw sparks and grit instead. Heavy swings end low across the frame, so the follow-through stays visible. The v4.99 quickstep dash was reverted in v5.0.1 at the user's request, keeping 0.15 s of i-frames against hits (not DoT).
+- **v5.0: Three-hit melee combo** for every melee weapon. Hit 2 sweeps back, and hit 3 is the weapon's finisher (charged clip, 1.2x wind-up, heavier hit-stop, +10% damage). A press during recovery queues the next hit, and 0.5 s idle resets the chain.
+- **v5.0.1: Head hits always crit** (melee and player projectiles). The crit spot follows the head bone's skinned vertices on 16 of 21 models.
+- **v5.0.2: Map polish.** Spawns face the way out. Nights are brighter (ambient 58% of day, moonlight 0.28, fog thins at midnight). The Undercroft and Frozen Crypt got more light. Bone Flats and The Unbuilt got their own layouts.
+- **v5.0.2:** "+% to Damage over Time Multiplier" (7-20% on gear) replaces "% more Damage over Time".
+- **v5.0.3:** heavy two-handers swing 20% faster. **v5.0.4:** Unique Slates in the Unique wiki. **v5.0.6:** non-DoT hits pause the struck enemy for 0.05-0.12 s. **v5.0.7:** Damage over Time Brand. **v5.0.8:** Arkanus' fifth spell, Elemental Aether, on right-click.
+- **v5.0.9: VendorScreen** is the standard NPC shop: the stock as a grid beside your inventory, right-click to buy and sell. The Gear Shop uses it.
+
+---
+
+## 2026-10-12 — v4.90-v4.98: Defence-driven survival, pinnacle Life, continuous DoT, Arkanus
+
+- **v4.90:** max Life and Ward no longer grow per level, so late-game survival comes from defences. New Wiki tabs: Defences and Base Types.
+- **v4.91-v4.92.1: Pinnacles** have fixed baseline Life (design values Aurelia 71M, Lord 68M, Ataras 65M, Herald 62M; lowered to 20-30M for testing in v4.97.4, and Dev mode switches between them since v5.1.5) and a flat 250k Ward. Bosses are Steadfast (stun-immune) for 6 s after an Electrocute or Freeze. The boss bar greys out while the boss can't be hurt.
+- **v4.92-v4.95: Gear and defence retune.** Per-slot Life rolls (`slot_tiers`). 75% maximum Resistance (jewels add +1% per element). Enemies use the player Armour curve and real Resistance. Shock raises all damage taken. Intellect multiplies spell base damage on its own. Spell growth accelerates per level (x6.1 at 20). Armour bases x7.49 and Ward halved, with old items taking their base's current defences on load. Life rolls on Slates, jewels and Lenses. Death Shroud's Pale Pyre twist. Unique Slates. Dead ailment damage modifiers no longer roll.
+- **v4.96: Continuous damage over time.** Ailments, ground fields, fire pots and Amaterasu deal damage every frame instead of in 0.5 s ticks; damage numbers are batched every 0.5 s.
+- **v4.97-v4.97.8: Arkanus, the Forbidden Staff** (Aurelia's Mythic): it replaces the spell bar with four elemental spells on a fixed 10 Mana pool. Also: Orbs work on Figments as map-mod crafting, Opening and Tempering work on Uniques, and staves hold 6 sockets.
+- **v4.97.1: Bug fix:** a preload cycle left the ItemCard scene empty, breaking every tooltip. `ItemSlotButton.new_item_card()` now loads it on use.
+- **v4.97.6: Bug fix:** a Fate Board restore dropped Slates after rearranging (a moved Slate was saved last, so Slates connected through it failed the connection check). Restores now skip the check and return anything that can't go back to the inventory.
+- **v4.97.9:** a running damage total above the boss bar. **v4.97.10:** heavier player gravity (x1.7, same 2.5 m apex) and less air drift.
+- **v4.98:** monsters in Tier Figments gain x1.1 Life and x1.04 damage per Tier (x7.4 / x2.3 at T21). Arkanus got spell effects and sounds. WraithMinion no longer errors when its target is freed.
+
+---
+
 ## 2026-10-11 — v4.89: Fighting far above your level is deadly, not just slow
 
 - A level 14 character cleared an Area Level 74 Figment (a grandfathered pre-v4.75 Tier Figment; left as-is by the user's choice). Monster health already scaled steeply (x1.037 per level), but damage only x1.021, so being 60 levels under made fights ~9x slower but only ~3.5x more dangerous.
