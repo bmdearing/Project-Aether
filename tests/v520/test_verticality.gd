@@ -1,7 +1,7 @@
 extends Node
 ## v5.2 verticality: raised dungeon rooms with climb links, the player
 ## mantling onto one and catching a ledge, an enemy hopping up after the
-## player, secret rooms in each layout, the Weigher's deal and challenge,
+## player, secret rooms in each layout, the Watcher's deal and challenge,
 ## the timed gate.
 ## Run: Godot --headless --path . res://tests/v520/test_verticality.tscn --quit-after 20000
 
@@ -132,23 +132,23 @@ func _test_dungeon() -> void:
 			_check(chaser.global_position.y > high.y - 0.4, "an enemy climbs the step after the player (y %.2f after %d frames)" % [chaser.global_position.y, frames])
 			chaser.process_mode = Node.PROCESS_MODE_DISABLED
 		player.set_physics_process(true)
-	await _test_weigher(map)
+	await _test_watcher(map)
 	_check(map.capture_state().has("secret"), "the secret room's state is saved for a portal trip")
 	await _free_map(map)
 
-func _test_weigher(map: GeneratedMap) -> void:
-	var w := Weigher.new()
+func _test_watcher(map: GeneratedMap) -> void:
+	var w := Watcher.new()
 	w.map = map
 	map.add_child(w)
 	w.global_position = map.last_player_spawn
-	_check(w.offers.size() == Weigher.OFFER_COUNT, "the Weigher offers %d deals" % Weigher.OFFER_COUNT)
+	_check(w.offers.size() == Watcher.OFFER_COUNT, "the Watcher offers %d deals" % Watcher.OFFER_COUNT)
 	var figment := GameState.active_map
 	var quantity := figment.loot_quantity_multiplier
 	var damage := figment.enemy_damage_multiplier
 	w.accept("avarice")
 	_check(is_equal_approx(figment.loot_quantity_multiplier, quantity + 0.4) and is_equal_approx(figment.enemy_damage_multiplier, damage * 1.25), "a deal writes its boon and price onto the Figment")
-	_check(w.stage == Weigher.Stage.BARGAINED, "one deal per Weigher")
-	var w2 := Weigher.new()
+	_check(w.stage == Watcher.Stage.BARGAINED, "one deal per Watcher")
+	var w2 := Watcher.new()
 	w2.map = map
 	map.add_child(w2)
 	w2.global_position = map.last_player_spawn
@@ -161,7 +161,7 @@ func _test_weigher(map: GeneratedMap) -> void:
 		EventBus.enemy_died.emit(e)
 	for i in 3:
 		await get_tree().physics_frame
-	_check(w2.stage == Weigher.Stage.DEFEATED and is_instance_valid(w2._hoard), "beating the champion leaves a hoard")
+	_check(w2.stage == Watcher.Stage.DEFEATED and is_instance_valid(w2._hoard), "beating the champion leaves a hoard")
 
 func _test_outdoor(style: String) -> void:
 	var map := _make_map(style, 777)

@@ -1,7 +1,7 @@
 extends Node3D
-class_name Weigher
-## The Weigher (placeholder name): a Libra-style bargainer that waits in some
-## secret rooms (MapEncounters.WEIGHER). Press E for its offer:
+class_name Watcher
+## The Watcher: a Libra-style bargainer that waits in some
+## secret rooms (MapEncounters.WATCHER). Press E for its offer:
 ##   - three deals, each a boon paid for with a price for the rest of this
 ##     Figment (written onto the active FigmentItem, so a portal trip keeps it),
 ##   - or a challenge: its champion, an Ascendant pack, appears in the room,
@@ -20,7 +20,7 @@ const DEALS := {
 	"mercy": {"boon": "Monsters deal 20% less damage", "price": "-30% Item Quantity and Item Rarity", "damage": -0.2, "quantity": -0.3, "rarity": -0.3},
 }
 const OFFER_COUNT := 3
-const NAME := "The Weigher"
+const NAME := "The Watcher"
 const ROBE := Color(0.12, 0.08, 0.16)
 const MASK := Color(0.86, 0.82, 0.74)
 const EYE := Color(1.0, 0.7, 0.3)

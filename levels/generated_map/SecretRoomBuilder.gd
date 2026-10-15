@@ -1,7 +1,7 @@
 extends RefCounted
 class_name SecretRoomBuilder
 ## One hidden chamber per Figment, holding an encounter rolled from
-## MapEncounters.SECRET_TABLE (a hoard, the Weigher, ...). Two shapes:
+## MapEncounters.SECRET_TABLE (a hoard, the Watcher, ...). Two shapes:
 ##   Rooms layouts - a chamber in an empty grid cell behind a closed wall of
 ##     an ordinary room. CLIMB: a window high in the wall, reached by a run
 ##     of stepping columns too tall to jump straight onto. TIMED: a barred

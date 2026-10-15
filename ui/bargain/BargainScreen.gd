@@ -1,10 +1,10 @@
 extends CanvasLayer
 class_name BargainScreen
-## The Weigher's offer: three deals (a boon and its price, for the rest of
+## The Watcher's offer: three deals (a boon and its price, for the rest of
 ## the Figment), a challenge, or walking away. Built in code; pauses the game
 ## while open and frees itself on close.
 
-var _weigher: Weigher
+var _watcher: Watcher
 var _is_open := false
 
 func _ready() -> void:
@@ -15,8 +15,8 @@ func _ready() -> void:
 func is_open() -> bool:
 	return _is_open
 
-func open(weigher: Weigher) -> void:
-	_weigher = weigher
+func open(watcher: Watcher) -> void:
+	_watcher = watcher
 	_is_open = true
 	get_tree().paused = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
@@ -54,24 +54,24 @@ func _build() -> void:
 
 	var title := Label.new()
 	title.name = "TitleLabel"
-	title.text = Weigher.NAME
+	title.text = Watcher.NAME
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	box.add_child(title)
 	var line := Label.new()
-	line.text = "Every boon has its weight, carried until this Figment ends. Choose one, or prove your own."
+	line.text = "Every boon has its price, carried until this Figment ends. Choose one, or prove yourself."
 	line.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	line.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
 	box.add_child(line)
 	box.add_child(HSeparator.new())
 
-	for row in _weigher.offer_rows():
+	for row in _watcher.offer_rows():
 		box.add_child(_deal_row(row))
 	box.add_child(HSeparator.new())
 
 	var challenge := Button.new()
 	challenge.text = "Challenge: face its champion (an Ascendant pack) for a hoard"
 	challenge.pressed.connect(func():
-		_weigher.challenge()
+		_watcher.challenge()
 		close())
 	box.add_child(challenge)
 	var leave := Button.new()
@@ -100,7 +100,7 @@ func _deal_row(row: Dictionary) -> Control:
 	accept.text = "Accept"
 	accept.custom_minimum_size = Vector2(110, 0)
 	accept.pressed.connect(func():
-		_weigher.accept(row["id"])
+		_watcher.accept(row["id"])
 		close())
 	h.add_child(accept)
 	return h

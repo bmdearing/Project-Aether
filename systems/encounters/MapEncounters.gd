@@ -7,12 +7,12 @@ class_name MapEncounters
 ## table entry where it should appear; SecretRoomBuilder rolls SECRET_TABLE.
 
 const HOARD := "hoard"
-const WEIGHER := "weigher"
+const WATCHER := "watcher"
 
 ## Placeholder weights.
 const SECRET_TABLE: Array[Dictionary] = [
 	{"id": HOARD, "weight": 55.0},
-	{"id": WEIGHER, "weight": 45.0},
+	{"id": WATCHER, "weight": 45.0},
 ]
 
 ## A Hoard is a gilded TreasureChest: this many times a chest's drops, with
@@ -36,10 +36,10 @@ static func create(id: String, map: GeneratedMap) -> Node3D:
 	match id:
 		HOARD:
 			return SecretHoard.new()
-		WEIGHER:
-			var weigher := Weigher.new()
-			weigher.map = map
-			return weigher
+		WATCHER:
+			var watcher := Watcher.new()
+			watcher.map = map
+			return watcher
 	return null
 
 static func make_hoard_chest() -> TreasureChest:
