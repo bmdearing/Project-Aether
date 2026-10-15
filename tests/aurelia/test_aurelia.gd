@@ -246,6 +246,7 @@ func _test_golem_and_bomb() -> void:
 	var golem: FireGolem = (load(Aurelia.GOLEM_SCENE) as PackedScene).instantiate()
 	_arena.add_child(golem)
 	golem.global_position = _wheel.to_global(Vector3(0, 0, 14))
+	_check(is_equal_approx(golem.health.max_health, FireGolem.LIFE), "a Fire Golem has %.0f Life" % golem.health.max_health)
 	var knocked := [false]
 	golem.player_knocked_up.connect(func(_g, _p): knocked[0] = true)
 	await _wait(FireGolem.SLAM_TELEGRAPH + 2.0)

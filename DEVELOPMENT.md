@@ -785,7 +785,10 @@ dropping that element for 20 s; his spells react with each other
 (`ElementReactions`: steam, chained lightning, shattered ice); Cataclysm is
 survivable only in the sigil two casts ahead; in phase 3 he lands and fights
 with parryable per-element combos. The Herald (`Xalatath`, `MawArena`) and
-Ataras (`SandArena`) are described in PATCH_NOTES v4.48, v4.69 and v4.70.
+Ataras (`SandArena`) are described in PATCH_NOTES v4.48, v4.69 and v4.70;
+Ataras's v5.3.0 rework (Sand Pillars at 85/65/45%, the Fiery Sun at 35%
+that only pillar cover survives, four new melee moves and Mirage Barrage)
+is in his own header comment.
 
 **Boss spell effects (v4.79)** (`entities/effects/boss_fx/BossFx.gd`): every
 `BossBrain` ability gathers a glow at the boss's hand over its telegraph,

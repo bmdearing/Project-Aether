@@ -19,6 +19,17 @@ func _run() -> void:
 	if args.size() > 2 and args[2] == "phase2" and boss:
 		boss.health.current_health = boss.health.max_health * 0.45
 		await get_tree().create_timer(5.5).timeout
+	# Ataras: three Sand Pillars, then the Fiery Sun hanging over the centre.
+	if args.size() > 2 and args[2] == "sun" and boss is Ataras:
+		var ataras := boss as Ataras
+		ataras.boss_brain.set_physics_process(false)
+		for spot in [Vector3(8, 0, 6), Vector3(-8, 0, 6), Vector3(0, 0, 12)]:
+			ataras._raise_pillar(arena.sand.to_global(spot))
+		player.global_position = arena.sand.to_global(Vector3(13.3, 0.1, 10.0))
+		player.look_at(arena.sand.global_position + Vector3.UP * player.global_position.y, Vector3.UP)
+		await get_tree().create_timer(SandPillar.DELAY + 0.5).timeout
+		(func(): await ataras.cast_custom(ataras.boss_brain.find("fiery_sun"))).call()
+		await get_tree().create_timer(Ataras.SUN_GROW + 1.0).timeout
 	var cam := Camera3D.new()
 	arena.add_child(cam)
 	var view: String = args[3] if args.size() > 3 else "overview"

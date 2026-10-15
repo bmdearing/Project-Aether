@@ -15,6 +15,7 @@ const SLAM_TELEGRAPH := 1.0
 const SLAM_COOLDOWN := 3.2
 const SLAM_DAMAGE := 1.5
 const KNOCK_UP_HEIGHT := 2.6
+const LIFE := 3_000_000.0
 const FIRE := Color(1.0, 0.45, 0.12)
 
 var _cooldown := 1.5
@@ -50,6 +51,10 @@ func _physics_process(delta: float) -> void:
 func _apply_definition() -> void:
 	super._apply_definition()
 	Aurelia.apply_boss_level(self)
+
+## Fixed Life, not level-scaled.
+func _level_scaled_health(_at_level: int) -> float:
+	return LIFE
 
 func is_attack_locked() -> bool:
 	return _slamming or super.is_attack_locked()
