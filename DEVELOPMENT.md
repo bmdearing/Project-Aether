@@ -823,8 +823,8 @@ until Depth 23 is cleared, then Tier 1. The Campaign skips the stage.
 
 **Enemy Rarity** (`entities/components/EnemyRarityComponent.gd`,
 `data/enemies/EnemyAffix.gd`, `data/enemies/affixes/`; Patch v3.9 plus user
-direction 2026-10-09): a tier axis separate from `Constants.EnemyRank`
-above (Rank still only drives drop item level). Rolled **per pack** in
+direction 2026-10-09): drives drop rolls, drop item level and Aether drops
+(`Constants.EnemyRank` only marks bosses since v5.2.9). Rolled **per pack** in
 `GeneratedMap._spawn_pack()` (`Constants.ENEMY_PACK_RARITY_WEIGHTS`
 70/20/8/2); bosses and summons are Normal.
   - **Normal**: no modifiers.
@@ -1340,93 +1340,77 @@ call. How each one got here is in PATCH_NOTES.md.
    0.35 follow the doc's ordering but not its numbers (it has none).
    Ordinary attacks also carry x0.2 (`StanceComponent.
    ATTACK_STANCE_DAMAGE_MULTIPLIER`) so Parry stays the main Stance breaker.
-3. **Melee feel** (Pillar 2): three-hit combo, hit-stop on the player and
-   the struck enemy, camera shake, visceral attacks, enemy tells, staggers,
-   aim assist and kill shove all exist. Their timings and strengths, and
-   the per-family swing arcs (`PlayerMeleeAttack.SWING_SHAPES`: reach,
-   half-angle, splash share, target cap), are tuned by eye and wait on a
-   feel pass with you.
-4. **Armour uses one formula for all Physical damage**: Section 16 says
+3. **Armour uses one formula for all Physical damage**: Section 16 says
    Kinetic is mitigated fully, Piercing partially and Explosive by a flat
    reduction, but gives no ratios.
-5. **Ability numbers are invented** per ability (motion value, cooldown,
+4. **Ability numbers are invented** per ability (motion value, cooldown,
    cost, radius, cast time, base crit chance) across 33 abilities; the docs
    give the formula and flavour only. Weapon base crit chance is doc-exact
    (`Constants.WEAPON_BASE_CRIT_CHANCE`, 29 weapon types).
-6. **Status effect numbers are invented** (durations, magnitudes, stack
+5. **Status effect numbers are invented** (durations, magnitudes, stack
    thresholds); the docs name each effect and its behaviour only. Built:
    Ignite, Bleed, Scorch, Aetherburn, Chill, Freeze, Shock, Electrocute,
    Unraveling, Pallid, Armour Shred, plus curses, Drenched, Entangle and
    Forbidden Fire. Blind isn't modelled (the doc defers it), and Stagger is
    a combat interrupt rather than a status.
-7. **No Stamina pool**: Dash (with i-frames) and `ShieldBlock` (spending
+6. **No Stamina pool**: Dash (with i-frames) and `ShieldBlock` (spending
    Composure) stand in for it; the Stamina gear stat feeds Composure.
-8. **Movement numbers are invented**: player jump 9.1 with x1.7 gravity,
+7. **Movement numbers are invented**: player jump 9.1 with x1.7 gravity,
    enemy jump 7.0, ledge climb from 0.5 to 2.15 m, slide speeds. Raised
    rooms, terraces and the Vault's gap are sized around these, so
    retuning jumps needs a check against `tests/v520/test_verticality`.
 
 **Items and economy**
 
-9. **Affix tier gating is invented**: the item-level ladder 83/72/61/40/21/1
+8. **Affix tier gating is invented**: the item-level ladder 83/72/61/40/21/1
    (`ItemRoller.GEAR_TIER_LEVELS`) and the tier weights. The tier value
    ranges themselves are doc-sourced.
-10. **Base catalog guesses**: Section 25's tiers are doc-exact, but each
+9. **Base catalog guesses**: Section 25's tiers are doc-exact, but each
     weapon type's damage type, two-handedness and range are a consistent
     guess (`tools/generate_base_types.gd`'s `WEAPON_TYPE_META`).
     Crossbow, Bow and Gauntlet inventory footprints (3x2, 3x2, 2x2) are
     guessed too.
-11. **Equip requirements are invented**: `ItemRequirements` maps item
+10. **Equip requirements are invented**: `ItemRequirements` maps item
     level to character level and a stat by weapon or defence type. The
     older `Item.stat_requirement`/`stat_requirement_value` fields are still
     on `Item` but aren't what blocks equipping.
-12. **Crafting numbers are placeholders**: Aether Tolerance ranges, Orb
+11. **Crafting numbers are placeholders**: Aether Tolerance ranges, Orb
     costs and tier weights, currency drop weights, the quality cap of 20
     (quality doesn't raise modifier values), corruption and Shard outcome
     odds.
-13. **Gold** is an invented currency; all prices are invented.
-14. **Slates and the Fate Board**: Chain Bonus is read as increased damage
+12. **Gold** is an invented currency; all prices are invented.
+13. **Slates and the Fate Board**: Chain Bonus is read as increased damage
     for its tag (the doc never says what it modifies). Shape templates,
     Hybrid chance and Aether costs are invented. The board is a bounded
     150x150 grid, not the doc's "effectively unlimited" one; its Aether
     budget is 10 plus 2 per level (user request).
-15. **Figments** are an invented system: affix pool, tier curve, drop
+14. **Figments** are an invented system: affix pool, tier curve, drop
     scaling, and the Tier ramp on map monsters (x1.1 Life, x1.04 damage per
     Tier).
-16. **XP and leveling**: no doc curve exists. Level 99's requirement is
+15. **XP and leveling**: no doc curve exists. Level 99's requirement is
     pinned to 2^32 - 2 (user request); `MAX_LEVEL` is 100; XP past it is
     discarded.
-17. **Enemy rank leftovers**: drop item level now follows the enemy's
-    visible rarity (Normal +0, Elite/Champion +1, Ascendant and bosses +2),
-    but the hidden Normal/Magic/Rare/Boss rank still rolls and still sets
-    Crystallized Aether drop chance and count
-    (`Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET`). Either fold it into rarity
-    or remove it.
-18. **Monster scaling is invented**: Area Level growth (Life x1.037,
+16. **Monster scaling is invented**: Area Level growth (Life x1.037,
     damage x1.035 per level), the level-gap damage multiplier, pinnacle Life
     (design 62-71M, 20-30M in Dev mode) and the flat 250k pinnacle Ward.
 
 **World**
 
-19. **Map generation parameters are invented**: grid size, room counts,
+17. **Map generation parameters are invented**: grid size, room counts,
     per-style layouts, verticality heights, one secret room per Figment,
     `MapEncounters` weights and the Watcher's deals.
-20. **Maps don't end on their own**: killing the boss fires
-    `EventBus.figment_completed` and opens a portal home, but leaving is
-    always manual. Maps have ambience and weather but no music (the title
-    screen, Hub and pinnacle arenas do).
-21. **Enemy roster defaults** (the roster brief's open questions):
+18. **Enemy roster defaults** (the roster brief's open questions):
     FigmentBoss uses the mounted Chieftain model, `AMMO_ROUND_COST` values
     are placeholders, the ammo store tops up to `STARTING_AMMO`, the Lord's
     elements go Fire -> Cold -> Lightning, and every unit keeps a 1.9 m
     capsule whatever its model size.
-22. **Skill Tomes unlock an ability outright**: Patch v3.1's per-weapon
+19. **Skill Tomes unlock an ability outright**: Patch v3.1's per-weapon
     skill sockets (3 per weapon) aren't built. Jewel sockets exist; ability
     sockets don't.
 
 ## Explicitly not built yet
 
-A Stamina pool (gap #7), per-weapon skill sockets (gap #22), and co-op.
+A Stamina pool (gap #6), per-weapon skill sockets (gap #19), and co-op.
 
 ## Opening this project
 

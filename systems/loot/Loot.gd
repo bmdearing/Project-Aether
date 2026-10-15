@@ -21,11 +21,10 @@ const RARITY_WEIGHTS := {
 }
 
 ## Drop rolls per kill by rank, plus extra for Elite/Champion/Ascendant.
-## Each roll gives at most one drop (see Enemy._roll_drop()).
+## Each roll gives at most one drop (see Enemy._roll_drop()). 1.15 keeps the
+## average of the removed hidden Normal/Magic/Rare roll (80/16/4 at 1/1.5/2.5).
 const RANK_DROP_ROLLS := {
-	Constants.EnemyRank.NORMAL: 1.0,
-	Constants.EnemyRank.MAGIC: 1.5,
-	Constants.EnemyRank.RARE: 2.5,
+	Constants.EnemyRank.NORMAL: 1.15,
 	Constants.EnemyRank.BOSS: 5.0,
 }
 const RARITY_EXTRA_ROLLS := {

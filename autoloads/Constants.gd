@@ -267,32 +267,12 @@ const WEAPON_BASE_CRIT_CHANCE := {
 }
 const DEFAULT_BASE_CRIT_CHANCE := 0.05
 
-## Enemy rank: drop rolls and Aether drops. BOSS is never auto-rolled.
-enum EnemyRank { NORMAL, MAGIC, RARE, BOSS }
+## Enemy rank: boss or not, set by boss scenes. BOSS keeps value 3 so
+## scenes saved with the old four-rank enum still load as bosses.
+enum EnemyRank { NORMAL, BOSS = 3 }
 
-const ENEMY_RANK_NAME := {
-	EnemyRank.NORMAL: "White",
-	EnemyRank.MAGIC: "Blue",
-	EnemyRank.RARE: "Rare",
-	EnemyRank.BOSS: "Boss",
-}
-
-const ENEMY_RANK_ITEM_LEVEL_OFFSET := {
-	EnemyRank.NORMAL: 0,
-	EnemyRank.MAGIC: 1,
-	EnemyRank.RARE: 2,
-	EnemyRank.BOSS: 5,
-}
-
-## Spawn odds per rank (Boss is only ever set explicitly).
-const ENEMY_RANK_SPAWN_WEIGHTS := {
-	EnemyRank.NORMAL: 80.0,
-	EnemyRank.MAGIC: 16.0,
-	EnemyRank.RARE: 4.0,
-}
-
-## Independent of EnemyRank: rarity drives stat multipliers, affixes,
-## auras and drop conversion; rank drives drop item level.
+## Rarity drives stat multipliers, affixes, auras, drop rolls, drop item
+## level and Aether drops.
 enum EnemyRarity { NORMAL, ELITE, CHAMPION, ASCENDANT }
 
 const ENEMY_RARITY_NAME := {

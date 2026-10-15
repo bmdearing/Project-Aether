@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-15 — v5.2.9: Hidden enemy rank folded into visible rarity
+
+- Regular enemies no longer roll a hidden Normal/Magic/Rare rank (80/16/4). `Constants.EnemyRank` is just Normal or Boss now. Boss keeps value 3, so boss scenes load unchanged.
+- **Crystallized Aether** drop chance and count follow the visible rarity, with the same offsets as drop item level: Normal +0, Elite/Champion +1, Ascendant +2. Bosses keep +5.
+- **Drop rolls:** a Normal-rank enemy gets 1.15 rolls (was 1.0, plus 1.5 or 2.5 when the hidden rank rolled Magic or Rare), so the average across regular mobs is unchanged. Elite/Champion/Ascendant extra rolls are unchanged.
+- At the user's call: melee feel stays as it is, maps keep the manual portal home, and maps stay without music. These came off the flagged gaps list.
+
+---
+
 ## 2026-10-15 — v5.2.8: Heavy weapons rest over the shoulder
 
 - The Greatsword, Claymore and Greataxe idle pose angled the blade across the crosshair. The heavy family's rest pose (`PlayerArmRig.RESTS`) now leans the blade right and back over the shoulder, so it leaves the right edge of the screen. Swings start and end from the new pose cleanly.

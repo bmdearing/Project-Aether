@@ -124,9 +124,9 @@ func _test_roll_counts() -> void:
 	_check(Loot.roll_count(3.0, rng) == 3, "a whole expected count is exact")
 	var ascendant := EnemyRarityComponent.new()
 	ascendant.rarity = Constants.EnemyRarity.ASCENDANT
-	_check(is_equal_approx(Loot.base_drop_rolls(Constants.EnemyRank.NORMAL), 1.0), "a normal enemy gets one roll")
+	_check(is_equal_approx(Loot.base_drop_rolls(Constants.EnemyRank.NORMAL), 1.15), "a normal enemy averages 1.15 rolls")
 	_check(is_equal_approx(Loot.base_drop_rolls(Constants.EnemyRank.BOSS), 5.0), "a boss gets five")
-	_check(is_equal_approx(Loot.base_drop_rolls(Constants.EnemyRank.NORMAL, ascendant), 4.0), "an Ascendant gets extra rolls")
+	_check(is_equal_approx(Loot.base_drop_rolls(Constants.EnemyRank.NORMAL, ascendant), 4.15), "an Ascendant gets extra rolls")
 	ascendant.free()
 	_finished += 1
 

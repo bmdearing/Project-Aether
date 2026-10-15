@@ -97,8 +97,6 @@ func is_in_combat() -> bool:
 
 func _ready() -> void:
 	_apply_definition()
-	if rank != Constants.EnemyRank.BOSS:
-		rank = _roll_rank()
 	health.died.connect(_on_died)
 	# Separate from _on_died() so it fires at the moment of death even when a
 	# subclass override (FigmentBoss) awaits a death animation before super.
@@ -1142,7 +1140,7 @@ func _spawn_pickup(item: Item) -> void:
 	EventBus.loot_dropped.emit(item, global_position)
 
 func _maybe_drop_aether() -> void:
-	var rank_bonus: int = Constants.ENEMY_RANK_ITEM_LEVEL_OFFSET.get(rank, 0)
+	var rank_bonus: int = 5 if rank == Constants.EnemyRank.BOSS else item_level_offset()
 	if randf() > AETHER_DROP_CHANCE * (1.0 + rank_bonus * 0.5):
 		return
 	# One more Crystallized Aether per 4 Area Levels.
@@ -1268,19 +1266,6 @@ func _on_damage_dealt_mark_crit(_source: Node, target: Node, _amount: float, _da
 	if is_critical and target == self and _hit_number_frame == Engine.get_process_frames() and is_instance_valid(_hit_number):
 		_hit_number.mark_crit()
 		_hit_number = null
-
-## Weighted roll; never returns BOSS (boss scenes set it directly).
-func _roll_rank() -> Constants.EnemyRank:
-	var total := 0.0
-	for w in Constants.ENEMY_RANK_SPAWN_WEIGHTS.values():
-		total += w
-	var roll := randf() * total
-	var cumulative := 0.0
-	for r in Constants.ENEMY_RANK_SPAWN_WEIGHTS:
-		cumulative += Constants.ENEMY_RANK_SPAWN_WEIGHTS[r]
-		if roll <= cumulative:
-			return r
-	return Constants.EnemyRank.NORMAL
 
 ## Area Level plus the rarity offset (Normal +0, Elite/Champion +1,
 ## Ascendant and bosses +2), for gear, jewel and Lens drops.

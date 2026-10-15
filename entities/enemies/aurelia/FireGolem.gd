@@ -51,10 +51,6 @@ func _apply_definition() -> void:
 	super._apply_definition()
 	Aurelia.apply_boss_level(self)
 
-## Always the same golem: no Magic or Rare rolls.
-func _roll_rank() -> Constants.EnemyRank:
-	return Constants.EnemyRank.NORMAL
-
 func is_attack_locked() -> bool:
 	return _slamming or super.is_attack_locked()
 
