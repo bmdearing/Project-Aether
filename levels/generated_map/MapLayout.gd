@@ -4,11 +4,14 @@ class_name MapLayout
 ##   ROOMS      - Dungeon: rooms of varied size joined by walled corridors,
 ##                pillared halls, the boss in a large flat arena.
 ##   OPEN_FIELD - Dunes: one open field, no interior walls, dune mounds,
-##                packs scattered over it, the boss on a raised crest.
+##                packs scattered over it, terraces stepping up toward the
+##                boss on a raised crest.
 ##   CANYON     - Badlands: open basins joined by narrowed passes between
-##                jagged cliffs, rock spires for cover, the boss on a mesa.
+##                jagged cliffs, some basins raised a ledge up, rock spires
+##                for cover, the boss on a mesa.
 ##   STREETS    - City: junctions and plazas joined by streets, every edge
-##                lined with buildings (StreetBuilder), the boss in a courtyard.
+##                lined with buildings (StreetBuilder), a raised causeway
+##                across one street on the way, the boss in a courtyard.
 ## Each style then reshapes its kind through MapTileset's Layout fields (room
 ## sizes, how winding the graph is, corridor width, pillars, mounds, cliffs),
 ## so two styles of one kind don't play the same.
@@ -34,7 +37,7 @@ var corridor_width: float = GeneratedMap.CORRIDOR_WIDTH
 var wall_height: float = GeneratedMap.WALL_HEIGHT
 var pillar_chance: float = GeneratedMap.PILLAR_CHANCE
 var cave_walls: bool = false
-## Share of ordinary rooms raised onto a plinth (GeneratedMap.RAISED_FLOOR).
+## Share of ordinary rooms (canyon basins) raised onto a plinth (GeneratedMap.RAISED_FLOOR).
 var raised_room_chance: float = 0.3
 ## Open fields and canyons.
 var mounds_per_cell: Vector2i = TerrainBuilder.MOUNDS_PER_CELL
@@ -109,6 +112,7 @@ static func create(layout_kind: Kind) -> MapLayout:
 			l.cell_size = 26.0
 			l.grid_size = 5
 			l.room_count = Vector2i(6, 8)
+			l.raised_room_chance = 0.35
 			l.branch_stop_chance = 0.5
 			l.packs_per_cell = Vector2i(1, 2)
 			l.scatter_per_cell = Vector2i(3, 5)

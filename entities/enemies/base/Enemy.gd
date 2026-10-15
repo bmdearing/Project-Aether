@@ -826,7 +826,7 @@ func _nav_direction(goal: Vector3, fallback: Vector3) -> Vector3:
 		if _repath_left <= 0.0 or goal.distance_to(_path_goal) > REPATH_GOAL_MOVE:
 			_repath_left = REPATH_INTERVAL * randf_range(0.8, 1.2)
 			_path_goal = goal
-			_path = NavigationServer3D.map_get_path(map, global_position, goal, true)
+			_path = NavigationServer3D.map_get_path(map, global_position, goal, true, nav_layers())
 			_path_index = 1
 			if _path.is_empty() or _flat(_path[_path.size() - 1] - goal).length() > UNREACHABLE_SLACK:
 				_path = PackedVector3Array()
@@ -840,6 +840,11 @@ func _nav_direction(goal: Vector3, fallback: Vector3) -> Vector3:
 		_unstick_left -= get_physics_process_delta_time()
 		dir = (dir + _unstick_dir).normalized()
 	return dir
+
+## Navigation layers this enemy paths on: the ground plus climb links
+## (GeneratedMap.CLIMB_LINK_LAYER), except bosses, which stay on their level.
+func nav_layers() -> int:
+	return 1 if rank == Constants.EnemyRank.BOSS else 1 | (1 << 1)
 
 ## Trying to move but hardly moving (wedged on a corner or another enemy):
 ## repath and sidestep for a moment.

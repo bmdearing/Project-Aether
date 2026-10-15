@@ -2,7 +2,9 @@ extends Node
 ## v5.2 verticality: raised dungeon rooms with climb links, the player
 ## mantling onto one and catching a ledge, an enemy hopping up after the
 ## player, secret rooms in each layout, the Watcher's deal and challenge,
-## the timed gate.
+## the timed gate. Open fields (terraces), canyons (raised basins) and
+## streets (a causeway) need a climb to reach the Vault, bosses path without
+## the links, and boundary bodies are no_climb.
 ## Run: Godot --headless --path . res://tests/v520/test_verticality.tscn --quit-after 20000
 
 const MAP := "res://levels/generated_map/GeneratedMap.tscn"
@@ -37,7 +39,13 @@ func _free_map(map: GeneratedMap) -> void:
 
 func _wait_nav(map: GeneratedMap) -> void:
 	var frames := 0
-	while (map.nav_region == null or map.nav_region.navigation_mesh == null) and frames < 1200:
+	while (map.nav_region == null or map.nav_region.navigation_mesh == null) and frames < 3600:
+		await get_tree().physics_frame
+		frames += 1
+	# The region syncs into the navigation map over a few more frames.
+	var nav := map.get_world_3d().navigation_map
+	var spawn := map.last_player_spawn
+	while NavigationServer3D.map_get_closest_point(nav, spawn).distance_to(spawn) > 3.0 and frames < 3600:
 		await get_tree().physics_frame
 		frames += 1
 	for i in 3:
@@ -47,7 +55,7 @@ func _run() -> void:
 	GameState.reset_to_defaults()
 	GameState.game_started = false
 	await _test_dungeon()
-	for style in ["desert_dunes", "desert_badlands", "city_downtown"]:
+	for style in ["desert_dunes", "desert_badlands", "city_downtown", "forest_river_valley"]:
 		await _test_outdoor(style)
 	await _test_gate()
 	print("verticality tests: %d checks, %d failures" % [_checks, _failures])
@@ -71,67 +79,7 @@ func _test_dungeon() -> void:
 	_check(map.secret != null and is_instance_valid(map.secret.encounter), "the dungeon has a secret room with an encounter")
 	if map.secret:
 		print("secret: access %d, encounter %s, host %s" % [map.secret.access, map.secret.encounter_id, map.secret.host_cell])
-	var player := get_tree().get_first_node_in_group("player") as Player
-	for node in get_tree().get_nodes_in_group("enemy"):
-		(node as Node).process_mode = Node.PROCESS_MODE_DISABLED
-	if links.size() > 0:
-		var link := links[0]
-		var low := link.start_position
-		var high := link.end_position
-		var dir := Vector3(high.x - low.x, 0, high.z - low.z).normalized()
-		# Jumping at the step while holding forward ends on top of it.
-		player.global_position = low + Vector3.UP * 0.05
-		player.velocity = Vector3.ZERO
-		player.rotation.y = atan2(-dir.x, -dir.z)
-		for i in 3:
-			await get_tree().physics_frame
-		Input.action_press("move_forward")
-		Input.action_press("jump")
-		await get_tree().physics_frame
-		await get_tree().physics_frame
-		Input.action_release("jump")
-		for i in 150:
-			await get_tree().physics_frame
-		Input.action_release("move_forward")
-		_check(player.global_position.y > high.y - 0.3, "the player mantles onto a raised room (feet at %.2f, ledge %.2f)" % [player.global_position.y, high.y])
-		# Without forward held, falling face-on past the ledge catches it.
-		var face := low + dir * 0.4
-		player.global_position = Vector3(face.x, high.y - 1.6, face.z)
-		player.velocity = Vector3(0, -1.0, 0)
-		player.rotation.y = atan2(-dir.x, -dir.z)
-		var caught := false
-		for i in 20:
-			await get_tree().physics_frame
-			caught = caught or player.ledge_climb.state == LedgeClimb.State.HANG
-		_check(caught, "falling against the ledge catches it")
-		Input.action_press("crouch")
-		await get_tree().physics_frame
-		await get_tree().physics_frame
-		Input.action_release("crouch")
-		_check(not player.ledge_climb.busy(), "crouch lets go of the ledge")
-		# An enemy below the step hops up after a player standing on it.
-		player.global_position = high + dir * 2.5 + Vector3.UP * 0.05
-		player.set_physics_process(false)
-		var chaser: Enemy = null
-		for node in get_tree().get_nodes_in_group("enemy"):
-			var e := node as Enemy
-			if e and e.rank != Constants.EnemyRank.BOSS and not e.is_ranged_unit():
-				chaser = e
-				break
-		_check(chaser != null, "found a melee enemy to chase")
-		if chaser:
-			chaser.process_mode = Node.PROCESS_MODE_INHERIT
-			chaser.global_position = low - dir * 2.0 + Vector3.UP * 0.1
-			chaser.velocity = Vector3.ZERO
-			chaser._player = player
-			var frames := 0
-			while frames < 600 and chaser.global_position.y < high.y - 0.4:
-				chaser._last_combat_msec = Time.get_ticks_msec()
-				await get_tree().physics_frame
-				frames += 1
-			_check(chaser.global_position.y > high.y - 0.4, "an enemy climbs the step after the player (y %.2f after %d frames)" % [chaser.global_position.y, frames])
-			chaser.process_mode = Node.PROCESS_MODE_DISABLED
-		player.set_physics_process(true)
+	await _test_climb(map, "dungeon", links, true)
 	await _test_watcher(map)
 	_check(map.capture_state().has("secret"), "the secret room's state is saved for a portal trip")
 	await _free_map(map)
@@ -168,7 +116,7 @@ func _test_outdoor(style: String) -> void:
 	for i in 4:
 		await get_tree().physics_frame
 	if map.secret == null:
-		_check(style == "city_downtown", "%s has a secret spire" % style)
+		_check(style == "city_downtown" or style == "forest_river_valley", "%s has a secret spire" % style)
 		print("note: %s rolled no plaza, so no spire" % style)
 	else:
 		_check(map.secret.access == SecretRoomBuilder.Access.SPIRE, "%s's secret is a spire" % style)
@@ -181,6 +129,13 @@ func _test_outdoor(style: String) -> void:
 			if map.secret.blocks((node as Node3D).global_position) and (node as Node3D).global_position.y < 3.0:
 				inside += 1
 		_check(inside == 0, "%s: no pack spawns inside the spire" % style)
+	await _wait_nav(map)
+	var links := _links(map)
+	_check(links.size() > 0, "%s has climb links (%d)" % [style, links.size()])
+	print("%s: %d raised cells, %d terraces, %d links" % [style, map.room_floor.size(), map.terraces.size(), links.size()])
+	_test_route(map, style)
+	_test_boundary(map, style)
+	await _test_climb(map, style, links, true)
 	await _free_map(map)
 
 func _test_gate() -> void:
@@ -194,3 +149,108 @@ func _test_gate() -> void:
 		await get_tree().physics_frame
 	_check(not gate.is_open() and gate.position.y < 0.1, "the gate drops again when time runs out")
 	gate.queue_free()
+
+## Mantling up the first climb link's step, catching its ledge and letting
+## go, and (with_chaser) a melee enemy hopping up after the player.
+func _test_climb(map: GeneratedMap, label: String, links: Array[NavigationLink3D], with_chaser: bool) -> void:
+	var player := get_tree().get_first_node_in_group("player") as Player
+	for node in get_tree().get_nodes_in_group("enemy"):
+		(node as Node).process_mode = Node.PROCESS_MODE_DISABLED
+	if links.is_empty():
+		return
+	var link := links[0]
+	var low := link.start_position
+	var high := link.end_position
+	if low.y > high.y:
+		var swap := low
+		low = high
+		high = swap
+	var dir := Vector3(high.x - low.x, 0, high.z - low.z).normalized()
+	# Jumping at the step while holding forward ends on top of it.
+	player.global_position = low + Vector3.UP * 0.05
+	player.velocity = Vector3.ZERO
+	player.rotation.y = atan2(-dir.x, -dir.z)
+	for i in 3:
+		await get_tree().physics_frame
+	Input.action_press("move_forward")
+	Input.action_press("jump")
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	Input.action_release("jump")
+	for i in 150:
+		await get_tree().physics_frame
+		if player.global_position.y > high.y - 0.3 and not player.ledge_climb.busy() and player.is_on_floor():
+			break
+	Input.action_release("move_forward")
+	_check(player.global_position.y > high.y - 0.3, "%s: the player mantles up the step (feet at %.2f, ledge %.2f)" % [label, player.global_position.y, high.y])
+	# Without forward held, falling face-on past the ledge catches it.
+	var face := low + dir * 0.4
+	player.global_position = Vector3(face.x, high.y - 1.6, face.z)
+	player.velocity = Vector3(0, -1.0, 0)
+	player.rotation.y = atan2(-dir.x, -dir.z)
+	var caught := false
+	for i in 20:
+		await get_tree().physics_frame
+		caught = caught or player.ledge_climb.state == LedgeClimb.State.HANG
+	_check(caught, "%s: falling against the ledge catches it" % label)
+	Input.action_press("crouch")
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	Input.action_release("crouch")
+	_check(not player.ledge_climb.busy(), "%s: crouch lets go of the ledge" % label)
+	if not with_chaser:
+		return
+	# An enemy below the step hops up after a player standing on it.
+	player.global_position = high + dir * 2.5 + Vector3.UP * 0.05
+	player.set_physics_process(false)
+	var chaser: Enemy = null
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var e := node as Enemy
+		if e and e.rank != Constants.EnemyRank.BOSS and not e.is_ranged_unit():
+			chaser = e
+			break
+	_check(chaser != null, "%s: found a melee enemy to chase" % label)
+	if chaser:
+		chaser.process_mode = Node.PROCESS_MODE_INHERIT
+		chaser.global_position = low - dir * 2.0 + Vector3.UP * 0.1
+		chaser.velocity = Vector3.ZERO
+		chaser._player = player
+		var frames := 0
+		while frames < 600 and chaser.global_position.y < high.y - 0.4:
+			chaser._last_combat_msec = Time.get_ticks_msec()
+			await get_tree().physics_frame
+			frames += 1
+		_check(chaser.global_position.y > high.y - 0.4, "%s: an enemy climbs the step after the player (y %.2f after %d frames)" % [label, chaser.global_position.y, frames])
+		chaser.process_mode = Node.PROCESS_MODE_DISABLED
+	player.set_physics_process(true)
+
+## The Vault can't be reached on foot without a climb link (a mantle for the
+## player), and can with them; a boss leaves the links out.
+func _test_route(map: GeneratedMap, label: String) -> void:
+	var nav := map.get_world_3d().navigation_map
+	var start := map.last_player_spawn
+	var goal := map.boss_portal_point
+	var with_links := 1 | (1 << (GeneratedMap.CLIMB_LINK_LAYER - 1))
+	var walk := NavigationServer3D.map_get_path(nav, start, goal, true, 1)
+	var climb := NavigationServer3D.map_get_path(nav, start, goal, true, with_links)
+	_check(walk.is_empty() or walk[walk.size() - 1].distance_to(goal) > 2.5, "%s: the Vault can't be reached without a climb" % label)
+	_check(not climb.is_empty() and climb[climb.size() - 1].distance_to(goal) < 2.5, "%s: the Vault is reachable over the climb links (end %s, goal %s)" % [label, climb[climb.size() - 1] if not climb.is_empty() else "none", goal])
+	var boss: Enemy = null
+	for node in get_tree().get_nodes_in_group("enemy"):
+		if (node as Enemy).rank == Constants.EnemyRank.BOSS:
+			boss = node
+	_check(boss != null and boss.nav_layers() == 1, "%s: the boss paths without climb links" % label)
+
+## Anything solid outside the playable square is boundary, so no_climb.
+func _test_boundary(map: GeneratedMap, label: String) -> void:
+	var lo := -map.cell_size / 2.0
+	var hi := lo + map.cell_size * map.graph.grid_size
+	var climbable := 0
+	for child in map.get_children():
+		var body := child as StaticBody3D
+		if body == null or body.is_in_group(LedgeClimb.NO_CLIMB) or body.collision_layer & 1 == 0:
+			continue
+		var p := body.global_position
+		if p.x < lo - 0.5 or p.x > hi + 0.5 or p.z < lo - 0.5 or p.z > hi + 0.5:
+			climbable += 1
+	_check(climbable == 0, "%s: boundary bodies are no_climb (%d climbable)" % [label, climbable])

@@ -105,7 +105,8 @@ var _dead_spawn_indices: Array[int] = []
 var _portal: Portal
 ## Rooms layout: cell -> Vector2 half-extents (x, z) of that room.
 var room_half: Dictionary = {}
-## Rooms layout: cell -> floor height of a raised room (absent = 0), and
+## Rooms and canyon layouts: cell -> floor height of a raised room or basin;
+## open fields: of a terrace (absent = 0). Rooms also keep
 ## cell -> wall height of a room taller than the style's.
 var room_floor: Dictionary = {}
 var room_wall_height: Dictionary = {}
@@ -168,6 +169,7 @@ func _build_layout() -> void:
 			if layout.rivers + layout.streams > 0:
 				water = WaterBuilder.new(self)
 				water.plan(graph, cell_size, layout.rivers, layout.streams)
+			_roll_field_terraces()
 			_plan_spire()
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
 			_terrain.build_open_field(graph, cell_size)
@@ -194,6 +196,7 @@ func _build_layout() -> void:
 			_spawn_vault_boss(court)
 		MapLayout.Kind.CANYON:
 			_terrain = TerrainBuilder.new(self, _floor_mat, _wall_mat)
+			_roll_room_floors()
 			_plan_spire()
 			_terrain.build_canyon(graph, cell_size)
 			_terrain.scatter_doodads(_dresser, tileset, graph, cell_size, layout.scatter_per_cell, _cell_to_world(graph.start_cell))
@@ -632,7 +635,7 @@ func _plan_spire() -> void:
 	var cells: Array = []
 	for cell in graph.rooms:
 		var room: MapGraph.RoomData = graph.rooms[cell]
-		if room.is_start or room.is_vault or room.distance_from_start < 2:
+		if room.is_start or room.is_vault or room.distance_from_start < 2 or room_floor.has(cell):
 			continue
 		if water and water.is_wet(_cell_to_world(cell), SecretRoomBuilder.SPIRE_CLEARANCE):
 			continue
@@ -643,10 +646,10 @@ func _plan_spire() -> void:
 	secret = SecretRoomBuilder.plan_spire(self, _cell_to_world(cells[randi() % cells.size()]))
 
 ## ---- Raised rooms ---------------------------------------------------------
-## Rooms layouts put some rooms on a plinth RAISED_FLOOR up: too high to jump
-## onto, so the corridor ends at a ledge to mantle (LedgeClimb). At least
-## one room on the way from the start to the Vault is raised. Enemies cross
-## the step on a NavigationLink3D (Enemy._climb_link()).
+## Rooms and canyon layouts put some rooms (basins) on a plinth RAISED_FLOOR
+## up: too high to jump onto, so the corridor or pass ends at a ledge to
+## mantle (LedgeClimb). At least one on the way from the start to the Vault
+## is raised. Enemies cross the step on a NavigationLink3D (Enemy._climb_link()).
 const RAISED_FLOOR := 3.0
 
 func _roll_room_floors() -> void:
@@ -705,15 +708,117 @@ func _build_plinth(origin: Vector3, half: Vector2) -> void:
 	collision.shape = shape
 	body.add_child(collision)
 
-## Enemies' way up and down a raised room's step: from the corridor floor in
-## front of it to just inside the raised room.
+## Enemies' way up and down a step: from the floor in front of it to just
+## past its edge. Links sit on their own navigation layer, which bosses
+## leave out of their paths (Enemy.nav_layers()), so a boss never climbs or
+## drops off its level.
+const CLIMB_LINK_LAYER := 2
+
 func _add_climb_link(low_point: Vector3, high_point: Vector3) -> void:
 	var link := NavigationLink3D.new()
 	link.bidirectional = true
+	link.navigation_layers = 1 << (CLIMB_LINK_LAYER - 1)
 	add_child(link)
 	link.global_position = Vector3.ZERO
 	link.start_position = low_point
 	link.end_position = high_point
+
+## ---- Terraces (open layouts) ----------------------------------------------
+## Solid blocks whose tops stand above the ground: raised canyon basins,
+## field terraces, street causeways. {"rect": Rect2 (XZ), "top": float}.
+var terraces: Array[Dictionary] = []
+
+## The highest terrace top at pos (0 off every terrace), for dropping
+## props, chests and packs onto the right level.
+func terrace_top(pos: Vector3) -> float:
+	var top := 0.0
+	for t in terraces:
+		if (t["rect"] as Rect2).has_point(Vector2(pos.x, pos.z)):
+			top = maxf(top, float(t["top"]))
+	return top
+
+## A climbable block from below the ground up to `top`, its top paved with
+## the floor material.
+func _build_terrace(rect: Rect2, top: float) -> void:
+	terraces.append({"rect": rect, "top": top})
+	var centre := Vector3(rect.get_center().x, 0.0, rect.get_center().y)
+	var size := Vector3(rect.size.x, top + 0.5, rect.size.y)
+	var body := StaticBody3D.new()
+	body.position = centre + Vector3(0, top / 2.0 - 0.25 - 0.02, 0)
+	add_child(body)
+	var mesh := MeshInstance3D.new()
+	var box := BoxMesh.new()
+	box.size = size
+	mesh.mesh = box
+	mesh.material_override = _wall_mat if _wall_mat else _plain_material(WALL_COLOR)
+	body.add_child(mesh)
+	var collision := CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = size
+	collision.shape = shape
+	body.add_child(collision)
+	_build_floor(centre + Vector3(0, top, 0), rect.size.x, rect.size.y, 0.0, ROOM_FLOOR_COLORS[0])
+
+## Open fields climb in terraces toward the Vault: cells TERRACE_TIERS
+## steps from the far end stand TERRACE_STEP higher per step, so every way
+## to the Vault crosses a ledge to mantle. The Vault's tier is one flat level.
+const TERRACE_STEP := 2.0
+const TERRACE_TIERS := 2
+
+func _roll_field_terraces() -> void:
+	room_floor = {}
+	var far: int = graph.rooms[graph.vault_cell].distance_from_start
+	var first := maxi(2, far - TERRACE_TIERS)
+	for cell in graph.rooms:
+		var tier := clampi(graph.rooms[cell].distance_from_start - first + 1, 0, TERRACE_TIERS)
+		if tier > 0:
+			room_floor[cell] = tier * TERRACE_STEP
+
+## A terrace cell's block: the whole cell, less the sides a river or stream
+## runs along (those leave a ravine for the water).
+func terrace_rect(cell: Vector2i) -> Rect2:
+	var h := cell_size / 2.0
+	var lo := Vector2(cell.x * cell_size - h, cell.y * cell_size - h)
+	var hi := lo + Vector2.ONE * cell_size
+	if water:
+		for c in water.channels:
+			var clear := cell_size * WaterBuilder.MEANDER + float(c["half"]) + 1.2
+			# A channel on boundary i runs between rows (or columns) i and i + 1.
+			var axis := 0 if c["axis"] == "x" else 1
+			var index: int = c["index"]
+			if index == cell[axis]:
+				hi[axis] -= clear
+			elif index + 1 == cell[axis]:
+				lo[axis] += clear
+	return Rect2(lo, hi - lo)
+
+## Links up every dry terrace face between neighbouring cells, at a random
+## point along the shared side.
+func _link_terraces() -> void:
+	for cell in graph.rooms:
+		for d in [Vector2i.RIGHT, Vector2i.DOWN]:
+			var n: Vector2i = cell + d
+			if not graph.rooms.has(n):
+				continue
+			var fa: float = room_floor.get(cell, 0.0)
+			var fb: float = room_floor.get(n, 0.0)
+			if is_equal_approx(fa, fb):
+				continue
+			var high: Vector2i = cell if fa > fb else n
+			var out := Vector3(d.x, 0, d.y) * (1.0 if high == cell else -1.0)
+			var face := _cell_to_world(high) + out * cell_size / 2.0
+			var rect := terrace_rect(high)
+			if not rect.grow(0.05).has_point(Vector2(face.x, face.z)):
+				continue  # water runs along this side
+			var along := Vector3(absf(out.z), 0, absf(out.x))
+			var shifted := face + along * randf_range(-0.3, 0.3) * cell_size
+			var top := shifted - out * 1.1
+			if rect.grow(-1.0).has_point(Vector2(top.x, top.z)) and not (water and water.is_wet(shifted + out * 1.1, 1.0)):
+				face = shifted
+			var low := Vector3(face.x, minf(fa, fb), face.z) + out * 1.1
+			if water and water.is_wet(low, 1.0):
+				continue
+			_add_climb_link(low, Vector3(face.x, maxf(fa, fb), face.z) - out * 1.1)
 
 ## Footprints are rolled up front so corridors know where each room's walls are.
 func _roll_room_sizes() -> void:
@@ -1102,6 +1207,8 @@ func _chest_spot(cell: Vector2i) -> Vector3:
 	var inset := 0.75 if layout.kind == MapLayout.Kind.ROOMS else 0.35
 	for corner in corners:
 		var pos := origin + Vector3(corner.x * half.x * inset, 0, corner.y * half.y * inset)
+		if not terraces.is_empty():
+			pos.y = terrace_top(pos)
 		var rect := Rect2(Vector2(pos.x, pos.z) - Vector2.ONE * CHEST_CLEARANCE, Vector2.ONE * CHEST_CLEARANCE * 2.0)
 		if _dresser == null or not _dresser._overlaps(rect):
 			if _dresser:
@@ -1137,7 +1244,13 @@ func _spawn_enemies_open() -> void:
 			continue
 		for i in randi_range(layout.packs_per_cell.x, layout.packs_per_cell.y):
 			var offset := Vector3(randf_range(-1, 1), 0, randf_range(-1, 1)) * cell_size * OPEN_PACK_SPREAD
-			_spawn_pack(EnemyRoster.roll_pack(_pack_table()), center + offset)
+			var at := center + offset
+			if layout.kind == MapLayout.Kind.OPEN_FIELD and room_floor.has(cell):
+				# Packs stay up on a terrace cut back from a river.
+				var r := terrace_rect(cell).grow(-PACK_RING_RADIUS - 1.0)
+				at.x = clampf(at.x, r.position.x, r.end.x)
+				at.z = clampf(at.z, r.position.y, r.end.y)
+			_spawn_pack(EnemyRoster.roll_pack(_pack_table()), at)
 
 ## ENEMY_PACKS_NORMAL with each pack's weight scaled by the Figment Tree's
 ## faction weight for its first unit's faction.
@@ -1221,6 +1334,8 @@ func _spawn_enemy(enemy: Enemy, pos: Vector3) -> void:
 	if water:
 		var cell := Vector3(roundf(pos.x / cell_size) * cell_size, pos.y, roundf(pos.z / cell_size) * cell_size)
 		pos = water.dry_point(pos, cell)
+	if not terraces.is_empty():
+		pos.y = maxf(pos.y, terrace_top(pos))
 	add_child(enemy)
 	enemy.global_position = pos
 	_living_enemies[enemy.get_instance_id()] = true

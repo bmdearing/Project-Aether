@@ -108,7 +108,7 @@ func _route(b: Dictionary, graph: MapGraph, cell_size: float, deep: bool) -> Dic
 	if deep:
 		for col in graph.grid_size:
 			fords.append((col + randf_range(-0.25, 0.25)) * cell_size)
-	return {"points": points, "half": (RIVER_WIDTH if deep else STREAM_WIDTH) / 2.0, "deep": deep, "fords": fords, "axis": b["axis"]}
+	return {"points": points, "half": (RIVER_WIDTH if deep else STREAM_WIDTH) / 2.0, "deep": deep, "fords": fords, "axis": b["axis"], "index": b["index"]}
 
 func _along(c: Dictionary, p: Vector3) -> float:
 	return p.x if c["axis"] == "z" else p.z

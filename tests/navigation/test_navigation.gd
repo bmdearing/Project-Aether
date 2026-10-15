@@ -55,7 +55,7 @@ func _run() -> void:
 	_check(chaser != null, "found an enemy out of sight in another room")
 	if chaser:
 		var start := chaser.global_position.distance_to(player.global_position)
-		var path := NavigationServer3D.map_get_path(chaser.get_world_3d().navigation_map, chaser.global_position, player.global_position, true)
+		var path := NavigationServer3D.map_get_path(chaser.get_world_3d().navigation_map, chaser.global_position, player.global_position, true, chaser.nav_layers())
 		_check(path.size() > 2, "there is a path with turns to the player (%d points)" % path.size())
 		# Time for the path at the unit's own speed, with slack.
 		var length := 0.0

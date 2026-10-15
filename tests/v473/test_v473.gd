@@ -152,7 +152,7 @@ func _check_reachable(map: GeneratedMap, label: String) -> void:
 	targets.append_array(map.streets.spawn_points)
 	var unreachable := 0
 	for target in targets:
-		var path := NavigationServer3D.map_get_path(nav, start, target, true)
+		var path := NavigationServer3D.map_get_path(nav, start, target, true, 1 | (1 << (GeneratedMap.CLIMB_LINK_LAYER - 1)))
 		if path.is_empty() or path[path.size() - 1].distance_to(target) > 2.5:
 			if unreachable == 0:
 				print("  no path ", start, " -> ", target, " size ", path.size(), " end ", path[path.size() - 1] if not path.is_empty() else Vector3.INF, " closest start ", NavigationServer3D.map_get_closest_point(nav, start))

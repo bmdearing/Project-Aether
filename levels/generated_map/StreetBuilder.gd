@@ -57,6 +57,9 @@ var secret_cell := NO_CELL
 var building_count := 0
 var lamp_count := 0
 var vent_count := 0
+## The raised causeway across a street on the way to the Vault: {"rect", "a", "b"}
+## (the low ground before each end), or empty.
+var causeway: Dictionary = {}
 
 var _map: GeneratedMap
 var _tileset: MapTileset
@@ -87,6 +90,7 @@ func build(graph: MapGraph, cell_size: float) -> void:
 	var centre := Vector3((graph.grid_size - 1) * cell_size / 2.0, 0.0, (graph.grid_size - 1) * cell_size / 2.0)
 	_map._build_floor(centre, extent, extent, 0.0, GeneratedMap.ROOM_FLOOR_COLORS[0])
 	_collect_edges(graph)
+	_build_causeway(graph)
 	_plan_spawns(graph)
 	for e in edges:
 		if e["water"]:
@@ -127,6 +131,44 @@ func _plan_squares(graph: MapGraph) -> void:
 		_map.room_half[cell] = Vector2(h, h)
 		var o := _map._cell_to_world(cell)
 		_walkable.append(Rect2(o.x - h, o.z - h, h * 2.0, h * 2.0))
+
+## A raised causeway across the longest street on the way to the Vault: a
+## block CAUSEWAY_HEIGHT tall from wall to wall, so the street can only be
+## crossed by mantling up one end and dropping off the other. A street too
+## short for it gets one that runs a little into the squares at its ends.
+const CAUSEWAY_HEIGHT := 3.0
+const CAUSEWAY_LENGTH := Vector2(6.0, 12.0)
+const CAUSEWAY_END_MARGIN := 2.0
+
+func _build_causeway(graph: MapGraph) -> void:
+	var path := _map._path_to_vault()
+	var best := -INF
+	var from := Vector3.ZERO
+	var to := Vector3.ZERO
+	for i in path.size() - 1:
+		var dir := Vector3(path[i + 1].x - path[i].x, 0, path[i + 1].y - path[i].y)
+		var a := _map._cell_to_world(path[i]) + dir * float(half[path[i]])
+		var b := _map._cell_to_world(path[i + 1]) - dir * float(half[path[i + 1]])
+		var length := a.distance_to(b) + randf() * 0.5  # ties broken at random
+		if length > best:
+			best = length
+			from = a
+			to = b
+	if best == -INF:
+		return
+	var along := (to - from).normalized()
+	var length := clampf(from.distance_to(to) - CAUSEWAY_END_MARGIN * 2.0, CAUSEWAY_LENGTH.x, CAUSEWAY_LENGTH.y)
+	var mid := (from + to) / 2.0
+	var width := _street_w + (WALL_SETBACK + WALL_THICKNESS / 2.0) * 2.0
+	var size := Vector2(absf(along.x) * length + absf(along.z) * width, absf(along.z) * length + absf(along.x) * width)
+	var rect := Rect2(Vector2(mid.x, mid.z) - size / 2.0, size)
+	_map._build_terrace(rect, CAUSEWAY_HEIGHT)
+	_dresser.reserve(rect.grow(1.5))
+	var a_end := mid - along * length / 2.0
+	var b_end := mid + along * length / 2.0
+	causeway = {"rect": rect, "a": a_end - along * 1.1, "b": b_end + along * 1.1}
+	_map._add_climb_link(a_end - along * 1.1, a_end + along * 1.1 + Vector3.UP * CAUSEWAY_HEIGHT)
+	_map._add_climb_link(b_end + along * 1.1, b_end - along * 1.1 + Vector3.UP * CAUSEWAY_HEIGHT)
 
 ## A random plaza away from the start, kept clear for the spire.
 func _pick_secret_square(graph: MapGraph) -> void:
@@ -211,6 +253,7 @@ func _plan_spawns(graph: MapGraph) -> void:
 				_add_spawn((a + b) / 2.0)
 
 func _add_spawn(p: Vector3) -> void:
+	p.y = _map.terrace_top(p)
 	spawn_points.append(p)
 	_dresser.reserve(Rect2(Vector2(p.x, p.z) - Vector2.ONE * SPAWN_CLEAR, Vector2.ONE * SPAWN_CLEAR * 2.0))
 
