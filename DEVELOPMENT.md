@@ -1404,13 +1404,19 @@ call. How each one got here is in PATCH_NOTES.md.
     are placeholders, the ammo store tops up to `STARTING_AMMO`, the Lord's
     elements go Fire -> Cold -> Lightning, and every unit keeps a 1.9 m
     capsule whatever its model size.
-19. **Skill Tomes unlock an ability outright**: Patch v3.1's per-weapon
+19. **The Watcher found after the boss**: his deals change the current
+    Figment, so once its boss is dead they do nothing, and the instant ones
+    (currency, hoard) cost nothing. Options raised: carry the deal to the
+    next Figment, or offer only the challenge. Undecided.
+20. **The Pale is blindingly white**: it looks right but is too bright to
+    play comfortably. Needs a fix (exposure, ground tint or fog), undecided.
+21. **Skill Tomes unlock an ability outright**: Patch v3.1's per-weapon
     skill sockets (3 per weapon) aren't built. Jewel sockets exist; ability
     sockets don't.
 
 ## Explicitly not built yet
 
-A Stamina pool (gap #6), per-weapon skill sockets (gap #19), and co-op.
+A Stamina pool (gap #6), per-weapon skill sockets (gap #21), and co-op.
 
 ## Opening this project
 
