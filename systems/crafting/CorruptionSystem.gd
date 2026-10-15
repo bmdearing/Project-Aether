@@ -19,7 +19,7 @@ const TIER_NAMES := {1: "No Change", 2: "Bricked", 3: "Blessed", 4: "Exalted"}
 
 const _BRICKS := ["Unmade", "Hollow"]
 const _IMPLICITS := ["AddImplicit", "ResistanceShredAura", "MawTouched", "PaleBranded", "SkillNoCooldown", "ResonantEcho"]
-const _GOOD := ["AddSocket", "AddExtraSocket", "TierUp", "AddSpecialAffix", "TemperedLimit", "Ascendant", "Overcharged", "Transcendent"]
+const _GOOD := ["AddSocket", "AddExtraSocket", "TierUp", "AddSpecialAffix", "TemperedLimit", "Honed", "Overcharged", "Transcendent"]
 
 static func corrupt(item: Item, power_level: int = 1) -> CorruptionOutcome:
 	if item == null:
@@ -95,7 +95,7 @@ static func _instantiate(outcome_name: String) -> CorruptionOutcome:
 		"MawTouched": return CorruptionOutcome.MawTouched.new()
 		"PaleBranded": return CorruptionOutcome.PaleBranded.new()
 		"Overcharged": return CorruptionOutcome.Overcharged.new()
-		"Ascendant": return CorruptionOutcome.Ascendant.new()
+		"Honed": return CorruptionOutcome.Honed.new()
 		"Transcendent": return CorruptionOutcome.Transcendent.new()
 		"Unmade": return CorruptionOutcome.Unmade.new()
 		"ResonantEcho": return CorruptionOutcome.ResonantEcho.new()
@@ -118,7 +118,7 @@ const DESCRIPTIONS := {
 	"TierUp": "One modifier moves up a tier (Tier 3 becomes Tier 2).",
 	"AddSpecialAffix": "Adds a corrupted modifier: one of the item's own at 130% of its Tier 1 maximum.",
 	"TemperedLimit": "The item's maximum quality rises by 15% (Orbs of Tempering still work on corrupted items).",
-	"Ascendant": "The weapon's scaling grade improves by one.",
+	"Honed": "The weapon's base damage rises by 20%.",
 	"Overcharged": "Every modifier rolls in the top 20% of its tier; one modifier is removed.",
 	"Transcendent": "The item becomes a corrupted-only Unique; every modifier is lost.",
 	"ImplicitAndEffect": "One of the Blessed implicits and one of the Blessed good effects, both.",
@@ -155,7 +155,7 @@ static func can_change(outcome_name: String, base: Item) -> bool:
 			return base is Weapon or base is Armor
 		"AddSocket", "AddExtraSocket":
 			return ItemRoller.get_socket_cap(base) > 0
-		"Ascendant":
+		"Honed":
 			return base is Weapon
 		"Transcendent":
 			return not UniquePool.get_corrupted_uniques_for_type(base.equip_slot).is_empty()

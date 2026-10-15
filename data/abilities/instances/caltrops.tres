@@ -9,7 +9,6 @@ display_name = "Caltrops"
 description = "Scatter caltrops across a designated ground area. Enemies that walk through take Piercing damage over time."
 damage_type = 1
 motion_value = 0.4
-scaling_grade = 4
 cooldown_seconds = 0.0
 resource_cost = 18.0
 can_trigger_riposte = false

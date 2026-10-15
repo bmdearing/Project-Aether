@@ -9,7 +9,6 @@ display_name = "Flame Wall"
 description = "Conjures a wall of fire at a targeted location. Ignites enemies that pass through it and burns anything standing on it."
 damage_type = 3
 motion_value = 0.5
-scaling_grade = 3
 cooldown_seconds = 0.0
 resource_cost = 26.0
 can_trigger_riposte = false

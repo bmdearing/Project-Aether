@@ -9,7 +9,6 @@ display_name = "Seismic Cry"
 description = "A shout that shakes the ground, battering nearby enemies and throwing them back."
 damage_type = 0
 motion_value = 0.6
-scaling_grade = 4
 cooldown_seconds = 8.0
 resource_cost = 18.0
 is_auto_cast_eligible = false

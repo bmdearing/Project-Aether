@@ -9,7 +9,6 @@ display_name = "Reap"
 description = "A spectral scythe sweeps through the air in front of you, harvesting everything in its arc."
 damage_type = 6
 motion_value = 1.0
-scaling_grade = 4
 cooldown_seconds = 0.0
 cast_type = 1
 base_cast_time = 0.6

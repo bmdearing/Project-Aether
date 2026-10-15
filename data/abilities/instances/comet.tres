@@ -9,7 +9,6 @@ display_name = "Comet"
 description = "A frozen mass of ice and compressed cold energy plunges from above into a targeted area. Deals massively increased damage against enemies that are Chilled or Frozen."
 damage_type = 4
 motion_value = 1.9
-scaling_grade = 1
 cooldown_seconds = 0.0
 resource_cost = 30.0
 can_trigger_riposte = true

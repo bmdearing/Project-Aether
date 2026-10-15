@@ -9,7 +9,6 @@ display_name = "Black Hole"
 description = "Summons a point of collapsing incoherence that drags surrounding enemies toward its center for a short duration. High setup potential, low direct damage."
 damage_type = 7
 motion_value = 0.25
-scaling_grade = 5
 cooldown_seconds = 0.0
 resource_cost = 30.0
 can_trigger_riposte = true

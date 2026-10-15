@@ -42,8 +42,12 @@ func is_hitscan() -> bool:
 func get_quality_multiplier() -> float:
 	return 1.0 + quality / 100.0
 
+## Honed (a corruption outcome): the weapon's base damage is HONED_DAMAGE_MULTIPLIER x.
+@export var honed: bool = false
+const HONED_DAMAGE_MULTIPLIER := 1.2
+
 func damage_scale() -> float:
-	return RANGED_DAMAGE_SCALE.get(weapon_type, 1.0) if is_ranged else 1.0
+	return (RANGED_DAMAGE_SCALE.get(weapon_type, 1.0) if is_ranged else 1.0) * (HONED_DAMAGE_MULTIPLIER if honed else 1.0)
 
 func get_base_range() -> Vector2:
 	return Vector2(base_damage_min, base_damage_max) * damage_scale()
@@ -93,7 +97,6 @@ func get_conduit_cast_speed_bonus() -> float:
 		return 0.0
 	return (get_local_multiplier("local_increased_cast_speed") - 1.0) * 100.0
 
-@export var scaling_grade: Constants.ScalingGrade = Constants.ScalingGrade.C
 @export var native_damage_type: Constants.DamageType = Constants.DamageType.KINETIC
 @export var infused_damage_type: Constants.DamageType = -1  # -1 = not infused, uses native scaling
 ## Fist weapons arm both hands, so they're always two-handed.
@@ -183,14 +186,6 @@ func get_current_magazine() -> int:
 @export var is_main_hand: bool = true
 @export var is_offhand: bool = false
 
-## Patch v3.6b: per-line scaling metadata (Constants.Stat name as a
-## lowercase string, e.g. "instinct") - user direction (2026-09-02):
-## descriptive only, NOT read by damage calculation (weapons scale with
-## Strength regardless - see _base_hit()). secondary_scaling_stat is ""
-## for single-stat lines.
-@export var primary_scaling_stat: String = ""
-@export var secondary_scaling_stat: String = ""
-
 ## Patch v3.6b Section 3: Conduit (caster weapon) identity. conduit_
 ## stance_type values: "spell_library", "unleash", "battlemage",
 ## "mana_stars", "stance_buff", "passive". spell_page_tag (only meaningful
@@ -269,13 +264,8 @@ func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dicti
 		stat_sheet.get_chain_bonus(damage_type) * 100.0,
 		stat_sheet.get_increased_damage_percent(damage_type, true),
 	]
-	# scaling_grade is passed but has no effect on weapon damage since
-	# stat_value = 0.0 (Strength is applied as a % multiplier on base_damage
-	# before this call). Grade only affects spell damage via ability._base_hit().
-	# Grade is shown in Alt info and can be degraded by Shard of Tharsis.
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		boosted_base, motion_value, 0.0, scaling_grade,
-		0.5, increased, [stat_sheet.outgoing_more_multiplier(damage_type)], damage_type
+		boosted_base, motion_value, increased, [stat_sheet.outgoing_more_multiplier(damage_type)], damage_type
 	)
 	return {
 		"base_damage": result.final_damage,

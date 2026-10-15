@@ -2,7 +2,7 @@ extends RefCounted
 class_name ItemRoller
 ## Rolls a random piece of gear on demand - dropped by Enemy.gd on death,
 ## picked up via LootPickup.gd, or stocked by the Hub's GearShop. Picks a
-## real, balanced base item (weapon_type/damage_type/scaling_grade/etc.)
+## real, balanced base item (weapon_type/damage_type/etc.)
 ## and re-rolls only its rarity + affix list.
 ##
 ## User request (2026-08-30): Section 25's full tiered base-type catalog

@@ -9,7 +9,6 @@ display_name = "Flame Jets"
 description = "A sustained torrent of fire expelled at whatever you're looking at, hitting enemies multiple times over a short channel. Slows you while channeling."
 damage_type = 3
 motion_value = 0.9
-scaling_grade = 2
 cooldown_seconds = 0.0
 resource_cost = 14.0
 can_trigger_riposte = false

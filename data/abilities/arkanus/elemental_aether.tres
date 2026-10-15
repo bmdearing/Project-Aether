@@ -8,7 +8,6 @@ ability_id = "elemental_aether"
 display_name = "Elemental Aether"
 description = "Right-click: Aether detonates on the enemy you look at, 40% more damage for each element on it - Drenched, Entangled, Chilled or Frozen, Shocked, Ignited or in Forbidden Flame (up to 3x with all five)."
 damage_type = 6
-scaling_grade = 4
 resource_cost = 2.0
 fixed_mana_cost = 2.0
 cooldown_seconds = 4.0

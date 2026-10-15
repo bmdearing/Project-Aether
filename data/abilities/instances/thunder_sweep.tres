@@ -9,7 +9,6 @@ display_name = "Thunder Sweep"
 description = "Bolts of lightning radiate outward along the ground from the caster in every direction."
 damage_type = 5
 motion_value = 0.5
-scaling_grade = 3
 cooldown_seconds = 0.0
 resource_cost = 12.0
 can_trigger_riposte = false

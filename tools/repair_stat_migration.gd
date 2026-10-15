@@ -83,15 +83,5 @@ func _repair_file(path: String) -> void:
 		_requirement_remapped += 1
 		changed = true
 
-	if item is Weapon:
-		var weapon := item as Weapon
-		if SCALING_STRING_REMAP.has(weapon.primary_scaling_stat):
-			weapon.primary_scaling_stat = SCALING_STRING_REMAP[weapon.primary_scaling_stat]
-			_scaling_remapped += 1
-			changed = true
-		if SCALING_STRING_REMAP.has(weapon.secondary_scaling_stat):
-			weapon.secondary_scaling_stat = SCALING_STRING_REMAP[weapon.secondary_scaling_stat]
-			changed = true
-
 	if changed and ResourceSaver.save(item, path) != OK:
 		push_error("Failed to save %s" % path)

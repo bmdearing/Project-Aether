@@ -8,7 +8,6 @@ ability_id = "elemental_earth"
 display_name = "Elemental Earth"
 description = "Coats you in Stone Skin for 5 seconds: +5,000 Armour and 12% less Elemental and Esoteric damage taken."
 damage_type = 0
-scaling_grade = 4
 resource_cost = 2.0
 fixed_mana_cost = 2.0
 level = 20

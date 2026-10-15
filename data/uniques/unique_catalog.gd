@@ -57,7 +57,7 @@ const DEFS := [
 	},
 	{
 		"id": "unmaking_of_solen_vrath", "name": "The Unmaking of Solen Vrath", "rarity": Constants.ItemRarity.MYTHIC,
-		"base_type": "claymore", "base_item": "res://data/weapons/instances/gen_claymore_colossus_claymore.tres", "weight": 100.0, "damage_type": Constants.DamageType.AETHERIC, "grade_bonus": 1,
+		"base_type": "claymore", "base_item": "res://data/weapons/instances/gen_claymore_colossus_claymore.tres", "weight": 100.0, "damage_type": Constants.DamageType.AETHERIC,
 		"flavor": "He sought to understand what the Maw was. This is what remained of the attempt.",
 		"mods": [
 			["local_increased_weapon_damage", 60.0, 80.0, "%d%% increased Weapon Damage"],

@@ -9,7 +9,6 @@ display_name = "Death Shroud"
 description = "The Freeblood wears the pallor of the grave. Enemies within its radius are Pallid."
 damage_type = 8
 motion_value = 0.0
-scaling_grade = 5
 resource_cost = 30.0
 is_auto_cast_eligible = false
 radius = 6.0

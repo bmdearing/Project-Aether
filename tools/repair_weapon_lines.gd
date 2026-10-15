@@ -154,10 +154,6 @@ func _repair_file(path: String) -> void:
 		return
 
 	var line: Dictionary = LINES[weapon.base_line_id]
-	var grades: Array = line["grades"]
-	weapon.scaling_grade = grades[0][1] as int
-	weapon.primary_scaling_stat = grades[0][0]
-	weapon.secondary_scaling_stat = (grades[1][0] as String) if grades.size() > 1 else ""
 
 	var split_index := weapon.flavor_text.find(" - Implicit:")
 	if split_index != -1:

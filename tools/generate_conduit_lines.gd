@@ -98,10 +98,6 @@ func _write_tier(line: Dictionary, tier_index: int) -> void:
 
 	w.weapon_type = line["type"]
 	w.base_damage = spell_power
-	var grades: Array = line["grades"]
-	w.scaling_grade = grades[0][1] as int
-	w.primary_scaling_stat = grades[0][0]
-	w.secondary_scaling_stat = (grades[1][0] as String) if grades.size() > 1 else ""
 	w.native_damage_type = DT_AETHERIC
 	w.is_two_handed = meta["two_handed"]
 	w.is_ranged = false

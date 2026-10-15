@@ -100,7 +100,7 @@ static func to_dict(item: Item) -> Dictionary:
 		d["base_damage_min"] = item.base_damage_min
 		d["base_damage_max"] = item.base_damage_max
 		d["rolled_base_damage"] = item.rolled_base_damage
-		d["scaling_grade"] = item.scaling_grade
+		d["honed"] = item.honed
 		d["native_damage_type"] = item.native_damage_type
 		d["infused_damage_type"] = item.infused_damage_type
 		d["is_two_handed"] = item.is_two_handed
@@ -221,7 +221,7 @@ static func from_dict(d: Dictionary) -> Item:
 		item.base_damage_min = d.get("base_damage_min", 0.0)
 		item.base_damage_max = d.get("base_damage_max", 0.0)
 		item.rolled_base_damage = d.get("rolled_base_damage", 0.0)
-		item.scaling_grade = d.get("scaling_grade", 0)
+		item.honed = d.get("honed", false)
 		item.native_damage_type = d.get("native_damage_type", 0)
 		item.infused_damage_type = d.get("infused_damage_type", -1)
 		item.is_two_handed = d.get("is_two_handed", false)

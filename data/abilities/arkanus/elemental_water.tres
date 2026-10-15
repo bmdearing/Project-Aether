@@ -8,7 +8,6 @@ ability_id = "elemental_water"
 display_name = "Elemental Water"
 description = "A cold nova that Chills and Drenches enemies around you. Drenched enemies Freeze one Chill sooner, so two casts Freeze. While you have Stone Skin, it also Entangles them."
 damage_type = 4
-scaling_grade = 4
 resource_cost = 2.0
 fixed_mana_cost = 2.0
 level = 20

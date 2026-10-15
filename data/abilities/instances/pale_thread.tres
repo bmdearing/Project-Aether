@@ -9,7 +9,6 @@ display_name = "Pale Thread"
 description = "A thread of pale energy links the Freeblood to a target enemy, drawing its strength away as Pale damage and feeding it back as Ward. It breaks if the target strays too far."
 damage_type = 8
 motion_value = 0.0
-scaling_grade = 5
 resource_cost = 22.0
 is_auto_cast_eligible = false
 radius = 18.0

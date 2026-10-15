@@ -9,7 +9,6 @@ display_name = "Entropic Decay"
 description = "A field of unraveling energy spreads outward from the caster, hastening the decay of anything caught within it."
 damage_type = 7
 motion_value = 1.2
-scaling_grade = 2
 cooldown_seconds = 0.0
 cast_type = 1
 base_cast_time = 0.6

@@ -646,12 +646,8 @@ func _render_alt_info() -> void:
 	_clear()
 	if _current_item is Weapon:
 		var w := _current_item as Weapon
-		if w.can_attack():
-			_add_stat_line("Scaling Grade: %s" % Constants.grade_to_letter(w.scaling_grade))
-			if w.primary_scaling_stat != "":
-				_add_stat_line("Primary Scaling: %s" % w.primary_scaling_stat.capitalize())
-			if w.secondary_scaling_stat != "":
-				_add_stat_line("Secondary Scaling: %s" % w.secondary_scaling_stat.capitalize())
+		if w.honed:
+			_add_stat_line("Honed: +%d%% base damage" % roundi((Weapon.HONED_DAMAGE_MULTIPLIER - 1.0) * 100.0))
 		_add_stat_line("Item Level: %d" % w.item_level)
 		for line in _requirement_lines(w):
 			_add_stat_line(line)

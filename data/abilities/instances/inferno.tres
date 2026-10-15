@@ -9,7 +9,6 @@ display_name = "Inferno"
 description = "A column of raging fire erupts from the ground beneath the target area, engulfing everything caught inside."
 damage_type = 3
 motion_value = 1.8
-scaling_grade = 1
 cooldown_seconds = 0.0
 cast_type = 1
 base_cast_time = 1.0

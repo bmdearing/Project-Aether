@@ -191,18 +191,6 @@ const DAMAGE_TYPE_MAIN_STAT := {
 	DamageType.PALE: Stat.INTELLECT,
 }
 
-enum ScalingGrade { S, A, B, C, D, E }
-
-# Spell quality multiplier ranges (min, max); weapons ignore grade. B is
-# roughly neutral.
-const GRADE_MULTIPLIER_RANGES := {
-	ScalingGrade.S: Vector2(1.4, 1.8),
-	ScalingGrade.A: Vector2(1.1, 1.4),
-	ScalingGrade.B: Vector2(0.85, 1.1),
-	ScalingGrade.C: Vector2(0.65, 0.85),
-	ScalingGrade.D: Vector2(0.45, 0.65),
-	ScalingGrade.E: Vector2(0.25, 0.45),
-}
 
 # Chain Bonus System - Section 10. Tuple: (tile_range_start, tile_range_end, bonus_per_tile)
 const CHAIN_BONUS_TIERS := [
@@ -390,16 +378,6 @@ const CAST_SPEED_TIERS := [
 	{"min": 6.0,  "max": 9.0,  "item_level": 24},  # T4
 	{"min": 2.0,  "max": 5.0,  "item_level": 8},   # T5
 ]
-
-static func grade_to_letter(grade: int) -> String:
-	match grade:
-		0: return "S"
-		1: return "A"
-		2: return "B"
-		3: return "C"
-		4: return "D"
-		5: return "E"
-	return "?"
 
 ## Dark or light text, whichever reads over bg.
 static func get_contrasting_text_color(bg: Color) -> Color:

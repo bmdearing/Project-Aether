@@ -9,7 +9,6 @@ display_name = "Intimidating Shout"
 description = "A bellow that breaks nerve. Nearby enemies take increased damage for a while."
 damage_type = 0
 motion_value = 0.0
-scaling_grade = 5
 cooldown_seconds = 9.0
 resource_cost = 15.0
 is_auto_cast_eligible = false

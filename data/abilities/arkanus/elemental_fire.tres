@@ -8,7 +8,6 @@ ability_id = "elemental_fire"
 display_name = "Elemental Fire"
 description = "Seven fireballs fan out where you look. A fireball that hits an Entangled enemy explodes, and enemies in the blast suffer Forbidden Flame."
 damage_type = 3
-scaling_grade = 4
 resource_cost = 2.0
 fixed_mana_cost = 2.0
 level = 20

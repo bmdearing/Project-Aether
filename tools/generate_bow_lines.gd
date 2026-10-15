@@ -66,10 +66,6 @@ func _write_tier(line: Dictionary, tier_index: int) -> void:
 
 	w.weapon_type = line["weapon_type"]
 	w.base_damage = (float(range_pair[0]) + float(range_pair[1])) / 2.0
-	var grades: Array = line["grades"]
-	w.scaling_grade = grades[0][1] as int
-	w.primary_scaling_stat = grades[0][0]
-	w.secondary_scaling_stat = (grades[1][0] as String) if grades.size() > 1 else ""
 	w.native_damage_type = DT_PIERCING
 	w.is_two_handed = true
 	w.is_ranged = true

@@ -9,7 +9,6 @@ display_name = "Winter's Eye"
 description = "A slow-moving orb of frozen energy launched toward a target area. Continuously fires a spiral of icicles at nearby enemies as it travels, then detonates at the end of its duration."
 damage_type = 4
 motion_value = 1.0
-scaling_grade = 3
 cooldown_seconds = 0.0
 resource_cost = 18.0
 can_trigger_riposte = false

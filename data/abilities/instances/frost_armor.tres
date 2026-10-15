@@ -9,7 +9,6 @@ display_name = "Frost Armor"
 description = "A layer of frozen energy coats the Freeblood. Enemies that strike in melee range trigger a burst of retaliatory Cold damage."
 damage_type = 4
 motion_value = 0.6
-scaling_grade = 3
 cooldown_seconds = 0.0
 resource_cost = 22.0
 can_trigger_riposte = false

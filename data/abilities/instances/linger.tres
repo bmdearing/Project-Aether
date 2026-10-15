@@ -9,7 +9,6 @@ display_name = "Linger"
 description = "A pale blight that boggles the target's mind while it eats away at them. If they die before it fades, it moves on to the two nearest enemies."
 damage_type = 8
 motion_value = 0.0
-scaling_grade = 5
 resource_cost = 20.0
 is_auto_cast_eligible = false
 radius = 10.0

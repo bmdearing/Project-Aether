@@ -9,7 +9,6 @@ display_name = "Wraith"
 description = "Pour all of your Ward into a wraith that hunts at your side. The more Ward it drinks, the harder it strikes. You cannot recover Ward while it walks the world."
 damage_type = 6
 motion_value = 1.0
-scaling_grade = 4
 cooldown_seconds = 6.0
 resource_cost = 12.0
 can_trigger_riposte = false

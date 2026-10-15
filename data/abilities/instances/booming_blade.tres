@@ -9,7 +9,6 @@ display_name = "Booming Blade"
 description = "Thunder gathers in your blade. Once cast it stays on: every melee attack sends lightning racing along the ground in a straight line. Cast again to let it fade."
 damage_type = 5
 motion_value = 0.4
-scaling_grade = 4
 cooldown_seconds = 0.0
 resource_cost = 20.0
 can_trigger_riposte = false

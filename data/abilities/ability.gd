@@ -1,14 +1,13 @@
 extends Resource
 class_name Ability
 ## A spell. Damage comes from its per-level base damage
-## (base_damage_min/max); tags decide which gear modifiers apply. motion_value and scaling_grade are legacy data only.
+## (base_damage_min/max); tags decide which gear modifiers apply. motion_value is legacy data only.
 
 @export var ability_id: String
 @export var display_name: String
 @export var description: String                 # player-facing flavor text only - no tips/cross-refs per style rules
 @export var damage_type: Constants.DamageType
 @export var motion_value: float = 1.0
-@export var scaling_grade: Constants.ScalingGrade = Constants.ScalingGrade.C
 @export var cooldown_seconds: float = 0.0
 @export var resource_cost: float = 0.0
 @export var can_trigger_riposte: bool = false    # high-MV committed attacks only
@@ -265,7 +264,7 @@ func _base_hit(base_damage: float, stat_sheet: StatSheet) -> Dictionary:
 	base_damage *= 1.0 + stat_sheet.get_spell_power_from_stats()
 	var more: Array[float] = [1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE, extra_more, stat_sheet.outgoing_more_multiplier(damage_type), 1.0 + web_value(SkillWeb.MORE_DAMAGE) / 100.0, web_twist_more()]
 	var result: DamageCalculator.DamageResult = DamageCalculator.calculate(
-		base_damage, 1.0, 0.0, scaling_grade, 0.5, _increased_percents(stat_sheet), more, damage_type
+		base_damage, 1.0, _increased_percents(stat_sheet), more, damage_type
 	)
 	return {
 		"base_damage": result.final_damage,

@@ -64,7 +64,6 @@ signal affix_upgraded(item: Item, affix: ItemAffix)
 signal corruption_applied(item: Item, outcome_name: String, tier: int)
 signal item_transcended(item: Item)
 signal item_unmade(item: Item)
-signal grade_ascended(item: Item, stat: String, new_grade: int)
 
 ## CastTimeHandler.
 signal cast_started(ability: Ability, cast_time: float)

@@ -19,7 +19,7 @@ This file describes the project as it stands today.
 section: skills come exclusively from loot-dropped Skill Tomes socketed into
 weapon slots, not an allocatable node web). Check these before inventing
 numbers or resolving a flagged gap — most of the scaffold's constants
-(scaling grade ranges, chain bonus tiers, damage type/category mapping,
+(chain bonus tiers, damage type/category mapping,
 Trinity Rule archetypes) were pulled from this source and match it exactly.
 
 ## What's implemented
@@ -236,8 +236,8 @@ Instinct/status-effect speed modifiers already do.
 
 **Combat formula** (`systems/combat/DamageCalculator.gd`, v4.8):
 - **Weapons:** `base x (1 + Str%) x Motion Value x (1 + sum Increased%)
-  x product(More)`. `scaling_grade` has no effect on weapon damage; it's
-  shown in Alt info and can be degraded by the Shard of Tharsis.
+  x product(More)`. Scaling grades were removed in v5.2.7; nothing scales
+  a weapon or spell except attributes and modifiers.
 - **Spells (v4.14):** `the spell's own base damage at its level x
   (1 + sum Increased%) x product(More)`. Each spell has a unique level-1
   range (`Ability.base_damage_min/max`) that grows 7% per level (compounding),
@@ -578,9 +578,8 @@ every spell regardless of element - a spell's card is now recognizable
 both as "a spell" AND as "which element" on sight.
 
 Holding **Alt** while a card is showing swaps its content to **Alt
-Info** in place (Patch v3.8, `ItemCard.gd`'s own `_input()`) - Scaling
-Grade, Primary/Secondary Scaling, Item Level, and stat requirement for a
-weapon; Scaling Grade and Motion Value for an ability. Release Alt and it
+Info** in place (Patch v3.8, `ItemCard.gd`'s own `_input()`) - Honed,
+Item Level, and stat requirement for a weapon. Release Alt and it
 swaps back to the normal card, same native tooltip window the whole time
 - no second popup, no click-to-pin, no clickable glossary links or full
 tier ranges anymore. Replaces the previous `AdvancedTooltip.gd` autoload
@@ -1064,9 +1063,8 @@ one of 4 severity tiers (Minor 55% / Significant 30% / Major 12% /
 Extreme 3%), then one of that tier's named outcomes (22 total — socket/
 implicit/tier changes at Minor, special affixes and defensive auras at
 Significant, item-defining outcomes like Hollow/Inversion/Veiltouch/
-**Ascendant** (Patch v3.6b - upgrades a Weapon's `scaling_grade` one step,
-e.g. B→A; near-misses, logged not erroring, on an already-S weapon or any
-non-Weapon item) at Major, run-defining ones like Transcendent/Unmade at
+**Honed** (v5.2.7, replaced Ascendant: a Weapon's base damage x1.2,
+`Weapon.honed`) at Major, run-defining ones like Transcendent/Unmade at
 Extreme). Replaces the previous flat 8-outcome weighted list. **Veiltouch**
 (Major) is the
 one real gear/Slate crossover in this project — pulls a random Slate

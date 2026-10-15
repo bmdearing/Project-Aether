@@ -204,8 +204,8 @@ func _test_corruption_page() -> void:
 			total += o["chance"]
 			_check(o["text"] != "", "%s is described" % o["name"])
 	_check(is_equal_approx(total, 1.0), "outcome chances add up to 100%")
-	var ascendant: Dictionary = tiers[2]["outcomes"].filter(func(o): return o["name"] == "Ascendant")[0]
-	_check(ascendant["slots"][0] and not ascendant["slots"].slice(1).any(func(s): return s), "Ascendant only lights the weapon slot")
+	var honed: Dictionary = tiers[2]["outcomes"].filter(func(o): return o["name"] == "Honed")[0]
+	_check(honed["slots"][0] and not honed["slots"].slice(1).any(func(s): return s), "Honed only lights the weapon slot")
 	var page := CorruptionWiki.new()
 	add_child(page)
 	await _frames(1)

@@ -9,7 +9,6 @@ display_name = "Battle Cry"
 description = "A roar that steels the arm. You deal more damage for a short while."
 damage_type = 0
 motion_value = 0.0
-scaling_grade = 5
 cooldown_seconds = 8.0
 resource_cost = 15.0
 is_auto_cast_eligible = false

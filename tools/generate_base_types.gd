@@ -264,7 +264,6 @@ func _emit_weapon(type_name: String, headers: Array[String], row: Array[String],
 	w.max_sockets = clampi(2 + tier_num / 2, 2, 6)
 	w.flavor_text = flavor
 	w.weapon_type = type_name
-	w.scaling_grade = 4
 	w.native_damage_type = meta["dt"]
 	w.infused_damage_type = -1
 	w.is_two_handed = meta["two_handed"]

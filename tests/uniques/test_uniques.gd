@@ -108,8 +108,6 @@ func _test_catalog() -> void:
 		_check(values_ok, "%s: values roll inside their ranges" % def["id"])
 	var solen := _unique("unmaking_of_solen_vrath") as Weapon
 	_check(solen != null and solen.native_damage_type == Constants.DamageType.AETHERIC and solen.is_two_handed, "Solen Vrath is a two-handed Aetheric weapon")
-	var base := UniqueRoller.base_for("claymore", 80) as Weapon
-	_check(solen != null and base != null and solen.scaling_grade == maxi(base.scaling_grade - 1, 0), "the Mythic carries the Grade Equivalent Bonus")
 	_check(UniqueRoller.base_for("claymore", 1).item_level <= UniqueRoller.base_for("claymore", 90).item_level, "higher drops sit on better bases")
 	_finished += 1
 

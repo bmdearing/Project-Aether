@@ -9,7 +9,6 @@ display_name = "Blink"
 description = "Teleport a short distance in the direction you're facing. No attack component."
 damage_type = 0
 motion_value = 0.0
-scaling_grade = 5
 cooldown_seconds = 3.0
 resource_cost = 15.0
 can_trigger_riposte = false

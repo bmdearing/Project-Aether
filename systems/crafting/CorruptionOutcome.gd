@@ -149,16 +149,11 @@ class TemperedLimit extends CorruptionOutcome:
 		if item is Weapon or item is Armor:
 			item.quality_cap_bonus += Constants.CORRUPT_QUALITY_CAP_BONUS
 
-class Ascendant extends CorruptionOutcome:
-	## Raises a Weapon's scaling_grade one step (S grade is the top).
+## Honed: the weapon's base damage rises by 20% (Weapon.HONED_DAMAGE_MULTIPLIER).
+class Honed extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
-		if not (item is Weapon):
-			return
-		var weapon := item as Weapon
-		if weapon.scaling_grade <= 0:
-			return
-		weapon.scaling_grade -= 1
-		EventBus.grade_ascended.emit(weapon, weapon.primary_scaling_stat, weapon.scaling_grade)
+		if item is Weapon:
+			(item as Weapon).honed = true
 
 class Overcharged extends CorruptionOutcome:
 	## Force all values to the top 20% of their tier range, delete one
