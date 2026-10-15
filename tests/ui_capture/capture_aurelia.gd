@@ -13,11 +13,16 @@ func _run() -> void:
 	var view: String = args[2] if args.size() > 2 else "overview"
 	var delay: float = float(args[3]) if args.size() > 3 else 0.6
 	GameState.reset_to_defaults()
+	GameState.debug_overlay_enabled = false
 	GameState.game_started = false
 	GameState.pending_pinnacle = "aurelia"
 	var arena: PinnacleArena = (load("res://levels/pinnacle_boss/PinnacleArena.tscn") as PackedScene).instantiate()
 	add_child(arena)
 	await get_tree().create_timer(1.0).timeout
+	# CAPTURE_WEAPON=res://... puts that weapon in the player's hands (keeps a greatsword off the centre of the shot).
+	var held := OS.get_environment("CAPTURE_WEAPON")
+	if held != "":
+		(get_tree().get_first_node_in_group("player") as Player).equipment.equip(load(held) as Item, true)
 	var boss := arena.boss as Aurelia
 	var wheel := arena.aurelia
 	var player := get_tree().get_first_node_in_group("player") as Player

@@ -15,6 +15,7 @@ func _run() -> void:
 	var style: String = args[1] if args.size() > 1 else "dungeon_cellblock"
 	var view: String = args[2] if args.size() > 2 else "top"
 	GameState.reset_to_defaults()
+	GameState.debug_overlay_enabled = false
 	var figment := FigmentRoller.roll(1)
 	figment.tileset_id = style
 	GameState.active_map = figment
@@ -24,6 +25,10 @@ func _run() -> void:
 	var map: GeneratedMap = load("res://levels/generated_map/GeneratedMap.tscn").instantiate()
 	get_tree().root.add_child(map)
 	await get_tree().create_timer(1.5).timeout
+	# CAPTURE_WEAPON=res://... puts that weapon in the player's hands (keeps a greatsword off the centre of the shot).
+	var held := OS.get_environment("CAPTURE_WEAPON")
+	if held != "":
+		(get_tree().get_first_node_in_group("player") as Player).equipment.equip(load(held) as Item, true)
 	if view != "rarity":
 		for node in get_tree().root.find_children("*", "CanvasLayer", true, false):
 			(node as CanvasLayer).visible = false
@@ -51,6 +56,7 @@ func _run() -> void:
 			cam.look_at(map.boss_portal_point, Vector3.UP)
 		"rarity":
 			var player := get_tree().get_first_node_in_group("player") as Player
+			player._iframes_remaining = 999.0  # the packs can't kill the player before the shot
 			var existing := get_tree().get_nodes_in_group("enemy")
 			var fwd := -player.global_transform.basis.z
 			var champs: Array[String] = ["unchartered_brigand", "unchartered_brigand", "unchartered_cutthroat"]

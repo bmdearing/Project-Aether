@@ -20,18 +20,28 @@ Grab the latest build from the [Releases page](https://github.com/bmdearing/Proj
 |---|---|---|
 | Windows 64-bit | `ProjectAether-<version>-windows.zip` | Unzip, run `ProjectAether.exe` |
 | Linux 64-bit | `ProjectAether-<version>-linux.tar.gz` | `tar -xzf` it, run `./ProjectAether.x86_64` |
+| macOS (Intel, and Apple Silicon) | `ProjectAether-<version>-macos.zip` | Unzip, right-click `Project Aether.app` > Open (the app is not notarized) |
 
-Each build is a single self-contained executable (about 530 MB to download).
+Each build is self-contained, with all assets inside.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![An Ascendant pack in a dungeon Figment](docs/rarity.jpg) | ![Aurelia, the final boss, casting Fire Wall](docs/aurelia.jpg) |
+| ![A Steampunk City street](docs/city.jpg) | ![A forest river valley full of monsters](docs/forest.jpg) |
+| ![The inventory and character sheet](docs/inventory.jpg) | |
 
 ## Features
 
 - **Hub and Figments:** procedurally generated maps (dungeons, open fields, canyons and city streets in Dungeon, Desert, Snow, Forest and Steampunk City styles, each with its own layout), Vault rooms, portals home, and pinnacle bosses.
 - **Endgame mapping:** Figment tiers 1-21 in Low, Mid and High bands, three pools of monster and boss modifiers that pay back in Pack Size, Item Quantity and Item Rarity, and a Figment Tree, earned by first clears, that steers which areas, factions, monsters and rewards your Figments roll.
-- **Weighty first-person combat:** light, heavy and charged attacks; parry, riposte and counter hits; hit-stop; and weapon stances for every weapon family.
+- **Weighty first-person combat:** a three-hit melee combo with light, heavy and charged attacks; parry, riposte, counter hits and visceral finishers on staggered enemies; dash-cancels and quicksteps with i-frames; hit-stop and blood; and weapon stances for every weapon family.
 - **Every weapon feels different:** each weapon family has its own attack, recoil, reload and bow-draw animations, and casters get channelled stances.
 - **Ranged weapons:** magazines, reloading, fire modes and spread for pistols, rifles, shotguns, bows and crossbows.
+- **Verticality and secrets:** catch ledges and mantle up, climb raised rooms and staircases, and find hidden rooms behind cracked walls and in rock outcrops, some guarded by the Watcher and its bargains.
 - **Defense:** passive shield block, or an active raised-shield guard that spends Composure.
-- **Loot and builds:** rolled gear with affixes, a grid inventory and stash, crafting with orbs and stones, the Fate Board of Slates, and spells levelled with Crystallized Aether.
+- **Loot and builds:** rolled gear with tiered modifiers, Uniques and Mythics, jewels and sockets, a grid inventory and stash, vendor shops and a Currency Exchange, crafting with Orbs, Brands, Edicts and the Shard of Tharsis, the Fate Board of Slates and Lenses, and spells with their own skill webs.
 
 ## Controls
 
@@ -44,6 +54,7 @@ Each build is a single self-contained executable (about 530 MB to download).
 | Parry | F |
 | Spells (hold and release to aim targeted spells) | 1-4 |
 | Reload | R |
+| Gun bash (with a ranged weapon out) | V |
 | Swap weapon set (tap) / stance page (hold) | X |
 | Interact | E |
 | Portal to the Hub | T |
@@ -61,11 +72,12 @@ Every key can be rebound in Settings > Controls.
 2. Clone this repository and open `project.godot` in Godot.
 3. Press F5 to run. The main menu is `ui/main_menu/MainMenu.tscn`.
 
-To export, install the 4.7.1 export templates (Editor > Manage Export Templates), add Windows Desktop and Linux presets, then run:
+To export, install the 4.7.1 export templates (Editor > Manage Export Templates), add Windows Desktop, Linux and macOS presets, then run:
 
 ```
 godot --headless --export-release "Windows Desktop" builds/windows/ProjectAether.exe
 godot --headless --export-release "Linux" builds/linux/ProjectAether.x86_64
+godot --headless --export-release "macOS" builds/macos/ProjectAether-macos.zip
 ```
 
 ## Project layout

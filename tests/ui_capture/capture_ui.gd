@@ -11,12 +11,17 @@ func _run() -> void:
 	var out: String = args[0] if args.size() > 0 else "user://ui.png"
 	var mode: String = args[1] if args.size() > 1 else "hud"
 	GameState.reset_to_defaults()
+	GameState.debug_overlay_enabled = false
 	GameState.gold = 12480
 	var hub: Node = load("res://levels/hub/Hub.tscn").instantiate()
 	get_tree().root.add_child(hub)
 	await get_tree().create_timer(1.0).timeout
 	var player := get_tree().get_first_node_in_group("player") as Player
 	_dress_player(player)
+	# CAPTURE_WEAPON=res://... puts that weapon in the player's hands (keeps a greatsword off the centre of the shot).
+	var held := OS.get_environment("CAPTURE_WEAPON")
+	if held != "":
+		(get_tree().get_first_node_in_group("player") as Player).equipment.equip(load(held) as Item, true)
 	await get_tree().create_timer(0.5).timeout
 	match mode:
 		"inventory":
