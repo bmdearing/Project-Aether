@@ -381,9 +381,9 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 	var spread := weapon.pellet_spread_degrees * (AIMED_SPREAD_MULTIPLIER if aimed else 1.0)
 	if st:
 		motion_value *= st.damage_multiplier * get_aim_multiplier()
+		spread = spread * st.spread_multiplier + st.spread_add_degrees
 	if _perfect_shots > 0:
 		motion_value *= ACTIVE_RELOAD_PERFECT_DAMAGE
-		spread = spread * st.spread_multiplier + st.spread_add_degrees
 	_aim_time = 0.0
 	var socket_transform: Transform3D = _player.weapon_socket.global_transform
 	# Hitscan shots aim straight down the crosshair; the tracer still leaves the muzzle.

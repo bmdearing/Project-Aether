@@ -183,6 +183,9 @@ func _test_revolver() -> void:
 	_player.ranged_attack.try_manual_reload()
 	_check(not _player.ranged_attack.is_reloading() and w.get_current_magazine() == w.magazine_size, "R in the zone reloads at once")
 	_check(_player.ranged_attack.get_perfect_shots() == w.magazine_size, "the start of the zone is a Perfect")
+	await _tap(0.05)
+	_check(w.get_current_magazine() == w.magazine_size - 1, "it fires after an Active Reload (%d left)" % w.get_current_magazine())
+	_check(_player.ranged_attack.get_perfect_shots() == w.magazine_size - 1, "the empowered shot fires all the way through (%d Perfect shots left)" % _player.ranged_attack.get_perfect_shots())
 	w.current_magazine = 0
 	_player.ranged_attack._start_reload(w)
 	_player.ranged_attack._reload_timer = _player.ranged_attack._active_reload["total"] * 0.95

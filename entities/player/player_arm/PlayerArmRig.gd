@@ -355,6 +355,7 @@ func _ready() -> void:
 	EventBus.hit_landed.connect(_on_hit_landed)
 	EventBus.reload_started.connect(_on_reload_started)
 	EventBus.reload_interrupted.connect(_on_reload_stopped)
+	EventBus.reload_finished.connect(_on_reload_stopped)  # Active Reload can end it early
 	EventBus.ability_cast.connect(_on_ability_cast)
 
 func _node(n: String, parent: Node3D) -> Node3D:

@@ -619,9 +619,8 @@ func hold_for_visceral(seconds: float) -> void:
 	status_effects.apply_timed_effect("stun", seconds)
 
 const TELL_COLOR := Color(1.0, 0.85, 0.55)
-const TELL_SOUND := preload("res://assets/sfx/combat/blade_scrape_02.ogg")
 
-## The glint just before a blow lands: the moment to dodge or parry.
+## The glint just before a blow lands: the moment to dodge or parry (silent).
 func show_attack_tell() -> void:
 	if not is_inside_tree() or not is_instance_valid(_player):
 		return
@@ -630,7 +629,6 @@ func show_attack_tell() -> void:
 	var at := global_position + Vector3.UP * body_height * 0.8 + to.normalized() * body_radius
 	SpellFx.flash(get_parent(), at, TELL_COLOR, 1.1, 0.18)
 	SpellFx.light_pop(get_parent(), at, TELL_COLOR, 2.0, 3.0, 0.2)
-	AudioManager.play_at(TELL_SOUND, at, -10.0, 1.4)
 
 ## Constructs throw sparks and grit when hit instead of blood (BloodFx).
 const BLOODLESS := ["golem", "element_orb", "sand_globe"]
