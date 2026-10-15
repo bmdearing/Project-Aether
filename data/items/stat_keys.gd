@@ -135,8 +135,6 @@ const ALIASES := {
 	"entropic_decaying": "damage_vs_unraveling",
 	"aetheric_eroding": "damage_vs_aetherburn",
 	"generic_relentless": "damage_vs_low_life",
-	"generic_opportunist": "damage_vs_full_life",
-	"excl_of_the_hunt": "damage_vs_full_life",
 	"increased_damage_while_moving": "damage_while_moving",
 	"increased_damage_outside_melee_range": "damage_at_range",
 	"increased_physical_damage_reach": "damage_at_range",

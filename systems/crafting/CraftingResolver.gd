@@ -116,7 +116,7 @@ func preview(item: Resource, orb_id: StringName, active_brands: ActiveBrands = n
 		OrbKind.OTHER:
 			match orb_id:
 				&"anchoring":
-					var options := _anchorable(t, explicits, ctx)
+					var options := _anchorable(explicits)
 					for affix in options:
 						p.affected.append({"affix": affix, "effect": &"anchor", "probability": 1.0 / options.size()})
 				&"reckoning":
@@ -242,7 +242,7 @@ func _check(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: EdictDef
 				return E.TOO_FEW_MODIFIERS
 			if explicits.filter(func(a: ItemAffix): return a.anchored).size() >= Constants.MAX_ANCHORED_MODIFIERS:
 				return E.ALREADY_ANCHORED
-			if _anchorable(t, explicits, ctx).is_empty():
+			if _anchorable(explicits).is_empty():
 				return E.NO_VALID_OUTCOME
 		&"tempering":
 			if t.is_slate or not t.can_temper():
@@ -313,7 +313,7 @@ func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: Edict
 		OrbKind.OTHER:
 			match orb_id:
 				&"anchoring":
-					var options := _anchorable(t, explicits, ctx)
+					var options := _anchorable(explicits)
 					var chosen: ItemAffix = options[rng.randi_range(0, options.size() - 1)]
 					var copy := chosen.duplicate() as ItemAffix
 					copy.anchored = true
@@ -343,7 +343,8 @@ func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: Edict
 
 ## Which active Brands apply to this Orb, what they restrict, and which of
 ## them the craft consumes. Category and positional Brands narrow both what
-## an Orb adds and which existing modifier it removes, replaces or anchors.
+## an Orb adds and which existing modifier it removes or replaces; never what
+## Anchoring anchors (Brands neither steer nor are spent on it).
 ## The Edict this craft obeys: one already on the item (placed before Edicts
 ## were switched on like Brands), else the active one, for the Orbs it can
 ## constrain (adding, recasting, removing, Reckoning).
@@ -368,7 +369,7 @@ func _resolve_brands(orb_id: StringName, active: ActiveBrands, active_edict: Edi
 	var has_suffix := false
 	var preservation: BrandDef = null
 	var kind := _kind(orb_id)
-	if active != null and (kind != OrbKind.OTHER or orb_id == &"anchoring"):
+	if active != null and kind != OrbKind.OTHER:
 		for id in active.get_ids():
 			var def: BrandDef = brand_defs.get(id)
 			if def == null:
@@ -495,10 +496,10 @@ func _removable(t: CraftTarget, explicits: Array[ItemAffix], ctx: Dictionary, ed
 			result.append(a)
 	return result
 
-func _anchorable(t: CraftTarget, explicits: Array[ItemAffix], ctx: Dictionary) -> Array[ItemAffix]:
+func _anchorable(explicits: Array[ItemAffix]) -> Array[ItemAffix]:
 	var result: Array[ItemAffix] = []
 	for a in explicits:
-		if not a.anchored and _matches_brands(t, a, ctx):
+		if not a.anchored:
 			result.append(a)
 	return result
 

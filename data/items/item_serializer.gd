@@ -169,6 +169,8 @@ static func from_dict(d: Dictionary) -> Item:
 		# Sands of Time's old text-only Time Stop line: the stance is real now.
 		if a.get("stat_key", "") == "unique_time_stop":
 			continue
+		if ItemRoller.REMOVED_WEAPON_AFFIXES.has(a.get("affix_id", "")):
+			continue
 		affixes.append(affix_from_dict(a))
 	item.affixes = affixes
 	if int(d.get("tier_ladder", 1)) < ItemRoller.TIER_LADDER_VERSION:

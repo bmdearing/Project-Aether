@@ -7,7 +7,6 @@ class_name CorruptionWiki
 const WIDTH := 980.0
 const LIST_HEIGHT := 560.0
 const CORRUPT_COLOR := Color(0.72, 0.38, 0.92)
-const TIER_NAMES := {1: "Minor", 2: "Significant", 3: "Major", 4: "Extreme"}
 const DIM_ALPHA := 0.18
 const ICON_SIZE := 28.0
 
@@ -35,7 +34,7 @@ func _ready() -> void:
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	scroll.add_child(list)
 	for tier in WikiCatalog.corruption_tiers():
-		list.add_child(ModifierWiki._text("%s  ·  %s" % [TIER_NAMES.get(tier["tier"], "?"), ModifierWiki._percent(tier["chance"])], 18, CORRUPT_COLOR))
+		list.add_child(ModifierWiki._text("%s  ·  %s" % [CorruptionSystem.TIER_NAMES.get(tier["tier"], "?"), ModifierWiki._percent(tier["chance"])], 18, CORRUPT_COLOR))
 		for outcome in tier["outcomes"]:
 			shown[outcome["name"]] = outcome["slots"]
 			list.add_child(_outcome_row(outcome))

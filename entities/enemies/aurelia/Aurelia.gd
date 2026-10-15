@@ -74,6 +74,8 @@ const THRUST_WIDTH := 2.0
 
 const EARTH_WHEEL_COUNTS: Array[int] = [7, 14]
 const FINAL_EARTH_WHEEL_COUNTS: Array[int] = [14, 21]
+## What she calls out for each Earth Wheel length, the hint at how long it turns.
+const EARTH_WHEEL_CALLOUTS := {7: "The ground quakes...", 14: "When mountains fall...", 21: "Feel Earth's wrath!"}
 const GOLEM_COUNT := 2
 const GOLEM_SCENE := "res://entities/enemies/aurelia/FireGolem.tscn"
 const GOLEM_RING := 13.0
@@ -516,7 +518,7 @@ func _earth_wheel(count: int) -> void:
 	SpellFx.flash(get_parent(), get_cast_origin(), Color(0.95, 0.75, 0.45), 3.0, 0.25)
 	SpellFx.shockwave(get_parent(), centre, AureliaArena.HUB_RADIUS * 2.0, Color(0.95, 0.7, 0.4), 0.5)
 	AureliaSfx.play("quake_wave", centre, 2.0, 0.9)
-	a.announce("Earth Wheel", Color(1.0, 0.8, 0.5), 1.6, 40)
+	a.announce(EARTH_WHEEL_CALLOUTS.get(count, "Earth Wheel"), Color(1.0, 0.8, 0.5), 1.6, 40)
 	var p := _target_player()
 	var angle := 0.0
 	if p:

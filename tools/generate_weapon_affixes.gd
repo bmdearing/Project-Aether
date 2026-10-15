@@ -145,7 +145,6 @@ const SECTIONS := [
 		["generic_savage", "Savage", "%d%% increased damage (generic - does not travel through conversion chains)", true, 34.0, 38.0, 80, []],
 		["generic_deadly", "Deadly", "%d%% increased Critical Strike damage", true, 38.0, 44.0, 78, []],
 		["generic_fluid", "Fluid", "%d%% increased Attack Speed", true, 14.0, 16.0, 74, []],
-		["generic_opportunist", "Opportunist", "%d%% increased damage vs full-health enemies (first hit only per enemy)", true, 44.0, 52.0, 70, []],
 		["generic_relentless", "Relentless", "%d%% increased damage vs enemies below 35%% health", true, 34.0, 40.0, 72, []],
 		["generic_of_strength", "of Strength", "+%d Strength", false, 24.0, 30.0, 1, []],
 		["generic_of_agility", "of Agility", "+%d Agility", false, 24.0, 30.0, 1, []],
@@ -167,7 +166,6 @@ const SECTIONS := [
 		["excl_of_the_weave", "of the Weave", "%d%% reduced Mana cost of spells (Conduit only)", false, 16.0, 20.0, 70, CONDUIT_TYPES],
 		["excl_resonant", "Resonant", "+%d%% Cooldown Recovery Rate (Conduit only)", true, 18.0, 22.0, 72, CONDUIT_TYPES],
 		["excl_marksmans", "Marksman's", "%d%% increased Critical Strike damage (ranged only)", true, 54.0, 64.0, 74, RANGED_TYPES],
-		["excl_of_the_hunt", "of the Hunt", "%d%% increased damage vs full-health enemies (ranged only)", false, 54.0, 64.0, 70, RANGED_TYPES],
 	]},
 ]
 

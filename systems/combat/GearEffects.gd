@@ -1,7 +1,7 @@
 extends Node
 class_name GearEffects
 ## Gear modifiers that react to a hit or a kill rather than adding to a
-## total: "increased damage vs Chilled / full Life / ... enemies", "while
+## total: "increased damage vs Chilled / low Life / ... enemies", "while
 ## moving", "at range", vs Staggered / unaware enemies, after a melee hit;
 ## Stagger and explosion procs; Life/Ward/Mana gained on hit, kill or ailment.
 ## Lives on the Player and reads its StatSheet (StatKeys canonical keys).
@@ -72,8 +72,6 @@ func conditional_percent(enemy: Enemy, amount: float) -> float:
 	var max_life := maxf(enemy.health.max_health, 1.0)
 	if life > 0.0 and life / max_life < LOW_LIFE:
 		total += _bonus("damage_vs_low_life")
-	if life + amount >= max_life * 0.999:
-		total += _bonus("damage_vs_full_life")
 	if Vector2(_player.velocity.x, _player.velocity.z).length() > UniqueEffects.MOVING_SPEED:
 		total += _bonus("damage_while_moving")
 	if _player.global_position.distance_to(enemy.global_position) > RANGED_DISTANCE:

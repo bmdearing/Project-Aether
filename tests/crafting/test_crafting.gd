@@ -306,11 +306,18 @@ func _test_removal_brands() -> void:
 	_check(r.error == E.NOTHING_TO_REMOVE and _bag.count_of(&"brand_ward") == ward_before and _bag.count_of(&"severance") == orb_before, "unmatched brand blocks severance at no cost")
 	_check(_resolver.preview(g, &"severance", active).error == E.NOTHING_TO_REMOVE, "preview agrees")
 
-	# Anchoring with a Brand anchors a matching modifier.
+	# Brands neither steer nor are spent on Anchoring.
+	var off_brand := 0
+	var brand_kept := true
 	for i in 10:
 		g = _branded_rare()
-		r = _resolver.apply(g, &"anchoring", _brands(["brand_cold"]))
-		_check(r.success and r.anchored.def.tags.has(&"cold"), "cold brand anchors the cold modifier")
+		var cold_brands := _brands(["brand_cold"])
+		var cold_before := _bag.count_of(&"brand_cold")
+		r = _resolver.apply(g, &"anchoring", cold_brands)
+		brand_kept = brand_kept and _bag.count_of(&"brand_cold") == cold_before
+		if r.success and not r.anchored.def.tags.has(&"cold"):
+			off_brand += 1
+	_check(off_brand > 0 and brand_kept, "anchoring ignores the cold brand and keeps it")
 
 	# Preview marks exactly what can be touched.
 	g = _branded_rare()

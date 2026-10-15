@@ -1,8 +1,9 @@
 extends RefCounted
 class_name CorruptionOutcome
-## Shard of Tharsis corruption outcomes, grouped Minor/Significant/Major/
-## Extreme. Affix rolls use the real gear pool; implicits come from
-## ImplicitPool, corrupted-strength modifiers from SpecialCorruptionPool.
+## Shard of Tharsis corruption outcomes (CorruptionSystem picks them). Affix
+## rolls use the real gear pool; implicits come from ImplicitPool,
+## corrupted-strength modifiers from SpecialCorruptionPool. An implicit a
+## Shard gives replaces the item's implicits (no cap, no stacking).
 
 var success: bool = true
 var reason: String = ""
@@ -17,21 +18,95 @@ func _init(p_success: bool = true, p_reason: String = "") -> void:
 func apply(_item: Item, _power_level: int) -> void:
 	pass  # Overridden per outcome below.
 
-## ---- Tier 1: Minor ---------------------------------------------------
+## The item's implicits become just `implicit`.
+static func set_implicit(item: Item, implicit: ItemAffix) -> void:
+	implicit.is_implicit = true
+	var kept: Array[ItemAffix] = []
+	for a in item.affixes:
+		if not a.is_implicit:
+			kept.append(a)
+	kept.append(implicit)
+	item.affixes = kept
+
+static func _named_implicit(id: String, display_name: String, stat_key: String, value: float, text: String) -> ItemAffix:
+	var implicit := ItemAffix.new()
+	implicit.affix_id = id
+	implicit.display_name = display_name
+	implicit.stat_key = stat_key
+	implicit.value = value
+	implicit.description = text
+	implicit.is_implicit = true
+	return implicit
+
+## ---- Bricks ----------------------------------------------------------------
+
+class Unmade extends CorruptionOutcome:
+	## Strip everything into a max-item-level base (91, the catalog ceiling).
+	func apply(item: Item, _power_level: int) -> void:
+		item.affixes.clear()
+		item.rarity = Constants.ItemRarity.COMMON
+		item.item_level = min(item.item_level + 10, 91)
+		item.quality = 0
+		item.max_sockets = 0
+		EventBus.item_unmade.emit(item)
+
+class Hollow extends CorruptionOutcome:
+	## Strip all explicits, add a devastating implicit.
+	func apply(item: Item, _power_level: int) -> void:
+		item.affixes = item.affixes.filter(func(a: ItemAffix): return a.is_implicit)
+		var hollow := CorruptionOutcome._named_implicit("corruption_hollow", "Hollowed", "hollow_damage_ward_drain", 25.0,
+			"25% increased damage; your hits drain Ward equal to 10% of the damage dealt")
+		hollow.value_min = 10.0  # 10% ward drain
+		CorruptionOutcome.set_implicit(item, hollow)
+
+## ---- Implicits ---------------------------------------------------------------
 
 class AddImplicit extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
-		if item.get_implicit_count() >= 3:
-			return
 		var implicit := ImplicitPool.get_random_for(item)
 		if implicit:
-			item.affixes.append(implicit)
+			CorruptionOutcome.set_implicit(item, implicit)
 
-class RerandomizeValues extends CorruptionOutcome:
+class ResistanceShredAura extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
-		for affix in item.affixes:
-			if not affix.is_implicit and not affix.anchored and affix.value_max > affix.value_min:
-				affix.value = randf_range(affix.value_min, affix.value_max)
+		CorruptionOutcome.set_implicit(item, CorruptionOutcome._named_implicit("corruption_resistance_shred_aura", "Resistance Shred Aura",
+			"resistance_shred_aura", 8.0, "Nearby enemies have 8% reduced Resistances"))
+
+class SkillNoCooldown extends CorruptionOutcome:
+	## One random skill: no cooldown, +40% Mana cost.
+	func apply(item: Item, _power_level: int) -> void:
+		var slot := randi_range(1, 4)  # the cursed ability bar slot
+		var implicit := CorruptionOutcome._named_implicit("corruption_skill_no_cooldown", "Cursed Skill", "skill_no_cooldown_extra_cost", 40.0,
+			"Ability slot %d has no cooldown, but costs 40%% more Mana" % slot)
+		implicit.value_max = slot
+		CorruptionOutcome.set_implicit(item, implicit)
+
+class MawTouched extends CorruptionOutcome:
+	func apply(item: Item, _power_level: int) -> void:
+		var implicit := CorruptionOutcome._named_implicit("corruption_maw_touched", "Maw-Touched", "skill_double_trigger_chance", 8.0,
+			"Skills have an 8% chance to trigger twice; the second deals 50% damage")
+		implicit.value_min = 50.0  # second trigger 50% damage
+		CorruptionOutcome.set_implicit(item, implicit)
+
+class PaleBranded extends CorruptionOutcome:
+	func apply(item: Item, _power_level: int) -> void:
+		CorruptionOutcome.set_implicit(item, CorruptionOutcome._named_implicit("corruption_pale_branded", "Pale Branded",
+			"no_ward_recovery_life_bonus", 35.0, "35% increased maximum Life; Ward cannot be recovered"))
+
+class ResonantEcho extends CorruptionOutcome:
+	## Duplicate one mod at 60% value as the implicit.
+	func apply(item: Item, _power_level: int) -> void:
+		var explicit := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
+		if explicit.is_empty():
+			return
+		var source: ItemAffix = explicit[randi() % explicit.size()]
+		var echo := source.duplicate() as ItemAffix
+		echo.value = source.value * 0.6
+		echo.display_name = source.display_name + " (Echo)"
+		echo.affix_id = source.affix_id + "_echo"
+		CorruptionOutcome.set_implicit(item, echo)
+
+## ---- Good effects ------------------------------------------------------------
 
 class AddSocket extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
@@ -40,10 +115,12 @@ class AddSocket extends CorruptionOutcome:
 			item.max_sockets += 1
 			EventBus.item_sockets_changed.emit(item)
 
-class RemoveSocket extends CorruptionOutcome:
+class AddExtraSocket extends CorruptionOutcome:
+	## Adds a socket beyond the base cap - up to +1 over.
 	func apply(item: Item, _power_level: int) -> void:
-		if item.max_sockets > 0:
-			item.max_sockets -= 1
+		var max_s: int = ItemRoller.get_socket_cap(item)
+		if max_s > 0 and item.max_sockets <= max_s:
+			item.max_sockets += 1
 			EventBus.item_sockets_changed.emit(item)
 
 class TierUp extends CorruptionOutcome:
@@ -56,18 +133,6 @@ class TierUp extends CorruptionOutcome:
 		var target: ItemAffix = upgradeable[randi() % upgradeable.size()]
 		ItemRoller.retier(target, target.tier - 1, item.equip_slot)
 
-class TierDown extends CorruptionOutcome:
-	func apply(item: Item, _power_level: int) -> void:
-		var downgradeable := item.affixes.filter(
-			func(a: ItemAffix): return not a.is_implicit and a.tier > 0 and a.tier < ItemRoller.tier_count_for(a) and ItemRoller.tier_range_for(a, a.tier + 1, item.equip_slot).x >= 0.0
-		)
-		if downgradeable.is_empty():
-			return
-		var target: ItemAffix = downgradeable[randi() % downgradeable.size()]
-		ItemRoller.retier(target, target.tier + 1, item.equip_slot)
-
-## ---- Tier 2: Significant -----------------------------------------------
-
 class AddSpecialAffix extends CorruptionOutcome:
 	## A corrupted-strength modifier (SpecialCorruptionPool).
 	func apply(item: Item, _power_level: int) -> void:
@@ -77,153 +142,20 @@ class AddSpecialAffix extends CorruptionOutcome:
 		if special:
 			item.affixes.append(special)
 
-class AddExtraSocket extends CorruptionOutcome:
-	## Adds a socket beyond the base cap - up to +1 over.
+## Tempered Limit: the item's quality cap rises by CORRUPT_QUALITY_CAP_BONUS
+## (Orbs of Tempering still work on corrupted items).
+class TemperedLimit extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
-		var max_s: int = ItemRoller.get_socket_cap(item)
-		if item.max_sockets <= max_s:
-			item.max_sockets += 1
-			EventBus.item_sockets_changed.emit(item)
-
-class ConvertAffix extends CorruptionOutcome:
-	func apply(item: Item, power_level: int) -> void:
-		var convertible := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
-		if convertible.is_empty():
-			return
-		var target: ItemAffix = convertible[randi() % convertible.size()]
-		var pool := ItemRoller._pool_for(item)
-		var replacement := CraftingSystem._random_affix_for(item, pool, power_level)
-		if replacement:
-			item.affixes.erase(target)
-			item.affixes.append(replacement)
-			EventBus.item_stats_changed.emit(item)
-
-class AddSecondImplicit extends CorruptionOutcome:
-	func apply(item: Item, _power_level: int) -> void:
-		if item.get_implicit_count() >= 2:
-			return
-		var implicit := ImplicitPool.get_random_for(item)
-		if implicit:
-			item.affixes.append(implicit)
-
-class ResistanceShredAura extends CorruptionOutcome:
-	func apply(item: Item, _power_level: int) -> void:
-		if item.get_implicit_count() >= 3:
-			return
-		var aura := ItemAffix.new()
-		aura.affix_id = "corruption_resistance_shred_aura"
-		aura.display_name = "Resistance Shred Aura"
-		aura.stat_key = "resistance_shred_aura"
-		aura.value = 8.0  # 8% shred to all resistances
-		aura.description = "Nearby enemies have 8% reduced Resistances"
-		aura.is_implicit = true
-		item.affixes.append(aura)
-
-class SkillNoCooldown extends CorruptionOutcome:
-	## One random skill: no cooldown, +40% Mana cost.
-	func apply(item: Item, _power_level: int) -> void:
-		if item.get_implicit_count() >= 3:
-			return
-		var implicit := ItemAffix.new()
-		implicit.affix_id = "corruption_skill_no_cooldown"
-		implicit.display_name = "Cursed Skill"
-		implicit.stat_key = "skill_no_cooldown_extra_cost"
-		implicit.value = 40.0
-		implicit.value_max = randi_range(1, 4)  # the cursed ability bar slot
-		implicit.description = "Ability slot %d has no cooldown, but costs 40%% more Mana" % int(implicit.value_max)
-		implicit.is_implicit = true
-		item.affixes.append(implicit)
-
-## ---- Tier 3: Major -----------------------------------------------------
-
-class Veiltouch extends CorruptionOutcome:
-	## Replace one explicit with a Slate-pool modifier - the only real
-	## gear/Slate affix crossover in this project.
-	func apply(item: Item, _power_level: int) -> void:
-		if item.has_meta("veiltouch_applied"):
-			return  # once per item
-		var explicit := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
-		if explicit.is_empty():
-			return
-		var target: ItemAffix = explicit[randi() % explicit.size()]
-		var slate_mod := SlateAffixPool.get_random_affix("generic", item.item_level)
-		if slate_mod == null:
-			var tags := Constants.DAMAGE_TYPE_TAGS.keys()
-			slate_mod = SlateAffixPool.get_random_affix(tags[randi() % tags.size()], item.item_level)
-		if slate_mod:
-			item.affixes.erase(target)
-			var gear_copy := slate_mod.duplicate() as SlateAffix
-			gear_copy.is_implicit = false
-			item.affixes.append(gear_copy)
-			item.set_meta("veiltouch_applied", true)
-
-class Hollow extends CorruptionOutcome:
-	## Strip all explicits, add a devastating implicit.
-	func apply(item: Item, _power_level: int) -> void:
-		item.affixes = item.affixes.filter(func(a: ItemAffix): return a.is_implicit)
-		var hollow_implicit := ItemAffix.new()
-		hollow_implicit.affix_id = "corruption_hollow"
-		hollow_implicit.display_name = "Hollowed"
-		hollow_implicit.stat_key = "hollow_damage_ward_drain"
-		hollow_implicit.value = 25.0       # 25% increased damage
-		hollow_implicit.value_min = 10.0   # 10% ward drain
-		hollow_implicit.description = "25% increased damage; your hits drain Ward equal to 10% of the damage dealt"
-		hollow_implicit.is_implicit = true
-		item.affixes.append(hollow_implicit)
-
-class Inversion extends CorruptionOutcome:
-	## Flip one resistance suffix to vulnerability, amplify all other
-	## stats 20%.
-	func apply(item: Item, _power_level: int) -> void:
-		var resistances := item.affixes.filter(
-			func(a: ItemAffix): return a.stat_key.contains("resistance") and not a.is_implicit
-		)
-		if resistances.is_empty():
-			return
-		var target: ItemAffix = resistances[randi() % resistances.size()]
-		target.value = -abs(target.value)
-		target.display_name = "Inverted " + target.display_name
-		for affix in item.affixes:
-			if affix != target and not affix.is_implicit:
-				affix.value *= 1.2
-
-class MawTouched extends CorruptionOutcome:
-	func apply(item: Item, _power_level: int) -> void:
-		if item.get_implicit_count() >= 3:
-			return
-		var implicit := ItemAffix.new()
-		implicit.affix_id = "corruption_maw_touched"
-		implicit.display_name = "Maw-Touched"
-		implicit.stat_key = "skill_double_trigger_chance"
-		implicit.value = 8.0        # 8% chance to trigger twice
-		implicit.value_min = 50.0   # second trigger 50% damage
-		implicit.description = "Skills have an 8% chance to trigger twice; the second deals 50% damage"
-		implicit.is_implicit = true
-		item.affixes.append(implicit)
-
-class PaleBranded extends CorruptionOutcome:
-	func apply(item: Item, _power_level: int) -> void:
-		if item.get_implicit_count() >= 3:
-			return
-		var implicit := ItemAffix.new()
-		implicit.affix_id = "corruption_pale_branded"
-		implicit.display_name = "Pale Branded"
-		implicit.stat_key = "no_ward_recovery_life_bonus"
-		implicit.value = 35.0  # 35% max life increase
-		implicit.description = "35% increased maximum Life; Ward cannot be recovered"
-		implicit.is_implicit = true
-		item.affixes.append(implicit)
+		if item is Weapon or item is Armor:
+			item.quality_cap_bonus += Constants.CORRUPT_QUALITY_CAP_BONUS
 
 class Ascendant extends CorruptionOutcome:
-	## Raises a Weapon's scaling_grade one step. Non-weapons and S-grade
-	## weapons are a logged no-op.
+	## Raises a Weapon's scaling_grade one step (S grade is the top).
 	func apply(item: Item, _power_level: int) -> void:
 		if not (item is Weapon):
-			print("Ascendant: near miss - %s has no scaling grade to ascend." % item.display_name)
 			return
 		var weapon := item as Weapon
 		if weapon.scaling_grade <= 0:
-			print("Ascendant: near miss - %s is already S grade." % weapon.display_name)
 			return
 		weapon.scaling_grade -= 1
 		EventBus.grade_ascended.emit(weapon, weapon.primary_scaling_stat, weapon.scaling_grade)
@@ -241,8 +173,6 @@ class Overcharged extends CorruptionOutcome:
 			var to_remove: ItemAffix = explicit[randi() % explicit.size()]
 			item.affixes.erase(to_remove)
 
-## ---- Tier 4: Extreme -----------------------------------------------------
-
 class Transcendent extends CorruptionOutcome:
 	## Reroll as a Corrupted Unique (UniquePool) - all existing mods lost.
 	func apply(item: Item, _power_level: int) -> void:
@@ -256,59 +186,3 @@ class Transcendent extends CorruptionOutcome:
 		item.unique_id = new_unique.unique_id
 		item.flavor_text = new_unique.flavor_text
 		EventBus.item_transcended.emit(item)
-
-## Tempered Limit: the item's quality cap rises by CORRUPT_QUALITY_CAP_BONUS
-## (Orbs of Tempering still work on corrupted items).
-class TemperedLimit extends CorruptionOutcome:
-	func apply(item: Item, _power_level: int) -> void:
-		if item is Weapon or item is Armor:
-			item.quality_cap_bonus += Constants.CORRUPT_QUALITY_CAP_BONUS
-
-class Unmade extends CorruptionOutcome:
-	## Strip everything into a max-item-level base (91, the catalog ceiling).
-	func apply(item: Item, _power_level: int) -> void:
-		item.affixes.clear()
-		item.rarity = Constants.ItemRarity.COMMON
-		item.item_level = min(item.item_level + 10, 91)
-		item.quality = 0
-		item.max_sockets = 0
-		EventBus.item_unmade.emit(item)
-
-class ResonantEcho extends CorruptionOutcome:
-	## Duplicate one mod at 60% value as an implicit.
-	func apply(item: Item, _power_level: int) -> void:
-		if item.get_implicit_count() >= 3:
-			return
-		var explicit := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
-		if explicit.is_empty():
-			return
-		var source: ItemAffix = explicit[randi() % explicit.size()]
-		var echo := source.duplicate() as ItemAffix
-		echo.value = source.value * 0.6
-		echo.is_implicit = true
-		echo.display_name = source.display_name + " (Echo)"
-		echo.affix_id = source.affix_id + "_echo"
-		item.affixes.append(echo)
-
-class AethericSurge extends CorruptionOutcome:
-	func apply(item: Item, power_level: int) -> void:
-		var esoteric := item.affixes.filter(
-			func(a: ItemAffix): return not a.is_implicit and (
-				a.damage_type == Constants.DamageType.AETHERIC or
-				a.damage_type == Constants.DamageType.ENTROPIC or
-				a.damage_type == Constants.DamageType.PALE
-			)
-		)
-		if esoteric.is_empty():
-			# No Esoteric mod - delete one random explicit, add an
-			# Aetheric one instead.
-			var explicit := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
-			if explicit.size() > 0:
-				item.affixes.erase(explicit[randi() % explicit.size()])
-			var pool := ItemRoller._pool_for_brand_tag(item, "aetheric")
-			var esoteric_mod := CraftingSystem._random_affix_for(item, pool, power_level)
-			if esoteric_mod:
-				item.affixes.append(esoteric_mod)
-		else:
-			var target: ItemAffix = esoteric[0]
-			target.value *= 2.0

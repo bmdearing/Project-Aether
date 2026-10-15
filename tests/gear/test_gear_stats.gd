@@ -136,9 +136,9 @@ func _test_weapon_mods() -> void:
 	var bow_keys: Array = keys_for.call(bow)
 	var conduit_keys: Array = keys_for.call(conduit)
 	var sword_keys: Array = keys_for.call(_sword())
-	_check(bow_keys.has("local_additional_arrows") and bow_keys.has("projectile_speed") and not bow_keys.has("increased_riposte_damage"), "bows roll additional arrows and Projectile Speed")
-	_check(conduit_keys.has("local_additional_spell_projectiles") and conduit_keys.has("projectile_speed") and not conduit_keys.has("local_additional_arrows"), "Conduits roll additional spell projectiles and Projectile Speed")
-	_check(sword_keys.has("increased_riposte_damage") and not sword_keys.has("projectile_speed") and not sword_keys.has("local_additional_arrows"), "melee weapons roll Riposte damage")
+	_check(bow_keys.has("local_additional_arrows") and not bow_keys.has("projectile_speed") and not bow_keys.has("increased_riposte_damage"), "bows roll additional arrows, not Projectile Speed (off weapons)")
+	_check(conduit_keys.has("local_additional_spell_projectiles") and not conduit_keys.has("projectile_speed") and not conduit_keys.has("local_additional_arrows"), "Conduits roll additional spell projectiles, not Projectile Speed")
+	_check(not sword_keys.has("increased_riposte_damage") and not sword_keys.has("projectile_speed") and not sword_keys.has("local_additional_arrows"), "melee weapons no longer roll Riposte damage")
 	var gloves := Armor.new()
 	gloves.equip_slot = Constants.EquipmentSlot.GLOVES
 	_check(ItemRoller._pool_for(gloves).any(func(e): return e["stat_key"] == "increased_riposte_damage"), "gloves roll Riposte damage")

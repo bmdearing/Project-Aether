@@ -54,7 +54,7 @@ static func corrupt(item: Item, power_level: int = 1) -> Dictionary:
 	var outcome := CorruptionSystem.corrupt(item, power_level)
 	if not outcome.success:
 		return {"success": false, "message": outcome.reason, "destroyed": false}
-	var message := "%s (Tier %d)" % [outcome.outcome_name, outcome.tier]
+	var message := "%s: %s." % [CorruptionSystem.TIER_NAMES.get(outcome.tier, "?"), outcome.outcome_name]
 	if not item.is_craftable:
 		message += " This item can no longer be crafted except with an Orb of Opening or Tempering."
 	EventBus.item_stats_changed.emit(item)

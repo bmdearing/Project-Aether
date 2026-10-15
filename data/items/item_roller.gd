@@ -596,6 +596,28 @@ const WEAPON_AFFIX_DIR := "res://data/affixes/weapons/"
 const CONDUIT_LOCAL_KEYS := ["local_increased_spell_damage", "local_increased_cast_speed", "local_additional_spell_projectiles"]
 ## Weapon modifiers that make it onto only this share of drops' pools.
 const RARE_WEAPON_MODIFIERS := {"local_additional_arrows": 0.3, "local_additional_spell_projectiles": 0.3}
+## Weapon library modifiers that no longer roll on weapons (drops or Orbs).
+## Items that already have them keep them.
+const OFF_WEAPON_AFFIXES := [
+	"kinetic_pulverising",  # Armor Shred effectiveness
+	"aetheric_aetheric", "cold_glacial", "entropic_entropic", "fire_scorching", "lightning_arcing", "pale_pallid",
+	"increased_explosive_damage", "increased_kinetic_damage", "increased_piercing_damage",  # % increased <type> damage
+	"generic_savage",  # % increased damage
+	"generic_of_conservation",  # Skills cost less Mana
+	"piercing_barbed",  # Bleed duration
+	"generic_of_the_ward",  # Ward on hit
+	"piercing_penetrating",  # ignore % of Armor
+	"riposte_damage", "excl_riposte_edge",  # increased Riposte damage
+	"aetheric_eroding", "cold_brittle", "entropic_decaying", "fire_pyretic", "kinetic_hammering",
+	"lightning_conducting", "pale_threshold",  # damage vs <status> enemies
+	"aetheric_consuming",  # drain Ward on hit
+	"excl_of_the_weave",  # reduced Mana cost of spells
+	"aetheric_of_the_veil", "explosive_of_impact",  # Ward on kill
+	"excl_resonant",  # Cooldown Recovery Rate
+	"projectile_speed",
+]
+## Removed from the game (files deleted); ItemSerializer strips them from saved items.
+const REMOVED_WEAPON_AFFIXES := ["generic_opportunist", "excl_of_the_hunt"]  # damage vs full Life
 static var _weapon_affix_cache: Array[ItemAffix] = []
 
 static func _build_weapon_affix_cache() -> void:
@@ -649,6 +671,8 @@ static func _eligible_weapon_affixes(weapon: Weapon, power_level: int, want_pref
 	var result: Array[ItemAffix] = []
 	for affix in _weapon_affix_cache:
 		if affix.is_prefix != want_prefix:
+			continue
+		if OFF_WEAPON_AFFIXES.has(affix.affix_id):
 			continue
 		# Local mods: caster ones only on real Conduits, the rest only on
 		# martial weapons - by is_conduit, not type key (worn_staff is a melee

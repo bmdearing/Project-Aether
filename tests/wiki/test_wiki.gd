@@ -176,8 +176,8 @@ func _test_modifier_pages() -> void:
 	var low_dmg: Array = low.filter(func(r): return r["def"].stat_key == "local_increased_weapon_damage")[0]["tiers"]
 	_check(low_dmg.filter(func(t): return t["chance"] > 0.0).size() == 1, "at item level 1 only the lowest tier can roll")
 	_check(rows.all(func(r): return r["tiers"].all(func(t): return t["level"] >= 1 and t["level"] <= 83)), "every tier names the item level it needs")
-	var kinetic := low.filter(func(r): return r["def"].stat_key == "increased_kinetic_damage")
-	_check(not kinetic.is_empty() and kinetic[0]["chance"] > 0.0, "library mods roll below their Tier 1 level (Kinetic damage at item level 1)")
+	var kinetic := low.filter(func(r): return r["def"].stat_key == "kinetic_concussive")
+	_check(not kinetic.is_empty() and kinetic[0]["chance"] > 0.0, "library mods roll below their Tier 1 level (Stagger chance at item level 1)")
 	var index := WikiCatalog.modifier_index()
 	var fire_res: Array = index.filter(func(r): return String(r["text"]).contains("Fire Resistance") and not String(r["text"]).contains("maximum"))
 	_check(fire_res.size() == 1, "one Fire Resistance modifier, not two from different patches")

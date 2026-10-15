@@ -1,32 +1,25 @@
 extends RefCounted
 class_name CorruptionSystem
-## Shard of Tharsis: rolls a severity tier, then a named outcome from it
-## (CorruptionOutcome). CraftingSystem.corrupt() wraps corrupt() below.
+## Shard of Tharsis: four equal results (TIER_WEIGHTS) - nothing happens,
+## the item is bricked, it gains an implicit or a good effect, or it gains
+## both. A result only picks outcomes that actually change this item
+## (tried in random order until one does), so a Shard never lands as a
+## silent no-op unless it rolled "nothing". CraftingSystem.corrupt() wraps
+## corrupt() below.
 
-## Outcome tier weights - adjust after playtesting.
+enum OutcomeTier { NOTHING = 1, BRICKED = 2, BLESSED = 3, EXALTED = 4 }
+
 const TIER_WEIGHTS := {
-	1: 55,   # Minor - most common
-	2: 30,   # Significant
-	3: 12,   # Major
-	4: 3,    # Extreme
+	OutcomeTier.NOTHING: 25,
+	OutcomeTier.BRICKED: 25,
+	OutcomeTier.BLESSED: 25,  # an implicit or a good effect
+	OutcomeTier.EXALTED: 25,  # an implicit and a good effect
 }
+const TIER_NAMES := {1: "No Change", 2: "Bricked", 3: "Blessed", 4: "Exalted"}
 
-enum OutcomeTier { MINOR = 1, SIGNIFICANT = 2, MAJOR = 3, EXTREME = 4 }
-
-const _MINOR := [
-	"AddImplicit", "RerandomizeValues", "AddSocket", "RemoveSocket", "TierUp", "TierDown",
-]
-const _SIGNIFICANT := [
-	"AddSpecialAffix", "AddExtraSocket", "ConvertAffix", "AddSecondImplicit",
-	"ResistanceShredAura", "SkillNoCooldown", "TemperedLimit",
-]
-const _MAJOR := [
-	"Veiltouch", "Hollow", "Inversion", "MawTouched", "PaleBranded", "Overcharged",
-	"Ascendant",
-]
-const _EXTREME := [
-	"Transcendent", "Unmade", "ResonantEcho", "AethericSurge",
-]
+const _BRICKS := ["Unmade", "Hollow"]
+const _IMPLICITS := ["AddImplicit", "ResistanceShredAura", "MawTouched", "PaleBranded", "SkillNoCooldown", "ResonantEcho"]
+const _GOOD := ["AddSocket", "AddExtraSocket", "TierUp", "AddSpecialAffix", "TemperedLimit", "Ascendant", "Overcharged", "Transcendent"]
 
 static func corrupt(item: Item, power_level: int = 1) -> CorruptionOutcome:
 	if item == null:
@@ -37,7 +30,7 @@ static func corrupt(item: Item, power_level: int = 1) -> CorruptionOutcome:
 		return CorruptionOutcome.new(false, "This item was already corrupted beyond further chaos.")
 
 	var tier := _roll_tier()
-	var outcome := _roll_outcome(tier, item, power_level)
+	var outcome := _apply_tier(tier, item, power_level)
 	item.is_corrupted = true
 	# Rev2: a corrupted item can't be crafted further (Orbs gate on
 	# is_corrupted; the legacy Cube gates on is_craftable).
@@ -55,40 +48,50 @@ static func _roll_tier() -> int:
 		cumulative += TIER_WEIGHTS[tier]
 		if roll < cumulative:
 			return tier
-	return 1
+	return OutcomeTier.NOTHING
 
-static func _roll_outcome(tier: int, item: Item, power_level: int) -> CorruptionOutcome:
-	var names: Array
+static func _apply_tier(tier: int, item: Item, power_level: int) -> CorruptionOutcome:
+	var applied: Array[String] = []
 	match tier:
-		1: names = _MINOR
-		2: names = _SIGNIFICANT
-		3: names = _MAJOR
-		4: names = _EXTREME
-		_: names = _MINOR
-	var outcome_name: String = names[randi() % names.size()]
-	var outcome := _instantiate(outcome_name)
-	outcome.outcome_name = outcome_name
+		OutcomeTier.BRICKED:
+			_apply_first_that_changes(_BRICKS, item, power_level, applied)
+		OutcomeTier.BLESSED:
+			_apply_first_that_changes(_IMPLICITS + _GOOD, item, power_level, applied)
+		OutcomeTier.EXALTED:
+			# The effect first: Transcendent replaces every modifier, so an
+			# implicit added before it would be lost.
+			_apply_first_that_changes(_GOOD, item, power_level, applied)
+			_apply_first_that_changes(_IMPLICITS, item, power_level, applied)
+	var labels := PackedStringArray()
+	for n in applied:
+		labels.append(n.capitalize())
+	var outcome := CorruptionOutcome.new()
 	outcome.tier = tier
-	outcome.apply(item, power_level)
+	outcome.outcome_name = " + ".join(labels) if not labels.is_empty() else "No Change"
 	return outcome
+
+## Tries `names` in random order and keeps the first that changes the item.
+static func _apply_first_that_changes(names: Array, item: Item, power_level: int, applied: Array[String]) -> void:
+	var order := names.duplicate()
+	order.shuffle()
+	for outcome_name in order:
+		var before := ItemSerializer.to_dict(item)
+		var outcome := _instantiate(outcome_name)
+		outcome.apply(item, power_level)
+		if ItemSerializer.to_dict(item) != before:
+			applied.append(outcome_name)
+			return
 
 static func _instantiate(outcome_name: String) -> CorruptionOutcome:
 	match outcome_name:
 		"AddImplicit": return CorruptionOutcome.AddImplicit.new()
-		"RerandomizeValues": return CorruptionOutcome.RerandomizeValues.new()
 		"AddSocket": return CorruptionOutcome.AddSocket.new()
-		"RemoveSocket": return CorruptionOutcome.RemoveSocket.new()
 		"TierUp": return CorruptionOutcome.TierUp.new()
-		"TierDown": return CorruptionOutcome.TierDown.new()
 		"AddSpecialAffix": return CorruptionOutcome.AddSpecialAffix.new()
 		"AddExtraSocket": return CorruptionOutcome.AddExtraSocket.new()
-		"ConvertAffix": return CorruptionOutcome.ConvertAffix.new()
-		"AddSecondImplicit": return CorruptionOutcome.AddSecondImplicit.new()
 		"ResistanceShredAura": return CorruptionOutcome.ResistanceShredAura.new()
 		"SkillNoCooldown": return CorruptionOutcome.SkillNoCooldown.new()
-		"Veiltouch": return CorruptionOutcome.Veiltouch.new()
 		"Hollow": return CorruptionOutcome.Hollow.new()
-		"Inversion": return CorruptionOutcome.Inversion.new()
 		"MawTouched": return CorruptionOutcome.MawTouched.new()
 		"PaleBranded": return CorruptionOutcome.PaleBranded.new()
 		"Overcharged": return CorruptionOutcome.Overcharged.new()
@@ -96,43 +99,43 @@ static func _instantiate(outcome_name: String) -> CorruptionOutcome:
 		"Transcendent": return CorruptionOutcome.Transcendent.new()
 		"Unmade": return CorruptionOutcome.Unmade.new()
 		"ResonantEcho": return CorruptionOutcome.ResonantEcho.new()
-		"AethericSurge": return CorruptionOutcome.AethericSurge.new()
 		"TemperedLimit": return CorruptionOutcome.TemperedLimit.new()
 	return CorruptionOutcome.new()
 
 ## What each outcome does, for the Wiki.
 const DESCRIPTIONS := {
-	"AddImplicit": "Adds an implicit from the item type's implicit pool (up to 3).",
-	"RerandomizeValues": "Rerolls every explicit modifier's value within its tier.",
-	"AddSocket": "Adds a socket, up to the item's maximum.",
-	"RemoveSocket": "Removes a socket.",
-	"TierUp": "One modifier moves up a tier (Tier 3 becomes Tier 2).",
-	"TierDown": "One modifier moves down a tier.",
-	"TemperedLimit": "The item's maximum quality rises by 15% (Orbs of Tempering still work on corrupted items).",
-	"AddSpecialAffix": "Adds a corrupted modifier: one of the item's own at 130% of its Tier 1 maximum.",
-	"AddExtraSocket": "Adds a socket beyond the maximum (up to +1).",
-	"ConvertAffix": "Replaces one modifier with a random modifier of the same pool.",
-	"AddSecondImplicit": "Adds a second implicit from the item type's pool.",
-	"ResistanceShredAura": "Implicit: nearby enemies have 8% reduced Resistances.",
-	"SkillNoCooldown": "Implicit: one ability bar slot has no cooldown but costs 40% more Mana.",
-	"Veiltouch": "Replaces one modifier with a Slate modifier (once per item).",
+	"NoChange": "Nothing happens; the item is still corrupted.",
+	"Unmade": "Strips everything; the base gains 10 item levels (up to 91).",
 	"Hollow": "Removes every explicit. Implicit: 25% increased damage, your hits drain Ward equal to 10% of their damage.",
-	"Inversion": "One resistance becomes a vulnerability; every other modifier is 20% stronger.",
+	"AddImplicit": "Adds an implicit from the item type's implicit pool (up to 3).",
+	"ResistanceShredAura": "Implicit: nearby enemies have 8% reduced Resistances.",
 	"MawTouched": "Implicit: skills have an 8% chance to trigger twice (the second at 50% damage).",
 	"PaleBranded": "Implicit: 35% increased maximum Life, but Ward cannot be recovered.",
-	"Overcharged": "Every modifier rolls in the top 20% of its tier; one modifier is removed.",
-	"Ascendant": "The weapon's scaling grade improves by one.",
-	"Transcendent": "The item becomes a corrupted-only Unique; every modifier is lost.",
-	"Unmade": "Strips everything; the base gains 10 item levels (up to 91).",
+	"SkillNoCooldown": "Implicit: one ability bar slot has no cooldown but costs 40% more Mana.",
 	"ResonantEcho": "Copies one modifier as an implicit at 60% strength.",
-	"AethericSurge": "Doubles an Esoteric modifier, or replaces a modifier with an Aetheric one.",
+	"AddSocket": "Adds a socket, up to the item's maximum.",
+	"AddExtraSocket": "Adds a socket beyond the maximum (up to +1).",
+	"TierUp": "One modifier moves up a tier (Tier 3 becomes Tier 2).",
+	"AddSpecialAffix": "Adds a corrupted modifier: one of the item's own at 130% of its Tier 1 maximum.",
+	"TemperedLimit": "The item's maximum quality rises by 15% (Orbs of Tempering still work on corrupted items).",
+	"Ascendant": "The weapon's scaling grade improves by one.",
+	"Overcharged": "Every modifier rolls in the top 20% of its tier; one modifier is removed.",
+	"Transcendent": "The item becomes a corrupted-only Unique; every modifier is lost.",
+	"ImplicitAndEffect": "One of the Blessed implicits and one of the Blessed good effects, both.",
 }
 
-## Outcome names by tier (1-4).
+## Outcome names by tier (1-4), as the Wiki lists them. Exalted is one
+## combined entry.
 static func outcomes_in_tier(tier: int) -> Array:
-	return [_MINOR, _SIGNIFICANT, _MAJOR, _EXTREME][clampi(tier, 1, 4) - 1]
+	match tier:
+		OutcomeTier.NOTHING: return ["NoChange"]
+		OutcomeTier.BRICKED: return _BRICKS
+		OutcomeTier.BLESSED: return _IMPLICITS + _GOOD
+		OutcomeTier.EXALTED: return ["ImplicitAndEffect"]
+	return []
 
-## Chance a Shard of Tharsis rolls this outcome.
+## Chance a Shard of Tharsis rolls this outcome, before outcomes that
+## can't change the item hand their share to the rest of their tier.
 static func outcome_chance(outcome_name: String) -> float:
 	var total := 0.0
 	for w in TIER_WEIGHTS.values():
@@ -143,20 +146,17 @@ static func outcome_chance(outcome_name: String) -> float:
 			return TIER_WEIGHTS[tier] / total / names.size()
 	return 0.0
 
-## Whether an outcome can change an item of this base (it otherwise lands
-## with no effect).
+## Whether an outcome can change an item of this base.
 static func can_change(outcome_name: String, base: Item) -> bool:
 	match outcome_name:
-		"AddImplicit", "AddSecondImplicit":
+		"AddImplicit":
 			return not ImplicitPool.pool_for_type(base.get_item_type()).is_empty()
 		"TemperedLimit":
 			return base is Weapon or base is Armor
-		"AddSocket", "RemoveSocket", "AddExtraSocket":
+		"AddSocket", "AddExtraSocket":
 			return ItemRoller.get_socket_cap(base) > 0
 		"Ascendant":
 			return base is Weapon
-		"Inversion":
-			return SpecialCorruptionPool.defs_for(base).any(func(d: ModifierDef): return d.stat_key.contains("resistance"))
 		"Transcendent":
 			return not UniquePool.get_corrupted_uniques_for_type(base.equip_slot).is_empty()
 	return true

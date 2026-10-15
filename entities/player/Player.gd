@@ -409,6 +409,25 @@ func _on_leveled_up(new_level: int) -> void:
 	EventBus.aether_budget_changed.emit(fate_board.aether_used, fate_board.aether_capacity)
 	EventBus.player_leveled_up.emit(new_level)
 	AudioManager.play_2d(SoundLib.library.level_up, -4.0)
+	_level_up_fx()
+
+const LEVEL_UP_GOLD := Color(1.0, 0.82, 0.35)
+## Several levels gained from one XP grant show one effect, not a stack.
+var _level_up_fx_frame := -1
+
+## A warm gold glow that follows the player for a moment, a ring along the
+## floor and sparks rising around them.
+func _level_up_fx() -> void:
+	if _level_up_fx_frame == Engine.get_process_frames():
+		return
+	_level_up_fx_frame = Engine.get_process_frames()
+	var light := SpellFx.light_pop(self, global_position + Vector3.UP * 1.2, LEVEL_UP_GOLD, 5.0, 9.0, 1.6)
+	light.position = Vector3.UP * 1.2
+	var parent := get_parent()
+	if parent == null:
+		return
+	SpellFx.shockwave(parent, global_position + Vector3.UP * 0.05, 4.0, LEVEL_UP_GOLD, 0.6)
+	SpellFx.burst(parent, global_position + Vector3.UP * 0.3, LEVEL_UP_GOLD, 40, Vector2(1.5, 3.5), 1.1, Vector2(0.05, 0.12), 35.0, 2.5)
 
 func _on_xp_changed(current: float, _needed: float) -> void:
 	GameState.player_xp = current
