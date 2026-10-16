@@ -9,6 +9,10 @@ const MELEE := {
 		{"name": "Charged Thrust", "desc": "Hold RMB to charge a lunge of up to 4 m. It fires at full charge, or shorter if you let go early."},
 		{"name": "Ready Parry", "desc": "Significantly wider parry window while held."},
 	],
+	"Dual Wield": [
+		{"name": "Crossguard", "desc": "Hold to guard with both blades. The parry window is twice as wide, and a riposte strikes once with each blade."},
+		{"name": "Flurry", "desc": "Charge, then release a burst of alternating cuts (3 to 7 with charge) that ends in a cross-cut with both blades."},
+	],
 	"Dagger": [
 		{"name": "Slice and Dice", "desc": "LMB becomes a rapid multi-hit flurry. Low damage per hit, high total on full execution."},
 		{"name": "Stealth", "desc": "Reduces detection radius while held. Moving slowly maintains stealth. The first attack from stealth deals bonus damage."},
@@ -119,10 +123,16 @@ static func for_conduit(conduit: Weapon) -> Dictionary:
 		info["desc"] += " %d copies." % maxi(conduit.unleash_copy_count, CasterStance.MIN_UNLEASH_COPIES)
 	return info
 
+## Dual-wielded melee has its own stance pages under this key.
+const DUAL_WIELD := "Dual Wield"
+
 ## {name, desc} for the weapon's stance on `page` (0 = A, 1 = B), or {} if none is designed.
-static func for_weapon(weapon: Weapon, page: int) -> Dictionary:
+## dual: the player is dual wielding melee (DUAL_WIELD's pages).
+static func for_weapon(weapon: Weapon, page: int, dual: bool = false) -> Dictionary:
 	if weapon == null:
 		return {}
+	if dual:
+		return MELEE[DUAL_WIELD][page]
 	if weapon.is_ranged:
 		if page == 1 and RANGED_B.has(weapon.weapon_type):
 			return RANGED_B[weapon.weapon_type]
@@ -140,7 +150,7 @@ const INSTANT_ATTACKS := [
 static var _behaviors: Dictionary = {}
 
 ## The StanceBehavior data for a weapon's page - same lookup WeaponStance uses.
-static func behavior_for(weapon: Weapon, page: int) -> StanceBehavior:
+static func behavior_for(weapon: Weapon, page: int, dual: bool = false) -> StanceBehavior:
 	if weapon == null:
 		return null
 	if _behaviors.is_empty():
@@ -150,6 +160,8 @@ static func behavior_for(weapon: Weapon, page: int) -> StanceBehavior:
 				var b := load(path) as StanceBehavior
 				if b:
 					_behaviors[b.weapon_type] = b
+	if dual:
+		return _behaviors.get(DUAL_WIELD + "_b") if page == 1 else _behaviors.get(DUAL_WIELD)
 	if page == 1 and _behaviors.has(weapon.weapon_type + "_b"):
 		return _behaviors[weapon.weapon_type + "_b"]
 	if weapon.base_line_id != "" and _behaviors.has(weapon.base_line_id):

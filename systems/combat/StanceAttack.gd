@@ -38,6 +38,7 @@ const POSES := {
 	MeleeStanceBehavior.MeleeStanceType.CRACK: PlayerArmRig.Attack.CHARGED,
 	MeleeStanceBehavior.MeleeStanceType.EARTHQUAKE: PlayerArmRig.Attack.CHARGED,
 	MeleeStanceBehavior.MeleeStanceType.SHATTER: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.FLURRY: PlayerArmRig.Attack.CHARGED,
 }
 
 var is_charging: bool = false
@@ -47,6 +48,10 @@ var _was_full: bool = false
 var _player: Player
 var _flurry_left: int = 0
 var _flurry_behavior: MeleeStanceBehavior
+## Flurry (dual wield): cuts alternate hands and end in a both-blade cross-cut;
+## it fires on releasing RMB, so it carries on out of stance.
+var _flurry_dual := false
+var _flurry_hand := 0
 ## Stealth's bonus is spent by the first attack; re-entering stance restores it.
 var _stealth_spent: bool = false
 ## Charged stances charge from holding RMB alone: set while RMB is held in
@@ -251,6 +256,13 @@ func release() -> void:
 			params["no_step"] = true
 			params["shape"] = {"reach": reach, "half_angle": behavior.half_angle, "splash": 1.0, "max_targets": 8}
 			params["on_hit"] = _on_shatter_hit.bind(behavior)
+		MeleeStanceBehavior.MeleeStanceType.FLURRY:
+			_flurry_behavior = behavior
+			_flurry_left = maxi(roundi(lerpf(behavior.hits_min, behavior.hits, f)), 1) + 1  # + the cross-cut
+			_flurry_dual = true
+			_flurry_hand = 0
+			_continue_flurry()
+			return
 	_player.melee_attack.release_stance_attack(params)
 
 ## Feedback for pressing a special that isn't ready - same channel spells use.
@@ -374,6 +386,7 @@ func try_instant() -> bool:
 		MeleeStanceBehavior.MeleeStanceType.SLICE_AND_DICE:
 			_flurry_behavior = b
 			_flurry_left = maxi(b.hits, 1)
+			_flurry_dual = false
 			_continue_flurry()
 			return true
 		MeleeStanceBehavior.MeleeStanceType.STEALTH:
@@ -391,7 +404,7 @@ func try_instant() -> bool:
 ## hit of a completed flurry gets finisher_multiplier. Leaving stance or
 ## being stunned ends it early, finisher lost.
 func _continue_flurry() -> void:
-	if not _player.weapon_stance.is_active or _player.status_effects.is_stunned():
+	if (not _flurry_dual and not _player.weapon_stance.is_active) or _player.status_effects.is_stunned() or (_flurry_dual and not _player.is_dual_wielding()):
 		_flurry_left = 0
 		return
 	if not _player.melee_attack.is_idle():
@@ -406,6 +419,9 @@ func _continue_flurry() -> void:
 		"recovery": FLURRY_RECOVERY * (4.0 if last else 1.0),
 		"no_step": not last,
 	}
+	if _flurry_dual:
+		params["hands"] = PlayerMeleeAttack.Strike.BOTH if last else _flurry_hand
+		_flurry_hand = 1 - _flurry_hand
 	_flurry_left -= 1
 	_player.melee_attack.release_stance_attack(params)
 

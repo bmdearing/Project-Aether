@@ -53,7 +53,7 @@ func _refresh() -> void:
 		info = StanceInfo.for_weapon(weapon, int(_player.weapon_stance.active_page) if dual else 0)
 		_page = _page_letter() if dual else ""
 	else:
-		info = StanceInfo.for_weapon(weapon, int(_player.weapon_stance.active_page))
+		info = StanceInfo.for_weapon(weapon, int(_player.weapon_stance.active_page), _player.dual_wield_kind() == "melee")
 		_page = _page_letter()
 	if info.is_empty():
 		return

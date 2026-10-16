@@ -93,7 +93,9 @@ func toggle_weapon_set() -> void:
 ## Player._apply_saved_loadout() restoring weapon_set_refs passes both in
 ## turn regardless of which is active at restore time. Ignored entirely
 ## for non-weapon slots.
-func equip(item: Item, bypass_requirements: bool = false, weapon_set: int = -1) -> void:
+## to_offhand: put a one-handed weapon in the offhand slot (dual wielding)
+## even when it would otherwise replace the main hand.
+func equip(item: Item, bypass_requirements: bool = false, weapon_set: int = -1, to_offhand: bool = false) -> void:
 	if item == null or not item.is_equipment():
 		return
 	if not bypass_requirements:
@@ -104,7 +106,7 @@ func equip(item: Item, bypass_requirements: bool = false, weapon_set: int = -1) 
 			return
 	var set_index := active_weapon_set if weapon_set == -1 else weapon_set
 	if item is Weapon:
-		_equip_weapon(item as Weapon, set_index)
+		_equip_weapon(item as Weapon, set_index, to_offhand)
 		return
 	match item.equip_slot:
 		Constants.EquipmentSlot.HELMET: helmet = item as Armor
@@ -123,7 +125,18 @@ func equip(item: Item, bypass_requirements: bool = false, weapon_set: int = -1) 
 		Constants.EquipmentSlot.RING: _equip_ring(item)
 	_emit_changed()
 
-func _equip_weapon(weapon: Weapon, set_index: int) -> void:
+func _equip_weapon(weapon: Weapon, set_index: int, to_offhand: bool = false) -> void:
+	var main := primary_weapons[set_index]
+	var dual_main := main != null and main.can_dual_wield()
+	if weapon.can_dual_wield() and (to_offhand or (dual_main and offhands[set_index] == null)):
+		if not dual_main:
+			var reason := "Dual wielding needs a one-handed weapon (not a conduit) in your main hand."
+			push_warning(reason)
+			equip_failed.emit(reason)
+			return
+		offhands[set_index] = weapon
+		_emit_changed()
+		return
 	if weapon.is_offhand:
 		if primary_weapons[set_index] and primary_weapons[set_index].is_two_handed:
 			var reason := "Cannot equip an offhand while a two-handed weapon is equipped."
@@ -135,6 +148,8 @@ func _equip_weapon(weapon: Weapon, set_index: int) -> void:
 		primary_weapons[set_index] = weapon
 		if weapon.is_two_handed:
 			offhands[set_index] = null
+		elif not weapon.can_dual_wield() and offhands[set_index] is Weapon and (offhands[set_index] as Weapon).can_dual_wield():
+			offhands[set_index] = null  # a conduit doesn't dual wield
 	_emit_changed()
 
 ## weapon_set: same meaning as equip()'s own param - which set's slot to

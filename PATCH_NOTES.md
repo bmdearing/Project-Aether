@@ -7,6 +7,21 @@ there. Most recent first.
 
 ---
 
+## 2026-10-15 — v5.4.0: Dual wielding; jumping no longer dodges ground attacks
+
+- **Dual wielding.** Any one-handed weapon that isn't a conduit (Cutlass, Dagger, Mace, Rapier, Saber, Shortsword, War Pick, Whip, Service Pistol, Revolver, Machine Pistol) can go in the offhand slot beside another one-hander. Right-click a one-hander with a one-hander in your main hand and an empty offhand and it goes to the offhand. **Shift+right-click** always targets the offhand. A two-hander or a conduit in the main hand sends an offhand weapon back to your inventory. Global modifiers from both weapons apply; each weapon's local modifiers only on its own hits.
+  - **10% more attack speed** while dual wielding (`Player.DUAL_WIELD_ATTACK_SPEED`), multiplicative.
+  - **Melee:** LMB swings left, right, left, then both blades at once (each weapon hits once). The offhand weapon is held and animated in the left hand.
+  - **Dual melee stances** (their own pages): **Crossguard** (A) holds a guard with a 2x parry window, and a riposte strikes once with each blade. **Flurry** (B) charges for 1 s, then releases 3-7 alternating cuts by charge and a both-blade cross-cut (55% weapon damage per cut, 220% on the cross-cut, 6 s cooldown).
+  - **Guns:** shots alternate between the guns, skipping an empty one. One reload refills both (Active Reload too). The ammo readout shows both magazines ("6 | 6"). The aim penalty: +4 degrees of spread (half while aiming), and aiming only tightens spread to 75% instead of 50%.
+  - **Mixed pairs** (a blade and a gun): LMB and RMB use the main hand. The new rebindable **Offhand Attack** key (G or Mouse 4) fires or swings the offhand weapon. R reloads the gun whichever hand it's in.
+- **Jumping no longer clears attacks marked on the ground.** A shared check (`GroundHit`) hits anywhere from 3 m below to 4 m above a ring's ground (a jump rises ~2.5 m), for boss and Aurelia circles and the Elite/Ascendant Volatile and Nova spells (which measured straight-line distance). Enemy melee swings also catch a player jumping over the attacker. Ataras's Desert Sweep stays jumpable by design.
+- **Hits that catch you in the air deal 10% more** (`Player.AIRBORNE_DAMAGE_TAKEN`; mantling doesn't count). A loading-screen tip and the wiki's Order of a hit explain both.
+- `tests/combat/test_dual_wield` is new. `capture_ui` takes `CAPTURE_OFFHAND`.
+- Judgment calls: Shift for the offhand; the 4-hit combo; Flurry being charged; mixed pairs' Offhand Attack key and its default binding; dual guns sharing one fire cooldown; the aim penalty numbers; the 4 m column. `combat/test_stances` (melee speed) and `combat_pass` (ignite numbers) each had one failure before this change.
+
+---
+
 ## 2026-10-15 — v5.3.3: PoE-style currency crafting from the stash, Lens on the cursor
 
 - **Stash Currency tab crafts like Path of Exile's.** Right-click a currency slot to pick it up: it sits on the cursor (with its stash count) and its slot is framed in gold. Click any item in your inventory or a stash tab to use it, paid from the stash, and hold **Shift** to keep it in hand for the next click. Right-click or Esc puts it back. Hovering an item while holding an Orb shows its craft preview. Brands and Edicts still right-click on for the next craft. The Crafting Bench stays: click it while holding a currency to use it on the bench item.

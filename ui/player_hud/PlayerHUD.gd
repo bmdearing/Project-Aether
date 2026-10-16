@@ -671,20 +671,27 @@ func _make_ammo_label(font_size: int) -> Label:
 	_ammo_box.add_child(label)
 	return label
 
-func _update_ammo_display(weapon: Weapon) -> void:
-	if weapon == null or not weapon.is_ranged:
+## Every gun in hand: one, or "6 | 4" for dual guns (or a mixed pair's gun).
+func _update_ammo_display(_weapon: Weapon = null) -> void:
+	var guns: Array[Weapon] = _player.ranged_attack.get_guns()
+	if guns.is_empty():
 		_ammo_box.visible = false
 		return
 	_ammo_box.visible = true
-	var magazine := _player.ranged_attack.get_current_magazine()
-	if magazine < 0:  # no magazine: bows
+	var weapon := guns[0]
+	if not _player.ranged_attack._uses_magazine(weapon):  # no magazine: bows
 		_magazine_label.text = "∞"
 		_reserve_label.text = ""
 		_magazine_label.modulate = Color.WHITE
 		return
-	_magazine_label.text = str(magazine)
+	var counts: Array[String] = []
+	var total := 0
+	for g in guns:
+		counts.append(str(g.get_current_magazine()))
+		total += g.get_current_magazine()
+	_magazine_label.text = " | ".join(counts)
 	_reserve_label.text = "/ %d" % AmmoInventory.get_reserve(weapon.ammo_type)
-	_magazine_label.modulate = AMMO_EMPTY_COLOR if magazine == 0 else Color.WHITE
+	_magazine_label.modulate = AMMO_EMPTY_COLOR if total == 0 else Color.WHITE
 
 func _on_reload_started(_weapon: Weapon) -> void:
 	_reload_label.visible = true
@@ -693,10 +700,8 @@ func _on_reload_finished(_weapon: Weapon) -> void:
 	_reload_label.visible = false
 	_update_ammo_display(_player.get_active_weapon())
 
-func _on_ammo_changed(ammo_type: int, _reserve: int) -> void:
-	var weapon: Weapon = _player.get_active_weapon()
-	if weapon and weapon.ammo_type == ammo_type:
-		_update_ammo_display(weapon)
+func _on_ammo_changed(_ammo_type: int, _reserve: int) -> void:
+	_update_ammo_display()
 
 ## Full-screen ColorRect behind every other HUD element (added first).
 func _build_vignette() -> void:

@@ -101,7 +101,7 @@ class Track:
 const RESTS := {
 	&"blade": {"rest": [Vector3(0.27, -0.29, -0.46), Vector3(-0.3, 0.8, -0.5), Vector3(0.3, 0.1, 1)],
 		"guard": [Vector3(0.17, -0.2, -0.44), Vector3(-1, 0.4, -0.35), Vector3(0, 0.3, 1)]},
-	&"heavy": {"rest": [Vector3(0.29, -0.36, -0.4), Vector3(0.6, 0.75, 0.2), Vector3(0.3, 0.2, 1)],
+	&"heavy": {"rest": [Vector3(0.42, -0.45, -0.42), Vector3(0.5, 0.85, 0.0), Vector3(0.3, 0.2, 1)],
 		"guard": [Vector3(0.16, -0.22, -0.4), Vector3(-1, 0.5, -0.3), Vector3(0, 0.3, 1)]},
 	&"thrust": {"rest": [Vector3(0.24, -0.26, -0.42), Vector3(-0.15, 0.4, -1), Vector3(0, 1, 0.3)],
 		"guard": [Vector3(0.16, -0.17, -0.5), Vector3(-0.1, 0.15, -1), Vector3(1, 0.2, 0)]},
@@ -274,7 +274,11 @@ const CAST_MAIN := [
 	["s", 1.0, Vector3(-0.03, 0.08, -0.14), null, null, 0.35],
 ]
 
-enum OffMode { HIDDEN, TWO_HAND, ITEM, GAUNTLET }
+## DUAL: a second one-handed weapon in the left hand (dual wielding), posed
+## as a mirror of its own family's rest.
+enum OffMode { HIDDEN, TWO_HAND, ITEM, GAUNTLET, DUAL }
+## Dual pistols aim a little apart instead of both on the centre line.
+const DUAL_AIM_SPREAD := 0.08
 
 var _player: Player
 var _sway: Node3D
@@ -296,6 +300,7 @@ var _family: StringName = &"blade"
 var _wand_alt: bool = false
 var _off_mode: OffMode = OffMode.HIDDEN
 var _offhand_grip: Vector3 = Vector3.ZERO
+var _off_family: StringName = &"blade"
 
 var _main_track := Track.new()
 var _off_track := Track.new()
@@ -390,6 +395,11 @@ func set_loadout(weapon: Weapon, offhand: Item) -> void:
 	if weapon and _weapon_model.has_meta("offhand_grip"):
 		_off_mode = OffMode.TWO_HAND
 		_offhand_grip = _weapon_model.get_meta("offhand_grip")
+	elif weapon and weapon.can_dual_wield() and offhand is Weapon and (offhand as Weapon).can_dual_wield():
+		_off_mode = OffMode.DUAL
+		_off_family = WeaponModelLibrary.get_family(offhand.weapon_type)
+		_off_model = WeaponModelLibrary.build(offhand as Weapon)
+		_off_holder.add_child(_off_model)
 	elif _family == &"fist":
 		_off_mode = OffMode.GAUNTLET
 		_off_model = WeaponModelLibrary.build_left_gauntlet(weapon)
@@ -413,10 +423,21 @@ func get_family() -> StringName:
 
 ## Melee swing or ranged shot, timed to the caller's phases. `backswing`
 ## mirrors the clip (a combo's second hit sweeps back the other way).
-func play_attack(kind: Attack, windup: float, strike: float, recovery: float, backswing: bool = false) -> void:
+## hands: PlayerMeleeAttack.Strike (0 main, 1 offhand, 2 both) when dual wielding.
+func play_attack(kind: Attack, windup: float, strike: float, recovery: float, backswing: bool = false, hands: int = 0) -> void:
 	if kind == Attack.FIRE:
+		if hands == 1 and _off_mode == OffMode.DUAL:
+			_start(_off_track, _mirror(PISTOL_KICK if _off_family == &"pistol" else RIFLE_KICK), 0.0, strike * 0.5, recovery + windup, _off_rest())
+			_kick(Vector3(0, 0, 0.02), Vector3(0.05, 0, randf_range(-0.03, 0.03)))
+			return
 		_play_fire(windup, strike, recovery)
 		return
+	if _off_mode == OffMode.DUAL and hands != 0:
+		var off_clips: Array = MELEE_CLIPS.get(_off_family, MELEE_CLIPS[&"blade"])
+		var off_clip: Array = off_clips[kind]
+		_start(_off_track, _mirror(off_clip), windup, strike, recovery, _off_rest())
+		if hands == 1:
+			return
 	var clips: Array = MELEE_CLIPS.get(_family, MELEE_CLIPS[&"blade"])
 	var clip: Array = clips[kind]
 	if _family == &"fist" and kind == Attack.LIGHT:
@@ -501,6 +522,8 @@ func _on_reload_started(weapon: Weapon) -> void:
 		_start(_off_track, RELOAD_OFF_FREE, total * 0.2, total * 0.6, total * 0.2, _off_rest())
 	elif _off_mode == OffMode.TWO_HAND:
 		_start(_off_track, RELOAD_OFF, total * 0.2, total * 0.6, total * 0.2, _off_rest())
+	elif _off_mode == OffMode.DUAL:
+		_start(_off_track, _mirror(RELOAD), total * 0.2, total * 0.6, total * 0.2, _off_rest())
 
 func _on_reload_stopped(weapon: Weapon) -> void:
 	if weapon != _weapon:
@@ -593,8 +616,15 @@ func _main_rest() -> Pose:
 	if spec.has("guard") and _guard_w > 0.0:
 		pose = pose.lerp_to(_pose_from(spec["guard"]), _smooth(_guard_w))
 	if spec.has("aim") and _aim_w > 0.0:
-		pose = pose.lerp_to(_pose_from(spec["aim"]), _smooth(_aim_w))
+		var aim := _pose_from(spec["aim"])
+		if _off_mode == OffMode.DUAL:
+			aim.pos.x += DUAL_AIM_SPREAD
+		pose = pose.lerp_to(aim, _smooth(_aim_w))
 	return pose
+
+## The same pose on the left side.
+static func _mirror_pose(p: Pose) -> Pose:
+	return Pose.new(Vector3(-p.pos.x, p.pos.y, p.pos.z), Vector3(-p.tip.x, p.tip.y, p.tip.z), Vector3(-p.face.x, p.face.y, p.face.z))
 
 func _off_rest() -> Pose:
 	match _off_mode:
@@ -610,6 +640,16 @@ func _off_rest() -> Pose:
 		OffMode.ITEM:
 			var guard := _shield_w if _offhand_item is Shield else 0.0
 			return _pose_from(OFF_ITEM_REST).lerp_to(_pose_from(OFF_ITEM_GUARD), _smooth(guard))
+		OffMode.DUAL:
+			var spec: Dictionary = RESTS.get(_off_family, RESTS[&"blade"])
+			var pose := _mirror_pose(_pose_from(spec["rest"]))
+			if spec.has("guard") and _guard_w > 0.0:
+				pose = pose.lerp_to(_mirror_pose(_pose_from(spec["guard"])), _smooth(_guard_w))
+			if spec.has("aim") and _aim_w > 0.0:
+				var aim := _mirror_pose(_pose_from(spec["aim"]))
+				aim.pos.x -= DUAL_AIM_SPREAD
+				pose = pose.lerp_to(aim, _smooth(_aim_w))
+			return pose
 	return Pose.new(OFF_HIDDEN, Vector3(0.1, 1, -0.3), Vector3(0, 0, 1))
 
 func _pose_from(spec: Array) -> Pose:

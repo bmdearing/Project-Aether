@@ -22,6 +22,10 @@ func _run() -> void:
 	var held := OS.get_environment("CAPTURE_WEAPON")
 	if held != "":
 		(get_tree().get_first_node_in_group("player") as Player).equipment.equip(load(held) as Item, true)
+	# CAPTURE_OFFHAND=res://... dual wields that weapon in the left hand.
+	var off_path := OS.get_environment("CAPTURE_OFFHAND")
+	if off_path != "":
+		(get_tree().get_first_node_in_group("player") as Player).equipment.equip(load(off_path) as Item, true, -1, true)
 	await get_tree().create_timer(0.5).timeout
 	match mode:
 		"inventory":

@@ -153,6 +153,11 @@ const COMBO_HITS := 3
 const COMBO_WINDOW := 0.5
 const COMBO_FINISHER_DAMAGE := 1.1
 const COMBO_FINISHER_WINDUP := 1.2
+## Dual-wielded melee: four hits, left-right-left, then both blades at once.
+const DUAL_COMBO_HITS := 4
+enum Strike { MAIN, OFF, BOTH }
+const DUAL_COMBO_HANDS: Array[int] = [Strike.MAIN, Strike.OFF, Strike.MAIN, Strike.BOTH]
+var _strike_hands: int = Strike.MAIN
 
 ## Implementation Brief v3.3 Section 2 - replaces the old boolean
 ## _is_special (special vs. not) now that there are 3 distinct attack
@@ -234,13 +239,33 @@ func _try_combo_attack(type: AttackType) -> void:
 		return
 	if _state != State.IDLE or _player.get_active_weapon() == null:
 		return
-	_combo_step = (_combo_step + 1) % COMBO_HITS if _combo_idle <= COMBO_WINDOW else 0
+	_combo_step = (_combo_step + 1) % _combo_hits() if _combo_idle <= COMBO_WINDOW else 0
+	_strike_hands = DUAL_COMBO_HANDS[_combo_step] if _player.dual_wield_kind() == "melee" else Strike.MAIN
 	_ensure_hitbox_connected()
 	_attack_type = type
 	_enter_windup()
 
+func _combo_hits() -> int:
+	return DUAL_COMBO_HITS if _player.dual_wield_kind() == "melee" else COMBO_HITS
+
+## Which hand(s) the current swing uses (Strike).
+func get_strike_hands() -> int:
+	return _strike_hands
+
+## Mixed pair with a gun in the main hand: the Offhand Attack key swings the
+## offhand blade.
+func try_offhand_swing() -> void:
+	if _state != State.IDLE or _player.get_offhand_weapon() == null:
+		return
+	_ensure_hitbox_connected()
+	_attack_type = AttackType.THRUST
+	_combo_idle = INF
+	_combo_step = 0
+	_strike_hands = Strike.OFF
+	_enter_windup()
+
 func is_combo_finisher() -> bool:
-	return _combo_step == COMBO_HITS - 1 and _attack_type != AttackType.CHARGED and _stance_release.is_empty()
+	return _combo_step == _combo_hits() - 1 and _attack_type != AttackType.CHARGED and _stance_release.is_empty()
 
 ## Called from Player._physics_process when WeaponStance.is_active and LMB
 ## is pressed (Implementation Brief v3.3 Section 2's "charged thrust" -
@@ -253,7 +278,7 @@ func is_combo_finisher() -> bool:
 func try_charged_thrust() -> void:
 	if _state != State.IDLE:
 		return
-	var weapon := _player.get_active_weapon()
+	var weapon := _player.get_attack_weapon()
 	if weapon == null:
 		return
 	if weapon.weapon_type == "Dagger":
@@ -261,6 +286,7 @@ func try_charged_thrust() -> void:
 		forward.y = 0.0
 		if forward.length() > 0.01:
 			_player.try_special_dash(forward.normalized())
+	_strike_hands = Strike.MAIN
 	_ensure_hitbox_connected()
 	_attack_type = AttackType.CHARGED
 	_combo_idle = INF
@@ -291,6 +317,7 @@ func _physics_process(delta: float) -> void:
 			_timer -= delta
 			if _timer <= 0.0:
 				_state = State.IDLE
+				_player.attack_hand = Player.Hand.MAIN
 				_combo_idle = 0.0 if _attack_type != AttackType.CHARGED and _stance_release.is_empty() else INF
 				_attack_type = AttackType.THRUST
 				_stance_release = {}
@@ -309,6 +336,7 @@ func release_stance_attack(params: Dictionary) -> void:
 	_ensure_hitbox_connected()
 	_attack_type = AttackType.CHARGED
 	_stance_release = params
+	_strike_hands = params.get("hands", Strike.MAIN)
 	_enter_windup()
 
 ## Every live enemy within `radius` of `center` with a clear line from it.
@@ -347,7 +375,7 @@ func hit_targets(targets: Array[Enemy]) -> void:
 ## timers and PlayerArmRig's tween durations (_play_swing() passes these
 ## same effective values) stay perfectly in sync regardless of weapon.
 func _effective_duration(base: float, minimum: float = 0.0) -> float:
-	var weapon := _player.get_active_weapon()
+	var weapon := _player.get_attack_weapon()
 	var swing_mult: float = WEAPON_TYPE_SWING_DURATION_MULT.get(weapon.weapon_type, 1.0) if weapon else 1.0
 	match _attack_type:
 		AttackType.JAB:
@@ -356,11 +384,11 @@ func _effective_duration(base: float, minimum: float = 0.0) -> float:
 			swing_mult *= SPECIAL_DURATION_MULTIPLIER
 		AttackType.THRUST:
 			pass  # x1.0 - identical timing to the old, only attack type this project had before this brief
-	return maxf(base * swing_mult / _player.get_action_speed_multiplier(), minimum)
+	return maxf(base * swing_mult / _player.get_attack_speed_multiplier(), minimum)
 
 ## Felt heaviness of the current swing: drives hitstop, knockback, lunge, kick.
 func _swing_weight() -> float:
-	var weapon := _player.get_active_weapon()
+	var weapon := _player.get_attack_weapon()
 	var weight: float = clampf(WEAPON_TYPE_SWING_DURATION_MULT.get(weapon.weapon_type, 1.0) if weapon else 1.0, 0.85, 1.8)
 	match _attack_type:
 		AttackType.JAB:
@@ -388,6 +416,7 @@ func _recovery_time() -> float:
 
 func _enter_windup() -> void:
 	_state = State.WINDUP
+	_player.attack_hand = Player.Hand.OFF if _strike_hands == Strike.OFF else Player.Hand.MAIN
 	_swing_side = not _swing_side
 	_timer = _windup_time()
 	_play_swing()
@@ -400,7 +429,7 @@ const SWING_BLUNT_TYPES := ["Mace", "War Pick", "Pressure Fist", "Gauntlet"]
 const SWING_PIERCE_TYPES := ["Spear", "Halberd", "Shock Lance"]
 
 func _play_swing_sound() -> void:
-	var weapon := _player.get_active_weapon()
+	var weapon := _player.get_attack_weapon()
 	if weapon == null:
 		return
 	var snd: AudioStream
@@ -465,8 +494,8 @@ func _play_swing() -> void:
 			kind = PlayerArmRig.Attack.CHARGED
 	if is_combo_finisher():
 		kind = PlayerArmRig.Attack.CHARGED
-	var backswing := _combo_step == 1 and _stance_release.is_empty() and _attack_type != AttackType.CHARGED
-	rig.play_attack(_stance_release.get("kind", kind), _windup_time(), _strike_time(), _recovery_time(), backswing)
+	var backswing := _combo_step == 1 and _stance_release.is_empty() and _attack_type != AttackType.CHARGED and _strike_hands == Strike.MAIN
+	rig.play_attack(_stance_release.get("kind", kind), _windup_time(), _strike_time(), _recovery_time(), backswing, _strike_hands)
 
 ## Which way the camera leans on a strike: alternates, so successive swings rock side to side.
 func _swing_yaw() -> float:
@@ -496,7 +525,7 @@ func _assist_aim() -> void:
 	create_tween().tween_property(_player, "rotation:y", _player.rotation.y + turn, 0.06)
 
 func get_swing_shape() -> Dictionary:
-	var weapon := _player.get_active_weapon()
+	var weapon := _player.get_attack_weapon()
 	var family: String = WEAPON_SWING_FAMILY.get(weapon.weapon_type, DEFAULT_SWING_FAMILY) if weapon else DEFAULT_SWING_FAMILY
 	if _stance_release.has("shape"):
 		return _stance_release["shape"]
@@ -568,8 +597,17 @@ func _attack_type_motion_multiplier() -> float:
 		_:
 			return THRUST_MOTION_VALUE_MULTIPLIER
 
+## Both-blade strikes (the dual combo finisher, Flurry's cross-cut) hit once
+## with each weapon.
 func _deal_damage(target: Enemy, damage_scale: float = 1.0, is_primary: bool = true) -> void:
-	var weapon: Weapon = _player.get_active_weapon()
+	_deal_damage_once(target, damage_scale, is_primary)
+	if _strike_hands == Strike.BOTH and _player.is_dual_wielding() and is_instance_valid(target) and target.health.is_alive() and not _player.is_in_visceral():
+		_player.attack_hand = Player.Hand.OFF
+		_deal_damage_once(target, damage_scale, false)
+		_player.attack_hand = Player.Hand.MAIN
+
+func _deal_damage_once(target: Enemy, damage_scale: float = 1.0, is_primary: bool = true) -> void:
+	var weapon: Weapon = _player.get_attack_weapon()
 	var damage_type := weapon.get_damage_type()
 	damage_type = _stance_release.get("damage_type", damage_type)
 	var motion_value := _effective_motion_value(weapon) * _attack_type_motion_multiplier()
@@ -644,6 +682,10 @@ func _begin_visceral(target: Enemy, weapon: Weapon, motion_value: float, damage_
 		if not is_instance_valid(target) or not target.health.is_alive():
 			return
 		_player.parry_handler.execute_riposte(target, weapon, motion_value, damage_type, true)
+		# Crossguard: the offhand blade follows the main one in.
+		if _two_blade_riposte() and target.health.is_alive():
+			var off := _player.get_offhand_weapon()
+			_player.parry_handler.execute_riposte(target, off, _effective_motion_value(off) * _attack_type_motion_multiplier(), off.get_damage_type(), true)
 		var killed := not target.health.is_alive()
 		BloodFx.visceral(target, dir)
 		AudioManager.play_at(SoundLib.library.riposte, target.global_position)
@@ -653,6 +695,13 @@ func _begin_visceral(target: Enemy, weapon: Weapon, motion_value: float, damage_
 			target.interrupt_attack()  # reels from the rip-out
 		_trigger_hit_feedback(true, false, killed)
 		EventBus.hit_landed.emit(true, false, killed))
+
+## Dual-wielding melee on the Crossguard page: ripostes strike with both blades.
+func _two_blade_riposte() -> bool:
+	if _player.dual_wield_kind() != "melee" or _player.weapon_stance.active_page != WeaponStance.StancePage.A:
+		return false
+	var b := StanceInfo.behavior_for(_player.get_active_weapon(), 0, true) as MeleeStanceBehavior
+	return b != null and b.riposte_both_blades
 
 func _shove_corpse(target: Enemy, scale: float) -> void:
 	target.apply_knockback(_blow_direction(target) * KILL_SHOVE * clampf(scale, 0.5, 1.5) + Vector3.UP * 2.5)

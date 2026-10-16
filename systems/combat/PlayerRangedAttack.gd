@@ -85,6 +85,12 @@ const ACTIVE_RELOAD_JAM := 0.5            # a miss adds this share of the reload
 const ACTIVE_RELOAD_PERFECT_DAMAGE := 1.25
 var _active_reload: Dictionary = {}
 var _perfect_shots: int = 0
+## Dual wielding (Player.is_dual_wielding): guns alternate shots, one reload
+## refills both, and aiming is worse: this much extra spread (half while
+## aiming), and aiming tightens spread less.
+const DUAL_SPREAD_DEG := 4.0
+const DUAL_AIMED_SPREAD_MULTIPLIER := 0.75
+var _next_off := false
 
 ## The aim stance in effect, or null when not aiming / none designed.
 func _stance() -> RangedStanceBehavior:
@@ -106,6 +112,48 @@ func _ready() -> void:
 ## Bows (ARROW) and any weapon with magazine_size 0 have no magazine.
 func _uses_magazine(weapon: Weapon) -> bool:
 	return weapon.ammo_type != Constants.AmmoType.ARROW and weapon.magazine_size > 0
+
+## The gun to fire next. Dual guns alternate, skipping an empty one; sets
+## Player.attack_hand to match.
+func _pick_gun() -> Weapon:
+	var main: Weapon = _player.get_active_weapon()
+	_player.attack_hand = Player.Hand.MAIN
+	if _player.dual_wield_kind() != "guns":
+		return main
+	var off := _player.get_offhand_weapon()
+	var first := off if _next_off else main
+	var second := main if _next_off else off
+	var pick := first if not _uses_magazine(first) or first.get_current_magazine() > 0 else second
+	_player.attack_hand = Player.Hand.OFF if pick == off else Player.Hand.MAIN
+	return pick
+
+## The guns in hand: one, or both when dual wielding guns.
+func get_guns() -> Array[Weapon]:
+	var out: Array[Weapon] = []
+	var main: Weapon = _player.get_active_weapon()
+	if main and main.is_ranged:
+		out.append(main)
+	var off := _player.get_offhand_weapon()
+	if off and off.is_ranged:
+		out.append(off)
+	return out
+
+## What R reloads: the main gun, or a mixed pair's offhand gun.
+func _reload_gun() -> Weapon:
+	var guns := get_guns()
+	return guns[0] if not guns.is_empty() else null
+
+func _guns_empty() -> bool:
+	return get_guns().all(func(g: Weapon) -> bool: return not _uses_magazine(g) or g.get_current_magazine() <= 0)
+
+func _guns_full() -> bool:
+	return get_guns().all(func(g: Weapon) -> bool: return not _uses_magazine(g) or g.get_current_magazine() >= g.magazine_size)
+
+## Mixed pair: the Offhand Attack key fires the offhand gun.
+func try_offhand_fire(aimed: bool = false) -> void:
+	var off := _player.get_offhand_weapon()
+	if off and off.is_ranged:
+		try_attack(aimed, off)
 
 ## Rounds loaded in the active weapon, for the HUD. -1 when it has no magazine.
 func get_current_magazine() -> int:
@@ -136,8 +184,11 @@ func cancel_reload(weapon: Weapon) -> void:
 	_reload_weapon = null
 	EventBus.reload_interrupted.emit(weapon)
 
-func try_attack(aimed: bool = false) -> void:
-	var weapon: Weapon = _player.get_active_weapon()
+## forced: fire this weapon (the Offhand Attack key in a mixed pair).
+func try_attack(aimed: bool = false, forced: Weapon = null) -> void:
+	var weapon: Weapon = forced if forced else _pick_gun()
+	if forced:
+		_player.attack_hand = Player.Hand.OFF
 	if weapon == null or not weapon.is_ranged:
 		return
 	if _is_cycling or _cooldown_remaining > 0.0:
@@ -150,7 +201,7 @@ func try_attack(aimed: bool = false) -> void:
 			return
 	if _uses_magazine(weapon) and weapon.get_current_magazine() <= 0:
 		if AmmoInventory.get_reserve(weapon.ammo_type) > 0:
-			_start_reload(weapon)
+			_start_reload(_reload_gun() if _reload_gun() else weapon)
 		else:
 			_dry_click()
 		return
@@ -164,7 +215,7 @@ func try_attack(aimed: bool = false) -> void:
 
 ## Called every physics frame while the attack input is held.
 func try_attack_held(aimed: bool = false) -> void:
-	var weapon: Weapon = _player.get_active_weapon()
+	var weapon: Weapon = _pick_gun()
 	if weapon == null or not weapon.is_ranged or weapon.fire_mode != Constants.FireMode.FULL_AUTO:
 		return
 	if _is_reloading or _is_cycling or _full_auto_timer > 0.0:
@@ -174,7 +225,7 @@ func try_attack_held(aimed: bool = false) -> void:
 	_fire_one(weapon, aimed)
 	var interval := 1.0 / weapon.fire_rate if weapon.fire_rate > 0.0 else fire_cooldown
 	var st := _stance() if aimed else null
-	_full_auto_timer = interval / _player.get_action_speed_multiplier() / (st.fire_rate_multiplier if st else 1.0)
+	_full_auto_timer = interval / _player.get_attack_speed_multiplier(weapon) / (st.fire_rate_multiplier if st else 1.0)
 
 func _dry_click() -> void:
 	_cooldown_remaining = DRY_CLICK_COOLDOWN
@@ -185,7 +236,7 @@ func _fire_one(weapon: Weapon, aimed: bool) -> void:
 		weapon.current_magazine = weapon.get_current_magazine() - 1
 	# Section 12: Instinct -> "+1% Attack/Cast speed per point" divides the base cooldown.
 	var st := _stance() if aimed else null
-	_cooldown_remaining = fire_cooldown / _player.get_action_speed_multiplier() / (st.fire_rate_multiplier if st else 1.0)
+	_cooldown_remaining = fire_cooldown / _player.get_attack_speed_multiplier(weapon) / (st.fire_rate_multiplier if st else 1.0)
 	_fire(weapon, aimed)
 
 	match weapon.fire_mode:
@@ -204,7 +255,7 @@ func _fire_one(weapon: Weapon, aimed: bool) -> void:
 	if st and st.shot_interval > 0.0:
 		_is_cycling = false
 		_cycle_timer = 0.0
-		_cooldown_remaining = st.shot_interval / _player.get_action_speed_multiplier()
+		_cooldown_remaining = st.shot_interval / _player.get_attack_speed_multiplier(weapon)
 	# Revolvers fire as fast as the trigger is pulled: no cooldown or hammer cycle.
 	if weapon.weapon_type == "Revolver":
 		_cooldown_remaining = 0.0
@@ -213,10 +264,12 @@ func _fire_one(weapon: Weapon, aimed: bool) -> void:
 	if _perfect_shots > 0:
 		_perfect_shots -= 1
 
-	if _uses_magazine(weapon) and weapon.get_current_magazine() <= 0:
+	_next_off = _player.attack_hand == Player.Hand.MAIN
+	if _uses_magazine(weapon) and weapon.get_current_magazine() <= 0 and _guns_empty():
 		_dump_remaining = 0
 		_start_reload(weapon)
 	EventBus.ammo_changed.emit(weapon.ammo_type, AmmoInventory.get_reserve(weapon.ammo_type))
+	_player.attack_hand = Player.Hand.MAIN
 
 func _start_reload(weapon: Weapon) -> void:
 	if not _uses_magazine(weapon) or _is_reloading:
@@ -267,6 +320,12 @@ func _finish_reload(weapon: Weapon) -> void:
 	var to_load := mini(needed, AmmoInventory.get_reserve(weapon.ammo_type))
 	AmmoInventory.consume(weapon.ammo_type, to_load)
 	weapon.current_magazine = weapon.get_current_magazine() + to_load
+	# Dual guns: one reload refills both.
+	for other in get_guns():
+		if other != weapon and _uses_magazine(other) and not other.reload_per_shell:
+			var more := mini(other.magazine_size - other.get_current_magazine(), AmmoInventory.get_reserve(other.ammo_type))
+			AmmoInventory.consume(other.ammo_type, more)
+			other.current_magazine = other.get_current_magazine() + more
 	_end_reload(weapon)
 	EventBus.ammo_changed.emit(weapon.ammo_type, AmmoInventory.get_reserve(weapon.ammo_type))
 
@@ -278,13 +337,13 @@ func _end_reload(weapon: Weapon) -> void:
 
 ## R key.
 func try_manual_reload() -> void:
-	var weapon: Weapon = _player.get_active_weapon()
+	var weapon: Weapon = _reload_gun()
 	if weapon == null or not weapon.is_ranged or not _uses_magazine(weapon):
 		return
 	if _is_reloading and not _active_reload.is_empty():
 		_attempt_active_reload(weapon)
 		return
-	if _is_reloading or weapon.get_current_magazine() >= weapon.magazine_size:
+	if _is_reloading or _guns_full():
 		return
 	_start_reload(weapon)
 
@@ -306,7 +365,9 @@ func _attempt_active_reload(weapon: Weapon) -> void:
 		var perfect: bool = progress <= _active_reload["perfect"]
 		_finish_reload(weapon)
 		if perfect:
-			_perfect_shots = weapon.magazine_size
+			_perfect_shots = 0
+			for g in get_guns():
+				_perfect_shots += g.magazine_size
 		EventBus.active_reload_resolved.emit("perfect" if perfect else "good")
 		return
 	_active_reload["result"] = "jam"
@@ -379,6 +440,8 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 	var motion_value := base_motion_value * (AIMED_DAMAGE_MULTIPLIER if aimed else 1.0)
 	var pellets := maxi(weapon.pellet_count, 1)
 	var spread := weapon.pellet_spread_degrees * (AIMED_SPREAD_MULTIPLIER if aimed else 1.0)
+	if _player.is_dual_wielding():
+		spread = weapon.pellet_spread_degrees * (DUAL_AIMED_SPREAD_MULTIPLIER if aimed else 1.0) + DUAL_SPREAD_DEG * (0.5 if aimed else 1.0)
 	if st:
 		motion_value *= st.damage_multiplier * get_aim_multiplier()
 		spread = spread * st.spread_multiplier + st.spread_add_degrees
@@ -386,6 +449,12 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		motion_value *= ACTIVE_RELOAD_PERFECT_DAMAGE
 	_aim_time = 0.0
 	var socket_transform: Transform3D = _player.weapon_socket.global_transform
+	# The offhand gun fires from the left: the socket mirrored across the view.
+	if _player.attack_hand == Player.Hand.OFF:
+		var cam := _player.camera.global_transform
+		var local := cam.affine_inverse() * socket_transform.origin
+		local.x = -local.x
+		socket_transform.origin = cam * local
 	# Hitscan shots aim straight down the crosshair; the tracer still leaves the muzzle.
 	var hitscan := weapon.is_hitscan()
 	if hitscan:
@@ -595,5 +664,5 @@ func _play_fire_animation(_weapon: Weapon) -> void:
 	var rig := _player.arm_rig
 	if rig == null:
 		return
-	var mult := (BOW_FIRE_DURATION_MULT if rig.get_family() == &"bow" else 1.0) / _player.get_action_speed_multiplier()
-	rig.play_attack(PlayerArmRig.Attack.FIRE, FIRE_WINDUP * mult, FIRE_STRIKE * mult, FIRE_RECOVERY * mult)
+	var mult := (BOW_FIRE_DURATION_MULT if rig.get_family() == &"bow" else 1.0) / _player.get_attack_speed_multiplier(_weapon)
+	rig.play_attack(PlayerArmRig.Attack.FIRE, FIRE_WINDUP * mult, FIRE_STRIKE * mult, FIRE_RECOVERY * mult, false, 1 if _player.attack_hand == Player.Hand.OFF else 0)

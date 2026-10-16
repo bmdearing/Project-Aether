@@ -264,12 +264,20 @@ func _refresh_behaviors() -> void:
 			_add_text("Hold RMB to aim. No aim stance is designed for %s yet." % weapon.weapon_type)
 		else:
 			_add_text("Hold RMB to aim - %s: %s" % [aim["name"], aim["desc"]])
+	elif _dual_kind() == "melee":
+		_add_text("Dual wielding: 10% more attack speed. LMB swings left, right, left, then both blades. Hold RMB for the selected stance.")
+		_add_page_choices(weapon, true)
 	elif not StanceInfo.MELEE.has(weapon.weapon_type):
 		_add_text("No stances are designed for %s yet." % weapon.weapon_type)
 	else:
 		_add_text("Hold RMB to enter the selected stance. Holding X in combat also switches.")
 		_add_page_choices(weapon)
 
+	match _dual_kind():
+		"guns":
+			_add_text("Dual wielding guns: 10%% more attack speed. Shots alternate between the guns and one reload refills both, but aim is worse (+%d degrees spread, aiming helps less)." % roundi(PlayerRangedAttack.DUAL_SPREAD_DEG))
+		"mixed":
+			_add_text("Blade and gun: 10%% more attack speed. LMB and RMB use your main hand. %s uses the offhand weapon." % GameSettings.key_name("offhand_attack"))
 	var off_conduit: Weapon = _equipment.offhand as Weapon if _equipment else null
 	if off_conduit and off_conduit.is_conduit:
 		_add_heading("Off Hand - %s" % off_conduit.display_name)
@@ -292,10 +300,14 @@ func _refresh_behaviors() -> void:
 	_behaviors_panel.add_child(row)
 	_add_text("A raised shield stops every hit from the front, but holding it and taking hits drains Composure (the bar under the crosshair). When it runs out your guard breaks and you're stunned for a second.")
 
-func _add_page_choices(weapon: Weapon) -> void:
+func _dual_kind() -> String:
+	var player := get_tree().get_first_node_in_group("player") as Player
+	return player.dual_wield_kind() if player else ""
+
+func _add_page_choices(weapon: Weapon, dual: bool = false) -> void:
 	var group := ButtonGroup.new()
 	for page in 2:
-		var info := StanceInfo.for_weapon(weapon, page)
+		var info := StanceInfo.for_weapon(weapon, page, dual)
 		var button := _make_toggle("Stance %s - %s" % ["A" if page == 0 else "B", info["name"]], group, GameState.stance_page == page)
 		button.pressed.connect(_on_stance_page_chosen.bind(page))
 		_behaviors_panel.add_child(button)
@@ -720,7 +732,8 @@ func _equip_from_inventory(entry: GridInventory.Entry) -> void:
 	var item: Item = entry.content
 	var old_position := entry.position
 	var before := _equipment.get_all_equipped_items()
-	_equipment.equip(item)
+	# Shift: a one-handed weapon goes in the offhand (dual wielding).
+	_equipment.equip(item, false, -1, item is Weapon and Input.is_key_pressed(KEY_SHIFT))
 	var after := _equipment.get_all_equipped_items()
 	if not after.has(item):
 		return  # equip_failed already reported why

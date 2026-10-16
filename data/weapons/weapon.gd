@@ -209,6 +209,11 @@ func get_conduit_stance_type() -> String:
 @export var spell_page_modifier: String = ""
 @export var stance_buff: String = ""
 
+## Dual wielding: any one-handed melee weapon or gun can go in the offhand
+## slot beside another. Conduits keep their own offhand foci.
+func can_dual_wield() -> bool:
+	return is_main_hand and not is_offhand and not is_two_handed and not is_conduit
+
 ## Offhand Conduits (Rod, Tome, Grimoire, Talisman, Fetish) are never swung
 ## or fired, so hit damage, crit and attack speed mean nothing on them.
 func can_attack() -> bool:

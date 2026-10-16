@@ -71,6 +71,9 @@ func _is_backpedaling() -> bool:
 func _resolve_behavior(weapon: Weapon) -> StanceBehavior:
 	if _behavior_by_weapon_type.is_empty():
 		_scan_behaviors()
+	if _dual_melee(weapon):
+		var dual: StanceBehavior = _behavior_by_weapon_type.get(StanceInfo.DUAL_WIELD + "_b") if active_page == StancePage.B else null
+		return dual if dual else _behavior_by_weapon_type.get(StanceInfo.DUAL_WIELD)
 	if active_page == StancePage.B:
 		var page_b_key := weapon.weapon_type + "_b"
 		if _behavior_by_weapon_type.has(page_b_key):
@@ -83,9 +86,15 @@ func _resolve_behavior(weapon: Weapon) -> StanceBehavior:
 func has_page_b(weapon: Weapon) -> bool:
 	if weapon == null:
 		return false
+	if _dual_melee(weapon):
+		return true
 	if _behavior_by_weapon_type.is_empty():
 		_scan_behaviors()
 	return _behavior_by_weapon_type.has(weapon.weapon_type + "_b")
+
+## Dual-wielded melee uses the Dual Wield stance pages, not the main weapon's.
+func _dual_melee(weapon: Weapon) -> bool:
+	return _player != null and weapon == _player.get_active_weapon() and _player.dual_wield_kind() == "melee"
 
 func _scan_behaviors() -> void:
 	var dir := DirAccess.open(STANCE_INSTANCES_DIR)

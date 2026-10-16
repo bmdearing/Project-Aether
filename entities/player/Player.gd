@@ -568,6 +568,49 @@ func _apply_saved_ability_levels() -> void:
 func get_active_weapon() -> Weapon:
 	return equipment.primary_weapon
 
+## ---- Dual wielding ---------------------------------------------------------
+## A one-handed weapon in each hand (Weapon.can_dual_wield). Attacks say which
+## hand swings or fires (attack_hand); melee and ranged roll that weapon.
+enum Hand { MAIN, OFF }
+const DUAL_WIELD_ATTACK_SPEED := 1.1  # more attack speed while dual wielding
+var attack_hand: Hand = Hand.MAIN
+
+## The offhand weapon when dual wielding, else null.
+func get_offhand_weapon() -> Weapon:
+	var main := get_active_weapon()
+	var off := equipment.offhand as Weapon if equipment else null
+	if main == null or off == null or not main.can_dual_wield() or not off.can_dual_wield():
+		return null
+	return off
+
+func is_dual_wielding() -> bool:
+	return get_offhand_weapon() != null
+
+## "melee", "guns", "mixed" (one of each), or "" when not dual wielding.
+func dual_wield_kind() -> String:
+	var off := get_offhand_weapon()
+	if off == null:
+		return ""
+	var main := get_active_weapon()
+	if main.is_ranged and off.is_ranged:
+		return "guns"
+	return "mixed" if main.is_ranged or off.is_ranged else "melee"
+
+## The weapon in the hand that's attacking.
+func get_attack_weapon() -> Weapon:
+	if attack_hand == Hand.OFF and is_dual_wielding():
+		return get_offhand_weapon()
+	return get_active_weapon()
+
+## Action speed for an attack with `weapon` (its own local attack speed),
+## plus dual wielding's bonus.
+func get_attack_speed_multiplier(weapon: Weapon = null) -> float:
+	if weapon == null:
+		weapon = get_attack_weapon()
+	var local := weapon.get_local_multiplier("local_increased_attack_speed") if weapon else 1.0
+	var speed := (1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0 + stat_sheet.get_attack_speed_from_stats()) * local
+	return speed * (DUAL_WIELD_ATTACK_SPEED if is_dual_wielding() else 1.0)
+
 ## What delivered a hit, for Evasion (Patch v4.4). ATTACK (melee swings and
 ## projectiles - the default, so callers that don't say are treated as
 ## attacks) can be Dodged and Deflected; SPELL can only be Deflected; DOT
@@ -912,8 +955,14 @@ func _handle_attack_input(delta: float) -> void:
 	# try_attack() above); every other fire mode returns immediately.
 	if Input.is_action_pressed("attack") and active_weapon and active_weapon.is_ranged:
 		ranged_attack.try_attack_held(weapon_stance.is_active)
-	if Input.is_action_just_pressed("reload") and active_weapon and active_weapon.is_ranged:
+	if Input.is_action_just_pressed("reload") and not ranged_attack.get_guns().is_empty():
 		ranged_attack.try_manual_reload()
+	# Mixed pair (a blade and a gun): the offhand weapon has its own key.
+	if Input.is_action_just_pressed("offhand_attack") and dual_wield_kind() == "mixed":
+		if get_offhand_weapon().is_ranged:
+			ranged_attack.try_offhand_fire(weapon_stance.is_active)
+		else:
+			melee_attack.try_offhand_swing()
 	if Input.is_action_just_pressed("gun_bash") and active_weapon and active_weapon.is_ranged:
 		ranged_attack.try_bash()
 

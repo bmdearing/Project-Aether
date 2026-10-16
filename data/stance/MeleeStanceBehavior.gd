@@ -28,6 +28,7 @@ enum MeleeStanceType {
 	PRESSURE_BLAST,
 	EARTHQUAKE,
 	SHATTER,
+	FLURRY,          # dual wield: charge for more alternating cuts, cross-cut finish
 	# PRESSURE_FIST_STANCE_B - deferred, do not add yet (per the brief)
 }
 
@@ -62,6 +63,8 @@ enum MeleeStanceType {
 @export var melee_damage_blocked: float = 0.0
 ## Share of all incoming damage negated (Mace Fortify).
 @export var damage_reduction: float = 0.0
+## Crossguard (dual wield): a riposte strikes once with each blade.
+@export var riposte_both_blades: bool = false
 ## Frontal barrier pool as a share of max life (Spear Phalanx).
 @export var barrier_fraction: float = 0.0
 @export var barrier_half_angle: float = 70.0
@@ -74,6 +77,8 @@ enum MeleeStanceType {
 @export_group("Instant stance")
 ## Slice and Dice: hits in the flurry, and the last hit's multiplier when it completes.
 @export var hits: int = 1
+## Flurry: cuts at zero charge (hits is the full-charge count).
+@export var hits_min: int = 0
 @export var finisher_multiplier: float = 1.0
 ## Push (Sweep, Repulse) in m/s.
 @export var knockback: float = 0.0

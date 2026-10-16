@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="MeleeStanceBehavior" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/stance/MeleeStanceBehavior.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+weapon_type = "Dual Wield_b"
+move_speed_multiplier = 0.8
+stance_type = 22
+charge_time = 1.0
+charge_min_time = 0.15
+charge_move_multiplier = 0.7
+motion_value_min = 0.55
+motion_value_max = 0.55
+hits_min = 3
+hits = 7
+finisher_multiplier = 2.2
+cooldown_seconds = 6.0
