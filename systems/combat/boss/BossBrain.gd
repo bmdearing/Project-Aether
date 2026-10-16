@@ -433,9 +433,7 @@ func _on_ground_struck(a: BossAbility, center: Vector3, radius: float) -> void:
 func _hit_circle(center: Vector3, radius: float, a: BossAbility, share: float = 1.0) -> void:
 	if _player == null or not _player.health.is_alive():
 		return
-	if absf(_player.global_position.y - center.y) > 3.0:
-		return
-	if _flat_distance(center, _player.global_position) <= radius + 0.4:
+	if GroundHit.in_circle(center, radius, _player.global_position):
 		_damage_player(a, share)
 
 func _damage_player(a: BossAbility, share: float = 1.0) -> void:

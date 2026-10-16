@@ -244,7 +244,7 @@ func _explode(at: Vector3) -> void:
 	await get_tree().create_timer(VOLATILE_DELAY).timeout
 	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.explosion), at, -4.0)
 	var player := get_tree().get_first_node_in_group("player") as Player
-	if player and player.global_position.distance_to(at) <= radius:
+	if player and GroundHit.in_circle(at, radius, player.global_position, 0.0):
 		player.take_damage(damage, damage_type, null, Player.HitKind.SPELL)
 
 func _try_blink() -> void:
@@ -274,7 +274,7 @@ func _try_nova() -> void:
 	if not is_instance_valid(_enemy) or not _enemy.health.is_alive():
 		return
 	player = get_tree().get_first_node_in_group("player") as Player
-	if player and player.global_position.distance_to(_enemy.global_position) <= radius:
+	if player and GroundHit.in_circle(_enemy.global_position, radius, player.global_position, 0.0):
 		player.take_damage(_enemy.get_ability_base_damage() * NOVA_DAMAGE_HITS, Constants.DamageType.COLD, _enemy, Player.HitKind.SPELL)
 		if player.status_effects:
 			player.status_effects.apply_effect("chill", _enemy)

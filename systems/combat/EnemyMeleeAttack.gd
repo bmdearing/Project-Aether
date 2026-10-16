@@ -107,6 +107,19 @@ func _poll_hitbox() -> void:
 			_hitbox.monitoring = false
 			_resolve_hit(player)
 			return
+	# A swing also catches a player jumping over it (GroundHit).
+	if is_instance_valid(_player) and not _player.is_on_floor() and _in_swing_column(_player):
+		_resolved_this_strike = true
+		_hitbox.monitoring = false
+		_resolve_hit(_player)
+
+func _in_swing_column(player: Player) -> bool:
+	var shape_node := _hitbox.get_node_or_null("CollisionShape3D") as CollisionShape3D
+	var sphere := shape_node.shape as SphereShape3D if shape_node else null
+	if sphere == null:
+		return false
+	var centre := shape_node.global_position
+	return GroundHit.in_circle(Vector3(centre.x, _enemy.global_position.y, centre.z), sphere.radius, player.global_position, 0.3)
 
 func interrupt() -> void:
 	if _state == State.TELEGRAPH or _state == State.STRIKE:

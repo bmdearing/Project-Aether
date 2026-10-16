@@ -582,6 +582,12 @@ enum HitKind { ATTACK, SPELL, DOT }
 ## then Ward absorbs whatever's left regardless of type (the old Esoteric-
 ## only restriction is gone), then Ward overflow hits Health.
 ## is_melee: an enemy weapon swing (EnemyMeleeAttack), for Guard.
+## Hits taken in the air (not mantling a ledge) deal this much more.
+const AIRBORNE_DAMAGE_TAKEN := 1.1
+
+func is_airborne() -> bool:
+	return not is_on_floor() and not (ledge_climb and ledge_climb.busy())
+
 func take_damage(amount: float, damage_type: Constants.DamageType, source: Node = null, hit_kind: HitKind = HitKind.ATTACK, is_melee: bool = false) -> void:
 	if parry_handler and parry_handler.is_invulnerable:
 		return
@@ -593,6 +599,9 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 	amount = stance_defense.absorb(amount, source, hit_kind, is_melee)
 	if amount <= 0.0:
 		return
+	# Caught in the air: jumping over attacks has a cost.
+	if hit_kind != HitKind.DOT and is_airborne():
+		amount *= AIRBORNE_DAMAGE_TAKEN
 	# Patch v4.4 Evasion: Dodge (attacks only) negates the hit entirely and
 	# never interrupts a cast; Deflection (attacks and spells) reduces it.
 	if hit_kind != HitKind.DOT:

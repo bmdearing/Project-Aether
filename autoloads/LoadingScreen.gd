@@ -22,6 +22,7 @@ const TIPS := [
 	"Press T to open a portal home. Your Figment waits for you to come back.",
 	"Spells level up with gold and Crystallized Aether on the Spells screen (K).",
 	"Jewels socket permanently: right-click one, then click the item to set it in.",
+	"Jumping won't save you: anything marked on the ground still hits you in the air, and hits that catch you mid-air deal 10% more.",
 	"Magic Find raises both the number of drops and their rarity.",
 	"Killing a Figment's boss opens a portal home on the altar of its chamber.",
 	"Ward absorbs damage before Life and recovers on its own once you stop taking hits.",

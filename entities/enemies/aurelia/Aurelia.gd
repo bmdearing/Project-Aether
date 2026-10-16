@@ -394,9 +394,9 @@ func _big_bolt(spot: Vector3, ability: BossAbility) -> void:
 
 func _hit_circle(center: Vector3, radius: float, amount: float, type: int, status: String = "") -> void:
 	var p := _target_player()
-	if p == null or not p.health.is_alive() or absf(p.global_position.y - center.y) > 3.0:
+	if p == null or not p.health.is_alive():
 		return
-	if Vector2(p.global_position.x - center.x, p.global_position.z - center.z).length() <= radius + 0.4:
+	if GroundHit.in_circle(center, radius, p.global_position):
 		AureliaAilments.hit(p, amount, type, self)
 		if status != "" and p.status_effects:
 			p.status_effects.apply_effect(status, self, amount)
