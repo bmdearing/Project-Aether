@@ -28,11 +28,22 @@ func stash_path(suffix: String = "") -> String:
 const INVENTORY_VERSION := 2
 
 func _ready() -> void:
+	if _launched_from_tests():
+		slot_prefix = "user://test_run_slot"
 	_migrate_legacy_save()
 	_migrate_shared_stash()
 	slot = _last_slot()
 	load_game()
 	GameSettings.load_and_apply()
+
+## Test and capture scenes (res://tests/...) start from a reset GameState that
+## can still be game_started, so any save they reach would overwrite a real
+## slot with defaults. They get their own files instead.
+func _launched_from_tests() -> bool:
+	for arg in OS.get_cmdline_args():
+		if arg.begins_with("res://tests/"):
+			return true
+	return false
 
 func has_save() -> bool:
 	return slot_has_save(slot)
