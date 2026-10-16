@@ -1079,10 +1079,8 @@ func _roll_drop(rarity_mult: float) -> void:
 	_spawn_pickup(item)
 
 ## Ammo drop chance with reserves at their starting level; it scales with
-## need (see ammo_need()), from double at empty to none at AMMO_FULL_SHARE.
-const AMMO_DROP_CHANCE := 0.15
-## Reserves at this multiple of AmmoInventory.STARTING_AMMO count as full.
-const AMMO_FULL_SHARE := 2.0
+## need (see ammo_need()), from double at empty to none at full capacity.
+const AMMO_DROP_CHANCE := 0.25
 ## Socketable jewels (JewelRoller), rolled just before ammo.
 const JEWEL_DROP_CHANCE := 0.04
 ## Lenses (LensRoller), for Slate sockets; rolled just after jewels.
@@ -1107,7 +1105,7 @@ static func ammo_need(player: Player) -> Dictionary:
 	for weapon in carried:
 		if not (weapon is Weapon and weapon.is_ranged) or weapon.ammo_type == Constants.AmmoType.ARROW:
 			continue
-		var comfortable: float = AmmoInventory.STARTING_AMMO.get(weapon.ammo_type, 30) * AMMO_FULL_SHARE
+		var comfortable: float = AmmoInventory.get_capacity(weapon.ammo_type)
 		var need := clampf(1.0 - AmmoInventory.get_reserve(weapon.ammo_type) / comfortable, 0.0, 1.0)
 		if best.is_empty() or need > float(best["need"]):
 			best = {"type": weapon.ammo_type, "need": need}

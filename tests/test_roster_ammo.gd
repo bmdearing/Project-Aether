@@ -206,6 +206,8 @@ func _test_ammo_store() -> void:
 
 	# Partial refill: 20 pistol + 4 shotgun reserve rounds, 5 pistol + 2 shotgun magazine rounds.
 	_ammo.reset()
+	for t in _ammo.STARTING_AMMO:
+		_ammo.add(t, 99999)  # resupply fills to capacity
 	_ammo.consume(at.PISTOL, 20)
 	_ammo.consume(at.SHOTGUN, 4)
 	pistol.current_magazine = pistol.magazine_size - 5
@@ -217,7 +219,7 @@ func _test_ammo_store() -> void:
 	_game_state.gold = 1000
 	var msg: String = store.resupply(player)
 	_check(_game_state.gold == 1000 - expected, "gold charged (%d left, %s)" % [_game_state.gold, msg])
-	_check(_ammo.get_reserve(at.PISTOL) == _ammo.STARTING_AMMO[at.PISTOL] and _ammo.get_reserve(at.SHOTGUN) == _ammo.STARTING_AMMO[at.SHOTGUN], "reserves topped up")
+	_check(_ammo.get_reserve(at.PISTOL) == _ammo.get_capacity(at.PISTOL) and _ammo.get_reserve(at.SHOTGUN) == _ammo.get_capacity(at.SHOTGUN), "reserves filled to capacity")
 	_check(pistol.get_current_magazine() == pistol.magazine_size and shotgun.get_current_magazine() == shotgun.magazine_size, "magazines filled in both weapon sets")
 	_check(not player.ranged_attack.is_reloading(), "reload cancelled by refill")
 
@@ -229,17 +231,22 @@ func _test_ammo_store() -> void:
 	msg = store.resupply(player)
 	_check(msg == "Not enough Gold (cost %d)" % cost, "short-gold message (%s)" % msg)
 	_check(_game_state.gold == cost - 1, "short gold not charged")
-	_check(_ammo.get_reserve(at.PISTOL) == _ammo.STARTING_AMMO[at.PISTOL] - 10 and pistol.get_current_magazine() == 0, "short gold buys nothing")
+	_check(_ammo.get_reserve(at.PISTOL) == _ammo.get_capacity(at.PISTOL) - 10 and pistol.get_current_magazine() == 0, "short gold buys nothing")
 
-	# Reserves above the starting amount stay untouched and cost nothing.
+	# Capacity: pickups stop at it, and an upgrade raises it.
 	_game_state.gold = 1000
 	store.resupply(player)
 	_game_state.gold = 1000
-	_ammo.add(at.RIFLE, 50)
-	var rifle_reserve: int = _ammo.get_reserve(at.RIFLE)
-	_check(store.get_resupply_cost(player) == 0, "over-stocked reserve adds no cost")
+	_check(_ammo.add(at.RIFLE, 50) == 0 and _ammo.is_full(at.RIFLE), "a full type takes no more rounds")
+	var cap: int = _ammo.get_capacity(at.RIFLE)
+	var price_up: int = _ammo.get_upgrade_cost(at.RIFLE)
+	_check(_ammo.buy_capacity_tier(at.RIFLE) and _game_state.gold == 1000 - price_up, "an upgrade costs its Gold (%d)" % price_up)
+	_check(_ammo.get_capacity(at.RIFLE) == roundi(cap * 1.25) and _ammo.get_upgrade_cost(at.RIFLE) == price_up * 2, "it raises capacity a quarter and doubles the next price")
+	_check(_ammo.get_capacity(at.PISTOL) == roundi(_ammo.STARTING_AMMO[at.PISTOL] * 2.0), "other types keep their own capacity")
+	_check(_ammo.deserialize_capacity.is_valid(), "capacity tiers save")
+	_game_state.gold = 100000
 	store.resupply(player)
-	_check(_ammo.get_reserve(at.RIFLE) == rifle_reserve, "reserve above starting amount kept (%d)" % _ammo.get_reserve(at.RIFLE))
+	_game_state.gold = 1000
 
 	# Fully stocked: free.
 	msg = store.resupply(player)

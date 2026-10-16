@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-15 — v5.4.1: Bigger ammo pickups, ammo capacity upgrades
+
+- **Ammo pickups doubled** (e.g. Revolver 12 -> 24, Pistol 24 -> 48) and the base ammo drop chance is 25% (was 15%), still scaled by how short you are.
+- **Ammo capacity.** Each ammo type now has a carry cap: twice its starting ammo (the level the drop logic already counted as full). A full type leaves ammo packs on the ground, and a pack tops you up to the cap.
+- **Ammo Store screen.** E at the Hub's Ammo Store opens it. **Resupply everything** fills every reserve to its capacity and every magazine, priced per round as before. Each ammo type has its **own capacity upgrade**: 5 tiers, +25% of the base cap each, the first costing 250 Gold per Gold-per-round of that ammo (Pistol 250, Shotgun 750) and each tier after double the last. Tiers save with the character (`ammo_capacity`).
+- `test_roster_ammo` covers capacity and upgrades; `capture_ui` has an `ammo_store` mode.
+- Judgment calls: the 2x base cap, +25% per tier, the price curve, packs staying on the ground when full, and resupply filling to capacity (so upgrading costs more Gold to refill).
+
+---
+
 ## 2026-10-15 — v5.4.0: Dual wielding; jumping no longer dodges ground attacks
 
 - **Dual wielding.** Any one-handed weapon that isn't a conduit (Cutlass, Dagger, Mace, Rapier, Saber, Shortsword, War Pick, Whip, Service Pistol, Revolver, Machine Pistol) can go in the offhand slot beside another one-hander. Right-click a one-hander with a one-hander in your main hand and an empty offhand and it goes to the offhand. **Shift+right-click** always targets the offhand. A two-hander or a conduit in the main hand sends an offhand weapon back to your inventory. Global modifiers from both weapons apply; each weapon's local modifiers only on its own hits.

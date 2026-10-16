@@ -156,6 +156,8 @@ func try_pickup() -> bool:
 		return false
 	if item is AmmoPack:
 		var pack := item as AmmoPack
+		if AmmoInventory.is_full(pack.ammo_type):
+			return false  # at capacity: it stays on the ground
 		AmmoInventory.add(pack.ammo_type, pack.amount)
 		queue_free()
 		return true

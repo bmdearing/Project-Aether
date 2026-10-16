@@ -1,10 +1,10 @@
 extends Node3D
 class_name AmmoStore
-## Hub interactable, same proximity+E pattern as GearShop but with no menu:
-## one press buys a full resupply - every reserve (except infinite ARROW)
-## topped up to AmmoInventory.STARTING_AMMO and every magazine in both
-## weapon sets filled - priced per round by Constants.AMMO_ROUND_COST.
-## All or nothing: short on Gold buys nothing.
+## Hub interactable, same proximity+E pattern as GearShop. E opens the Ammo
+## Store (AmmoStoreScreen): a full resupply - every reserve (except infinite
+## ARROW) filled to its capacity and every magazine in both weapon sets
+## filled, priced per round by Constants.AMMO_ROUND_COST, all or nothing - and
+## the per-type capacity upgrades.
 
 const MESSAGE_SEC := 2.0
 
@@ -21,13 +21,13 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if _player and Time.get_ticks_msec() >= _message_until_msec:
-		prompt_label.set_meta(&"prompt_template", "Press E to Resupply: %d Gold" % get_resupply_cost(_player))
+		prompt_label.set_meta(&"prompt_template", "Press E for the Ammo Store (resupply: %d Gold)" % get_resupply_cost(_player))
 		GameSettings.refresh_interact_prompt(prompt_label)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _player and event.is_action_pressed("interact"):
 		get_viewport().set_input_as_handled()
-		_show_message(resupply(_player))
+		AmmoStoreScreen.open_for(get_tree(), self)
 
 ## Returns the message to show: "Fully stocked", "Not enough Gold (cost X)"
 ## or "Resupplied (-X Gold)".
@@ -53,11 +53,11 @@ func get_resupply_cost(player: Player) -> int:
 	return _cost_of(get_missing(player))
 
 ## {"reserves": {AmmoType: rounds}, "magazines": {Weapon: rounds}}, missing
-## entries only. Reserves above the starting amount are never reduced.
+## entries only, reserves counted up to their capacity.
 func get_missing(player: Player) -> Dictionary:
 	var reserves := {}
 	for ammo_type in AmmoInventory.STARTING_AMMO:
-		var short: int = maxi(0, AmmoInventory.STARTING_AMMO[ammo_type] - AmmoInventory.get_reserve(ammo_type))
+		var short: int = maxi(0, AmmoInventory.get_capacity(ammo_type) - AmmoInventory.get_reserve(ammo_type))
 		if short > 0:
 			reserves[ammo_type] = short
 	var magazines := {}

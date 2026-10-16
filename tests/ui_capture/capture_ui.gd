@@ -60,6 +60,11 @@ func _run() -> void:
 			_screen("fate_board_editor").open()
 		"map":
 			_screen("map_screen").open()
+		"ammo_store":
+			GameState.gold = 9000
+			AmmoInventory.buy_capacity_tier(Constants.AmmoType.REVOLVER)
+			AmmoInventory.consume(Constants.AmmoType.PISTOL, 30)
+			AmmoStoreScreen.open_for(get_tree(), hub.find_child("AmmoStore", true, false) as AmmoStore)
 		"figment_tree":
 			for style in MapTileset.all_ids().slice(0, 9):
 				for tier in randi_range(4, 16):

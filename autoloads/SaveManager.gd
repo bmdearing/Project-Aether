@@ -113,6 +113,7 @@ func save_game() -> void:
 		"owned_ability_ids": GameState.owned_ability_ids,
 		"fate_board_placements": GameState.fate_board_placements,
 		"ammo_reserves": AmmoInventory.serialize(),
+		"ammo_capacity": AmmoInventory.serialize_capacity(),
 		"inventory_version": INVENTORY_VERSION,
 		"grid_inventory": GameState.inventory.to_dict(),
 		"portal_map_state": GameState.portal_map_state,
@@ -255,6 +256,9 @@ func load_game() -> void:
 	var ammo_raw = parsed.get("ammo_reserves")
 	if typeof(ammo_raw) == TYPE_DICTIONARY:
 		AmmoInventory.deserialize(ammo_raw)
+	var capacity_raw: Variant = parsed.get("ammo_capacity", {})
+	if capacity_raw is Dictionary:
+		AmmoInventory.deserialize_capacity(capacity_raw)
 
 	var placements_raw = parsed.get("fate_board_placements", [])
 	if typeof(placements_raw) == TYPE_ARRAY:
