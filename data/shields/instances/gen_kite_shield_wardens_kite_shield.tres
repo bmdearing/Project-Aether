@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_dmfv3")
 block_chance = 0.24
-armor_value = 652.0
+armor_value = 30.0
 item_id = "gen_kite_shield_wardens_kite_shield"
 display_name = "Warden's Kite Shield"
 equip_slot = 6

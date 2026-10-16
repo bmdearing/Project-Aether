@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_bggyb")
-ward_value = 41.0
+ward_value = 44.0
 item_id = "gen_boots_threshold_boots"
 display_name = "Threshold Boots"
 equip_slot = 3

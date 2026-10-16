@@ -148,7 +148,7 @@ func _player_taken(amount: float, damage_type: int) -> float:
 	h.current_health = h.max_health
 	w.current_ward = w.max_ward
 	var evasion := _player.stat_sheet.get_total_evasion(_player.equipment)
-	return lost * (1.0 - DamageCalculator.deflection_chance(evasion) * DamageCalculator.deflection_mitigation(evasion))
+	return lost * (1.0 - DamageCalculator.player_deflection_chance(evasion) * DamageCalculator.player_deflection_mitigation(evasion))
 
 func _figment_at(level: int) -> FigmentItem:
 	var f := FigmentItem.new()

@@ -27,7 +27,7 @@ func _run() -> void:
 	var ev := _player.stat_sheet.get_total_evasion(_player.equipment)
 	print("PLAYER %s L%d  Life %.0f  Ward %.0f  Armour %.0f  Evasion %.0f (dodge %.0f%%, deflect %.0f%% x%.0f%%)  res F%.0f C%.0f L%.0f" % [GameState.player_name, GameState.player_level,
 		_player.health.max_health, _player.ward.max_ward, _player.equipment.get_total_armor(), ev,
-		DamageCalculator.dodge_chance(ev) * 100.0, DamageCalculator.deflection_chance(ev) * 100.0, DamageCalculator.deflection_mitigation(ev) * 100.0,
+		DamageCalculator.player_dodge_chance(ev) * 100.0, DamageCalculator.player_deflection_chance(ev) * 100.0, DamageCalculator.player_deflection_mitigation(ev) * 100.0,
 		_player.stat_sheet.get_effective_resistance(Constants.DamageType.FIRE, 0.0), _player.stat_sheet.get_effective_resistance(Constants.DamageType.COLD, 0.0), _player.stat_sheet.get_effective_resistance(Constants.DamageType.LIGHTNING, 0.0)])
 	for item in _player.equipment.get_all_equipped_items():
 		print("  worn: %s (ilvl %d)" % [item.display_name, item.item_level])

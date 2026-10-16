@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_cl1gg")
-armor_value = 427.0
-ward_value = 148.0
+armor_value = 19.0
+ward_value = 52.0
 item_id = "gen_body_armour_sigil_coat"
 display_name = "Sigil Coat"
 equip_slot = 1

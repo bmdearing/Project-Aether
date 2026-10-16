@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_ahao2")
-ward_value = 125.0
+ward_value = 200.0
 item_id = "gen_gloves_void_wraps"
 display_name = "Void Wraps"
 equip_slot = 2

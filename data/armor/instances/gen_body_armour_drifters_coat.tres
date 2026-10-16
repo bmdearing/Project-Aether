@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_1qvsa")
-evasion_value = 236.0
+evasion_value = 17.0
 item_id = "gen_body_armour_drifters_coat"
 display_name = "Drifter's Coat"
 equip_slot = 1

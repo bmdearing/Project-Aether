@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_p6a5x")
-evasion_value = 26.0
+evasion_value = 7.0
 item_id = "gen_gloves_crude_gloves"
 display_name = "Crude Gloves"
 equip_slot = 2

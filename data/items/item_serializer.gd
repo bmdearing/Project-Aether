@@ -27,8 +27,12 @@ const STAT_WORD_RENAMES := {"Prowess": "Strength", "Finesse": "Agility", "Resolv
 
 ## Base defence revisions: 2 = v4.94 multiplied every Armour base (and flat
 ## Armour rolls) by ARMOUR_RESCALE and rebalanced hybrids; 3 = v4.95 halved
-## Ward. Items saved before the current one take their base's defences on load.
-const ARMOUR_SCALE_VERSION := 3
+## Ward; 4 = v5.5 put Armour, Evasion and Ward bases on one small curve
+## (tools/rescale_defence_bases.pl) with levelled flat-defence tables. Items
+## saved before the current one take their base's defences on load.
+const ARMOUR_SCALE_VERSION := 4
+## v5.5 flat defence modifiers, re-fitted on load (_migrate_v55_modifiers()).
+const FLAT_DEFENCE_KEYS := ["flat_armor", "flat_evasion", "flat_ward"]
 const ARMOUR_RESCALE := 3124.0 / 417.0
 
 static func migrate_stat_key(key: String) -> String:
@@ -184,6 +188,8 @@ static func from_dict(d: Dictionary) -> Item:
 				a.value_min *= ARMOUR_RESCALE
 				a.value_max *= ARMOUR_RESCALE
 				a.description = "%s (Tier %d)" % [ItemRoller.describe_value(CraftingResolver._template_for(a), a.stat_key, a.value), a.tier]
+	if defence_version < 4:
+		_migrate_v55_modifiers(item, base)
 	item.sockets = d.get("sockets", 0)
 	item.sockets_rolled = d.get("sockets_rolled", false)
 	var jewels: Array[Item] = []
@@ -309,6 +315,50 @@ static func _migrate_defences(item: Item, base: Item, rescale_armour: bool) -> v
 			item.set(key, base.get(key))
 	elif rescale_armour:
 		item.set("armor_value", roundf(float(item.get("armor_value")) * ARMOUR_RESCALE))
+
+## v5.5: flat Armour, Evasion and Ward keep their tier and place in the range
+## on the new tables (Jewels on their own scaled ranges), implicits take the
+## base's, and the old on/off Retaliate on Block becomes a 100% chance.
+static func _migrate_v55_modifiers(item: Item, base: Item) -> void:
+	for a in item.affixes:
+		if FLAT_DEFENCE_KEYS.has(a.stat_key):
+			if a.is_implicit:
+				var source := _implicit_of(base, a.stat_key)
+				if source:
+					a.value = source.value
+					a.value_min = source.value_min
+					a.value_max = source.value_max
+					a.description = source.description
+			elif item is Jewel and a.tier > 0:
+				_refit_jewel_affix(a)
+			elif a.tier > 0:
+				ItemRoller.retier(a, a.tier, item.equip_slot)
+		elif a.stat_key == "retaliate_on_block" and a.value <= 1.0:
+			a.value = 100.0
+			a.value_min = 100.0
+			a.value_max = 100.0
+			a.description = "100%% chance to Retaliate on Block (Tier %d)" % a.tier if a.tier > 0 else "100% chance to Retaliate on Block"
+
+static func _implicit_of(base: Item, stat_key: String) -> ItemAffix:
+	if base == null:
+		return null
+	for a in base.affixes:
+		if a.is_implicit and a.stat_key == stat_key:
+			return a
+	return null
+
+static func _refit_jewel_affix(a: ItemAffix) -> void:
+	for entry in ItemRoller.AFFIX_POOL:
+		if entry["stat_key"] == a.stat_key:
+			var at := inverse_lerp(a.value_min, a.value_max, a.value) if a.value_max > a.value_min else 1.0
+			var r := JewelModifierPool.tier_range(entry["tier1_min"], entry["tier1_max"], a.tier)
+			if ItemRoller.has_levelled_tiers(a.stat_key):
+				r = Vector2(roundf(r.x), maxf(roundf(r.y), roundf(r.x)))
+			a.value_min = r.x
+			a.value_max = r.y
+			a.value = roundf(lerpf(r.x, r.y, clampf(at, 0.0, 1.0)))
+			a.description = "%s (Tier %d)" % [ItemRoller.describe_value(entry["desc"], a.stat_key, a.value), a.tier]
+			return
 
 ## v4.83 put a new Tier 1 above gear's old five: an older save's gear tiers
 ## each move down one number (values stay as rolled). Jewels, Slates and

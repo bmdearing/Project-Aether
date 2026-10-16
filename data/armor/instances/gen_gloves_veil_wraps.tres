@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_ltsj3")
-ward_value = 17.0
+ward_value = 21.0
 item_id = "gen_gloves_veil_wraps"
 display_name = "Veil Wraps"
 equip_slot = 2

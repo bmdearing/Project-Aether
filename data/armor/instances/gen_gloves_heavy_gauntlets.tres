@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_tjfui")
-armor_value = 554.0
+armor_value = 24.0
 item_id = "gen_gloves_heavy_gauntlets"
 display_name = "Heavy Gauntlets"
 equip_slot = 2

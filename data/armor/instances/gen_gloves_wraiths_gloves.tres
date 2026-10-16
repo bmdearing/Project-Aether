@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_2u0wi")
-evasion_value = 309.0
+evasion_value = 60.0
 item_id = "gen_gloves_wraiths_gloves"
 display_name = "Wraith's Gloves"
 equip_slot = 2

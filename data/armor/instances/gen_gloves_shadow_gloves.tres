@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_dp5st")
-evasion_value = 150.0
+evasion_value = 24.0
 item_id = "gen_gloves_shadow_gloves"
 display_name = "Shadow Gloves"
 equip_slot = 2

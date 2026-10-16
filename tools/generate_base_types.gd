@@ -8,6 +8,8 @@ extends Node
 ## tier straight into data/weapons|armor|shields/instances/ and
 ## data/items/instances/ (throwables), each tagged with the real
 ## item_level/base_line_id fields ItemRoller._pick_base_item() now reads.
+## The doc's defence values are pre-v5.5: run tools/rescale_defence_bases.pl
+## afterwards to put Armour, Evasion and Ward on the current curves.
 ##
 ## Parsing approach: the extracted text is one table cell's text per line
 ## (Word paragraph boundaries -> newlines), so a Word table with columns

@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_l48rc")
-evasion_value = 109.0
+evasion_value = 17.0
 item_id = "gen_gloves_hunters_gloves"
 display_name = "Hunter's Gloves"
 equip_slot = 2

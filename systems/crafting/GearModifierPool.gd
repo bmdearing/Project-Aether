@@ -21,7 +21,7 @@ const DERIVED_TAGS := {
 }
 
 const DOT_STAT_KEYS := [
-	"ailment_chance_bleed", "ailment_chance_ignite", "ailment_chance_aetherburn",
+	"ailment_chance_bleed", "ailment_chance_ignite", "ailment_chance_aetherburn", "damaging_ailment_chance",
 	"increased_ailment_damage_bleed", "increased_ailment_damage_ignite", "increased_ailment_damage_aetherburn",
 	"increased_ailment_duration_bleed", "increased_ailment_duration_ignite", "increased_ailment_duration_aetherburn",
 	"dot_multiplier", "ailment_tick_rate",

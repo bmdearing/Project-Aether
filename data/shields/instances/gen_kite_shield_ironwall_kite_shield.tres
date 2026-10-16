@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_4ohlo")
 block_chance = 0.28
-armor_value = 1101.0
+armor_value = 57.0
 item_id = "gen_kite_shield_ironwall_kite_shield"
 display_name = "Ironwall Kite Shield"
 equip_slot = 6

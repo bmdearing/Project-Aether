@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_oyyrj")
-armor_value = 1874.0
-ward_value = 448.0
+armor_value = 102.0
+ward_value = 344.0
 item_id = "gen_body_armour_ironward_plate"
 display_name = "Ironward Plate"
 equip_slot = 1

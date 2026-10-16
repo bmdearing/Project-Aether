@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_c2fye")
 block_chance = 0.24
-ward_value = 44.0
+ward_value = 85.0
 item_id = "gen_rune_shield_pale_rune_shield"
 display_name = "Pale Rune Shield"
 equip_slot = 6

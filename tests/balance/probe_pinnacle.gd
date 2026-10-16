@@ -367,8 +367,8 @@ func _player_taken(amount: float, damage_type: int) -> float:
 	h.current_health = keep_h
 	w.current_ward = keep_w
 	var evasion := _player.stat_sheet.get_total_evasion(_player.equipment)
-	var deflect := DamageCalculator.deflection_chance(evasion) * DamageCalculator.deflection_mitigation(evasion)
-	var dodge := DamageCalculator.dodge_chance(evasion) * _player.stat_sheet.get_misc_bonus("evasion_to_spells") / 100.0
+	var deflect := DamageCalculator.player_deflection_chance(evasion) * DamageCalculator.player_deflection_mitigation(evasion)
+	var dodge := DamageCalculator.player_dodge_chance(evasion) * _player.stat_sheet.get_misc_bonus("evasion_to_spells") / 100.0
 	return lost * (1.0 - deflect) * (1.0 - dodge)
 
 ## Pool divided by the average share her abilities take.

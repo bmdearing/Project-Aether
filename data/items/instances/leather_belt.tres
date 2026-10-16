@@ -5,11 +5,11 @@
 
 [sub_resource type="Resource" id="SubResource_1"]
 script = ExtResource("2")
-description = "+244 Evasion (implicit)"
+description = "+19 Evasion (implicit)"
 stat_key = "flat_evasion"
-value = 244.0
-value_min = 181.0
-value_max = 307.0
+value = 19.0
+value_min = 14.0
+value_max = 24.0
 is_prefix = false
 is_implicit = true
 

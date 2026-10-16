@@ -121,9 +121,9 @@ static func _crit_summary(player: Player, slot: Constants.EquipmentSlot) -> Stri
 ## Patch v4.4: Evasion's tooltip states what the rating actually means.
 static func _evasion_tooltip(evasion: float) -> String:
 	return "Evasion Rating: Reduces chance of being hit by attacks.\nDodge Chance: %.1f%% (cap %d%%) - fully negates an attack hit.\nDeflection Chance: %.1f%% (cap %d%%) - reduces attack and spell damage by %.1f%%." % [
-		DamageCalculator.dodge_chance(evasion) * 100.0, int(DamageCalculator.DODGE_CHANCE_CAP * 100.0),
-		DamageCalculator.deflection_chance(evasion) * 100.0, int(DamageCalculator.DEFLECTION_CHANCE_CAP * 100.0),
-		DamageCalculator.deflection_mitigation(evasion) * 100.0,
+		DamageCalculator.player_dodge_chance(evasion) * 100.0, int(DamageCalculator.DODGE_CHANCE_CAP * 100.0),
+		DamageCalculator.player_deflection_chance(evasion) * 100.0, int(DamageCalculator.DEFLECTION_CHANCE_CAP * 100.0),
+		DamageCalculator.player_deflection_mitigation(evasion) * 100.0,
 	]
 
 static func _add(list: VBoxContainer, label_text: String, value_text: String, tooltip_override: String = "") -> void:

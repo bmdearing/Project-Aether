@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_t5jki")
 block_chance = 0.15
-ward_value = 12.0
+ward_value = 30.0
 item_id = "gen_warded_barrier_crude_warded_barrier"
 display_name = "Crude Warded Barrier"
 equip_slot = 6

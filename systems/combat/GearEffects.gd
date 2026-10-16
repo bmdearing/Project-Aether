@@ -120,6 +120,11 @@ func _on_enemy_died(_enemy: Node) -> void:
 func _on_status_applied(target: Node, effect_id: String, _stacks: int) -> void:
 	if not target is Enemy or _player == null:
 		return
+	if StatusEffectComponent.is_ailment(effect_id):
+		if _bonus("mana_on_ailment") > 0.0:
+			_player.mana.restore(_bonus("mana_on_ailment"))
+		if _bonus("ward_percent_on_ailment") > 0.0:
+			_player.ward.restore(_player.ward.max_ward * _bonus("ward_percent_on_ailment") / 100.0)
 	var entry: Array = ON_AILMENT.get(effect_id.trim_prefix("enhanced:"), [])
 	if entry.is_empty() or _bonus(entry[0]) <= 0.0:
 		return

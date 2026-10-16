@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_yjds4")
-armor_value = 749.0
+armor_value = 33.0
 item_id = "gen_gloves_warlords_gauntlets"
 display_name = "Warlord's Gauntlets"
 equip_slot = 2

@@ -25,9 +25,8 @@ const STAT_KEYS := [
 	"attack_speed", "cast_speed", "move_speed", "increased_attack_damage",
 	"crit_chance_increased", "crit_damage_increased",
 	"increased_aoe_radius", "skill_effect_duration",
-	"item_rarity", "magic_find",
-	"ailment_chance_bleed", "ailment_chance_ignite", "ailment_chance_chill", "ailment_chance_electrocute",
-	"ailment_chance_shock", "ailment_chance_aetherburn", "ailment_chance_unraveling", "ailment_chance_pallid",
+	"item_rarity",
+	"damaging_ailment_chance", "control_ailment_chance",
 	# Only damaging ailments: Chill, Electrocute, Shock, Unraveling and Pallid deal none.
 	"increased_ailment_damage_bleed", "increased_ailment_damage_ignite", "increased_ailment_damage_aetherburn",
 ]
@@ -82,6 +81,9 @@ static func _def_for(entry: Dictionary, best_tier: int, value_scale: float) -> M
 	def.item_types = [&"jewel", &"lens"]
 	for t in range(best_tier, TIER_COUNT + 1):
 		var range_ := tier_range(entry["tier1_min"], entry["tier1_max"], t, value_scale) if not entry.get("fixed", false) else Vector2(entry["tier1_min"], entry["tier1_max"])
+		# Gear-table stats roll whole numbers (CraftingResolver), so their range is too.
+		if ItemRoller.has_levelled_tiers(entry["stat_key"]):
+			range_ = Vector2(roundf(range_.x), maxf(roundf(range_.y), roundf(range_.x)))
 		var tier := ModifierTier.new()
 		tier.tier = t
 		tier.value_min = range_.x

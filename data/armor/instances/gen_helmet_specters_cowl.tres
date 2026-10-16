@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_p6t8k")
-evasion_value = 485.0
+evasion_value = 77.0
 item_id = "gen_helmet_specters_cowl"
 display_name = "Specter's Cowl"
 max_sockets = 3

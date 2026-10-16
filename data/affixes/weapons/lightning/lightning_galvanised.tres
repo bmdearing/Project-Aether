@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_q4b4i")
-description = "%d%% increased Shock damage bonus (more effective)"
+description = "%d%% increased Shock effect"
 stat_key = "lightning_galvanised"
 value = 34.0
 value_min = 34.0

@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_l8pg4")
-evasion_value = 61.0
+evasion_value = 10.0
 item_id = "gen_boots_sprinters_boots"
 display_name = "Sprinter's Boots"
 equip_slot = 3

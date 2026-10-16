@@ -167,8 +167,8 @@ func _test_gear_modifiers() -> void:
 	_check(glove_keys.has("cast_speed") and not hood_keys.has("cast_speed") and not _pool_keys(boots).has("cast_speed"), "Cast Speed sits on gloves and accessories")
 	_check(shield_keys.has("block_chance_bonus") and shield_keys.has("parry_window_duration") and shield_keys.has("reduced_physical_taken") and shield_keys.has("flat_life") and shield_keys.has("life_increased") and shield_keys.has("ward_on_parry"), "shields roll block, parry and major defences")
 	_check(not shield_keys.has("crit_chance_increased") and not shield_keys.has("cast_speed"), "shields roll no offence")
-	_check(glove_keys.has("item_rarity") and glove_keys.has("magic_find") and not glove_keys.has("item_quantity"), "armour rolls Item Rarity and Magic Find, not Quantity")
-	_check(amulet_keys.has("item_quantity") and amulet_keys.has("item_rarity") and amulet_keys.has("magic_find"), "accessories roll all three")
+	_check(_pool_keys(boots).has("item_rarity") and not glove_keys.has("item_rarity") and not _pool_keys(boots).has("item_quantity"), "helmets and boots roll Item Rarity, not Quantity; gloves neither")
+	_check(amulet_keys.has("item_quantity") and amulet_keys.has("item_rarity") and not amulet_keys.has("magic_find"), "accessories roll Rarity and Quantity; Magic Find no longer rolls")
 	var sword := load("res://data/weapons/instances/crude_greatsword.tres") as Weapon
 	if sword:
 		var weapon_keys := []
@@ -179,7 +179,7 @@ func _test_gear_modifiers() -> void:
 	var jewel := Jewel.new()
 	jewel.item_level = 50
 	var jewel_keys := JewelModifierPool.defs_for(jewel).map(func(d): return d.stat_key)
-	_check(jewel_keys.has("item_rarity") and jewel_keys.has("magic_find"), "jewels can roll Item Rarity and Magic Find")
+	_check(jewel_keys.has("item_rarity") and not jewel_keys.has("magic_find"), "jewels can roll Item Rarity, not Magic Find")
 	_check(GearModifierPool._is_suffix("magic_find") and GearModifierPool._is_suffix("item_rarity") and not GearModifierPool._is_suffix("item_quantity"), "Rarity and Magic Find are suffixes, Quantity a prefix")
 
 	var ring := Item.new()

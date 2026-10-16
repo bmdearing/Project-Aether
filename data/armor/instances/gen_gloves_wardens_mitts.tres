@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_6ju1e")
-armor_value = 234.0
-evasion_value = 65.0
+armor_value = 10.0
+evasion_value = 10.0
 item_id = "gen_gloves_wardens_mitts"
 display_name = "Warden's Mitts"
 equip_slot = 2

@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_blpse")
-armor_value = 202.0
+armor_value = 11.0
 item_id = "gen_helmet_iron_helm"
 display_name = "Iron Helm"
 max_sockets = 1

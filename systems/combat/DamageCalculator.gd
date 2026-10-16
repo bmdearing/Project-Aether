@@ -50,6 +50,22 @@ static func physical_mitigation(armor: float, hit_damage: float) -> float:
 		return 0.0
 	return armor / (armor + ARMOUR_HIT_FACTOR * hit_damage)
 
+## The player's Armour (v5.5): the hit is measured in level-1 units, divided
+## by the attacker's AreaLevel.damage_scale(), so bases stay small while
+## monster damage compounds. Tier damage and the level-gap multiplier stay in
+## the hit, so they still punch through.
+const PLAYER_ARMOUR_HIT_FACTOR := 10.0
+const PLAYER_ARMOUR_CAP := 0.9
+
+static func player_physical_mitigation(armor: float, hit_damage: float, attacker_level: int) -> float:
+	if armor <= 0.0 or hit_damage <= 0.0:
+		return 0.0
+	var relative_hit := hit_damage / AreaLevel.damage_scale(attacker_level)
+	return minf(armor / (armor + PLAYER_ARMOUR_HIT_FACTOR * relative_hit), PLAYER_ARMOUR_CAP)
+
+## A standard monster hit in level-1 units, for tooltips and the wiki.
+const STANDARD_RELATIVE_HIT := 14.0
+
 ## Evasion. Dodge: an attack hit deals nothing. Deflection: the hit lands but is reduced by
 ## deflection_mitigation(). Caps are hard ceilings on the curves.
 const DODGE_CHANCE_DIVISOR := 3800.0
@@ -73,6 +89,21 @@ static func deflection_mitigation(evasion: float) -> float:
 	if evasion <= 0.0:
 		return 0.0
 	return min(evasion / (evasion + DEFLECTION_MITIGATION_DIVISOR), DEFLECTION_MITIGATION_CAP)
+
+## The player's Evasion (v5.5): same curves and caps on the smaller base scale.
+## Enemies keep the divisors above.
+const PLAYER_DODGE_DIVISOR := 400.0
+const PLAYER_DEFLECTION_CHANCE_DIVISOR := 246.0
+const PLAYER_DEFLECTION_MITIGATION_DIVISOR := 1368.0
+
+static func player_dodge_chance(evasion: float) -> float:
+	return minf(evasion / (evasion + PLAYER_DODGE_DIVISOR), DODGE_CHANCE_CAP) if evasion > 0.0 else 0.0
+
+static func player_deflection_chance(evasion: float) -> float:
+	return minf(evasion / (evasion + PLAYER_DEFLECTION_CHANCE_DIVISOR), DEFLECTION_CHANCE_CAP) if evasion > 0.0 else 0.0
+
+static func player_deflection_mitigation(evasion: float) -> float:
+	return minf(evasion / (evasion + PLAYER_DEFLECTION_MITIGATION_DIVISOR), DEFLECTION_MITIGATION_CAP) if evasion > 0.0 else 0.0
 
 ## Negative Resistance (from Shred) amplifies damage taken.
 const RESISTANCE_FLOOR := -200.0
@@ -100,11 +131,12 @@ static func get_crit_chance(base_crit_chance: float, finesse_crit_bonus: float) 
 static func get_crit_damage_multiplier(bonus_fraction: float = 0.0) -> float:
 	return 1.5 * (1.0 + bonus_fraction)
 
-## Resilience / (Resilience + 2000), capped at 50%. Reduces DoT ticks.
+## Resilience / (Resilience + RESILIENCE_DIVISOR), capped at 50%. Reduces DoT ticks.
+const RESILIENCE_DIVISOR := 150.0
 static func dot_mitigation(resilience: float) -> float:
 	if resilience <= 0.0:
 		return 0.0
-	return min(0.5, resilience / (resilience + 2000.0))
+	return min(0.5, resilience / (resilience + RESILIENCE_DIVISOR))
 
 ## roll_t: fixed 0.0-1.0 for reproducible rolls, or omit (< 0) to roll randomly.
 static func apply_crit(base_damage: float, crit_chance: float, crit_damage_multiplier: float, roll_t: float = -1.0) -> Dictionary:

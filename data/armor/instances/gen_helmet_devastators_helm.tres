@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_cumcu")
-armor_value = 1401.0
+armor_value = 77.0
 item_id = "gen_helmet_devastators_helm"
 display_name = "Devastator's Helm"
 max_sockets = 3

@@ -117,6 +117,8 @@ const ALIASES := {
 	"cold_of_permafrost": "increased_ailment_duration_chill",
 	"lightning_crackling": "increased_ailment_duration_electrocute",
 	"piercing_of_the_bleeder": "ailment_tick_rate",
+	"generic_virulent": "damaging_ailment_chance",
+	"generic_hindering": "control_ailment_chance",
 	# Parry, riposte, retaliation, armour
 	"excl_riposte_edge": "increased_riposte_damage",
 	"excl_retaliating": "increased_retaliation_damage",

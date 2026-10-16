@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("1")
-armor_value = 105.0
+armor_value = 8.0
 item_id = "battered_helm"
 display_name = "Battered Helm"
 max_sockets = 2

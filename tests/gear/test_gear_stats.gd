@@ -295,7 +295,7 @@ func _test_bases() -> void:
 		var item := load("res://data/items/instances/%s.tres" % id) as Item
 		_check(item != null and not item.affixes.is_empty() and item.affixes[0].is_implicit, "%s exists with its implicit" % id)
 	var vest := load("res://data/armor/instances/gen_body_armour_specters_carapace.tres") as Armor
-	_check(vest.evasion_value > 1000.0, "high-level evasion armours have their defence (%d)" % vest.evasion_value)
+	_check(vest.evasion_value > 100.0, "high-level evasion armours have their defence (%d)" % vest.evasion_value)
 	_check(not vest.affixes.is_empty(), "final armour tiers carry their implicit")
 	var dagger := load("res://data/weapons/instances/gen_dagger_voidfang.tres") as Weapon
 	_check(dagger and dagger.affixes.any(func(a): return a.key() == "local_increased_crit_chance"), "weapon lines carry their implicit throughout")

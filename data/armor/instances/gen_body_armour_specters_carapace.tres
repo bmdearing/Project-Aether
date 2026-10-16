@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_h15mv")
-evasion_value = 2071.0
+evasion_value = 171.0
 item_id = "gen_body_armour_specters_carapace"
 display_name = "Specter's Carapace"
 equip_slot = 1

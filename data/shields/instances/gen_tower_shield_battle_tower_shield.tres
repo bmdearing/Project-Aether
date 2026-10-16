@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_kgpev")
 block_chance = 0.19
-armor_value = 607.0
+armor_value = 28.0
 item_id = "gen_tower_shield_battle_tower_shield"
 display_name = "Battle Tower Shield"
 equip_slot = 6

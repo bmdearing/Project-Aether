@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_0uf1v")
 block_chance = 0.24
-armor_value = 1311.0
+armor_value = 60.0
 item_id = "gen_pavise_warlords_pavise"
 display_name = "Warlord's Pavise"
 equip_slot = 6

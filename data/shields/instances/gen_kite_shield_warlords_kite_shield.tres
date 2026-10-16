@@ -6,8 +6,8 @@
 [resource]
 script = ExtResource("2_4tlnb")
 block_chance = 0.24
-armor_value = 917.0
-evasion_value = 133.0
+armor_value = 42.0
+evasion_value = 23.0
 item_id = "gen_kite_shield_warlords_kite_shield"
 display_name = "Warlord's Kite Shield"
 equip_slot = 6

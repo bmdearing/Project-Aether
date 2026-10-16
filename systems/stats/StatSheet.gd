@@ -246,15 +246,17 @@ func set_misc_bonus(bonus: Dictionary) -> void:
 func get_gear_crit_chance_bonus() -> float:
 	return get_misc_bonus("crit_chance_increased") / 100.0
 
-## ailment_id is a StatusEffectComponent effect_id.
+## ailment_id is a StatusEffectComponent effect_id. The family lines (v5.5)
+## add to every damaging or every control ailment.
 func get_ailment_chance_bonus(ailment_id: String) -> float:
-	return get_misc_bonus("ailment_chance_%s" % ailment_id) / 100.0
+	var family := "damaging_ailment_chance" if StatusEffectComponent.DAMAGING_AILMENT_IDS.has(ailment_id) else "control_ailment_chance"
+	return (get_misc_bonus("ailment_chance_%s" % ailment_id) + get_misc_bonus(family)) / 100.0
 
 func get_ailment_damage_bonus(ailment_id: String) -> float:
 	return get_misc_bonus("increased_ailment_damage_%s" % ailment_id) / 100.0
 
 func get_ailment_duration_bonus(ailment_id: String) -> float:
-	return get_misc_bonus("increased_ailment_duration_%s" % ailment_id) / 100.0
+	return (get_misc_bonus("increased_ailment_duration_%s" % ailment_id) + get_misc_bonus("ailment_duration")) / 100.0
 
 func get_dot_multiplier() -> float:
 	return get_misc_bonus("dot_multiplier") / 100.0
@@ -265,7 +267,8 @@ func get_ailment_tick_rate_bonus() -> float:
 func get_ailment_ignore_chance() -> float:
 	return get_misc_bonus("ailment_ignore_chance") / 100.0
 
-## Type-specific plus Elemental Penetration (additive). Elemental types only.
+## Type-specific plus Elemental Penetration (additive); Esoteric Penetration
+## covers Aetheric, Entropic and Pale.
 func get_penetration(damage_type: Constants.DamageType) -> float:
 	match damage_type:
 		Constants.DamageType.FIRE:
@@ -274,6 +277,8 @@ func get_penetration(damage_type: Constants.DamageType) -> float:
 			return get_misc_bonus("cold_penetration") + get_misc_bonus("elemental_penetration")
 		Constants.DamageType.LIGHTNING:
 			return get_misc_bonus("lightning_penetration") + get_misc_bonus("elemental_penetration")
+		Constants.DamageType.AETHERIC, Constants.DamageType.ENTROPIC, Constants.DamageType.PALE:
+			return get_misc_bonus("esoteric_penetration")
 	return 0.0
 
 func get_physical_shred() -> float:
@@ -288,6 +293,11 @@ func get_phys_damage_shift() -> Array:
 		shifts.append([get_misc_bonus("phys_as_cold") / 100.0, Constants.DamageType.COLD])
 	if get_misc_bonus("phys_as_lightning") > 0.0:
 		shifts.append([get_misc_bonus("phys_as_lightning") / 100.0, Constants.DamageType.LIGHTNING])
+	# "as Elemental" splits evenly across the three.
+	var elemental := get_misc_bonus("phys_as_elemental") / 300.0
+	if elemental > 0.0:
+		for type in [Constants.DamageType.FIRE, Constants.DamageType.COLD, Constants.DamageType.LIGHTNING]:
+			shifts.append([elemental, type])
 	return shifts
 
 ## Maximum Mana, pushed in by Player._apply_derived_stats(), for the "% of

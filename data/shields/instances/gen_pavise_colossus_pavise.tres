@@ -14,7 +14,7 @@ is_implicit = true
 [resource]
 script = ExtResource("2_y52ma")
 block_chance = 0.28
-armor_value = 2173.0
+armor_value = 113.0
 item_id = "gen_pavise_colossus_pavise"
 display_name = "Colossus Pavise"
 equip_slot = 6

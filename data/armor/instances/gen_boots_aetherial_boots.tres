@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_vu5va")
-ward_value = 77.0
+ward_value = 96.0
 item_id = "gen_boots_aetherial_boots"
 display_name = "Aetherial Boots"
 equip_slot = 3

@@ -6,9 +6,9 @@
 script = ExtResource("1_oync4")
 description = "%d%% increased Retaliation damage (Spiked Shield and Buckler only)"
 stat_key = "excl_retaliating"
-value = 44.0
-value_min = 44.0
-value_max = 52.0
+value = 70.0
+value_min = 70.0
+value_max = 80.0
 affix_id = "excl_retaliating"
 display_name = "Retaliating"
 min_item_level = 70

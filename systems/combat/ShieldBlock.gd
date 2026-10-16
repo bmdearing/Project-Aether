@@ -101,13 +101,13 @@ func try_block(amount: float, source: Node) -> bool:
 	_spend(HIT_COST_FLAT + HIT_COST_PER_MAX_HEALTH * amount / max_health)
 	return true
 
-## "Triggers Retaliation on Block": the attacker takes the blocked hit back,
+## "X% chance to Retaliate on Block": the attacker takes the blocked hit back,
 ## scaled by increased Retaliation damage.
 const RETALIATION_SHARE := 1.0
 
 func _retaliate(amount: float, source: Node) -> void:
 	var sheet := _player.stat_sheet
-	if sheet == null or sheet.get_misc_bonus("retaliate_on_block") <= 0.0 or not source is Enemy:
+	if sheet == null or not source is Enemy or randf() >= sheet.get_misc_bonus("retaliate_on_block") / 100.0:
 		return
 	var mult := 1.0 + sheet.get_misc_bonus("increased_retaliation_damage") / 100.0
 	(source as Enemy).take_damage(amount * RETALIATION_SHARE * mult, Constants.DamageType.KINETIC)

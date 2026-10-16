@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_67iyv")
-ward_value = 418.0
+ward_value = 186.0
 item_id = "gen_body_armour_veilborn_coat"
 display_name = "Veilborn Coat"
 equip_slot = 1

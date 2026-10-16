@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_p62s3")
-armor_value = 157.0
-ward_value = 64.0
+armor_value = 11.0
+ward_value = 24.0
 item_id = "gen_body_armour_runed_coat"
 display_name = "Runed Coat"
 equip_slot = 1

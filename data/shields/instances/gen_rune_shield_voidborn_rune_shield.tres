@@ -14,7 +14,7 @@ is_implicit = true
 [resource]
 script = ExtResource("2_n448g")
 block_chance = 0.28
-ward_value = 74.0
+ward_value = 191.0
 item_id = "gen_rune_shield_voidborn_rune_shield"
 display_name = "Voidborn Rune Shield"
 equip_slot = 6

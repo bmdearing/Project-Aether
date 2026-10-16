@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_dwgyh")
-description = "+%d%% increased Block Chance (all shields)"
+description = "+%d%% Chance to Block (all shields)"
 stat_key = "block_chance_bonus"
 value = 8.0
 value_min = 8.0

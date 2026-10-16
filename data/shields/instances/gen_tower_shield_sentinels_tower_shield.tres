@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_i802j")
 block_chance = 0.24
-armor_value = 966.0
+armor_value = 44.0
 item_id = "gen_tower_shield_sentinels_tower_shield"
 display_name = "Sentinel's Tower Shield"
 equip_slot = 6

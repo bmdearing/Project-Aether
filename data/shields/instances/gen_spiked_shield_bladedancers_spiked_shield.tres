@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_yainl")
 block_chance = 0.28
-armor_value = 749.0
+armor_value = 36.0
 item_id = "gen_spiked_shield_bladedancers_spiked_shield"
 display_name = "Bladedancer's Spiked Shield"
 equip_slot = 6

@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("2_io7uw")
-ward_value = 516.0
+ward_value = 273.0
 item_id = "gen_body_armour_aetherial_coat"
 display_name = "Aetherial Coat"
 equip_slot = 1

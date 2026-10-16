@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_l521q")
-description = "%d%% reduced skill cooldowns"
+description = "+%d%% increased Cooldown Recovery Rate"
 stat_key = "explosive_of_detonation"
 value = 14.0
 value_min = 14.0

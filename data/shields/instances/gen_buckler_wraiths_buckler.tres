@@ -14,7 +14,7 @@ is_implicit = true
 [resource]
 script = ExtResource("2_q1brc")
 block_chance = 0.28
-evasion_value = 342.0
+evasion_value = 69.0
 item_id = "gen_buckler_wraiths_buckler"
 display_name = "Wraith's Buckler"
 equip_slot = 6

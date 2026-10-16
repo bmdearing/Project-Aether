@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_rruut")
-evasion_value = 73.0
+evasion_value = 11.0
 item_id = "gen_helmet_leather_hood"
 display_name = "Leather Hood"
 max_sockets = 1

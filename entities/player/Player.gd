@@ -650,14 +650,14 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 	if hit_kind != HitKind.DOT:
 		var evasion := stat_sheet.get_total_evasion(equipment)
 		if evasion > 0.0:
-			var dodge := DamageCalculator.dodge_chance(evasion)
+			var dodge := DamageCalculator.player_dodge_chance(evasion)
 			if hit_kind != HitKind.ATTACK:
 				dodge *= stat_sheet.get_misc_bonus("evasion_to_spells") / 100.0  # "% of Evasion applies to Spell Hits"
 			if randf() < dodge:
 				EventBus.hit_dodged.emit(self)
 				return
-			if randf() < DamageCalculator.deflection_chance(evasion):
-				amount *= 1.0 - DamageCalculator.deflection_mitigation(evasion)
+			if randf() < DamageCalculator.player_deflection_chance(evasion):
+				amount *= 1.0 - DamageCalculator.player_deflection_mitigation(evasion)
 				EventBus.hit_deflected.emit(self)
 	if unique_effects:
 		amount *= unique_effects.damage_taken_multiplier(hit_kind == HitKind.SPELL)
@@ -700,7 +700,7 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 		var armor := equipment.get_total_armor() if equipment else 0.0
 		if status_effects.has_effect("stone_skin"):
 			armor += STONE_SKIN_ARMOUR
-		mitigated *= (1.0 - DamageCalculator.physical_mitigation(armor, mitigated))
+		mitigated *= (1.0 - DamageCalculator.player_physical_mitigation(armor, mitigated, _attacker_level(source)))
 		mitigated *= (1.0 - stat_sheet.get_reduced_damage_taken(Constants.DamageCategory.PHYSICAL))
 	elif category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC:
 		var resistance := stat_sheet.get_effective_resistance(damage_type, status_effects.get_resistance_shred())
@@ -715,7 +715,7 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 			var armor_to_elemental_pct := stat_sheet.get_misc_bonus("armor_to_elemental") / 100.0
 			if armor_to_elemental_pct > 0.0 and equipment:
 				var bonus_armor := equipment.get_total_armor() * armor_to_elemental_pct
-				mitigated *= (1.0 - DamageCalculator.physical_mitigation(bonus_armor, mitigated))
+				mitigated *= (1.0 - DamageCalculator.player_physical_mitigation(bonus_armor, mitigated, _attacker_level(source)))
 		mitigated *= (1.0 - stat_sheet.get_reduced_damage_taken(category))
 		if status_effects.has_effect("stone_skin"):
 			mitigated *= 1.0 - STONE_SKIN_MAGIC_REDUCTION
@@ -734,9 +734,16 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 	health.apply_damage(overflow)
 	EventBus.damage_dealt.emit(source, self, mitigated, damage_type, false, false)
 
+## The level whose damage scale a hit is measured against (Armour): the
+## attacking monster's, else the current area's.
+func _attacker_level(source: Node) -> int:
+	if source is Enemy:
+		return maxi((source as Enemy).level, 1)
+	return maxi(AreaLevel.current(), 1)
+
 ## Elemental Earth (Arkanus): Stone Skin's Armour and less Elemental and
 ## Esoteric damage taken.
-const STONE_SKIN_ARMOUR := 5000.0
+const STONE_SKIN_ARMOUR := 300.0
 const STONE_SKIN_MAGIC_REDUCTION := 0.12
 
 const BLOCK_CHANCE_CAP := 0.75

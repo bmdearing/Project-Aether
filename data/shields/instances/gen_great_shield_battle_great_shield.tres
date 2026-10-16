@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_wfvxa")
 block_chance = 0.19
-armor_value = 809.0
+armor_value = 37.0
 item_id = "gen_great_shield_battle_great_shield"
 display_name = "Battle Great Shield"
 equip_slot = 6

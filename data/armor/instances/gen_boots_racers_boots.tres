@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_djaog")
-evasion_value = 175.0
+evasion_value = 29.0
 item_id = "gen_boots_racers_boots"
 display_name = "Racer's Boots"
 equip_slot = 3

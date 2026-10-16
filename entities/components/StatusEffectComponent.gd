@@ -239,7 +239,7 @@ static func get_chance_bonus(source: Node, effect_id: String) -> float:
 	var player := source as Player
 	if player == null or player.stat_sheet == null:
 		return 0.0
-	return player.stat_sheet.get_misc_bonus("ailment_chance_" + CHANCE_STAT_ALIAS.get(effect_id, effect_id)) / 100.0
+	return player.stat_sheet.get_ailment_chance_bonus(CHANCE_STAT_ALIAS.get(effect_id, effect_id))
 
 ## Ailments roll base_chance + the source's gear chance; anything else always lands.
 func try_apply(effect_id: String, source: Node, hit_damage: float, base_chance: float) -> bool:
@@ -627,9 +627,12 @@ static func effect_multiplier(source: Node, effect_id: String) -> float:
 	var percent := sheet.get_misc_bonus(effect_id + "_effect")
 	if is_ailment(effect_id):
 		percent += sheet.get_misc_bonus("ailment_effectiveness")
+		if not DAMAGING_AILMENT_IDS.has(effect_id):
+			percent += sheet.get_misc_bonus("control_ailment_effect")
+	# curse_effect reads "Curses and Debuffs" since v5.5.
 	if DEBUFF_IDS.has(effect_id):
-		percent += sheet.get_misc_bonus("debuff_effectiveness")
-	if CURSE_IDS.has(effect_id):
+		percent += sheet.get_misc_bonus("debuff_effectiveness") + sheet.get_misc_bonus("curse_effect")
+	elif CURSE_IDS.has(effect_id):
 		percent += sheet.get_misc_bonus("curse_effect")
 	# Arkanus: more Ailment effect, a separate multiplier. Damaging ailments
 	# take its more Ailment damage instead, so they don't get both.

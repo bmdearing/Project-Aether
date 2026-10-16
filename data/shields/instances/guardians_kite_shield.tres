@@ -7,7 +7,7 @@
 script = ExtResource("1")
 item_type = &"kite_shield"
 block_chance = 0.15
-armor_value = 112.0
+armor_value = 9.0
 item_id = "guardians_kite_shield"
 display_name = "Guardian's Kite Shield"
 equip_slot = 6
