@@ -431,13 +431,12 @@ func _test_lord_sigils() -> void:
 	lord.composure.end_broken_state()
 	lord.stance.reset()
 	var stance_before: float = lord.stance.current_stance
-	player.parry_handler.start_parry_window()
 	player.parry_handler.parry_window_seconds = 5.0
 	player.parry_handler.start_parry_window()
 	player.health.current_health = player.health.max_health
 	await lord.cast_custom(cold)
 	_check(player.health.current_health == player.health.max_health and lord.stance.current_stance < stance_before, "a parried blow does nothing to you and costs him Composure")
-	player.parry_handler.parry_window_seconds = 0.25
+	player.parry_handler.parry_window_seconds = 0.18
 	var feint := brain.find("lightning_feint")
 	player.health.current_health = player.health.max_health
 	player.parry_handler.start_parry_window()  # an early parry, timed to the feint

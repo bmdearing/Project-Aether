@@ -5,46 +5,96 @@ class_name ParryRiposteHandler
 ## EnemyMeleeAttack calls attempt_parry() when a swing resolves.
 ## PlayerMeleeAttack triggers a riposte on any melee hit against a broken
 ## enemy, however it was broken.
+##
+## A parry runs startup -> active window -> recovery. Only the active window
+## catches hits; a whiffed parry plays out its recovery before you can parry
+## or attack again, so it can't be spammed. A successful one cancels the
+## recovery, so a combo can be parried blow by blow and riposted at once.
 
-@export var parry_window_seconds: float = 0.25
+## Before the blade is in place: a press at the moment of contact is too late.
+const PARRY_STARTUP := 0.05
+## Stances and gear widen this, never the startup or recovery.
+@export var parry_window_seconds: float = 0.18
+const WHIFF_RECOVERY := 0.35
 @export var parry_stance_damage: float = 25.0
 ## On top of the swing's motion value. The broken-state damage bonus also
 ## applies, since the break ends after the hit. Never evadable.
 const RIPOSTE_MOTION_VALUE_MULTIPLIER := 1.4
 @export var riposte_invuln_duration: float = 1.0
+const SUCCESS_HITSTOP := 0.06
+
+enum Phase { IDLE, STARTUP, ACTIVE, RECOVERY }
 
 var is_invulnerable: bool = false
-var _parry_active: bool = false
-var _parry_timer: float = 0.0
+var phase: Phase = Phase.IDLE
+var _phase_timer: float = 0.0
+var _active_length: float = 0.0
 var _invuln_timer: float = 0.0
 
 func _process(delta: float) -> void:
-	if _parry_active:
-		_parry_timer -= delta
-		if _parry_timer <= 0.0:
-			_parry_active = false
+	if phase != Phase.IDLE:
+		_phase_timer -= delta
+		while phase != Phase.IDLE and _phase_timer <= 0.0:
+			match phase:
+				Phase.STARTUP:
+					phase = Phase.ACTIVE
+					_phase_timer += _active_length
+				Phase.ACTIVE:
+					phase = Phase.RECOVERY
+					_phase_timer += WHIFF_RECOVERY
+				_:
+					phase = Phase.IDLE
 	if is_invulnerable:
 		_invuln_timer -= delta
 		if _invuln_timer <= 0.0:
 			is_invulnerable = false
 
-## The active stance and gear can widen the window (duration only).
-func start_parry_window() -> void:
+## Startup, active or recovery: the parry owns the hands.
+func is_busy() -> bool:
+	return phase != Phase.IDLE
+
+func is_window_open() -> bool:
+	return phase == Phase.ACTIVE
+
+## The active stance and gear widen the window.
+func get_window_length() -> float:
 	var player := get_parent() as Player
 	var window_mult := 1.0
 	if player and player.weapon_stance and player.weapon_stance.is_active and player.weapon_stance.current_behavior:
 		window_mult = player.weapon_stance.current_behavior.parry_window_multiplier
 	if player and player.stat_sheet:
 		window_mult *= 1.0 + player.stat_sheet.get_misc_bonus("parry_window_duration") / 100.0
-	_parry_active = true
-	_parry_timer = parry_window_seconds * window_mult
+	return parry_window_seconds * window_mult
+
+## Melee weapons only: ranged weapons and conduits can't parry.
+func can_parry_with(weapon: Weapon) -> bool:
+	return weapon == null or (not weapon.is_ranged and not weapon.is_conduit)
+
+## Returns false while a parry is still playing out, or mid-swing: it cuts
+## your own swing's recovery short, but not its windup or strike.
+func start_parry_window() -> bool:
+	if is_busy():
+		return false
+	var player := get_parent() as Player
+	if player and not can_parry_with(player.get_active_weapon()):
+		return false
+	if player and player.melee_attack:
+		player.melee_attack.cancel_recovery()
+		if player.melee_attack.is_committed():
+			return false
+	_active_length = get_window_length()
+	phase = Phase.STARTUP
+	_phase_timer = PARRY_STARTUP
+	if player and player.arm_rig:
+		player.arm_rig.play_parry(PARRY_STARTUP, _active_length, WHIFF_RECOVERY)
+	return true
 
 ## Call when an incoming attack from `attacker` would land while the parry
 ## window is open. Returns true if the parry succeeded.
 func attempt_parry(attacker: Node, ward: WardComponent) -> bool:
-	if not _parry_active:
+	if phase != Phase.ACTIVE:
 		return false
-	_parry_active = false
+	phase = Phase.IDLE
 
 	var stance: StanceComponent = attacker.get_node_or_null("StanceComponent")
 	if stance:
@@ -59,6 +109,12 @@ func attempt_parry(attacker: Node, ward: WardComponent) -> bool:
 			if ward_on_parry_pct > 0.0:
 				ward.restore(ward.max_ward * ward_on_parry_pct)
 
+	var parent := get_parent() as Player
+	if parent:
+		if parent.arm_rig:
+			parent.arm_rig.play_parry_deflect()
+		if parent.melee_attack:
+			parent.melee_attack.hitstop(SUCCESS_HITSTOP)
 	EventBus.parry_successful.emit(get_parent(), attacker)
 	return true
 

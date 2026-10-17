@@ -348,16 +348,35 @@ func _test_brace() -> void:
 func _test_parry_stances() -> void:
 	var parry := _player.parry_handler
 	await _reset("Rapier")
-	parry.start_parry_window()
-	var base: float = parry._parry_timer
+	var base: float = parry.get_window_length()
 	await _enter_page_b("Rapier")
-	parry.start_parry_window()
-	_check(parry._parry_timer > base * 2.0, "rapier Ready Parry widens the parry window (%.2fs vs %.2fs)" % [parry._parry_timer, base])
+	_check(parry.get_window_length() > base * 2.0, "rapier Ready Parry widens the parry window (%.2fs vs %.2fs)" % [parry.get_window_length(), base])
 	await _leave_stance()
 	await _enter_page_b("Cutlass")
-	parry.start_parry_window()
-	_check(parry._parry_timer > base * 1.5, "cutlass Parry Ready widens it too")
+	_check(parry.get_window_length() > base * 1.5, "cutlass Parry Ready widens it too")
 	await _leave_stance()
+
+	# Timing: startup, active window, whiff lockout, success cancels recovery.
+	var foe := _dummy(_forward() * 2.0)
+	_check(parry.start_parry_window(), "a parry starts from idle")
+	_check(not parry.attempt_parry(foe, null), "a blow landing during startup isn't parried")
+	await _seconds(ParryRiposteHandler.PARRY_STARTUP + 0.03)
+	_check(parry.attempt_parry(foe, null), "a blow inside the window is parried")
+	_check(parry.start_parry_window(), "a landed parry can be followed straight away")
+	# The landed parry's hitstop slows game time; wait it out first.
+	await _seconds(ParryRiposteHandler.SUCCESS_HITSTOP + 0.05)
+	await _seconds(ParryRiposteHandler.PARRY_STARTUP + base + 0.05)
+	_check(not parry.attempt_parry(foe, null), "a blow after the window closes isn't parried")
+	_check(not parry.start_parry_window() and parry.is_busy(), "a whiffed parry can't be spammed")
+	await _seconds(ParryRiposteHandler.WHIFF_RECOVERY + 0.05)
+	_check(parry.start_parry_window(), "the parry is ready again after its recovery")
+	await _seconds(1.0)
+	foe.queue_free()
+	var gun := Weapon.new()
+	gun.is_ranged = true
+	var conduit := Weapon.new()
+	conduit.is_conduit = true
+	_check(not parry.can_parry_with(gun) and not parry.can_parry_with(conduit), "ranged weapons and conduits can't parry")
 
 var _damage_log: Array = []  # [target, amount, type]
 

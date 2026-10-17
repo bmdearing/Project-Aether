@@ -85,6 +85,8 @@ func _trigger(mode: String, weapon: Weapon) -> void:
 			Input.action_press("move_forward")
 		"cast":
 			EventBus.ability_cast.emit(_player, null)
+		"parry":
+			_player.parry_handler.start_parry_window()
 		_:
 			if weapon.is_ranged:
 				_player.ranged_attack._fire(weapon)

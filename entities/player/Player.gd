@@ -927,7 +927,7 @@ func _tap_weapon_swap() -> void:
 	GameState.sync_weapon_sets(equipment)
 
 func _handle_attack_input(delta: float) -> void:
-	if shield_block.is_raised:
+	if shield_block.is_raised or parry_handler.is_busy():
 		_lmb_held_time = 0.0
 		_lmb_was_held = false
 		return

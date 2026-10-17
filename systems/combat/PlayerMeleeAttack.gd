@@ -218,6 +218,10 @@ func _ready() -> void:
 func is_idle() -> bool:
 	return _state == State.IDLE
 
+## In a swing's windup or strike: too late to parry out of it.
+func is_committed() -> bool:
+	return _state == State.WINDUP or _state == State.STRIKE
+
 func get_move_speed_multiplier() -> float:
 	return ATTACKING_MOVE_SPEED_MULTIPLIER if _state != State.IDLE else 1.0
 
@@ -745,9 +749,7 @@ func _trigger_hit_feedback(big: bool = false, critical: bool = false, killed: bo
 		duration *= HITSTOP_KILL_MULT
 	if big:
 		duration = hitstop_duration * 3.0
-	Engine.time_scale = hitstop_time_scale * 0.5 if big else hitstop_time_scale
-	_active_hitstops += 1
-	get_tree().create_timer(duration, true, false, true).timeout.connect(_end_hitstop)
+	hitstop(duration, hitstop_time_scale * 0.5 if big else hitstop_time_scale)
 
 	_kick_camera(Vector3(-HIT_KICK_PITCH, _swing_yaw() * HIT_KICK_YAW, randf_range(-0.5, 0.5) * HIT_KICK_YAW) * weight * (2.0 if big else 1.0))
 
@@ -760,6 +762,11 @@ func _trigger_hit_feedback(big: bool = false, critical: bool = false, killed: bo
 	var tween := create_tween()
 	tween.tween_property(camera, "position", base_pos + offset, shake_duration * 0.3).set_trans(Tween.TRANS_SINE)
 	tween.tween_property(camera, "position", base_pos, shake_duration * 0.7).set_trans(Tween.TRANS_SINE)
+
+func hitstop(duration: float, time_scale: float = hitstop_time_scale) -> void:
+	Engine.time_scale = time_scale
+	_active_hitstops += 1
+	get_tree().create_timer(duration, true, false, true).timeout.connect(_end_hitstop)
 
 ## Overlapping hitstops (a kill right after a hit) end with the last one.
 func _end_hitstop() -> void:

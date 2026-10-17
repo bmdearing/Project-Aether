@@ -174,7 +174,7 @@ func _test_new_mechanics() -> void:
 	await _wait(2 * (Ataras.SLASH_TELEGRAPH + Ataras.SLASH_GAP) + 0.05)
 	_player.parry_handler.start_parry_window()
 	await _wait(Ataras.THRUST_TELEGRAPH + 0.2)
-	_player.parry_handler.parry_window_seconds = 0.25
+	_player.parry_handler.parry_window_seconds = 0.18
 	_check(_boss.status_effects.is_stunned() and _boss.stance.current_stance < _boss.stance.max_stance, "a parried thrust staggers him")
 	_check(get_tree().get_nodes_in_group("ataras_echo").size() > echoes_before, "he leaves a sand echo where he stood")
 	_boss.status_effects.clear_all_effects()

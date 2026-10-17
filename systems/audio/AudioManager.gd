@@ -29,6 +29,7 @@ func _ready() -> void:
 		add_child(player)
 		_sfx_pool.append(player)
 	get_tree().node_added.connect(_on_node_added)
+	EventBus.parry_successful.connect(func(player: Node, _attacker: Node): if player is Node3D: play_at(SoundLib.pick_random(SoundLib.library.parry), (player as Node3D).global_position, -2.0))
 	EventBus.hit_blocked.connect(func(player: Node): if player is Node3D: play_at(SoundLib.pick_random(SoundLib.library.shield_block), (player as Node3D).global_position, -4.0))
 	EventBus.loot_dropped.connect(func(_item, at: Vector3): play_at(SoundLib.pick_random(SoundLib.library.item_drop), at, -8.0))
 	EventBus.loot_picked_up.connect(func(_item): play_2d(SoundLib.library.item_pickup, -8.0))

@@ -128,9 +128,10 @@ const RESTS := {
 	&"bow": {"rest": [Vector3(0.2, -0.12, -0.55), Vector3(-0.2, 1, 0), Vector3(-0.1, 0, 1)],
 		"aim": [Vector3(0.12, -0.09, -0.6), Vector3(-0.05, 1, 0), Vector3(0.05, 0, 1)]},
 }
-## Left hand holding a shield or focus, and raised for a block.
+## Left hand holding a shield or focus, and raised for a block. The raised
+## shield stays left of and below the crosshair so it never hides the target.
 const OFF_ITEM_REST := [Vector3(-0.27, -0.3, -0.44), Vector3(0.1, 1, -0.2), Vector3(0, 0, 1)]
-const OFF_ITEM_GUARD := [Vector3(-0.07, -0.18, -0.38), Vector3(0.05, 1, 0), Vector3(0, 0, 1)]
+const OFF_ITEM_GUARD := [Vector3(-0.17, -0.25, -0.42), Vector3(0.15, 1, -0.05), Vector3(-0.2, 0, 1)]
 
 ## Clip keys: [phase, fraction of that phase, hand offset, tip, face, ease curve].
 ## Phases "w" windup, "s" strike, "r" recovery; every clip ends back at rest.
@@ -232,6 +233,34 @@ const VISCERAL := [
 	["r", 0.35, Vector3(0.12, -0.18, -0.12), Vector3(0.7, -0.4, -0.6), null, 2.2],
 ]
 
+## Parry brace per family, [hand pos, tip, face] like RESTS: the weapon laid
+## across the body in front of the face. Melee only (see ParryRiposteHandler).
+const PARRY_POSES := {
+	&"blade": [Vector3(0.1, -0.13, -0.42), Vector3(-1, 0.3, -0.25), Vector3(0, 0.35, 1)],
+	&"heavy": [Vector3(0.16, -0.16, -0.4), Vector3(-1, 0.45, -0.2), Vector3(0, 0.35, 1)],
+	&"thrust": [Vector3(0.12, -0.16, -0.46), Vector3(-0.6, 0.7, -0.4), Vector3(0.3, 0.2, 1)],
+	&"blunt": [Vector3(0.1, -0.14, -0.42), Vector3(-1, 0.4, -0.25), Vector3(0, 0.35, 1)],
+	&"spear": [Vector3(0.16, -0.16, -0.32), Vector3(-1, 0.18, -0.35), Vector3(0, 1, 0.3)],
+	&"halberd": [Vector3(0.16, -0.16, -0.32), Vector3(-1, 0.2, -0.35), Vector3(0, 0.3, 1)],
+	&"staff": [Vector3(0.16, -0.16, -0.34), Vector3(-1, 0.2, -0.3), Vector3(0, 0.3, 1)],
+	&"whip": [Vector3(0.1, -0.13, -0.42), Vector3(-1, 0.4, -0.2), Vector3(0, 0.3, 1)],
+	&"fist": [Vector3(0.1, -0.1, -0.34), Vector3(-0.5, 0.85, -0.3), Vector3(0, 0.6, 1)],
+}
+## Dual wield crosses the blades: both tips tilt up so they meet in an X.
+const PARRY_DUAL_TILT := Vector3(0.25, 0.35, 0.0)
+## Shield parry, as offsets from OFF_ITEM_REST: cocked in edge-first during
+## startup, then swung out and forward, turned outward to bat the blow aside.
+## Stays low and left of centre so the shield never covers the crosshair.
+const SHIELD_PARRY := [
+	["w", 1.0, Vector3(0.04, 0.03, 0.04), Vector3(0.35, 1, 0.1), Vector3(0.8, 0, 0.6), 0.5],
+	["s", 0.35, Vector3(0.06, 0.05, -0.1), Vector3(0.1, 1, -0.25), Vector3(-0.55, 0, 1), 0.5],
+	["s", 1.0, Vector3(0.05, 0.05, -0.11), Vector3(0.1, 1, -0.25), Vector3(-0.55, 0, 1), 1.0],
+	["r", 0.3, Vector3(0.03, 0.02, -0.07), Vector3(0.1, 1, -0.2), Vector3(-0.45, 0, 1), 0.6],
+]
+## How far the window pushes the brace into the blow, and the whiff sag.
+const PARRY_PRESS := Vector3(0.0, 0.0, -0.025)
+const PARRY_SAG := Vector3(0.02, -0.03, 0.02)
+
 ## [light, heavy, charged] clip per melee family.
 const MELEE_CLIPS := {
 	&"blade": [DIAGONAL, HORIZONTAL, OVERHEAD],
@@ -312,6 +341,7 @@ var _guard_w: float = 0.0
 var _shield_w: float = 0.0
 var _aim_w: float = 0.0
 var _fist_alt: bool = false
+var _parry_shield: bool = false
 
 var _mouse_delta := Vector2.ZERO
 var _sway_offset := Vector3.ZERO
@@ -455,6 +485,47 @@ func play_bash(windup: float, strike: float, recovery: float) -> void:
 ## The visceral clip: plunged in by `plunge`, torn out over `rip`.
 func play_visceral(plunge: float, rip: float) -> void:
 	_start(_main_track, VISCERAL, 0.12, plunge - 0.12, rip, _main_rest())
+
+## Parry: up into the brace over `startup`, held through the `active` window,
+## then sagging back to rest over `recovery` (the whiff). A shield swings out
+## instead; dual wielders cross both blades; fists raise both forearms.
+func play_parry(startup: float, active: float, recovery: float) -> void:
+	_parry_shield = _off_mode == OffMode.ITEM and _offhand_item is Shield
+	if _parry_shield:
+		_start(_off_track, SHIELD_PARRY, startup, active, recovery, _off_rest())
+		return
+	var brace := _pose_from(PARRY_POSES.get(_family, PARRY_POSES[&"blade"]))
+	if _off_mode == OffMode.DUAL:
+		brace.tip = (brace.tip + PARRY_DUAL_TILT).normalized()
+		var off_brace := _mirror_pose(_pose_from(PARRY_POSES.get(_off_family, PARRY_POSES[&"blade"])))
+		off_brace.tip = (off_brace.tip + Vector3(-PARRY_DUAL_TILT.x, PARRY_DUAL_TILT.y, PARRY_DUAL_TILT.z)).normalized()
+		_start(_off_track, _brace_clip(off_brace, _off_rest()), startup, active, recovery, _off_rest())
+	elif _off_mode == OffMode.GAUNTLET:
+		_start(_off_track, _brace_clip(_mirror_pose(brace), _off_rest()), startup, active, recovery, _off_rest())
+	_start(_main_track, _brace_clip(brace, _main_rest()), startup, active, recovery, _main_rest())
+
+## A landed parry: the blow knocks the brace up and out, then it settles.
+func play_parry_deflect() -> void:
+	_kick(Vector3(0, 0, 0.03), Vector3(0.07, randf_range(-0.03, 0.03), randf_range(-0.05, 0.05)))
+	if _parry_shield:
+		_deflect(_off_track, _off_rest(), Vector3(-0.03, 0.03, 0.05))
+		return
+	_deflect(_main_track, _main_rest(), Vector3(0.04, 0.05, 0.02))
+	if _off_mode == OffMode.DUAL or _off_mode == OffMode.GAUNTLET:
+		_deflect(_off_track, _off_rest(), Vector3(-0.04, 0.05, 0.02))
+
+func _brace_clip(brace: Pose, rest: Pose) -> Array:
+	var at := brace.pos - rest.pos
+	return [
+		["w", 1.0, at, brace.tip, brace.face, 0.4],
+		["s", 1.0, at + PARRY_PRESS, brace.tip, brace.face, 1.0],
+		["r", 0.3, at + PARRY_SAG, brace.tip, brace.face, 0.6],
+	]
+
+func _deflect(track: Track, rest: Pose, push: Vector3) -> void:
+	var now := track.sample(rest)
+	var knocked := (now.tip + Vector3(push.x, 0.6, 0.0) * 0.6).normalized()
+	_start(track, [["s", 1.0, now.pos - rest.pos + push, knocked, now.face, 0.4]], 0.0, 0.06, 0.24, rest)
 
 ## Right-click hold: melee raises a weapon guard, ranged aims down sights. The
 ## shield only comes up while ShieldBlock is actually raised.
