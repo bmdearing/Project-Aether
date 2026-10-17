@@ -1,7 +1,7 @@
 extends Node
 ## Screenshot of ground drops: weapon/shield models lying flat, orbs for the
 ## rest, a rarity beam on each. Needs a real window (not --headless).
-## Run: Godot --path . res://tests/ui_capture/capture_loot.tscn -- <out.png>
+## Run: Godot --path . res://tests/ui_capture/capture_loot.tscn -- <out.png> [equipment]
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -21,6 +21,8 @@ func _run() -> void:
 		_shield(),
 		_ring(),
 	]
+	if args.size() > 1 and args[1] == "equipment":
+		drops = EQUIPMENT.map(func(path: String) -> Item: return _rolled(path))
 	for i in drops.size():
 		var pickup: LootPickup = load("res://entities/pickups/loot_pickup/LootPickup.tscn").instantiate()
 		pickup.item = drops[i]
@@ -41,6 +43,25 @@ func _run() -> void:
 	get_viewport().get_texture().get_image().save_png(out_path)
 	print("saved ", out_path)
 	get_tree().quit()
+
+const EQUIPMENT := [
+	"res://data/armor/instances/gen_body_armour_aegis_plate.tres",
+	"res://data/armor/instances/gen_body_armour_aetherial_coat.tres",
+	"res://data/armor/instances/padded_coat.tres",
+	"res://data/items/instances/iron_belt.tres",
+	"res://data/items/instances/leather_belt.tres",
+	"res://data/items/instances/ember_ring.tres",
+	"res://data/items/instances/void_ring.tres",
+	"res://data/items/instances/vitality_pendant.tres",
+	"res://data/items/instances/aetheric_conduit.tres",
+]
+
+## A copy named the way ItemRoller names rolled items.
+func _rolled(path: String) -> Item:
+	var it := (load(path) as Item).duplicate(true) as Item
+	it.item_id = "%s_rolled_%d" % [it.item_id, 7]
+	it.rarity = Constants.ItemRarity.UNCOMMON
+	return it
 
 func _weapon(t: String, rarity: int) -> Weapon:
 	var w := Weapon.new()

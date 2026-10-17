@@ -35,6 +35,37 @@ Every weapon type uses its Blender-built `.glb` in first person instead of the K
 4. In `_mount_aether`, replace any material named `accent` on each surface with `_glow(accent_color)`. Keep cast shadows off.
 5. Keep the existing `_build_*` gun/bow functions and the pack paths as the fallback. Don't change `FAMILY` or the PlayerArmRig clips.
 
+## Equipment drops (body armour and accessories)
+`assets/models/equipment/*.glb` holds 30 files, listed in `equipment_manifest.json`. These are ground-drop and display models, not meshes worn on a character. Today `LootPickup._build_model()` returns null for anything that isn't a weapon or shield, so these items show as the rarity sphere. Give them their model instead.
+
+- Space: Godot-native after import, with +Y up and the front toward +Z. Each model is centred near its origin. `_build_model()` already measures bounds and rests the model on the floor, so add the model under `holder` the same way it does for weapons.
+- Body armour (9) stands upright, keyed by the item's `base_line_id` (manifest `base`):
+
+  | Manifest base | Line |
+  | --- | --- |
+  | `body_armour_line1` | Max Armor plate |
+  | `body_armour_line2` | Armor + Life |
+  | `body_armour_line3` | Evasion vest |
+  | `body_armour_line4` | Evasion coat |
+  | `body_armour_line5` | Ward coat |
+  | `body_armour_line6` | Brigandine |
+  | `body_armour_line7` | Occult vest |
+  | `body_armour_line8` | Aegis plate |
+  | `padded_coat` | Padded Coat |
+
+  The Padded Coat `.tres` has no `base_line_id`, so match it by its resource file name.
+- Accessories lie flat at real-world size. Match each to its base resource file in `data/items/instances`, not its display name, because rolled items get new names. `display_name` in the manifest is only the base item's own name.
+
+  | Type | Base resource → model |
+  | --- | --- |
+  | Rings | `<kind>_ring.tres` → `ring_<kind>.glb` for iron, tarnished, ember, frost, volt, void, ward, resonant, swift, vital |
+  | Belts | `<kind>_belt.tres` → `belt_<kind>.glb` for leather, frayed, iron, strength |
+  | Amulets | `agility_pendant` → `amulet_agility`<br>`intellect_pendant` → `amulet_intellect`<br>`vital_pendant` → `amulet_vital`<br>`vitality_pendant` (displayed as "Strength Pendant") → `amulet_strength`<br>`resonant_pendant` → `amulet_resonant`<br>`convergence_pendant` → `amulet_convergence`<br>`aetheric_conduit` → `amulet_aetheric_conduit` |
+
+- Real-size rings (~2.4 cm) and pendants are hard to see on the floor. Add a per-family drop display scale constant (start around ring ×3, amulet ×2, belt ×1, body armour ×1) and leave it easy to tune.
+- Gems and `glow_*` materials are fixed colours (they already match `Constants.DAMAGE_TYPE_COLOR`). Unlike `accent`, don't recolour them.
+- Keep the rarity beam and name tag as they are.
+
 ## Check in the TestArena
 - Melee: the hand sits on the grip, the blade points along the swing, and two-handers put the left hand on the second grip.
 - Guns: the muzzle flash spawns at the barrel tip, the left hand lands on the foregrip, and the sights sit on top.

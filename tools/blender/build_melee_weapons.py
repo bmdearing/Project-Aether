@@ -34,6 +34,22 @@ MATERIALS = {
     "tome_cover": ((0.42, 0.2, 0.12), 0.8, 0.0),
     "grimoire_cover": ((0.12, 0.1, 0.14), 0.8, 0.0),
     "trim": ((0.8, 0.8, 0.8), 0.6, 0.2),
+    "cloth_tan": ((0.6, 0.52, 0.38), 0.9, 0.0),
+    "cloth_dark": ((0.16, 0.15, 0.22), 0.85, 0.0),
+    "cloth_red": ((0.5, 0.1, 0.1), 0.85, 0.0),
+    "worn_leather": ((0.25, 0.16, 0.1), 0.9, 0.0),
+    "tarnished": ((0.5, 0.42, 0.26), 0.55, 0.6),
+    # Gem and glow colours follow Constants.DAMAGE_TYPE_COLOR where a damage type fits.
+    "gem_fire": ((0.75, 0.15, 0.1), 0.15, 0.0),
+    "gem_cold": ((0.6, 0.85, 0.95), 0.15, 0.0),
+    "gem_lightning": ((0.9, 0.85, 0.2), 0.15, 0.0),
+    "gem_aetheric": ((0.3, 0.6, 0.65), 0.15, 0.0),
+    "gem_entropic": ((0.35, 0.15, 0.45), 0.15, 0.0),
+    "gem_pale": ((0.85, 0.83, 0.75), 0.15, 0.0),
+    "gem_vital": ((0.6, 0.05, 0.08), 0.15, 0.0),
+    "gem_agility": ((0.2, 0.6, 0.3), 0.15, 0.0),
+    "gem_intellect": ((0.2, 0.35, 0.85), 0.15, 0.0),
+    "glow_aetheric": ((0.3, 0.6, 0.65), 0.5, 0.0),
     "accent": ((0.5, 0.8, 1.0), 0.5, 0.0),
 }
 
@@ -53,9 +69,9 @@ def material(name):
     bsdf.inputs["Base Color"].default_value = (*[_linear(c) for c in color], 1.0)
     bsdf.inputs["Roughness"].default_value = rough
     bsdf.inputs["Metallic"].default_value = metal
-    if name == "accent":
+    if name == "accent" or name.startswith(("glow_", "gem_")):
         (bsdf.inputs.get("Emission Color") or bsdf.inputs["Emission"]).default_value = (*[_linear(c) for c in color], 1.0)
-        bsdf.inputs["Emission Strength"].default_value = 2.5
+        bsdf.inputs["Emission Strength"].default_value = 0.8 if name.startswith("gem_") else 2.5
     mat.diffuse_color = (*[_linear(c) for c in color], 1.0)
     return mat
 
@@ -668,6 +684,19 @@ class Kit:
             part.build(self.root)
 
 
+# Prism local (x, y, z) -> forward-authored (y, z, x): a side profile of (z, y) points, extruded across X.
+SIDE = Matrix(((0, 1, 0, 0), (0, 0, 1, 0), (1, 0, 0, 0), (0, 0, 0, 1)))
+
+
+def _profile(k, mat, pts, width):
+    k.add(mat, prism(pts, width), SIDE)
+
+
+def _shotgun_stock(k, z0, top=0.1):
+    _profile(k, "wood", [(z0, top), (z0 + 0.275, top - 0.025), (z0 + 0.285, -0.045), (z0 + 0.06, 0.0), (z0, 0.03)], 0.042)
+    _profile(k, "darksteel", [(z0 + 0.275, top - 0.025), (z0 + 0.287, top - 0.025), (z0 + 0.297, -0.045), (z0 + 0.285, -0.045)], 0.044)
+
+
 def _trigger_guard(k, pos, mat="polymer"):
     k.ring(mat, pos, 0.019, 0.025, 0.0035)
     k.box("steel", (0.005, 0.016, 0.006), (pos[0], pos[1] + 0.002, pos[2] + 0.004), rx=20)
@@ -833,8 +862,7 @@ def build_pump_shotgun(root):
     k.rod("gunmetal", 0.014, 0.4, (0, 0.06, -0.36))
     k.add("wood", lathe(wrap_profile(-0.08, 0.08, 0.026, 0.002, 6), 10), at(0, 0.06, -0.36))
     k.box("wood", (0.034, 0.1, 0.048), (0, -0.005, 0.01), rx=-14)
-    k.box("wood", (0.045, 0.1, 0.25), (0, 0.045, 0.19), rx=-6)
-    k.box("darksteel", (0.047, 0.105, 0.012), (0, 0.032, 0.315), rx=-6)
+    _shotgun_stock(k, 0.045, 0.1)
     k.add("brass", sphere(0.004, 6, 3), at(0, 0.114, -0.63))
     k.box("darksteel", (0.052, 0.02, 0.06), (0.001, 0.07, -0.07))
     _trigger_guard(k, (0, 0.02, -0.04), "gunmetal")
@@ -848,13 +876,12 @@ def build_double_shotgun(root):
         k.rod("gunmetal", 0.016, 0.5, (x, 0.085, -0.36))
         k.box("steel", (0.01, 0.022, 0.02), (x * 0.6, 0.11, -0.01), rx=-30)
     k.box("gunmetal", (0.012, 0.008, 0.5), (0, 0.1, -0.36))
-    k.box("wood", (0.05, 0.035, 0.24), (0, 0.06, -0.27))
-    k.box("steel", (0.05, 0.07, 0.1), (0, 0.07, -0.05))
+    _profile(k, "wood", [(-0.39, 0.075), (-0.1, 0.075), (-0.1, 0.035), (-0.37, 0.045)], 0.05)
+    k.box("steel", (0.05, 0.07, 0.11), (0, 0.07, -0.045))
     for x in (0.026, -0.026):
         k.box("brass", (0.002, 0.04, 0.06), (x, 0.07, -0.05))
     k.box("wood", (0.034, 0.1, 0.05), (0, -0.005, 0.01), rx=-16)
-    k.box("wood", (0.045, 0.1, 0.24), (0, 0.04, 0.18), rx=-8)
-    k.box("darksteel", (0.047, 0.105, 0.012), (0, 0.026, 0.3), rx=-8)
+    _shotgun_stock(k, 0.008, 0.1)
     _trigger_guard(k, (0, 0.02, -0.04), "gunmetal")
     k.mark("offhand_grip", (0, 0.03, -0.28)).mark("muzzle", (0, 0.085, -0.61))
     k.build()
@@ -1077,6 +1104,393 @@ for _base in ("buckler", "kite", "tower", "great", "spiked", "rune", "warded", "
     BUILDERS["shield_" + _base] = ("Shield_" + _base.capitalize(), (lambda b: lambda r: build_shield(r, b))(_base), _base, "shield", False)
 
 
+# --- equipment: loot/display models, not worn meshes. Blender native space:
+# Z up, front -Y. Accessories lie flat at real size; body armour stands upright ---
+
+EQUIPMENT_FAMILIES = ("ring", "amulet", "belt", "body_armour")
+IDENTITY = Matrix.Identity(4)
+
+
+def rect_sweep(points, half_w, half_h, up=Vector((0, 0, 1)), closed=None):
+    """Rectangular strap along a path: half_w across the path, half_h along `up`."""
+    pts = [Vector(p) for p in points]
+    closed = (pts[0] - pts[-1]).length < 1e-6 if closed is None else closed
+    sections = []
+    for k, p in enumerate(pts):
+        if closed and k in (0, len(pts) - 1):
+            t = pts[1] - pts[-2]
+        else:
+            t = pts[min(k + 1, len(pts) - 1)] - pts[max(k - 1, 0)]
+        s = t.normalized().cross(up).normalized()
+        sections.append([p + s * a + up * b for a, b in ((half_w, half_h), (-half_w, half_h), (-half_w, -half_h), (half_w, -half_h))])
+    return loft(sections)
+
+
+def ellipse(rx, ry, z=0.0, n=32, cx=0.0, cy=0.0, a0=0.0, a1=2 * math.pi):
+    steps = n if a1 - a0 >= 2 * math.pi - 1e-6 else n - 1
+    return [(cx + rx * math.cos(a0 + (a1 - a0) * i / steps), cy + ry * math.sin(a0 + (a1 - a0) * i / steps), z) for i in range(steps + 1)]
+
+
+def gem(r, h=None):
+    h = h or r * 1.4
+    return lathe([(-h * 0.6, 0.0), (0.0, r), (h * 0.22, r * 0.62), (h * 0.26, r * 0.55)], 8, False)
+
+
+def _setting(k, gem_mat, pos, r, axis_rx=-90.0, metal="brass"):
+    """Bezel cup plus faceted gem facing along the matrix's +Z after axis_rx."""
+    m = at(*pos, rx=axis_rx)
+    k.add(metal, lathe([(-r * 0.5, r * 0.8), (0.0, r * 1.15), (r * 0.25, r * 1.15)], 10, False), m)
+    k.add(gem_mat, gem(r), m @ at(z=r * 0.28))
+
+
+# Rings: band radius 10.5 mm lying in XY; settings sit on the band at +Y facing outward.
+
+def _band(k, mat, r=0.0105, width=0.0045, thickness=0.0018, z=0.0):
+    k.add(mat, rect_sweep(ellipse(r, r, z, 40), thickness * 0.5, width * 0.5))
+
+
+def build_ring(root, kind):
+    k = Kit(root, "Ring_" + kind.capitalize(), IDENTITY)
+    top = (0, 0.0115, 0)
+    if kind == "iron":
+        _band(k, "darksteel", width=0.006, thickness=0.0024)
+        for i in range(8):
+            a = 2 * math.pi * i / 8
+            k.add("steel", sphere(0.0009, 6, 3), at(math.cos(a) * 0.0118, math.sin(a) * 0.0118, 0))
+    elif kind == "tarnished":
+        _band(k, "tarnished")
+        _setting(k, "darksteel", top, 0.003, metal="tarnished")
+    elif kind == "ember":
+        _band(k, "brass")
+        _setting(k, "gem_fire", top, 0.0042)
+        for x in (-0.0045, 0.0045):
+            k.add("darksteel", lathe([(0, 0.0012), (0.004, 0.0)], 6, False), at(x, 0.0118, 0, rx=-90))
+    elif kind == "frost":
+        _band(k, "steel", width=0.004)
+        _setting(k, "gem_cold", top, 0.0045, metal="steel")
+        for a in (-1, 1):
+            k.add("gem_cold", gem(0.0015), at(a * 0.0058, 0.0108, 0, rx=-90, rz=a * 28))
+    elif kind == "volt":
+        _band(k, "brass")
+        for i in range(10):
+            a = math.pi * 0.25 + (math.pi * 0.5) * i / 9
+            k.add("darksteel", lathe([(-0.0004, 0.0016), (0.0004, 0.0016)], 6, False), at(math.cos(a + math.pi) * 0.0105, math.sin(a + math.pi) * 0.0105, 0, ry=90, rz=math.degrees(a) + 90))
+        _setting(k, "gem_lightning", top, 0.004)
+    elif kind == "void":
+        _band(k, "darksteel", width=0.005, thickness=0.0022)
+        _setting(k, "gem_entropic", top, 0.0045, metal="darksteel")
+    elif kind == "ward":
+        _band(k, "steel", width=0.005)
+        _setting(k, "gem_aetheric", top, 0.004, metal="steel")
+        for z in (-0.0028, 0.0028):
+            k.add("brass", rect_sweep(ellipse(0.0113, 0.0113, z, 40), 0.0005, 0.0005))
+    elif kind == "resonant":
+        for z in (-0.0018, 0.0018):
+            _band(k, "brass", width=0.0018, z=z)
+        _setting(k, "gem_pale", top, 0.0035)
+    elif kind == "swift":
+        _band(k, "steel", width=0.0032, thickness=0.0015)
+        for side in (-1, 1):
+            k.add("steel", prism([(0.0, -0.002), (0.007, 0.0), (0.0095, 0.0035), (0.0, 0.002)], 0.001), at(side * 0.003, 0.0112, 0, rz=0) @ Matrix.Diagonal((side, 1, 1, 1)))
+        _setting(k, "gem_agility", top, 0.0028, metal="steel")
+    elif kind == "vital":
+        _band(k, "brass")
+        _setting(k, "gem_vital", top, 0.0045)
+        for x in (-0.0055, 0.0055):
+            k.add("gem_vital", gem(0.0014), at(x, 0.0108, 0, rx=-90))
+    k.build()
+
+
+# Amulets: pendant at the origin lying face-up (+Z), chain loop running toward +Y.
+
+def _chain(k, bail_y, mat="brass"):
+    k.ring(mat, (0, bail_y, 0.0), 0.0055, 0.0055, 0.0012, "yz", 12)
+    k.add(mat, tube(ellipse(0.05, 0.085, 0.0, 40, 0.0, bail_y + 0.085), 0.0011, 5))
+
+
+def _flat(k, mat, poly, thickness, z=0.0):
+    k.add(mat, prism(poly, thickness), at(z=z, rx=-90))
+
+
+def build_amulet(root, kind):
+    k = Kit(root, "Amulet_" + kind.title().replace("_", ""), IDENTITY)
+    if kind == "agility":
+        leaf = [(0.0, 0.03), (0.012, 0.018), (0.016, 0.0), (0.01, -0.02), (0.0, -0.032), (-0.01, -0.02), (-0.016, 0.0), (-0.012, 0.018)]
+        _flat(k, "brass", leaf, 0.003)
+        k.box("darksteel", (0.0012, 0.05, 0.0034), (0, -0.002, 0))
+        _setting(k, "gem_agility", (0, 0.004, 0.0015), 0.005, axis_rx=0)
+        _chain(k, 0.034)
+    elif kind == "intellect":
+        teeth = []
+        for i in range(24):
+            a = 2 * math.pi * i / 24
+            r = 0.024 if i % 2 else 0.021
+            teeth.append((math.cos(a) * r, math.sin(a) * r))
+        _flat(k, "steel", teeth, 0.003)
+        k.add("brass", lathe([(0.0, 0.014), (0.002, 0.014)], 20, False), at(z=0.0015))
+        _setting(k, "gem_intellect", (0, 0, 0.003), 0.007, axis_rx=0)
+        _chain(k, 0.028, "steel")
+    elif kind == "vital":
+        k.add("gem_vital", lathe([(-0.018, 0.0), (-0.012, 0.007), (-0.004, 0.011), (0.004, 0.01), (0.01, 0.006), (0.014, 0.0)], 10), at(rx=-90))
+        for i in range(4):
+            a = math.pi * 0.5 * i + math.pi * 0.25
+            k.tube("brass", [(math.cos(a) * 0.003, 0.016, math.sin(a) * 0.003), (math.cos(a) * 0.0115, 0.002, math.sin(a) * 0.0115), (math.cos(a) * 0.007, -0.012, math.sin(a) * 0.007), (0, -0.0185, 0)], 0.0009, 5)
+        _chain(k, 0.019)
+    elif kind == "strength":
+        _flat(k, "darksteel", [(-0.019, -0.019), (0.019, -0.019), (0.019, 0.019), (-0.019, 0.019)], 0.006)
+        _flat(k, "brass", [(-0.013, -0.013), (0.013, -0.013), (0.013, 0.013), (-0.013, 0.013)], 0.002, 0.003)
+        k.add("steel", lathe([(0.0, 0.007), (0.004, 0.0065), (0.006, 0.0)], 8, False), at(z=0.004))
+        for x, y in ((-0.016, -0.016), (0.016, -0.016), (0.016, 0.016), (-0.016, 0.016)):
+            k.add("brass", sphere(0.0018, 6, 3), at(x, y, 0.003))
+        _chain(k, 0.022, "darksteel")
+    elif kind == "resonant":
+        fork = [(-0.011, 0.03), (-0.006, 0.03), (-0.006, -0.004), (0.006, -0.004), (0.006, 0.03), (0.011, 0.03), (0.011, -0.01), (0.002, -0.016), (-0.002, -0.016), (-0.011, -0.01)]
+        _flat(k, "brass", fork, 0.003)
+        k.box("brass", (0.004, 0.012, 0.003), (0, -0.021, 0))
+        _setting(k, "gem_pale", (0, -0.009, 0.0015), 0.0035, axis_rx=0)
+        _chain(k, 0.035)
+    elif kind == "convergence":
+        tri = [(0.0, 0.026), (0.0225, -0.013), (-0.0225, -0.013)]
+        k.tube("brass", [(x, y, 0) for x, y in tri + tri[:1]], 0.0018, 6)
+        for (x, y), mat in zip(tri, ("gem_fire", "gem_cold", "gem_lightning")):
+            _setting(k, mat, (x, y, 0.001), 0.0035, axis_rx=0)
+            k.tube("brass", [(x, y, 0), (0, 0, 0)], 0.0009, 5)
+        _setting(k, "gem_pale", (0, 0, 0.001), 0.0045, axis_rx=0)
+        _chain(k, 0.03)
+    elif kind == "aetheric_conduit":
+        k.add("glow_aetheric", lathe([(-0.02, 0.0), (-0.017, 0.006), (0.017, 0.006), (0.02, 0.0)], 12), at(ry=90))
+        for x in (-0.02, 0.02):
+            k.add("brass", lathe([(-0.004, 0.0085), (0.004, 0.0085)], 10, False), at(x, 0, 0, ry=90))
+        for i in range(3):
+            a = 2 * math.pi * i / 3
+            k.tube("brass", [(-0.02, math.cos(a) * 0.0075, math.sin(a) * 0.0075), (0.02, math.cos(a) * 0.0075, math.sin(a) * 0.0075)], 0.0008, 4)
+        k.tube("brass", [(-0.024, 0, 0), (-0.024, 0.012, 0), (0, 0.016, 0), (0.024, 0.012, 0), (0.024, 0, 0)], 0.0012, 5)
+        _chain(k, 0.016)
+    k.build()
+
+
+# Belts: closed loop lying flat (rx 16 cm, ry 12 cm), buckle at the front (-Y).
+
+def _buckle(k, mat, w=0.05, h=0.045, y=-0.12):
+    k.tube(mat, [(-w / 2, y - 0.006, -h / 2), (w / 2, y - 0.006, -h / 2), (w / 2, y - 0.006, h / 2), (-w / 2, y - 0.006, h / 2), (-w / 2, y - 0.006, -h / 2)], 0.003, 6)
+    k.tube(mat, [(-w / 2 + 0.006, y - 0.007, 0), (w / 2 - 0.004, y - 0.007, 0)], 0.0018, 5)
+
+
+def build_belt(root, kind):
+    k = Kit(root, "Belt_" + kind.capitalize(), IDENTITY)
+    path = ellipse(0.16, 0.12, 0.0, 48, a0=-math.pi * 0.5, a1=math.pi * 1.5)
+    if kind == "leather":
+        k.add("leather", rect_sweep(path, 0.0028, 0.018))
+        _buckle(k, "brass", 0.046, 0.044)
+        k.add("leather", rect_sweep(ellipse(0.168, 0.128, 0.0, 6, a0=-math.pi * 0.5, a1=-math.pi * 0.28), 0.0028, 0.018))
+    elif kind == "frayed":
+        open_path = ellipse(0.16, 0.12, 0.0, 44, a0=-math.pi * 0.42, a1=math.pi * 1.46)
+        k.add("worn_leather", rect_sweep(open_path, 0.0024, 0.014))
+        tail = ellipse(0.168, 0.128, 0.0, 6, a0=-math.pi * 0.55, a1=-math.pi * 0.25)
+        k.add("worn_leather", rect_sweep(tail, 0.0024, 0.0125))
+        for i in range(5):
+            x = -0.006 + i * 0.003
+            k.box("worn_leather", (0.002, 0.004, 0.006 + (i % 2) * 0.004), (0.068 + x, -0.112, -0.004))
+        _buckle(k, "tarnished", 0.034, 0.034)
+    elif kind == "iron":
+        k.add("leather", rect_sweep(path, 0.0028, 0.02))
+        for i in range(10):
+            a = -math.pi * 0.5 + 2 * math.pi * (i + 0.5) / 10
+            x, y = math.cos(a) * 0.164, math.sin(a) * 0.124
+            k.box("steel", (0.03, 0.004, 0.036), (x, y, 0), rz=math.degrees(math.atan2(math.cos(a) * 0.124, -math.sin(a) * 0.164)))
+        _buckle(k, "steel", 0.05, 0.048)
+    elif kind == "strength":
+        k.add("leather", rect_sweep(path, 0.0034, 0.032))
+        k.box("brass", (0.07, 0.006, 0.07), (0, -0.124, 0))
+        k.box("darksteel", (0.05, 0.004, 0.05), (0, -0.128, 0))
+        for side in (-1, 1):
+            k.box("leather", (0.05, 0.035, 0.055), (side * 0.15, -0.075, -0.004), rz=side * -35)
+            k.box("brass", (0.012, 0.004, 0.012), (side * 0.13, -0.095, 0.012), rz=side * -35)
+        for i in range(16):
+            a = -math.pi * 0.5 + 2 * math.pi * (i + 0.5) / 16
+            if abs(math.sin(a) + 1) < 0.15:
+                continue
+            k.add("brass", sphere(0.003, 6, 3), at(math.cos(a) * 0.164, math.sin(a) * 0.124, 0.02))
+            k.add("brass", sphere(0.003, 6, 3), at(math.cos(a) * 0.164, math.sin(a) * 0.124, -0.02))
+    k.build()
+
+
+# Body armour: a standing torso shell 0.56 m tall from waist (z 0) to neck.
+
+TORSO = [(0.0, 0.17, 0.115, 0.105), (0.1, 0.162, 0.108, 0.098), (0.22, 0.18, 0.132, 0.108), (0.34, 0.195, 0.138, 0.112),
+         (0.44, 0.2, 0.124, 0.108), (0.5, 0.185, 0.1, 0.094), (0.54, 0.13, 0.078, 0.074), (0.56, 0.075, 0.058, 0.058)]
+
+
+def _loop(z, rx, ryf, ryb, n=24, grow=0.0):
+    pts = []
+    for i in range(n):
+        a = 2 * math.pi * i / n
+        s = math.sin(a)
+        pts.append(((rx + grow) * math.cos(a), (ryf + grow) * s if s < 0 else (ryb + grow) * s, z))
+    return pts
+
+
+def _torso_at(profile, z):
+    for a, b in zip(profile, profile[1:]):
+        if a[0] <= z <= b[0]:
+            f = (z - a[0]) / (b[0] - a[0])
+            return tuple(a[i] + (b[i] - a[i]) * f for i in range(4))
+    return profile[0] if z < profile[0][0] else profile[-1]
+
+
+def _shell(k, mat, profile, smooth=True, grow=0.0):
+    v, f, s = loft([_loop(z, rx, ryf, ryb, 24, grow) for z, rx, ryf, ryb in profile], smooth)
+    k.add(mat, (v, f, s))
+
+
+def _band_at(k, mat, z, h, grow=0.006, profile=TORSO):
+    lo, hi = _torso_at(profile, z - h / 2), _torso_at(profile, z + h / 2)
+    _shell(k, mat, [(z - h / 2, *lo[1:]), (z + h / 2, *hi[1:])], False, grow)
+
+
+def _front(z, x=0.0, grow=0.004, profile=TORSO):
+    _, rx, ryf, _ = _torso_at(profile, z)
+    return (x, -(ryf * math.sqrt(max(0.0, 1 - (x / rx) ** 2)) + grow), z)
+
+
+def _skirt(top_z, bottom_z, flare, profile=TORSO, steps=4):
+    _, rx, ryf, ryb = _torso_at(profile, top_z)
+    out = []
+    for i in range(steps):
+        f = i / (steps - 1)
+        out.append((bottom_z + (top_z - bottom_z) * f, rx + flare * (1 - f), ryf + flare * 0.7 * (1 - f), ryb + flare * 0.7 * (1 - f)))
+    return out
+
+
+def _pauldrons(k, mat, r=0.1, lames=2, trim=None):
+    for side in (-1, 1):
+        m = at(side * 0.17, 0.0, 0.47, ry=side * 35)
+        k.add(mat, lathe([(0.0, r), (r * 0.45, r * 0.88), (r * 0.8, r * 0.55), (r, 0.0)], 14), m @ Matrix.Diagonal((1, 0.8, 1, 1)))
+        for i in range(lames):
+            k.add(trim or mat, lathe([(-0.02 * (i + 1), r * 1.02), (-0.02 * (i + 1) + 0.016, r * 1.02)], 14, False), m @ Matrix.Diagonal((1, 0.8, 1, 1)))
+
+
+def _collar(k, mat, h=0.05, flare=0.02, base=0.54):
+    _, rx, ryf, ryb = _torso_at(TORSO, base)
+    _shell(k, mat, [(base, rx * 0.8, ryf * 0.85, ryb * 0.85), (base + h, rx * 0.8 + flare, ryf * 0.85 + flare, ryb * 0.85 + flare)], False)
+
+
+def build_body_armour(root, line):
+    k = Kit(root, "Body_" + line, IDENTITY)
+    if line == "plate":
+        _shell(k, "steel", TORSO)
+        for i, z in enumerate((-0.03, -0.07, -0.11)):
+            _shell(k, "steel", [(z - 0.02, 0.175 + i * 0.012, 0.12 + i * 0.01, 0.11 + i * 0.01), (z + 0.02, 0.172 + i * 0.012, 0.118 + i * 0.01, 0.108 + i * 0.01)], False)
+        k.tube("steel", [_front(z, grow=0.002) for z in (0.03, 0.15, 0.27, 0.39, 0.48)], 0.006, 6)
+        _pauldrons(k, "steel", 0.1, 2)
+        _collar(k, "steel", 0.04, 0.012)
+        for i in range(9):
+            x = -0.14 + i * 0.035
+            k.add("brass", sphere(0.005, 6, 3), at(*_front(0.04, x, 0.004)))
+        _band_at(k, "darksteel", 0.04, 0.03, 0.004)
+    elif line == "plate_life":
+        _shell(k, "darksteel", TORSO)
+        _band_at(k, "brass", 0.02, 0.025, 0.006)
+        _band_at(k, "brass", 0.5, 0.02, 0.006)
+        k.add("cloth_red", prism([(-0.05, 0.42), (0.05, 0.42), (0.05, -0.2), (0.0, -0.24), (-0.05, -0.2)], 0.006), at(0, -0.14, 0.0))
+        for x in (-0.13, -0.05, 0.05, 0.13):
+            k.box("leather", (0.075, 0.012, 0.16), (x, -0.105 + abs(x) * 0.25, -0.08), rx=-8, rz=x * 120)
+            k.add("brass", sphere(0.005, 6, 3), at(x, -0.118 + abs(x) * 0.25, -0.01))
+        _pauldrons(k, "darksteel", 0.09, 1, "brass")
+        _collar(k, "darksteel", 0.035, 0.01)
+    elif line == "vest":
+        _shell(k, "leather", TORSO[:6] + [(0.52, 0.16, 0.09, 0.085)])
+        lace = []
+        for i in range(9):
+            z = 0.06 + i * 0.045
+            lace.append(_front(z, 0.022 * (1 if i % 2 else -1), 0.003))
+        k.tube("string", lace, 0.0018, 4)
+        for z in (0.06, 0.15, 0.24, 0.33, 0.42):
+            for x in (-0.022, 0.022):
+                k.add("brass", sphere(0.003, 6, 3), at(*_front(z, x, 0.002)))
+        for z in (0.12, 0.3):
+            _band_at(k, "worn_leather", z, 0.022, 0.004)
+            k.box("brass", (0.024, 0.008, 0.026), _front(z, 0.09, 0.006))
+        _band_at(k, "worn_leather", 0.49, 0.03, 0.003)
+    elif line == "coat":
+        _shell(k, "leather", _skirt(0.0, -0.42, 0.07) + TORSO[1:])
+        _shell(k, "worn_leather", [(0.36, 0.215, 0.152, 0.13), (0.44, 0.215, 0.14, 0.125), (0.5, 0.195, 0.112, 0.105), (0.53, 0.14, 0.085, 0.08)], True, 0.006)
+        _collar(k, "leather", 0.07, 0.035)
+        for z in (-0.3, -0.18, -0.06, 0.06, 0.18, 0.3):
+            k.add("brass", sphere(0.0055, 6, 3), at(*_front(z, 0.04, 0.003, _skirt(0.0, -0.42, 0.07) + TORSO[1:])))
+        _band_at(k, "worn_leather", 0.02, 0.035, 0.008)
+        k.box("brass", (0.04, 0.01, 0.036), _front(0.02, 0.0, 0.012))
+    elif line == "ward_coat":
+        prof = _skirt(0.0, -0.32, 0.05) + TORSO[1:]
+        _shell(k, "cloth_dark", prof)
+        _collar(k, "cloth_dark", 0.09, 0.03)
+        for x in (-0.06, 0.06):
+            k.tube("glow_aetheric", [_front(z, x, 0.003, prof) for z in (-0.3, -0.15, 0.0, 0.15, 0.3, 0.42)], 0.0035, 5)
+        _band_at(k, "glow_aetheric", 0.0, 0.012, 0.006, prof)
+        _band_at(k, "brass", 0.03, 0.018, 0.007, prof)
+        k.add("brass", lathe([(0.0, 0.022), (0.006, 0.02)], 12, False), at(*_front(0.4, 0.0, 0.0, prof), rx=90))
+        k.add("gem_aetheric", gem(0.012), at(*_front(0.4, 0.0, 0.006, prof), rx=90))
+    elif line == "brigandine":
+        _shell(k, "leather", TORSO)
+        for row in range(7):
+            z = 0.04 + row * 0.065
+            _, rx, _, _ = _torso_at(TORSO, z)
+            for i in range(9):
+                x = -rx * 0.8 + i * rx * 0.2
+                k.add("brass", sphere(0.0042, 6, 3), at(*_front(z, x, 0.002)))
+        _band_at(k, "worn_leather", 0.02, 0.035, 0.008)
+        k.box("steel", (0.04, 0.01, 0.036), _front(0.02, 0.0, 0.012))
+        _pauldrons(k, "steel", 0.075, 1, "darksteel")
+        _band_at(k, "worn_leather", 0.5, 0.025, 0.004)
+    elif line == "occult_vest":
+        _shell(k, "cloth_dark", TORSO[:6] + [(0.52, 0.16, 0.09, 0.085)])
+        k.tube("leather", [(0.17, -0.06, 0.48), _front(0.34, 0.06, 0.006), _front(0.2, -0.04, 0.006), (-0.17, -0.06, 0.04)], 0.012, 6)
+        k.ring("glow_aetheric", _front(0.3, 0.0, 0.006), 0.035, 0.035, 0.0025, "xz", 24)
+        tri = [_front(0.33, 0.0, 0.007), _front(0.27, 0.027, 0.007), _front(0.27, -0.027, 0.007)]
+        k.tube("glow_aetheric", tri + tri[:1], 0.002, 4)
+        for i in range(10):
+            a = -math.pi * 0.95 + math.pi * 0.9 * i / 9
+            x, y = math.cos(a) * 0.172, math.sin(a) * 0.118
+            k.box("worn_leather", (0.03, 0.006, 0.08), (x, y, -0.035), rz=math.degrees(a) + 90)
+        _band_at(k, "leather", 0.02, 0.03, 0.006)
+    elif line == "aegis_plate":
+        _shell(k, "steel", TORSO)
+        _pauldrons(k, "steel", 0.1, 2, "brass")
+        _collar(k, "steel", 0.04, 0.012)
+        core = _front(0.33, 0.0, 0.0)
+        k.add("brass", lathe([(0.0, 0.045), (0.012, 0.042), (0.016, 0.03)], 16, False), at(*core, rx=90))
+        k.add("glow_aetheric", sphere(0.026, 12, 6), at(core[0], core[1] - 0.012, core[2]))
+        for x, z in ((-0.1, 0.42), (0.1, 0.42), (-0.11, 0.12), (0.11, 0.12)):
+            k.tube("glow_aetheric", [_front(0.33, x * 0.35, 0.003), _front((0.33 + z) / 2, x * 0.7, 0.003), _front(z, x, 0.003)], 0.003, 5)
+        for i, z in enumerate((-0.03, -0.07)):
+            _shell(k, "steel", [(z - 0.02, 0.176 + i * 0.012, 0.121 + i * 0.01, 0.11 + i * 0.01), (z + 0.02, 0.173 + i * 0.012, 0.119 + i * 0.01, 0.108 + i * 0.01)], False)
+        _band_at(k, "brass", 0.04, 0.02, 0.004)
+    elif line == "padded":
+        prof = _skirt(0.0, -0.12, 0.02) + TORSO[1:]
+        _shell(k, "cloth_tan", prof)
+        for z in (-0.08, -0.02, 0.04, 0.1, 0.16, 0.22, 0.28, 0.34, 0.4, 0.46):
+            _band_at(k, "cloth_tan", z, 0.008, 0.004, prof)
+        _collar(k, "cloth_tan", 0.035, 0.008)
+        for z in (0.08, 0.2, 0.32, 0.44):
+            k.add("leather", sphere(0.005, 6, 3), at(*_front(z, 0.0, 0.006, prof)))
+    k.build()
+
+
+for _kind in ("iron", "tarnished", "ember", "frost", "volt", "void", "ward", "resonant", "swift", "vital"):
+    BUILDERS["ring_" + _kind] = ("Ring_" + _kind.capitalize(), (lambda kd: lambda r: build_ring(r, kd))(_kind), _kind.capitalize() + " Ring", "ring", False)
+AMULET_NAMES = {"agility": "Agility Pendant", "intellect": "Intellect Pendant", "vital": "Vital Pendant", "strength": "Strength Pendant",
+                "resonant": "Resonant Pendant", "convergence": "Convergence Pendant", "aetheric_conduit": "Aetheric Conduit"}
+for _kind, _label in AMULET_NAMES.items():
+    BUILDERS["amulet_" + _kind] = ("Amulet_" + _kind.title().replace("_", ""), (lambda kd: lambda r: build_amulet(r, kd))(_kind), _label, "amulet", False)
+for _kind in ("leather", "frayed", "iron", "strength"):
+    BUILDERS["belt_" + _kind] = ("Belt_" + _kind.capitalize(), (lambda kd: lambda r: build_belt(r, kd))(_kind), _kind.capitalize() + " Belt", "belt", False)
+BODY_LINES = {"plate": "body_armour_line1", "plate_life": "body_armour_line2", "vest": "body_armour_line3", "coat": "body_armour_line4",
+              "ward_coat": "body_armour_line5", "brigandine": "body_armour_line6", "occult_vest": "body_armour_line7",
+              "aegis_plate": "body_armour_line8", "padded": "padded_coat"}
+for _kind, _line in BODY_LINES.items():
+    BUILDERS["body_" + _kind] = ("Body_" + _kind, (lambda kd: lambda r: build_body_armour(r, kd))(_kind), _line, "body_armour", False)
+
+
 def collection_for(name):
     col = bpy.data.collections.get("WPN_" + name)
     if col:
@@ -1106,8 +1520,8 @@ def _godot(v):
     return [round(v.x, 4) + 0.0, round(v.z, 4) + 0.0, round(-v.y, 4) + 0.0]
 
 
-def write_manifest(entries):
-    path = os.path.join(EXPORT_DIR, "weapons_manifest.json")
+def write_manifest(folder, name, entries):
+    path = os.path.join(folder, name)
     manifest = {}
     if os.path.exists(path):
         with open(path, encoding="utf-8") as f:
@@ -1117,9 +1531,12 @@ def write_manifest(entries):
         json.dump(dict(sorted(manifest.items())), f, indent=2)
 
 
+EQUIPMENT_DIR = os.path.join(PROJECT_ROOT, "assets", "models", "equipment")
+
+
 def main():
     keys = BUILD or list(BUILDERS)
-    entries = {}
+    weapons, equipment = {}, {}
     for i, key in enumerate(keys):
         name, builder, weapon_type, family, hide_hand = BUILDERS[key]
         col = collection_for(name)
@@ -1128,17 +1545,29 @@ def main():
         root.empty_display_size = 0.05
         col.objects.link(root)
         builder(root)
-        entry = {"file": "res://assets/models/weapons/%s.glb" % key, "weapon_type": weapon_type, "family": family, "hide_hand": hide_hand}
+        is_equipment = family in EQUIPMENT_FAMILIES
+        folder = EQUIPMENT_DIR if is_equipment else EXPORT_DIR
+        entry = {"file": "res://assets/models/%s/%s.glb" % ("equipment" if is_equipment else "weapons", key), "family": family}
+        if is_equipment:
+            entry["base" if family == "body_armour" else "display_name"] = weapon_type
+        else:
+            entry.update({"weapon_type": weapon_type, "hide_hand": hide_hand})
         for child in root.children:
             if child.type == "EMPTY":
                 entry[child.name.split(".")[0]] = _godot(child.location)
-        entries[key] = entry
+        (equipment if is_equipment else weapons)[key] = entry
         if EXPORT:
-            export(root, os.path.join(EXPORT_DIR, key + ".glb"))
-        root.location = ((i % 12) * 0.3, 0.0, -(i // 12) * 1.6)
-    if EXPORT:
-        write_manifest(entries)
-    print("Aether weapons built:", ", ".join(keys))
+            export(root, os.path.join(folder, key + ".glb"))
+        if is_equipment:
+            j = list(k for k in keys if BUILDERS[k][3] in EQUIPMENT_FAMILIES).index(key)
+            root.location = ((j % 10) * 0.5, 3.0, -(j // 10) * 0.9)
+        else:
+            root.location = ((i % 12) * 0.3, 0.0, -(i // 12) * 1.6)
+    if EXPORT and weapons:
+        write_manifest(EXPORT_DIR, "weapons_manifest.json", weapons)
+    if EXPORT and equipment:
+        write_manifest(EQUIPMENT_DIR, "equipment_manifest.json", equipment)
+    print("Aether models built:", ", ".join(keys))
 
 
 main()

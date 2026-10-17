@@ -4,9 +4,9 @@ class_name LootPickup
 ## picked up with Interact (LootPicker on the Player, card on the HUD);
 ## currency, Maw Fragments, Figments, Tomes and ammo are collected on touch.
 ## Spawned by Enemy.gd on death with its content already assigned: one of
-## `item`, `slate` or `currency_id`. Weapons and shields lie on the floor as
-## their first-person model; everything else is a rotating, bobbing sphere in
-## the rarity colour. Every drop gets a thin rarity beam from the floor.
+## `item`, `slate` or `currency_id`. Weapons, shields, body armour and
+## accessories lie on the floor as their model; everything else is a rotating,
+## bobbing sphere in the rarity colour. Every drop gets a thin rarity beam from the floor.
 
 const ROTATE_SPEED := 1.5
 const BOB_SPEED := 2.0
@@ -63,8 +63,8 @@ var _settled := false
 ## Beam spot: the middle of a lying model, not its grip.
 var _center := Vector3.ZERO
 
-## Weapons and shields lie flat (blade face up, guns on their side) at a
-## random heading, resting on the floor.
+## Everything lies flat (blade face up, guns on their side, armour front up)
+## at a random heading, resting on the floor.
 func _build_model() -> Node3D:
 	var model: Node3D
 	var tilt: Basis
@@ -76,7 +76,13 @@ func _build_model() -> Node3D:
 		model = WeaponModelLibrary.build_offhand(item)
 		tilt = Basis(Vector3.RIGHT, PI * 0.5)
 	else:
-		return null
+		var entry := _equipment_entry(item)
+		if entry.is_empty():
+			return null
+		model = (load(entry["file"]) as PackedScene).instantiate()
+		# Body armour lies on its back, front up; accessories are authored flat.
+		tilt = Basis(Vector3.RIGHT, -PI * 0.5) if entry["family"] == "body_armour" else Basis.IDENTITY
+		tilt = tilt.scaled(Vector3.ONE * float(EQUIPMENT_DROP_SCALE.get(entry["family"], 1.0)))
 	var holder := Node3D.new()
 	holder.name = "Model"
 	holder.rotation.y = randf() * TAU
@@ -95,7 +101,49 @@ func _build_model() -> Node3D:
 	model.position.y = -bounds.position.y
 	_center = holder.basis * bounds.get_center()
 	_center.y = 0.0
+	if _name_tag:
+		_name_tag.position.y = maxf(_name_tag.position.y, bounds.size.y - DEFAULT_HOVER + 0.25)
 	return holder
+
+## Body armour, rings, belts and amulets (tools/blender), Godot-native: +Y up,
+## front +Z. Accessories are scaled up to be seen.
+const EQUIPMENT_MANIFEST := "res://assets/models/equipment/equipment_manifest.json"
+const EQUIPMENT_DROP_SCALE := {"ring": 5.0, "amulet": 3.0, "belt": 1.0, "body_armour": 1.0}
+## Base item id -> manifest key where the name doesn't follow <kind>_ring /
+## <kind>_belt.
+const EQUIPMENT_BY_BASE := {
+	"agility_pendant": "amulet_agility", "intellect_pendant": "amulet_intellect",
+	"vital_pendant": "amulet_vital", "vitality_pendant": "amulet_strength",
+	"resonant_pendant": "amulet_resonant", "convergence_pendant": "amulet_convergence",
+	"aetheric_conduit": "amulet_aetheric_conduit", "padded_coat": "body_padded",
+}
+
+static var _equipment: Dictionary = {}
+static var _equipment_by_line: Dictionary = {}
+
+## Body armour matches by base line; accessories by the base item id (rolled
+## ids are "<base id>_rolled_<n>").
+static func _equipment_entry(it: Item) -> Dictionary:
+	if it == null:
+		return {}
+	if _equipment.is_empty() and ResourceLoader.exists(EQUIPMENT_MANIFEST):
+		var data: Variant = (load(EQUIPMENT_MANIFEST) as JSON).data
+		if data is Dictionary:
+			_equipment = data
+			for entry: Dictionary in _equipment.values():
+				if entry.has("base"):
+					_equipment_by_line[entry["base"]] = entry
+	var e: Dictionary = _equipment_by_line.get(it.base_line_id, {}) if it.base_line_id != "" else {}
+	if e.is_empty():
+		var cut := it.item_id.find("_rolled_")
+		var base_id := it.item_id.substr(0, cut) if cut != -1 else it.item_id
+		var key: String = EQUIPMENT_BY_BASE.get(base_id, "")
+		if key == "":
+			for kind in ["ring", "belt"]:
+				if base_id.ends_with("_" + kind):
+					key = kind + "_" + base_id.trim_suffix("_" + kind)
+		e = _equipment.get(key, {})
+	return e if not e.is_empty() and ResourceLoader.exists(e["file"]) else {}
 
 ## A thin column from the floor so every drop shows its rarity across a field.
 const BEAM_HEIGHT := 2.4

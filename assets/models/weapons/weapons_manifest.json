@@ -1,14 +1,14 @@
 {
   "athame": {
     "file": "res://assets/models/weapons/athame.glb",
-    "weapon_type": "Athame",
     "family": "thrust",
+    "weapon_type": "Athame",
     "hide_hand": false
   },
   "battle_rifle": {
     "file": "res://assets/models/weapons/battle_rifle.glb",
-    "weapon_type": "Battle Rifle",
     "family": "rifle",
+    "weapon_type": "Battle Rifle",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -23,8 +23,8 @@
   },
   "bolt_rifle": {
     "file": "res://assets/models/weapons/bolt_rifle.glb",
-    "weapon_type": "Bolt Action Rifle",
     "family": "rifle",
+    "weapon_type": "Bolt Action Rifle",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -39,8 +39,8 @@
   },
   "bow": {
     "file": "res://assets/models/weapons/bow.glb",
-    "weapon_type": "Bow",
     "family": "bow",
+    "weapon_type": "Bow",
     "hide_hand": false,
     "bow_tip_bottom": [
       0.0,
@@ -60,8 +60,8 @@
   },
   "claymore": {
     "file": "res://assets/models/weapons/claymore.glb",
-    "weapon_type": "Claymore",
     "family": "heavy",
+    "weapon_type": "Claymore",
     "hide_hand": false,
     "offhand_grip": [
       0.0,
@@ -71,8 +71,8 @@
   },
   "crossbow": {
     "file": "res://assets/models/weapons/crossbow.glb",
-    "weapon_type": "Crossbow",
     "family": "rifle",
+    "weapon_type": "Crossbow",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -87,20 +87,20 @@
   },
   "cutlass": {
     "file": "res://assets/models/weapons/cutlass.glb",
-    "weapon_type": "Cutlass",
     "family": "blade",
+    "weapon_type": "Cutlass",
     "hide_hand": false
   },
   "dagger": {
     "file": "res://assets/models/weapons/dagger.glb",
-    "weapon_type": "Dagger",
     "family": "thrust",
+    "weapon_type": "Dagger",
     "hide_hand": false
   },
   "double_shotgun": {
     "file": "res://assets/models/weapons/double_shotgun.glb",
-    "weapon_type": "Loaded Shotgun",
     "family": "rifle",
+    "weapon_type": "Loaded Shotgun",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -115,26 +115,26 @@
   },
   "fetish": {
     "file": "res://assets/models/weapons/fetish.glb",
-    "weapon_type": "Fetish",
     "family": "focus",
+    "weapon_type": "Fetish",
     "hide_hand": false
   },
   "gauntlet": {
     "file": "res://assets/models/weapons/gauntlet.glb",
-    "weapon_type": "Gauntlet",
     "family": "fist",
+    "weapon_type": "Gauntlet",
     "hide_hand": true
   },
   "gauntlet_left": {
     "file": "res://assets/models/weapons/gauntlet_left.glb",
-    "weapon_type": "Gauntlet (left)",
     "family": "fist",
+    "weapon_type": "Gauntlet (left)",
     "hide_hand": true
   },
   "greataxe": {
     "file": "res://assets/models/weapons/greataxe.glb",
-    "weapon_type": "Greataxe",
     "family": "heavy",
+    "weapon_type": "Greataxe",
     "hide_hand": false,
     "offhand_grip": [
       0.0,
@@ -144,8 +144,8 @@
   },
   "greatsword": {
     "file": "res://assets/models/weapons/greatsword.glb",
-    "weapon_type": "Greatsword",
     "family": "heavy",
+    "weapon_type": "Greatsword",
     "hide_hand": false,
     "offhand_grip": [
       0.0,
@@ -155,14 +155,14 @@
   },
   "grimoire": {
     "file": "res://assets/models/weapons/grimoire.glb",
-    "weapon_type": "Grimoire",
     "family": "focus",
+    "weapon_type": "Grimoire",
     "hide_hand": false
   },
   "halberd": {
     "file": "res://assets/models/weapons/halberd.glb",
-    "weapon_type": "Halberd",
     "family": "halberd",
+    "weapon_type": "Halberd",
     "hide_hand": false,
     "offhand_grip": [
       0.0,
@@ -172,8 +172,8 @@
   },
   "lever_rifle": {
     "file": "res://assets/models/weapons/lever_rifle.glb",
-    "weapon_type": "Lever Action Rifle",
     "family": "rifle",
+    "weapon_type": "Lever Action Rifle",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -188,8 +188,8 @@
   },
   "longbow": {
     "file": "res://assets/models/weapons/longbow.glb",
-    "weapon_type": "Longbow",
     "family": "bow",
+    "weapon_type": "Longbow",
     "hide_hand": false,
     "bow_tip_bottom": [
       0.0,
@@ -209,14 +209,14 @@
   },
   "mace": {
     "file": "res://assets/models/weapons/mace.glb",
-    "weapon_type": "Mace",
     "family": "blunt",
+    "weapon_type": "Mace",
     "hide_hand": false
   },
   "machine_gun": {
     "file": "res://assets/models/weapons/machine_gun.glb",
-    "weapon_type": "Machine Gun",
     "family": "rifle",
+    "weapon_type": "Machine Gun",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -231,8 +231,8 @@
   },
   "machine_pistol": {
     "file": "res://assets/models/weapons/machine_pistol.glb",
-    "weapon_type": "Machine Pistol",
     "family": "pistol",
+    "weapon_type": "Machine Pistol",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -242,20 +242,20 @@
   },
   "pressure_fist": {
     "file": "res://assets/models/weapons/pressure_fist.glb",
-    "weapon_type": "Pressure Fist",
     "family": "fist",
+    "weapon_type": "Pressure Fist",
     "hide_hand": true
   },
   "pressure_fist_left": {
     "file": "res://assets/models/weapons/pressure_fist_left.glb",
-    "weapon_type": "Pressure Fist (left)",
     "family": "fist",
+    "weapon_type": "Pressure Fist (left)",
     "hide_hand": true
   },
   "pump_shotgun": {
     "file": "res://assets/models/weapons/pump_shotgun.glb",
-    "weapon_type": "Pump Action Shotgun",
     "family": "rifle",
+    "weapon_type": "Pump Action Shotgun",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -270,14 +270,14 @@
   },
   "rapier": {
     "file": "res://assets/models/weapons/rapier.glb",
-    "weapon_type": "Rapier",
     "family": "thrust",
+    "weapon_type": "Rapier",
     "hide_hand": false
   },
   "revolver": {
     "file": "res://assets/models/weapons/revolver.glb",
-    "weapon_type": "Revolver",
     "family": "pistol",
+    "weapon_type": "Revolver",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -287,20 +287,20 @@
   },
   "rod": {
     "file": "res://assets/models/weapons/rod.glb",
-    "weapon_type": "Rod",
     "family": "focus",
+    "weapon_type": "Rod",
     "hide_hand": false
   },
   "saber": {
     "file": "res://assets/models/weapons/saber.glb",
-    "weapon_type": "Saber",
     "family": "blade",
+    "weapon_type": "Saber",
     "hide_hand": false
   },
   "service_pistol": {
     "file": "res://assets/models/weapons/service_pistol.glb",
-    "weapon_type": "Service Pistol",
     "family": "pistol",
+    "weapon_type": "Service Pistol",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -310,56 +310,56 @@
   },
   "shield_buckler": {
     "file": "res://assets/models/weapons/shield_buckler.glb",
-    "weapon_type": "buckler",
     "family": "shield",
+    "weapon_type": "buckler",
     "hide_hand": false
   },
   "shield_great": {
     "file": "res://assets/models/weapons/shield_great.glb",
-    "weapon_type": "great",
     "family": "shield",
+    "weapon_type": "great",
     "hide_hand": false
   },
   "shield_kite": {
     "file": "res://assets/models/weapons/shield_kite.glb",
-    "weapon_type": "kite",
     "family": "shield",
+    "weapon_type": "kite",
     "hide_hand": false
   },
   "shield_pavise": {
     "file": "res://assets/models/weapons/shield_pavise.glb",
-    "weapon_type": "pavise",
     "family": "shield",
+    "weapon_type": "pavise",
     "hide_hand": false
   },
   "shield_rune": {
     "file": "res://assets/models/weapons/shield_rune.glb",
-    "weapon_type": "rune",
     "family": "shield",
+    "weapon_type": "rune",
     "hide_hand": false
   },
   "shield_spiked": {
     "file": "res://assets/models/weapons/shield_spiked.glb",
-    "weapon_type": "spiked",
     "family": "shield",
+    "weapon_type": "spiked",
     "hide_hand": false
   },
   "shield_tower": {
     "file": "res://assets/models/weapons/shield_tower.glb",
-    "weapon_type": "tower",
     "family": "shield",
+    "weapon_type": "tower",
     "hide_hand": false
   },
   "shield_warded": {
     "file": "res://assets/models/weapons/shield_warded.glb",
-    "weapon_type": "warded",
     "family": "shield",
+    "weapon_type": "warded",
     "hide_hand": false
   },
   "shock_lance": {
     "file": "res://assets/models/weapons/shock_lance.glb",
-    "weapon_type": "Shock Lance",
     "family": "spear",
+    "weapon_type": "Shock Lance",
     "hide_hand": false,
     "offhand_grip": [
       0.0,
@@ -369,8 +369,8 @@
   },
   "shortbow": {
     "file": "res://assets/models/weapons/shortbow.glb",
-    "weapon_type": "Shortbow",
     "family": "bow",
+    "weapon_type": "Shortbow",
     "hide_hand": false,
     "bow_tip_bottom": [
       0.0,
@@ -390,14 +390,14 @@
   },
   "shortsword": {
     "file": "res://assets/models/weapons/shortsword.glb",
-    "weapon_type": "Shortsword",
     "family": "blade",
+    "weapon_type": "Shortsword",
     "hide_hand": false
   },
   "smg": {
     "file": "res://assets/models/weapons/smg.glb",
-    "weapon_type": "Submachine Gun",
     "family": "rifle",
+    "weapon_type": "Submachine Gun",
     "hide_hand": false,
     "muzzle": [
       0.0,
@@ -412,8 +412,8 @@
   },
   "spear": {
     "file": "res://assets/models/weapons/spear.glb",
-    "weapon_type": "Spear",
     "family": "spear",
+    "weapon_type": "Spear",
     "hide_hand": false,
     "offhand_grip": [
       0.0,
@@ -423,20 +423,20 @@
   },
   "spell_gauntlet": {
     "file": "res://assets/models/weapons/spell_gauntlet.glb",
-    "weapon_type": "Spell Gauntlet",
     "family": "fist",
+    "weapon_type": "Spell Gauntlet",
     "hide_hand": true
   },
   "spell_gauntlet_left": {
     "file": "res://assets/models/weapons/spell_gauntlet_left.glb",
-    "weapon_type": "Spell Gauntlet (left)",
     "family": "fist",
+    "weapon_type": "Spell Gauntlet (left)",
     "hide_hand": true
   },
   "staff": {
     "file": "res://assets/models/weapons/staff.glb",
-    "weapon_type": "Staff",
     "family": "staff",
+    "weapon_type": "Staff",
     "hide_hand": false,
     "offhand_grip": [
       0.0,
@@ -446,32 +446,32 @@
   },
   "talisman": {
     "file": "res://assets/models/weapons/talisman.glb",
-    "weapon_type": "Talisman",
     "family": "focus",
+    "weapon_type": "Talisman",
     "hide_hand": false
   },
   "tome": {
     "file": "res://assets/models/weapons/tome.glb",
-    "weapon_type": "Tome",
     "family": "focus",
+    "weapon_type": "Tome",
     "hide_hand": false
   },
   "wand": {
     "file": "res://assets/models/weapons/wand.glb",
-    "weapon_type": "Wand",
     "family": "wand",
+    "weapon_type": "Wand",
     "hide_hand": false
   },
   "war_pick": {
     "file": "res://assets/models/weapons/war_pick.glb",
-    "weapon_type": "War Pick",
     "family": "blunt",
+    "weapon_type": "War Pick",
     "hide_hand": false
   },
   "whip": {
     "file": "res://assets/models/weapons/whip.glb",
-    "weapon_type": "Whip",
     "family": "whip",
+    "weapon_type": "Whip",
     "hide_hand": false
   }
 }

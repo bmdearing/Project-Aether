@@ -1,0 +1,152 @@
+{
+  "amulet_aetheric_conduit": {
+    "file": "res://assets/models/equipment/amulet_aetheric_conduit.glb",
+    "family": "amulet",
+    "display_name": "Aetheric Conduit"
+  },
+  "amulet_agility": {
+    "file": "res://assets/models/equipment/amulet_agility.glb",
+    "family": "amulet",
+    "display_name": "Agility Pendant"
+  },
+  "amulet_convergence": {
+    "file": "res://assets/models/equipment/amulet_convergence.glb",
+    "family": "amulet",
+    "display_name": "Convergence Pendant"
+  },
+  "amulet_intellect": {
+    "file": "res://assets/models/equipment/amulet_intellect.glb",
+    "family": "amulet",
+    "display_name": "Intellect Pendant"
+  },
+  "amulet_resonant": {
+    "file": "res://assets/models/equipment/amulet_resonant.glb",
+    "family": "amulet",
+    "display_name": "Resonant Pendant"
+  },
+  "amulet_strength": {
+    "file": "res://assets/models/equipment/amulet_strength.glb",
+    "family": "amulet",
+    "display_name": "Strength Pendant"
+  },
+  "amulet_vital": {
+    "file": "res://assets/models/equipment/amulet_vital.glb",
+    "family": "amulet",
+    "display_name": "Vital Pendant"
+  },
+  "belt_frayed": {
+    "file": "res://assets/models/equipment/belt_frayed.glb",
+    "family": "belt",
+    "display_name": "Frayed Belt"
+  },
+  "belt_iron": {
+    "file": "res://assets/models/equipment/belt_iron.glb",
+    "family": "belt",
+    "display_name": "Iron Belt"
+  },
+  "belt_leather": {
+    "file": "res://assets/models/equipment/belt_leather.glb",
+    "family": "belt",
+    "display_name": "Leather Belt"
+  },
+  "belt_strength": {
+    "file": "res://assets/models/equipment/belt_strength.glb",
+    "family": "belt",
+    "display_name": "Strength Belt"
+  },
+  "body_aegis_plate": {
+    "file": "res://assets/models/equipment/body_aegis_plate.glb",
+    "family": "body_armour",
+    "base": "body_armour_line8"
+  },
+  "body_brigandine": {
+    "file": "res://assets/models/equipment/body_brigandine.glb",
+    "family": "body_armour",
+    "base": "body_armour_line6"
+  },
+  "body_coat": {
+    "file": "res://assets/models/equipment/body_coat.glb",
+    "family": "body_armour",
+    "base": "body_armour_line4"
+  },
+  "body_occult_vest": {
+    "file": "res://assets/models/equipment/body_occult_vest.glb",
+    "family": "body_armour",
+    "base": "body_armour_line7"
+  },
+  "body_padded": {
+    "file": "res://assets/models/equipment/body_padded.glb",
+    "family": "body_armour",
+    "base": "padded_coat"
+  },
+  "body_plate": {
+    "file": "res://assets/models/equipment/body_plate.glb",
+    "family": "body_armour",
+    "base": "body_armour_line1"
+  },
+  "body_plate_life": {
+    "file": "res://assets/models/equipment/body_plate_life.glb",
+    "family": "body_armour",
+    "base": "body_armour_line2"
+  },
+  "body_vest": {
+    "file": "res://assets/models/equipment/body_vest.glb",
+    "family": "body_armour",
+    "base": "body_armour_line3"
+  },
+  "body_ward_coat": {
+    "file": "res://assets/models/equipment/body_ward_coat.glb",
+    "family": "body_armour",
+    "base": "body_armour_line5"
+  },
+  "ring_ember": {
+    "file": "res://assets/models/equipment/ring_ember.glb",
+    "family": "ring",
+    "display_name": "Ember Ring"
+  },
+  "ring_frost": {
+    "file": "res://assets/models/equipment/ring_frost.glb",
+    "family": "ring",
+    "display_name": "Frost Ring"
+  },
+  "ring_iron": {
+    "file": "res://assets/models/equipment/ring_iron.glb",
+    "family": "ring",
+    "display_name": "Iron Ring"
+  },
+  "ring_resonant": {
+    "file": "res://assets/models/equipment/ring_resonant.glb",
+    "family": "ring",
+    "display_name": "Resonant Ring"
+  },
+  "ring_swift": {
+    "file": "res://assets/models/equipment/ring_swift.glb",
+    "family": "ring",
+    "display_name": "Swift Ring"
+  },
+  "ring_tarnished": {
+    "file": "res://assets/models/equipment/ring_tarnished.glb",
+    "family": "ring",
+    "display_name": "Tarnished Ring"
+  },
+  "ring_vital": {
+    "file": "res://assets/models/equipment/ring_vital.glb",
+    "family": "ring",
+    "display_name": "Vital Ring"
+  },
+  "ring_void": {
+    "file": "res://assets/models/equipment/ring_void.glb",
+    "family": "ring",
+    "display_name": "Void Ring"
+  },
+  "ring_volt": {
+    "file": "res://assets/models/equipment/ring_volt.glb",
+    "family": "ring",
+    "display_name": "Volt Ring"
+  },
+  "ring_ward": {
+    "file": "res://assets/models/equipment/ring_ward.glb",
+    "family": "ring",
+    "display_name": "Ward Ring"
+  }
+}
