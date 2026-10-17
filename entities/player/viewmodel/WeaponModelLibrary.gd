@@ -167,6 +167,10 @@ static func build_offhand(item: Item) -> Node3D:
 	if item is Weapon:
 		var w := item as Weapon
 		accent = Constants.DAMAGE_TYPE_COLOR.get(w.get_damage_type(), accent)
+		var focus := _aether_entry(w.weapon_type)
+		if focus.get("family") == "focus":
+			_mount_aether(root, focus, accent)
+			return root
 		match w.weapon_type:
 			"Rod": _build_rod(root, accent)
 			"Tome": _build_book(root, Color(0.42, 0.2, 0.12), accent, 0.05)
@@ -175,8 +179,13 @@ static func build_offhand(item: Item) -> Node3D:
 			"Talisman": _build_talisman(root, accent)
 			_: _build_rod(root, accent)
 		return root
-	var line := item.base_line_id
-	_build_shield(root, line.get_slice("_", 0), Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE))
+	var base := item.base_line_id.get_slice("_", 0)
+	var trim: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
+	var shield := _aether_entry(base)
+	if shield.get("family") == "shield":
+		_mount_aether(root, shield, accent, _flat(trim.darkened(0.3), 0.6, 0.2))
+	else:
+		_build_shield(root, base, trim)
 	return root
 
 # --- pack models ---
@@ -189,8 +198,11 @@ static func _mount_pack_melee(root: Node3D, spec: Array) -> void:
 	if spec[3] != null:
 		root.set_meta("offhand_grip", Vector3(0, (hand_z - float(spec[3])) * scale, 0))
 
-## Mounts at identity; "accent" placeholder materials take the damage-type glow.
-static func _mount_aether(root: Node3D, entry: Dictionary, accent: Color) -> void:
+const AETHER_MARKERS := ["offhand_grip", "muzzle", "bow_tip_top", "bow_tip_bottom"]
+
+## Mounts at identity; "accent" placeholder materials take the damage-type
+## glow and "trim" (shield strap plates) takes `trim` when given.
+static func _mount_aether(root: Node3D, entry: Dictionary, accent: Color, trim: Material = null) -> void:
 	var model: Node3D = (load(entry["file"]) as PackedScene).instantiate()
 	root.add_child(model)
 	var glow := _glow(accent)
@@ -199,13 +211,18 @@ static func _mount_aether(root: Node3D, entry: Dictionary, accent: Color) -> voi
 		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		for i in mi.mesh.get_surface_count():
 			var mat := mi.mesh.surface_get_material(i)
-			if mat and mat.resource_name.begins_with("accent"):
+			if mat == null:
+				continue
+			if mat.resource_name.begins_with("accent"):
 				mi.set_surface_override_material(i, glow)
+			elif trim and mat.resource_name.begins_with("trim"):
+				mi.set_surface_override_material(i, trim)
 	if entry.get("hide_hand", false):
 		root.set_meta("hide_hand", true)
-	if entry.has("offhand_grip"):
-		var g: Array = entry["offhand_grip"]
-		root.set_meta("offhand_grip", Vector3(g[0], g[1], g[2]))
+	for key: String in AETHER_MARKERS:
+		if entry.has(key):
+			var v: Array = entry[key]
+			root.set_meta(key, Vector3(v[0], v[1], v[2]))
 
 static func _mount_pack(root: Node3D, stem: String, scale: float, basis: Basis, offset: Vector3) -> Node3D:
 	var scene := load(PACK % stem) as PackedScene

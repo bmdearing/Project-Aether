@@ -5,6 +5,59 @@
     "family": "thrust",
     "hide_hand": false
   },
+  "battle_rifle": {
+    "file": "res://assets/models/weapons/battle_rifle.glb",
+    "weapon_type": "Battle Rifle",
+    "family": "rifle",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.73,
+      0.085
+    ],
+    "offhand_grip": [
+      0.0,
+      0.4,
+      0.02
+    ]
+  },
+  "bolt_rifle": {
+    "file": "res://assets/models/weapons/bolt_rifle.glb",
+    "weapon_type": "Bolt Action Rifle",
+    "family": "rifle",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.7,
+      0.09
+    ],
+    "offhand_grip": [
+      0.0,
+      0.36,
+      0.0
+    ]
+  },
+  "bow": {
+    "file": "res://assets/models/weapons/bow.glb",
+    "weapon_type": "Bow",
+    "family": "bow",
+    "hide_hand": false,
+    "bow_tip_bottom": [
+      0.0,
+      -0.36,
+      0.11
+    ],
+    "bow_tip_top": [
+      0.0,
+      0.36,
+      0.11
+    ],
+    "offhand_grip": [
+      0.0,
+      -0.01,
+      0.14
+    ]
+  },
   "claymore": {
     "file": "res://assets/models/weapons/claymore.glb",
     "weapon_type": "Claymore",
@@ -13,6 +66,22 @@
     "offhand_grip": [
       0.0,
       -0.12,
+      0.0
+    ]
+  },
+  "crossbow": {
+    "file": "res://assets/models/weapons/crossbow.glb",
+    "weapon_type": "Crossbow",
+    "family": "rifle",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.2,
+      0.07
+    ],
+    "offhand_grip": [
+      0.0,
+      0.18,
       0.0
     ]
   },
@@ -26,6 +95,28 @@
     "file": "res://assets/models/weapons/dagger.glb",
     "weapon_type": "Dagger",
     "family": "thrust",
+    "hide_hand": false
+  },
+  "double_shotgun": {
+    "file": "res://assets/models/weapons/double_shotgun.glb",
+    "weapon_type": "Loaded Shotgun",
+    "family": "rifle",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.61,
+      0.085
+    ],
+    "offhand_grip": [
+      0.0,
+      0.28,
+      0.03
+    ]
+  },
+  "fetish": {
+    "file": "res://assets/models/weapons/fetish.glb",
+    "weapon_type": "Fetish",
+    "family": "focus",
     "hide_hand": false
   },
   "gauntlet": {
@@ -62,6 +153,12 @@
       0.0
     ]
   },
+  "grimoire": {
+    "file": "res://assets/models/weapons/grimoire.glb",
+    "weapon_type": "Grimoire",
+    "family": "focus",
+    "hide_hand": false
+  },
   "halberd": {
     "file": "res://assets/models/weapons/halberd.glb",
     "weapon_type": "Halberd",
@@ -73,11 +170,75 @@
       0.0
     ]
   },
+  "lever_rifle": {
+    "file": "res://assets/models/weapons/lever_rifle.glb",
+    "weapon_type": "Lever Action Rifle",
+    "family": "rifle",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.65,
+      0.095
+    ],
+    "offhand_grip": [
+      0.0,
+      0.33,
+      0.02
+    ]
+  },
+  "longbow": {
+    "file": "res://assets/models/weapons/longbow.glb",
+    "weapon_type": "Longbow",
+    "family": "bow",
+    "hide_hand": false,
+    "bow_tip_bottom": [
+      0.0,
+      -0.44,
+      0.12
+    ],
+    "bow_tip_top": [
+      0.0,
+      0.44,
+      0.12
+    ],
+    "offhand_grip": [
+      0.0,
+      -0.01,
+      0.15
+    ]
+  },
   "mace": {
     "file": "res://assets/models/weapons/mace.glb",
     "weapon_type": "Mace",
     "family": "blunt",
     "hide_hand": false
+  },
+  "machine_gun": {
+    "file": "res://assets/models/weapons/machine_gun.glb",
+    "weapon_type": "Machine Gun",
+    "family": "rifle",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.83,
+      0.09
+    ],
+    "offhand_grip": [
+      0.0,
+      0.36,
+      0.04
+    ]
+  },
+  "machine_pistol": {
+    "file": "res://assets/models/weapons/machine_pistol.glb",
+    "weapon_type": "Machine Pistol",
+    "family": "pistol",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.22,
+      0.078
+    ]
   },
   "pressure_fist": {
     "file": "res://assets/models/weapons/pressure_fist.glb",
@@ -91,16 +252,108 @@
     "family": "fist",
     "hide_hand": true
   },
+  "pump_shotgun": {
+    "file": "res://assets/models/weapons/pump_shotgun.glb",
+    "weapon_type": "Pump Action Shotgun",
+    "family": "rifle",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.64,
+      0.095
+    ],
+    "offhand_grip": [
+      0.0,
+      0.36,
+      0.03
+    ]
+  },
   "rapier": {
     "file": "res://assets/models/weapons/rapier.glb",
     "weapon_type": "Rapier",
     "family": "thrust",
     "hide_hand": false
   },
+  "revolver": {
+    "file": "res://assets/models/weapons/revolver.glb",
+    "weapon_type": "Revolver",
+    "family": "pistol",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.24,
+      0.08
+    ]
+  },
+  "rod": {
+    "file": "res://assets/models/weapons/rod.glb",
+    "weapon_type": "Rod",
+    "family": "focus",
+    "hide_hand": false
+  },
   "saber": {
     "file": "res://assets/models/weapons/saber.glb",
     "weapon_type": "Saber",
     "family": "blade",
+    "hide_hand": false
+  },
+  "service_pistol": {
+    "file": "res://assets/models/weapons/service_pistol.glb",
+    "weapon_type": "Service Pistol",
+    "family": "pistol",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.18,
+      0.078
+    ]
+  },
+  "shield_buckler": {
+    "file": "res://assets/models/weapons/shield_buckler.glb",
+    "weapon_type": "buckler",
+    "family": "shield",
+    "hide_hand": false
+  },
+  "shield_great": {
+    "file": "res://assets/models/weapons/shield_great.glb",
+    "weapon_type": "great",
+    "family": "shield",
+    "hide_hand": false
+  },
+  "shield_kite": {
+    "file": "res://assets/models/weapons/shield_kite.glb",
+    "weapon_type": "kite",
+    "family": "shield",
+    "hide_hand": false
+  },
+  "shield_pavise": {
+    "file": "res://assets/models/weapons/shield_pavise.glb",
+    "weapon_type": "pavise",
+    "family": "shield",
+    "hide_hand": false
+  },
+  "shield_rune": {
+    "file": "res://assets/models/weapons/shield_rune.glb",
+    "weapon_type": "rune",
+    "family": "shield",
+    "hide_hand": false
+  },
+  "shield_spiked": {
+    "file": "res://assets/models/weapons/shield_spiked.glb",
+    "weapon_type": "spiked",
+    "family": "shield",
+    "hide_hand": false
+  },
+  "shield_tower": {
+    "file": "res://assets/models/weapons/shield_tower.glb",
+    "weapon_type": "tower",
+    "family": "shield",
+    "hide_hand": false
+  },
+  "shield_warded": {
+    "file": "res://assets/models/weapons/shield_warded.glb",
+    "weapon_type": "warded",
+    "family": "shield",
     "hide_hand": false
   },
   "shock_lance": {
@@ -114,11 +367,48 @@
       0.0
     ]
   },
+  "shortbow": {
+    "file": "res://assets/models/weapons/shortbow.glb",
+    "weapon_type": "Shortbow",
+    "family": "bow",
+    "hide_hand": false,
+    "bow_tip_bottom": [
+      0.0,
+      -0.29,
+      0.1
+    ],
+    "bow_tip_top": [
+      0.0,
+      0.29,
+      0.1
+    ],
+    "offhand_grip": [
+      0.0,
+      -0.01,
+      0.13
+    ]
+  },
   "shortsword": {
     "file": "res://assets/models/weapons/shortsword.glb",
     "weapon_type": "Shortsword",
     "family": "blade",
     "hide_hand": false
+  },
+  "smg": {
+    "file": "res://assets/models/weapons/smg.glb",
+    "weapon_type": "Submachine Gun",
+    "family": "rifle",
+    "hide_hand": false,
+    "muzzle": [
+      0.0,
+      0.37,
+      0.08
+    ],
+    "offhand_grip": [
+      0.0,
+      0.13,
+      -0.04
+    ]
   },
   "spear": {
     "file": "res://assets/models/weapons/spear.glb",
@@ -153,6 +443,18 @@
       -0.27,
       0.0
     ]
+  },
+  "talisman": {
+    "file": "res://assets/models/weapons/talisman.glb",
+    "weapon_type": "Talisman",
+    "family": "focus",
+    "hide_hand": false
+  },
+  "tome": {
+    "file": "res://assets/models/weapons/tome.glb",
+    "weapon_type": "Tome",
+    "family": "focus",
+    "hide_hand": false
   },
   "wand": {
     "file": "res://assets/models/weapons/wand.glb",
