@@ -206,7 +206,7 @@ func _test_slate_brackets() -> void:
 	card.slate_amplifier = 1.5
 	_check(card._slate_mod_text(mod, slate) == "+6.0 Strength (+9.0 Strength)", "placed: bracket shows the chain value (%s)" % card._slate_mod_text(mod, slate))
 	card.slate_amplifier = -1.0
-	_check(card._slate_mod_text(mod, slate).ends_with("(+6.3 Strength)"), "unplaced: its own 5-tile chain (%s)" % card._slate_mod_text(mod, slate))
+	_check(card._slate_mod_text(mod, slate).ends_with("(+%.1f Strength)" % (6.0 * ChainCalculator.lone_multiplier(slate))), "unplaced: its own 5-tile chain (%s)" % card._slate_mod_text(mod, slate))
 	card.queue_free()
 	_finished += 1
 

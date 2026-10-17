@@ -193,12 +193,17 @@ const DAMAGE_TYPE_MAIN_STAT := {
 
 
 # Chain Bonus System - Section 10. Tuple: (tile_range_start, tile_range_end, bonus_per_tile)
+# v5.7.0: reversed (was 1% / 0.75% / 0.5% / 0.25%) so big late chains pay
+# most and small early boards less.
 const CHAIN_BONUS_TIERS := [
-	{"min": 1, "max": 20, "per_tile": 0.010},
-	{"min": 21, "max": 40, "per_tile": 0.0075},
-	{"min": 41, "max": 60, "per_tile": 0.005},
-	{"min": 61, "max": 999999, "per_tile": 0.0025},
+	{"min": 1, "max": 20, "per_tile": 0.0025},
+	{"min": 21, "max": 40, "per_tile": 0.005},
+	{"min": 41, "max": 60, "per_tile": 0.0075},
+	{"min": 61, "max": 999999, "per_tile": 0.010},
 ]
+## Mastery: every Slate tile of a damage type gives this much more damage of
+## that type, times (1 + the Chain Bonus of the chain it's in).
+const MASTERY_PER_TILE := 0.002
 
 enum SlateRarity { COMMON, UNCOMMON, RARE, VERY_RARE, UNIQUE, MYTHIC }
 

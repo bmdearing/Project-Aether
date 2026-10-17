@@ -7,6 +7,17 @@ there. Most recent first.
 
 ---
 
+## 2026-10-16 — v5.7.0: Late-game player scaling (reversed Chain Bonus, Mastery, flat attack damage)
+
+The audit behind this (user discussion): monster Life and damage compound per level and Tier, and they stay that way. Every player lever only added (weapon bases ~4x from ilvl 28 to 91, Strength, one increased% pool) or shrank (Chain Bonus). Early Fate Boards made a white rapier one-shot on-level mobs, and nothing multiplied late.
+- **Chain Bonus reversed:** per tile it's now 0.25% for tiles 1-20, 0.5% for 21-40, 0.75% for 41-60 and 1% from 61 (was 1 / 0.75 / 0.5 / 0.25). A 40-tile chain gives +15% (was +35%), 100 tiles +70% (was +55%), 229 tiles +199% (was +87%). It still feeds increased damage for its tag and amplifies the attribute lines of Slates in the chain.
+- **Mastery (user design):** each Slate tile gives 0.2% more damage of its tag, times (1 + the bonus of the chain it's in), summed per tag (`ChainCalculator.mastery_by_tag()`, `StatSheet.get_mastery()`). It's a "more" multiplier in `StatSheet.outgoing_more_multiplier()`, so weapon hits and spells both get it. Shown on the Fate Board chain readout, Slate hover cards and the Character screen. This is unrelated to the Mastery removed in v4.8.
+- **Flat attack damage on Gloves and Rings:** new prefix "Adds X to Y Damage to Attacks" (`added_attack_damage`), added to every weapon hit's range before Strength, motion value and the multipliers (`Weapon.get_hit_range()`). Its tiers are steep by design: 1 at ilvl 1, 1-2 at 21, 3-4 at 40, 7-9 at 61, 11-13 at 72 and 16-19 at 83 (the high number is x1.75). Attack speed already rolls on both slots.
+- Measured on saves: Artorias (L29) rapier expected hit 204 -> 182, Piercing Mastery +9%. Ariamis (L100, 229-tile Fire chain): Fire Chain Bonus +87% -> +199%, Fire Mastery +137% more, Intellect 247 -> 362 from the stronger chain, Arkanus's Elemental Fire 10.5k -> 37.9k per hit, other elements x1.36.
+- Judgment calls: the steep flat-damage tiers. The user asked for Mastery and the reversal together, though both lean on the Chain Bonus and the late curve is steep. `Constants.MASTERY_PER_TILE` and `CHAIN_BONUS_TIERS` are the levers.
+
+---
+
 ## 2026-10-16 — v5.6.1: Mobs threaten
 
 Feedback: mobs weren't threatening at all. On-level light and standard hits were 1.5-4% of Life (probe_save_hits, Artorias L29). Mobs moved at 2.5-3.5 m/s against the player's 6, and a melee swing rooted them for 0.9 s with a fixed hit sphere, so stepping back dodged every swing.

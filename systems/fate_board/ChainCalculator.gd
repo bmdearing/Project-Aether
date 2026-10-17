@@ -77,6 +77,17 @@ static func bonus_by_tag(chains: Array[ChainResult]) -> Dictionary:
 		totals[result.tag] = totals.get(result.tag, 0.0) + result.bonus_percent
 	return totals
 
+## Mastery per tag (fraction, "more" damage): each chain's tiles x
+## Constants.MASTERY_PER_TILE x (1 + that chain's bonus), summed per tag.
+static func mastery_by_tag(chains: Array[ChainResult]) -> Dictionary:
+	var totals: Dictionary = {}
+	for result in chains:
+		totals[result.tag] = totals.get(result.tag, 0.0) + chain_mastery(result)
+	return totals
+
+static func chain_mastery(result: ChainResult) -> float:
+	return result.tile_count * Constants.MASTERY_PER_TILE * (1.0 + result.bonus_percent)
+
 ## v4.9: Constants.Stat -> float, every placed Slate's flat_<stat>
 ## modifiers (EquipmentComponent.AFFIX_STAT_KEYS) scaled by (1 + the bonus
 ## of the chain that Slate sits in). Only stat keys are amplified - every
@@ -182,7 +193,10 @@ static func explanation() -> String:
 		var range_text := "%d+" % tier["min"] if tier["max"] > 9999 else "%d-%d" % [tier["min"], tier["max"]]
 		lines.append("  Tiles %s: +%.2f%% each" % [range_text, tier["per_tile"] * 100.0])
 	lines.append("")
-	lines.append("e.g. 20 tiles = +%.0f%%, 40 tiles = +%.0f%%" % [_bonus_for_tile_count(20) * 100.0, _bonus_for_tile_count(40) * 100.0])
+	lines.append("e.g. 40 tiles = +%.0f%%, 100 tiles = +%.0f%%" % [_bonus_for_tile_count(40) * 100.0, _bonus_for_tile_count(100) * 100.0])
+	lines.append("")
+	lines.append("Mastery: each tile gives %.1f%% more damage of its type," % (Constants.MASTERY_PER_TILE * 100.0))
+	lines.append("multiplied by (1 + its chain's bonus).")
 	return "\n".join(lines)
 
 ## The chains a placed Slate belongs to, one line each, for its hover card.
@@ -190,5 +204,5 @@ static func chain_lines_for(board: FateBoard, placement_id: String) -> Array[Str
 	var lines: Array[String] = []
 	for result in compute_chains(board):
 		if result.placement_ids.has(placement_id):
-			lines.append("%s chain: %d tiles, +%.2f%% attributes" % [Constants.DAMAGE_TYPE_NAME.get(result.tag, "?"), result.tile_count, result.bonus_percent * 100.0])
+			lines.append("%s chain: %d tiles, +%.2f%% attributes, Mastery +%.1f%% more" % [Constants.DAMAGE_TYPE_NAME.get(result.tag, "?"), result.tile_count, result.bonus_percent * 100.0, chain_mastery(result) * 100.0])
 	return lines

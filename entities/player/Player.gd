@@ -327,6 +327,7 @@ func _apply_fate_board_bonuses() -> void:
 	var chains := ChainCalculator.compute_chains(fate_board)
 	stat_sheet.set_slate_bonus(ChainCalculator.slate_stat_bonuses(fate_board, chains))
 	stat_sheet.set_chain_bonus_by_tag(ChainCalculator.bonus_by_tag(chains))
+	stat_sheet.mastery_by_tag = ChainCalculator.mastery_by_tag(chains)
 	stat_sheet.slate_misc_bonus = ChainCalculator.slate_misc_bonuses(fate_board)
 	_apply_derived_stats()
 

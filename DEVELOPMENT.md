@@ -716,7 +716,12 @@ Board, both landing on `StatSheet`:
    lone Slate counts as its own chain (its own tile count).
 2. **Chain Bonus** (`ChainCalculator.bonus_by_tag()`) feeds `Weapon`/
    `Ability._base_hit()`'s `increased_percents` as real "increased
-   damage" for that tag's category.
+   damage" for that tag's category. Since v5.7.0 the tiers are reversed
+   (0.25% / 0.5% / 0.75% / 1% per tile), so big chains pay most.
+3. **Mastery** (v5.7.0, `ChainCalculator.mastery_by_tag()`): each tile
+   gives `Constants.MASTERY_PER_TILE` (0.2%) more damage of its tag, times
+   (1 + its chain's bonus); a "more" multiplier in
+   `StatSheet.outgoing_more_multiplier()`.
 
 Mastery (a third pathway, amplifying scaling grade and chain bonus) was
 removed in v4.8. Section 10 itself leaves chain amplification of stat

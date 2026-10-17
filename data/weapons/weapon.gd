@@ -56,6 +56,11 @@ func get_base_range() -> Vector2:
 func get_damage_range() -> Vector2:
 	return get_base_range() + get_flat_added_damage()
 
+## The per-hit range with gear's global "Adds X to Y Damage to Attacks".
+func get_hit_range(stat_sheet: StatSheet) -> Vector2:
+	var flat := roundf(stat_sheet.get_misc_bonus("added_attack_damage")) if stat_sheet else 0.0
+	return get_damage_range() + Vector2(flat, roundf(flat * ItemRoller.FLAT_DAMAGE_SPREAD)) * damage_scale()
+
 ## Average damage (the range midpoint).
 func get_base_damage() -> float:
 	var r := get_damage_range()
@@ -283,14 +288,15 @@ func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dicti
 func predict_damage(motion_value: float, stat_sheet: StatSheet) -> float:
 	if stat_sheet == null:
 		return 0.0
-	var hit := _base_hit(get_base_damage(), motion_value, stat_sheet)
+	var r := get_hit_range(stat_sheet)
+	var hit := _base_hit((r.x + r.y) / 2.0, motion_value, stat_sheet)
 	return DamageCalculator.get_expected_damage(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
 
 ## Non-crit (min, max) a hit can deal at this motion value - for cards.
 func predict_damage_range(motion_value: float, stat_sheet: StatSheet) -> Vector2:
 	if stat_sheet == null:
 		return Vector2.ZERO
-	var r := get_damage_range()
+	var r := get_hit_range(stat_sheet)
 	return Vector2(_base_hit(r.x, motion_value, stat_sheet)["base_damage"], _base_hit(r.y, motion_value, stat_sheet)["base_damage"])
 
 ## A real hit: rolls base damage within the range, then crit (always, with
@@ -298,6 +304,6 @@ func predict_damage_range(motion_value: float, stat_sheet: StatSheet) -> Vector2
 func roll_damage(motion_value: float, stat_sheet: StatSheet, force_crit: bool = false) -> Dictionary:
 	if stat_sheet == null:
 		return {"final_damage": 0.0, "is_critical": false, "crit_multiplier": 1.0}
-	var r := get_damage_range()
+	var r := get_hit_range(stat_sheet)
 	var hit := _base_hit(randf_range(r.x, r.y), motion_value, stat_sheet)
 	return DamageCalculator.apply_crit(hit["base_damage"], 1.0 if force_crit else hit["crit_chance"], hit["crit_damage_multiplier"])

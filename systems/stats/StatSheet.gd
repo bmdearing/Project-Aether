@@ -169,10 +169,17 @@ func unique_damage_multiplier(damage_type: int) -> float:
 ## the player lower the damage they deal.
 var status_effects: StatusEffectComponent
 
+## Fate Board Mastery per damage type, as a fraction (0.3 = 30% more), from
+## ChainCalculator.mastery_by_tag().
+var mastery_by_tag: Dictionary = {}
+
+func get_mastery(damage_type: int) -> float:
+	return mastery_by_tag.get(damage_type, 0.0)
+
 ## Every "more" multiplier on the player's own hits from outside the skill
-## itself: Uniques, then the player's own debuffs.
+## itself: Uniques, Mastery, then the player's own debuffs.
 func outgoing_more_multiplier(damage_type: int) -> float:
-	return unique_damage_multiplier(damage_type) * (status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0)
+	return unique_damage_multiplier(damage_type) * (1.0 + get_mastery(damage_type)) * (status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0)
 
 ## Percent totals (20.0 = +20%), re-derived on every stat refresh.
 var cast_speed_bonus: float = 0.0

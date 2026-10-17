@@ -37,6 +37,8 @@ static func _tooltip_for(label_text: String) -> String:
 		return StatGlossary.explain(label_text.trim_suffix(" Resistance").to_lower() + "_resistance")
 	if label_text.ends_with(" Chain Bonus"):
 		return "% increased damage of this type from chains of linked Slates on the Fate Board."
+	if label_text.ends_with(" Mastery"):
+		return "%% more damage of this type: each Slate tile of the type gives %.1f%%, multiplied by (1 + its chain's bonus)." % (Constants.MASTERY_PER_TILE * 100.0)
 	return ""
 
 static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, misc_list: VBoxContainer, player: Player) -> void:
@@ -83,6 +85,10 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 		var bonus: float = stats.chain_bonus_by_tag[tag]
 		if bonus != 0.0:
 			_add(misc_list, "%s Chain Bonus" % Constants.DAMAGE_TYPE_NAME.get(tag, "?"), "+%.1f%%" % (bonus * 100.0))
+	for tag in stats.mastery_by_tag:
+		var mastery: float = stats.mastery_by_tag[tag]
+		if mastery != 0.0:
+			_add(misc_list, "%s Mastery" % Constants.DAMAGE_TYPE_NAME.get(tag, "?"), "+%.1f%% more" % (mastery * 100.0))
 
 ## Deaths, kills and each Pinnacle boss's clears.
 static func refresh_record(list: VBoxContainer) -> void:

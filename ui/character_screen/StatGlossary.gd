@@ -64,6 +64,7 @@ const EXPLAIN := {
 	"parry_window_duration": "Your Parry window lasts longer, making Parries easier to time.",
 	"all_elemental_resistance": "Added to Fire, Cold and Lightning Resistance.",
 	"attack_speed": "Weapon attacks are faster. All % increased Attack Speed (with Agility's) is added together.",
+	"added_attack_damage": "Flat damage added to every weapon hit, before Strength, motion value and every other multiplier. Each Ring and Gloves line adds its own range.",
 	"cast_speed": "Spells with a cast time cast faster.",
 	"move_speed": "You move faster, sprinting included.",
 	"dash_speed": "Your dash covers ground faster.",

@@ -308,7 +308,7 @@ func _refresh_chains() -> void:
 	for i in range(results.size()):
 		var r: ChainCalculator.ChainResult = results[i]
 		var tag_name: String = Constants.DAMAGE_TYPE_NAME.get(r.tag, "?")
-		lines.append("%s chain: %d tiles, +%.2f%%" % [tag_name, r.tile_count, r.bonus_percent * 100.0])
+		lines.append("%s chain: %d tiles, +%.2f%%, Mastery +%.1f%% more" % [tag_name, r.tile_count, r.bonus_percent * 100.0, ChainCalculator.chain_mastery(r) * 100.0])
 		EventBus.chain_recalculated.emit(i, r.tile_count, r.bonus_percent)
 	chain_label.text = ("\n".join(lines) if lines.size() > 0 else "No chains yet") + "\n(hover for how chains work)"
 	var summary := "\n\nYour chains:\n" + "\n".join(lines) if lines.size() > 0 else ""
