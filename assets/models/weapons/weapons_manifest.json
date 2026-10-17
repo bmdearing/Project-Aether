@@ -1,0 +1,175 @@
+{
+  "athame": {
+    "file": "res://assets/models/weapons/athame.glb",
+    "weapon_type": "Athame",
+    "family": "thrust",
+    "hide_hand": false
+  },
+  "claymore": {
+    "file": "res://assets/models/weapons/claymore.glb",
+    "weapon_type": "Claymore",
+    "family": "heavy",
+    "hide_hand": false,
+    "offhand_grip": [
+      0.0,
+      -0.12,
+      0.0
+    ]
+  },
+  "cutlass": {
+    "file": "res://assets/models/weapons/cutlass.glb",
+    "weapon_type": "Cutlass",
+    "family": "blade",
+    "hide_hand": false
+  },
+  "dagger": {
+    "file": "res://assets/models/weapons/dagger.glb",
+    "weapon_type": "Dagger",
+    "family": "thrust",
+    "hide_hand": false
+  },
+  "gauntlet": {
+    "file": "res://assets/models/weapons/gauntlet.glb",
+    "weapon_type": "Gauntlet",
+    "family": "fist",
+    "hide_hand": true
+  },
+  "gauntlet_left": {
+    "file": "res://assets/models/weapons/gauntlet_left.glb",
+    "weapon_type": "Gauntlet (left)",
+    "family": "fist",
+    "hide_hand": true
+  },
+  "greataxe": {
+    "file": "res://assets/models/weapons/greataxe.glb",
+    "weapon_type": "Greataxe",
+    "family": "heavy",
+    "hide_hand": false,
+    "offhand_grip": [
+      0.0,
+      -0.22,
+      0.0
+    ]
+  },
+  "greatsword": {
+    "file": "res://assets/models/weapons/greatsword.glb",
+    "weapon_type": "Greatsword",
+    "family": "heavy",
+    "hide_hand": false,
+    "offhand_grip": [
+      0.0,
+      -0.12,
+      0.0
+    ]
+  },
+  "halberd": {
+    "file": "res://assets/models/weapons/halberd.glb",
+    "weapon_type": "Halberd",
+    "family": "halberd",
+    "hide_hand": false,
+    "offhand_grip": [
+      0.0,
+      0.35,
+      0.0
+    ]
+  },
+  "mace": {
+    "file": "res://assets/models/weapons/mace.glb",
+    "weapon_type": "Mace",
+    "family": "blunt",
+    "hide_hand": false
+  },
+  "pressure_fist": {
+    "file": "res://assets/models/weapons/pressure_fist.glb",
+    "weapon_type": "Pressure Fist",
+    "family": "fist",
+    "hide_hand": true
+  },
+  "pressure_fist_left": {
+    "file": "res://assets/models/weapons/pressure_fist_left.glb",
+    "weapon_type": "Pressure Fist (left)",
+    "family": "fist",
+    "hide_hand": true
+  },
+  "rapier": {
+    "file": "res://assets/models/weapons/rapier.glb",
+    "weapon_type": "Rapier",
+    "family": "thrust",
+    "hide_hand": false
+  },
+  "saber": {
+    "file": "res://assets/models/weapons/saber.glb",
+    "weapon_type": "Saber",
+    "family": "blade",
+    "hide_hand": false
+  },
+  "shock_lance": {
+    "file": "res://assets/models/weapons/shock_lance.glb",
+    "weapon_type": "Shock Lance",
+    "family": "spear",
+    "hide_hand": false,
+    "offhand_grip": [
+      0.0,
+      0.36,
+      0.0
+    ]
+  },
+  "shortsword": {
+    "file": "res://assets/models/weapons/shortsword.glb",
+    "weapon_type": "Shortsword",
+    "family": "blade",
+    "hide_hand": false
+  },
+  "spear": {
+    "file": "res://assets/models/weapons/spear.glb",
+    "weapon_type": "Spear",
+    "family": "spear",
+    "hide_hand": false,
+    "offhand_grip": [
+      0.0,
+      0.42,
+      0.0
+    ]
+  },
+  "spell_gauntlet": {
+    "file": "res://assets/models/weapons/spell_gauntlet.glb",
+    "weapon_type": "Spell Gauntlet",
+    "family": "fist",
+    "hide_hand": true
+  },
+  "spell_gauntlet_left": {
+    "file": "res://assets/models/weapons/spell_gauntlet_left.glb",
+    "weapon_type": "Spell Gauntlet (left)",
+    "family": "fist",
+    "hide_hand": true
+  },
+  "staff": {
+    "file": "res://assets/models/weapons/staff.glb",
+    "weapon_type": "Staff",
+    "family": "staff",
+    "hide_hand": false,
+    "offhand_grip": [
+      0.0,
+      -0.27,
+      0.0
+    ]
+  },
+  "wand": {
+    "file": "res://assets/models/weapons/wand.glb",
+    "weapon_type": "Wand",
+    "family": "wand",
+    "hide_hand": false
+  },
+  "war_pick": {
+    "file": "res://assets/models/weapons/war_pick.glb",
+    "weapon_type": "War Pick",
+    "family": "blunt",
+    "hide_hand": false
+  },
+  "whip": {
+    "file": "res://assets/models/weapons/whip.glb",
+    "weapon_type": "Whip",
+    "family": "whip",
+    "hide_hand": false
+  }
+}

@@ -57,10 +57,25 @@ const PACK_MELEE := {
 ## Glow orbs on magic polearms: [model Z, radius].
 const PACK_ORB := {"Staff": [-1.3, 0.05], "Shock Lance": [-1.38, 0.035]}
 
+## Blender-built models (tools/blender/build_melee_weapons.py), already in grip
+## space. The manifest maps weapon type -> file, hide_hand and offhand_grip;
+## left gauntlets are keyed "<type> (left)". Missing files fall back below.
+const AETHER_MANIFEST := "res://assets/models/weapons/weapons_manifest.json"
+
 ## Bow limb half-length and brace height (string distance from the grip).
 const BOW_SIZE := {"Bow": [0.36, 0.11], "Longbow": [0.44, 0.12], "Shortbow": [0.29, 0.1]}
 
 static var _materials: Dictionary = {}
+static var _aether: Dictionary = {}
+
+static func _aether_entry(key: String) -> Dictionary:
+	if _aether.is_empty() and ResourceLoader.exists(AETHER_MANIFEST):
+		var data: Variant = (load(AETHER_MANIFEST) as JSON).data
+		if data is Dictionary:
+			for entry: Dictionary in (data as Dictionary).values():
+				_aether[entry["weapon_type"]] = entry
+	var e: Dictionary = _aether.get(key, {})
+	return e if not e.is_empty() and ResourceLoader.exists(e["file"]) else {}
 
 static func get_family(weapon_type: String) -> StringName:
 	return FAMILY.get(weapon_type, &"blade")
@@ -75,7 +90,11 @@ static func build(weapon: Weapon) -> Node3D:
 	var forward_authored := true
 	var accent: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.get_damage_type(), Color(0.5, 0.8, 1.0))
 	var t := weapon.weapon_type
-	if PACK_MELEE.has(t):
+	var aether := _aether_entry(t)
+	if not aether.is_empty():
+		forward_authored = false
+		_mount_aether(inner, aether, accent)
+	elif PACK_MELEE.has(t):
 		forward_authored = false
 		var spec: Array = PACK_MELEE[t]
 		_mount_pack_melee(inner, spec)
@@ -129,10 +148,14 @@ static func build_left_gauntlet(weapon: Weapon) -> Node3D:
 	var root := Node3D.new()
 	root.name = "LeftGauntlet"
 	var inner := Node3D.new()
-	inner.basis = FORWARD_TO_TIP
 	root.add_child(inner)
 	var accent: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.get_damage_type(), Color(0.5, 0.8, 1.0))
-	_build_gauntlet(inner, weapon.weapon_type, accent, true)
+	var aether := _aether_entry(weapon.weapon_type + " (left)")
+	if not aether.is_empty():
+		_mount_aether(inner, aether, accent)
+	else:
+		inner.basis = FORWARD_TO_TIP
+		_build_gauntlet(inner, weapon.weapon_type, accent, true)
 	_lift_meta(inner, root)
 	return root
 
@@ -165,6 +188,24 @@ static func _mount_pack_melee(root: Node3D, spec: Array) -> void:
 	_mount_pack(root, spec[0], scale, Basis(Vector3.RIGHT, PI * 0.5), Vector3(0, hand_z * scale, 0))
 	if spec[3] != null:
 		root.set_meta("offhand_grip", Vector3(0, (hand_z - float(spec[3])) * scale, 0))
+
+## Mounts at identity; "accent" placeholder materials take the damage-type glow.
+static func _mount_aether(root: Node3D, entry: Dictionary, accent: Color) -> void:
+	var model: Node3D = (load(entry["file"]) as PackedScene).instantiate()
+	root.add_child(model)
+	var glow := _glow(accent)
+	for node in model.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		for i in mi.mesh.get_surface_count():
+			var mat := mi.mesh.surface_get_material(i)
+			if mat and mat.resource_name.begins_with("accent"):
+				mi.set_surface_override_material(i, glow)
+	if entry.get("hide_hand", false):
+		root.set_meta("hide_hand", true)
+	if entry.has("offhand_grip"):
+		var g: Array = entry["offhand_grip"]
+		root.set_meta("offhand_grip", Vector3(g[0], g[1], g[2]))
 
 static func _mount_pack(root: Node3D, stem: String, scale: float, basis: Basis, offset: Vector3) -> Node3D:
 	var scene := load(PACK % stem) as PackedScene
