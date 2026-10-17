@@ -556,6 +556,33 @@ func apply_knockback(impulse: Vector3) -> void:
 	if impulse.y > 0.0:
 		velocity.y = maxf(velocity.y, impulse.y)
 
+## A melee swing closes the gap over the last moment of its wind-up, so
+## backing off alone doesn't dodge it (sidestep, dash, block or parry do).
+const LUNGE_MAX := 3.0
+## Ends the lunge this far from the target, well inside the strike sphere.
+const LUNGE_STOP := 1.3
+var _lunge_speed := 0.0
+var _lunge_left := 0.0
+
+## Lunges at the player for `seconds`, tracking them, LUNGE_MAX at most.
+func lunge_at(target: Vector3, seconds: float) -> void:
+	if rank == Constants.EnemyRank.BOSS or immovable or seconds <= 0.0 or not is_on_floor():
+		return
+	var to := _flat(target - global_position)
+	if to.length() <= LUNGE_STOP:
+		return
+	# No lunging off a ledge.
+	if is_nan(_floor_below(global_position + to.normalized() * minf(to.length() - LUNGE_STOP, LUNGE_MAX), 1.0)):
+		return
+	_lunge_speed = LUNGE_MAX / seconds
+	_lunge_left = seconds
+
+func _lunge_velocity() -> Vector3:
+	if not is_instance_valid(_player):
+		return Vector3.ZERO
+	var to := _flat(_player.global_position - global_position)
+	return to.normalized() * _lunge_speed if to.length() > LUNGE_STOP else Vector3.ZERO
+
 ## A corrupted item's "nearby enemies have reduced Resistances" aura.
 const SHRED_AURA_RADIUS := 8.0
 
@@ -579,6 +606,7 @@ func interrupt_attack() -> void:
 	if rarity_component and rarity_component.is_unstoppable():
 		return
 	_staggered_until_msec = Time.get_ticks_msec() + int(STAGGER_SECONDS * 1000.0)
+	_lunge_left = 0.0
 	for path in ["MeleeAttack", "RangedAttack"]:
 		var attack := get_node_or_null(path)
 		if attack and attack.has_method("interrupt"):
@@ -696,6 +724,12 @@ func _physics_process(delta: float) -> void:
 	velocity.z += _pull.z + _knockback.z
 	_pull = Vector3.ZERO
 	_knockback = _knockback.move_toward(Vector3.ZERO, KNOCKBACK_FRICTION * delta)
+	if _lunge_left > 0.0:
+		_lunge_left -= delta
+		if not status_effects.is_stunned():
+			var lunge := _lunge_velocity()
+			velocity.x += lunge.x
+			velocity.z += lunge.z
 	# Standing still on the ground: nothing to resolve, so skip the physics
 	# query (most of a large pack is idle at any moment).
 	if not (is_on_floor() and velocity.is_zero_approx()):
@@ -729,10 +763,16 @@ func _update_chase() -> void:
 	to_player.y = 0.0
 	var dist := to_player.length()
 
+	var speed := move_speed * status_effects.get_move_speed_multiplier() * (rarity_component.get_move_speed_multiplier() if rarity_component else 1.0) * get_map_move_speed_multiplier() * WaterBuilder.wading_factor(global_position)
 	if is_attack_locked():
 		velocity.x = 0.0
 		velocity.z = 0.0
 		_last_combat_msec = Time.get_ticks_msec()
+		# A melee wind-up keeps stepping in, so backing off doesn't outrun it.
+		var melee := get_node_or_null("MeleeAttack") as EnemyMeleeAttack
+		if melee and melee.is_closing_in() and rank != Constants.EnemyRank.BOSS and dist > LUNGE_STOP and not heading_for_target:
+			velocity.x = to_player.x / dist * speed
+			velocity.z = to_player.z / dist * speed
 		return
 
 	if dist <= _detection_range():
@@ -747,7 +787,6 @@ func _update_chase() -> void:
 		return
 
 	var dir := to_player / dist
-	var speed := move_speed * status_effects.get_move_speed_multiplier() * (rarity_component.get_move_speed_multiplier() if rarity_component else 1.0) * get_map_move_speed_multiplier() * WaterBuilder.wading_factor(global_position)
 	# A shooter without a clear shot keeps closing in (around the wall)
 	# instead of standing at range.
 	var blocked_shot := is_ranged_unit() and not heading_for_target and not can_see_player()

@@ -307,6 +307,7 @@ const ENEMY_RARITY_DAMAGE_MULT := {
 ## v4.14 retune: a level-1 standard mob takes ~4 hits from the starter
 ## weapon (~14 per hit), a light one ~2, a heavy ~8.
 ## v5.3.1: monster damage x1.5 (bosses excepted); on-level hits were too safe.
+## v5.6.1: light 7.5 -> 10, standard 13.5 -> 18; on-level hits were only 1.5-4% of Life.
 const MOB_BASE_HEALTH := {
 	"light": 30.0,
 	"standard": 55.0,
@@ -315,8 +316,8 @@ const MOB_BASE_HEALTH := {
 	"boss": 1600.0,
 }
 const MOB_BASE_DAMAGE := {
-	"light": 7.5,
-	"standard": 13.5,
+	"light": 10.0,
+	"standard": 18.0,
 	"heavy": 22.5,
 	"elite": 36.0,
 	"boss": 45.0,

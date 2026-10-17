@@ -53,6 +53,7 @@ func _physics_process(delta: float) -> void:
 			if not _told and _timer <= TELL_LEAD:
 				_told = true
 				_enemy.show_attack_tell()
+				_enemy.lunge_at(_player.global_position, _timer)
 			if _timer <= 0.0:
 				_enter_strike()
 		State.STRIKE:
@@ -126,6 +127,10 @@ func interrupt() -> void:
 		if _hitbox:
 			_hitbox.monitoring = false
 		_enter_recovery()
+
+## The wind-up before the tell, while the attacker still steps in.
+func is_closing_in() -> bool:
+	return _state == State.TELEGRAPH and not _told
 
 ## Telegraph and Strike both count (used for Counter hits).
 func is_attacking() -> bool:

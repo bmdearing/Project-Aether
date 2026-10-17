@@ -7,6 +7,17 @@ there. Most recent first.
 
 ---
 
+## 2026-10-16 — v5.6.1: Mobs threaten
+
+Feedback: mobs weren't threatening at all. On-level light and standard hits were 1.5-4% of Life (probe_save_hits, Artorias L29). Mobs moved at 2.5-3.5 m/s against the player's 6, and a melee swing rooted them for 0.9 s with a fixed hit sphere, so stepping back dodged every swing.
+- **Melee wind-ups step in, then lunge.** Before the tell, the attacker keeps walking at you (`EnemyMeleeAttack.is_closing_in()`). Over the last 0.35 s it lunges up to 3 m and tracks you until it's 1.3 m away (`Enemy.lunge_at()`). It won't lunge off a ledge, and a stagger cancels it. Backpedalling or sidestepping at walk speed no longer dodges; dash, block and parry do. Bosses are excluded. In a headless check, the slowest unit (Enforcer) landed 3 of 4 swings on a backpedalling player, up from 0.
+- **Wind-up** 0.9 -> 0.75 s (MeleeUnit).
+- **Chase speed** up about 35% for every regular unit (e.g. Brigand 3.5 -> 4.7, Shambler 2.5 -> 3.4, Cutthroat 5.5 -> 6.5, Enforcer 2.2 -> 3.0, golems 2.6 -> 3.5). Bosses unchanged.
+- **Base damage:** light 7.5 -> 10, standard 13.5 -> 18 (heavy, elite and boss unchanged; growth curves unchanged). On Artorias at AL28, standard hits go to ~7% of Life and light to ~3.3%, inside the 5-8% baseline.
+- Judgment calls: the speed table, lunge reach/stop distance, 0.75 s wind-up, and the two damage bases.
+
+---
+
 ## 2026-10-16 — v5.6.0: Feedback batch (Sun blast, pack aggro, shop, scopes, stairs, item level)
 
 - **Ataras's Fiery Sun** flares white-hot and trails fire as it falls. The impact (`SunExplosion`) is a white flash, a swelling fireball, a fire column rolling into a smoke plume, three staggered shockwaves, flung sand and embers, a lasting scorch and a camera shake (`CameraSway.shake()`, stronger near the centre).
