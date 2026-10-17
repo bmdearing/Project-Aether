@@ -28,6 +28,7 @@ static func collect(player: Player) -> Array[Dictionary]:
 		_collect_gear(parts, player.equipment)
 	if player.fate_board:
 		_collect_slates(parts, player.fate_board)
+		_collect_stars(parts, player.fate_board)
 	var keys := {}
 	for key in parts:
 		keys[key] = true
@@ -144,6 +145,27 @@ static func _collect_slates(parts: Dictionary, board: FateBoard) -> void:
 					_add(parts, _attribute_key(EquipmentComponent.AFFIX_STAT_KEYS[key]), lens_label, affix.value)
 				elif EquipmentComponent.is_misc_key(key):
 					_add(parts, key, lens_label, affix.value)
+
+## Claimed Star sites and the jewel lines of Lenses in lit Stars. Mastery
+## isn't a listed stat, so it's left out.
+static func _collect_stars(parts: Dictionary, board: FateBoard) -> void:
+	for site in board.claimed_sites():
+		var label := "%s bonus" % FateStars.NAMES[site.star]
+		var key: String = site.bonus["key"]
+		if key == "type_damage":
+			_add(parts, StatKeys.type_damage_key(site.tag), label, site.bonus["value"])
+		elif EquipmentComponent.AFFIX_STAT_KEYS.has(key):
+			_add(parts, _attribute_key(EquipmentComponent.AFFIX_STAT_KEYS[key]), label, site.bonus["value"])
+		elif key != "mastery":
+			_add(parts, key, label, site.bonus["value"])
+	for star in board.lit_stars():
+		var lens: Lens = board.star_lenses[star]
+		var lens_label := "%s (Lens in %s)" % [_item_name(lens), FateStars.NAMES[star]]
+		for affix in lens.affixes:
+			if EquipmentComponent.AFFIX_STAT_KEYS.has(affix.key()):
+				_add(parts, _attribute_key(EquipmentComponent.AFFIX_STAT_KEYS[affix.key()]), lens_label, affix.value)
+			elif EquipmentComponent.is_misc_key(affix.key()):
+				_add(parts, affix.key(), lens_label, affix.value)
 
 ## ---- Grouping ----------------------------------------------------------------
 

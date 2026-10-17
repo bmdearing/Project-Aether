@@ -14,6 +14,9 @@ uniform float grid_size = 32.0;
 uniform float scroll_speed = 0.06;
 uniform vec4 field_color : source_color = vec4(0.02, 0.025, 0.05, 0.72);
 uniform vec4 line_color : source_color = vec4(0.86, 0.71, 0.42, 0.13);
+// The board is a circle of board_radius cells round the grid centre; outside it is empty space.
+uniform float board_radius = 1000.0;
+uniform vec4 rim_color : source_color = vec4(0.86, 0.71, 0.42, 0.5);
 
 float hash21(vec2 p) {
 	p = fract(p * vec2(123.34, 456.21));
@@ -68,8 +71,11 @@ void fragment() {
 	vec2 cell_id = floor(board_pos);
 	vec2 cell_uv = fract(board_pos);
 	vec4 cell = cell_at(cell_id);
-
-	if (cell.a < 0.5) {
+	float centre_dist = length(board_pos - vec2(grid_size * 0.5));
+	if (centre_dist > board_radius + 1.0) {
+		float glow = 1.0 - smoothstep(0.0, 1.2, centre_dist - board_radius - 1.0);
+		COLOR = vec4(rim_color.rgb, rim_color.a * glow * 0.6);
+	} else if (cell.a < 0.5) {
 		// Empty board: a dim star field with the grid lines on top.
 		vec3 field = field_color.rgb + vec3(0.03, 0.035, 0.06) * fbm(board_pos * 0.35 + TIME * 0.01);
 		field += vec3(0.75, 0.8, 1.0) * stars(board_pos, 3.0, 0.0) * 0.45;

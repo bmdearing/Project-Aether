@@ -127,6 +127,8 @@ func save_game() -> void:
 		"stance_page": GameState.stance_page,
 		"owned_ability_ids": GameState.owned_ability_ids,
 		"fate_board_placements": GameState.fate_board_placements,
+		"fate_board_layout": GameState.fate_board_layout,
+		"fate_board_star_lenses": GameState.fate_board_star_lenses,
 		"ammo_reserves": AmmoInventory.serialize(),
 		"ammo_capacity": AmmoInventory.serialize_capacity(),
 		"inventory_version": INVENTORY_VERSION,
@@ -287,6 +289,9 @@ func load_game() -> void:
 			if typeof(entry) == TYPE_DICTIONARY:
 				placements.append(entry)
 		GameState.fate_board_placements = placements
+	GameState.fate_board_layout = int(parsed.get("fate_board_layout", 1))
+	var star_lenses_raw: Variant = parsed.get("fate_board_star_lenses", {})
+	GameState.fate_board_star_lenses = star_lenses_raw if star_lenses_raw is Dictionary else {}
 
 	if int(parsed.get("inventory_version", 1)) < INVENTORY_VERSION:
 		_migrate_legacy_inventory(parsed)

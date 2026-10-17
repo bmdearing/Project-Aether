@@ -79,6 +79,10 @@ var stash: Stash = Stash.create_default()
 ## "origin": [x,y], "rotation_steps": int, "flipped": bool,
 ## "designated_ability_id": String ("" if none)}.
 var fate_board_placements: Array = []
+## FateBoard.LAYOUT_VERSION the placements were saved under (1: the old square board).
+var fate_board_layout: int = FateBoard.LAYOUT_VERSION
+## Star index (String) -> ItemSerializer data of the Lens set in that Star.
+var fate_board_star_lenses: Dictionary = {}
 
 ## Dropped by enemies, spent at the Hub's GearShop.
 var gold: int = 0
@@ -179,6 +183,11 @@ func sync_fate_board(board: FateBoard) -> void:
 			"aether_paid": p.aether_paid,
 		})
 	fate_board_placements = data
+	fate_board_layout = FateBoard.LAYOUT_VERSION
+	var stars := {}
+	for star in board.star_lenses:
+		stars[str(star)] = ItemSerializer.to_dict(board.star_lenses[star])
+	fate_board_star_lenses = stars
 
 func reset_to_defaults() -> void:
 	equipment_refs = DEFAULT_EQUIPMENT_PATHS.duplicate()
@@ -195,6 +204,8 @@ func reset_to_defaults() -> void:
 	player_level = 1
 	player_xp = 0.0
 	fate_board_placements = []
+	fate_board_layout = FateBoard.LAYOUT_VERSION
+	fate_board_star_lenses = {}
 	inventory = GridInventory.new()
 	stash = Stash.create_default()
 	gold = 0

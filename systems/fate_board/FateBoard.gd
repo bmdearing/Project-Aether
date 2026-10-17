@@ -22,11 +22,24 @@ var _occupied_cells: Dictionary = {}
 ## placement_id (String, unique per placed instance) -> PlacedSlateData
 var placements: Dictionary = {}
 
-## Always treated as already "placed" for adjacency purposes, so an empty
-## board has a legal first placement to build outward from. Centered on
-## FateBoardGrid's own GRID_SIZE (150).
-const ANCHOR_CELL := Vector2i(75, 75)
+## The board is a circle of BOARD_RADIUS tiles in a GRID_SIZE square.
+const GRID_SIZE := 75
+const BOARD_RADIUS := 37
+## The Centre Star: always treated as already "placed" for adjacency, so an
+## empty board has a legal first placement to build outward from.
+const ANCHOR_CELL := Vector2i(37, 37)
+## Tiles from the Centre to the N/E/S/W Stars (FateStars).
+const STAR_DISTANCE := 20
+## Layout 1 was a 150-tile square centred on (75, 75); saves from it move by this.
+const LAYOUT_VERSION := 2
+const LEGACY_SHIFT := Vector2i(-38, -38)
 const _ADJACENT_DIRS := [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]
+
+## Star index (FateStars) -> the Lens set in it.
+var star_lenses: Dictionary = {}
+
+static func in_board(cell: Vector2i) -> bool:
+	return Vector2(cell - ANCHOR_CELL).length() <= BOARD_RADIUS + 0.5
 
 class PlacedSlateData:
 	var placement_id: String
@@ -49,10 +62,13 @@ func _placement_failure_reason(slate: Slate, origin: Vector2i, rotation_steps: i
 	var cells := _world_cells(slate, origin, rotation_steps, flipped)
 	if check_rules and aether_used + placement_cost(slate, cells) > aether_capacity:
 		return "insufficient_aether"
+	var star_cells := FateStars.cells()
 	for c in cells:
+		if not in_board(c):
+			return "off_board"
 		if _occupied_cells.has(c):
 			return "cell_occupied"
-		if check_rules and c == ANCHOR_CELL:
+		if star_cells.has(c):
 			return "anchor_cell"
 	# Restores skip this: saved order isn't placement order, so a Slate can
 	# come back before the neighbour that connects it.
@@ -63,15 +79,83 @@ func _placement_failure_reason(slate: Slate, origin: Vector2i, rotation_steps: i
 	return ""
 
 ## True if any cell of the candidate placement is orthogonally adjacent
-## to (or overlaps) ANCHOR_CELL or an already-occupied cell.
+## to a reached Star or an already-occupied cell.
 func _touches_existing(cells: Array[Vector2i]) -> bool:
+	var roots := _reached_star_cells()
 	for c in cells:
-		if c == ANCHOR_CELL:
-			return true
 		for dir in _ADJACENT_DIRS:
-			if _occupied_cells.has(c + dir) or c + dir == ANCHOR_CELL:
+			if _occupied_cells.has(c + dir) or roots.has(c + dir):
 				return true
 	return false
+
+## ---- Stars ---------------------------------------------------------------
+
+## Star indices a chain of Slates from the Centre touches (Centre included).
+func reached_stars() -> Array[int]:
+	var result: Array[int] = []
+	var star_cells := FateStars.cells()
+	var seen: Dictionary = _flood_from_centre("")["seen"]
+	for i in star_cells.size():
+		if seen.has(star_cells[i]):
+			result.append(i)
+	return result
+
+func _reached_star_cells() -> Dictionary:
+	var star_cells := FateStars.cells()
+	var result := {}
+	for i in reached_stars():
+		result[star_cells[i]] = true
+	return result
+
+func is_star_reached(star: int) -> bool:
+	return reached_stars().has(star)
+
+## Stars with a Lens that a chain reaches: their sites are lit.
+func lit_stars() -> Array[int]:
+	var result: Array[int] = []
+	for s in reached_stars():
+		if star_lenses.has(s):
+			result.append(s)
+	return result
+
+## Sites of every lit Star.
+func lit_sites() -> Array[FateStars.Site]:
+	var result: Array[FateStars.Site] = []
+	for star in lit_stars():
+		result.append_array(FateStars.sites_for(star, star_lenses[star]))
+	return result
+
+## Lit sites a placed Slate covers.
+func claimed_sites() -> Array[FateStars.Site]:
+	var result: Array[FateStars.Site] = []
+	for s in lit_sites():
+		if _occupied_cells.has(s.cell):
+			result.append(s)
+	return result
+
+## Sets a Lens into a Star. Returns "" on success, otherwise why not.
+## check_reached is false when restoring a save.
+func set_star_lens(star: int, lens: Lens, check_reached: bool = true) -> String:
+	if star < 0 or star >= FateStars.NAMES.size():
+		return "no_star"
+	if star_lenses.has(star):
+		return "star_full"
+	if check_reached and not is_star_reached(star):
+		return "star_unreached"
+	star_lenses[star] = lens
+	EventBus.slate_lenses_changed.emit("star_%d" % star)
+	GameState.sync_fate_board(self)
+	return ""
+
+## Takes a Star's Lens out; returns it (null if empty).
+func take_star_lens(star: int) -> Lens:
+	var lens: Lens = star_lenses.get(star)
+	if lens == null:
+		return null
+	star_lenses.erase(star)
+	EventBus.slate_lenses_changed.emit("star_%d" % star)
+	GameState.sync_fate_board(self)
+	return lens
 
 ## bypass_budget: used when restoring a save, so placements never drop
 ## because capacity is synced in a different order or a rule was added.
@@ -156,9 +240,14 @@ func removal_breaks_chain(placement_id: String) -> bool:
 			return true
 	return false
 
-## Placement ids reachable from the anchor through edge-touching Slates,
-## ignoring `without`.
+## Placement ids reachable from the anchor through edge-touching Slates
+## (and the Stars they reach), ignoring `without`.
 func _connected_to_anchor(without: String) -> Dictionary:
+	return _flood_from_centre(without)["reached"]
+
+## {"reached": placement ids, "seen": cells (Slates and reached Stars)}.
+func _flood_from_centre(without: String) -> Dictionary:
+	var star_cells := FateStars.cells()
 	var reached := {}
 	var seen := {ANCHOR_CELL: true}
 	var stack: Array[Vector2i] = [ANCHOR_CELL]
@@ -166,12 +255,19 @@ func _connected_to_anchor(without: String) -> Dictionary:
 		var cell: Vector2i = stack.pop_back()
 		for dir in _ADJACENT_DIRS:
 			var next: Vector2i = cell + dir
-			if seen.has(next) or not _occupied_cells.has(next) or _occupied_cells[next] == without:
+			if seen.has(next):
+				continue
+			# A Star passes the chain on once a Slate (not another Star) reaches it.
+			if star_cells.has(next) and _occupied_cells.has(cell):
+				seen[next] = true
+				stack.append(next)
+				continue
+			if not _occupied_cells.has(next) or _occupied_cells[next] == without:
 				continue
 			seen[next] = true
 			reached[_occupied_cells[next]] = true
 			stack.append(next)
-	return reached
+	return {"reached": reached, "seen": seen}
 
 func get_occupied_cells() -> Dictionary:
 	return _occupied_cells
@@ -226,10 +322,11 @@ func _tag_connected(slate: Slate, cells: Array[Vector2i]) -> bool:
 			return true
 		if effect["mod"] == "bridge_tag" and not tags.has(effect["tag"]):
 			tags.append(effect["tag"])
+	var roots := _reached_star_cells()
 	for c in cells:
 		for dir in _ADJACENT_DIRS:
 			var next: Vector2i = c + dir
-			if next == ANCHOR_CELL or c == ANCHOR_CELL:
+			if roots.has(next):
 				return true
 			if not _occupied_cells.has(next):
 				continue

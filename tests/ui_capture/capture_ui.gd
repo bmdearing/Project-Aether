@@ -57,7 +57,20 @@ func _run() -> void:
 								break
 						if placed:
 							break
+			if OS.get_cmdline_user_args().has("stars"):
+				var star_lens := Lens.new()
+				star_lens.item_id = "capture_star_lens"
+				star_lens.display_name = "Large Lens"
+				star_lens.radius = 4
+				star_lens.radius_mod = "amplify_tag"
+				star_lens.radius_tag = Constants.DamageType.FIRE
+				GameState.fate_board.set_star_lens(0, star_lens)
 			_screen("fate_board_editor").open()
+			if OS.get_cmdline_user_args().has("stars"):
+				var grid := _screen("fate_board_editor").find_child("FateBoardGrid", true, false) as FateBoardGrid
+				grid._zoom = 0.8
+				grid._apply_zoom()
+				grid.center_on_anchor()
 		"map":
 			_screen("map_screen").open()
 		"ammo_store":

@@ -9,7 +9,7 @@ class_name FateBoardGrid
 signal cell_clicked(cell: Vector2i, button_index: int)
 signal drop_requested
 
-const GRID_SIZE := 150
+const GRID_SIZE := FateBoard.GRID_SIZE
 ## Zoom resizes the cells (_cell_px = BASE_CELL_PX * _zoom) rather than
 ## scaling the Control, since ScrollContainer ignores scale when sizing.
 const BASE_CELL_PX := 20.0
@@ -20,7 +20,6 @@ const DEFAULT_ZOOM := 2.2  # 44px cells
 const GRID_LINE_COLOR := Color(0.86, 0.71, 0.42, 0.13)
 const VALID_PREVIEW_COLOR := Color(0.2, 0.9, 0.3, 0.55)
 const INVALID_PREVIEW_COLOR := Color(0.9, 0.2, 0.2, 0.55)
-const ANCHOR_COLOR := Color(1.0, 0.86, 0.55, 0.45)
 const NEBULA_SHADER := preload("res://ui/fate_board_editor/slate_nebula.gdshader")
 const DRAG_THRESHOLD := 6.0
 
@@ -92,6 +91,7 @@ func _setup_background() -> void:
 	mat.shader = NEBULA_SHADER
 	mat.set_shader_parameter("grid_size", float(GRID_SIZE))
 	mat.set_shader_parameter("line_color", GRID_LINE_COLOR)
+	mat.set_shader_parameter("board_radius", float(FateBoard.BOARD_RADIUS))
 	_background.material = mat
 	add_child(_background)
 	move_child(_background, 0)
@@ -100,8 +100,11 @@ func _setup_background() -> void:
 	_outline_layer = Control.new()
 	_outline_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_outline_layer.draw.connect(func():
-		if show_outlines and board:
-			_draw_outlines(board.get_occupied_cells()))
+		if board == null:
+			return
+		if show_outlines:
+			_draw_outlines(board.get_occupied_cells())
+		_draw_stars())
 	_outline_layer.size = _background.size
 	add_child(_outline_layer)
 
@@ -172,9 +175,20 @@ func _gui_input(event: InputEvent) -> void:
 func _get_tooltip(at_position: Vector2) -> String:
 	if board == null or pending_slate:
 		return ""
-	return board.get_occupied_cells().get(_pixel_to_cell(at_position), "")
+	var cell := _pixel_to_cell(at_position)
+	var star := FateStars.star_at(cell)
+	if star >= 0:
+		return "star:%d" % star
+	for site in board.lit_sites():
+		if site.cell == cell:
+			return "site:%d:%d" % [site.star, site.index]
+	return board.get_occupied_cells().get(cell, "")
 
 func _make_custom_tooltip(for_text: String) -> Object:
+	if for_text.begins_with("star:"):
+		return TooltipFollow.plain(star_tooltip(int(for_text.get_slice(":", 1))))
+	if for_text.begins_with("site:"):
+		return TooltipFollow.plain(_site_tooltip(int(for_text.get_slice(":", 1)), int(for_text.get_slice(":", 2))))
 	if board == null or not board.placements.has(for_text):
 		return null
 	var card: ItemCard = ItemSlotButton.new_item_card()
@@ -187,7 +201,7 @@ func _pixel_to_cell(pos: Vector2) -> Vector2i:
 	return Vector2i(int(floor(pos.x / _cell_px)), int(floor(pos.y / _cell_px)))
 
 func _in_bounds(cell: Vector2i) -> bool:
-	return cell.x >= 0 and cell.x < GRID_SIZE and cell.y >= 0 and cell.y < GRID_SIZE
+	return FateBoard.in_board(cell)
 
 func _draw() -> void:
 	if _cells_dirty:
@@ -196,7 +210,6 @@ func _draw() -> void:
 
 	var occupied: Dictionary = board.get_occupied_cells() if board else {}
 	_draw_walls(occupied)
-	_draw_anchor()
 
 	if board == null:
 		return
@@ -232,6 +245,8 @@ func _draw_walls(occupied: Dictionary) -> void:
 				draw_line(Vector2(x * _cell_px, y * _cell_px), Vector2((x + 1) * _cell_px, y * _cell_px), GRID_LINE_COLOR)
 
 func _is_wall(occupied: Dictionary, a: Vector2i, b: Vector2i) -> bool:
+	if not FateBoard.in_board(a) and not FateBoard.in_board(b):
+		return false
 	var id_a: String = occupied.get(a, "")
 	var id_b: String = occupied.get(b, "")
 	return id_a == "" or id_a != id_b
@@ -251,13 +266,6 @@ func _refresh_cell_background() -> void:
 			img.set_pixel(cell.x, cell.y, color)
 	var tex := ImageTexture.create_from_image(img)
 	(_background.material as ShaderMaterial).set_shader_parameter("cell_data", tex)
-
-## The starting point: a solid gold block Slates attach to but never cover.
-func _draw_anchor() -> void:
-	var rect := Rect2(Vector2(FateBoard.ANCHOR_CELL) * _cell_px, Vector2(_cell_px, _cell_px))
-	draw_rect(rect, Color(0.32, 0.25, 0.1, 1.0))
-	draw_rect(rect.grow(-3), ANCHOR_COLOR)
-	draw_rect(rect, AetherStyle.GOLD, false, 2.0)
 
 func _draw_cell(cell: Vector2i, color: Color) -> void:
 	if not _in_bounds(cell):
@@ -322,3 +330,74 @@ func _draw_radius(host_cells: Array[Vector2i], radius: int) -> void:
 				Vector2i.LEFT: b += Vector2(0, _cell_px)
 				Vector2i.RIGHT: a += Vector2(_cell_px, 0); b = a + Vector2(0, _cell_px)
 			draw_line(a, b, LENS_EDGE_COLOR, 1.5)
+
+## ---- Stars ---------------------------------------------------------------
+
+const STAR_DIM_COLOR := Color(0.55, 0.5, 0.4, 0.8)
+const SITE_COLOR := Color(1.0, 0.9, 0.6)
+const STAR_FONT_SIZE := 15
+
+## Stars (gold once reached, the Lens colour when lit), their names, and the
+## bonus sites of lit Stars: open rings until a Slate claims them.
+func _draw_stars() -> void:
+	var layer := _outline_layer
+	var reached := board.reached_stars()
+	var star_cells := FateStars.cells()
+	var font := AetherStyle.title()
+	for i in star_cells.size():
+		var centre := (Vector2(star_cells[i]) + Vector2(0.5, 0.5)) * _cell_px
+		var lit := reached.has(i) and board.star_lenses.has(i)
+		var color: Color = AetherStyle.GOLD if reached.has(i) else STAR_DIM_COLOR
+		if lit:
+			color = ItemCard.LENS_COLOR
+			layer.draw_circle(centre, _cell_px * 0.95, Color(color, 0.12))
+		layer.draw_rect(Rect2(Vector2(star_cells[i]) * _cell_px, Vector2.ONE * _cell_px), Color(0.06, 0.05, 0.03, 0.95))
+		layer.draw_colored_polygon(_star_points(centre, _cell_px * 0.62, _cell_px * 0.2), color)
+		if board.star_lenses.has(i):
+			layer.draw_circle(centre, _cell_px * 0.14, Color(1, 1, 1, 0.9))
+		var name_text: String = FateStars.NAMES[i]
+		var text_size := font.get_string_size(name_text, HORIZONTAL_ALIGNMENT_CENTER, -1, STAR_FONT_SIZE)
+		AetherStyle.text(layer, font, centre + Vector2(-text_size.x / 2.0, _cell_px * 0.5 + text_size.y), name_text, STAR_FONT_SIZE, Color(color, 0.9))
+	var occupied := board.get_occupied_cells()
+	for site in board.lit_sites():
+		var centre := (Vector2(site.cell) + Vector2(0.5, 0.5)) * _cell_px
+		if occupied.has(site.cell):
+			layer.draw_colored_polygon(_star_points(centre, _cell_px * 0.34, _cell_px * 0.13), SITE_COLOR)
+		else:
+			layer.draw_arc(centre, _cell_px * 0.28, 0.0, TAU, 20, Color(SITE_COLOR, 0.85), maxf(1.5, _cell_px * 0.06))
+			layer.draw_circle(centre, _cell_px * 0.08, Color(SITE_COLOR, 0.85))
+
+## A four-pointed star round `centre`.
+static func _star_points(centre: Vector2, outer: float, inner: float) -> PackedVector2Array:
+	var points := PackedVector2Array()
+	for k in 8:
+		var r := outer if k % 2 == 0 else inner
+		var angle := k * TAU / 8.0 - PI / 2.0
+		points.append(centre + Vector2(cos(angle), sin(angle)) * r)
+	return points
+
+func star_tooltip(star: int) -> String:
+	var lines := PackedStringArray([FateStars.NAMES[star]])
+	var lens: Lens = board.star_lenses.get(star)
+	var reached := board.is_star_reached(star)
+	if lens:
+		lines.append("%s: %s" % [lens.display_name, FateStars.lens_star_text(lens)])
+		if not reached:
+			lines.append("Unlit: no Slate chain reaches this Star.")
+		for site in FateStars.sites_for(star, lens):
+			var claimed := board.get_occupied_cells().has(site.cell) and reached
+			lines.append("  %s %s" % ["[claimed]" if claimed else "[open]", site.text()])
+		lines.append("Right-click to take the Lens out.")
+	elif reached:
+		lines.append("Hold a Lens and click this Star to set it.")
+		lines.append("Its radius modifier picks the bonuses, its size how many.")
+	else:
+		lines.append("Reach this Star with a chain of Slates to set a Lens in it.")
+	return "\n".join(lines)
+
+func _site_tooltip(star: int, index: int) -> String:
+	for site in board.lit_sites():
+		if site.star == star and site.index == index:
+			var claimed := board.get_occupied_cells().has(site.cell)
+			return "%s\n%s bonus - %s" % [site.text(), FateStars.NAMES[star], "claimed" if claimed else "cover it with a Slate to claim it"]
+	return ""

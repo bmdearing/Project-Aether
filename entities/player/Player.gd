@@ -325,10 +325,12 @@ func _apply_fate_board_bonuses() -> void:
 	if fate_board == null:
 		return
 	var chains := ChainCalculator.compute_chains(fate_board)
-	stat_sheet.set_slate_bonus(ChainCalculator.slate_stat_bonuses(fate_board, chains))
+	# Star bonuses (claimed sites, Lenses in lit Stars) ride on the Slate totals.
+	var stars := FateStars.totals(fate_board)
+	stat_sheet.set_slate_bonus(FateStars.merge(ChainCalculator.slate_stat_bonuses(fate_board, chains), stars["stats"]))
 	stat_sheet.set_chain_bonus_by_tag(ChainCalculator.bonus_by_tag(chains))
-	stat_sheet.mastery_by_tag = ChainCalculator.mastery_by_tag(chains)
-	stat_sheet.slate_misc_bonus = ChainCalculator.slate_misc_bonuses(fate_board)
+	stat_sheet.mastery_by_tag = FateStars.merge(ChainCalculator.mastery_by_tag(chains), stars["mastery"])
+	stat_sheet.slate_misc_bonus = FateStars.merge(ChainCalculator.slate_misc_bonuses(fate_board), stars["misc"])
 	_apply_derived_stats()
 
 ## Section 12: "Resilience / DoT mitigation" - reduces StatusEffectComponent's
@@ -514,7 +516,10 @@ func _on_item_stats_changed(item: Item) -> void:
 ## cells) returns that Slate to the inventory rather than failing the
 ## whole restore.
 func _apply_saved_fate_board() -> void:
-	for entry in GameState.fate_board_placements:
+	# place_slate() re-syncs GameState, so read the saved Star Lenses and layout first.
+	var saved_stars: Dictionary = GameState.fate_board_star_lenses.duplicate()
+	var shift := FateBoard.LEGACY_SHIFT if GameState.fate_board_layout < FateBoard.LAYOUT_VERSION else Vector2i.ZERO
+	for entry in GameState.fate_board_placements.duplicate():
 		if typeof(entry) != TYPE_DICTIONARY:
 			continue
 		var slate := _resolve_slate_ref(entry.get("slate_ref"))
@@ -522,6 +527,7 @@ func _apply_saved_fate_board() -> void:
 			continue
 		var origin_raw = entry.get("origin", [0, 0])
 		var origin := Vector2i(int(origin_raw[0]), int(origin_raw[1])) if origin_raw is Array and origin_raw.size() == 2 else Vector2i.ZERO
+		origin += shift
 		var placed := fate_board.place_slate(
 			slate, origin, int(entry.get("rotation_steps", 0)), bool(entry.get("flipped", false)),
 			str(entry.get("designated_ability_id", "")), true, int(entry.get("aether_paid", -1))
@@ -529,6 +535,11 @@ func _apply_saved_fate_board() -> void:
 		# Never lose a Slate the board can't take back: return it to the bag.
 		if placed == "":
 			GameState.add_to_inventory(slate)
+	for key in saved_stars:
+		var lens: Lens = ItemSerializer.from_dict(saved_stars[key]) as Lens if saved_stars[key] is Dictionary else null
+		if lens and fate_board.set_star_lens(int(key), lens, false) != "":
+			GameState.add_to_inventory(lens)
+	GameState.sync_fate_board(fate_board)
 
 ## slate_ref is a resource_path String (hand-authored Slate) or full
 ## SlateSerializer data (a rolled drop).

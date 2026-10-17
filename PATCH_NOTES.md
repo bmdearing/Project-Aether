@@ -7,6 +7,25 @@ there. Most recent first.
 
 ---
 
+## 2026-10-17 — v5.8.0: Fate Board Stars
+
+User design: the anchor becomes a Star, the board is a circle about half its old size, and four more Stars sit North/East/South/West. A Star takes a Lens; a Lensed Star lights small bonuses at set places on the board, and a Slate covering one claims it.
+- **Circular board:** `FateBoard.GRID_SIZE` 75, `BOARD_RADIUS` 37 (was a 150x150 square, so half the width). Cells off the circle refuse Slates (`off_board`); the nebula shader cuts the board to a circle with a gold rim.
+- **Stars** (`systems/fate_board/FateStars.gd`): the Centre Star (the old anchor) and North/East/South/West Stars 20 tiles out. All are solid. A Star is reached when a Slate chain from the Centre touches it. A reached Star then works like the Centre: Slates of any tag can connect to it, and the chain carries on through it (`FateBoard._flood_from_centre()`).
+- **Lenses in Stars:** hold a Lens and click a reached Star (the Centre counts from the start). Right-click a Star to take its Lens back. If the chain to a Star is cut, the Star goes dark: its Lens stays, but its bonuses stop counting until the Star is reached again. The Lens's jewel modifiers count while the Star is lit.
+- **Bonus sites:** each Star has 8 fixed sites 3-9 tiles around it, the same on every board. A Small/Medium/Large Lens lights 4/6/8 of them. The Lens's radius modifier picks the pool. Bonuses cycle through that pool from a starting point set by the Lens, so every pool entry shows up:
+  - Amplify {tag}: +4% increased {tag} Damage, +2% increased Damage, +3% increased Crit Chance
+  - Amplify attributes: +4 Strength / Agility / Intellect, +10 Life
+  - Bridge {tag}: +0.5% {tag} Mastery (more), +3% Ailment Effect, +3% Skill Effect Duration
+  - Free placement: +2% Movement / Attack / Cast Speed, +3% Cooldown Recovery Rate
+  - Cheap: +1 Aether, +8 Mana, +5% Mana Regeneration, +2% reduced Mana Cost
+  Claimed totals add to the Slate stat, misc and Mastery totals (`FateStars.totals()`, `Player._apply_fate_board_bonuses()`). They also show on the Character screen, the side panel ("Stars: x / y claimed") and the hover tooltips for Stars and sites. Lens cards and the Lens wiki list the pools.
+- **Saves:** `fate_board_layout` (2) and `fate_board_star_lenses` are new. A layout-1 save shifts every Slate by (-38, -38) onto the circle. Slates that land off the circle or on a Star go back to the inventory.
+- Judgment calls: the Centre Star is the old anchor (it gets a Lens straight away), Star distance 20, site count by Lens size, all pool values, Star Lenses not applying their radius modifier around the Star, and Star Lenses being removable (Slate-socketed ones aren't).
+- Test: `tests/stars/test_stars.tscn` (26 checks). `capture_ui.tscn -- <png> fateboard outlines stars` screenshots it.
+
+---
+
 ## 2026-10-16 — v5.7.0: Late-game player scaling (reversed Chain Bonus, Mastery, flat attack damage)
 
 The audit behind this (user discussion): monster Life and damage compound per level and Tier, and they stay that way. Every player lever only added (weapon bases ~4x from ilvl 28 to 91, Strength, one increased% pool) or shrank (Chain Bonus). Early Fate Boards made a white rapier one-shot on-level mobs, and nothing multiplied late.

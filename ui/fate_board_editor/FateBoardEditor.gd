@@ -80,7 +80,7 @@ func open() -> void:
 	# Reopening soon after (Tab cycling, a quick check) keeps the view where it was.
 	if _closed_msec < 0 or Time.get_ticks_msec() - _closed_msec > RECENTER_AFTER_SEC * 1000:
 		grid.center_on_anchor()
-	_keys_hint.text = "%s rotates and %s flips the Slate you're placing. Right-click a placed Slate to take it back." % [GameSettings.key_name("fate_board_rotate"), GameSettings.key_name("fate_board_flip")]
+	_keys_hint.text = "%s rotates and %s flips the Slate you're placing. Right-click a placed Slate to take it back. Reach a Star with your Slates to set a Lens in it; its bonuses appear around it, and Slates covering them claim them." % [GameSettings.key_name("fate_board_rotate"), GameSettings.key_name("fate_board_flip")]
 	_populate_palette()
 	_refresh_aether()
 	_refresh_chains()
@@ -119,7 +119,7 @@ func _populate_palette() -> void:
 	if lenses.is_empty():
 		return
 	var header := Label.new()
-	header.text = "Lenses - click or right-click one to pick it up, then click a placed Slate with a free socket"
+	header.text = "Lenses - click or right-click one to pick it up, then click a placed Slate with a free socket or a reached Star"
 	header.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	palette_list.add_child(header)
 	for lens in lenses:
@@ -152,7 +152,7 @@ func _on_lens_selected(lens: Lens) -> void:
 	if again:
 		return  # clicking the held Lens puts it back
 	_held_lens = lens
-	status_label.text = "Click a placed Slate with a free socket to set %s. Lenses set on the board stay there. Right-click or Esc to put it back." % lens.display_name
+	status_label.text = "Click a placed Slate with a free socket, or a reached Star, to set %s. Lenses set on the board stay there. Right-click or Esc to put it back." % lens.display_name
 
 func _on_palette_selected(slate: Slate) -> void:
 	_held_lens = null
@@ -207,11 +207,18 @@ func _on_drop_requested() -> void:
 func _on_cell_clicked(cell: Vector2i, button_index: int) -> void:
 	if _held_lens:
 		if button_index == MOUSE_BUTTON_LEFT:
-			_socket_held_lens(cell)
+			if FateStars.star_at(cell) >= 0:
+				_set_held_lens_in_star(FateStars.star_at(cell))
+			else:
+				_socket_held_lens(cell)
 		else:
 			_on_drop_requested()
 		return
 	if button_index == MOUSE_BUTTON_RIGHT or _selected_slate == null:
+		if FateStars.star_at(cell) >= 0:
+			if button_index == MOUSE_BUTTON_RIGHT:
+				_take_star_lens(FateStars.star_at(cell))
+			return
 		var occupied := _board.get_occupied_cells()
 		if occupied.has(cell):
 			if _board.removal_breaks_chain(occupied[cell]):
@@ -258,6 +265,42 @@ const _LENS_FAILURES := {
 	"no_sockets": "That Slate has no sockets.",
 }
 
+const _STAR_FAILURES := {
+	"star_full": "That Star already holds a Lens. Right-click it to take that one out first.",
+	"star_unreached": "Reach that Star with a chain of Slates first.",
+}
+
+## Sets the held Lens into a Star.
+func _set_held_lens_in_star(star: int) -> void:
+	var reason := _board.set_star_lens(star, _held_lens)
+	if reason != "":
+		status_label.text = _STAR_FAILURES.get(reason, reason)
+		return
+	GameState.remove_from_inventory(_held_lens)
+	var lens_name := _held_lens.display_name
+	_on_drop_requested()
+	status_label.text = "%s set in the %s." % [lens_name, FateStars.NAMES[star]]
+	_refresh_board_view()
+
+## Puts a Star's Lens back in the inventory.
+func _take_star_lens(star: int) -> void:
+	var lens: Lens = _board.star_lenses.get(star)
+	if lens == null:
+		return
+	if not GameState.add_to_inventory(lens):
+		status_label.text = "No room in your inventory for that Lens."
+		return
+	_board.take_star_lens(star)
+	status_label.text = "%s taken out of the %s." % [lens.display_name, FateStars.NAMES[star]]
+	_refresh_board_view()
+
+func _refresh_board_view() -> void:
+	grid.mark_cells_dirty()
+	grid.queue_redraw()
+	_refresh_aether()
+	_refresh_chains()
+	_populate_palette()
+
 ## Sets the held Lens into the placed Slate at cell. Permanent while it's on the board.
 func _socket_held_lens(cell: Vector2i) -> void:
 	var occupied := _board.get_occupied_cells()
@@ -291,9 +334,10 @@ func _is_slate_available(slate: Slate) -> bool:
 const _FAILURE_MESSAGES := {
 	"insufficient_aether": "Can't place: not enough Aether.",
 	"cell_occupied": "Can't place: that cell is already occupied.",
-	"anchor_cell": "Can't place: the starting point is solid. Build out from beside it.",
-	"not_connected": "Can't place: Slates must connect to the anchor or an already-placed Slate.",
-	"tag_not_connected": "Can't place: a Slate must touch the anchor or a placed Slate it shares a tag with (Hybrid Slates and Lenses can bridge).",
+	"anchor_cell": "Can't place: Stars are solid. Build out from beside them.",
+	"off_board": "Can't place: that's off the edge of the Fate Board.",
+	"not_connected": "Can't place: Slates must connect to a reached Star or an already-placed Slate.",
+	"tag_not_connected": "Can't place: a Slate must touch a reached Star or a placed Slate it shares a tag with (Hybrid Slates and Lenses can bridge).",
 }
 
 func _on_placement_failed(reason: String) -> void:
@@ -311,5 +355,19 @@ func _refresh_chains() -> void:
 		lines.append("%s chain: %d tiles, +%.2f%%, Mastery +%.1f%% more" % [tag_name, r.tile_count, r.bonus_percent * 100.0, ChainCalculator.chain_mastery(r) * 100.0])
 		EventBus.chain_recalculated.emit(i, r.tile_count, r.bonus_percent)
 	chain_label.text = ("\n".join(lines) if lines.size() > 0 else "No chains yet") + "\n(hover for how chains work)"
+	chain_label.text += _star_summary()
 	var summary := "\n\nYour chains:\n" + "\n".join(lines) if lines.size() > 0 else ""
 	chain_label.tooltip_text = ChainCalculator.explanation() + summary
+
+## Lit Stars and their claimed bonuses, for the side panel.
+func _star_summary() -> String:
+	var lines := PackedStringArray()
+	var claimed := _board.claimed_sites()
+	for star in _board.lit_stars():
+		var lens: Lens = _board.star_lenses[star]
+		var sites := FateStars.sites_for(star, lens)
+		var mine := claimed.filter(func(s: FateStars.Site) -> bool: return s.star == star)
+		lines.append("%s: %d / %d bonuses claimed" % [FateStars.NAMES[star], mine.size(), sites.size()])
+		for site in mine:
+			lines.append("  " + site.text())
+	return "\n\nStars:\n" + "\n".join(lines) if lines.size() > 0 else ""

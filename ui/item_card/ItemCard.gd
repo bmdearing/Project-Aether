@@ -118,7 +118,7 @@ const HINT_COLOR := Color(0.6, 0.75, 0.6)
 const SOCKETED_COLOR := Color(0.55, 0.85, 0.9)
 const UNIQUE_MOD_COLOR := Color(0.95, 0.68, 0.38)
 const JEWEL_HINT := "Right-click to pick up, then click an item with a free socket. Socketing is permanent."
-const LENS_HINT := "Right-click to pick up, then click a Slate with a free socket. Ctrl+right-click the Slate to take it out."
+const LENS_HINT := "Right-click to pick up, then click a Slate with a free socket or a reached Star on the Fate Board. Ctrl+right-click the Slate to take it out."
 const LENS_COLOR := Color(0.55, 0.9, 0.85)
 
 ## Orbs, Brands, Edicts and stones: name, stack size, what it does and how to use it.
@@ -198,6 +198,7 @@ func _render_item(item: Item) -> void:
 		_add_separator()
 	if item is Lens and (item as Lens).radius_text() != "":
 		_add_mod_line((item as Lens).radius_text(), LENS_COLOR)
+		_add_mod_line(FateStars.lens_star_text(item as Lens), LENS_COLOR.darkened(0.15))
 		if not item.affixes.is_empty():
 			_add_separator()
 	var mod_color := UNIQUE_MOD_COLOR if item.rarity >= Constants.ItemRarity.UNIQUE else AFFIX_COLOR
