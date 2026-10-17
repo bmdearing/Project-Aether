@@ -1,7 +1,7 @@
 extends CanvasLayer
 class_name PlayerHUD
 ## Always-on HUD: Life/Mana orbs (Ward as a strip on the Life orb) beside the
-## ability bar, the XP bar along the bottom, the weapon plate, status chips
+## ability bar, the XP bar along the bottom, the weapon plate, status icons
 ## and enemy health bars.
 ##
 ## The XP fill is a fixed-size shader rect revealed by a clip window, so the
@@ -28,9 +28,6 @@ const SWAP_PUNCH_DURATION := 0.2
 
 const STATUS_ROW_TOP_MARGIN := 16.0
 const STATUS_ROW_LEFT_MARGIN := 16.0
-const STATUS_CHIP_HEIGHT := 26.0
-const STATUS_CHIP_MIN_WIDTH := 76.0
-const STATUS_CHIP_GAP := 6.0
 const XP_BAR_SHADER := preload("res://ui/player_hud/xp_bar.gdshader")
 
 ## Screen-edge vignette: only shows in a Figment, below LOW_HEALTH_FRACTION
@@ -102,8 +99,7 @@ var _level_badge: LevelBadge
 var _weapon_icon: ItemSlotButton
 var _weapon_plate: WeaponPlate
 var _last_gold: int = -1
-var _status_row: HBoxContainer
-var _status_chips: Dictionary = {}  # effect_id -> Label
+var _status_row: PlayerStatusRow
 var _hit_marker: HitMarker
 var _throwable_icon: TextureRect
 var _throwable_count_label: Label
@@ -157,8 +153,6 @@ func _ready() -> void:
 		_player.experience.xp_changed.connect(_on_xp_changed)
 		EventBus.weapon_swapped.connect(_on_weapon_swapped)
 		_player.equipment.equipment_changed.connect(_refresh_weapon_indicator)
-		EventBus.status_effect_applied.connect(_on_status_effect_applied)
-		EventBus.status_effect_expired.connect(_on_status_effect_expired)
 		EventBus.hit_landed.connect(_hit_marker.show_hit)
 		EventBus.throwable_used.connect(_on_throwable_used)
 		call_deferred("_initial_refresh")
@@ -397,15 +391,12 @@ func _on_inventory_full(_content: Resource) -> void:
 	_inventory_full_tween.tween_interval(1.5)
 	_inventory_full_tween.tween_property(_inventory_full_label, "modulate:a", 0.0, 0.5)
 
-## Top-left chips, one per active status effect on the player.
+## Top-left icons for the player's status effects and buffs.
 func _build_status_row() -> void:
-	_status_row = HBoxContainer.new()
-	_status_row.anchor_left = 0.0
-	_status_row.anchor_top = 0.0
-	_status_row.offset_left = STATUS_ROW_LEFT_MARGIN
-	_status_row.offset_top = STATUS_ROW_TOP_MARGIN
-	_status_row.add_theme_constant_override("separation", STATUS_CHIP_GAP)
-	_status_row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_status_row = PlayerStatusRow.new()
+	_status_row.player = _player
+	_status_row.position = Vector2(STATUS_ROW_LEFT_MARGIN, STATUS_ROW_TOP_MARGIN)
+	_status_row.size = Vector2(600, 64)
 	add_child(_status_row)
 
 ## "Enemies: remaining / total" under the minimap. Hidden until
@@ -430,29 +421,6 @@ func _build_enemy_counter() -> void:
 func _on_enemy_count_changed(remaining: int, total: int) -> void:
 	_enemy_counter_label.text = "Enemies: %d / %d" % [remaining, total]
 	_enemy_counter_label.visible = true
-
-func _on_status_effect_applied(target: Node, effect_id: String, _stacks: int) -> void:
-	if target != _player or _status_chips.has(effect_id):
-		return
-	var chip := Label.new()
-	chip.text = Constants.STATUS_EFFECT_NAME.get(effect_id, effect_id.capitalize())
-	chip.custom_minimum_size = Vector2(STATUS_CHIP_MIN_WIDTH, STATUS_CHIP_HEIGHT)
-	chip.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	chip.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	chip.add_theme_font_size_override("font_size", 13)
-	var dmg_type: Constants.DamageType = Constants.STATUS_EFFECT_DAMAGE_TYPE.get(effect_id, Constants.DamageType.KINETIC)
-	var accent: Color = Constants.DAMAGE_TYPE_COLOR.get(dmg_type, Color.WHITE)
-	chip.add_theme_stylebox_override("normal", AetherStyle.glass_box(accent, AetherStyle.GLASS_LIGHT.lerp(accent, 0.18), 1, 6.0))
-	chip.add_theme_font_override("font", AetherStyle.serif())
-	chip.add_theme_color_override("font_color", accent.lerp(Color.WHITE, 0.35))
-	_status_row.add_child(chip)
-	_status_chips[effect_id] = chip
-
-func _on_status_effect_expired(target: Node, effect_id: String) -> void:
-	if target != _player or not _status_chips.has(effect_id):
-		return
-	_status_chips[effect_id].queue_free()
-	_status_chips.erase(effect_id)
 
 func _process(_delta: float) -> void:
 	visible = not AetherStyle.menu_open(get_tree())

@@ -1,12 +1,14 @@
 extends RefCounted
 class_name StatusIcons
 ## The standard look of every status effect, wherever it's shown (enemy and
-## boss bars via StatusIconRow): a glyph in the effect's colour on a dark
-## tile. Ailments sit on a square tile, curses on a diamond, everything else
-## (debuffs, roots, stuns) on a round one. Effects missing from DEFS aren't
-## shown.
+## boss bars via StatusIconRow, the player's via PlayerStatusRow): a glyph in
+## the effect's colour on a dark tile. Ailments sit on a square tile, curses
+## on a diamond, buffs on an octagon, everything else (debuffs, roots, stuns)
+## on a round one. StatusIconRow skips effects missing from DEFS;
+## PlayerStatusRow draws them with PLACEHOLDER. "aura:<curse id>" (a Hex Aura
+## the player keeps up) is that curse's icon as a buff.
 
-enum Kind { AILMENT, CURSE, DEBUFF }
+enum Kind { AILMENT, CURSE, DEBUFF, BUFF }
 
 ## effect_id -> [glyph (IconArt.glyph name), colour, Kind]
 const DEFS := {
@@ -36,20 +38,35 @@ const DEFS := {
 	"guard_break": ["star", Color(1.0, 0.6, 0.3), Kind.DEBUFF],
 	"steadfast": ["shield", Color(0.7, 0.75, 0.85), Kind.DEBUFF],
 	"drenched": ["drop", Color(0.35, 0.6, 1.0), Kind.DEBUFF],
-	"stone_skin": ["shield", Color(0.7, 0.55, 0.35), Kind.DEBUFF],
+	"stone_skin": ["shield", Color(0.7, 0.55, 0.35), Kind.BUFF],
+	# Player buffs kept outside StatusEffectComponent (PlayerStatusRow).
+	"frost_armor": ["shield_tri", Color(0.6, 0.88, 1.0), Kind.BUFF],
+	"battle_cry": ["chevrons_up", Color(1.0, 0.72, 0.3), Kind.BUFF],
+	"death_shroud": ["void", Color(0.82, 0.86, 0.76), Kind.BUFF],
+	"debt": ["lock", Color(0.86, 0.71, 0.42), Kind.BUFF],
 }
+
+const PLACEHOLDER := ["diamond", Color(0.72, 0.72, 0.75), Kind.DEBUFF]
 
 static func has(effect_id: String) -> bool:
 	return DEFS.has(effect_id)
 
-static func colour_of(effect_id: String) -> Color:
-	return DEFS[effect_id][1] if DEFS.has(effect_id) else Color.WHITE
+## [glyph, colour, Kind] for effect_id, PLACEHOLDER when it has no icon.
+static func def_of(effect_id: String) -> Array:
+	if effect_id.begins_with("aura:"):
+		var base: Array = DEFS.get(effect_id.trim_prefix("aura:"), PLACEHOLDER)
+		return [base[0], base[1], Kind.BUFF]
+	return DEFS.get(effect_id, PLACEHOLDER)
 
-## Draws effect_id's icon filling `rect`.
+static func is_buff(effect_id: String) -> bool:
+	return def_of(effect_id)[2] == Kind.BUFF
+
+static func colour_of(effect_id: String) -> Color:
+	return def_of(effect_id)[1]
+
+## Draws effect_id's icon filling `rect` (PLACEHOLDER when it has none).
 static func draw(ci: CanvasItem, effect_id: String, rect: Rect2) -> void:
-	if not DEFS.has(effect_id):
-		return
-	var def: Array = DEFS[effect_id]
+	var def: Array = def_of(effect_id)
 	var c: Color = def[1]
 	var centre := rect.get_center()
 	var r := minf(rect.size.x, rect.size.y) * 0.5
@@ -64,6 +81,13 @@ static func draw(ci: CanvasItem, effect_id: String, rect: Rect2) -> void:
 			ci.draw_colored_polygon(d, back)
 			d.append(d[0])
 			ci.draw_polyline(d, Color(c, 0.85), maxf(1.0, r * 0.1), true)
+		Kind.BUFF:
+			var o := PackedVector2Array()
+			for i in 8:
+				o.append(centre + Vector2.from_angle(TAU * (i + 0.5) / 8.0) * r * 0.98)
+			ci.draw_colored_polygon(o, back)
+			o.append(o[0])
+			ci.draw_polyline(o, Color(c, 0.85), maxf(1.0, r * 0.1), true)
 		_:
 			ci.draw_circle(centre, r * 0.96, back)
 			ci.draw_arc(centre, r * 0.92, 0.0, TAU, 24, Color(c, 0.85), maxf(1.0, r * 0.1), true)

@@ -1037,6 +1037,9 @@ func _ensure_frost_armor_fx() -> void:
 func has_frost_armor() -> bool:
 	return _frost_armor_remaining > 0.0
 
+func frost_armor_remaining() -> float:
+	return _frost_armor_remaining
+
 ## Called when an enemy melee hit lands on the player.
 func trigger_frost_armor_retaliation(attacker: Enemy) -> void:
 	if not has_frost_armor() or _frost_armor_ability == null or attacker == null or _frost_armor_burst_cd > 0.0:
