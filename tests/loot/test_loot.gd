@@ -264,8 +264,7 @@ func _test_rare_beam() -> void:
 		add_child(p)
 		p.global_position = Vector3(600, 0, 600)
 		pickups.append(p)
-	_check(pickups[0].get_node_or_null("Beam") != null, "Rare drops have a light beam")
-	_check(pickups[1].get_node_or_null("Beam") == null, "Common drops don't")
+	_check(pickups.all(func(p: LootPickup) -> bool: return p.get_node_or_null("Ground/Beam") != null), "every drop has a rarity beam")
 	for p in pickups:
 		p.queue_free()
 	await _frames(1)
