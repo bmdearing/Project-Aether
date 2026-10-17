@@ -187,47 +187,42 @@ func get_equipped(slot: Constants.EquipmentSlot, ring_index: int = 0, weapon_set
 			return rings[ring_index] if ring_index >= 0 and ring_index < rings.size() else null
 	return null
 
-## Same shape as get_total_evasion(): base armor_value per slot, plus
-## flat_armor affixes from any equipped item, times any increased_armor.
+## Total Armour, Evasion or Ward from gear (v5.5.1). An armour piece's or
+## shield's own flat and % increased modifiers are local: they scale only that
+## item's base (Item.get_local_defence(), what its card shows). Flat from
+## anything else (rings, jewels) adds after, and the global % (the amulet's
+## line, Agility for Evasion) multiplies the whole total.
+func _defence_total(defence: String, extra_increased: float = 0.0) -> float:
+	var flat_key := "flat_" + defence
+	var increased_key := "increased_" + defence
+	var affixes := compute_misc_bonuses()
+	var flat: float = affixes.get(flat_key, 0.0)
+	var increased: float = affixes.get(increased_key, 0.0) + affixes.get("amulet_" + increased_key, 0.0)
+	var local := 0.0
+	for item in [helmet, body_armour, gloves, boots, offhand if offhand is Shield else null]:
+		if item == null:
+			continue
+		local += (item as Item).get_local_defence(defence)
+		flat -= (item as Item).own_affix_total(flat_key)
+		increased -= (item as Item).own_affix_total(increased_key)
+		var hybrid := {}
+		for affix in (item as Item).affixes:
+			if affix.key() == "hybrid_defense_life":
+				_add_hybrid_defense(hybrid, item, affix.value)
+		flat -= float(hybrid.get(flat_key, 0.0))
+	return (local + flat) * (1.0 + increased / 100.0 + extra_increased)
+
 func get_total_armor() -> float:
-	var total := 0.0
-	if helmet: total += helmet.armor_value
-	if body_armour: total += body_armour.armor_value
-	if gloves: total += gloves.armor_value
-	if boots: total += boots.armor_value
-	if offhand is Shield: total += (offhand as Shield).armor_value
-	var affixes := compute_misc_bonuses()
-	var flat: float = affixes.get("flat_armor", 0.0)
-	var increased: float = affixes.get("increased_armor", 0.0) / 100.0
-	return (total + flat) * (1.0 + increased)
+	return _defence_total("armor")
 
-## Patch v4.4. Gear's Evasion: every equipped Armor/Shield's evasion_value,
-## plus flat_evasion affixes from any equipped item, times any
-## increased_evasion. extra_increased is Agility's +1%/point (a fraction,
-## passed in by StatSheet.get_total_evasion()) - same increased% bracket.
+## extra_increased is Agility's +1%/point (a fraction, passed in by
+## StatSheet.get_total_evasion()), global like the amulet's line.
 func get_total_evasion(extra_increased: float = 0.0) -> float:
-	var base := 0.0
-	if helmet: base += helmet.evasion_value
-	if body_armour: base += body_armour.evasion_value
-	if gloves: base += gloves.evasion_value
-	if boots: base += boots.evasion_value
-	if offhand is Shield: base += (offhand as Shield).evasion_value
-	var affixes := compute_misc_bonuses()
-	var flat: float = affixes.get("flat_evasion", 0.0)
-	var increased: float = affixes.get("increased_evasion", 0.0) / 100.0 + extra_increased
-	return (base + flat) * (1.0 + increased)
+	return _defence_total("evasion", extra_increased)
 
-## Ward pool: every equipped Armor/Shield's base ward_value plus flat Ward
-## from any item, times increased Ward.
+## Ward pool from gear; Intellect's increased Ward applies on top (Player).
 func compute_ward_bonus() -> float:
-	var total := 0.0
-	if helmet: total += helmet.ward_value
-	if body_armour: total += body_armour.ward_value
-	if gloves: total += gloves.ward_value
-	if boots: total += boots.ward_value
-	if offhand is Shield: total += (offhand as Shield).ward_value
-	var affixes := compute_misc_bonuses()
-	return (total + affixes.get("flat_ward", 0.0)) * (1.0 + affixes.get("increased_ward", 0.0) / 100.0)
+	return _defence_total("ward")
 
 
 ## Restore-descriptor per equipped item for GameState.sync_equipment() -

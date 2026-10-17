@@ -277,6 +277,10 @@ const AFFIX_POOL := [
 	{"stat_key": "increased_ward", "defense": "ward", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["ward"]},
 	{"stat_key": "increased_armor", "defense": "armor", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Armor", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["armor"]},
 	{"stat_key": "increased_evasion", "defense": "evasion", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Evasion", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["evasion"]},
+	# Amulet only (v5.5.1): % increased to all of your Armour, Evasion or Ward, 30% (Tier 6) to 50% (Tier 1).
+	{"stat_key": "amulet_increased_armor", "tier1_min": 44.0, "tier1_max": 46.0, "desc": "+%d%% increased Armor", "applies_to": ["item"], "slots": [9], "brand_tags": ["armor"]},
+	{"stat_key": "amulet_increased_evasion", "tier1_min": 44.0, "tier1_max": 46.0, "desc": "+%d%% increased Evasion", "applies_to": ["item"], "slots": [9], "brand_tags": ["evasion"]},
+	{"stat_key": "amulet_increased_ward", "tier1_min": 44.0, "tier1_max": 46.0, "desc": "+%d%% increased Ward", "applies_to": ["item"], "slots": [9], "brand_tags": ["ward"]},
 	# 40% of the slot's flat Life cap: 71.6 on body armour, 51.6 elsewhere (Tier 1).
 	{"stat_key": "hybrid_defense_life", "tier1_min": 33.02, "tier1_max": 41.28, "desc": "+%d to Life, and to the base's own defence (hybrid)", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "slot_tiers": {1: [45.82, 57.28]}, "brand_tags": []},
 
@@ -492,6 +496,7 @@ const DAMAGE_PERCENT_TIERS := [[83, 191.0, 225.0], [80, 160.0, 190.0],[68, 128.0
 ## Additional arrows / spell projectiles: +1, +2, +3.
 const ADDITIONAL_PROJECTILE_TIERS := [[75, 3.0, 3.0], [40, 2.0, 2.0], [1, 1.0, 1.0]]
 const FLAT_ARMOUR_EVASION_TIERS := [[83, 20.0, 23.0], [72, 15.0, 17.0], [61, 11.0, 13.0], [40, 6.0, 8.0], [21, 4.0, 5.0], [1, 2.0, 3.0]]
+const AMULET_DEFENCE_TIERS := [[83, 47.0, 50.0], [72, 44.0, 46.0], [61, 40.0, 43.0], [40, 37.0, 39.0], [21, 34.0, 36.0], [1, 30.0, 33.0]]
 const RESISTANCE_TIERS := [[83, 39.0, 48.0], [72, 33.0, 38.0], [61, 27.0, 32.0], [40, 22.0, 26.0], [21, 18.0, 21.0], [1, 15.0, 17.0]]
 const LEVELLED_TIERS := {
 	"local_increased_weapon_damage": DAMAGE_PERCENT_TIERS,
@@ -509,6 +514,9 @@ const LEVELLED_TIERS := {
 	"flat_armor": FLAT_ARMOUR_EVASION_TIERS,
 	"flat_evasion": FLAT_ARMOUR_EVASION_TIERS,
 	"flat_ward": [[83, 62.0, 72.0], [72, 45.0, 52.0], [61, 32.0, 37.0], [40, 17.0, 20.0], [21, 10.0, 12.0], [1, 5.0, 6.0]],
+	"amulet_increased_armor": AMULET_DEFENCE_TIERS,
+	"amulet_increased_evasion": AMULET_DEFENCE_TIERS,
+	"amulet_increased_ward": AMULET_DEFENCE_TIERS,
 	# Move Speed tops out at 35% (user).
 	"move_speed": [[83, 30.0, 35.0], [72, 25.0, 29.0], [61, 20.0, 24.0], [40, 15.0, 19.0], [21, 10.0, 14.0], [1, 6.0, 9.0]],
 	# Single Resistances span 15% (Tier 6) to 48% (Tier 1).

@@ -24,22 +24,22 @@ const JEWELLERY := [Constants.EquipmentSlot.AMULET, Constants.EquipmentSlot.BELT
 const ARCHETYPES := {
 	"Life + Armour": {"pattern": "a", "stat": Constants.Stat.STRENGTH,
 		"armour": ["flat_life", "life_increased", "flat_armor", "increased_armor", "flat_strength", "reduced_physical_taken"],
-		"jewellery": ["flat_life", "life_increased", "flat_strength", "flat_armor"]},
+		"jewellery": ["flat_life", "amulet_increased_armor", "life_increased", "flat_strength", "flat_armor"]},
 	"Life + Evasion": {"pattern": "e", "stat": Constants.Stat.STRENGTH,
 		"armour": ["flat_life", "life_increased", "flat_evasion", "increased_evasion", "flat_strength", "flat_agility"],
-		"jewellery": ["flat_life", "life_increased", "flat_strength", "flat_evasion"]},
+		"jewellery": ["flat_life", "amulet_increased_evasion", "life_increased", "flat_strength", "flat_evasion"]},
 	"Life + Armour/Evasion": {"pattern": "ae", "stat": Constants.Stat.STRENGTH,
 		"armour": ["flat_life", "life_increased", "increased_armor", "increased_evasion", "flat_strength", "reduced_physical_taken"],
-		"jewellery": ["flat_life", "life_increased", "flat_strength", "flat_armor"]},
+		"jewellery": ["flat_life", "amulet_increased_armor", "life_increased", "flat_strength", "flat_armor"]},
 	"Ward stacker": {"pattern": "w", "stat": Constants.Stat.INTELLECT,
 		"armour": ["flat_ward", "increased_ward", "flat_intellect", "ward_recovery_increased", "flat_life"],
-		"jewellery": ["flat_ward", "flat_intellect", "flat_life"]},
+		"jewellery": ["flat_ward", "amulet_increased_ward", "flat_intellect", "flat_life"]},
 	"Ward + Armour": {"pattern": "aw", "stat": Constants.Stat.INTELLECT,
 		"armour": ["flat_ward", "increased_ward", "increased_armor", "flat_intellect", "flat_armor"],
-		"jewellery": ["flat_ward", "flat_intellect", "flat_armor"]},
+		"jewellery": ["flat_ward", "amulet_increased_ward", "flat_intellect", "flat_armor"]},
 	"Ward + Evasion": {"pattern": "ew", "stat": Constants.Stat.INTELLECT,
 		"armour": ["flat_ward", "increased_ward", "increased_evasion", "flat_intellect", "flat_evasion"],
-		"jewellery": ["flat_ward", "flat_intellect", "flat_evasion"]},
+		"jewellery": ["flat_ward", "amulet_increased_ward", "flat_intellect", "flat_evasion"]},
 }
 
 var _player: Player

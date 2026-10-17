@@ -21,6 +21,7 @@ const NAME_OVERRIDES := {
 	"ward_delay_reduction": "Faster Ward Recharge (seconds)", "retaliate_on_block": "Chance to Retaliate on Block",
 	"hybrid_defense_life": "Hybrid Defence and Life", "crit_damage": "Increased Critical Strike Bonus",
 	"increased_attack_damage": "Increased Weapon Damage",
+	"amulet_increased_armor": "Increased Armour (Amulet)", "amulet_increased_evasion": "Increased Evasion (Amulet)", "amulet_increased_ward": "Increased Ward (Amulet)",
 }
 
 const FLAT_DECIMALS := {"mana_regen": 1, "ward_delay_reduction": 1, "life_regen_flat": 1}
@@ -99,6 +100,9 @@ const EXPLAIN := {
 	"ward_percent_on_kill": "This share of your maximum Ward is restored each time you kill an enemy, on top of the base restore.",
 	"mana_on_ailment": "Mana restored each time you inflict an Ailment.",
 	"ward_percent_on_ailment": "This share of your maximum Ward is restored each time you inflict an Ailment.",
+	"amulet_increased_armor": "Raises all of your Armour (from every item). Adds to the increased Armour on your armour pieces.",
+	"amulet_increased_evasion": "Raises all of your Evasion (from every item). Adds to the increased Evasion on your armour pieces.",
+	"amulet_increased_ward": "Raises all of your Ward (from every item). Adds to the increased Ward on your armour pieces.",
 	"esoteric_penetration": "Your Aetheric, Entropic and Pale hits treat the enemy's Esoteric Resistance as this much lower.",
 	"phys_as_elemental": "This share of Physical damage you take arrives split evenly as Fire, Cold and Lightning, so Resistances apply to it rather than Armour.",
 	"hybrid_defense_life": "Adds this much Life, plus Armour or Evasion (40% of it) or Ward (120% of it), whichever the item mainly has.",
