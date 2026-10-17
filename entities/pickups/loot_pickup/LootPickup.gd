@@ -4,8 +4,8 @@ class_name LootPickup
 ## picked up with Interact (LootPicker on the Player, card on the HUD);
 ## currency, Maw Fragments, Figments, Tomes and ammo are collected on touch.
 ## Spawned by Enemy.gd on death with its content already assigned: one of
-## `item`, `slate` or `currency_id`. Weapons, shields, body armour and
-## accessories lie on the floor as their model; everything else is a rotating,
+## `item`, `slate` or `currency_id`. Gear, Slates, Lenses and Skill Tomes lie
+## on the floor as their model; everything else is a rotating,
 ## bobbing sphere in the rarity colour. Every drop gets a thin rarity beam from the floor.
 
 const ROTATE_SPEED := 1.5
@@ -75,6 +75,12 @@ func _build_model() -> Node3D:
 	elif item is Weapon or item is Shield:
 		model = WeaponModelLibrary.build_offhand(item)
 		tilt = Basis(Vector3.RIGHT, PI * 0.5)
+	elif slate or item is Lens or item is SkillTome:
+		model = build_slate(slate) if slate else build_lens(item as Lens) if item is Lens else build_tome(item as SkillTome)
+		if model == null:
+			return null
+		var family := "slate" if slate else "lens" if item is Lens else "tome"
+		tilt = Basis.IDENTITY.scaled(Vector3.ONE * float(ITEM_DROP_SCALE[family]))
 	else:
 		var entry := _equipment_entry(item)
 		if entry.is_empty():
@@ -144,6 +150,97 @@ static func _equipment_entry(it: Item) -> Dictionary:
 					key = kind + "_" + base_id.trim_suffix("_" + kind)
 		e = _equipment.get(key, {})
 	return e if not e.is_empty() and ResourceLoader.exists(e["file"]) else {}
+
+## Slates, Lenses, Skill Tomes and gold piles (tools/blender), authored flat,
+## +Y up. Small ones are scaled up to be seen on the floor.
+const ITEM_MANIFEST := "res://assets/models/items/items_manifest.json"
+const ITEM_DROP_SCALE := {"slate": 3.0, "lens": 5.0, "tome": 1.0, "gold": 2.0}
+const SLATE_CELL := 0.05
+
+static var _items: Dictionary = {}
+
+## A fresh instance of an items_manifest model, or null if it's missing.
+static func item_model(key: String) -> Node3D:
+	if _items.is_empty() and ResourceLoader.exists(ITEM_MANIFEST):
+		var data: Variant = (load(ITEM_MANIFEST) as JSON).data
+		if data is Dictionary:
+			_items = data
+	var e: Dictionary = _items.get(key, {})
+	if e.is_empty() or not ResourceLoader.exists(e["file"]):
+		return null
+	return (load(e["file"]) as PackedScene).instantiate()
+
+## Overrides every surface whose material name starts with `prefix`.
+static func _recolor(model: Node3D, prefix: String, mat: Material) -> void:
+	for node in model.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		for i in mi.mesh.get_surface_count():
+			var m := mi.mesh.surface_get_material(i)
+			if m and m.resource_name.begins_with(prefix):
+				mi.set_surface_override_material(i, mat)
+
+## One tile per shape cell, centred; rune inlays glow in the Slate's tag
+## (hybrids checkerboard the secondary), edges take the rarity colour, and
+## the first `sockets` cells carry a socket with its Lens.
+static func build_slate(s: Slate) -> Node3D:
+	var probe := item_model("slate_tile")
+	if probe == null:
+		return null
+	probe.free()
+	var root := Node3D.new()
+	var edge := WeaponModelLibrary._flat(Constants.SLATE_RARITY_COLOR.get(s.rarity, Color.WHITE), 0.6, 0.2)
+	var glows := [WeaponModelLibrary._glow(Constants.DAMAGE_TYPE_COLOR.get(s.tag, Color.WHITE)),
+		WeaponModelLibrary._glow(Constants.DAMAGE_TYPE_COLOR.get(s.secondary_tag, Color.WHITE))]
+	var middle := Vector2.ZERO
+	for cell in s.shape_cells:
+		middle += Vector2(cell)
+	middle /= maxf(s.shape_cells.size(), 1.0)
+	for i in s.shape_cells.size():
+		var cell := s.shape_cells[i]
+		var pos := Vector3((cell.x - middle.x) * SLATE_CELL, 0, (cell.y - middle.y) * SLATE_CELL)
+		var tile := item_model("slate_tile")
+		tile.position = pos
+		root.add_child(tile)
+		_recolor(tile, "slate_tag", glows[(cell.x + cell.y) % 2] if s.is_hybrid else glows[0])
+		_recolor(tile, "slate_rarity", edge)
+		if i < s.sockets:
+			var socket := item_model("slate_socket")
+			if socket:
+				socket.position = pos
+				root.add_child(socket)
+			if i < s.lenses.size() and s.lenses[i]:
+				var lens := build_lens(s.lenses[i], "lens_small")
+				if lens:
+					lens.position = pos
+					root.add_child(lens)
+	return root
+
+## Small/Medium/Large by radius; the glass takes the radius tag's colour.
+static func build_lens(lens: Lens, key: String = "") -> Node3D:
+	if key == "":
+		key = "lens_" + String(Lens.SIZE_NAMES.get(lens.radius, "Small")).to_lower()
+	var model := item_model(key)
+	if model and lens.radius_tag >= 0:
+		var color: Color = Constants.DAMAGE_TYPE_COLOR.get(lens.radius_tag, Color.WHITE)
+		for node in model.find_children("*", "MeshInstance3D", true, false):
+			var mi := node as MeshInstance3D
+			for i in mi.mesh.get_surface_count():
+				var m := mi.mesh.surface_get_material(i) as StandardMaterial3D
+				if m and m.resource_name.begins_with("glow_lens"):
+					var tinted := m.duplicate() as StandardMaterial3D
+					tinted.albedo_color = Color(color, m.albedo_color.a)
+					tinted.emission = color
+					mi.set_surface_override_material(i, tinted)
+	return model
+
+## The tome for the ability's damage type; tome_neutral when it deals none.
+static func build_tome(tome: SkillTome) -> Node3D:
+	var ability: Ability = load(tome.ability_path) as Ability if ResourceLoader.exists(tome.ability_path) else null
+	var kind := "neutral"
+	if ability and ability.deals_damage():
+		kind = String(Constants.DamageType.keys()[ability.damage_type]).to_lower()
+	var model := item_model("tome_" + kind)
+	return model if model else item_model("tome_neutral")
 
 ## A thin column from the floor so every drop shows its rarity across a field.
 const BEAM_HEIGHT := 2.4

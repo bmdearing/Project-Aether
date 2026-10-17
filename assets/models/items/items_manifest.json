@@ -1,0 +1,97 @@
+{
+  "gold_large": {
+    "file": "res://assets/models/items/gold_large.glb",
+    "family": "gold",
+    "size": "large"
+  },
+  "gold_medium": {
+    "file": "res://assets/models/items/gold_medium.glb",
+    "family": "gold",
+    "size": "medium"
+  },
+  "gold_small": {
+    "file": "res://assets/models/items/gold_small.glb",
+    "family": "gold",
+    "size": "small"
+  },
+  "gold_tiny": {
+    "file": "res://assets/models/items/gold_tiny.glb",
+    "family": "gold",
+    "size": "tiny"
+  },
+  "lens_large": {
+    "file": "res://assets/models/items/lens_large.glb",
+    "family": "lens",
+    "display_name": "Large Lens"
+  },
+  "lens_medium": {
+    "file": "res://assets/models/items/lens_medium.glb",
+    "family": "lens",
+    "display_name": "Medium Lens"
+  },
+  "lens_small": {
+    "file": "res://assets/models/items/lens_small.glb",
+    "family": "lens",
+    "display_name": "Small Lens"
+  },
+  "slate_socket": {
+    "file": "res://assets/models/items/slate_socket.glb",
+    "family": "slate",
+    "display_name": "Slate socket"
+  },
+  "slate_tile": {
+    "file": "res://assets/models/items/slate_tile.glb",
+    "family": "slate",
+    "display_name": "Slate tile"
+  },
+  "tome_aetheric": {
+    "file": "res://assets/models/items/tome_aetheric.glb",
+    "family": "tome",
+    "damage_type": "aetheric"
+  },
+  "tome_cold": {
+    "file": "res://assets/models/items/tome_cold.glb",
+    "family": "tome",
+    "damage_type": "cold"
+  },
+  "tome_entropic": {
+    "file": "res://assets/models/items/tome_entropic.glb",
+    "family": "tome",
+    "damage_type": "entropic"
+  },
+  "tome_explosive": {
+    "file": "res://assets/models/items/tome_explosive.glb",
+    "family": "tome",
+    "damage_type": "explosive"
+  },
+  "tome_fire": {
+    "file": "res://assets/models/items/tome_fire.glb",
+    "family": "tome",
+    "damage_type": "fire"
+  },
+  "tome_kinetic": {
+    "file": "res://assets/models/items/tome_kinetic.glb",
+    "family": "tome",
+    "damage_type": "kinetic"
+  },
+  "tome_lightning": {
+    "file": "res://assets/models/items/tome_lightning.glb",
+    "family": "tome",
+    "damage_type": "lightning"
+  },
+  "tome_neutral": {
+    "file": "res://assets/models/items/tome_neutral.glb",
+    "family": "tome",
+    "damage_type": "neutral"
+  },
+  "tome_pale": {
+    "file": "res://assets/models/items/tome_pale.glb",
+    "family": "tome",
+    "damage_type": "pale"
+  },
+  "tome_piercing": {
+    "file": "res://assets/models/items/tome_piercing.glb",
+    "family": "tome",
+    "damage_type": "piercing"
+  }
+}

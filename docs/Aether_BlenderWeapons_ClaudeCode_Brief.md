@@ -66,6 +66,19 @@ Every weapon type uses its Blender-built `.glb` in first person instead of the K
 - Gems and `glow_*` materials are fixed colours (they already match `Constants.DAMAGE_TYPE_COLOR`). Unlike `accent`, don't recolour them.
 - Keep the rarity beam and name tag as they are.
 
+## Item drops (Slates, Lenses, Skill Tomes, Gold)
+`assets/models/items/*.glb` holds 19 files, listed in `items_manifest.json`. All of them lie flat, +Y up after import.
+
+- **Slates** are assembled per Slate from two parts, because every Slate's shape is rolled:
+  - `slate_tile.glb` is one 5 cm Fate Board cell, centred on its origin. For each `Vector2i` in `shape_cells`, place a tile at `(cell.x * 0.05, 0, cell.y * 0.05)` under one holder, then centre the holder.
+  - Material `slate_tag` (the rune inlay) gets `Constants.DAMAGE_TYPE_COLOR[tag]` as an emissive glow. For hybrid Slates, give alternate tiles (checkerboard by `(x + y) % 2`) the `secondary_tag` colour.
+  - Material `slate_rarity` (the edge band) gets `Constants.SLATE_RARITY_COLOR[rarity]`.
+  - `slate_socket.glb` sits on top of a tile. Place one on each of the first `sockets` cells. A socketed Lens can sit in it using the small Lens model.
+  - Use this for the `LootPickup` slate drop instead of the rarity sphere.
+- **Lenses**: `lens_small` / `lens_medium` / `lens_large` match `Lens.radius` 2 / 3 / 4 (`Lens.SIZE_NAMES`). Material `glow_lens` is the glass. Tint it with `DAMAGE_TYPE_COLOR[radius_tag]` when `radius_tag >= 0`, otherwise leave it.
+- **Skill Tomes**: there are 10 tomes, `tome_<damage_type>` for kinetic, piercing, explosive, fire, cold, lightning, aetheric, entropic and pale, plus `tome_neutral` for abilities with no damage type. Pick the tome from the ability's damage type. The emblem plate already shows the category (square for physical, diamond for elemental, disc for esoteric, open ring for neutral). These are fixed colours; don't recolour them. Tomes are collected on touch, so keep the current auto-pickup behaviour and only swap the visual.
+- **Gold**: `gold_tiny` (3 coins), `gold_small`, `gold_medium`, `gold_large` (a coin heap plus a bar). In `GoldPickup`, pick the pile by `amount` using tunable thresholds (start with tiny < 10, small < 50, medium < 200, large otherwise). Replace the spinning placeholder coin with the pile, resting on the floor without spinning. Keep auto-pickup.
+
 ## Check in the TestArena
 - Melee: the hand sits on the grip, the blade points along the swing, and two-handers put the left hand on the second grip.
 - Guns: the muzzle flash spawns at the barrel tip, the left hand lands on the foregrip, and the sights sit on top.

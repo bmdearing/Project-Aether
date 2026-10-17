@@ -1,7 +1,7 @@
 extends Node
 ## Screenshot of ground drops: weapon/shield models lying flat, orbs for the
 ## rest, a rarity beam on each. Needs a real window (not --headless).
-## Run: Godot --path . res://tests/ui_capture/capture_loot.tscn -- <out.png> [equipment]
+## Run: Godot --path . res://tests/ui_capture/capture_loot.tscn -- <out.png> [equipment|items]
 
 func _ready() -> void:
 	_run.call_deferred()
@@ -23,6 +23,9 @@ func _run() -> void:
 	]
 	if args.size() > 1 and args[1] == "equipment":
 		drops = EQUIPMENT.map(func(path: String) -> Item: return _rolled(path))
+	if args.size() > 1 and args[1] == "items":
+		_spawn_items()
+		drops = []
 	for i in drops.size():
 		var pickup: LootPickup = load("res://entities/pickups/loot_pickup/LootPickup.tscn").instantiate()
 		pickup.item = drops[i]
@@ -34,8 +37,9 @@ func _run() -> void:
 	currency.global_position = Vector3(2.8, Enemy.DROP_HOVER, -3.6)
 	var cam := Camera3D.new()
 	add_child(cam)
-	cam.global_position = Vector3(0, 2.6, 2.2)
-	cam.look_at(Vector3(0, 0, -2.6))
+	var close := args.size() > 1 and args[1] == "items"
+	cam.global_position = Vector3(0, 1.3, 0.3) if close else Vector3(0, 2.6, 2.2)
+	cam.look_at(Vector3(0, 0, -2.3) if close else Vector3(0, 0, -2.6))
 	cam.current = true
 	for i in 20:
 		await get_tree().process_frame
@@ -43,6 +47,53 @@ func _run() -> void:
 	get_viewport().get_texture().get_image().save_png(out_path)
 	print("saved ", out_path)
 	get_tree().quit()
+
+## Slates, Lenses, Skill Tomes and gold piles, back row to front.
+func _spawn_items() -> void:
+	var slates: Array[Slate] = [
+		_slate([Vector2i(0, 0)], Constants.DamageType.FIRE, -1, Constants.SlateRarity.COMMON, 0),
+		_slate([Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(1, 1)], Constants.DamageType.COLD, -1, Constants.SlateRarity.UNCOMMON, 0),
+		_slate([Vector2i(0, 0), Vector2i(1, 0), Vector2i(0, 1), Vector2i(1, 1), Vector2i(2, 1)], Constants.DamageType.LIGHTNING, Constants.DamageType.ENTROPIC, Constants.SlateRarity.RARE, 2),
+	]
+	for i in slates.size():
+		_drop_at(func(p: LootPickup) -> void: p.slate = slates[i], Vector3((i - 1) * 0.8, 0, -3.3))
+	for i in 3:
+		var lens := Lens.new()
+		lens.radius = 2 + i
+		lens.radius_tag = [-1, Constants.DamageType.FIRE, Constants.DamageType.AETHERIC][i]
+		lens.display_name = "Lens %d" % lens.radius
+		_drop_at(func(p: LootPickup) -> void: p.item = lens, Vector3((i - 1) * 0.8, 0, -2.6))
+	for i in 3:
+		var tome := SkillTome.new()
+		tome.ability_path = ["res://data/abilities/instances/inferno.tres", "res://data/abilities/instances/ice_pulse.tres", "res://data/abilities/instances/blink.tres"][i]
+		tome.display_name = tome.ability_path.get_file()
+		_drop_at(func(p: LootPickup) -> void: p.item = tome, Vector3((i - 1) * 0.8, 0, -1.9))
+	for i in 4:
+		var gold: GoldPickup = load("res://entities/pickups/gold_pickup/GoldPickup.tscn").instantiate()
+		gold.amount = [5, 30, 120, 500][i]
+		add_child(gold)
+		gold.global_position = Vector3((i - 1.5) * 0.6, Enemy.DROP_HOVER, -1.3)
+
+func _drop_at(fill: Callable, pos: Vector3) -> void:
+	var pickup: LootPickup = load("res://entities/pickups/loot_pickup/LootPickup.tscn").instantiate()
+	fill.call(pickup)
+	add_child(pickup)
+	pickup.global_position = pos + Vector3.UP * Enemy.DROP_HOVER
+
+func _slate(cells: Array[Vector2i], tag: int, secondary: int, rarity: int, sockets: int) -> Slate:
+	var s := Slate.new()
+	s.display_name = "Slate"
+	s.shape_cells = cells
+	s.tag = tag
+	s.is_hybrid = secondary >= 0
+	s.secondary_tag = maxi(secondary, 0)
+	s.rarity = rarity
+	s.sockets = sockets
+	if sockets > 0:
+		var lens := Lens.new()
+		lens.radius_tag = Constants.DamageType.FIRE
+		s.lenses = [lens]
+	return s
 
 const EQUIPMENT := [
 	"res://data/armor/instances/gen_body_armour_aegis_plate.tres",

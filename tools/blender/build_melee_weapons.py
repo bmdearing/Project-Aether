@@ -1491,6 +1491,133 @@ for _kind, _line in BODY_LINES.items():
     BUILDERS["body_" + _kind] = ("Body_" + _kind, (lambda kd: lambda r: build_body_armour(r, kd))(_kind), _line, "body_armour", False)
 
 
+
+# --- items: loot/display models in Blender native space (Z up), lying on the floor ---
+
+ITEM_FAMILIES = ("slate", "lens", "tome", "gold")
+DAMAGE_TYPES = {"kinetic": (0.55, 0.55, 0.58), "piercing": (0.75, 0.75, 0.8), "explosive": (0.85, 0.55, 0.15),
+                "fire": (0.75, 0.15, 0.1), "cold": (0.6, 0.85, 0.95), "lightning": (0.9, 0.85, 0.2),
+                "aetheric": (0.3, 0.6, 0.65), "entropic": (0.35, 0.15, 0.45), "pale": (0.85, 0.83, 0.75)}
+DAMAGE_CATEGORY = {"kinetic": "physical", "piercing": "physical", "explosive": "physical",
+                   "fire": "elemental", "cold": "elemental", "lightning": "elemental",
+                   "aetheric": "esoteric", "entropic": "esoteric", "pale": "esoteric"}
+for _dt, _c in DAMAGE_TYPES.items():
+    MATERIALS.setdefault("gem_" + _dt, (_c, 0.15, 0.0))
+    MATERIALS["tome_" + _dt] = (tuple(v * 0.45 for v in _c), 0.8, 0.0)
+MATERIALS.update({
+    "tome_neutral": ((0.3, 0.2, 0.13), 0.8, 0.0),
+    "gem_neutral": ((0.9, 0.9, 0.9), 0.15, 0.0),
+    "slate_stone": ((0.2, 0.21, 0.23), 0.85, 0.0),
+    "slate_tag": ((0.5, 0.8, 1.0), 0.5, 0.0),
+    "slate_rarity": ((0.9, 0.9, 0.9), 0.4, 0.6),
+    "glow_lens": ((0.75, 0.9, 1.0), 0.05, 0.0),
+    "gold": ((0.95, 0.78, 0.3), 0.3, 1.0),
+})
+
+SLATE_TILE = 0.05
+
+
+def build_slate_tile(root):
+    """One Fate Board cell, centred on the origin; tiles sit edge to edge at SLATE_TILE spacing."""
+    k = Kit(root, "SlateTile", IDENTITY)
+    h, e = SLATE_TILE * 0.5, SLATE_TILE * 0.5 - 0.004
+    sq = lambda r, z: [(r, r, z), (-r, r, z), (-r, -r, z), (r, -r, z)]
+    k.add("slate_stone", loft([sq(h - 0.001, 0.0), sq(h - 0.001, 0.008), sq(e, 0.012)]))
+    k.add("slate_rarity", loft([sq(h - 0.0005, 0.0035), sq(h - 0.0005, 0.0055)]))
+    k.ring("slate_tag", (0, 0, 0.0122), 0.012, 0.012, 0.0012, "xy", 20)
+    for a in (0, 90):
+        k.box("slate_tag", (0.026, 0.0024, 0.0012), (0, 0, 0.0122), rz=a + 45)
+    k.build()
+
+
+def build_slate_socket(root):
+    k = Kit(root, "SlateSocket", IDENTITY)
+    k.add("brass", lathe([(0.0, 0.0145), (0.003, 0.0145), (0.004, 0.0115), (0.0012, 0.0115), (0.0012, 0.0)], 20, False), at(z=0.012))
+    for i in range(6):
+        a = 2 * math.pi * i / 6
+        k.add("brass", sphere(0.0016, 6, 3), at(math.cos(a) * 0.013, math.sin(a) * 0.013, 0.0155))
+    k.build()
+
+
+def build_lens(root, size):
+    r = {"small": 0.012, "medium": 0.016, "large": 0.02}[size]
+    k = Kit(root, "Lens_" + size.capitalize(), IDENTITY)
+    teeth = []
+    n = 16 + 4 * ("small", "medium", "large").index(size)
+    for i in range(n * 2):
+        a = math.pi * i / n
+        rr = r + (0.0035 if i % 2 else 0.002)
+        teeth.append((math.cos(a) * rr, math.sin(a) * rr))
+    k.add("brass", prism(teeth, 0.004), at(z=0.002, rx=-90))
+    k.add("darksteel", lathe([(0.0, r + 0.0005), (0.0045, r + 0.0005)], 24, False))
+    k.add("glow_lens", lathe([(0.001, r), (0.0045, r * 0.98), (0.0065, r * 0.7), (0.0072, 0.0)], 24))
+    k.build()
+
+
+def build_tome(root, dtype):
+    """Closed spellbook lying flat, cover up; emblem plate shape follows the damage category."""
+    k = Kit(root, "Tome_" + dtype.capitalize(), IDENTITY)
+    cover = "tome_" + dtype
+    w, d, t = 0.15, 0.2, 0.045
+    k.box(cover, (w, d, 0.006), (0, 0, t - 0.003))
+    k.box(cover, (w, d, 0.006), (0, 0, 0.003))
+    k.box("paper", (w - 0.008, d - 0.01, t - 0.012), (0.003, 0, t / 2))
+    k.add(cover, lathe([(-d / 2, 0.012), (d / 2, 0.012)], 10), at(-w / 2 + 0.004, 0, t / 2, rx=90) @ Matrix.Diagonal((1, 1.9, 1, 1)))
+    for y in (-0.06, 0.06):
+        k.add("brass", lathe([(-0.006, 0.0135), (0.006, 0.0135)], 10, False), at(-w / 2 + 0.004, y, t / 2, rx=90) @ Matrix.Diagonal((1, 1.9, 1, 1)))
+    for x in (w / 2 - 0.012,):
+        for y in (d / 2 - 0.012, -d / 2 + 0.012):
+            k.box("brass", (0.026, 0.026, t + 0.002), (x, y, t / 2))
+    k.box("brass", (0.02, 0.03, t + 0.004), (w / 2 - 0.004, 0, t / 2))
+    category = DAMAGE_CATEGORY.get(dtype, "neutral")
+    if category == "physical":
+        _flat(k, "brass", [(-0.03, -0.03), (0.03, -0.03), (0.03, 0.03), (-0.03, 0.03)], 0.003, t + 0.0015)
+    elif category == "elemental":
+        _flat(k, "brass", [(0.0, -0.042), (0.034, 0.0), (0.0, 0.042), (-0.034, 0.0)], 0.003, t + 0.0015)
+    elif category == "esoteric":
+        k.add("brass", lathe([(0.0, 0.034), (0.003, 0.034)], 24, False), at(z=t))
+    else:
+        k.ring("brass", (0, 0, t + 0.002), 0.03, 0.03, 0.0025, "xy", 24)
+    _setting(k, "gem_" + dtype, (0, 0, t + 0.003), 0.011, axis_rx=0)
+    k.build()
+
+
+GOLD_PILES = {"tiny": 3, "small": 12, "medium": 32, "large": 75}
+
+
+def build_gold(root, size):
+    import random
+    rng = random.Random(7 + len(size))
+    k = Kit(root, "Gold_" + size.capitalize(), IDENTITY)
+    count = GOLD_PILES[size]
+    spread = 0.015 + 0.008 * math.sqrt(count)
+    heights = {}
+    for i in range(count):
+        ang, dist = rng.uniform(0, 2 * math.pi), spread * math.sqrt(rng.random())
+        x, y = math.cos(ang) * dist, math.sin(ang) * dist
+        cell = (round(x / 0.014), round(y / 0.014))
+        z = heights.get(cell, 0.0) + 0.0013
+        cap = (1 - dist / spread) ** 0.7 * 0.018 * math.sqrt(count) + 0.004
+        if z > cap:
+            continue
+        heights[cell] = z + 0.0024
+        m = at(x, y, z, rx=rng.uniform(-12, 12) * (z > 0.002), ry=rng.uniform(-12, 12) * (z > 0.002), rz=rng.uniform(0, 360))
+        k.add("gold", lathe([(-0.0012, 0.0115), (-0.0008, 0.012), (0.0008, 0.012), (0.0012, 0.0115)], 12, False), m)
+        k.add("gold", lathe([(-0.0013, 0.0035), (0.0013, 0.0035)], 6, False), m)
+    if size == "large":
+        k.add("gold", prism([(-0.03, 0.0), (0.03, 0.0), (0.025, 0.014), (-0.025, 0.014)], 0.022), at(0.01, 0.0, max(heights.values()) * 0.6, rz=30))
+    k.build()
+
+
+BUILDERS["slate_tile"] = ("SlateTile", build_slate_tile, "Slate tile", "slate", False)
+BUILDERS["slate_socket"] = ("SlateSocket", build_slate_socket, "Slate socket", "slate", False)
+for _size in ("small", "medium", "large"):
+    BUILDERS["lens_" + _size] = ("Lens_" + _size.capitalize(), (lambda sz: lambda r: build_lens(r, sz))(_size), _size.capitalize() + " Lens", "lens", False)
+for _dt in list(DAMAGE_TYPES) + ["neutral"]:
+    BUILDERS["tome_" + _dt] = ("Tome_" + _dt.capitalize(), (lambda d: lambda r: build_tome(r, d))(_dt), _dt, "tome", False)
+for _size in GOLD_PILES:
+    BUILDERS["gold_" + _size] = ("Gold_" + _size.capitalize(), (lambda sz: lambda r: build_gold(r, sz))(_size), _size, "gold", False)
+
 def collection_for(name):
     col = bpy.data.collections.get("WPN_" + name)
     if col:
@@ -1531,12 +1658,13 @@ def write_manifest(folder, name, entries):
         json.dump(dict(sorted(manifest.items())), f, indent=2)
 
 
-EQUIPMENT_DIR = os.path.join(PROJECT_ROOT, "assets", "models", "equipment")
+FOLDERS = {fam: ("equipment", "equipment_manifest.json") for fam in EQUIPMENT_FAMILIES}
+FOLDERS.update({fam: ("items", "items_manifest.json") for fam in ITEM_FAMILIES})
 
 
 def main():
     keys = BUILD or list(BUILDERS)
-    weapons, equipment = {}, {}
+    manifests = {}
     for i, key in enumerate(keys):
         name, builder, weapon_type, family, hide_hand = BUILDERS[key]
         col = collection_for(name)
@@ -1545,28 +1673,30 @@ def main():
         root.empty_display_size = 0.05
         col.objects.link(root)
         builder(root)
-        is_equipment = family in EQUIPMENT_FAMILIES
-        folder = EQUIPMENT_DIR if is_equipment else EXPORT_DIR
-        entry = {"file": "res://assets/models/%s/%s.glb" % ("equipment" if is_equipment else "weapons", key), "family": family}
-        if is_equipment:
-            entry["base" if family == "body_armour" else "display_name"] = weapon_type
-        else:
+        sub, manifest_name = FOLDERS.get(family, ("weapons", "weapons_manifest.json"))
+        folder = os.path.join(PROJECT_ROOT, "assets", "models", sub)
+        entry = {"file": "res://assets/models/%s/%s.glb" % (sub, key), "family": family}
+        if sub == "weapons":
             entry.update({"weapon_type": weapon_type, "hide_hand": hide_hand})
+        elif family == "body_armour":
+            entry["base"] = weapon_type
+        elif family in ("tome", "gold"):
+            entry["damage_type" if family == "tome" else "size"] = weapon_type
+        else:
+            entry["display_name"] = weapon_type
         for child in root.children:
             if child.type == "EMPTY":
                 entry[child.name.split(".")[0]] = _godot(child.location)
-        (equipment if is_equipment else weapons)[key] = entry
+        manifests.setdefault((folder, manifest_name), {})[key] = entry
         if EXPORT:
             export(root, os.path.join(folder, key + ".glb"))
-        if is_equipment:
-            j = list(k for k in keys if BUILDERS[k][3] in EQUIPMENT_FAMILIES).index(key)
-            root.location = ((j % 10) * 0.5, 3.0, -(j // 10) * 0.9)
-        else:
-            root.location = ((i % 12) * 0.3, 0.0, -(i // 12) * 1.6)
-    if EXPORT and weapons:
-        write_manifest(EXPORT_DIR, "weapons_manifest.json", weapons)
-    if EXPORT and equipment:
-        write_manifest(EQUIPMENT_DIR, "equipment_manifest.json", equipment)
+        group = [k for k in keys if FOLDERS.get(BUILDERS[k][3], ("weapons",))[0] == sub]
+        j = group.index(key)
+        offset = {"weapons": 0.0, "equipment": 3.0, "items": 5.0}[sub]
+        root.location = ((j % 12) * (0.3 if sub == "weapons" else 0.5), offset, -(j // 12) * (1.6 if sub == "weapons" else 0.9))
+    if EXPORT:
+        for (folder, manifest_name), entries in manifests.items():
+            write_manifest(folder, manifest_name, entries)
     print("Aether models built:", ", ".join(keys))
 
 
