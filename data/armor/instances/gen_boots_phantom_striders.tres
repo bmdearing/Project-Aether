@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="Armor" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_j51bh"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_hr4wh"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_hr4wh"]
+
+[resource]
+script = ExtResource("2_hr4wh")
+evasion_value = 270.0
+ward_value = 120.0
+item_id = "gen_boots_phantom_striders"
+display_name = "Phantom Striders"
+equip_slot = 3
+max_sockets = 2
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 91
+base_line_id = "boots_line6"
+stat_requirement = 0
+stat_requirement_value = 45.5
+level_requirement = 92

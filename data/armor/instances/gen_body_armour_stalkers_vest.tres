@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_pbwm8")
-evasion_value = 32.0
+evasion_value = 244.0
 item_id = "gen_body_armour_stalkers_vest"
 display_name = "Stalker's Vest"
 equip_slot = 1

@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_om31h")
-evasion_value = 60.0
+evasion_value = 449.0
 item_id = "gen_boots_wraiths_treads"
 display_name = "Wraith's Treads"
 equip_slot = 3

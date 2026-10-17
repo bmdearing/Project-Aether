@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_pt5nk")
-armor_value = 5.0
-evasion_value = 5.0
+armor_value = 24.0
+evasion_value = 36.0
 item_id = "gen_helmet_crude_cap"
 display_name = "Crude Cap"
 max_sockets = 1

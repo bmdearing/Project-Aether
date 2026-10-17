@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_frkfb")
 block_chance = 0.15
-evasion_value = 6.0
+evasion_value = 44.0
 item_id = "gen_buckler_duelists_buckler"
 display_name = "Duelist's Buckler"
 equip_slot = 6

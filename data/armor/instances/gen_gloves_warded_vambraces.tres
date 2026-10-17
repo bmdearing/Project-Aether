@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_08j2s"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_6ju1e"]
+
+[resource]
+script = ExtResource("2_6ju1e")
+armor_value = 71.0
+ward_value = 39.0
+item_id = "gen_gloves_warded_vambraces"
+display_name = "Warded Vambraces"
+equip_slot = 2
+max_sockets = 2
+flavor_text = "Ward/Armor Hybrid"
+item_level = 53
+base_line_id = "gloves_line6"
+stat_requirement = 0
+stat_requirement_value = 26.5
+level_requirement = 44

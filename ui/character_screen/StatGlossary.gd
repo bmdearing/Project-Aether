@@ -105,7 +105,7 @@ const EXPLAIN := {
 	"amulet_increased_ward": "Raises all of your Ward (from every item). Adds to the increased Ward on your armour pieces.",
 	"esoteric_penetration": "Your Aetheric, Entropic and Pale hits treat the enemy's Esoteric Resistance as this much lower.",
 	"phys_as_elemental": "This share of Physical damage you take arrives split evenly as Fire, Cold and Lightning, so Resistances apply to it rather than Armour.",
-	"hybrid_defense_life": "Adds this much Life, plus Armour or Evasion (40% of it) or Ward (120% of it), whichever the item mainly has.",
+	"hybrid_defense_life": "Adds this much Life, plus Armour (200% of it), Evasion (300%) or Ward (120%), whichever the item mainly has.",
 	"additional_curses": "Enemies can hold this many more of your curses at once (normally one).",
 	"minion_damage": "Your minions deal more damage.",
 	"minion_attack_speed": "Your minions attack faster.",

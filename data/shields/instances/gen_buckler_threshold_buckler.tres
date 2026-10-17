@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_bms6j"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_r5pkk"]
+
+[resource]
+script = ExtResource("2_r5pkk")
+block_chance = 0.24
+evasion_value = 170.0
+ward_value = 92.0
+item_id = "gen_buckler_threshold_buckler"
+display_name = "Threshold Buckler"
+equip_slot = 6
+max_sockets = 3
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 66
+base_line_id = "buckler_line3"
+stat_requirement = 0
+stat_requirement_value = 33
+level_requirement = 56
+agility_requirement = 55

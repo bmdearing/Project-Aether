@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_hl80d")
-armor_value = 24.0
+armor_value = 119.0
 item_id = "gen_boots_heavy_boots"
 display_name = "Heavy Boots"
 equip_slot = 3

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_3anxt"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_tsklu"]
+
+[resource]
+script = ExtResource("2_tsklu")
+block_chance = 0.15
+evasion_value = 48.0
+ward_value = 20.0
+item_id = "gen_buckler_mystic_buckler"
+display_name = "Mystic Buckler"
+equip_slot = 6
+max_sockets = 1
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 14
+base_line_id = "buckler_line3"
+stat_requirement = 0
+stat_requirement_value = 7
+level_requirement = 8
+agility_requirement = 5

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_xasy4"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_d2eg6"]
+
+[resource]
+script = ExtResource("2_d2eg6")
+evasion_value = 41.0
+ward_value = 12.0
+item_id = "gen_boots_mystic_slippers"
+display_name = "Mystic Slippers"
+equip_slot = 3
+max_sockets = 1
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 14
+base_line_id = "boots_line6"
+stat_requirement = 0
+stat_requirement_value = 7
+level_requirement = 8

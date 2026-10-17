@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_e00pu")
-evasion_value = 57.0
+evasion_value = 427.0
 item_id = "gen_boots_veilstep_treads"
 display_name = "Veilstep Treads"
 equip_slot = 3

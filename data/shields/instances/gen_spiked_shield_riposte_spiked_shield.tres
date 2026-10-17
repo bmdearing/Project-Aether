@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_l0l6c")
 block_chance = 0.24
-armor_value = 25.0
+armor_value = 126.0
 item_id = "gen_spiked_shield_riposte_spiked_shield"
 display_name = "Riposte Spiked Shield"
 equip_slot = 6

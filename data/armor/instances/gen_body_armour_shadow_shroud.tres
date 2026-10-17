@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_q6ywk")
-evasion_value = 26.0
+evasion_value = 193.0
 ward_value = 76.0
 item_id = "gen_body_armour_shadow_shroud"
 display_name = "Shadow Shroud"

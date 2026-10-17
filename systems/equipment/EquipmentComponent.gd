@@ -340,13 +340,16 @@ static func is_misc_key(key: String) -> bool:
 ## "+N to Life and the base's own defence": N flat Life, plus N x
 ## HYBRID_DEFENCE_SHARE of whichever defence the item itself has most of
 ## (v5.5 bases are small next to Life, and Ward is a pool like Life).
-const HYBRID_DEFENCE_SHARE := {"flat_armor": 0.4, "flat_evasion": 0.4, "flat_ward": 1.2}
-## Ward bases run about this many times Armour and Evasion bases, so "most of" compares like for like.
-const WARD_BASE_SCALE := 3.35
+const HYBRID_DEFENCE_SHARE := {"flat_armor": 2.0, "flat_evasion": 3.0, "flat_ward": 1.2}
+## Each defence's base scale (top body: Armour 855, Evasion 1283, Ward 572), so
+## "most of" compares like for like.
+const DEFENCE_BASE_SCALE := {"flat_armor": 5.0, "flat_evasion": 7.5, "flat_ward": 3.35}
 static func _add_hybrid_defense(totals: Dictionary, item: Item, value: float) -> void:
 	totals["flat_life"] = totals.get("flat_life", 0.0) + value
-	var ward = item.get("ward_value")
-	var defences := {"flat_armor": item.get("armor_value"), "flat_evasion": item.get("evasion_value"), "flat_ward": float(ward) / WARD_BASE_SCALE if ward != null else null}
+	var defences := {}
+	for k in DEFENCE_BASE_SCALE:
+		var v = item.get(k.trim_prefix("flat_") + "_value")
+		defences[k] = float(v) / DEFENCE_BASE_SCALE[k] if v != null else null
 	var best := "flat_armor"
 	for k in defences:
 		if defences[k] != null and float(defences[k]) > float(defences[best] if defences[best] != null else 0.0):

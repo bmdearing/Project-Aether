@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("2_kuomw")
-evasion_value = 127.0
+evasion_value = 956.0
 item_id = "gen_body_armour_wraiths_carapace"
 display_name = "Wraith's Carapace"
 equip_slot = 1

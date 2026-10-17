@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_fdojm")
-evasion_value = 17.0
+evasion_value = 129.0
 item_id = "gen_boots_hunters_boots"
 display_name = "Hunter's Boots"
 equip_slot = 3

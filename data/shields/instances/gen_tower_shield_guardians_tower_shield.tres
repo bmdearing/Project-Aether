@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_hp2h1")
 block_chance = 0.21
-armor_value = 31.0
+armor_value = 156.0
 item_id = "gen_tower_shield_guardians_tower_shield"
 display_name = "Guardian's Tower Shield"
 equip_slot = 6

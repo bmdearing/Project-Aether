@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_hbi0k")
-armor_value = 14.0
+armor_value = 70.0
 ward_value = 35.0
 item_id = "gen_body_armour_warded_coat"
 display_name = "Warded Coat"

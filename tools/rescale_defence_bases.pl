@@ -12,8 +12,8 @@ use warnings;
 my %GROWTH = (armor_value => 1.0247, evasion_value => 1.0247, ward_value => 1.03);
 # Top base line's value at item level 1, per slot group (0 Helmet, 1 Body, 2 Gloves, 3 Boots, S Shield).
 my %BASE = (
-	armor_value => {0 => 8.6, 1 => 19.0, 2 => 6.7, 3 => 6.7, S => 14.4},
-	evasion_value => {0 => 8.6, 1 => 19.0, 2 => 6.7, 3 => 6.7, S => 7.7},
+	armor_value => {0 => 43.0, 1 => 95.0, 2 => 33.5, 3 => 33.5, S => 72.0},
+	evasion_value => {0 => 64.5, 1 => 142.5, 2 => 50.0, 3 => 50.0, S => 58.0},
 	ward_value => {0 => 18.0, 1 => 40.0, 2 => 14.0, 3 => 14.0, S => 30.0},
 );
 

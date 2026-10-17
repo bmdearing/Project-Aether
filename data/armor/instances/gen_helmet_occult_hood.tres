@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_5o8fx"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_pt5nk"]
+
+[resource]
+script = ExtResource("2_pt5nk")
+evasion_value = 39.0
+ward_value = 11.0
+item_id = "gen_helmet_occult_hood"
+display_name = "Occult Hood"
+max_sockets = 1
+flavor_text = "Evasion/Ward Hybrid"
+base_line_id = "helmet_line6"
+stat_requirement = 0
+stat_requirement_value = 0.5

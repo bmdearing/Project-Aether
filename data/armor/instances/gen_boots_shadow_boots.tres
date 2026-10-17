@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_x7ulv")
-evasion_value = 24.0
+evasion_value = 178.0
 item_id = "gen_boots_shadow_boots"
 display_name = "Shadow Boots"
 equip_slot = 3

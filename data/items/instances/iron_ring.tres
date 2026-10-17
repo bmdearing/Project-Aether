@@ -5,11 +5,11 @@
 
 [sub_resource type="Resource" id="SubResource_1"]
 script = ExtResource("2")
-description = "+5 Armour (implicit)"
+description = "+25 Armour (implicit)"
 stat_key = "flat_armor"
-value = 5.0
-value_min = 4.0
-value_max = 6.0
+value = 25.0
+value_min = 20.0
+value_max = 30.0
 is_prefix = false
 is_implicit = true
 

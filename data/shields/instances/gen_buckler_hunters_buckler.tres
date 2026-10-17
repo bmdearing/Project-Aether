@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_cpenl")
 block_chance = 0.19
-evasion_value = 20.0
+evasion_value = 150.0
 item_id = "gen_buckler_hunters_buckler"
 display_name = "Hunter's Buckler"
 equip_slot = 6

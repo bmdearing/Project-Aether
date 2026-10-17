@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("2_qa7ut")
-armor_value = 128.0
+armor_value = 639.0
 item_id = "gen_body_armour_bastion_plate"
 display_name = "Bastion Plate"
 equip_slot = 1

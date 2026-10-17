@@ -6,7 +6,7 @@
 
 [resource]
 script = ExtResource("2_8yvlj")
-evasion_value = 134.0
+evasion_value = 1004.0
 item_id = "gen_body_armour_specters_coat"
 display_name = "Specter's Coat"
 equip_slot = 1

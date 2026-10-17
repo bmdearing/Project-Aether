@@ -7,9 +7,10 @@ class_name DefenceWiki
 const WIDTH := 980.0
 const LIST_HEIGHT := 590.0
 const HEAD_COLOR := Color(0.6, 0.85, 0.75)
-const ARMOUR_VALUES := [500.0, 2000.0, 5000.0, 10000.0]
-const HIT_SIZES := [100.0, 500.0, 2000.0]
-const EVASION_VALUES := [1000.0, 3000.0, 6000.0, 12000.0]
+const ARMOUR_VALUES := [250.0, 750.0, 1500.0, 3000.0]
+## Hits in level-1 units: [label, size].
+const HIT_SIZES := [["Standard hit", 14.0], ["Elite hit", 36.0], ["Big slam", 100.0]]
+const EVASION_VALUES := [750.0, 2250.0, 4500.0, 9000.0]
 
 ## Section titles in the order shown, for tests.
 var shown: Array[String] = []

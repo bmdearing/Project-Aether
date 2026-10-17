@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_svxfj"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_e20pn"]
+
+[resource]
+script = ExtResource("2_e20pn")
+armor_value = 35.0
+ward_value = 16.0
+item_id = "gen_helmet_warded_helm"
+display_name = "Warded Helm"
+max_sockets = 1
+flavor_text = "Ward/Armor Hybrid"
+item_level = 14
+base_line_id = "helmet_line7"
+stat_requirement = 0
+stat_requirement_value = 7
+level_requirement = 8

@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_mvro6")
 block_chance = 0.28
-armor_value = 97.0
+armor_value = 487.0
 item_id = "gen_tower_shield_colossus_tower_shield"
 display_name = "Colossus Tower Shield"
 equip_slot = 6

@@ -28,9 +28,10 @@ const STAT_WORD_RENAMES := {"Prowess": "Strength", "Finesse": "Agility", "Resolv
 ## Base defence revisions: 2 = v4.94 multiplied every Armour base (and flat
 ## Armour rolls) by ARMOUR_RESCALE and rebalanced hybrids; 3 = v4.95 halved
 ## Ward; 4 = v5.5 put Armour, Evasion and Ward bases on one small curve
-## (tools/rescale_defence_bases.pl) with levelled flat-defence tables. Items
+## (tools/rescale_defence_bases.pl) with levelled flat-defence tables; 5 = v5.5.2
+## showed Armour x5 and Evasion x7.5 (Evasion > Armour > Ward). Items
 ## saved before the current one take their base's defences on load.
-const ARMOUR_SCALE_VERSION := 4
+const ARMOUR_SCALE_VERSION := 5
 ## v5.5 flat defence modifiers, re-fitted on load (_migrate_v55_modifiers()).
 const FLAT_DEFENCE_KEYS := ["flat_armor", "flat_evasion", "flat_ward"]
 const ARMOUR_RESCALE := 3124.0 / 417.0
@@ -188,7 +189,7 @@ static func from_dict(d: Dictionary) -> Item:
 				a.value_min *= ARMOUR_RESCALE
 				a.value_max *= ARMOUR_RESCALE
 				a.description = "%s (Tier %d)" % [ItemRoller.describe_value(CraftingResolver._template_for(a), a.stat_key, a.value), a.tier]
-	if defence_version < 4:
+	if defence_version < 5:
 		_migrate_v55_modifiers(item, base)
 	item.sockets = d.get("sockets", 0)
 	item.sockets_rolled = d.get("sockets_rolled", false)

@@ -1,0 +1,21 @@
+[gd_resource type="Resource" script_class="Shield" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_riyp2"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_gngtm"]
+
+[resource]
+script = ExtResource("2_gngtm")
+block_chance = 0.17
+armor_value = 81.0
+ward_value = 39.0
+item_id = "gen_warded_barrier_runic_barrier"
+display_name = "Runic Barrier"
+equip_slot = 6
+max_sockets = 2
+flavor_text = "Ward/Armor Hybrid"
+item_level = 27
+base_line_id = "warded_barrier_line2"
+stat_requirement = 0
+stat_requirement_value = 13.5
+level_requirement = 16
+strength_requirement = 10

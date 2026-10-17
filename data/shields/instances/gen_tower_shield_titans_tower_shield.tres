@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_h83nr")
 block_chance = 0.28
-armor_value = 72.0
+armor_value = 358.0
 item_id = "gen_tower_shield_titans_tower_shield"
 display_name = "Titan's Tower Shield"
 equip_slot = 6

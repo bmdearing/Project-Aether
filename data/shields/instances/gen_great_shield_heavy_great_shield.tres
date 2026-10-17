@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_sr7ao")
 block_chance = 0.21
-armor_value = 51.0
+armor_value = 256.0
 item_id = "gen_great_shield_heavy_great_shield"
 display_name = "Heavy Great Shield"
 equip_slot = 6

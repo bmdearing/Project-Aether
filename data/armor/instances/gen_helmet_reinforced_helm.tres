@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_h20g4")
-armor_value = 7.0
+armor_value = 33.0
 item_id = "gen_helmet_reinforced_helm"
 display_name = "Reinforced Helm"
 max_sockets = 1

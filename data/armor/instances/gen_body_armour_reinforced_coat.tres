@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_qmvad")
-armor_value = 16.0
+armor_value = 80.0
 item_id = "gen_body_armour_reinforced_coat"
 display_name = "Reinforced Coat"
 equip_slot = 1

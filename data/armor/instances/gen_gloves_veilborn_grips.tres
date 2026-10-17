@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_0eaqs"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_dmj40"]
+
+[resource]
+script = ExtResource("2_dmj40")
+evasion_value = 201.0
+ward_value = 84.0
+item_id = "gen_gloves_veilborn_grips"
+display_name = "Veilborn Grips"
+equip_slot = 2
+max_sockets = 2
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 79
+base_line_id = "gloves_line5"
+stat_requirement = 0
+stat_requirement_value = 39.5
+level_requirement = 68

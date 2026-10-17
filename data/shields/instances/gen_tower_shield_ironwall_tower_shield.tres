@@ -14,7 +14,7 @@ is_implicit = true
 [resource]
 script = ExtResource("2_r0r3m")
 block_chance = 0.28
-armor_value = 89.0
+armor_value = 447.0
 item_id = "gen_tower_shield_ironwall_tower_shield"
 display_name = "Ironwall Tower Shield"
 equip_slot = 6

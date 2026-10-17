@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_rqpu8")
-armor_value = 46.0
-evasion_value = 47.0
+armor_value = 230.0
+evasion_value = 353.0
 item_id = "gen_body_armour_rangers_plate"
 display_name = "Ranger's Plate"
 equip_slot = 1

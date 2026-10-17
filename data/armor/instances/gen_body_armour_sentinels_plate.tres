@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_ai8br")
-armor_value = 48.0
+armor_value = 239.0
 item_id = "gen_body_armour_sentinels_plate"
 display_name = "Sentinel's Plate"
 equip_slot = 1

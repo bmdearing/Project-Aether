@@ -743,7 +743,7 @@ func _attacker_level(source: Node) -> int:
 
 ## Elemental Earth (Arkanus): Stone Skin's Armour and less Elemental and
 ## Esoteric damage taken.
-const STONE_SKIN_ARMOUR := 300.0
+const STONE_SKIN_ARMOUR := 1500.0
 const STONE_SKIN_MAGIC_REDUCTION := 0.12
 
 const BLOCK_CHANCE_CAP := 0.75

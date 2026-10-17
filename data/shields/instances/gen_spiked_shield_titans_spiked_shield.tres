@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_pvamu")
 block_chance = 0.28
-armor_value = 40.0
+armor_value = 199.0
 item_id = "gen_spiked_shield_titans_spiked_shield"
 display_name = "Titan's Spiked Shield"
 equip_slot = 6

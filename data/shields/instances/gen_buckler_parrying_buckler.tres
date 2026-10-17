@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_jsdi2")
 block_chance = 0.21
-evasion_value = 17.0
+evasion_value = 129.0
 item_id = "gen_buckler_parrying_buckler"
 display_name = "Parrying Buckler"
 equip_slot = 6

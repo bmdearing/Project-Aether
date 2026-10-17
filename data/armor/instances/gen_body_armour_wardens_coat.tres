@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_gxbjs")
-armor_value = 26.0
+armor_value = 131.0
 item_id = "gen_body_armour_wardens_coat"
 display_name = "Warden's Coat"
 equip_slot = 1

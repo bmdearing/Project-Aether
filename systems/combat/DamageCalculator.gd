@@ -54,7 +54,7 @@ static func physical_mitigation(armor: float, hit_damage: float) -> float:
 ## by the attacker's AreaLevel.damage_scale(), so bases stay small while
 ## monster damage compounds. Tier damage and the level-gap multiplier stay in
 ## the hit, so they still punch through.
-const PLAYER_ARMOUR_HIT_FACTOR := 10.0
+const PLAYER_ARMOUR_HIT_FACTOR := 50.0
 const PLAYER_ARMOUR_CAP := 0.9
 
 static func player_physical_mitigation(armor: float, hit_damage: float, attacker_level: int) -> float:
@@ -92,9 +92,9 @@ static func deflection_mitigation(evasion: float) -> float:
 
 ## The player's Evasion (v5.5): same curves and caps on the smaller base scale.
 ## Enemies keep the divisors above.
-const PLAYER_DODGE_DIVISOR := 400.0
-const PLAYER_DEFLECTION_CHANCE_DIVISOR := 246.0
-const PLAYER_DEFLECTION_MITIGATION_DIVISOR := 1368.0
+const PLAYER_DODGE_DIVISOR := 3000.0
+const PLAYER_DEFLECTION_CHANCE_DIVISOR := 1845.0
+const PLAYER_DEFLECTION_MITIGATION_DIVISOR := 10260.0
 
 static func player_dodge_chance(evasion: float) -> float:
 	return minf(evasion / (evasion + PLAYER_DODGE_DIVISOR), DODGE_CHANCE_CAP) if evasion > 0.0 else 0.0

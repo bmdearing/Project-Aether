@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_hr4wh")
-armor_value = 60.0
+armor_value = 301.0
 item_id = "gen_boots_colossus_boots"
 display_name = "Colossus Boots"
 equip_slot = 3

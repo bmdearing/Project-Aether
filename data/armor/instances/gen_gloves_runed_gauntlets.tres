@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_si06q"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_eb5q5"]
+
+[resource]
+script = ExtResource("2_eb5q5")
+armor_value = 20.0
+ward_value = 8.0
+item_id = "gen_gloves_runed_gauntlets"
+display_name = "Runed Gauntlets"
+equip_slot = 2
+max_sockets = 1
+flavor_text = "Ward/Armor Hybrid"
+base_line_id = "gloves_line6"
+stat_requirement = 0
+stat_requirement_value = 0.5

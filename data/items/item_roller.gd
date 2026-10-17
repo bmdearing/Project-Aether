@@ -118,9 +118,9 @@ const AFFIX_POOL := [
 	# was this entry's own invented 16-20%).
 	{"stat_key": "elemental_dmg_increased", "tier1_min": 24.0, "tier1_max": 30.0, "desc": "+%d%% increased Elemental damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["fire", "cold", "lightning"]},
 	{"stat_key": "esoteric_dmg_increased", "tier1_min": 24.0, "tier1_max": 30.0, "desc": "+%d%% increased Esoteric damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["aetheric", "entropic", "pale"]},
-	{"stat_key": "flat_armor", "defense": "armor", "tier1_min": 15.0, "tier1_max": 17.0, "desc": "+%d Armor", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["armor"]},
+	{"stat_key": "flat_armor", "defense": "armor", "tier1_min": 75.0, "tier1_max": 85.0, "desc": "+%d Armor", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["armor"]},
 	{"stat_key": "flat_ward", "defense": "ward", "tier1_min": 45.0, "tier1_max": 52.0, "desc": "+%d Ward", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["ward"]},
-	{"stat_key": "flat_evasion", "defense": "evasion", "tier1_min": 15.0, "tier1_max": 17.0, "desc": "+%d Evasion", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["evasion"]},
+	{"stat_key": "flat_evasion", "defense": "evasion", "tier1_min": 112.0, "tier1_max": 128.0, "desc": "+%d Evasion", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["evasion"]},
 	{"stat_key": "flat_resilience", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Resilience", "applies_to": [], "brand_tags": ["resilience"]},
 	{"stat_key": "skill_cooldown_reduced", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% reduced skill cooldowns", "applies_to": ["armor"], "slots": [0], "brand_tags": ["skills"], "no_roll": true},
 	# Patch v3.8 Section 2 "Removed expressions" - max_life/life_regen/
@@ -495,7 +495,9 @@ static func _roll_tier(power_level: int, top_level: int = TOP_TIER_LEVEL) -> int
 const DAMAGE_PERCENT_TIERS := [[83, 191.0, 225.0], [80, 160.0, 190.0],[68, 128.0, 155.0], [56, 105.0, 127.0], [45, 85.0, 104.0], [34, 68.0, 84.0], [23, 53.0, 67.0], [12, 40.0, 52.0], [1, 30.0, 39.0]]
 ## Additional arrows / spell projectiles: +1, +2, +3.
 const ADDITIONAL_PROJECTILE_TIERS := [[75, 3.0, 3.0], [40, 2.0, 2.0], [1, 1.0, 1.0]]
-const FLAT_ARMOUR_EVASION_TIERS := [[83, 20.0, 23.0], [72, 15.0, 17.0], [61, 11.0, 13.0], [40, 6.0, 8.0], [21, 4.0, 5.0], [1, 2.0, 3.0]]
+## Displayed scale: Evasion > Armour > Ward (v5.5.2).
+const FLAT_ARMOUR_TIERS := [[83, 100.0, 115.0], [72, 75.0, 85.0], [61, 55.0, 65.0], [40, 30.0, 40.0], [21, 20.0, 25.0], [1, 10.0, 15.0]]
+const FLAT_EVASION_TIERS := [[83, 150.0, 172.0], [72, 112.0, 128.0], [61, 82.0, 98.0], [40, 45.0, 60.0], [21, 30.0, 38.0], [1, 15.0, 22.0]]
 const AMULET_DEFENCE_TIERS := [[83, 47.0, 50.0], [72, 44.0, 46.0], [61, 40.0, 43.0], [40, 37.0, 39.0], [21, 34.0, 36.0], [1, 30.0, 33.0]]
 const RESISTANCE_TIERS := [[83, 39.0, 48.0], [72, 33.0, 38.0], [61, 27.0, 32.0], [40, 22.0, 26.0], [21, 18.0, 21.0], [1, 15.0, 17.0]]
 const LEVELLED_TIERS := {
@@ -511,8 +513,8 @@ const LEVELLED_TIERS := {
 	"reload_speed": [[83, 31.0, 35.0], [72, 27.0, 30.0], [61, 22.0, 26.0], [40, 18.0, 21.0], [21, 14.0, 17.0], [1, 10.0, 13.0]],
 	# Flat defences follow the bases' curves (tools/rescale_defence_bases.pl):
 	# about 15% of the top body base at each tier's level.
-	"flat_armor": FLAT_ARMOUR_EVASION_TIERS,
-	"flat_evasion": FLAT_ARMOUR_EVASION_TIERS,
+	"flat_armor": FLAT_ARMOUR_TIERS,
+	"flat_evasion": FLAT_EVASION_TIERS,
 	"flat_ward": [[83, 62.0, 72.0], [72, 45.0, 52.0], [61, 32.0, 37.0], [40, 17.0, 20.0], [21, 10.0, 12.0], [1, 5.0, 6.0]],
 	"amulet_increased_armor": AMULET_DEFENCE_TIERS,
 	"amulet_increased_evasion": AMULET_DEFENCE_TIERS,

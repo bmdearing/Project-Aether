@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_weh2m")
-armor_value = 11.0
-evasion_value = 11.0
+armor_value = 56.0
+evasion_value = 83.0
 item_id = "gen_helmet_wardens_cap"
 display_name = "Warden's Cap"
 max_sockets = 2

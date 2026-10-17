@@ -13,7 +13,7 @@ is_implicit = true
 
 [resource]
 script = ExtResource("2_0tnq3")
-armor_value = 171.0
+armor_value = 854.0
 item_id = "gen_body_armour_bastion_warplate"
 display_name = "Bastion Warplate"
 equip_slot = 1

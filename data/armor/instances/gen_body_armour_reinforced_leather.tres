@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_w7rx2")
-armor_value = 14.0
-evasion_value = 15.0
+armor_value = 70.0
+evasion_value = 112.0
 item_id = "gen_body_armour_reinforced_leather"
 display_name = "Reinforced Leather"
 equip_slot = 1

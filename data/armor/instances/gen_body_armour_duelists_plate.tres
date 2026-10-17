@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_dwidn")
-armor_value = 76.0
-evasion_value = 76.0
+armor_value = 381.0
+evasion_value = 572.0
 item_id = "gen_body_armour_duelists_plate"
 display_name = "Duelist's Plate"
 equip_slot = 1

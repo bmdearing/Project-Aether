@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Armor" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_x70gv"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_fdi6c"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_fdi6c"]
+
+[resource]
+script = ExtResource("2_fdi6c")
+evasion_value = 348.0
+ward_value = 154.0
+item_id = "gen_helmet_phantom_cowl"
+display_name = "Phantom Cowl"
+max_sockets = 3
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 91
+base_line_id = "helmet_line6"
+stat_requirement = 0
+stat_requirement_value = 45.5
+level_requirement = 92

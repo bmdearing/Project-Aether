@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_fuoxf")
-armor_value = 13.0
+armor_value = 63.0
 item_id = "gen_boots_war_boots"
 display_name = "War Boots"
 equip_slot = 3

@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_ip3ty")
-armor_value = 127.0
+armor_value = 637.0
 item_id = "gen_body_armour_colossus_plate"
 display_name = "Colossus Plate"
 equip_slot = 1

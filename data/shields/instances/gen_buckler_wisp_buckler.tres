@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="Shield" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_pq33e"]
+[ext_resource type="Script" path="res://data/shields/shield.gd" id="2_nfy6x"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_nfy6x"]
+
+[resource]
+script = ExtResource("2_nfy6x")
+block_chance = 0.28
+evasion_value = 313.0
+ward_value = 193.0
+item_id = "gen_buckler_wisp_buckler"
+display_name = "Wisp Buckler"
+equip_slot = 6
+max_sockets = 3
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 91
+base_line_id = "buckler_line3"
+stat_requirement = 0
+stat_requirement_value = 45.5
+level_requirement = 92
+agility_requirement = 115

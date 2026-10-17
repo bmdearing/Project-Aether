@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="Armor" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_gkld4"]
+[ext_resource type="Script" path="res://data/armor/armor.gd" id="2_2rhut"]
+
+[resource]
+script = ExtResource("2_2rhut")
+evasion_value = 201.0
+ward_value = 84.0
+item_id = "gen_boots_veilborn_striders"
+display_name = "Veilborn Striders"
+equip_slot = 3
+max_sockets = 2
+flavor_text = "Evasion/Ward Hybrid"
+item_level = 79
+base_line_id = "boots_line6"
+stat_requirement = 0
+stat_requirement_value = 39.5
+level_requirement = 68

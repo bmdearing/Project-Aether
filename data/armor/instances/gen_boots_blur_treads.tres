@@ -5,7 +5,7 @@
 
 [resource]
 script = ExtResource("2_2rhut")
-evasion_value = 41.0
+evasion_value = 306.0
 item_id = "gen_boots_blur_treads"
 display_name = "Blur Treads"
 equip_slot = 3

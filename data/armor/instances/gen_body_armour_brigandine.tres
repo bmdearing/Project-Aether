@@ -5,8 +5,8 @@
 
 [resource]
 script = ExtResource("2_f732h")
-armor_value = 11.0
-evasion_value = 11.0
+armor_value = 55.0
+evasion_value = 83.0
 item_id = "gen_body_armour_brigandine"
 display_name = "Brigandine"
 equip_slot = 1

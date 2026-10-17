@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("2_tot1q")
 block_chance = 0.24
-armor_value = 70.0
+armor_value = 352.0
 item_id = "gen_great_shield_warlords_great_shield"
 display_name = "Warlord's Great Shield"
 equip_slot = 6
