@@ -605,10 +605,7 @@ func _fiery_sun() -> void:
 
 func _sun_blast(centre: Vector3) -> void:
 	var parent := get_parent()
-	SpellFx.shockwave(parent, centre + Vector3.UP * 0.1, SandArena.RADIUS, SUN_COLOR, 0.6)
-	SpellFx.flash(parent, centre + Vector3.UP * 2.0, SUN_COLOR, 14.0, 0.5)
-	SpellFx.light_pop(parent, centre + Vector3.UP * 3.0, SUN_COLOR, 10.0, 45.0, 0.9)
-	SpellFx.burst(parent, centre + Vector3.UP * 1.0, SUN_COLOR, 90, Vector2(8, 18), 0.9, Vector2(0.2, 0.5), 180.0, -4.0)
+	SunExplosion.spawn(parent, centre, SandArena.RADIUS)
 	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_heavy_impact), centre, 8.0, 0.6)
 	BossFx.sound(SoundLib.pick_random(SoundLib.library.boss_fire), centre, 6.0, 0.8)
 	var p := _target_player()

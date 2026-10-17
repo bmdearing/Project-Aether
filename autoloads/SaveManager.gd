@@ -119,6 +119,10 @@ func save_game() -> void:
 		"player_level": GameState.player_level,
 		"player_xp": GameState.player_xp,
 		"gold": GameState.gold,
+		"play_time": GameState.play_time,
+		"shop_stock": GameState.shop_stock.to_dict() if GameState.shop_stock else {},
+		"shop_stock_level": GameState.shop_stock_level,
+		"shop_stock_time": GameState.shop_stock_time,
 		"shield_on_rmb": GameState.shield_on_rmb,
 		"stance_page": GameState.stance_page,
 		"owned_ability_ids": GameState.owned_ability_ids,
@@ -221,6 +225,11 @@ func load_game() -> void:
 	GameState.player_level = int(parsed.get("player_level", GameState.player_level))
 	GameState.player_xp = float(parsed.get("player_xp", GameState.player_xp))
 	GameState.gold = int(parsed.get("gold", GameState.gold))
+	GameState.play_time = float(parsed.get("play_time", 0.0))
+	var shop_raw: Variant = parsed.get("shop_stock", {})
+	GameState.shop_stock = GridInventory.from_dict(shop_raw) if shop_raw is Dictionary and not shop_raw.is_empty() else null
+	GameState.shop_stock_level = int(parsed.get("shop_stock_level", 0))
+	GameState.shop_stock_time = float(parsed.get("shop_stock_time", 0.0))
 	GameState.shield_on_rmb = bool(parsed.get("shield_on_rmb", true))
 	GameState.stance_page = clampi(int(parsed.get("stance_page", 0)), 0, 1)
 	var ids = parsed.get("owned_ability_ids", [])

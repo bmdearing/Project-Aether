@@ -718,6 +718,8 @@ func _build_stairs(foot: Vector3, out: Vector3, rise: float, room: float) -> boo
 	body.add_to_group(&"stairs")
 	body.set_meta(&"out", out)
 	body.set_meta(&"rise", rise)
+	body.set_meta(&"steps", STAIR_STEPS)
+	body.set_meta(&"run", STAIR_RUN)
 	add_child(body)
 	body.global_position = foot
 	for i in STAIR_STEPS:
@@ -1403,12 +1405,14 @@ func _spawn_pack(unit_ids: Array[String], center: Vector3, forced_rarity: int = 
 			rolled = EnemyRarityComponent.roll_affixes(rarity)
 		EnemyRarityComponent.attach(enemy, member_rarity, rolled, members)
 		members.append(enemy)
+		enemy.pack = members
 		_spawn_enemy(enemy, center + offset)
 		# Archon: a twin with the same affixes (each has half the Life, 65% damage).
 		if member_rarity == Constants.EnemyRarity.ASCENDANT and rolled.any(func(x: EnemyAffix): return x.mechanic == EnemyRarityComponent.MECHANIC_ARCHON):
 			var twin := EnemyRoster.create_unit(unit_ids[i])
 			EnemyRarityComponent.attach(twin, member_rarity, rolled.duplicate(), members)
 			members.append(twin)
+			twin.pack = members
 			_spawn_enemy(twin, center + offset + Vector3(PACK_RING_RADIUS, 0, 0))
 
 ## Anything spawned without a rarity (the boss, summons) is Normal, so it can

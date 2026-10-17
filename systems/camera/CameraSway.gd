@@ -38,6 +38,14 @@ func _ready() -> void:
 func kick(amount: Vector3) -> void:
 	_kick += amount
 
+## Random jolts that die away over `seconds` (explosions, slams).
+var _shake := 0.0
+var _shake_decay := 0.0
+
+func shake(strength: float, seconds: float) -> void:
+	_shake = maxf(_shake, strength)
+	_shake_decay = _shake / maxf(seconds, 0.05)
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
 		_mouse_delta += event.relative
@@ -50,6 +58,9 @@ func _process(delta: float) -> void:
 	_mouse_delta = Vector2.ZERO
 	_current_rotation = _current_rotation.lerp(_target_rotation, clamp(sway_speed * delta, 0.0, 1.0))
 	_kick = _kick.lerp(Vector3.ZERO, clamp(kick_return_speed * delta, 0.0, 1.0))
+	if _shake > 0.0:
+		_kick += Vector3(randf_range(-1.0, 1.0), randf_range(-1.0, 1.0), randf_range(-0.5, 0.5)) * _shake
+		_shake = maxf(_shake - _shake_decay * delta, 0.0)
 	_camera.rotation.z = _current_rotation.z + _kick.z
 	_camera.rotation.x = _current_rotation.x + _kick.x
 	_camera.rotation.y = _kick.y

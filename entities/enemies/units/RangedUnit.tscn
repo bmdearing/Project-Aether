@@ -8,4 +8,4 @@
 [node name="RangedAttack" type="Node" parent="."]
 script = ExtResource("2")
 windup_duration = 0.5
-projectile_speed = 18.0
+projectile_speed = 30.0

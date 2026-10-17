@@ -33,6 +33,15 @@ const DEFAULT_MOVE_SPEED_MULTIPLIER := 0.75
 
 const AIM_FOV := 55.0
 const AIM_ZOOM_DURATION := 0.2
+## Scoped rifles zoom further and swap the gun model for a scope overlay once
+## the zoom finishes.
+const SCOPED_WEAPON_TYPES := ["Bolt Action Rifle"]
+const SCOPE_FOV := 22.0
+var _scope_layer: CanvasLayer
+var _scoped := false
+
+func is_scoped() -> bool:
+	return _scoped
 
 var is_active: bool = false
 var current_behavior: StanceBehavior = null
@@ -118,6 +127,9 @@ func _physics_process(delta: float) -> void:
 		_enter_stance()
 	elif Input.is_action_just_released("stance"):
 		_exit_stance()
+	# Swapped away from the scoped rifle mid-aim.
+	if _scoped and not SCOPED_WEAPON_TYPES.has(_player.get_active_weapon().weapon_type if _player.get_active_weapon() else ""):
+		_exit_stance()
 
 func _enter_stance() -> void:
 	if is_active:
@@ -137,7 +149,12 @@ func _enter_stance() -> void:
 		_player.caster_stance.on_stance_entered()
 	elif weapon.is_ranged:
 		_mode = Mode.RANGED
-		_tween_fov(AIM_FOV)
+		if SCOPED_WEAPON_TYPES.has(weapon.weapon_type):
+			_tween_fov(SCOPE_FOV)
+			if _fov_tween and _fov_tween.is_valid():
+				_fov_tween.tween_callback(_set_scoped.bind(true))
+		else:
+			_tween_fov(AIM_FOV)
 	else:
 		_mode = Mode.MELEE
 	if _player.arm_rig:
@@ -171,6 +188,7 @@ func _exit_stance() -> void:
 	is_active = false
 	current_behavior = null
 	stance_exited.emit()
+	_set_scoped(false)
 	if _mode == Mode.RANGED:
 		_tween_fov(GameState.field_of_view)
 	if _player.arm_rig:
@@ -185,3 +203,15 @@ func _tween_fov(target: float) -> void:
 		return
 	_fov_tween = create_tween()
 	_fov_tween.tween_property(_player.camera, "fov", target, AIM_ZOOM_DURATION)
+
+func _set_scoped(on: bool) -> void:
+	_scoped = on and is_active
+	if _scoped and _scope_layer == null:
+		_scope_layer = CanvasLayer.new()
+		_scope_layer.layer = 5
+		_scope_layer.add_child(ScopeOverlay.new())
+		add_child(_scope_layer)
+	if _scope_layer:
+		_scope_layer.visible = _scoped
+	if _player.arm_rig:
+		_player.arm_rig.visible = not _scoped

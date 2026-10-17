@@ -12,6 +12,8 @@ var _core: MeshInstance3D
 var _corona: MeshInstance3D
 var _light: OmniLight3D
 var _time := 0.0
+## Corona size on top of its pulse; swells as it falls.
+var _flare := 1.0
 
 func _ready() -> void:
 	_core = MeshInstance3D.new()
@@ -71,7 +73,7 @@ func _process(delta: float) -> void:
 	_time += delta
 	_core.rotation.y += delta * 0.6
 	var pulse := 1.0 + sin(_time * 7.0) * 0.06
-	_corona.scale = Vector3.ONE * pulse
+	_corona.scale = Vector3.ONE * pulse * _flare
 
 ## Swells from a spark to full size.
 func grow(seconds: float) -> void:
@@ -79,9 +81,29 @@ func grow(seconds: float) -> void:
 	tween.tween_property(self, "scale", Vector3.ONE, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	await tween.finished
 
-## Falls onto `spot` and is gone.
+## Falls onto `spot` and is gone: it flares white-hot and drags a fiery
+## trail on the way down.
 func slam(spot: Vector3, seconds: float) -> void:
+	var trail := SpellFx.emitter(self, 120, 0.8)
+	trail.local_coords = false
+	trail.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	trail.emission_sphere_radius = RADIUS * 0.8
+	trail.direction = Vector3.UP
+	trail.spread = 20.0
+	trail.initial_velocity_min = 2.0
+	trail.initial_velocity_max = 6.0
+	trail.scale_amount_min = 1.2
+	trail.scale_amount_max = 2.4
+	trail.scale_amount_curve = SpellFx.curve(1.0, 0.1)
+	trail.color_ramp = SpellFx.ramp(Color(1.0, 0.9, 0.6, 1.0), Color(FLAME, 0.8), 0.2)
+	trail.mesh = SpellFx.glow_quad()
+	trail.emitting = true
+	var core_mat := _core.material_override as StandardMaterial3D
 	var tween := create_tween()
+	tween.set_parallel(true)
 	tween.tween_property(self, "global_position", spot + Vector3.UP * RADIUS * 0.5, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(core_mat, "albedo_color", Color(1.0, 0.97, 0.88), seconds)
+	tween.tween_property(_light, "light_energy", 16.0, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "_flare", 1.6, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await tween.finished
 	queue_free()

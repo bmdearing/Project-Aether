@@ -1,8 +1,9 @@
 extends Node3D
 class_name GearShop
 ## Hub interactable, same proximity+E pattern as RealityEngine, opens the
-## VendorScreen. Stock is ItemRoller.roll()'d fresh once per Hub visit, or
-## on demand via "Reroll Stock" (REROLL_COST Gold) - browsing never rerolls.
+## VendorScreen. Stock is ItemRoller.roll()'d and kept (GameState.shop_stock,
+## saved) until the player levels up or RESTOCK_SECONDS of play pass, or
+## rerolled on demand via "Reroll Stock" (REROLL_COST Gold).
 ##
 ## Gold is an invented currency, no doc-sourced economy exists.
 ## COST_BY_RARITY/REROLL_COST are loosely modeled after ItemRoller/
@@ -10,6 +11,8 @@ class_name GearShop
 
 const STOCK_SIZE := 6
 const REROLL_COST := 15
+## Four hours of play.
+const RESTOCK_SECONDS := 4.0 * 3600.0
 const COST_BY_RARITY := {
 	0: 20,   # Constants.ItemRarity.COMMON
 	1: 50,   # UNCOMMON
@@ -28,7 +31,7 @@ const SELL_PRICE_BY_RARITY := {
 
 var _player_in_range: bool = false
 ## The stock as a grid (STOCK_GRID cells), shown by the VendorScreen.
-var _stock := GridInventory.new(STOCK_GRID.x, STOCK_GRID.y)
+var _stock: GridInventory
 const STOCK_GRID := Vector2i(12, 8)
 
 func _ready() -> void:
@@ -36,7 +39,7 @@ func _ready() -> void:
 	area.body_entered.connect(_on_body_entered)
 	area.body_exited.connect(_on_body_exited)
 	prompt_label.visible = false
-	_roll_stock()
+	_refresh_stock()
 
 ## No Map-tier context in the Hub - player level stands in instead, floored
 ## at MIN_SHOP_ITEM_LEVEL so a level-1/standalone session (Hub launched
@@ -49,6 +52,15 @@ const MIN_SHOP_ITEM_LEVEL := 5
 const TEST_STOCK := ["arkanus"]
 const TEST_STOCK_COST := 1
 
+## The saved stock, rerolled once the player has levelled or enough play time passed.
+func _refresh_stock() -> void:
+	var stale := GameState.shop_stock == null or GameState.shop_stock_level != GameState.player_level \
+		or GameState.play_time - GameState.shop_stock_time >= RESTOCK_SECONDS
+	if stale:
+		_roll_stock()
+	else:
+		_stock = GameState.shop_stock
+
 func _roll_stock() -> void:
 	_stock = GridInventory.new(STOCK_GRID.x, STOCK_GRID.y)
 	var shop_item_level := maxi(GameState.player_level, MIN_SHOP_ITEM_LEVEL)
@@ -60,6 +72,9 @@ func _roll_stock() -> void:
 		for def in UniqueCatalog.DEFS:
 			if def["id"] == id:
 				_stock.add(UniqueRoller.build(def, shop_item_level))
+	GameState.shop_stock = _stock
+	GameState.shop_stock_level = GameState.player_level
+	GameState.shop_stock_time = GameState.play_time
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _player_in_range and event.is_action_pressed("interact") and not get_tree().paused:
@@ -67,6 +82,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		_open_shop()
 
 func _open_shop() -> void:
+	_refresh_stock()
 	var sold := sell_trash()
 	VendorScreen.open_for(get_tree(), {
 		"title": "Gear Shop",

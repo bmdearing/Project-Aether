@@ -95,6 +95,27 @@ var _last_combat_msec: int = -OUT_OF_COMBAT_GRACE_MSEC - 1
 func is_in_combat() -> bool:
 	return Time.get_ticks_msec() - _last_combat_msec < OUT_OF_COMBAT_GRACE_MSEC
 
+## The other members of this enemy's spawn pack (shared Array, set by
+## GeneratedMap._spawn_pack()). Hitting one pulls the whole pack in.
+var pack: Array = []
+## Enemies this close to one that's first hit join in too (no pack needed).
+const ALERT_RADIUS := 10.0
+
+## Puts this enemy in combat, as if hit, so it chases the player.
+func alert() -> void:
+	_last_combat_msec = Time.get_ticks_msec()
+
+func _alert_pack(newly_aware: bool) -> void:
+	for member in pack:
+		if is_instance_valid(member) and member != self:
+			member.alert()
+	if not newly_aware:
+		return
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var other := node as Enemy
+		if other and other != self and not other.is_in_combat() and other.global_position.distance_squared_to(global_position) <= ALERT_RADIUS * ALERT_RADIUS:
+			other.alert()
+
 func _ready() -> void:
 	_apply_definition()
 	health.died.connect(_on_died)
@@ -1164,9 +1185,11 @@ func _spawn_slate_pickup(slate: Slate) -> void:
 ## is_dot: a damage-over-time tick - smaller floating number.
 ## ignore_armor: War Pick's Armor Pierce.
 func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false, is_dot: bool = false, ignore_armor: bool = false) -> bool:
+	var newly_aware := not is_in_combat()
 	if not is_dot:
-		last_hit_was_unaware = not is_in_combat()
+		last_hit_was_unaware = newly_aware
 	_last_combat_msec = Time.get_ticks_msec()
+	_alert_pack(newly_aware)
 	if invulnerable:
 		return false
 	var show_number := health.is_alive()

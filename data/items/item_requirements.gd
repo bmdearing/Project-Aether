@@ -52,7 +52,7 @@ static func _tier(item_level: int) -> Array:
 
 ## {"level": int, "strength": int, "agility": int, "intellect": int}
 static func of(item: Item) -> Dictionary:
-	var tier := _tier(item.item_level)
+	var tier := _tier(item.requirement_level())
 	var result := {"level": tier[2], "strength": 0, "agility": 0, "intellect": 0}
 	var stats := _stats_for(item)
 	if stats.size() > 0 and stats[0] != "":

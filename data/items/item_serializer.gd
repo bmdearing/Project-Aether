@@ -75,6 +75,7 @@ static func to_dict(item: Item) -> Dictionary:
 		"active_edict": String(item.active_edict.id) if item.active_edict else "",
 		"base_line_id": item.base_line_id,
 		"item_level": item.item_level,
+		"base_level": item.base_level,
 		"tier_ladder": ItemRoller.TIER_LADDER_VERSION,
 		"armour_scale": ARMOUR_SCALE_VERSION,
 	}
@@ -160,6 +161,7 @@ static func from_dict(d: Dictionary) -> Item:
 	item.display_name = d.get("display_name", "")
 	item.base_line_id = d.get("base_line_id", item.base_line_id)
 	item.item_level = d.get("item_level", item.item_level)
+	item.base_level = int(d.get("base_level", 0))
 	item.rarity = d.get("rarity", 0)
 	item.equip_slot = d.get("equip_slot", 0)
 	item.max_sockets = d.get("max_sockets", 0)

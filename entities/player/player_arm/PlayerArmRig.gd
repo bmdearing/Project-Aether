@@ -880,6 +880,14 @@ func _make_muzzle_flash() -> Node3D:
 	_grip.add_child(root)
 	return root
 
+## The barrel tip of the main (or off-hand) gun model in world space, or
+## `fallback` when that model has no muzzle.
+func get_muzzle_position(offhand: bool, fallback: Vector3) -> Vector3:
+	var model := _off_model if offhand else _weapon_model
+	if model == null or not model.is_inside_tree() or not model.has_meta("muzzle"):
+		return fallback
+	return model.to_global(model.get_meta("muzzle"))
+
 func _flash() -> void:
 	if _weapon_model == null or not _weapon_model.has_meta("muzzle"):
 		return

@@ -449,16 +449,29 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		motion_value *= ACTIVE_RELOAD_PERFECT_DAMAGE
 	_aim_time = 0.0
 	var socket_transform: Transform3D = _player.weapon_socket.global_transform
+	var offhand := _player.attack_hand == Player.Hand.OFF
 	# The offhand gun fires from the left: the socket mirrored across the view.
-	if _player.attack_hand == Player.Hand.OFF:
+	if offhand:
 		var cam := _player.camera.global_transform
 		var local := cam.affine_inverse() * socket_transform.origin
 		local.x = -local.x
 		socket_transform.origin = cam * local
+	# Shots leave the gun model's barrel tip, aimed at what the crosshair is on.
+	# Looking through a scope, they leave the eye instead.
+	if _player.weapon_stance.is_scoped():
+		socket_transform.origin = _player.camera.global_position - _player.camera.global_transform.basis.z * 0.3
+	else:
+		socket_transform.origin = _player.arm_rig.get_muzzle_position(offhand, socket_transform.origin)
 	# Hitscan shots aim straight down the crosshair; the tracer still leaves the muzzle.
 	var hitscan := weapon.is_hitscan()
 	if hitscan:
 		socket_transform.basis = _player.camera.global_transform.basis
+	else:
+		var to_target := _crosshair_point() - socket_transform.origin
+		if to_target.length() > MIN_CONVERGE_DISTANCE:
+			socket_transform.basis = Basis.looking_at(to_target.normalized(), Vector3.UP)
+		else:
+			socket_transform.basis = _player.camera.global_transform.basis
 
 	# Steady Aim: increased crit chance for this shot only.
 	var original_crit_bonus := _player.stat_sheet.finesse_crit_bonus
@@ -529,6 +542,22 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 	_player.stat_sheet.finesse_crit_bonus = original_crit_bonus
 	AudioManager.play_at(SoundLib.get_fire_sound(weapon.ammo_type), _player.global_position)
 	_play_fire_animation(weapon)
+
+## Closer than this, a shot flies straight down the view instead of
+## converging (it would turn sideways right at the barrel).
+const MIN_CONVERGE_DISTANCE := 1.5
+const CROSSHAIR_RANGE := 200.0
+
+## Where the crosshair ray first hits world or enemy, or a far point along it.
+func _crosshair_point() -> Vector3:
+	var cam := _player.camera.global_transform
+	var to := cam.origin - cam.basis.z * CROSSHAIR_RANGE
+	var query := PhysicsRayQueryParameters3D.create(cam.origin, to)
+	query.exclude = [_player.get_rid()]
+	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty():
+		return to
+	return hit["position"]
 
 ## Point Blank by distance, plus Tracer Round's bonus on a marked enemy.
 func _damage_modifier(enemy: Enemy, st: RangedStanceBehavior) -> float:

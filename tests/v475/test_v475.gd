@@ -115,18 +115,22 @@ func _test_monsters() -> void:
 	await _frames(2)
 	_finished += 1
 
+func _drops_tier() -> bool:
+	var figment := FigmentRoller.roll_for_drop()
+	return figment != null and not figment.is_levelling()
+
 func _test_levelling_stage() -> void:
 	GameState.game_mode = GameState.GameMode.FRAGMENTED_REALITY
 	GameState.depth_cleared = 0
 	GameState.figment_completions = {}
 	_check(not FigmentProgress.levelling_complete() and FigmentProgress.max_drop_depth() == 1, "a new character starts at Depth 1")
 	GameState.active_map = null
-	_check(FigmentRoller.roll_for_drop().depth == 1, "outside a Figment, drops are Depth 1 while levelling")
+	_check(FigmentRoller.roll_for_drop() == null, "outside a Figment, nothing drops while levelling")
 	GameState.active_map = _depth(4)
-	var deepest := 0
+	var dropped := false
 	for i in 60:
-		deepest = maxi(deepest, FigmentRoller.roll_for_drop().depth)
-	_check(deepest == 1, "drops can't pass the deepest Depth cleared + 1 (%d)" % deepest)
+		dropped = dropped or FigmentRoller.roll_for_drop() != null
+	_check(not dropped, "Depths drop no Depth Figments")
 	EventBus.figment_completed.emit(_depth(1))
 	EventBus.figment_completed.emit(_depth(2))
 	EventBus.figment_completed.emit(_depth(3))
@@ -142,12 +146,12 @@ func _test_levelling_stage() -> void:
 	GameState.depth_cleared = 22
 	var any_tier := false
 	for i in 80:
-		any_tier = any_tier or not FigmentRoller.roll_for_drop().is_levelling()
+		any_tier = any_tier or _drops_tier()
 	_check(not any_tier, "no endgame Figments before Depth 23 is cleared")
 	EventBus.figment_completed.emit(_depth(23))
 	_check(FigmentProgress.levelling_complete(), "clearing Depth 23 ends the levelling stage")
 	for i in 80:
-		any_tier = any_tier or not FigmentRoller.roll_for_drop().is_levelling()
+		any_tier = any_tier or _drops_tier()
 	_check(any_tier, "Depth 23 can then drop Tier 1")
 	GameState.active_map = null
 	_check(not FigmentRoller.roll_for_drop().is_levelling(), "after levelling, drops outside a Figment are Tier 1")

@@ -72,6 +72,12 @@ enum Mark { NONE, TRASH, FAVORED }
 ## its own item_level (which defaults to 1, i.e. always available).
 @export var item_level: int = 1
 @export var base_line_id: String = ""
+## A rolled item's base tier level, which sets its requirements; item_level
+## is then the level it dropped at. 0 = same as item_level (bases, old saves).
+@export var base_level: int = 0
+
+func requirement_level() -> int:
+	return base_level if base_level > 0 else item_level
 
 ## Equip gate (user request 2026-08-30, invented - no doc-sourced
 ## requirement system exists). item_level doubles as the level

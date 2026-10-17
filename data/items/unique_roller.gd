@@ -36,6 +36,8 @@ static func build(def: Dictionary, item_level: int = 1, base: Item = null) -> It
 	var item: Item = base.duplicate(true)
 	if from_catalog:
 		item.item_id = "%s_rolled_%d" % [base.item_id, randi()]
+		item.base_level = base.item_level
+		item.item_level = maxi(item_level, base.item_level)
 	item.unique_id = def["id"]
 	item.display_name = def["name"]
 	item.rarity = def["rarity"]

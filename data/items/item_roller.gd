@@ -324,6 +324,8 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 		return null
 	var item: Item = base.duplicate(true)
 	item.item_id = "%s_rolled_%d" % [base.item_id, randi()]
+	item.base_level = base.item_level
+	item.item_level = maxi(power_level, base.item_level)
 
 	# No per-drop damage/spell power roll: a weapon's base range is rolled
 	# per hit instead (Weapon.roll_damage()/Ability.roll_damage()).

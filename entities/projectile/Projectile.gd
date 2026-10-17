@@ -57,6 +57,7 @@ func _ready() -> void:
 	else:
 		monitoring = true
 		body_entered.connect(_on_body_entered)
+		body_exited.connect(_on_body_exited)
 	get_tree().create_timer(lifetime).timeout.connect(queue_free)
 	if mesh:
 		var mat := StandardMaterial3D.new()
@@ -68,6 +69,18 @@ func _physics_process(delta: float) -> void:
 	if hitscan_range > 0.0:
 		_resolve_hitscan()
 		return
+	var from := global_position
+	_move(delta)
+	# Over a staircase, only its drawn steps stop the shot, not the walking ramp.
+	if is_instance_valid(_stairs):
+		var t := stairs_hit_fraction(_stairs, from, global_position)
+		if t >= 0.0:
+			global_position = from.lerp(global_position, t)
+			if not cosmetic:
+				_play_impact_sound(_stairs)
+			queue_free()
+
+func _move(delta: float) -> void:
 	if drop_gravity <= 0.0:
 		global_position += -global_transform.basis.z * speed * delta
 		return
@@ -79,7 +92,17 @@ func _physics_process(delta: float) -> void:
 	if absf(_velocity.normalized().y) < 0.99:
 		look_at(global_position + _velocity, Vector3.UP)
 
+## The staircase being flown over (its hidden ramp overlapped), if any.
+var _stairs: Node3D = null
+
+func _on_body_exited(body: Node3D) -> void:
+	if body == _stairs:
+		_stairs = null
+
 func _on_body_entered(body: Node3D) -> void:
+	if body.is_in_group(&"stairs"):
+		_stairs = body
+		return
 	if cosmetic:
 		queue_free()
 		return
@@ -159,6 +182,9 @@ func _get_surface_type(body: Node) -> String:
 			return surface
 	return "stone"
 
+## How far past a staircase's ramp a hitscan ray checks for steps.
+const STAIRS_PROBE := 8.0
+
 func _resolve_hitscan() -> void:
 	var dir := -global_transform.basis.z.normalized()
 	var space := get_world_3d().direct_space_state
@@ -175,6 +201,16 @@ func _resolve_hitscan() -> void:
 		if hit.is_empty():
 			break
 		var body := hit["collider"] as Node3D
+		if body and body.is_in_group(&"stairs"):
+			# The hidden ramp: carry on until the ray meets a drawn step, if it does.
+			var ray_end := hitscan_origin + dir * hitscan_range
+			var probe_end: Vector3 = hit["position"] + dir * STAIRS_PROBE
+			var t := stairs_hit_fraction(body, hit["position"], probe_end)
+			if t < 0.0:
+				exclude.append((body as CollisionObject3D).get_rid())
+				end = ray_end
+				continue
+			hit["position"] = (hit["position"] as Vector3).lerp(probe_end, t)
 		global_position = hit["position"]
 		end = hit["position"]
 		if body == null or cosmetic:
@@ -215,3 +251,29 @@ func _spawn_tracer(from: Vector3, to: Vector3) -> void:
 	var tween := tracer.create_tween()
 	tween.tween_property(mat, "albedo_color:a", 0.0, TRACER_TIME)
 	tween.tween_callback(tracer.queue_free)
+
+## True when `point` is inside one of a staircase's drawn steps (or the
+## raised floor behind its foot), not just under the hidden walking ramp.
+## Reads the step layout GeneratedMap._build_stairs() leaves in meta.
+static func stairs_solid_at(stairs: Node3D, point: Vector3) -> bool:
+	var out: Vector3 = stairs.get_meta(&"out", Vector3.FORWARD)
+	var rise := float(stairs.get_meta(&"rise", 0.0))
+	var steps := int(stairs.get_meta(&"steps", 1))
+	var run := float(stairs.get_meta(&"run", 0.4))
+	var local := point - stairs.global_position
+	var along := local.dot(out)
+	if along < 0.0:
+		return local.y <= rise
+	if along >= steps * run:
+		return false
+	return local.y <= (steps - floorf(along / run)) * rise / steps
+
+## The first point from `from` to `to` inside a drawn step, as a fraction of
+## the way (sampled every few cm), or -1 when the segment clears them.
+static func stairs_hit_fraction(stairs: Node3D, from: Vector3, to: Vector3) -> float:
+	var samples := maxi(ceili(from.distance_to(to) / 0.04), 1)
+	for i in samples + 1:
+		var t := float(i) / samples
+		if stairs_solid_at(stairs, from.lerp(to, t)):
+			return t
+	return -1.0

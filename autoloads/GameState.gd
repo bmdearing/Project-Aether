@@ -82,6 +82,13 @@ var fate_board_placements: Array = []
 
 ## Dropped by enemies, spent at the Hub's GearShop.
 var gold: int = 0
+## Seconds played on this character (counted while unpaused).
+var play_time: float = 0.0
+## The GearShop stock, kept until the player levels up or SHOP_RESTOCK_SECONDS
+## of play pass. Null until first rolled.
+var shop_stock: GridInventory = null
+var shop_stock_level: int = 0
+var shop_stock_time: float = 0.0
 
 ## Character record, shown on the character sheet.
 var player_name: String = ""
@@ -122,6 +129,10 @@ func _ready() -> void:
 	add_child(BasePreloader.new())
 	EventBus.player_died.connect(_on_player_died)
 	EventBus.enemy_died.connect(func(_enemy): kills += 1)
+
+func _process(delta: float) -> void:
+	if game_started:
+		play_time += delta
 
 func _on_figment_completed(figment: FigmentItem) -> void:
 	if figment == null:
@@ -187,6 +198,10 @@ func reset_to_defaults() -> void:
 	inventory = GridInventory.new()
 	stash = Stash.create_default()
 	gold = 0
+	play_time = 0.0
+	shop_stock = null
+	shop_stock_level = 0
+	shop_stock_time = 0.0
 	player_name = ""
 	game_mode = GameMode.FRAGMENTED_REALITY
 	deaths = 0

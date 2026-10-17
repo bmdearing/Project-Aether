@@ -64,6 +64,9 @@ var _lmb_was_held: bool = false
 const WEAPON_SWAP_HOLD_THRESHOLD := 0.25
 var _x_held_time: float = 0.0
 var _x_triggered_hold: bool = false
+## Mouse wheel swaps weapon sets too, at most once per SCROLL_SWAP_COOLDOWN_MSEC.
+const SCROLL_SWAP_COOLDOWN_MSEC := 300
+var _last_scroll_swap_msec: int = -SCROLL_SWAP_COOLDOWN_MSEC
 var fate_board: FateBoard
 
 ## Patch v3.5 Section 3: throwables are a stackable inventory consumable,
@@ -766,10 +769,18 @@ func try_block_melee_hit() -> bool:
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion and Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
-		rotate_y(-event.relative.x * mouse_sensitivity)
-		head.rotate_x(-event.relative.y * mouse_sensitivity)
+		# Slower look through a scope, in step with its zoom.
+		var sensitivity := mouse_sensitivity * (camera.fov / GameState.field_of_view if weapon_stance.is_scoped() else 1.0)
+		rotate_y(-event.relative.x * sensitivity)
+		head.rotate_x(-event.relative.y * sensitivity)
 		var clamped_x: float = clamp(head.rotation.x, deg_to_rad(-max_look_up_deg), deg_to_rad(max_look_up_deg))
 		head.rotation.x = clamped_x
+	elif event.is_action_pressed("weapon_swap_scroll") and not is_input_blocked():
+		# One swap per flick: a wheel notch fires several events.
+		var now := Time.get_ticks_msec()
+		if now - _last_scroll_swap_msec >= SCROLL_SWAP_COOLDOWN_MSEC:
+			_last_scroll_swap_msec = now
+			_tap_weapon_swap()
 
 ## Non-pausing menus (the inventory) show the cursor; combat input is
 ## ignored while they do, movement isn't.

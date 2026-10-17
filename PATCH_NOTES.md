@@ -7,6 +7,22 @@ there. Most recent first.
 
 ---
 
+## 2026-10-16 — v5.6.0: Feedback batch (Sun blast, pack aggro, shop, scopes, stairs, item level)
+
+- **Ataras's Fiery Sun** flares white-hot and trails fire as it falls. The impact (`SunExplosion`) is a white flash, a swelling fireball, a fire column rolling into a smoke plume, three staggered shockwaves, flung sand and embers, a lasting scorch and a camera shake (`CameraSway.shake()`, stronger near the centre).
+- **Pack aggro.** Hitting one enemy pulls in its whole spawn pack (`Enemy.pack`, set by `GeneratedMap._spawn_pack()`), and any idle enemy within 10 m of the first hit.
+- **Ranged mobs** fire faster (Exarch 2 -> 1.3 s, Javelineer 1.6 -> 1.0, Cantor 2.4 -> 1.5, Mindbender 2 -> 1.3) and their bolts fly at 30 m/s (was 18).
+- **Gear Shop stock persists** (saved): it rerolls only when you level up, after 4 hours of play (new `GameState.play_time`, counted while unpaused), or when you pay for Reroll Stock.
+- **Guns fire from the barrel.** Shots leave the gun model's muzzle and converge on whatever the crosshair is on (straight down the view when it's closer than 1.5 m). They used to leave a fixed socket and fly parallel to the view, so long rifles looked wrong.
+- **Bolt Action Rifle scope.** Aiming zooms to 22 FOV and swaps the gun model (which filled the view) for a scope overlay with a reticle; shots leave the eye and look speed slows with the zoom.
+- **Scroll wheel swaps weapon sets** (rebindable "Swap Weapons (scroll)", once per 0.3 s).
+- **Projectiles clear stairs.** Staircases are walked on a hidden ramp along the step edges; shots now ignore it and only stop on the drawn steps (`Projectile.stairs_solid_at()`).
+- **Depth Figments no longer drop.** Levelling runs on the Reality Engine's free Depth; maps drop Tier Figments only (the last Depths still drop Tier 1 once levelling is done).
+- **Item level fix.** Rolled gear kept its base's item level, so hand-authored bases always showed Item Level 1. Items now carry the level they dropped at; requirements still come from the base tier (new `Item.base_level`; old saved items unchanged).
+- Judgment calls: which ranged mobs and how much, the 10 m alert radius, scope FOV, only the Bolt Action Rifle is scoped.
+
+---
+
 ## 2026-10-15 — v5.4.1: Bigger ammo pickups, ammo capacity upgrades
 
 - **Ammo pickups doubled** (e.g. Revolver 12 -> 24, Pistol 24 -> 48) and the base ammo drop chance is 25% (was 15%), still scaled by how short you are.
