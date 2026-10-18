@@ -246,6 +246,7 @@ func _build_orb(color: Color, prefix: String, offset_left: float, offset_right: 
 	var orb := StatOrb.new()
 	orb.fill_color = color
 	orb.label_prefix = prefix
+	orb.damage_trail = prefix == "Life"
 	orb.anchor_left = 0.5
 	orb.anchor_right = 0.5
 	orb.anchor_top = 1.0
@@ -334,8 +335,8 @@ func _build_xp_bar() -> void:
 	label.offset_bottom = -2.0
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_override("font", AetherStyle.numbers())
-	label.add_theme_font_size_override("font_size", 13)
-	label.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_color_override("font_color", AetherStyle.TEXT)
 	label.add_theme_color_override("font_shadow_color", AetherStyle.SHADOW)
 	label.add_theme_constant_override("shadow_offset_x", 1)
 	label.add_theme_constant_override("shadow_offset_y", 1)
@@ -592,9 +593,9 @@ class WeaponPlate extends Control:
 		if item:
 			IconArt.draw(self, item, Rect2(size.x - 54.0, 8.0, 42.0, 42.0))
 		AetherStyle.text(self, serif, Vector2(14, 28), weapon_name, 17, name_color, HORIZONTAL_ALIGNMENT_LEFT, text_width)
-		AetherStyle.text(self, serif, Vector2(14, 47), weapon_type, 12, AetherStyle.TEXT_DIM, HORIZONTAL_ALIGNMENT_LEFT, text_width)
-		AetherStyle.text(self, numbers, Vector2(14, size.y - 10.0), set_text, 12, AetherStyle.GOLD_DIM)
-		AetherStyle.text(self, numbers, Vector2(14, size.y - 10.0), "Gold  %s" % _thousands(gold), 12, AetherStyle.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, size.x - 28.0)
+		AetherStyle.text(self, serif, Vector2(14, 47), weapon_type, 13, AetherStyle.TEXT_DIM, HORIZONTAL_ALIGNMENT_LEFT, text_width)
+		AetherStyle.text(self, numbers, Vector2(14, size.y - 10.0), set_text, 13, AetherStyle.GOLD_DIM)
+		AetherStyle.text(self, numbers, Vector2(14, size.y - 10.0), "Gold  %s" % _thousands(gold), 13, AetherStyle.GOLD, HORIZONTAL_ALIGNMENT_RIGHT, size.x - 28.0)
 
 	static func _thousands(n: int) -> String:
 		var s := str(absi(n))

@@ -33,7 +33,7 @@ func _draw() -> void:
 		return
 	var heading := heading_of(player.global_rotation.y)
 	var rect := Rect2(Vector2.ZERO, size)
-	draw_rect(rect, Color(0, 0, 0, 0.45))
+	draw_rect(rect, Color(0, 0, 0, 0.55))
 	draw_line(Vector2(0, size.y), Vector2(size.x, size.y), AetherStyle.GOLD_DIM, 1.0)
 	var font := AetherStyle.title()
 	var numbers := AetherStyle.numbers()
@@ -46,7 +46,7 @@ func _draw() -> void:
 		if LETTERS.has(d):
 			var text: String = LETTERS[d]
 			var big := d % 90 == 0
-			var px := 17 if big else 13
+			var px := 17 if big else 14
 			var color := (AetherStyle.GOLD_BRIGHT if d == 0 else (AetherStyle.TEXT if big else AetherStyle.TEXT_DIM))
 			color.a *= fade
 			var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, px).x
@@ -54,8 +54,8 @@ func _draw() -> void:
 		else:
 			draw_line(Vector2(x, size.y - 8.0), Vector2(x, size.y - 2.0), Color(AetherStyle.GOLD_DIM, fade), 1.0)
 			var label := str(d)
-			var w := numbers.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 10).x
-			draw_string(numbers, Vector2(x - w / 2.0, 11.0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 10, Color(AetherStyle.TEXT_DIM, 0.6 * fade))
+			var w := numbers.get_string_size(label, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+			draw_string(numbers, Vector2(x - w / 2.0, 12.0), label, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(AetherStyle.TEXT_DIM, 0.85 * fade))
 	# Centre pointer.
 	var c := size.x / 2.0
 	draw_colored_polygon(PackedVector2Array([Vector2(c - 5, size.y), Vector2(c + 5, size.y), Vector2(c, size.y - 6)]), AetherStyle.AETHER)

@@ -24,6 +24,17 @@ Part of the visual overhaul (user plan: spell effects and UI readability in para
 
 ---
 
+## 2026-10-17 — v5.10.1: HUD polish
+
+The HUD part of the visual overhaul, after the v5.10.0 menu readability pass.
+- **Life damage trail:** a hit leaves a pale band on the Life globe between the new level and where it was. The band holds for 0.45 s, then drains at 60% of the globe per second (`StatOrb.damage_trail`, shader `trail_fraction`). Life only: spending Mana is constant and doesn't need it.
+- **Spell ready pulse:** when a spell comes off cooldown, its tile flashes gold and throws a gold outline outward over 0.45 s (`AbilityBar.READY_PULSE_SEC`). Spells with no cooldown never pulse.
+- **Readability:** the LIFE/MANA labels are bigger and brighter (15 px, bright gold); the XP text is 15 px in full text colour (was 13 px dim); spell Mana costs are 14 px (was 12); the weapon card's type, set and gold lines are 13 px; the compass has a darker strip, bigger minor letters and more legible degree numbers.
+- Harness: `capture_ui.tscn -- <png> hud_fx` captures the HUD just after a hit, with a spell just off cooldown.
+- Judgment calls: the trail hold and drain speed, gold for the ready pulse, and trail on Life only.
+
+---
+
 ## 2026-10-17 — v5.9.1: Death fades and kill bursts
 
 Part of the visual overhaul (user plan: spell effects and UI readability in parallel, then deaths, then the HUD).

@@ -17,6 +17,8 @@ const ERROR_FLASH_COLOR := Color(1.0, 0.25, 0.25)
 const ERROR_TEXT_HOLD_SEC := 1.0
 const ERROR_TEXT_FADE_SEC := 0.5
 const ERROR_FLASH_SEC := 0.3
+## A spell coming off cooldown flashes gold and throws a ring outward.
+const READY_PULSE_SEC := 0.45
 
 @onready var slot_row: HBoxContainer = $SlotRow
 
@@ -140,6 +142,8 @@ func get_player() -> Player:
 class SkillPlate extends Control:
 	var bar: AbilityBar
 	var _flash: Dictionary = {}  # slot index -> seconds left
+	var _ready_pulse: Dictionary = {}  # slot index -> seconds left
+	var _was_cooling: Dictionary = {}  # slot index -> on cooldown last frame
 
 	func flash(index: int) -> void:
 		_flash[index] = AbilityBar.ERROR_FLASH_SEC
@@ -149,6 +153,10 @@ class SkillPlate extends Control:
 			_flash[i] -= delta
 			if _flash[i] <= 0.0:
 				_flash.erase(i)
+		for i in _ready_pulse.keys():
+			_ready_pulse[i] -= delta
+			if _ready_pulse[i] <= 0.0:
+				_ready_pulse.erase(i)
 
 	func _draw() -> void:
 		AetherStyle.plate(self, Rect2(Vector2.ZERO, size))
@@ -176,6 +184,10 @@ class SkillPlate extends Control:
 			if player:
 				var remaining := player.ability_cast.get_cooldown_remaining(ability)
 				var total := ability.get_final_cooldown(player.get_action_speed_multiplier(), player.stat_sheet)
+				var cooling := remaining > 0.05 and total > 0.0
+				if _was_cooling.get(index, false) and not cooling:
+					_ready_pulse[index] = AbilityBar.READY_PULSE_SEC
+				_was_cooling[index] = cooling
 				if remaining > 0.05 and total > 0.0:
 					AetherStyle.dial(self, rect.grow(-2), remaining / total)
 					AetherStyle.text(self, numbers, Vector2(rect.position.x, c.y + 8.0), "%.1f" % remaining, 18, Color.WHITE, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
@@ -184,9 +196,16 @@ class SkillPlate extends Control:
 			if (ability.ability_id == "booming_blade" and GameState.booming_blade_on) or (ability.ability_id == "death_shroud" and GameState.death_shroud_on) or GameState.hex_auras.has(ability.ability_id):
 				border = element.lerp(Color.WHITE, 0.35)  # toggled on
 				AetherStyle.outline(self, inner, Color(element, 0.9), 2.0)
-			AetherStyle.text(self, numbers, Vector2(rect.end.x - 30.0, rect.position.y + 15.0), "%d" % roundi(cost), 12, Color(1, 0.4, 0.4) if starved else AetherStyle.MANA.lightened(0.45), HORIZONTAL_ALIGNMENT_RIGHT, 24)
+			AetherStyle.text(self, numbers, Vector2(rect.end.x - 31.0, rect.position.y + 17.0), "%d" % roundi(cost), 14, Color(1, 0.4, 0.4) if starved else AetherStyle.MANA.lightened(0.45), HORIZONTAL_ALIGNMENT_RIGHT, 24)
 		else:
 			border = AetherStyle.GOLD_DIM
+		if _ready_pulse.has(index):
+			var t: float = _ready_pulse[index] / AbilityBar.READY_PULSE_SEC
+			draw_colored_polygon(shape, Color(AetherStyle.GOLD_BRIGHT, 0.45 * t))
+			var ring := PackedVector2Array()
+			for v in shape:
+				ring.append(c + (v - c) * (1.0 + (1.0 - t) * 0.22))
+			AetherStyle.outline(self, ring, Color(AetherStyle.GOLD.lightened(0.3), t), 2.0)
 		if _flash.has(index):
 			draw_colored_polygon(shape, Color(AbilityBar.ERROR_FLASH_COLOR, 0.35 * _flash[index] / AbilityBar.ERROR_FLASH_SEC))
 			border = AbilityBar.ERROR_FLASH_COLOR

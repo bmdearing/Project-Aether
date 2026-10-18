@@ -13,11 +13,15 @@ class_name StatOrb
 		if _shader_mat:
 			_shader_mat.set_shader_parameter("fill_color", value)
 @export var label_prefix: String = ""
+## Life shows recent damage as a pale band that drains after a moment.
+@export var damage_trail: bool = false
 
 ## Ward at full covers this much of the globe's width.
 const WARD_MAX_WIDTH := 0.45
 const FRAME_PAD := 20.0
 const LABEL_SPACE := 26.0
+const TRAIL_HOLD_SEC := 0.45
+const TRAIL_DRAIN_PER_SEC := 0.6
 
 const ORB_SHADER_CODE := """
 shader_type canvas_item;
@@ -30,6 +34,8 @@ shader_type canvas_item;
 // height on screen matches the value, and a bright line on the glass marks
 // the exact level.
 uniform float fill_fraction : hint_range(0.0, 1.0) = 1.0;
+// Where the fill was a moment ago; the gap above the fill shows as a pale band (recent damage).
+uniform float trail_fraction : hint_range(0.0, 1.0) = 0.0;
 uniform vec4 fill_color : source_color = vec4(0.8, 0.1, 0.1, 1.0);
 uniform vec4 bg_color : source_color = vec4(0.04, 0.05, 0.09, 0.8);
 // Offsets the noise so two globes don't move in step.
@@ -118,6 +124,11 @@ void fragment() {
 		// Above the line the globe reads clearly empty.
 		col *= mix(1.0, 0.55, smoothstep(level - 0.01, level + 0.04, n.y));
 	}
+	if (trail_fraction > fill_fraction + 0.002) {
+		float trail_level = trail_fraction * 2.0 - 1.0;
+		float band = smoothstep(level - 0.005, level + 0.015, n.y) * (1.0 - smoothstep(trail_level - 0.015, trail_level + 0.005, n.y));
+		col = mix(col, mix(fill_color.rgb, vec3(1.0), 0.6) * 0.8, band * 0.55);
+	}
 	// Glass: a fresnel rim, a sharp glint top-left and a faint reflection low right.
 	float fresnel = pow(1.0 - n.z, 3.0);
 	col += mix(vec3(0.62, 0.68, 0.85), fill_color.rgb, 0.45) * fresnel * 0.6;
@@ -136,6 +147,8 @@ var ward_max: float = 0.0
 var _visual: ColorRect
 var _shader_mat: ShaderMaterial
 var _frame: OrbFrame
+var _trail: float = 0.0
+var _trail_hold: float = 0.0
 
 static func box_size(r: float) -> Vector2:
 	return Vector2((r + FRAME_PAD) * 2.0, (r + FRAME_PAD) * 2.0 + LABEL_SPACE)
@@ -163,12 +176,28 @@ func _ready() -> void:
 	_frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_frame)
 
+func _process(delta: float) -> void:
+	if not damage_trail or _shader_mat == null:
+		return
+	var fraction := current / maximum if maximum > 0.0 else 0.0
+	if _trail > fraction:
+		if _trail_hold > 0.0:
+			_trail_hold -= delta
+		else:
+			_trail = move_toward(_trail, fraction, TRAIL_DRAIN_PER_SEC * delta)
+	_shader_mat.set_shader_parameter("trail_fraction", _trail)
+
 func centre() -> Vector2:
 	return Vector2(radius + FRAME_PAD, radius + FRAME_PAD)
 
 func set_value(value: float, max_value: float) -> void:
 	current = value
 	maximum = max_value
+	var fraction := value / max_value if max_value > 0.0 else 0.0
+	if damage_trail and fraction < _trail:
+		_trail_hold = TRAIL_HOLD_SEC
+	else:
+		_trail = fraction
 	if _shader_mat:
 		_shader_mat.set_shader_parameter("fill_fraction", value / max_value if max_value > 0.0 else 0.0)
 	if _frame:
@@ -216,7 +245,7 @@ class OrbFrame extends Control:
 			AetherStyle.text(self, numbers, Vector2(edge_x, c.y - r * 0.42), "%d" % roundi(orb.ward), 15, Color(0.85, 0.98, 1.0), HORIZONTAL_ALIGNMENT_CENTER, c.x + r - edge_x)
 		AetherStyle.text(self, numbers, Vector2(c.x - r, value_y), "%d" % roundi(orb.current), 30, AetherStyle.TEXT, HORIZONTAL_ALIGNMENT_CENTER, text_right - (c.x - r))
 		AetherStyle.text(self, numbers, Vector2(c.x - r, value_y + 20.0), "/ %d" % roundi(orb.maximum), 15, AetherStyle.TEXT_DIM, HORIZONTAL_ALIGNMENT_CENTER, text_right - (c.x - r))
-		AetherStyle.text(self, AetherStyle.title(), Vector2(c.x - r, c.y + r + 36.0), AetherStyle.spaced(orb.label_prefix), 13, AetherStyle.GOLD, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
+		AetherStyle.text(self, AetherStyle.title(), Vector2(c.x - r, c.y + r + 36.0), AetherStyle.spaced(orb.label_prefix), 15, AetherStyle.GOLD_BRIGHT, HORIZONTAL_ALIGNMENT_CENTER, r * 2.0)
 
 	## Triangular lattice over the right side of the globe: a few lit
 	## facets that shimmer. Its width is fixed; it drains from the top down
