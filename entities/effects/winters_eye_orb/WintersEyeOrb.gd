@@ -122,14 +122,9 @@ static var _icicle: PrismMesh
 ## A glowing eye of ice: bright core in a cold halo, shards orbiting it,
 ## frost mist shed as it travels and a light.
 func _build_visuals() -> void:
-	var core := StandardMaterial3D.new()
-	core.albedo_color = Color(0.55, 0.8, 1.0)
-	core.emission_enabled = true
-	core.emission = Color(0.4, 0.7, 1.0)
-	core.emission_energy_multiplier = 0.8
-	core.rim_enabled = true
-	core.rim = 1.0
-	core.roughness = 0.2
+	var core := SpellFx.energy_material(Color(0.5, 0.78, 1.0), 1.8, 0.35, true)
+	core.set_shader_parameter("noise_scale", 6.0)
+	core.set_shader_parameter("scroll", 1.2)
 	mesh.material_override = core
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var halo := MeshInstance3D.new()
@@ -138,6 +133,7 @@ func _build_visuals() -> void:
 	halo.mesh = quad
 	var halo_mat := SpellFx.glow_material(Color(ICE, 0.7), true, BaseMaterial3D.BILLBOARD_ENABLED)
 	halo_mat.vertex_color_use_as_albedo = false
+	SpellFx.fade_near_camera(halo_mat, 0.8, 3.0)
 	halo.material_override = halo_mat
 	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(halo)
@@ -175,9 +171,8 @@ func _icicle_mesh() -> PrismMesh:
 	if _icicle == null:
 		_icicle = PrismMesh.new()
 		_icicle.size = Vector3(0.1, 0.6, 0.1)
-		var mat := StandardMaterial3D.new()
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		mat.albedo_color = ICE_CORE
+		var mat := SpellFx.energy_material(ICE, 1.6, 0.35)
+		mat.set_shader_parameter("noise_scale", 10.0)
 		_icicle.material = mat
 	return _icicle
 

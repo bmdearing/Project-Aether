@@ -30,10 +30,25 @@ static func glow_material(color: Color = Color.WHITE, additive: bool = true, bil
 	return mat
 
 ## Smoke turns transparent as it nears the camera so it can't blind the player.
-static func fade_near_camera(mat: BaseMaterial3D) -> void:
+static func fade_near_camera(mat: BaseMaterial3D, from: float = 1.0, to: float = 6.0) -> void:
 	mat.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA
-	mat.distance_fade_min_distance = 1.0
-	mat.distance_fade_max_distance = 6.0
+	mat.distance_fade_min_distance = from
+	mat.distance_fade_max_distance = to
+
+const ENERGY_SHADER := preload("res://shaders/spell_energy.gdshader")
+
+## The shared energy body (spell_energy.gdshader): churning noise, fresnel
+## rim, HDR core. fill 0 is a rim-lit shell, 1 a solid glow. hud_clear fades
+## it near the camera and low on screen, for things orbiting the player.
+static func energy_material(color: Color, intensity: float = 2.0, fill: float = 0.4, hud_clear: bool = false) -> ShaderMaterial:
+	var mat := ShaderMaterial.new()
+	mat.shader = ENERGY_SHADER
+	mat.set_shader_parameter("color", Color(color, 1.0))
+	mat.set_shader_parameter("intensity", intensity)
+	mat.set_shader_parameter("fill", fill)
+	mat.set_shader_parameter("hud_clear", 1.0 if hud_clear else 0.0)
+	mat.set_shader_parameter("seed", randf() * 50.0)
+	return mat
 
 static func glow_quad(additive: bool = true) -> QuadMesh:
 	var quad := QuadMesh.new()
@@ -124,6 +139,10 @@ static func flash(parent: Node, at: Vector3, color: Color, size: float = 2.0, du
 	mi.mesh = quad
 	var mat := glow_material(color, true, BaseMaterial3D.BILLBOARD_ENABLED)
 	mat.vertex_color_use_as_albedo = false
+	# Fades out right at the camera, so a flash on the player (Blink) doesn't white out the screen.
+	mat.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA
+	mat.distance_fade_min_distance = 0.8
+	mat.distance_fade_max_distance = 2.5
 	mi.material_override = mat
 	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	parent.add_child(mi)

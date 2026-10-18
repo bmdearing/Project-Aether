@@ -106,9 +106,9 @@ func _build_visuals() -> void:
 	var base: Color = Constants.DAMAGE_TYPE_COLOR.get(damage_type, Color.WHITE)
 	_glow = FIRE_GLOW if fire else base.lightened(0.2)
 	var core_color := FIRE_CORE if fire else (SPARK_CORE if lightning else base.lightened(0.5))
-	var core := StandardMaterial3D.new()
-	core.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	core.albedo_color = core_color
+	var core := SpellFx.energy_material(core_color, 2.2, 0.9, true)
+	core.set_shader_parameter("noise_scale", 8.0)
+	core.set_shader_parameter("scroll", 3.0)
 	mesh.material_override = core
 	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 
@@ -118,6 +118,7 @@ func _build_visuals() -> void:
 	halo.mesh = quad
 	var halo_mat := SpellFx.glow_material(Color(_glow, 0.85), true, BaseMaterial3D.BILLBOARD_ENABLED)
 	halo_mat.vertex_color_use_as_albedo = false
+	SpellFx.fade_near_camera(halo_mat, 0.8, 3.0)
 	halo.material_override = halo_mat
 	halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	halo.position.z = -0.6

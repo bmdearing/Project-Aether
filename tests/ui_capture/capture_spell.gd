@@ -54,6 +54,9 @@ func _run() -> void:
 		ability.web_points = {args[5]: 1}
 	var started := Time.get_ticks_msec()
 	player.ability_cast._cast(ability, target)
+	# Booming Blade fires on the next melee swing.
+	if ability_id == "booming_blade":
+		player.ability_cast.on_melee_swing()
 	for t in times:
 		while (Time.get_ticks_msec() - started) / 1000.0 < float(t):
 			await get_tree().process_frame

@@ -7,6 +7,26 @@ there. Most recent first.
 
 ---
 
+## 2026-10-17 — v5.10.2: Spell effects energy pass
+
+Part of the visual overhaul. Many spell effects were flat, single-colour, hard-edged shapes, and several sat right in front of the camera over the HUD.
+- **Shared energy look** (`shaders/spell_energy.gdshaderinc`): churning fbm noise inside a shape, a soft fresnel or edge falloff, a coloured rim heating to a white core, and colours above 1.0 so the per-style HDR glow blooms them. `e_hud_clear()` fades an effect right at the camera and in the bottom of the screen (from 68% down), so nothing sits on the HUD. `spell_energy.gdshader` (`SpellFx.energy_material()`) is the general body for crystals, orbs and bolt cores. The sweep, ring, lightning, streak and ghost shaders now use the include. `SpellFx.flash` fades out at the camera.
+- **Reap:** the sweep tears into streaks of churning energy with a feathered, white-hot leading edge instead of a flat cyan stripe.
+- **Spark and every lightning arc:** `LightningArc` now uses midpoint displacement, so bolts kink at every scale and forks can fork again. Arcs waver, pulse and flicker in the shader. Spark crawlers have an HDR core, fade near the camera, and throw branching arcs to the floor.
+- **Booming Blade:** the yellow half-disc was the cast ring drawn at the player's feet, and it now fades under the camera. Switching it on throws arcs from about 2 m out to the floor, and each bolt trails a lightning streak as it races ahead.
+- **Frost Armor:** the white dome was also the ring at the feet. The orbiting shards are now clusters of glowing rime at chest height (radius 1.45 m), so you see them at the sides of the view. Below the bottom third of the screen they fade out. The cast adds a wider frost shockwave you can see ahead and a ring of glints.
+- **Self-centred rings** (Battle Cry, Intimidating Shout, Seismic Cry, Purge, Death Shroud): they no longer fill the bottom of the screen. Purge's ring is drawn at 4.5 m (was 3) so it lands above the HUD.
+- **Blink:** no more full-screen white flash.
+- **Thunder Sweep, Thunder Javelin, Cinder Lance:** bolt cores and streaks churn and bloom, and they fade while still next to the camera.
+- **Winter's Eye:** the flat blue ball is a churning ice orb with glowing icicles, and its halo fades at the camera.
+- **Wraith:** the body churns, and it is summoned 2.5 m ahead instead of right at your shoulder, where it filled the view.
+- **Pale Thread / Linger:** the hard white box beam is a soft, slowly wavering thread with a hot core.
+- Unchanged and already fine: Inferno, Flame Wall, Comet, Tornado, Black Hole, the curses, Flame Jets. They pick up the new ring wherever they use it.
+- Harness: `capture_spell` also swings once for Booming Blade, so its bolts show.
+- Judgment calls: where the HUD fade starts (68-88% down the screen), Frost Armor's shard height and radius, Wraith's summon point, Purge's ring radius, the glow strengths (sweep 2.2, lightning 2.0, ring 1.3), and lightning that is more coloured than white.
+
+---
+
 ## 2026-10-17 — v5.10.0: Menu readability pass
 
 Part of the visual overhaul (user plan: spell effects and UI readability in parallel, then deaths, then the HUD). Readability and layout only: the gold-on-dark look, the ornate tooltips and the item cards stay as they were.

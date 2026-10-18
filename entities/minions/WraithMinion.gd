@@ -107,6 +107,7 @@ func _build_body() -> void:
 	wisp_mat.billboard_mode = BaseMaterial3D.BILLBOARD_PARTICLES
 	wisp_mat.vertex_color_use_as_albedo = true
 	wisp_mat.albedo_texture = GlowTexture.radial()
+	SpellFx.fade_near_camera(wisp_mat, 0.8, 3.0)
 	quad.material = wisp_mat
 	wisps.mesh = quad
 	_body.add_child(wisps)

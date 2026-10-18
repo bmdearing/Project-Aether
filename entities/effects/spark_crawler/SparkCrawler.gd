@@ -124,26 +124,33 @@ func _tick_wander(delta: float) -> Vector3:
 
 ## ---- Visuals -----------------------------------------------------------------
 
-const ARC_INTERVAL := 0.11
-const ARC_REACH := 0.7
+const ARC_INTERVAL := 0.09
+const ARC_REACH := 0.8
 const ORB_HEIGHT := 0.3
+## Glows fade out this close to the camera so a fresh spark doesn't sit on the HUD.
+const NEAR_FADE := Vector2(1.2, 3.0)
 
 var _color: Color = Color.WHITE
 var _arc_timer: float = 0.0
 var _light: OmniLight3D
 
-## A crackling ball of light skittering along the floor: glow, a spray of
-## sparks, a flickering light, and little arcs jumping down to the ground.
+## A crackling ball of light skittering along the floor: an HDR white core in
+## a coloured halo, a spray of sparks, a flickering light, and branching arcs
+## jumping to the ground. Straight bolts (Booming Blade) also trail a bolt.
 func _build_visuals(color: Color) -> void:
 	_color = color
 	mesh.visible = false
-	for layer in [[0.75, Color(color, 0.55)], [0.28, Color(1.0, 0.98, 0.85, 1.0)]]:
+	var hot := Color(color.lightened(0.6) * 2.4, 1.0)
+	for layer in [[0.7, Color(color * 1.6, 0.45)], [0.32, Color(color.lightened(0.4) * 1.8, 0.8)], [0.14, hot]]:
 		var glow := MeshInstance3D.new()
 		var quad := QuadMesh.new()
 		quad.size = Vector2.ONE * float(layer[0])
 		glow.mesh = quad
 		var mat := SpellFx.glow_material(layer[1], true, BaseMaterial3D.BILLBOARD_ENABLED)
 		mat.vertex_color_use_as_albedo = false
+		mat.distance_fade_mode = BaseMaterial3D.DISTANCE_FADE_PIXEL_ALPHA
+		mat.distance_fade_min_distance = NEAR_FADE.x
+		mat.distance_fade_max_distance = NEAR_FADE.y
 		glow.material_override = mat
 		glow.position.y = ORB_HEIGHT
 		glow.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
@@ -158,7 +165,7 @@ func _build_visuals(color: Color) -> void:
 	sparks.gravity = Vector3(0, -6.0, 0)
 	sparks.scale_amount_min = 0.03
 	sparks.scale_amount_max = 0.06
-	sparks.color_ramp = SpellFx.ramp(Color(1.0, 1.0, 0.9, 1.0), Color(color, 1.0), 0.2)
+	sparks.color_ramp = SpellFx.ramp(Color(1.6, 1.6, 1.4, 1.0), Color(color * 1.4, 1.0), 0.2)
 	sparks.mesh = SpellFx.glow_quad()
 	sparks.emitting = true
 	_light = OmniLight3D.new()
@@ -170,12 +177,20 @@ func _build_visuals(color: Color) -> void:
 func _crackle(delta: float) -> void:
 	if _light == null:
 		return
-	_light.light_energy = randf_range(0.8, 1.6)
+	_light.light_energy = randf_range(0.6, 1.8)
 	_arc_timer -= delta
 	if _arc_timer > 0.0:
 		return
 	_arc_timer = ARC_INTERVAL
 	var from := global_position + Vector3.UP * ORB_HEIGHT
 	var angle := randf() * TAU
-	var to := global_position + Vector3(cos(angle), 0.02, sin(angle)) * randf_range(0.25, ARC_REACH)
-	LightningArc.spawn(get_parent(), from, to, _color, 0.25, false, 0)
+	var to := global_position + Vector3(cos(angle), 0.02, sin(angle)) * randf_range(0.35, ARC_REACH)
+	LightningArc.spawn(get_parent(), from, to, _color, 0.35, false, 1, true)
+	if straight:
+		# The bolt it leaves behind, racing back toward the caster.
+		var tail := from - heading * minf(speed * ARC_INTERVAL * 1.3, 2.4) + Vector3.UP * randf_range(-0.1, 0.15)
+		LightningArc.spawn(get_parent(), tail, from, _color, 0.5, false, 1, true)
+	elif randf() < 0.5:
+		# A short arc leaping up and over the orb.
+		var up := from + Vector3(randf_range(-0.5, 0.5), randf_range(0.3, 0.6), randf_range(-0.5, 0.5))
+		LightningArc.spawn(get_parent(), from, up, _color, 0.25, false, 0, true)

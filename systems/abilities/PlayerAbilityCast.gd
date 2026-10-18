@@ -382,7 +382,7 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		_player.status_effects.clear_all_effects()
 		if ability.has_twist("second_wind"):
 			_player.health.heal(_player.health.max_health * 0.1)
-		_flash_ring(_player.global_position, 3.0, ability, Color(0.85, 0.95, 1.0))
+		_flash_ring(_player.global_position, 4.5, ability, Color(0.85, 0.95, 1.0))
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "booming_blade":
@@ -606,12 +606,14 @@ func _summon_wraith(ability: Ability) -> void:
 	_player.ward.drain(ward)
 	var scene := _player.get_tree().current_scene
 	var right := _player.global_transform.basis.x
+	# Appears a few metres ahead, not at the camera's shoulder where it would fill the view.
+	var ahead := -_player.global_transform.basis.z * 2.5
 	if ability.has_twist("spectral_host"):
 		# Two wraiths split the Ward between them.
 		for s in [-1.0, 1.0]:
-			WraithMinion.summon(scene, _player, ability, stacks / 2, 1.0, right * s * 1.2)
+			WraithMinion.summon(scene, _player, ability, stacks / 2, 1.0, ahead + right * s * 1.2)
 	else:
-		WraithMinion.summon(scene, _player, ability, stacks, 1.0, right * 1.0)
+		WraithMinion.summon(scene, _player, ability, stacks, 1.0, ahead + right * 1.0)
 const FROST_SHATTER_DAMAGE := 1.5
 const FROST_SHATTER_AREA := 1.6
 const LONG_STEP := 1.6
@@ -981,54 +983,59 @@ func _line_blocked(from: Vector3, to: Vector3) -> bool:
 	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
 	return not hit.is_empty() and hit["collider"] is StaticBody3D
 
-## Ice crystals circling the player low, around the hips, while Frost Armor
-## holds - they cross the bottom edge of the first-person view - with frost
-## mist curling round the feet and glints of light.
+## Ice crystals circling the player at chest height while Frost Armor holds:
+## clusters of glowing rime (spell_energy, faded low on screen so they pass
+## over the HUD unseen and read at the sides of the view), each with a glint
+## and a faint trail of frost mist.
 func _ensure_frost_armor_fx() -> void:
 	if is_instance_valid(_frost_armor_fx):
 		return
 	var root := Node3D.new()
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	mat.albedo_color = Color(0.55, 0.82, 1.0, 0.55)
+	var mat := SpellFx.energy_material(Color(0.45, 0.75, 1.0), 1.5, 0.3, true)
+	mat.set_shader_parameter("noise_scale", 14.0)
+	mat.set_shader_parameter("rim_power", 1.4)
 	var crystal := PrismMesh.new()
-	crystal.size = Vector3(0.045, 0.18, 0.045)
-	crystal.material = mat
-	var glint := SpellFx.glow_material(Color(0.7, 0.9, 1.0, 0.5), true, BaseMaterial3D.BILLBOARD_ENABLED)
+	crystal.size = Vector3(0.06, 0.24, 0.06)
+	var sliver := PrismMesh.new()
+	sliver.size = Vector3(0.035, 0.14, 0.035)
+	var glint := SpellFx.glow_material(Color(1.4, 1.7, 2.0, 0.8), true, BaseMaterial3D.BILLBOARD_ENABLED)
 	glint.vertex_color_use_as_albedo = false
 	var glint_quad := QuadMesh.new()
-	glint_quad.size = Vector2.ONE * 0.12
+	glint_quad.size = Vector2.ONE * 0.1
 	for i in FROST_SHARD_COUNT:
 		var a := TAU * i / FROST_SHARD_COUNT
-		var shard := MeshInstance3D.new()
-		shard.mesh = crystal
-		shard.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		shard.position = Vector3(cos(a) * 1.3, 0.35 + 0.1 * sin(a * 2.0), sin(a) * 1.3)
+		var shard := Node3D.new()
+		shard.position = Vector3(cos(a) * 1.45, 1.0 + 0.12 * sin(a * 2.0), sin(a) * 1.45)
 		shard.rotation = Vector3(0.2, -a, 0.15)
 		root.add_child(shard)
+		for piece in [[crystal, Vector3.ZERO, 0.0], [sliver, Vector3(0.05, -0.06, 0.02), -0.5], [sliver, Vector3(-0.04, -0.08, -0.03), 0.6]]:
+			var mi := MeshInstance3D.new()
+			mi.mesh = piece[0]
+			mi.material_override = mat
+			mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+			mi.position = piece[1]
+			mi.rotation.z = piece[2]
+			shard.add_child(mi)
 		var halo := MeshInstance3D.new()
 		halo.mesh = glint_quad
 		halo.material_override = glint
+		halo.position.y = 0.08
 		halo.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 		shard.add_child(halo)
-	var mist := SpellFx.emitter(root, 24, 1.6)
-	mist.position.y = 0.1
+	var mist := SpellFx.emitter(root, 30, 1.2)
+	mist.position.y = 0.95
 	mist.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
 	mist.emission_ring_axis = Vector3.UP
-	mist.emission_ring_radius = 1.4
-	mist.emission_ring_inner_radius = 1.0
-	mist.emission_ring_height = 0.05
-	mist.direction = Vector3.UP
-	mist.spread = 30.0
+	mist.emission_ring_radius = 1.55
+	mist.emission_ring_inner_radius = 1.35
+	mist.emission_ring_height = 0.15
+	mist.direction = Vector3.DOWN
+	mist.spread = 20.0
 	mist.initial_velocity_min = 0.05
-	mist.initial_velocity_max = 0.25
-	mist.tangential_accel_min = 0.3
-	mist.tangential_accel_max = 0.6
-	mist.scale_amount_min = 0.35
-	mist.scale_amount_max = 0.6
-	mist.color_ramp = SpellFx.ramp(Color(0.7, 0.9, 1.0, 0.0), Color(0.7, 0.9, 1.0, 0.08), 0.4)
+	mist.initial_velocity_max = 0.2
+	mist.scale_amount_min = 0.2
+	mist.scale_amount_max = 0.4
+	mist.color_ramp = SpellFx.ramp(Color(0.7, 0.9, 1.0, 0.0), Color(0.7, 0.9, 1.0, 0.1), 0.3)
 	mist.mesh = SpellFx.glow_quad()
 	mist.emitting = true
 	_player.add_child(root)
@@ -1513,29 +1520,38 @@ func _update_thread_beam() -> void:
 	_place_beam(_thread_beam, from, _body_centre(_thread_target))
 	# A slow shimmer along the thread.
 	var pulse := 0.75 + 0.25 * sin(Time.get_ticks_msec() * 0.012)
-	for child in _thread_beam.get_children():
-		var mat := (child as MeshInstance3D).material_override as StandardMaterial3D
-		mat.albedo_color.a = float(child.get_meta("alpha")) * pulse
+	var mat := _thread_beam.get_meta("material") as ShaderMaterial
+	mat.set_shader_parameter("alpha", float(_thread_beam.get_meta("alpha")) * pulse)
 
-## A pale core with a faint glow around it along its -Z, one unit long
-## (stretched by _place_beam()).
+## A pale thread along its -Z, one unit long (stretched by _place_beam()):
+## two crossed ribbons of the lightning shader, calmed to a slow waver, with
+## a white-hot core in a soft glow.
 func _make_beam(core_alpha: float) -> Node3D:
 	var beam := Node3D.new()
-	for layer in [[0.025, core_alpha], [0.09, core_alpha * 0.3]]:
-		var mesh := MeshInstance3D.new()
-		var box := BoxMesh.new()
-		box.size = Vector3(layer[0], layer[0], 1.0)
-		mesh.mesh = box
-		var mat := StandardMaterial3D.new()
-		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
-		mat.albedo_color = Color(PALE_COLOR, layer[1])
-		mesh.material_override = mat
-		mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-		mesh.set_meta("alpha", layer[1])
-		beam.add_child(mesh)
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var w := 0.06
+	for perp in [Vector3.RIGHT, Vector3.UP]:
+		var quad := [[-perp * w + Vector3(0, 0, 0.5), Vector2(0, 0)], [perp * w + Vector3(0, 0, 0.5), Vector2(1, 0)], [perp * w - Vector3(0, 0, 0.5), Vector2(1, 1)], [-perp * w - Vector3(0, 0, 0.5), Vector2(0, 1)]]
+		for idx in [0, 1, 2, 0, 2, 3]:
+			st.set_uv(quad[idx][1])
+			st.add_vertex(quad[idx][0])
+	var mesh := MeshInstance3D.new()
+	mesh.mesh = st.commit()
+	var mat := ShaderMaterial.new()
+	mat.shader = LightningArc.SHADER
+	mat.set_shader_parameter("color", PALE_COLOR)
+	mat.set_shader_parameter("alpha", core_alpha)
+	mat.set_shader_parameter("core_width", 0.22)
+	mat.set_shader_parameter("intensity", 1.6)
+	mat.set_shader_parameter("flicker_amount", 0.0)
+	mat.set_shader_parameter("wave_speed", 3.0)
+	mat.set_shader_parameter("seed", randf() * 100.0)
+	mesh.material_override = mat
+	mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	beam.add_child(mesh)
+	beam.set_meta("material", mat)
+	beam.set_meta("alpha", core_alpha)
 	return beam
 
 static func _place_beam(beam: Node3D, from: Vector3, to: Vector3) -> void:
@@ -1553,10 +1569,10 @@ func _pale_flicker(from: Vector3, to: Vector3) -> void:
 	var beam := _make_beam(0.8)
 	_player.get_tree().current_scene.add_child(beam)
 	_place_beam(beam, from, to)
-	var tween := beam.create_tween().set_parallel()
-	for child in beam.get_children():
-		tween.tween_property((child as MeshInstance3D).material_override, "albedo_color:a", 0.0, 0.45)
-	tween.chain().tween_callback(beam.queue_free)
+	var mat := beam.get_meta("material") as ShaderMaterial
+	var tween := beam.create_tween()
+	tween.tween_method(func(a: float) -> void: mat.set_shader_parameter("alpha", a), 0.8, 0.0, 0.45)
+	tween.tween_callback(beam.queue_free)
 
 ## Auras: Death Shroud and curses with Hex Aura, switched on and off by
 ## casting. While on, they pulse their effect over every enemy within the

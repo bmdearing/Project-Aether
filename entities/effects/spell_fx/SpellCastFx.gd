@@ -20,7 +20,7 @@ static func play(ability_id: String, parent: Node, at: Vector3, radius: float, c
 			_ice_pulse(parent, at, radius)
 		"entropic_decay":
 			_entropic_decay(parent, at, radius, color)
-		"static_discharge", "stormcall", "booming_blade":
+		"static_discharge", "stormcall":
 			_crackle(parent, at, radius)
 		"battle_cry":
 			_battle_cry(parent, at, radius)
@@ -34,6 +34,8 @@ static func play(ability_id: String, parent: Node, at: Vector3, radius: float, c
 			_blink(parent, at)
 		"frost_armor":
 			_frost_armor(parent, at)
+		"booming_blade":
+			_booming_blade(parent, at)
 
 static func _ice_pulse(parent: Node, at: Vector3, radius: float) -> void:
 	SpellFx.ground_mark(parent, at, radius * 0.9, SpellFx.Mark.FROST, Color(0.7, 0.85, 0.95, 0.35), Color(0.85, 0.95, 1.0, 0.8), 3.0, 1.5)
@@ -143,7 +145,26 @@ static func _blink(parent: Node, at: Vector3) -> void:
 
 static func _frost_armor(parent: Node, at: Vector3) -> void:
 	SpellFx.light_pop(parent, at + Vector3.UP, FROST, 2.0, 5.0, 0.4)
-	_outward_ring(parent, at, 2.2, Color(FROST, 0.5), 24, 0.45, Vector2(0.3, 0.6), false)
+	# The ring at the feet fades under the camera; this one is wide enough to
+	# read ahead.
+	SpellFx.shockwave(parent, at, 3.6, FROST, 0.45)
+	_outward_ring(parent, at, 3.0, Color(FROST, 0.4), 24, 0.45, Vector2(0.3, 0.6), true)
+	var glints := SpellFx.burst(parent, at + Vector3.UP * 1.0, FROST, 30, Vector2(1.5, 3.0), 0.5, Vector2(0.04, 0.09), 60.0, -2.0)
+	glints.direction = Vector3.UP
+	glints.emission_shape = CPUParticles3D.EMISSION_SHAPE_RING
+	glints.emission_ring_axis = Vector3.UP
+	glints.emission_ring_radius = 1.5
+	glints.emission_ring_inner_radius = 1.3
+	glints.emission_ring_height = 0.2
+
+## Booming Blade switching on: arcs leap from round the caster to the floor
+## a few metres out, clear of the HUD.
+static func _booming_blade(parent: Node, at: Vector3) -> void:
+	SpellFx.light_pop(parent, at + Vector3.UP, SPARK, 2.5, 5.0, 0.3)
+	for i in 5:
+		var dir := Vector3.FORWARD.rotated(Vector3.UP, randf() * TAU)
+		var to := at + dir * randf_range(3.2, 4.2) + Vector3.UP * 0.05
+		LightningArc.spawn(parent, at + dir * 2.2 + Vector3.UP * randf_range(0.9, 1.3), to, SPARK, 0.45, i % 2 == 0, 1, true)
 
 ## A puff ring racing outward along the ground with the shockwave: mist,
 ## dust or miasma (additive for light, mixed for dark).
