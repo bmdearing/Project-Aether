@@ -4,6 +4,8 @@ extends Node
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_spell.tscn --resolution 1600x900 -- <out_prefix> <ability_id> <times,csv> [style_id] [distance] [twist]
 ## Writes <out_prefix>_<time>.png per time (seconds after the cast).
 
+const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
+
 const ABILITY_DIR := "res://data/abilities/instances/"
 
 func _ready() -> void:
@@ -23,6 +25,8 @@ func _run() -> void:
 	GameState.portal_map_state = {"seed": 7, "tileset_id": style}
 	GameState.returning_through_portal = false
 	var map: GeneratedMap = load("res://levels/generated_map/GeneratedMap.tscn").instantiate()
+	# GeneratedMap only reads the portal seed on a real return; it falls back to randi(), so seed that.
+	seed(int(GameState.portal_map_state.get("seed", randi())))
 	get_tree().root.add_child(map)
 	await get_tree().create_timer(1.5).timeout
 	for e in get_tree().get_nodes_in_group("enemy"):
@@ -56,6 +60,7 @@ func _run() -> void:
 		_hide_hud()
 		await RenderingServer.frame_post_draw
 		get_viewport().get_texture().get_image().save_png("%s_%s.png" % [out, t])
+	await CaptureTiming.measure(self, out.get_file())
 	print("CAPTURE_DONE")
 	get_tree().quit()
 

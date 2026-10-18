@@ -2,6 +2,8 @@ extends Node
 ## Screenshots a Pinnacle arena. Run windowed:
 ## Godot --path . res://tests/ui_capture/capture_pinnacle.tscn --resolution 1600x900 -- <out.png> <boss_id> [phase2] [view: player|overview]
 
+const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
+
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -42,4 +44,5 @@ func _run() -> void:
 	await get_tree().create_timer(0.5).timeout
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(out)
+	await CaptureTiming.measure(self, out.get_file().get_basename())
 	get_tree().quit()

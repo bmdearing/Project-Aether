@@ -3,6 +3,8 @@ extends Node
 ## Godot --path . res://tests/ui_capture/capture_aurelia.tscn --resolution 1600x900 -- <out.png> <mode> [view: player|overview] [delay]
 ## mode: idle | wheel | firewall | spears | lightning | amaterasu | golem | bomb
 
+const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
+
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -84,4 +86,5 @@ func _run() -> void:
 	await RenderingServer.frame_post_draw
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(out)
+	await CaptureTiming.measure(self, out.get_file().get_basename())
 	get_tree().quit()

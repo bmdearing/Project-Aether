@@ -3,6 +3,8 @@ extends Node
 ## Godot --path . res://tests/ui_capture/capture_weather.tscn --resolution 1600x900 -- <out.png> <style_id> <time 0-1> <weather> [seed]
 ## Weather: clear, rain, storm, snow, blizzard, sandstorm.
 
+const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
+
 const MapAtmosphere := preload("res://levels/generated_map/MapAtmosphere.gd")
 
 func _ready() -> void:
@@ -18,6 +20,8 @@ func _run() -> void:
 	GameState.active_map = figment
 	GameState.portal_map_state = {"seed": int(args[4]) if args.size() > 4 else 3, "tileset_id": style}
 	var map: GeneratedMap = load("res://levels/generated_map/GeneratedMap.tscn").instantiate()
+	# GeneratedMap only reads the portal seed on a real return; it falls back to randi(), so seed that.
+	seed(int(GameState.portal_map_state.get("seed", randi())))
 	get_tree().root.add_child(map)
 	var atmo := map.atmosphere
 	atmo.time_of_day = float(args[2]) if args.size() > 2 else 0.5
@@ -33,4 +37,5 @@ func _run() -> void:
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(out)
 	print("saved ", out)
+	await CaptureTiming.measure(self, out.get_file().get_basename())
 	get_tree().quit()

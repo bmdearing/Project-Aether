@@ -6,6 +6,8 @@ extends Node
 ## (the player's view), room (a camera in the first ordinary room), stairs (up a
 ## dungeon staircase).
 
+const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
+
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -23,6 +25,8 @@ func _run() -> void:
 		GameState.portal_map_state = {"seed": int(args[3]), "tileset_id": style}
 		GameState.returning_through_portal = false
 	var map: GeneratedMap = load("res://levels/generated_map/GeneratedMap.tscn").instantiate()
+	# GeneratedMap only reads the portal seed on a real return; it falls back to randi(), so seed that.
+	seed(int(GameState.portal_map_state.get("seed", randi())))
 	get_tree().root.add_child(map)
 	await get_tree().create_timer(1.5).timeout
 	# CAPTURE_WEAPON=res://... puts that weapon in the player's hands (keeps a greatsword off the centre of the shot).
@@ -174,4 +178,5 @@ func _run() -> void:
 	await get_tree().create_timer(1.0).timeout
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(out)
+	await CaptureTiming.measure(self, out.get_file().get_basename())
 	get_tree().quit()

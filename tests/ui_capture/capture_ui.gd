@@ -3,6 +3,8 @@ extends Node
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_ui.tscn --resolution 1920x1080 -- <out.png> <mode>
 ## Modes: hud, inventory, inventory_icons, icons, character, abilities, web <spell_id>, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview
 
+const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
+
 func _ready() -> void:
 	_run.call_deferred()
 
@@ -129,6 +131,7 @@ func _run() -> void:
 	await get_tree().create_timer(2.0).timeout
 	await RenderingServer.frame_post_draw
 	get_viewport().get_texture().get_image().save_png(out)
+	await CaptureTiming.measure(self, out.get_file().get_basename())
 	get_tree().quit()
 
 func _fill_stash(currency: bool) -> void:
