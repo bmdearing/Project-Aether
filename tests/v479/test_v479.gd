@@ -95,7 +95,7 @@ func _test_day_night() -> void:
 	atmo.time_of_day = 0.0
 	await get_tree().process_frame
 	_check(atmo.is_night() and sun.light_color.b > sun.light_color.r, "at midnight the moon's blue light takes over")
-	_check(sun.light_energy < 0.3, "moonlight is faint (%.2f)" % sun.light_energy)
+	_check(sun.light_energy < 0.7, "moonlight is faint (%.2f)" % sun.light_energy)
 	_check(env.ambient_light_energy < noon_ambient * 0.6 and env.ambient_light_energy > 0.0, "nights are darker but not black")
 	_check(_luma(env.background_color) < noon_sky * 0.5, "the night sky is dark")
 	atmo.time_of_day = 0.73

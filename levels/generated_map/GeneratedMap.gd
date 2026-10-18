@@ -530,7 +530,7 @@ func _apply_tileset(style: MapTileset) -> void:
 	$WorldEnvironment.environment = style.make_environment()
 	var sun: DirectionalLight3D = $DirectionalLight3D
 	sun.visible = style.sun_energy > 0.0
-	sun.light_energy = style.sun_energy
+	sun.light_energy = ShadowLight.directional(style.sun_energy)
 	sun.light_color = style.sun_color
 	if style.sun_energy > 0.0:
 		atmosphere = MapAtmosphere.new()

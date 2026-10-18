@@ -13,6 +13,8 @@ func _ready() -> void:
 	_base_energy = light_energy
 	_phase = randf() * 100.0
 	shadow_enabled = false
+	# Scatter strongly into volumetric fog (dungeon styles) for a halo round each torch.
+	light_volumetric_fog_energy = 4.0
 
 func _process(delta: float) -> void:
 	_phase += delta * FLICKER_SPEED

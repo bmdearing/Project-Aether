@@ -71,10 +71,10 @@ func _build_environment() -> void:
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.tonemap_exposure = 1.05
 	env.glow_enabled = true
-	env.glow_intensity = 0.9
+	env.glow_intensity = 0.55
 	env.glow_strength = 1.1
 	env.glow_bloom = 0.06
-	env.glow_hdr_threshold = 0.85
+	env.glow_hdr_threshold = 1.1
 	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
 	for level in 7:
 		env.set_glow_level(level, 1.0 if level in [2, 3, 4, 5] else 0.0)
@@ -96,7 +96,7 @@ func _build_environment() -> void:
 		moon = DirectionalLight3D.new()
 		add_child(moon)
 	moon.light_color = Color(0.58, 0.68, 1.0)
-	moon.light_energy = 0.55
+	moon.light_energy = ShadowLight.directional(1.24)
 	moon.shadow_enabled = true
 	moon.rotation_degrees = Vector3(-58, 28, 0)
 	moon.directional_shadow_max_distance = 70.0

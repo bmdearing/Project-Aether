@@ -119,6 +119,14 @@ const GROUND_SHADER := preload("res://shaders/wc3_ground.gdshader")
 @export var sun_color: Color = Color.WHITE
 @export var fog_color: Color = Color(0.1, 0.1, 0.1)
 @export var fog_density: float = 0.0
+## Forward+ extras; -1 takes the family default from FAMILY_RENDER.
+@export var ssao_intensity: float = -1.0
+@export var glow_intensity: float = -1.0
+## Linear brightness a pixel needs before it glows; sunlit outdoor ground runs
+## well above 1, so outdoor families set this higher than lit-by-torch dungeons.
+@export var glow_threshold: float = -1.0
+@export var volumetric_density: float = -1.0
+@export var exposure: float = -1.0
 @export var light_color: Color = Color(1.0, 0.7, 0.4)  # wall lights
 @export var light_energy: float = 2.0
 @export var light_range: float = 8.0
@@ -235,6 +243,20 @@ func _ground_material(albedo: Texture2D, normal: Texture2D, orm: Texture2D, wide
 	mat.set_shader_parameter("tint", tint)
 	return mat
 
+const FAMILY_RENDER := {
+	"forest": {"ssao": 1.2, "glow": 0.35, "glow_threshold": 1.6, "volumetric": 0.0},
+	"desert": {"ssao": 0.8, "glow": 0.3, "glow_threshold": 1.8, "volumetric": 0.0},
+	"snow": {"ssao": 1.0, "glow": 0.35, "glow_threshold": 1.8, "volumetric": 0.0, "exposure": 1.06},
+	"city": {"ssao": 1.6, "glow": 0.5, "glow_threshold": 1.4, "volumetric": 0.0},
+	"dungeon": {"ssao": 1.8, "glow": 0.6, "glow_threshold": 1.0, "volumetric": 0.015},
+	"pale": {"ssao": 1.2, "glow": 0.45, "glow_threshold": 1.4, "volumetric": 0.0},
+}
+
+func _render(key: String, override: float) -> float:
+	if override >= 0.0:
+		return override
+	return float(FAMILY_RENDER.get(family, FAMILY_RENDER["forest"]).get(key, 1.0 if key == "exposure" else 0.0))
+
 func make_environment() -> Environment:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
@@ -246,4 +268,30 @@ func make_environment() -> Environment:
 		env.fog_enabled = true
 		env.fog_light_color = fog_color
 		env.fog_density = fog_density
+	env.tonemap_exposure = _render("exposure", exposure)
+	var ssao := _render("ssao", ssao_intensity)
+	if ssao > 0.0:
+		env.ssao_enabled = true
+		env.ssao_intensity = ssao
+		env.ssao_radius = 1.2
+		env.ssao_power = 1.5
+		env.ssao_detail = 0.5
+	var glow := _render("glow", glow_intensity)
+	if glow > 0.0:
+		env.glow_enabled = true
+		env.glow_intensity = glow
+		env.glow_bloom = 0.0
+		env.glow_hdr_threshold = _render("glow_threshold", glow_threshold)
+		env.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
+		for level in 7:
+			env.set_glow_level(level, 1.0 if level in [1, 2, 3] else 0.0)
+	var volumetric := _render("volumetric", volumetric_density)
+	if volumetric > 0.0:
+		env.volumetric_fog_enabled = true
+		env.volumetric_fog_density = volumetric
+		env.volumetric_fog_albedo = fog_color.lerp(Color.WHITE, 0.5)
+		# Lit by the lights only, so torches get halos instead of the room greying out.
+		env.volumetric_fog_ambient_inject = 0.0
+		env.volumetric_fog_anisotropy = 0.3
+		env.volumetric_fog_length = 48.0
 	return env

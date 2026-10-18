@@ -230,7 +230,7 @@ func _build_lighting() -> void:
 	var light := DirectionalLight3D.new()
 	light.name = "DirectionalLight3D"
 	light.light_color = Color(0.86, 0.86, 1.0)
-	light.light_energy = 0.9
+	light.light_energy = ShadowLight.directional(2.0)
 	light.shadow_enabled = true
 	light.rotation_degrees = Vector3(-55, 35, 0)
 	light.sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_ONLY
@@ -361,7 +361,7 @@ func _build_sand() -> void:
 	var sun := get_node("DirectionalLight3D") as DirectionalLight3D
 	sun.rotation_degrees = Vector3(-38, 30, 0)
 	sun.light_color = Color(1.0, 0.8, 0.6)
-	sun.light_energy = 1.5
+	sun.light_energy = ShadowLight.directional(3.4)
 
 ## Aurelia's wheel-floored arena (AureliaArena): cold moonlight from above,
 ## a frost-blue key on the hub.
@@ -378,7 +378,7 @@ func _build_aurelia() -> void:
 	var sun := get_node("DirectionalLight3D") as DirectionalLight3D
 	sun.rotation_degrees = Vector3(-60, 20, 0)
 	sun.light_color = Color(0.8, 0.55, 0.95)
-	sun.light_energy = 0.75
+	sun.light_energy = ShadowLight.directional(1.7)
 	# A violet sky and fog: demonic, not the Lord's starlit night.
 	var env := (get_node("WorldEnvironment") as WorldEnvironment).environment
 	var sky_mat := env.sky.sky_material as ProceduralSkyMaterial

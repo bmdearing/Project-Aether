@@ -68,7 +68,7 @@ Every key can be rebound in Settings > Controls.
 
 ## Building from source
 
-1. Install [Godot 4.7.1](https://godotengine.org/download) (the project uses the Compatibility renderer).
+1. Install [Godot 4.7.1](https://godotengine.org/download) (the project uses the Forward+ renderer and falls back to Compatibility on GPUs without Vulkan or D3D12).
 2. Clone this repository and open `project.godot` in Godot.
 3. Press F5 to run. The main menu is `ui/main_menu/MainMenu.tscn`.
 

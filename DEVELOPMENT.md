@@ -1195,6 +1195,15 @@ pieces), dressed by the Figment's tileset style (below). The generation
     out) and layers its loop onto the style's ambience. The time of day
     survives a portal trip. `tests/ui_capture/capture_weather.tscn`
     screenshots any style, time and weather.
+  - **Renderer (v5.9)**: Forward+. `MapTileset.make_environment()` adds
+    SSAO, glow and volumetric fog from `FAMILY_RENDER` by family; a style
+    overrides any of them with `ssao_intensity`, `glow_intensity`,
+    `glow_threshold` or `volumetric_density` (-1 = family default), plus
+    `exposure`. Shadow-casting light energies are Forward+ values; set them
+    through `ShadowLight.directional()` / `omni()`, which divides them back
+    down on the Compatibility fallback (it lights shadowed lights about
+    twice over). `CAPTURE_TIMING=<file>` on the capture harnesses records
+    frame times.
   - `levels/test_arena/TestArena.tscn` still exists as a static hand-built
     sandbox for direct-from-editor testing, but the Reality Engine no longer
     sends you there — `GameState.MAP_SCENE` now points at
@@ -1430,8 +1439,8 @@ A Stamina pool (gap #6), per-weapon skill sockets (gap #21), and co-op.
 
 ## Opening this project
 
-1. Install Godot 4.7.1+ (GL Compatibility renderer for broad hardware
-   support during prototyping).
+1. Install Godot 4.7.1+ (Forward+ renderer; it falls back to GL
+   Compatibility on GPUs without Vulkan or D3D12, see `ShadowLight`).
 2. Open `project.godot` from the Godot project manager.
 3. Run the project (F5) — `ui/main_menu/MainMenu.tscn` is the main scene.
    "New Game" (or "Continue Game" once a save exists) drops you into

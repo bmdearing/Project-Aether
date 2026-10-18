@@ -7,6 +7,20 @@ there. Most recent first.
 
 ---
 
+## 2026-10-17 — v5.9.0: Forward+ renderer
+
+User request after a side-by-side trial: switch from Compatibility to Forward+ and retune.
+- **Renderer:** `forward_plus`, with `rendering_device/fallback_to_opengl3` so GPUs without Vulkan/D3D12 still start on Compatibility. Frame rates on the trial machine (RTX 2070 SUPER, 2560x1440) rose in 20 of 21 test scenes before the extras below.
+- **Why everything looked darker at first:** Compatibility lights a surface about twice over when its light casts shadows (measured: 2.25x for a directional light, about 2.5x for an omni light; shadowed areas don't get the extra). Every map style had been tuned under that. Forward+ lights it once, so sunlit ground came out about 30% darker and shadows read stronger. Fog, ambient and unshadowed lights match between the two exactly.
+- **Fix:** shadow-casting light energies are now Forward+ values: style `sun_energy` x2.25, the night moon, the hub moon, the Pinnacle arena suns, the test arena, and Ataras's Fiery Sun (an omni light, x2.5). They go through `ShadowLight.directional()` / `omni()`, which divides them back down on the Compatibility fallback. Shadows are now real: dune and hill slopes self-shadow where Compatibility washed them out.
+- **Per-style extras** (`MapTileset.FAMILY_RENDER`, overridable per style): SSAO in every family (strongest in dungeons and cities), HDR glow with a per-family threshold (sunlit ground runs well above 1.0, so outdoor thresholds are 1.4-1.8), volumetric fog in dungeons (tried on the Pale too: barely visible for about 3 ms, so dropped), and a small exposure lift for snow (Compatibility had been clipping it to white). Dungeon fog is lit by the lights only, and torches (`FlickerLight`) scatter 4x into it, so torchlit air glows warm instead of the room greying out.
+- **Glow retuned for HDR:** the Memory Nexus glow went from 0.9 to 0.55 intensity and its threshold from 0.85 to 1.1; the main menu's glow went from 0.8 to 0.55.
+- The Fiery Sun's warning fill now shows clearly on the sand. It was always drawn but lost against Compatibility's over-bright orange.
+- Harness: `CAPTURE_TIMING=<file>` makes the capture scenes record frame times. Outdoor layouts are still not fully reproducible from a seed (enemy counts differ run to run), so compare outdoor captures by look, not pixel for pixel.
+- Judgment calls: every value in `FAMILY_RENDER`, keeping Linear tonemapping (no filmic or AgX re-grade), volumetric fog only in dungeons, and the stronger shadows Forward+ gives rather than softening them with more ambient light.
+
+---
+
 ## 2026-10-17 — v5.8.0: Fate Board Stars
 
 User design: the anchor becomes a Star, the board is a circle about half its old size, and four more Stars sit North/East/South/West. A Star takes a Lens; a Lensed Star lights small bonuses at set places on the board, and a Slate covering one claims it.

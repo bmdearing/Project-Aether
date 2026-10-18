@@ -63,7 +63,7 @@ func _ready() -> void:
 	embers.emitting = true
 	_light = OmniLight3D.new()
 	_light.light_color = FLAME
-	_light.light_energy = 6.0
+	_light.light_energy = ShadowLight.omni(15.0)
 	_light.omni_range = 40.0
 	_light.shadow_enabled = true
 	add_child(_light)
@@ -103,7 +103,7 @@ func slam(spot: Vector3, seconds: float) -> void:
 	tween.set_parallel(true)
 	tween.tween_property(self, "global_position", spot + Vector3.UP * RADIUS * 0.5, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_property(core_mat, "albedo_color", Color(1.0, 0.97, 0.88), seconds)
-	tween.tween_property(_light, "light_energy", 16.0, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_property(_light, "light_energy", ShadowLight.omni(40.0), seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	tween.tween_property(self, "_flare", 1.6, seconds).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await tween.finished
 	queue_free()

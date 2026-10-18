@@ -35,7 +35,7 @@ const WEATHER_LOOK := {
 const DAY_LENGTH := 900.0
 ## Time of day: 0 midnight, 0.25 sunrise, 0.5 noon, 0.75 sunset.
 const SUNRISE := 0.25
-const MOON_ENERGY := 0.28
+const MOON_ENERGY := 0.63
 const MOON_COLOR := Color(0.55, 0.65, 0.95)
 const DUSK_COLOR := Color(1.0, 0.5, 0.25)
 const NIGHT_TINT := Color(0.16, 0.2, 0.34)
@@ -188,7 +188,7 @@ func _apply() -> void:
 	else:
 		_sun.light_color = MOON_COLOR
 		_sun.light_energy = MOON_ENERGY * lerpf(1.0, float(look["sun"]), 0.5) * rise
-	_sun.light_energy += _flash * 2.5
+	_sun.light_energy = ShadowLight.directional(_sun.light_energy + _flash * 2.5)
 	_sun.visible = _sun.light_energy > 0.01
 	# Sky, ambient and fog: the style's day colours, warmed at dusk, darkened by night.
 	var sky := _style.background_color.lerp(Color(tint, 1.0), tint.a)
