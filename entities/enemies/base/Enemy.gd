@@ -81,6 +81,9 @@ var _last_hit_react_msec: int = 0
 const HIT_REACT_MIN_INTERVAL_MSEC := 600   # a flinch on every hit would keep a fast attacker locked in HitReact
 const MODEL_TURN_SPEED := 8.0
 const DEATH_LINGER_SEC := 1.5              # corpse stays after the death clip ends
+const DEATH_FADE_SEC := 0.8
+const DEATH_SINK := 0.3
+const DEATH_ASH_COLOR := Color(0.35, 0.3, 0.28, 0.8)
 ## Yaw (radians) added when turning the model toward the player. 0.0 =
 ## the model's local +Z is its front (glTF/UAL convention, so rotating by
 ## atan2(dir.x, dir.z) points it at the player); a model whose front is
@@ -1036,10 +1039,11 @@ func _on_died() -> void:
 		player.ward.restore_on_kill()
 	_drop_gold()
 	_maybe_drop_loot()
+	_kill_burst()
 	if _anim_controller:
 		_play_death_then_free()
 		return
-	queue_free()
+	_dissolve_then_free()
 
 ## Definition-driven enemies with a death clip linger on it instead of
 ## vanishing. Leaves the "enemy" group and drops collision immediately so
@@ -1053,6 +1057,39 @@ func _play_death_then_free() -> void:
 		head_zone.set_deferred("monitorable", false)
 	_anim_controller.play_death()
 	await get_tree().create_timer(_anim_controller.get_death_duration() + DEATH_LINGER_SEC).timeout
+	_dissolve_then_free()
+
+## Rarer kills pop in their rarity colour; Normal mobs just fall.
+func _kill_burst() -> void:
+	if rarity_component == null or rarity_component.rarity == Constants.EnemyRarity.NORMAL:
+		return
+	var color := rarity_component.get_name_color()
+	var at := global_position + Vector3.UP * 1.0
+	SpellFx.burst(get_parent(), at, Color(color * 3.0, 1.0), 40, Vector2(3.0, 6.0), 0.7, Vector2(0.1, 0.22), 180.0, -6.0)
+	SpellFx.flash(get_parent(), at, Color(color * 2.0, 0.6), 1.4, 0.2)
+	SpellFx.light_pop(get_parent(), at, color, 2.5, 5.0, 0.3)
+
+## The corpse fades and sinks while ash drifts up off it, instead of popping out.
+func _dissolve_then_free() -> void:
+	remove_from_group("enemy")
+	collision_layer = 0
+	velocity = Vector3.ZERO
+	set_physics_process(false)
+	for child in get_children():
+		child.set_physics_process(false)
+	var root: Node = _model_root if _model_root else self
+	var meshes: Array[Node] = root.find_children("*", "GeometryInstance3D", true, false)
+	SpellFx.burst(get_parent(), global_position + Vector3.UP * 0.6, DEATH_ASH_COLOR, 18, Vector2(0.4, 1.2), 1.2, Vector2(0.04, 0.1), 50.0, 1.2)
+	var tween := create_tween().set_parallel(true)
+	for g: GeometryInstance3D in meshes:
+		tween.tween_property(g, "transparency", 1.0, DEATH_FADE_SEC).set_ease(Tween.EASE_IN)
+	tween.tween_property(root, "position:y", root.position.y - DEATH_SINK, DEATH_FADE_SEC).set_ease(Tween.EASE_IN)
+	# A solid shadow under a see-through body reads wrong; drop it partway in.
+	tween.tween_callback(func():
+		for g: GeometryInstance3D in meshes:
+			if is_instance_valid(g):
+				g.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF).set_delay(DEATH_FADE_SEC * 0.4)
+	await tween.finished
 	queue_free()
 
 func _drop_gold() -> void:

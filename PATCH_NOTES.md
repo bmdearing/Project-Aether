@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-17 — v5.9.1: Death fades and kill bursts
+
+Part of the visual overhaul (user plan: spell effects and UI readability in parallel, then deaths, then the HUD).
+- **Corpses fade out:** after the death clip and the 1.5 s linger, a corpse now fades out (per-mesh `transparency`), sinks 0.3 m and gives off a puff of ash over 0.8 s (`Enemy._dissolve_then_free()`). Before, it vanished in one frame. Its shadow is dropped 40% of the way in, so no solid shadow is left under a see-through body. Enemies without a death clip, which used to vanish the instant they died, fade the same way. They stop moving and attacking first.
+- **Kill burst:** Magic and rarer kills burst into sparks in their rarity colour, with a small flash and a light pop (`Enemy._kill_burst()`). Normal mobs just fall, so packs don't turn into fireworks.
+- Judgment calls: fade time 0.8 s, sink 0.3 m, the burst only on non-Normal kills, and the ash colour.
+
+---
+
 ## 2026-10-17 — v5.9.0: Forward+ renderer
 
 User request after a side-by-side trial: switch from Compatibility to Forward+ and retune.
