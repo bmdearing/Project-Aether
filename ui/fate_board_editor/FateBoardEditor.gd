@@ -32,7 +32,7 @@ var _designate_ability_ids: Array[String] = []
 var _held_lens: Lens
 var _cursor_icon: ItemIcon
 const CURSOR_ICON_SIZE := 46.0
-var _keys_hint: Label
+var _keys_hint: Control
 ## The view recentres on the anchor only if the board stayed closed this long.
 const RECENTER_AFTER_SEC := 120
 var _closed_msec: int = -1
@@ -56,9 +56,7 @@ func _ready() -> void:
 		FateBoardGrid.show_outlines = on
 		grid.queue_redraw())
 	aether_label.add_sibling(outlines)
-	_keys_hint = Label.new()
-	_keys_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_keys_hint.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+	_keys_hint = VBoxContainer.new()
 	status_label.add_sibling(_keys_hint)
 	_cursor_icon = ItemIcon.new()
 	_cursor_icon.size = Vector2.ONE * CURSOR_ICON_SIZE
@@ -80,7 +78,7 @@ func open() -> void:
 	# Reopening soon after (Tab cycling, a quick check) keeps the view where it was.
 	if _closed_msec < 0 or Time.get_ticks_msec() - _closed_msec > RECENTER_AFTER_SEC * 1000:
 		grid.center_on_anchor()
-	_keys_hint.text = "%s rotates and %s flips the Slate you're placing. Right-click a placed Slate to take it back. Reach a Star with your Slates to set a Lens in it; its bonuses appear around it, and Slates covering them claim them." % [GameSettings.key_name("fate_board_rotate"), GameSettings.key_name("fate_board_flip")]
+	_build_key_hints()
 	_populate_palette()
 	_refresh_aether()
 	_refresh_chains()
@@ -131,6 +129,7 @@ func _add_palette_entry(slate: Slate) -> void:
 	button.text = "%s (%d tiles, %d Aether, %s)" % [slate.display_name, slate.get_size(), slate.lensed_aether_cost(), tag_name]
 	button.tooltip_text = slate.display_name  # non-empty just to trigger Godot's tooltip system - ItemCard replaces the actual content
 	button.slate = slate
+	_fit_palette_text(button)
 	button.pressed.connect(_on_palette_selected.bind(slate))
 	palette_list.add_child(button)
 
@@ -139,6 +138,7 @@ func _add_lens_entry(lens: Lens) -> void:
 	button.text = "%s (%s)" % [lens.display_name, lens.radius_text()]
 	button.tooltip_text = lens.display_name
 	button.item = lens
+	_fit_palette_text(button)
 	button.pressed.connect(_on_lens_selected.bind(lens))
 	button.gui_input.connect(func(event: InputEvent):
 		if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_RIGHT:
@@ -371,3 +371,18 @@ func _star_summary() -> String:
 		for site in mine:
 			lines.append("  " + site.text())
 	return "\n\nStars:\n" + "\n".join(lines) if lines.size() > 0 else ""
+
+## Rebuilt on open so rebound keys show.
+func _build_key_hints() -> void:
+	for child in _keys_hint.get_children():
+		child.queue_free()
+	_keys_hint.add_child(AetherStyle.key_hints([
+		["LMB", "Place / drag to pan"],
+		["RMB", "Take a Slate back"],
+		[GameSettings.key_name("fate_board_rotate"), "Rotate"],
+		[GameSettings.key_name("fate_board_flip"), "Flip"],
+	]))
+
+func _fit_palette_text(button: Button) -> void:
+	button.add_theme_font_size_override("font_size", AetherStyle.MENU_FONT_SMALL)
+	button.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS

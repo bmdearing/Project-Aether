@@ -24,25 +24,29 @@ func _ready() -> void:
 	AetherStyle.style_screen(self)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
+	# A dark band across the top with a gold rule under it; screens start
+	# below AetherStyle.MENU_TOP.
+	var band := Bar.new()
+	band.set_anchors_preset(Control.PRESET_TOP_WIDE)
+	band.offset_bottom = AetherStyle.MENU_TOP - 10
+	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(band)
 	var holder := CenterContainer.new()
-	holder.set_anchors_preset(Control.PRESET_TOP_WIDE)
-	holder.offset_bottom = 30
+	holder.set_anchors_preset(Control.PRESET_FULL_RECT)
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(holder)
+	band.add_child(holder)
 	_row = HBoxContainer.new()
-	_row.add_theme_constant_override("separation", 2)
+	_row.add_theme_constant_override("separation", 6)
 	holder.add_child(_row)
-	var hint := Label.new()
-	hint.text = "Tab "
-	hint.add_theme_font_size_override("font_size", 13)
-	hint.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+	var hint := AetherStyle.key_badge("Tab")
+	hint.tooltip_text = "Tab / Shift+Tab cycles the screens"
 	_row.add_child(hint)
+	_row.add_child(Control.new())
 	for i in SCREENS.size():
 		var b := Button.new()
 		b.toggle_mode = true
 		b.focus_mode = Control.FOCUS_NONE
-		b.add_theme_font_size_override("font_size", 14)
-		b.custom_minimum_size = Vector2(104, 26)
+		b.custom_minimum_size = Vector2(150, 36)
 		b.pressed.connect(func(): tab_chosen.emit(i))
 		_row.add_child(b)
 		_buttons.append(b)
@@ -73,3 +77,10 @@ static func key_name(action: String) -> String:
 		if key:
 			return OS.get_keycode_string(key.keycode if key.keycode != KEY_NONE else key.physical_keycode)
 	return "-"
+
+class Bar extends Control:
+	func _draw() -> void:
+		draw_rect(Rect2(Vector2.ZERO, size), AetherStyle.GLASS_SOLID)
+		draw_line(Vector2(0, size.y), Vector2(size.x, size.y), AetherStyle.GOLD_DIM, 1.0)
+		draw_line(Vector2(0, size.y - 3), Vector2(size.x, size.y - 3), AetherStyle.GOLD_FAINT, 1.0)
+		AetherStyle.diamond(self, Vector2(size.x / 2.0, size.y), 4.0, AetherStyle.GLASS_SOLID, AetherStyle.GOLD)

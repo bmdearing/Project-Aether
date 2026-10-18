@@ -7,6 +7,23 @@ there. Most recent first.
 
 ---
 
+## 2026-10-17 — v5.10.0: Menu readability pass
+
+Part of the visual overhaul (user plan: spell effects and UI readability in parallel, then deaths, then the HUD). Readability and layout only: the gold-on-dark look, the ornate tooltips and the item cards stay as they were.
+- **Theme** (`AetherStyle.build_theme()`, rebuilt `aether_theme.tres`): menu body text 15 -> 18 px, buttons and tabs 17 px, plain tooltips 14 -> 16 px. `TEXT_DIM` is brighter (0.66 -> 0.77), so secondary labels and stat names read against the glass. Buttons and tabs have distinct states: hover lights the frame and adds a soft gold glow, pressed or selected uses a heavier bright frame on warm gold glass. Screen titles 22 -> 26, sub-headings 17 -> 20, section headers 15 -> 17, stat rows a little taller.
+- **Key hints:** `AetherStyle.key_hints()` draws a wrapping row of gold key badges with a short action each. It replaces the long grey help paragraphs on the inventory, stash, Fate Board, map and Spells screens. The old full sentences remain as the row's tooltip on the inventory and stash.
+- **Shared frame:** tabbed screens sit under the tab bar with the same margins (`AetherStyle.MENU_TOP/SIDE/BOTTOM`, `menu_margins()`).
+- **Tab bar:** a full-width dark band with a gold rule, larger buttons (150x36) and a `Tab` key badge.
+- **Character sheet (C):** opened alone, it fills the screen with Offense (plus Record), Defense and Misc in three columns, and the Advanced view is centred at a readable width. Beside the inventory it stays one column (widened 360 -> 430).
+- **Spells (K):** fills the frame. The spell library or a spell's page is on the left, and a loadout column (Spell Page, Stance Page, purse) is on the right. Icons and slots are bigger, and slot key captions are gold numerals. The panel no longer changes size between the library and a spell's page.
+- **Map (M):** fills the frame, with a gold-framed map pane and an "Area" header on the info column. The info column hides where there is no map (the Hub), and the "no map" message is bigger.
+- **Pause menu:** larger plate. The title is 40 px, and the buttons are 52 px tall in three groups (play / options / leave) with key hints at the foot. The two quit buttons turn red on hover.
+- **Fate Board:** the side panel is 400 px so Slate names fit (ellipsis if they still overflow), and the rules text is shorter.
+- 720p: menus scale with the window (`canvas_items` stretch), so a 1280x720 screen has the same layout. The capture harness ignores `--resolution` while the saved settings are fullscreen, so 720p was checked by downscaling the captures; the smallest text is still readable.
+- Judgment calls: the brighter `TEXT_DIM` also reaches HUD widgets that use it (shared constant); the exact sizes; what each key hint says; Record in the Offense column; the three pause groups; red hover on the quit buttons. Not changed: the item cards, and plain stat tooltips, which still don't wrap, so a long one is a single wide line (pre-existing).
+
+---
+
 ## 2026-10-17 — v5.9.1: Death fades and kill bursts
 
 Part of the visual overhaul (user plan: spell effects and UI readability in parallel, then deaths, then the HUD).

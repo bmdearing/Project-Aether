@@ -65,7 +65,7 @@ const CURSOR_ICON_SIZE := 46.0
 var _cursor_icon: ItemIcon
 const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
 const PREVIEW_LINES := 5
-const STATUS_LINES := 3
+const STATUS_LINES := 2
 const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand or Edict to switch it on for your next Orb, or an Orb or stone to pick it up, then click an item to use it; hovering an item with an Orb shows which modifiers it would touch. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows the character sheet. Hold Alt over an item for details."
 
 func _ready() -> void:
@@ -123,6 +123,21 @@ func _ready() -> void:
 	side_panel.move_child(status_label, -1)
 	side_panel.move_child(hint_label, -1)
 	hint_label.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+	# The long hint stays as the tooltip of a compact row of key hints.
+	hint_label.visible = false
+	var hints := AetherStyle.key_hints([
+		["RMB", "Equip, or pick up Orb / Jewel"],
+		["LMB", "Use it on an item"],
+		["RMB", "Brand / Edict on"],
+		["LMB", "Unequip"],
+		["Alt", "Details"],
+		[GameSettings.key_name("mark_trash"), "Trash"],
+		[GameSettings.key_name("mark_favored"), "Favored"],
+		[GameSettings.key_name("open_character"), "Sheet"],
+	])
+	hints.mouse_filter = Control.MOUSE_FILTER_PASS
+	hints.tooltip_text = hint_label.text
+	side_panel.add_child(hints)
 	_dress_panels()
 
 var _record_list: VBoxContainer
@@ -171,6 +186,7 @@ func _dress_panels() -> void:
 	for label in [get_node(list + "OffenseTitle"), get_node(list + "DefenseTitle"), get_node(list + "MiscTitle"), _record_title,
 			$HBox/SidePanel/TitleLabel, $HBox/SidePanel/InventoryPanel/InventoryTitle]:
 		_ornate(label)
+	_build_stat_columns()
 	_stats_plate = AetherStyle.wrap_in_plate(stats_panel)
 	_side_plate = AetherStyle.wrap_in_plate(side_panel)
 	_sync_plates()
@@ -186,6 +202,8 @@ func _sync_plates() -> void:
 		_stats_plate.visible = stats_panel.visible
 	if _side_plate:
 		_side_plate.visible = side_panel.visible
+	if _stats_plate and _side_plate:
+		_apply_sheet_width()
 
 ## Sizes the doll slots from inventory cells so equipped icons match the grid.
 func _layout_doll() -> void:
@@ -882,3 +900,59 @@ func _process(_delta: float) -> void:
 	# Held just above-left of the pointer, so the cursor tip stays on the target.
 	_cursor_icon.position = get_viewport().get_mouse_position() - Vector2(CURSOR_ICON_SIZE * 0.75, CURSOR_ICON_SIZE * 0.75)
 	_cursor_icon.move_to_front()
+
+## The stat sections in columns: one column beside the inventory, three
+## across the screen when the sheet shows alone.
+var _stat_grid: GridContainer
+var _stat_cols: Array[VBoxContainer] = []
+var _stat_sections := {}
+const STAT_SECTIONS := ["Offense", "Defense", "Misc", "Record"]
+
+func _build_stat_columns() -> void:
+	var list: VBoxContainer = $HBox/StatsPanel/StatsScroll/StatsList
+	_stat_grid = GridContainer.new()
+	_stat_grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_stat_grid.add_theme_constant_override("h_separation", 48)
+	for i in 3:
+		var col := VBoxContainer.new()
+		col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		col.add_theme_constant_override("separation", 10)
+		_stat_grid.add_child(col)
+		_stat_cols.append(col)
+	var titles := [list.get_node("OffenseTitle"), list.get_node("DefenseTitle"), list.get_node("MiscTitle"), _record_title]
+	for i in STAT_SECTIONS.size():
+		var section := VBoxContainer.new()
+		section.add_theme_constant_override("separation", 4)
+		_stat_sections[STAT_SECTIONS[i]] = section
+		# Each title's ornate header sits just before it, its rows just after.
+		var title: Label = titles[i]
+		var nodes := [list.get_child(title.get_index() - 1), title, list.get_child(title.get_index() + 1)]
+		for node in nodes:
+			node.reparent(section, false)
+	list.add_child(_stat_grid)
+	_layout_stat_columns(false)
+
+func _layout_stat_columns(wide: bool) -> void:
+	var column := {"Offense": 0, "Defense": 1 if wide else 0, "Misc": 2 if wide else 0, "Record": 0}
+	for key in STAT_SECTIONS:
+		var section: VBoxContainer = _stat_sections[key]
+		var col: VBoxContainer = _stat_cols[column[key]]
+		if section.get_parent() == null:
+			col.add_child(section)
+		elif section.get_parent() != col:
+			section.reparent(col, false)
+		col.move_child(section, -1)
+	_stat_grid.columns = 3 if wide else 1
+	_stat_cols[1].visible = wide
+	_stat_cols[2].visible = wide
+
+## The sheet alone fills the screen; beside the inventory it's one column.
+func _apply_sheet_width() -> void:
+	var wide := stats_panel.visible and not side_panel.visible
+	_layout_stat_columns(wide)
+	_stats_plate.size_flags_horizontal = Control.SIZE_EXPAND_FILL if wide else Control.SIZE_FILL
+	($HBox/Spacer as Control).visible = not wide
+	_header.custom_minimum_size.x = 640.0 if wide else 0.0
+	_header.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN if wide else Control.SIZE_FILL
+	_stat_details.custom_minimum_size.x = 1000.0 if wide else 0.0
+	_stat_details.size_flags_horizontal = Control.SIZE_SHRINK_CENTER if wide else Control.SIZE_FILL

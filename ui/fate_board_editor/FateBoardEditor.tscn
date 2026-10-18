@@ -14,9 +14,9 @@ color = Color(0, 0, 0, 0.75)
 [node name="HBox" type="HBoxContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 24.0
-offset_top = 24.0
-offset_right = -24.0
+offset_left = 28.0
+offset_top = 62.0
+offset_right = -28.0
 offset_bottom = -24.0
 theme_override_constants/separation = 20
 
@@ -28,7 +28,7 @@ size_flags_vertical = 3
 script = ExtResource("2")
 
 [node name="SidePanel" type="VBoxContainer" parent="HBox"]
-custom_minimum_size = Vector2(340, 0)
+custom_minimum_size = Vector2(400, 0)
 theme_override_constants/separation = 10
 
 [node name="TitleLabel" type="Label" parent="HBox/SidePanel"]
@@ -43,9 +43,7 @@ text = ""
 
 [node name="SelectedLabel" type="Label" parent="HBox/SidePanel"]
 autowrap_mode = 3
-text = "Select a Slate below, then click the grid to place it. Right-click to remove a placed Slate, or drop a held one. Drag with LMB to pan.
-
-A Slate must touch a reached Star or a Slate it shares a tag with. Slates further out cost more Aether. Lens radii show as outlined areas."
+text = "Select a Slate below, then click the grid to place it. A Slate must touch a reached Star or a Slate it shares a tag with; Slates further out cost more Aether. Reach a Star to set a Lens in it: Slates covering its bonuses claim them."
 
 [node name="DesignateOption" type="OptionButton" parent="HBox/SidePanel"]
 visible = false

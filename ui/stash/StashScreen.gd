@@ -155,10 +155,20 @@ func _build() -> void:
 	AetherStyle.wrap_in_plate(left, 14)
 	AetherStyle.wrap_in_plate(right, 14)
 
-	_status = _label("", 14)
+	_status = _label("", AetherStyle.MENU_FONT_SMALL)
+	_status.add_theme_color_override("font_color", AetherStyle.GOLD)
 	root.add_child(_status)
-	var hint := _label("Drag to move items. Right-click sends an item to the other side, into the tab set for its kind. Right-click a tab to set what it collects. On the Currency tab, right-click a currency to pick it up, then click any item to use it (hold Shift to keep using it); right-click Brands and Edicts to switch them on for the next craft. E or Esc closes.", 12)
-	hint.modulate = Color(1, 1, 1, 0.6)
+	var hint := AetherStyle.key_hints([
+		["LMB", "Drag to move"],
+		["RMB", "Send to the other side"],
+		["RMB", "On a tab: choose what it collects"],
+		["RMB", "Currency: pick up, then click an item"],
+		["Shift", "Keep using held currency"],
+		["E", "Close"],
+	])
+	hint.alignment = FlowContainer.ALIGNMENT_CENTER
+	hint.mouse_filter = Control.MOUSE_FILTER_PASS
+	hint.tooltip_text = "Drag to move items. Right-click sends an item to the other side, into the tab set for its kind. Right-click a tab to set what it collects. On the Currency tab, right-click a currency to pick it up, then click any item to use it (hold Shift to keep using it); right-click Brands and Edicts to switch them on for the next craft. E or Esc closes."
 	root.add_child(hint)
 
 	_affinity_menu = PopupMenu.new()

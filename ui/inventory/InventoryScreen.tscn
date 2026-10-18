@@ -15,14 +15,14 @@ color = Color(0, 0, 0, 0.75)
 [node name="HBox" type="HBoxContainer" parent="."]
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 24.0
-offset_top = 40.0
-offset_right = -24.0
+offset_left = 28.0
+offset_top = 62.0
+offset_right = -28.0
 offset_bottom = -24.0
 theme_override_constants/separation = 24
 
 [node name="StatsPanel" type="VBoxContainer" parent="HBox"]
-custom_minimum_size = Vector2(360, 0)
+custom_minimum_size = Vector2(430, 0)
 theme_override_constants/separation = 8
 
 [node name="StatsTitle" type="Label" parent="HBox/StatsPanel"]
@@ -71,7 +71,6 @@ text = ""
 
 [node name="HintLabel" type="Label" parent="HBox/SidePanel"]
 autowrap_mode = 3
-theme_override_font_sizes/font_size = 13
 text = "Click an item to equip it, click an equipped slot to unequip it. Hover for its stat card (hold Alt for more)."
 
 [node name="PaperDoll" type="Control" parent="HBox/SidePanel"]

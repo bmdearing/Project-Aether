@@ -16,10 +16,19 @@ const AETHER := Color(0.45, 0.86, 1.0)
 const LIFE := Color(0.78, 0.12, 0.14)
 const MANA := Color(0.16, 0.36, 0.86)
 const TEXT := Color(0.93, 0.9, 0.84)
-const TEXT_DIM := Color(0.66, 0.62, 0.55)
+const TEXT_DIM := Color(0.77, 0.73, 0.65)
 const MOD_BLUE := Color(0.55, 0.72, 1.0)
 const DANGER := Color(0.95, 0.3, 0.28)
 const SHADOW := Color(0, 0, 0, 0.75)
+## Menu text sizes: body text, secondary labels and hints, buttons and tabs.
+const MENU_FONT := 18
+const MENU_FONT_SMALL := 16
+const BUTTON_FONT := 17
+## Tabbed menu screens start below the tab band (MenuTabStrip) and keep
+## these margins, so they all share one frame.
+const MENU_TOP := 62
+const MENU_SIDE := 28
+const MENU_BOTTOM := 24
 ## Full-screen menus draw above the HUD (CanvasLayer default 1).
 const SCREEN_LAYER := 10
 
@@ -172,6 +181,65 @@ static func glass_box(border: Color = GOLD_DIM, bg: Color = GLASS, border_width 
 	box.content_margin_bottom = margin * 0.6
 	return box
 
+## Buttons and tabs: roomier padding than a panel, and an optional outer
+## glow for hover. Thicker borders give back the padding so text never shifts.
+static func button_box(border: Color, bg: Color, border_width := 1, glow := Color(0, 0, 0, 0)) -> StyleBoxFlat:
+	var box := glass_box(border, bg, border_width, 16.0)
+	var shift := float(border_width - 1)
+	box.content_margin_left = 16.0 - shift
+	box.content_margin_right = 16.0 - shift
+	box.content_margin_top = 6.0 - shift
+	box.content_margin_bottom = 6.0 - shift
+	box.shadow_color = glow
+	box.shadow_size = 5 if glow.a > 0.0 else 0
+	return box
+
+## A row of control hints that wraps: a gold key badge, then what it does.
+## `pairs` is [[key, action], ...]; a key can be "LMB", "RMB", "Alt", "Esc".
+static func key_hints(pairs: Array) -> HFlowContainer:
+	var flow := HFlowContainer.new()
+	flow.name = "KeyHints"
+	flow.add_theme_constant_override("h_separation", 22)
+	flow.add_theme_constant_override("v_separation", 8)
+	flow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for pair in pairs:
+		flow.add_child(key_hint(String(pair[0]), String(pair[1])))
+	return flow
+
+static func key_hint(key: String, action: String) -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 8)
+	row.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	for part in key.split("+"):
+		row.add_child(key_badge(part))
+	var label := Label.new()
+	label.text = action
+	label.add_theme_font_size_override("font_size", MENU_FONT_SMALL)
+	label.add_theme_color_override("font_color", TEXT)
+	label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	row.add_child(label)
+	return row
+
+## A key cap: bright numerals in a small framed plate.
+static func key_badge(key: String) -> PanelContainer:
+	var badge := PanelContainer.new()
+	var box := glass_box(GOLD, Color(0.16, 0.13, 0.08, 0.95), 1, 7.0)
+	box.content_margin_top = 1
+	box.content_margin_bottom = 1
+	box.border_width_bottom = 2
+	badge.add_theme_stylebox_override("panel", box)
+	badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var label := Label.new()
+	label.text = key
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.custom_minimum_size.x = 14
+	label.add_theme_font_override("font", numbers())
+	label.add_theme_font_size_override("font_size", MENU_FONT_SMALL)
+	label.add_theme_color_override("font_color", GOLD_BRIGHT)
+	badge.add_child(label)
+	return badge
+
 ## Item/slot buttons: dark glass with the rarity (or damage type) as border
 ## and a faint inner tint, instead of a flat colour fill.
 static func slot_box(accent: Color, hovered := false) -> StyleBoxFlat:
@@ -196,26 +264,29 @@ static func style_slot_button(button: Button, accent: Color) -> void:
 static func build_theme() -> Theme:
 	var t := Theme.new()
 	t.default_font = serif()
-	t.default_font_size = 15
+	t.default_font_size = MENU_FONT
 
 	t.set_color("font_color", "Label", TEXT)
 	t.set_color("font_shadow_color", "Label", Color(0, 0, 0, 0.6))
 	t.set_constant("shadow_offset_x", "Label", 1)
 	t.set_constant("shadow_offset_y", "Label", 1)
 
+	# Normal: dim frame. Hover: lit frame with a soft glow. Pressed or toggled
+	# on: heavier bright frame on warm gold-tinted glass.
 	for type in ["Button", "OptionButton", "MenuButton"]:
-		t.set_stylebox("normal", type, glass_box(GOLD_DIM, GLASS_LIGHT, 1, 12.0))
-		t.set_stylebox("hover", type, glass_box(GOLD, Color(0.13, 0.13, 0.17, 0.92), 1, 12.0))
-		t.set_stylebox("pressed", type, glass_box(GOLD_BRIGHT, Color(0.18, 0.15, 0.09, 0.95), 1, 12.0))
-		t.set_stylebox("hover_pressed", type, glass_box(GOLD_BRIGHT, Color(0.2, 0.17, 0.1, 0.95), 1, 12.0))
-		t.set_stylebox("disabled", type, glass_box(GOLD_FAINT, GLASS, 1, 12.0))
+		t.set_stylebox("normal", type, button_box(GOLD_DIM, GLASS_LIGHT))
+		t.set_stylebox("hover", type, button_box(GOLD, Color(0.15, 0.15, 0.2, 0.94), 1, Color(GOLD, 0.22)))
+		t.set_stylebox("pressed", type, button_box(GOLD_BRIGHT, Color(0.24, 0.19, 0.1, 0.96), 2))
+		t.set_stylebox("hover_pressed", type, button_box(GOLD_BRIGHT, Color(0.28, 0.22, 0.12, 0.96), 2, Color(GOLD, 0.28)))
+		t.set_stylebox("disabled", type, button_box(GOLD_FAINT, GLASS))
 		t.set_stylebox("focus", type, StyleBoxEmpty.new())
+		t.set_font_size("font_size", type, BUTTON_FONT)
 		t.set_color("font_color", type, TEXT)
 		t.set_color("font_hover_color", type, GOLD_BRIGHT)
 		t.set_color("font_pressed_color", type, GOLD_BRIGHT)
 		t.set_color("font_hover_pressed_color", type, GOLD_BRIGHT)
 		t.set_color("font_focus_color", type, TEXT)
-		t.set_color("font_disabled_color", type, TEXT_DIM)
+		t.set_color("font_disabled_color", type, Color(TEXT_DIM, 0.6))
 
 	for type in ["CheckBox", "CheckButton"]:
 		t.set_stylebox("normal", type, StyleBoxEmpty.new())
@@ -233,7 +304,7 @@ static func build_theme() -> Theme:
 	t.set_stylebox("panel", "TooltipPanel", glass_box(GOLD, GLASS_SOLID, 1, 10.0))
 	t.set_color("font_color", "TooltipLabel", TEXT)
 	t.set_font("font", "TooltipLabel", serif())
-	t.set_font_size("font_size", "TooltipLabel", 14)
+	t.set_font_size("font_size", "TooltipLabel", MENU_FONT_SMALL)
 
 	for type in ["LineEdit", "TextEdit", "SpinBox"]:
 		t.set_stylebox("normal", type, glass_box(GOLD_DIM, Color(0.02, 0.025, 0.04, 0.9), 1, 8.0))
@@ -282,12 +353,13 @@ static func build_theme() -> Theme:
 	t.set_stylebox("grabber_area", "HSlider", slider_fill)
 	t.set_stylebox("grabber_area_highlight", "HSlider", slider_fill)
 
-	var tab_on := glass_box(GOLD, Color(0.14, 0.12, 0.08, 0.95), 1, 10.0)
-	var tab_off := glass_box(GOLD_FAINT, GLASS, 1, 10.0)
+	var tab_on := button_box(GOLD_BRIGHT, Color(0.24, 0.19, 0.1, 0.96), 2)
+	var tab_off := button_box(GOLD_FAINT, GLASS)
 	for type in ["TabContainer", "TabBar"]:
 		t.set_stylebox("tab_selected", type, tab_on)
 		t.set_stylebox("tab_unselected", type, tab_off)
-		t.set_stylebox("tab_hovered", type, glass_box(GOLD_DIM, GLASS_LIGHT, 1, 10.0))
+		t.set_stylebox("tab_hovered", type, button_box(GOLD, Color(0.15, 0.15, 0.2, 0.94)))
+		t.set_font_size("font_size", type, BUTTON_FONT)
 		t.set_color("font_selected_color", type, GOLD_BRIGHT)
 		t.set_color("font_unselected_color", type, TEXT_DIM)
 		t.set_color("font_hovered_color", type, TEXT)
@@ -309,7 +381,7 @@ static func style_screen(root: Node) -> void:
 	for node in root.find_children("*", "Label", true, false):
 		var n := String(node.name)
 		if n == "TitleLabel" or n.ends_with("Title"):
-			title_label(node, 22 if n == "TitleLabel" else 17)
+			title_label(node, 26 if n == "TitleLabel" else 20)
 	for node in root.find_children("DimBackground", "ColorRect", true, false):
 		(node as ColorRect).color = Color(0.01, 0.015, 0.03, 0.84)
 
@@ -342,6 +414,14 @@ class PlateCorners extends Control:
 		for p in [rect.position, Vector2(rect.end.x, rect.position.y), rect.end, Vector2(rect.position.x, rect.end.y)]:
 			AetherStyle.diamond(self, p, 5.0, GLASS_SOLID, GOLD)
 
+## Gives a full-rect MarginContainer the shared tabbed-menu frame.
+static func menu_margins(box: MarginContainer) -> void:
+	box.set_anchors_preset(Control.PRESET_FULL_RECT)
+	box.add_theme_constant_override("margin_left", MENU_SIDE)
+	box.add_theme_constant_override("margin_right", MENU_SIDE)
+	box.add_theme_constant_override("margin_top", MENU_TOP)
+	box.add_theme_constant_override("margin_bottom", MENU_BOTTOM)
+
 ## True while a full-screen menu (inventory, character, pause, death...)
 ## is up - the combat HUD hides then rather than showing through the veil.
 static func menu_open(tree: SceneTree) -> bool:
@@ -363,7 +443,7 @@ static func title_label(label: Label, size_px := 22) -> void:
 
 ## A gold section heading: a diamond, the title in spaced capitals, and a
 ## rule fading out to the right.
-static func section_header(text_value: String, size_px := 15) -> Control:
+static func section_header(text_value: String, size_px := 17) -> Control:
 	var header := SectionHeader.new()
 	header.title = text_value
 	header.size_px = size_px
@@ -371,7 +451,7 @@ static func section_header(text_value: String, size_px := 15) -> Control:
 
 class SectionHeader extends Control:
 	var title := ""
-	var size_px := 15
+	var size_px := 17
 
 	func _ready() -> void:
 		custom_minimum_size.y = size_px + 14.0
@@ -390,14 +470,33 @@ class SectionHeader extends Control:
 			var w := (size.x - x) / steps
 			draw_line(Vector2(x + w * i, mid), Vector2(x + w * (i + 1), mid), Color(AetherStyle.GOLD_DIM, 0.9 * (1.0 - t)), 1.0)
 
+## A centred gold rule with a diamond (divider()) as a Control; `faint`
+## draws it shorter and quieter, for gaps between button groups.
+static func section_divider(faint := false) -> Control:
+	var rule := Divider.new()
+	rule.faint = faint
+	rule.custom_minimum_size.y = 14.0 if faint else 20.0
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	return rule
+
+class Divider extends Control:
+	var faint := false
+
+	func _draw() -> void:
+		var inset := size.x * (0.22 if faint else 0.04)
+		if faint:
+			draw_line(Vector2(inset, size.y / 2.0), Vector2(size.x - inset, size.y / 2.0), AetherStyle.GOLD_FAINT, 1.0)
+		else:
+			AetherStyle.divider(self, 0.0, size.y / 2.0, size.x, inset)
+
 ## Background for a stat row; every other row is faintly lit.
 static func row_box(lit: bool) -> StyleBoxFlat:
 	var box := StyleBoxFlat.new()
-	box.bg_color = Color(GOLD, 0.06) if lit else Color(0, 0, 0, 0)
-	box.content_margin_left = 6
-	box.content_margin_right = 6
-	box.content_margin_top = 1
-	box.content_margin_bottom = 1
+	box.bg_color = Color(GOLD, 0.08) if lit else Color(0, 0, 0, 0)
+	box.content_margin_left = 8
+	box.content_margin_right = 8
+	box.content_margin_top = 3
+	box.content_margin_bottom = 3
 	box.corner_radius_top_left = 2
 	box.corner_radius_top_right = 2
 	box.corner_radius_bottom_left = 2

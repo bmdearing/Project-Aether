@@ -15,9 +15,11 @@ class_name AbilitiesScreen
 ## GameState.owned_ability_ids. Leveling costs Gold + Crystallized Aether.
 
 const ABILITY_INSTANCE_DIR := "res://data/abilities/instances/"
-const ICON_SIZE := 76.0
-const GRID_COLUMNS := 8
-const SLOT_SIZE := 64.0
+const ICON_SIZE := 88.0
+const GRID_COLUMNS := 12
+## The loadout column beside the library and spell pages.
+const LOADOUT_WIDTH := 380.0
+const SLOT_SIZE := 78.0
 const MINI_SLOT_SIZE := 46.0
 
 var _is_open: bool = false
@@ -97,58 +99,89 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _build() -> void:
 	var dim := ColorRect.new()
-	dim.color = Color(0, 0, 0, 0.75)
+	dim.color = Color(0.01, 0.015, 0.03, 0.84)
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
 	add_child(dim)
-	var center := CenterContainer.new()
-	center.set_anchors_preset(Control.PRESET_FULL_RECT)
-	add_child(center)
+	var frame := MarginContainer.new()
+	AetherStyle.menu_margins(frame)
+	add_child(frame)
 	var root := VBoxContainer.new()
-	root.custom_minimum_size = Vector2(GRID_COLUMNS * (ICON_SIZE + 8.0) + 40.0, 640)
-	root.add_theme_constant_override("separation", 10)
-	center.add_child(root)
+	root.add_theme_constant_override("separation", 12)
+	frame.add_child(root)
 	AetherStyle.wrap_in_plate(root, 24)
 
 	var title := Label.new()
 	title.text = "Spells"
-	AetherStyle.title_label(title, 26)
+	AetherStyle.title_label(title, 30)
 	root.add_child(title)
+
+	# Left: the spell library, or one spell's page. Right: the loadout.
+	var body := HBoxContainer.new()
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_theme_constant_override("separation", 28)
+	root.add_child(body)
+	var main := VBoxContainer.new()
+	main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main.add_theme_constant_override("separation", 10)
+	body.add_child(main)
+	body.add_child(VSeparator.new())
+	var side := VBoxContainer.new()
+	side.custom_minimum_size.x = LOADOUT_WIDTH
+	side.add_theme_constant_override("separation", 10)
+	body.add_child(side)
 
 	_library = VBoxContainer.new()
 	_library.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_library.add_theme_constant_override("separation", 10)
-	root.add_child(_library)
-	_library.add_child(_dim_label("Left-click a spell to open its page. Right-click it to choose where it goes on your Spell or Stance Page."))
+	main.add_child(_library)
+	_library.add_child(AetherStyle.section_header("Known Spells"))
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.custom_minimum_size.y = ICON_SIZE * 3 + 40.0
 	_library.add_child(scroll)
 	_grid = GridContainer.new()
 	_grid.columns = GRID_COLUMNS
-	_grid.add_theme_constant_override("h_separation", 8)
-	_grid.add_theme_constant_override("v_separation", 8)
+	_grid.add_theme_constant_override("h_separation", 10)
+	_grid.add_theme_constant_override("v_separation", 10)
 	scroll.add_child(_grid)
 	_empty_label = _dim_label("You don't know any spells yet. Skill Tomes drop in Figments.")
 	_library.add_child(_empty_label)
 
-	_build_web_page(root)
+	_build_web_page(main)
 
-	root.add_child(_section_label("Spell Page - keys 1-4"))
-	root.add_child(_slot_row(0))
-	root.add_child(_section_label("Stance Page - cast while holding RMB with a Spell Library conduit"))
-	root.add_child(_slot_row(AbilityLoadoutComponent.SLOT_COUNT))
+	side.add_child(AetherStyle.section_header("Spell Page"))
+	side.add_child(_dim_label("Cast with keys 1-4."))
+	side.add_child(_slot_row(0))
+	side.add_child(AetherStyle.section_header("Stance Page"))
+	side.add_child(_dim_label("Cast while holding RMB with a Spell Library conduit."))
+	side.add_child(_slot_row(AbilityLoadoutComponent.SLOT_COUNT))
 	_slot_hint = _dim_label("")
-	root.add_child(_slot_hint)
-
+	side.add_child(_slot_hint)
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	side.add_child(spacer)
+	side.add_child(AetherStyle.section_header("Purse"))
 	_currency_label = Label.new()
-	root.add_child(_currency_label)
+	_currency_label.add_theme_font_override("font", AetherStyle.numbers())
+	_currency_label.add_theme_font_size_override("font_size", 20)
+	_currency_label.add_theme_color_override("font_color", AetherStyle.GOLD_BRIGHT)
+	side.add_child(_currency_label)
 	_status = Label.new()
+	_status.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_status.add_theme_color_override("font_color", AetherStyle.GOLD)
-	root.add_child(_status)
+	side.add_child(_status)
+
+	var footer := HBoxContainer.new()
+	footer.add_theme_constant_override("separation", 16)
+	root.add_child(footer)
+	var hints := AetherStyle.key_hints([["LMB", "Open a spell's page"], ["RMB", "Choose its slot"], ["LMB", "Drag onto a slot"], ["Esc", "Back / close"]])
+	hints.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	footer.add_child(hints)
 	var close_button := Button.new()
 	close_button.text = "Close (Esc)"
+	close_button.custom_minimum_size.x = 180
 	close_button.pressed.connect(close)
-	root.add_child(close_button)
+	footer.add_child(close_button)
 
 	_build_assign_popup()
 
@@ -184,8 +217,9 @@ func _make_slot_button(side: float, caption: String) -> ItemSlotButton:
 	button.custom_minimum_size = Vector2(side, side)
 	var key := Label.new()
 	key.text = caption
-	key.add_theme_font_size_override("font_size", 11)
-	key.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+	key.add_theme_font_override("font", AetherStyle.numbers())
+	key.add_theme_font_size_override("font_size", 14)
+	key.add_theme_color_override("font_color", AetherStyle.GOLD_BRIGHT)
 	key.position = Vector2(4, 1)
 	key.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	button.add_child(key)

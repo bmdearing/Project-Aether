@@ -29,8 +29,20 @@ var explored: Dictionary = {}
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
 	AetherStyle.style_screen(self)
-	($CenterContainer/VBox/Footer/HintLabel as Label).add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+	AetherStyle.menu_margins($CenterContainer)
+	var hint := $CenterContainer/VBox/Footer/HintLabel as Label
+	var hints := AetherStyle.key_hints([["Wheel", "Zoom"], ["LMB", "Drag to pan"], ["Space", "Centre on you"], ["Esc", "Close"]])
+	hints.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	hint.add_sibling(hints)
+	hint.visible = false
+	no_data_label.add_theme_font_size_override("font_size", 22)
+	no_data_label.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
+	no_data_label.text = "No map here.\nThe map charts a Figment's area once you're inside one."
 	AetherStyle.wrap_in_plate($CenterContainer/VBox, 24)
+	var frame := MapFrame.new()
+	frame.set_anchors_preset(Control.PRESET_FULL_RECT)
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	view.get_parent().add_child(frame)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	add_to_group("map_screen")
@@ -92,6 +104,7 @@ func _refresh() -> void:
 	view.visible = has_data
 	no_data_label.visible = not has_data
 	centre_button.disabled = not has_data
+	info.visible = has_data
 	for child in info.get_children():
 		info.remove_child(child)
 		child.queue_free()
@@ -104,6 +117,7 @@ func _refresh() -> void:
 func _build_info(map: GeneratedMap) -> void:
 	var figment := GameState.active_map
 	title_label.text = map.tileset.display_name if map.tileset and map.tileset.display_name != "" else "Map"
+	info.add_child(AetherStyle.section_header("Area"))
 	if figment:
 		_line("%s  -  Area Level %d" % ["Depth %d" % figment.depth if figment.is_levelling() else "Tier %d" % figment.tier, figment.area_level()], AetherStyle.GOLD)
 	var living := map.get_living_enemy_count()
@@ -134,6 +148,15 @@ func _line(text: String, color: Color = AetherStyle.TEXT) -> void:
 	var label := Label.new()
 	label.text = text
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size.x = 250
+	label.custom_minimum_size.x = 340
 	label.add_theme_color_override("font_color", color)
 	info.add_child(label)
+
+## Gold frame and corner diamonds round the map, over the drawn map.
+class MapFrame extends Control:
+	func _draw() -> void:
+		var rect := Rect2(Vector2.ZERO, size)
+		draw_rect(rect.grow(-1), AetherStyle.GOLD_DIM, false, 1.0)
+		draw_rect(rect.grow(-5), AetherStyle.GOLD_FAINT, false, 1.0)
+		for p in [Vector2(8, 8), Vector2(size.x - 8, 8), Vector2(size.x - 8, size.y - 8), Vector2(8, size.y - 8)]:
+			AetherStyle.diamond(self, p, 4.0, AetherStyle.GLASS_SOLID, AetherStyle.GOLD)

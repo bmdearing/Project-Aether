@@ -34,7 +34,7 @@ func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
 	AetherStyle.style_screen(self)
 	add_to_group("full_screen_menu")
-	AetherStyle.wrap_in_plate($CenterContainer/VBoxContainer, 28)
+	AetherStyle.wrap_in_plate($CenterContainer/VBoxContainer, 40)
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	visible = false
 	_fate_board_editor = get_tree().get_first_node_in_group("fate_board_editor")
@@ -48,6 +48,7 @@ func _ready() -> void:
 	main_menu_button.pressed.connect(_on_main_menu_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
 	_build_settings()
+	_compose_menu()
 	_tab_strip = MenuTabStrip.new()
 	_tab_strip.tab_chosen.connect(_switch_to_tab)
 	add_sibling.call_deferred(_tab_strip)  # its own layer, not hidden with this menu
@@ -67,6 +68,35 @@ func _build_settings() -> void:
 	panel.back_pressed.connect(_show_settings.bind(false))
 	_settings_center.add_child(panel)
 	_build_wiki(menu, settings_button)
+
+## Big buttons in three groups (play, options, leave) under a large title,
+## with key hints at the foot.
+func _compose_menu() -> void:
+	var menu := resume_button.get_parent() as VBoxContainer
+	menu.custom_minimum_size.x = 400
+	menu.add_theme_constant_override("separation", 10)
+	var title := menu.get_node("TitleLabel") as Label
+	AetherStyle.title_label(title, 40)
+	title.add_theme_color_override("font_color", AetherStyle.GOLD_BRIGHT)
+	var rule := AetherStyle.section_divider()
+	menu.add_child(rule)
+	menu.move_child(rule, title.get_index() + 1)
+	for child in menu.get_children():
+		if child is Button:
+			child.custom_minimum_size.y = 52
+			child.add_theme_font_size_override("font_size", 21)
+	var settings_button := menu.get_child(menu.get_node("WikiButton").get_index() - 1)
+	for button in [settings_button, main_menu_button]:
+		var gap := AetherStyle.section_divider(true)
+		menu.add_child(gap)
+		menu.move_child(gap, button.get_index())
+	main_menu_button.add_theme_color_override("font_hover_color", AetherStyle.DANGER.lightened(0.3))
+	quit_button.add_theme_color_override("font_hover_color", AetherStyle.DANGER.lightened(0.3))
+	var hints := AetherStyle.key_hints([["Esc", "Resume"], ["Tab", "Menus"]])
+	hints.alignment = FlowContainer.ALIGNMENT_CENTER
+	var foot := AetherStyle.section_divider(true)
+	menu.add_child(foot)
+	menu.add_child(hints)
 
 ## Wiki button under Settings: the same Wiki as the main menu, with
 ## odds from the live character's Magic Find.
