@@ -81,22 +81,36 @@ static func cells() -> Array[Vector2i]:
 static func star_at(cell: Vector2i) -> int:
 	return cells().find(cell)
 
+## Star bonus values are POOLS x this, then x the Lens's rarity.
+const VALUE_MULT := 2.0
+const RARITY_MULT := {
+	Constants.ItemRarity.COMMON: 1.0,
+	Constants.ItemRarity.UNCOMMON: 1.25,
+	Constants.ItemRarity.RARE: 1.5,
+	Constants.ItemRarity.UNIQUE: 1.75,
+	Constants.ItemRarity.MYTHIC: 2.0,
+}
+
 static var _site_cache: Dictionary = {}
 
-## The fixed places a Star's bonuses appear, the same on every board.
-static func site_cells(star: int) -> Array[Vector2i]:
-	if _site_cache.has(star):
-		return _site_cache[star]
+## Where a Star's bonuses appear for a layout seed. Seed 0 is the Star's
+## default ring; a Lens passes lens_seed(), so its sites move when its
+## modifiers change or it goes into a different Star.
+static func site_cells(star: int, layout_seed: int = 0) -> Array[Vector2i]:
+	var cache_key := Vector2i(star, layout_seed)
+	if _site_cache.has(cache_key):
+		return _site_cache[cache_key]
 	var rng := RandomNumberGenerator.new()
-	rng.seed = 7919 * (star + 1)
+	rng.seed = 7919 * (star + 1) + layout_seed
 	var star_cells := cells()
 	var origin: Vector2i = star_cells[star]
+	var turn := rng.randf() * TAU if layout_seed != 0 else 0.0
 	var result: Array[Vector2i] = []
 	var tries := 0
 	while result.size() < MAX_SITES and tries < 500:
 		tries += 1
 		# One site per eighth of the circle, so they ring the Star.
-		var angle := (result.size() + rng.randf_range(0.15, 0.85)) * TAU / MAX_SITES
+		var angle := turn + (result.size() + rng.randf_range(0.15, 0.85)) * TAU / MAX_SITES
 		var dist := rng.randf_range(SITE_MIN_DIST, SITE_MAX_DIST)
 		var cell := origin + Vector2i(roundi(cos(angle) * dist), roundi(sin(angle) * dist))
 		if not FateBoard.in_board(cell) or star_cells.has(cell):
@@ -104,25 +118,50 @@ static func site_cells(star: int) -> Array[Vector2i]:
 		if result.any(func(o: Vector2i) -> bool: return Vector2(o - cell).length() < 2.5):
 			continue
 		result.append(cell)
-	_site_cache[star] = result
+	_site_cache[cache_key] = result
 	return result
 
-## The sites a Lens in `star` lights, with their bonuses. Bonuses cycle
-## through the pool from a point set by the Lens, so every bonus shows up.
+## A seed from the Star and everything rolled on the Lens (radius modifier,
+## jewel modifiers, rarity): re-rolling any of them reshuffles its sites.
+static func lens_seed(star: int, lens: Lens) -> int:
+	var parts: Array = [star, lens.radius, lens.radius_mod, snappedf(lens.radius_value, 0.01), lens.radius_tag, lens.rarity]
+	for affix in lens.affixes:
+		parts.append(affix.key())
+		parts.append(snappedf(affix.value, 0.01))
+	return absi(hash(parts)) % 1000003 + 1
+
+static func value_multiplier(lens: Lens) -> float:
+	return VALUE_MULT * float(RARITY_MULT.get(lens.rarity, 1.0))
+
+## The sites a Lens in `star` lights, with their bonuses: the pool is
+## shuffled by the Lens's seed and dealt out in turn, so every bonus shows up.
 static func sites_for(star: int, lens: Lens) -> Array[Site]:
 	var result: Array[Site] = []
 	var pool: Array = POOLS.get(lens.radius_mod, [])
 	if pool.is_empty():
 		return result
 	var count: int = SITES_BY_RADIUS.get(lens.radius, 4)
-	var all := site_cells(star)
-	var start := absi(hash(lens.item_id)) % pool.size()
+	var layout_seed := lens_seed(star, lens)
+	var all := site_cells(star, layout_seed)
+	var order: Array = range(pool.size())
+	var rng := RandomNumberGenerator.new()
+	rng.seed = layout_seed * 31 + 17
+	for i in range(order.size() - 1, 0, -1):
+		var j := rng.randi_range(0, i)
+		var swap: int = order[i]
+		order[i] = order[j]
+		order[j] = swap
+	var mult := value_multiplier(lens)
 	for i in mini(count, all.size()):
 		var site := Site.new()
 		site.cell = all[i]
 		site.star = star
 		site.index = i
-		site.bonus = pool[(start + i) % pool.size()]
+		var bonus: Dictionary = (pool[order[i % pool.size()]] as Dictionary).duplicate()
+		bonus["value"] = float(bonus["value"]) * mult
+		if String(bonus["key"]).begins_with("flat_"):
+			bonus["value"] = roundf(bonus["value"])
+		site.bonus = bonus
 		site.tag = lens.radius_tag
 		result.append(site)
 	return result

@@ -39,6 +39,7 @@ static func to_dict(slate: Slate) -> Dictionary:
 		"sockets": slate.sockets,
 		"lenses": slate.lenses.map(func(l: Lens): return ItemSerializer.to_dict(l)),
 		"is_corrupted": slate.is_corrupted,
+		"is_split": slate.is_split,
 		"tolerance": slate.tolerance,
 		"tolerance_max": slate.tolerance_max,
 		"active_edict": String(slate.active_edict.id) if slate.active_edict else "",
@@ -85,6 +86,7 @@ static func from_dict(d: Dictionary) -> Slate:
 		explicits.append(ItemSerializer.affix_from_dict(a))
 	slate.explicits = explicits
 	slate.is_corrupted = d.get("is_corrupted", false)
+	slate.is_split = d.get("is_split", false)
 	ItemSerializer.read_craft_state(slate, d)
 	slate.sockets = int(d.get("sockets", 0))
 	var lenses: Array[Lens] = []

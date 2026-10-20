@@ -132,6 +132,8 @@ func _build_row(entry: Dictionary) -> HBoxContainer:
 	if entry.get("item"):
 		icon.item = entry["item"]
 		icon.compare = true
+	elif entry.get("slate"):
+		icon.slate = entry["slate"]
 	elif entry.get("ability"):
 		icon.ability = entry["ability"]
 	var accent: Color = entry.get("color", AetherStyle.GOLD)

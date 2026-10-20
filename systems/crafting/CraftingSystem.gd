@@ -31,6 +31,8 @@ static func empower_figment(figment: FigmentItem) -> Dictionary:
 static func infuse(weapon: Weapon) -> Dictionary:
 	if weapon == null:
 		return {"success": false, "message": "Choose a weapon to infuse."}
+	if weapon.rarity >= Constants.ItemRarity.UNIQUE:
+		return {"success": false, "message": "Unique weapons cannot be Infused."}
 	if weapon.get_all_affixes().any(func(a: ItemAffix): return a.stat_key == UniqueEffects.NO_INFUSION):
 		return {"success": false, "message": "%s cannot be Infused." % weapon.display_name}
 	var options: Array = Constants.DamageType.values().filter(func(t): return t != weapon.native_damage_type)
@@ -41,6 +43,8 @@ static func infuse(weapon: Weapon) -> Dictionary:
 static func shrive(weapon: Weapon) -> Dictionary:
 	if weapon == null:
 		return {"success": false, "message": "Choose a weapon to shrive."}
+	if weapon.rarity >= Constants.ItemRarity.UNIQUE:
+		return {"success": false, "message": "Unique weapons cannot be Shriven."}
 	if weapon.infused_damage_type == -1:
 		return {"success": false, "message": "This weapon has no infusion to remove."}
 	var native_name: String = Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?")

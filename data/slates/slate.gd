@@ -34,6 +34,8 @@ class_name Slate
 @export var tolerance_max: int = 0
 @export var active_edict: EdictDef
 @export var is_corrupted: bool = false
+## Split at the Recombinator: a split Slate can't be split again.
+@export var is_split: bool = false
 
 ## Lens sockets (0-2, on Slates of 5+ tiles) and the Lenses in them. Lenses
 ## come out freely, unlike gear Jewels.

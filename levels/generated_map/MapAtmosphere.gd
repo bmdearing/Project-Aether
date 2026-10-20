@@ -82,6 +82,9 @@ var _fall: GPUParticles3D
 var _apply_in: float = 0.0
 var _fall_offset := Vector3(0, FALL_HEIGHT * 0.6, 0)
 var _rng := RandomNumberGenerator.new()
+## SkyBuilder sky of the style (null for a flat background) and its daytime values.
+var _sky_mat: ShaderMaterial
+var _sky_base := {}
 
 ## Rolls the clock and weather from `map_seed` (its own RNG, so the layout
 ## that seed builds is untouched).
@@ -93,6 +96,10 @@ func setup(style: MapTileset, env: Environment, sun: DirectionalLight3D, map_see
 	time_of_day = roll_time(_rng) if style.fixed_time < 0.0 else style.fixed_time
 	weather = roll_weather(style.family, _rng)
 	_base_fog = maxf(style.fog_density, 0.004)
+	_sky_mat = env.sky.sky_material as ShaderMaterial if env.sky else null
+	if _sky_mat:
+		for key in ["zenith_color", "cloud_color", "cloud_shade", "cloud_cover", "sun_energy", "sun_glow"]:
+			_sky_base[key] = _sky_mat.get_shader_parameter(key)
 	_thunder_in = _rng.randf_range(4.0, 9.0)
 
 static func roll_time(rng: RandomNumberGenerator) -> float:
@@ -200,6 +207,28 @@ func _apply() -> void:
 	_env.fog_enabled = true
 	_env.fog_light_color = sky
 	_env.fog_density = minf(_base_fog * float(look["fog"]), MAX_FOG_DENSITY) * lerpf(NIGHT_FOG, 1.0, day)
+	if _sky_mat:
+		_apply_sky(_env.background_color, day, dusk, tint)
+
+## The sky dome follows the same clock and weather: horizon = the fog colour,
+## the zenith and clouds darken toward night, weather closes the clouds in
+## and hides the sun, stars come out on clear nights.
+func _apply_sky(horizon: Color, day: float, dusk: float, tint: Color) -> void:
+	var zenith: Color = _sky_base["zenith_color"]
+	zenith = zenith.lerp(Color(tint, 1.0) * 0.8, tint.a)
+	zenith = (zenith * NIGHT_TINT * 0.35).lerp(zenith, day)
+	_sky_mat.set_shader_parameter("horizon_color", horizon)
+	_sky_mat.set_shader_parameter("zenith_color", zenith.lerp(Color(0.75, 0.78, 0.9), _flash * 0.5))
+	_sky_mat.set_shader_parameter("ground_color", horizon.darkened(0.35))
+	var light := lerpf(0.1, 1.0, day) + _flash
+	var warm := Color.WHITE.lerp(DUSK_COLOR * 1.4, dusk * day * 0.6)
+	_sky_mat.set_shader_parameter("cloud_color", (_sky_base["cloud_color"] as Color) * warm * light)
+	_sky_mat.set_shader_parameter("cloud_shade", (_sky_base["cloud_shade"] as Color) * light)
+	_sky_mat.set_shader_parameter("cloud_cover", minf(float(_sky_base["cloud_cover"]) + tint.a * 0.6, 0.95))
+	var clear := 1.0 - tint.a
+	_sky_mat.set_shader_parameter("sun_energy", lerpf(1.6, float(_sky_base["sun_energy"]), day) * clear)
+	_sky_mat.set_shader_parameter("sun_glow", float(_sky_base["sun_glow"]) * clear * lerpf(0.3, 1.0, day))
+	_sky_mat.set_shader_parameter("star_amount", (1.0 - day) * clear * 1.2)
 
 ## ---- Storms ---------------------------------------------------------------
 

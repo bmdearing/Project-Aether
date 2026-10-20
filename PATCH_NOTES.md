@@ -7,6 +7,27 @@ there. Most recent first.
 
 ---
 
+## 2026-10-19 — v5.11.0: Skies, Lenscrafter, Recombinator, range rings
+
+User batch.
+- **Rapier Charged Thrust animation:** the lunge moved you, but the viewmodel played the thrust family's CHARGED clip, a backhand cut (it doubles as the combo finisher). `StanceAttack._release_lunge()` now plays the LUNGE clip (Attack.HEAVY) for the thrust family.
+- **Uniques can't be Infused or Shriven:** `CraftingSystem.infuse/shrive` refuse Unique and Mythic weapons.
+- **Lens Star bonuses:** where a Lens's bonus sites sit and which bonus lands where are now seeded from the Star and everything rolled on the Lens (`FateStars.lens_seed()`: radius, radius modifier and value, tag, rarity, jewel modifiers), so re-rolling a Lens or moving it to another Star reshuffles them. Values are doubled (`VALUE_MULT` 2.0) and scaled by Lens rarity (Common x1, Uncommon x1.25, Rare x1.5, Unique x1.75, Mythic x2); flat bonuses round to whole numbers. Lens wiki updated.
+- **Fate Board Slate nebulas:** blocky since Forward+. The noise hashed huge float coordinates (octaves in the thousands, x123), and Vulkan's compiler reorders that maths per cell, so neighbouring lattice points disagreed. The lattice now uses an integer hash (`lattice_hash`), and the new sky and portal shaders use the same one.
+- **Lenscrafter** (Hub, west platform): VendorScreen Lens stock, buys Lenses, and Lens Services: Recut, Regrind, Polish (see DEVELOPMENT.md).
+- **Recombinator** (Hub, east platform): Split and Recombine for Slates (`SlateRecombinator`). The design doc's Recombinator Station ("combines two items of the same type... both consumed"), plus a PoE-style split. New `Slate.is_split` (saved, SPLIT badge on the card). `ShopScreen` rows can show a Slate.
+- **Skies** (`shaders/map_sky.gdshader`, `systems/environment/SkyBuilder.gd`): forest, desert, snow, city and Pale styles get a sky (gradient, sun, drifting clouds, stars at night) whose horizon is the style's fog colour. Dungeons and dark styles (Frozen Crypt) keep the flat background. `MapAtmosphere` drives it with the clock and weather: zenith and clouds darken at night, weather closes the clouds in and hides the sun, lightning flashes it. Ambient light is unchanged (still the colour source).
+- **Arena skies:** Aurelia gets a fel eclipse (black sun in a violet corona, fel aurora, stars), the Herald of the Maw a crimson storm wheeling round a black eye overhead, Ataras a desert dusk with a low sun. The arena suns are placed in front of the player spawn rather than following the arena light.
+- **Hub bloom:** glow 0.55 -> 0.32, threshold 1.1 -> 1.45, Screen blend instead of Additive, the widest blur level dropped.
+- **Range rings:** hold Alt in the world for rings at 5 and 10 m and dashed marks at 15, 20 and 25 m, labelled. A decal (`RangeRings`), so they lie on slopes; on the OpenGL fallback (no decals) only the labels show.
+- **Gold beams:** every Gold drop has a thin gold beam, taller, wider and brighter with pile size (log scale, full at 500 Gold).
+- **Secrets harder to find:** cracked dungeon patches match the wall more closely (dust tint 1.4 -> 1.12), start with 2 fainter, shorter cracks and less grit. Outcrops have a narrower crack (1.8 -> 1.4 m), a dimmer glow inside, and 6 decoy boulders (was 3) all round the rock, half of them step-sized.
+- **Portals:** a swirling vortex face that drains into a dark core, and a ring with energy pulses running round it (`portal_surface` / `portal_rim` shaders).
+- Harness: `capture_pinnacle` has a `sky` view; `capture_ui` has `rings`, `portal` and `stations` modes.
+- Judgment calls: all Lenscrafter and Recombinator prices, the Recombine keep chance (65%) and the no-Lenses rule, Lens rarity multipliers, every sky colour, the eclipse for Aurelia, which styles get skies, the ring colour and label placement, gold beam sizes, the decoy count.
+
+---
+
 ## 2026-10-17 — v5.10.2: Spell effects energy pass
 
 Part of the visual overhaul. Many spell effects were flat, single-colour, hard-edged shapes, and several sat right in front of the camera over the HUD.

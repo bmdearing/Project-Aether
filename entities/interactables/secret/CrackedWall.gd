@@ -11,11 +11,11 @@ signal broken
 const HITS_TO_BREAK := 3
 ## Pellets from one shot land together; they count once.
 const STRIKE_COOLDOWN_MSEC := 250
-const CRACK_WIDTH := 0.06
-const CRACK_COLOR := Color(0.04, 0.035, 0.03, 0.85)
+const CRACK_WIDTH := 0.045
+const CRACK_COLOR := Color(0.04, 0.035, 0.03, 0.6)
 const DEBRIS_LIFETIME := 4.0
 ## The patch is a shade dustier than the wall around it.
-const DUST_TINT := Color(1.4, 1.3, 1.15)
+const DUST_TINT := Color(1.12, 1.08, 1.04)
 
 ## Set before entering the tree: width along the wall, height, thickness.
 ## The node stands at the patch's bottom centre; its +Z is the room side.
@@ -50,8 +50,8 @@ func _ready() -> void:
 	_crack_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	_crack_mesh.position.z = size.z / 2.0 + 0.004
 	add_child(_crack_mesh)
-	for i in 3:
-		_grow_crack(Vector2(randf_range(-0.25, 0.25) * size.x, randf_range(0.3, 0.6) * size.y), randi_range(3, 4))
+	for i in 2:
+		_grow_crack(Vector2(randf_range(-0.25, 0.25) * size.x, randf_range(0.3, 0.6) * size.y), randi_range(2, 3))
 	_rebuild_cracks()
 	_scatter_grit()
 
@@ -114,7 +114,7 @@ func _rebuild_cracks() -> void:
 
 ## A little grit at the foot, as if the patch were already crumbling.
 func _scatter_grit() -> void:
-	for i in randi_range(6, 9):
+	for i in randi_range(2, 4):
 		var grit := MeshInstance3D.new()
 		var box := BoxMesh.new()
 		var s := randf_range(0.07, 0.18)

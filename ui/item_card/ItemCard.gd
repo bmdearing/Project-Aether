@@ -254,7 +254,11 @@ func _render_slate(slate: Slate) -> void:
 	_clear()
 	var rarity_color: Color = Constants.SLATE_RARITY_COLOR.get(slate.rarity, Color.WHITE)
 	_set_card_style(rarity_color, SLATE_BG, SLATE_CORNER_RADIUS, SLATE_BORDER_WIDTH)
-	_add_type_badge("SLATE", SLATE_BADGE_COLOR)
+	var slate_badges := _add_type_badge("SLATE", SLATE_BADGE_COLOR)
+	if slate.is_corrupted:
+		slate_badges.add_child(_make_badge("CORRUPTED", CORRUPTED_BADGE_COLOR))
+	if slate.is_split:
+		slate_badges.add_child(_make_badge("SPLIT", SLATE_BADGE_COLOR.lightened(0.3)))
 	_add_title(slate.display_name, rarity_color)
 	var tag_name: String = slate.category_tag_override if slate.category_tag_override != "" else Constants.DAMAGE_TYPE_NAME.get(slate.tag, "?")
 	_add_subtitle("Slate - %s" % tag_name)

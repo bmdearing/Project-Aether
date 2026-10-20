@@ -26,11 +26,11 @@ const OUTCROP_HALF := 4.5
 const OUTCROP_FLOOR := 4.4
 const OUTCROP_ROOM := 2.8
 const OUTCROP_SKIN := 1.4
-const CRACK_SIZE := Vector2(1.8, 2.4)
+const CRACK_SIZE := Vector2(1.4, 2.2)
 ## The two boulders up to the crack: heights, rough size.
 const STEP_HEIGHTS: Array[float] = [1.5, 2.9]
 const STEP_SIZE := 2.4
-const DECOY_COUNT := 3
+const DECOY_COUNT := 6
 ## How far an outcrop moves off its cell's centre, toward a side with no
 ## way through.
 const OUTCROP_SHIFT := 4.0
@@ -209,7 +209,8 @@ func build_outcrop() -> void:
 	_rock(centre + Vector3.UP * roof_y, Vector3(OUTCROP_HALF * 2.0 + 0.4, 1.0, OUTCROP_HALF * 2.0 + 0.4), randf_range(-0.1, 0.1), false)
 	# The chamber isn't a room; open layouts still have no interior walls.
 	_map.interior_wall_count = walls_before
-	_add_light(top + Vector3(0, OUTCROP_ROOM - 0.6, 0), 2.5)
+	# Dim, so little glow escapes through the crack.
+	_add_light(top + Vector3(0, OUTCROP_ROOM - 0.6, 0), 1.0)
 	_add_found_area(top, Vector3(OUTCROP_HALF * 2.0 - 3.0, OUTCROP_ROOM, OUTCROP_HALF * 2.0 - 3.0))
 	# Two boulders up to the crack, the lower one off to a side.
 	var along_n := Vector3(absf(n.z), 0, absf(n.x)) * (1.0 if randf() < 0.5 else -1.0)
@@ -219,9 +220,11 @@ func build_outcrop() -> void:
 	# A few that lead nowhere, around the other sides.
 	var crack_angle := atan2(n.z, n.x)
 	for i in DECOY_COUNT:
-		var angle := crack_angle + deg_to_rad(randf_range(70.0, 290.0))
-		var dist := OUTCROP_HALF + randf_range(1.2, 2.4)
-		_boulder(centre + Vector3(cos(angle), 0, sin(angle)) * dist, randf_range(0.8, 2.2), false)
+		# Spread right round the rock, some at step heights, so the real pair
+		# doesn't stand out.
+		var angle := crack_angle + deg_to_rad(randf_range(50.0, 310.0))
+		var dist := OUTCROP_HALF + randf_range(1.0, 2.8)
+		_boulder(centre + Vector3(cos(angle), 0, sin(angle)) * dist, randf_range(1.0, 3.0), i % 2 == 0)
 	chamber_centre = top - n * 0.8
 	_spawn_encounter(n)
 

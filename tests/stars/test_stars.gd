@@ -117,5 +117,5 @@ func _test_restore() -> void:
 	if player and key != "flat_aether" and EquipmentComponent.is_misc_key(key):
 		_check(is_equal_approx(player.stat_sheet.get_misc_bonus(key), site.bonus["value"]), "the claimed bonus reaches the player's stats")
 	elif player and key == "flat_aether":
-		_check(board.aether_capacity == FateBoard.capacity_for_level(GameState.player_level) + 1, "a claimed +1 Aether site raises the budget")
+		_check(board.aether_capacity == FateBoard.capacity_for_level(GameState.player_level) + int(site.bonus["value"]), "a claimed Aether site raises the budget by its value")
 	hub.queue_free()

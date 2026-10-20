@@ -278,6 +278,10 @@ func _forward() -> Vector3:
 func _release_lunge(params: Dictionary, distance: float) -> void:
 	var duration := distance / LUNGE_SPEED
 	params["windup"] = maxf(duration * 0.75, 0.08)
+	# The thrust family's CHARGED clip is a backhand cut (its combo finisher);
+	# a lunge should drive the point straight in.
+	if _player.arm_rig and _player.arm_rig.get_family() == &"thrust":
+		params["kind"] = PlayerArmRig.Attack.HEAVY
 	params["no_step"] = true
 	_player.lunge(_forward(), distance, duration)
 

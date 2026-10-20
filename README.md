@@ -57,6 +57,7 @@ Each build is self-contained, with all assets inside.
 | Gun bash (with a ranged weapon out) | V |
 | Swap weapon set (tap) / stance page (hold) | X |
 | Interact | E |
+| Show distance rings (5 / 10 m, marks at 15 / 20 / 25 m) | Alt (hold) |
 | Portal to the Hub | T |
 | Inventory / Character / Spells / Fate Board / Map / Figment Tree | B / C / K / P / M / L |
 | Menu: open the last screen, then cycle screens (Shift: backwards) | Tab |

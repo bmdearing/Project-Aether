@@ -71,13 +71,14 @@ func _build_environment() -> void:
 	env.tonemap_mode = Environment.TONE_MAPPER_FILMIC
 	env.tonemap_exposure = 1.05
 	env.glow_enabled = true
-	env.glow_intensity = 0.55
-	env.glow_strength = 1.1
-	env.glow_bloom = 0.06
-	env.glow_hdr_threshold = 1.1
-	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_ADDITIVE
+	# v5.10.3: softer than before (was additive, 0.55, threshold 1.1, wide level 5).
+	env.glow_intensity = 0.32
+	env.glow_strength = 0.95
+	env.glow_bloom = 0.0
+	env.glow_hdr_threshold = 1.45
+	env.glow_blend_mode = Environment.GLOW_BLEND_MODE_SCREEN
 	for level in 7:
-		env.set_glow_level(level, 1.0 if level in [2, 3, 4, 5] else 0.0)
+		env.set_glow_level(level, [0.0, 0.0, 1.0, 0.8, 0.45, 0.0, 0.0][level])
 	env.fog_enabled = true
 	env.fog_light_color = Color(0.008, 0.016, 0.045)
 	env.fog_density = 0.006

@@ -261,6 +261,9 @@ func make_environment() -> Environment:
 	var env := Environment.new()
 	env.background_mode = Environment.BG_COLOR
 	env.background_color = background_color
+	var sky := SkyBuilder.for_style(family, fog_color, background_color)
+	if sky:
+		SkyBuilder.apply(env, sky)
 	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
 	env.ambient_light_color = ambient_color
 	env.ambient_light_energy = ambient_energy

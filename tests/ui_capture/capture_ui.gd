@@ -1,7 +1,7 @@
 extends Node
 ## Screenshots real UI states in the Hub for visual review.
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_ui.tscn --resolution 1920x1080 -- <out.png> <mode>
-## Modes: hud, hud_fx (life damage trail + a spell coming off cooldown), inventory, inventory_icons, icons, character, abilities, web <spell_id>, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview
+## Modes: hud, rings (Alt range rings), portal, hud_fx (life damage trail + a spell coming off cooldown), inventory, inventory_icons, icons, character, abilities, web <spell_id>, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview
 
 const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
 
@@ -30,6 +30,46 @@ func _run() -> void:
 		(get_tree().get_first_node_in_group("player") as Player).equipment.equip(load(off_path) as Item, true, -1, true)
 	await get_tree().create_timer(0.5).timeout
 	match mode:
+		"stations":
+			# A camera over the west and east platforms, for station placement.
+			var cam := Camera3D.new()
+			hub.add_child(cam)
+			cam.global_position = Vector3(0, 9, 14)
+			cam.look_at(Vector3(0, 0, -2), Vector3.UP)
+			cam.fov = 95.0
+			cam.make_current()
+			await get_tree().create_timer(0.5).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(out)
+			get_tree().quit()
+			return
+		"portal":
+			# Both portal kinds a few metres ahead.
+			for i in 2:
+				var portal := Portal.new()
+				portal.destination = Portal.Destination.HUB if i == 0 else Portal.Destination.MAP
+				get_tree().current_scene.add_child(portal)
+				var fwd := -player.global_transform.basis.z
+				portal.global_position = player.global_position + fwd * 4.5 + player.global_transform.basis.x * (-1.4 if i == 0 else 1.4)
+				portal.look_at(player.global_position, Vector3.UP, true)
+				portal.set_physics_process(false)
+			await get_tree().create_timer(1.0).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(out)
+			get_tree().quit()
+			return
+		"rings":
+			# Holding Alt: the range rings around the player.
+			var alt := InputEventKey.new()
+			alt.keycode = KEY_ALT
+			alt.pressed = true
+			Input.parse_input_event(alt)
+			player.camera.rotation.x = deg_to_rad(-28.0)
+			await get_tree().create_timer(0.5).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(out)
+			get_tree().quit()
+			return
 		"hud_fx":
 			# The Life trail just after a hit, and the first slot with a cooldown a moment after it ends.
 			for i in AbilityLoadoutComponent.SLOT_COUNT:

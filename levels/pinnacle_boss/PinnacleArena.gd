@@ -342,6 +342,7 @@ func _build_maw() -> void:
 	key.position = Vector3(0, 9.0, 0)
 	key.omni_range = 30.0
 	key.light_energy = 1.6
+	_set_sky("maw")
 
 ## Ataras's sand arena (SandArena): a round sand floor ringed by rock, lit
 ## warm like a desert evening.
@@ -362,6 +363,7 @@ func _build_sand() -> void:
 	sun.rotation_degrees = Vector3(-38, 30, 0)
 	sun.light_color = Color(1.0, 0.8, 0.6)
 	sun.light_energy = ShadowLight.directional(3.4)
+	_set_sky("sand")
 
 ## Aurelia's wheel-floored arena (AureliaArena): cold moonlight from above,
 ## a frost-blue key on the hub.
@@ -380,16 +382,19 @@ func _build_aurelia() -> void:
 	sun.light_color = Color(0.8, 0.55, 0.95)
 	sun.light_energy = ShadowLight.directional(1.7)
 	# A violet sky and fog: demonic, not the Lord's starlit night.
-	var env := (get_node("WorldEnvironment") as WorldEnvironment).environment
-	var sky_mat := env.sky.sky_material as ProceduralSkyMaterial
-	sky_mat.sky_top_color = Color(0.03, 0.0, 0.06)
-	sky_mat.sky_horizon_color = Color(0.32, 0.06, 0.38)
-	sky_mat.ground_horizon_color = Color(0.2, 0.03, 0.25)
-	sky_mat.ground_bottom_color = Color(0.02, 0.0, 0.04)
+	var env := _set_sky("aurelia")
 	env.ambient_light_color = Color(0.42, 0.28, 0.55)
 	env.ambient_light_energy = 0.6
 	env.fog_light_color = Color(0.22, 0.05, 0.3)
 	env.fog_density = 0.008
+
+## Swaps the default sky for an arena's SkyBuilder sky, its sun or moon
+## placed where the arena's light comes from. Returns the environment.
+func _set_sky(id: String) -> Environment:
+	var env := (get_node("WorldEnvironment") as WorldEnvironment).environment
+	SkyBuilder.apply(env, SkyBuilder.for_arena(id), 0.0)
+	(get_node("DirectionalLight3D") as DirectionalLight3D).sky_mode = DirectionalLight3D.SKY_MODE_LIGHT_AND_SKY
+	return env
 
 func _build_embers() -> void:
 	var particles := GPUParticles3D.new()

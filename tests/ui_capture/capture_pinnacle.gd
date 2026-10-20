@@ -1,6 +1,6 @@
 extends Node
 ## Screenshots a Pinnacle arena. Run windowed:
-## Godot --path . res://tests/ui_capture/capture_pinnacle.tscn --resolution 1600x900 -- <out.png> <boss_id> [phase2] [view: player|overview]
+## Godot --path . res://tests/ui_capture/capture_pinnacle.tscn --resolution 1600x900 -- <out.png> <boss_id> [phase2] [view: player|sky|overview]
 
 const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
 
@@ -37,6 +37,10 @@ func _run() -> void:
 	var view: String = args[3] if args.size() > 3 else "overview"
 	if view == "player":
 		cam.global_transform = player.camera.global_transform
+	elif view == "sky":
+		# The player's eye line, tilted up to show the sky over the rim.
+		cam.global_transform = player.camera.global_transform
+		cam.rotate_object_local(Vector3.RIGHT, deg_to_rad(24.0))
 	else:
 		cam.global_position = arena.to_global(Vector3(0, 26, 24))
 		cam.look_at(arena.to_global(Vector3(0, 0, -2)), Vector3.UP)

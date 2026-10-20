@@ -216,6 +216,7 @@ func _ready() -> void:
 		stat_sheet.intellect = 10.0
 	fate_board = FateBoard.new()
 	ledge_climb = LedgeClimb.new(self)
+	add_child(RangeRings.new())
 	shield_block = ShieldBlock.new()
 	shield_block.name = "ShieldBlock"
 	add_child(shield_block)

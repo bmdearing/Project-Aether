@@ -17,6 +17,8 @@ const HEIGHT := 2.4
 const ARM_DELAY := 0.6
 const COLOR_TO_HUB := Color(0.35, 0.65, 1.0)
 const COLOR_TO_MAP := Color(1.0, 0.55, 0.25)
+const RIM_SHADER := preload("res://shaders/portal_rim.gdshader")
+const SURFACE_SHADER := preload("res://shaders/portal_surface.gdshader")
 
 @export var destination: Destination = Destination.HUB
 
@@ -45,14 +47,25 @@ func _ready() -> void:
 	ring.rotation_degrees.x = 90.0
 	ring.position.y = HEIGHT / 2.0
 	ring.scale = Vector3(1.0, 1.0, HEIGHT / (RADIUS * 2.0))
-	var mat := StandardMaterial3D.new()
-	mat.albedo_color = color
-	mat.emission_enabled = true
-	mat.emission = color
-	mat.emission_energy_multiplier = 2.0
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	ring.material_override = mat
+	var rim := ShaderMaterial.new()
+	rim.shader = RIM_SHADER
+	rim.set_shader_parameter("color", color)
+	ring.material_override = rim
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(ring)
+
+	# The swirling face inside the ring.
+	var face := MeshInstance3D.new()
+	var quad := QuadMesh.new()
+	quad.size = Vector2(RADIUS * 0.8 * 2.0, HEIGHT * 0.8)
+	face.mesh = quad
+	var swirl := ShaderMaterial.new()
+	swirl.shader = SURFACE_SHADER
+	swirl.set_shader_parameter("color", color)
+	face.material_override = swirl
+	face.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	face.position.y = HEIGHT / 2.0
+	add_child(face)
 
 	var light := OmniLight3D.new()
 	light.light_color = color

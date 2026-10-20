@@ -921,6 +921,17 @@ roll a tier up, and Deeper Reality: +1 mod). Effects are summed by
 the tree while a portal back into a Figment is open can reshuffle that map's
 packs when it is rebuilt.
 
+**Lenscrafter** (`entities/interactables/lenscrafter/`, v5.11.0): a Hub NPC on the west
+platform. VendorScreen stock of 6 Lenses (rolled at 2x loot rarity, rerolled on
+level-up), buys Lenses only, and a "Lens Services" list for carried Lenses:
+Recut (radius modifier, 60 Gold), Regrind (jewel modifiers, 80), Polish (rarity
++1 up to Rare, 120/300). **Recombinator** (`entities/interactables/recombinator/`,
+`systems/crafting/SlateRecombinator.gd`), east platform: Split a Slate with 2+
+crafted modifiers into two halves (150 Gold; both marked split, can't split
+again), or Recombine two Slates of the same kind (100 Gold; better roll of a
+shared modifier, each other modifier kept at 65%, Rare limits). Lenses must be
+taken out first. All prices are placeholders.
+
 **Shops** (`entities/interactables/gear_shop/`,
 `entities/interactables/spell_test_shop/`,
 `entities/interactables/brand_shop/`, `ui/shop/ShopScreen.gd`): three Hub
@@ -1063,7 +1074,7 @@ equippable from `InventoryScreen`, or stays on the ground if there's no room; a 
   throwable hooks and the throwable item data are still present but unused.
 
 **Infusion/Shrivening Stone** reroll or clear a weapon's
-`infused_damage_type`.
+`infused_damage_type`. Uniques and Mythics refuse both (v5.11.0).
 
 **Shard of Tharsis** (Patch v3.6 rework, `systems/crafting/
 CorruptionSystem.gd`/`CorruptionOutcome.gd`): corrupts an item by rolling
@@ -1335,6 +1346,7 @@ formulas).
 | Rotate pending Slate *(Fate Board editor only)* | R |
 | Flip pending Slate *(Fate Board editor only)* | Q |
 | Interact *(Reality Engine, shops, Stash chest - Hub only)* | E |
+| Range rings round the player (RangeRings: 5 / 10 m solid, 15 / 20 / 25 m dashed) | Alt (hold) |
 | Debug grid inventory / stash view | F6 |
 
 P/B/N/C/M work from anywhere — gameplay, the pause menu, or another such
