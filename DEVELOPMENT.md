@@ -925,12 +925,16 @@ packs when it is rebuilt.
 platform. VendorScreen stock of 6 Lenses (rolled at 2x loot rarity, rerolled on
 level-up), buys Lenses only, and a "Lens Services" list for carried Lenses:
 Recut (radius modifier, 60 Gold), Regrind (jewel modifiers, 80), Polish (rarity
-+1 up to Rare, 120/300). **Recombinator** (`entities/interactables/recombinator/`,
-`systems/crafting/SlateRecombinator.gd`), east platform: Split a Slate with 2+
-crafted modifiers into two halves (150 Gold; both marked split, can't split
-again), or Recombine two Slates of the same kind (100 Gold; better roll of a
-shared modifier, each other modifier kept at 65%, Rare limits). Lenses must be
-taken out first. All prices are placeholders.
++1 up to Rare, 120/300). **Recombinator** and **Slate Splitter** (`entities/interactables/recombinator/`,
+both `SlateStation` with a mode; rules in `systems/crafting/SlateRecombinator.gd`),
+side by side on the east platform. Both open `ui/slate_bench/SlateBenchScreen.gd`:
+bench boxes on the left, the inventory on the right; drag a Slate onto a box or
+right-click it, click a box to take it back, closing returns everything
+(inventory, then stash). Recombinator: two Slates of the same kind -> one
+(100 Gold; better roll of a shared modifier, each other modifier kept at 65%,
+Rare limits). Splitter: a Slate with 2+ crafted modifiers -> two halves (150
+Gold; both marked split, can't split again). Lenses must be taken out first.
+All prices are placeholders.
 
 **Shops** (`entities/interactables/gear_shop/`,
 `entities/interactables/spell_test_shop/`,

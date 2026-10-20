@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://entities/interactables/reality_engine/RealityEngine.tscn" id="2"]
@@ -26,6 +26,7 @@
 [ext_resource type="PackedScene" path="res://entities/interactables/unique_catalogue/UniqueCatalogue.tscn" id="26"]
 [ext_resource type="PackedScene" path="res://entities/interactables/lenscrafter/Lenscrafter.tscn" id="27"]
 [ext_resource type="PackedScene" path="res://entities/interactables/recombinator/Recombinator.tscn" id="28"]
+[ext_resource type="PackedScene" path="res://entities/interactables/recombinator/SlateSplitter.tscn" id="29"]
 
 [sub_resource type="Environment" id="Environment_1"]
 background_mode = 1
@@ -72,7 +73,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.5, 0, -9)
 transform = Transform3D(-1, 0, 0, 0, 1, 0, 0, 0, -1, -15.5, 0, 2)
 
 [node name="Recombinator" parent="." instance=ExtResource("28")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.5, 0, 2)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.5, 0, 2.2)
+
+[node name="SlateSplitter" parent="." instance=ExtResource("29")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12.8, 0, 0.8)
 
 [node name="StashChest" parent="." instance=ExtResource("20")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 19.5, 0, -0.5)

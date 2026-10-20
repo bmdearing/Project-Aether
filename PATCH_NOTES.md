@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-20 — v5.11.1: Recombinator and Slate Splitter screens
+
+User request: a real UI for the Recombinator, and splitting as its own station beside it.
+- `SlateBenchScreen` (`ui/slate_bench/`): bench boxes on the left, your inventory on the right. Recombinator: two input boxes, then + and an arrow, then one result box. Splitter: one input box, then an arrow, then two result boxes. Put a Slate in by dragging it onto a box or right-clicking it in the inventory. Press the button (cost shown; disabled with the reason as its tooltip until the bench is valid) and the results appear in the result boxes. Click a box to take its Slate back. Closing returns anything left on the bench to the inventory, or the stash if the inventory is full. Hovering a box shows the Slate's card.
+- The list-based Recombinator menu is gone. `SlateStation` (one script, a `mode` export) drives both the Recombinator and the new **Slate Splitter** (a slab under a hanging blade). The Recombinator moved to (16.5, 2.2) and the Splitter sits at (12.8, 0.8). Their prompt radius is now 1.8 m, so the two don't overlap.
+- Harness: `capture_ui` `split` / `recombine` modes.
+
+---
+
 ## 2026-10-19 — v5.11.0: Skies, Lenscrafter, Recombinator, range rings
 
 User batch.

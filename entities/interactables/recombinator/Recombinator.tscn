@@ -1,6 +1,6 @@
 [gd_scene load_steps=10 format=3]
 
-[ext_resource type="Script" path="res://entities/interactables/recombinator/Recombinator.gd" id="1"]
+[ext_resource type="Script" path="res://entities/interactables/recombinator/SlateStation.gd" id="1"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_base"]
 size = Vector3(1.4, 0.9, 1.4)
@@ -32,7 +32,7 @@ emission = Color(0.3, 0.7, 0.85, 1)
 emission_energy_multiplier = 1.2
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_proximity"]
-radius = 3.0
+radius = 1.8
 
 [node name="Recombinator" type="Node3D"]
 script = ExtResource("1")

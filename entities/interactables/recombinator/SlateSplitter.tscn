@@ -1,0 +1,81 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="Script" path="res://entities/interactables/recombinator/SlateStation.gd" id="1"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_base"]
+size = Vector3(1.2, 0.9, 1.2)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_base"]
+albedo_color = Color(0.22, 0.2, 0.18, 1)
+metallic = 0.6
+roughness = 0.45
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_base"]
+size = Vector3(1.2, 0.9, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_blade"]
+size = Vector3(0.04, 0.5, 0.8)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_blade"]
+albedo_color = Color(0.85, 0.68, 0.35, 1)
+metallic = 0.9
+roughness = 0.25
+
+[sub_resource type="BoxMesh" id="BoxMesh_slab"]
+size = Vector3(0.22, 0.06, 0.44)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_slab"]
+albedo_color = Color(0.3, 0.7, 0.85, 1)
+emission_enabled = true
+emission = Color(0.3, 0.7, 0.85, 1)
+emission_energy_multiplier = 1.2
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_proximity"]
+radius = 1.8
+
+[node name="SlateSplitter" type="Node3D"]
+script = ExtResource("1")
+mode = 1
+
+[node name="Base" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Base"]
+position = Vector3(0, 0.45, 0)
+mesh = SubResource("BoxMesh_base")
+surface_material_override/0 = SubResource("StandardMaterial3D_base")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Base"]
+position = Vector3(0, 0.45, 0)
+shape = SubResource("BoxShape3D_base")
+
+[node name="SlabA" type="MeshInstance3D" parent="."]
+position = Vector3(-0.15, 0.94, 0)
+mesh = SubResource("BoxMesh_slab")
+surface_material_override/0 = SubResource("StandardMaterial3D_slab")
+cast_shadow = 0
+
+[node name="SlabB" type="MeshInstance3D" parent="."]
+position = Vector3(0.15, 0.94, 0)
+mesh = SubResource("BoxMesh_slab")
+surface_material_override/0 = SubResource("StandardMaterial3D_slab")
+cast_shadow = 0
+
+[node name="Blade" type="MeshInstance3D" parent="."]
+position = Vector3(0, 1.45, 0)
+mesh = SubResource("BoxMesh_blade")
+surface_material_override/0 = SubResource("StandardMaterial3D_blade")
+
+[node name="ProximityArea" type="Area3D" parent="."]
+monitoring = true
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ProximityArea"]
+position = Vector3(0, 1.0, 0)
+shape = SubResource("SphereShape3D_proximity")
+
+[node name="PromptLabel" type="Label3D" parent="."]
+position = Vector3(0, 2.2, 0)
+billboard = 1
+font_size = 42
+outline_size = 8
+text = "Press E to use the Slate Splitter"

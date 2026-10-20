@@ -30,6 +30,32 @@ func _run() -> void:
 		(get_tree().get_first_node_in_group("player") as Player).equipment.equip(load(off_path) as Item, true, -1, true)
 	await get_tree().create_timer(0.5).timeout
 	match mode:
+		"split", "recombine":
+			# The Slate bench: split shows the two halves, recombine its two inputs.
+			var slates: Array[Slate] = []
+			for i in 3:
+				var s: Slate = load("res://data/slates/instances/ember_lattice.tres").duplicate(true)
+				for k in [["flat_strength", true], ["increased_fire_damage", true], ["flat_life", false], ["flat_mana", false]]:
+					var a := ItemAffix.new()
+					a.stat_key = k[0]
+					a.description = k[0]
+					a.value = 6.0
+					a.is_prefix = k[1]
+					s.explicits.append(a)
+				s.rarity = Constants.SlateRarity.RARE
+				GameState.add_to_inventory(s)
+				slates.append(s)
+			var bench := SlateBenchScreen.open_for(get_tree(), SlateBenchScreen.Mode.SPLIT if mode == "split" else SlateBenchScreen.Mode.RECOMBINE)
+			bench.place(slates[0])
+			if mode == "split":
+				bench.craft()
+			else:
+				bench.place(slates[1])
+			await get_tree().create_timer(0.4).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(out)
+			get_tree().quit()
+			return
 		"stations":
 			# A camera over the west and east platforms, for station placement.
 			var cam := Camera3D.new()
