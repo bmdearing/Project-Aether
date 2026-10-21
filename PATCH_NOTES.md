@@ -37,7 +37,8 @@ User request: a unique Lens that gives every Slate in its radius one of +10 Life
 - "Defences" is increased Armour, Evasion and Ward, each +2%.
 - Fate Board flat and % defence lines (from Slates, jewels and Stars) now count towards Armour, Evasion and Ward totals. Before this they reached the stat sheet but not the defence totals.
 - It is the Herald of the Maw's exclusive Lens (`Pinnacle.make_maw_lens()`, which used to return null), at the existing placeholder odds of 4% + 4% per standing pylon.
-- Judgment calls: the name and flavour; radius 9 (the same reach as Star bonus sites); the Herald drop; gifts re-pick when a Slate is moved; it isn't in the Unique wiki yet.
+- Judgment calls: the name and flavour; radius 9 (the same reach as Star bonus sites); the Herald drop; gifts re-pick when a Slate is moved.
+- **Unique wiki:** a new "Unique Lenses" filter. The Lodestar is listed (under All too) with its radius, effect, flavour, source and odds: 4% per kill, up to 20% with all four pylons standing, which Item Rarity doesn't change. The ✓ mark also counts a Lens set in a Star ("On your Fate Board").
 
 ---
 

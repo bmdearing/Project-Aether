@@ -12,7 +12,7 @@ const MOD_COLOR := Color(0.95, 0.68, 0.38)
 const ODDS_LABEL_COLOR := Color(0.66, 0.62, 0.55)
 const COLLECTED_COLOR := Color(0.55, 0.85, 0.55)
 
-enum Filter { ALL, UNIQUE, MYTHIC, SLATE }
+enum Filter { ALL, UNIQUE, MYTHIC, SLATE, LENS }
 
 var magic_find: float = 0.0
 var filter: int = Filter.ALL
@@ -81,7 +81,7 @@ func _build() -> void:
 	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(spacer)
 	var filter_box := OptionButton.new()
-	for f in ["All", "Uniques", "Mythics", "Unique Slates"]:
+	for f in ["All", "Uniques", "Mythics", "Unique Slates", "Unique Lenses"]:
 		filter_box.add_item(f)
 	filter_box.item_selected.connect(func(i: int):
 		filter = i
@@ -111,7 +111,7 @@ func _rebuild_list() -> void:
 	# Mythics first, then Uniques; catalog order within each.
 	defs.sort_custom(func(a, b): return a["rarity"] > b["rarity"])
 	for def in defs:
-		if filter == Filter.SLATE:
+		if filter == Filter.SLATE or filter == Filter.LENS:
 			break
 		if filter == Filter.UNIQUE and def["rarity"] != Constants.ItemRarity.UNIQUE:
 			continue
@@ -125,7 +125,17 @@ func _rebuild_list() -> void:
 			var entry := _slate_entry(def)
 			_entries[def["id"]] = entry
 			_list.add_child(entry)
+	if filter == Filter.ALL or filter == Filter.LENS:
+		for lens in unique_lenses():
+			var entry := _lens_entry(lens)
+			_entries[lens.unique_id] = entry
+			_list.add_child(entry)
 	_update_odds()
+
+## Every unique Lens, built from where it drops (they aren't in UniqueCatalog).
+static func unique_lenses() -> Array[Lens]:
+	var lenses: Array[Lens] = [Pinnacle.make_maw_lens(1) as Lens]
+	return lenses
 
 ## Where you already hold this unique: the Unique tab, worn (either weapon
 ## set), the inventory or another stash tab. "" if nowhere.
@@ -146,6 +156,10 @@ static func owned_where(id: String) -> String:
 	for tab in GameState.stash.tabs:
 		if _grid_has_unique(tab, id):
 			return "In your stash"
+	if GameState.fate_board:
+		for lens in GameState.fate_board.star_lenses.values():
+			if lens.unique_id == id:
+				return "On your Fate Board"
 	return ""
 
 static func _grid_has_unique(grid: GridInventory, id: String) -> bool:
@@ -295,6 +309,53 @@ func _slate_entry(def: Dictionary) -> PanelContainer:
 	_slate_odds[def["id"]] = _text("", 13, AetherStyle.TEXT)
 	right.add_child(_slate_odds[def["id"]])
 	right.add_child(_shape_grid(shape, color))
+	return panel
+
+func _lens_entry(lens: Lens) -> PanelContainer:
+	var color: Color = Constants.ITEM_RARITY_COLOR.get(lens.rarity, Color.WHITE)
+	var panel := PanelContainer.new()
+	panel.add_theme_stylebox_override("panel", AetherStyle.glass_box(Color(color, 0.45), Color(0.05, 0.05, 0.07, 0.85), 1, 12.0))
+	var columns := HBoxContainer.new()
+	columns.add_theme_constant_override("separation", 18)
+	panel.add_child(columns)
+
+	var left := VBoxContainer.new()
+	left.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	left.add_theme_constant_override("separation", 3)
+	columns.add_child(left)
+	var name_row := HBoxContainer.new()
+	left.add_child(name_row)
+	var name_label := _text(lens.display_name, 20, color)
+	name_label.add_theme_font_override("font", AetherStyle.title())
+	name_row.add_child(name_label)
+	var owned := owned_where(lens.unique_id)
+	if owned != "":
+		name_row.add_child(_text("   ✓ " + owned, 13, COLLECTED_COLOR))
+	left.add_child(_text("Unique Lens  ·  Radius %d" % lens.radius, 13, ODDS_LABEL_COLOR))
+	for text in [lens.radius_text(), FateStars.lens_star_text(lens)]:
+		var line := _text(text, 14, MOD_COLOR)
+		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		left.add_child(line)
+	if lens.flavor_text != "":
+		var flavor := _text(lens.flavor_text, 13, Color(0.75, 0.65, 0.45))
+		flavor.add_theme_font_override("font", AetherStyle.serif_italic())
+		flavor.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		left.add_child(flavor)
+
+	var right := VBoxContainer.new()
+	right.custom_minimum_size = Vector2(340, 0)
+	right.add_theme_constant_override("separation", 3)
+	columns.add_child(right)
+	var source := _text("Pinnacle: %s" % Pinnacle.BOSSES["herald_of_the_maw"]["name"], 15, AetherStyle.GOLD)
+	source.add_theme_stylebox_override("normal", AetherStyle.glass_box(Color(AetherStyle.GOLD, 0.5), Color(AetherStyle.GOLD, 0.08), 1, 4.0))
+	source.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
+	right.add_child(source)
+	var pylons := MawArena.PYLONS.size()
+	var odds := _text("Per kill:  %s, up to %s with all %d pylons standing" % [
+		UniqueOdds.format_chance(Pinnacle.maw_lens_chance(0)), UniqueOdds.format_chance(Pinnacle.maw_lens_chance(pylons)), pylons], 13, AetherStyle.TEXT)
+	odds.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	right.add_child(odds)
+	right.add_child(_text("Item Rarity doesn't change these odds.", 12, ODDS_LABEL_COLOR))
 	return panel
 
 ## The Slate's footprint as a small grid of cells.

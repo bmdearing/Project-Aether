@@ -92,7 +92,7 @@ func _test_wiki_panel() -> void:
 	var wiki := UniqueWiki.new()
 	add_child(wiki)
 	await _frames(1)
-	_check(wiki.listed_ids().size() == UniqueCatalog.DEFS.size() + UniqueCatalog.SLATE_DEFS.size(), "the wiki lists every Unique, Mythic and Unique Slate")
+	_check(wiki.listed_ids().size() == UniqueCatalog.DEFS.size() + UniqueCatalog.SLATE_DEFS.size() + UniqueWiki.unique_lenses().size(), "the wiki lists every Unique, Mythic, Unique Slate and Unique Lens")
 	_check(UniqueCatalog.get_def(wiki.listed_ids()[0])["rarity"] == Constants.ItemRarity.MYTHIC, "Mythics come first")
 	wiki.set_magic_find(0.0)
 	var before := _gear_odds_text(wiki, "hollowed_kings_mantle")
@@ -108,6 +108,9 @@ func _test_wiki_panel() -> void:
 	wiki.filter = UniqueWiki.Filter.MYTHIC
 	wiki._rebuild_list()
 	_check(not wiki.listed_ids().is_empty() and wiki.listed_ids().all(func(id): return UniqueCatalog.get_def(id)["rarity"] == Constants.ItemRarity.MYTHIC), "the Mythic filter shows only Mythics")
+	wiki.filter = UniqueWiki.Filter.LENS
+	wiki._rebuild_list()
+	_check(wiki.listed_ids() == ["lodestar"], "the Lens filter shows the Lodestar")
 	wiki.queue_free()
 	GameState.stash = Stash.create_default()
 	await _frames(1)

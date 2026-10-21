@@ -311,7 +311,7 @@ func _test_pause_wiki() -> void:
 	if pause:
 		pause._show_wiki(true)
 		await _frames(1)
-		_check(pause._wiki_center.visible and pause._wiki.uniques.listed_ids().size() == UniqueCatalog.DEFS.size() + UniqueCatalog.SLATE_DEFS.size(), "it opens the Unique wiki")
+		_check(pause._wiki_center.visible and pause._wiki.uniques.listed_ids().size() == UniqueCatalog.DEFS.size() + UniqueCatalog.SLATE_DEFS.size() + UniqueWiki.unique_lenses().size(), "it opens the Unique wiki")
 		pause._show_wiki(false)
 	_finished += 1
 
