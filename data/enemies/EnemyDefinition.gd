@@ -15,6 +15,10 @@ class_name EnemyDefinition
 @export var scale_modifier: float = 1.0
 ## Yaw (radians) between the model's front and +Z - see Enemy.model_forward_yaw_offset.
 @export var model_yaw_offset: float = 0.0
+## Body capsule size in meters at scale 1, for models whose rest pose
+## doesn't match how they stand when animated; 0 = fit to the model.
+@export var body_height_override: float = 0.0
+@export var body_radius_override: float = 0.0
 
 # Level scaling - health/damage come from Constants.MOB_BASE_* by category
 # and this level (see Enemy._apply_definition()); base_health/base_damage

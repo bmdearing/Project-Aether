@@ -701,22 +701,13 @@ func _test_sand_arena() -> void:
 	_check(player.health.current_health < before, "quicksand hurts the player (%.0f -> %.0f)" % [before, player.health.current_health])
 	_check(player.status_effects.has_effect("slow"), "quicksand slows the player")
 	sand.end_wedges()
-	# Ammo: none without a gun; a gun-carrier short on rounds gets a pack nearby.
-	player.equipment.primary_weapons = [null, null]
-	player.equipment.offhands = [null, null]
-	_check(Enemy.ammo_need(player).is_empty(), "no gun, no ammo need")
-	var pistol := (load("res://data/weapons/instances/worn_pistol.tres") as Weapon).duplicate(true) as Weapon
-	player.equipment.primary_weapons[0] = pistol
-	var saved_reserve := AmmoInventory.get_reserve(pistol.ammo_type)
-	AmmoInventory.consume(pistol.ammo_type, saved_reserve)
-	var need := Enemy.ammo_need(player)
-	_check(not need.is_empty() and need["type"] == pistol.ammo_type and is_equal_approx(need["need"], 1.0), "an empty gun needs its own ammo")
+	# Range punish: a player staying far off fills its timer; it opens with a pull.
 	boss.boss_brain._player = player
-	boss.boss_brain._ammo_timer = 0.0
-	boss.boss_brain._tick_ammo(0.1)
-	var packs := arena.get_children().filter(func(n): return n is LootPickup and n.item is AmmoPack)
-	_check(packs.size() == 1, "the boss drops an ammo pack during the fight")
-	AmmoInventory.add(pistol.ammo_type, saved_reserve)
+	player.global_position = boss.global_position + Vector3(20, 0, 0)
+	boss.boss_brain._far_time = 0.0
+	boss.boss_brain._tick_range_punish(1.0)
+	_check(boss.boss_brain._far_time > 0.0, "a far-off player fills the range punish timer")
+	_check(boss.boss_brain._range_punish_ability().kind == BossAbility.Kind.PULL, "range punish opens with a pull")
 	arena.queue_free()
 	await _frames(3)
 	_finished += 1

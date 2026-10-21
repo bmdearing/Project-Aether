@@ -193,7 +193,7 @@ class SkillPlate extends Control:
 					AetherStyle.text(self, numbers, Vector2(rect.position.x, c.y + 8.0), "%.1f" % remaining, 18, Color.WHITE, HORIZONTAL_ALIGNMENT_CENTER, rect.size.x)
 			if starved:
 				draw_colored_polygon(shape, Color(0.05, 0.1, 0.35, 0.45))
-			if (ability.ability_id == "booming_blade" and GameState.booming_blade_on) or (ability.ability_id == "death_shroud" and GameState.death_shroud_on) or GameState.hex_auras.has(ability.ability_id):
+			if (ability.ability_id == "booming_blade" and GameState.booming_blade_on) or (ability.ability_id == "death_shroud" and GameState.death_shroud_on) or GameState.hex_auras.has(ability.ability_id) or GameState.toggled_spells.has(ability.ability_id):
 				border = element.lerp(Color.WHITE, 0.35)  # toggled on
 				AetherStyle.outline(self, inner, Color(element, 0.9), 2.0)
 			AetherStyle.text(self, numbers, Vector2(rect.end.x - 31.0, rect.position.y + 17.0), "%d" % roundi(cost), 14, Color(1, 0.4, 0.4) if starved else AetherStyle.MANA.lightened(0.45), HORIZONTAL_ALIGNMENT_RIGHT, 24)

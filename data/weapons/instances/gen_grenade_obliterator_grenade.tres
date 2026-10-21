@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="Weapon" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_affix"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_weapon"]
+
+[sub_resource type="Resource" id="Resource_implicit"]
+script = ExtResource("1_affix")
+description = "+26% increased Area of Effect"
+stat_key = "increased_aoe_radius"
+value = 26.0
+is_implicit = true
+
+[resource]
+script = ExtResource("2_weapon")
+weapon_type = "Grenade"
+base_damage_min = 83.0
+base_damage_max = 101.0
+native_damage_type = 2
+is_ranged = true
+ammo_type = 7
+magazine_size = 2
+fire_mode = 0
+pellet_spread_degrees = 0.0
+cycle_time = 0.6
+reload_time = 2.8
+item_id = "gen_grenade_obliterator_grenade"
+display_name = "Obliterator Grenade"
+equip_slot = 4
+max_sockets = 3
+affixes = Array[ExtResource("1_affix")]([SubResource("Resource_implicit")])
+flavor_text = "AoE"
+item_level = 91
+base_line_id = "grenade_line2"

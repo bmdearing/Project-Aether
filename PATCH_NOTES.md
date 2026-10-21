@@ -7,6 +7,33 @@ there. Most recent first.
 
 ---
 
+## 2026-10-20 — v5.12.0: Throwing weapons, unlimited ammo, seven new spells
+
+User batch.
+- **Camera Bob and Sway** setting (Settings > General): off stops the camera's walk bob, mouse sway and landing dip. Hit kicks and screen shakes stay; the weapon viewmodel still sways.
+- **Drop items:** hover an item in the inventory and press Q (rebindable, "Drop Hovered Item"). It lands in front of you and waits for Interact, currency included, so it isn't picked straight back up. Q also flips Slates on the Fate Board, which has no inventory grid, so they don't clash.
+- **Enemies walking over walls:** the gap jump probes the floor ahead from 3 m up. A wall with no floor under it read as a gap, the far side as the landing, and the jump carried the enemy up the wall and over any wall low enough. Gap jumps now refuse when a wall stands ahead or across the jump at head height.
+- **Enemy affix text** is bigger: 12 -> 14 px over health bars, 15 -> 17 px under boss bars.
+- **Veilborne Mindbender hitbox:** its rest pose is centred on its origin, so the capsule fitted to the model was 1 m tall while the animated body floats about 2 m up. New `EnemyDefinition.body_height_override` / `body_radius_override`; the Mindbender is 2.2 m x 0.6 m and its model is raised 0.45 m, so its tentacles no longer sink into the floor.
+- **Boss range punish:** a boss whose target stays over 13 m away for 5 s drags them in and slams; the next time it shells them with a 4-blast barrage. They alternate, 10 s apart. Bosses only (not Ascendants).
+- **Spell levels in the Hub** spend Crystallized Aether from the stash too (inventory first). The Spells screen shows the total "(with stash)".
+- **Black Hole:** 30 -> 90 Mana, 10 s cooldown. **Booming Blade:** each trigger drains 30% of its Mana cost and it switches off when Mana runs dry.
+- **Lens Stars are now rolled, like a Timeless Jewel:** bigger pools (7-8 bonuses each), each site rolls its bonus and a value from 60% to 140%, seeded by the Lens and the Star. About one site in six is a **Notable** at 3x, and Rare and better Lenses always light one. Notables are bigger and brighter on the board.
+- **Unlimited ammo:** reserves never run out; magazines and reloads are the only limit. Ammo drops, boss ammo packs and the Hub Ammo Store are gone. The HUD shows the magazine against its size.
+- **Quivers and pouches:** a new offhand for ranged weapons that sits beside even a two-handed one. A quiver fits bows and crossbows, a pouch any gun. Two lines of four tiers each: Barbed (Bleed chance) and Fletched (Projectile Speed) Quivers, Ammo Pouch / Bandolier (Reload Speed) and Powder Pouch (Critical Strike Damage). They roll attack modifiers.
+- **Throwing weapons:** a main-hand family with no stance, a small magazine and a reload. Throwing Knives (Kinetic, straight, 6), Throwing Axes (Kinetic, straight, 4), Javelins (Piercing, arc, pass through 3 enemies, 3) and Grenades (Explosive, arc, 3.5 m blast, 2). Pressure Javelins burst for 2.2 m and Area grenades for 4.5 m. They're built from the design doc's Throwables tables (the shelved item bases became weapons, final tiers with their implicits) and drop like any weapon. Overhand throw on the viewmodel; the thrown model spins in flight.
+- **New spells:**
+  - **Thunderstorm** (Lightning, toggle): every 2 s a bolt strikes each enemy within 10 m, each round draining 40% of its cost. Enemies inside are Drenched.
+  - **Nova** (Lightning): a ring of lightning around you.
+  - **Puncture** (Piercing): stabs the nearest enemy in front: a guaranteed Bleed, and Punctured (+40% Bleed damage taken for 6 s).
+  - **Invocation of Arach** (Entropic): marks the enemy at your crosshair; a marked kill raises a spider minion that bites for Entropic damage. With it prepared, hits on bosses, Ascendants and marked enemies have a 10% chance to raise one. At most 10 spiders.
+  - **Inner Power** (toggle): no Mana regeneration, twice its regeneration as Life regeneration, and 10% more Aetheric damage while on. With it on your bar at all, on or off, you deal no Physical damage (user's rule).
+  - **Manasaber** (Aetheric): spends 40% of your maximum Mana and sweeps a 140-degree arc for 250% of it as its base hit, then spell modifiers and crit.
+  - **Charged Reflexes** (toggle): ranged weapons attack 30% faster and reload 40% faster; every shot drains 15% of its cost.
+- Judgment calls: every number above (toggle drains, Puncture's bonus, spider stats and spawn chance, Manasaber's arc, Charged Reflexes' bonuses, punish distance and timing, throw profiles, magazine sizes, quiver and pouch implicits and modifier lists, Notable odds); the old Middle Mouse throwable key stays unused; spiders pass through walls like the Wraith; Inner Power's Physical rule also stops Bleed from Physical hits (no hit damage to bleed from); the Spells screen counts stash Aether only in the Hub; Infusion Grenades stay out of drops.
+
+---
+
 ## 2026-10-20 — v5.11.1: Recombinator and Slate Splitter screens
 
 User request: a real UI for the Recombinator, and splitting as its own station beside it.

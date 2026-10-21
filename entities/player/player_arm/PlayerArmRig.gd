@@ -125,6 +125,7 @@ const RESTS := {
 		"aim": [Vector3(0.0, -0.105, -0.36), Vector3(0, 0, -1), Vector3(0, 1, 0)]},
 	&"rifle": {"rest": [Vector3(0.18, -0.21, -0.3), Vector3(-0.12, 0.03, -1), Vector3(0.12, 1, 0)],
 		"aim": [Vector3(0.0, -0.12, -0.24), Vector3(0, 0, -1), Vector3(0, 1, 0)]},
+	&"thrown": {"rest": [Vector3(0.25, -0.27, -0.44), Vector3(-0.2, 0.8, -0.5), Vector3(0.3, 0.1, 1)]},
 	&"bow": {"rest": [Vector3(0.2, -0.12, -0.55), Vector3(-0.2, 1, 0), Vector3(-0.1, 0, 1)],
 		"aim": [Vector3(0.12, -0.09, -0.6), Vector3(-0.05, 1, 0), Vector3(0.05, 0, 1)]},
 }
@@ -218,6 +219,13 @@ const PISTOL_KICK := [
 ]
 const RIFLE_KICK := [
 	["s", 1.0, Vector3(0.0, 0.012, 0.07), Vector3(0, 0.15, -1), null, 0.25],
+]
+## Throwing weapons: an overhand throw, hand back past the ear then whipped
+## forward. The held model hides from the release until the hand is back.
+const THROW := [
+	["w", 1.0, Vector3(0.06, 0.2, 0.16), Vector3(0.1, 0.9, 0.45), Vector3(0.3, 0, 1), 0.45],
+	["s", 1.0, Vector3(-0.1, 0.02, -0.3), Vector3(-0.1, 0.25, -1), Vector3(0, 1, 0.2), 0.4],
+	["r", 0.3, Vector3(-0.1, -0.04, -0.26), Vector3(-0.1, 0.1, -1), Vector3(0, 1, 0.2), 0.5],
 ]
 ## How far the string hand pulls back from the brace at full draw (aiming).
 const BOW_DRAW := 0.1
@@ -434,7 +442,7 @@ func set_loadout(weapon: Weapon, offhand: Item) -> void:
 		_off_mode = OffMode.GAUNTLET
 		_off_model = WeaponModelLibrary.build_left_gauntlet(weapon)
 		_off_holder.add_child(_off_model)
-	elif offhand:
+	elif offhand and not offhand.is_ranged_offhand():
 		_off_mode = OffMode.ITEM
 		_off_model = WeaponModelLibrary.build_offhand(offhand)
 		_off_holder.add_child(_off_model)
@@ -575,6 +583,14 @@ func _play_fire(windup: float, strike: float, recovery: float) -> void:
 			_start(_off_track, [["s", 1.0, Vector3(0.03, 0.015, 0.04), null, null, 0.3]], 0.0, strike, recovery * 1.6, _off_rest())
 			_bow_release_t = 0.0
 			_bow_release_len = strike + recovery * 0.9
+		&"thrown":
+			_start(_main_track, THROW, windup, strike, recovery * 2.0, _main_rest())
+			if _weapon_model:
+				_weapon_model.visible = false
+				var model := _weapon_model
+				get_tree().create_timer(windup + strike + recovery * 2.0, false).timeout.connect(func():
+					if is_instance_valid(model):
+						model.visible = true)
 		&"pistol":
 			_start(_main_track, PISTOL_KICK, 0.0, strike * 0.5, recovery + windup, _main_rest())
 			_kick(Vector3(0, 0, 0.02), Vector3(0.05, 0, randf_range(-0.03, 0.03)))

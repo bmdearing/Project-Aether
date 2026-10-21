@@ -173,9 +173,15 @@ func _draw_mark(block: EntryBlock) -> void:
 			star.append(c + Vector2.from_angle(-PI / 2.0 + i * PI / 5.0) * r)
 		ci.draw_colored_polygon(star, FAVORED_COLOR)
 
-## Hover an item and press mark_trash / mark_favored to toggle that mark.
+## Hover an item and press mark_trash / mark_favored to toggle that mark,
+## or drop_item to drop it (the player's own inventory only).
 func _unhandled_input(event: InputEvent) -> void:
-	if not is_visible_in_tree() or not (event.is_action_pressed("mark_trash") or event.is_action_pressed("mark_favored")):
+	if not is_visible_in_tree():
+		return
+	if event.is_action_pressed("drop_item") and inventory == GameState.inventory and allow_drag:
+		_drop_hovered()
+		return
+	if not (event.is_action_pressed("mark_trash") or event.is_action_pressed("mark_favored")):
 		return
 	var block := _hovered_block()
 	if block == null or block.entry.is_currency() or not block.entry.content is Item:
@@ -184,6 +190,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	var mark := Item.Mark.TRASH if event.is_action_pressed("mark_trash") else Item.Mark.FAVORED
 	item.mark = Item.Mark.NONE if item.mark == mark else mark
 	_update_block(block)
+	get_viewport().set_input_as_handled()
+
+func _drop_hovered() -> void:
+	var block := _hovered_block()
+	var player := get_tree().get_first_node_in_group("player") as Player
+	if block == null or player == null:
+		return
+	var entry := block.entry
+	inventory.remove(entry)
+	player.drop_to_ground(entry.content, entry.count)
+	refresh()
+	changed.emit()
 	get_viewport().set_input_as_handled()
 
 func _hovered_block() -> EntryBlock:

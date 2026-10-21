@@ -582,7 +582,6 @@ func _build_lights() -> void:
 func _dress_interactables() -> void:
 	var hub := get_parent()
 	_dress(hub.get_node_or_null("GearShop"), "Arcanevault", 4.6)
-	_dress(hub.get_node_or_null("AmmoStore"), "Cratesunit", 1.3)
 	var exchange := _dress(hub.get_node_or_null("CurrencyShop"), "Magicvault", 1.6)
 	if exchange:
 		var crystal := _prop("IcecrownCrystal2", Vector3.ZERO, 0.9)

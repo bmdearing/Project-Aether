@@ -1,5 +1,5 @@
 extends SceneTree
-## Headless checks for the enemy roster, map tilesets and the Hub AmmoStore.
+## Headless checks for the enemy roster, map tilesets and unlimited ammo.
 ## Run: Godot --headless --path . --script res://tests/test_roster_ammo.gd
 ## Exits 0 when every check passes. Custom classes are only touched through
 ## runtime load() and untyped locals: in --script mode a typed local or a
@@ -45,7 +45,7 @@ func _run() -> void:
 	await _test_definitions_and_units()
 	await _test_generated_maps()
 	await _test_tilesets()
-	await _test_ammo_store()
+	await _test_unlimited_ammo()
 	_test_no_retired_references()
 	print("%d checks, %d failed" % [_checks, _failures])
 	quit(1 if _failures > 0 else 0)
@@ -191,70 +191,19 @@ func _test_tilesets() -> void:
 		await _frames(2)
 	_game_state.active_map = null
 
-func _test_ammo_store() -> void:
+## v5.12: reserves are unlimited; a reload always fills the magazine.
+func _test_unlimited_ammo() -> void:
 	var player = load("res://entities/player/Player.tscn").instantiate()
 	root.add_child(player)
-	var store = load("res://entities/interactables/ammo_store/AmmoStore.tscn").instantiate()
-	root.add_child(store)
 	await _frames(2)
 	var pistol = load(PISTOL_WEAPON).duplicate()
-	var shotgun = load(SHOTGUN_WEAPON).duplicate()
 	player.equipment.primary_weapons[0] = pistol
-	player.equipment.primary_weapons[1] = shotgun
 	var at = _constants.AmmoType
-	var price = _constants.AMMO_ROUND_COST
-
-	# Partial refill: 20 pistol + 4 shotgun reserve rounds, 5 pistol + 2 shotgun magazine rounds.
-	_ammo.reset()
-	for t in _ammo.STARTING_AMMO:
-		_ammo.add(t, 99999)  # resupply fills to capacity
-	_ammo.consume(at.PISTOL, 20)
-	_ammo.consume(at.SHOTGUN, 4)
-	pistol.current_magazine = pistol.magazine_size - 5
-	shotgun.current_magazine = shotgun.magazine_size - 2
-	var expected: int = (20 + 5) * price[at.PISTOL] + (4 + 2) * price[at.SHOTGUN]
-	_check(store.get_resupply_cost(player) == expected, "partial cost %d == %d" % [store.get_resupply_cost(player), expected])
-	player.ranged_attack._start_reload(pistol)
-	_check(player.ranged_attack.is_reloading(), "pistol reload started")
-	_game_state.gold = 1000
-	var msg: String = store.resupply(player)
-	_check(_game_state.gold == 1000 - expected, "gold charged (%d left, %s)" % [_game_state.gold, msg])
-	_check(_ammo.get_reserve(at.PISTOL) == _ammo.get_capacity(at.PISTOL) and _ammo.get_reserve(at.SHOTGUN) == _ammo.get_capacity(at.SHOTGUN), "reserves filled to capacity")
-	_check(pistol.get_current_magazine() == pistol.magazine_size and shotgun.get_current_magazine() == shotgun.magazine_size, "magazines filled in both weapon sets")
-	_check(not player.ranged_attack.is_reloading(), "reload cancelled by refill")
-
-	# Short on gold: nothing changes.
-	_ammo.consume(at.PISTOL, 10)
+	_check(_ammo.consume(at.PISTOL, 100000) and _ammo.get_reserve(at.PISTOL) == _ammo.INFINITE_RESERVE, "reserves never run out")
 	pistol.current_magazine = 0
-	var cost: int = store.get_resupply_cost(player)
-	_game_state.gold = cost - 1
-	msg = store.resupply(player)
-	_check(msg == "Not enough Gold (cost %d)" % cost, "short-gold message (%s)" % msg)
-	_check(_game_state.gold == cost - 1, "short gold not charged")
-	_check(_ammo.get_reserve(at.PISTOL) == _ammo.get_capacity(at.PISTOL) - 10 and pistol.get_current_magazine() == 0, "short gold buys nothing")
-
-	# Capacity: pickups stop at it, and an upgrade raises it.
-	_game_state.gold = 1000
-	store.resupply(player)
-	_game_state.gold = 1000
-	_check(_ammo.add(at.RIFLE, 50) == 0 and _ammo.is_full(at.RIFLE), "a full type takes no more rounds")
-	var cap: int = _ammo.get_capacity(at.RIFLE)
-	var price_up: int = _ammo.get_upgrade_cost(at.RIFLE)
-	_check(_ammo.buy_capacity_tier(at.RIFLE) and _game_state.gold == 1000 - price_up, "an upgrade costs its Gold (%d)" % price_up)
-	_check(_ammo.get_capacity(at.RIFLE) == roundi(cap * 1.25) and _ammo.get_upgrade_cost(at.RIFLE) == price_up * 2, "it raises capacity a quarter and doubles the next price")
-	_check(_ammo.get_capacity(at.PISTOL) == roundi(_ammo.STARTING_AMMO[at.PISTOL] * 2.0), "other types keep their own capacity")
-	_check(_ammo.deserialize_capacity.is_valid(), "capacity tiers save")
-	_game_state.gold = 100000
-	store.resupply(player)
-	_game_state.gold = 1000
-
-	# Fully stocked: free.
-	msg = store.resupply(player)
-	_check(msg == "Fully stocked" and _game_state.gold == 1000, "fully stocked press is free (%s, gold %d)" % [msg, _game_state.gold])
-
-	store.queue_free()
+	player.ranged_attack._finish_reload(pistol)
+	_check(pistol.get_current_magazine() == pistol.magazine_size, "a reload fills the magazine")
 	player.queue_free()
-	_ammo.reset()
 	await _frames(1)
 
 func _test_no_retired_references() -> void:

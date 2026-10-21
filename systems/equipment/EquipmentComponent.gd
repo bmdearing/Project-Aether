@@ -113,6 +113,13 @@ func equip(item: Item, bypass_requirements: bool = false, weapon_set: int = -1, 
 		Constants.EquipmentSlot.BODY_ARMOUR: body_armour = item as Armor
 		Constants.EquipmentSlot.GLOVES: gloves = item as Armor
 		Constants.EquipmentSlot.BOOTS: boots = item as Armor
+		Constants.EquipmentSlot.OFFHAND when item.is_ranged_offhand():
+			if not item.fits_weapon(primary_weapons[set_index]):
+				var reason := "A quiver needs a bow or crossbow in your main hand." if item.item_type == &"quiver" else "A pouch needs a gun in your main hand."
+				push_warning(reason)
+				equip_failed.emit(reason)
+				return
+			offhands[set_index] = item
 		Constants.EquipmentSlot.OFFHAND:
 			if primary_weapons[set_index] and primary_weapons[set_index].is_two_handed:
 				var reason := "Cannot equip an offhand while a two-handed weapon is equipped."
@@ -146,7 +153,11 @@ func _equip_weapon(weapon: Weapon, set_index: int, to_offhand: bool = false) -> 
 		offhands[set_index] = weapon
 	else:
 		primary_weapons[set_index] = weapon
-		if weapon.is_two_handed:
+		var off := offhands[set_index]
+		if off and off.is_ranged_offhand():
+			if not off.fits_weapon(weapon):
+				offhands[set_index] = null
+		elif weapon.is_two_handed:
 			offhands[set_index] = null
 		elif not weapon.can_dual_wield() and offhands[set_index] is Weapon and (offhands[set_index] as Weapon).can_dual_wield():
 			offhands[set_index] = null  # a conduit doesn't dual wield

@@ -141,12 +141,8 @@ func _refresh() -> void:
 		b.disabled = i == _active_tab
 		_tab_bar.add_child(b)
 	_stash_view.set_inventory(tabs[_active_tab])
-	var ammo: Array[String] = []
-	for type in Constants.AmmoType.values():
-		if type != Constants.AmmoType.ARROW:
-			ammo.append("%s %d" % [Constants.AmmoType.keys()[type].capitalize(), AmmoInventory.get_reserve(type)])
 	var brands := _active_brands.get_ids().map(func(id): return CurrencyText.name_of(id)) if _active_brands else []
-	_ammo_label.text = "Ammo: " + "  ".join(ammo) + ("\nActive Brands: " + ", ".join(brands) if not brands.is_empty() else "")
+	_ammo_label.text = "Active Brands: " + ", ".join(brands) if not brands.is_empty() else ""
 
 func _select_tab(index: int) -> void:
 	_active_tab = index

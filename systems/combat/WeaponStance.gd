@@ -139,6 +139,9 @@ func _enter_stance() -> void:
 	var weapon := _player.get_active_weapon()
 	if weapon == null:
 		return
+	# Throwing weapons have no stance (a conduit's stance still works).
+	if weapon.is_throwing() and _player.caster_stance.get_source() == null:
+		return
 	is_active = true
 	current_behavior = _resolve_behavior(weapon)
 	stance_entered.emit()

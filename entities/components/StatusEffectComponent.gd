@@ -121,7 +121,7 @@ func _burn(delta: float) -> void:
 	if has_effect("ignite"):
 		_deal_dot("ignite", _ignite_dps, minf(delta, _timers["ignite"]), Constants.DamageType.FIRE, _ignite_source, true)
 	if has_effect("bleed"):
-		_deal_dot("bleed", _bleed_dps, minf(delta, _timers["bleed"]), Constants.DamageType.KINETIC, _bleed_source, false)
+		_deal_dot("bleed", _bleed_dps * (1.0 + PUNCTURED_BLEED_TAKEN if has_effect("punctured") else 1.0), minf(delta, _timers["bleed"]), Constants.DamageType.KINETIC, _bleed_source, false)
 	if has_effect("aetherburn"):
 		var burned := _deal_dot("aetherburn", _aetherburn_dps, minf(delta, _timers["aetherburn"]), Constants.DamageType.AETHERIC, _aetherburn_source, true)
 		if _owner is Player:
@@ -405,6 +405,8 @@ func remove_effect(effect_id: String) -> void:
 
 ## Intimidating Shout: takes more damage of every type.
 const INTIMIDATED_DAMAGE_TAKEN := 0.2
+## Puncture's debuff: Bleeding deals this much more to the enemy.
+const PUNCTURED_BLEED_TAKEN := 0.4
 
 ## Pallid and Meager enemies deal less damage.
 func get_outgoing_damage_multiplier() -> float:

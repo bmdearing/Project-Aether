@@ -267,6 +267,7 @@ always_hidden = PackedInt32Array()
 idle_clip = "Stand 1"
 
 [node name="Model" type="Node3D" parent="." unique_id=1398557067 instance=ExtResource("10_amp2l")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
 
 [node name="AnimationTree" type="AnimationTree" parent="." unique_id=338442281 instance=ExtResource("11_8aluu")]
 active = false

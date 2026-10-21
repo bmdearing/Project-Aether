@@ -67,14 +67,14 @@ func set_affix_text(text: String) -> void:
 	if _affix_label == null:
 		_affix_label = Label.new()
 		_affix_label.add_theme_font_override("font", AetherStyle.serif_italic())
-		_affix_label.add_theme_font_size_override("font_size", 12)
+		_affix_label.add_theme_font_size_override("font_size", 14)
 		_affix_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.95))
 		_affix_label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.9))
 		_affix_label.add_theme_constant_override("shadow_offset_x", 1)
 		_affix_label.add_theme_constant_override("shadow_offset_y", 1)
 		_affix_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_affix_label.set_anchors_preset(Control.PRESET_TOP_WIDE)
-		_affix_label.position.y = -16.0
+		_affix_label.position.y = -19.0
 		_affix_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		add_child(_affix_label)
 	_affix_label.text = text

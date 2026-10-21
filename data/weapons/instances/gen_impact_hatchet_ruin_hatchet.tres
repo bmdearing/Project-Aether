@@ -1,0 +1,33 @@
+[gd_resource type="Resource" script_class="Weapon" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_affix"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_weapon"]
+
+[sub_resource type="Resource" id="Resource_implicit"]
+script = ExtResource("1_affix")
+description = "+14% increased Physical damage"
+stat_key = "increased_physical_damage"
+value = 14.0
+is_implicit = true
+
+[resource]
+script = ExtResource("2_weapon")
+weapon_type = "Throwing Axe"
+base_damage_min = 83.0
+base_damage_max = 101.0
+native_damage_type = 0
+is_ranged = true
+ammo_type = 7
+magazine_size = 4
+fire_mode = 0
+pellet_spread_degrees = 1.5
+cycle_time = 0.35
+reload_time = 1.8
+item_id = "gen_impact_hatchet_ruin_hatchet"
+display_name = "Ruin Hatchet"
+equip_slot = 4
+max_sockets = 3
+affixes = Array[ExtResource("1_affix")]([SubResource("Resource_implicit")])
+flavor_text = "High Damage"
+item_level = 91
+base_line_id = "impact_hatchet_line2"

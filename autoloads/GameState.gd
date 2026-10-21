@@ -37,6 +37,8 @@ var vsync: bool = true
 var always_show_sockets: bool = false
 ## Pale maps draw their clustered holes faint and sparse (trypophobia).
 var reduce_hole_patterns: bool = false
+## Camera walk bob, mouse sway and landing dip (hit kicks and shakes stay).
+var camera_motion: bool = true
 
 ## Each entry is a resource_path String or a Dictionary
 ## (ItemSerializer.to_dict(), for rolled items with no path). Written by
@@ -117,6 +119,8 @@ var booming_blade_on: bool = false
 var death_shroud_on: bool = false
 ## Curses switched on as auras (their Hex Aura twist), by ability id.
 var hex_auras: Array[String] = []
+## Thunderstorm, Inner Power and Charged Reflexes: on until cast again.
+var toggled_spells: Array[String] = []
 
 ## First clears, "style_id:tier" -> times completed (FigmentProgress). Each
 ## key is one Figment Tree point.
@@ -200,6 +204,7 @@ func reset_to_defaults() -> void:
 	booming_blade_on = false
 	death_shroud_on = false
 	hex_auras = []
+	toggled_spells = []
 	_reset_all_ability_levels()
 	player_level = 1
 	player_xp = 0.0

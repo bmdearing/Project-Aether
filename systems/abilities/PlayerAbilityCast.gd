@@ -44,8 +44,10 @@ const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sw
 ## Booming Blade: a toggle (GameState.booming_blade_on). While on, every melee
 ## swing (PlayerMeleeAttack._enter_strike) sends lightning along the ground
 ## ahead, at most once per BOOMING_BLADE_COOLDOWN, one more bolt every
-## BOOMING_BLADE_LEVELS_PER_BOLT spell levels. Turning it off is free.
+## BOOMING_BLADE_LEVELS_PER_BOLT spell levels. Each trigger drains
+## BOOMING_BLADE_TRIGGER_COST of its Mana cost. Turning it off is free.
 const BOOMING_BLADE_COOLDOWN := 0.45
+const BOOMING_BLADE_TRIGGER_COST := 0.3
 const BOOMING_BLADE_LEVELS_PER_BOLT := 5
 const BOOMING_BLADE_SPREAD_DEG := 7.0
 ## Ground bolts like Spark's crawlers, but running straight; each enemy
@@ -111,6 +113,7 @@ var _ability_by_id_cache: Dictionary = {}
 func _ready() -> void:
 	_player = get_parent()
 	EventBus.enemy_died.connect(_on_enemy_died)
+	EventBus.damage_dealt.connect(_on_damage_dealt)
 
 func _physics_process(delta: float) -> void:
 	if _flame_jets_fx:
@@ -152,6 +155,7 @@ func _physics_process(delta: float) -> void:
 
 	_tick_auras(delta)
 	_tick_pale_thread(delta)
+	_tick_toggles(delta)
 
 	for i in range(AbilityLoadoutComponent.SLOT_COUNT):
 		var action := "ability_%d" % (i + 1)
@@ -217,6 +221,10 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 		GameState.booming_blade_on = false
 		_flash_ring(_player.global_position, 1.4, ability, Color(0.6, 0.6, 0.7))
 		return
+	if TOGGLE_SPELLS.has(ability.ability_id) and GameState.toggled_spells.has(ability.ability_id):
+		_set_toggle(ability.ability_id, false)
+		_flash_ring(_player.global_position, 1.4, ability, Color(0.6, 0.6, 0.7))
+		return
 	if ability.ability_id == "death_shroud" and GameState.death_shroud_on:
 		GameState.death_shroud_on = false
 		_flash_ring(_player.global_position, 1.4, ability, Color(0.6, 0.6, 0.7))
@@ -240,6 +248,8 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 		EventBus.ability_cast_failed.emit(_player, ability, "On cooldown")
 		return
 	var mana_cost := ability.get_mana_cost(_player.stat_sheet) * copies * (1.0 + cursed_cost / 100.0)
+	if ability.ability_id == "manasaber":
+		mana_cost = manasaber_cost(_player.mana.max_mana) * copies
 	if _player.mana.current_mana < mana_cost:
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
 		return
@@ -248,6 +258,8 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 		EventBus.ability_cast_failed.emit(_player, ability, "Already casting")
 		return
 	_player.mana.spend(mana_cost)
+	if ability.ability_id == "manasaber":
+		_manasaber_spent = mana_cost / copies
 	_cast_lockout = ability.base_recovery_time / maxf(_player.get_action_speed_multiplier(), 0.01)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_input_action = "ability_%d" % (slot_index + 1)
@@ -295,6 +307,7 @@ const ECHOES := {
 	"second_pulse": ["ice_pulse", [0.4], 0.5],
 	"echo_sweep": ["thunder_sweep", [0.6], 0.7],
 	"echoing_shout": ["intimidating_shout", [2.0], 1.0],
+	"double_nova": ["nova", [0.5], 0.5],
 }
 var _echoing := false
 var _sweep_offset := 0.0
@@ -388,6 +401,23 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 	if ability.ability_id == "booming_blade":
 		GameState.booming_blade_on = true
 		_flash_ring(_player.global_position, 1.4, ability)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if TOGGLE_SPELLS.has(ability.ability_id):
+		_set_toggle(ability.ability_id, true)
+		_flash_ring(_player.global_position, maxf(ability.get_radius(_player.stat_sheet), 1.4) if ability.ability_id == "thunderstorm" else 1.4, ability)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "manasaber":
+		_cast_manasaber(ability, damage_multiplier, apply_composure)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "puncture":
+		_cast_puncture(ability, damage_multiplier, apply_composure)
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "invocation_of_arach":
+		_cast_arach(ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "frost_armor":
@@ -535,7 +565,7 @@ func _shatter_hit(enemy: Enemy, damage: float, damage_type: Constants.DamageType
 	EventBus.damage_dealt.emit(_player, enemy, damage, damage_type, false, is_critical)
 
 const IMPACT_ABILITY_IDS := ["comet"]
-const WAVE_ABILITY_IDS := ["ice_pulse", "static_discharge", "entropic_decay"]
+const WAVE_ABILITY_IDS := ["ice_pulse", "static_discharge", "entropic_decay", "nova"]
 const WAVE_DURATION := 0.35  # AbilityRangeEffect's ring expands over the same time
 const COMET_CHILLED_BONUS := 2.5  # "massively increased damage against Chilled or Frozen"
 ## Skill web: Meteor Shower's three smaller comets, Heavy Mass's slower fall.
@@ -832,6 +862,7 @@ func _auto_cast(ability: Ability, slate: Slate) -> void:
 	_cooldowns[ability] = maxf(ability.get_final_cooldown(_player.get_action_speed_multiplier(), _player.stat_sheet), AUTO_CAST_MIN_INTERVAL)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_is_manual = false
+	_manasaber_spent = 0.0  # an auto-cast spends nothing; it swings as if it took the full share
 	var damage_percent := _modifier_value(slate, "auto_cast_damage_percent", 100.0)
 	_cast(ability, _player.global_position, damage_percent / 100.0, false)
 
@@ -1327,6 +1358,13 @@ func on_melee_swing() -> void:
 	var ability := _resolve_ability_by_id("booming_blade")
 	if ability == null:
 		return
+	# Each trigger drains part of the cast cost; it switches off when Mana can't pay.
+	var drain := ability.get_mana_cost(_player.stat_sheet) * BOOMING_BLADE_TRIGGER_COST
+	if _player.mana.current_mana < drain:
+		GameState.booming_blade_on = false
+		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
+		return
+	_player.mana.spend(drain)
 	_booming_blade_cd = BOOMING_BLADE_COOLDOWN
 	var count := booming_blade_bolt_count(ability, _player.stat_sheet)
 	var spread := BOOMING_BLADE_SPREAD_DEG
@@ -1363,7 +1401,7 @@ const CURSE_DURATION := 6.0
 ## Curse strength per spell level above 1 (x1.57 at level 20).
 const CURSE_STRENGTH_PER_LEVEL := 0.03
 ## Spells cast on the enemy nearest the crosshair; refused with no one there.
-const TARGETED_ABILITY_IDS := ["pale_thread", "linger", "elemental_lightning", "elemental_aether"]
+const TARGETED_ABILITY_IDS := ["pale_thread", "linger", "elemental_lightning", "elemental_aether", "invocation_of_arach"]
 const TARGET_RANGE := 25.0
 const TARGET_CONE_DEG := 10.0
 const PALE_COLOR := Color(0.88, 0.95, 1.0)
@@ -1427,6 +1465,10 @@ func _cast_linger(ability: Ability, damage_multiplier: float) -> void:
 ## within Linger's radius that don't have it.
 func _on_enemy_died(node: Node) -> void:
 	var dead := node as Enemy
+	if dead and dead.status_effects and dead.status_effects.has_effect("arach_mark") and is_instance_valid(_player):
+		var arach := _resolve_ability_by_id("invocation_of_arach")
+		for i in (2 if arach and arach.has_twist("brood") else 1):  # Web: Brood
+			_summon_spider(dead.global_position + Vector3(i * 0.6, 0.0, 0.0))
 	if dead == null or dead.status_effects == null or not dead.status_effects.has_effect("linger") or not is_instance_valid(_player):
 		return
 	var ability := _resolve_ability_by_id("linger")
@@ -1620,6 +1662,8 @@ static func aura_drain_per_second(ability: Ability, max_mana: float, stat_sheet:
 func _tick_auras(delta: float) -> void:
 	var auras := active_auras()
 	var ids := auras.map(func(a: Ability): return a.ability_id)
+	if GameState.toggled_spells.has("thunderstorm"):
+		ids.append("thunderstorm")  # its ring is drawn by _tick_thunderstorm()
 	for id in _aura_rings.keys():
 		if not ids.has(id):
 			if is_instance_valid(_aura_rings[id]["mesh"]):
@@ -1842,3 +1886,265 @@ static func element_count(enemy: Enemy) -> int:
 func _elemental_earth() -> void:
 	_player.status_effects.apply_timed_effect("stone_skin", STONE_SKIN_SECONDS)
 	ArkanusFx.stone_skin(_player, STONE_SKIN_SECONDS)
+
+## ---- Thunderstorm, Inner Power, Charged Reflexes, Manasaber, Puncture, Arach
+
+## Switched on by casting and off by casting again (free), like Booming Blade.
+const TOGGLE_SPELLS := ["thunderstorm", "inner_power", "charged_reflexes"]
+
+## Thunderstorm: every STORM_INTERVAL, a bolt strikes each enemy within its
+## radius, and each round drains STORM_DRAIN of its Mana cost (it stops when
+## Mana runs short). Enemies inside are kept Drenched.
+const STORM_INTERVAL := 2.0
+const STORM_DRAIN := 0.4
+const STORM_DRENCH_PULSE := 0.5
+const STORM_BOLT_HEIGHT := 9.0
+## Web: Storm Front strikes this much more often.
+const STORM_FRONT_INTERVAL := 0.75
+var _storm_timer: float = 0.0
+var _storm_drench_timer: float = 0.0
+
+## Inner Power: Life regenerates this many times Mana's regeneration
+## (Player._apply_derived_stats()); StatSheet.inner_power_multiplier() does
+## the damage side.
+const INNER_POWER_LIFE_SHARE := 2.0
+
+## Charged Reflexes: ranged attack speed and reload speed multipliers while
+## on; each shot drains this share of its Mana cost.
+const CHARGED_REFLEXES_FIRE_RATE := 1.3
+const CHARGED_REFLEXES_RELOAD := 1.4
+const CHARGED_REFLEXES_SHOT_DRAIN := 0.15
+
+## Manasaber: costs this share of maximum Mana and sweeps a cone ahead for
+## MANASABER_DAMAGE x the Mana spent, as the spell's base damage.
+const MANASABER_SHARE := 0.4
+const MANASABER_DAMAGE := 2.5
+const MANASABER_HALF_ANGLE := 70.0
+var _manasaber_spent: float = 0.0
+
+## Puncture: stabs the nearest enemy within its reach and this cone, and
+## leaves it Punctured (StatusEffectComponent.PUNCTURED_BLEED_TAKEN).
+const PUNCTURE_CONE_DEG := 35.0
+const PUNCTURE_DURATION := 6.0
+
+## Invocation of Arach: the mark lasts ARACH_MARK_DURATION; with the spell
+## prepared, a hit on a boss, an Ascendant or a marked enemy has
+## ARACH_HIT_CHANCE to bring a spider (at most once per ARACH_HIT_COOLDOWN).
+const ARACH_MARK_DURATION := 8.0
+const ARACH_HIT_CHANCE := 0.1
+const ARACH_HIT_COOLDOWN := 0.5
+var _arach_cd: float = 0.0
+
+static func manasaber_cost(max_mana: float) -> float:
+	return max_mana * MANASABER_SHARE
+
+## Webs: Focused Mind (3x), Overclock (+45%, double drain), Steady Hands (+70%).
+const FOCUSED_MIND_LIFE_SHARE := 3.0
+const OVERCLOCK_FIRE_RATE := 1.45
+const STEADY_HANDS_RELOAD := 1.7
+
+func _twist(ability_id: String, twist: String) -> bool:
+	var a := _resolve_ability_by_id(ability_id)
+	return a != null and a.has_twist(twist)
+
+func inner_power_life_share() -> float:
+	return FOCUSED_MIND_LIFE_SHARE if _twist("inner_power", "focused_mind") else INNER_POWER_LIFE_SHARE
+
+func charged_reflexes_fire_rate() -> float:
+	return OVERCLOCK_FIRE_RATE if _twist("charged_reflexes", "overclock") else CHARGED_REFLEXES_FIRE_RATE
+
+func charged_reflexes_reload() -> float:
+	return STEADY_HANDS_RELOAD if _twist("charged_reflexes", "steady_hands") else CHARGED_REFLEXES_RELOAD
+
+func _set_toggle(id: String, on: bool) -> void:
+	if on and not GameState.toggled_spells.has(id):
+		GameState.toggled_spells.append(id)
+		if id == "thunderstorm":
+			_storm_timer = 0.3  # the first strike comes almost at once
+	elif not on:
+		GameState.toggled_spells.erase(id)
+	if id == "inner_power":
+		_player._apply_derived_stats()
+
+## On the spell bar or the stance page.
+func is_prepared(ability_id: String) -> bool:
+	for i in AbilityLoadoutComponent.SLOT_COUNT:
+		for a in [_player.ability_loadout.get_equipped(i), _player.ability_loadout.get_page2(i)]:
+			if a and a.ability_id == ability_id:
+				return true
+	return false
+
+func _tick_toggles(delta: float) -> void:
+	_arach_cd = maxf(_arach_cd - delta, 0.0)
+	# A toggle taken off the bar switches off.
+	for id in GameState.toggled_spells.duplicate():
+		if not is_prepared(id):
+			_set_toggle(id, false)
+	var sheet := _player.stat_sheet
+	sheet.no_physical_damage = is_prepared("inner_power")
+	sheet.inner_power_on = GameState.toggled_spells.has("inner_power")
+	var inner := _resolve_ability_by_id("inner_power")
+	sheet.inner_power_more = StatSheet.INNER_POWER_AETHERIC_MORE * (2.0 if inner and inner.has_twist("still_waters") else 1.0)
+	_tick_thunderstorm(delta)
+
+func _tick_thunderstorm(delta: float) -> void:
+	if not GameState.toggled_spells.has("thunderstorm"):
+		return
+	var ability := _resolve_ability_by_id("thunderstorm")
+	if ability == null:
+		return
+	var radius := ability.get_radius(_player.stat_sheet)
+	_update_aura_ring(ability)
+	_storm_drench_timer -= delta
+	if _storm_drench_timer <= 0.0:
+		_storm_drench_timer = STORM_DRENCH_PULSE
+		for enemy in _enemies_near(_player.global_position, radius):
+			enemy.status_effects.apply_timed_effect("drenched", STORM_DRENCH_PULSE + 0.5)
+	_storm_timer -= delta
+	if _storm_timer > 0.0:
+		return
+	_storm_timer = STORM_INTERVAL * (STORM_FRONT_INTERVAL if ability.has_twist("storm_front") else 1.0)
+	var drain := ability.get_mana_cost(_player.stat_sheet) * STORM_DRAIN
+	if _player.mana.current_mana < drain:
+		_set_toggle("thunderstorm", false)
+		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
+		return
+	_player.mana.spend(drain)
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+	var scene := _player.get_tree().current_scene
+	for enemy in _enemies_near(_player.global_position, radius):
+		var top := enemy.global_position + Vector3(randf_range(-1.5, 1.5), STORM_BOLT_HEIGHT, randf_range(-1.5, 1.5))
+		LightningArc.spawn(scene, top, enemy.global_position + Vector3.UP * 0.2, color)
+		SpellFx.light_pop(scene, enemy.global_position + Vector3.UP, color, 2.5, 5.0, 0.2)
+		_hit_enemy(ability, enemy, 1.0, true, Callable())
+
+## Called by PlayerRangedAttack for every shot or throw.
+func on_ranged_shot() -> void:
+	if not GameState.toggled_spells.has("charged_reflexes"):
+		return
+	var ability := _resolve_ability_by_id("charged_reflexes")
+	if ability == null:
+		return
+	var drain := ability.get_mana_cost(_player.stat_sheet) * CHARGED_REFLEXES_SHOT_DRAIN * (2.0 if ability.has_twist("overclock") else 1.0)
+	if _player.mana.current_mana < drain:
+		_set_toggle("charged_reflexes", false)
+		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
+		return
+	_player.mana.spend(drain)
+
+## An Aetheric blade sweeping the cone ahead. Its base hit is the Mana spent
+## on the cast times MANASABER_DAMAGE, then every spell modifier and crit.
+func _cast_manasaber(ability: Ability, damage_multiplier: float, apply_composure: bool) -> void:
+	var sheet := _player.stat_sheet
+	var spent := _manasaber_spent if _manasaber_spent > 0.0 else manasaber_cost(_player.mana.max_mana)
+	var radius := ability.get_radius(sheet)
+	var forward := -_player.camera.global_transform.basis.z
+	forward.y = 0.0
+	forward = forward.normalized() if forward.length() > 0.01 else -_player.global_transform.basis.z
+	forward = forward.rotated(Vector3.UP, deg_to_rad(_aim_yaw_offset))
+	var origin := _player.global_position
+	for enemy in _enemies_near(origin, radius):
+		var to_enemy := enemy.global_position - origin
+		to_enemy.y = 0.0
+		if to_enemy.length() > 0.5 and rad_to_deg(forward.angle_to(to_enemy.normalized())) > MANASABER_HALF_ANGLE:
+			continue
+		var hit := ability._base_hit(spent * MANASABER_DAMAGE, sheet)
+		var rolled := DamageCalculator.apply_crit(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
+		var damage: float = float(rolled["final_damage"]) * damage_multiplier
+		enemy.take_damage(damage, ability.damage_type)
+		if apply_composure and enemy.stance:
+			enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
+		EventBus.damage_dealt.emit(_player, enemy, damage, ability.damage_type, false, rolled["is_critical"])
+	var scene := _player.get_tree().current_scene
+	var tint: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE).lightened(0.35)
+	SpellFx.sweep(scene, origin, forward, radius, MANASABER_HALF_ANGLE, tint, 0.22, -1.0 if _saber_return else 1.0, 1.6)
+	SpellFx.light_pop(scene, origin + forward * radius * 0.6 + Vector3.UP, tint, 3.0, radius * 1.4, 0.3)
+	# Web: Twin Blade sweeps back for half damage (the return doesn't repeat).
+	if ability.has_twist("twin_blade") and not _saber_return:
+		var spent_now := spent
+		get_tree().create_timer(REAP_SECOND_SWING_DELAY, false).timeout.connect(func():
+			if is_instance_valid(_player):
+				_saber_return = true
+				_manasaber_spent = spent_now
+				_cast_manasaber(ability, damage_multiplier * 0.5, apply_composure)
+				_saber_return = false)
+
+var _saber_return := false
+
+func _cast_puncture(ability: Ability, damage_multiplier: float, apply_composure: bool) -> void:
+	var origin := _player.global_position
+	var forward := -_player.camera.global_transform.basis.z
+	forward.y = 0.0
+	forward = forward.normalized() if forward.length() > 0.01 else -_player.global_transform.basis.z
+	var reach := ability.get_radius(_player.stat_sheet)
+	# Web: Skewer runs through a second enemy.
+	var wanted := 2 if ability.has_twist("skewer") else 1
+	var targets: Array[Enemy] = []
+	for enemy in _enemies_by_distance(origin, reach):
+		var to_enemy := enemy.global_position - origin
+		to_enemy.y = 0.0
+		if to_enemy.length() < 0.5 or rad_to_deg(forward.angle_to(to_enemy.normalized())) <= PUNCTURE_CONE_DEG:
+			targets.append(enemy)
+			if targets.size() >= wanted:
+				break
+	var scene := _player.get_tree().current_scene
+	var tip := origin + forward * reach * 0.8 + Vector3.UP
+	for target in targets:
+		tip = _body_centre(target)
+		_hit_enemy(ability, target, damage_multiplier, apply_composure, Callable())
+		target.status_effects.apply_timed_effect("punctured", PUNCTURE_DURATION * ability.get_duration_multiplier(_player.stat_sheet))
+	var start := _player.camera.global_transform * Vector3(0.2, -0.3, -0.5)
+	SpellFx.flash(scene, tip, Color(1.3, 1.2, 1.1), 0.6, 0.15)
+	SpellFx.burst(scene, tip, Color(0.7, 0.15, 0.12), 14, Vector2(1.5, 3.5), 0.35, Vector2(0.05, 0.1), 60.0, -6.0)
+	_puncture_spike(start, tip)
+
+## A pale spike lancing from the hand to the point struck, gone in a blink.
+func _puncture_spike(from: Vector3, to: Vector3) -> void:
+	var length := from.distance_to(to)
+	if length < 0.05:
+		return
+	var spike := MeshInstance3D.new()
+	var prism := CylinderMesh.new()
+	prism.top_radius = 0.0
+	prism.bottom_radius = 0.05
+	prism.height = length
+	prism.radial_segments = 6
+	spike.mesh = prism
+	spike.material_override = SpellFx.energy_material(Color(0.95, 0.9, 0.85), 1.2, 0.2, true)
+	spike.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	_player.get_tree().current_scene.add_child(spike)
+	var dir := (to - from) / length
+	var side := Vector3.UP if absf(dir.y) < 0.99 else Vector3.RIGHT
+	# The cylinder's axis is +Y; it points tip-first along dir.
+	var basis := Basis.looking_at(dir, side) * Basis(Vector3.RIGHT, -PI * 0.5)
+	spike.global_transform = Transform3D(basis, (from + to) * 0.5)
+	var tween := spike.create_tween()
+	tween.tween_property(spike, "scale", Vector3(0.1, 1.0, 0.1), 0.18).set_delay(0.06)
+	tween.tween_callback(spike.queue_free)
+
+func _cast_arach(ability: Ability) -> void:
+	var target := _crosshair_enemy()
+	if target == null:
+		return
+	target.status_effects.apply_timed_effect("arach_mark", ARACH_MARK_DURATION * ability.get_duration_multiplier(_player.stat_sheet))
+	_flash_ring(target.global_position, 1.2, ability)
+
+func _summon_spider(at: Vector3) -> void:
+	var ability := _resolve_ability_by_id("invocation_of_arach")
+	if ability:
+		SpiderMinion.summon(_player.get_tree().current_scene, _player, ability, at)
+
+func _on_damage_dealt(source: Node, target: Node, _amount: float, _type: int, _riposte: bool, _crit: bool) -> void:
+	if source != _player or _arach_cd > 0.0 or StatusEffectComponent.emitting_dot:
+		return
+	var enemy := target as Enemy
+	if enemy == null or enemy.status_effects == null:
+		return
+	var big := enemy.rank == Constants.EnemyRank.BOSS or (enemy.rarity_component != null and enemy.rarity_component.rarity == Constants.EnemyRarity.ASCENDANT)
+	if not big and not enemy.status_effects.has_effect("arach_mark"):
+		return
+	if not is_prepared("invocation_of_arach"):
+		return
+	_arach_cd = ARACH_HIT_COOLDOWN
+	if randf() < ARACH_HIT_CHANCE:
+		_summon_spider(enemy.global_position)

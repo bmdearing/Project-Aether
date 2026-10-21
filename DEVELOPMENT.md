@@ -943,13 +943,8 @@ interactables, same walk-up-and-`E` pattern as the Reality Engine.
 **GearShop** sells 6 `ItemRoller`-rolled items per Hub visit for Gold (a
 brand-new invented currency — see gap below), cost scaled by rolled
 rarity, plus a "Reroll Stock" action button (invented `15` Gold) to
-refresh the offered items on demand without leaving. **AmmoStore**
-(`entities/interactables/ammo_store/`) has no menu: one `E` press buys a
-full resupply - every reserve but Arrow topped up to
-`AmmoInventory.STARTING_AMMO` (never reduced if above it) and every
-magazine in both weapon sets filled, priced per round by
-`Constants.AMMO_ROUND_COST` (placeholders). The prompt shows the live
-cost; short on Gold buys nothing. **SpellTestShop**
+refresh the offered items on demand without leaving. (The AmmoStore was
+removed in v5.12 when ammo became unlimited.) **SpellTestShop**
 lists every ability under `data/abilities/instances/` for free — an
 explicit testing/debug tool (user-requested), not a designed economy
 feature, so you can unlock everything without grinding Tome drops while
@@ -1074,8 +1069,34 @@ equippable from `InventoryScreen`, or stays on the ground if there's no room; a 
   to `GameState.portal_map_state` and the save file, and the Hub's return
   portal rebuilds it exactly. Unlimited (`Constants.MAX_PORTALS = -1`).
   The run ends on death or when a new map is entered.
-- **Throwables** are on hold (Rev2): `ThrowableStack.gd`, the Player/HUD
-  throwable hooks and the throwable item data are still present but unused.
+- **Throwing weapons** (v5.12) are main-hand weapons, not the old Secondary
+  slot: Throwing Knife, Throwing Axe, Javelin and Grenade (the doc's
+  Throwables tables, `data/weapons/instances/gen_throwing_knives_*`,
+  `gen_impact_hatchet_*`, `gen_pressure_javelin_*`, `gen_grenade_*`).
+  `Weapon.is_throwing()`; they're `is_ranged` with `AmmoType.THROWN`, a small
+  magazine (6/4/3/2) and a reload, no stance, never dual wielded. Knives and
+  axes fly straight (Kinetic), javelins arc and pierce 3 enemies (Piercing),
+  grenades arc and explode for 3.5 m (Explosive);
+  `PlayerRangedAttack.THROW_PROFILES`. Line 2 javelins (Pressure) burst for
+  2.2 m and line 2 grenades for 4.5 m; increased Area of Effect scales the
+  blasts. The viewmodel family is `&"thrown"` (overhand throw, the held
+  model hides until the hand comes back). Infusion Grenades are still
+  excluded from drops (`ItemRoller.EXCLUDED_ITEM_TYPES`); `ThrowableStack.gd`
+  and its HUD hooks remain unused.
+- **Quivers and pouches** (v5.12): offhand items (`Item.item_type` `quiver` /
+  `pouch`, `data/items/instances/gen_quiver_*`, `gen_pouch_*`) that sit
+  beside even a two-handed ranged weapon. A quiver fits a bow or crossbow, a
+  pouch any gun (`Item.fits_weapon()`); equipping a weapon they don't fit
+  unequips them. Two lines of four tiers each with an implicit (Bleed
+  chance / Projectile Speed; Reload Speed / Critical Strike Damage); they
+  roll from `ItemRoller.QUIVER_MODIFIERS` / `POUCH_MODIFIERS`.
+- **Ammo is unlimited** (v5.12, Overwatch-style): `AmmoInventory` reports
+  every reserve as infinite, so magazines and reloads are the only limit.
+  No ammo drops, no boss ammo packs, no Ammo Store. An old save's ammo
+  pickup just disappears when touched.
+- **Dropping items** (v5.12): hover an item in the inventory and press
+  `drop_item` (Q). It lands 1.2 m ahead as a pickup that always waits for
+  Interact (`LootPickup.dropped_by_player`), currency included.
 
 **Infusion/Shrivening Stone** reroll or clear a weapon's
 `infused_damage_type`. Uniques and Mythics refuse both (v5.11.0).
@@ -1324,6 +1345,49 @@ whenever the equipped weapon changes),
 readout of damage/chains/casts/parries — no art needed to validate
 formulas).
 
+### v5.12 spells and systems
+
+- **New spells** (`PlayerAbilityCast`, numbers in its constants):
+  **Thunderstorm** (toggle; every 2 s a bolt on each enemy within 10 m,
+  each round draining 40% of its cost; enemies inside are Drenched),
+  **Nova** (Lightning ring round you, 0.6 s cast), **Puncture** (stabs the
+  nearest enemy in a 35-degree cone within 3.5 m: guaranteed Bleed and
+  Punctured, +40% Bleed damage taken for 6 s), **Invocation of Arach**
+  (marks the enemy at the crosshair for 8 s; a marked kill raises a
+  `SpiderMinion`; with the spell prepared, hits on bosses, Ascendants and
+  marked enemies have a 10% chance (0.5 s internal cooldown) to raise one;
+  at most 10 spiders, Entropic bites, 15 s), **Inner Power** (toggle: no
+  Mana regeneration, 2x it as Life regeneration, 10% more Aetheric; while
+  it is on the bar at all you deal no Physical damage -
+  `StatSheet.inner_power_multiplier()`), **Manasaber** (costs 40% of maximum
+  Mana; a 140-degree sweep for 250% of the Mana spent as its base Aetheric
+  hit, then spell modifiers and crit), **Charged Reflexes** (toggle: ranged
+  attack speed x1.3 and reload speed x1.4, each shot drains 15% of its cost).
+  Toggles live in `GameState.toggled_spells`, switch off for free, when Mana
+  runs dry, or when taken off the bar.
+- **Booming Blade** drains 30% of its cost on every trigger
+  (`BOOMING_BLADE_TRIGGER_COST`) and switches off when Mana can't pay.
+  **Black Hole** costs 90 Mana and has a 10 s cooldown.
+- **Boss range punish** (`BossBrain`, bosses only): a player who stays more
+  than 13 m away for 5 s is pulled in and slammed, and the next time
+  shelled with a 4-blast barrage; the two alternate, 10 s apart. This
+  replaced the boss fight ammo packs.
+- **Lens Star rolls** (`FateStars`): each site rolls its bonus from a larger
+  pool and its value from 60-140%, seeded by the Lens and the Star (a
+  Timeless Jewel); about one site in six is a Notable at 3x (Rare and better
+  Lenses always light one), drawn bigger in brighter gold.
+- **Spell levels in the Hub** draw Crystallized Aether from the inventory,
+  then the stash (`AbilitiesScreen._spend_aether()`).
+- **Camera Bob and Sway** setting (`GameState.camera_motion`): off stops
+  the camera's walk bob, mouse sway and landing dip; hit kicks and shakes
+  stay.
+- **Enemy gap jumps** refuse a "gap" that is really a wall (no floor under
+  it) and any jump with a wall across it at head height
+  (`Enemy._wall_between()`), which had carried enemies up and over walls.
+- **Body size overrides**: `EnemyDefinition.body_height_override` /
+  `body_radius_override` for models whose rest pose doesn't match how they
+  stand (the Veilborne Mindbender floats; its model is also raised 0.45 m).
+
 ## Controls (current bindings)
 
 | Action | Key |
@@ -1349,6 +1413,7 @@ formulas).
 | Open Figment Tree directly | L |
 | Rotate pending Slate *(Fate Board editor only)* | R |
 | Flip pending Slate *(Fate Board editor only)* | Q |
+| Drop the hovered item *(inventory)* | Q |
 | Interact *(Reality Engine, shops, Stash chest - Hub only)* | E |
 | Range rings round the player (RangeRings: 5 / 10 m solid, 15 / 20 / 25 m dashed) | Alt (hold) |
 | Debug grid inventory / stash view | F6 |
@@ -1435,8 +1500,7 @@ call. How each one got here is in PATCH_NOTES.md.
     per-style layouts, verticality heights, one secret room per Figment,
     `MapEncounters` weights and the Watcher's deals.
 18. **Enemy roster defaults** (the roster brief's open questions):
-    FigmentBoss uses the mounted Chieftain model, `AMMO_ROUND_COST` values
-    are placeholders, the ammo store tops up to `STARTING_AMMO`, the Lord's
+    FigmentBoss uses the mounted Chieftain model, the Lord's
     elements go Fire -> Cold -> Lightning, and every unit keeps a 1.9 m
     capsule whatever its model size.
 19. **The Watcher found after the boss**: his deals change the current

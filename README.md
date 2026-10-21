@@ -38,7 +38,7 @@ Each build is self-contained, with all assets inside.
 - **Endgame mapping:** Figment tiers 1-21 in Low, Mid and High bands, three pools of monster and boss modifiers that pay back in Pack Size, Item Quantity and Item Rarity, and a Figment Tree, earned by first clears, that steers which areas, factions, monsters and rewards your Figments roll.
 - **Weighty first-person combat:** a three-hit melee combo with light, heavy and charged attacks; parry, riposte, counter hits and visceral finishers on staggered enemies; dash-cancels and quicksteps with i-frames; hit-stop and blood; and weapon stances for every weapon family.
 - **Every weapon feels different:** each weapon family has its own attack, recoil, reload and bow-draw animations, and casters get channelled stances.
-- **Ranged weapons:** magazines, reloading, fire modes and spread for pistols, rifles, shotguns, bows and crossbows.
+- **Ranged weapons:** magazines, reloading, fire modes and spread for pistols, rifles, shotguns, bows and crossbows, with unlimited ammo; quivers and pouches as their offhand; and throwing knives, axes, javelins and grenades.
 - **Verticality and secrets:** catch ledges and mantle up, climb raised rooms and staircases, and find hidden rooms behind cracked walls and in rock outcrops, some guarded by the Watcher and its bargains.
 - **Defense:** passive shield block, or an active raised-shield guard that spends Composure.
 - **Loot and builds:** rolled gear with tiered modifiers, Uniques and Mythics, jewels and sockets, a grid inventory and stash, vendor shops and a Currency Exchange, crafting with Orbs, Brands, Edicts and the Shard of Tharsis, the Fate Board of Slates and Lenses, and spells with their own skill webs.
@@ -61,7 +61,7 @@ Each build is self-contained, with all assets inside.
 | Portal to the Hub | T |
 | Inventory / Character / Spells / Fate Board / Map / Figment Tree | B / C / K / P / M / L |
 | Menu: open the last screen, then cycle screens (Shift: backwards) | Tab |
-| Mark hovered item as Trash / Favored | Z / V |
+| Mark hovered item as Trash / Favored / drop it | Z / V / Q |
 | Copy hovered item as text | Ctrl+C |
 | Pause | Esc |
 

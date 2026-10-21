@@ -29,10 +29,13 @@ const SUMMON_CAP := 6
 const BLAST_STAGGER := 0.3
 ## Pulls stop this far from the boss.
 const PULL_STOP_DISTANCE := 2.5
-## While the fight is on, a gun-carrying player short on ammo gets a pack
-## dropped nearby this often.
-const AMMO_INTERVAL := 20.0
-const AMMO_RING := Vector2(3.0, 5.0)
+## Range punish (bosses only): a player who stays beyond RANGE_PUNISH_DISTANCE
+## for RANGE_PUNISH_DELAY seconds is dragged in and slammed; the next time,
+## shelled with a barrage instead. The two alternate.
+const RANGE_PUNISH_DISTANCE := 13.0
+const RANGE_PUNISH_REACH := 40.0
+const RANGE_PUNISH_DELAY := 5.0
+const RANGE_PUNISH_COOLDOWN := 10.0
 
 var abilities: Array[BossAbility] = []
 ## Health fractions that start phase 2, 3, ... (descending).
@@ -55,7 +58,9 @@ var _cooldowns: Dictionary = {}
 var _gap: float = OPENING_GAP
 var _hazards: Array[Dictionary] = []
 var _summoned: Array[Node] = []
-var _ammo_timer: float = AMMO_INTERVAL
+var _far_time: float = 0.0
+var _punish_cooldown: float = 0.0
+var _punish_with_pull := true
 
 func _ready() -> void:
 	_boss = get_parent() as Enemy
@@ -74,8 +79,14 @@ func _physics_process(delta: float) -> void:
 	var speed: float = 1.0 / _cooldown_scale()
 	for key in _cooldowns:
 		_cooldowns[key] = maxf(_cooldowns[key] - delta * speed, 0.0)
-	_tick_ammo(delta)
+	_tick_range_punish(delta)
 	if casting or _player == null or _boss.status_effects.is_stunned():
+		return
+	if _far_time >= RANGE_PUNISH_DELAY and _punish_cooldown <= 0.0 and not _boss.is_mid_attack():
+		_far_time = 0.0
+		_punish_cooldown = RANGE_PUNISH_COOLDOWN
+		cast(_range_punish_ability())
+		_punish_with_pull = not _punish_with_pull
 		return
 	# A follow-up the boss can't let pass (Aurelia burning an Entangled
 	# player) skips the gap and its cooldown.
@@ -96,37 +107,35 @@ func _physics_process(delta: float) -> void:
 	if ability:
 		cast(ability)
 
-## Drops an ammo pack near the player, on the side away from the boss.
-func _tick_ammo(delta: float) -> void:
-	if _player == null or _flat_distance(_boss.global_position, _player.global_position) > ENGAGE_RANGE:
+func _tick_range_punish(delta: float) -> void:
+	_punish_cooldown = maxf(_punish_cooldown - delta, 0.0)
+	if require_sight or _boss.rank != Constants.EnemyRank.BOSS or _player == null:
+		_far_time = 0.0
 		return
-	_ammo_timer -= delta
-	if _ammo_timer > 0.0:
-		return
-	_ammo_timer = AMMO_INTERVAL
-	var need := Enemy.ammo_need(_player)
-	if need.is_empty():
-		return
-	var pack := Enemy.make_ammo_pack(need["type"])
-	if pack == null:
-		return
-	var away := _player.global_position - _boss.global_position
-	away.y = 0.0
-	away = away.normalized() if away.length() > 0.05 else Vector3.FORWARD
-	var spot := _player.global_position
-	for attempt in 8:
-		var dir := away.rotated(Vector3.UP, randf_range(-PI / 2.0, PI / 2.0))
-		var candidate := _player.global_position + dir * randf_range(AMMO_RING.x, AMMO_RING.y)
-		var floor_y: float = _boss._floor_below(candidate, 1.5)
-		if not is_nan(floor_y):
-			spot = Vector3(candidate.x, floor_y, candidate.z)
-			break
-	var pickup: LootPickup = (load("res://entities/pickups/loot_pickup/LootPickup.tscn") as PackedScene).instantiate()
-	pickup.item = pack
-	_scene().add_child(pickup)
-	pickup.global_position = spot + Vector3.UP * Enemy.DROP_HOVER
-	SmokePuff.spawn(_scene(), spot, 0.6, Color(0.85, 0.75, 0.5))
-	EventBus.loot_dropped.emit(pack, spot)
+	var dist := _flat_distance(_boss.global_position, _player.global_position)
+	if dist > RANGE_PUNISH_DISTANCE and dist <= RANGE_PUNISH_REACH:
+		_far_time += delta
+	else:
+		_far_time = 0.0
+
+func _range_punish_ability() -> BossAbility:
+	var a := BossAbility.new()
+	if _punish_with_pull:
+		a.id = "range_punish_pull"
+		a.kind = BossAbility.Kind.PULL
+		a.telegraph = 1.0
+		a.radius = 4.0
+		a.damage_mult = 1.6
+		a.max_range = _flat_distance(_boss.get_pull_center(), _player.global_position) + 2.0
+	else:
+		a.id = "range_punish_barrage"
+		a.kind = BossAbility.Kind.BLAST
+		a.telegraph = 1.1
+		a.radius = 3.2
+		a.count = 4
+		a.damage_mult = 1.4
+	a.cooldown = 0.0
+	return a
 
 func _cooldown_scale() -> float:
 	return phase_cooldown_scale[clampi(phase - 1, 0, phase_cooldown_scale.size() - 1)]

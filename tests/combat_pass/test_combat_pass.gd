@@ -203,5 +203,5 @@ func _test_no_spell_cooldowns() -> void:
 			elif a.cooldown_seconds > 0.0 and not a.has_tag(Ability.TAG_MINION):  # summons keep one too
 				with_cooldown.append(a.ability_id)
 	with_cooldown.sort()
-	_check(with_cooldown == ["blink", "purge"], "only utility spells and Warcries keep a cooldown (%s)" % ", ".join(with_cooldown))
+	_check(with_cooldown == ["black_hole", "blink", "purge"], "only utility spells, Black Hole and Warcries keep a cooldown (%s)" % ", ".join(with_cooldown))
 	_finished += 1

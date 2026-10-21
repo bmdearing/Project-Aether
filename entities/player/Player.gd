@@ -369,6 +369,10 @@ func _apply_derived_stats() -> void:
 		# Arkanus fixes the Mana pool and its regeneration; nothing scales them.
 		mana.set_max_mana(unique_effects.value(UniqueEffects.ARKANUS_MANA))
 		mana.regen_per_second = unique_effects.value(UniqueEffects.ARKANUS_REGEN)
+	# Inner Power: Mana stops recovering; twice its regeneration goes to Life.
+	if GameState.toggled_spells.has("inner_power"):
+		health.regen_per_second += mana.regen_per_second * ability_cast.inner_power_life_share()
+		mana.regen_per_second = 0.0
 	stat_sheet.current_max_mana = mana.max_mana
 
 	# Evasion (gear x Agility's increased%) - refreshed here for display;
@@ -576,6 +580,25 @@ func _apply_saved_ability_levels() -> void:
 	dir.list_dir_end()
 
 
+## Drops content (an Item, Slate or currency id) on the floor in front of
+## you, as a pickup you take back with Interact (never collected on touch).
+const DROP_DISTANCE := 1.2
+
+func drop_to_ground(content, count: int = 1) -> void:
+	var pickup: LootPickup = (load("res://entities/pickups/loot_pickup/LootPickup.tscn") as PackedScene).instantiate()
+	if content is Slate:
+		pickup.slate = content
+	elif content is Item:
+		pickup.item = content
+	else:
+		pickup.currency_id = StringName(content)
+		pickup.currency_count = count
+	pickup.dropped_by_player = true
+	var ahead := -global_transform.basis.z
+	ahead.y = 0.0
+	get_tree().current_scene.add_child(pickup)
+	pickup.global_position = global_position + ahead.normalized() * DROP_DISTANCE + Vector3.UP * LootPickup.DEFAULT_HOVER
+
 ## Melee vs ranged attack follows the active Weapon's is_ranged, not
 ## which slot it's in - see the dispatch in _physics_process(). Ranged
 ## weapons equip into PRIMARY_WEAPON same as melee ones (see
@@ -625,7 +648,7 @@ func get_attack_speed_multiplier(weapon: Weapon = null) -> float:
 		weapon = get_attack_weapon()
 	var local := weapon.get_local_multiplier("local_increased_attack_speed") if weapon else 1.0
 	var speed := (1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0 + stat_sheet.get_attack_speed_from_stats()) * local
-	return speed * (DUAL_WIELD_ATTACK_SPEED if is_dual_wielding() else 1.0)
+	return speed * (DUAL_WIELD_ATTACK_SPEED if is_dual_wielding() else 1.0) * (ability_cast.charged_reflexes_fire_rate() if weapon and weapon.is_ranged and GameState.toggled_spells.has("charged_reflexes") else 1.0)
 
 ## What delivered a hit, for Evasion (Patch v4.4). ATTACK (melee swings and
 ## projectiles - the default, so callers that don't say are treated as
@@ -1017,7 +1040,7 @@ func get_action_speed_multiplier() -> float:
 
 ## Gear and Slate reload_speed, one increased% bracket.
 func get_reload_speed_multiplier() -> float:
-	return 1.0 + stat_sheet.get_misc_bonus("reload_speed") / 100.0
+	return (1.0 + stat_sheet.get_misc_bonus("reload_speed") / 100.0) * (ability_cast.charged_reflexes_reload() if GameState.toggled_spells.has("charged_reflexes") else 1.0)
 
 func _start_dash(move_dir: Vector3) -> void:
 	_is_dashing = true

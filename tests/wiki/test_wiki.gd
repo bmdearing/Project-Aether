@@ -163,7 +163,7 @@ func _test_modifier_pages() -> void:
 		_check(not WikiCatalog.types_in(group).is_empty(), "%s has base types" % group)
 	var names := WikiCatalog.all_types().map(func(t): return t["name"])
 	_check(names.has("Greatsword") and names.has("Ring") and names.has("Jewel") and names.has("Fire Slate"), "groups list weapons, accessories, jewels and slates")
-	_check(not names.any(func(n): return String(n).contains("Grenade") or String(n).contains("Knife")), "throwables aren't listed")
+	_check(names.any(func(n): return String(n).contains("Grenade")) and names.any(func(n): return String(n).contains("Knife")), "throwing weapons are listed")
 	var sword: Dictionary = WikiCatalog.types_in("Melee").filter(func(t): return t["name"] == "Greatsword")[0]
 	var rows := WikiCatalog.modifier_rows(sword["base"], 80)
 	var total := 0.0

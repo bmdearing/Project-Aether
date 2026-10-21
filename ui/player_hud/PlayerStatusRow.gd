@@ -38,6 +38,8 @@ func entries() -> Array[Dictionary]:
 		for a in cast.active_auras():
 			var aura_id := "death_shroud" if a.ability_id == "death_shroud" else "aura:" + a.ability_id
 			buffs.append({"id": aura_id, "left": -1.0, "stacks": 1})
+		for id in GameState.toggled_spells:
+			buffs.append({"id": id, "left": -1.0, "stacks": 1})
 	var uniques := player.unique_effects
 	if uniques:
 		for id in uniques.timed_more:

@@ -304,7 +304,7 @@ func _update_slot_hint() -> void:
 		_slot_hint.text = ("Click a slot to put %s there, or drag its icon. Click it again to take it out." % _web_ability.display_name) if _web_ability else "Drag spells onto the slots, or drag slots onto each other to swap. Click a slot to empty it."
 
 func _refresh_currency() -> void:
-	_currency_label.text = "Gold: %d    %s: %d" % [GameState.gold, CurrencyText.name_of(Ability.AETHER_CURRENCY), GameState.inventory.count_of(Ability.AETHER_CURRENCY)]
+	_currency_label.text = "Gold: %d    %s: %d%s" % [GameState.gold, CurrencyText.name_of(Ability.AETHER_CURRENCY), _aether_available(), " (with stash)" if _in_hub() else ""]
 
 ## ---- Spell page (skill web) -----------------------------------------------
 
@@ -390,13 +390,37 @@ func _refresh_web() -> void:
 	card.display_ability(PlayerAbilityCast.web_variant(_web_ability), player.stat_sheet if player else null)
 	_web_card_holder.add_child(card)
 
+## Crystallized Aether you can spend: the inventory's, plus the stash's in the Hub.
+func _aether_available() -> int:
+	var total := GameState.inventory.count_of(Ability.AETHER_CURRENCY)
+	if _in_hub():
+		for tab in GameState.stash.tabs:
+			total += tab.count_of(Ability.AETHER_CURRENCY)
+	return total
+
+## Takes from the inventory first, then the stash tabs (Hub only).
+func _spend_aether(amount: int) -> void:
+	var from_inventory := mini(amount, GameState.inventory.count_of(Ability.AETHER_CURRENCY))
+	GameState.inventory.remove_currency(Ability.AETHER_CURRENCY, from_inventory)
+	amount -= from_inventory
+	for tab in GameState.stash.tabs:
+		if amount <= 0:
+			break
+		var taken := mini(amount, tab.count_of(Ability.AETHER_CURRENCY))
+		tab.remove_currency(Ability.AETHER_CURRENCY, taken)
+		amount -= taken
+
+func _in_hub() -> bool:
+	var scene := get_tree().current_scene
+	return scene != null and scene.scene_file_path == GameState.HUB_SCENE
+
 func _can_afford(ability: Ability) -> bool:
-	return GameState.gold >= ability.get_upgrade_gold_cost() and GameState.inventory.count_of(Ability.AETHER_CURRENCY) >= ability.get_upgrade_aether_cost()
+	return GameState.gold >= ability.get_upgrade_gold_cost() and _aether_available() >= ability.get_upgrade_aether_cost()
 
 func _on_upgrade_pressed(ability: Ability) -> void:
 	if ability.can_upgrade() and _can_afford(ability):
 		GameState.gold -= ability.get_upgrade_gold_cost()
-		GameState.inventory.remove_currency(Ability.AETHER_CURRENCY, ability.get_upgrade_aether_cost())
+		_spend_aether(ability.get_upgrade_aether_cost())
 		ability.level += 1
 		GameState.ability_levels[ability.ability_id] = ability.level
 	_refresh_currency()

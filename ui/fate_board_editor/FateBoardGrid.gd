@@ -335,6 +335,7 @@ func _draw_radius(host_cells: Array[Vector2i], radius: int) -> void:
 
 const STAR_DIM_COLOR := Color(0.55, 0.5, 0.4, 0.8)
 const SITE_COLOR := Color(1.0, 0.9, 0.6)
+const NOTABLE_SITE_COLOR := Color(1.0, 0.72, 0.25)
 const STAR_FONT_SIZE := 15
 
 ## Stars (gold once reached, the Lens colour when lit), their names, and the
@@ -361,11 +362,15 @@ func _draw_stars() -> void:
 	var occupied := board.get_occupied_cells()
 	for site in board.lit_sites():
 		var centre := (Vector2(site.cell) + Vector2(0.5, 0.5)) * _cell_px
+		# Notables are drawn bigger, in brighter gold.
+		var notable: bool = site.bonus.get("notable", false)
+		var size := 1.35 if notable else 1.0
+		var colour := NOTABLE_SITE_COLOR if notable else SITE_COLOR
 		if occupied.has(site.cell):
-			layer.draw_colored_polygon(_star_points(centre, _cell_px * 0.34, _cell_px * 0.13), SITE_COLOR)
+			layer.draw_colored_polygon(_star_points(centre, _cell_px * 0.34 * size, _cell_px * 0.13 * size), colour)
 		else:
-			layer.draw_arc(centre, _cell_px * 0.28, 0.0, TAU, 20, Color(SITE_COLOR, 0.85), maxf(1.5, _cell_px * 0.06))
-			layer.draw_circle(centre, _cell_px * 0.08, Color(SITE_COLOR, 0.85))
+			layer.draw_arc(centre, _cell_px * 0.28 * size, 0.0, TAU, 20, Color(colour, 0.85), maxf(1.5, _cell_px * 0.06 * size))
+			layer.draw_circle(centre, _cell_px * 0.08 * size, Color(colour, 0.85))
 
 ## A four-pointed star round `centre`.
 static func _star_points(centre: Vector2, outer: float, inner: float) -> PackedVector2Array:

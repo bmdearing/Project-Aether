@@ -39,10 +39,15 @@ const DEFS := {
 	"steadfast": ["shield", Color(0.7, 0.75, 0.85), Kind.DEBUFF],
 	"drenched": ["drop", Color(0.35, 0.6, 1.0), Kind.DEBUFF],
 	"stone_skin": ["shield", Color(0.7, 0.55, 0.35), Kind.BUFF],
+	"punctured": ["drop", Color(0.85, 0.15, 0.15), Kind.DEBUFF],
+	"arach_mark": ["eye", Color(0.65, 0.3, 0.85), Kind.DEBUFF],
 	# Player buffs kept outside StatusEffectComponent (PlayerStatusRow).
 	"frost_armor": ["shield_tri", Color(0.6, 0.88, 1.0), Kind.BUFF],
 	"battle_cry": ["chevrons_up", Color(1.0, 0.72, 0.3), Kind.BUFF],
 	"death_shroud": ["void", Color(0.82, 0.86, 0.76), Kind.BUFF],
+	"thunderstorm": ["bolt", Color(0.95, 0.9, 0.35), Kind.BUFF],
+	"inner_power": ["star", Color(0.45, 0.85, 0.9), Kind.BUFF],
+	"charged_reflexes": ["chevrons_up", Color(0.95, 0.9, 0.35), Kind.BUFF],
 	"debt": ["lock", Color(0.86, 0.71, 0.42), Kind.BUFF],
 }
 

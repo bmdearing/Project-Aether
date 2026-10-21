@@ -42,6 +42,8 @@ const WEAPON_STATS := {
 	"rapier": ["agility", "strength"], "saber": ["agility", "strength"],
 	"cutlass": ["strength", "agility"], "halberd": ["strength", "agility"], "spear": ["strength", "agility"],
 	"shock_lance": ["agility", "intellect"],
+	"throwing_knives": ["agility", ""], "impact_hatchet": ["strength", "agility"],
+	"pressure_javelin": ["strength", "agility"], "grenade": ["agility", "strength"],
 }
 
 static func _tier(item_level: int) -> Array:

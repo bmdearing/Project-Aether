@@ -26,31 +26,58 @@ const POOLS := {
 		{"key": "type_damage", "value": 4.0, "text": "+{v}% increased {tag} Damage"},
 		{"key": "increased_generic_damage", "value": 2.0, "text": "+{v}% increased Damage"},
 		{"key": "crit_chance_increased", "value": 3.0, "text": "+{v}% increased Critical Strike Chance"},
+		{"key": "crit_damage_increased", "value": 4.0, "text": "+{v}% increased Critical Strike Damage"},
+		{"key": "increased_spell_damage", "value": 3.0, "text": "+{v}% increased Spell Damage"},
+		{"key": "increased_area_damage", "value": 3.0, "text": "+{v}% increased Area Damage"},
+		{"key": "dot_multiplier", "value": 2.0, "text": "+{v}% to Damage over Time Multiplier"},
+		{"key": "increased_physical_damage", "value": 3.0, "text": "+{v}% increased Physical Damage"},
 	],
 	"amplify_attributes": [
 		{"key": "flat_strength", "value": 4.0, "text": "+{v} Strength"},
 		{"key": "flat_agility", "value": 4.0, "text": "+{v} Agility"},
 		{"key": "flat_intellect", "value": 4.0, "text": "+{v} Intellect"},
 		{"key": "flat_life", "value": 10.0, "text": "+{v} Life"},
+		{"key": "flat_mana", "value": 8.0, "text": "+{v} Mana"},
+		{"key": "life_increased", "value": 2.0, "text": "+{v}% increased maximum Life"},
+		{"key": "mana_increased", "value": 2.0, "text": "+{v}% increased maximum Mana"},
+		{"key": "life_regen_flat", "value": 2.0, "text": "+{v} Life Regeneration per second"},
 	],
 	"bridge_tag": [
 		{"key": "mastery", "value": 0.5, "text": "+{v}% {tag} Mastery"},
 		{"key": "ailment_effectiveness", "value": 3.0, "text": "+{v}% increased Ailment Effect"},
 		{"key": "skill_effect_duration", "value": 3.0, "text": "+{v}% increased Skill Effect Duration"},
+		{"key": "ailment_duration", "value": 3.0, "text": "+{v}% increased Ailment Duration"},
+		{"key": "damaging_ailment_chance", "value": 2.0, "text": "+{v}% chance to cause Damaging Ailments"},
+		{"key": "debuff_effectiveness", "value": 3.0, "text": "+{v}% increased Debuff Effectiveness"},
+		{"key": "ailment_tick_rate", "value": 2.0, "text": "Ailments deal damage {v}% faster"},
 	],
 	"free_placement": [
 		{"key": "move_speed", "value": 2.0, "text": "+{v}% increased Movement Speed"},
 		{"key": "attack_speed", "value": 2.0, "text": "+{v}% increased Attack Speed"},
 		{"key": "cast_speed", "value": 2.0, "text": "+{v}% increased Cast Speed"},
 		{"key": "cooldown_recovery_rate", "value": 3.0, "text": "+{v}% increased Cooldown Recovery Rate"},
+		{"key": "reload_speed", "value": 3.0, "text": "+{v}% increased Reload Speed"},
+		{"key": "projectile_speed", "value": 3.0, "text": "+{v}% increased Projectile Speed"},
+		{"key": "dash_speed", "value": 3.0, "text": "+{v}% increased Dash Speed"},
 	],
 	"cheap": [
 		{"key": "flat_aether", "value": 1.0, "text": "+{v} Aether"},
 		{"key": "flat_mana", "value": 8.0, "text": "+{v} Mana"},
 		{"key": "mana_regen_increased", "value": 5.0, "text": "+{v}% increased Mana Regeneration"},
 		{"key": "mana_cost_reduction", "value": 2.0, "text": "+{v}% reduced Mana Cost"},
+		{"key": "mana_on_kill", "value": 2.0, "text": "+{v} Mana on Kill"},
+		{"key": "ward_recovery_increased", "value": 3.0, "text": "+{v}% increased Ward Recovery"},
 	],
 }
+
+## Each site rolls its bonus from the pool and its value within
+## VALUE_ROLL of the pool value, all from the Lens's seed (like a Timeless
+## Jewel: two Lenses of a kind light different bonuses). One site in
+## NOTABLE_ONE_IN (at least one per Lens from Rare up) is a notable at
+## NOTABLE_MULT. Aether sites stay whole numbers.
+const VALUE_ROLL := Vector2(0.6, 1.4)
+const NOTABLE_ONE_IN := 6
+const NOTABLE_MULT := 3.0
 
 ## Pool display name per radius modifier, for cards and the wiki.
 const POOL_NAMES := {
@@ -133,8 +160,9 @@ static func lens_seed(star: int, lens: Lens) -> int:
 static func value_multiplier(lens: Lens) -> float:
 	return VALUE_MULT * float(RARITY_MULT.get(lens.rarity, 1.0))
 
-## The sites a Lens in `star` lights, with their bonuses: the pool is
-## shuffled by the Lens's seed and dealt out in turn, so every bonus shows up.
+## The sites a Lens in `star` lights, with their bonuses: each site rolls its
+## bonus, value and notable chance from the Lens's seed, so the same Lens in
+## the same Star always lights the same set and any re-roll changes it.
 static func sites_for(star: int, lens: Lens) -> Array[Site]:
 	var result: Array[Site] = []
 	var pool: Array = POOLS.get(lens.radius_mod, [])
@@ -143,24 +171,28 @@ static func sites_for(star: int, lens: Lens) -> Array[Site]:
 	var count: int = SITES_BY_RADIUS.get(lens.radius, 4)
 	var layout_seed := lens_seed(star, lens)
 	var all := site_cells(star, layout_seed)
-	var order: Array = range(pool.size())
 	var rng := RandomNumberGenerator.new()
 	rng.seed = layout_seed * 31 + 17
-	for i in range(order.size() - 1, 0, -1):
-		var j := rng.randi_range(0, i)
-		var swap: int = order[i]
-		order[i] = order[j]
-		order[j] = swap
 	var mult := value_multiplier(lens)
-	for i in mini(count, all.size()):
+	var shown := mini(count, all.size())
+	var forced_notable := rng.randi_range(0, shown - 1) if lens.rarity >= Constants.ItemRarity.RARE else -1
+	for i in shown:
 		var site := Site.new()
 		site.cell = all[i]
 		site.star = star
 		site.index = i
-		var bonus: Dictionary = (pool[order[i % pool.size()]] as Dictionary).duplicate()
-		bonus["value"] = float(bonus["value"]) * mult
-		if String(bonus["key"]).begins_with("flat_"):
-			bonus["value"] = roundf(bonus["value"])
+		var bonus: Dictionary = (pool[rng.randi_range(0, pool.size() - 1)] as Dictionary).duplicate()
+		var notable := i == forced_notable or rng.randi_range(1, NOTABLE_ONE_IN) == 1
+		var value := float(bonus["value"]) * mult * rng.randf_range(VALUE_ROLL.x, VALUE_ROLL.y) * (NOTABLE_MULT if notable else 1.0)
+		var key := String(bonus["key"])
+		if key.begins_with("flat_"):
+			value = maxf(roundf(value), 1.0)
+		elif key != "mastery":
+			value = maxf(snappedf(value, 0.5), 0.5)
+		else:
+			value = snappedf(value, 0.1)
+		bonus["value"] = value
+		bonus["notable"] = notable
 		site.bonus = bonus
 		site.tag = lens.radius_tag
 		result.append(site)
@@ -169,7 +201,8 @@ static func sites_for(star: int, lens: Lens) -> Array[Site]:
 static func bonus_text(bonus: Dictionary, tag: int) -> String:
 	var v: float = bonus["value"]
 	var v_text := str(int(v)) if is_equal_approx(v, roundf(v)) else "%.1f" % v
-	return String(bonus["text"]).replace("{v}", v_text).replace("{tag}", Constants.DAMAGE_TYPE_NAME.get(tag, "Tag"))
+	var text := String(bonus["text"]).replace("{v}", v_text).replace("{tag}", Constants.DAMAGE_TYPE_NAME.get(tag, "Tag"))
+	return "Notable: " + text if bonus.get("notable", false) else text
 
 static func pool_name(lens: Lens) -> String:
 	return String(POOL_NAMES.get(lens.radius_mod, "?")).replace("{tag}", Constants.DAMAGE_TYPE_NAME.get(lens.radius_tag, "Tag"))

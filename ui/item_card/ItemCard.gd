@@ -834,7 +834,7 @@ func _ranged_info_lines(weapon: Weapon) -> Array[String]:
 		return lines
 	if not weapon.is_ranged or weapon.ammo_type == Constants.AmmoType.ARROW or weapon.magazine_size <= 0:
 		return lines
-	lines.append("Magazine: %d / %d" % [weapon.get_current_magazine(), AmmoInventory.get_reserve(weapon.ammo_type)])
+	lines.append("Magazine: %d" % weapon.magazine_size)
 	if weapon.reload_per_shell:
 		lines.append("Reload: per shell")
 	elif weapon.reload_time > 0.0:

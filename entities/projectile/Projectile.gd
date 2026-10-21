@@ -47,10 +47,21 @@ var _pierced: Dictionary = {}
 var hitscan_range: float = 0.0
 var hitscan_origin: Vector3
 const TRACER_TIME := 0.09
+## Thrown grenades and pressure javelins: on striking anything, the hit
+## goes off as a blast that damages every enemy within blast_radius.
+var blast_radius: float = 0.0
+## A thrown weapon's own model, carried in place of the bolt mesh, turning
+## end over end at spin radians/s.
+var model: Node3D
+var spin: float = 0.0
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
 func _ready() -> void:
+	if model:
+		add_child(model)
+		if mesh:
+			mesh.visible = false
 	if hitscan_range > 0.0:
 		if mesh:
 			mesh.visible = false
@@ -71,12 +82,16 @@ func _physics_process(delta: float) -> void:
 		return
 	var from := global_position
 	_move(delta)
+	if model and spin != 0.0:
+		model.rotate_object_local(Vector3.RIGHT, -spin * delta)
 	# Over a staircase, only its drawn steps stop the shot, not the walking ramp.
 	if is_instance_valid(_stairs):
 		var t := stairs_hit_fraction(_stairs, from, global_position)
 		if t >= 0.0:
 			global_position = from.lerp(global_position, t)
-			if not cosmetic:
+			if blast_radius > 0.0 and source is Player:
+				_blast()
+			elif not cosmetic:
 				_play_impact_sound(_stairs)
 			queue_free()
 
@@ -108,9 +123,13 @@ func _on_body_entered(body: Node3D) -> void:
 		return
 	if body is Enemy and _pierced.has(body.get_instance_id()):
 		return
-	_play_impact_sound(body)
 	if not is_instance_valid(source):
 		source = null  # the shooter died while this was in flight
+	if blast_radius > 0.0 and source is Player:
+		_blast()
+		queue_free()
+		return
+	_play_impact_sound(body)
 	if source is Player:
 		_hit_enemy(body as Enemy)
 		if body is CrackedWall:
@@ -150,6 +169,20 @@ func _hit_enemy(enemy: Enemy, aim_dir: Vector3 = Vector3.ZERO) -> void:
 		EventBus.hit_landed.emit(crit, is_critical_spot, not enemy.health.is_alive())
 		if not is_spell_projectile:
 			BloodFx.hit(enemy, -global_transform.basis.z, 0.6 * (1.5 if is_critical_spot else 1.0), not enemy.health.is_alive())
+
+func _blast() -> void:
+	var at := global_position
+	var scene := get_tree().current_scene
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(damage_type, Color(1.0, 0.6, 0.2))
+	SpellFx.flash(scene, at, Color(1.6, 1.1, 0.6), blast_radius * 0.9, 0.25)
+	SpellFx.burst(scene, at, color, 40, Vector2(3.0, 7.0), 0.55, Vector2(0.08, 0.2), 180.0, -6.0)
+	SpellFx.light_pop(scene, at + Vector3.UP * 0.5, Color(1.0, 0.7, 0.35), 4.0, blast_radius * 2.5, 0.35)
+	SpellFx.shockwave(scene, at, blast_radius, color)
+	AudioManager.play_at(SoundLib.pick_random(SoundLib.library.explosion) if SoundLib.library else null, at)
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy and enemy.health.is_alive() and enemy.distance_to_body(at) <= blast_radius:
+			_hit_enemy(enemy)
 
 func _hit_player(player: Player) -> void:
 	if player == null:

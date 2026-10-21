@@ -87,7 +87,7 @@ func _test_spell_math() -> void:
 		if not f.ends_with(".tres"):
 			continue
 		var a := load(ABILITY_DIR + f) as Ability
-		if a.ability_id in ["blink", "purge", "battle_cry", "intimidating_shout", "meager", "fracturing", "decompose", "elemental_fragility", "death_shroud"]:
+		if a.ability_id in ["blink", "purge", "battle_cry", "intimidating_shout", "meager", "fracturing", "decompose", "elemental_fragility", "death_shroud", "inner_power", "charged_reflexes", "manasaber"]:
 			_check(not a.deals_damage(), "%s deals no damage" % a.ability_id)
 		else:
 			_check(a.base_damage_min > 0.0 and a.base_damage_max >= a.base_damage_min, "%s has base damage" % a.ability_id)
@@ -305,7 +305,7 @@ func _test_hub() -> void:
 	add_child(hub)
 	await _frames(6)
 	var spots := {"spawn": Vector3(0, 0, 6), "dais top": Vector3(0, 1.2, -17), "bridge west": Vector3(-9.5, 0, -3), "south landing": Vector3(0, 0, 15)}
-	for node_name in ["GearShop", "AmmoStore", "SpellTestShop", "StashChest", "RealityEngine", "HubPortalSpot"]:
+	for node_name in ["GearShop", "SpellTestShop", "StashChest", "RealityEngine", "HubPortalSpot"]:
 		var n := hub.get_node_or_null(node_name) as Node3D
 		_check(n != null, "hub has %s" % node_name)
 		if n:

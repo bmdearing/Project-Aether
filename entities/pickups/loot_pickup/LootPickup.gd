@@ -312,8 +312,13 @@ const TARGETED_SCALE := 1.35
 
 var _name_tag: Label3D
 
+## Dropped from the inventory (drop_item): always waits for Interact.
+var dropped_by_player := false
+
 ## Collected on touch, not by looking at it and pressing Interact.
 func auto_pickup() -> bool:
+	if dropped_by_player:
+		return false
 	if currency_id != &"":
 		return true
 	return item is AmmoPack or item is SkillTome or item is FigmentItem
@@ -321,6 +326,9 @@ func auto_pickup() -> bool:
 func display_name() -> String:
 	if slate:
 		return slate.display_name
+	if currency_id != &"":
+		var name := CurrencyText.name_of(currency_id)
+		return name if currency_count <= 1 else "%s x%d" % [name, currency_count]
 	return item.display_name if item else ""
 
 func rarity_color() -> Color:
@@ -381,11 +389,7 @@ func try_pickup() -> bool:
 	if item == null:
 		return false
 	if item is AmmoPack:
-		var pack := item as AmmoPack
-		if AmmoInventory.is_full(pack.ammo_type):
-			return false  # at capacity: it stays on the ground
-		AmmoInventory.add(pack.ammo_type, pack.amount)
-		queue_free()
+		queue_free()  # ammo is unlimited since v5.12; an old save's pack just goes
 		return true
 	if item is SkillTome:
 		var tome := item as SkillTome

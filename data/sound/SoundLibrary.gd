@@ -103,6 +103,7 @@ func get_fire_sound(ammo_type: Constants.AmmoType) -> AudioStream:
 		Constants.AmmoType.AUTOMATIC: return pick_random(automatic_fire)
 		Constants.AmmoType.CROSSBOW_BOLT: return pick_random(crossbow_fire)
 		Constants.AmmoType.ARROW: return pick_random(bow_fire)
+		Constants.AmmoType.THROWN: return pick_random(swing_pierce)
 	return null
 
 func get_reload_sound(ammo_type: Constants.AmmoType) -> AudioStream:

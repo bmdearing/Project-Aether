@@ -179,7 +179,22 @@ func get_mastery(damage_type: int) -> float:
 ## Every "more" multiplier on the player's own hits from outside the skill
 ## itself: Uniques, Mastery, then the player's own debuffs.
 func outgoing_more_multiplier(damage_type: int) -> float:
-	return unique_damage_multiplier(damage_type) * (1.0 + get_mastery(damage_type)) * (status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0)
+	return unique_damage_multiplier(damage_type) * (1.0 + get_mastery(damage_type)) * (status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0) * inner_power_multiplier(damage_type)
+
+## Inner Power, set by PlayerAbilityCast each frame: prepared on the bar it
+## forbids Physical damage; switched on it adds more Aetheric damage.
+var no_physical_damage := false
+var inner_power_on := false
+const INNER_POWER_AETHERIC_MORE := 0.1
+## The current bonus (its Still Waters twist doubles it).
+var inner_power_more := INNER_POWER_AETHERIC_MORE
+
+func inner_power_multiplier(damage_type: int) -> float:
+	if no_physical_damage and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.PHYSICAL:
+		return 0.0
+	if inner_power_on and damage_type == Constants.DamageType.AETHERIC:
+		return 1.0 + inner_power_more
+	return 1.0
 
 ## Percent totals (20.0 = +20%), re-derived on every stat refresh.
 var cast_speed_bonus: float = 0.0

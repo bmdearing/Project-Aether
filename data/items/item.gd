@@ -201,6 +201,18 @@ func is_equipment() -> bool:
 		return false
 	return not Constants.CRAFTING_CONSUMABLE_IDS.has(item_id)
 
+## Quivers and pouches (v5.12): offhand items for ranged weapons that sit
+## beside even a two-handed one. A quiver fits a bow or crossbow, a pouch any
+## gun; neither fits anything else.
+func is_ranged_offhand() -> bool:
+	return item_type == &"quiver" or item_type == &"pouch"
+
+func fits_weapon(weapon: Weapon) -> bool:
+	if weapon == null or not weapon.is_ranged or weapon.is_throwing():
+		return false
+	var archery := weapon.ammo_type == Constants.AmmoType.ARROW or weapon.ammo_type == Constants.AmmoType.CROSSBOW_BOLT
+	return archery if item_type == &"quiver" else not archery
+
 ## snake_case type key used by modifier item_types, tolerance ranges and
 ## inventory footprints: weapon_type for weapons, the base line for
 ## shields, the slot for gear, and a category for non-equipment.

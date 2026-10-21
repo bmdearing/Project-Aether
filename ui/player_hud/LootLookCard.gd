@@ -36,6 +36,8 @@ func _process(_delta: float) -> void:
 		_shown = target
 		if target and target.slate:
 			_card.display_slate(target.slate)
+		elif target and target.currency_id != &"":
+			_card.display_currency(target.currency_id, target.currency_count)
 		elif target:
 			_card.compare_against = ItemCompare.equipped_for(target.item)
 			_card.display_item(target.item)

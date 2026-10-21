@@ -30,6 +30,7 @@ const FAMILY := {
 	"Pump Action Shotgun": &"rifle", "Loaded Shotgun": &"rifle",
 	"Bow": &"bow", "Longbow": &"bow", "Shortbow": &"bow",
 	"Crossbow": &"rifle",
+	"Throwing Knife": &"thrown", "Throwing Axe": &"thrown", "Javelin": &"thrown", "Grenade": &"thrown",
 }
 
 ## Pack models run blade/head-first along model -Z. Spec: [file stem, scale,
@@ -53,6 +54,9 @@ const PACK_MELEE := {
 	"Shock Lance": ["Flared_Spear", 0.55, 0.65, 0.0],
 	"Halberd": ["Halberd", 0.5, 0.8, 0.1],
 	"Staff": ["Wizard_Staff", 0.42, -0.05, 0.6],
+	"Throwing Knife": ["Leaf_Blade", 0.45, 0.12, null],
+	"Throwing Axe": ["Hatchet", 0.35, 0.5, null],
+	"Javelin": ["Spear", 0.45, 0.2, null],
 }
 ## Glow orbs on magic polearms: [model Z, radius].
 const PACK_ORB := {"Staff": [-1.3, 0.05], "Shock Lance": [-1.38, 0.035]}
@@ -127,6 +131,9 @@ static func build(weapon: Weapon) -> Node3D:
 			"Wand":
 				forward_authored = false
 				_build_wand(inner, accent)
+			"Grenade":
+				forward_authored = false
+				_build_grenade(inner, accent)
 			_:
 				forward_authored = false
 				_build_fallback_blade(inner, accent)
@@ -417,6 +424,12 @@ static func _build_wand(root: Node3D, accent: Color) -> void:
 	_cyl(root, 0.017, 0.017, 0.05, Vector3(0, -0.06, 0), &"leather")
 	_cyl(root, 0.016, 0.012, 0.02, Vector3(0, 0.25, 0), &"brass")
 	_glow_orb(root, Vector3(0, 0.285, 0), 0.022, accent)
+
+## A round iron grenade with a brass fuse cap and a glowing fuse, in the hand.
+static func _build_grenade(root: Node3D, accent: Color) -> void:
+	_sphere(root, 0.055, Vector3(0, 0.05, 0), &"darksteel")
+	_cyl(root, 0.018, 0.022, 0.03, Vector3(0, 0.115, 0), &"brass")
+	_glow_orb(root, Vector3(0, 0.14, 0), 0.01, accent)
 
 static func _build_fallback_blade(root: Node3D, accent: Color) -> void:
 	_box(root, Vector3(0.05, 0.42, 0.012), Vector3(0, 0.27, 0), &"steel")

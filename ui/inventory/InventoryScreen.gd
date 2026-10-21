@@ -50,7 +50,6 @@ var _is_open: bool = false
 var _equipment: EquipmentComponent
 var _doll_rows: Array[Dictionary] = []
 
-var _ammo_label: Label
 
 ## Currency picked up with right-click; the next item clicked receives it.
 var _armed: StringName = &""
@@ -109,7 +108,7 @@ func _ready() -> void:
 	inventory_grid.highlight = _highlight_for
 	inventory_grid.currency_hint = _hint_for
 	inventory_grid.craft_preview = _craft_preview_for
-	hint_label.text = HINT + " Hover an item and press %s to mark it Trash (sold automatically at the Gear Shop) or %s to mark it Favored (never sold)." % [GameSettings.key_name("mark_trash"), GameSettings.key_name("mark_favored")]
+	hint_label.text = HINT + " Hover an item and press %s to mark it Trash (sold automatically at the Gear Shop) or %s to mark it Favored (never sold), or %s to drop it on the ground." % [GameSettings.key_name("mark_trash"), GameSettings.key_name("mark_favored"), GameSettings.key_name("drop_item")]
 	# Fixed height: craft messages come and go, and the doll and grid below
 	# mustn't move with them.
 	status_label.max_lines_visible = STATUS_LINES
@@ -117,8 +116,6 @@ func _ready() -> void:
 	stats_panel.visible = false
 	_build_record_section()
 	inventory_grid.drop_failed.connect(func(): status_label.text = "That doesn't fit there.")
-	_ammo_label = Label.new()
-	inventory_panel.add_child(_ammo_label)
 	# Messages and the hint sit under the grid, so the doll and grid never move.
 	side_panel.move_child(status_label, -1)
 	side_panel.move_child(hint_label, -1)
@@ -133,6 +130,7 @@ func _ready() -> void:
 		["Alt", "Details"],
 		[GameSettings.key_name("mark_trash"), "Trash"],
 		[GameSettings.key_name("mark_favored"), "Favored"],
+		[GameSettings.key_name("drop_item"), "Drop"],
 		[GameSettings.key_name("open_character"), "Sheet"],
 	])
 	hints.mouse_filter = Control.MOUSE_FILTER_PASS
@@ -455,11 +453,6 @@ func _unhandled_input(event: InputEvent) -> void:
 func _build_inventory_grid() -> void:
 	inventory_grid.set_inventory(GameState.inventory)
 	(inventory_grid.get_parent() as Control).custom_minimum_size = inventory_grid.custom_minimum_size
-	var ammo: Array[String] = []
-	for type in Constants.AmmoType.values():
-		if type != Constants.AmmoType.ARROW:
-			ammo.append("%s %d" % [Constants.AmmoType.keys()[type].capitalize(), AmmoInventory.get_reserve(type)])
-	_ammo_label.text = "Ammo: " + "   ".join(ammo)
 
 func _is_equippable(item: Item) -> bool:
 	return item.is_equipment()

@@ -23,7 +23,7 @@ static func is_world_drop(def: Dictionary) -> bool:
 static func gear_share_per_roll() -> float:
 	var miss := 1.0
 	for chance in [Enemy.TOME_DROP_CHANCE, Enemy.CURRENCY_DROP_CHANCE, Enemy.CRAFTING_CONSUMABLE_DROP_CHANCE,
-			Enemy.SLATE_DROP_CHANCE, Enemy.FIGMENT_DROP_CHANCE, Enemy.JEWEL_DROP_CHANCE, Enemy.AMMO_DROP_CHANCE]:
+			Enemy.SLATE_DROP_CHANCE, Enemy.FIGMENT_DROP_CHANCE, Enemy.JEWEL_DROP_CHANCE, Enemy.LENS_DROP_CHANCE]:
 		miss *= 1.0 - chance
 	return miss * Enemy.BASE_LOOT_DROP_CHANCE
 

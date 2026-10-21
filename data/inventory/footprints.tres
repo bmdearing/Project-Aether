@@ -68,6 +68,12 @@ footprints = {
 "tower_shield": Vector2i(2, 4),
 "great_shield": Vector2i(2, 4),
 "pavise": Vector2i(2, 4),
-"staff": Vector2i(2, 4)
+"staff": Vector2i(2, 4),
+"throwing_knife": Vector2i(1, 2),
+"throwing_axe": Vector2i(2, 2),
+"javelin": Vector2i(1, 4),
+"grenade": Vector2i(1, 1),
+"quiver": Vector2i(1, 3),
+"pouch": Vector2i(2, 2)
 }
 default_footprint = Vector2i(1, 1)

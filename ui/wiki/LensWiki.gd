@@ -45,7 +45,7 @@ func _ready() -> void:
 		list.add_child(ModifierWiki._text("  " + text, 14, RADIUS_COLOR.lightened(0.2)))
 
 	list.add_child(ModifierWiki._text("Stars", 18, AetherStyle.GOLD))
-	var star_note := ModifierWiki._text("The Fate Board has five Stars: the Centre, North, East, South and West. Set a Lens in a Star your Slates reach and bonuses light up around it (Small 4, Medium 6, Large 8); a Slate covering one claims it. The Lens's radius modifier picks the bonuses and its jewel modifiers count as yours. Where the bonuses sit and which comes where depend on the Star and on every modifier the Lens has, so re-rolling it moves them. Values below are for a Common Lens: Uncommon x1.25, Rare x1.5, Unique x1.75, Mythic x2.", 13, ModifierWiki.MUTED)
+	var star_note := ModifierWiki._text("The Fate Board has five Stars: the Centre, North, East, South and West. Set a Lens in a Star your Slates reach and bonuses light up around it (Small 4, Medium 6, Large 8); a Slate covering one claims it. The Lens's radius modifier picks the bonuses and its jewel modifiers count as yours. Like a Timeless Jewel, each site rolls its bonus from the list below and its value from 60% to 140% of the one shown, and about one site in six is a Notable at three times the value (every Rare or better Lens lights at least one). The rolls depend on the Star and on every modifier the Lens has, so re-rolling the Lens or moving it to another Star changes them. Values below are for a Common Lens: Uncommon x1.25, Rare x1.5, Unique x1.75, Mythic x2.", 13, ModifierWiki.MUTED)
 	star_note.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	list.add_child(star_note)
 	for id in FateStars.POOLS:

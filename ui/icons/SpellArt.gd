@@ -66,6 +66,13 @@ static func draw(ci: CanvasItem, ability: Ability, rect: Rect2) -> void:
 		"linger": _curse(pen, c, "spiral")
 		"death_shroud": _death_shroud(pen, c)
 		"pale_thread": _pale_thread(pen, c)
+		"thunderstorm": _thunderstorm(pen, c)
+		"nova": _nova(pen, c)
+		"puncture": _puncture(pen, c)
+		"invocation_of_arach": _arach(pen, c)
+		"inner_power": _inner_power(pen, c)
+		"manasaber": _manasaber(pen, c)
+		"charged_reflexes": _charged_reflexes(pen, c)
 		_:
 			var tag := String(Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "")).to_lower()
 			IconArt.glyph(pen, IconArt.DAMAGE_GLYPHS.get(tag, "star"), pen.v(0.5, 0.5), 0.6, c)
@@ -391,3 +398,67 @@ static func _pale_thread(pen: IconArt.Pen, c: Color) -> void:
 	pen.circle(0.24, 0.76, 0.07, c.lightened(0.2))
 	pen.circle(0.72, 0.3, 0.1, c.darkened(0.3))
 	pen.circle(0.72, 0.3, 0.05, c.lightened(0.3))
+
+# --- v5.12 spells ---------------------------------------------------------------
+
+static func _thunderstorm(pen: IconArt.Pen, c: Color) -> void:
+	var cloud := Color(0.36, 0.38, 0.48)
+	for q in [Vector2(0.28, 0.32), Vector2(0.48, 0.24), Vector2(0.7, 0.3), Vector2(0.38, 0.38), Vector2(0.6, 0.38)]:
+		pen.circle(q.x, q.y, 0.13, cloud)
+	for x in [0.3, 0.52, 0.72]:
+		_zigzag(pen, Vector2(x, 0.44), Vector2(x - 0.04, 0.8), 4, 0.035, BOLT, 0.022)
+	for q in [Vector2(0.22, 0.62), Vector2(0.42, 0.7), Vector2(0.63, 0.6), Vector2(0.82, 0.68)]:
+		pen.line([q.x, q.y, q.x - 0.02, q.y + 0.07], Color(0.55, 0.75, 1.0), 0.015)
+
+static func _nova(pen: IconArt.Pen, c: Color) -> void:
+	_glow(pen, 0.5, 0.5, 0.36, c, 0.18)
+	for i in 8:
+		var a := TAU * i / 8.0
+		var from := Vector2(0.5, 0.5) + Vector2(cos(a), sin(a)) * 0.14
+		var to := Vector2(0.5, 0.5) + Vector2(cos(a), sin(a)) * 0.38
+		_zigzag(pen, from, to, 3, 0.025, c, 0.02)
+	pen.ci.draw_arc(pen.v(0.5, 0.5), 0.4 * pen.unit(), 0.0, TAU, 40, pen.col(Color(BOLT, 0.7)), _width(pen, 0.025), true)
+	pen.circle(0.5, 0.5, 0.09, BOLT)
+
+static func _puncture(pen: IconArt.Pen, c: Color) -> void:
+	_streak(pen, Vector2(0.82, 0.2), Vector2(0.24, 0.76), 0.07, Color(0.9, 0.88, 0.84))
+	pen.line([0.28, 0.72, 0.18, 0.82], Color(0.45, 0.32, 0.22), 0.04)
+	for q in [Vector2(0.62, 0.52), Vector2(0.7, 0.64), Vector2(0.56, 0.68)]:
+		IconArt.glyph(pen, "drop", pen.v(q.x, q.y), 0.12, Color(0.85, 0.12, 0.12))
+
+static func _arach(pen: IconArt.Pen, c: Color) -> void:
+	_glow(pen, 0.5, 0.5, 0.3, c, 0.25)
+	for side in [-1.0, 1.0]:
+		for i in 4:
+			var y := 0.4 + i * 0.07
+			var knee := Vector2(0.5 + side * 0.2, y - 0.1 + i * 0.03)
+			var foot := Vector2(0.5 + side * 0.34, y + 0.08 + i * 0.03)
+			pen.line([0.5 + side * 0.05, y, knee.x, knee.y, foot.x, foot.y], Color(0.15, 0.1, 0.2), 0.022)
+	pen.circle(0.5, 0.62, 0.14, c.darkened(0.2))
+	pen.circle(0.5, 0.42, 0.09, Color(0.15, 0.1, 0.2))
+	pen.circle(0.47, 0.4, 0.02, Color(1.0, 0.5, 1.0))
+	pen.circle(0.53, 0.4, 0.02, Color(1.0, 0.5, 1.0))
+
+static func _inner_power(pen: IconArt.Pen, c: Color) -> void:
+	for i in 3:
+		pen.ci.draw_arc(pen.v(0.5, 0.5), (0.38 - i * 0.09) * pen.unit(), 0.0, TAU, 40, pen.col(Color(c, 0.35 + i * 0.2)), _width(pen, 0.025), true)
+	for i in 4:
+		var a := TAU * i / 4.0 + PI / 4.0
+		var from := Vector2(0.5, 0.5) + Vector2(cos(a), sin(a)) * 0.42
+		_streak(pen, from, Vector2(0.5, 0.5) + Vector2(cos(a), sin(a)) * 0.2, 0.04, Color(c, 0.9))
+	_glow(pen, 0.5, 0.5, 0.14, c, 0.5)
+	pen.circle(0.5, 0.5, 0.07, Color(0.85, 1.0, 1.0))
+
+static func _manasaber(pen: IconArt.Pen, c: Color) -> void:
+	_glow(pen, 0.5, 0.55, 0.3, c, 0.2)
+	pen.ci.draw_arc(pen.v(0.5, 0.78), 0.5 * pen.unit(), PI * 1.15, PI * 1.85, 32, pen.col(Color(c, 0.35)), _width(pen, 0.12), true)
+	pen.ci.draw_arc(pen.v(0.5, 0.78), 0.5 * pen.unit(), PI * 1.18, PI * 1.82, 32, pen.col(Color(0.85, 1.0, 1.0)), _width(pen, 0.035), true)
+	pen.line([0.5, 0.86, 0.5, 0.7], Color(0.35, 0.3, 0.4), 0.05)
+	pen.line([0.42, 0.7, 0.58, 0.7], Color(0.7, 0.6, 0.35), 0.035)
+
+static func _charged_reflexes(pen: IconArt.Pen, c: Color) -> void:
+	for i in 3:
+		var y := 0.34 + i * 0.16
+		_streak(pen, Vector2(0.14 + i * 0.06, y), Vector2(0.7, y), 0.035, Color(c, 0.75))
+		pen.circle(0.72, y, 0.035, BOLT)
+	_zigzag(pen, Vector2(0.86, 0.18), Vector2(0.62, 0.86), 4, 0.05, BOLT, 0.03)

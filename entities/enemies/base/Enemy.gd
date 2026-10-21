@@ -332,6 +332,10 @@ func _fit_body_to_model(model: Node3D) -> void:
 		return
 	body_height = maxf(bounds.end.y, MIN_BODY_HEIGHT)
 	body_radius = clampf(maxf(bounds.size.x, bounds.size.z) * BODY_RADIUS_PER_WIDTH, 0.35, minf(MAX_BODY_RADIUS, body_height * 0.45))
+	if definition and definition.body_height_override > 0.0:
+		body_height = definition.body_height_override * model.scale.y
+	if definition and definition.body_radius_override > 0.0:
+		body_radius = definition.body_radius_override * model.scale.y
 	var collision := get_node_or_null("CollisionShape3D") as CollisionShape3D
 	if collision and collision.shape is CapsuleShape3D:
 		var capsule := collision.shape.duplicate() as CapsuleShape3D
@@ -968,6 +972,10 @@ func _check_gap_jump() -> void:
 
 	if _floor_height_at(space_state, global_position + dir * GAP_CHECK_AHEAD) != null:
 		return  # solid ground ahead, nothing to do
+	# A wall ahead can read as a gap (no floor under it); jumping there rode
+	# enemies up and over walls.
+	if _wall_between(space_state, global_position, global_position + dir * (GAP_CHECK_AHEAD + body_radius), launch_y + GAP_WALL_PROBE_HEIGHT):
+		return
 
 	var far_floor_y = null
 	var far_t := 0.0
@@ -985,6 +993,11 @@ func _check_gap_jump() -> void:
 		velocity.z = 0.0
 		return
 
+	# Nothing solid across the gap at head height over the landing either.
+	if _wall_between(space_state, global_position, global_position + dir * far_t, maxf(launch_y, far_floor_y) + GAP_WALL_PROBE_HEIGHT):
+		velocity.x = 0.0
+		velocity.z = 0.0
+		return
 	var required_distance: float = far_t + GAP_SAFETY_MARGIN
 	var required_rise: float = far_floor_y - launch_y
 	var flight_time := required_distance / move_speed_h
@@ -996,6 +1009,15 @@ func _check_gap_jump() -> void:
 	else:
 		velocity.x = 0.0
 		velocity.z = 0.0
+
+const GAP_WALL_PROBE_HEIGHT := 1.2
+
+## True when level geometry crosses the flat line from `from` to `to` at height y.
+func _wall_between(space_state: PhysicsDirectSpaceState3D, from: Vector3, to: Vector3, y: float) -> bool:
+	var query := PhysicsRayQueryParameters3D.create(Vector3(from.x, y, from.z), Vector3(to.x, y, to.z), 1)
+	query.exclude = [get_rid()]
+	var hit := space_state.intersect_ray(query)
+	return not hit.is_empty() and not hit["collider"] is Enemy and not hit["collider"] is Player
 
 ## World Y of the floor/platform below pos, or null if none. Probes from
 ## well above pos so a raised landing is actually visible.
@@ -1163,10 +1185,6 @@ func _roll_drop(rarity_mult: float) -> void:
 		_spawn_pickup(LensRoller.roll(_compute_item_level(), rarity_mult))
 		return
 
-	var ammo := _roll_ammo_drop()
-	if ammo:
-		_spawn_pickup(ammo)
-		return
 
 	if randf() > BASE_LOOT_DROP_CHANCE * _reward_mult("gear"):
 		return
@@ -1175,45 +1193,10 @@ func _roll_drop(rarity_mult: float) -> void:
 		return
 	_spawn_pickup(item)
 
-## Ammo drop chance with reserves at their starting level; it scales with
-## need (see ammo_need()), from double at empty to none at full capacity.
-const AMMO_DROP_CHANCE := 0.25
-## Socketable jewels (JewelRoller), rolled just before ammo.
+## Socketable jewels (JewelRoller).
 const JEWEL_DROP_CHANCE := 0.04
 ## Lenses (LensRoller), for Slate sockets; rolled just after jewels.
 const LENS_DROP_CHANCE := 0.025
-
-func _roll_ammo_drop() -> Item:
-	var player := get_tree().get_first_node_in_group("player") as Player
-	var need := ammo_need(player)
-	if need.is_empty() or randf() > AMMO_DROP_CHANCE * 2.0 * float(need["need"]):
-		return null
-	return make_ammo_pack(need["type"])
-
-## The gun ammo the player is shortest on: {"type", "need"}, need 0 (full) to
-## 1 (empty). Empty when no gun is equipped in either set (bows never need any).
-static func ammo_need(player: Player) -> Dictionary:
-	if player == null:
-		return {}
-	var best := {}
-	var carried: Array = []
-	carried.append_array(player.equipment.primary_weapons)
-	carried.append_array(player.equipment.offhands)
-	for weapon in carried:
-		if not (weapon is Weapon and weapon.is_ranged) or weapon.ammo_type == Constants.AmmoType.ARROW:
-			continue
-		var comfortable: float = AmmoInventory.get_capacity(weapon.ammo_type)
-		var need := clampf(1.0 - AmmoInventory.get_reserve(weapon.ammo_type) / comfortable, 0.0, 1.0)
-		if best.is_empty() or need > float(best["need"]):
-			best = {"type": weapon.ammo_type, "need": need}
-	return best if not best.is_empty() and float(best["need"]) > 0.0 else {}
-
-static func make_ammo_pack(ammo_type: Constants.AmmoType) -> Item:
-	var ammo_id: String = Constants.AMMO_TYPE_PICKUP_ID.get(ammo_type, "")
-	if ammo_id.is_empty():
-		return null
-	var base := load(CRAFTING_CONSUMABLE_DIR + ammo_id + ".tres") as Item
-	return base.duplicate(true) as Item if base else null
 
 ## Stub: only "figments" conversion exists so far.
 func _drop_converted(affix: EnemyAffix) -> void:

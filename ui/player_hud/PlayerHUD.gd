@@ -659,7 +659,7 @@ func _update_ammo_display(_weapon: Weapon = null) -> void:
 		counts.append(str(g.get_current_magazine()))
 		total += g.get_current_magazine()
 	_magazine_label.text = " | ".join(counts)
-	_reserve_label.text = "/ %d" % AmmoInventory.get_reserve(weapon.ammo_type)
+	_reserve_label.text = "/ %d" % weapon.magazine_size
 	_magazine_label.modulate = AMMO_EMPTY_COLOR if total == 0 else Color.WHITE
 
 func _on_reload_started(_weapon: Weapon) -> void:

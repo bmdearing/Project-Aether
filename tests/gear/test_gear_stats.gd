@@ -301,7 +301,7 @@ func _test_bases() -> void:
 	_check(dagger and dagger.affixes.any(func(a): return a.key() == "local_increased_crit_chance"), "weapon lines carry their implicit throughout")
 	for path in ["res://data/weapons/instances/gen_battle_rifle_sundering_battle_rifle.tres", "res://data/armor/instances/gen_body_armour_bastion_warplate.tres", "res://data/weapons/instances/gen_bolt_action_rifle_field_bolt_rifle.tres"]:
 		_check(ResourceLoader.exists(path), "%s was restored" % path.get_file())
-	_check(ItemRoller._is_excluded_line("throwing_knives_line1"), "Throwing Knives don't drop")
+	_check(not ItemRoller._is_excluded_line("throwing_knives_line1") and ItemRoller._is_excluded_line("infusion_grenade_line1"), "Throwing weapons drop; Infusion Grenades still don't")
 	_finished += 1
 
 func _test_pause_wiki() -> void:

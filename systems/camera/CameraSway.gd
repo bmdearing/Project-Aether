@@ -56,6 +56,8 @@ func _process(delta: float) -> void:
 	_target_rotation.z = clamp(-_mouse_delta.x * sway_amount, -max_sway, max_sway)
 	_target_rotation.x = clamp(-_mouse_delta.y * sway_amount * 0.5, -max_sway, max_sway)
 	_mouse_delta = Vector2.ZERO
+	if not GameState.camera_motion:
+		_target_rotation = Vector3.ZERO
 	_current_rotation = _current_rotation.lerp(_target_rotation, clamp(sway_speed * delta, 0.0, 1.0))
 	_kick = _kick.lerp(Vector3.ZERO, clamp(kick_return_speed * delta, 0.0, 1.0))
 	if _shake > 0.0:
@@ -74,6 +76,12 @@ func _process(delta: float) -> void:
 	_was_on_floor = on_floor
 	_last_fall_speed = maxf(-_player.velocity.y, 0.0)
 	_land_dip = lerpf(_land_dip, 0.0, clamp(kick_return_speed * 0.6 * delta, 0.0, 1.0))
+	if not GameState.camera_motion:
+		_land_dip = 0.0
+		_bob_time = 0.0
+		_camera.v_offset = 0.0
+		_camera.h_offset = 0.0
+		return
 
 	var speed := Vector2(_player.velocity.x, _player.velocity.z).length()
 	if speed > 0.5 and on_floor:

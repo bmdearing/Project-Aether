@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="Ability" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/abilities/ability.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+ability_id = "puncture"
+display_name = "Puncture"
+description = "A conjured spike that opens wounds which will not close."
+damage_type = 1
+motion_value = 1.0
+cooldown_seconds = 0.0
+resource_cost = 14.0
+can_trigger_riposte = false
+is_auto_cast_eligible = true
+applies_status_effects = Array[String](["bleed"])
+status_chance = 1.0
+radius = 3.5
+base_crit_chance = 0.08
+cast_type = 1
+base_cast_time = 0.5
+base_damage_min = 22.0
+base_damage_max = 32.0
+tags = Array[StringName]([])

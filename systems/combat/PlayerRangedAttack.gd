@@ -238,6 +238,7 @@ func _fire_one(weapon: Weapon, aimed: bool) -> void:
 	var st := _stance() if aimed else null
 	_cooldown_remaining = fire_cooldown / _player.get_attack_speed_multiplier(weapon) / (st.fire_rate_multiplier if st else 1.0)
 	_fire(weapon, aimed)
+	_player.ability_cast.on_ranged_shot()
 
 	match weapon.fire_mode:
 		Constants.FireMode.BOLT_ACTION, Constants.FireMode.LEVER_ACTION, \
@@ -434,7 +435,63 @@ func _physics_process(delta: float) -> void:
 		if _reload_timer <= 0.0 and _reload_weapon:
 			_finish_reload(_reload_weapon)
 
+## Throwing weapons, per type: launch speed, drop (m/s^2), how far above the
+## crosshair the throw leaves (degrees, so an arc lands near it), enemies a
+## throw passes through, blast radius, and end-over-end spin (rad/s).
+## Pressure javelins and Area grenades (line 2) burst wider (THROW_LINE2_BLAST).
+const THROW_PROFILES := {
+	"Throwing Knife": {"speed": 40.0, "gravity": 0.0, "lift": 0.0, "pierce": 0, "blast": 0.0, "spin": 24.0},
+	"Throwing Axe": {"speed": 32.0, "gravity": 0.0, "lift": 0.0, "pierce": 0, "blast": 0.0, "spin": 16.0},
+	"Javelin": {"speed": 30.0, "gravity": 9.0, "lift": 5.0, "pierce": 3, "blast": 0.0, "spin": 0.0},
+	"Grenade": {"speed": 19.0, "gravity": 14.0, "lift": 14.0, "pierce": 0, "blast": 3.5, "spin": 9.0},
+}
+const THROW_LINE2_BLAST := {"Javelin": 2.2, "Grenade": 4.5}
+const THROW_MODEL_SCALE := 0.8
+
+func _throw(weapon: Weapon) -> void:
+	var profile: Dictionary = THROW_PROFILES[weapon.weapon_type]
+	var origin := _player.arm_rig.get_muzzle_position(false, _player.weapon_socket.global_position) if _player.arm_rig else _player.weapon_socket.global_position
+	var to_target := _crosshair_point() - origin
+	var basis := Basis.looking_at(to_target.normalized(), Vector3.UP) if to_target.length() > MIN_CONVERGE_DISTANCE else _player.camera.global_transform.basis
+	basis = Basis(basis.x, deg_to_rad(float(profile["lift"]))) * basis
+	var blast: float = profile["blast"]
+	if weapon.base_line_id.ends_with("_line2"):
+		blast = THROW_LINE2_BLAST.get(weapon.weapon_type, blast)
+	if blast > 0.0:
+		blast *= 1.0 + _player.stat_sheet.get_misc_bonus("increased_aoe_radius") / 100.0
+	var speed := float(profile["speed"]) * maxf(1.0 + (_player.stat_sheet.get_misc_bonus("projectile_speed") - _player.stat_sheet.get_misc_bonus("reduced_projectile_speed")) / 100.0, 0.2)
+	var count := 1 + weapon.get_local_count("local_additional_arrows")
+	for i in count:
+		var hit := weapon.roll_damage(base_motion_value, _player.stat_sheet)
+		var projectile: Projectile = PROJECTILE_SCENE.instantiate()
+		projectile.damage_amount = hit["final_damage"]
+		projectile.is_critical = hit["is_critical"]
+		projectile.crit_multiplier = hit["crit_multiplier"]
+		projectile.damage_type = weapon.get_damage_type()
+		projectile.impact_sound = Projectile.ImpactSound.ARROW
+		projectile.source = _player
+		projectile.speed = speed
+		projectile.drop_gravity = profile["gravity"]
+		projectile.pierce = profile["pierce"]
+		projectile.blast_radius = blast
+		projectile.spin = profile["spin"]
+		var model := WeaponModelLibrary.build(weapon)
+		model.scale = Vector3.ONE * THROW_MODEL_SCALE
+		# Grip space has the tip along +Y; the shot flies along -Z.
+		model.basis = Basis(Vector3.RIGHT, -PI * 0.5) * model.basis
+		projectile.model = model
+		_player.get_tree().current_scene.add_child(projectile)
+		var dir := (-basis.z).rotated(Vector3.UP, deg_to_rad(EXTRA_ARROW_SPREAD_DEG * (i - (count - 1) / 2.0)))
+		if weapon.pellet_spread_degrees > 0.0:
+			dir = dir.rotated(Vector3.UP, deg_to_rad(randf_range(-1.0, 1.0) * weapon.pellet_spread_degrees))
+		projectile.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), origin)
+	AudioManager.play_at(SoundLib.get_fire_sound(weapon.ammo_type), _player.global_position)
+	_play_fire_animation(weapon)
+
 func _fire(weapon: Weapon, aimed: bool = false) -> void:
+	if weapon.is_throwing():
+		_throw(weapon)
+		return
 	var damage_type := weapon.get_damage_type()
 	var st := _stance() if aimed else null
 	var motion_value := base_motion_value * (AIMED_DAMAGE_MULTIPLIER if aimed else 1.0)

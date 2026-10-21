@@ -199,6 +199,29 @@ const TWISTS := {
 	"purge": [
 		{"id": "second_wind", "name": "Second Wind", "description": "Also restores 10% of your maximum Life.", "ring": 2},
 	],
+	"thunderstorm": [
+		{"id": "storm_front", "name": "Storm Front", "description": "The bolts strike every 1.5 seconds instead of every 2.", "ring": 2},
+	],
+	"nova": [
+		{"id": "double_nova", "name": "Double Nova", "description": "A second nova bursts 0.5 seconds later for 50% damage.", "ring": 2},
+	],
+	"puncture": [
+		{"id": "skewer", "name": "Skewer", "description": "The spike also runs through the next enemy in reach.", "ring": 2},
+	],
+	"invocation_of_arach": [
+		{"id": "brood", "name": "Brood", "description": "A marked kill raises two spiders.", "ring": 2},
+	],
+	"inner_power": [
+		{"id": "focused_mind", "name": "Focused Mind", "description": "You regenerate three times your Mana regeneration as Life, instead of twice.", "ring": 2},
+		{"id": "still_waters", "name": "Still Waters", "description": "Inner Power grants 20% more Aetheric damage instead of 10%.", "ring": 2},
+	],
+	"manasaber": [
+		{"id": "twin_blade", "name": "Twin Blade", "description": "The blade sweeps back again for 50% damage.", "ring": 2},
+	],
+	"charged_reflexes": [
+		{"id": "overclock", "name": "Overclock", "description": "45% faster attacks instead of 30%, but each shot drains twice the Mana.", "ring": 2},
+		{"id": "steady_hands", "name": "Steady Hands", "description": "Reloads are 70% faster instead of 40%.", "ring": 2},
+	],
 }
 
 ## The web for a spell: its building blocks, then its twists.

@@ -34,13 +34,10 @@ const BASE_ITEM_DIRS := [
 	"res://data/items/instances/",
 ]
 
-## Base lines that are throwables, not gear (Patch v4.3): their old .tres
-## bases sit in data/items/instances/ and were being rolled as rings with
-## garbled stats. Matched as substrings of Item.base_line_id ("grenade"
-## also covers "infusion_grenade"; "throwing_kni" covers the knife lines).
-## Excluded from loot/shop rolls only - the files stay, for a future
-## throwable consumable system.
-const EXCLUDED_ITEM_TYPES := ["throwing_kni", "impact_hatchet", "pressure_javelin", "grenade", "infusion_grenade"]
+## Base lines that never roll, matched as substrings of Item.base_line_id.
+## Infusion Grenades are the one throwable line with no identity yet (the
+## other four became throwing Weapons in v5.12); their old Item bases stay.
+const EXCLUDED_ITEM_TYPES := ["infusion_grenade"]
 
 static func _is_excluded_line(base_line_id: String) -> bool:
 	for excluded in EXCLUDED_ITEM_TYPES:
@@ -859,6 +856,8 @@ static func _build_candidate_meta_cache() -> void:
 ## no slots restriction needed; "Body Armour, Helmet, Shield" = armor +
 ## shield categories, narrowed further by slots for the armor half only).
 static func _pool_for(item: Item) -> Array:
+	if item.is_ranged_offhand():
+		return _ranged_offhand_pool(item)
 	var category := _category_of(item)
 	var result := []
 	for entry in AFFIX_POOL:
@@ -887,6 +886,19 @@ static func _pool_for(item: Item) -> Array:
 				continue
 		result.append(entry)
 	return result
+
+## Quivers and pouches roll from their own short list of attack modifiers
+## (AFFIX_POOL entries, whatever their usual slots).
+const QUIVER_MODIFIERS := ["attack_speed", "added_attack_damage", "crit_chance_increased", "crit_damage_increased",
+	"increased_physical_damage", "ailment_chance_bleed", "increased_ailment_damage_bleed", "physical_shred",
+	"phys_as_fire", "phys_as_cold", "phys_as_lightning", "flat_agility", "flat_life", "mana_on_kill"]
+const POUCH_MODIFIERS := ["reload_speed", "attack_speed", "added_attack_damage", "crit_chance_increased", "crit_damage_increased",
+	"increased_physical_damage", "physical_shred", "phys_as_fire", "phys_as_lightning",
+	"flat_agility", "flat_strength", "flat_life", "mana_on_kill"]
+
+static func _ranged_offhand_pool(item: Item) -> Array:
+	var wanted: Array = QUIVER_MODIFIERS if item.item_type == &"quiver" else POUCH_MODIFIERS
+	return AFFIX_POOL.filter(func(e: Dictionary) -> bool: return wanted.has(e["stat_key"]) and not e.get("no_roll", false))
 
 ## _pool_for() narrowed to entries carrying the given brand tag (Shard of
 ## Tharsis outcomes).

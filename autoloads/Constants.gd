@@ -98,9 +98,9 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 ## Items; GridInventory converts those on load.
 const CRAFTING_CONSUMABLE_IDS := ["infusion_stone", "shrivening_stone", "shard_of_tharsis"]
 
-## ARROW is infinite (never tracked or dropped); the rest have a reserve in
-## the AmmoInventory autoload.
-enum AmmoType { PISTOL, REVOLVER, SHOTGUN, RIFLE, AUTOMATIC, CROSSBOW_BOLT, ARROW }
+## Every reserve is unlimited (AmmoInventory); ARROW weapons also have no
+## magazine. THROWN: throwing weapons.
+enum AmmoType { PISTOL, REVOLVER, SHOTGUN, RIFLE, AUTOMATIC, CROSSBOW_BOLT, ARROW, THROWN }
 
 ## SEMI_AUTO: one shot per click. FULL_AUTO: fires while held (Weapon.
 ## fire_rate). BOLT/LEVER/PUMP_ACTION and SINGLE_ACTION (revolver hammer,
@@ -125,26 +125,6 @@ const MAX_SOCKETS_BY_CATEGORY := {
 	"ring": 1,
 	"amulet": 2,
 	"belt": 2,
-}
-
-## Ammo pickup Item ids (data/consumables/instances/) - see AmmoPack.
-const AMMO_TYPE_PICKUP_ID := {
-	AmmoType.PISTOL: "ammo_pistol",
-	AmmoType.REVOLVER: "ammo_revolver",
-	AmmoType.SHOTGUN: "ammo_shotgun",
-	AmmoType.RIFLE: "ammo_rifle",
-	AmmoType.AUTOMATIC: "ammo_automatic",
-	AmmoType.CROSSBOW_BOLT: "ammo_crossbow",
-}
-
-## Placeholder Gold per round at the Hub AmmoStore.
-const AMMO_ROUND_COST := {
-	AmmoType.PISTOL: 1,
-	AmmoType.AUTOMATIC: 1,
-	AmmoType.REVOLVER: 2,
-	AmmoType.CROSSBOW_BOLT: 2,
-	AmmoType.SHOTGUN: 3,
-	AmmoType.RIFLE: 3,
 }
 
 const STATUS_EFFECT_NAME := {
@@ -175,6 +155,8 @@ const STATUS_EFFECT_NAME := {
 	"steadfast": "Steadfast",
 	"drenched": "Drenched",
 	"stone_skin": "Stone Skin",
+	"punctured": "Punctured",
+	"arach_mark": "Mark of Arach",
 }
 
 # Thematic stat per damage type (SlateRoller's Main Stat line). Damage
@@ -259,6 +241,10 @@ const WEAPON_BASE_CRIT_CHANCE := {
 	"Revolver": 0.07,
 	"Machine Pistol": 0.03,
 	"Crossbow": 0.08,
+	"Throwing Knife": 0.07,
+	"Throwing Axe": 0.05,
+	"Javelin": 0.06,
+	"Grenade": 0.02,
 	"Bolt Action Rifle": 0.08,
 	"Lever Action Rifle": 0.07,
 	"Loaded Shotgun": 0.03,

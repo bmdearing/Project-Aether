@@ -47,6 +47,8 @@ func _run() -> void:
 	_check(unchanged == 0, "every result but No Change changes the item (%d didn't)" % unchanged)
 
 	var item := _rare()
+	while ImplicitPool.pool_for_type(item.get_item_type()).size() < 3:  # room for two added implicits
+		item = _rare()
 	var old := ImplicitPool.get_random_for(item)
 	item.affixes.append(old)
 	item.affixes.append(ImplicitPool.get_random_for(item))

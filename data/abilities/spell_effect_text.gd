@@ -68,6 +68,46 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 			out.append("For %ss, an enemy melee hit on you sets off a frost burst" % _num(PlayerAbilityCast.FROST_ARMOR_DURATION * duration))
 			out.append("Bursts hit everything within %sm, at most once every %ss" % [_num(ability.get_radius(sheet)), _num(PlayerAbilityCast.FROST_ARMOR_BURST_COOLDOWN)])
 			out.append("Retaliation damage bonuses apply to the burst")
+		"booming_blade":
+			out.append("Cast to switch on, cast again to switch off (free)")
+			var line := "Each trigger drains %s of its Mana cost" % _pct(PlayerAbilityCast.BOOMING_BLADE_TRIGGER_COST)
+			if sheet:
+				line += " (%s Mana)" % _num(ability.get_mana_cost(sheet) * PlayerAbilityCast.BOOMING_BLADE_TRIGGER_COST)
+			out.append(line + "; it switches off when your Mana runs dry")
+		"thunderstorm":
+			out.append("Cast to switch on, cast again to switch off (free)")
+			out.append("Every %ss, lightning strikes each enemy within %sm" % [_num(PlayerAbilityCast.STORM_INTERVAL), _num(ability.get_radius(sheet))])
+			var storm := "Each round of strikes drains %s of its Mana cost" % _pct(PlayerAbilityCast.STORM_DRAIN)
+			if sheet:
+				storm += " (%s Mana)" % _num(ability.get_mana_cost(sheet) * PlayerAbilityCast.STORM_DRAIN)
+			out.append(storm + "; it switches off when your Mana runs dry")
+			out.append("Enemies within its radius are Drenched")
+		"inner_power":
+			out.append("Cast to switch on, cast again to switch off (free)")
+			out.append("While on: your Mana doesn't regenerate, and you regenerate %s its regeneration as Life" % ("%sx" % _num(PlayerAbilityCast.FOCUSED_MIND_LIFE_SHARE if ability.has_twist("focused_mind") else PlayerAbilityCast.INNER_POWER_LIFE_SHARE)))
+			out.append("While on: you deal %s more Aetheric damage" % _pct(StatSheet.INNER_POWER_AETHERIC_MORE * (2.0 if ability.has_twist("still_waters") else 1.0)))
+			out.append("While it is on your bar, on or off, you deal no Physical damage")
+		"charged_reflexes":
+			out.append("Cast to switch on, cast again to switch off (free)")
+			out.append("Ranged weapons attack %s faster and reload %s faster" % [_pct((player.ability_cast.charged_reflexes_fire_rate() if player else PlayerAbilityCast.CHARGED_REFLEXES_FIRE_RATE) - 1.0), _pct((player.ability_cast.charged_reflexes_reload() if player else PlayerAbilityCast.CHARGED_REFLEXES_RELOAD) - 1.0)])
+			var shot := "Each shot drains %s of its Mana cost" % _pct(PlayerAbilityCast.CHARGED_REFLEXES_SHOT_DRAIN)
+			if sheet:
+				shot += " (%s Mana)" % _num(ability.get_mana_cost(sheet) * PlayerAbilityCast.CHARGED_REFLEXES_SHOT_DRAIN)
+			out.append(shot + "; it switches off when your Mana runs dry")
+		"manasaber":
+			out.append("Costs %s of your maximum Mana" % _pct(PlayerAbilityCast.MANASABER_SHARE))
+			out.append("Sweeps a %s-degree arc within %sm for %s of the Mana spent as base Aetheric damage" % [_num(PlayerAbilityCast.MANASABER_HALF_ANGLE * 2.0), _num(ability.get_radius(sheet)), _pct(PlayerAbilityCast.MANASABER_DAMAGE)])
+			if player and player.mana:
+				var spent := PlayerAbilityCast.manasaber_cost(player.mana.max_mana)
+				out.append("Now: %s Mana for %s base damage" % [_num(spent), _num(spent * PlayerAbilityCast.MANASABER_DAMAGE)])
+		"puncture":
+			out.append("Stabs the nearest enemy in front of you within %sm" % _num(ability.get_radius(sheet)))
+			out.append("Punctured for %ss: Bleeding deals %s more damage to it" % [_num(PlayerAbilityCast.PUNCTURE_DURATION * duration), _pct(StatusEffectComponent.PUNCTURED_BLEED_TAKEN)])
+		"invocation_of_arach":
+			out.append("Marks the enemy at your crosshair for %ss" % _num(PlayerAbilityCast.ARACH_MARK_DURATION * duration))
+			out.append("If it dies while marked, a spider rises to fight for you (at most %d at once)" % SpiderMinion.LIMIT)
+			out.append("While on your bar, hits on bosses, Ascendants and marked enemies have a %s chance to bring a spider" % _pct(PlayerAbilityCast.ARACH_HIT_CHANCE))
+			out.append("Spiders bite for this spell's Entropic damage and last %ss" % _num(SpiderMinion.BASE_DURATION * duration))
 		"purge":
 			out.append("Removes every status effect on you")
 		"blink":

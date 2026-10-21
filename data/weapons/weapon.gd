@@ -30,7 +30,17 @@ const RANGED_DAMAGE_SCALE := {
 	"Loaded Shotgun": 1.481, "Lever Action Rifle": 1.494, "Bolt Action Rifle": 1.990,
 	"Pump Action Shotgun": 2.023, "Longbow": 1.572, "Shortbow": 1.612, "Bow": 1.612,
 	"Crossbow": 3.285,
+	"Throwing Knife": 0.9, "Throwing Axe": 1.0, "Javelin": 1.35, "Grenade": 1.1,
 }
+
+## Throwing weapons (v5.12): wielded in the main hand, thrown with Attack from
+## a small "magazine" that a reload restocks. No stance; never dual wielded.
+## Knives and axes fly straight, javelins arc and pierce, grenades arc and
+## explode (PlayerRangedAttack.THROW_PROFILES).
+const THROWING_TYPES: Array[String] = ["Throwing Knife", "Throwing Axe", "Javelin", "Grenade"]
+
+func is_throwing() -> bool:
+	return THROWING_TYPES.has(weapon_type)
 
 ## Guns whose shots land instantly along the aim line instead of flying.
 const HITSCAN_TYPES: Array[String] = ["Revolver", "Bolt Action Rifle"]
@@ -144,6 +154,10 @@ const RANGED_PROFILES := {
 	"Shortbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.8, 0.0, false],
 	"Bow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.8, 0.0, false],
 	"Longbow": [Constants.AmmoType.ARROW, 0, Constants.FireMode.SEMI_AUTO, 1, 0.0, 0.0, 1.3, 0.0, false],
+	"Throwing Knife": [Constants.AmmoType.THROWN, 6, Constants.FireMode.SEMI_AUTO, 1, 1.0, 0.0, 0.0, 1.6, false],
+	"Throwing Axe": [Constants.AmmoType.THROWN, 4, Constants.FireMode.SEMI_AUTO, 1, 1.5, 0.0, 0.35, 1.8, false],
+	"Javelin": [Constants.AmmoType.THROWN, 3, Constants.FireMode.SEMI_AUTO, 1, 0.0, 0.0, 0.6, 2.2, false],
+	"Grenade": [Constants.AmmoType.THROWN, 2, Constants.FireMode.SEMI_AUTO, 1, 0.0, 0.0, 0.6, 2.8, false],
 }
 
 ## Bow draw time (0 for everything else). Read from RANGED_PROFILES, not
@@ -217,7 +231,7 @@ func get_conduit_stance_type() -> String:
 ## Dual wielding: any one-handed melee weapon or gun can go in the offhand
 ## slot beside another. Conduits keep their own offhand foci.
 func can_dual_wield() -> bool:
-	return is_main_hand and not is_offhand and not is_two_handed and not is_conduit
+	return is_main_hand and not is_offhand and not is_two_handed and not is_conduit and not is_throwing()
 
 ## Offhand Conduits (Rod, Tome, Grimoire, Talisman, Fetish) are never swung
 ## or fired, so hit damage, crit and attack speed mean nothing on them.
