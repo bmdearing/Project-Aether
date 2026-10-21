@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_tx7km"]
+
+[resource]
+script = ExtResource("1_tx7km")
+tag = "any"
+description = "+%d%% increased Attack Speed"
+stat_key = "attack_speed"
+value = 8.0
+value_min = 5.0
+value_max = 8.0
+tier = 1
+is_prefix = false
+affix_id = "any_attack_speed"
+display_name = "Swift"
+is_generic = true

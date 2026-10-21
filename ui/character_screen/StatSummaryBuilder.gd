@@ -121,7 +121,7 @@ static func _crit_summary(player: Player, slot: Constants.EquipmentSlot) -> Stri
 	if weapon == null:
 		return "None equipped"
 	var chance := DamageCalculator.get_crit_chance(weapon.get_local_crit_chance(), player.stat_sheet.finesse_crit_bonus)
-	var multiplier := DamageCalculator.get_crit_damage_multiplier(player.stat_sheet.get_crit_damage_bonus())
+	var multiplier := DamageCalculator.get_crit_damage_multiplier(player.stat_sheet.get_crit_damage_bonus(), player.stat_sheet.get_crit_multiplier_bonus())
 	return "%.0f%% chance / %.0f%% dmg" % [clamp(chance, 0.0, 1.0) * 100.0, multiplier * 100.0]
 
 ## Patch v4.4: Evasion's tooltip states what the rating actually means.

@@ -7,6 +7,19 @@ there. Most recent first.
 
 ---
 
+## 2026-10-21 — v5.12.3: Slate and jewel modifiers
+
+User request: ten modifiers that roll on both Slates and jewels.
+- **Slates:** new modifiers that roll on every Slate: Attack Speed (5-8%), Critical Strike Chance (10-16%), Critical Strike Multiplier (+5-8%), Critical Strike Bonus (12-18%), Fire Rate (5-8%), Debuff Effectiveness (6-10%), Life Recovery rate (6-10%), Mana Recovery rate (6-10%) and Ward Recovery (8-14%), all Tier 1 ranges. Reload Speed moves from Attack Slates to every Slate.
+- **Jewels:** Reload Speed (12-16%), Fire Rate (8-10%), Critical Strike Multiplier (+6-8%), Life Recovery rate (8-12%) and Mana Recovery rate (8-12%) have their own ranges. Debuff Effectiveness and Ward Recovery use the gear range at jewel scale. Attack Speed, Crit Chance and Crit Bonus were already in the pool.
+- **New stats:**
+  - `crit_multiplier` adds to the base 150% crit multiplier, which Crit Bonus then scales (`DamageCalculator.get_crit_damage_multiplier()`).
+  - `fire_rate` speeds up ranged weapons only.
+  - `life_recovery_rate` and `mana_recovery_rate` scale regeneration and every heal or restore (`HealthComponent` and `ManaComponent` `recovery_multiplier`).
+- Judgment calls: all the ranges; Crit Bonus is the existing "increased Critical Strike Bonus" and Crit Multiplier is new, flat points on the 150%; Fire Rate stacks with Attack Speed rather than replacing it for guns.
+
+---
+
 ## 2026-10-21 — v5.12.2: Blade of Runes
 
 User design.

@@ -13,7 +13,7 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if current_mana < max_mana:
-		current_mana = min(max_mana, current_mana + regen_per_second * delta)
+		current_mana = min(max_mana, current_mana + regen_per_second * recovery_multiplier * delta)
 		mana_changed.emit(current_mana, max_mana)
 
 ## Like HealthComponent.set_max_health(): an increase adds the difference to
@@ -29,9 +29,12 @@ func spend(amount: float) -> void:
 	current_mana = max(0.0, current_mana - amount)
 	mana_changed.emit(current_mana, max_mana)
 
+## Mana recovery rate (the player's gear): scales regeneration and every restore.
+var recovery_multiplier: float = 1.0
+
 ## Gains Mana up to the maximum (Mana on kill / on ailment modifiers).
 func restore(amount: float) -> void:
 	if amount <= 0.0:
 		return
-	current_mana = min(max_mana, current_mana + amount)
+	current_mana = min(max_mana, current_mana + amount * recovery_multiplier)
 	mana_changed.emit(current_mana, max_mana)

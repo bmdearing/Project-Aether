@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_tx7km"]
+
+[resource]
+script = ExtResource("1_tx7km")
+tag = "any"
+description = "+%d%% increased Fire Rate"
+stat_key = "fire_rate"
+value = 8.0
+value_min = 5.0
+value_max = 8.0
+tier = 1
+is_prefix = false
+affix_id = "any_fire_rate"
+display_name = "Rapid"
+is_generic = true

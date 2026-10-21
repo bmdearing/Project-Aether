@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_rldsp")
-tag = "attack"
+tag = "any"
 description = "+%d%% increased Reload Speed"
 stat_key = "reload_speed"
 value = 25.0

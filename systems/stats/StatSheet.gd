@@ -260,6 +260,10 @@ func get_increased_damage_percent(damage_type: int, is_attack: bool) -> float:
 func get_crit_damage_bonus() -> float:
 	return (get_misc_bonus("crit_damage") + get_misc_bonus("crit_damage_increased")) / 100.0
 
+## "+% to Critical Strike Multiplier": added to the base 150%, as a fraction.
+func get_crit_multiplier_bonus() -> float:
+	return get_misc_bonus("crit_multiplier") / 100.0
+
 func set_misc_bonus(bonus: Dictionary) -> void:
 	misc_bonus = bonus
 

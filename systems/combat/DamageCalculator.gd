@@ -127,9 +127,10 @@ static func get_effective_armor(base_armor: float, attacker_stats: StatSheet) ->
 static func get_crit_chance(base_crit_chance: float, finesse_crit_bonus: float) -> float:
 	return base_crit_chance * (1.0 + finesse_crit_bonus)
 
-## Base 150%, scaled by StatSheet.get_crit_damage_bonus().
-static func get_crit_damage_multiplier(bonus_fraction: float = 0.0) -> float:
-	return 1.5 * (1.0 + bonus_fraction)
+## Base 150% plus "+% to Critical Strike Multiplier" (base_bonus), then
+## scaled by the increased Critical Strike Bonus (StatSheet.get_crit_damage_bonus()).
+static func get_crit_damage_multiplier(bonus_fraction: float = 0.0, base_bonus: float = 0.0) -> float:
+	return (1.5 + base_bonus) * (1.0 + bonus_fraction)
 
 ## Resilience / (Resilience + RESILIENCE_DIVISOR), capped at 50%. Reduces DoT ticks.
 const RESILIENCE_DIVISOR := 150.0

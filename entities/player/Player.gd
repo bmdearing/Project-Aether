@@ -374,6 +374,8 @@ func _apply_derived_stats() -> void:
 		health.regen_per_second += mana.regen_per_second * ability_cast.inner_power_life_share()
 		mana.regen_per_second = 0.0
 	stat_sheet.current_max_mana = mana.max_mana
+	health.recovery_multiplier = 1.0 + stat_sheet.get_misc_bonus("life_recovery_rate") / 100.0
+	mana.recovery_multiplier = 1.0 + stat_sheet.get_misc_bonus("mana_recovery_rate") / 100.0
 
 	# Evasion (gear x Agility's increased%) - refreshed here for display;
 	# take_damage() reads it live.
@@ -648,6 +650,9 @@ func get_attack_speed_multiplier(weapon: Weapon = null) -> float:
 		weapon = get_attack_weapon()
 	var local := weapon.get_local_multiplier("local_increased_attack_speed") if weapon else 1.0
 	var speed := (1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0 + stat_sheet.get_attack_speed_from_stats()) * local
+	# Fire Rate: ranged weapons (guns, bows, throwing) only.
+	if weapon and weapon.is_ranged:
+		speed *= 1.0 + stat_sheet.get_misc_bonus("fire_rate") / 100.0
 	return speed * (DUAL_WIELD_ATTACK_SPEED if is_dual_wielding() else 1.0) * (ability_cast.charged_reflexes_fire_rate() if weapon and weapon.is_ranged and GameState.toggled_spells.has("charged_reflexes") else 1.0)
 
 ## What delivered a hit, for Evasion (Patch v4.4). ATTACK (melee swings and

@@ -25,6 +25,8 @@ const STAT_KEYS := [
 	"attack_speed", "cast_speed", "move_speed", "increased_attack_damage",
 	"crit_chance_increased", "crit_damage_increased",
 	"increased_aoe_radius", "skill_effect_duration",
+	"debuff_effectiveness", "ward_recovery_increased",
+	"reload_speed", "fire_rate", "crit_multiplier", "life_recovery_rate", "mana_recovery_rate",
 	"item_rarity",
 	"damaging_ailment_chance", "control_ailment_chance",
 	# Only damaging ailments: Chill, Electrocute, Shock, Unraveling and Pallid deal none.
@@ -37,6 +39,11 @@ const OWN_RANGES := [
 	{"stat_key": "increased_attack_damage", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Weapon Damage", "brand_tags": ["kinetic", "piercing", "explosive"]},
 	{"stat_key": "attack_speed", "tier1_min": 12.0, "tier1_max": 15.0, "desc": "+%d%% increased Attack Speed", "brand_tags": ["skills"]},
 	{"stat_key": "crit_chance_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Critical Strike Chance", "brand_tags": []},
+	{"stat_key": "reload_speed", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "+%d%% increased Reload Speed", "brand_tags": ["skills"]},
+	{"stat_key": "fire_rate", "tier1_min": 8.0, "tier1_max": 10.0, "desc": "+%d%% increased Fire Rate", "brand_tags": ["skills"]},
+	{"stat_key": "crit_multiplier", "tier1_min": 6.0, "tier1_max": 8.0, "desc": "+%d%% to Critical Strike Multiplier", "brand_tags": []},
+	{"stat_key": "life_recovery_rate", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Life Recovery rate", "brand_tags": []},
+	{"stat_key": "mana_recovery_rate", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Mana Recovery rate", "brand_tags": []},
 	{"stat_key": "life_increased", "tier1_min": 3.0, "tier1_max": 3.0, "desc": "+%d%% increased Life", "brand_tags": [], "fixed": true},
 	# +1% to a maximum Resistance at every tier ("fixed": no tier decay).
 	{"stat_key": "max_fire_resistance", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "+%d%% to maximum Fire Resistance", "brand_tags": [], "fixed": true},

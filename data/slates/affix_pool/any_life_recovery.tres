@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SlateAffix" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://data/items/SlateAffix.gd" id="1_tx7km"]
+
+[resource]
+script = ExtResource("1_tx7km")
+tag = "any"
+description = "+%d%% increased Life Recovery rate"
+stat_key = "life_recovery_rate"
+value = 10.0
+value_min = 6.0
+value_max = 10.0
+tier = 1
+is_prefix = false
+affix_id = "any_life_recovery"
+display_name = "Mending"
+is_generic = true

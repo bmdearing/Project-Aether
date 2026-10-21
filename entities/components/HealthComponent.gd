@@ -22,7 +22,7 @@ func _initialize_current_health() -> void:
 
 func _process(delta: float) -> void:
 	if regen_per_second > 0.0 and is_alive() and current_health < max_health:
-		current_health = min(max_health, current_health + regen_per_second * delta)
+		current_health = min(max_health, current_health + regen_per_second * recovery_multiplier * delta)
 		health_changed.emit(current_health, max_health)
 
 func apply_damage(amount: float) -> void:
@@ -33,8 +33,11 @@ func apply_damage(amount: float) -> void:
 	if current_health <= 0.0:
 		died.emit()
 
+## Life recovery rate (the player's gear): scales regeneration and every heal.
+var recovery_multiplier: float = 1.0
+
 func heal(amount: float) -> void:
-	current_health = min(max_health, current_health + amount)
+	current_health = min(max_health, current_health + amount * recovery_multiplier)
 	health_changed.emit(current_health, max_health)
 
 ## Raises or lowers the cap only: current health is clamped, never topped up,

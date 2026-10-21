@@ -269,7 +269,7 @@ func _base_hit(base_damage: float, stat_sheet: StatSheet) -> Dictionary:
 	return {
 		"base_damage": result.final_damage,
 		"crit_chance": DamageCalculator.get_crit_chance(base_crit_chance + web_value(SkillWeb.CRIT) / 100.0, stat_sheet.finesse_crit_bonus),
-		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus()),
+		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus(), stat_sheet.get_crit_multiplier_bonus()),
 	}
 
 ## "More" damage from twists that trade something for damage.
