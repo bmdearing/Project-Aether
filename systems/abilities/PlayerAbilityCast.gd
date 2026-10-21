@@ -260,6 +260,8 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 	_player.mana.spend(mana_cost)
 	if ability.ability_id == "manasaber":
 		_manasaber_spent = mana_cost / copies
+		if _player.arm_rig:
+			_player.arm_rig.play_slash(ability.get_cast_time(_player.stat_sheet), MANASABER_SLASH_STRIKE, MANASABER_SLASH_RECOVERY, false, manasaber_trail_color())
 	_cast_lockout = ability.base_recovery_time / maxf(_player.get_action_speed_multiplier(), 0.01)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_input_action = "ability_%d" % (slot_index + 1)
@@ -1920,7 +1922,27 @@ const CHARGED_REFLEXES_SHOT_DRAIN := 0.15
 const MANASABER_SHARE := 0.4
 const MANASABER_DAMAGE := 2.5
 const MANASABER_HALF_ANGLE := 70.0
+## Each hit also adds this much of the main-hand weapon's hit (its full
+## attack scaling, rolled as Aetheric). The slash plays on the viewmodel.
+const MANASABER_WEAPON_DAMAGE := 1.2
+const MANASABER_SLASH_STRIKE := 0.18
+const MANASABER_SLASH_RECOVERY := 0.3
 var _manasaber_spent: float = 0.0
+
+## The Manasaber ribbon trailing the weapon: Aetheric, bright enough to bloom.
+static func manasaber_trail_color() -> Color:
+	var c: Color = Constants.DAMAGE_TYPE_COLOR[Constants.DamageType.AETHERIC]
+	return Color(c.r * 1.3, c.g * 2.2, c.b * 2.4, 1.0)
+
+## The main-hand weapon as an Aetheric copy, or null when there's nothing
+## that attacks in hand.
+func manasaber_weapon() -> Weapon:
+	var weapon := _player.get_active_weapon()
+	if weapon == null or not weapon.can_attack():
+		return null
+	var copy := weapon.duplicate() as Weapon
+	copy.infused_damage_type = Constants.DamageType.AETHERIC
+	return copy
 
 ## Puncture: stabs the nearest enemy within its reach and this cone, and
 ## leaves it Punctured (StatusEffectComponent.PUNCTURED_BLEED_TAKEN).
@@ -2043,6 +2065,9 @@ func _cast_manasaber(ability: Ability, damage_multiplier: float, apply_composure
 	forward = forward.normalized() if forward.length() > 0.01 else -_player.global_transform.basis.z
 	forward = forward.rotated(Vector3.UP, deg_to_rad(_aim_yaw_offset))
 	var origin := _player.global_position
+	var blade := manasaber_weapon()
+	if _saber_return and _player.arm_rig:
+		_player.arm_rig.play_slash(0.0, MANASABER_SLASH_STRIKE, MANASABER_SLASH_RECOVERY, true, manasaber_trail_color())
 	for enemy in _enemies_near(origin, radius):
 		var to_enemy := enemy.global_position - origin
 		to_enemy.y = 0.0
@@ -2050,14 +2075,20 @@ func _cast_manasaber(ability: Ability, damage_multiplier: float, apply_composure
 			continue
 		var hit := ability._base_hit(spent * MANASABER_DAMAGE, sheet)
 		var rolled := DamageCalculator.apply_crit(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
-		var damage: float = float(rolled["final_damage"]) * damage_multiplier
+		var crit: bool = rolled["is_critical"]
+		var total := float(rolled["final_damage"])
+		# Plus MANASABER_WEAPON_DAMAGE of the main-hand weapon's hit, as Aetheric.
+		if blade:
+			var weapon_hit := blade.roll_damage(MANASABER_WEAPON_DAMAGE, sheet)
+			total += float(weapon_hit["final_damage"])
+			crit = crit or weapon_hit["is_critical"]
+		var damage: float = total * damage_multiplier
 		enemy.take_damage(damage, ability.damage_type)
 		if apply_composure and enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
-		EventBus.damage_dealt.emit(_player, enemy, damage, ability.damage_type, false, rolled["is_critical"])
+		EventBus.damage_dealt.emit(_player, enemy, damage, ability.damage_type, false, crit)
 	var scene := _player.get_tree().current_scene
 	var tint: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE).lightened(0.35)
-	SpellFx.sweep(scene, origin, forward, radius, MANASABER_HALF_ANGLE, tint, 0.22, -1.0 if _saber_return else 1.0, 1.6)
 	SpellFx.light_pop(scene, origin + forward * radius * 0.6 + Vector3.UP, tint, 3.0, radius * 1.4, 0.3)
 	# Web: Twin Blade sweeps back for half damage (the return doesn't repeat).
 	if ability.has_twist("twin_blade") and not _saber_return:

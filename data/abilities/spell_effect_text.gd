@@ -97,6 +97,7 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 		"manasaber":
 			out.append("Costs %s of your maximum Mana" % _pct(PlayerAbilityCast.MANASABER_SHARE))
 			out.append("Sweeps a %s-degree arc within %sm for %s of the Mana spent as base Aetheric damage" % [_num(PlayerAbilityCast.MANASABER_HALF_ANGLE * 2.0), _num(ability.get_radius(sheet)), _pct(PlayerAbilityCast.MANASABER_DAMAGE)])
+			out.append("Adds %s of your main-hand weapon's hit to each target, as Aetheric damage" % _pct(PlayerAbilityCast.MANASABER_WEAPON_DAMAGE))
 			if player and player.mana:
 				var spent := PlayerAbilityCast.manasaber_cost(player.mana.max_mana)
 				out.append("Now: %s Mana for %s base damage" % [_num(spent), _num(spent * PlayerAbilityCast.MANASABER_DAMAGE)])

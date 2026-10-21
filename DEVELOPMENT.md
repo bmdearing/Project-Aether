@@ -1361,7 +1361,9 @@ formulas).
   it is on the bar at all you deal no Physical damage -
   `StatSheet.inner_power_multiplier()`), **Manasaber** (costs 40% of maximum
   Mana; a 140-degree sweep for 250% of the Mana spent as its base Aetheric
-  hit, then spell modifiers and crit), **Charged Reflexes** (toggle: ranged
+  hit, then spell modifiers and crit, plus 120% of the main-hand weapon's hit
+  rolled as Aetheric; 0.1 s cast, the held weapon slashes on the
+  viewmodel, `PlayerArmRig.play_slash()`), **Charged Reflexes** (toggle: ranged
   attack speed x1.3 and reload speed x1.4, each shot drains 15% of its cost).
   Toggles live in `GameState.toggled_spells`, switch off for free, when Mana
   runs dry, or when taken off the bar.

@@ -486,6 +486,97 @@ func play_attack(kind: Attack, windup: float, strike: float, recovery: float, ba
 			return
 	_start(_main_track, _mirror(clip) if backswing else clip, windup, strike, recovery, _main_rest())
 
+## Manasaber: a wide slash with whatever is in the main hand, guns included,
+## left to right (backswing: right to left). A ribbon of energy trails the
+## weapon through the strike when trail_color is set.
+func play_slash(windup: float, strike: float, recovery: float, backswing: bool = false, trail_color: Color = Color(0, 0, 0, 0)) -> void:
+	_start(_main_track, HORIZONTAL if backswing else _mirror(HORIZONTAL), windup, strike, recovery, _main_rest())
+	if trail_color.a > 0.0:
+		_trail_delay = windup
+		_trail_left = windup + strike * TRAIL_STRIKE_SHARE
+		_trail_color = trail_color
+		_trail_points.clear()
+		_trail_length = _weapon_length()
+
+## ---- Weapon trail ------------------------------------------------------------
+## A ribbon swept by the weapon: each frame of the strike adds a pair of
+## points along the weapon (rig-local, so it rides with the view), from
+## TRAIL_INNER to TRAIL_REACH weapon lengths out from the grip - an energy
+## blade longer than the weapon itself. Points fade over TRAIL_LIFE.
+const TRAIL_LIFE := 0.16
+const TRAIL_INNER := 0.8
+const TRAIL_REACH := 2.0
+const TRAIL_STRIKE_SHARE := 0.95
+var _trail: MeshInstance3D
+var _trail_mesh: ImmediateMesh
+var _trail_points: Array = []  # [inner, outer, born]
+var _trail_delay := 0.0
+var _trail_left := 0.0
+var _trail_color := Color.WHITE
+var _trail_length := 0.6
+
+## The held model's reach along its tip axis (+Y), from its meshes.
+func _weapon_length() -> float:
+	if _weapon_model == null:
+		return 0.6
+	var top := 0.0
+	var to_model := _weapon_model.global_transform.affine_inverse()
+	for node in _weapon_model.find_children("*", "MeshInstance3D", true, false):
+		var mi := node as MeshInstance3D
+		if mi.mesh:
+			top = maxf(top, ((to_model * mi.global_transform) * mi.get_aabb()).end.y)
+	return clampf(top, 0.25, 1.4)
+
+func _update_trail(delta: float) -> void:
+	var now := _time
+	if _trail_left > 0.0:
+		_trail_left -= delta
+		_trail_delay -= delta
+		if _trail_delay <= 0.0 and _weapon_model:
+			var xf := global_transform.affine_inverse() * _weapon_model.global_transform
+			_trail_points.append([xf * Vector3(0, _trail_length * TRAIL_INNER, 0), xf * Vector3(0, _trail_length * TRAIL_REACH, 0), now])
+	while not _trail_points.is_empty() and now - float(_trail_points[0][2]) > TRAIL_LIFE:
+		_trail_points.pop_front()
+	if _trail == null:
+		if _trail_points.is_empty():
+			return
+		_trail_mesh = ImmediateMesh.new()
+		_trail = MeshInstance3D.new()
+		_trail.mesh = _trail_mesh
+		_trail.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		var mat := StandardMaterial3D.new()
+		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+		mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+		mat.vertex_color_use_as_albedo = true
+		_trail.material_override = mat
+		add_child(_trail)
+	_trail_mesh.clear_surfaces()
+	_trail.visible = _trail_points.size() >= 2
+	if not _trail.visible:
+		return
+	# Two bands per step: clear at the inner edge, the spell's colour across
+	# the blade, white-hot at the outer edge; everything fades with age.
+	var edge_color := _trail_color.lerp(Color(1.6, 1.7, 1.7), 0.35)
+	var rows: Array = []
+	for p in _trail_points:
+		var fade := pow(1.0 - (now - float(p[2])) / TRAIL_LIFE, 2.0)
+		var inner: Vector3 = p[0]
+		var outer: Vector3 = p[1]
+		rows.append([[inner, Color(_trail_color, 0.0)], [inner.lerp(outer, 0.75), Color(_trail_color, 0.3 * fade)], [outer, Color(edge_color, 0.8 * fade)]])
+	_trail_mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in rows.size() - 1:
+		for band in 2:
+			var a: Array = rows[i][band]
+			var b: Array = rows[i][band + 1]
+			var c: Array = rows[i + 1][band]
+			var d: Array = rows[i + 1][band + 1]
+			for v in [a, b, c, b, d, c]:
+				_trail_mesh.surface_set_color(v[1])
+				_trail_mesh.surface_add_vertex(v[0])
+	_trail_mesh.surface_end()
+
 ## Gun bash: a short forward shove of the held weapon.
 func play_bash(windup: float, strike: float, recovery: float) -> void:
 	_start(_main_track, STAB, windup, strike, recovery, _main_rest())
@@ -619,8 +710,11 @@ func _on_reload_stopped(weapon: Weapon) -> void:
 	_start(_main_track, [], 0.0, 0.0, 0.18, _main_rest())
 	_start(_off_track, [], 0.0, 0.0, 0.18, _off_rest())
 
-func _on_ability_cast(caster: Node, _ability: Ability) -> void:
+func _on_ability_cast(caster: Node, ability: Ability) -> void:
 	if caster != _player or _player == null:
+		return
+	# Manasaber swings the weapon itself (play_slash()).
+	if ability and ability.ability_id == "manasaber":
 		return
 	if _family == &"wand":
 		_play_fire(0.08, 0.08, 0.22)
@@ -684,6 +778,7 @@ func _process(delta: float) -> void:
 		_place_arm(_left_arm, _off, _off.visible, RIGHT_SHOULDER if bow else LEFT_SHOULDER)
 
 	_update_bow(delta)
+	_update_trail(delta)
 	_cast_glow_t = maxf(_cast_glow_t - delta, 0.0)
 	_cast_glow.visible = _cast_glow_t > 0.0
 	if _cast_glow.visible:

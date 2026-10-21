@@ -53,6 +53,9 @@ func _run() -> void:
 	if args.size() > 5:
 		ability.web_points = {args[5]: 1}
 	var started := Time.get_ticks_msec()
+	# Manasaber swings the held weapon as it casts (_try_cast() starts it).
+	if ability_id == "manasaber":
+		player.arm_rig.play_slash(0.0, PlayerAbilityCast.MANASABER_SLASH_STRIKE, PlayerAbilityCast.MANASABER_SLASH_RECOVERY, false, PlayerAbilityCast.manasaber_trail_color())
 	player.ability_cast._cast(ability, target)
 	# Booming Blade fires on the next melee swing.
 	if ability_id == "booming_blade":
