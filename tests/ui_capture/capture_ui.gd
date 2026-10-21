@@ -1,7 +1,7 @@
 extends Node
 ## Screenshots real UI states in the Hub for visual review.
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_ui.tscn --resolution 1920x1080 -- <out.png> <mode>
-## Modes: hud, rings (Alt range rings), portal, hud_fx (life damage trail + a spell coming off cooldown), inventory, inventory_icons, icons, character, abilities, web <spell_id>, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview
+## Modes: hud, engine, engine_far, engine_ui, rings (Alt range rings), portal, hud_fx (life damage trail + a spell coming off cooldown), inventory, inventory_icons, icons, character, abilities, web <spell_id>, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview
 
 const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
 
@@ -69,6 +69,35 @@ func _run() -> void:
 			get_viewport().get_texture().get_image().save_png(out)
 			get_tree().quit()
 			return
+		"engine", "engine_far":
+			# The Reality Engine up close (or from the hub floor), mid-animation.
+			var engine := hub.get_node("RealityEngine") as Node3D
+			var cam := Camera3D.new()
+			hub.add_child(cam)
+			var near := mode == "engine"
+			cam.global_position = engine.global_position + (Vector3(0.6, 2.4, 4.6) if near else Vector3(3.0, 3.2, 11.0))
+			cam.look_at(engine.global_position + Vector3(0, 1.9, 0), Vector3.UP)
+			cam.fov = 70.0
+			cam.make_current()
+			await get_tree().create_timer(2.5).timeout
+			await RenderingServer.frame_post_draw
+			get_viewport().get_texture().get_image().save_png(out)
+			get_tree().quit()
+			return
+		"engine_ui":
+			# The selection with carried and stashed Figments and half a Fragment set.
+			for tier in [3, 7, 12]:
+				GameState.add_to_inventory(FigmentRoller.roll(tier))
+			GameState.add_to_inventory(FigmentRoller.roll_depth(2))
+			GameState.stash.tabs[0].add(FigmentRoller.roll(16))
+			for id in Pinnacle.FRAGMENT_IDS.slice(0, 2):
+				GameState.inventory.add(id, 1)
+			(hub.get_node("RealityEngine") as RealityEngine)._open_selection()
+			if args.has("pinnacle"):
+				var engine_screen := _screen("reality_engine_screen") as RealityEngineScreen
+				await get_tree().process_frame
+				var rows := engine_screen.find_children("*", "Button", true, false).filter(func(b): return b.has_meta("entry"))
+				rows[rows.size() - 1].button_pressed = true
 		"portal":
 			# Both portal kinds a few metres ahead.
 			for i in 2:

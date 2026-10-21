@@ -602,25 +602,7 @@ func _dress_interactables() -> void:
 		_floaters.append([tome, tome.position, 0.15, 1.6, 0.0, 0.8])
 		_omni(spell.global_position + Vector3(0, 2.8, 0), GLOW, 1.4, 4.0)
 	_dress(hub.get_node_or_null("StashChest"), "Treasurechest", 1.3)
-	var engine := hub.get_node_or_null("RealityEngine") as Node3D
-	if engine:
-		for mi in engine.find_children("*", "MeshInstance3D", true, false):
-			if mi.get_parent() is StaticBody3D:
-				mi.visible = false
-		var plinth := _prop("Northrendbrokencolumn0", Vector3.ZERO, 1.25)
-		remove_child(plinth)
-		engine.add_child(plinth)
-		plinth.position = Vector3.ZERO
-		var orb := engine.get_node_or_null("Orb") as MeshInstance3D
-		if orb:
-			var orb_mat := StandardMaterial3D.new()
-			orb_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-			orb_mat.albedo_color = Color(0.55, 0.85, 1.0)
-			orb_mat.emission_enabled = true
-			orb_mat.emission = Color(0.35, 0.7, 1.0)
-			orb_mat.emission_energy_multiplier = 4.0
-			orb.material_override = orb_mat
-		_omni(engine.global_position + Vector3(0, 2.0, 0), Color(0.75, 0.55, 1.0), 1.6, 6.0)
+	# The Reality Engine builds its own body and light (RealityEngineFx).
 
 func _dress(target: Node3D, model: String, height: float) -> Node3D:
 	if target == null or target.is_queued_for_deletion():

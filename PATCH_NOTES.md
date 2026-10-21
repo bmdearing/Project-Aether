@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-21 — v5.12.5: Reality Engine overhaul
+
+User request: the Reality Engine should look more impressive and its UI better.
+- **In the Hub:** the broken column and flat white orb are replaced by a device built in code (`RealityEngineFx`): a stepped stone plinth with a gold bowl and rim, a glowing rune band, four gold prongs with crystal tips tethered to the core, a churning energy core (white-hot centre, energy body, fresnel shell, halo) inside three gold gyro rings with rune studs, five orbiting shards, a light shaft rising into the nebula, motes spiralling up from the plinth, core sparks, and a pulsing light. It spins up and brightens when you walk near and flares when the selection opens, and keeps turning behind the menu. MemoryNexus no longer dresses it.
+- **Selection screen:** a dedicated `RealityEngineScreen` replaces the shared ShopScreen list. Rows are grouped under Free Run, Carried Figments, In the Stash and Pinnacle, each with its icon, full name, a details line (Tier/Depth, Area Level, band, mod count) and a tag (FREE, NEW +1, STASH, Fragment count). The right side shows the chosen Figment's item card, or for a Pinnacle boss which Maw Fragments you hold. One Enter button; double-click a row to enter directly.
+- `capture_ui` gains `engine`, `engine_far` and `engine_ui [pinnacle]` modes.
+- Judgment calls: the free run's Figment is rolled when the screen opens (so its card can be shown) rather than on click; the free run is listed first and selected by default; the colour scheme keeps the Hub's cyan/violet with the UI's gold; gold rings and plinth cast shadows, every energy mesh does not; the engine's own light replaces the Hub's violet omni over it; the "NEW +1" tag stands in for the old " - New (+1 point)" suffix and "STASH" for " - Stash" (new wins when both apply).
+
+---
+
 ## 2026-10-21 — v5.12.4: Fire Rate replaces Attack Speed on ranged weapons
 
 User call: the two stacking was too strong.
