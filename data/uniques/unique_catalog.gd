@@ -99,6 +99,15 @@ const DEFS := [
 			["life_increased", 10.0, 10.0, "%d%% increased Life"],
 		],
 	},
+	{
+		"id": "blade_of_runes", "name": "Blade of Runes", "rarity": Constants.ItemRarity.MYTHIC,
+		"base_type": "shortsword", "base_item": "res://data/weapons/instances/gen_shortsword_champions_blade.tres", "weight": 100.0, "fixed_sockets": 6,
+		"flavor": "Every rune it ever drank still speaks through the steel.",
+		"mods": [
+			["unique_fixed_sockets", 6.0, 6.0, "Always has %d Sockets"],
+			["unique_jewel_effect", 250.0, 250.0, "%d%% increased effect of Socketed Jewels"],
+		],
+	},
 	# ---- Placeholders until the Unique design session ----
 	{
 		"id": "crown_of_the_ninth_bell", "name": "Crown of the Ninth Bell", "rarity": Constants.ItemRarity.UNIQUE,

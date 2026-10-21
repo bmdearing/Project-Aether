@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-21 — v5.12.2: Blade of Runes
+
+User design.
+- **Blade of Runes** (Mythic Champion's Blade, world drop): always has 6 sockets (past the one-handed cap of 3) and 250% increased effect of Socketed Jewels, so every jewel modifier in it counts 3.5 times. It keeps the Champion's Blade implicit and has no other modifiers.
+- Fixed sockets: a unique entry's `fixed_sockets` sets them on the drop and marks them rolled, so the Orb of Opening refuses it, and the socket corruptions skip it (`Item.fixed_sockets()`).
+- Jewel effect: `Item.jewel_affixes()` gives a socketed jewel's modifiers as they apply in that item (scaled values and text). Stats, the item card and the stat sources all read it.
+- Judgment calls: the flavour line, world drop rather than a boss drop, no other modifiers, and that boosted values show rounded on the card ("+4%" for 3.5%).
+
+---
+
 ## 2026-10-21 — v5.12.1: Manasaber slash
 
 User request.

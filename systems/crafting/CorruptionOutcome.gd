@@ -110,6 +110,8 @@ class ResonantEcho extends CorruptionOutcome:
 
 class AddSocket extends CorruptionOutcome:
 	func apply(item: Item, _power_level: int) -> void:
+		if item.fixed_sockets() > 0:
+			return  # Blade of Runes: its sockets never change
 		var max_s: int = ItemRoller.get_socket_cap(item)
 		if item.max_sockets < max_s:
 			item.max_sockets += 1
@@ -118,6 +120,8 @@ class AddSocket extends CorruptionOutcome:
 class AddExtraSocket extends CorruptionOutcome:
 	## Adds a socket beyond the base cap - up to +1 over.
 	func apply(item: Item, _power_level: int) -> void:
+		if item.fixed_sockets() > 0:
+			return  # Blade of Runes: its sockets never change
 		var max_s: int = ItemRoller.get_socket_cap(item)
 		if max_s > 0 and item.max_sockets <= max_s:
 			item.max_sockets += 1

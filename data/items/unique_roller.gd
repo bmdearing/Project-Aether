@@ -60,6 +60,12 @@ static func build(def: Dictionary, item_level: int = 1, base: Item = null) -> It
 		item.max_sockets = mini(item.max_sockets, ItemRoller.get_socket_cap(item))
 		item.sockets = 0
 		item.sockets_rolled = false
+		# "fixed_sockets": always exactly this many, past the category cap
+		# (Blade of Runes); no Orb or corruption changes them.
+		if def.has("fixed_sockets"):
+			item.max_sockets = def["fixed_sockets"]
+			item.sockets = def["fixed_sockets"]
+			item.sockets_rolled = true
 	return item
 
 ## One fixed unique modifier, rolled within its range.

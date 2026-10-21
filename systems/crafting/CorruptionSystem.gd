@@ -154,7 +154,7 @@ static func can_change(outcome_name: String, base: Item) -> bool:
 		"TemperedLimit":
 			return base is Weapon or base is Armor
 		"AddSocket", "AddExtraSocket":
-			return ItemRoller.get_socket_cap(base) > 0
+			return ItemRoller.get_socket_cap(base) > 0 and base.fixed_sockets() == 0
 		"Honed":
 			return base is Weapon
 		"Transcendent":

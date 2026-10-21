@@ -156,8 +156,46 @@ func _affixes_with_jewels() -> Array[ItemAffix]:
 		return affixes
 	var all: Array[ItemAffix] = affixes.duplicate()
 	for jewel in jewels:
-		all.append_array(jewel.affixes)
+		all.append_array(jewel_affixes(jewel))
 	return all
+
+## Blade of Runes: "unique_jewel_effect" scales every socketed jewel's
+## modifiers (250 = x3.5); "unique_fixed_sockets" pins the socket count.
+const JEWEL_EFFECT_KEY := "unique_jewel_effect"
+const FIXED_SOCKETS_KEY := "unique_fixed_sockets"
+
+func jewel_effect_multiplier() -> float:
+	return 1.0 + own_affix_total(JEWEL_EFFECT_KEY) / 100.0
+
+## Sockets this item always has, or 0 when they can change.
+func fixed_sockets() -> int:
+	return int(own_affix_total(FIXED_SOCKETS_KEY))
+
+## A socketed jewel's modifiers as they apply in this item: scaled copies
+## (values and text) when the item boosts jewel effect, else the originals.
+func jewel_affixes(jewel: Item) -> Array[ItemAffix]:
+	var mult := jewel_effect_multiplier()
+	if is_equal_approx(mult, 1.0):
+		return jewel.affixes
+	var scaled: Array[ItemAffix] = []
+	for affix in jewel.affixes:
+		var copy := affix.duplicate() as ItemAffix
+		copy.value = affix.value * mult
+		copy.value_min = affix.value_min * mult
+		copy.value_max = affix.value_max * mult
+		var template := CraftingResolver._template_for(affix)
+		if template != "":
+			var text := ItemRoller.describe_value(template, affix.key(), copy.value)
+			copy.description = "%s (Tier %d)" % [text, affix.tier] if affix.tier > 0 else text
+		else:
+			# No template: scale the first number in the text.
+			var number := RegEx.create_from_string("\\d+(\\.\\d+)?").search(affix.description)
+			if number:
+				var v := float(number.get_string()) * mult
+				var shown := str(roundi(v)) if absf(v - roundf(v)) < 0.05 else "%.1f" % v
+				copy.description = affix.description.substr(0, number.get_start()) + shown + affix.description.substr(number.get_end())
+		scaled.append(copy)
+	return scaled
 
 ## Band of Wishes: copies the other equipped ring (set by EquipmentComponent).
 const REFLECT_RING_KEY := "unique_reflect_ring"

@@ -87,7 +87,7 @@ static func _collect_gear(parts: Dictionary, eq: EquipmentComponent) -> void:
 		for affix in item.affixes:
 			_add_gear_affix(parts, affix, label, item)
 		for jewel in item.get_socketed_jewels():
-			for affix in jewel.affixes:
+			for affix in item.jewel_affixes(jewel):
 				_add_gear_affix(parts, affix, "%s in %s" % [_item_name(jewel), _item_name(item)], item)
 		if item.reflect_source:
 			for affix in item.reflect_source._affixes_with_jewels():

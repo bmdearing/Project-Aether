@@ -207,7 +207,7 @@ func _render_item(item: Item) -> void:
 		# One line per modifier, so each can be marked; jewel lines follow.
 		_add_craft_marked_lines(explicits, preview)
 		for jewel in item.get_socketed_jewels():
-			for affix in jewel.affixes:
+			for affix in item.jewel_affixes(jewel):
 				_add_mod_line(_affix_text(affix, false), SOCKETED_COLOR)
 	else:
 		for line in _merged_explicit_lines(item):
@@ -610,7 +610,7 @@ func _add_alt_socket_section(item: Item) -> void:
 	_add_separator()
 	_add_mod_line("Socketed (%d/%d)" % [jewels.size(), item.sockets], STAT_LABEL_COLOR)
 	for jewel in jewels:
-		for affix in jewel.affixes:
+		for affix in item.jewel_affixes(jewel):
 			_add_mod_line(_slot_tag(affix, jewel) + _affix_text(affix, true), SOCKETED_COLOR)
 
 ## Main card: the item's explicits with its socketed jewels folded in, one
@@ -621,7 +621,7 @@ func _merged_explicit_lines(item: Item) -> Array[String]:
 	var sources: Array[ItemAffix] = []
 	sources.assign(item.affixes.filter(func(a: ItemAffix): return not a.is_implicit))
 	for jewel in item.get_socketed_jewels():
-		sources.append_array(jewel.affixes)
+		sources.append_array(item.jewel_affixes(jewel))
 	var totals: Dictionary = {}  # stat -> [template, total, first affix]
 	var order: Array[String] = []
 	for affix in sources:
