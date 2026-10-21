@@ -30,6 +30,16 @@ User request: bosses acquired the player and pulled from too far away; each boss
 
 ---
 
+## 2026-10-21 — v5.12.7: Lodestar rolls its gift, Herald pressures pylons, Aurelia's last golems
+
+User requests: the Lodestar should roll its modifier and be corrupted; the Herald fight should threaten the pylons more; Aurelia's second golem summon should come during the final Earth Wheel.
+- **The Lodestar** now rolls one gift when it drops (+10 Life, +10 Mana, +10% increased damage of one rolled type, or +2% increased Defences), and every Slate in its radius gains that same gift. Its card shows the rolled gift; the wiki lists all four. It drops corrupted, and the Lenscrafter no longer offers to Recut, Regrind or Polish a corrupted Lens (Recut would have replaced its radius modifier). Lodestars taken from the dev catalogue before this keep their old state (a +10 Life gift, not corrupted).
+- **Herald of the Maw:** pylons now have integrity that her own attacks wear down: 8% per second of Void Beam they block, 25% when her Shadow Lunge slams into one, 12% per ground hit and 10% per Void Rift running out on one. At 0 the pylon shatters, just like a finished Mindbender channel. Pylons flicker harder as they wear. Call the Hollow summons 3 Mindbenders instead of 2, every 24s instead of 30s, and a channel takes 6s instead of 8s.
+- **Aurelia:** in phase 5 her two Fire Golems now rise as the final Earth Wheel starts, rather than after Amaterasu. They don't use her channel, which the wheel keeps.
+- Judgment calls: all the wear numbers and the Mindbender changes; golems still only top up to two, so living phase 4 golems mean no new ones.
+
+---
+
 ## 2026-10-21 — v5.12.6: The Lodestar
 
 User request: a unique Lens that gives every Slate in its radius one of +10 Life, +10 Mana, 10% increased damage of one type, or 2% increased Defences, and only fits the North Star.

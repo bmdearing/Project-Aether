@@ -7,7 +7,7 @@ class_name MawChannel
 ## the unit goes back to fighting normally.
 
 const CHANNEL_RANGE := 4.0
-const CHANNEL_SEC := 8.0
+const CHANNEL_SEC := 6.0
 const BEAM_COLOR := Color(0.6, 0.25, 0.95)
 
 var arena: MawArena

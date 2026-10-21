@@ -21,6 +21,8 @@ func radius_text() -> String:
 	var def := radius_def()
 	if def.is_empty():
 		return ""
+	if radius_mod == "star_gifts":
+		return "Slates in radius gain " + FateStars.bonus_text(FateStars.gift_of(self), radius_tag)
 	var tag_name: String = Constants.DAMAGE_TYPE_NAME.get(radius_tag, "")
 	return String(def["text"]).replace("{tag}", tag_name).replace("{v}", str(roundi(radius_value)))
 

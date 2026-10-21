@@ -198,10 +198,10 @@ static func sites_for(star: int, lens: Lens) -> Array[Site]:
 		result.append(site)
 	return result
 
-## The "star_gifts" unique Lens: every placed Slate with a cell within the
-## Lens's radius of its Star gains one of these, picked from the Slate's
-## placement and the Lens (re-placing the Slate re-picks it). The damage
-## one also picks a damage type. Values are fixed.
+## The "star_gifts" unique Lens rolls one of these when it drops (its
+## radius_value is the index, radius_tag the damage type for the damage
+## one), and every placed Slate with a cell within its radius of its Star
+## gains it. Values are fixed.
 const GIFTS := [
 	{"key": "flat_life", "value": 10.0, "text": "+{v} Life"},
 	{"key": "flat_mana", "value": 10.0, "text": "+{v} Mana"},
@@ -226,18 +226,24 @@ static func gift_sites(board: FateBoard, star: int, lens: Lens) -> Array[Site]:
 				nearest = c
 		if best > lens.radius + 0.01:
 			continue
-		var rng := RandomNumberGenerator.new()
-		rng.seed = hash([id, lens.item_id])
 		var site := Site.new()
 		site.cell = nearest
 		site.star = star
 		site.index = result.size()
-		site.bonus = (GIFTS[rng.randi_range(0, GIFTS.size() - 1)] as Dictionary).duplicate()
+		site.bonus = gift_of(lens).duplicate()
 		site.bonus["notable"] = false
-		if site.bonus["key"] == "type_damage":
-			site.tag = SlateRoller.REAL_DAMAGE_TYPES[rng.randi_range(0, SlateRoller.REAL_DAMAGE_TYPES.size() - 1)]
+		site.tag = lens.radius_tag
 		result.append(site)
 	return result
+
+## The gift a "star_gifts" Lens rolled.
+static func gift_of(lens: Lens) -> Dictionary:
+	return GIFTS[clampi(int(lens.radius_value), 0, GIFTS.size() - 1)]
+
+## Rolls a "star_gifts" Lens's gift (and damage type, for the damage one).
+static func roll_gift(lens: Lens) -> void:
+	lens.radius_value = randi_range(0, GIFTS.size() - 1)
+	lens.radius_tag = SlateRoller.REAL_DAMAGE_TYPES.pick_random() if gift_of(lens)["key"] == "type_damage" else -1
 
 static func bonus_text(bonus: Dictionary, tag: int) -> String:
 	var v: float = bonus["value"]

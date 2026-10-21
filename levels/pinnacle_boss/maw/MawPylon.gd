@@ -7,7 +7,9 @@ class_name MawPylon
 ##   - stuns the Herald when her Shadow Lunge runs into it,
 ##   - anchors a player within SHELTER_RADIUS against Unmaking's pull,
 ##   - raises the Herald's Lens drop chance (Pinnacle.maw_lens_chance()).
-## Mindbenders channel at it; a finished channel shatters it.
+## Mindbenders channel at it; a finished channel shatters it. The Herald's
+## own attacks wear its integrity down too (wear()): blocking her Void Beam,
+## her Lunge slamming into it, and her ground hits landing on it.
 
 signal shattered(pylon: MawPylon)
 
@@ -23,6 +25,8 @@ var color := Color(0.6, 0.35, 0.9)
 var alive := true
 ## Channel progress from Mindbenders (0..1), shown as flicker and strain.
 var strain := 0.0
+## 1 when whole; the Herald's attacks wear it down and it shatters at 0.
+var integrity := 1.0
 var _crystal: MeshInstance3D
 var _crystal_mat: StandardMaterial3D
 var _rune_mat: StandardMaterial3D
@@ -106,10 +110,11 @@ func _process(delta: float) -> void:
 	if not alive:
 		return
 	_t += delta
-	_crystal.rotation.y += delta * (0.6 + strain * 4.0)
+	# A strained or worn pylon flickers harder the closer it is to shattering.
+	var stress := maxf(strain, 1.0 - integrity)
+	_crystal.rotation.y += delta * (0.6 + stress * 4.0)
 	_crystal.position.y = CRYSTAL_HEIGHT + sin(_t * 1.3) * 0.15
-	# A strained pylon flickers harder as the channel nears completion.
-	var flicker := 1.0 - strain * 0.7 * (0.5 + 0.5 * sin(_t * (8.0 + strain * 30.0)))
+	var flicker := 1.0 - stress * 0.7 * (0.5 + 0.5 * sin(_t * (8.0 + stress * 30.0)))
 	_light.light_energy = 1.6 * flicker
 	_crystal_mat.emission_energy_multiplier = 3.0 * flicker
 
@@ -118,6 +123,14 @@ func shelters(point: Vector3) -> bool:
 		return false
 	var offset := point - global_position
 	return Vector2(offset.x, offset.z).length() <= SHELTER_RADIUS
+
+## Takes `amount` of integrity; shatters at 0.
+func wear(amount: float) -> void:
+	if not alive:
+		return
+	integrity = maxf(integrity - amount, 0.0)
+	if integrity <= 0.0:
+		shatter()
 
 func shatter() -> void:
 	if not alive:

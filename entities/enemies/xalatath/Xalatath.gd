@@ -10,7 +10,9 @@ class_name Xalatath
 ##   phase); standing pylons block it.
 ##   Luring the Lunge into a pylon stuns her, drains her Composure and opens
 ##   a Riposte window.
-##   Phase 2 (66%): Mindbenders go for the pylons and shatter them;
+##   Her own attacks wear pylons down (MawPylon.wear()): a beam held on one,
+##   a Lunge into one, ground hits and Void Rifts on one.
+##   Phase 2 (66%): Mindbenders (three at a time) go for the pylons and shatter them;
 ##   Entropic Volley; from here a Lunge that misses the pylons ends in a
 ##   spin slash. Every pylon you save anchors you against Unmaking, stays a
 ##   stun wall, raises her Lens chance and weakens the Maw's opening.
@@ -52,6 +54,8 @@ const LASH_HALF_ANGLE := 50.0
 
 var feeding := false
 var _feed_damage := 0.0
+## The pylon the Void Beam last ran into (beam_length()).
+var beam_blocker: MawPylon
 
 var _arena: MawArena
 
@@ -78,7 +82,7 @@ func abilities() -> Array:
 		{"id": "shadow_lunge", "display_name": "Shadow Lunge", "kind": BossAbility.Kind.CHARGE, "cooldown": 8.0, "telegraph": 0.9, "damage_mult": 1.5, "min_range": 5.0, "max_range": 16.0, "damage_type": entropic},
 		{"id": "void_beam", "display_name": "Void Beam", "kind": BossAbility.Kind.CUSTOM, "cooldown": 16.0, "telegraph": 1.0, "damage_mult": 0.3, "min_range": 6.0, "max_range": 28.0,
 			"description": "She channels a beam of the void that slowly turns to follow you. Break line of sight behind an Anchor pylon."},
-		{"id": "call_the_hollow", "display_name": "Call the Hollow", "kind": BossAbility.Kind.SUMMON, "cooldown": 30.0, "telegraph": 1.2, "count": 2, "unit_id": "veilborne_mindbender", "min_phase": 2},
+		{"id": "call_the_hollow", "display_name": "Call the Hollow", "kind": BossAbility.Kind.SUMMON, "cooldown": 24.0, "telegraph": 1.2, "count": 3, "unit_id": "veilborne_mindbender", "min_phase": 2},
 		{"id": "entropic_volley", "display_name": "Entropic Volley", "kind": BossAbility.Kind.VOLLEY, "cooldown": 8.0, "telegraph": 0.9, "count": 7, "spread_degrees": 70.0, "damage_mult": 0.8, "min_range": 4.0, "max_range": 24.0, "min_phase": 2, "damage_type": entropic},
 		{"id": "unmaking", "display_name": "Unmaking", "kind": BossAbility.Kind.PULL, "cooldown": 14.0, "telegraph": 1.1, "radius": MawArena.MAW_RADIUS + 3.5, "pull_stop": MawArena.MAW_RADIUS + 1.5, "damage_mult": 2.0, "max_range": MawArena.OUTER_RADIUS + 4.0, "min_phase": 3, "damage_type": entropic},
 		{"id": "collapse", "display_name": "Collapse", "kind": BossAbility.Kind.BLAST, "cooldown": 12.0, "telegraph": 1.2, "radius": 3.0, "count": 5, "damage_mult": 1.3, "max_range": 24.0, "min_phase": 3, "damage_type": entropic},
@@ -118,8 +122,10 @@ func is_player_anchored(player_node: Player) -> bool:
 ## Shadow Lunge into a pylon: she stops dead, stunned.
 func blocks_charge(direction: Vector3) -> bool:
 	var a := arena()
-	if a == null or a.pylon_in_path(global_position, direction, body_radius + 0.4) == null:
+	var pylon := a.pylon_in_path(global_position, direction, body_radius + 0.4) if a else null
+	if pylon == null:
 		return false
+	pylon.wear(MawArena.PYLON_WEAR_LUNGE)
 	status_effects.apply_timed_effect("stun", LUNGE_STUN_SEC)
 	interrupt_attack()
 	# Slammed into the pylon: Composure drained and a Riposte window open.
@@ -314,6 +320,9 @@ func _void_beam(a: BossAbility) -> void:
 		dir = dir.rotated(Vector3.UP, turn).normalized()
 		origin = global_position
 		var length := beam_length(origin, dir)
+		# The pylon taking the beam wears down while it holds.
+		if is_instance_valid(beam_blocker) and beam_blocker.alive:
+			beam_blocker.wear(MawArena.PYLON_WEAR_BEAM_PER_SEC * dt)
 		_place_beam(beam, origin, dir, length)
 		tick -= dt
 		if tick <= 0.0:
@@ -325,9 +334,11 @@ func _void_beam(a: BossAbility) -> void:
 		SpellFx.flash(get_parent(), get_cast_origin(), BEAM_COLOR, 2.5, 0.3)
 	beam.queue_free()
 
-## How far the beam reaches before the first standing pylon in its way.
+## How far the beam reaches before the first standing pylon in its way;
+## that pylon is left in beam_blocker (null when nothing blocks it).
 func beam_length(origin: Vector3, dir: Vector3) -> float:
 	var length := BEAM_LENGTH
+	beam_blocker = null
 	var a := arena()
 	if a == null:
 		return length
@@ -339,7 +350,10 @@ func beam_length(origin: Vector3, dir: Vector3) -> float:
 		var along := offset.dot(dir)
 		var side := (offset - dir * along).length()
 		if along > 0.0 and side < MawPylon.RADIUS:
-			length = minf(length, along - sqrt(MawPylon.RADIUS * MawPylon.RADIUS - side * side))
+			var hit := along - sqrt(MawPylon.RADIUS * MawPylon.RADIUS - side * side)
+			if hit < length:
+				length = hit
+				beam_blocker = pylon
 	return maxf(length, 0.0)
 
 func _beam_hits(point: Vector3, origin: Vector3, dir: Vector3, length: float) -> bool:

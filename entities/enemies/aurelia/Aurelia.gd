@@ -25,8 +25,9 @@ class_name Aurelia
 ##   3 (75%): Earth Wheel, 7 or 14 quakes (immune while it turns); another
 ##   spell upgrades.
 ##   4 (50%): two Fire Golems; a third spell upgrades; she casts faster again.
-##   5 (25%): Earth Wheel, 14 or 21 quakes, then she calls out "Amaterasu"
-##   and black fire starts eating the arena. Two Fire Golems chase you; a
+##   5 (25%): Earth Wheel, 14 or 21 quakes, with two Fire Golems rising as
+##   it starts, then she calls out "Amaterasu" and black fire starts eating
+##   the arena. The golems chase you; a
 ##   golem knocking you up gets a Living Bomb planted in you (5s cooldown).
 ##   Every spell is upgraded.
 
@@ -254,11 +255,11 @@ func cast_custom(ability: BossAbility) -> void:
 		"fire_golems":
 			await _summon_golems()
 		"amaterasu":
+			# The golems rise while the final wheel turns.
+			_summon_golems(false)
 			await _earth_wheel(FINAL_EARTH_WHEEL_COUNTS.pick_random())
 			if health.is_alive():
 				await _amaterasu()
-			if health.is_alive():
-				await _summon_golems()
 		_:
 			await get_tree().process_frame
 
@@ -528,16 +529,18 @@ func _earth_wheel(count: int) -> void:
 	await a.earth_wheel(count, angle)
 	invulnerable = false
 
-func _summon_golems() -> void:
+## channel is false when it runs alongside the Earth Wheel, which keeps her own channel.
+func _summon_golems(channel: bool = true) -> void:
 	_golems = _golems.filter(func(g): return is_instance_valid(g) and g.health.is_alive())
 	var needed := GOLEM_COUNT - _golems.size()
 	if needed <= 0:
 		await get_tree().process_frame
 		return
 	var t := _t(1.2)
-	begin_channel(t)
-	BossFx.charge(self, get_cast_origin(), Constants.DamageType.FIRE, t, false)
-	AureliaSfx.play("cast", get_cast_origin(), -2.0)
+	if channel:
+		begin_channel(t)
+		BossFx.charge(self, get_cast_origin(), Constants.DamageType.FIRE, t, false)
+		AureliaSfx.play("cast", get_cast_origin(), -2.0)
 	var centre := arena().global_position if arena() else global_position
 	var p := _target_player()
 	var base := randf() * TAU

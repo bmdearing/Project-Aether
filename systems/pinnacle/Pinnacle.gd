@@ -31,8 +31,9 @@ static func maw_lens_chance(pylons_standing: int) -> float:
 ## Radius of the Lodestar, in tiles from the North Star.
 const LODESTAR_RADIUS := 9
 
-## Builds the Herald's exclusive Lens, the Lodestar: North Star only, and
-## every Slate in its radius gains one of FateStars.GIFTS.
+## Builds the Herald's exclusive Lens, the Lodestar: North Star only, it
+## rolls one of FateStars.GIFTS for every Slate in its radius, and drops
+## corrupted so it can't be changed.
 static func make_maw_lens(item_level: int) -> Item:
 	var lens := Lens.new()
 	lens.item_id = "lens_lodestar_%d" % randi()
@@ -42,7 +43,9 @@ static func make_maw_lens(item_level: int) -> Item:
 	lens.item_level = maxi(item_level, 1)
 	lens.radius = LODESTAR_RADIUS
 	lens.radius_mod = "star_gifts"
+	FateStars.roll_gift(lens)
 	lens.is_craftable = false
+	lens.is_corrupted = true
 	lens.flavor_text = "Every road north ends at the same light."
 	return lens
 

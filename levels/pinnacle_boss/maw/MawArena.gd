@@ -50,6 +50,13 @@ const PYLON_FALL_WARNING := 1.5
 ## weakens its opening Unmaking (Xalatath._on_phase()).
 const BITE_DELAY_PER_PYLON := 5.0
 const OPENING_WEAKEN_PER_PYLON := 0.12
+## Pylon integrity the Herald's attacks take (MawPylon.wear()): a ground hit
+## or a Void Rift running out on it, her Lunge slamming into it, and each
+## second it blocks her Void Beam.
+const PYLON_WEAR_GROUND := 0.12
+const PYLON_WEAR_RIFT := 0.1
+const PYLON_WEAR_LUNGE := 0.25
+const PYLON_WEAR_BEAM_PER_SEC := 0.08
 ## Knocked over missing floor, the Herald clings to the lip: stunned and
 ## taking more damage, then the Maw drags at her before she climbs back.
 const CLING_SEC := 4.0
@@ -144,12 +151,21 @@ func crack_area(center: Vector3, radius: float) -> void:
 	for plate in plates_in(center, radius):
 		if not dais_plates.has(plate):
 			plate.crack()
+	wear_pylons(center, radius, PYLON_WEAR_RIFT)
 
 ## A ground hit: cracked outer plates under it give way.
 func strike_area(center: Vector3, radius: float) -> void:
 	for plate in plates_in(center, radius):
 		if plate.can_fall and plate.state == MawPlate.State.CRACKED and dais_plates.find(plate) < 0:
 			plate.fall(STRIKE_FALL_WARNING)
+	wear_pylons(center, radius, PYLON_WEAR_GROUND)
+
+## Standing pylons a ground circle touches lose `amount` integrity.
+func wear_pylons(center: Vector3, radius: float, amount: float) -> void:
+	for p in pylons:
+		var offset := p.global_position - center
+		if p.alive and Vector2(offset.x, offset.z).length() <= radius + MawPylon.RADIUS:
+			p.wear(amount)
 
 ## Phase 3: the dais shakes, then drops away and leaves the Maw open.
 func open_maw() -> void:

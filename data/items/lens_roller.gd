@@ -16,7 +16,7 @@ const RADIUS_MODS := {
 ## one Star (FateStars index) the Lens fits; it can't go in a Slate. Its
 ## radius counts from that Star (FateStars.gift_sites()).
 const UNIQUE_RADIUS_MODS := {
-	"star_gifts": {"text": "Slates in radius each gain one of: +10 Life, +10 Mana, 10% increased damage of one type, or 2% increased Defences", "min": 0.0, "max": 0.0, "tagged": false, "star_only": 1},
+	"star_gifts": {"text": "Slates in radius gain one of (rolled): +10 Life, +10 Mana, 10% increased damage of one type, or 2% increased Defences", "min": 0.0, "max": 0.0, "tagged": false, "star_only": 1},
 }
 ## Radius -> weight.
 const RADIUS_WEIGHTS := {2: 50, 3: 35, 4: 15}

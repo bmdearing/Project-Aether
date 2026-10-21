@@ -331,8 +331,9 @@ func _lens_entry(lens: Lens) -> PanelContainer:
 	var owned := owned_where(lens.unique_id)
 	if owned != "":
 		name_row.add_child(_text("   ✓ " + owned, 13, COLLECTED_COLOR))
-	left.add_child(_text("Unique Lens  ·  Radius %d" % lens.radius, 13, ODDS_LABEL_COLOR))
-	for text in [lens.radius_text(), FateStars.lens_star_text(lens)]:
+	left.add_child(_text("Unique Lens  ·  Radius %d  ·  Corrupted" % lens.radius, 13, ODDS_LABEL_COLOR))
+	# The rolled gift varies, so the wiki lists every one it can roll.
+	for text in [String(lens.radius_def()["text"]), FateStars.lens_star_text(lens)]:
 		var line := _text(text, 14, MOD_COLOR)
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		left.add_child(line)

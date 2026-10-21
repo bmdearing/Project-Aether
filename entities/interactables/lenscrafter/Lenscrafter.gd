@@ -175,7 +175,8 @@ func _open_services_list() -> void:
 	var entries: Array = []
 	for content in GameState.get_inventory_items():
 		var lens := content as Lens
-		if lens == null:
+		# Corrupted Lenses (the Lodestar) can't be changed.
+		if lens == null or lens.is_corrupted:
 			continue
 		var color: Color = Constants.ITEM_RARITY_COLOR.get(lens.rarity, Color.WHITE)
 		entries.append(_service_row("Recut: %s" % _lens_label(lens), lens, RECUT_COST, "Recut", color, recut.bind(lens)))

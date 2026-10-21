@@ -112,7 +112,8 @@ func _test_lodestar(board: FateBoard) -> void:
 		keys[s.bonus["key"]] = true
 		if s.bonus["key"] == "increased_defences":
 			expected["increased_armor"] = expected.get("increased_armor", 0.0) + 2.0
-	_check(keys.size() > 1, "Slates roll different gifts")
+	_check(keys.size() == 1 and gifts[0].bonus["key"] == FateStars.gift_of(lodestar)["key"], "every Slate gains the Lens's one rolled gift")
+	_check(lodestar.is_corrupted and lodestar.radius_text().begins_with("Slates in radius gain +"), "the Lodestar is corrupted and its card shows the rolled gift")
 	var again := board.star_sites(1)
 	_check(again.size() == gifts.size() and again[0].bonus["key"] == gifts[0].bonus["key"], "the gifts don't change between calls")
 	var misc: Dictionary = FateStars.totals(board)["misc"]
