@@ -10,6 +10,7 @@ there. Most recent first.
 ## 2026-10-21 — v5.12.1: Manasaber slash
 
 User request.
+- **Inner Power** costs no Mana to switch on (was 15).
 - **Manasaber** casts in 0.1 s (was 0.6) and adds 120% of your main-hand weapon's hit to each target, rolled as Aetheric (the weapon's own attack scaling, `MANASABER_WEAPON_DAMAGE`).
 - **The weapon slashes:** casting it swings whatever is in your main hand left to right (`PlayerArmRig.play_slash()`), guns included; Twin Blade's return swings back. The generic cast gesture no longer plays for it: with a two-handed weapon it overrode the swing.
 - **Weapon trail:** instead of the old arc on the ground, a ribbon of Aether trails the weapon through the swing. It's built from the blade's real positions each frame and extends to twice the weapon's length, clear at the inner edge and white-hot at the tip, and it fades in 0.16 s.
