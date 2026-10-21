@@ -30,6 +30,17 @@ User request: bosses acquired the player and pulled from too far away; each boss
 
 ---
 
+## 2026-10-21 — v5.12.6: The Lodestar
+
+User request: a unique Lens that gives every Slate in its radius one of +10 Life, +10 Mana, 10% increased damage of one type, or 2% increased Defences, and only fits the North Star.
+- **The Lodestar** (Unique Lens): fits only the North Star and never a Slate socket (the Fate Board refuses both with a message). Every placed Slate with a cell within 9 tiles of the North Star gains one gift, shown as a claimed site on that Slate and in the Star's tooltip; the Star draws its radius ring. Gifts use fixed values, no rarity multiplier. They are picked from the Slate's placement, so re-placing a Slate re-picks its gift. The damage gift also picks a damage type.
+- "Defences" is increased Armour, Evasion and Ward, each +2%.
+- Fate Board flat and % defence lines (from Slates, jewels and Stars) now count towards Armour, Evasion and Ward totals. Before this they reached the stat sheet but not the defence totals.
+- It is the Herald of the Maw's exclusive Lens (`Pinnacle.make_maw_lens()`, which used to return null), at the existing placeholder odds of 4% + 4% per standing pylon.
+- Judgment calls: the name and flavour; radius 9 (the same reach as Star bonus sites); the Herald drop; gifts re-pick when a Slate is moved; it isn't in the Unique wiki yet.
+
+---
+
 ## 2026-10-21 — v5.12.5: Reality Engine overhaul
 
 User request: the Reality Engine should look more impressive and its UI better.

@@ -18,8 +18,15 @@ const SIZE_NAMES := {2: "Small", 3: "Medium", 4: "Large"}
 
 ## The radius modifier as card text: "Fire Slates in radius have 30% stronger modifiers".
 func radius_text() -> String:
-	var def: Dictionary = LensRoller.RADIUS_MODS.get(radius_mod, {})
+	var def := radius_def()
 	if def.is_empty():
 		return ""
 	var tag_name: String = Constants.DAMAGE_TYPE_NAME.get(radius_tag, "")
 	return String(def["text"]).replace("{tag}", tag_name).replace("{v}", str(roundi(radius_value)))
+
+func radius_def() -> Dictionary:
+	return LensRoller.RADIUS_MODS.get(radius_mod, LensRoller.UNIQUE_RADIUS_MODS.get(radius_mod, {}))
+
+## The one Star this Lens fits (it never goes in a Slate), or -1 for any.
+func star_only() -> int:
+	return int(radius_def().get("star_only", -1))

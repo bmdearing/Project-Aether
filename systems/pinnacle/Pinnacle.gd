@@ -28,10 +28,23 @@ const MAW_LENS_CHANCE_PER_PYLON := 0.04
 static func maw_lens_chance(pylons_standing: int) -> float:
 	return MAW_LENS_BASE_CHANCE + MAW_LENS_CHANCE_PER_PYLON * clampi(pylons_standing, 0, MawArena.PYLONS.size())
 
-## Builds the Herald's exclusive Lens. The Lens item is still being
-## designed, so this returns null and nothing drops yet.
-static func make_maw_lens(_item_level: int) -> Item:
-	return null
+## Radius of the Lodestar, in tiles from the North Star.
+const LODESTAR_RADIUS := 9
+
+## Builds the Herald's exclusive Lens, the Lodestar: North Star only, and
+## every Slate in its radius gains one of FateStars.GIFTS.
+static func make_maw_lens(item_level: int) -> Item:
+	var lens := Lens.new()
+	lens.item_id = "lens_lodestar_%d" % randi()
+	lens.unique_id = "lodestar"
+	lens.display_name = "The Lodestar"
+	lens.rarity = Constants.ItemRarity.UNIQUE
+	lens.item_level = maxi(item_level, 1)
+	lens.radius = LODESTAR_RADIUS
+	lens.radius_mod = "star_gifts"
+	lens.is_craftable = false
+	lens.flavor_text = "Every road north ends at the same light."
+	return lens
 
 ## The Pinnacle bosses the Reality Engine offers (BOSSES minus the hidden ones).
 static func offered_bosses() -> Array[String]:

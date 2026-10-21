@@ -122,8 +122,18 @@ func lit_stars() -> Array[int]:
 func lit_sites() -> Array[FateStars.Site]:
 	var result: Array[FateStars.Site] = []
 	for star in lit_stars():
-		result.append_array(FateStars.sites_for(star, star_lenses[star]))
+		result.append_array(star_sites(star))
 	return result
+
+## The sites a Star's Lens lights, lit or not.
+func star_sites(star: int) -> Array[FateStars.Site]:
+	var lens: Lens = star_lenses.get(star)
+	if lens == null:
+		var none: Array[FateStars.Site] = []
+		return none
+	if lens.radius_mod == "star_gifts":
+		return FateStars.gift_sites(self, star, lens)
+	return FateStars.sites_for(star, lens)
 
 ## Lit sites a placed Slate covers.
 func claimed_sites() -> Array[FateStars.Site]:
@@ -138,6 +148,8 @@ func claimed_sites() -> Array[FateStars.Site]:
 func set_star_lens(star: int, lens: Lens, check_reached: bool = true) -> String:
 	if star < 0 or star >= FateStars.NAMES.size():
 		return "no_star"
+	if lens.star_only() >= 0 and lens.star_only() != star:
+		return "wrong_star"
 	if star_lenses.has(star):
 		return "star_full"
 	if check_reached and not is_star_reached(star):
@@ -213,6 +225,8 @@ func socket_lens(placement_id: String, lens: Lens) -> String:
 	var data: PlacedSlateData = placements.get(placement_id)
 	if data == null:
 		return "no_slate"
+	if lens.star_only() >= 0:
+		return "star_only"
 	if data.slate.free_sockets() <= 0:
 		return "no_free_socket" if data.slate.sockets > 0 else "no_sockets"
 	if data.slate.resource_path != "":

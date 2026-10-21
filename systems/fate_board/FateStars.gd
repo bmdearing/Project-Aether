@@ -198,6 +198,47 @@ static func sites_for(star: int, lens: Lens) -> Array[Site]:
 		result.append(site)
 	return result
 
+## The "star_gifts" unique Lens: every placed Slate with a cell within the
+## Lens's radius of its Star gains one of these, picked from the Slate's
+## placement and the Lens (re-placing the Slate re-picks it). The damage
+## one also picks a damage type. Values are fixed.
+const GIFTS := [
+	{"key": "flat_life", "value": 10.0, "text": "+{v} Life"},
+	{"key": "flat_mana", "value": 10.0, "text": "+{v} Mana"},
+	{"key": "type_damage", "value": 10.0, "text": "+{v}% increased {tag} Damage"},
+	{"key": "increased_defences", "value": 2.0, "text": "+{v}% increased Defences"},
+]
+## increased_defences counts as each of these.
+const DEFENCE_KEYS: Array[String] = ["increased_armor", "increased_evasion", "increased_ward"]
+
+## One site per Slate in a gift Lens's radius, on the Slate's cell nearest the Star.
+static func gift_sites(board: FateBoard, star: int, lens: Lens) -> Array[Site]:
+	var result: Array[Site] = []
+	var origin: Vector2i = cells()[star]
+	for id in board.placements:
+		var data: FateBoard.PlacedSlateData = board.placements[id]
+		var nearest := Vector2i.ZERO
+		var best := INF
+		for c in data.cells:
+			var dist := Vector2(c - origin).length()
+			if dist < best:
+				best = dist
+				nearest = c
+		if best > lens.radius + 0.01:
+			continue
+		var rng := RandomNumberGenerator.new()
+		rng.seed = hash([id, lens.item_id])
+		var site := Site.new()
+		site.cell = nearest
+		site.star = star
+		site.index = result.size()
+		site.bonus = (GIFTS[rng.randi_range(0, GIFTS.size() - 1)] as Dictionary).duplicate()
+		site.bonus["notable"] = false
+		if site.bonus["key"] == "type_damage":
+			site.tag = SlateRoller.REAL_DAMAGE_TYPES[rng.randi_range(0, SlateRoller.REAL_DAMAGE_TYPES.size() - 1)]
+		result.append(site)
+	return result
+
 static func bonus_text(bonus: Dictionary, tag: int) -> String:
 	var v: float = bonus["value"]
 	var v_text := str(int(v)) if is_equal_approx(v, roundf(v)) else "%.1f" % v
@@ -209,6 +250,8 @@ static func pool_name(lens: Lens) -> String:
 
 ## Card line for a Lens: what it does in a Star.
 static func lens_star_text(lens: Lens) -> String:
+	if lens.radius_mod == "star_gifts":
+		return "Only fits the %s; its radius counts from there" % NAMES[lens.star_only()]
 	return "In a Star: lights %d %s bonuses on the Fate Board" % [SITES_BY_RADIUS.get(lens.radius, 4), pool_name(lens)]
 
 ## Claimed bonuses on a board, split by where they apply:
@@ -229,6 +272,9 @@ static func totals(board: FateBoard) -> Dictionary:
 static func _add_bonus(stats: Dictionary, misc: Dictionary, mastery: Dictionary, key: String, value: float, tag: int) -> void:
 	if key == "mastery":
 		mastery[tag] = mastery.get(tag, 0.0) + value / 100.0
+	elif key == "increased_defences":
+		for k in DEFENCE_KEYS:
+			misc[k] = misc.get(k, 0.0) + value
 	elif key == "type_damage":
 		var type_key := StatKeys.type_damage_key(tag)
 		misc[type_key] = misc.get(type_key, 0.0) + value

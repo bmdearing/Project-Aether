@@ -12,6 +12,12 @@ const RADIUS_MODS := {
 	"free_placement": {"text": "Slates in radius can be placed without a matching connection", "min": 0.0, "max": 0.0, "tagged": false},
 	"cheap": {"text": "Slates in radius cost 1 less Aether (minimum 1)", "min": 1.0, "max": 1.0, "tagged": false},
 }
+## Radius modifiers only unique Lenses carry, never rolled. "star_only": the
+## one Star (FateStars index) the Lens fits; it can't go in a Slate. Its
+## radius counts from that Star (FateStars.gift_sites()).
+const UNIQUE_RADIUS_MODS := {
+	"star_gifts": {"text": "Slates in radius each gain one of: +10 Life, +10 Mana, 10% increased damage of one type, or 2% increased Defences", "min": 0.0, "max": 0.0, "tagged": false, "star_only": 1},
+}
 ## Radius -> weight.
 const RADIUS_WEIGHTS := {2: 50, 3: 35, 4: 15}
 const JEWEL_MODS_BY_RARITY := {Constants.ItemRarity.UNCOMMON: 1, Constants.ItemRarity.RARE: 2}

@@ -198,17 +198,21 @@ func get_equipped(slot: Constants.EquipmentSlot, ring_index: int = 0, weapon_set
 			return rings[ring_index] if ring_index >= 0 and ring_index < rings.size() else null
 	return null
 
+## The Fate Board's misc totals (StatSheet.slate_misc_bonus), kept in sync by Player.
+var board_misc_bonus: Dictionary = {}
+
 ## Total Armour, Evasion or Ward from gear (v5.5.1). An armour piece's or
 ## shield's own flat and % increased modifiers are local: they scale only that
 ## item's base (Item.get_local_defence(), what its card shows). Flat from
 ## anything else (rings, jewels) adds after, and the global % (the amulet's
-## line, Agility for Evasion) multiplies the whole total.
+## line, Agility for Evasion) multiplies the whole total. The Fate Board's
+## flat and % lines (board_misc_bonus) count as global too.
 func _defence_total(defence: String, extra_increased: float = 0.0) -> float:
 	var flat_key := "flat_" + defence
 	var increased_key := "increased_" + defence
 	var affixes := compute_misc_bonuses()
-	var flat: float = affixes.get(flat_key, 0.0)
-	var increased: float = affixes.get(increased_key, 0.0) + affixes.get("amulet_" + increased_key, 0.0)
+	var flat: float = affixes.get(flat_key, 0.0) + board_misc_bonus.get(flat_key, 0.0)
+	var increased: float = affixes.get(increased_key, 0.0) + affixes.get("amulet_" + increased_key, 0.0) + board_misc_bonus.get(increased_key, 0.0)
 	var local := 0.0
 	for item in [helmet, body_armour, gloves, boots, offhand if offhand is Shield else null]:
 		if item == null:

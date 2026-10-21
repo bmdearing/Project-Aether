@@ -156,6 +156,9 @@ static func _collect_stars(parts: Dictionary, board: FateBoard) -> void:
 			_add(parts, StatKeys.type_damage_key(site.tag), label, site.bonus["value"])
 		elif EquipmentComponent.AFFIX_STAT_KEYS.has(key):
 			_add(parts, _attribute_key(EquipmentComponent.AFFIX_STAT_KEYS[key]), label, site.bonus["value"])
+		elif key == "increased_defences":
+			for k in FateStars.DEFENCE_KEYS:
+				_add(parts, k, label, site.bonus["value"])
 		elif key != "mastery":
 			_add(parts, key, label, site.bonus["value"])
 	for star in board.lit_stars():

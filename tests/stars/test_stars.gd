@@ -91,6 +91,34 @@ func _test_board() -> void:
 		_check(FateStars.POOLS.has(mod), "radius modifier %s has a Star pool" % mod)
 	var cheap := FateBoard.new()
 	_check(cheap.set_star_lens(0, _lens("cheap", 4)) == "" and cheap.lit_sites().size() == 8, "the Centre takes a Lens at once; a Large one lights 8")
+	_test_lodestar(board)
+
+## The Lodestar: North Star only, never in a Slate; each Slate within its
+## radius of the North Star gains one gift.
+func _test_lodestar(board: FateBoard) -> void:
+	var lodestar := Pinnacle.make_maw_lens(80) as Lens
+	_check(lodestar != null and lodestar.radius_text() != "", "the Herald drops the Lodestar")
+	_check(board.set_star_lens(0, lodestar) == "wrong_star", "the Lodestar refuses the Centre Star")
+	_check(board.socket_lens(board.placements.keys()[0], lodestar) == "star_only", "the Lodestar refuses a Slate")
+	_check(board.set_star_lens(1, lodestar) == "", "the Lodestar fits the North Star")
+	var north: Vector2i = FateStars.cells()[1]
+	var in_radius := board.placements.values().filter(func(d: FateBoard.PlacedSlateData) -> bool:
+		return d.cells.any(func(c: Vector2i) -> bool: return Vector2(c - north).length() <= Pinnacle.LODESTAR_RADIUS + 0.01))
+	var gifts := board.claimed_sites().filter(func(s: FateStars.Site) -> bool: return s.star == 1)
+	_check(in_radius.size() > 0 and gifts.size() == in_radius.size(), "every Slate in radius gains one gift (%d / %d)" % [gifts.size(), in_radius.size()])
+	var keys := {}
+	var expected := {}
+	for s in gifts:
+		keys[s.bonus["key"]] = true
+		if s.bonus["key"] == "increased_defences":
+			expected["increased_armor"] = expected.get("increased_armor", 0.0) + 2.0
+	_check(keys.size() > 1, "Slates roll different gifts")
+	var again := board.star_sites(1)
+	_check(again.size() == gifts.size() and again[0].bonus["key"] == gifts[0].bonus["key"], "the gifts don't change between calls")
+	var misc: Dictionary = FateStars.totals(board)["misc"]
+	for k in expected:
+		_check(is_equal_approx(misc.get(k, 0.0), expected[k]), "gift totals count (%s %.1f = %.1f)" % [k, expected[k], misc.get(k, 0.0)])
+	board.take_star_lens(1)
 
 func _test_restore() -> void:
 	GameState.reset_to_defaults()

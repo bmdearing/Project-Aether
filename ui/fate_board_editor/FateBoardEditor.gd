@@ -263,11 +263,13 @@ const _LENS_FAILURES := {
 	"no_slate": "Click a placed Slate to set the Lens into.",
 	"no_free_socket": "That Slate has no free socket.",
 	"no_sockets": "That Slate has no sockets.",
+	"star_only": "This Lens only fits a Star, not a Slate.",
 }
 
 const _STAR_FAILURES := {
 	"star_full": "That Star already holds a Lens. Right-click it to take that one out first.",
 	"star_unreached": "Reach that Star with a chain of Slates first.",
+	"wrong_star": "This Lens only fits the North Star.",
 }
 
 ## Sets the held Lens into a Star.
@@ -365,7 +367,7 @@ func _star_summary() -> String:
 	var claimed := _board.claimed_sites()
 	for star in _board.lit_stars():
 		var lens: Lens = _board.star_lenses[star]
-		var sites := FateStars.sites_for(star, lens)
+		var sites := _board.star_sites(star)
 		var mine := claimed.filter(func(s: FateStars.Site) -> bool: return s.star == star)
 		lines.append("%s: %d / %d bonuses claimed" % [FateStars.NAMES[star], mine.size(), sites.size()])
 		for site in mine:

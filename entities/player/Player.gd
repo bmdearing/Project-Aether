@@ -315,6 +315,8 @@ func _apply_fate_board_bonuses() -> void:
 	stat_sheet.set_chain_bonus_by_tag(ChainCalculator.bonus_by_tag(chains))
 	stat_sheet.mastery_by_tag = FateStars.merge(ChainCalculator.mastery_by_tag(chains), stars["mastery"])
 	stat_sheet.slate_misc_bonus = FateStars.merge(ChainCalculator.slate_misc_bonuses(fate_board), stars["misc"])
+	if equipment:
+		equipment.board_misc_bonus = stat_sheet.slate_misc_bonus
 	_apply_derived_stats()
 
 ## Reduces Ignite ticks (DamageCalculator.dot_mitigation()); gear-only

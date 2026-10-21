@@ -356,6 +356,10 @@ func _draw_stars() -> void:
 		layer.draw_colored_polygon(_star_points(centre, _cell_px * 0.62, _cell_px * 0.2), color)
 		if board.star_lenses.has(i):
 			layer.draw_circle(centre, _cell_px * 0.14, Color(1, 1, 1, 0.9))
+			# A Star-only Lens's radius counts from the Star.
+			var star_lens: Lens = board.star_lenses[i]
+			if star_lens.star_only() >= 0:
+				layer.draw_arc(centre, (star_lens.radius + 0.5) * _cell_px, 0.0, TAU, 64, Color(color, 0.5), maxf(1.5, _cell_px * 0.06))
 		var name_text: String = FateStars.NAMES[i]
 		var text_size := font.get_string_size(name_text, HORIZONTAL_ALIGNMENT_CENTER, -1, STAR_FONT_SIZE)
 		AetherStyle.text(layer, font, centre + Vector2(-text_size.x / 2.0, _cell_px * 0.5 + text_size.y), name_text, STAR_FONT_SIZE, Color(color, 0.9))
@@ -389,7 +393,7 @@ func star_tooltip(star: int) -> String:
 		lines.append("%s: %s" % [lens.display_name, FateStars.lens_star_text(lens)])
 		if not reached:
 			lines.append("Unlit: no Slate chain reaches this Star.")
-		for site in FateStars.sites_for(star, lens):
+		for site in board.star_sites(star):
 			var claimed := board.get_occupied_cells().has(site.cell) and reached
 			lines.append("  %s %s" % ["[claimed]" if claimed else "[open]", site.text()])
 		lines.append("Right-click to take the Lens out.")
