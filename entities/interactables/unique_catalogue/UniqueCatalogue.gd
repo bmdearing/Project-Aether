@@ -56,6 +56,14 @@ func entries() -> Array:
 			"color": Constants.ITEM_RARITY_COLOR[Constants.ItemRarity.UNIQUE],
 			"on_buy": func(): return _give(UniqueRoller.build_slate(def)),
 		})
+	for lens in UniqueWiki.unique_lenses():
+		list.append({
+			"label": lens.display_name + " (Lens)",
+			"cost": 0,
+			"color": Constants.ITEM_RARITY_COLOR[lens.rarity],
+			"item": lens,
+			"on_buy": func(): return _give(Pinnacle.make_maw_lens(level)),
+		})
 	return list
 
 ## "any"-base uniques (corrupted-only, made from an existing item) go on a ring.
