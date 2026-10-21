@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-10-21 — v5.12.4: Fire Rate replaces Attack Speed on ranged weapons
+
+User call: the two stacking was too strong.
+- Ranged weapons (guns, bows, throwing weapons) use Fire Rate and ignore Attack Speed; melee weapons use Attack Speed and ignore Fire Rate. Agility's speed and the weapon's own local Attack Speed still count for both.
+- Gear: Fire Rate rolls on gloves, rings and ranged weapons with Attack Speed's range (10-14% at Tier 1). Ranged weapons no longer roll Attack Speed. Quivers and pouches roll Fire Rate instead of Attack Speed, and their corruption implicits (and the throwing knife's and grenade's) give +8% Fire Rate.
+- Jewel Fire Rate now uses the same range as jewel Attack Speed (12-15%).
+- Judgment call: Agility still speeds up ranged attacks.
+
+---
+
 ## 2026-10-21 — v5.12.3: Slate and jewel modifiers
 
 User request: ten modifiers that roll on both Slates and jewels.

@@ -40,7 +40,7 @@ const OWN_RANGES := [
 	{"stat_key": "attack_speed", "tier1_min": 12.0, "tier1_max": 15.0, "desc": "+%d%% increased Attack Speed", "brand_tags": ["skills"]},
 	{"stat_key": "crit_chance_increased", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d%% increased Critical Strike Chance", "brand_tags": []},
 	{"stat_key": "reload_speed", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "+%d%% increased Reload Speed", "brand_tags": ["skills"]},
-	{"stat_key": "fire_rate", "tier1_min": 8.0, "tier1_max": 10.0, "desc": "+%d%% increased Fire Rate", "brand_tags": ["skills"]},
+	{"stat_key": "fire_rate", "tier1_min": 12.0, "tier1_max": 15.0, "desc": "+%d%% increased Fire Rate", "brand_tags": ["skills"]},
 	{"stat_key": "crit_multiplier", "tier1_min": 6.0, "tier1_max": 8.0, "desc": "+%d%% to Critical Strike Multiplier", "brand_tags": []},
 	{"stat_key": "life_recovery_rate", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Life Recovery rate", "brand_tags": []},
 	{"stat_key": "mana_recovery_rate", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% increased Mana Recovery rate", "brand_tags": []},

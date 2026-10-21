@@ -649,10 +649,9 @@ func get_attack_speed_multiplier(weapon: Weapon = null) -> float:
 	if weapon == null:
 		weapon = get_attack_weapon()
 	var local := weapon.get_local_multiplier("local_increased_attack_speed") if weapon else 1.0
-	var speed := (1.0 + stat_sheet.get_misc_bonus("attack_speed") / 100.0 + stat_sheet.get_attack_speed_from_stats()) * local
-	# Fire Rate: ranged weapons (guns, bows, throwing) only.
-	if weapon and weapon.is_ranged:
-		speed *= 1.0 + stat_sheet.get_misc_bonus("fire_rate") / 100.0
+	# Ranged weapons (guns, bows, throwing) use Fire Rate in place of Attack Speed.
+	var gear_speed := stat_sheet.get_misc_bonus("fire_rate" if weapon and weapon.is_ranged else "attack_speed")
+	var speed := (1.0 + gear_speed / 100.0 + stat_sheet.get_attack_speed_from_stats()) * local
 	return speed * (DUAL_WIELD_ATTACK_SPEED if is_dual_wielding() else 1.0) * (ability_cast.charged_reflexes_fire_rate() if weapon and weapon.is_ranged and GameState.toggled_spells.has("charged_reflexes") else 1.0)
 
 ## What delivered a hit, for Evasion (Patch v4.4). ATTACK (melee swings and

@@ -132,7 +132,9 @@ const AFFIX_POOL := [
 	# the 4 resistance entries/flat_resilience/skill_cooldown_reduced
 	# already had before this patch.
 	{"stat_key": "mana_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Mana Regeneration per second", "applies_to": ["armor", "item"], "slots": [0, 9, 10], "brand_tags": ["resource"]},
-	{"stat_key": "attack_speed", "tier1_min": 10.0, "tier1_max": 14.0, "desc": "+%d%% increased Attack Speed", "applies_to": ["weapon", "armor", "item"], "slots": [2, 11], "brand_tags": ["skills"]},
+	# Ranged weapons use Fire Rate in place of Attack Speed (Player.get_attack_speed_multiplier()).
+	{"stat_key": "attack_speed", "tier1_min": 10.0, "tier1_max": 14.0, "desc": "+%d%% increased Attack Speed", "applies_to": ["weapon", "armor", "item"], "slots": [2, 11], "brand_tags": ["skills"], "weapon_kind": "melee"},
+	{"stat_key": "fire_rate", "tier1_min": 10.0, "tier1_max": 14.0, "desc": "+%d%% increased Fire Rate", "applies_to": ["weapon", "armor", "item"], "slots": [2, 11], "brand_tags": ["skills"], "weapon_kind": "ranged"},
 	# v5.7.0: flat damage on every weapon hit, steep by item level so it matters late.
 	{"stat_key": "added_attack_damage", "tier1_min": 11.0, "tier1_max": 13.0, "desc": "Adds %d to %d Damage to Attacks", "applies_to": ["armor", "item"], "slots": [2, 11], "brand_tags": ["kinetic", "piercing", "explosive"]},
 	{"stat_key": "reload_speed", "tier1_min": 53.0, "tier1_max": 61.0, "desc": "+%d%% increased Reload Speed", "applies_to": ["armor"], "slots": [2], "brand_tags": ["skills"]},
@@ -889,10 +891,10 @@ static func _pool_for(item: Item) -> Array:
 
 ## Quivers and pouches roll from their own short list of attack modifiers
 ## (AFFIX_POOL entries, whatever their usual slots).
-const QUIVER_MODIFIERS := ["attack_speed", "added_attack_damage", "crit_chance_increased", "crit_damage_increased",
+const QUIVER_MODIFIERS := ["fire_rate", "added_attack_damage", "crit_chance_increased", "crit_damage_increased",
 	"increased_physical_damage", "ailment_chance_bleed", "increased_ailment_damage_bleed", "physical_shred",
 	"phys_as_fire", "phys_as_cold", "phys_as_lightning", "flat_agility", "flat_life", "mana_on_kill"]
-const POUCH_MODIFIERS := ["reload_speed", "attack_speed", "added_attack_damage", "crit_chance_increased", "crit_damage_increased",
+const POUCH_MODIFIERS := ["reload_speed", "fire_rate", "added_attack_damage", "crit_chance_increased", "crit_damage_increased",
 	"increased_physical_damage", "physical_shred", "phys_as_fire", "phys_as_lightning",
 	"flat_agility", "flat_strength", "flat_life", "mana_on_kill"]
 

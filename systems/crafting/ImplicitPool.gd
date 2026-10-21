@@ -8,12 +8,12 @@ static var _by_type: Dictionary = {}  # item type -> Array[ItemAffix]
 ## Item type -> [stat_key, value, text]: implicits only corruption grants.
 const CORRUPTION_ONLY := {
 	&"amulet": [["additional_curses", 1.0, "Enemies can have +1 additional Curse"]],
-	&"quiver": [["attack_speed", 8.0, "+8% increased Attack Speed"], ["crit_chance_increased", 15.0, "+15% increased Critical Strike Chance"]],
-	&"pouch": [["attack_speed", 8.0, "+8% increased Attack Speed"], ["added_attack_damage", 6.0, "Adds 6 Damage to Attacks"]],
-	&"throwing_knife": [["attack_speed", 8.0, "+8% increased Attack Speed"], ["projectile_speed", 20.0, "+20% increased Projectile Speed"]],
+	&"quiver": [["fire_rate", 8.0, "+8% increased Fire Rate"], ["crit_chance_increased", 15.0, "+15% increased Critical Strike Chance"]],
+	&"pouch": [["fire_rate", 8.0, "+8% increased Fire Rate"], ["added_attack_damage", 6.0, "Adds 6 Damage to Attacks"]],
+	&"throwing_knife": [["fire_rate", 8.0, "+8% increased Fire Rate"], ["projectile_speed", 20.0, "+20% increased Projectile Speed"]],
 	&"throwing_axe": [["stagger_effect", 22.0, "+22% increased Stagger effect"], ["projectile_speed", 20.0, "+20% increased Projectile Speed"]],
 	&"javelin": [["crit_chance_increased", 15.0, "+15% increased Critical Strike Chance"], ["projectile_speed", 20.0, "+20% increased Projectile Speed"]],
-	&"grenade": [["attack_speed", 8.0, "+8% increased Attack Speed"], ["crit_damage_increased", 20.0, "+20% increased Critical Strike Damage"]],
+	&"grenade": [["fire_rate", 8.0, "+8% increased Fire Rate"], ["crit_damage_increased", 20.0, "+20% increased Critical Strike Damage"]],
 }
 
 ## The implicits an item of `item_type` can gain from corruption.
