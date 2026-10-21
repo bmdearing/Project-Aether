@@ -318,6 +318,17 @@ func abilities() -> Array:
 func phase_openers() -> Dictionary:
 	return {2: "frozen_expanse", 3: "cataclysm"}
 
+## In his current element: a tide that hunts you down, then an undertow
+## that drags you back in.
+func range_answers() -> Array:
+	return [
+		{"id": "elemental_tide", "display_name": "Elemental Tide", "kind": BossAbility.Kind.WAVE, "telegraph": 0.9, "radius": 3.0, "count": 9, "damage_mult": 1.3},
+		{"id": "elemental_undertow", "display_name": "Elemental Undertow", "kind": BossAbility.Kind.PULL, "telegraph": 1.1, "radius": 5.0, "damage_mult": 1.6},
+	]
+
+func range_answer_distance() -> float:
+	return 18.0
+
 func cast_custom(a: BossAbility) -> void:
 	match a.id:
 		"cataclysm":

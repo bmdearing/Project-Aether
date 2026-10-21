@@ -11,10 +11,15 @@ class_name BossAbility
 ##   PULL   - drags the player in, then slams around the boss (or the
 ##            boss's Enemy.get_pull_center()).
 ##   CUSTOM - the boss runs it itself (Enemy.cast_custom()).
+##   LEAP   - circle on the player's spot; the boss arcs over and lands in it.
+##   BLINK  - circle on the player's spot; the boss vanishes and reappears in it.
+##   WAVE   - `count` circles marching from the boss, each stepping toward
+##            wherever the player is now.
+##   LANCE  - a strip from the boss through the player, aimed at the cast.
 ## Damage is the boss's own attack damage times `damage_mult`; damage_type -1
 ## asks the boss (Enemy.get_ability_damage_type(), e.g. the Lord's element).
 
-enum Kind { SLAM, BLAST, HAZARD, CHARGE, VOLLEY, SUMMON, PULL, CUSTOM }
+enum Kind { SLAM, BLAST, HAZARD, CHARGE, VOLLEY, SUMMON, PULL, CUSTOM, LEAP, BLINK, WAVE, LANCE }
 
 var id: String = ""
 var display_name: String = ""

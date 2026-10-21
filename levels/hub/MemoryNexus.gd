@@ -502,7 +502,7 @@ func _motes() -> void:
 	quad.size = Vector2.ONE
 	quad.material = _glow_particle_material(Color(0.5, 0.75, 1.0) * 0.9)
 	p.mesh = quad
-	add_child(p)
+	_add_as_gpu(p, AABB(Vector3(-85, -25, -85), Vector3(170, 80, 170)))
 
 ## Flakes peeling up off the dissolving edges.
 func _edge_flakes() -> void:
@@ -536,6 +536,17 @@ func _edge_flakes() -> void:
 	quad.material = _glow_particle_material(Color(0.5, 0.8, 1.0) * 1.4)
 	p.mesh = quad
 	add_child(p)
+
+## Runs ambient particles on the GPU: on the CPU, the motes simulate every
+## frame and run a 26 s preprocess as a hitch when the Hub loads.
+func _add_as_gpu(cpu: CPUParticles3D, bounds: AABB) -> void:
+	var gpu := GPUParticles3D.new()
+	gpu.convert_from_particles(cpu)
+	gpu.transform = cpu.transform
+	gpu.visibility_aabb = bounds
+	gpu.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	cpu.free()
+	add_child(gpu)
 
 func _sd(p: Vector2) -> float:
 	var d := 1e5

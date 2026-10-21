@@ -56,11 +56,7 @@ const STANDARD_THRUST_HOLD_THRESHOLD := 0.6
 var _lmb_held_time: float = 0.0
 var _lmb_was_held: bool = false
 
-## Implementation Brief v3.4 Section 4 (2026-08-31), user-expanded scope:
-## tap X swaps active weapon SET (EquipmentComponent.toggle_weapon_set()),
-## hold X toggles the active stance PAGE (WeaponStance.toggle_stance_page())
-## instead - same tap-vs-hold shape as the LMB jab/thrust split above, just
-## a different threshold/key ("weapon_swap", bound to X).
+## "weapon_swap" (X): tap swaps weapon set, hold toggles the stance page.
 const WEAPON_SWAP_HOLD_THRESHOLD := 0.25
 var _x_held_time: float = 0.0
 var _x_triggered_hold: bool = false
@@ -69,11 +65,7 @@ const SCROLL_SWAP_COOLDOWN_MSEC := 300
 var _last_scroll_swap_msec: int = -SCROLL_SWAP_COOLDOWN_MSEC
 var fate_board: FateBoard
 
-## Patch v3.5 Section 3: throwables are a stackable inventory consumable,
-## not an equipment slot - just whichever stack is currently selected to
-## throw. How the player acquires/selects a stack is out of scope for
-## this pass (data architecture + input wiring only, per the brief) -
-## starts null until something else sets it.
+## The throwable stack selected to throw; null until something sets it.
 var active_throwable: ThrowableStack = null
 
 func use_throwable() -> void:
@@ -121,17 +113,8 @@ var _slide_timer: float = 0.0
 var _slide_direction: Vector3 = Vector3.ZERO
 var _slide_speed_current: float = 0.0
 
-## Dash: user request, "Tapping shift and a direction should allow
-## players to dash in a direction." Reuses the "sprint" action (already
-## bound to Shift) rather than a new key - just_pressed fires once
-## regardless of how long the key stays down afterward, so a tap
-## triggers a dash burst and holding still sprints normally on top of it,
-## no new binding or hold/tap-duration detection needed. Fully invented,
-## no doc-sourced design (same status as Crouch/Slide above) - a fixed-
-## impulse burst that decays like Slide's own SLIDE_SPEED/
-## SLIDE_DECELERATION pattern, not integrated with it (Slide requires
-## sprinting+crouch-tap+floor; Dash works in the air and while stationary
-## alike, since "dash to reposition/dodge" is the point).
+## Dash: a tap of "sprint" (Shift) fires a decaying burst; holding it then
+## sprints as normal. Works in the air and from standing.
 const DASH_SPEED := 14.0
 const DASH_DURATION := 0.2
 const DASH_DECELERATION := 20.0
@@ -204,8 +187,8 @@ func knock_up(height: float) -> void:
 func is_knocked_up() -> bool:
 	return _knock_up_time >= 0.0
 
-## Move Speed is gear-affix-only (StatSheet.misc_bonus). Attack Speed is
-## gear + Agility (v4.8) - see get_action_speed_multiplier().
+## Move Speed is gear-only (StatSheet.misc_bonus); Attack Speed is gear +
+## Agility, see get_action_speed_multiplier().
 
 func _ready() -> void:
 	if stat_sheet == null:
@@ -334,20 +317,12 @@ func _apply_fate_board_bonuses() -> void:
 	stat_sheet.slate_misc_bonus = FateStars.merge(ChainCalculator.slate_misc_bonuses(fate_board), stars["misc"])
 	_apply_derived_stats()
 
-## Section 12: "Resilience / DoT mitigation" - reduces StatusEffectComponent's
-## Ignite ticks (DamageCalculator.dot_mitigation()). Not persisted/exported;
-## always re-derived in _apply_derived_stats() like every other stat here.
-## Patch v3.8: gear-affix-only now (flat_resilience) - Vitality, its old
-## source, no longer exists.
+## Reduces Ignite ticks (DamageCalculator.dot_mitigation()); gear-only
+## (flat_resilience), re-derived in _apply_derived_stats().
 var resilience: float = 0.0
 
-## Patch v3.8: Ward's BASE size still comes from armor only (flat_ward
-## gear affixes, no baseline pool - see the ward bug fix this comment
-## used to describe). Intellect applies an INCREASED% multiplier on it
-## (StatSheet.get_ward_increased_from_stats(), 0.5%/point) - zero armor
-## still means zero Ward, a multiplier on 0 is 0. Ward Restoration Rate
-## is a "removed expression" (not stat-derived) - restoration_multiplier
-## resets to a flat 1.0 until/unless a gear affix drives it.
+## Ward's base comes from armour (flat_ward) only; Intellect multiplies it
+## (StatSheet.get_ward_increased_from_stats()), so no armour means no Ward.
 const BASE_REGEN_PERCENT := 0.5
 
 func _apply_derived_stats() -> void:
@@ -380,18 +355,14 @@ func _apply_derived_stats() -> void:
 	# Evasion (gear x Agility's increased%) - refreshed here for display;
 	# take_damage() reads it live.
 	stat_sheet.stat_evasion_bonus = stat_sheet.get_total_evasion(equipment)
-	# Patch v4.0: gear's own "increased Critical Strike Chance" (crit_
-	# chance_increased) combines into the same multiplicative bracket as
-	# Agility's contribution, not a separate additive bonus - see
-	# DamageCalculator.get_crit_chance()'s 2026-09-07 fix.
+	# Gear's increased Crit Chance shares Agility's multiplicative bracket
+	# (DamageCalculator.get_crit_chance()).
 	stat_sheet.finesse_crit_bonus = stat_sheet.get_crit_chance_from_stats() + stat_sheet.get_gear_crit_chance_bonus()
 
 	var ward_mult := (unique_effects.ward_multiplier() if unique_effects else 1.0)
 	ward.set_max_ward(equipment.compute_ward_bonus() * (1.0 + stat_sheet.get_ward_increased_from_stats()) * ward_mult)
 	ward.restoration_multiplier = 1.0 + stat_sheet.get_misc_bonus("ward_recovery_increased") / 100.0
-	# Patch v4.0 Faster Ward Delay - WardComponent has no StatSheet
-	# reference of its own, so this is pushed in the same way every other
-	# derived value on this component already is.
+	# WardComponent has no StatSheet, so the delay is pushed in.
 	ward.regen_delay_reduction = stat_sheet.get_ward_delay_reduction()
 
 	# Cast Speed: gear affixes plus the primary Conduit's local Cast Speed,
@@ -425,8 +396,8 @@ func _apply_saved_experience() -> void:
 	fate_board.aether_capacity = FateBoard.capacity_for_level(GameState.player_level)
 	stat_sheet.level_bonus = GameState.get_level_stat_bonus()
 
-## Leveling grants +2 Aether (user request, 2026-08-30) and, since v4.7,
-## +0.6 to each stat (GameState.get_level_stat_bonus()).
+## Each level grants +2 Aether and +0.6 to each stat
+## (GameState.get_level_stat_bonus()).
 func _on_leveled_up(new_level: int) -> void:
 	GameState.player_level = new_level
 	stat_sheet.level_bonus = GameState.get_level_stat_bonus()
@@ -471,9 +442,7 @@ func _apply_saved_loadout() -> void:
 		var item := _resolve_equipment_ref(ref)
 		if item:
 			equipment.equip(item, true)
-	# Dual weapon sets (2026-08-31) - restored explicitly by index rather
-	# than through the generic loop above, see EquipmentComponent.
-	# get_weapon_set_refs()'s own header for why.
+	# Weapon sets restore by index (see EquipmentComponent.get_weapon_set_refs()).
 	for set_index in range(GameState.weapon_set_refs.size()):
 		for ref in GameState.weapon_set_refs[set_index]:
 			var item := _resolve_equipment_ref(ref)
@@ -654,19 +623,12 @@ func get_attack_speed_multiplier(weapon: Weapon = null) -> float:
 	var speed := (1.0 + gear_speed / 100.0 + stat_sheet.get_attack_speed_from_stats()) * local
 	return speed * (DUAL_WIELD_ATTACK_SPEED if is_dual_wielding() else 1.0) * (ability_cast.charged_reflexes_fire_rate() if weapon and weapon.is_ranged and GameState.toggled_spells.has("charged_reflexes") else 1.0)
 
-## What delivered a hit, for Evasion (Patch v4.4). ATTACK (melee swings and
-## projectiles - the default, so callers that don't say are treated as
-## attacks) can be Dodged and Deflected; SPELL can only be Deflected; DOT
-## (ignite ticks) is neither - evasion is for hit events only. The brief's
-## "source is Ability" test can't work: Ability is a Resource and `source`
-## is a Node, so the caller says what it is instead.
+## What delivered a hit, for Evasion: ATTACK (the default) can be Dodged
+## and Deflected, SPELL only Deflected, DOT neither.
 enum HitKind { ATTACK, SPELL, DOT }
 
-## Patch v3.2 "Order of Operations - All Damage": Evasion (Patch v4.4:
-## Dodge, then Deflection - see DamageCalculator) rolls first, then
-## mitigation (Armor for Physical, Resistance for Elemental/Esoteric) applies,
-## then Ward absorbs whatever's left regardless of type (the old Esoteric-
-## only restriction is gone), then Ward overflow hits Health.
+## Order: Evasion (Dodge, then Deflection), mitigation (Armour for
+## Physical, Resistance otherwise), Ward, then Health.
 ## is_melee: an enemy weapon swing (EnemyMeleeAttack), for Guard.
 ## Hits taken in the air (not mantling a ledge) deal this much more.
 const AIRBORNE_DAMAGE_TAKEN := 1.1
@@ -688,8 +650,8 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 	# Caught in the air: jumping over attacks has a cost.
 	if hit_kind != HitKind.DOT and is_airborne():
 		amount *= AIRBORNE_DAMAGE_TAKEN
-	# Patch v4.4 Evasion: Dodge (attacks only) negates the hit entirely and
-	# never interrupts a cast; Deflection (attacks and spells) reduces it.
+	# Dodge (attacks only) negates the hit and never interrupts a cast;
+	# Deflection (attacks and spells) reduces it.
 	if hit_kind != HitKind.DOT:
 		var evasion := stat_sheet.get_total_evasion(equipment)
 		if evasion > 0.0:
@@ -719,10 +681,8 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 			var converted: float = amount * float(conversion[0])
 			_take_damage_single(converted, int(conversion[1]) as Constants.DamageType, source)
 			amount -= converted
-	# Patch v4.0 Defensive Mod Pool - % Physical Damage taken as Elemental
-	# shifts BEFORE mitigation, per damage type, splitting one hit into
-	# several smaller ones the rest of this function then processes
-	# independently (each gets its own mitigation/Ward/Health treatment).
+	# Physical taken as Elemental splits the hit before mitigation; each
+	# part is mitigated on its own.
 	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
 	if category == Constants.DamageCategory.PHYSICAL:
 		var shifts: Array = stat_sheet.get_phys_damage_shift()
@@ -748,12 +708,8 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 	elif category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC:
 		var resistance := stat_sheet.get_effective_resistance(damage_type, status_effects.get_resistance_shred())
 		mitigated *= (1.0 - DamageCalculator.resistance_mitigation(resistance))
-		# Patch v4.0 "% of Armor applies to Elemental" - Elemental only,
-		# per the doc's own Item Slots note (Body Armour/Helmet/Amulet,
-		# same slots the doc scopes every Elemental-flavored defensive mod
-		# to) - a portion of the player's real Armor value applied through
-		# the SAME physical_mitigation curve, as bonus Elemental mitigation
-		# on top of Resistance.
+		# "% of Armour applies to Elemental": that share of Armour, through
+		# the physical curve, on top of Resistance (Elemental only).
 		if category == Constants.DamageCategory.ELEMENTAL:
 			var armor_to_elemental_pct := stat_sheet.get_misc_bonus("armor_to_elemental") / 100.0
 			if armor_to_elemental_pct > 0.0 and equipment:
@@ -765,8 +721,7 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 	if unique_effects:
 		mitigated = unique_effects.absorb_esoteric(mitigated, damage_type)
 		unique_effects.record_damage_taken(mitigated)
-	# Patch v4.0 "% of Damage from Mana before Life" - drains Mana for a
-	# portion of the mitigated hit before Ward/Health ever see it.
+	# "% of Damage from Mana before Life": Mana pays its share before Ward.
 	var mana_shield_pct := stat_sheet.get_damage_from_mana_percent()
 	if mana_shield_pct > 0.0 and mana and mana.current_mana > 0.0:
 		var mana_portion := mitigated * mana_shield_pct
@@ -791,12 +746,8 @@ const STONE_SKIN_MAGIC_REDUCTION := 0.12
 
 const BLOCK_CHANCE_CAP := 0.75
 
-## Patch v4.3. Rolls the equipped shield's block chance (plus any "of
-## Steadying" bonus, hard-capped at 75%) against one incoming MELEE hit.
-## Deliberately not inside take_damage(): that function is also the entry
-## for spells, projectiles and DoT ticks, none of which may be blocked, and
-## it has no way to tell them apart - the one melee call site
-## (EnemyMeleeAttack._resolve_hit()) asks this instead.
+## Rolls the shield's block chance (capped at 75%) against one melee hit.
+## Only EnemyMeleeAttack asks: spells, projectiles and DoTs can't be blocked.
 func try_block_melee_hit() -> bool:
 	var shield := equipment.offhand as Shield if equipment else null
 	if shield == null or shield_block.is_raised:
@@ -1081,13 +1032,8 @@ func start_visceral(target: Enemy, on_rip: Callable) -> void:
 func has_dash_iframes() -> bool:
 	return _iframes_remaining > 0.0
 
-## User request (2026-08-30): Dagger's stance special ("a rapier might
-## dash and thrust in one direction") - called from
-## PlayerMeleeAttack.try_special_attack(). Reuses the exact same dash
-## state/cooldown as the Shift-tap dash rather than a separate free dash
-## resource, so this and the movement dash share one budget. Returns
-## whether the dash actually fired - the thrust itself still lands even
-## when this returns false (dash on cooldown), just without the lunge.
+## Dagger's stance special lunge; shares the Shift dash's cooldown. False
+## when the dash is unavailable (the thrust still lands, without the lunge).
 func try_special_dash(direction: Vector3) -> bool:
 	if status_effects.is_stunned() or _is_dashing or _is_sliding or _dash_cooldown_remaining > 0.0:
 		return false

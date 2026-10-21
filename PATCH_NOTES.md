@@ -7,6 +7,29 @@ there. Most recent first.
 
 ---
 
+## 2026-10-21 — v5.12.6: Boss range answers, audit fixes
+
+User request: bosses acquired the player and pulled from too far away; each boss should answer ranged play its own way.
+- **Engagement:** a BossBrain does nothing until its boss is in combat (the player came inside its chase range, or hit it). From then on it keeps the boss chasing until the player is past 40 m (`LEASH_RANGE`). Before this, a Figment boss with a 15 m chase range started casting at 30 m, and the old range punish dragged players in from up to 40 m without the boss ever having noticed them.
+- **Range answers replace the generic pull/barrage.** A player the engaged boss can see, staying beyond its answer distance for 4 s, gets that boss's answer (10 s cooldown). Breaking sight pauses the timer instead of resetting it.
+  - Figment Chieftain: **Skullsplitter Leap**, an arc onto your spot (12-13 m).
+  - The Adjudicator: **Procession of Judgement**, 8 hammer circles marching out from him, each step re-aimed at where you are now. Standing still or backing straight off gets caught.
+  - The Threshold Knight: **Reaping Chains**, a pull that applies Pallid.
+  - The Exarch: **Glacial Lance**, a narrow strip aimed once at the cast. Sidestep it. Answers past 20 m.
+  - Ataras: **Mirage Step**, which comes apart into sand and reforms on your spot, slowing you (12 m).
+  - Lord of the Elements: **Elemental Tide** (a marching wave in his current element), then **Elemental Undertow** (a pull), in turn (18 m).
+  - The Herald: **Entropic Lance**, then **Grasp of the Void**, a pull that stops at the Maw's edge. Anchor pylons hold you against it (16 m).
+  - Aurelia: none. Her whole kit already reaches 60 m.
+- New BossAbility kinds back these: LEAP, BLINK, WAVE and LANCE, plus `BossFx.blink()` and `BossFx.lance()`.
+- **Audit fixes:**
+  - KillBox checked every enemy each physics frame. It now checks 4 times a second.
+  - The Hub's 900 ambient motes now run as GPU particles. On the CPU they simulated every frame and ran a 26 s preprocess as a hitch on Hub load. The edge flakes stay on the CPU, because their point emission didn't convert cleanly.
+  - BossFx trails and vortices stopped through a timer lambda. That logged "Lambda capture was freed" whenever the boss died mid-effect. They now use `SpellFx.stop_after()`, which rides the emitter's own tween.
+  - Changelog-style comments (dates, "User request", "Patch v4.0", superseded history) were rewritten to describe the code as it is in Player.gd, PlayerMeleeAttack.gd and item_roller.gd (about 190 lines shorter).
+- Judgment calls: every answer's number (distances, telegraphs, damage), the 4 s delay and 10 s cooldown, the 40 m leash, and leaving Aurelia without one.
+
+---
+
 ## 2026-10-21 — v5.12.5: Reality Engine overhaul
 
 User request: the Reality Engine should look more impressive and its UI better.

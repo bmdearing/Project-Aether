@@ -8,35 +8,15 @@ class_name PlayerMeleeAttack
 ## try_charged_thrust() (WeaponStance right-click hold) is the same state
 ## machine with a bigger motion value/duration and the family's charged clip.
 ##
-## Implementation Brief v3.3 Section 2/5 (2026-08-31): three distinct
-## attack types, dispatched by Player.gd off LMB hold duration - light jab
-## (tap, <0.6s hold), standard thrust (hold >=0.6s then release), and
-## charged thrust (stance + LMB press - unchanged from the pre-brief
-## "special attack," just renamed to match the brief's own terminology;
-## `_is_special`/SPECIAL_* naming below still says "special" in a few
-## internal spots rather than "charged," left as-is to keep this merge
-## smaller). Per user direction merging this brief into the existing
-## architecture: the old NORMAL_COMBO_POSES/WEAPON_TYPE_COMBO_POSES combo-
-## index cycling (repeated presses rotating through a weapon's pose list)
-## is REMOVED - the brief explicitly doesn't want a combo system (v5.0
-## brings back a three-hit chain at the user's request: COMBO_*). Each
-## weapon's former combo list is repurposed as a fixed per-ATTACK-TYPE
-## pose instead (index 0 -> jab, index 1 or wraparound -> thrust) so the
-## per-weapon pose variety already authored survives, it just no longer
-## cycles. Per-weapon MOTION VALUE/duration tables (WEAPON_TYPE_
-## MOTION_VALUE etc.) are preserved unchanged, per user direction - the
-## brief's own 0.6/1.0/1.6 jab/thrust/charged values are applied as
-## MULTIPLIERS on top of that per-weapon base, not a replacement of it.
+## Player.gd dispatches by LMB hold: jab (tap), thrust (held 0.6s+, then
+## released) and charged thrust (stance + LMB; SPECIAL_* names mean charged).
+## Each type's multiplier (0.6 / 1.0 / 1.6) scales the weapon's own motion
+## value. Jabs and thrusts chain into a combo (COMBO_*).
 
 enum State { IDLE, WINDUP, STRIKE, RECOVERY }
 
-## User feedback (2026-08-30): the original 0.1/0.12/0.15s swing (0.37s
-## total) "was far too fast" even before any weapon-type scaling - bumped
-## up across the board as the new no-weapon-match baseline, on top of
-## which WEAPON_TYPE_SWING_DURATION_MULT below applies per weapon type.
-## Combat feel pass (2026-10-07): longer anticipation and recovery around a
-## short, fast strike - the contrast is what reads as punch.
-## 2026-10-08: everything still hit too fast - about 15% slower again.
+## Baseline swing phases, scaled per weapon by WEAPON_TYPE_SWING_DURATION_MULT.
+## Long anticipation and recovery around a short strike reads as punch.
 const BASE_WINDUP := 0.36
 const BASE_STRIKE := 0.16
 const BASE_RECOVERY := 0.40
@@ -51,31 +31,12 @@ const MIN_RECOVERY := 0.27
 ## Hits register only from this fraction of Strike onward, when the blade is
 ## actually crossing the screen (the strike tween eases in).
 const STRIKE_CONTACT_START := 0.6
-## Stands in for a "Basic Attack" skill's motion value - no skill/Tome
-## system exists yet to grant one (Section 11: motion values live on
-## individual skills, never a bare weapon). Now the DEFAULT/fallback for
-## _effective_motion_value() below rather than the value every weapon
-## uses - see that function for the per-weapon-type differentiation.
+## Motion value for a weapon type missing from WEAPON_TYPE_MOTION_VALUE.
 @export var base_motion_value: float = 1.0
 
-## User request (2026-08-30): "apply motion value to the new melee attack
-## system, faster movesets for different weapons will have lower motion
-## value, while slower weapons like the greatsword will have a higher
-## motion value." Section 11 already establishes base_motion_value itself
-## as an invented stand-in for a missing Basic Attack skill (see its own
-## comment above) - this extends that same stand-in per weapon type
-## rather than contradicting the doc's real "motion values live on
-## skills" design further. Same minimal-table-plus-DEFAULT convention
-## Constants.WEAPON_BASE_CRIT_CHANCE already uses - only weapon types
-## with a real .tres instance in this project get an explicit entry;
-## anything else (including ranged types, which never reach this class
-## at all - see Player._physics_process()'s is_ranged dispatch) falls
-## back to base_motion_value.
-## v4.51: every melee type tuned so sustained DPS (hit / swing time, see
-## tests/balance/probe_dps.tscn) lands near 150 for one-handers, 155 for
-## blunt/polearm one-handers and 165 for two-handers, which also cleave.
-## v4.72b: all x1.45, then x1.3 (about 283 / 292 / 312) so weapons keep up with spells.
-## Slow weapons get the biggest hits.
+## Motion value per weapon type: slow weapons hit hardest. Tuned so sustained
+## melee DPS (tests/balance/probe_dps.tscn) lands near 283 for one-handers,
+## 292 for blunt/polearm one-handers and 312 for two-handers, which also cleave.
 const WEAPON_TYPE_MOTION_VALUE := {
 	"Dagger": 2.04, "Rapier": 1.62, "Saber": 1.89, "Shortsword": 1.94, "Cutlass": 2.30,
 	"Pressure Fist": 2.38, "Mace": 2.26, "Spear": 2.30, "War Pick": 3.11, "Whip": 3.02,
@@ -83,12 +44,8 @@ const WEAPON_TYPE_MOTION_VALUE := {
 	"Staff": 1.89, "Gauntlet": 0.94,
 }
 
-## Per-weapon swing duration multiplier (via _effective_duration()), so a
-## Greatsword swing genuinely takes longer than a Dagger's.
-## 2026-10-07: light weapons were too quick to read - Dagger/Rapier/Gauntlet raised.
-## 2026-10-08: every melee and conduit type has an entry (most used to fall
-## back to 1.0, so a Halberd swung as fast as a Rapier). Two-handers are slowest.
-## v5.0.3: the heavy two-handers (Shock Lance and up) swing 20% faster.
+## Swing duration per weapon type (via _effective_duration()); two-handers
+## are slowest.
 const WEAPON_TYPE_SWING_DURATION_MULT := {
 	"Rapier": 0.95, "Dagger": 1.0, "Athame": 1.0, "Gauntlet": 0.9, "Spell Gauntlet": 0.95,
 	"Shortsword": 1.1, "Pressure Fist": 1.1, "Saber": 1.15, "Cutlass": 1.15,
@@ -104,12 +61,7 @@ static func swing_seconds(weapon_type: String) -> float:
 const SPECIAL_MOTION_VALUE_MULTIPLIER := 1.6
 const SPECIAL_DURATION_MULTIPLIER := 1.4
 
-## Implementation Brief v3.3 Section 2: light jab (motion value x0.6,
-## quicker swing) and standard thrust (x1.0 - a no-op, i.e. identical
-## timing/power to what a plain attack always did) - multipliers on top
-## of the existing per-weapon WEAPON_TYPE_MOTION_VALUE base, same pattern
-## SPECIAL_MOTION_VALUE_MULTIPLIER (1.6, "charged thrust" in the brief's
-## terms) already established for the stance special.
+## Jab and thrust multipliers on the weapon's motion value (charged: SPECIAL_*).
 const JAB_MOTION_VALUE_MULTIPLIER := 0.6
 const THRUST_MOTION_VALUE_MULTIPLIER := 1.0
 const JAB_DURATION_MULTIPLIER := 0.6
@@ -134,18 +86,13 @@ const ASSIST_CONE_DEG := 25.0
 const ASSIST_MAX_DEG := 12.0
 const ASSIST_EXTRA_REACH := 0.8
 
-## User request (2026-08-30): "Movement speed should be reduced when
-## attacking with a melee weapon." Applies for the whole swing (Windup
-## through Recovery, not just the Strike instant), matching Section 07's
-## melee-weight framing of a swing as one committed action rather than an
-## instant tap - Player._effective_speed() reads this every physics frame.
+## Move speed for the whole swing, windup through recovery.
 const ATTACKING_MOVE_SPEED_MULTIPLIER := 0.5
 
-## User request (2026-08-30): "deal Counter damage and deal 15% more
-## damage" - exact rate given, not invented.
+## Hitting an enemy mid-attack (a Counter).
 const COUNTER_DAMAGE_MULTIPLIER := 1.15
 
-## v5.0 (user request): jabs and thrusts chain into a three-hit combo. Hit 2
+## Jabs and thrusts chain into a three-hit combo. Hit 2
 ## swings back the other way, hit 3 is the weapon's finisher (its charged
 ## clip, a longer wind-up, COMBO_FINISHER_DAMAGE). Pressing attack during
 ## recovery queues the next hit; COMBO_WINDOW idle seconds reset the chain.
@@ -159,11 +106,6 @@ enum Strike { MAIN, OFF, BOTH }
 const DUAL_COMBO_HANDS: Array[int] = [Strike.MAIN, Strike.OFF, Strike.MAIN, Strike.BOTH]
 var _strike_hands: int = Strike.MAIN
 
-## Implementation Brief v3.3 Section 2 - replaces the old boolean
-## _is_special (special vs. not) now that there are 3 distinct attack
-## types instead of 2. "SPECIAL" naming below
-## SPECIAL_MOTION_VALUE_MULTIPLIER, etc.) predates the brief and still
-## means CHARGED - not renamed everywhere to keep this merge smaller.
 enum AttackType { JAB, THRUST, CHARGED }
 
 var _state: State = State.IDLE
@@ -192,7 +134,6 @@ var _stance_release: Dictionary = {}
 const SWING_SHAPES := {
 	"thrust": {"reach": 3.2, "half_angle": 18.0, "splash": 0.5, "max_targets": 3},
 	"slash": {"reach": 2.7, "half_angle": 50.0, "splash": 0.6, "max_targets": 4},
-	# v4.72: two-handers sweep wider and harder so they hold their own against area spells.
 	"heavy": {"reach": 3.6, "half_angle": 85.0, "splash": 0.9, "max_targets": 8},
 	"whip": {"reach": 4.2, "half_angle": 30.0, "splash": 0.5, "max_targets": 3},
 	"fist": {"reach": 2.1, "half_angle": 30.0, "splash": 0.4, "max_targets": 2},
@@ -225,15 +166,11 @@ func is_committed() -> bool:
 func get_move_speed_multiplier() -> float:
 	return ATTACKING_MOVE_SPEED_MULTIPLIER if _state != State.IDLE else 1.0
 
-## Implementation Brief v3.3 Section 2 - LMB tap (Player.gd's hold-time
-## tracking releases under 0.6s), motion value x0.6, a quicker swing.
+## LMB tap.
 func try_light_jab() -> void:
 	_try_combo_attack(AttackType.JAB)
 
-## Implementation Brief v3.3 Section 2 - LMB held >=0.6s then released,
-## motion value x1.0 (identical power/timing to what the old single
-## try_attack() always did - this is that same attack, just under its new
-## brief-given name now that jab exists as a separate, faster option).
+## LMB held 0.6s+, then released.
 func try_standard_thrust() -> void:
 	_try_combo_attack(AttackType.THRUST)
 
@@ -271,14 +208,8 @@ func try_offhand_swing() -> void:
 func is_combo_finisher() -> bool:
 	return _combo_step == _combo_hits() - 1 and _attack_type != AttackType.CHARGED and _stance_release.is_empty()
 
-## Called from Player._physics_process when WeaponStance.is_active and LMB
-## is pressed (Implementation Brief v3.3 Section 2's "charged thrust" -
-## renamed from the pre-brief try_special_attack(), same mechanic: the
-## weapon family's charged clip on PlayerArmRig). Dagger's charged thrust also
-## fires a real forward dash before the thrust - see Player.
-## try_special_dash() - best-effort: if the dash is on its own cooldown
-## (shared with the Shift-dash, deliberately not a separate free dash
-## resource) the thrust still lands, just without the lunge.
+## Stance + LMB: the weapon family's charged clip. Dagger also lunges
+## (Player.try_special_dash()) when its dash is ready.
 func try_charged_thrust() -> void:
 	if _state != State.IDLE:
 		return
@@ -589,9 +520,7 @@ func _has_line_of_sight(from: Vector3, to: Vector3, target: Enemy) -> bool:
 func _effective_motion_value(weapon: Weapon) -> float:
 	return WEAPON_TYPE_MOTION_VALUE.get(weapon.weapon_type, base_motion_value)
 
-## Implementation Brief v3.3 Section 2's jab/thrust/charged motion values
-## (0.6/1.0/1.6) as multipliers on the per-weapon base above - see this
-## file's own header for why they're multipliers, not a replacement.
+## The attack type's multiplier on the weapon's motion value.
 func _attack_type_motion_multiplier() -> float:
 	match _attack_type:
 		AttackType.JAB:
@@ -634,12 +563,7 @@ func _deal_damage_once(target: Enemy, damage_scale: float = 1.0, is_primary: boo
 	if is_critical_spot:
 		final_damage *= target.critical_spot_multiplier
 
-	# User request (2026-08-30): "If you melee attack an enemy while they
-	# are mid attack animation, you deal Counter damage and deal 15% more
-	# damage." Checked here rather than in take_damage()/DamageCalculator -
-	# whether a hit lands DURING the target's own committed attack window
-	# is timing information only the attacker's own swing resolution has,
-	# same reasoning Riposte's own branch above already follows.
+	# Counter: the target was mid-attack when this swing landed.
 	var is_counter := _target_is_attacking(target)
 	if is_counter:
 		final_damage *= COUNTER_DAMAGE_MULTIPLIER

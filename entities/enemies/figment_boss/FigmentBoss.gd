@@ -17,7 +17,9 @@ const BOSS_GOLD_REWARD := 120
 const PHASE_TWO_AT := 0.5
 
 ## Abilities are BossAbility fields (see BossAbility.make()). Kinds:
-## SLAM 0, BLAST 1, HAZARD 2, CHARGE 3, VOLLEY 4, SUMMON 5, PULL 6.
+## SLAM 0, BLAST 1, HAZARD 2, CHARGE 3, VOLLEY 4, SUMMON 5, PULL 6, LEAP 8,
+## BLINK 9, WAVE 10, LANCE 11. "range_answer" is cast at a player who keeps
+## beyond "answer_distance" (BossBrain default 13 m).
 const PROFILES := {
 	"chieftain": {
 		"name": "Figment Chieftain", "definition": "unchartered_chieftain", "scale": 1.5,
@@ -28,6 +30,7 @@ const PROFILES := {
 			{"id": "war_stomp", "display_name": "War Stomp", "kind": BossAbility.Kind.SLAM, "cooldown": 7.0, "telegraph": 1.1, "radius": 5.0, "damage_mult": 1.3, "max_range": 5.0},
 			{"id": "rally", "display_name": "Rally the Raiders", "kind": BossAbility.Kind.SUMMON, "cooldown": 25.0, "telegraph": 1.0, "count": 2, "unit_id": "unchartered_cutthroat", "min_phase": 2},
 		],
+		"range_answer": {"id": "skullsplitter_leap", "display_name": "Skullsplitter Leap", "kind": BossAbility.Kind.LEAP, "telegraph": 1.3, "radius": 4.0, "damage_mult": 1.7},
 	},
 	"adjudicator": {
 		"name": "The Adjudicator", "definition": "directorate_adjudicator", "scale": 1.45,
@@ -38,6 +41,7 @@ const PROFILES := {
 			{"id": "consecrate", "display_name": "Consecrate", "kind": BossAbility.Kind.HAZARD, "cooldown": 11.0, "telegraph": 0.9, "radius": 3.5, "duration": 6.0, "damage_mult": 1.0, "damage_type": Constants.DamageType.FIRE},
 			{"id": "verdict", "display_name": "Verdict", "kind": BossAbility.Kind.BLAST, "cooldown": 14.0, "telegraph": 1.3, "radius": 2.5, "count": 4, "damage_mult": 1.3, "min_phase": 2},
 		],
+		"range_answer": {"id": "procession", "display_name": "Procession of Judgement", "kind": BossAbility.Kind.WAVE, "telegraph": 0.9, "radius": 2.6, "count": 8, "damage_mult": 1.4},
 	},
 	"threshold_knight": {
 		"name": "The Threshold Knight", "definition": "legion_threshold_knight", "scale": 1.45,
@@ -48,6 +52,7 @@ const PROFILES := {
 			{"id": "soul_chains", "display_name": "Soul Chains", "kind": BossAbility.Kind.PULL, "cooldown": 12.0, "telegraph": 1.0, "radius": 4.0, "damage_mult": 1.3, "min_range": 5.0, "max_range": 14.0},
 			{"id": "pale_ruin", "display_name": "Pale Ruin", "kind": BossAbility.Kind.SLAM, "cooldown": 12.0, "telegraph": 1.4, "radius": 6.0, "damage_mult": 1.6, "min_phase": 2, "status": "pallid"},
 		],
+		"range_answer": {"id": "reaping_chains", "display_name": "Reaping Chains", "kind": BossAbility.Kind.PULL, "telegraph": 1.0, "radius": 4.5, "damage_mult": 1.6, "status": "pallid"},
 	},
 	"exarch": {
 		"name": "The Exarch", "definition": "synod_exarch", "scale": 1.4,
@@ -59,6 +64,7 @@ const PROFILES := {
 			{"id": "frost_nova", "display_name": "Frost Nova", "kind": BossAbility.Kind.SLAM, "cooldown": 8.0, "telegraph": 1.0, "radius": 5.0, "damage_mult": 1.2, "max_range": 5.0, "status": "chill"},
 			{"id": "blizzard", "display_name": "Blizzard", "kind": BossAbility.Kind.HAZARD, "cooldown": 14.0, "telegraph": 1.0, "radius": 4.0, "duration": 7.0, "damage_mult": 1.1, "min_phase": 2, "status": "chill"},
 		],
+		"range_answer": {"id": "glacial_lance", "display_name": "Glacial Lance", "kind": BossAbility.Kind.LANCE, "telegraph": 1.0, "radius": 1.2, "damage_mult": 2.0, "status": "chill"}, "answer_distance": 20.0,
 	},
 }
 
@@ -111,6 +117,9 @@ func _add_brain(profile: Dictionary) -> void:
 		brain.abilities.append(BossAbility.make(fields))
 	brain.phase_thresholds = [PHASE_TWO_AT]
 	brain.phase_openers = {2: profile.get("opener", "")}
+	if profile.has("range_answer"):
+		brain.range_answers = [BossAbility.make(profile["range_answer"])]
+	brain.range_answer_distance = profile.get("answer_distance", brain.range_answer_distance)
 	add_child(brain)
 
 ## Completion fires at the moment of death; the base class then plays the

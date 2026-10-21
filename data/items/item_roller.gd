@@ -5,16 +5,11 @@ class_name ItemRoller
 ## real, balanced base item (weapon_type/damage_type/etc.)
 ## and re-rolls only its rarity + affix list.
 ##
-## User request (2026-08-30): Section 25's full tiered base-type catalog
-## is now real (see tools/generate_base_types.gd - ~750 generated .tres
-## across data/weapons|armor|shields/instances/, each tagged item_level +
-## base_line_id) alongside the original hand-authored singles (untagged,
-## base_line_id == ""). power_level now doubles as the target item level:
-## _pick_base_item() picks, per doc "Line", the single highest-item_level
-## tier still <= power_level - "always the current best base your level
-## has unlocked" - then rolls uniformly among every line's current pick
-## plus every untagged standalone base. See Enemy._compute_item_level()
-## for how a kill's own power_level is derived from Area Level + rarity.
+## Bases: the generated tiered catalog (tools/generate_base_types.gd, tagged
+## item_level + base_line_id) plus hand-authored singles (untagged).
+## power_level is the target item level: _pick_base_item() takes each line's
+## best tier at or under it, then rolls uniformly among those and the
+## singles (Enemy._compute_item_level() derives a kill's power_level).
 ##
 ## Rarity -> affix count (Common 0, Uncommon 1-2, Rare RARE_AFFIX_COUNT).
 ## Rarity is a weighted roll (Loot.roll_rarity()), not set by affix count. Affix
@@ -35,8 +30,7 @@ const BASE_ITEM_DIRS := [
 ]
 
 ## Base lines that never roll, matched as substrings of Item.base_line_id.
-## Infusion Grenades are the one throwable line with no identity yet (the
-## other four became throwing Weapons in v5.12); their old Item bases stay.
+## Infusion Grenades are the one throwable line with no identity yet; their old Item bases stay.
 const EXCLUDED_ITEM_TYPES := ["infusion_grenade"]
 
 static func _is_excluded_line(base_line_id: String) -> bool:
@@ -47,7 +41,7 @@ static func _is_excluded_line(base_line_id: String) -> bool:
 
 ## Fills a pool entry's "%d" placeholder. A binary mod ("Triggers Retaliation
 ## on Block") has none, and formatting it anyway is a script error that aborts
-## the whole roll - Patch v4.0 shipped that bug for retaliate_on_block.
+## the whole roll.
 static func format_desc(desc: String, value: float) -> String:
 	return desc % round(value) if "%" in desc else desc
 
@@ -81,7 +75,6 @@ static func get_socket_cap(item: Item) -> int:
 
 ## 6 tiers per affix, Tier 1 best - the doc's own tier counts vary per
 ## mod (5 to 11+); this project picks one consistent count for every affix.
-## v4.83 added today's Tier 1 above the old five (TIER_LADDER_VERSION).
 const TIER_COUNT := 6
 ## Saves from before the new top tier store every gear tier one lower.
 const TIER_LADDER_VERSION := 2
@@ -89,12 +82,12 @@ const TIER_LADDER_VERSION := 2
 ## approximation of the doc's tables' shape.
 const TIER_DECAY := 0.8
 
-## tier1_min/tier1_max define one range (Tier 2 since v4.83) - other tiers
+## tier1_min/tier1_max define one range - other tiers
 ## are derived via _tier_range(). "applies_to": [] means any base item
 ## type; otherwise a list of category strings (see _pool_for()).
 ##
 ## "slots" (EquipmentSlot) narrow armour, shields and accessories; weapons
-## ignore them. Slot roles (v4.55): Gloves offence (hits, ailments, speed,
+## ignore them. Slot roles: Gloves offence (hits, ailments, speed,
 ## crit, Riposte); Rings offence (crit, damage %, Penetration) with
 ## resistances, Life and flat defences as filler; Amulet build-defining
 ## (skill levels, damage, Aether); Helmet caster and utility; Body and Shield
@@ -106,13 +99,9 @@ const TIER_DECAY := 0.8
 ## them into ModifierDef tags (what Rev2 Category Brands filter on), and
 ## Shard of Tharsis outcomes use _pool_for_brand_tag().
 const AFFIX_POOL := [
-	# Patch v3.8: six stats collapsed to three (renamed in v4.8).
 	{"stat_key": "flat_strength", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Strength", "applies_to": [], "brand_tags": ["kinetic", "piercing", "explosive"]},
 	{"stat_key": "flat_agility", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Agility", "applies_to": [], "brand_tags": ["movement", "evasion"]},
 	{"stat_key": "flat_intellect", "tier1_min": 20.0, "tier1_max": 25.0, "desc": "+%d Intellect", "applies_to": [], "brand_tags": ["fire", "cold", "lightning", "aetheric", "entropic", "pale"]},
-	# physical_dmg_increased removed (Patch v4.0) - superseded by the new
-	# "increased_physical_damage" entry below, doc-exact value (28-34%,
-	# was this entry's own invented 16-20%).
 	{"stat_key": "elemental_dmg_increased", "tier1_min": 24.0, "tier1_max": 30.0, "desc": "+%d%% increased Elemental damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["fire", "cold", "lightning"]},
 	{"stat_key": "esoteric_dmg_increased", "tier1_min": 24.0, "tier1_max": 30.0, "desc": "+%d%% increased Esoteric damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["aetheric", "entropic", "pale"]},
 	{"stat_key": "flat_armor", "defense": "armor", "tier1_min": 75.0, "tier1_max": 85.0, "desc": "+%d Armor", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["armor"]},
@@ -120,22 +109,14 @@ const AFFIX_POOL := [
 	{"stat_key": "flat_evasion", "defense": "evasion", "tier1_min": 112.0, "tier1_max": 128.0, "desc": "+%d Evasion", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 11], "brand_tags": ["evasion"]},
 	{"stat_key": "flat_resilience", "tier1_min": 16.0, "tier1_max": 20.0, "desc": "+%d Resilience", "applies_to": [], "brand_tags": ["resilience"]},
 	{"stat_key": "skill_cooldown_reduced", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d%% reduced skill cooldowns", "applies_to": ["armor"], "slots": [0], "brand_tags": ["skills"], "no_roll": true},
-	# Patch v3.8 Section 2 "Removed expressions" - max_life/life_regen/
-	# max_mana/mana_regen/attack_speed/cast_speed/move_speed used to
-	# derive from a character stat (Vitality/Instinct/Intellect), now
-	# purely gear-affix-driven; crit_damage/debuff_effectiveness/stamina
-	# never had a stat source. attack_speed/move_speed/cast_speed are
-	# real, consumed bonuses (EquipmentComponent.compute_misc_bonuses(),
-	# Player.get_action_speed_multiplier()/get_move_speed_multiplier(),
-	# StatSheet.cast_speed_bonus); the rest are descriptive-only for now,
-	# same "real affix, no formula to feed it yet" footing flat_evasion/
-	# the 4 resistance entries/flat_resilience/skill_cooldown_reduced
-	# already had before this patch.
+	# Gear-only lines. attack_speed/move_speed/cast_speed feed
+	# EquipmentComponent.compute_misc_bonuses(); crit_damage, debuff_effectiveness
+	# and stamina are descriptive only.
 	{"stat_key": "mana_regen", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "+%.1f Mana Regeneration per second", "applies_to": ["armor", "item"], "slots": [0, 9, 10], "brand_tags": ["resource"]},
 	# Ranged weapons use Fire Rate in place of Attack Speed (Player.get_attack_speed_multiplier()).
 	{"stat_key": "attack_speed", "tier1_min": 10.0, "tier1_max": 14.0, "desc": "+%d%% increased Attack Speed", "applies_to": ["weapon", "armor", "item"], "slots": [2, 11], "brand_tags": ["skills"], "weapon_kind": "melee"},
 	{"stat_key": "fire_rate", "tier1_min": 10.0, "tier1_max": 14.0, "desc": "+%d%% increased Fire Rate", "applies_to": ["weapon", "armor", "item"], "slots": [2, 11], "brand_tags": ["skills"], "weapon_kind": "ranged"},
-	# v5.7.0: flat damage on every weapon hit, steep by item level so it matters late.
+	# Flat damage on every weapon hit, steep by item level so it matters late.
 	{"stat_key": "added_attack_damage", "tier1_min": 11.0, "tier1_max": 13.0, "desc": "Adds %d to %d Damage to Attacks", "applies_to": ["armor", "item"], "slots": [2, 11], "brand_tags": ["kinetic", "piercing", "explosive"]},
 	{"stat_key": "reload_speed", "tier1_min": 53.0, "tier1_max": 61.0, "desc": "+%d%% increased Reload Speed", "applies_to": ["armor"], "slots": [2], "brand_tags": ["skills"]},
 	{"stat_key": "cast_speed", "tier1_min": 10.0, "tier1_max": 14.0, "desc": "+%d%% increased Cast Speed", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["skills"]},
@@ -149,8 +130,8 @@ const AFFIX_POOL := [
 	{"stat_key": "item_quantity", "tier1_min": 4.0, "tier1_max": 6.0, "desc": "%d%% increased Item Quantity", "applies_to": ["item"], "slots": [9, 10, 11], "brand_tags": []},
 	{"stat_key": "magic_find", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "+%d Magic Find", "applies_to": ["armor", "item"], "slots": [0, 1, 2, 3, 9, 10, 11], "brand_tags": [], "no_roll": true},
 
-	# Patch v4.0 Ailment Build Mod Pool. Since v5.5 chance and duration roll by
-	# family (below); the per-ailment lines no longer roll.
+	# Ailment Build Mod Pool. Chance and duration roll by family (below); the
+	# per-ailment lines are kept only so existing items still read.
 	{"stat_key": "ailment_chance_bleed", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Bleed", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": [], "no_roll": true},
 	{"stat_key": "ailment_chance_ignite", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Ignite", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": [], "no_roll": true},
 	{"stat_key": "ailment_chance_chill", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% chance to cause Chill", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": [], "no_roll": true},
@@ -179,7 +160,7 @@ const AFFIX_POOL := [
 	{"stat_key": "increased_ailment_duration_aetherburn", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Aetherburn duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": [], "no_roll": true},
 	{"stat_key": "increased_ailment_duration_unraveling", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Unraveling duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": [], "no_roll": true},
 	{"stat_key": "increased_ailment_duration_pallid", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Pallid duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "brand_tags": [], "no_roll": true},
-	# v5.5: ailment chance, duration and effect by family, not per ailment.
+	# Ailment chance, duration and effect by family, not per ailment.
 	{"stat_key": "damaging_ailment_chance", "tier1_min": 20.0, "tier1_max": 26.0, "desc": "+%d%% chance to inflict Bleed, Ignite and Aetherburn", "applies_to": ["armor"], "slots": [2], "brand_tags": []},
 	{"stat_key": "control_ailment_chance", "tier1_min": 20.0, "tier1_max": 26.0, "desc": "+%d%% chance to inflict Chill, Shock, Electrocute, Unraveling and Pallid", "applies_to": ["armor"], "slots": [2], "brand_tags": []},
 	{"stat_key": "ailment_duration", "tier1_min": 20.0, "tier1_max": 26.0, "desc": "+%d%% increased Ailment duration", "applies_to": ["armor", "item"], "slots": [0, 9], "brand_tags": []},
@@ -191,15 +172,13 @@ const AFFIX_POOL := [
 	{"stat_key": "ward_percent_on_ailment", "tier1_min": 1.0, "tier1_max": 2.0, "desc": "%.1f%% of maximum Ward restored when you inflict an Ailment", "applies_to": ["armor", "item"], "slots": [2, 11], "brand_tags": ["ward"]},
 	{"stat_key": "ailment_ignore_chance", "tier1_min": 14.0, "tier1_max": 18.0, "desc": "+%d%% chance to ignore Ailments", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 10], "brand_tags": []},
 
-	# Patch v4.0 Physical Hit Build Mod Pool (increased_kinetic/piercing/
-	# explosive_damage live in the Patch v3.9 weapon-specific .tres pool
-	# instead, renamed to these exact stat_keys - see tools/
-	# rename_v39_weapon_affixes.gd)
+	# Physical Hit Build Mod Pool (increased_kinetic/piercing/explosive_damage
+	# live in the weapon-specific .tres pool)
 	{"stat_key": "increased_physical_damage", "tier1_min": 24.0, "tier1_max": 30.0, "desc": "+%d%% increased Physical damage", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["kinetic", "piercing", "explosive"]},
 	{"stat_key": "crit_chance_increased", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Critical Strike Chance", "applies_to": ["weapon", "armor", "item"], "slots": [2, 9, 11], "brand_tags": []},
 	{"stat_key": "crit_damage_increased", "tier1_min": 38.0, "tier1_max": 44.0, "desc": "+%d%% increased Critical Strike Bonus", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": []},
 
-	# Patch v4.0 Spell Hit Build Mod Pool - Conduits use weapon_kind, not
+	# Spell Hit Build Mod Pool - Conduits use weapon_kind, not
 	# slots (a conduit can occupy PRIMARY_WEAPON or OFFHAND).
 	{"stat_key": "increased_spell_damage", "tier1_min": 24.0, "tier1_max": 30.0, "desc": "+%d%% increased Spell damage", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 11], "weapon_kind": "conduit", "brand_tags": ["fire", "cold", "lightning", "aetheric", "entropic", "pale"]},
 	# Minions (Wraith).
@@ -210,12 +189,12 @@ const AFFIX_POOL := [
 	{"stat_key": "mana_cost_reduction", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "%d%% reduced Mana cost of skills", "applies_to": ["weapon", "armor", "item"], "slots": [0, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
 	{"stat_key": "cooldown_recovery_rate", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% increased Cooldown Recovery Rate", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "weapon_kind": "conduit", "brand_tags": []},
 
-	# Patch v4.0 Ranged Build Mod Pool
+	# Ranged Build Mod Pool
 	{"stat_key": "increased_aoe_radius", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Area of Effect", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
 	{"stat_key": "increased_area_damage", "tier1_min": 24.0, "tier1_max": 30.0, "desc": "+%d%% increased Area damage", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
 	{"stat_key": "reduced_projectile_speed", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "%d%% reduced Projectile Speed", "applies_to": ["weapon"], "weapon_kind": "ranged", "brand_tags": [], "no_roll": true},
 
-	# Patch v4.0 Parry/Riposte Build Mod Pool - Melee Weapons via
+	# Parry/Riposte Build Mod Pool - Melee Weapons via
 	# weapon_kind, Shields via the "shield" category (equip_slot OFFHAND
 	# already covers Body Armour separately where listed).
 	{"stat_key": "parry_window_duration", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Parry Window Duration", "applies_to": ["weapon", "shield"], "slots": [6], "weapon_kind": "melee", "brand_tags": []},
@@ -223,7 +202,7 @@ const AFFIX_POOL := [
 	{"stat_key": "increased_riposte_damage", "tier1_min": 34.0, "tier1_max": 44.0, "desc": "+%d%% increased Riposte damage", "applies_to": ["armor", "shield"], "slots": [2, 6], "brand_tags": []},
 	{"stat_key": "riposte_crit_chance", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "Riposte has +%d%% increased Critical Strike Chance", "applies_to": ["weapon", "shield"], "slots": [6], "weapon_kind": "melee", "brand_tags": [], "no_roll": true},
 
-	# Patch v4.0 Healing/Sustain Mod Pool (flat_ward already existed pre-v4.0)
+	# Healing/Sustain Mod Pool
 	{"stat_key": "life_regen_flat", "tier1_min": 28.0, "tier1_max": 36.0, "desc": "Regenerate %d Life per second", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 9, 10], "brand_tags": []},
 	{"stat_key": "life_regen_increased", "tier1_min": 44.0, "tier1_max": 52.0, "desc": "+%d%% increased Life Regeneration", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 2, 3, 6, 9, 10], "brand_tags": [], "no_roll": true},
 	# Body armour tops out at 179 Life, every other slot at 129 (Tier 1).
@@ -234,7 +213,7 @@ const AFFIX_POOL := [
 	{"stat_key": "mana_increased", "tier1_min": 14.0, "tier1_max": 18.0, "desc": "+%d%% increased Mana", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
 	{"stat_key": "ward_recovery_increased", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward Recovery", "applies_to": ["armor", "shield", "item"], "slots": [0, 1, 6, 9, 10], "brand_tags": ["ward"]},
 
-	# Patch v4.0 Offensive Mod Pool
+	# Offensive Mod Pool
 	{"stat_key": "fire_penetration", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Fire Penetration", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["fire"]},
 	{"stat_key": "cold_penetration", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Cold Penetration", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["cold"]},
 	{"stat_key": "lightning_penetration", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Lightning Penetration", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["lightning"]},
@@ -242,7 +221,7 @@ const AFFIX_POOL := [
 	{"stat_key": "esoteric_penetration", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "+%d%% Esoteric Penetration", "applies_to": ["weapon", "item"], "slots": [9, 11], "brand_tags": ["aetheric", "entropic", "pale"]},
 	{"stat_key": "physical_shred", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% Physical Shred", "applies_to": ["weapon", "armor"], "slots": [2], "brand_tags": ["kinetic", "piercing", "explosive"]},
 
-	# Patch v4.0 Retaliation Mod Pool
+	# Retaliation Mod Pool
 	{"stat_key": "increased_retaliation_damage", "tier1_min": 54.0, "tier1_max": 64.0, "desc": "+%d%% increased Retaliation damage", "applies_to": ["weapon", "armor", "shield"], "slots": [1, 2, 6], "brand_tags": []},
 	# Block (Player.try_block_melee_hit()): flat points added to the shield's own
 	# chance (prefix), then scaled by the increased line (suffix).
@@ -253,7 +232,7 @@ const AFFIX_POOL := [
 	{"stat_key": "additional_curses", "tier1_min": 1.0, "tier1_max": 1.0, "desc": "Enemies can have +%d additional Curse", "applies_to": ["item"], "slots": [9], "brand_tags": ["skills"]},
 	{"stat_key": "retaliate_on_block", "tier1_min": 25.0, "tier1_max": 35.0, "desc": "%d%% chance to Retaliate on Block", "applies_to": ["shield"], "slots": [6], "brand_tags": []},
 
-	# Patch v4.0 Defensive Mod Pool
+	# Defensive Mod Pool
 	{"stat_key": "reduced_physical_taken", "tier1_min": 9.0, "tier1_max": 11.0, "desc": "%d%% reduced Physical Damage taken", "applies_to": ["armor", "shield"], "slots": [1, 6], "brand_tags": []},
 	{"stat_key": "reduced_elemental_taken", "tier1_min": 9.0, "tier1_max": 11.0, "desc": "%d%% reduced Elemental Damage taken", "applies_to": ["armor", "shield"], "slots": [1, 6], "brand_tags": []},
 	{"stat_key": "reduced_esoteric_taken", "tier1_min": 9.0, "tier1_max": 11.0, "desc": "%d%% reduced Esoteric Damage taken", "applies_to": ["armor", "shield"], "slots": [1, 6], "brand_tags": []},
@@ -273,19 +252,18 @@ const AFFIX_POOL := [
 	{"stat_key": "phys_as_elemental", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "%d%% of Physical Damage taken as Elemental", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 9], "brand_tags": []},
 
 
-	# Patch v4.0 Armor Base Specific Mods (flat_ward/flat_armor/flat_evasion
-	# pre-existing, "Varies by type" per the doc - no new T1 given for those)
+	# Armour Base Specific Mods
 	{"stat_key": "increased_ward", "defense": "ward", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["ward"]},
 	{"stat_key": "increased_armor", "defense": "armor", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Armor", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["armor"]},
 	{"stat_key": "increased_evasion", "defense": "evasion", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Evasion", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["evasion"]},
-	# Amulet only (v5.5.1): % increased to all of your Armour, Evasion or Ward, 30% (Tier 6) to 50% (Tier 1).
+	# Amulet only: % increased to all of your Armour, Evasion or Ward, 30% (Tier 6) to 50% (Tier 1).
 	{"stat_key": "amulet_increased_armor", "tier1_min": 44.0, "tier1_max": 46.0, "desc": "+%d%% increased Armor", "applies_to": ["item"], "slots": [9], "brand_tags": ["armor"]},
 	{"stat_key": "amulet_increased_evasion", "tier1_min": 44.0, "tier1_max": 46.0, "desc": "+%d%% increased Evasion", "applies_to": ["item"], "slots": [9], "brand_tags": ["evasion"]},
 	{"stat_key": "amulet_increased_ward", "tier1_min": 44.0, "tier1_max": 46.0, "desc": "+%d%% increased Ward", "applies_to": ["item"], "slots": [9], "brand_tags": ["ward"]},
 	# 40% of the slot's flat Life cap: 71.6 on body armour, 51.6 elsewhere (Tier 1).
 	{"stat_key": "hybrid_defense_life", "tier1_min": 33.02, "tier1_max": 41.28, "desc": "+%d to Life, and to the base's own defence (hybrid)", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "slot_tiers": {1: [45.82, 57.28]}, "brand_tags": []},
 
-	# Patch v4.0 Amulet Exclusive Mod Pool - Prefix, +1-2 at T1 (item level
+	# Amulet Exclusive Mod Pool - Prefix, +1-2 at T1 (item level
 	# 80+), lower tiers +1 only. "Among the rarest amulet rolls" - kept at
 	# the doc's own tight T1 range rather than this pool's usual wider spreads.
 	{"stat_key": "flat_aether", "tier1_min": 40.0, "tier1_max": 55.0, "desc": "+%d to Aether capacity", "applies_to": ["item"], "slots": [9], "brand_tags": []},
@@ -331,13 +309,7 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 	# No per-drop damage/spell power roll: a weapon's base range is rolled
 	# per hit instead (Weapon.roll_damage()/Ability.roll_damage()).
 
-	# Patch v3.8 Section 3: how many of the base's own max_sockets this
-	# specific drop actually has - 0 to max_sockets inclusive, same "the
-	# base sets a ceiling, the roll picks a point under it" shape as
-	# affix tiers. max_sockets itself is untouched (still the item type's
-	# overall cap, raised by Bore/Corruption exactly as before).
-	# Patch v4.3: never past the item category's ceiling, whatever an old
-	# base .tres or a saved copy says.
+	# Rolls 0..max_sockets sockets; max_sockets never passes the category cap.
 	item.max_sockets = mini(item.max_sockets, get_socket_cap(item))
 	item.sockets = randi() % (item.max_sockets + 1)
 	CraftingResolver.roll_tolerance(item)
@@ -401,13 +373,13 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 	return item
 
 ## The tier1_min/tier1_max ranges in AFFIX_POOL (and a weapon library
-## modifier's value range) are Tier 2's since v4.83; Tier 1 is them over
+## modifier's value range) are Tier 2's; Tier 1 is them over
 ## TIER_DECAY, and each tier below is TIER_DECAY of the one above.
 static func _tier_range(tier1_min: float, tier1_max: float, tier: int) -> Vector2:
 	var scale: float = pow(TIER_DECAY, tier - 2)
 	return Vector2(tier1_min * scale, tier1_max * scale)
 
-## Patch v3.5: tiers are gated by item level. TOP_TIER_LEVEL is the level the
+## Tiers are gated by item level. TOP_TIER_LEVEL is the level the
 ## authored ranges (Tier 2) need on the old spread; gear's own ladder is
 ## GEAR_TIER_LEVELS, so the Edicts of 61, 72 and 83 each open a tier.
 const TOP_TIER_LEVEL := 80
@@ -458,7 +430,7 @@ static func def_tier_level(def: ModifierDef, tier: int) -> int:
 			return tier_min_level(tier, TIER_COUNT, top_level_of(source))
 	return tier_min_level(tier)
 
-## Whether a modifier's tiers gained the v4.83 top tier (old saves shift up).
+## Whether a modifier's tiers gained the current top tier (old saves shift up).
 static func gained_new_top_tier(affix: ItemAffix) -> bool:
 	if affix.tier <= 0 or affix.is_implicit:
 		return false
@@ -492,13 +464,13 @@ static func _roll_tier(power_level: int, top_level: int = TOP_TIER_LEVEL) -> int
 
 ## Modifiers with their own tier table instead of Tier 1 x TIER_DECAY: each
 ## row is [item level needed, min, max], best tier (Tier 1) first.
-## % Weapon / Spell Damage run from 30% to 190% (user request). Flat damage
+## % Weapon / Spell Damage run from 30% to 190%. Flat damage
 ## is "Adds X to (X x FLAT_DAMAGE_SPREAD)"; the hybrid's value is its %
 ## part and its flat part is HYBRID_FLAT_PER_PERCENT of that.
 const DAMAGE_PERCENT_TIERS := [[83, 191.0, 225.0], [80, 160.0, 190.0],[68, 128.0, 155.0], [56, 105.0, 127.0], [45, 85.0, 104.0], [34, 68.0, 84.0], [23, 53.0, 67.0], [12, 40.0, 52.0], [1, 30.0, 39.0]]
 ## Additional arrows / spell projectiles: +1, +2, +3.
 const ADDITIONAL_PROJECTILE_TIERS := [[75, 3.0, 3.0], [40, 2.0, 2.0], [1, 1.0, 1.0]]
-## Displayed scale: Evasion > Armour > Ward (v5.5.2).
+## Displayed scale: Evasion > Armour > Ward.
 const FLAT_ARMOUR_TIERS := [[83, 100.0, 115.0], [72, 75.0, 85.0], [61, 55.0, 65.0], [40, 30.0, 40.0], [21, 20.0, 25.0], [1, 10.0, 15.0]]
 const FLAT_EVASION_TIERS := [[83, 150.0, 172.0], [72, 112.0, 128.0], [61, 82.0, 98.0], [40, 45.0, 60.0], [21, 30.0, 38.0], [1, 15.0, 22.0]]
 const AMULET_DEFENCE_TIERS := [[83, 47.0, 50.0], [72, 44.0, 46.0], [61, 40.0, 43.0], [40, 37.0, 39.0], [21, 34.0, 36.0], [1, 30.0, 33.0]]
@@ -626,14 +598,10 @@ static func negated_template(template: String) -> String:
 			return template.trim_prefix("+").replace(word, swaps[word])
 	return "-" + template.substr(1) if template.begins_with("+") else template
 
-## Patch v3.9 Weapon Affix Library - data/affixes/weapons/<type>/*.tres,
-## loaded once and cached (~96 files, same one-time-scan reasoning as
-## _candidate_meta_cache below). Each is Tier-1-only data (see tools/
-## generate_weapon_affixes.gd's own header for why) - scaled the exact
-## same way every OTHER AFFIX_POOL entry already is, via _tier_range()/
-## _roll_tier() below, rather than a bespoke per-affix tier table.
+## Weapon Affix Library: data/affixes/weapons/<type>/*.tres, loaded once and
+## cached. Tier-1 data, tiered like AFFIX_POOL via _tier_range()/_roll_tier().
 const WEAPON_AFFIX_DIR := "res://data/affixes/weapons/"
-## v4.10 local mods that belong on Conduits (every other local is martial).
+## Local mods that belong on Conduits (every other local is martial).
 const CONDUIT_LOCAL_KEYS := ["local_increased_spell_damage", "local_increased_cast_speed", "local_additional_spell_projectiles"]
 ## Weapon modifiers that make it onto only this share of drops' pools.
 const RARE_WEAPON_MODIFIERS := {"local_additional_arrows": 0.3, "local_additional_spell_projectiles": 0.3}
@@ -656,7 +624,7 @@ const OFF_WEAPON_AFFIXES := [
 	"aetheric_of_the_veil", "explosive_of_impact",  # Ward on kill
 	"excl_resonant",  # Cooldown Recovery Rate
 	"projectile_speed",
-	# v5.5: per-type ailment chance (generic_virulent / generic_hindering replace them)
+	# Per-type ailment chance (generic_virulent / generic_hindering replace them)
 	"fire_immolating", "cold_freezing", "lightning_discharging", "piercing_haemorrhaging",
 	"explosive_incendiary", "aetheric_devouring", "entropic_fraying", "pale_draining",
 	# Resource on ailment or kill (gloves and rings roll these now)
@@ -850,13 +818,8 @@ static func _build_candidate_meta_cache() -> void:
 			file_name = dir.get_next().trim_suffix(".remap")
 		dir.list_dir_end()
 
-## Patch v4.0: "slots" (optional, Array[Constants.EquipmentSlot]) and
-## "weapon_kind" (optional, "melee"/"ranged"/"conduit") narrow eligibility
-## further than the old applies_to category alone - _pool_for() itself
-## still gates by applies_to first, unchanged, since several v4.0 mods
-## span multiple categories at once (e.g. "All armor" = every Armor slot,
-## no slots restriction needed; "Body Armour, Helmet, Shield" = armor +
-## shield categories, narrowed further by slots for the armor half only).
+## applies_to gates by category first; optional "slots" (EquipmentSlot) and
+## "weapon_kind" ("melee"/"ranged"/"conduit") narrow it further.
 static func _pool_for(item: Item) -> Array:
 	if item.is_ranged_offhand():
 		return _ranged_offhand_pool(item)

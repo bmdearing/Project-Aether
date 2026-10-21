@@ -98,6 +98,9 @@ var _last_combat_msec: int = -OUT_OF_COMBAT_GRACE_MSEC - 1
 func is_in_combat() -> bool:
 	return Time.get_ticks_msec() - _last_combat_msec < OUT_OF_COMBAT_GRACE_MSEC
 
+func mark_in_combat() -> void:
+	_last_combat_msec = Time.get_ticks_msec()
+
 ## The other members of this enemy's spawn pack (shared Array, set by
 ## GeneratedMap._spawn_pack()). Hitting one pulls the whole pack in.
 var pack: Array = []

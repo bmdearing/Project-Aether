@@ -7,10 +7,13 @@ const KILL_Y := -25.0
 const PLAYER_FALL_DAMAGE_PERCENT := 0.15
 const SAFE_SPOT_INTERVAL_SEC := 0.25
 const RESPAWN_LIFT := 0.5
+## Enemies are checked a few times a second, not every physics frame.
+const ENEMY_CHECK_INTERVAL_SEC := 0.25
 
 var _safe_position: Vector3 = Vector3.ZERO
 var _has_safe_position := false
 var _safe_timer := 0.0
+var _enemy_timer := 0.0
 var _player: Player
 
 func _ready() -> void:
@@ -26,6 +29,10 @@ func _physics_process(delta: float) -> void:
 		_player = get_tree().get_first_node_in_group("player") as Player
 	if _player:
 		_track_player(delta)
+	_enemy_timer -= delta
+	if _enemy_timer > 0.0:
+		return
+	_enemy_timer = ENEMY_CHECK_INTERVAL_SEC
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if enemy is Enemy and enemy.global_position.y < KILL_Y and enemy.health.is_alive():
 			enemy.health.apply_damage(enemy.health.current_health + 1.0)

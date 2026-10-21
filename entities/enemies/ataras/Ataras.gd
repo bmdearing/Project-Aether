@@ -140,6 +140,15 @@ func abilities() -> Array:
 func phase_openers() -> Dictionary:
 	return {2: "shifting_sands", 3: "fiery_sun"}
 
+## Keep away and he comes apart into sand and reforms on your spot.
+func range_answers() -> Array:
+	return [
+		{"id": "mirage_step", "display_name": "Mirage Step", "kind": BossAbility.Kind.BLINK, "telegraph": 1.1, "radius": 3.5, "damage_mult": 1.6, "status": "slow"},
+	]
+
+func range_answer_distance() -> float:
+	return 12.0
+
 ## A Sand Pillar as each of PILLAR_AT is crossed, until the Sun.
 func urgent_ability(_distance: float) -> BossAbility:
 	if boss_brain == null or _pillars_cast >= PILLAR_AT.size() or boss_brain.phase >= 3:

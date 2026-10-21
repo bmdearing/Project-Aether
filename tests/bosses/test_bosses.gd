@@ -200,6 +200,39 @@ func _test_ability_kinds() -> void:
 	_check(_hurt() > 0.0, "and the slam after it lands")
 	_player.set_physics_process(false)
 	boss.free()
+
+	# LEAP and BLINK: the boss lands on the player's spot.
+	for kind in [Kind.LEAP, Kind.BLINK]:
+		boss = await _caster({"id": "jump", "kind": kind, "telegraph": 0.3, "radius": 3.0, "damage_mult": 1.0})
+		_heal_player()
+		_player.global_position = boss.global_position + Vector3(0, 0, 14)
+		await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+		_check(BossBrain._flat_distance(boss.global_position, _player.global_position) < 1.0, "kind %d: the boss lands on the player" % kind)
+		_check(_hurt() > 0.0, "kind %d: and hits on landing" % kind)
+		boss.free()
+
+	# WAVE: marches onto a player who stands still.
+	boss = await _caster({"id": "wave", "kind": Kind.WAVE, "telegraph": 0.3, "radius": 2.5, "count": 6, "damage_mult": 1.0})
+	_heal_player()
+	_player.global_position = boss.global_position + Vector3(0, 0, 14)
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	_check(_hurt() > 0.0, "a wave reaches a player standing still")
+	boss.free()
+
+	# LANCE: aimed at the cast, so a sidestep dodges it.
+	boss = await _caster({"id": "lance", "kind": Kind.LANCE, "telegraph": 0.3, "radius": 1.2, "damage_mult": 1.0})
+	_heal_player()
+	_player.global_position = boss.global_position + Vector3(0, 0, 18)
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	_check(_hurt() > 0.0, "a lance hits down its line")
+	_heal_player()
+	var sidestep := func():
+		await _seconds(0.1)
+		_player.global_position += Vector3(3, 0, 0)
+	sidestep.call()
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	_check(_hurt() == 0.0, "sidestepping a lance dodges it")
+	boss.free()
 	await _frames(2)
 	_finished += 1
 
@@ -701,13 +734,19 @@ func _test_sand_arena() -> void:
 	_check(player.health.current_health < before, "quicksand hurts the player (%.0f -> %.0f)" % [before, player.health.current_health])
 	_check(player.status_effects.has_effect("slow"), "quicksand slows the player")
 	sand.end_wedges()
-	# Range punish: a player staying far off fills its timer; it opens with a pull.
-	boss.boss_brain._player = player
-	player.global_position = boss.global_position + Vector3(20, 0, 0)
-	boss.boss_brain._far_time = 0.0
-	boss.boss_brain._tick_range_punish(1.0)
-	_check(boss.boss_brain._far_time > 0.0, "a far-off player fills the range punish timer")
-	_check(boss.boss_brain._range_punish_ability().kind == BossAbility.Kind.PULL, "range punish opens with a pull")
+	# Range answer: only once engaged; a far-off player fills its timer and gets Mirage Step.
+	var brain := boss.boss_brain
+	brain._player = player
+	boss.global_position = Vector3(sand.global_position.x, boss.global_position.y, sand.global_position.z)
+	player.global_position = boss.global_position + Vector3(15, 0, 0)
+	brain.engaged = false
+	brain._far_time = 0.0
+	brain._tick_range_answer(1.0)
+	_check(brain._far_time == 0.0, "a boss that isn't engaged doesn't answer range")
+	brain.engaged = true
+	brain._tick_range_answer(1.0)
+	_check(brain._far_time > 0.0, "a far-off player fills the range answer timer")
+	_check(brain._take_range_answer().kind == BossAbility.Kind.BLINK, "Ataras answers range with Mirage Step")
 	arena.queue_free()
 	await _frames(3)
 	_finished += 1

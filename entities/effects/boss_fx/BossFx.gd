@@ -207,11 +207,42 @@ static func trail(body: Node3D, damage_type: int, seconds: float) -> void:
 	p.scale_amount_max = 0.35
 	p.color_ramp = SpellFx.ramp(Color(color.lightened(0.4), 0.9), Color(color, 0.6), 0.2)
 	p.mesh = SpellFx.glow_quad()
-	body.get_tree().create_timer(seconds, false).timeout.connect(func() -> void:
-		if is_instance_valid(p):
-			p.emitting = false
-			SpellFx.free_after(p, 0.5))
+	SpellFx.stop_after(p, seconds, 0.5)
 	sound(pick(SoundLib.library.boss_whoosh), body.global_position, 0.0, 0.8)
+
+## A puff where the boss vanishes and a flare where it reappears.
+static func blink(parent: Node, from: Vector3, to: Vector3, damage_type: int) -> void:
+	var color := glow_of(damage_type)
+	SmokePuff.spawn(parent, from, 1.2, Color(color.darkened(0.5), 1.0))
+	SpellFx.flash(parent, from + Vector3.UP * 1.2, color, 3.0, 0.3)
+	SpellFx.flash(parent, to + Vector3.UP * 1.2, color, 3.5, 0.35)
+	SpellFx.burst(parent, to + Vector3.UP * 0.8, color, 30)
+	sound(pick(SoundLib.library.boss_whoosh), to, 0.0, 1.3)
+
+## A beam along `direction` for `length` metres that flares and thins out.
+static func lance(parent: Node, from: Vector3, direction: Vector3, length: float, damage_type: int) -> void:
+	var color := glow_of(damage_type)
+	var flat := Vector3(direction.x, 0, direction.z).normalized()
+	var beam := MeshInstance3D.new()
+	var mesh := CylinderMesh.new()
+	mesh.top_radius = 0.35
+	mesh.bottom_radius = 0.35
+	mesh.height = length
+	mesh.radial_segments = 12
+	mesh.rings = 1
+	beam.mesh = mesh
+	beam.material_override = SpellFx.energy_material(color, 3.0, 0.8)
+	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(beam)
+	beam.global_position = from + flat * length / 2.0
+	beam.global_basis = Basis.looking_at(flat, Vector3.UP) * Basis(Vector3.RIGHT, -PI / 2.0)
+	var tween := beam.create_tween()
+	tween.tween_property(beam, "scale", Vector3(0.05, 1.0, 0.05), 0.35).from(Vector3(1.6, 1.0, 1.6)) \
+		.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	tween.tween_callback(beam.queue_free)
+	SpellFx.flash(parent, from, color, 2.5, 0.25)
+	SpellFx.shards(parent, from + flat * length, color, 16)
+	sound(cast_sound(damage_type), from, 0.0, 0.8)
 
 ## A gate opening where a summoned unit steps through.
 static func summon_gate(parent: Node, at: Vector3, damage_type: int) -> void:
@@ -258,10 +289,7 @@ static func vortex(parent: Node, center: Vector3, radius: float, damage_type: in
 	p.scale_amount_max = 0.4
 	p.color_ramp = SpellFx.ramp(Color(color, 0.0), Color(color.lightened(0.2), 0.9), 0.5)
 	p.mesh = SpellFx.glow_quad()
-	parent.get_tree().create_timer(seconds, false).timeout.connect(func() -> void:
-		if is_instance_valid(p):
-			p.emitting = false
-			SpellFx.free_after(p, 1.2))
+	SpellFx.stop_after(p, seconds, 1.2)
 	sound(pick(SoundLib.library.boss_void_cast if damage_type == ENTROPIC else SoundLib.library.boss_whoosh), center, 0.0, 0.7)
 
 ## Entering a new phase: a ring of force, a flare and the boss's roar.

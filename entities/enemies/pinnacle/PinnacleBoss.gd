@@ -23,6 +23,9 @@ func _ready() -> void:
 		brain.abilities.append(BossAbility.make(fields))
 	brain.phase_thresholds = phase_thresholds()
 	brain.phase_openers = phase_openers()
+	for fields in range_answers():
+		brain.range_answers.append(BossAbility.make(fields))
+	brain.range_answer_distance = range_answer_distance()
 	add_child(brain)
 
 func _physics_process(delta: float) -> void:
@@ -76,6 +79,14 @@ func abilities() -> Array:
 ## Phase number -> opening ability id; overridden per boss.
 func phase_openers() -> Dictionary:
 	return {}
+
+## BossAbility field dictionaries cast in turn at a player keeping their
+## distance (BossBrain range answers); overridden per boss.
+func range_answers() -> Array:
+	return []
+
+func range_answer_distance() -> float:
+	return 13.0
 
 func _on_died() -> void:
 	if pinnacle_id != "":

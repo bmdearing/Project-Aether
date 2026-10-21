@@ -29,13 +29,21 @@ const SUMMON_CAP := 6
 const BLAST_STAGGER := 0.3
 ## Pulls stop this far from the boss.
 const PULL_STOP_DISTANCE := 2.5
-## Range punish (bosses only): a player who stays beyond RANGE_PUNISH_DISTANCE
-## for RANGE_PUNISH_DELAY seconds is dragged in and slammed; the next time,
-## shelled with a barrage instead. The two alternate.
-const RANGE_PUNISH_DISTANCE := 13.0
-const RANGE_PUNISH_REACH := 40.0
-const RANGE_PUNISH_DELAY := 5.0
-const RANGE_PUNISH_COOLDOWN := 10.0
+## The brain wakes once its boss is in combat (the player came inside its
+## chase range, or hit it) and keeps the boss chasing until the player is
+## past LEASH_RANGE.
+const LEASH_RANGE := 40.0
+## Range answers: a player the engaged boss can see, staying beyond
+## range_answer_distance for RANGE_ANSWER_DELAY seconds, gets the boss's
+## next range_answers entry (each boss has its own).
+const RANGE_ANSWER_DELAY := 4.0
+const RANGE_ANSWER_COOLDOWN := 10.0
+const LEAP_HEIGHT := 4.0
+## Share of a LEAP's telegraph spent crouching before take-off.
+const LEAP_CROUCH := 0.4
+const WAVE_STEP_SEC := 0.28
+## Metres a LANCE runs on past the player.
+const LANCE_OVERSHOOT := 8.0
 
 var abilities: Array[BossAbility] = []
 ## Health fractions that start phase 2, 3, ... (descending).
@@ -48,9 +56,13 @@ var global_gap: float = GLOBAL_GAP
 var opening_gap: float = OPENING_GAP
 ## Only casts while its enemy is in combat and can see the player (Ascendants).
 var require_sight: bool = false
+## Cast in turn at a player keeping their distance; empty for none.
+var range_answers: Array[BossAbility] = []
+var range_answer_distance: float = 13.0
 
 var phase: int = 1
 var casting: bool = false
+var engaged: bool = false
 
 var _boss: Enemy
 var _player: Player
@@ -59,8 +71,8 @@ var _gap: float = OPENING_GAP
 var _hazards: Array[Dictionary] = []
 var _summoned: Array[Node] = []
 var _far_time: float = 0.0
-var _punish_cooldown: float = 0.0
-var _punish_with_pull := true
+var _answer_cooldown: float = 0.0
+var _next_answer: int = 0
 
 func _ready() -> void:
 	_boss = get_parent() as Enemy
@@ -79,14 +91,14 @@ func _physics_process(delta: float) -> void:
 	var speed: float = 1.0 / _cooldown_scale()
 	for key in _cooldowns:
 		_cooldowns[key] = maxf(_cooldowns[key] - delta * speed, 0.0)
-	_tick_range_punish(delta)
-	if casting or _player == null or _boss.status_effects.is_stunned():
+	if _player == null:
 		return
-	if _far_time >= RANGE_PUNISH_DELAY and _punish_cooldown <= 0.0 and not _boss.is_mid_attack():
-		_far_time = 0.0
-		_punish_cooldown = RANGE_PUNISH_COOLDOWN
-		cast(_range_punish_ability())
-		_punish_with_pull = not _punish_with_pull
+	_update_engaged()
+	_tick_range_answer(delta)
+	if casting or not engaged or _boss.status_effects.is_stunned():
+		return
+	if _far_time >= RANGE_ANSWER_DELAY and _answer_cooldown <= 0.0 and not _boss.is_mid_attack():
+		cast(_take_range_answer())
 		return
 	# A follow-up the boss can't let pass (Aurelia burning an Entangled
 	# player) skips the gap and its cooldown.
@@ -107,33 +119,38 @@ func _physics_process(delta: float) -> void:
 	if ability:
 		cast(ability)
 
-func _tick_range_punish(delta: float) -> void:
-	_punish_cooldown = maxf(_punish_cooldown - delta, 0.0)
-	if require_sight or _boss.rank != Constants.EnemyRank.BOSS or _player == null:
-		_far_time = 0.0
+func _update_engaged() -> void:
+	if _boss.rank != Constants.EnemyRank.BOSS:
+		engaged = _boss.is_in_combat()
 		return
 	var dist := _flat_distance(_boss.global_position, _player.global_position)
-	if dist > RANGE_PUNISH_DISTANCE and dist <= RANGE_PUNISH_REACH:
-		_far_time += delta
-	else:
-		_far_time = 0.0
+	if engaged and dist > LEASH_RANGE:
+		engaged = false
+	elif not engaged:
+		engaged = _boss.is_in_combat() and dist <= LEASH_RANGE
+	if engaged:
+		_boss.mark_in_combat()
 
-func _range_punish_ability() -> BossAbility:
-	var a := BossAbility.new()
-	if _punish_with_pull:
-		a.id = "range_punish_pull"
-		a.kind = BossAbility.Kind.PULL
-		a.telegraph = 1.0
-		a.radius = 4.0
-		a.damage_mult = 1.6
-		a.max_range = _flat_distance(_boss.get_pull_center(), _player.global_position) + 2.0
-	else:
-		a.id = "range_punish_barrage"
-		a.kind = BossAbility.Kind.BLAST
-		a.telegraph = 1.1
-		a.radius = 3.2
-		a.count = 4
-		a.damage_mult = 1.4
+## Out of sight pauses the timer rather than resetting it, so ducking
+## behind a pillar between shots doesn't dodge the answer.
+func _tick_range_answer(delta: float) -> void:
+	_answer_cooldown = maxf(_answer_cooldown - delta, 0.0)
+	if not engaged or range_answers.is_empty() or require_sight:
+		_far_time = 0.0
+		return
+	if _flat_distance(_boss.global_position, _player.global_position) <= range_answer_distance:
+		_far_time = 0.0
+	elif _can_see_player():
+		_far_time += delta
+
+## The next answer in turn, stretched to reach the player where needed.
+func _take_range_answer() -> BossAbility:
+	_far_time = 0.0
+	_answer_cooldown = RANGE_ANSWER_COOLDOWN
+	var a := range_answers[_next_answer % range_answers.size()].copy()
+	_next_answer += 1
+	if a.kind == BossAbility.Kind.PULL:
+		a.max_range = maxf(a.max_range, _flat_distance(_boss.get_pull_center(), _player.global_position) + 2.0)
 	a.cooldown = 0.0
 	return a
 
@@ -221,6 +238,14 @@ func cast(a: BossAbility) -> void:
 			await _pull(s)
 		BossAbility.Kind.CUSTOM:
 			await _boss.cast_custom(a)
+		BossAbility.Kind.LEAP:
+			await _leap(s)
+		BossAbility.Kind.BLINK:
+			await _blink(s)
+		BossAbility.Kind.WAVE:
+			await _wave(s)
+		BossAbility.Kind.LANCE:
+			await _lance(s)
 	if not _alive():
 		return
 	casting = false
@@ -431,6 +456,84 @@ func _pull(a: BossAbility) -> void:
 	if _alive():
 		_hit_circle(center, a.radius, a)
 		ground_struck.emit(a, center, a.radius)
+
+## Lands where the player stood at the cast.
+func _leap(a: BossAbility) -> void:
+	var start := _boss.global_position
+	var target := _player.global_position
+	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
+	BossTelegraph.circle(_scene(), target, a.radius, a.telegraph, _tint(a))
+	_boss.on_ability_telegraph(a, target, a.telegraph)
+	var crouch := a.telegraph * LEAP_CROUCH
+	await _wait(crouch)
+	if not _alive():
+		return
+	var flight := a.telegraph - crouch
+	BossFx.trail(_boss, _type(a), flight + 0.2)
+	var t := 0.0
+	while t < flight:
+		await get_tree().physics_frame
+		if not _alive():
+			return
+		t += get_physics_process_delta_time()
+		var k := minf(t / flight, 1.0)
+		_boss.global_position = start.lerp(target, k) + Vector3.UP * sin(k * PI) * LEAP_HEIGHT
+		_boss.velocity = Vector3.ZERO
+	_hit_circle(target, a.radius, a)
+	ground_struck.emit(a, target, a.radius)
+
+func _blink(a: BossAbility) -> void:
+	var target := _player.global_position
+	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
+	BossTelegraph.circle(_scene(), target, a.radius, a.telegraph, _tint(a))
+	_boss.on_ability_telegraph(a, target, a.telegraph)
+	await _wait(a.telegraph)
+	if not _alive():
+		return
+	BossFx.blink(_scene(), _boss.global_position, target, _type(a))
+	_boss.global_position = target
+	_boss.velocity = Vector3.ZERO
+	_hit_circle(target, a.radius, a)
+	ground_struck.emit(a, target, a.radius)
+
+## Each circle steps a radius and a half toward where the player is now,
+## so standing still or running straight back gets caught.
+func _wave(a: BossAbility) -> void:
+	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
+	var spot := _boss.global_position
+	for i in a.count:
+		if not _alive() or _player == null:
+			return
+		var to := _player.global_position - spot
+		to.y = 0.0
+		spot += to.normalized() * minf(a.radius * 1.5, to.length()) if to.length() > 0.1 else Vector3.ZERO
+		spot.y = _player.global_position.y
+		_delayed_circle(spot, a)
+		await _wait(WAVE_STEP_SEC)
+	await _wait(a.telegraph)
+
+## Aimed once, at the cast: a sidestep during the telegraph dodges it.
+func _lance(a: BossAbility) -> void:
+	var origin := _boss.global_position
+	var to := _player.global_position - origin
+	to.y = 0.0
+	var dir := to.normalized() if to.length() > 0.1 else -_boss.global_transform.basis.z
+	var length := to.length() + LANCE_OVERSHOOT
+	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
+	BossTelegraph.line(_scene(), origin, dir, length, a.radius * 2.0, a.telegraph, _tint(a))
+	await _wait(a.telegraph)
+	if not _alive() or _player == null:
+		return
+	BossFx.lance(_scene(), _boss.get_cast_origin(), dir, length, _type(a))
+	var rel := _player.global_position - origin
+	rel.y = 0.0
+	var along := rel.dot(dir)
+	if along >= 0.0 and along <= length and (rel - dir * along).length() <= a.radius and _player.health.is_alive():
+		_damage_player(a)
 
 ## Ground abilities land in their element; hazard pools open quieter.
 func _on_ground_struck(a: BossAbility, center: Vector3, radius: float) -> void:

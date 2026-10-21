@@ -205,6 +205,15 @@ static func ground_mark(parent: Node, at: Vector3, radius: float, pattern: Mark,
 static func free_after(node: Node, seconds: float) -> void:
 	node.get_tree().create_timer(seconds, false).timeout.connect(node.queue_free)
 
+## Stops `p` emitting after `seconds` and frees it `fade` later. Runs on p's
+## own tween, so it simply ends if p is freed first (its owner dying).
+static func stop_after(p: CPUParticles3D, seconds: float, fade: float) -> void:
+	var tween := p.create_tween()
+	tween.tween_interval(seconds)
+	tween.tween_callback(p.set.bind("emitting", false))
+	tween.tween_interval(fade)
+	tween.tween_callback(p.queue_free)
+
 ## An open tube from base_r at the ground to top_r at `height` (radius eased
 ## by `taper`), UV.x around 0..1 and UV.y bottom 0 -> top 1. Flames, funnels.
 static func tube(base_r: float, top_r: float, height: float, rings: int = 12, segments: int = 32, taper: float = 1.0) -> ArrayMesh:

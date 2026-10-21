@@ -89,6 +89,18 @@ func abilities() -> Array:
 func phase_openers() -> Dictionary:
 	return {2: "call_the_hollow", 3: "unmaking"}
 
+## A lance down the line you stand on, then a grasp that stops at the Maw's
+## edge (an Anchor pylon holds you against it).
+func range_answers() -> Array:
+	var entropic := Constants.DamageType.ENTROPIC
+	return [
+		{"id": "entropic_lance", "display_name": "Entropic Lance", "kind": BossAbility.Kind.LANCE, "telegraph": 0.9, "radius": 1.3, "damage_mult": 1.9, "damage_type": entropic},
+		{"id": "grasp_of_the_void", "display_name": "Grasp of the Void", "kind": BossAbility.Kind.PULL, "telegraph": 1.2, "radius": MawArena.MAW_RADIUS + 3.5, "pull_stop": MawArena.MAW_RADIUS + 1.5, "damage_mult": 1.7, "damage_type": entropic},
+	]
+
+func range_answer_distance() -> float:
+	return 16.0
+
 func arena() -> MawArena:
 	if not is_instance_valid(_arena) and is_inside_tree():
 		_arena = get_tree().get_first_node_in_group("maw_arena") as MawArena
