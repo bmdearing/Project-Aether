@@ -62,9 +62,16 @@ func entries() -> Array:
 			"cost": 0,
 			"color": Constants.ITEM_RARITY_COLOR[lens.rarity],
 			"item": lens,
-			"on_buy": func(): return _give(Pinnacle.make_maw_lens(level)),
+			"on_buy": func(): return _give(_copy_lens(lens, level)),
 		})
 	return list
+
+## A copy of the Lens the row shows, so its rolled effect is what you get.
+func _copy_lens(lens: Lens, level: int) -> Lens:
+	var copy := lens.duplicate(true) as Lens
+	copy.item_id = "lens_%s_%d" % [lens.unique_id, randi()]
+	copy.item_level = level
+	return copy
 
 ## "any"-base uniques (corrupted-only, made from an existing item) go on a ring.
 func _build(def: Dictionary, level: int) -> Item:
