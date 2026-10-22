@@ -30,7 +30,7 @@ const BASE_ITEM_DIRS := [
 ]
 
 ## Base lines that never roll, matched as substrings of Item.base_line_id.
-## Infusion Grenades are the one throwable line with no identity yet; their old Item bases stay.
+## Infusion Grenades are retired: their bases stay so old saves load, but they never roll or show in the Wiki.
 const EXCLUDED_ITEM_TYPES := ["infusion_grenade"]
 
 static func _is_excluded_line(base_line_id: String) -> bool:

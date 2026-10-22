@@ -1080,8 +1080,8 @@ equippable from `InventoryScreen`, or stays on the ground if there's no room; a 
   `PlayerRangedAttack.THROW_PROFILES`. Line 2 javelins (Pressure) burst for
   2.2 m and line 2 grenades for 4.5 m; increased Area of Effect scales the
   blasts. The viewmodel family is `&"thrown"` (overhand throw, the held
-  model hides until the hand comes back). Infusion Grenades are still
-  excluded from drops (`ItemRoller.EXCLUDED_ITEM_TYPES`); `ThrowableStack.gd`
+  model hides until the hand comes back). Infusion Grenades are retired
+  (`ItemRoller.EXCLUDED_ITEM_TYPES`: bases kept for saves, never roll); `ThrowableStack.gd`
   and its HUD hooks remain unused.
 - **Quivers and pouches** (v5.12): offhand items (`Item.item_type` `quiver` /
   `pouch`, `data/items/instances/gen_quiver_*`, `gen_pouch_*`) that sit
