@@ -605,8 +605,6 @@ func _aura_shred() -> float:
 ## Staggered: interrupted in the last STAGGER_SECONDS, or Broken (Composure).
 const STAGGER_SECONDS := 1.5
 var _staggered_until_msec: int = 0
-## Whether the latest hit landed before this enemy was in combat (unaware).
-var last_hit_was_unaware: bool = false
 
 func is_staggered() -> bool:
 	return Time.get_ticks_msec() < _staggered_until_msec or (composure != null and composure.is_broken)
@@ -1248,8 +1246,6 @@ func _spawn_slate_pickup(slate: Slate) -> void:
 ## ignore_armor: War Pick's Armor Pierce.
 func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: bool = false, can_evade: bool = false, is_dot: bool = false, ignore_armor: bool = false) -> bool:
 	var newly_aware := not is_in_combat()
-	if not is_dot:
-		last_hit_was_unaware = newly_aware
 	_last_combat_msec = Time.get_ticks_msec()
 	_alert_pack(newly_aware)
 	if invulnerable:

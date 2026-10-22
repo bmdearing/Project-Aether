@@ -145,7 +145,6 @@ const SECTIONS := [
 		["generic_savage", "Savage", "%d%% increased damage (generic - does not travel through conversion chains)", true, 34.0, 38.0, 80, []],
 		["generic_deadly", "Deadly", "%d%% increased Critical Strike damage", true, 38.0, 44.0, 78, []],
 		["generic_fluid", "Fluid", "%d%% increased Attack Speed", true, 14.0, 16.0, 74, []],
-		["generic_relentless", "Relentless", "%d%% increased damage vs enemies below 35%% health", true, 34.0, 40.0, 72, []],
 		["generic_of_strength", "of Strength", "+%d Strength", false, 24.0, 30.0, 1, []],
 		["generic_of_agility", "of Agility", "+%d Agility", false, 24.0, 30.0, 1, []],
 		["generic_of_intellect", "of Intellect", "+%d Intellect", false, 24.0, 30.0, 1, []],
@@ -156,7 +155,6 @@ const SECTIONS := [
 	{"dir": "exclusive", "damage_type": -1, "is_generic": false, "rows": [
 		["excl_riposte_edge", "Riposte's Edge", "%d%% increased Riposte damage (Rapier/Saber only)", true, 54.0, 64.0, 76, ["rapier", "saber"]],
 		["excl_of_the_counterstrike", "of the Counterstrike", "Riposte deals bonus damage equal to %d%% of triggering hit (Rapier/Saber only)", false, 18.0, 22.0, 72, ["rapier", "saber"]],
-		["excl_assassins_mark", "Assassin's Mark", "%d%% increased damage against unaware enemies (Dagger only)", true, 64.0, 76.0, 74, ["dagger"]],
 		["excl_of_the_shadow", "of the Shadow", "%d%% increased Stealth duration (Dagger only)", false, 44.0, 52.0, 68, ["dagger"]],
 		["excl_shattering", "Shattering", "%d%% increased Stagger effect (Mace/War Pick/Pressure Fist only)", true, 44.0, 52.0, 74, ["mace", "war_pick", "pressure_fist"]],
 		["excl_of_the_colossus", "of the Colossus", "Staggered enemies take %d%% increased damage (Mace/War Pick/Pressure Fist only)", false, 28.0, 34.0, 72, ["mace", "war_pick", "pressure_fist"]],

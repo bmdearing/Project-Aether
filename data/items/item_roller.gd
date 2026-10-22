@@ -638,7 +638,11 @@ const OFF_WEAPON_AFFIXES := [
 	"excl_channelers",  # weaker than local Spell Damage
 ]
 ## Removed from the game (files deleted); ItemSerializer strips them from saved items.
-const REMOVED_WEAPON_AFFIXES := ["generic_opportunist", "excl_of_the_hunt"]  # damage vs full Life
+const REMOVED_WEAPON_AFFIXES := [
+	"generic_opportunist", "excl_of_the_hunt",  # damage vs full Life
+	"generic_relentless",  # damage vs low Life
+	"excl_assassins_mark",  # damage vs unaware (Dagger)
+]
 static var _weapon_affix_cache: Array[ItemAffix] = []
 
 static func _build_weapon_affix_cache() -> void:

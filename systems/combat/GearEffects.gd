@@ -1,8 +1,8 @@
 extends Node
 class_name GearEffects
 ## Gear modifiers that react to a hit or a kill rather than adding to a
-## total: "increased damage vs Chilled / low Life / ... enemies", "while
-## moving", "at range", vs Staggered / unaware enemies, after a melee hit;
+## total: "increased damage vs Chilled / ... enemies", "while
+## moving", "at range", vs Staggered enemies, after a melee hit;
 ## Stagger and explosion procs; Life/Ward/Mana gained on hit, kill or ailment.
 ## Lives on the Player and reads its StatSheet (StatKeys canonical keys).
 ## Conditional damage is dealt as an extra hit of the same type for that
@@ -18,7 +18,6 @@ const VS_STATUS := {
 	"damage_vs_aetherburn": "aetherburn",
 }
 ## Below this share of max Life an enemy counts as low ("below 35% health").
-const LOW_LIFE := 0.35
 ## Further than this from the player counts as "outside melee range".
 const RANGED_DISTANCE := 4.5
 ## Seconds after a melee hit that "damage after melee" lasts.
@@ -68,18 +67,12 @@ func conditional_percent(enemy: Enemy, amount: float) -> float:
 		for key in VS_STATUS:
 			if _bonus(key) > 0.0 and enemy.status_effects.has_effect(VS_STATUS[key]):
 				total += _bonus(key)
-	var life := enemy.health.current_health
-	var max_life := maxf(enemy.health.max_health, 1.0)
-	if life > 0.0 and life / max_life < LOW_LIFE:
-		total += _bonus("damage_vs_low_life")
 	if Vector2(_player.velocity.x, _player.velocity.z).length() > UniqueEffects.MOVING_SPEED:
 		total += _bonus("damage_while_moving")
 	if _player.global_position.distance_to(enemy.global_position) > RANGED_DISTANCE:
 		total += _bonus("damage_at_range")
 	if enemy.is_staggered():
 		total += _bonus("damage_vs_staggered")
-	if enemy.last_hit_was_unaware:
-		total += _bonus("damage_vs_unaware")
 	if Time.get_ticks_msec() - _last_melee_msec <= AFTER_MELEE_SECONDS * 1000.0:
 		total += _bonus("damage_after_melee")
 	return total

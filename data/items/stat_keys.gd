@@ -136,7 +136,6 @@ const ALIASES := {
 	"pale_threshold": "damage_vs_pallid",
 	"entropic_decaying": "damage_vs_unraveling",
 	"aetheric_eroding": "damage_vs_aetherburn",
-	"generic_relentless": "damage_vs_low_life",
 	"increased_damage_while_moving": "damage_while_moving",
 	"increased_damage_outside_melee_range": "damage_at_range",
 	"increased_physical_damage_reach": "damage_at_range",
@@ -170,7 +169,6 @@ const ALIASES := {
 	"excl_of_the_colossus": "damage_vs_staggered",
 	"increased_damage_vs_broken": "damage_vs_staggered",
 	# Situational
-	"excl_assassins_mark": "damage_vs_unaware",
 	"excl_of_the_shadow": "stealth_effect",
 	"increased_spell_damage_in_stance": "spell_damage_in_stance",
 	"excl_of_the_counterstrike": "riposte_counter_damage",

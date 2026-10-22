@@ -13,6 +13,7 @@ there. Most recent first.
 - **Mantling** can't start mid-swing, shot, parry, cast or reload (`Player.is_mid_action()`), always takes at least 0.5 s, and plays a clip that drops the weapon low while you climb (`PlayerArmRig.play_mantle`). Spells, stances, shield block and weapon swap are locked while hanging or mantling (`Player.is_action_locked()`); attacks already were.
 - **Lenses in Slates:** a placed Slate keeps its Lenses (a cheap Lens lowers its Aether cost). Its card on the board now says so and how to get them out: right-click the Slate off the board, then Ctrl+right-click it in the inventory. Slate cards in the inventory show the Ctrl+right-click hint. `Slate.take_lenses_out()` holds the logic.
 - Infusion Grenades retired (bases kept for old saves).
+- Removed from the game (user): Relentless (increased damage vs enemies below 35% Life) and Assassin's Mark (Dagger, vs unaware enemies). Saved items lose them on load (`ItemRoller.REMOVED_WEAPON_AFFIXES`).
 
 ---
 
