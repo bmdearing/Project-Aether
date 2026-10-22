@@ -12,6 +12,7 @@ const GOLD := Color(0.86, 0.66, 0.34)
 const STONE := Color(0.2, 0.165, 0.15)
 const SHARD_COUNT := 5
 const PRONG_COUNT := 4
+const SHARD_ORBIT_SPEED := 0.15
 
 var awake := false
 
@@ -19,6 +20,8 @@ var _speed := 1.0
 var _glow := 1.0
 var _surge := 0.0
 var _t := 0.0
+## Shard orbit angle, accumulated so spin changes never make it jump.
+var _orbit := 0.0
 var _rings: Array[Node3D] = []
 var _ring_axes: Array[Vector3] = [Vector3.RIGHT, Vector3.FORWARD, Vector3.UP]
 var _ring_speeds: Array[float] = [0.55, -0.8, 1.15]
@@ -61,11 +64,12 @@ func _process(delta: float) -> void:
 	var spin := _speed + _surge * 4.0
 	for i in _rings.size():
 		_rings[i].rotate_object_local(_ring_axes[i], _ring_speeds[i] * spin * delta)
+	_orbit += delta * SHARD_ORBIT_SPEED * lerpf(1.0, spin, 0.35)
 	for i in _shards.size():
-		var a := _t * 0.45 * spin * 0.6 + TAU * i / _shards.size()
+		var a := _orbit + TAU * i / _shards.size()
 		var r := 1.2 + 0.08 * sin(_t * 1.3 + i)
 		_shards[i].position = Vector3(cos(a) * r, 0.25 * sin(_t * 0.9 + i * 1.7), sin(a) * r)
-		_shards[i].rotate_y(delta * 1.6 * spin)
+		_shards[i].rotate_y(delta * 0.6)
 	_core_root.position.y = CORE_HEIGHT + 0.05 * sin(_t * 1.1)
 	var pulse := 0.5 + 0.5 * sin(_t * 2.2)
 	var glow := _glow + _surge * 1.2
