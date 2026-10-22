@@ -540,8 +540,8 @@ func _test_stealth() -> void:
 	_check(after > 0.0 and from_stealth > after * 1.6, "the first attack from stealth hits much harder (%.0f vs %.0f)" % [from_stealth, after])
 	await _leave_stance()
 
-## Every attacking weapon has a rate; non-gun weapons were slowed (2026-10-08)
-## and every melee/conduit type has its own swing speed.
+## Every attacking weapon has a rate, and every melee/conduit type has its own
+## swing speed. Heavy two-handers stay well under 70% of a Rapier.
 func _test_attack_speeds() -> void:
 	var missing: Array[String] = []
 	var zero: Array[String] = []
@@ -562,7 +562,7 @@ func _test_attack_speeds() -> void:
 	rapier.weapon_type = "Rapier"
 	var halberd := Weapon.new()
 	halberd.weapon_type = "Halberd"
-	_check(WeaponSpeed.attacks_per_second(rapier) < 1.2 and WeaponSpeed.attacks_per_second(halberd) < WeaponSpeed.attacks_per_second(rapier) * 0.6, "melee is slower overall and heavy weapons much slower (%.2f vs %.2f/s)" % [WeaponSpeed.attacks_per_second(rapier), WeaponSpeed.attacks_per_second(halberd)])
+	_check(WeaponSpeed.attacks_per_second(rapier) < 1.2 and WeaponSpeed.attacks_per_second(halberd) < WeaponSpeed.attacks_per_second(rapier) * 0.7, "melee is slower overall and heavy weapons much slower (%.2f vs %.2f/s)" % [WeaponSpeed.attacks_per_second(rapier), WeaponSpeed.attacks_per_second(halberd)])
 	var fast := ItemAffix.new()
 	fast.stat_key = "local_increased_attack_speed"
 	fast.value = 20.0

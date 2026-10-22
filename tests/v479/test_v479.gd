@@ -62,8 +62,17 @@ func _test_ceilings() -> void:
 			corridors += map.graph.rooms[cell].connections.size()
 		corridors /= 2
 		_check(map.is_indoor(), "%s is indoors" % style_id)
-		_check(ceilings.size() == map.graph.rooms.size() + corridors, "%s roofs every room and corridor (%d for %d + %d)" % [style_id, ceilings.size(), map.graph.rooms.size(), corridors])
-		_check(ceilings.all(func(c): return is_equal_approx(c.position.y, map.layout.wall_height + GeneratedMap.CEILING_THICKNESS / 2.0)), "%s ceilings sit on the walls" % style_id)
+		# A secret chamber (dungeon layouts, one at most) has its own roof.
+		var chambers := 1 if map.secret else 0
+		_check(ceilings.size() == map.graph.rooms.size() + corridors + chambers, "%s roofs every room, corridor and secret chamber (%d for %d + %d + %d)" % [style_id, ceilings.size(), map.graph.rooms.size(), corridors, chambers])
+		# Room roofs sit on that room's own walls, raised rooms included.
+		var unroofed := 0
+		for cell in map.graph.rooms:
+			var origin := map._cell_to_world(cell)
+			var top := origin.y + map._wall_height_of(cell) + GeneratedMap.CEILING_THICKNESS / 2.0
+			if not ceilings.any(func(c): return Vector2(c.position.x - origin.x, c.position.z - origin.z).length() < 0.05 and is_equal_approx(c.position.y, top)):
+				unroofed += 1
+		_check(unroofed == 0, "%s room ceilings sit on their walls (%d off)" % [style_id, unroofed])
 		_check(ceilings.all(func(c): return c is MeshInstance3D and c.get_child_count() == 1 and c.get_child(0) is StaticBody3D and c.get_child(0).collision_layer == 1 << (GeneratedMap.CEILING_LAYER - 1)), "%s ceilings are solid on the ceiling layer" % style_id)
 		_check(map.atmosphere == null, "%s has no sky or weather" % style_id)
 		map.queue_free()

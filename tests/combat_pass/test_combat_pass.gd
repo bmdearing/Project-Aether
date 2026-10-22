@@ -134,7 +134,8 @@ func _test_status_chance() -> void:
 	_player.stat_sheet.misc_bonus.erase("increased_ailment_duration_ignite")
 	var before := dummy.health.current_health
 	var numbers_before := _damage_numbers()
-	await get_tree().create_timer(0.6).timeout
+	# DoT numbers are batched: the first shows once a tick lands DOT_REPORT_INTERVAL after the first tick.
+	await get_tree().create_timer(StatusEffectComponent.DOT_REPORT_INTERVAL * 2.0 + 0.2).timeout
 	_check(dummy.health.current_health < before and _damage_numbers() > numbers_before, "Ignite ticks show damage numbers")
 	dummy.queue_free()
 	await _frames(1)

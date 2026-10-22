@@ -238,7 +238,7 @@ func _spawn_dummy(parent: Node3D, pos: Vector3) -> Enemy:
 		melee.set_physics_process(false)
 	return enemy
 
-## Once its wind-up starts, an enemy stays put even as the player backs off.
+## Once its wind-up starts, an enemy's lunge carries it at most Enemy.LUNGE_MAX after a retreating player.
 func _test_attack_lock() -> void:
 	var arena := _flat_arena()
 	var player: Player = load("res://entities/player/Player.tscn").instantiate()
@@ -260,7 +260,7 @@ func _test_attack_lock() -> void:
 	player.global_position = Vector3(0, 0, 6.0)
 	await _frames(20)
 	var moved := Vector2(enemy.global_position.x - start.x, enemy.global_position.z - start.z).length()
-	_check(moved < 0.05, "enemy rooted mid-attack (moved %.2fm)" % moved)
+	_check(moved <= Enemy.LUNGE_MAX + 0.05, "enemy's mid-attack lunge stays within %.0f m (moved %.2fm)" % [Enemy.LUNGE_MAX, moved])
 	arena.queue_free()
 	await _frames(2)
 	_finished += 1
@@ -279,7 +279,8 @@ func _test_kill_box_and_portal() -> void:
 		break
 	if enemy:
 		enemy.global_position = Vector3(0, KillBox.KILL_Y - 5.0, 0)
-		await _frames(3)
+		# KillBox checks enemies a few times a second, not every frame.
+		await _frames(int(KillBox.ENEMY_CHECK_INTERVAL_SEC * Engine.physics_ticks_per_second) + 5)
 		_check(not enemy.health.is_alive(), "fallen enemy killed")
 	player.global_position = map.last_player_spawn
 	await _frames(4)
