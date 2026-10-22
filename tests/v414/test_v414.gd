@@ -273,11 +273,6 @@ func _test_kill_box_and_portal() -> void:
 	add_child(map)
 	await _frames(6)
 	var player := get_tree().get_first_node_in_group("player") as Player
-	var hp_before := player.health.current_health
-	player.global_position = Vector3(0, KillBox.KILL_Y - 5.0, 0)
-	await _frames(3)
-	_check(player.global_position.y > KillBox.KILL_Y, "fallen player returned to safe ground")
-	_check(player.health.current_health < hp_before, "falling costs some life")
 	var enemy: Enemy = null
 	for e in get_tree().get_nodes_in_group("enemy"):
 		enemy = e
@@ -293,8 +288,12 @@ func _test_kill_box_and_portal() -> void:
 	var portal: Portal = map._portal
 	var floor_hit := _ray_down(map, portal.global_position + Vector3.UP)
 	_check(not floor_hit.is_empty() and absf(floor_hit["position"].y - portal.global_position.y) < 0.05, "portal stands on the floor")
+	player.global_position = Vector3(0, KillBox.KILL_Y - 5.0, 0)
+	await _frames(3)
+	_check(not player.health.is_alive(), "falling out of a map kills the player")
 	map.queue_free()
 	GameState.active_map = null
+	get_tree().paused = false
 	await _frames(2)
 	_finished += 1
 
@@ -317,6 +316,12 @@ func _test_hub() -> void:
 	_check(nexus != null and nexus.get_child_count() > 50, "Memory Nexus built (%d nodes)" % (nexus.get_child_count() if nexus else 0))
 	var void_hit := _ray_down(hub, Vector3(40, 2, 40))
 	_check(void_hit.is_empty() or void_hit["position"].y < -2.0, "the void beyond the platforms is open")
+	var hub_player := get_tree().get_first_node_in_group("player") as Player
+	_check(hub_player != null, "hub spawned a player")
+	if hub_player:
+		hub_player.global_position = Vector3(0, KillBox.KILL_Y - 5.0, 0)
+		await _frames(3)
+		_check(hub_player.health.is_alive() and hub_player.global_position.y > KillBox.KILL_Y, "falling in the Hub puts the player back")
 	hub.queue_free()
 	await _frames(2)
 	_finished += 1

@@ -271,6 +271,8 @@ class EntryBlock extends Button:
 			return card
 		card.craft_preview_for = view.craft_preview
 		if entry.content is Slate:
+			if not (entry.content as Slate).lenses.is_empty():
+				card.footer_lines.append("Ctrl+right-click in the inventory to take its Lenses out.")
 			card.display_slate(entry.content)
 			return card
 		card.compare_against = ItemCompare.equipped_for(entry.content)

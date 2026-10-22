@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-22 — Falls, mantling, Lens removal
+
+- **Falling out of the world kills** everywhere except the Hub (`KillBox`; the Hub root is in group `hub`). It used to put you back with 15% Life lost.
+- **Mantling** can't start mid-swing, shot, parry, cast or reload (`Player.is_mid_action()`), always takes at least 0.5 s, and plays a clip that drops the weapon low while you climb (`PlayerArmRig.play_mantle`). Spells, stances, shield block and weapon swap are locked while hanging or mantling (`Player.is_action_locked()`); attacks already were.
+- **Lenses in Slates:** a placed Slate keeps its Lenses (a cheap Lens lowers its Aether cost). Its card on the board now says so and how to get them out: right-click the Slate off the board, then Ctrl+right-click it in the inventory. Slate cards in the inventory show the Ctrl+right-click hint. `Slate.take_lenses_out()` holds the logic.
+- Infusion Grenades retired (bases kept for old saves).
+
+---
+
 ## 2026-10-21 — v5.12.6: Boss range answers, audit fixes
 
 User request: bosses acquired the player and pulled from too far away; each boss should answer ranged play its own way.

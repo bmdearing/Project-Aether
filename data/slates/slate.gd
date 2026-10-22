@@ -53,6 +53,16 @@ func lensed_aether_cost() -> int:
 func free_sockets() -> int:
 	return maxi(sockets - lenses.size(), 0)
 
+## Moves its Lenses into the inventory as far as room allows; returns how many.
+func take_lenses_out() -> int:
+	var moved := 0
+	for lens in lenses.duplicate():
+		if not GameState.add_to_inventory(lens):
+			break
+		lenses.erase(lens)
+		moved += 1
+	return moved
+
 ## Lowercase tag names the Orb crafting system matches Category Brands against.
 func get_slate_tags() -> Array[StringName]:
 	var tags: Array[StringName] = []

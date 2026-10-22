@@ -234,6 +234,10 @@ const BOW_RELEASE := [
 ]
 
 ## Visceral attack: draw back, plunge deep, twist, then tear out down and away.
+const MANTLE := [
+	["w", 1.0, Vector3(0.1, -0.3, 0.08), Vector3(0.45, -0.6, -0.65), null, 0.5],
+	["s", 1.0, Vector3(0.08, -0.34, 0.04), Vector3(0.4, -0.65, -0.65), null, 0.8],
+]
 const VISCERAL := [
 	["w", 1.0, Vector3(0.05, 0.03, 0.18), Vector3(-0.05, 0.25, -1), null, 0.45],
 	["s", 0.3, Vector3(-0.12, 0.0, -0.42), Vector3(-0.1, 0.05, -1), null, 2.4],
@@ -580,6 +584,13 @@ func _update_trail(delta: float) -> void:
 ## Gun bash: a short forward shove of the held weapon.
 func play_bash(windup: float, strike: float, recovery: float) -> void:
 	_start(_main_track, STAB, windup, strike, recovery, _main_rest())
+
+## Mantling: the weapon drops low and out of the way while the hands haul the
+## body up, then comes back up over the last part of `duration`.
+func play_mantle(duration: float) -> void:
+	_start(_main_track, MANTLE, duration * 0.3, duration * 0.4, duration * 0.3, _main_rest())
+	if _off_mode != OffMode.HIDDEN:
+		_start(_off_track, _mirror(MANTLE), duration * 0.3, duration * 0.4, duration * 0.3, _off_rest())
 
 ## The visceral clip: plunged in by `plunge`, torn out over `rip`.
 func play_visceral(plunge: float, rip: float) -> void:

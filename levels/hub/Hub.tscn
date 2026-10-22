@@ -34,7 +34,7 @@ ambient_light_source = 2
 ambient_light_color = Color(0.4, 0.45, 0.5, 1)
 ambient_light_energy = 0.5
 
-[node name="Hub" type="Node3D"]
+[node name="Hub" type="Node3D" groups=["hub"]]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_1")

@@ -340,8 +340,9 @@ over the clip's authored speed (MDX sequence MoveSpeed, carried into
 `MdxModel.clip_move_speeds` by the wrapper builder, or
 `AnimationSet.walk_clip_speed` when the MDX has none), so feet don't slide.
 **Kill box** (`autoloads/KillBox.gd`, every scene): an enemy that falls
-below y = -25 dies (normal rewards); the player is put back on the last
-ground they stood on and loses 15% of max Life.
+below y = -25 dies (normal rewards). So does the player, except in the
+Hub (root in group `hub`), where they go back to the last ground they
+stood on.
 **Mob balance (v4.14)**: `Constants.MOB_BASE_HEALTH` light 30 / standard
 55 / heavy 110 / elite 280 / boss 1600 (a level-1 standard mob is ~4 hits
 from the starter Crude Greatsword); `MOB_BASE_DAMAGE` 5/9/15/24/45. The

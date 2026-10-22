@@ -1,10 +1,9 @@
 extends Node
 ## World kill plane for every scene. Enemies that fall below KILL_Y die
-## (rewards and all); the player is put back on the last ground they stood
-## on, losing a slice of life in a map (the Hub's void is free to fall into).
+## (rewards and all). The player dies too, except in the Hub, where they're
+## put back on the last ground they stood on.
 
 const KILL_Y := -25.0
-const PLAYER_FALL_DAMAGE_PERCENT := 0.15
 const SAFE_SPOT_INTERVAL_SEC := 0.25
 const RESPAWN_LIFT := 0.5
 ## Enemies are checked a few times a second, not every physics frame.
@@ -39,7 +38,7 @@ func _physics_process(delta: float) -> void:
 
 func _track_player(delta: float) -> void:
 	if _player.global_position.y < KILL_Y:
-		_rescue_player()
+		_fall_out()
 		return
 	_safe_timer -= delta
 	if _safe_timer <= 0.0 and _player.is_on_floor():
@@ -47,10 +46,10 @@ func _track_player(delta: float) -> void:
 		_safe_position = _player.global_position
 		_has_safe_position = true
 
-func _rescue_player() -> void:
-	var map := get_tree().get_first_node_in_group("generated_map") as GeneratedMap
-	var target := _safe_position if _has_safe_position else (map.last_player_spawn if map else Vector3.ZERO)
-	_player.global_position = target + Vector3(0, RESPAWN_LIFT, 0)
+func _fall_out() -> void:
+	if get_tree().get_first_node_in_group("hub") == null:
+		if _player.health:
+			_player.health.apply_damage(_player.health.current_health + 1.0)
+		return
+	_player.global_position = (_safe_position if _has_safe_position else Vector3.ZERO) + Vector3(0, RESPAWN_LIFT, 0)
 	_player.velocity = Vector3.ZERO
-	if map and _player.health and _player.health.is_alive():
-		_player.health.apply_damage(_player.health.max_health * PLAYER_FALL_DAMAGE_PERCENT)

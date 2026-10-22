@@ -62,7 +62,7 @@ func restore(amount: float) -> void:
 func _physics_process(delta: float) -> void:
 	var max_composure := get_max_composure()
 	var wants := overrides_stance() and Input.is_action_pressed("stance") \
-			and not _player.status_effects.is_stunned() and not _player.is_input_blocked()
+			and not _player.status_effects.is_stunned() and not _player.is_action_locked()
 	if is_raised and not wants:
 		_lower()
 	elif not is_raised and wants and _player.melee_attack.is_idle() and _can_raise(max_composure):

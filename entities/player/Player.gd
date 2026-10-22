@@ -768,7 +768,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		head.rotate_x(-event.relative.y * sensitivity)
 		var clamped_x: float = clamp(head.rotation.x, deg_to_rad(-max_look_up_deg), deg_to_rad(max_look_up_deg))
 		head.rotation.x = clamped_x
-	elif event.is_action_pressed("weapon_swap_scroll") and not is_input_blocked():
+	elif event.is_action_pressed("weapon_swap_scroll") and not is_action_locked():
 		# One swap per flick: a wheel notch fires several events.
 		var now := Time.get_ticks_msec()
 		if now - _last_scroll_swap_msec >= SCROLL_SWAP_COOLDOWN_MSEC:
@@ -780,6 +780,14 @@ func _unhandled_input(event: InputEvent) -> void:
 ## Headless runs (tests) can't capture the mouse, so they never count as blocked.
 func is_input_blocked() -> bool:
 	return Input.mouse_mode != Input.MOUSE_MODE_CAPTURED and DisplayServer.get_name() != "headless"
+
+## Combat input is off: a menu is open, or the player hangs on or mantles a ledge.
+func is_action_locked() -> bool:
+	return is_input_blocked() or ledge_climb.busy()
+
+## Swinging, shooting, parrying, casting or reloading: too busy to catch a ledge.
+func is_mid_action() -> bool:
+	return arm_rig.is_animating() or not melee_attack.is_idle() or cast_time_handler.is_casting() or ranged_attack.is_reloading()
 
 func _physics_process(delta: float) -> void:
 	if ledge_climb.busy():

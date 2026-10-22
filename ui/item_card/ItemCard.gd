@@ -118,7 +118,7 @@ const HINT_COLOR := Color(0.6, 0.75, 0.6)
 const SOCKETED_COLOR := Color(0.55, 0.85, 0.9)
 const UNIQUE_MOD_COLOR := Color(0.95, 0.68, 0.38)
 const JEWEL_HINT := "Right-click to pick up, then click an item with a free socket. Socketing is permanent."
-const LENS_HINT := "Right-click to pick up, then click a Slate with a free socket or a reached Star on the Fate Board. Ctrl+right-click the Slate to take it out."
+const LENS_HINT := "Right-click to pick up, then click a Slate with a free socket or a reached Star on the Fate Board. To take it out of a Slate, right-click the Slate off the board, then Ctrl+right-click it in the inventory."
 const LENS_COLOR := Color(0.55, 0.9, 0.85)
 
 ## Orbs, Brands, Edicts and stones: name, stack size, what it does and how to use it.

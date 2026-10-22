@@ -122,7 +122,7 @@ func _scan_behaviors() -> void:
 func _physics_process(delta: float) -> void:
 	for behavior in _cooldowns.keys():
 		_cooldowns[behavior] = maxf(_cooldowns[behavior] - delta, 0.0)
-	if Input.is_action_just_pressed("stance") and not _player.is_input_blocked() \
+	if Input.is_action_just_pressed("stance") and not _player.is_action_locked() \
 			and not _player.shield_block.overrides_stance():
 		_enter_stance()
 	elif Input.is_action_just_released("stance"):

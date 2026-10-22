@@ -23,6 +23,8 @@ const HANG_OFF_WALL := 0.42
 const FACING_DOT := 0.55
 const MANTLE_BASE_SEC := 0.16
 const MANTLE_PER_METRE := 0.11
+## Every mantle takes at least this long, with no attacking or casting.
+const MANTLE_MIN_SEC := 0.5
 const RISE_SHARE := 0.7
 ## After letting go, no catch for this long (or it would re-grab at once).
 const REGRAB_COOLDOWN := 0.4
@@ -51,7 +53,7 @@ static func forbid(body: Node) -> void:
 ## Called after the player's own movement each physics frame.
 func try_catch(delta: float) -> void:
 	_cooldown = maxf(_cooldown - delta, 0.0)
-	if _cooldown > 0.0 or _player.is_on_floor():
+	if _cooldown > 0.0 or _player.is_on_floor() or _player.is_mid_action():
 		return
 	var forward_held := Input.get_action_strength("move_forward") > 0.5 and not _player.is_input_blocked()
 	var ledge := find_ledge()
@@ -134,8 +136,9 @@ func _start_mantle(ledge: Dictionary) -> void:
 	_wall_normal = ledge["normal"]
 	_from = _player.global_position
 	_t = 0.0
-	_duration = MANTLE_BASE_SEC + MANTLE_PER_METRE * maxf(_target.y - _from.y, 0.0)
+	_duration = maxf(MANTLE_MIN_SEC, MANTLE_BASE_SEC + MANTLE_PER_METRE * maxf(_target.y - _from.y, 0.0))
 	_stop_player()
+	_player.arm_rig.play_mantle(_duration)
 
 func _stop_player() -> void:
 	_player.velocity = Vector3.ZERO

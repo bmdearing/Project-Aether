@@ -152,7 +152,7 @@ func _on_lens_selected(lens: Lens) -> void:
 	if again:
 		return  # clicking the held Lens puts it back
 	_held_lens = lens
-	status_label.text = "Click a placed Slate with a free socket, or a reached Star, to set %s. Lenses set on the board stay there. Right-click or Esc to put it back." % lens.display_name
+	status_label.text = "Click a placed Slate with a free socket, or a reached Star, to set %s. It stays in while the Slate is placed. Right-click or Esc to put it back." % lens.display_name
 
 func _on_palette_selected(slate: Slate) -> void:
 	_held_lens = null

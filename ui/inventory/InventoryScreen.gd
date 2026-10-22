@@ -541,12 +541,7 @@ func _lens_into(lens: Lens, target: Resource) -> void:
 
 ## Lenses come out freely, back into the grid as far as room allows.
 func _take_lenses_out(slate: Slate) -> void:
-	var moved := 0
-	for lens in slate.lenses.duplicate():
-		if not GameState.add_to_inventory(lens):
-			break
-		slate.lenses.erase(lens)
-		moved += 1
+	var moved := slate.take_lenses_out()
 	status_label.text = "Took %d Lens%s out of %s." % [moved, "" if moved == 1 else "es", slate.display_name]
 	if not slate.lenses.is_empty():
 		status_label.text += " No room for the rest."

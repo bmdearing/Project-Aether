@@ -159,7 +159,7 @@ func _physics_process(delta: float) -> void:
 
 	for i in range(AbilityLoadoutComponent.SLOT_COUNT):
 		var action := "ability_%d" % (i + 1)
-		if Input.is_action_just_pressed(action) and not _player.is_input_blocked():
+		if Input.is_action_just_pressed(action) and not _player.is_action_locked():
 			_on_ability_pressed(i)
 
 	# Polled rather than just_released: a tap inside one physics frame, or a

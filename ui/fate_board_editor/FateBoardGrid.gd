@@ -193,6 +193,9 @@ func _make_custom_tooltip(for_text: String) -> Object:
 		return null
 	var card: ItemCard = ItemSlotButton.new_item_card()
 	card.footer_lines = ChainCalculator.chain_lines_for(board, for_text)
+	card.footer_lines.append("Right-click to take this Slate off the board.")
+	if not (board.placements[for_text].slate as Slate).lenses.is_empty():
+		card.footer_lines.append("Its Lenses stay in while it's placed: take it off, then Ctrl+right-click it in the inventory.")
 	card.slate_amplifier = ChainCalculator.attribute_multiplier(board, for_text)
 	card.display_slate(board.placements[for_text].slate)
 	return card
