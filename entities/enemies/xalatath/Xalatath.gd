@@ -84,7 +84,7 @@ func abilities() -> Array:
 			"description": "She channels a beam of the void that slowly turns to follow you. Break line of sight behind an Anchor pylon."},
 		{"id": "call_the_hollow", "display_name": "Call the Hollow", "kind": BossAbility.Kind.SUMMON, "cooldown": 24.0, "telegraph": 1.2, "count": 3, "unit_id": "veilborne_mindbender", "min_phase": 2},
 		{"id": "entropic_volley", "display_name": "Entropic Volley", "kind": BossAbility.Kind.VOLLEY, "cooldown": 8.0, "telegraph": 0.9, "count": 7, "spread_degrees": 70.0, "damage_mult": 0.8, "min_range": 4.0, "max_range": 24.0, "min_phase": 2, "damage_type": entropic},
-		{"id": "unmaking", "display_name": "Unmaking", "kind": BossAbility.Kind.PULL, "cooldown": 14.0, "telegraph": 1.1, "radius": MawArena.MAW_RADIUS + 3.5, "pull_stop": MawArena.MAW_RADIUS + 1.5, "damage_mult": 2.0, "max_range": MawArena.OUTER_RADIUS + 4.0, "min_phase": 3, "damage_type": entropic},
+		{"id": "unmaking", "display_name": "Unmaking", "kind": BossAbility.Kind.PULL, "cooldown": 14.0, "telegraph": 1.1, "radius": MawArena.MAW_RADIUS + 3.5, "pull_stop": MawArena.MAW_RADIUS + 1.5, "max_drag": 99.0, "damage_mult": 2.0, "max_range": MawArena.OUTER_RADIUS + 4.0, "min_phase": 3, "damage_type": entropic},
 		{"id": "collapse", "display_name": "Collapse", "kind": BossAbility.Kind.BLAST, "cooldown": 12.0, "telegraph": 1.2, "radius": 3.0, "count": 5, "damage_mult": 1.3, "max_range": 24.0, "min_phase": 3, "damage_type": entropic},
 		{"id": "feed_the_maw", "display_name": "Feed the Maw", "kind": BossAbility.Kind.CUSTOM, "cooldown": 22.0, "telegraph": FEED_CHANNEL_SEC, "max_range": 60.0, "min_phase": 3,
 			"description": "She stands at the Maw's lip and feeds it: two plates fall at once and the next bite comes sooner. Hit her hard enough to break the channel."},
@@ -99,7 +99,7 @@ func range_answers() -> Array:
 	var entropic := Constants.DamageType.ENTROPIC
 	return [
 		{"id": "entropic_lance", "display_name": "Entropic Lance", "kind": BossAbility.Kind.LANCE, "telegraph": 0.9, "radius": 1.3, "damage_mult": 1.9, "damage_type": entropic},
-		{"id": "grasp_of_the_void", "display_name": "Grasp of the Void", "kind": BossAbility.Kind.PULL, "telegraph": 1.2, "radius": MawArena.MAW_RADIUS + 3.5, "pull_stop": MawArena.MAW_RADIUS + 1.5, "damage_mult": 1.7, "damage_type": entropic},
+		{"id": "grasp_of_the_void", "display_name": "Grasp of the Void", "kind": BossAbility.Kind.PULL, "telegraph": 1.2, "radius": MawArena.MAW_RADIUS + 3.5, "pull_stop": MawArena.MAW_RADIUS + 1.5, "max_drag": 99.0, "damage_mult": 1.7, "damage_type": entropic},
 	]
 
 func range_answer_distance() -> float:

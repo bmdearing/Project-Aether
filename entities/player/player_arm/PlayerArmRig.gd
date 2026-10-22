@@ -220,13 +220,34 @@ const PISTOL_KICK := [
 const RIFLE_KICK := [
 	["s", 1.0, Vector3(0.0, 0.012, 0.07), Vector3(0, 0.15, -1), null, 0.25],
 ]
-## Throwing weapons: an overhand throw, hand back past the ear then whipped
-## forward. The held model hides from the release until the hand is back.
-const THROW := [
-	["w", 1.0, Vector3(0.06, 0.2, 0.16), Vector3(0.1, 0.9, 0.45), Vector3(0.3, 0, 1), 0.45],
-	["s", 1.0, Vector3(-0.1, 0.02, -0.3), Vector3(-0.1, 0.25, -1), Vector3(0, 1, 0.2), 0.4],
-	["r", 0.3, Vector3(-0.1, -0.04, -0.26), Vector3(-0.1, 0.1, -1), Vector3(0, 1, 0.2), 0.5],
-]
+## Throwing weapons, one clip per type. The held model hides from the
+## release until the hand is back.
+const THROWS := {
+	# Axe: overhand, back past the ear then whipped forward.
+	"Throwing Axe": [
+		["w", 1.0, Vector3(0.06, 0.2, 0.16), Vector3(0.1, 0.9, 0.45), Vector3(0.3, 0, 1), 0.45],
+		["s", 1.0, Vector3(-0.1, 0.02, -0.3), Vector3(-0.1, 0.25, -1), Vector3(0, 1, 0.2), 0.4],
+		["r", 0.3, Vector3(-0.1, -0.04, -0.26), Vector3(-0.1, 0.1, -1), Vector3(0, 1, 0.2), 0.5],
+	],
+	# Knife: a short cocked wrist by the cheek, flicked straight out.
+	"Throwing Knife": [
+		["w", 1.0, Vector3(0.03, 0.1, 0.08), Vector3(0.35, 0.75, 0.55), Vector3(0.3, 0, 1), 0.45],
+		["s", 1.0, Vector3(-0.08, 0.04, -0.3), Vector3(-0.15, 0.05, -1), Vector3(0, 1, 0.2), 0.3],
+		["r", 0.3, Vector3(-0.08, -0.02, -0.26), Vector3(-0.15, 0.0, -1), Vector3(0, 1, 0.2), 0.5],
+	],
+	# Javelin: laid level over the shoulder, drawn back along the line, thrust.
+	"Javelin": [
+		["w", 1.0, Vector3(0.03, 0.15, 0.13), Vector3(-0.05, 0.2, -1), Vector3(0, 1, 0), 0.45],
+		["s", 1.0, Vector3(-0.08, 0.12, -0.42), Vector3(-0.05, 0.12, -1), Vector3(0, 1, 0), 0.35],
+		["r", 0.3, Vector3(-0.08, 0.04, -0.34), Vector3(-0.05, 0.05, -1), Vector3(0, 1, 0), 0.5],
+	],
+	# Grenade: dropped low and back, then lobbed up and forward underhand.
+	"Grenade": [
+		["w", 1.0, Vector3(0.05, -0.1, 0.12), Vector3(0.1, -0.3, 0.95), null, 0.45],
+		["s", 1.0, Vector3(-0.06, 0.12, -0.3), Vector3(-0.1, 0.6, -0.8), null, 0.4],
+		["r", 0.3, Vector3(-0.06, 0.08, -0.26), Vector3(-0.1, 0.4, -0.9), null, 0.5],
+	],
+}
 ## How far the string hand pulls back from the brace at full draw (aiming).
 const BOW_DRAW := 0.1
 const BOW_RELEASE := [
@@ -338,6 +359,7 @@ var _muzzle_flash: Node3D
 var _weapon: Weapon
 var _offhand_item: Item
 var _family: StringName = &"blade"
+var _weapon_type: String = ""
 var _wand_alt: bool = false
 var _off_mode: OffMode = OffMode.HIDDEN
 var _offhand_grip: Vector3 = Vector3.ZERO
@@ -428,6 +450,7 @@ func set_loadout(weapon: Weapon, offhand: Item) -> void:
 		_off_model.queue_free()
 		_off_model = null
 	_family = WeaponModelLibrary.get_family(weapon.weapon_type) if weapon else &"blade"
+	_weapon_type = weapon.weapon_type if weapon else ""
 	_offhand_grip = Vector3.ZERO
 	_right_hand.visible = weapon != null
 	if weapon:
@@ -686,10 +709,12 @@ func _play_fire(windup: float, strike: float, recovery: float) -> void:
 			_bow_release_t = 0.0
 			_bow_release_len = strike + recovery * 0.9
 		&"thrown":
-			_start(_main_track, THROW, windup, strike, recovery * 2.0, _main_rest())
+			_start(_main_track, THROWS.get(_weapon_type, THROWS["Throwing Axe"]), windup, strike, recovery * 2.0, _main_rest())
 			if _weapon_model:
-				_weapon_model.visible = false
 				var model := _weapon_model
+				get_tree().create_timer(windup, false).timeout.connect(func():
+					if is_instance_valid(model):
+						model.visible = false)
 				get_tree().create_timer(windup + strike + recovery * 2.0, false).timeout.connect(func():
 					if is_instance_valid(model):
 						model.visible = true)

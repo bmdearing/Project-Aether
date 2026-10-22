@@ -43,6 +43,8 @@ var unit_id: String = ""
 var weight: float = 1.0
 ## PULL: how far from the pull's centre the player stops.
 var pull_stop: float = BossBrain.PULL_STOP_DISTANCE
+## PULL: the most it moves the player.
+var max_drag: float = BossBrain.PULL_MAX_DRAG
 
 func copy() -> BossAbility:
 	var c := BossAbility.new()

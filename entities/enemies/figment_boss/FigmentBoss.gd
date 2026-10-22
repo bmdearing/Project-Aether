@@ -28,6 +28,7 @@ const PROFILES := {
 		"abilities": [
 			{"id": "cleaving_leap", "display_name": "Cleaving Leap", "kind": BossAbility.Kind.CHARGE, "cooldown": 9.0, "telegraph": 1.0, "damage_mult": 1.5, "min_range": 5.0, "max_range": 14.0},
 			{"id": "war_stomp", "display_name": "War Stomp", "kind": BossAbility.Kind.SLAM, "cooldown": 7.0, "telegraph": 1.1, "radius": 5.0, "damage_mult": 1.3, "max_range": 5.0},
+			{"id": "hurled_axes", "display_name": "Hurled Axes", "kind": BossAbility.Kind.VOLLEY, "cooldown": 7.0, "telegraph": 0.7, "count": 2, "spread_degrees": 12.0, "damage_mult": 0.9, "min_range": 6.0, "max_range": 22.0},
 			{"id": "rally", "display_name": "Rally the Raiders", "kind": BossAbility.Kind.SUMMON, "cooldown": 25.0, "telegraph": 1.0, "count": 2, "unit_id": "unchartered_cutthroat", "min_phase": 2},
 		],
 		"range_answer": {"id": "skullsplitter_leap", "display_name": "Skullsplitter Leap", "kind": BossAbility.Kind.LEAP, "telegraph": 1.3, "radius": 4.0, "damage_mult": 1.7},
@@ -39,6 +40,7 @@ const PROFILES := {
 		"abilities": [
 			{"id": "hammer_of_judgement", "display_name": "Hammer of Judgement", "kind": BossAbility.Kind.BLAST, "cooldown": 6.0, "telegraph": 1.2, "radius": 3.0, "damage_mult": 1.6, "max_range": 18.0},
 			{"id": "consecrate", "display_name": "Consecrate", "kind": BossAbility.Kind.HAZARD, "cooldown": 11.0, "telegraph": 0.9, "radius": 3.5, "duration": 6.0, "damage_mult": 1.0, "damage_type": Constants.DamageType.FIRE},
+			{"id": "searing_bolt", "display_name": "Searing Bolt", "kind": BossAbility.Kind.VOLLEY, "cooldown": 5.0, "telegraph": 0.6, "count": 1, "damage_mult": 1.1, "min_range": 5.0, "max_range": 24.0, "damage_type": Constants.DamageType.FIRE},
 			{"id": "verdict", "display_name": "Verdict", "kind": BossAbility.Kind.BLAST, "cooldown": 14.0, "telegraph": 1.3, "radius": 2.5, "count": 4, "damage_mult": 1.3, "min_phase": 2},
 		],
 		"range_answer": {"id": "procession", "display_name": "Procession of Judgement", "kind": BossAbility.Kind.WAVE, "telegraph": 0.9, "radius": 2.6, "count": 8, "damage_mult": 1.4},
@@ -50,6 +52,7 @@ const PROFILES := {
 		"abilities": [
 			{"id": "relentless_charge", "display_name": "Relentless Charge", "kind": BossAbility.Kind.CHARGE, "cooldown": 8.0, "telegraph": 0.9, "damage_mult": 1.4, "min_range": 4.0, "max_range": 16.0, "status": "pallid"},
 			{"id": "soul_chains", "display_name": "Soul Chains", "kind": BossAbility.Kind.PULL, "cooldown": 12.0, "telegraph": 1.0, "radius": 4.0, "damage_mult": 1.3, "min_range": 5.0, "max_range": 14.0},
+			{"id": "pale_bolts", "display_name": "Pale Bolts", "kind": BossAbility.Kind.VOLLEY, "cooldown": 7.0, "telegraph": 0.7, "count": 3, "spread_degrees": 18.0, "damage_mult": 0.8, "min_range": 6.0, "max_range": 22.0},
 			{"id": "pale_ruin", "display_name": "Pale Ruin", "kind": BossAbility.Kind.SLAM, "cooldown": 12.0, "telegraph": 1.4, "radius": 6.0, "damage_mult": 1.6, "min_phase": 2, "status": "pallid"},
 		],
 		"range_answer": {"id": "reaping_chains", "display_name": "Reaping Chains", "kind": BossAbility.Kind.PULL, "telegraph": 1.0, "radius": 4.5, "damage_mult": 1.6, "status": "pallid"},

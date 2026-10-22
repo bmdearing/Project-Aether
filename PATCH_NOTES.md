@@ -9,6 +9,10 @@ there. Most recent first.
 
 ## 2026-10-22 — Falls, mantling, Lens removal
 
+- **Arach spiders** no longer walk through walls or doodads: they follow the navmesh where there is one, slide along whatever they bump and only step up edges up to 0.45 m (`SpiderMinion`).
+- **Boss pulls curbed:** a pull drags you at most 8 m (`BossBrain.PULL_MAX_DRAG`, per ability `max_drag`) and stops 3.5 m from the boss (was 2.5 m, with no drag limit, so a range-answer pull could haul you about 35 m). The Herald's Maw pulls are unchanged; they're part of her arena.
+- **Figment bosses shoot back:** Hurled Axes (Chieftain, 2 axes), Searing Bolt (Adjudicator, Fire) and Pale Bolts (Threshold Knight, 3 bolts), each from 5-6 m out to 22-24 m. The Exarch already had Frost Lance.
+- **Throwing animations:** each throwable has its own clip (knife flick, overhand axe, javelin drawn back level and thrust, underhand grenade lob), and the weapon leaves the hand after a 0.15 s draw-back (scaled by attack speed) instead of on the click.
 - **Falling out of the world kills** everywhere except the Hub (`KillBox`; the Hub root is in group `hub`). It used to put you back with 15% Life lost.
 - **Mantling** can't start mid-swing, shot, parry, cast or reload (`Player.is_mid_action()`), always takes at least 0.5 s, and plays a clip that drops the weapon low while you climb (`PlayerArmRig.play_mantle`). Spells, stances, shield block and weapon swap are locked while hanging or mantling (`Player.is_action_locked()`); attacks already were.
 - **Lenses in Slates:** a placed Slate keeps its Lenses (a cheap Lens lowers its Aether cost). Its card on the board now says so and how to get them out: right-click the Slate off the board, then Ctrl+right-click it in the inventory. Slate cards in the inventory show the Ctrl+right-click hint. `Slate.take_lenses_out()` holds the logic.

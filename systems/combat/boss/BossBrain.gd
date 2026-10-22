@@ -27,8 +27,9 @@ const CHARGE_SPEED := 16.0
 const CHARGE_HIT_RADIUS := 1.6
 const SUMMON_CAP := 6
 const BLAST_STAGGER := 0.3
-## Pulls stop this far from the boss.
-const PULL_STOP_DISTANCE := 2.5
+## Pulls stop this far from the boss, and drag the player at most PULL_MAX_DRAG.
+const PULL_STOP_DISTANCE := 3.5
+const PULL_MAX_DRAG := 8.0
 ## The brain wakes once its boss is in combat (the player came inside its
 ## chase range, or hit it) and keeps the boss chasing until the player is
 ## past LEASH_RANGE.
@@ -447,7 +448,7 @@ func _pull(a: BossAbility) -> void:
 		return
 	var to_center := center - _player.global_position
 	to_center.y = 0.0
-	var distance := to_center.length() - a.pull_stop
+	var distance := minf(to_center.length() - a.pull_stop, a.max_drag)
 	if distance > 0.0 and to_center.length() <= a.max_range and not _boss.is_player_anchored(_player):
 		# An impulse decays at Player.IMPULSE_FRICTION, travelling v^2 / 2f.
 		_player.apply_impulse(to_center.normalized() * sqrt(2.0 * Player.IMPULSE_FRICTION * distance))

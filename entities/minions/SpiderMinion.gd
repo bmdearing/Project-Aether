@@ -3,7 +3,8 @@ class_name SpiderMinion
 ## Invocation of Arach's summon: an Entropic spider that crawls along the
 ## ground to the nearest enemy and bites it. At most LIMIT live at once (a
 ## new one makes the oldest crumble); each fades when its time runs out.
-## Like the Wraith it can't be hurt and isn't stopped by walls.
+## It can't be hurt. It paths around walls and doodads on the navmesh (where
+## there is one), slides along anything it bumps and only steps up low edges.
 
 const LIMIT := 10
 const GROUP := &"spider_minion"
@@ -15,6 +16,12 @@ const BASE_DURATION := 15.0
 const HUNT_RANGE := 25.0
 const IDLE_RADIUS := 2.5
 const COLOR := Color(0.55, 0.22, 0.75)
+const REPATH_INTERVAL := 0.4
+const REPATH_GOAL_MOVE := 1.5
+const WAYPOINT_REACHED := 0.4
+## Edges up to this high are stepped onto; anything taller blocks it.
+const STEP_HEIGHT := 0.45
+const BODY_RADIUS := 0.3
 
 var ability: Ability
 var player: Player
@@ -26,6 +33,10 @@ var _body: Node3D
 var _legs: Array[Node3D] = []
 var _time := 0.0
 var _idle_angle := randf() * TAU
+var _path := PackedVector3Array()
+var _path_index := 0
+var _path_goal := Vector3.INF
+var _repath_left := 0.0
 
 static func summon(scene_root: Node, owner_player: Player, spell: Ability, at: Vector3) -> SpiderMinion:
 	var live := scene_root.get_tree().get_nodes_in_group(GROUP).filter(func(n: Node) -> bool: return not n.is_queued_for_deletion())
@@ -124,8 +135,11 @@ func _physics_process(delta: float) -> void:
 	var reach := BITE_RANGE + (_target.body_radius if _target else 0.0)
 	var moving := to_goal.length() > reach
 	if moving:
-		global_position += to_goal.normalized() * minf(SPEED * delta, to_goal.length() - reach * 0.5)
-		look_at(global_position + to_goal, Vector3.UP)
+		var dir := _path_direction(goal, to_goal.normalized())
+		var step := _unblocked(dir * minf(SPEED * delta, to_goal.length() - reach * 0.5))
+		global_position += step
+		if step.length() > 0.001:
+			look_at(global_position + step, Vector3.UP)
 	_follow_ground()
 	# Legs skitter while it moves.
 	for i in _legs.size():
@@ -136,10 +150,56 @@ func _physics_process(delta: float) -> void:
 		_attack_timer = BASE_ATTACK_INTERVAL / (1.0 + player.stat_sheet.get_misc_bonus("minion_attack_speed") / 100.0)
 		_bite(_target)
 
-## Stays on whatever floor is below it.
+## Along the navigation path when the scene has one, else straight at the goal.
+func _path_direction(goal: Vector3, fallback: Vector3) -> Vector3:
+	var map := get_world_3d().navigation_map
+	if NavigationServer3D.map_get_iteration_id(map) == 0 or NavigationServer3D.map_get_regions(map).is_empty():
+		return fallback
+	_repath_left -= get_physics_process_delta_time()
+	if _repath_left <= 0.0 or goal.distance_to(_path_goal) > REPATH_GOAL_MOVE:
+		_repath_left = REPATH_INTERVAL
+		_path_goal = goal
+		_path = NavigationServer3D.map_get_path(map, global_position, goal, true, 1)
+		_path_index = 1
+	while _path_index < _path.size() and _flat(_path[_path_index] - global_position).length() < WAYPOINT_REACHED:
+		_path_index += 1
+	if _path_index < _path.size():
+		var to_next := _flat(_path[_path_index] - global_position)
+		if to_next.length() > 0.01:
+			return to_next.normalized()
+	return fallback
+
+## The step with anything solid in the way taken out: it slides along a wall
+## or doodad, and stops when cornered. Enemies and the player don't block.
+func _unblocked(step: Vector3) -> Vector3:
+	for i in 2:
+		var hit := _wall_hit(step)
+		if hit.is_empty():
+			return step
+		var normal := _flat(hit["normal"])
+		if normal.length() < 0.01:
+			return Vector3.ZERO
+		normal = normal.normalized()
+		step -= normal * step.dot(normal)
+	return Vector3.ZERO if not _wall_hit(step).is_empty() else step
+
+func _wall_hit(step: Vector3) -> Dictionary:
+	if step.length() < 0.0001:
+		return {}
+	var from := global_position + Vector3.UP * (STEP_HEIGHT + 0.05)
+	var query := PhysicsRayQueryParameters3D.create(from, from + step + step.normalized() * BODY_RADIUS, 1)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty() or hit["collider"] is CharacterBody3D:
+		return {}
+	return hit
+
+static func _flat(v: Vector3) -> Vector3:
+	return Vector3(v.x, 0.0, v.z)
+
+## Stays on whatever floor is below it, stepping up edges no taller than STEP_HEIGHT.
 func _follow_ground() -> void:
 	var space := get_world_3d().direct_space_state
-	var from := global_position + Vector3.UP * 2.0
+	var from := global_position + Vector3.UP * (STEP_HEIGHT + 0.05)
 	var query := PhysicsRayQueryParameters3D.create(from, from + Vector3.DOWN * 6.0, 1)
 	var hit := space.intersect_ray(query)
 	if not hit.is_empty() and not hit["collider"] is Enemy:

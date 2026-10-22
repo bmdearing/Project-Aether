@@ -447,6 +447,18 @@ const THROW_PROFILES := {
 }
 const THROW_LINE2_BLAST := {"Javelin": 2.2, "Grenade": 4.5}
 const THROW_MODEL_SCALE := 0.8
+## The hand draws back this long (at 1x attack speed) before the weapon leaves it.
+const THROW_WINDUP := 0.15
+
+## Plays the throw, and lets go at the end of its windup.
+func _wind_up_throw(weapon: Weapon) -> void:
+	var mult := 1.0 / _player.get_attack_speed_multiplier(weapon)
+	var windup := THROW_WINDUP * mult
+	if _player.arm_rig:
+		_player.arm_rig.play_attack(PlayerArmRig.Attack.FIRE, windup, FIRE_STRIKE * mult, FIRE_RECOVERY * mult)
+	await _player.get_tree().create_timer(windup, false).timeout
+	if is_instance_valid(_player) and _player.health.is_alive() and _player.get_active_weapon() == weapon:
+		_throw(weapon)
 
 func _throw(weapon: Weapon) -> void:
 	var profile: Dictionary = THROW_PROFILES[weapon.weapon_type]
@@ -486,11 +498,10 @@ func _throw(weapon: Weapon) -> void:
 			dir = dir.rotated(Vector3.UP, deg_to_rad(randf_range(-1.0, 1.0) * weapon.pellet_spread_degrees))
 		projectile.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), origin)
 	AudioManager.play_at(SoundLib.get_fire_sound(weapon.ammo_type), _player.global_position)
-	_play_fire_animation(weapon)
 
 func _fire(weapon: Weapon, aimed: bool = false) -> void:
 	if weapon.is_throwing():
-		_throw(weapon)
+		_wind_up_throw(weapon)
 		return
 	var damage_type := weapon.get_damage_type()
 	var st := _stance() if aimed else null
