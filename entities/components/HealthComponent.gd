@@ -25,10 +25,13 @@ func _process(delta: float) -> void:
 		current_health = min(max_health, current_health + regen_per_second * recovery_multiplier * delta)
 		health_changed.emit(current_health, max_health)
 
+## Damage can't take health below this (a boss held at a transformation threshold).
+var min_health: float = 0.0
+
 func apply_damage(amount: float) -> void:
 	if current_health <= 0.0:
 		return
-	current_health = max(0.0, current_health - amount)
+	current_health = max(min_health, current_health - amount)
 	health_changed.emit(current_health, max_health)
 	if current_health <= 0.0:
 		died.emit()

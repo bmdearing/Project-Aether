@@ -18,6 +18,8 @@ const BOSSES := {
 	"lord_of_the_elements": {"name": "Lord of the Elements", "scene": "res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn", "hidden": true},
 	"herald_of_the_maw": {"name": "Herald of the Maw", "scene": "res://entities/enemies/xalatath/Xalatath.tscn", "music": "res://assets/music/boss/herald.mp3"},
 	"ataras": {"name": "Ataras", "scene": "res://entities/enemies/ataras/Ataras.tscn", "music": "res://assets/music/boss/ataras.mp3"},
+	# A model test (classic MDX + BLP); the model is a fan Bleach model, placeholder only.
+	"almighty": {"name": "The Sealed King", "scene": "res://entities/enemies/almighty/Almighty.tscn"},
 }
 
 ## The Herald of the Maw's exclusive Lens: its drop chance rises with each

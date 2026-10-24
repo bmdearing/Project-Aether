@@ -1,0 +1,244 @@
+{
+  "source": "Shio_Bleach_Yhwach-E41E5.mdx",
+  "version": 800,
+  "scale": 0.02,
+  "idle_sequence": "Stand",
+  "bounds": {
+    "min": [
+      -1.012081756591797,
+      -0.008895145058631896,
+      -1.4478317260742188
+    ],
+    "max": [
+      0.23072311401367188,
+      3.7665310668945313,
+      5.877543334960937
+    ],
+    "height": 3.7754262119531634
+  },
+  "sequences": [
+    {
+      "name": "Attack 1",
+      "start": 300,
+      "end": 1066,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 1700,
+      "end": 2633,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 3233,
+      "end": 4200,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death",
+      "start": 6966,
+      "end": 9366,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic One",
+      "start": 12566,
+      "end": 13333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Two",
+      "start": 14000,
+      "end": 14600,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand",
+      "start": 15266,
+      "end": 17266,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk",
+      "start": 17933,
+      "end": 18466,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 2",
+      "start": 19133,
+      "end": 21000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 3",
+      "start": 23066,
+      "end": 24666,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 4",
+      "start": 25333,
+      "end": 25666,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 5",
+      "start": 26333,
+      "end": 28033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 6",
+      "start": 30166,
+      "end": 31566,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 7",
+      "start": 47933,
+      "end": 49100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Lose",
+      "start": 49666,
+      "end": 52600,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 8",
+      "start": 53500,
+      "end": 55500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 9",
+      "start": 56166,
+      "end": 56966,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 10",
+      "start": 63333,
+      "end": 64333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "QQ:1179298123",
+      "start": 65000,
+      "end": 65000,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": false,
+        "QQ:1179298123": false
+      }
+    }
+  ]
+}

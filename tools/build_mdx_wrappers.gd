@@ -15,6 +15,7 @@ const OUT_DIR := "res://entities/enemies/models/"
 const DOODAD_OUT_DIR := "res://entities/environment/doodads/"
 const ANIM_TREE_SCENE := "res://entities/enemies/base/HumanoidAnimTree.tscn"
 const MODEL_SCRIPT := "res://entities/enemies/models/MdxModel.gd"
+const OVERLAY_SHADER := "res://entities/enemies/models/mdx_overlay_layer.gdshader"
 const UNTEXTURED_COLOR := Color(0.4, 0.4, 0.42)
 const ALPHA_SCISSOR := 0.5
 
@@ -135,6 +136,18 @@ func _build_material(dir: String, g: Dictionary, black: bool) -> Material:
 		mat.cull_mode = BaseMaterial3D.CULL_DISABLED
 	if g["unshaded"]:
 		mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	# Classic models stack extra layers over the base one; each becomes a next pass.
+	var last: Material = mat
+	for layer in g.get("overlays", []):
+		if layer["texture"] == null:
+			continue
+		var pass_mat := ShaderMaterial.new()
+		pass_mat.shader = load(OVERLAY_SHADER)
+		pass_mat.set_shader_parameter("layer_texture", _texture(dir, layer["texture"]))
+		pass_mat.set_shader_parameter("uv_scroll", Vector2(layer["uv_scroll"][0], layer["uv_scroll"][1]))
+		pass_mat.set_shader_parameter("layer_alpha", float(layer["alpha"]))
+		last.next_pass = pass_mat
+		last = pass_mat
 	return mat
 
 ## file is a basename in the model's folder, or a res:// path to a copy shared

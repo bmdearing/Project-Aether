@@ -43,12 +43,14 @@ const PORTAL_OFFSET := Vector3(0, 0, 3.0)
 const MAW_BOSS_ID := "herald_of_the_maw"
 const SAND_BOSS_ID := "ataras"
 const AURELIA_BOSS_ID := "aurelia"
+const ALMIGHTY_BOSS_ID := "almighty"
 
 var boss: Enemy
 ## The Herald's layout, built instead of the crescent (null for the Lord).
 var maw: MawArena
 var sand: SandArena
 var aurelia: AureliaArena
+var almighty: AlmightyArena
 var _boss_id := ""
 var _floor_mat: ShaderMaterial
 var _ember_process: ParticleProcessMaterial
@@ -108,6 +110,8 @@ func _ready() -> void:
 		_build_sand()
 	elif _boss_id == AURELIA_BOSS_ID:
 		_build_aurelia()
+	elif _boss_id == ALMIGHTY_BOSS_ID:
+		_build_almighty()
 	else:
 		_build_floor()
 		_build_boundary_walls()
@@ -121,7 +125,7 @@ func _spawn_player() -> void:
 	var player: Player = PLAYER_SCENE.instantiate()
 	add_child(player)
 	player.global_position = $PlayerSpawnPoint.global_position
-	var focus := to_global(Vector3.ZERO if maw or sand or aurelia else BAY_SPAWN_LOCAL)
+	var focus := to_global(Vector3.ZERO if maw or sand or aurelia or almighty else BAY_SPAWN_LOCAL)
 	player.look_at(Vector3(focus.x, player.global_position.y, focus.z))
 
 ## GameState.pending_pinnacle's boss, or a random one when run standalone.
@@ -150,6 +154,9 @@ func _spawn_boss() -> void:
 	if aurelia:
 		aurelia.bind_boss(boss)
 		_on_element_changed(Constants.DamageType.ENTROPIC)
+	if almighty:
+		almighty.bind_boss(boss)
+		_on_element_changed(Constants.DamageType.AETHERIC)
 	boss.health.died.connect(_on_boss_died)
 	_play_music(Pinnacle.BOSSES[_boss_id].get("music", ""))
 
@@ -180,6 +187,8 @@ func _on_boss_died() -> void:
 		portal.global_position = to_global(SandArena.PORTAL_SPOT)
 	elif aurelia:
 		portal.global_position = to_global(AureliaArena.PORTAL_SPOT)
+	elif almighty:
+		portal.global_position = to_global(AlmightyArena.PORTAL_SPOT)
 	else:
 		portal.global_position = $PlayerSpawnPoint.global_position + PORTAL_OFFSET
 
@@ -387,6 +396,28 @@ func _build_aurelia() -> void:
 	env.ambient_light_energy = 0.6
 	env.fog_light_color = Color(0.22, 0.05, 0.3)
 	env.fog_density = 0.008
+
+## The Sealed King's white plaza (AlmightyArena): cold silver daylight that
+## AlmightyArena.awaken() turns to night when he takes his Almighty form.
+func _build_almighty() -> void:
+	almighty = AlmightyArena.new()
+	almighty.name = "AlmightyArena"
+	add_child(almighty)
+	_build_spawn_markers(AlmightyArena.BOSS_SPAWN, AlmightyArena.PLAYER_SPAWN)
+	var key := get_node("BayLight") as OmniLight3D
+	key.position = Vector3(0, 12.0, 0)
+	key.omni_range = 40.0
+	key.light_energy = 0.8
+	key.light_color = Color(0.75, 0.85, 1.0)
+	var sun := get_node("DirectionalLight3D") as DirectionalLight3D
+	sun.rotation_degrees = Vector3(-50, 25, 0)
+	sun.light_color = Color(0.92, 0.95, 1.0)
+	sun.light_energy = ShadowLight.directional(1.5)
+	var env := _set_sky("almighty")
+	env.ambient_light_color = Color(0.6, 0.66, 0.78)
+	env.ambient_light_energy = 0.4
+	env.fog_light_color = Color(0.75, 0.8, 0.9)
+	env.fog_density = 0.005
 
 ## Swaps the default sky for an arena's SkyBuilder sky, its sun or moon
 ## placed where the arena's light comes from. Returns the environment.

@@ -10,10 +10,13 @@ const { loadLinks, resPath } = require("./dedupe_textures");
 const V1000_SLOT_LAYERS = { diffuse: 0, normal: 1, orm: 2, emissive: 3 };
 const ALPHA_SAMPLES = 12;
 const VISIBLE_MEAN_ALPHA = 0.5;
-const STAND_PATTERN = /^Stand 1$/i;
+const STAND_PATTERN = /^Stand( 1)?$/i;
+// Classic (pre-Reforged) models stack plain diffuse layers instead of PBR slots.
+const CLASSIC_VERSION_MAX = 900;
 
 function textureSlots(model, material) {
   const layers = material.Layers;
+  if (model.Version < CLASSIC_VERSION_MAX) return { diffuse: layers[0] ? layers[0].TextureID : undefined };
   if (layers.length === 1 && layers[0].NormalTextureID !== undefined) {
     const l = layers[0];
     return { diffuse: l.TextureID, normal: l.NormalTextureID, orm: l.ORMTextureID, emissive: l.EmissiveTextureID };
@@ -38,11 +41,40 @@ function resolveTexture(model, id, modelDir, dirListing) {
   if (!tex || !tex.Image) return { file: null, source: null };
   const base = tex.Image.split(/[\\/]/).pop();
   const stem = base.replace(/\.[^.]+$/, "");
-  const match = dirListing.find((f) => f.toLowerCase() === `${stem}.dds`.toLowerCase());
+  // .png: a classic .blp converted by blp_to_png.js.
+  const match = dirListing.find((f) => f.toLowerCase() === `${stem}.dds`.toLowerCase())
+    || dirListing.find((f) => f.toLowerCase() === `${stem}.png`.toLowerCase());
   // A copy removed by dedupe_textures.js resolves to the kept file's res:// path.
   const dir = resPath(modelDir).toLowerCase() + "/";
   const linked = match ? null : Object.entries(loadLinks()).find(([from]) => from.toLowerCase() === `${dir}${stem}.dds`.toLowerCase());
   return { file: match || (linked && linked[1]) || null, source: tex.Image };
+}
+
+// Layers above the first on a classic material, drawn over it as extra passes.
+// uv_scroll is the layer's texture-animation translation in UV/sec (looped
+// global-sequence tracks only; others are left static).
+function classicOverlays(model, material, modelDir, dirListing) {
+  return material.Layers.slice(1).map((layer) => {
+    const r = resolveTexture(model, textureIdOf(layer.TextureID), modelDir, dirListing);
+    let uvScroll = [0, 0];
+    const anim = layer.TVertexAnimId !== null && layer.TVertexAnimId !== undefined ? model.TextureAnims[layer.TVertexAnimId] : null;
+    const keys = anim && anim.Translation && anim.Translation.Keys;
+    if (keys && keys.length > 1 && anim.Translation.GlobalSeqId !== null && anim.Translation.GlobalSeqId !== undefined) {
+      const loopMs = model.GlobalSequences[anim.Translation.GlobalSeqId] || 1000;
+      const first = keys[0].Vector;
+      const last = keys[keys.length - 1].Vector;
+      uvScroll = [((last[0] - first[0]) * 1000) / loopMs, ((last[1] - first[1]) * 1000) / loopMs];
+    }
+    return {
+      texture: r.file,
+      source: r.source,
+      filter_mode: layer.FilterMode || 0,
+      two_sided: !!((layer.Shading || 0) & 16),
+      unshaded: !!((layer.Shading || 0) & 1),
+      alpha: typeof layer.Alpha === "number" ? layer.Alpha : 1,
+      uv_scroll: uvScroll,
+    };
+  });
 }
 
 function alphaAt(anim, frame) {
@@ -99,6 +131,7 @@ function buildSidecar(model, mdxPath, scale) {
       sources[slot] = r.source;
       if (!r.file && r.source && !/Black32|EnvironmentMap/i.test(r.source)) missing.push(`${slot}: ${r.source}`);
     }
+    const overlays = model.Version < CLASSIC_VERSION_MAX ? classicOverlays(model, material, modelDir, dirListing) : [];
     const visibility = {};
     for (const seq of model.Sequences) visibility[seq.Name] = sequenceVisibility(model, gi, seq);
     return {
@@ -113,6 +146,7 @@ function buildSidecar(model, mdxPath, scale) {
       textures,
       sources,
       missing,
+      overlays,
       visibility,
     };
   });

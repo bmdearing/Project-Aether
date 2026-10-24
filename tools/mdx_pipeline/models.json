@@ -106,6 +106,16 @@
       "unit": "aurelia_fire_golem",
       "mdx": "assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem/Fire_Golem.mdx",
       "scale": 0.0125
+    },
+    {
+      "unit": "almighty_yhwach",
+      "mdx": "assets/models/enemies/pinnacle/almighty/Yhwach/Shio_Bleach_Yhwach-E41E5.mdx",
+      "scale": 0.02
+    },
+    {
+      "unit": "almighty_awakened",
+      "mdx": "assets/models/enemies/pinnacle/almighty/Yhwach_Almighty/Shio_Bleach_Yhwach_Almighty_B1.mdx",
+      "scale": 0.02
     }
   ]
 }

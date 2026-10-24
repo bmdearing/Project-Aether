@@ -1397,6 +1397,11 @@ func blocks_charge(_direction: Vector3) -> bool:
 func cast_custom(_ability: BossAbility) -> void:
 	await get_tree().process_frame
 
+## BossBrain awaits this between phases while the boss is invulnerable;
+## bosses with a longer transformation override it.
+func run_phase_transition(_phase: int, seconds: float) -> void:
+	await get_tree().create_timer(seconds).timeout
+
 ## False holds a ready ability back (e.g. until an arena event is over).
 func can_use_ability(_ability: BossAbility) -> bool:
 	return true

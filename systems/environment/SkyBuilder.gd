@@ -43,6 +43,20 @@ const ARENA_SKIES := {
 		"sun_energy": 0.0, "sun_glow": 0.0,
 		"cloud_cover": 0.42, "cloud_color": Color(0.28, 0.05, 0.22), "cloud_shade": Color(0.05, 0.0, 0.07), "cloud_speed": 0.02,
 		"vortex_color": Color(0.5, 0.06, 0.22), "vortex_amount": 1.0, "star_amount": 0.4},
+	# The Sealed King: a cold silver noon over a white city.
+	"almighty": {"zenith_color": Color(0.36, 0.5, 0.72), "horizon_color": Color(0.86, 0.9, 0.96),
+		"ground_color": Color(0.6, 0.64, 0.7), "horizon_curve": 0.4,
+		"sun_color": Color(0.9, 0.95, 1.0), "sun_size": 0.035, "sun_energy": 5.0, "sun_glow": 0.45, "sun_glow_tightness": 8.0,
+		"cloud_cover": 0.5, "cloud_color": Color(0.97, 0.98, 1.0), "cloud_shade": Color(0.62, 0.68, 0.78), "cloud_speed": 0.006,
+		"star_amount": 0.0, "vortex_color": Color(0.05, 0.0, 0.08), "vortex_amount": 0.0,
+		"follow_light": false, "sun_direction": Vector3(0.3, 0.55, -1.0)},
+	# The Almighty: the same sky gone black, a dark wheel turning overhead.
+	"almighty_awakened": {"zenith_color": Color(0.0, 0.0, 0.01), "horizon_color": Color(0.12, 0.1, 0.16),
+		"ground_color": Color(0.01, 0.01, 0.02), "horizon_curve": 0.4,
+		"sun_color": Color(0.55, 0.6, 0.9), "sun_size": 0.035, "sun_energy": 0.0, "sun_glow": 0.9, "sun_glow_tightness": 30.0,
+		"cloud_cover": 0.55, "cloud_color": Color(0.1, 0.09, 0.14), "cloud_shade": Color(0.0, 0.0, 0.0), "cloud_speed": 0.02,
+		"star_amount": 0.2, "vortex_color": Color(0.32, 0.3, 0.45), "vortex_amount": 0.8,
+		"follow_light": false, "sun_direction": Vector3(0.3, 0.55, -1.0)},
 	# Ataras: desert dusk with a low, hot sun.
 	"sand": {"zenith_color": Color(0.16, 0.18, 0.4), "horizon_color": Color(0.95, 0.56, 0.32),
 		"ground_color": Color(0.35, 0.22, 0.14), "horizon_curve": 0.45,

@@ -221,6 +221,25 @@ war3-model's own Hermite/Bezier/windowing rules (`mdx_interp.js`).
 - Look check: `tests/ui_capture/capture_effect.tscn -- <out_prefix> <fx.json>
   <times,csv> [scale] [start] [speed] [geo|fx]` (windowed).
 
+## Classic models with BLP textures (2026-10-24)
+
+Classic (v800) models ship `.blp` textures, which Godot can't load. Convert
+them to `.png` first, then convert the model as usual:
+
+```
+node blp_to_png.js <model dir> [--flatten]
+```
+
+`--flatten` writes PNGs from subfolders (`war3mapImported/`) into the model's
+own folder, where the sidecar looks for textures by basename. The sidecar
+resolves a texture to `.png` when there's no `.dds` of that name. On classic
+models only the first material layer is the diffuse; layers above it become
+`overlays` in the sidecar (texture, blend, alpha, `uv_scroll` from a looping
+texture animation), which the wrapper builder draws as next passes with
+`entities/enemies/models/mdx_overlay_layer.gdshader`. The PNGs are imported
+by Godot (VRAM-compressed), so the texture budget pass doesn't touch them.
+First used for the Almighty test boss (`almighty_yhwach`/`almighty_awakened`).
+
 ## Not yet implemented
 
 - WC3 Hermite/Bezier interpolation is approximated as linear;

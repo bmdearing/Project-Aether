@@ -1,0 +1,899 @@
+{
+  "source": "Shio_Bleach_Yhwach_Almighty_B1.mdx",
+  "version": 800,
+  "scale": 0.02,
+  "idle_sequence": "Stand",
+  "bounds": {
+    "min": [
+      -1.7553179931640626,
+      0.007647140026092529,
+      -2.204340057373047
+    ],
+    "max": [
+      0.9675440216064454,
+      3.889739990234375,
+      6.250399780273438
+    ],
+    "height": 3.8820928502082825
+  },
+  "sequences": [
+    {
+      "name": "Attack 1",
+      "start": 333,
+      "end": 1200,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 1666,
+      "end": 2700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 3266,
+      "end": 4333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death",
+      "start": 4900,
+      "end": 7300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic One",
+      "start": 7966,
+      "end": 8733,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Two",
+      "start": 9400,
+      "end": 10000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand",
+      "start": 10666,
+      "end": 12666,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk",
+      "start": 13333,
+      "end": 13866,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 2",
+      "start": 14533,
+      "end": 16500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 3",
+      "start": 17066,
+      "end": 18766,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 4",
+      "start": 19333,
+      "end": 19666,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 5",
+      "start": 20333,
+      "end": 22133,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 6",
+      "start": 22700,
+      "end": 24100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 7",
+      "start": 24766,
+      "end": 26033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Lose",
+      "start": 26600,
+      "end": 29533,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 8",
+      "start": 30200,
+      "end": 32300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 9",
+      "start": 32866,
+      "end": 33666,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 10",
+      "start": 34333,
+      "end": 35333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "QQ:1179298123",
+      "start": 36000,
+      "end": 36010,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "ZK_heidi.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "ZK_heidi.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "ZK_YOUHA.png",
+          "source": "ZK_YOUHA.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.9900000095367432,
+          "uv_scroll": [
+            0,
+            -2
+          ]
+        }
+      ],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "ZK_heidi.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "ZK_heidi.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "ZK_YOUHA.png",
+          "source": "ZK_YOUHA.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.9990000128746033,
+          "uv_scroll": [
+            0,
+            -2
+          ]
+        }
+      ],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_1.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_1.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_3.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_3.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "",
+      "lod": 0,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "ZK_heidi.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "ZK_heidi.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "ZK_YOUHA.png",
+          "source": "ZK_YOUHA.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.9900000095367432,
+          "uv_scroll": [
+            0,
+            -2
+          ]
+        }
+      ],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "",
+      "lod": 0,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "",
+      "lod": 0,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "",
+      "lod": 0,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "",
+      "lod": 0,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "",
+      "lod": 0,
+      "material_id": 10,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "",
+      "lod": 0,
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_2.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "",
+      "lod": 0,
+      "material_id": 12,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_1.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Shio_Bleach_Yhwach_Almighty_1.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": true,
+        "QQ:1179298123": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "",
+      "lod": 0,
+      "material_id": 13,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Yhwach_Ssmz_J_1.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "war3mapImported\\Shio_Yhwach_Ssmz_J_1.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": false,
+        "QQ:1179298123": false
+      }
+    },
+    {
+      "index": 14,
+      "name": "",
+      "lod": 0,
+      "material_id": 14,
+      "filter_mode": 2,
+      "two_sided": false,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Yhwach_Ssmz_J_3.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "war3mapImported\\Shio_Yhwach_Ssmz_J_3.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": false,
+        "QQ:1179298123": false
+      }
+    },
+    {
+      "index": 15,
+      "name": "",
+      "lod": 0,
+      "material_id": 15,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Shio_Yhwach_Ssmz_J_2.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "war3mapImported\\Shio_Yhwach_Ssmz_J_2.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Attack 1": true,
+        "Attack 2": true,
+        "Spell 1": true,
+        "Death": true,
+        "Cinematic One": true,
+        "Cinematic Two": true,
+        "Stand": true,
+        "Walk": true,
+        "Spell 2": true,
+        "Spell 3": true,
+        "Spell 4": true,
+        "Spell 5": true,
+        "Spell 6": true,
+        "Spell 7": true,
+        "Cinematic Lose": true,
+        "Spell 8": true,
+        "Spell 9": true,
+        "Spell 10": false,
+        "QQ:1179298123": false
+      }
+    }
+  ]
+}

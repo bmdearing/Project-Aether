@@ -208,7 +208,7 @@ func _enter_phase(new_phase: int) -> void:
 	_boss.begin_attack_telegraph(PHASE_TRANSITION_SEC)
 	BossTelegraph.circle(_scene(), _boss.global_position, 3.0, PHASE_TRANSITION_SEC, Color(1.0, 0.85, 0.4))
 	BossFx.phase_roar(_boss, _boss.get_ability_damage_type(), _boss.roar_sound())
-	await get_tree().create_timer(PHASE_TRANSITION_SEC).timeout
+	await _boss.run_phase_transition(phase, PHASE_TRANSITION_SEC)
 	if not _alive():
 		return
 	_boss.invulnerable = false
