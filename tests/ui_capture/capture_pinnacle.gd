@@ -32,6 +32,23 @@ func _run() -> void:
 		await get_tree().create_timer(SandPillar.DELAY + 0.5).timeout
 		(func(): await ataras.cast_custom(ataras.boss_brain.find("fiery_sun"))).call()
 		await get_tree().create_timer(Ataras.SUN_GROW + 1.0).timeout
+	# "cast=<ability id>@<seconds>": the boss casts it and the shot is taken
+	# that long in. The Almighty is woken first for his Almighty-form abilities.
+	if args.size() > 2 and args[2].begins_with("cast=") and boss:
+		var spec: String = args[2].trim_prefix("cast=")
+		var ability := boss.boss_brain.find(spec.get_slice("@", 0))
+		boss.boss_brain.set_physics_process(false)
+		player.health.max_health = 1e12
+		player.health.current_health = 1e12
+		if boss is Almighty and ability and ability.min_phase >= 3:
+			var almighty := boss as Almighty
+			almighty._swap_to_awakened()
+			almighty.awakened = true
+			arena.almighty.awaken(0.1)
+			await get_tree().create_timer(0.6).timeout
+		if ability:
+			(func(): await boss.cast_custom(ability)).call()
+		await get_tree().create_timer(float(spec.get_slice("@", 1))).timeout
 	var cam := Camera3D.new()
 	arena.add_child(cam)
 	var view: String = args[3] if args.size() > 3 else "overview"

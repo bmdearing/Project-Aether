@@ -290,6 +290,36 @@ func _shard_material() -> StandardMaterial3D:
 		_shard_mat.roughness = 0.2
 	return _shard_mat
 
+## A big title across the top of the screen (the Verdict, phase calls).
+func announce(text: String, color: Color = Color(0.85, 0.9, 1.0), seconds: float = 2.2, font_size: int = 54) -> void:
+	var layer := CanvasLayer.new()
+	layer.layer = 50
+	add_child(layer)
+	var label := Label.new()
+	label.text = text
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.set_anchors_and_offsets_preset(Control.PRESET_CENTER_TOP)
+	label.anchor_left = 0.0
+	label.anchor_right = 1.0
+	label.offset_left = 0.0
+	label.offset_right = 0.0
+	label.offset_top = 150.0
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.85))
+	label.add_theme_constant_override("outline_size", 10)
+	var title_font: Font = load("res://assets/fonts/Cinzel-Variable.ttf")
+	if title_font:
+		label.add_theme_font_override("font", title_font)
+	label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	layer.add_child(label)
+	label.modulate.a = 0.0
+	var tween := label.create_tween()
+	tween.tween_property(label, "modulate:a", 1.0, 0.2)
+	tween.tween_interval(seconds)
+	tween.tween_property(label, "modulate:a", 0.0, 0.5)
+	tween.tween_callback(layer.queue_free)
+
 ## ---- Awakening ----------------------------------------------------------------
 
 ## Black spreads across the floor from the centre, the sigil and shards turn

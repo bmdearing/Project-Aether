@@ -1397,6 +1397,14 @@ func blocks_charge(_direction: Vector3) -> bool:
 func cast_custom(_ability: BossAbility) -> void:
 	await get_tree().process_frame
 
+## Phase marks on the boss health bar; a boss that heals between forms shows
+## only the current form's.
+func boss_bar_marks() -> Array[float]:
+	var marks: Array[float] = []
+	if boss_brain:
+		marks = boss_brain.phase_thresholds
+	return marks
+
 ## BossBrain awaits this between phases while the boss is invulnerable;
 ## bosses with a longer transformation override it.
 func run_phase_transition(_phase: int, seconds: float) -> void:

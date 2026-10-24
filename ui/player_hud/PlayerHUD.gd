@@ -510,10 +510,7 @@ func _update_boss_bar(boss: Enemy) -> void:
 	_boss_bar.set_status_source(boss.status_effects)
 	_boss_bar.set_riposte_ready(boss.composure != null and boss.composure.is_broken)
 	_boss_bar.set_unhittable(boss.invulnerable)
-	var marks: Array[float] = []
-	if boss.boss_brain:
-		marks = boss.boss_brain.phase_thresholds
-	_boss_bar.set_phase_marks(marks)
+	_boss_bar.set_phase_marks(boss.boss_bar_marks())
 
 
 ## True when the camera can see the enemy's head or middle. Other enemies in
