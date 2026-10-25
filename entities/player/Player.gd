@@ -508,7 +508,7 @@ func _apply_saved_fate_board() -> void:
 		origin += shift
 		var placed := fate_board.place_slate(
 			slate, origin, int(entry.get("rotation_steps", 0)), bool(entry.get("flipped", false)),
-			str(entry.get("designated_ability_id", "")), true, int(entry.get("aether_paid", -1))
+			str(entry.get("designated_ability_id", "")), true
 		)
 		# Never lose a Slate the board can't take back: return it to the bag.
 		if placed == "":

@@ -225,14 +225,16 @@ func _draw() -> void:
 		var preview_cells := pending_slate.get_transformed_shape(pending_rotation, pending_flipped)
 		var valid := board.can_place(pending_slate, _hover_cell, pending_rotation, pending_flipped)
 		var tint := VALID_PREVIEW_COLOR if valid else INVALID_PREVIEW_COLOR
+		var world: Array[Vector2i] = []
 		for local_cell in preview_cells:
 			_draw_cell(_hover_cell + local_cell, tint)
+			world.append(_hover_cell + local_cell)
 		if valid:
-			var world: Array[Vector2i] = []
-			for local_cell in preview_cells:
-				world.append(_hover_cell + local_cell)
 			for lens in pending_slate.lenses:
 				_draw_radius(world, lens.radius)
+		# Distance and nearby cheap Lenses move the price, so show it here.
+		var cost_text := "%d Aether" % board.placement_cost(pending_slate, world)
+		AetherStyle.text(self, AetherStyle.title(), (Vector2(_hover_cell) + Vector2(1.2, -0.3)) * _cell_px, cost_text, STAR_FONT_SIZE, AetherStyle.GOLD)
 
 ## Draws a line on a cell edge unless both sides belong to the same
 ## placed Slate - same Slate reads as one solid shape, different Slates

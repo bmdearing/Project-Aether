@@ -159,6 +159,23 @@ func _test_lens_effects() -> void:
 	var later_id := later_board.place_slate(later, A + Vector2i(1, 0))
 	later_board.socket_lens(later_id, _lens("cheap", 2, -1, 1.0))
 	_check(later_board.aether_used == 2, "socketing a cheap Lens into a placed Slate refunds the Aether (%d)" % later_board.aether_used)
+	# Neighbours placed before the cheap Lens host get its discount, and lose it with the host.
+	var order_board := _board()
+	order_board.place_slate(_slate(Constants.DamageType.FIRE, 3), A + Vector2i(1, 0))
+	var late_host := _slate(Constants.DamageType.FIRE, 1)
+	late_host.lenses.append(_lens("cheap", 4, -1, 1.0))
+	var late_id := order_board.place_slate(late_host, A + Vector2i(3, 0))
+	_check(order_board.aether_used == 3, "a cheap Lens discounts Slates placed before it (%d)" % order_board.aether_used)
+	order_board.remove_slate(late_id)
+	_check(order_board.aether_used == 3, "...and the discount goes with it (%d)" % order_board.aether_used)
+	# Split halves share a slate_id; their placement ids must not collide.
+	var twin_board := _board()
+	var half_a := _slate(Constants.DamageType.FIRE)
+	var half_b := half_a.duplicate(true) as Slate
+	var first := twin_board.place_slate(half_a, A + Vector2i(1, 0))
+	var filler := twin_board.place_slate(_slate(Constants.DamageType.FIRE), A + Vector2i(3, 0))
+	twin_board.remove_slate(filler)
+	_check(twin_board.place_slate(half_b, A + Vector2i(3, 0)) != first and twin_board.placements.size() == 2, "Slates sharing a slate_id get their own placement ids")
 	_finished += 1
 
 func _test_amplify() -> void:

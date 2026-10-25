@@ -21,6 +21,8 @@ static func capacity_for_level(level: int) -> int:
 var _occupied_cells: Dictionary = {}
 ## placement_id (String, unique per placed instance) -> PlacedSlateData
 var placements: Dictionary = {}
+## Never reused: split halves share a slate_id, so a count-based id could collide.
+var _next_placement := 0
 
 ## The board is a circle of BOARD_RADIUS tiles in a GRID_SIZE square.
 const GRID_SIZE := 75
@@ -50,7 +52,7 @@ class PlacedSlateData:
 	var cells: Array[Vector2i]
 	## Bound ability for Slates with requires_spell_designation; "" otherwise.
 	var designated_ability_id: String = ""
-	## Aether paid when placed (base cost + distance - Lens discounts), refunded on removal.
+	## Current cost (base + distance - Lens discounts), repriced on every board change.
 	var aether_paid: int = 0
 
 func can_place(slate: Slate, origin: Vector2i, rotation_steps: int, flipped: bool) -> bool:
@@ -60,8 +62,6 @@ func can_place(slate: Slate, origin: Vector2i, rotation_steps: int, flipped: boo
 ## existed stay, and the rules apply again to new placements.
 func _placement_failure_reason(slate: Slate, origin: Vector2i, rotation_steps: int, flipped: bool, check_rules: bool = true) -> String:
 	var cells := _world_cells(slate, origin, rotation_steps, flipped)
-	if check_rules and aether_used + placement_cost(slate, cells) > aether_capacity:
-		return "insufficient_aether"
 	var star_cells := FateStars.cells()
 	for c in cells:
 		if not in_board(c):
@@ -70,6 +70,8 @@ func _placement_failure_reason(slate: Slate, origin: Vector2i, rotation_steps: i
 			return "cell_occupied"
 		if star_cells.has(c):
 			return "anchor_cell"
+	if check_rules and used_with(slate, cells) > aether_capacity:
+		return "insufficient_aether"
 	# Restores skip this: saved order isn't placement order, so a Slate can
 	# come back before the neighbour that connects it.
 	if check_rules and not _touches_existing(cells):
@@ -171,15 +173,14 @@ func take_star_lens(star: int) -> Lens:
 
 ## bypass_budget: used when restoring a save, so placements never drop
 ## because capacity is synced in a different order or a rule was added.
-## aether_paid: what the save says the Slate paid (-1 when unknown: price it
-## now, or charge its base cost when restoring an older save).
-func place_slate(slate: Slate, origin: Vector2i, rotation_steps: int = 0, flipped: bool = false, designated_ability_id: String = "", bypass_budget: bool = false, aether_paid: int = -1) -> String:
+func place_slate(slate: Slate, origin: Vector2i, rotation_steps: int = 0, flipped: bool = false, designated_ability_id: String = "", bypass_budget: bool = false) -> String:
 	var reason := _placement_failure_reason(slate, origin, rotation_steps, flipped, not bypass_budget)
 	if reason != "":
 		placement_failed.emit(reason)
 		return ""
 
-	var placement_id := "%s_%d" % [slate.slate_id, placements.size()]
+	var placement_id := "%s_%d" % [slate.slate_id, _next_placement]
+	_next_placement += 1
 	var cells := _world_cells(slate, origin, rotation_steps, flipped)
 
 	var data := PlacedSlateData.new()
@@ -190,15 +191,11 @@ func place_slate(slate: Slate, origin: Vector2i, rotation_steps: int = 0, flippe
 	data.flipped = flipped
 	data.cells = cells
 	data.designated_ability_id = designated_ability_id
-	if aether_paid >= 0:
-		data.aether_paid = aether_paid
-	else:
-		data.aether_paid = slate.aether_cost if bypass_budget else placement_cost(slate, cells)
 
 	for c in cells:
 		_occupied_cells[c] = placement_id
 	placements[placement_id] = data
-	aether_used += data.aether_paid
+	_reprice_all()
 
 	EventBus.slate_placed.emit(placement_id, origin)
 	EventBus.aether_budget_changed.emit(aether_used, aether_capacity)
@@ -211,8 +208,8 @@ func remove_slate(placement_id: String) -> void:
 	var data: PlacedSlateData = placements[placement_id]
 	for c in data.cells:
 		_occupied_cells.erase(c)
-	aether_used -= data.aether_paid
 	placements.erase(placement_id)
+	_reprice_all()
 
 	EventBus.slate_removed.emit(placement_id, data.origin)
 	EventBus.aether_budget_changed.emit(aether_used, aether_capacity)
@@ -232,17 +229,43 @@ func socket_lens(placement_id: String, lens: Lens) -> String:
 	if data.slate.resource_path != "":
 		data.slate = data.slate.duplicate(true)
 	data.slate.lenses.append(lens)
-	_reprice(data)
+	_reprice_all()
+	EventBus.aether_budget_changed.emit(aether_used, aether_capacity)
 	EventBus.slate_lenses_changed.emit(placement_id)
 	GameState.sync_fate_board(self)
 	return ""
 
-## Re-charges a placed Slate at its current cost (after its Lenses change).
-func _reprice(data: PlacedSlateData) -> void:
-	var cost := placement_cost(data.slate, data.cells)
-	aether_used += cost - data.aether_paid
-	data.aether_paid = cost
-	EventBus.aether_budget_changed.emit(aether_used, aether_capacity)
+## Re-charges every placed Slate at its current cost: a cheap Lens discounts
+## its neighbours too, so any placement, removal or socketing can move them.
+func _reprice_all() -> void:
+	aether_used = _board_cost()
+
+func _board_cost() -> int:
+	var total := 0
+	for id in placements:
+		var data: PlacedSlateData = placements[id]
+		data.aether_paid = placement_cost(data.slate, data.cells)
+		total += data.aether_paid
+	return total
+
+## Aether the whole board would use with `slate` added at `cells` (its cheap
+## Lenses discounting the Slates around it). Leaves the board as it was.
+func used_with(slate: Slate, cells: Array[Vector2i]) -> int:
+	var total := aether_used + placement_cost(slate, cells)
+	var cheap := slate.lenses.filter(func(l: Lens) -> bool: return l.radius_mod == "cheap")
+	if cheap.is_empty():
+		return total
+	var probe := PlacedSlateData.new()
+	probe.placement_id = "_probe"
+	probe.slate = slate
+	probe.cells = cells
+	placements[probe.placement_id] = probe
+	for id in placements:
+		var data: PlacedSlateData = placements[id]
+		if id != probe.placement_id and cheap.any(func(l: Lens) -> bool: return _in_radius(data.cells, cells, l.radius)):
+			total += placement_cost(data.slate, data.cells) - data.aether_paid
+	placements.erase(probe.placement_id)
+	return total
 
 ## True when taking this Slate off would cut another placed Slate off from
 ## the anchor. A Slate that was already cut off (an old save) doesn't count.

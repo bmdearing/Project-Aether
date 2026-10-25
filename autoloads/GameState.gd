@@ -184,7 +184,6 @@ func sync_fate_board(board: FateBoard) -> void:
 			"rotation_steps": p.rotation_steps,
 			"flipped": p.flipped,
 			"designated_ability_id": p.designated_ability_id,
-			"aether_paid": p.aether_paid,
 		})
 	fate_board_placements = data
 	fate_board_layout = FateBoard.LAYOUT_VERSION

@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-10-25 — Fate Board Aether repricing
+
+User report: Ariamis fits fewer Slates than before.
+- **Cheap Lens discounts were frozen at placement time.** A Slate's price was set once, when it went down, and loaded back from the save as-is. So a cheap Lens only discounted Slates placed *after* its host. Slates already on the board never got the discount, and they kept it after the host was removed. Every placement, removal and socketing now reprices the whole board (`FateBoard._reprice_all()`), and loading a save prices it fresh (saves no longer store `aether_paid`). Ariamis's board went from 262 to 225 Aether.
+- The budget check counts the discount a new cheap Lens host gives its neighbours (`FateBoard.used_with()`).
+- The placement preview shows what the Slate would cost there (distance from the Centre included).
+- Placement ids use a counter that never repeats. Split halves share a `slate_id`, so the old count-based id could collide after a removal and overwrite a placed Slate.
+- Still true: +1 Aether per 5 tiles from the **Centre** Star. A build near the North Star (20 tiles out) pays +4 on each Slate, which is most of the rest of Ariamis's cost.
+
 ## 2026-10-22 — Falls, mantling, Lens removal
 
 - **Arach spiders** no longer walk through walls or doodads: they follow the navmesh where there is one, slide along whatever they bump and only step up edges up to 0.45 m (`SpiderMinion`).
