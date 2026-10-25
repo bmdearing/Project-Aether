@@ -49,6 +49,7 @@ func _ready() -> void:
 	close_button.pressed.connect(close)
 	designate_option.item_selected.connect(_on_designate_option_selected)
 	chain_label.mouse_filter = Control.MOUSE_FILTER_STOP
+	aether_label.mouse_filter = Control.MOUSE_FILTER_STOP
 	var outlines := CheckButton.new()
 	outlines.text = "Show Slate outlines"
 	outlines.button_pressed = FateBoardGrid.show_outlines
@@ -346,7 +347,8 @@ func _on_placement_failed(reason: String) -> void:
 	status_label.text = _FAILURE_MESSAGES.get(reason, "Can't place: %s" % reason)
 
 func _refresh_aether() -> void:
-	aether_label.text = "Aether: %d / %d" % [_board.aether_used, _board.aether_capacity]
+	aether_label.text = "Aether: %d / %d\n+1 Aether per %d tiles from the Centre Star" % [_board.aether_used, _board.aether_capacity, FateBoard.AETHER_RING_SIZE]
+	aether_label.tooltip_text = "A Slate costs its own Aether, +1 for every %d tiles between the Centre Star and its nearest tile (rings show while you hold a Slate), -1 for each cheap Lens whose radius reaches it. At least 1. Prices update whenever the board changes." % FateBoard.AETHER_RING_SIZE
 
 func _refresh_chains() -> void:
 	var results := ChainCalculator.compute_chains(_board)
@@ -370,8 +372,8 @@ func _star_summary() -> String:
 		var sites := _board.star_sites(star)
 		var mine := claimed.filter(func(s: FateStars.Site) -> bool: return s.star == star)
 		lines.append("%s: %d / %d bonuses claimed" % [FateStars.NAMES[star], mine.size(), sites.size()])
-		for site in mine:
-			lines.append("  " + site.text())
+		for line in FateStars.grouped_lines(mine):
+			lines.append("  " + line)
 	return "\n\nStars:\n" + "\n".join(lines) if lines.size() > 0 else ""
 
 ## Rebuilt on open so rebound keys show.

@@ -14,7 +14,10 @@ User report: Ariamis fits fewer Slates than before.
 - The budget check counts the discount a new cheap Lens host gives its neighbours (`FateBoard.used_with()`).
 - The placement preview shows what the Slate would cost there (distance from the Centre included).
 - Placement ids use a counter that never repeats. Split halves share a `slate_id`, so the old count-based id could collide after a removal and overwrite a placed Slate.
-- Still true: +1 Aether per 5 tiles from the **Centre** Star. A build near the North Star (20 tiles out) pays +4 on each Slate, which is most of the rest of Ariamis's cost.
+- Still true (user confirmed it stays): +1 Aether per 5 tiles from the **Centre** Star. A build near the North Star (20 tiles out) pays +4 on each Slate, which is most of the rest of Ariamis's cost.
+- **Lens reach on hover:** hovering a placed Slate with Lenses (or holding one) draws a thin glowing border inside every other Slate its Lens radii reach. Slates covered the radius tint, so you couldn't tell before (`FateBoardGrid._draw_lens_cover()`).
+- **Distance rule shown:** the side panel reads "+1 Aether per 5 tiles from the Centre Star" under the Aether total (its tooltip has the full pricing rule). While you hold a Slate, square rings mark where each +1 starts, and the cost under the cursor shows its distance part ("8 Aether (+2 distance)").
+- **Star bonuses grouped:** repeated bonuses (every Lodestar gift) list as one summed line, "+230% increased Fire Damage (23 bonuses)", in the side panel and the Star tooltip (`FateStars.grouped_lines()`).
 
 ## 2026-10-22 — Falls, mantling, Lens removal
 

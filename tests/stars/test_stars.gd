@@ -116,6 +116,8 @@ func _test_lodestar(board: FateBoard) -> void:
 	_check(lodestar.is_corrupted and lodestar.radius_text().begins_with("Slates in radius gain +"), "the Lodestar is corrupted and its card shows the rolled gift")
 	var again := board.star_sites(1)
 	_check(again.size() == gifts.size() and again[0].bonus["key"] == gifts[0].bonus["key"], "the gifts don't change between calls")
+	var grouped := FateStars.grouped_lines(gifts)
+	_check(grouped.size() == 1 and (gifts.size() == 1 or grouped[0].ends_with("(%d bonuses)" % gifts.size())), "repeated gifts list as one summed line (%s)" % ", ".join(grouped))
 	var misc: Dictionary = FateStars.totals(board)["misc"]
 	for k in expected:
 		_check(is_equal_approx(misc.get(k, 0.0), expected[k]), "gift totals count (%s %.1f = %.1f)" % [k, expected[k], misc.get(k, 0.0)])

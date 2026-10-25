@@ -251,6 +251,26 @@ static func bonus_text(bonus: Dictionary, tag: int) -> String:
 	var text := String(bonus["text"]).replace("{v}", v_text).replace("{tag}", Constants.DAMAGE_TYPE_NAME.get(tag, "Tag"))
 	return "Notable: " + text if bonus.get("notable", false) else text
 
+## One line per distinct bonus: repeats (Lodestar gifts) are summed, with the count.
+static func grouped_lines(sites: Array) -> PackedStringArray:
+	var order: Array[String] = []
+	var groups := {}
+	for site: Site in sites:
+		var key := "%s|%d|%s" % [site.bonus["text"], site.tag, site.bonus.get("notable", false)]
+		if not groups.has(key):
+			order.append(key)
+			groups[key] = {"site": site, "value": 0.0, "count": 0}
+		groups[key]["value"] += float(site.bonus["value"])
+		groups[key]["count"] += 1
+	var lines := PackedStringArray()
+	for key in order:
+		var g: Dictionary = groups[key]
+		var bonus: Dictionary = (g["site"] as Site).bonus.duplicate()
+		bonus["value"] = g["value"]
+		var text := bonus_text(bonus, (g["site"] as Site).tag)
+		lines.append(text if g["count"] == 1 else "%s (%d bonuses)" % [text, g["count"]])
+	return lines
+
 static func pool_name(lens: Lens) -> String:
 	return String(POOL_NAMES.get(lens.radius_mod, "?")).replace("{tag}", Constants.DAMAGE_TYPE_NAME.get(lens.radius_tag, "Tag"))
 

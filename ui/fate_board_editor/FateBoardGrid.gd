@@ -104,7 +104,9 @@ func _setup_background() -> void:
 			return
 		if show_outlines:
 			_draw_outlines(board.get_occupied_cells())
-		_draw_stars())
+		_draw_lens_cover(board.get_occupied_cells())
+		_draw_stars()
+		_draw_placement_cost())
 	_outline_layer.size = _background.size
 	add_child(_outline_layer)
 
@@ -232,9 +234,6 @@ func _draw() -> void:
 		if valid:
 			for lens in pending_slate.lenses:
 				_draw_radius(world, lens.radius)
-		# Distance and nearby cheap Lenses move the price, so show it here.
-		var cost_text := "%d Aether" % board.placement_cost(pending_slate, world)
-		AetherStyle.text(self, AetherStyle.title(), (Vector2(_hover_cell) + Vector2(1.2, -0.3)) * _cell_px, cost_text, STAR_FONT_SIZE, AetherStyle.GOLD)
 
 ## Draws a line on a cell edge unless both sides belong to the same
 ## placed Slate - same Slate reads as one solid shape, different Slates
@@ -284,25 +283,96 @@ static var show_outlines := false
 
 func _draw_outlines(occupied: Dictionary) -> void:
 	var w := maxf(1.5, _cell_px * 0.04)
-	var inset := w * 0.5
 	var index := 0
 	for id in board.placements:
-		var data: FateBoard.PlacedSlateData = board.placements[id]
 		# Golden-ratio hue steps keep neighbouring Slates' colours far apart.
 		var color := Color.from_hsv(fposmod(index * 0.618034, 1.0), 0.35, 1.0, 0.55)
 		index += 1
-		for c in data.cells:
-			if not _in_bounds(c):
+		_outline_slate(id, occupied, color, w, w * 0.5)
+
+## Draws `id`'s outer edge, `inset` px inside its cells. Edge ends stop short
+## at outer corners and run on at inner ones, so the line stays unbroken.
+func _outline_slate(id: String, occupied: Dictionary, color: Color, w: float, inset: float) -> void:
+	var data: FateBoard.PlacedSlateData = board.placements[id]
+	for c in data.cells:
+		if not _in_bounds(c):
+			continue
+		var centre := (Vector2(c) + Vector2(0.5, 0.5)) * _cell_px
+		for dir: Vector2i in [Vector2i.UP, Vector2i.DOWN, Vector2i.LEFT, Vector2i.RIGHT]:
+			if occupied.get(c + dir, "") == id:
 				continue
-			var r := Rect2(c.x * _cell_px, c.y * _cell_px, _cell_px, _cell_px).grow(-inset)
-			if occupied.get(c + Vector2i.UP, "") != id:
-				_outline_layer.draw_line(r.position, Vector2(r.end.x, r.position.y), color, w)
-			if occupied.get(c + Vector2i.DOWN, "") != id:
-				_outline_layer.draw_line(Vector2(r.position.x, r.end.y), r.end, color, w)
-			if occupied.get(c + Vector2i.LEFT, "") != id:
-				_outline_layer.draw_line(r.position, Vector2(r.position.x, r.end.y), color, w)
-			if occupied.get(c + Vector2i.RIGHT, "") != id:
-				_outline_layer.draw_line(Vector2(r.end.x, r.position.y), r.end, color, w)
+			var edge := centre + Vector2(dir) * (_cell_px * 0.5 - inset)
+			var ends: Array[Vector2] = []
+			for side: Vector2i in [Vector2i(-dir.y, dir.x), Vector2i(dir.y, -dir.x)]:
+				var reach := _cell_px * 0.5
+				if occupied.get(c + side, "") != id:
+					reach -= inset
+				elif occupied.get(c + side + dir, "") == id:
+					reach += inset
+				ends.append(edge + Vector2(side) * reach)
+			_outline_layer.draw_line(ends[0], ends[1], color, w)
+
+const DISTANCE_RING_COLOR := Color(0.86, 0.71, 0.42, 0.35)
+
+## While a Slate is held: the distance-cost rings (each FateBoard.AETHER_RING_SIZE
+## tiles out from the Centre adds +1) and what it would cost under the cursor.
+func _draw_placement_cost() -> void:
+	if pending_slate == null:
+		return
+	var font := AetherStyle.title()
+	var a := Vector2(FateBoard.ANCHOR_CELL)
+	var ring := FateBoard.AETHER_RING_SIZE
+	var step := 1
+	while ring * step <= FateBoard.BOARD_RADIUS:
+		# The edge of the tiles still under ring * step: everything outside pays +step.
+		var d := float(ring * step - 1)
+		var rect := Rect2((a - Vector2(d, d)) * _cell_px, Vector2(2.0 * d + 1.0, 2.0 * d + 1.0) * _cell_px)
+		_outline_layer.draw_rect(rect, DISTANCE_RING_COLOR, false, maxf(1.0, _cell_px * 0.03))
+		AetherStyle.text(_outline_layer, font, rect.position + Vector2(_cell_px * 0.15, -_cell_px * 0.2), "+%d" % step, STAR_FONT_SIZE, Color(DISTANCE_RING_COLOR, 0.8))
+		step += 1
+	if not _in_bounds(_hover_cell):
+		return
+	var world: Array[Vector2i] = []
+	for c in pending_slate.get_transformed_shape(pending_rotation, pending_flipped):
+		world.append(_hover_cell + c)
+	var cost := board.placement_cost(pending_slate, world)
+	var distance := FateBoard.distance_cost(world)
+	var cost_text := "%d Aether" % cost + (" (+%d distance)" % distance if distance > 0 else "")
+	AetherStyle.text(_outline_layer, font, (Vector2(_hover_cell) + Vector2(1.2, -0.3)) * _cell_px, cost_text, STAR_FONT_SIZE + 2, AetherStyle.GOLD)
+
+const LENS_COVER_COLOR := Color(0.6, 1.0, 0.92, 0.95)
+
+## Hovering a placed Slate with Lenses (or holding one) borders every other
+## Slate its Lens radii reach: Slates cover the radius tint itself.
+func _draw_lens_cover(occupied: Dictionary) -> void:
+	var host_id := ""
+	var host_cells: Array[Vector2i] = []
+	var lenses: Array[Lens] = []
+	if pending_slate:
+		if not _in_bounds(_hover_cell):
+			return
+		for c in pending_slate.get_transformed_shape(pending_rotation, pending_flipped):
+			host_cells.append(_hover_cell + c)
+		lenses = pending_slate.lenses
+	else:
+		host_id = occupied.get(_hover_cell, "")
+		if host_id == "":
+			return
+		var host: FateBoard.PlacedSlateData = board.placements[host_id]
+		host_cells = host.cells
+		lenses = host.slate.lenses
+	if lenses.is_empty():
+		return
+	var w := maxf(1.0, _cell_px * 0.035)
+	var inset := maxf(3.0, _cell_px * 0.14)
+	for id in board.placements:
+		if id == host_id:
+			continue
+		var cells: Array[Vector2i] = (board.placements[id] as FateBoard.PlacedSlateData).cells
+		if lenses.any(func(l: Lens) -> bool: return FateBoard._in_radius(cells, host_cells, l.radius)):
+			# A soft glow under a thin bright line.
+			_outline_slate(id, occupied, Color(LENS_COVER_COLOR, 0.22), w * 4.0, inset)
+			_outline_slate(id, occupied, LENS_COVER_COLOR, w, inset)
 
 const LENS_RADIUS_COLOR := Color(0.55, 0.9, 0.85, 0.14)
 const LENS_EDGE_COLOR := Color(0.55, 0.9, 0.85, 0.55)
@@ -398,9 +468,14 @@ func star_tooltip(star: int) -> String:
 		lines.append("%s: %s" % [lens.display_name, FateStars.lens_star_text(lens)])
 		if not reached:
 			lines.append("Unlit: no Slate chain reaches this Star.")
+		var claimed: Array = []
+		var open: Array = []
 		for site in board.star_sites(star):
-			var claimed := board.get_occupied_cells().has(site.cell) and reached
-			lines.append("  %s %s" % ["[claimed]" if claimed else "[open]", site.text()])
+			(claimed if board.get_occupied_cells().has(site.cell) and reached else open).append(site)
+		for line in FateStars.grouped_lines(claimed):
+			lines.append("  [claimed] " + line)
+		for line in FateStars.grouped_lines(open):
+			lines.append("  [open] " + line)
 		lines.append("Right-click to take the Lens out.")
 	elif reached:
 		lines.append("Hold a Lens and click this Star to set it.")

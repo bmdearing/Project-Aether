@@ -176,6 +176,28 @@ func _run() -> void:
 				star_lens.radius_tag = Constants.DamageType.FIRE
 				GameState.fate_board.set_star_lens(0, star_lens)
 			_screen("fate_board_editor").open()
+			# "lenscover": hover a placed Slate holding a radius-3 Lens; "holding": hold a Slate (distance rings).
+			if OS.get_cmdline_user_args().has("lenscover") or OS.get_cmdline_user_args().has("holding"):
+				var grid := _screen("fate_board_editor").find_child("FateBoardGrid", true, false) as FateBoardGrid
+				var board: FateBoard = GameState.fate_board
+				# The real cursor would move the hover cell.
+				grid.mouse_filter = Control.MOUSE_FILTER_IGNORE
+				var host: FateBoard.PlacedSlateData = board.placements.values()[0]
+				var lens := Lens.new()
+				lens.radius = 3
+				lens.radius_mod = "cheap"
+				lens.radius_value = 1.0
+				host.slate = host.slate.duplicate(true)
+				host.slate.lenses.append(lens)
+				grid._zoom = 1.0
+				grid._apply_zoom()
+				grid.center_on_anchor()
+				if OS.get_cmdline_user_args().has("holding"):
+					grid.set_pending(load("res://data/slates/instances/ember_lattice.tres"), 0, false)
+					grid._hover_cell = FateBoard.ANCHOR_CELL + Vector2i(3, -12)
+				else:
+					grid._hover_cell = host.cells[0]
+				grid.queue_redraw()
 			if OS.get_cmdline_user_args().has("stars"):
 				var grid := _screen("fate_board_editor").find_child("FateBoardGrid", true, false) as FateBoardGrid
 				grid._zoom = 0.8
