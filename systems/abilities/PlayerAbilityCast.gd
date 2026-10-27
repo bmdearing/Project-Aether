@@ -266,8 +266,6 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 	_player.mana.spend(mana_cost)
 	if ability.ability_id == "manasaber":
 		_manasaber_spent = mana_cost / copies
-		if _player.arm_rig:
-			_player.arm_rig.play_slash(ability.get_cast_time(_player.stat_sheet), MANASABER_SLASH_STRIKE, MANASABER_SLASH_RECOVERY, false, manasaber_trail_color())
 	_cast_lockout = ability.base_recovery_time / maxf(_player.get_action_speed_multiplier(), 0.01)
 	if ability.ability_id == "flame_jets":
 		_flame_jets_input_action = "ability_%d" % (slot_index + 1)
@@ -1929,32 +1927,21 @@ const CHARGED_REFLEXES_FIRE_RATE := 1.3
 const CHARGED_REFLEXES_RELOAD := 1.4
 const CHARGED_REFLEXES_SHOT_DRAIN := 0.15
 
-## Manasaber: costs this share of maximum Mana and sweeps a cone ahead for
-## MANASABER_DAMAGE x the Mana spent, as the spell's base damage.
+## Aether Rebuke (id "manasaber", a Skill): costs this share of maximum Mana
+## and sweeps a cone ahead with the weapon's hit as Aetheric (Ability skill
+## damage), 1% more for every AETHER_REBUKE_MANA_PER_MORE Mana spent. The
+## slash plays on the viewmodel (_begin_skill_swing()).
 const MANASABER_SHARE := 0.4
-const MANASABER_DAMAGE := 2.5
+const AETHER_REBUKE_MANA_PER_MORE := 4.0
 const MANASABER_HALF_ANGLE := 70.0
-## Each hit also adds this much of the main-hand weapon's hit (its full
-## attack scaling, rolled as Aetheric). The slash plays on the viewmodel.
-const MANASABER_WEAPON_DAMAGE := 1.2
 const MANASABER_SLASH_STRIKE := 0.18
 const MANASABER_SLASH_RECOVERY := 0.3
 var _manasaber_spent: float = 0.0
 
-## The Manasaber ribbon trailing the weapon: Aetheric, bright enough to bloom.
+## The Aether Rebuke ribbon trailing the weapon: Aetheric, bright enough to bloom.
 static func manasaber_trail_color() -> Color:
 	var c: Color = Constants.DAMAGE_TYPE_COLOR[Constants.DamageType.AETHERIC]
 	return Color(c.r * 1.3, c.g * 2.2, c.b * 2.4, 1.0)
-
-## The main-hand weapon as an Aetheric copy, or null when there's nothing
-## that attacks in hand.
-func manasaber_weapon() -> Weapon:
-	var weapon := _player.get_active_weapon()
-	if weapon == null or not weapon.can_attack():
-		return null
-	var copy := weapon.duplicate() as Weapon
-	copy.infused_damage_type = Constants.DamageType.AETHERIC
-	return copy
 
 ## Puncture: stabs the nearest enemy within its reach and this cone, and
 ## leaves it Punctured (StatusEffectComponent.PUNCTURED_BLEED_TAKEN).
@@ -1971,6 +1958,9 @@ var _arach_cd: float = 0.0
 
 static func manasaber_cost(max_mana: float) -> float:
 	return max_mana * MANASABER_SHARE
+
+static func aether_rebuke_more(spent: float) -> float:
+	return 1.0 + spent / AETHER_REBUKE_MANA_PER_MORE / 100.0
 
 ## Webs: Focused Mind (3x), Overclock (+45%, double drain), Steady Hands (+70%).
 const FOCUSED_MIND_LIFE_SHARE := 3.0
@@ -2067,8 +2057,8 @@ func on_ranged_shot() -> void:
 		return
 	_player.mana.spend(drain)
 
-## An Aetheric blade sweeping the cone ahead. Its base hit is the Mana spent
-## on the cast times MANASABER_DAMAGE, then every spell modifier and crit.
+## Aether Rebuke: the weapon's hit as Aetheric through the cone ahead, more
+## for the Mana spent (aether_rebuke_more()).
 func _cast_manasaber(ability: Ability, damage_multiplier: float, apply_composure: bool) -> void:
 	var sheet := _player.stat_sheet
 	var spent := _manasaber_spent if _manasaber_spent > 0.0 else manasaber_cost(_player.mana.max_mana)
@@ -2078,7 +2068,6 @@ func _cast_manasaber(ability: Ability, damage_multiplier: float, apply_composure
 	forward = forward.normalized() if forward.length() > 0.01 else -_player.global_transform.basis.z
 	forward = forward.rotated(Vector3.UP, deg_to_rad(_aim_yaw_offset))
 	var origin := _player.global_position
-	var blade := manasaber_weapon()
 	if _saber_return and _player.arm_rig:
 		_player.arm_rig.play_slash(0.0, MANASABER_SLASH_STRIKE, MANASABER_SLASH_RECOVERY, true, manasaber_trail_color())
 	for enemy in _enemies_near(origin, radius):
@@ -2086,16 +2075,9 @@ func _cast_manasaber(ability: Ability, damage_multiplier: float, apply_composure
 		to_enemy.y = 0.0
 		if to_enemy.length() > 0.5 and rad_to_deg(forward.angle_to(to_enemy.normalized())) > MANASABER_HALF_ANGLE:
 			continue
-		var hit := ability._base_hit(spent * MANASABER_DAMAGE, sheet)
-		var rolled := DamageCalculator.apply_crit(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
-		var crit: bool = rolled["is_critical"]
-		var total := float(rolled["final_damage"])
-		# Plus MANASABER_WEAPON_DAMAGE of the main-hand weapon's hit, as Aetheric.
-		if blade:
-			var weapon_hit := blade.roll_damage(MANASABER_WEAPON_DAMAGE, sheet)
-			total += float(weapon_hit["final_damage"])
-			crit = crit or weapon_hit["is_critical"]
-		var damage: float = total * damage_multiplier
+		var hit := ability.roll_damage(sheet)
+		var crit: bool = hit["is_critical"]
+		var damage: float = float(hit["final_damage"]) * aether_rebuke_more(spent) * damage_multiplier
 		enemy.take_damage(damage, ability.damage_type)
 		if apply_composure and enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
@@ -2336,5 +2318,10 @@ func skill_swing_time(ability: Ability) -> float:
 func _begin_skill_swing(ability: Ability) -> void:
 	var total := skill_swing_time(ability)
 	ability.skill_cast_time = total * (SKILL_WINDUP_SHARE + SKILL_STRIKE_SHARE)
-	if _player.arm_rig:
-		_player.arm_rig.play_attack(PlayerArmRig.Attack.LIGHT, total * SKILL_WINDUP_SHARE, total * SKILL_STRIKE_SHARE, total * (1.0 - SKILL_WINDUP_SHARE - SKILL_STRIKE_SHARE))
+	if _player.arm_rig == null:
+		return
+	var recovery := total * (1.0 - SKILL_WINDUP_SHARE - SKILL_STRIKE_SHARE)
+	if ability.ability_id == "manasaber":
+		_player.arm_rig.play_slash(total * SKILL_WINDUP_SHARE, total * SKILL_STRIKE_SHARE, recovery, false, manasaber_trail_color())
+	else:
+		_player.arm_rig.play_attack(PlayerArmRig.Attack.LIGHT, total * SKILL_WINDUP_SHARE, total * SKILL_STRIKE_SHARE, recovery)

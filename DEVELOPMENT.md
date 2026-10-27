@@ -1360,11 +1360,9 @@ formulas).
   at most 10 spiders, Entropic bites, 15 s), **Inner Power** (toggle: no
   Mana regeneration, 2x it as Life regeneration, 10% more Aetheric; while
   it is on the bar at all you deal no Physical damage -
-  `StatSheet.inner_power_multiplier()`), **Manasaber** (costs 40% of maximum
-  Mana; a 140-degree sweep for 250% of the Mana spent as its base Aetheric
-  hit, then spell modifiers and crit, plus 120% of the main-hand weapon's hit
-  rolled as Aetheric; 0.1 s cast, the held weapon slashes on the
-  viewmodel, `PlayerArmRig.play_slash()`), **Charged Reflexes** (toggle: ranged
+  `StatSheet.inner_power_multiplier()`), **Aether Rebuke** (id `manasaber`, a Skill since 2026-10-27; costs 40% of
+  maximum Mana; a 140-degree sweep with the melee weapon's hit as Aetheric,
+  1% more per 4 Mana spent; slashes on the viewmodel, `PlayerArmRig.play_slash()`), **Charged Reflexes** (toggle: ranged
   attack speed x1.3 and reload speed x1.4, each shot drains 15% of its cost).
   Toggles live in `GameState.toggled_spells`, switch off for free, when Mana
   runs dry, or when taken off the bar.

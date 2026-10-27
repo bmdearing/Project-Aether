@@ -96,13 +96,13 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 			out.append(shot + "; it switches off when your Mana runs dry")
 		"manasaber":
 			out.append("Costs %s of your maximum Mana" % _pct(PlayerAbilityCast.MANASABER_SHARE))
-			out.append("Sweeps a %s-degree arc within %sm for %s of the Mana spent as base Aetheric damage" % [_num(PlayerAbilityCast.MANASABER_HALF_ANGLE * 2.0), _num(ability.get_radius(sheet)), _pct(PlayerAbilityCast.MANASABER_DAMAGE)])
-			out.append("Adds %s of your main-hand weapon's hit to each target, as Aetheric damage" % _pct(PlayerAbilityCast.MANASABER_WEAPON_DAMAGE))
+			out.append("Sweeps a %s-degree arc within %sm with your weapon's hit, as Aetheric damage" % [_num(PlayerAbilityCast.MANASABER_HALF_ANGLE * 2.0), _num(ability.get_radius(sheet))])
+			out.append("1%% more damage for every %s Mana spent" % _num(PlayerAbilityCast.AETHER_REBUKE_MANA_PER_MORE))
 			if player and player.mana:
 				var spent := PlayerAbilityCast.manasaber_cost(player.mana.max_mana)
-				out.append("Now: %s Mana for %s base damage" % [_num(spent), _num(spent * PlayerAbilityCast.MANASABER_DAMAGE)])
+				out.append("Now: %s Mana for %s more damage" % [_num(spent), _pct(PlayerAbilityCast.aether_rebuke_more(spent) - 1.0)])
 		"puncture":
-			out.append("Stabs the nearest enemy in front of you within %sm" % _num(ability.get_radius(sheet)))
+			out.append("Thrusts your weapon into the nearest enemy in front of you within %sm, as Piercing damage" % _num(ability.get_radius(sheet)))
 			out.append("Punctured for %ss: Bleeding deals %s more damage to it" % [_num(PlayerAbilityCast.PUNCTURE_DURATION * duration), _pct(StatusEffectComponent.PUNCTURED_BLEED_TAKEN)])
 		"invocation_of_arach":
 			out.append("Marks the enemy at your crosshair for %ss" % _num(PlayerAbilityCast.ARACH_MARK_DURATION * duration))
@@ -141,7 +141,7 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 			out.append(text)
 	if ability.is_skill:
 		var needs := "any melee weapon" if ability.skill_weapon_types.is_empty() else ", ".join(ability.skill_weapon_types)
-		var skill := "Skill: uses your weapon's swing (%s of its attack time); needs %s" % [_pct(ability.attack_time_multiplier), needs]
+		var skill := "Skill: deals your weapon's hit at %s of its motion value (+%s per level), and takes %s of its attack time; needs %s" % [_pct(ability.skill_motion_value), _pct(Ability.SKILL_MOTION_PER_LEVEL), _pct(ability.attack_time_multiplier), needs]
 		if player and player.ability_cast and player.get_active_weapon():
 			skill += " (now %ss)" % _num(player.ability_cast.skill_swing_time(ability))
 		out.insert(0, skill)

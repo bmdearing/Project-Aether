@@ -184,9 +184,12 @@ func get_tag_names() -> PackedStringArray:
 	return names
 
 func deals_damage() -> bool:
-	return base_damage_max > 0.0
+	return is_skill or base_damage_max > 0.0
 
 func get_base_damage_range(stat_sheet: StatSheet = null) -> Vector2:
+	if is_skill:
+		var w := skill_weapon()
+		return (w.get_hit_range(stat_sheet) if stat_sheet else w.get_damage_range()) * skill_motion(w, stat_sheet) if w else Vector2.ZERO
 	var growth := level_growth(get_effective_level(stat_sheet))
 	return Vector2(base_damage_min, base_damage_max) * growth
 
@@ -306,6 +309,9 @@ func web_twist_more() -> float:
 func predict_damage(stat_sheet: StatSheet) -> float:
 	if stat_sheet == null:
 		return 0.0
+	if is_skill:
+		var w := skill_weapon()
+		return w.predict_damage(skill_motion(w, stat_sheet), stat_sheet) * skill_more(stat_sheet) if w else 0.0
 	var r := get_base_damage_range(stat_sheet)
 	var hit := _base_hit((r.x + r.y) / 2.0, stat_sheet)
 	return DamageCalculator.get_expected_damage(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
@@ -314,12 +320,50 @@ func predict_damage(stat_sheet: StatSheet) -> float:
 func predict_damage_range(stat_sheet: StatSheet) -> Vector2:
 	if stat_sheet == null:
 		return get_base_damage_range()
+	if is_skill:
+		var w := skill_weapon()
+		return w.predict_damage_range(skill_motion(w, stat_sheet), stat_sheet) * skill_more(stat_sheet) if w else Vector2.ZERO
 	var r := get_base_damage_range(stat_sheet)
 	return Vector2(_base_hit(r.x, stat_sheet)["base_damage"], _base_hit(r.y, stat_sheet)["base_damage"])
 
 func roll_damage(stat_sheet: StatSheet) -> Dictionary:
 	if stat_sheet == null:
 		return {"final_damage": 0.0, "is_critical": false}
+	if is_skill:
+		return _roll_skill(stat_sheet)
 	var r := get_base_damage_range(stat_sheet)
 	var hit := _base_hit(randf_range(r.x, r.y), stat_sheet)
 	return DamageCalculator.apply_crit(hit["base_damage"], hit["crit_chance"], hit["crit_damage_multiplier"])
+
+## ---- Skill damage: the main-hand weapon's hit (every attack modifier and
+## its crit), turned into this Skill's damage type, at skill_motion(): the
+## weapon type's own swing motion value (PlayerMeleeAttack) x
+## skill_motion_value, + SKILL_MOTION_PER_LEVEL per level past 1. Then the
+## web's and level-cap "more" damage. Spell damage modifiers don't apply.
+@export var skill_motion_value: float = 1.0
+const SKILL_MOTION_PER_LEVEL := 0.03
+
+func skill_motion(weapon: Weapon, stat_sheet: StatSheet = null) -> float:
+	return PlayerMeleeAttack.WEAPON_TYPE_MOTION_VALUE.get(weapon.weapon_type, 2.0) * skill_motion_value * (1.0 + SKILL_MOTION_PER_LEVEL * (get_effective_level(stat_sheet) - 1))
+
+func skill_more(stat_sheet: StatSheet) -> float:
+	return (1.0 + get_levels_over_cap(stat_sheet) * OVERCAP_MORE_DAMAGE) * extra_more * (1.0 + web_value(SkillWeb.MORE_DAMAGE) / 100.0) * web_twist_more()
+
+## The player's main-hand weapon as this Skill's damage type, or null when
+## it can't use the Skill.
+func skill_weapon() -> Weapon:
+	var equipment = GameState.player_equipment
+	var weapon: Weapon = equipment.primary_weapon if equipment else null
+	if skill_weapon_error(weapon) != "":
+		return null
+	var copy := weapon.duplicate() as Weapon
+	copy.infused_damage_type = damage_type
+	return copy
+
+func _roll_skill(stat_sheet: StatSheet) -> Dictionary:
+	var w := skill_weapon()
+	if w == null:
+		return {"final_damage": 0.0, "is_critical": false, "crit_multiplier": 1.0}
+	var hit := w.roll_damage(skill_motion(w, stat_sheet), stat_sheet)
+	hit["final_damage"] = float(hit["final_damage"]) * skill_more(stat_sheet)
+	return hit

@@ -25,3 +25,4 @@ tags = Array[StringName]([])
 is_skill = true
 skill_weapon_types = Array[String](["Dagger", "Rapier", "Shortsword", "Saber", "Spear", "Halberd", "Katana"])
 attack_time_multiplier = 1.0
+skill_motion_value = 1.2

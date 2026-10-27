@@ -5,8 +5,8 @@
 [resource]
 script = ExtResource("1")
 ability_id = "manasaber"
-display_name = "Manasaber"
-description = "Your Mana, condensed into a blade of pure Aether."
+display_name = "Aether Rebuke"
+description = "Your Mana, poured into the edge of your weapon and loosed in one sweeping rebuke."
 damage_type = 6
 motion_value = 1.0
 cooldown_seconds = 0.0
@@ -22,3 +22,6 @@ base_cast_time = 0.1
 base_damage_min = 0.0
 base_damage_max = 0.0
 tags = Array[StringName]([&"area"])
+is_skill = true
+attack_time_multiplier = 1.0
+skill_motion_value = 1.5

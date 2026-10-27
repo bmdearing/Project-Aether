@@ -87,7 +87,9 @@ func _test_spell_math() -> void:
 		if not f.ends_with(".tres"):
 			continue
 		var a := load(ABILITY_DIR + f) as Ability
-		if a.ability_id in ["blink", "purge", "battle_cry", "intimidating_shout", "meager", "fracturing", "decompose", "elemental_fragility", "death_shroud", "inner_power", "charged_reflexes", "manasaber"]:
+		if a.is_skill:
+			_check(a.deals_damage(), "%s (a Skill) deals weapon damage" % a.ability_id)
+		elif a.ability_id in ["blink", "purge", "battle_cry", "intimidating_shout", "meager", "fracturing", "decompose", "elemental_fragility", "death_shroud", "inner_power", "charged_reflexes", "triangulation", "dark_arts", "enchantment"]:
 			_check(not a.deals_damage(), "%s deals no damage" % a.ability_id)
 		else:
 			_check(a.base_damage_min > 0.0 and a.base_damage_max >= a.base_damage_min, "%s has base damage" % a.ability_id)
