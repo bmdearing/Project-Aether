@@ -1362,7 +1362,7 @@ formulas).
   it is on the bar at all you deal no Physical damage -
   `StatSheet.inner_power_multiplier()`), **Aether Rebuke** (id `manasaber`, a Skill since 2026-10-27; costs 40% of
   maximum Mana; a 140-degree sweep with the melee weapon's hit as Aetheric,
-  1% more per 4 Mana spent; slashes on the viewmodel, `PlayerArmRig.play_slash()`), **Charged Reflexes** (toggle: ranged
+  1% more per 4 Mana spent, capped at +75%; slashes on the viewmodel, `PlayerArmRig.play_slash()`), **Charged Reflexes** (toggle: ranged
   attack speed x1.3 and reload speed x1.4, each shot drains 15% of its cost).
   Toggles live in `GameState.toggled_spells`, switch off for free, when Mana
   runs dry, or when taken off the bar.

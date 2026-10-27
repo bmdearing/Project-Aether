@@ -18,7 +18,7 @@ The user picked this from three pitches.
 User rulings: Skills scale off the weapon, not spell damage. Reap stays a Spell. Manasaber is renamed Aether Rebuke and becomes a Skill.
 - **Skill damage** is the main-hand weapon's hit, with every attack modifier and the weapon's crit, converted to the Skill's damage type. It hits at the weapon type's own swing motion value x the Skill's `skill_motion_value`, +3% per Skill level past 1, then the web's and level-cap "more" damage. Spell damage modifiers no longer apply (`Ability._roll_skill()`). The card's damage line shows the weapon-based numbers.
 - **Puncture:** 1.2x a normal swing of your weapon as Piercing, plus its Bleed and Puncture as before. With a Ronin's Katana that's 262 against a 218 swing, landing in about 1 s.
-- **Aether Rebuke** (keeps the internal id `manasaber`, so saves, loadouts and web points carry over): still costs 40% of maximum Mana and sweeps 140 degrees. It now deals 1.5x your weapon's swing as Aetheric, 1% more for every 4 Mana spent. It needs a melee weapon (guns no longer work) and slashes over the weapon's swing time. Twin Blade is unchanged.
+- **Aether Rebuke** (keeps the internal id `manasaber`, so saves, loadouts and web points carry over): still costs 40% of maximum Mana and sweeps 140 degrees. It now deals 1.5x your weapon's swing as Aetheric, 1% more for every 4 Mana spent, capped at +75% (reached at 750 maximum Mana; user ruling, so Mana stacking with Brimming Edge can't run away). It needs a melee weapon (guns no longer work) and slashes over the weapon's swing time. Twin Blade is unchanged.
 
 ## 2026-10-27 — Katana, Skills, four spells, three uniques, cast and ailment visuals
 

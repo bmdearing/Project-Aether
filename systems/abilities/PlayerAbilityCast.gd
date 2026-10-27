@@ -1933,6 +1933,8 @@ const CHARGED_REFLEXES_SHOT_DRAIN := 0.15
 ## slash plays on the viewmodel (_begin_skill_swing()).
 const MANASABER_SHARE := 0.4
 const AETHER_REBUKE_MANA_PER_MORE := 4.0
+## Cap on that bonus (user): +75% more, reached at 300 Mana spent.
+const AETHER_REBUKE_MAX_MORE := 75.0
 const MANASABER_HALF_ANGLE := 70.0
 const MANASABER_SLASH_STRIKE := 0.18
 const MANASABER_SLASH_RECOVERY := 0.3
@@ -1960,7 +1962,7 @@ static func manasaber_cost(max_mana: float) -> float:
 	return max_mana * MANASABER_SHARE
 
 static func aether_rebuke_more(spent: float) -> float:
-	return 1.0 + spent / AETHER_REBUKE_MANA_PER_MORE / 100.0
+	return 1.0 + minf(spent / AETHER_REBUKE_MANA_PER_MORE, AETHER_REBUKE_MAX_MORE) / 100.0
 
 ## Webs: Focused Mind (3x), Overclock (+45%, double drain), Steady Hands (+70%).
 const FOCUSED_MIND_LIFE_SHARE := 3.0
