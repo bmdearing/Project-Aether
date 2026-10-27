@@ -40,6 +40,8 @@ func entries() -> Array[Dictionary]:
 			buffs.append({"id": aura_id, "left": -1.0, "stacks": 1})
 		for id in GameState.toggled_spells:
 			buffs.append({"id": id, "left": -1.0, "stacks": 1})
+	if player.stance_attack and player.stance_attack.flow_stacks > 0:
+		buffs.append({"id": "flow", "left": -1.0, "stacks": player.stance_attack.flow_stacks})
 	var uniques := player.unique_effects
 	if uniques:
 		for id in uniques.timed_more:

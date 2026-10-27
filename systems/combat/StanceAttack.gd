@@ -158,6 +158,10 @@ func _physics_process(delta: float) -> void:
 		_stealth_spent = false
 	if _flurry_left > 0:
 		_continue_flurry()
+	if flow_stacks > 0:
+		_flow_left -= delta
+		if _flow_left <= 0.0:
+			flow_stacks = 0
 	if _wants_charge and not is_charging and _player.weapon_stance.is_active and _player.melee_attack.is_idle():
 		_wants_charge = false
 		begin_charge()
@@ -392,6 +396,8 @@ func try_instant() -> bool:
 			params["kind"] = PlayerArmRig.Attack.LIGHT
 			params["no_step"] = true
 			params["on_contact"] = _repulse.bind(b)
+		MeleeStanceBehavior.MeleeStanceType.FLOWING_CUTS:
+			_flowing_cut(b, params)
 		MeleeStanceBehavior.MeleeStanceType.SLICE_AND_DICE:
 			_flurry_behavior = b
 			_flurry_left = maxi(b.hits, 1)
@@ -587,3 +593,46 @@ func _on_shatter_hit(enemy: Enemy, damage: float, behavior: MeleeStanceBehavior)
 	for other in _player.melee_attack.enemies_in_radius(enemy.global_position, SHATTER_BURST_RADIUS):
 		if other != enemy:
 			_hit(other, damage * SHATTER_BURST_SHARE, damage_type)
+
+## ---- Flowing Cuts (Katana Stance B)
+## Each cut in stance that lands adds a Flow stack (up to the behavior's
+## `hits`); every stack makes the next cut FLOW_SPEED faster and FLOW_DAMAGE
+## stronger. At full Flow the next cut is a cross-cut through a wide arc
+## (half_angle, up to 8 enemies) at finisher_multiplier, and Flow resets.
+## A cut that hits nothing, or FLOW_TIMEOUT without a cut, drops it.
+const FLOW_SPEED := 0.08
+const FLOW_DAMAGE := 0.06
+const FLOW_TIMEOUT := 1.5
+var flow_stacks: int = 0
+var _flow_left: float = 0.0
+var _flow_cut_landed := true
+
+func _flowing_cut(b: MeleeStanceBehavior, params: Dictionary) -> void:
+	if not _flow_cut_landed:
+		flow_stacks = 0
+	_flow_cut_landed = false
+	var weapon := _player.get_active_weapon()
+	var swing := PlayerMeleeAttack.swing_seconds(weapon.weapon_type if weapon else "") / maxf(_player.get_attack_speed_multiplier(weapon), 0.01)
+	var speed := 1.0 + FLOW_SPEED * flow_stacks
+	var total := PlayerMeleeAttack.BASE_WINDUP + PlayerMeleeAttack.BASE_STRIKE + PlayerMeleeAttack.BASE_RECOVERY
+	params["windup"] = swing * PlayerMeleeAttack.BASE_WINDUP / total / speed
+	params["strike"] = swing * PlayerMeleeAttack.BASE_STRIKE / total / speed
+	params["recovery"] = swing * PlayerMeleeAttack.BASE_RECOVERY / total / speed
+	params["motion_mult"] = b.motion_value_min * (1.0 + FLOW_DAMAGE * flow_stacks)
+	params["kind"] = PlayerArmRig.Attack.LIGHT if flow_stacks % 2 == 0 else PlayerArmRig.Attack.HEAVY
+	params["no_push"] = true  # a shoved enemy would leave reach and break the Flow
+	if flow_stacks >= maxi(b.hits, 1):
+		params["kind"] = PlayerArmRig.Attack.CHARGED
+		params["motion_mult"] = b.motion_value_min * (1.0 + FLOW_DAMAGE * flow_stacks) * b.finisher_multiplier
+		params["shape"] = {"reach": b.reach_min, "half_angle": b.half_angle, "splash": 1.0, "max_targets": 8}
+		params["on_hit"] = func(_enemy: Enemy, _damage: float) -> void: _flow_cut_landed = true
+		flow_stacks = 0
+		return
+	params["on_hit"] = func(_enemy: Enemy, _damage: float) -> void: _on_flow_hit(b)
+
+func _on_flow_hit(b: MeleeStanceBehavior) -> void:
+	if _flow_cut_landed:
+		return  # one stack per cut, however many it hits
+	_flow_cut_landed = true
+	flow_stacks = mini(flow_stacks + 1, maxi(b.hits, 1))
+	_flow_left = FLOW_TIMEOUT

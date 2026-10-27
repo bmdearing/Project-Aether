@@ -7,6 +7,12 @@ there. Most recent first.
 
 ---
 
+## 2026-10-27 — Katana Stance B: Flowing Cuts
+
+The user picked this from three pitches.
+- **Flowing Cuts:** with the stance held, each left-click cut that lands adds a Flow stack, up to 5. Each stack makes the next cut 8% faster and gives it 6% more damage. At 5 stacks the next cut is a cross-cut through a 150-degree arc, hitting up to 8 enemies for 1.8x, and Flow resets. A cut that misses, or 1.5 s without cutting, drops Flow. These cuts don't shove enemies, so a hit never knocks the target out of reach. The stance has no cooldown. Flow shows on the buff row with its stack count (`StanceAttack._flowing_cut()`).
+- With a Worn Katana the cuts climbed from about 28 to 54 damage, and the cross-cut hit for 104.
+
 ## 2026-10-27 — Skills deal weapon damage; Manasaber is now Aether Rebuke
 
 User rulings: Skills scale off the weapon, not spell damage. Reap stays a Spell. Manasaber is renamed Aether Rebuke and becomes a Skill.

@@ -30,6 +30,7 @@ enum MeleeStanceType {
 	SHATTER,
 	FLURRY,          # dual wield: charge for more alternating cuts, cross-cut finish
 	HIDDEN_STRIKE,   # katana: channel while RMB is held (no auto-release), a wide draw-cut on letting go
+	FLOWING_CUTS,    # katana B: each landed cut in stance builds Flow (faster, harder); a full stack cross-cuts
 	# PRESSURE_FIST_STANCE_B - deferred, do not add yet (per the brief)
 }
 

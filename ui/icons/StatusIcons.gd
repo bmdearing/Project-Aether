@@ -51,6 +51,7 @@ const DEFS := {
 	"triangulation": ["shield_tri", Color(0.95, 0.72, 0.4), Kind.BUFF],
 	"dark_arts": ["shield", Color(0.7, 0.4, 1.0), Kind.BUFF],
 	"enchantment": ["sword", Color(1.0, 0.5, 0.2), Kind.BUFF],
+	"flow": ["swoosh", Color(0.75, 0.9, 1.0), Kind.BUFF],
 	"debt": ["lock", Color(0.86, 0.71, 0.42), Kind.BUFF],
 }
 

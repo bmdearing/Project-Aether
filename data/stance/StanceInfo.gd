@@ -55,7 +55,7 @@ const MELEE := {
 	],
 	"Katana": [
 		{"name": "Hidden Strike", "desc": "Hold RMB to channel for as long as you like; the strike grows for 3 s. Let go to release a wide draw-cut through everything in front of you."},
-		{"name": "Stance B", "desc": "Not designed yet."},
+		{"name": "Flowing Cuts", "desc": "Each cut that lands builds Flow (up to 5): the next cut is 8% faster and deals 6% more per stack. At full Flow your next cut is a cross-cut through a wide arc for 1.8x, and Flow resets. A cut that misses, or 1.5 s without cutting, drops it."},
 	],
 	"Pressure Fist": [
 		{"name": "Pressure Blast", "desc": "Charge internal pressure, then release a point-blank cone of force. Massive Stagger, sends enemies flying."},
