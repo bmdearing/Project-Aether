@@ -107,7 +107,12 @@ static func resistance_key_for(damage_type: Constants.DamageType):
 
 func get_resistance(damage_type: Constants.DamageType) -> float:
 	var key = resistance_key_for(damage_type)
-	return equipment_resistance.get(key, 0.0) if key else 0.0
+	return equipment_resistance.get(key, 0.0) + spell_resistance.get(key, 0.0) if key else 0.0
+
+## Resistance and maximum Resistance from switched-on spells (Triangulation,
+## Dark Arts), key -> percent; PlayerAbilityCast._tick_toggles() sets them.
+var spell_resistance: Dictionary = {}
+var spell_max_resistance: Dictionary = {}
 
 ## Resistance counts up to its maximum: BASE_MAX_RESISTANCE plus "+% to
 ## maximum X Resistance" (jewels), never past the hard ceiling.
@@ -117,7 +122,7 @@ func get_max_resistance(damage_type: Constants.DamageType) -> float:
 	var key = resistance_key_for(damage_type)
 	if key == null:
 		return BASE_MAX_RESISTANCE
-	return minf(BASE_MAX_RESISTANCE + get_misc_bonus("max_%s_resistance" % key), DamageCalculator.RESISTANCE_CEILING)
+	return minf(BASE_MAX_RESISTANCE + get_misc_bonus("max_%s_resistance" % key) + spell_max_resistance.get(key, 0.0), DamageCalculator.RESISTANCE_CEILING)
 
 ## What a hit is resisted by: Resistance minus Shred, capped at the maximum,
 ## so Resistance above the cap soaks Shred first.
@@ -264,6 +269,12 @@ func get_crit_damage_bonus() -> float:
 func get_crit_multiplier_bonus() -> float:
 	return get_misc_bonus("crit_multiplier") / 100.0
 
+## What a crit multiplies a hit by: x1 (no extra damage) with Sanctum of the Mage.
+func get_crit_damage_multiplier() -> float:
+	if unique_effects and unique_effects.has(UniqueEffects.NO_CRIT_DAMAGE):
+		return 1.0
+	return DamageCalculator.get_crit_damage_multiplier(get_crit_damage_bonus(), get_crit_multiplier_bonus())
+
 func set_misc_bonus(bonus: Dictionary) -> void:
 	misc_bonus = bonus
 
@@ -365,6 +376,14 @@ func get_skill_level_bonus(damage_type: Constants.DamageType) -> int:
 	if type_key != "":
 		bonus += int(get_misc_bonus("skill_level_%s" % type_key))
 		bonus += int(get_misc_bonus("skill_level_spell_%s" % type_key))
+	# Sanctum of the Mage: +1 per N% of total (capped) Elemental Resistance.
+	if unique_effects and unique_effects.has(UniqueEffects.ELEMENTAL_LEVELS_PER_RES) \
+			and Constants.DAMAGE_TYPE_CATEGORY.get(damage_type) == Constants.DamageCategory.ELEMENTAL:
+		var per := maxf(unique_effects.value(UniqueEffects.ELEMENTAL_LEVELS_PER_RES), 1.0)
+		var total := 0.0
+		for t in [Constants.DamageType.FIRE, Constants.DamageType.COLD, Constants.DamageType.LIGHTNING]:
+			total += maxf(get_effective_resistance(t), 0.0)
+		bonus += floori(total / per)
 	return bonus
 
 ## Flat addition to the shield's block_chance.

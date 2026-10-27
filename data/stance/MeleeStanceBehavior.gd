@@ -29,6 +29,7 @@ enum MeleeStanceType {
 	EARTHQUAKE,
 	SHATTER,
 	FLURRY,          # dual wield: charge for more alternating cuts, cross-cut finish
+	HIDDEN_STRIKE,   # katana: channel while RMB is held (no auto-release), a wide draw-cut on letting go
 	# PRESSURE_FIST_STANCE_B - deferred, do not add yet (per the brief)
 }
 
@@ -42,6 +43,8 @@ enum MeleeStanceType {
 @export var charge_min_time: float = 0.0
 ## Releasing before full charge cancels instead of attacking.
 @export var require_full_charge: bool = false
+## False: full charge holds until RMB is let go instead of firing (Katana Hidden Strike).
+@export var release_on_full: bool = true
 @export var charge_move_multiplier: float = 0.6
 ## Multiplier on the weapon's motion value, from zero to full charge.
 @export var motion_value_min: float = 1.6

@@ -250,6 +250,7 @@ static func _draw_key(pen: Pen, key: StringName, content, accent: Color) -> void
 		# Blades
 		"shortsword": _sword(pen, accent, 0.08, 0.0, 0.62)
 		"saber": _sword(pen, accent, 0.075, 0.12, 0.62)
+		"katana": _sword(pen, accent, 0.06, 0.18, 0.64)
 		"cutlass": _sword(pen, accent, 0.095, 0.16, 0.62)
 		"rapier": _rapier(pen, accent)
 		"greatsword": _sword(pen, accent, 0.11, 0.0, 0.66)

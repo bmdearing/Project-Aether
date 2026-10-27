@@ -58,6 +58,7 @@ var spin: float = 0.0
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
 func _ready() -> void:
+	add_to_group(&"projectile")  # Black Hole swallows these
 	if model:
 		add_child(model)
 		if mesh:

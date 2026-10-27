@@ -28,6 +28,8 @@ var _owned_abilities: Array[Ability] = []
 
 var _library: VBoxContainer
 var _grid: GridContainer
+var _skill_grid: GridContainer
+var _skill_header: Control
 var _empty_label: Label
 var _page_slots: Array[ItemSlotButton] = []
 var _currency_label: Label
@@ -111,7 +113,7 @@ func _build() -> void:
 	AetherStyle.wrap_in_plate(root, 24)
 
 	var title := Label.new()
-	title.text = "Spells"
+	title.text = "Spells & Skills"
 	AetherStyle.title_label(title, 30)
 	root.add_child(title)
 
@@ -134,16 +136,22 @@ func _build() -> void:
 	_library.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_library.add_theme_constant_override("separation", 10)
 	main.add_child(_library)
-	_library.add_child(AetherStyle.section_header("Known Spells"))
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.custom_minimum_size.y = ICON_SIZE * 3 + 40.0
 	_library.add_child(scroll)
-	_grid = GridContainer.new()
-	_grid.columns = GRID_COLUMNS
-	_grid.add_theme_constant_override("h_separation", 10)
-	_grid.add_theme_constant_override("v_separation", 10)
-	scroll.add_child(_grid)
+	var lists := VBoxContainer.new()
+	lists.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	lists.add_theme_constant_override("separation", 10)
+	scroll.add_child(lists)
+	# Skills swing your melee weapon; Spells are cast.
+	_skill_header = AetherStyle.section_header("Known Skills")
+	lists.add_child(_skill_header)
+	_skill_grid = _new_grid()
+	lists.add_child(_skill_grid)
+	lists.add_child(AetherStyle.section_header("Known Spells"))
+	_grid = _new_grid()
+	lists.add_child(_grid)
 	_empty_label = _dim_label("You don't know any spells yet. Skill Tomes drop in Figments.")
 	_library.add_child(_empty_label)
 
@@ -244,7 +252,7 @@ func _scan_owned_abilities() -> void:
 	_owned_abilities.sort_custom(func(a: Ability, b: Ability): return a.display_name < b.display_name)
 
 func _build_grid() -> void:
-	for child in _grid.get_children():
+	for child in _grid.get_children() + _skill_grid.get_children():
 		child.queue_free()
 	_scan_owned_abilities()
 	_empty_label.visible = _owned_abilities.is_empty()
@@ -256,8 +264,17 @@ func _build_grid() -> void:
 		AetherStyle.style_slot_button(icon, SpellArt.colour_of(ability))
 		icon.left_clicked.connect(_open_web.bind(ability))
 		icon.right_clicked.connect(_open_assign.bind(ability))
-		_grid.add_child(icon)
+		(_skill_grid if ability.is_skill else _grid).add_child(icon)
+	_skill_header.visible = _owned_abilities.any(func(a: Ability): return a.is_skill)
+	_skill_grid.visible = _skill_header.visible
 	_refresh_currency()
+
+func _new_grid() -> GridContainer:
+	var grid := GridContainer.new()
+	grid.columns = GRID_COLUMNS
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 10)
+	return grid
 
 func _refresh_loadout() -> void:
 	if _ability_loadout == null:
@@ -266,7 +283,7 @@ func _refresh_loadout() -> void:
 		_style_slot(_page_slots[i], _ability_loadout.slots[i])
 	for i in _assign_slots.size():
 		_style_slot(_assign_slots[i], _ability_loadout.slots[i])
-	for icon in _grid.get_children():
+	for icon in _grid.get_children() + _skill_grid.get_children():
 		if icon is SpellIcon:
 			icon.refresh_marks()
 

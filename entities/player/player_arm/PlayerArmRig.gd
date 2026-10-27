@@ -394,6 +394,12 @@ var _kick_rot_v := Vector3.ZERO
 var _flash_t: float = 0.0
 var _cast_glow: MeshInstance3D
 var _cast_glow_t: float = 0.0
+## Spell casting with a non-conduit weapon: the weapon is put away, both hands
+## glow in the spell's colour and weave until the release (_begin_hand_cast()).
+const HAND_CAST_RELEASE := 0.35
+const HAND_WEAVE := Vector3(0.016, 0.012, 0.0)
+var _hand_cast_t: float = 0.0
+var _hand_glows: Array[Node3D] = []
 var _bow_strings: Array[MeshInstance3D] = []
 var _arrow: Node3D
 var _bow_release_t: float = 0.0
@@ -426,6 +432,10 @@ func _ready() -> void:
 	EventBus.reload_interrupted.connect(_on_reload_stopped)
 	EventBus.reload_finished.connect(_on_reload_stopped)  # Active Reload can end it early
 	EventBus.ability_cast.connect(_on_ability_cast)
+	EventBus.cast_started.connect(_on_cast_started)
+	EventBus.cast_interrupted.connect(_on_cast_interrupted)
+	for hand in [_right_hand, _left_hand]:
+		_hand_glows.append(_make_hand_glow(hand))
 
 func _node(n: String, parent: Node3D) -> Node3D:
 	var node := Node3D.new()
@@ -752,6 +762,12 @@ func _on_ability_cast(caster: Node, ability: Ability) -> void:
 	# Manasaber swings the weapon itself (play_slash()).
 	if ability and ability.ability_id == "manasaber":
 		return
+	if ability and ability.is_skill:
+		return  # Skills swing the weapon (PlayerAbilityCast._begin_skill_swing())
+	if _is_hand_cast(ability):
+		if _hand_cast_t <= 0.0:
+			_begin_hand_cast(ability, 0.12)
+		return
 	if _family == &"wand":
 		_play_fire(0.08, 0.08, 0.22)
 		return
@@ -815,6 +831,7 @@ func _process(delta: float) -> void:
 
 	_update_bow(delta)
 	_update_trail(delta)
+	_update_hand_cast(delta)
 	_cast_glow_t = maxf(_cast_glow_t - delta, 0.0)
 	_cast_glow.visible = _cast_glow_t > 0.0
 	if _cast_glow.visible:
@@ -1139,3 +1156,96 @@ func _make_cast_glow() -> MeshInstance3D:
 	mi.visible = false
 	_off.add_child(mi)
 	return mi
+
+# --- spell casting hands ---
+
+## Spells (not Skills or Manasaber) cast with anything but a Conduit in hand.
+func _is_hand_cast(ability: Ability) -> bool:
+	if ability == null or ability.is_skill or ability.ability_id == "manasaber" or _family == &"wand":
+		return false
+	return _weapon == null or not _weapon.is_conduit
+
+func _on_cast_started(ability: Ability, cast_time: float) -> void:
+	if _player and _player.cast_time_handler.is_casting() and _is_hand_cast(ability):
+		_begin_hand_cast(ability, cast_time)
+
+func _on_cast_interrupted() -> void:
+	_hand_cast_t = minf(_hand_cast_t, 0.15)
+
+func _begin_hand_cast(ability: Ability, windup: float) -> void:
+	_hand_cast_t = windup + HAND_CAST_RELEASE
+	var c: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color(0.55, 0.8, 1.0))
+	for glow in _hand_glows:
+		var mat := (glow.get_child(0) as MeshInstance3D).material_override as StandardMaterial3D
+		mat.albedo_color = Color(c.lightened(0.3), 0.85)
+		mat.emission = c
+		var sparks := glow.get_child(1) as CPUParticles3D
+		sparks.color = c.lightened(0.4)
+	_start(_main_track, CAST_MAIN, windup, 0.1, 0.3, _main_rest())
+	if _off_mode == OffMode.HIDDEN or _off_mode == OffMode.TWO_HAND:
+		_start(_off_track, CAST_OFF, windup, 0.1, 0.35, _off_rest())
+
+## Hides the weapon, weaves the hands and shows the glows while a cast runs.
+func _update_hand_cast(delta: float) -> void:
+	var casting := _hand_cast_t > 0.0
+	_hand_cast_t = maxf(_hand_cast_t - delta, 0.0)
+	if is_instance_valid(_weapon_model) and _family != &"thrown":
+		_weapon_model.visible = not casting
+	if is_instance_valid(_off_model) and _off_mode == OffMode.DUAL:
+		_off_model.visible = not casting
+	for i in _hand_glows.size():
+		var glow := _hand_glows[i]
+		glow.visible = casting and (i == 0 or _off.visible)
+		(glow.get_child(1) as CPUParticles3D).emitting = glow.visible
+	if casting:
+		_right_hand.visible = true
+		var phase := _time * 9.0
+		_main.position += Vector3(sin(phase) * HAND_WEAVE.x, cos(phase * 0.8) * HAND_WEAVE.y, 0.0)
+		_off.position += Vector3(-sin(phase + 1.3) * HAND_WEAVE.x, cos(phase * 0.8 + 1.3) * HAND_WEAVE.y, 0.0)
+
+## A glowing orb with drifting motes on a hand, hidden until a cast.
+func _make_hand_glow(hand: Node3D) -> Node3D:
+	var root := Node3D.new()
+	root.position = Vector3(0, 0.03, -0.06)
+	var orb := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.03
+	sphere.height = 0.06
+	orb.mesh = sphere
+	var mat := StandardMaterial3D.new()
+	mat.emission_enabled = true
+	mat.emission_energy_multiplier = 3.0
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	orb.material_override = mat
+	orb.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(orb)
+	var sparks := CPUParticles3D.new()
+	sparks.amount = 14
+	sparks.lifetime = 0.45
+	sparks.local_coords = true
+	sparks.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	sparks.emission_sphere_radius = 0.04
+	sparks.direction = Vector3.UP
+	sparks.spread = 60.0
+	sparks.gravity = Vector3.ZERO
+	sparks.initial_velocity_min = 0.05
+	sparks.initial_velocity_max = 0.15
+	sparks.scale_amount_min = 0.012
+	sparks.scale_amount_max = 0.025
+	var quad := SphereMesh.new()
+	quad.radius = 0.5
+	quad.height = 1.0
+	quad.radial_segments = 6
+	quad.rings = 3
+	var smat := StandardMaterial3D.new()
+	smat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	smat.vertex_color_use_as_albedo = true
+	quad.material = smat
+	sparks.mesh = quad
+	sparks.emitting = false
+	sparks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(sparks)
+	root.visible = false
+	hand.add_child(root)
+	return root

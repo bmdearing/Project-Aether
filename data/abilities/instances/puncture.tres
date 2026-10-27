@@ -6,7 +6,7 @@
 script = ExtResource("1")
 ability_id = "puncture"
 display_name = "Puncture"
-description = "A conjured spike that opens wounds which will not close."
+description = "A precise thrust that opens wounds which will not close."
 damage_type = 1
 motion_value = 1.0
 cooldown_seconds = 0.0
@@ -22,3 +22,6 @@ base_cast_time = 0.5
 base_damage_min = 22.0
 base_damage_max = 32.0
 tags = Array[StringName]([])
+is_skill = true
+skill_weapon_types = Array[String](["Dagger", "Rapier", "Shortsword", "Saber", "Spear", "Halberd", "Katana"])
+attack_time_multiplier = 1.0

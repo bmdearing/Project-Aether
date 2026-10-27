@@ -23,6 +23,7 @@ const LIMIT := &"limit"
 const PROJECTILES := &"projectiles"        # + projectiles (spell decides what that means)
 const TWIST := &"twist"                    # behaviour switch, read with has_twist(id)
 const CURSE_STRENGTH := &"curse_strength"  # % more curse strength (PlayerAbilityCast.curse_strength())
+const MAX_RESISTANCE := &"max_resistance"  # + maximum Resistance, percentage points (Triangulation, Dark Arts)
 
 class WebNode:
 	var id: String
@@ -217,6 +218,21 @@ const TWISTS := {
 	],
 	"manasaber": [
 		{"id": "twin_blade", "name": "Twin Blade", "description": "The blade sweeps back again for 50% damage.", "ring": 2},
+	],
+	"blizzard": [
+		{"id": "whiteout", "name": "Whiteout", "description": "Icicles also Chill every enemy within 1.5m of where they land.", "ring": 2},
+	],
+	"triangulation": [
+		{"id": "high_ground", "name": "High Ground", "description": "+1% to maximum Fire, Cold and Lightning Resistance per point while it is on.", "ring": 2, "max_points": 3, "effect": MAX_RESISTANCE, "per_point": 1.0},
+		{"id": "summit", "name": "Summit", "description": "+1% to maximum Fire, Cold and Lightning Resistance per point while it is on.", "ring": 3, "max_points": 2, "effect": MAX_RESISTANCE, "per_point": 1.0, "requires": ["high_ground"]},
+	],
+	"dark_arts": [
+		{"id": "forbidden_ground", "name": "Forbidden Ground", "description": "+1% to maximum Esoteric Resistance per point while it is on.", "ring": 2, "max_points": 3, "effect": MAX_RESISTANCE, "per_point": 1.0},
+		{"id": "black_summit", "name": "Black Summit", "description": "+1% to maximum Esoteric Resistance per point while it is on.", "ring": 3, "max_points": 2, "effect": MAX_RESISTANCE, "per_point": 1.0, "requires": ["forbidden_ground"]},
+	],
+	"enchantment": [
+		{"id": "frost_enchant", "name": "Frost Enchant", "description": "Half of the added damage is Cold instead of Fire.", "ring": 2, "exclusive_with": "storm_enchant"},
+		{"id": "storm_enchant", "name": "Storm Enchant", "description": "Half of the added damage is Lightning instead of Fire.", "ring": 2, "exclusive_with": "frost_enchant"},
 	],
 	"charged_reflexes": [
 		{"id": "overclock", "name": "Overclock", "description": "45% faster attacks instead of 30%, but each shot drains twice the Mana.", "ring": 2},

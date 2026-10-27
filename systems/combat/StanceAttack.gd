@@ -39,6 +39,7 @@ const POSES := {
 	MeleeStanceBehavior.MeleeStanceType.EARTHQUAKE: PlayerArmRig.Attack.CHARGED,
 	MeleeStanceBehavior.MeleeStanceType.SHATTER: PlayerArmRig.Attack.CHARGED,
 	MeleeStanceBehavior.MeleeStanceType.FLURRY: PlayerArmRig.Attack.CHARGED,
+	MeleeStanceBehavior.MeleeStanceType.HIDDEN_STRIKE: PlayerArmRig.Attack.CHARGED,
 }
 
 var is_charging: bool = false
@@ -172,7 +173,7 @@ func _physics_process(delta: float) -> void:
 	_was_full = full
 	charge_changed.emit(clampf(_held / _behavior.charge_time, 0.0, 1.0), full)
 	_update_preview()
-	if full:
+	if full and _behavior.release_on_full:
 		release()
 
 var _preview: StancePreview
@@ -210,7 +211,7 @@ func preview_shapes(behavior: MeleeStanceBehavior, f: float) -> Dictionary:
 			return {"circle": [origin + forward * reach, behavior.radius]}
 		MeleeStanceBehavior.MeleeStanceType.DISCHARGE:
 			return {"strip": [origin + forward * 0.8, forward, reach, behavior.radius * 2.0]}
-		MeleeStanceBehavior.MeleeStanceType.PRESSURE_BLAST, MeleeStanceBehavior.MeleeStanceType.CRACK, MeleeStanceBehavior.MeleeStanceType.SHATTER:
+		MeleeStanceBehavior.MeleeStanceType.PRESSURE_BLAST, MeleeStanceBehavior.MeleeStanceType.CRACK, MeleeStanceBehavior.MeleeStanceType.SHATTER, MeleeStanceBehavior.MeleeStanceType.HIDDEN_STRIKE:
 			return {"cone": [origin, forward, reach, behavior.half_angle]}
 	return {}
 
@@ -256,6 +257,10 @@ func release() -> void:
 			params["no_step"] = true
 			params["shape"] = {"reach": reach, "half_angle": behavior.half_angle, "splash": 1.0, "max_targets": 8}
 			params["on_hit"] = _on_shatter_hit.bind(behavior)
+		MeleeStanceBehavior.MeleeStanceType.HIDDEN_STRIKE:
+			# A wide draw-cut through everything in the arc.
+			params["no_step"] = true
+			params["shape"] = {"reach": reach, "half_angle": behavior.half_angle, "splash": 1.0, "max_targets": 8}
 		MeleeStanceBehavior.MeleeStanceType.FLURRY:
 			_flurry_behavior = behavior
 			_flurry_left = maxi(roundi(lerpf(behavior.hits_min, behavior.hits, f)), 1) + 1  # + the cross-cut

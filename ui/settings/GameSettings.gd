@@ -21,7 +21,7 @@ const REMAPPABLE := [
 	["open_inventory", "Inventory"], ["open_character", "Character"], ["open_abilities", "Abilities"],
 	["open_fate_board", "Fate Board"], ["open_map", "Map"], ["open_figment_tree", "Figment Tree"], ["open_menu", "Menu (cycle screens)"],
 	["mark_trash", "Mark Item as Trash"], ["mark_favored", "Mark Item as Favored"], ["drop_item", "Drop Hovered Item"],
-	["fate_board_rotate", "Rotate Slate"], ["fate_board_flip", "Flip Slate"],
+	["fate_board_rotate", "Rotate Slate"], ["fate_board_flip", "Flip Slate"], ["toggle_tooltips", "Hide / Show Tooltips"],
 ]
 
 static func load_and_apply() -> void:

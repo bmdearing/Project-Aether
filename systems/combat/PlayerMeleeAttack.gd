@@ -38,7 +38,7 @@ const STRIKE_CONTACT_START := 0.6
 ## melee DPS (tests/balance/probe_dps.tscn) lands near 283 for one-handers,
 ## 292 for blunt/polearm one-handers and 312 for two-handers, which also cleave.
 const WEAPON_TYPE_MOTION_VALUE := {
-	"Dagger": 2.04, "Rapier": 1.62, "Saber": 1.89, "Shortsword": 1.94, "Cutlass": 2.30,
+	"Dagger": 2.04, "Rapier": 1.62, "Saber": 1.89, "Katana": 2.08, "Shortsword": 1.94, "Cutlass": 2.30,
 	"Pressure Fist": 2.38, "Mace": 2.26, "Spear": 2.30, "War Pick": 3.11, "Whip": 3.02,
 	"Shock Lance": 3.55, "Halberd": 3.09, "Greataxe": 3.77, "Greatsword": 3.77, "Claymore": 4.02,
 	"Staff": 1.89, "Gauntlet": 0.94,
@@ -48,7 +48,7 @@ const WEAPON_TYPE_MOTION_VALUE := {
 ## are slowest.
 const WEAPON_TYPE_SWING_DURATION_MULT := {
 	"Rapier": 0.95, "Dagger": 1.0, "Athame": 1.0, "Gauntlet": 0.9, "Spell Gauntlet": 0.95,
-	"Shortsword": 1.1, "Pressure Fist": 1.1, "Saber": 1.15, "Cutlass": 1.15,
+	"Shortsword": 1.1, "Pressure Fist": 1.1, "Saber": 1.15, "Katana": 1.2, "Cutlass": 1.15,
 	"Fetish": 1.2, "Talisman": 1.2, "Rod": 1.25, "Tome": 1.3, "Grimoire": 1.3, "Whip": 1.3,
 	"Spear": 1.35, "Staff": 1.4, "Mace": 1.45, "War Pick": 1.5, "Shock Lance": 1.6 / 1.2,
 	"Halberd": 1.8 / 1.2, "Claymore": 2.2 / 1.2, "Greataxe": 2.3 / 1.2, "Greatsword": 2.4 / 1.2,
@@ -140,7 +140,7 @@ const SWING_SHAPES := {
 }
 const WEAPON_SWING_FAMILY := {
 	"Dagger": "thrust", "Rapier": "thrust", "Spear": "thrust", "Shock Lance": "thrust",
-	"Shortsword": "slash", "Saber": "slash", "Cutlass": "slash",
+	"Shortsword": "slash", "Saber": "slash", "Katana": "slash", "Cutlass": "slash",
 	"Claymore": "heavy", "Greataxe": "heavy", "Greatsword": "heavy", "Halberd": "heavy", "Mace": "heavy", "War Pick": "heavy", "Staff": "heavy",
 	"Whip": "whip",
 	"Pressure Fist": "fist", "Gauntlet": "fist",
@@ -359,7 +359,7 @@ func _enter_windup() -> void:
 
 ## Weapon types by swing sound family. Anything unlisted (staves, casting
 ## foci) stays silent rather than borrowing a mismatched sound.
-const SWING_BLADE_TYPES := ["Greatsword", "Claymore", "Greataxe", "Rapier", "Dagger", "Saber", "Cutlass", "Shortsword", "Whip"]
+const SWING_BLADE_TYPES := ["Greatsword", "Claymore", "Greataxe", "Rapier", "Dagger", "Saber", "Katana", "Cutlass", "Shortsword", "Whip"]
 const SWING_BLUNT_TYPES := ["Mace", "War Pick", "Pressure Fist", "Gauntlet"]
 const SWING_PIERCE_TYPES := ["Spear", "Halberd", "Shock Lance"]
 

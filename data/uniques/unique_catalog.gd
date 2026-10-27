@@ -178,6 +178,43 @@ const DEFS := [
 			["attack_speed", 10.0, 15.0, "+%d%% increased Attack Speed"],
 		],
 	},
+	# ---- User designs (2026-10-26) ----
+	{
+		"id": "sanctum_of_the_mage", "name": "Sanctum of the Mage", "rarity": Constants.ItemRarity.UNIQUE,
+		"base_type": "body_armour", "base_item": "res://data/armor/instances/gen_body_armour_aetherial_coat.tres", "weight": 100.0,
+		"flavor": "Within these walls, every element answers.",
+		"mods": [
+			["unique_elemental_levels_per_res", 22.0, 40.0, "+1 Level to all Elemental Spells for every %d%% Elemental Resistance"],
+			["flat_ward", 100.0, 100.0, "+%d Ward"],
+			["increased_ward", 120.0, 220.0, "%d%% increased Ward"],
+			["unique_no_crit_damage", 1.0, 1.0, "Deal no extra Critical Strike Damage"],
+			["mana_regen_increased", 20.0, 100.0, "%d%% increased Mana Regeneration Rate"],
+			["flat_intellect", 36.0, 36.0, "+%d to Intellect"],
+		],
+	},
+	{
+		"id": "armament_to_battle", "name": "Armament to Battle", "rarity": Constants.ItemRarity.UNIQUE,
+		"base_type": "gloves", "base_item": "res://data/armor/instances/gen_gloves_threshold_grips.tres", "weight": 100.0,
+		"flavor": "Every wound you open is another reason to keep going.",
+		"mods": [
+			["flat_life", 50.0, 110.0, "+%d to Life"],
+			["flat_strength", 10.0, 10.0, "+%d to Strength"],
+			["unique_damage_per_ailment", 20.0, 20.0, "You have %d%% increased damage for each type of Ailment on an enemy"],
+			["all_elemental_resistance", 10.0, 10.0, "+%d%% to all Elemental Resistances"],
+		],
+	},
+	{
+		"id": "bastille", "name": "Bastille", "rarity": Constants.ItemRarity.UNIQUE,
+		"base_type": "warded_barrier", "base_item": "res://data/shields/instances/gen_warded_barrier_bulwark_barrier.tres", "weight": 100.0,
+		"flavor": "No gate has ever opened from the inside.",
+		"mods": [
+			["unique_armor_as_ward_on_block", 2.0, 2.0, "Gain %d%% of your Armour as Ward when you Block"],
+			["increased_armor", 1000.0, 1000.0, "%d%% increased Armour"],
+			["flat_ward", 150.0, 150.0, "+%d to Ward"],
+			["cold_resistance", 20.0, 45.0, "+%d%% to Cold Resistance"],
+			["fire_resistance", 10.0, 20.0, "+%d%% to Fire Resistance"],
+		],
+	},
 	# ---- Corrupted only (Shard of Tharsis, Transcendent) ----
 	{
 		"id": "debt_of_tharsis", "name": "The Debt of Tharsis", "rarity": Constants.ItemRarity.UNIQUE,

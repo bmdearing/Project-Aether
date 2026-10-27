@@ -294,7 +294,7 @@ func _base_hit(base: float, motion_value: float, stat_sheet: StatSheet) -> Dicti
 	return {
 		"base_damage": result.final_damage,
 		"crit_chance": DamageCalculator.get_crit_chance(get_local_crit_chance(), stat_sheet.finesse_crit_bonus),
-		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus(), stat_sheet.get_crit_multiplier_bonus()),
+		"crit_damage_multiplier": stat_sheet.get_crit_damage_multiplier(),
 	}
 
 ## Expected-value blend (not a random roll): the range midpoint (exact,

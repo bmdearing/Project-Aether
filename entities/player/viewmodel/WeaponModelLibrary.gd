@@ -14,7 +14,7 @@ const PACK := "res://assets/models/pack1/Low Poly Weapon Pack - by Kickin It Stu
 ## Animation family per weapon type - PlayerArmRig picks rest poses and
 ## attack clips by family, not by individual type.
 const FAMILY := {
-	"Shortsword": &"blade", "Saber": &"blade", "Cutlass": &"blade",
+	"Shortsword": &"blade", "Saber": &"blade", "Cutlass": &"blade", "Katana": &"blade",
 	"Dagger": &"thrust", "Rapier": &"thrust", "Athame": &"thrust",
 	"Greatsword": &"heavy", "Claymore": &"heavy", "Greataxe": &"heavy",
 	"Mace": &"blunt", "War Pick": &"blunt",
@@ -44,6 +44,7 @@ const PACK_MELEE := {
 	"Greataxe": ["Double_Axe", 0.8, 0.3, 0.6],
 	"Shortsword": ["Arming_Sword", 0.48, 0.18, null],
 	"Saber": ["Scimitar", 0.42, 0.3, null],
+	"Katana": ["Scimitar", 0.48, 0.3, null],
 	"Cutlass": ["Cutlass", 0.55, 0.27, null],
 	"Dagger": ["Dagger", 0.6, 0.11, null],
 	"Athame": ["Bone_Shiv", 0.6, 0.14, null],

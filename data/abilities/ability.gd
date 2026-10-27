@@ -25,6 +25,23 @@ var guaranteed_statuses: Array[String] = []
 ## Per-cast "more" damage multiplier set on a cast's copy (CasterStance buffs).
 var extra_more: float = 1.0
 
+## Skills (not Spells): need a melee weapon in the main hand (one of
+## skill_weapon_types when listed), play its swing, and take
+## attack_time_multiplier x that weapon's swing time (after attack speed)
+## instead of a cast time. PlayerAbilityCast sets skill_cast_time per cast.
+@export var is_skill: bool = false
+@export var skill_weapon_types: Array[String] = []
+@export var attack_time_multiplier: float = 1.0
+var skill_cast_time: float = -1.0
+
+## Why `weapon` can't use this Skill, or "" when it can.
+func skill_weapon_error(weapon: Weapon) -> String:
+	if weapon == null or weapon.is_ranged or weapon.is_conduit or not weapon.can_attack():
+		return "Needs a melee weapon"
+	if not skill_weapon_types.is_empty() and not skill_weapon_types.has(weapon.weapon_type):
+		return "Needs a " + ", ".join(skill_weapon_types)
+	return ""
+
 ## AoE radius in meters - invented, not doc-sourced, loosely sized off
 ## each ability's flavor text.
 @export var radius: float = 5.0
@@ -71,6 +88,8 @@ func has_twist(node_id: String) -> bool:
 
 ## Cast time after the web's Swiftness (cast speed) and gear.
 func get_cast_time(stat_sheet: StatSheet = null) -> float:
+	if is_skill and skill_cast_time >= 0.0:
+		return skill_cast_time
 	var t := base_cast_time / (1.0 + web_value(SkillWeb.COOLDOWN) / 100.0)
 	return stat_sheet.get_effective_cast_time(t) if stat_sheet else t
 
@@ -155,9 +174,9 @@ func apply_statuses(enemy: Enemy, source: Node, hit_damage: float) -> void:
 func has_tag(tag: StringName) -> bool:
 	return tags.has(tag)
 
-## Player-facing tag list: Spell, the listed tags, then the damage type.
+## Player-facing tag list: Spell (or Skill), the listed tags, then the damage type.
 func get_tag_names() -> PackedStringArray:
-	var names := PackedStringArray(["Spell"])
+	var names := PackedStringArray(["Skill" if is_skill else "Spell"])
 	for tag in tags:
 		names.append(TAG_NAMES.get(tag, String(tag).capitalize()))
 	if deals_damage():
@@ -269,7 +288,7 @@ func _base_hit(base_damage: float, stat_sheet: StatSheet) -> Dictionary:
 	return {
 		"base_damage": result.final_damage,
 		"crit_chance": DamageCalculator.get_crit_chance(base_crit_chance + web_value(SkillWeb.CRIT) / 100.0, stat_sheet.finesse_crit_bonus),
-		"crit_damage_multiplier": DamageCalculator.get_crit_damage_multiplier(stat_sheet.get_crit_damage_bonus(), stat_sheet.get_crit_multiplier_bonus()),
+		"crit_damage_multiplier": stat_sheet.get_crit_damage_multiplier(),
 	}
 
 ## "More" damage from twists that trade something for damage.

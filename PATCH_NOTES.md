@@ -7,6 +7,19 @@ there. Most recent first.
 
 ---
 
+## 2026-10-27 — Katana, Skills, four spells, three uniques, cast and ailment visuals
+
+User batch (2026-10-26).
+- **Hide tooltips:** H (rebindable as "Hide / Show Tooltips") hides every tooltip, so you can read Lens bonuses underneath. It comes back on the next H or when the menu closes, and an H typed into a search box doesn't count (`TooltipFollow.hidden`). The Fate Board lists the key.
+- **Cooldown Recovery Rate** now rolls on boots, amulets and belts (plus helmets and conduits as before), 10% (Tier 6) to 32% (Tier 1).
+- **Uniques (user designs):** Sanctum of the Mage (Aetherial Coat), Armament to Battle (Threshold Grips) and Bastille (Bulwark Barrier). New mechanics: +1 Elemental Spell level per N% of total Elemental Resistance, counted capped (`StatSheet.get_skill_level_bonus()`); no extra crit damage (`StatSheet.get_crit_damage_multiplier()`, which every crit roll now goes through); +20% increased damage per distinct Ailment on the target (`GearEffects.conditional_percent()`); Armour as Ward on block (`UniqueEffects._on_hit_blocked()`). The flavour lines are mine.
+- **Skills vs Spells:** an Ability can be a Skill (`is_skill`): it needs a melee weapon (optionally from `skill_weapon_types`), plays that weapon's swing, and lands at 62% of the weapon's swing time after attack speed (`attack_time_multiplier`) instead of using a cast time. Its card says "Skill" and what it needs. The Spells screen lists Known Skills above Known Spells. **Puncture is the first Skill**: a thrust with the weapon, for Dagger, Rapier, Shortsword, Saber, Spear, Halberd or Katana.
+- **Spells:** Blizzard (Cold, ground-targeted; icicles fall on a random enemy in it every 0.3 s for 5 s; limit 3; Whiteout twist chills around each landing). Triangulation and Dark Arts (switch on, drain 4% of maximum Mana per second; +15% Elemental / Esoteric Resistance, +1% per spell level; up to +5% maximum Resistance from web points). Enchantment (switch on, same drain; every hit adds 5-9 Fire damage, growing with spell level like spell damage; Frost/Storm Enchant twists split it half Cold or half Lightning).
+- **Black Hole** swallows projectiles (yours and enemies') that fly into its pull, up to 24, and fires them back out in a ring when it collapses, each dealing 3x a Black Hole hit. It only catches regular projectiles (`Projectile`, group `projectile`), not boss spell orbs like the Lord's Element Orbs.
+- **Katana:** new one-handed base line (9 tiers off the Saber's Physical line, 10% more damage, slightly slower swing; `tools/generate_katana_line.gd`). Stance A, **Hidden Strike**: hold RMB to channel as long as you like (the strike grows over 3 s, you move at 35%); let go for a wide 110-degree draw-cut hitting up to 8 enemies, x1.4 to x4.5 motion value, 4 s cooldown. Stance B isn't designed yet. It uses the Saber's model for now.
+- **Casting visuals:** casting a Spell with anything but a Conduit puts the weapon away. Both hands glow in the spell's colour, with motes, and weave until the release (`PlayerArmRig._begin_hand_cast()`). Skills and Manasaber still swing the weapon.
+- **Ailments on you:** each one tints and animates the screen edges its own way: flames from below (Ignite/Scorch), frost creeping in (Chill, heavier when Frozen), crackling flicker (Shock/Electrocute), a pulsing red rim (Bleed), a violet swirl (Unraveling/Pallid/Aetherburn). A newly landed ailment also flashes its name under the crosshair ("IGNITED"). See `AilmentOverlay` and `player_ailments.gdshader`.
+
 ## 2026-10-25 — Fate Board Aether repricing
 
 User report: Ariamis fits fewer Slates than before.

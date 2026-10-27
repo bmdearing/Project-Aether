@@ -27,6 +27,11 @@ const SWELL := 0.35
 const COLLAPSE := 0.3
 const MAX_INFLOW_RADIUS := 7.0
 const LIGHT_ENERGY := 1.6
+## Projectiles (yours or enemies') that fly into the pull are swallowed;
+## the collapse fires them back out as a nova (PlayerAbilityCast.black_hole_nova()).
+const SWALLOW_RADIUS_SHARE := 0.6
+const MAX_SWALLOWED := 24
+var _swallowed: int = 0
 
 var _radius: float = 5.0
 var _elapsed: float = 0.0
@@ -61,9 +66,12 @@ func _physics_process(delta: float) -> void:
 	_animate()
 	if _elapsed >= _duration:
 		_burst()
+		if _swallowed > 0 and is_instance_valid(_source) and _source is Player:
+			(_source as Player).ability_cast.black_hole_nova(_ability, global_position + Vector3.UP * CORE_HEIGHT, _swallowed)
 		queue_free()
 		return
 	# One expected hit per TICK_INTERVAL, dealt continuously.
+	_swallow_projectiles()
 	var dps := _ability.predict_damage(_stat_sheet) / TICK_INTERVAL if _ability and _stat_sheet else 0.0
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
@@ -343,3 +351,16 @@ func _burst() -> void:
 	tween.tween_property(flash_mat, "albedo_color:a", 0.0, 0.25)
 	tween.chain().tween_interval(0.4)
 	tween.chain().tween_callback(burst.queue_free)
+
+func _swallow_projectiles() -> void:
+	var heart := global_position + Vector3.UP * CORE_HEIGHT
+	var reach := maxf(_radius * SWALLOW_RADIUS_SHARE, 1.5)
+	for node in get_tree().get_nodes_in_group("projectile"):
+		var shot := node as Projectile
+		if shot == null or shot.is_queued_for_deletion() or shot.cosmetic or shot.hitscan_range > 0.0 or shot.has_meta(&"black_hole_nova"):
+			continue
+		if shot.global_position.distance_to(heart) > reach:
+			continue
+		_swallowed = mini(_swallowed + 1, MAX_SWALLOWED)
+		SpellFx.flash(get_parent(), shot.global_position, _color.lightened(0.4), 0.8, 0.15)
+		shot.queue_free()

@@ -122,6 +122,10 @@ func _ready() -> void:
 	_mana_orb = _build_orb(AetherStyle.MANA, "Mana", orb_offset, orb_offset + orb_box.x)
 
 	_build_vignette()
+	var ailments := AilmentOverlay.new()
+	ailments.player = _player
+	add_child(ailments)
+	move_child(ailments, 2)  # over the vignettes, under everything else
 	_build_ammo_display()
 	_build_xp_bar()
 	_build_weapon_indicator()

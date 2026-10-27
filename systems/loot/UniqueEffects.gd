@@ -30,6 +30,11 @@ const SPELL_DAMAGE_TAKEN := "unique_spell_damage_taken"
 const PATIENT_SHOT := "unique_patient_shot"
 const DAMAGE_TAKEN := "unique_damage_taken"
 const DAMAGE_FROM_MOVE_SPEED := "unique_damage_from_move_speed"
+## User uniques (2026-10-26): Sanctum of the Mage, Armament to Battle, Bastille.
+const ELEMENTAL_LEVELS_PER_RES := "unique_elemental_levels_per_res"
+const NO_CRIT_DAMAGE := "unique_no_crit_damage"
+const DAMAGE_PER_AILMENT := "unique_damage_per_ailment"
+const ARMOR_AS_WARD_ON_BLOCK := "unique_armor_as_ward_on_block"
 ## Arkanus, the Forbidden Staff: its spell bar, fixed Mana pool and regeneration,
 ## and more Ailment effect/damage for the ailments you inflict.
 const ARKANUS := "unique_arkanus"
@@ -141,6 +146,8 @@ func _on_enemy_died(_enemy: Node) -> void:
 func _on_hit_blocked(defender: Node) -> void:
 	if defender == _player and has(WARD_ON_BLOCK):
 		_player.ward.restore(_player.ward.max_ward * value(WARD_ON_BLOCK) / 100.0)
+	if defender == _player and has(ARMOR_AS_WARD_ON_BLOCK) and _player.equipment:
+		_player.ward.restore(_player.equipment.get_total_armor() * value(ARMOR_AS_WARD_ON_BLOCK) / 100.0)
 
 ## A temporary "% more damage" buff; recasting refreshes it.
 func add_timed_more(id: StringName, more_percent: float, seconds: float) -> void:

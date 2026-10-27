@@ -111,12 +111,40 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 			out.append("Spiders bite for this spell's Entropic damage and last %ss" % _num(SpiderMinion.BASE_DURATION * duration))
 		"purge":
 			out.append("Removes every status effect on you")
+		"blizzard":
+			out.append("Icicles fall on a random enemy in the area every %ss for %ss" % [_num(BlizzardField.ICICLE_INTERVAL), _num(BlizzardField.DURATION * duration)])
+			out.append("Up to %d storms at once" % ability.get_limit(sheet))
+		"triangulation", "dark_arts":
+			var which := "Fire, Cold and Lightning Resistance" if ability.ability_id == "triangulation" else "Esoteric Resistance"
+			out.append("Cast to switch on, cast again to switch off (free)")
+			out.append("While on: +%s%% to %s" % [_num(PlayerAbilityCast.resist_spell_amount(ability, sheet)), which])
+			var extra := ability.web_value(SkillWeb.MAX_RESISTANCE)
+			if extra > 0.0:
+				out.append("While on: +%s%% to maximum %s" % [_num(extra), which])
+			out.append(_toggle_drain_line(ability, sheet, player))
+		"enchantment":
+			var r := PlayerAbilityCast.enchant_range(ability, sheet)
+			var split := "Cold" if ability.has_twist("frost_enchant") else ("Lightning" if ability.has_twist("storm_enchant") else "")
+			out.append("Cast to switch on, cast again to switch off (free)")
+			if split == "":
+				out.append("While on: your hits deal %s-%s added Fire damage" % [_num(r.x), _num(r.y)])
+			else:
+				out.append("While on: your hits deal %s-%s added damage, half Fire and half %s" % [_num(r.x), _num(r.y), split])
+			out.append(_toggle_drain_line(ability, sheet, player))
+		"black_hole":
+			out.append("Swallows projectiles that fly into it, yours and enemies'; it fires them back out in a nova as it collapses, each dealing %s of a Black Hole hit" % _pct(PlayerAbilityCast.BLACK_HOLE_NOVA_DAMAGE))
 		"blink":
 			out.append("Teleports you %sm forward" % _num(PlayerAbilityCast.BLINK_DISTANCE * (PlayerAbilityCast.LONG_STEP if ability.has_twist("long_step") else 1.0)))
 	for effect_id in ability.applies_status_effects:
 		var text := status_text(effect_id.trim_prefix("enhanced:"), sheet)
 		if text != "":
 			out.append(text)
+	if ability.is_skill:
+		var needs := "any melee weapon" if ability.skill_weapon_types.is_empty() else ", ".join(ability.skill_weapon_types)
+		var skill := "Skill: uses your weapon's swing (%s of its attack time); needs %s" % [_pct(ability.attack_time_multiplier), needs]
+		if player and player.ability_cast and player.get_active_weapon():
+			skill += " (now %ss)" % _num(player.ability_cast.skill_swing_time(ability))
+		out.insert(0, skill)
 	return out
 
 ## One status: what it does and for how long, scaled by the caster's
@@ -150,6 +178,12 @@ static func status_text(effect_id: String, sheet: StatSheet) -> String:
 	return ""
 
 ## "Drains 6% of your maximum Mana per second (6/s)"; switches off when Mana runs dry.
+static func _toggle_drain_line(ability: Ability, sheet: StatSheet, player: Player) -> String:
+	var text := "Drains %s of your maximum Mana per second" % _pct(PlayerAbilityCast.TOGGLE_SPELL_DRAIN * ability.get_mana_cost_multiplier(sheet))
+	if player and player.mana:
+		text += " (%s/s)" % _num(PlayerAbilityCast.toggle_spell_drain_per_second(ability, player.mana.max_mana, sheet))
+	return text + "; it switches off when your Mana runs dry"
+
 static func _drain_line(ability: Ability, sheet: StatSheet, player: Player) -> String:
 	var share := PlayerAbilityCast.DEATH_SHROUD_DRAIN if ability.ability_id == "death_shroud" else PlayerAbilityCast.HEX_AURA_DRAIN
 	var text := "Drains %s of your maximum Mana per second" % _pct(share * ability.get_mana_cost_multiplier(sheet))

@@ -187,7 +187,7 @@ const AFFIX_POOL := [
 	{"stat_key": "minion_duration", "tier1_min": 20.0, "tier1_max": 26.0, "desc": "+%d%% increased Minion Duration", "applies_to": ["armor", "item"], "slots": [1, 9], "brand_tags": ["minion"]},
 	{"stat_key": "skill_effect_duration", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Skill Effect Duration", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "weapon_kind": "conduit", "brand_tags": []},
 	{"stat_key": "mana_cost_reduction", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "%d%% reduced Mana cost of skills", "applies_to": ["weapon", "armor", "item"], "slots": [0, 10], "weapon_kind": "conduit", "brand_tags": ["resource"]},
-	{"stat_key": "cooldown_recovery_rate", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% increased Cooldown Recovery Rate", "applies_to": ["weapon", "armor", "item"], "slots": [0, 9], "weapon_kind": "conduit", "brand_tags": []},
+	{"stat_key": "cooldown_recovery_rate", "tier1_min": 18.0, "tier1_max": 22.0, "desc": "+%d%% increased Cooldown Recovery Rate", "applies_to": ["weapon", "armor", "item"], "slots": [0, 3, 9, 10], "weapon_kind": "conduit", "brand_tags": []},
 
 	# Ranged Build Mod Pool
 	{"stat_key": "increased_aoe_radius", "tier1_min": 34.0, "tier1_max": 40.0, "desc": "+%d%% increased Area of Effect", "applies_to": ["weapon", "armor"], "slots": [0, 2], "brand_tags": []},
@@ -503,6 +503,8 @@ const LEVELLED_TIERS := {
 	"cold_resistance": RESISTANCE_TIERS,
 	"lightning_resistance": RESISTANCE_TIERS,
 	"esoteric_resistance": RESISTANCE_TIERS,
+	# Cooldown Recovery Rate: 10% (Tier 6) to 32% (Tier 1).
+	"cooldown_recovery_rate": [[83, 29.0, 32.0], [72, 25.0, 28.0], [61, 21.0, 24.0], [40, 17.0, 20.0], [21, 13.0, 16.0], [1, 10.0, 12.0]],
 	"block_chance_bonus": [[80, 7.0, 8.0], [56, 5.0, 6.0], [28, 3.0, 4.0], [1, 2.0, 2.0]],
 	"increased_block_chance": [[80, 26.0, 30.0], [64, 22.0, 25.0], [48, 18.0, 21.0], [32, 15.0, 17.0], [16, 12.0, 14.0], [1, 10.0, 11.0]],
 	# Damage over Time Multiplier: 7% (Tier 6) to 20% (Tier 1). Jewels and

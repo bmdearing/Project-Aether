@@ -23,6 +23,9 @@ var _shown: Control
 ## never flashes at the wrong size.
 var _pending: Control
 var _refresh_left: float = 0.0
+## toggle_tooltips (H) hides every tooltip until pressed again or the menu
+## closes, so a tooltip never covers what's under it (Lens bonuses).
+var hidden := false
 
 func _ready() -> void:
 	layer = 128
@@ -32,6 +35,10 @@ func _ready() -> void:
 func _input(event: InputEvent) -> void:
 	if event is InputEventMouse:
 		_mouse = event.position
+	if event.is_action_pressed("toggle_tooltips") and Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+		var focus := get_viewport().gui_get_focus_owner()
+		if not (focus is LineEdit or focus is TextEdit):  # typing an H in a search box
+			hidden = not hidden
 	if event is InputEventMouseButton:
 		_refresh_left = 0.0  # a click usually changes what's hovered
 	if event is InputEventKey and event.pressed and not event.echo and event.keycode == KEY_C and (event.ctrl_pressed or event.meta_pressed) and is_instance_valid(_source):
@@ -41,7 +48,9 @@ func _process(delta: float) -> void:
 	var root := get_tree().root
 	var source: Control = null
 	var text := ""
-	if Input.mouse_mode != Input.MOUSE_MODE_CAPTURED:
+	if Input.mouse_mode == Input.MOUSE_MODE_CAPTURED:
+		hidden = false
+	elif not hidden:
 		var hovered := root.gui_get_hovered_control()
 		var found := tooltip_source(hovered, _mouse)
 		source = found[0]

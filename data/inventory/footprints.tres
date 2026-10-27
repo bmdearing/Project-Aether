@@ -36,6 +36,7 @@ footprints = {
 "body_armour": Vector2i(2, 3),
 "rapier": Vector2i(2, 3),
 "saber": Vector2i(2, 3),
+"katana": Vector2i(2, 3),
 "shortsword": Vector2i(2, 3),
 "cutlass": Vector2i(2, 3),
 "mace": Vector2i(2, 3),

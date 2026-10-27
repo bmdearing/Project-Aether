@@ -114,6 +114,7 @@ func _ready() -> void:
 	_player = get_parent()
 	EventBus.enemy_died.connect(_on_enemy_died)
 	EventBus.damage_dealt.connect(_on_damage_dealt)
+	EventBus.damage_dealt.connect(_on_enchanted_hit)
 
 func _physics_process(delta: float) -> void:
 	if _flame_jets_fx:
@@ -233,6 +234,11 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 		GameState.hex_auras.erase(ability.ability_id)
 		_flash_ring(_player.global_position, 1.4, ability, Color(0.6, 0.6, 0.7))
 		return
+	if ability.is_skill:
+		var weapon_error := ability.skill_weapon_error(_player.get_active_weapon())
+		if weapon_error != "":
+			EventBus.ability_cast_failed.emit(_player, ability, weapon_error)
+			return
 	if TARGETED_ABILITY_IDS.has(ability.ability_id) and _crosshair_enemy() == null:
 		EventBus.ability_cast_failed.emit(_player, ability, "No target")
 		return
@@ -270,6 +276,8 @@ func _try_cast(slot_index: int, cast_position: Vector3, from_page: bool = false)
 	# CastTimeHandler calls _on_cast_time_completed() immediately for
 	# INSTANT/CHANNELED, or after the windup for CAST_TIME.
 	var cast: Ability = plan["ability"]
+	if cast.is_skill:
+		_begin_skill_swing(cast)
 	if cast != ability:
 		_cast_plans[cast] = plan
 	_player.cast_time_handler.try_cast(cast, cast_position)
@@ -437,6 +445,10 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		_flame_jets_drain_timer = CHANNEL_MANA_DRAIN_INTERVAL
 		_ensure_flame_jets_fx()
 		_flame_jets_fx.emitting = true
+		EventBus.ability_cast.emit(_player, ability)
+		return
+	if ability.ability_id == "blizzard":
+		_cast_blizzard(ability, cast_position, damage_multiplier, apply_composure)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	# Field abilities: all damage comes from the effect scene's own ticks.
@@ -1892,7 +1904,7 @@ func _elemental_earth() -> void:
 ## ---- Thunderstorm, Inner Power, Charged Reflexes, Manasaber, Puncture, Arach
 
 ## Switched on by casting and off by casting again (free), like Booming Blade.
-const TOGGLE_SPELLS := ["thunderstorm", "inner_power", "charged_reflexes"]
+const TOGGLE_SPELLS := ["thunderstorm", "inner_power", "charged_reflexes", "triangulation", "dark_arts", "enchantment"]
 
 ## Thunderstorm: every STORM_INTERVAL, a bolt strikes each enemy within its
 ## radius, and each round drains STORM_DRAIN of its Mana cost (it stops when
@@ -2007,6 +2019,7 @@ func _tick_toggles(delta: float) -> void:
 	sheet.inner_power_on = GameState.toggled_spells.has("inner_power")
 	var inner := _resolve_ability_by_id("inner_power")
 	sheet.inner_power_more = StatSheet.INNER_POWER_AETHERIC_MORE * (2.0 if inner and inner.has_twist("still_waters") else 1.0)
+	_tick_resist_and_enchant(delta)
 	_tick_thunderstorm(delta)
 
 func _tick_thunderstorm(delta: float) -> void:
@@ -2179,3 +2192,149 @@ func _on_damage_dealt(source: Node, target: Node, _amount: float, _type: int, _r
 	_arach_cd = ARACH_HIT_COOLDOWN
 	if randf() < ARACH_HIT_CHANCE:
 		_summon_spider(enemy.global_position)
+
+## ---- Blizzard, Triangulation, Dark Arts, Enchantment
+
+## Blizzard: icicles fall on random enemies inside it every
+## BlizzardField.ICICLE_INTERVAL for BlizzardField.DURATION; up to its limit at once.
+const BLIZZARD_WHITEOUT_RADIUS := 1.5
+const BLIZZARD_WHITEOUT_CHILL := 2.0
+
+func _cast_blizzard(ability: Ability, cast_position: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
+	var limit := ability.get_limit(_player.stat_sheet)
+	_make_room_for(ability, limit)
+	var field := BlizzardField.new()
+	_player.get_tree().current_scene.add_child(field)
+	field.add_to_group(_limit_group(ability))
+	field.global_position = cast_position
+	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+	field.play(ability.get_radius(_player.stat_sheet), BlizzardField.DURATION * ability.get_duration_multiplier(_player.stat_sheet), color,
+		func(enemy: Enemy) -> void:
+			if not is_instance_valid(_player):
+				return
+			var at := enemy.global_position
+			_hit_enemy(ability, enemy, damage_multiplier, apply_composure, Callable())
+			# Web: Whiteout chills around each landing.
+			if ability.has_twist("whiteout"):
+				for near in _enemies_near(at, BLIZZARD_WHITEOUT_RADIUS):
+					near.status_effects.apply_timed_effect("chill", BLIZZARD_WHITEOUT_CHILL))
+
+## Triangulation / Dark Arts: while on, +Resistance (RESIST_SPELL_BASE, +
+## RESIST_SPELL_PER_LEVEL per spell level past 1) to the Elemental or the
+## Esoteric Resistances, and their web's MAX_RESISTANCE nodes raise the
+## maximum. Enchantment: while on, every hit you deal adds flat Fire damage
+## (ENCHANT_FLAT at level 1, growing like spell damage). Each drains
+## TOGGLE_SPELL_DRAIN of maximum Mana per second (scaled by Mana cost
+## reduction) and switches off when Mana can't pay.
+const RESIST_SPELL_BASE := 15.0
+const RESIST_SPELL_PER_LEVEL := 1.0
+const TOGGLE_SPELL_DRAIN := 0.04
+const RESIST_SPELLS := {"triangulation": ["fire", "cold", "lightning"], "dark_arts": ["esoteric"]}
+const ENCHANT_FLAT := Vector2(5.0, 9.0)
+## Twist id -> the element half of Enchantment's damage becomes.
+const ENCHANT_SPLITS := {"frost_enchant": Constants.DamageType.COLD, "storm_enchant": Constants.DamageType.LIGHTNING}
+var _enchanting := false
+
+static func resist_spell_amount(ability: Ability, stat_sheet: StatSheet) -> float:
+	return RESIST_SPELL_BASE + RESIST_SPELL_PER_LEVEL * (ability.get_effective_level(stat_sheet) - 1)
+
+static func toggle_spell_drain_per_second(ability: Ability, max_mana: float, stat_sheet: StatSheet) -> float:
+	return max_mana * TOGGLE_SPELL_DRAIN * ability.get_mana_cost_multiplier(stat_sheet)
+
+func _tick_resist_and_enchant(delta: float) -> void:
+	var sheet := _player.stat_sheet
+	var res := {}
+	var max_res := {}
+	for id in ["triangulation", "dark_arts", "enchantment"]:
+		if not GameState.toggled_spells.has(id):
+			continue
+		var ability := _resolve_ability_by_id(id)
+		if ability == null:
+			continue
+		var drain := toggle_spell_drain_per_second(ability, _player.mana.max_mana, sheet) * delta
+		if _player.mana.current_mana < drain:
+			_set_toggle(id, false)
+			EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
+			continue
+		_player.mana.spend(drain)
+		for key in RESIST_SPELLS.get(id, []):
+			res[key] = res.get(key, 0.0) + resist_spell_amount(ability, sheet)
+			max_res[key] = max_res.get(key, 0.0) + ability.web_value(SkillWeb.MAX_RESISTANCE)
+	sheet.spell_resistance = res
+	sheet.spell_max_resistance = max_res
+
+## Enchantment's added damage per hit at its level: [min, max].
+static func enchant_range(ability: Ability, stat_sheet: StatSheet) -> Vector2:
+	return ENCHANT_FLAT * Ability.level_growth(ability.get_effective_level(stat_sheet))
+
+## Enchantment: an extra hit of its flat damage on each of your hits (not
+## damage over time), scaled by your increased damage of that element.
+func _on_enchanted_hit(source: Node, target: Node, _amount: float, _type: int, _riposte: bool, _crit: bool) -> void:
+	if _enchanting or source != _player or StatusEffectComponent.emitting_dot or not GameState.toggled_spells.has("enchantment"):
+		return
+	var enemy := target as Enemy
+	if enemy == null or not enemy.health.is_alive():
+		return
+	var ability := _resolve_ability_by_id("enchantment")
+	if ability == null:
+		return
+	var sheet := _player.stat_sheet
+	var r := enchant_range(ability, sheet)
+	var flat := randf_range(r.x, r.y)
+	var parts := {Constants.DamageType.FIRE: flat}
+	for twist in ENCHANT_SPLITS:
+		if ability.has_twist(twist):
+			parts = {Constants.DamageType.FIRE: flat * 0.5, ENCHANT_SPLITS[twist]: flat * 0.5}
+	_enchanting = true
+	for type in parts:
+		var dmg: float = parts[type] * (1.0 + sheet.get_increased_damage_percent(type, false) / 100.0) * sheet.outgoing_more_multiplier(type)
+		enemy.take_damage(dmg, type)
+	_enchanting = false
+
+## Black Hole: projectiles it swallowed, fired back out as a nova when it
+## collapses, each a Black Hole hit times BLACK_HOLE_NOVA_DAMAGE.
+const BLACK_HOLE_NOVA_DAMAGE := 3.0
+const BLACK_HOLE_NOVA_SPEED := 18.0
+const BLACK_HOLE_NOVA_SCENE := preload("res://entities/projectile/Projectile.tscn")
+
+func black_hole_nova(ability: Ability, centre: Vector3, count: int) -> void:
+	if not is_instance_valid(_player) or count <= 0:
+		return
+	var scene := _player.get_tree().current_scene
+	var offset := randf() * TAU
+	for i in count:
+		var dir := Vector3.FORWARD.rotated(Vector3.UP, offset + TAU * i / count)
+		var hit := ability.roll_damage(_player.stat_sheet)
+		var shot: Projectile = BLACK_HOLE_NOVA_SCENE.instantiate()
+		shot.damage_amount = hit["final_damage"] * BLACK_HOLE_NOVA_DAMAGE
+		shot.is_critical = hit["is_critical"]
+		shot.crit_multiplier = hit["crit_multiplier"]
+		shot.damage_type = ability.damage_type
+		shot.source = _player
+		shot.speed = BLACK_HOLE_NOVA_SPEED
+		shot.lifetime = 1.2
+		shot.is_spell_projectile = true
+		shot.set_meta(&"black_hole_nova", true)
+		scene.add_child(shot)
+		shot.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), centre)
+
+## ---- Skills
+
+## A Skill's windup and hit share of its weapon swing; the rest is recovery.
+const SKILL_WINDUP_SHARE := 0.5
+const SKILL_STRIKE_SHARE := 0.12
+
+## Seconds for one swing of the main-hand weapon after attack speed, times
+## the Skill's attack_time_multiplier.
+func skill_swing_time(ability: Ability) -> float:
+	var weapon := _player.get_active_weapon()
+	if weapon == null:
+		return 0.0
+	return PlayerMeleeAttack.swing_seconds(weapon.weapon_type) / maxf(_player.get_attack_speed_multiplier(weapon), 0.01) * ability.attack_time_multiplier
+
+## Times the Skill's cast to land at the strike of the weapon's swing, and plays it.
+func _begin_skill_swing(ability: Ability) -> void:
+	var total := skill_swing_time(ability)
+	ability.skill_cast_time = total * (SKILL_WINDUP_SHARE + SKILL_STRIKE_SHARE)
+	if _player.arm_rig:
+		_player.arm_rig.play_attack(PlayerArmRig.Attack.LIGHT, total * SKILL_WINDUP_SHARE, total * SKILL_STRIKE_SHARE, total * (1.0 - SKILL_WINDUP_SHARE - SKILL_STRIKE_SHARE))

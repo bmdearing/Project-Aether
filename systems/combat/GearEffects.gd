@@ -73,6 +73,13 @@ func conditional_percent(enemy: Enemy, amount: float) -> float:
 		total += _bonus("damage_at_range")
 	if enemy.is_staggered():
 		total += _bonus("damage_vs_staggered")
+	# Armament to Battle: per distinct Ailment on the enemy.
+	if _player.unique_effects and _player.unique_effects.has(UniqueEffects.DAMAGE_PER_AILMENT) and enemy.status_effects:
+		var kinds := {}
+		for id in enemy.status_effects.active_effects():
+			if StatusEffectComponent.is_ailment(id):
+				kinds[String(id).trim_prefix("enhanced:")] = true
+		total += _player.unique_effects.value(UniqueEffects.DAMAGE_PER_AILMENT) * kinds.size()
 	if Time.get_ticks_msec() - _last_melee_msec <= AFTER_MELEE_SECONDS * 1000.0:
 		total += _bonus("damage_after_melee")
 	return total

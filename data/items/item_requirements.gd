@@ -39,7 +39,7 @@ const WEAPON_STATS := {
 	"spell_gauntlet": ["intellect", ""], "gauntlet": ["intellect", ""],
 	"rod": ["intellect", ""], "grimoire": ["intellect", ""], "tome": ["intellect", ""],
 	"talisman": ["intellect", ""], "fetish": ["intellect", ""],
-	"rapier": ["agility", "strength"], "saber": ["agility", "strength"],
+	"rapier": ["agility", "strength"], "saber": ["agility", "strength"], "katana": ["agility", "strength"],
 	"cutlass": ["strength", "agility"], "halberd": ["strength", "agility"], "spear": ["strength", "agility"],
 	"shock_lance": ["agility", "intellect"],
 	"throwing_knives": ["agility", ""], "impact_hatchet": ["strength", "agility"],

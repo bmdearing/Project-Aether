@@ -48,6 +48,9 @@ const DEFS := {
 	"thunderstorm": ["bolt", Color(0.95, 0.9, 0.35), Kind.BUFF],
 	"inner_power": ["star", Color(0.45, 0.85, 0.9), Kind.BUFF],
 	"charged_reflexes": ["chevrons_up", Color(0.95, 0.9, 0.35), Kind.BUFF],
+	"triangulation": ["shield_tri", Color(0.95, 0.72, 0.4), Kind.BUFF],
+	"dark_arts": ["shield", Color(0.7, 0.4, 1.0), Kind.BUFF],
+	"enchantment": ["sword", Color(1.0, 0.5, 0.2), Kind.BUFF],
 	"debt": ["lock", Color(0.86, 0.71, 0.42), Kind.BUFF],
 }
 

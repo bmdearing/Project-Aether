@@ -226,6 +226,7 @@ const WEAPON_BASE_CRIT_CHANCE := {
 	"Rapier": 0.07,
 	"Shortsword": 0.06,
 	"Saber": 0.06,
+	"Katana": 0.07,
 	"Cutlass": 0.05,
 	"Mace": 0.03,
 	"War Pick": 0.04,

@@ -73,6 +73,10 @@ static func draw(ci: CanvasItem, ability: Ability, rect: Rect2) -> void:
 		"inner_power": _inner_power(pen, c)
 		"manasaber": _manasaber(pen, c)
 		"charged_reflexes": _charged_reflexes(pen, c)
+		"blizzard": _blizzard(pen, c)
+		"triangulation": _triangulation(pen, c)
+		"dark_arts": _dark_arts(pen, c)
+		"enchantment": _enchantment(pen, c)
 		_:
 			var tag := String(Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "")).to_lower()
 			IconArt.glyph(pen, IconArt.DAMAGE_GLYPHS.get(tag, "star"), pen.v(0.5, 0.5), 0.6, c)
@@ -462,3 +466,32 @@ static func _charged_reflexes(pen: IconArt.Pen, c: Color) -> void:
 		_streak(pen, Vector2(0.14 + i * 0.06, y), Vector2(0.7, y), 0.035, Color(c, 0.75))
 		pen.circle(0.72, y, 0.035, BOLT)
 	_zigzag(pen, Vector2(0.86, 0.18), Vector2(0.62, 0.86), 4, 0.05, BOLT, 0.03)
+
+static func _blizzard(pen: IconArt.Pen, c: Color) -> void:
+	_glow(pen, 0.5, 0.24, 0.3, c, 0.25)
+	pen.circle(0.34, 0.22, 0.14, Color(c.darkened(0.3), 0.9))
+	pen.circle(0.58, 0.2, 0.17, Color(c.darkened(0.2), 0.9))
+	for q in [Vector2(0.3, 0.5), Vector2(0.5, 0.62), Vector2(0.7, 0.48), Vector2(0.42, 0.8), Vector2(0.64, 0.78)]:
+		_streak(pen, q - Vector2(0.04, 0.14), q, 0.035, Color(0.9, 0.97, 1.0))
+
+static func _triangulation(pen: IconArt.Pen, c: Color) -> void:
+	var pts := [Vector2(0.5, 0.18), Vector2(0.8, 0.74), Vector2(0.2, 0.74)]
+	var cols := [Color(0.75, 0.8, 1.0), Color(0.55, 0.85, 1.0), Color(1.0, 0.45, 0.12)]
+	for i in 3:
+		var a: Vector2 = pts[i]
+		var b: Vector2 = pts[(i + 1) % 3]
+		pen.line([a.x, a.y, b.x, b.y], Color(c, 0.7), 0.03)
+	for i in 3:
+		_glow(pen, pts[i].x, pts[i].y, 0.12, cols[i], 0.35)
+		pen.circle(pts[i].x, pts[i].y, 0.06, cols[i])
+	IconArt.glyph(pen, "shield", pen.v(0.5, 0.56), 0.26, Color(0.95, 0.92, 0.85))
+
+static func _dark_arts(pen: IconArt.Pen, c: Color) -> void:
+	_glow(pen, 0.5, 0.5, 0.38, c, 0.22)
+	IconArt.glyph(pen, "shield", pen.v(0.5, 0.52), 0.62, c.lightened(0.2))
+	IconArt.glyph(pen, "void", pen.v(0.5, 0.5), 0.3, Color(0.92, 0.9, 0.82))
+
+static func _enchantment(pen: IconArt.Pen, c: Color) -> void:
+	_glow(pen, 0.5, 0.45, 0.34, c, 0.25)
+	IconArt.glyph(pen, "sword", pen.v(0.5, 0.5), 0.66, Color(0.88, 0.88, 0.92))
+	IconArt.glyph(pen, "flame", pen.v(0.66, 0.3), 0.26, c)

@@ -1,0 +1,71 @@
+[gd_resource type="Resource" script_class="Weapon" format=3]
+
+[ext_resource type="Script" path="res://data/items/item_affix.gd" id="1_r5ur1"]
+[ext_resource type="Script" path="res://data/weapons/weapon.gd" id="2_q07i0"]
+[ext_resource type="Script" path="res://data/items/item.gd" id="3_1lmgp"]
+
+[sub_resource type="Resource" id="Resource_mxfml"]
+script = ExtResource("1_r5ur1")
+description = "+9% Physical Damage"
+stat_key = "increased_physical_damage"
+value = 9.0
+is_implicit = true
+display_name = "Physical Damage"
+
+[resource]
+script = ExtResource("2_q07i0")
+weapon_type = "Katana"
+base_damage_min = 74.0
+base_damage_max = 101.0
+rolled_base_damage = 0.0
+honed = false
+native_damage_type = 0
+infused_damage_type = -1
+is_two_handed = false
+is_ranged = false
+ammo_type = 0
+magazine_size = 12
+fire_mode = 0
+pellet_count = 1
+pellet_spread_degrees = 0.0
+fire_rate = 0.0
+cycle_time = 0.0
+reload_time = 1.4
+reload_per_shell = false
+skill_ids = Array[String]([])
+is_main_hand = true
+is_offhand = false
+is_conduit = false
+conduit_stance_type = ""
+spell_page_tag = ""
+unleash_copy_count = 0
+spell_page_modifier = ""
+stance_buff = ""
+item_id = "gen_katana_ronins_katana"
+display_name = "Ronin's Katana"
+rarity = 0
+equip_slot = 4
+max_sockets = 3
+sockets = 0
+socketed = Array[ExtResource("3_1lmgp")]([])
+quality = 0
+quality_cap_bonus = 0
+sockets_rolled = false
+tolerance = 0
+tolerance_max = 0
+item_type = &""
+affixes = Array[ExtResource("1_r5ur1")]([SubResource("Resource_mxfml")])
+flavor_text = "Hidden Strike"
+unique_id = ""
+is_corrupted = false
+is_craftable = true
+mark = 0
+item_level = 56
+base_line_id = "katana_line1"
+base_level = 0
+stat_requirement = 0
+stat_requirement_value = 28.0
+level_requirement = 44
+strength_requirement = 24
+agility_requirement = 40
+intellect_requirement = 0

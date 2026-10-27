@@ -385,6 +385,7 @@ func _build_key_hints() -> void:
 		["RMB", "Take a Slate back"],
 		[GameSettings.key_name("fate_board_rotate"), "Rotate"],
 		[GameSettings.key_name("fate_board_flip"), "Flip"],
+		[GameSettings.key_name("toggle_tooltips"), "Hide tooltips"],
 	]))
 
 func _fit_palette_text(button: Button) -> void:
