@@ -68,7 +68,10 @@ static func refresh(offense_list: VBoxContainer, defense_list: VBoxContainer, mi
 	# StatSheet.get_resistance() already includes gear and the all-elemental
 	# bonus; Esoteric is one shared bucket, so any of its 3 damage types reads it.
 	for pair in [["Fire", Constants.DamageType.FIRE], ["Cold", Constants.DamageType.COLD], ["Lightning", Constants.DamageType.LIGHTNING], ["Esoteric", Constants.DamageType.AETHERIC]]:
-		_add(defense_list, "%s Resistance" % pair[0], "%d%% (max %d%%)" % [int(stats.get_resistance(pair[1])), int(stats.get_max_resistance(pair[1]))])
+		# The capped value that applies, with the uncapped total beside it when over.
+		var total := int(stats.get_resistance(pair[1]))
+		var applied := mini(total, int(stats.get_max_resistance(pair[1])))
+		_add(defense_list, "%s Resistance" % pair[0], "%d%% (%d%%)" % [applied, total] if total > applied else "%d%%" % total)
 
 	_add(misc_list, "Intellect", "%.1f" % stats.get_stat(Constants.Stat.INTELLECT))
 	_add(misc_list, "Spell Damage", "+%.0f%%" % (stats.get_spell_power_from_stats() * 100.0))

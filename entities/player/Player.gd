@@ -116,7 +116,7 @@ var _slide_speed_current: float = 0.0
 ## Dash: a tap of "sprint" (Shift) fires a decaying burst; holding it then
 ## sprints as normal. Works in the air and from standing.
 ## A short, hard burst: full speed for DASH_HOLD of DASH_DURATION, then
-## easing to DASH_END_SPEED of it (~3m), with an FOV kick and a whoosh so it
+## easing to DASH_END_SPEED of it (~3m), with an FOV kick so it
 ## reads as a dash rather than a stumble.
 const DASH_SPEED := 22.0
 const DASH_DURATION := 0.16
@@ -1031,8 +1031,6 @@ func _start_dash(move_dir: Vector3) -> void:
 		var fov := camera.create_tween()
 		fov.tween_property(camera, "fov", GameState.field_of_view + DASH_FOV_KICK, 0.05).set_ease(Tween.EASE_OUT)
 		fov.tween_property(camera, "fov", GameState.field_of_view, 0.25).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
-	if SoundLib.library and not SoundLib.library.boss_whoosh.is_empty():
-		AudioManager.play_2d(SoundLib.pick_random(SoundLib.library.boss_whoosh), -10.0)
 
 func is_in_visceral() -> bool:
 	return _in_visceral
