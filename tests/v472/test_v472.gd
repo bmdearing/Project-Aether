@@ -109,9 +109,12 @@ func _test_progress() -> void:
 	GameState.figment_completions = {}
 	GameState.figment_tree_unlocked_nodes = []
 	_check(FigmentProgress.max_drop_tier() == 1, "nothing completed: drops cap at Tier 1")
+	# Maps drop Tier Figments from their own Tier (Depths drop none since v5.6.0).
+	GameState.active_map = _figment_with({}, 9)
 	var capped := true
 	for i in 50:
 		capped = capped and FigmentRoller.roll_for_drop(9).tier == 1
+	GameState.active_map = null
 	_check(capped, "drops can't pass the cap")
 	_check(FigmentProgress.record("dungeon_cellblock", 1), "first clear is new")
 	_check(not FigmentProgress.record("dungeon_cellblock", 1), "a repeat isn't")

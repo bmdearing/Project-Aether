@@ -88,7 +88,7 @@ func _test_monsters() -> void:
 	await _frames(3)
 	_check(low_player.level == 89 and golem.level == 89, "monster level is the Area Level, flattened across units (%d, %d)" % [low_player.level, golem.level])
 	_check(is_equal_approx(low_player.health.max_health, high_player.health.max_health), "player level doesn't touch monster health")
-	var expected := Constants.MOB_BASE_HEALTH["standard"] * pow(AreaLevel.HEALTH_GROWTH, 88) * pow(AreaLevel.TIER_HEALTH_GROWTH, 21)
+	var expected: float = Constants.MOB_BASE_HEALTH["standard"] * AreaLevel.health_scale(89, 21)
 	_check(is_equal_approx(low_player.health.max_health, expected), "health follows the exponential curve (%.0f vs %.0f)" % [low_player.health.max_health, expected])
 	var melee := low_player.get_node("MeleeAttack") as EnemyMeleeAttack
 	_check(is_equal_approx(melee.damage_amount, Constants.MOB_BASE_DAMAGE["standard"] * pow(AreaLevel.DAMAGE_GROWTH, 88) * pow(AreaLevel.TIER_DAMAGE_GROWTH, 21)), "damage follows its curve")
@@ -107,7 +107,7 @@ func _test_monsters() -> void:
 	GameState.active_map = _tier(21)
 	holder.add_child(boss)
 	await _frames(2)
-	_check(boss.level == 89 and is_equal_approx(boss.health.max_health, FigmentBoss.BOSS_HEALTH * pow(AreaLevel.HEALTH_GROWTH, 88) * pow(AreaLevel.TIER_HEALTH_GROWTH, 21)), "the Figment boss scales with Area Level")
+	_check(boss.level == 89 and is_equal_approx(boss.health.max_health, FigmentBoss.BOSS_HEALTH * AreaLevel.health_scale(89, 21)), "the Figment boss scales with Area Level")
 	var boss_melee := boss.get_node("MeleeAttack") as EnemyMeleeAttack
 	_check(is_equal_approx(boss_melee.damage_amount, 40.0 * pow(AreaLevel.DAMAGE_GROWTH, 88) * pow(AreaLevel.TIER_DAMAGE_GROWTH, 21)), "the Figment boss hits harder at Area Level 89 (%.0f)" % boss_melee.damage_amount)
 	holder.queue_free()
