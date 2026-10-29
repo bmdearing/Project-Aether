@@ -38,5 +38,13 @@ func _process(_delta: float) -> void:
 	if _pending.is_empty():
 		queue_free()
 
+## Quitting while loads are still running aborts them mid-parse (logged as
+## "Parse Error" on random base files), so finish them first.
+func _exit_tree() -> void:
+	for path in _pending:
+		if ResourceLoader.load_threaded_get_status(path) == ResourceLoader.THREAD_LOAD_IN_PROGRESS:
+			_held.append(ResourceLoader.load_threaded_get(path))
+	_pending.clear()
+
 static func loaded_count() -> int:
 	return _held.size()
