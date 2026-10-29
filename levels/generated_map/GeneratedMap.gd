@@ -651,6 +651,9 @@ func _plan_outcrop() -> void:
 		return
 	cells.sort()
 	secret = SecretRoomBuilder.plan_outcrop(self, _cell_to_world(cells[randi() % cells.size()]), true)
+	# Dunes hide a cave under a mesa instead.
+	if layout.kind == MapLayout.Kind.OPEN_FIELD and tileset and tileset.family == "desert":
+		secret.access = SecretRoomBuilder.Access.SINKHOLE
 
 ## ---- Raised rooms ---------------------------------------------------------
 ## Rooms and canyon layouts put some rooms (basins) on a plinth RAISED_FLOOR

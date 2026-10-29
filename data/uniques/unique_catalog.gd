@@ -77,7 +77,7 @@ const DEFS := [
 	},
 	{
 		"id": "arkanus", "name": "Arkanus, the Forbidden Staff", "rarity": Constants.ItemRarity.MYTHIC,
-		"base_type": "staff", "base_item": "res://data/weapons/instances/gen_staff_grand_staff.tres", "weight": 100.0, "boss": "aurelia", "boss_chance": 0.02, "conduit_stance_type": "arkanus",
+		"base_type": "staff", "base_item": "res://data/weapons/instances/gen_staff_transcendent_staff.tres", "weight": 100.0, "boss": "aurelia", "boss_chance": 0.02, "conduit_stance_type": "arkanus",
 		"flavor": "Four words of power, and nothing left over for anything else.",
 		"mods": [
 			["unique_more_ailment_effect", 20.0, 30.0, "%d%% more Ailment effect"],
@@ -186,7 +186,7 @@ const DEFS := [
 		"mods": [
 			["unique_elemental_levels_per_res", 22.0, 40.0, "+1 Level to all Elemental Spells for every %d%% Elemental Resistance"],
 			["flat_ward", 100.0, 100.0, "+%d Ward"],
-			["increased_ward", 120.0, 220.0, "%d%% increased Ward"],
+			["increased_ward", 48.0, 88.0, "%d%% increased Ward"],
 			["unique_no_crit_damage", 1.0, 1.0, "Deal no extra Critical Strike Damage"],
 			["mana_regen_increased", 20.0, 100.0, "%d%% increased Mana Regeneration Rate"],
 			["flat_intellect", 36.0, 36.0, "+%d to Intellect"],

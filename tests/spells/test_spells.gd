@@ -9,7 +9,7 @@ const ABILITY_DIR := "res://data/abilities/instances/"
 var _checks := 0
 var _failures := 0
 var _finished := 0
-const TEST_COUNT := 19
+const TEST_COUNT := 20
 
 var _arena: Node3D
 var _player: Player
@@ -52,6 +52,7 @@ func _run() -> void:
 	await _test_caltrops_and_inferno()
 	await _test_scorch()
 	await _test_shatter()
+	_test_conversion()
 	await _test_every_spell_casts()
 	await _test_arkanus()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
@@ -438,6 +439,16 @@ func _test_shatter() -> void:
 	for i in StatusEffectComponent.CHILL_STACKS_TO_FREEZE:
 		frozen.status_effects.apply_effect("chill", null)
 	_check(frozen.status_effects.has_effect("freeze"), "three Chills freeze the dummy")
+	# Shatter strikes the enemy at the crosshair: "many", first along the view.
+	_player.global_position = Vector3(0, 0, 10)
+	_player.rotation.y = 0.0
+	_player.camera.rotation.x = 0.0
+	many.status_effects.apply_effect("ignite", null, 10.0)
+	_cast._cast(shatter, Vector3.ZERO)
+	await _frames(2)
+	_check(_lost(many) > 0.0 and chilled.status_effects.has_effect("chill"), "shatter breaks only the targeted enemy's ailments")
+	# Fault Lines: every enemy around the target too.
+	shatter.web_points["fault_lines"] = 1
 	for id in ["ignite", "unraveling", "shock"]:
 		many.status_effects.apply_effect(id, null, 10.0)
 	var types := {}
@@ -453,6 +464,7 @@ func _test_shatter() -> void:
 	_check(_lost(frozen) > _lost(chilled) * 2.0, "a broken Freeze hits harder than Chill (%.0f vs %.0f)" % [_lost(frozen), _lost(chilled)])
 	_check(not many.status_effects.has_effect("ignite") and not many.status_effects.has_effect("unraveling") and not many.status_effects.has_effect("shock"), "every ailment is removed")
 	_check(types.has(Constants.DamageType.FIRE) and types.has(Constants.DamageType.ENTROPIC) and types.has(Constants.DamageType.LIGHTNING), "each burst uses its ailment's element (%s)" % [types.keys()])
+	shatter.web_points.erase("fault_lines")
 	_finished += 1
 
 ## Arkanus' spells land with their effects: Stone Skin's stones, Water's
@@ -486,4 +498,24 @@ func _test_arkanus() -> void:
 	_check(_lost(near) > before and not near.status_effects.has_effect("freeze"), "Elemental Lightning strikes and shatters the Freeze")
 	await _wait(ForbiddenFire.DURATION + 0.5)
 	_check(is_instance_valid(near) and not near.has_node("ArkanusFlame"), "Forbidden Flame's visual ends with the burn")
+	_finished += 1
+
+## Conversion goes one step (Physical -> Elemental -> Esoteric), never twice,
+## and over 100% scales down.
+func _test_conversion() -> void:
+	var sheet := _player.stat_sheet
+	sheet.enchant_conversion = {Constants.DamageType.FIRE: 20.0}
+	var split := sheet.get_damage_conversion(Constants.DamageType.KINETIC)
+	_check(is_equal_approx(float(split.get(Constants.DamageType.FIRE, 0.0)), 0.2) and is_equal_approx(float(split.get(Constants.DamageType.KINETIC, 0.0)), 0.8), "Enchantment converts 20%% Kinetic to Fire (%s)" % split)
+	_check(sheet.get_damage_conversion(Constants.DamageType.FIRE).is_empty(), "Enchantment leaves Fire hits alone")
+	sheet.enchant_conversion = {Constants.DamageType.FIRE: 80.0, Constants.DamageType.COLD: 80.0}
+	split = sheet.get_damage_conversion(Constants.DamageType.PIERCING)
+	_check(is_equal_approx(float(split.get(Constants.DamageType.FIRE, 0.0)), 0.5) and not split.has(Constants.DamageType.PIERCING), "over 100%% scales down (%s)" % split)
+	sheet.enchant_conversion = {}
+	var dummy := _dummy(Vector3(0, 0, -20))
+	sheet.enchant_conversion = {Constants.DamageType.FIRE: 100.0}
+	var before := dummy.health.current_health
+	dummy.take_damage(50.0, Constants.DamageType.KINETIC)
+	_check(dummy.health.current_health < before, "a fully converted hit still lands")
+	sheet.enchant_conversion = {}
 	_finished += 1

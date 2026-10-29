@@ -87,6 +87,13 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 			out.append("While on: your Mana doesn't regenerate, and you regenerate %s its regeneration as Life" % ("%sx" % _num(PlayerAbilityCast.FOCUSED_MIND_LIFE_SHARE if ability.has_twist("focused_mind") else PlayerAbilityCast.INNER_POWER_LIFE_SHARE)))
 			out.append("While on: you deal %s more Aetheric damage" % _pct(StatSheet.INNER_POWER_AETHERIC_MORE * (2.0 if ability.has_twist("still_waters") else 1.0)))
 			out.append("While it is on your bar, on or off, you deal no Physical damage")
+		"innervate":
+			out.append("Cast to switch on, cast again to switch off (free)")
+			out.append("While on: %s%% increased Mana Regeneration Rate" % _num(PlayerAbilityCast.innervate_regen_percent(ability, sheet)))
+			var innervate_drain := "Drains %s of your maximum Mana per second" % _pct(PlayerAbilityCast.INNERVATE_DRAIN * ability.get_mana_cost_multiplier(sheet))
+			if player:
+				innervate_drain += " (%s/s)" % _num(PlayerAbilityCast.innervate_drain_per_second(ability, player.mana.max_mana, sheet))
+			out.append(innervate_drain)
 		"charged_reflexes":
 			out.append("Cast to switch on, cast again to switch off (free)")
 			out.append("Ranged weapons attack %s faster and reload %s faster" % [_pct((player.ability_cast.charged_reflexes_fire_rate() if player else PlayerAbilityCast.CHARGED_REFLEXES_FIRE_RATE) - 1.0), _pct((player.ability_cast.charged_reflexes_reload() if player else PlayerAbilityCast.CHARGED_REFLEXES_RELOAD) - 1.0)])
@@ -123,13 +130,13 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 				out.append("While on: +%s%% to maximum %s" % [_num(extra), which])
 			out.append(_toggle_drain_line(ability, sheet, player))
 		"enchantment":
-			var r := PlayerAbilityCast.enchant_range(ability, sheet)
+			var pct := PlayerAbilityCast.enchant_percent(ability, sheet)
 			var split := "Cold" if ability.has_twist("frost_enchant") else ("Lightning" if ability.has_twist("storm_enchant") else "")
 			out.append("Cast to switch on, cast again to switch off (free)")
 			if split == "":
-				out.append("While on: your hits deal %s-%s added Fire damage" % [_num(r.x), _num(r.y)])
+				out.append("While on: %s%% of your Physical damage is converted to Fire" % _num(pct))
 			else:
-				out.append("While on: your hits deal %s-%s added damage, half Fire and half %s" % [_num(r.x), _num(r.y), split])
+				out.append("While on: %s%% of your Physical damage is converted, half to Fire and half to %s" % [_num(pct), split])
 			out.append(_toggle_drain_line(ability, sheet, player))
 		"black_hole":
 			out.append("Swallows projectiles that fly into it, yours and enemies'; it fires them back out in a nova as it collapses, each dealing %s of a Black Hole hit" % _pct(PlayerAbilityCast.BLACK_HOLE_NOVA_DAMAGE))

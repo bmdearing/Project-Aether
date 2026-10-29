@@ -115,9 +115,14 @@ var _slide_speed_current: float = 0.0
 
 ## Dash: a tap of "sprint" (Shift) fires a decaying burst; holding it then
 ## sprints as normal. Works in the air and from standing.
-const DASH_SPEED := 14.0
-const DASH_DURATION := 0.2
-const DASH_DECELERATION := 20.0
+## A short, hard burst: full speed for DASH_HOLD of DASH_DURATION, then
+## easing to DASH_END_SPEED of it (~3m), with an FOV kick and a whoosh so it
+## reads as a dash rather than a stumble.
+const DASH_SPEED := 22.0
+const DASH_DURATION := 0.16
+const DASH_HOLD := 0.6
+const DASH_END_SPEED := 0.35
+const DASH_FOV_KICK := 9.0
 const DASH_COOLDOWN := 1.0
 ## Hits (not damage over time) pass through you for this long after a dash starts.
 const DASH_IFRAMES := 0.15
@@ -342,6 +347,7 @@ func _apply_derived_stats() -> void:
 	var flat_mana := stat_sheet.get_misc_bonus("max_mana") + stat_sheet.get_misc_bonus("flat_mana")
 	mana.set_max_mana((_base_max_mana + stat_sheet.get_mana_from_stats() + flat_mana) * (1.0 + stat_sheet.get_misc_bonus("mana_increased") / 100.0))
 	mana.regen_per_second = (_base_mana_regen + mana.max_mana * BASE_REGEN_PERCENT / 100.0 + stat_sheet.get_misc_bonus("mana_regen")) * (1.0 + stat_sheet.get_misc_bonus("mana_regen_increased") / 100.0)
+	mana.regen_per_second *= ability_cast.innervate_regen_multiplier() if ability_cast else 1.0
 	if unique_effects and unique_effects.has(UniqueEffects.ARKANUS):
 		# Arkanus fixes the Mana pool and its regeneration; nothing scales them.
 		mana.set_max_mana(unique_effects.value(UniqueEffects.ARKANUS_MANA))
@@ -842,9 +848,10 @@ func _physics_process(delta: float) -> void:
 		_move_velocity = _lunge_velocity * 0.15
 	elif _is_dashing:
 		_dash_timer -= delta
-		_dash_speed_current = max(_dash_speed_current - DASH_DECELERATION * delta, 0.0)
-		velocity.x = _dash_direction.x * _dash_speed_current
-		velocity.z = _dash_direction.z * _dash_speed_current
+		var t := 1.0 - maxf(_dash_timer, 0.0) / DASH_DURATION
+		var ease_out := 1.0 if t < DASH_HOLD else lerpf(1.0, DASH_END_SPEED, (t - DASH_HOLD) / (1.0 - DASH_HOLD))
+		velocity.x = _dash_direction.x * _dash_speed_current * ease_out
+		velocity.z = _dash_direction.z * _dash_speed_current * ease_out
 		_move_velocity = Vector3(velocity.x, 0.0, velocity.z)
 		if _dash_timer <= 0.0:
 			_is_dashing = false
@@ -1015,6 +1022,12 @@ func _start_dash(move_dir: Vector3) -> void:
 	_dash_cooldown_remaining = DASH_COOLDOWN
 	_iframes_remaining = DASH_IFRAMES
 	melee_attack.cancel_recovery()
+	if not weapon_stance.is_scoped():
+		var fov := camera.create_tween()
+		fov.tween_property(camera, "fov", GameState.field_of_view + DASH_FOV_KICK, 0.05).set_ease(Tween.EASE_OUT)
+		fov.tween_property(camera, "fov", GameState.field_of_view, 0.25).set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_QUAD)
+	if SoundLib.library and not SoundLib.library.boss_whoosh.is_empty():
+		AudioManager.play_2d(SoundLib.pick_random(SoundLib.library.boss_whoosh), -10.0)
 
 func is_in_visceral() -> bool:
 	return _in_visceral

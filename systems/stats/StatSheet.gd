@@ -321,6 +321,52 @@ func get_penetration(damage_type: Constants.DamageType) -> float:
 func get_physical_shred() -> float:
 	return get_misc_bonus("physical_shred") / 100.0
 
+## Outgoing damage conversion: one step along Physical -> Elemental ->
+## Esoteric. Damage converted once never converts again, so Physical turned
+## Fire stays Fire. Over 100% from one category scales down to 100%.
+const CONVERSION_KEYS := {
+	Constants.DamageCategory.PHYSICAL: {
+		"convert_phys_to_fire": Constants.DamageType.FIRE,
+		"convert_phys_to_cold": Constants.DamageType.COLD,
+		"convert_phys_to_lightning": Constants.DamageType.LIGHTNING,
+	},
+	Constants.DamageCategory.ELEMENTAL: {
+		"convert_elemental_to_aetheric": Constants.DamageType.AETHERIC,
+		"convert_elemental_to_entropic": Constants.DamageType.ENTROPIC,
+		"convert_elemental_to_pale": Constants.DamageType.PALE,
+	},
+}
+## Physical converted by Enchantment while it's on: DamageType -> percent
+## (PlayerAbilityCast._tick_resist_and_enchant()).
+var enchant_conversion: Dictionary = {}
+
+## How a hit of damage_type splits after conversion: {DamageType: fraction},
+## summing to 1. Empty when nothing converts.
+func get_damage_conversion(damage_type: Constants.DamageType) -> Dictionary:
+	var category: int = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type, -1)
+	var targets: Dictionary = CONVERSION_KEYS.get(category, {})
+	var percents := {}
+	var total := 0.0
+	for key: String in targets:
+		var pct := get_misc_bonus(key)
+		if pct > 0.0:
+			percents[targets[key]] = float(percents.get(targets[key], 0.0)) + pct
+			total += pct
+	if category == Constants.DamageCategory.PHYSICAL:
+		for t: int in enchant_conversion:
+			percents[t] = float(percents.get(t, 0.0)) + float(enchant_conversion[t])
+			total += float(enchant_conversion[t])
+	if total <= 0.0:
+		return {}
+	var scale := 1.0 if total <= 100.0 else 100.0 / total
+	var split := {}
+	for t: int in percents:
+		split[t] = float(percents[t]) / 100.0 * scale
+	var kept := 1.0 - minf(total, 100.0) / 100.0
+	if kept > 0.0:
+		split[damage_type] = float(split.get(damage_type, 0.0)) + kept
+	return split
+
 ## Physical damage taken as Elemental: [[fraction, DamageType], ...].
 func get_phys_damage_shift() -> Array:
 	var shifts := []

@@ -9,10 +9,14 @@ class_name SecretRoomBuilder
 ##   Open fields, canyons, streets - an OUTCROP: a rough rock mass shifted off
 ##     its cell's centre, hollow inside. The way in is a crack in its rim,
 ##     reached up two boulders among a few that lead nowhere.
+##   Desert open fields (Dunes) - a SINKHOLE: a sandstone mesa placed like an
+##     outcrop with a cave at ground level inside. The way in is a sinkhole in
+##     its flat top, reached up two boulders; a CrackedWall in its side is the
+##     way back out (or in, for whoever spots the cracks first).
 ## Everything is rolled from the map's seeded RNG, so a portal return builds
 ## the same secret; capture()/restore() carry what was done in it.
 
-enum Access { CRACKED, OUTCROP }
+enum Access { CRACKED, OUTCROP, SINKHOLE }
 
 ## Rooms: the chamber's inner footprint (along the wall, away from it) and height.
 const CHAMBER_WIDTH := 7.0
@@ -38,6 +42,13 @@ const OUTCROP_SHIFT := 4.0
 const OUTCROP_CLEARANCE := 9.5
 ## Chamber lights stay inside their walls.
 const LIGHT_RANGE := 4.5
+## SINKHOLE: the mesa's outer half size and height (its top is the outcrop's
+## ledge height, so the same boulders reach it), wall and roof thickness, and
+## the hole in the roof.
+const MESA_HALF := 5.5
+const MESA_SKIN := 1.2
+const MESA_ROOF := 1.0
+const SINKHOLE_SIZE := 2.0
 
 var access: Access = Access.CRACKED
 var encounter_id: String = ""
@@ -51,6 +62,9 @@ var cracked_wall: CrackedWall
 ## OUTCROP only: the rock's centre on the ground and the side its crack faces.
 var centre := Vector3.ZERO
 var crack_dir := Vector2i.ZERO
+## SINKHOLE only: the side its boulders climb, and the hole in its top.
+var step_side := Vector2i.ZERO
+var sinkhole_at := Vector3.ZERO
 ## Where the encounter stands.
 var chamber_centre := Vector3.ZERO
 var _map: GeneratedMap
@@ -127,7 +141,7 @@ static func plan_outcrop(map: GeneratedMap, cell_centre: Vector3, shift: bool) -
 
 ## True when `pos` is close enough to an outcrop that a pack there would stand in it.
 func blocks(pos: Vector3) -> bool:
-	return access == Access.OUTCROP and Vector2(pos.x - centre.x, pos.z - centre.z).length() < OUTCROP_CLEARANCE
+	return access != Access.CRACKED and Vector2(pos.x - centre.x, pos.z - centre.z).length() < OUTCROP_CLEARANCE
 
 ## ---- Rooms: the chamber behind the host wall --------------------------------
 
@@ -177,6 +191,9 @@ func build(host_origin: Vector3, host_half: Vector2) -> void:
 ## ---- Open layouts: the outcrop ------------------------------------------------
 
 func build_outcrop() -> void:
+	if access == Access.SINKHOLE:
+		build_sinkhole()
+		return
 	var walls_before := _map.interior_wall_count
 	var n := Vector3(crack_dir.x, 0, crack_dir.y)
 	var top := centre + Vector3.UP * OUTCROP_FLOOR
@@ -226,6 +243,87 @@ func build_outcrop() -> void:
 		var dist := OUTCROP_HALF + randf_range(1.0, 2.8)
 		_boulder(centre + Vector3(cos(angle), 0, sin(angle)) * dist, randf_range(1.0, 3.0), i % 2 == 0)
 	chamber_centre = top - n * 0.8
+	_spawn_encounter(n)
+
+## ---- Desert open fields: the sinkhole mesa ------------------------------------
+
+func build_sinkhole() -> void:
+	var walls_before := _map.interior_wall_count
+	var n := Vector3(crack_dir.x, 0, crack_dir.y)
+	# The boulders climb the side a quarter turn from the cracked one.
+	var step_dir := Vector2i(crack_dir.y, -crack_dir.x) * (1 if randf() < 0.5 else -1)
+	step_side = step_dir
+	var s := Vector3(step_dir.x, 0, step_dir.y)
+	var top := OUTCROP_FLOOR
+	var inner := MESA_HALF - MESA_SKIN
+	var cave_height := top - MESA_ROOF
+	_map._build_floor(centre + Vector3(0, 0.01, 0), inner * 2.0, inner * 2.0, 0.0, GeneratedMap.VAULT_FLOOR_COLOR)
+	# Walls, sunk a little so uneven sand leaves no gap. Only the step side's
+	# rim can be mantled.
+	for dir in DIRS:
+		var side_n := Vector3(dir.x, 0, dir.y)
+		var along := Vector3(absf(side_n.z), 0, absf(side_n.x))
+		var mid := centre + side_n * (MESA_HALF - MESA_SKIN / 2.0)
+		var size := Vector3(MESA_HALF * 2.0, top + 0.5, MESA_SKIN) if dir.y != 0 else Vector3(MESA_SKIN, top + 0.5, MESA_HALF * 2.0)
+		if dir != crack_dir:
+			_solid(mid + Vector3.UP * (top - 0.5) / 2.0, size, dir != step_dir)
+			continue
+		# The cracked side: two pieces either side of the patch and a lintel.
+		var piece := (MESA_HALF * 2.0 - HOLE_SIZE.x) / 2.0
+		for k in [-1.0, 1.0]:
+			var at: Vector3 = mid + along * k * (HOLE_SIZE.x + piece) / 2.0 + Vector3.UP * (top - 0.5) / 2.0
+			_solid(at, Vector3(piece, top + 0.5, MESA_SKIN) if dir.y != 0 else Vector3(MESA_SKIN, top + 0.5, piece), true)
+		var lintel := top - HOLE_SIZE.y
+		_solid(mid + Vector3.UP * (HOLE_SIZE.y + lintel / 2.0), Vector3(HOLE_SIZE.x, lintel, MESA_SKIN) if dir.y != 0 else Vector3(MESA_SKIN, lintel, HOLE_SIZE.x), true)
+		cracked_wall = CrackedWall.new()
+		cracked_wall.size = Vector3(HOLE_SIZE.x + 0.02, HOLE_SIZE.y, MESA_SKIN)
+		cracked_wall.material = _map._wall_mat if _map._wall_mat else _map._plain_material(GeneratedMap.WALL_COLOR)
+		cracked_wall.position = mid
+		cracked_wall.rotation.y = atan2(side_n.x, side_n.z)
+		_map.add_child(cracked_wall)
+	# The roof, inside the rim, with the sinkhole off towards the far corner
+	# from the boulders so the way across the top is a walk.
+	var away := -s * inner * 0.45 + Vector3(s.z, 0, s.x) * inner * 0.35 * (1.0 if randf() < 0.5 else -1.0)
+	var h := Vector2(away.x, away.z)
+	var half := SINKHOLE_SIZE / 2.0
+	var y := top - MESA_ROOF / 2.0
+	var pieces: Array[Rect2] = [
+		Rect2(-inner, -inner, h.x - half + inner, inner * 2.0),
+		Rect2(h.x + half, -inner, inner - h.x - half, inner * 2.0),
+		Rect2(h.x - half, -inner, SINKHOLE_SIZE, h.y - half + inner),
+		Rect2(h.x - half, h.y + half, SINKHOLE_SIZE, inner - h.y - half),
+	]
+	for r in pieces:
+		if r.size.x > 0.01 and r.size.y > 0.01:
+			_solid(centre + Vector3(r.get_center().x, y, r.get_center().y), Vector3(r.size.x, MESA_ROOF, r.size.y), true)
+	# Loose stones round the hole's lip.
+	var hole := centre + Vector3(h.x, top, h.y)
+	sinkhole_at = hole
+	for i in 5:
+		var a := TAU * i / 5.0 + randf_range(-0.3, 0.3)
+		var d := half + randf_range(0.35, 0.8)
+		_rock(hole + Vector3(cos(a), 0, sin(a)) * d, Vector3(randf_range(0.4, 0.8), randf_range(0.25, 0.5), randf_range(0.4, 0.8)), randf() * TAU, false)
+	for corner in [Vector3(1, 0, 1), Vector3(1, 0, -1), Vector3(-1, 0, 1), Vector3(-1, 0, -1)]:
+		_rock(centre + corner * (MESA_HALF - 0.4) - Vector3.UP * 0.5, Vector3(1.6, top + randf_range(0.2, 0.7), 1.6), deg_to_rad(45.0 + randf_range(-10.0, 10.0)), false)
+	_map.interior_wall_count = walls_before
+	# A shaft of light from the hole; dim, so nothing glows through the cracks.
+	_add_light(Vector3(hole.x, cave_height - 0.6, hole.z), 1.2)
+	_add_found_area(centre, Vector3(inner * 2.0 - 1.0, cave_height, inner * 2.0 - 1.0))
+	# Two boulders up the step side, the lower one off to a side.
+	var along_s := Vector3(absf(s.z), 0, absf(s.x)) * (1.0 if randf() < 0.5 else -1.0)
+	var near := centre + s * (MESA_HALF + STEP_SIZE / 2.0 - 0.1)
+	_boulder(near, STEP_HEIGHTS[1], true)
+	_boulder(near + s * (STEP_SIZE - 0.3) + along_s * 1.2, STEP_HEIGHTS[0], true)
+	var step_angle := atan2(s.z, s.x)
+	for i in DECOY_COUNT:
+		var angle := step_angle + deg_to_rad(randf_range(50.0, 310.0))
+		var dist := MESA_HALF + randf_range(1.0, 2.8)
+		var foot := centre + Vector3(cos(angle), 0, sin(angle)) * dist
+		# Keep the cracked patch clear.
+		if Vector2(foot.x - (centre.x + n.x * MESA_HALF), foot.z - (centre.z + n.z * MESA_HALF)).length() < 2.6:
+			continue
+		_boulder(foot, randf_range(1.0, 3.0), i % 2 == 0)
+	chamber_centre = centre - n * 1.2
 	_spawn_encounter(n)
 
 ## A rough boulder standing on the ground at `foot`, `height` tall.
@@ -312,7 +410,7 @@ func _spawn_encounter(facing: Vector3) -> void:
 ## ---- Portal trips --------------------------------------------------------------
 
 func capture() -> Dictionary:
-	var state := {"found": _found, "opened": access == Access.CRACKED and not is_instance_valid(cracked_wall)}
+	var state := {"found": _found, "opened": access != Access.OUTCROP and not is_instance_valid(cracked_wall)}
 	if is_instance_valid(encounter) and encounter.has_method("capture_state"):
 		state["encounter"] = encounter.capture_state()
 	return state

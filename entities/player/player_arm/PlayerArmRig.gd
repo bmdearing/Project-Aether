@@ -99,7 +99,7 @@ class Track:
 ## poses: [hand pos, tip, face]. "off" is the left hand when it holds its own
 ## item or gauntlet.
 const RESTS := {
-	&"blade": {"rest": [Vector3(0.27, -0.29, -0.46), Vector3(-0.3, 0.8, -0.5), Vector3(0.3, 0.1, 1)],
+	&"blade": {"rest": [Vector3(0.27, -0.29, -0.46), Vector3(-0.3, 0.8, -0.5), Vector3(1, 0.15, 0.25)],
 		"guard": [Vector3(0.17, -0.2, -0.44), Vector3(-1, 0.4, -0.35), Vector3(0, 0.3, 1)]},
 	&"heavy": {"rest": [Vector3(0.42, -0.45, -0.42), Vector3(0.5, 0.85, 0.0), Vector3(0.3, 0.2, 1)],
 		"guard": [Vector3(0.16, -0.22, -0.4), Vector3(-1, 0.5, -0.3), Vector3(0, 0.3, 1)]},
@@ -125,7 +125,7 @@ const RESTS := {
 		"aim": [Vector3(0.0, -0.105, -0.36), Vector3(0, 0, -1), Vector3(0, 1, 0)]},
 	&"rifle": {"rest": [Vector3(0.18, -0.21, -0.3), Vector3(-0.12, 0.03, -1), Vector3(0.12, 1, 0)],
 		"aim": [Vector3(0.0, -0.12, -0.24), Vector3(0, 0, -1), Vector3(0, 1, 0)]},
-	&"thrown": {"rest": [Vector3(0.25, -0.27, -0.44), Vector3(-0.2, 0.8, -0.5), Vector3(0.3, 0.1, 1)]},
+	&"thrown": {"rest": [Vector3(0.25, -0.27, -0.44), Vector3(-0.2, 0.8, -0.5), Vector3(1, 0.15, 0.25)]},
 	&"bow": {"rest": [Vector3(0.2, -0.12, -0.55), Vector3(-0.2, 1, 0), Vector3(-0.1, 0, 1)],
 		"aim": [Vector3(0.12, -0.09, -0.6), Vector3(-0.05, 1, 0), Vector3(0.05, 0, 1)]},
 }
@@ -225,9 +225,9 @@ const RIFLE_KICK := [
 const THROWS := {
 	# Axe: overhand, back past the ear then whipped forward.
 	"Throwing Axe": [
-		["w", 1.0, Vector3(0.06, 0.2, 0.16), Vector3(0.1, 0.9, 0.45), Vector3(0.3, 0, 1), 0.45],
-		["s", 1.0, Vector3(-0.1, 0.02, -0.3), Vector3(-0.1, 0.25, -1), Vector3(0, 1, 0.2), 0.4],
-		["r", 0.3, Vector3(-0.1, -0.04, -0.26), Vector3(-0.1, 0.1, -1), Vector3(0, 1, 0.2), 0.5],
+		["w", 1.0, Vector3(0.06, 0.2, 0.16), Vector3(0.1, 0.9, 0.45), Vector3(1, 0, 0), 0.45],
+		["s", 1.0, Vector3(-0.1, 0.02, -0.3), Vector3(-0.1, 0.25, -1), Vector3(1, 0, 0), 0.4],
+		["r", 0.3, Vector3(-0.1, -0.04, -0.26), Vector3(-0.1, 0.1, -1), Vector3(1, 0, 0), 0.5],
 	],
 	# Knife: a short cocked wrist by the cheek, flicked straight out.
 	"Throwing Knife": [
@@ -534,6 +534,16 @@ func play_slash(windup: float, strike: float, recovery: float, backswing: bool =
 		_trail_color = trail_color
 		_trail_points.clear()
 		_trail_length = _weapon_length()
+
+## Puncture: a straight thrust along the view with whatever is in the main hand.
+func play_thrust(windup: float, strike: float, recovery: float) -> void:
+	_start(_main_track, STAB, windup, strike, recovery, _main_rest())
+
+## The held weapon's point in world space (the grip when nothing is held).
+func weapon_tip_position() -> Vector3:
+	if not is_instance_valid(_weapon_model):
+		return global_position
+	return _weapon_model.global_transform * Vector3(0, _weapon_length(), 0)
 
 ## ---- Weapon trail ------------------------------------------------------------
 ## A ribbon swept by the weapon: each frame of the strike adds a pair of
@@ -1181,6 +1191,7 @@ func _begin_hand_cast(ability: Ability, windup: float) -> void:
 		mat.emission = c
 		var sparks := glow.get_child(1) as CPUParticles3D
 		sparks.color = c.lightened(0.4)
+		_style_specks(glow.get_child(2) as CPUParticles3D, ability.damage_type, c)
 	_start(_main_track, CAST_MAIN, windup, 0.1, 0.3, _main_rest())
 	if _off_mode == OffMode.HIDDEN or _off_mode == OffMode.TWO_HAND:
 		_start(_off_track, CAST_OFF, windup, 0.1, 0.35, _off_rest())
@@ -1197,6 +1208,7 @@ func _update_hand_cast(delta: float) -> void:
 		var glow := _hand_glows[i]
 		glow.visible = casting and (i == 0 or _off.visible)
 		(glow.get_child(1) as CPUParticles3D).emitting = glow.visible
+		(glow.get_child(2) as CPUParticles3D).emitting = glow.visible
 	if casting:
 		_right_hand.visible = true
 		var phase := _time * 9.0
@@ -1246,6 +1258,100 @@ func _make_hand_glow(hand: Node3D) -> Node3D:
 	sparks.emitting = false
 	sparks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	root.add_child(sparks)
+	# Element specks around the hand, styled per cast (_style_specks()).
+	var specks := CPUParticles3D.new()
+	specks.local_coords = true
+	specks.emission_shape = CPUParticles3D.EMISSION_SHAPE_SPHERE
+	specks.mesh = quad
+	specks.emitting = false
+	specks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	root.add_child(specks)
 	root.visible = false
 	hand.add_child(root)
 	return root
+
+## Speck behaviour per element: Fire embers rise, Cold flakes drift down,
+## Lightning crackles fast and short, Aetheric motes swirl in, Entropic
+## motes sink, Pale wisps hang, Physical grit scatters.
+func _style_specks(p: CPUParticles3D, type: int, c: Color) -> void:
+	p.amount = 18
+	p.lifetime = 0.6
+	p.emission_sphere_radius = 0.07
+	p.direction = Vector3.UP
+	p.spread = 40.0
+	p.gravity = Vector3.ZERO
+	p.initial_velocity_min = 0.05
+	p.initial_velocity_max = 0.15
+	p.orbit_velocity_min = 0.0
+	p.orbit_velocity_max = 0.0
+	p.radial_accel_min = 0.0
+	p.radial_accel_max = 0.0
+	p.tangential_accel_min = 0.0
+	p.tangential_accel_max = 0.0
+	p.damping_min = 0.0
+	p.damping_max = 0.0
+	p.scale_amount_min = 0.006
+	p.scale_amount_max = 0.012
+	var head := c.lightened(0.45)
+	var tail := c
+	match type:
+		Constants.DamageType.FIRE:
+			p.gravity = Vector3(0, 0.35, 0)
+			p.initial_velocity_min = 0.08
+			p.initial_velocity_max = 0.2
+			head = Color(1.6, 1.1, 0.5)
+			tail = Color(0.9, 0.2, 0.05)
+		Constants.DamageType.COLD:
+			p.direction = Vector3.DOWN
+			p.spread = 70.0
+			p.lifetime = 0.9
+			p.initial_velocity_min = 0.02
+			p.initial_velocity_max = 0.06
+			p.gravity = Vector3(0, -0.06, 0)
+			head = Color(1.4, 1.6, 1.8)
+		Constants.DamageType.LIGHTNING:
+			p.amount = 24
+			p.lifetime = 0.12
+			p.spread = 180.0
+			p.initial_velocity_min = 0.6
+			p.initial_velocity_max = 1.2
+			p.damping_min = 4.0
+			p.damping_max = 6.0
+			head = Color(1.8, 1.8, 1.4)
+		Constants.DamageType.AETHERIC:
+			p.emission_sphere_radius = 0.1
+			p.lifetime = 0.8
+			p.spread = 180.0
+			p.initial_velocity_min = 0.0
+			p.initial_velocity_max = 0.02
+			p.radial_accel_min = -0.4
+			p.radial_accel_max = -0.25
+			p.tangential_accel_min = 0.5
+			p.tangential_accel_max = 0.8
+		Constants.DamageType.ENTROPIC:
+			p.direction = Vector3.DOWN
+			p.gravity = Vector3(0, -0.15, 0)
+			p.lifetime = 0.8
+			p.scale_amount_max = 0.016
+			head = c.darkened(0.2)
+			tail = Color(0.08, 0.04, 0.1)
+		Constants.DamageType.PALE:
+			p.lifetime = 1.1
+			p.spread = 180.0
+			p.initial_velocity_min = 0.01
+			p.initial_velocity_max = 0.04
+			p.scale_amount_min = 0.01
+			p.scale_amount_max = 0.018
+			head = Color(1.3, 1.35, 1.3)
+		_:
+			p.spread = 180.0
+			p.gravity = Vector3(0, -0.4, 0)
+			p.initial_velocity_min = 0.1
+			p.initial_velocity_max = 0.25
+			head = c.lightened(0.2)
+			tail = c.darkened(0.4)
+	var g := Gradient.new()
+	g.set_color(0, Color(head, 0.0))
+	g.set_color(1, Color(tail, 0.0))
+	g.add_point(0.15, Color(head, 0.95))
+	p.color_ramp = g

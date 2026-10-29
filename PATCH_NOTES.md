@@ -7,6 +7,27 @@ there. Most recent first.
 
 ---
 
+## 2026-10-29 — Conversion, Innervate, Dunes sinkhole, dash and targeting
+
+User batch (2026-10-29).
+- **New models:** the Katana, Throwing Knife, Throwing Axe, Javelin and Grenade models from `build_melee_weapons.py` are imported and used. Held and thrown, they replace the pack stand-ins. **Holding (user report):** the Saber, Cutlass, Katana and Throwing Axe were held with the edge facing sideways. The blade and thrown rest poses now point the edge forward, and the axe throw leads with its edge throughout (`PlayerArmRig.RESTS`, `THROWS`).
+- **Damage conversion mods:** gloves, amulets and rings can roll "X% of Physical Damage converted to Fire/Cold/Lightning" or "X% of Elemental Damage converted to Aetheric/Entropic/Pale", 26-32% at Tier 1. Conversion takes one step along Physical -> Elemental -> Esoteric. Damage that has already converted doesn't convert again, and a total over 100% scales down. Each part of the hit is mitigated as its own type (Armour or that Resistance), and the largest part labels the hit (`StatSheet.get_damage_conversion()`, `Enemy._mitigate_part()`). Converted damage keeps the source type's increased-damage scaling; only mitigation changes.
+- **Enchantment** no longer adds a separate flat Fire hit. While on, it converts 10% of your Physical damage to Fire, +0.5% per level, up to 20%. Frost/Storm Enchant send half of that to Cold or Lightning.
+- **Monster Life** +10% at Area Level 1, rising to +20% at 90 (`AreaLevel.health_scale()`).
+- **Sanctum of the Mage:** increased Ward cut 60%, from 120-220% to 48-88%.
+- **Drain buffs cost 75% more:** the toggle drain goes from 4% to 7% of maximum Mana per second, Thunderstorm drains 70% of its cost per round (was 40%), and Charged Reflexes drains 26% per shot (was 15%). **Booming Blade:** each trigger drains 60% of its cost (was 30%), and the trigger cooldown goes from 0.45 s to 0.6 s.
+- **Uniques keep their base's implicit:** this already worked for any base that had one. Arkanus moved from the Grand Staff (no implicit) to the Transcendent Staff (+12% Physical Damage Reach), at the same level. The Unique wiki now shows each unique's base and implicit. The armour uniques sit on bases with no implicit; only the level 91 armour bases have one.
+- **Dunes secret, the sinkhole mesa:** on Dunes, the hidden outcrop is replaced by a sandstone mesa. Climb its two step boulders, cross the flat top and drop through a sinkhole into a cave with the encounter. A cracked wall in the mesa's side breaks open for the way out, or for a way in if you spot it from outside (`SecretRoomBuilder.build_sinkhole()`).
+- **Dash:** 22 m/s at full speed for 60% of a 0.16 s burst, then eases out (still about 3 m). It also kicks the FOV by 9 degrees and plays a whoosh, so it reads as a dash.
+- **Ability targeting:** a hit from the crosshair ray wins outright. Otherwise the target is whichever enemy's body, feet to head and padded 0.3 m, passes closest to the crosshair inside a 15-degree cone (was 10 degrees, measured to the body's centre). Nearer enemies win close calls, and a clear line to either the chest or the head is enough (`PlayerAbilityCast._crosshair_enemy()`).
+- **Innervate** (new, Aetheric): switch on for 30% increased Mana Regeneration at level 1, up to 189% at level 20. It drains 0.1% of maximum Mana per second, well under what it gives.
+- **Shatter** is now targeted: it breaks the ailments of the enemy at your crosshair. The new **Fault Lines** twist (ring 2) also breaks them on every enemy within its radius of the target.
+- **New ability nodes:** proposals, one or two per ability, are in `documents/Ability_Node_Proposals.md` for picking. Only Fault Lines is built.
+- **Cast hands:** each hand now shows small specks in the spell's element. Fire embers rise, Cold flakes drift down, Lightning crackles, Aetheric motes swirl inward, Entropic motes sink, Pale wisps hang and Physical grit scatters (`PlayerArmRig._style_specks()`).
+- **Thunderstorm** puts a dark storm cloud over you, as wide as its radius. Its bolts come down from the cloud, and indoors it sits below the ceiling (`StormCloud`).
+- **Puncture** plays a straight thrust instead of the weapon's slash. Its spike now leaves from the weapon's actual point rather than a fixed spot by the hand.
+- **Judgment calls:** Innervate's drain, which would cancel its own gain at 7%; the Enchantment percentages; the conversion mod slots and values; the Booming Blade numbers; the mesa only on Dunes, not Badlands (a canyon layout).
+
 ## 2026-10-27 — Katana Stance B: Flowing Cuts
 
 The user picked this from three pitches.

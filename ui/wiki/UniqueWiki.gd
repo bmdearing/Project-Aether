@@ -11,6 +11,7 @@ const MAGIC_FIND_MAX := 500.0
 const MOD_COLOR := Color(0.95, 0.68, 0.38)
 const ODDS_LABEL_COLOR := Color(0.66, 0.62, 0.55)
 const COLLECTED_COLOR := Color(0.55, 0.85, 0.55)
+const IMPLICIT_COLOR := Color(0.62, 0.8, 0.95)
 
 enum Filter { ALL, UNIQUE, MYTHIC, SLATE, LENS }
 
@@ -194,7 +195,15 @@ func _entry(def: Dictionary) -> PanelContainer:
 		name_row.add_child(_text("   ✓ " + owned, 13, COLLECTED_COLOR))
 	var rarity_name := "Mythic" if def["rarity"] == Constants.ItemRarity.MYTHIC else "Unique"
 	var base := "Any gear" if def["base_type"] == "any" else String(def["base_type"]).capitalize()
+	var base_item: Item = load(def["base_item"]) as Item if def.has("base_item") else null
+	if base_item:
+		base = base_item.display_name
 	left.add_child(_text("%s  ·  %s" % [rarity_name, base], 13, ODDS_LABEL_COLOR))
+	# The base's implicit comes with the unique.
+	if base_item and not def.get("no_implicits", false):
+		var implicit := WikiCatalog.base_implicit_text(base_item)
+		if implicit != "":
+			left.add_child(_text(implicit, 14, IMPLICIT_COLOR))
 	for mod in def["mods"]:
 		var line := _text(UniqueRoller.range_text(mod), 14, MOD_COLOR)
 		line.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART

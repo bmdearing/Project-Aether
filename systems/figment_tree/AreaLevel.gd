@@ -58,8 +58,14 @@ static func current_tier() -> int:
 	var figment: FigmentItem = GameState.active_map
 	return clampi(figment.tier, 1, FigmentMods.MAX_TIER) if figment and figment.depth <= 0 else 0
 
+## Flat Life bonus on top of the curve: +10% at level 1 rising to +20% at
+## the Pinnacle level.
+const LIFE_BONUS_LOW := 1.1
+const LIFE_BONUS_HIGH := 1.2
+
 static func health_scale(level: int, tier: int = 0) -> float:
-	return pow(HEALTH_GROWTH, maxi(level, 1) - 1) * pow(TIER_HEALTH_GROWTH, tier)
+	var bonus := lerpf(LIFE_BONUS_LOW, LIFE_BONUS_HIGH, clampf(float(maxi(level, 1) - 1) / float(PINNACLE - 1), 0.0, 1.0))
+	return bonus * pow(HEALTH_GROWTH, maxi(level, 1) - 1) * pow(TIER_HEALTH_GROWTH, tier)
 
 static func damage_scale(level: int, tier: int = 0) -> float:
 	return pow(DAMAGE_GROWTH, maxi(level, 1) - 1) * pow(TIER_DAMAGE_GROWTH, tier)

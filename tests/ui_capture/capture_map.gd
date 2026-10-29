@@ -134,7 +134,7 @@ func _run() -> void:
 			# The secret's way in at eye height: the host room's cracked wall,
 			# or the outcrop from off its crack side.
 			var s := map.secret
-			if s and s.access == SecretRoomBuilder.Access.OUTCROP:
+			if s and s.access != SecretRoomBuilder.Access.CRACKED:
 				var n := Vector3(s.crack_dir.x, 0, s.crack_dir.y)
 				cam.position = s.centre + n * 13.0 + Vector3(n.z, 0, n.x) * 7.0 + Vector3(0, 1.7, 0)
 				cam.look_at(s.centre + Vector3(0, 3.0, 0), Vector3.UP)

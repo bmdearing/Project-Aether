@@ -6,7 +6,7 @@
 script = ExtResource("1")
 ability_id = "shatter"
 display_name = "Shatter"
-description = "Breaks every ailment on the enemies in the area. Each one bursts in its own element, and the harder it was to inflict, the harder it bursts."
+description = "Breaks every ailment on the enemy at your crosshair. Each one bursts in its own element, and the harder it was to inflict, the harder it bursts."
 damage_type = 4
 motion_value = 1.0
 cooldown_seconds = 0.0
@@ -15,7 +15,7 @@ base_cast_time = 1.0
 resource_cost = 22.0
 can_trigger_riposte = false
 is_auto_cast_eligible = true
-is_ground_targeted = true
+is_ground_targeted = false
 status_chance = 0.0
 radius = 4.5
 base_crit_chance = 0.06

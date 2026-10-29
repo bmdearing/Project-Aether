@@ -123,17 +123,21 @@ func _test_outdoor(style: String) -> void:
 		_check(style == "city_downtown" or style == "forest_river_valley", "%s has a secret outcrop" % style)
 		print("note: %s rolled no plaza, so no outcrop" % style)
 	else:
-		_check(map.secret.access == SecretRoomBuilder.Access.OUTCROP, "%s's secret is an outcrop" % style)
+		var sinkhole := map.secret.access == SecretRoomBuilder.Access.SINKHOLE
+		_check(map.secret.access == SecretRoomBuilder.Access.OUTCROP or (sinkhole and style.begins_with("desert")), "%s's secret is an outcrop (desert: a sinkhole)" % style)
 		var c := map.secret.chamber_centre + Vector3(1.3, 0, 1.3)  # beside the encounter
 		var q := PhysicsRayQueryParameters3D.create(c + Vector3.UP * 1.5, c + Vector3.DOWN * 3.0, 1)
 		var hit := map.get_world_3d().direct_space_state.intersect_ray(q)
-		_check(not hit.is_empty() and absf(hit["position"].y - SecretRoomBuilder.OUTCROP_FLOOR) < 0.2, "%s's outcrop hollow has a floor up top (hit %s)" % [style, hit.get("position", "none")])
+		_check(not hit.is_empty() and absf(hit["position"].y - (0.0 if sinkhole else SecretRoomBuilder.OUTCROP_FLOOR)) < 0.2, "%s's outcrop hollow has a floor up top (hit %s)" % [style, hit.get("position", "none")])
 		var inside := 0
 		for node in get_tree().get_nodes_in_group("enemy"):
 			if map.secret.blocks((node as Node3D).global_position) and (node as Node3D).global_position.y < 3.0:
 				inside += 1
 		_check(inside == 0, "%s: no pack spawns inside the outcrop" % style)
-		await _test_crack_climb(map, style)
+		if sinkhole:
+			await _test_sinkhole(map, style)
+		else:
+			await _test_crack_climb(map, style)
 	await _wait_nav(map)
 	var links := _links(map)
 	_check(links.size() > 0, "%s has climb links (%d)" % [style, links.size()])
@@ -369,3 +373,35 @@ func _test_crack_climb(map: GeneratedMap, label: String) -> void:
 	Input.action_release("move_forward")
 	var flat := Vector2(player.global_position.x - s.centre.x, player.global_position.z - s.centre.z)
 	_check(player.global_position.y > SecretRoomBuilder.OUTCROP_FLOOR - 0.3 and flat.length() < SecretRoomBuilder.OUTCROP_HALF, "%s: the player climbs through the outcrop's crack (feet %.2f, %.1f m from its centre)" % [label, player.global_position.y, flat.length()])
+
+## Dunes: up the boulders onto the mesa, down the sinkhole into the cave.
+func _test_sinkhole(map: GeneratedMap, label: String) -> void:
+	var s := map.secret
+	var player := get_tree().get_first_node_in_group("player") as Player
+	for node in get_tree().get_nodes_in_group("enemy"):
+		(node as Node).process_mode = Node.PROCESS_MODE_DISABLED
+	var n := Vector3(s.step_side.x, 0, s.step_side.y)
+	var out := SecretRoomBuilder.MESA_HALF + SecretRoomBuilder.STEP_SIZE / 2.0 - 0.1
+	player.global_position = s.centre + n * out + Vector3.UP * (SecretRoomBuilder.STEP_HEIGHTS[1] + 0.05)
+	player.velocity = Vector3.ZERO
+	player.rotation.y = atan2(n.x, n.z)  # facing the mesa
+	for i in 3:
+		await get_tree().physics_frame
+	Input.action_press("move_forward")
+	Input.action_press("jump")
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	Input.action_release("jump")
+	for i in 150:
+		await get_tree().physics_frame
+		if player.global_position.y > SecretRoomBuilder.OUTCROP_FLOOR - 0.3 and not player.ledge_climb.busy() and player.is_on_floor():
+			break
+	Input.action_release("move_forward")
+	var flat := Vector2(player.global_position.x - s.centre.x, player.global_position.z - s.centre.z)
+	_check(player.global_position.y > SecretRoomBuilder.OUTCROP_FLOOR - 0.3 and flat.length() < SecretRoomBuilder.MESA_HALF * 1.42, "%s: the player climbs onto the mesa (feet %.2f, %.1f m from its centre)" % [label, player.global_position.y, flat.length()])
+	player.global_position = s.sinkhole_at + Vector3.UP * 0.6
+	player.velocity = Vector3.ZERO
+	for i in 90:
+		await get_tree().physics_frame
+	_check(player.global_position.y < 0.5 and player.is_on_floor(), "%s: the sinkhole drops into the cave (feet %.2f)" % [label, player.global_position.y])
+	_check(is_instance_valid(s.cracked_wall), "%s: the cave has a cracked wall out" % label)

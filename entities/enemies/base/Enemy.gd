@@ -1262,17 +1262,26 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 	if rarity_component:
 		status_multiplier *= rarity_component.get_damage_taken_multiplier()
 	_last_damaged_msec = Time.get_ticks_msec()
-	var mitigated := amount * multiplier * status_multiplier
-	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
-	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0 and not is_dot and not ignore_armor:
-		var armor := armor_value * (status_effects.get_armor_multiplier() if status_effects else 1.0)
-		mitigated *= 1.0 - DamageCalculator.physical_mitigation(armor, mitigated)
-	if status_effects and (category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC):
-		var shred := status_effects.get_resistance_shred() + _aura_shred() + status_effects.get_curse_resistance_shred(damage_type)
-		var attacker := _player.stat_sheet if is_instance_valid(_player) else null
-		var res := DamageCalculator.get_effective_resistance(resistance, damage_type, attacker, shred)
-		if res != 0.0:
-			mitigated *= 1.0 - DamageCalculator.resistance_mitigation(res)
+	var attacker := _player.stat_sheet if is_instance_valid(_player) else null
+	# The player's damage conversion splits a hit; each part is mitigated as
+	# its own type and the largest part labels the hit.
+	var split: Dictionary = attacker.get_damage_conversion(damage_type) if attacker and not is_dot else {}
+	var mitigated := 0.0
+	if split.is_empty():
+		mitigated = _mitigate_part(amount * multiplier * status_multiplier, damage_type, is_dot, ignore_armor, attacker)
+	else:
+		var hit_type := damage_type
+		var largest := 0.0
+		for t: int in split:
+			var share: float = split[t]
+			var part_status := status_multiplier
+			if status_effects and t != damage_type:
+				part_status *= status_effects.get_damage_taken_multiplier(t) / maxf(status_effects.get_damage_taken_multiplier(damage_type), 0.001)
+			mitigated += _mitigate_part(amount * multiplier * share * part_status, t as Constants.DamageType, is_dot, ignore_armor, attacker)
+			if share > largest:
+				largest = share
+				hit_type = t as Constants.DamageType
+		damage_type = hit_type
 	# Killing blows skip it, so the body is thrown at once.
 	if not is_dot and mitigated > 0.0 and mitigated < health.current_health + _ward_current:
 		_start_hit_hold(mitigated)
@@ -1291,6 +1300,19 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		_last_hit_react_msec = Time.get_ticks_msec()
 		_anim_controller.play_hit_react()
 	return true
+
+## Armour against Physical, Resistance against Elemental and Esoteric.
+func _mitigate_part(amount: float, damage_type: Constants.DamageType, is_dot: bool, ignore_armor: bool, attacker: StatSheet) -> float:
+	var category = Constants.DAMAGE_TYPE_CATEGORY.get(damage_type)
+	if category == Constants.DamageCategory.PHYSICAL and armor_value > 0.0 and not is_dot and not ignore_armor:
+		var armor := armor_value * (status_effects.get_armor_multiplier() if status_effects else 1.0)
+		amount *= 1.0 - DamageCalculator.physical_mitigation(armor, amount)
+	if status_effects and (category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC):
+		var shred := status_effects.get_resistance_shred() + _aura_shred() + status_effects.get_curse_resistance_shred(damage_type)
+		var res := DamageCalculator.get_effective_resistance(resistance, damage_type, attacker, shred)
+		if res != 0.0:
+			amount *= 1.0 - DamageCalculator.resistance_mitigation(res)
+	return amount
 
 const DAMAGE_NUMBER_SCENE := preload("res://ui/damage_number/DamageNumber.tscn")
 const WARD_NUMBER_EXTRA_HEIGHT := 0.35  # Ward numbers sit a little above health numbers

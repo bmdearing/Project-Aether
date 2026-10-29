@@ -77,6 +77,7 @@ static func draw(ci: CanvasItem, ability: Ability, rect: Rect2) -> void:
 		"triangulation": _triangulation(pen, c)
 		"dark_arts": _dark_arts(pen, c)
 		"enchantment": _enchantment(pen, c)
+		"innervate": _innervate(pen, c)
 		_:
 			var tag := String(Constants.DAMAGE_TYPE_NAME.get(ability.damage_type, "")).to_lower()
 			IconArt.glyph(pen, IconArt.DAMAGE_GLYPHS.get(tag, "star"), pen.v(0.5, 0.5), 0.6, c)
@@ -495,3 +496,11 @@ static func _enchantment(pen: IconArt.Pen, c: Color) -> void:
 	_glow(pen, 0.5, 0.45, 0.34, c, 0.25)
 	IconArt.glyph(pen, "sword", pen.v(0.5, 0.5), 0.66, Color(0.88, 0.88, 0.92))
 	IconArt.glyph(pen, "flame", pen.v(0.66, 0.3), 0.26, c)
+
+static func _innervate(pen: IconArt.Pen, c: Color) -> void:
+	_glow(pen, 0.5, 0.5, 0.4, c, 0.22)
+	for i in 5:
+		var a := TAU * i / 5.0 - PI * 0.5
+		var from := Vector2(0.5, 0.5) + Vector2(cos(a), sin(a)) * 0.44
+		_streak(pen, from, Vector2(0.5, 0.5) + Vector2(cos(a), sin(a)) * 0.16, 0.035, Color(c, 0.85))
+	IconArt.glyph(pen, "drop", pen.v(0.5, 0.52), 0.34, c.lightened(0.35))

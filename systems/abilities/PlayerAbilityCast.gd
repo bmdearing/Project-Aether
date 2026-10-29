@@ -46,8 +46,8 @@ const BOLT_SPEEDS := {"cinder_lance": 22.0, "thunder_javelin": 42.0, "thunder_sw
 ## ahead, at most once per BOOMING_BLADE_COOLDOWN, one more bolt every
 ## BOOMING_BLADE_LEVELS_PER_BOLT spell levels. Each trigger drains
 ## BOOMING_BLADE_TRIGGER_COST of its Mana cost. Turning it off is free.
-const BOOMING_BLADE_COOLDOWN := 0.45
-const BOOMING_BLADE_TRIGGER_COST := 0.3
+const BOOMING_BLADE_COOLDOWN := 0.6
+const BOOMING_BLADE_TRIGGER_COST := 0.6
 const BOOMING_BLADE_LEVELS_PER_BOLT := 5
 const BOOMING_BLADE_SPREAD_DEG := 7.0
 ## Ground bolts like Spark's crawlers, but running straight; each enemy
@@ -114,7 +114,6 @@ func _ready() -> void:
 	_player = get_parent()
 	EventBus.enemy_died.connect(_on_enemy_died)
 	EventBus.damage_dealt.connect(_on_damage_dealt)
-	EventBus.damage_dealt.connect(_on_enchanted_hit)
 
 func _physics_process(delta: float) -> void:
 	if _flame_jets_fx:
@@ -396,7 +395,7 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "shatter":
-		_cast_shatter(ability, cast_position, damage_multiplier, apply_composure)
+		_cast_shatter(ability, damage_multiplier, apply_composure)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "purge":
@@ -547,13 +546,24 @@ const SHATTER_RESONANCE := 0.25
 const SHATTER_SPLINTER_SHARE := 0.4
 const SHATTER_SPLINTER_RADIUS := 3.0
 
-## Breaks every ailment on the enemies in the area: each one becomes a hit
-## in its own element, worth the spell's damage times its weight
+## Breaks every ailment on the enemy at the crosshair (Fault Lines: and on
+## every enemy within the spell's radius of it): each one becomes a hit in
+## its own element, worth the spell's damage times its weight
 ## (StatusEffectComponent.SHATTER_VALUES). Enemies without ailments take nothing.
-func _cast_shatter(ability: Ability, centre: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
-	var radius := ability.get_radius(_player.stat_sheet)
-	_play_range_effect(ability, centre)
-	for enemy in _enemies_by_distance(centre, radius):
+func _cast_shatter(ability: Ability, damage_multiplier: float, apply_composure: bool) -> void:
+	var target := _crosshair_enemy()
+	if target == null:
+		return
+	var targets: Array = [target]
+	if ability.has_twist("fault_lines"):
+		var centre := target.global_position
+		_play_range_effect(ability, centre)
+		targets = _enemies_by_distance(centre, ability.get_radius(_player.stat_sheet))
+		if not targets.has(target):
+			targets.push_front(target)
+	else:
+		_flash_ring(target.global_position + Vector3.UP * 0.1, 1.4, ability)
+	for enemy: Enemy in targets:
 		var broken := enemy.status_effects.shatter_ailments()
 		var resonance := 1.0 + SHATTER_RESONANCE * maxi(broken.size() - 1, 0) if ability.has_twist("resonance") else 1.0
 		for entry in broken:
@@ -1413,9 +1423,13 @@ const CURSE_DURATION := 6.0
 ## Curse strength per spell level above 1 (x1.57 at level 20).
 const CURSE_STRENGTH_PER_LEVEL := 0.03
 ## Spells cast on the enemy nearest the crosshair; refused with no one there.
-const TARGETED_ABILITY_IDS := ["pale_thread", "linger", "elemental_lightning", "elemental_aether", "invocation_of_arach"]
+const TARGETED_ABILITY_IDS := ["pale_thread", "linger", "elemental_lightning", "elemental_aether", "invocation_of_arach", "shatter"]
 const TARGET_RANGE := 25.0
-const TARGET_CONE_DEG := 10.0
+const TARGET_CONE_DEG := 15.0
+## Extra reach around a body for the cone test, and a small preference for
+## nearer enemies (score per metre).
+const TARGET_PAD := 0.3
+const TARGET_NEAR_BIAS := 0.002
 const PALE_COLOR := Color(0.88, 0.95, 1.0)
 
 static func curse_strength(ability: Ability, stat_sheet: StatSheet) -> float:
@@ -1435,27 +1449,50 @@ func _cast_curse(ability: Ability, centre: Vector3) -> void:
 	for enemy in _enemies_near(centre, radius):
 		enemy.status_effects.apply_curse(CURSE_EFFECTS[ability.ability_id], _player, duration, strength)
 
-## The live enemy whose body is closest to the crosshair's line, within
-## TARGET_CONE_DEG and TARGET_RANGE, with no wall in between.
+## The enemy the crosshair means: one the crosshair ray actually strikes,
+## else the live enemy whose body (feet to head, padded by TARGET_PAD) passes
+## closest to the crosshair's line within TARGET_CONE_DEG and TARGET_RANGE,
+## with a clear line to its chest or head. Nearer enemies win close calls.
 func _crosshair_enemy() -> Enemy:
 	var origin := _player.camera.global_position
 	var forward := -_player.camera.global_transform.basis.z
+	var direct := _crosshair_ray_enemy(origin, forward)
+	if direct:
+		return direct
 	var max_slope := tan(deg_to_rad(TARGET_CONE_DEG))
 	var best: Enemy = null
-	var best_slope := INF
+	var best_score := INF
 	for node in get_tree().get_nodes_in_group("enemy"):
 		var enemy := node as Enemy
 		if enemy == null or not enemy.health.is_alive():
 			continue
-		var to := _body_centre(enemy) - origin
+		var feet := enemy.global_position + Vector3.UP * 0.2
+		var head := enemy.global_position + Vector3.UP * enemy.body_height
+		# Closest point of the body's axis to the crosshair line.
+		var aim := Geometry3D.get_closest_points_between_segments(origin, origin + forward * TARGET_RANGE, feet, head)[1] as Vector3
+		var to := aim - origin
 		var along := to.dot(forward)
 		if along <= 0.0 or to.length() > TARGET_RANGE:
 			continue
-		var slope := maxf((to - forward * along).length() - enemy.body_radius, 0.0) / along
-		if slope <= max_slope and slope < best_slope and not _line_blocked(origin, _body_centre(enemy)):
+		var slope := maxf((to - forward * along).length() - enemy.body_radius - TARGET_PAD, 0.0) / along
+		if slope > max_slope:
+			continue
+		var score := slope + along * TARGET_NEAR_BIAS
+		if score < best_score and (not _line_blocked(origin, aim) or not _line_blocked(origin, _body_centre(enemy))):
 			best = enemy
-			best_slope = slope
+			best_score = score
 	return best
+
+func _crosshair_ray_enemy(origin: Vector3, forward: Vector3) -> Enemy:
+	var query := PhysicsRayQueryParameters3D.create(origin, origin + forward * TARGET_RANGE)
+	query.exclude = [_player.get_rid()]
+	query.collide_with_areas = false
+	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
+	var node: Node = hit.get("collider") as Node if not hit.is_empty() else null
+	while node and not node is Enemy:
+		node = node.get_parent()
+	var enemy := node as Enemy
+	return enemy if enemy and enemy.health.is_alive() else null
 
 static func _body_centre(enemy: Enemy) -> Vector3:
 	return enemy.global_position + Vector3.UP * enemy.body_height * 0.6
@@ -1902,19 +1939,19 @@ func _elemental_earth() -> void:
 ## ---- Thunderstorm, Inner Power, Charged Reflexes, Manasaber, Puncture, Arach
 
 ## Switched on by casting and off by casting again (free), like Booming Blade.
-const TOGGLE_SPELLS := ["thunderstorm", "inner_power", "charged_reflexes", "triangulation", "dark_arts", "enchantment"]
+const TOGGLE_SPELLS := ["thunderstorm", "inner_power", "charged_reflexes", "triangulation", "dark_arts", "enchantment", "innervate"]
 
 ## Thunderstorm: every STORM_INTERVAL, a bolt strikes each enemy within its
 ## radius, and each round drains STORM_DRAIN of its Mana cost (it stops when
 ## Mana runs short). Enemies inside are kept Drenched.
 const STORM_INTERVAL := 2.0
-const STORM_DRAIN := 0.4
+const STORM_DRAIN := 0.7
 const STORM_DRENCH_PULSE := 0.5
-const STORM_BOLT_HEIGHT := 9.0
 ## Web: Storm Front strikes this much more often.
 const STORM_FRONT_INTERVAL := 0.75
 var _storm_timer: float = 0.0
 var _storm_drench_timer: float = 0.0
+var _storm_cloud: StormCloud
 
 ## Inner Power: Life regenerates this many times Mana's regeneration
 ## (Player._apply_derived_stats()); StatSheet.inner_power_multiplier() does
@@ -1925,7 +1962,7 @@ const INNER_POWER_LIFE_SHARE := 2.0
 ## on; each shot drains this share of its Mana cost.
 const CHARGED_REFLEXES_FIRE_RATE := 1.3
 const CHARGED_REFLEXES_RELOAD := 1.4
-const CHARGED_REFLEXES_SHOT_DRAIN := 0.15
+const CHARGED_REFLEXES_SHOT_DRAIN := 0.26
 
 ## Aether Rebuke (id "manasaber", a Skill): costs this share of maximum Mana
 ## and sweeps a cone ahead with the weapon's hit as Aetheric (Ability skill
@@ -1989,7 +2026,7 @@ func _set_toggle(id: String, on: bool) -> void:
 			_storm_timer = 0.3  # the first strike comes almost at once
 	elif not on:
 		GameState.toggled_spells.erase(id)
-	if id == "inner_power":
+	if id == "inner_power" or id == "innervate":
 		_player._apply_derived_stats()
 
 ## On the spell bar or the stance page.
@@ -2015,12 +2052,18 @@ func _tick_toggles(delta: float) -> void:
 	_tick_thunderstorm(delta)
 
 func _tick_thunderstorm(delta: float) -> void:
-	if not GameState.toggled_spells.has("thunderstorm"):
-		return
-	var ability := _resolve_ability_by_id("thunderstorm")
+	var ability: Ability = _resolve_ability_by_id("thunderstorm") if GameState.toggled_spells.has("thunderstorm") else null
 	if ability == null:
+		if is_instance_valid(_storm_cloud):
+			_storm_cloud.dissipate()
+		_storm_cloud = null
 		return
 	var radius := ability.get_radius(_player.stat_sheet)
+	if not is_instance_valid(_storm_cloud):
+		_storm_cloud = StormCloud.new()
+		_player.get_tree().current_scene.add_child(_storm_cloud)
+		_storm_cloud.setup(_player, radius, Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE))
+	_storm_cloud.set_radius(radius)
 	_update_aura_ring(ability)
 	_storm_drench_timer -= delta
 	if _storm_drench_timer <= 0.0:
@@ -2040,7 +2083,7 @@ func _tick_thunderstorm(delta: float) -> void:
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
 	var scene := _player.get_tree().current_scene
 	for enemy in _enemies_near(_player.global_position, radius):
-		var top := enemy.global_position + Vector3(randf_range(-1.5, 1.5), STORM_BOLT_HEIGHT, randf_range(-1.5, 1.5))
+		var top := _storm_cloud.bolt_origin()
 		LightningArc.spawn(scene, top, enemy.global_position + Vector3.UP * 0.2, color)
 		SpellFx.light_pop(scene, enemy.global_position + Vector3.UP, color, 2.5, 5.0, 0.2)
 		_hit_enemy(ability, enemy, 1.0, true, Callable())
@@ -2121,7 +2164,8 @@ func _cast_puncture(ability: Ability, damage_multiplier: float, apply_composure:
 		tip = _body_centre(target)
 		_hit_enemy(ability, target, damage_multiplier, apply_composure, Callable())
 		target.status_effects.apply_timed_effect("punctured", PUNCTURE_DURATION * ability.get_duration_multiplier(_player.stat_sheet))
-	var start := _player.camera.global_transform * Vector3(0.2, -0.3, -0.5)
+	# The spike leaves from the weapon's point, wherever the thrust has it.
+	var start := _player.arm_rig.weapon_tip_position() if _player.arm_rig else _player.camera.global_transform * Vector3(0.2, -0.3, -0.5)
 	SpellFx.flash(scene, tip, Color(1.3, 1.2, 1.1), 0.6, 0.15)
 	SpellFx.burst(scene, tip, Color(0.7, 0.15, 0.12), 14, Vector2(1.5, 3.5), 0.35, Vector2(0.05, 0.1), 60.0, -6.0)
 	_puncture_spike(start, tip)
@@ -2206,18 +2250,20 @@ func _cast_blizzard(ability: Ability, cast_position: Vector3, damage_multiplier:
 ## Triangulation / Dark Arts: while on, +Resistance (RESIST_SPELL_BASE, +
 ## RESIST_SPELL_PER_LEVEL per spell level past 1) to the Elemental or the
 ## Esoteric Resistances, and their web's MAX_RESISTANCE nodes raise the
-## maximum. Enchantment: while on, every hit you deal adds flat Fire damage
-## (ENCHANT_FLAT at level 1, growing like spell damage). Each drains
+## maximum. Enchantment: while on, converts ENCHANT_CONVERT_BASE of your
+## Physical damage to Fire (+ENCHANT_CONVERT_PER_LEVEL per level, up to
+## ENCHANT_CONVERT_MAX), through StatSheet.get_damage_conversion(). Each drains
 ## TOGGLE_SPELL_DRAIN of maximum Mana per second (scaled by Mana cost
 ## reduction) and switches off when Mana can't pay.
 const RESIST_SPELL_BASE := 15.0
 const RESIST_SPELL_PER_LEVEL := 1.0
-const TOGGLE_SPELL_DRAIN := 0.04
+const TOGGLE_SPELL_DRAIN := 0.07
 const RESIST_SPELLS := {"triangulation": ["fire", "cold", "lightning"], "dark_arts": ["esoteric"]}
-const ENCHANT_FLAT := Vector2(5.0, 9.0)
+const ENCHANT_CONVERT_BASE := 10.0
+const ENCHANT_CONVERT_PER_LEVEL := 0.5
+const ENCHANT_CONVERT_MAX := 20.0
 ## Twist id -> the element half of Enchantment's damage becomes.
 const ENCHANT_SPLITS := {"frost_enchant": Constants.DamageType.COLD, "storm_enchant": Constants.DamageType.LIGHTNING}
-var _enchanting := false
 
 static func resist_spell_amount(ability: Ability, stat_sheet: StatSheet) -> float:
 	return RESIST_SPELL_BASE + RESIST_SPELL_PER_LEVEL * (ability.get_effective_level(stat_sheet) - 1)
@@ -2229,13 +2275,15 @@ func _tick_resist_and_enchant(delta: float) -> void:
 	var sheet := _player.stat_sheet
 	var res := {}
 	var max_res := {}
-	for id in ["triangulation", "dark_arts", "enchantment"]:
+	for id in ["triangulation", "dark_arts", "enchantment", "innervate"]:
 		if not GameState.toggled_spells.has(id):
 			continue
 		var ability := _resolve_ability_by_id(id)
 		if ability == null:
 			continue
 		var drain := toggle_spell_drain_per_second(ability, _player.mana.max_mana, sheet) * delta
+		if id == "innervate":
+			drain = innervate_drain_per_second(ability, _player.mana.max_mana, sheet) * delta
 		if _player.mana.current_mana < drain:
 			_set_toggle(id, false)
 			EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
@@ -2246,34 +2294,21 @@ func _tick_resist_and_enchant(delta: float) -> void:
 			max_res[key] = max_res.get(key, 0.0) + ability.web_value(SkillWeb.MAX_RESISTANCE)
 	sheet.spell_resistance = res
 	sheet.spell_max_resistance = max_res
+	var enchant: Ability = _resolve_ability_by_id("enchantment") if GameState.toggled_spells.has("enchantment") else null
+	sheet.enchant_conversion = enchant_conversion(enchant, sheet) if enchant else {}
 
-## Enchantment's added damage per hit at its level: [min, max].
-static func enchant_range(ability: Ability, stat_sheet: StatSheet) -> Vector2:
-	return ENCHANT_FLAT * Ability.level_growth(ability.get_effective_level(stat_sheet))
+## Enchantment's share of Physical damage converted to Elemental at its level.
+static func enchant_percent(ability: Ability, stat_sheet: StatSheet) -> float:
+	return minf(ENCHANT_CONVERT_BASE + ENCHANT_CONVERT_PER_LEVEL * (ability.get_effective_level(stat_sheet) - 1), ENCHANT_CONVERT_MAX)
 
-## Enchantment: an extra hit of its flat damage on each of your hits (not
-## damage over time), scaled by your increased damage of that element.
-func _on_enchanted_hit(source: Node, target: Node, _amount: float, _type: int, _riposte: bool, _crit: bool) -> void:
-	if _enchanting or source != _player or StatusEffectComponent.emitting_dot or not GameState.toggled_spells.has("enchantment"):
-		return
-	var enemy := target as Enemy
-	if enemy == null or not enemy.health.is_alive():
-		return
-	var ability := _resolve_ability_by_id("enchantment")
-	if ability == null:
-		return
-	var sheet := _player.stat_sheet
-	var r := enchant_range(ability, sheet)
-	var flat := randf_range(r.x, r.y)
-	var parts := {Constants.DamageType.FIRE: flat}
-	for twist in ENCHANT_SPLITS:
+## Enchantment's conversion as StatSheet.enchant_conversion: all Fire, or
+## half Fire and half the twist's element.
+static func enchant_conversion(ability: Ability, stat_sheet: StatSheet) -> Dictionary:
+	var pct := enchant_percent(ability, stat_sheet)
+	for twist: String in ENCHANT_SPLITS:
 		if ability.has_twist(twist):
-			parts = {Constants.DamageType.FIRE: flat * 0.5, ENCHANT_SPLITS[twist]: flat * 0.5}
-	_enchanting = true
-	for type in parts:
-		var dmg: float = parts[type] * (1.0 + sheet.get_increased_damage_percent(type, false) / 100.0) * sheet.outgoing_more_multiplier(type)
-		enemy.take_damage(dmg, type)
-	_enchanting = false
+			return {Constants.DamageType.FIRE: pct * 0.5, ENCHANT_SPLITS[twist]: pct * 0.5}
+	return {Constants.DamageType.FIRE: pct}
 
 ## Black Hole: projectiles it swallowed, fired back out as a nova when it
 ## collapses, each a Black Hole hit times BLACK_HOLE_NOVA_DAMAGE.
@@ -2325,5 +2360,27 @@ func _begin_skill_swing(ability: Ability) -> void:
 	var recovery := total * (1.0 - SKILL_WINDUP_SHARE - SKILL_STRIKE_SHARE)
 	if ability.ability_id == "manasaber":
 		_player.arm_rig.play_slash(total * SKILL_WINDUP_SHARE, total * SKILL_STRIKE_SHARE, recovery, false, manasaber_trail_color())
+	elif ability.ability_id == "puncture":
+		_player.arm_rig.play_thrust(total * SKILL_WINDUP_SHARE, total * SKILL_STRIKE_SHARE, recovery)
 	else:
 		_player.arm_rig.play_attack(PlayerArmRig.Attack.LIGHT, total * SKILL_WINDUP_SHARE, total * SKILL_STRIKE_SHARE, recovery)
+
+## Innervate: while on, INNERVATE_REGEN_MIN% increased Mana Regeneration at
+## level 1 up to INNERVATE_REGEN_MAX% at level 20 (and on past it), applied
+## in Player._apply_derived_stats(). Its drain is a fixed INNERVATE_DRAIN of
+## maximum Mana per second, well under what it gives back.
+const INNERVATE_REGEN_MIN := 30.0
+const INNERVATE_REGEN_MAX := 189.0
+const INNERVATE_DRAIN := 0.001
+
+static func innervate_regen_percent(ability: Ability, stat_sheet: StatSheet) -> float:
+	return INNERVATE_REGEN_MIN + (INNERVATE_REGEN_MAX - INNERVATE_REGEN_MIN) * (ability.get_effective_level(stat_sheet) - 1) / 19.0
+
+static func innervate_drain_per_second(ability: Ability, max_mana: float, stat_sheet: StatSheet) -> float:
+	return max_mana * INNERVATE_DRAIN * ability.get_mana_cost_multiplier(stat_sheet)
+
+func innervate_regen_multiplier() -> float:
+	if not GameState.toggled_spells.has("innervate"):
+		return 1.0
+	var ability := _resolve_ability_by_id("innervate")
+	return 1.0 + innervate_regen_percent(ability, _player.stat_sheet) / 100.0 if ability else 1.0

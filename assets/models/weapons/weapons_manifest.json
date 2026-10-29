@@ -153,6 +153,12 @@
       0.0
     ]
   },
+  "grenade": {
+    "file": "res://assets/models/weapons/grenade.glb",
+    "family": "thrown",
+    "weapon_type": "Grenade",
+    "hide_hand": false
+  },
   "grimoire": {
     "file": "res://assets/models/weapons/grimoire.glb",
     "family": "focus",
@@ -169,6 +175,18 @@
       0.35,
       0.0
     ]
+  },
+  "javelin": {
+    "file": "res://assets/models/weapons/javelin.glb",
+    "family": "thrown",
+    "weapon_type": "Javelin",
+    "hide_hand": false
+  },
+  "katana": {
+    "file": "res://assets/models/weapons/katana.glb",
+    "family": "blade",
+    "weapon_type": "Katana",
+    "hide_hand": false
   },
   "lever_rifle": {
     "file": "res://assets/models/weapons/lever_rifle.glb",
@@ -448,6 +466,18 @@
     "file": "res://assets/models/weapons/talisman.glb",
     "family": "focus",
     "weapon_type": "Talisman",
+    "hide_hand": false
+  },
+  "throwing_axe": {
+    "file": "res://assets/models/weapons/throwing_axe.glb",
+    "family": "thrown",
+    "weapon_type": "Throwing Axe",
+    "hide_hand": false
+  },
+  "throwing_knife": {
+    "file": "res://assets/models/weapons/throwing_knife.glb",
+    "family": "thrown",
+    "weapon_type": "Throwing Knife",
     "hide_hand": false
   },
   "tome": {

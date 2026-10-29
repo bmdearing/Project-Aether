@@ -194,6 +194,7 @@ const TWISTS := {
 		{"id": "spectral_host", "name": "Spectral Host", "description": "Summons two wraiths that split the Ward between them.", "ring": 3, "requires": ["bound_soul", "ward_feast"]},
 	],
 	"shatter": [
+		{"id": "fault_lines", "name": "Fault Lines", "description": "Also breaks the ailments of every enemy within the spell's area around the target.", "ring": 2},
 		{"id": "resonance", "name": "Resonance", "description": "Each ailment broken on an enemy beyond the first adds 25% to all of its bursts.", "ring": 2},
 		{"id": "splinter", "name": "Splinter", "description": "Every burst also hits enemies within 3 metres for 40% of its damage.", "ring": 3, "requires": ["resonance", "potency_2"]},
 	],
@@ -231,8 +232,8 @@ const TWISTS := {
 		{"id": "black_summit", "name": "Black Summit", "description": "+1% to maximum Esoteric Resistance per point while it is on.", "ring": 3, "max_points": 2, "effect": MAX_RESISTANCE, "per_point": 1.0, "requires": ["forbidden_ground"]},
 	],
 	"enchantment": [
-		{"id": "frost_enchant", "name": "Frost Enchant", "description": "Half of the added damage is Cold instead of Fire.", "ring": 2, "exclusive_with": "storm_enchant"},
-		{"id": "storm_enchant", "name": "Storm Enchant", "description": "Half of the added damage is Lightning instead of Fire.", "ring": 2, "exclusive_with": "frost_enchant"},
+		{"id": "frost_enchant", "name": "Frost Enchant", "description": "Half of the converted damage becomes Cold instead of Fire.", "ring": 2, "exclusive_with": "storm_enchant"},
+		{"id": "storm_enchant", "name": "Storm Enchant", "description": "Half of the converted damage becomes Lightning instead of Fire.", "ring": 2, "exclusive_with": "frost_enchant"},
 	],
 	"charged_reflexes": [
 		{"id": "overclock", "name": "Overclock", "description": "45% faster attacks instead of 30%, but each shot drains twice the Mana.", "ring": 2},

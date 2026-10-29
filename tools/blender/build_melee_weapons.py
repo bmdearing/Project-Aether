@@ -402,6 +402,99 @@ def build_cutlass(root):
     Part("Cutlass_Blade", "steel").add(*blade(0.074, 0.53, 0.023, 0.02, 0.0045, 0.003, 0.6, "single", 0.035, 6)).build(root)
 
 
+def build_katana(root):
+    sx = Matrix.Diagonal((1.0, 0.75, 1.0, 1.0))
+    Part("Katana_Tsuka", "paper").add(*lathe([(-0.205, 0.0135), (0.045, 0.0145)], 10), sx).build(root)
+    wrap = Part("Katana_Wrap", "cloth_dark")
+    for phase in (0.0, math.pi):
+        for direction in (1, -1):
+            pts = []
+            for i in range(61):
+                f = i / 60
+                a = phase + direction * 2 * math.pi * 5 * f
+                z = -0.2 + 0.24 * f
+                pts.append((0.0152 * math.cos(a), 0.0152 * 0.75 * math.sin(a), z))
+            wrap.add(*tube(pts, 0.0022, 5))
+    wrap.build(root)
+    fit = Part("Katana_Fittings", "darksteel")
+    fit.add(*lathe([(-0.222, 0.0), (-0.218, 0.012), (-0.205, 0.0155), (-0.198, 0.0155)], 10), sx)
+    fit.add(*lathe([(0.038, 0.0158), (0.05, 0.0158)], 10, False), sx)
+    teeth = []
+    for i in range(32):
+        a = math.pi * i / 16
+        r = 0.04 if i % 2 else 0.036
+        teeth.append((math.cos(a) * r, math.sin(a) * r * 0.86))
+    fit.add(*prism(teeth, 0.007), at(z=0.054, rx=-90))
+    fit.build(root)
+    brass = Part("Katana_Brass", "brass")
+    brass.add(*lathe([(0.0505, 0.031), (0.0545, 0.031)], 24, False), Matrix.Diagonal((1.0, 0.86, 1.0, 1.0)))
+    brass.add(*box((0.036, 0.011, 0.026), (0.0, 0.0, 0.07)))
+    for side in (-1, 1):
+        brass.add(*sphere(0.005, 8, 4), at(0.0, side * 0.0118, -0.09))
+    brass.build(root)
+    Part("Katana_Blade", "steel").add(*blade(0.058, 0.69, 0.0155, 0.0125, 0.0036, 0.0026, 0.76, "single", 0.035, 7)).build(root)
+
+
+def build_throwing_knife(root):
+    Part("ThrowingKnife_Ring", "brass").add(*tube([(0.016 * math.sin(a), 0.0, -0.075 + 0.016 * math.cos(a)) for a in (2 * math.pi * i / 16 for i in range(17))], 0.003, 6)).build(root)
+    grip("ThrowingKnife_Grip", root, -0.058, 0.03, 0.0095, "cloth_dark", 6, 8)
+    fit = Part("ThrowingKnife_Fittings", "darksteel")
+    fit.add(*lathe([(-0.062, 0.0105), (-0.056, 0.0105)], 8, False))
+    fit.add(*box((0.045, 0.012, 0.008), (0.0, 0.0, 0.035)))
+    fit.build(root)
+    Part("ThrowingKnife_Blade", "steel").add(*blade(0.038, 0.16, 0, 0, 0.003, 0.0022, 0.2, "diamond", 0, 5, [0.011, 0.016, 0.015, 0.011, 0.006])).build(root)
+
+
+def build_throwing_axe(root):
+    Part("ThrowingAxe_Haft", "wood").add(*lathe([(-0.09, 0.0125), (0.33, 0.0115)], 8, False)).build(root)
+    grip("ThrowingAxe_Grip", root, -0.075, 0.07, 0.0135)
+    metal = Part("ThrowingAxe_Fittings", "darksteel")
+    metal.add(*lathe([(-0.1, 0.0), (-0.095, 0.012), (-0.085, 0.014)], 8, False))
+    metal.add(*box((0.034, 0.03, 0.06), (0.0, 0.0, 0.3)))
+    metal.add(*lathe([(0.0, 0.009), (0.035, 0.0)], 4, False), at(-0.017, 0, 0.3, ry=-90, rz=45))
+    metal.build(root)
+    Part("ThrowingAxe_Head", "steel").add(*prism([(0.016, 0.28), (0.06, 0.262), (0.1, 0.232), (0.112, 0.29), (0.108, 0.34), (0.09, 0.362), (0.06, 0.33), (0.016, 0.322)], 0.009)).build(root)
+    Part("ThrowingAxe_Bands", "brass").add(*lathe([(0.075, 0.0138), (0.084, 0.0138)], 8, False)).add(*lathe([(0.25, 0.0128), (0.26, 0.0128)], 8, False)).build(root)
+
+
+def build_javelin(root):
+    Part("Javelin_Shaft", "wood").add(*lathe([(-0.4, 0.0105), (0.62, 0.0115)], 8)).build(root)
+    grip("Javelin_Grip", root, -0.06, 0.06, 0.0128)
+    fins = Part("Javelin_Fins", "darksteel")
+    for k in range(3):
+        fins.add(*prism([(0.008, -0.39), (0.035, -0.4), (0.03, -0.32), (0.008, -0.28)], 0.003), at(rz=k * 120))
+    fins.add(*lathe([(-0.43, 0.0), (-0.4, 0.011)], 6, False))
+    fins.build(root)
+    brass = Part("Javelin_Charge", "brass")
+    brass.add(*lathe([(0.56, 0.012), (0.57, 0.019), (0.66, 0.019), (0.675, 0.012)], 12))
+    for z in (0.585, 0.645):
+        band(brass, z, 0.0205, 0.006, 12)
+    brass.build(root)
+    Part("Javelin_Glow", "accent").add(*lathe([(0.6, 0.0198), (0.63, 0.0198)], 12)).build(root)
+    Part("Javelin_Head", "steel").add(*lathe([(0.675, 0.012), (0.69, 0.0095)], 8)).add(*blade(0.69, 0.78, 0, 0, 0.006, 0.004, 0.86, "diamond", 0, 4, [0.01, 0.019, 0.016, 0.009])).build(root)
+
+
+def build_grenade(root):
+    """Same placement as WeaponModelLibrary._build_grenade: body centre 5 cm up the grip axis."""
+    body = Part("Grenade_Body", "darksteel")
+    body.add(*sphere(0.055, 16, 10), at(z=0.05))
+    for i in range(4):
+        z = 0.05 + (i - 1.5) * 0.024
+        r = math.sqrt(max(0.0, 0.055 ** 2 - (z - 0.05) ** 2)) + 0.002
+        band(body, z - 0.0025, r, 0.005, 16)
+    for k in range(8):
+        phi = 2 * math.pi * k / 8
+        arc = [(0.0565 * math.cos(t) * math.cos(phi), 0.0565 * math.cos(t) * math.sin(phi), 0.05 + 0.0565 * math.sin(t)) for t in (math.radians(d) for d in range(-60, 61, 15))]
+        body.add(*tube(arc, 0.0022, 5))
+    body.build(root)
+    cap = Part("Grenade_Cap", "brass")
+    cap.add(*lathe([(0.1, 0.022), (0.13, 0.018), (0.135, 0.012)], 12))
+    cap.add(*prism([(0.0, 0.1), (0.008, 0.1), (0.008, 0.02), (0.0, 0.035)], 0.014), at(x=0.052))
+    cap.add(*tube([(0.0, 0.016 * math.cos(a), 0.135 + 0.016 * math.sin(a)) for a in (2 * math.pi * i / 16 for i in range(17))], 0.0022, 6), at(x=-0.02))
+    cap.build(root)
+    Part("Grenade_Fuse", "accent").add(*sphere(0.01, 10, 6), at(z=0.142)).build(root)
+
+
 def build_dagger(root):
     pom = Part("Dagger_Pommel", "darksteel")
     pommel(pom, -0.058, 0.017, 0.026, 8)
@@ -616,6 +709,7 @@ BUILDERS = {
     "shortsword": ("Shortsword", build_shortsword, "Shortsword", "blade", False),
     "saber": ("Saber", build_saber, "Saber", "blade", False),
     "cutlass": ("Cutlass", build_cutlass, "Cutlass", "blade", False),
+    "katana": ("Katana", build_katana, "Katana", "blade", False),
     "dagger": ("Dagger", build_dagger, "Dagger", "thrust", False),
     "athame": ("Athame", build_athame, "Athame", "thrust", False),
     "greatsword": ("Greatsword", build_greatsword, "Greatsword", "heavy", False),
@@ -627,6 +721,10 @@ BUILDERS = {
     "staff": ("Staff", build_staff, "Staff", "staff", False),
     "whip": ("Whip", build_whip, "Whip", "whip", False),
     "wand": ("Wand", build_wand, "Wand", "wand", False),
+    "throwing_knife": ("ThrowingKnife", build_throwing_knife, "Throwing Knife", "thrown", False),
+    "throwing_axe": ("ThrowingAxe", build_throwing_axe, "Throwing Axe", "thrown", False),
+    "javelin": ("Javelin", build_javelin, "Javelin", "thrown", False),
+    "grenade": ("Grenade", build_grenade, "Grenade", "thrown", False),
 }
 for _key, (_name, _kind) in GAUNTLETS.items():
     _type = {"gauntlet": "Gauntlet", "pressure_fist": "Pressure Fist", "spell_gauntlet": "Spell Gauntlet"}[_key]

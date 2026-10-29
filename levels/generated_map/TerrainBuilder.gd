@@ -422,7 +422,7 @@ func build_hills(graph: MapGraph, cell_size: float, spread: float, cliffs: bool)
 			footprint = minf(footprint, Vector2(pos.x - start.x, pos.z - start.z).length() - 5.0)
 			footprint = minf(footprint, Vector2(pos.x - vault.x, pos.z - vault.z).length() - DAIS_RADIUS - DAIS_RAMP_LENGTH - 1.5)
 			footprint = minf(footprint, _link_clearance(pos) - 1.0)
-			if _map.secret and _map.secret.access == SecretRoomBuilder.Access.OUTCROP:
+			if _map.secret and _map.secret.access != SecretRoomBuilder.Access.CRACKED:
 				footprint = minf(footprint, Vector2(pos.x - _map.secret.centre.x, pos.z - _map.secret.centre.z).length() - SecretRoomBuilder.OUTCROP_CLEARANCE)
 			for other in _map.hills:
 				footprint = minf(footprint, (Vector2(pos.x, pos.z) - other["centre"]).length() - float(other["footprint"]) * 0.8)

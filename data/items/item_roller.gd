@@ -251,6 +251,15 @@ const AFFIX_POOL := [
 	{"stat_key": "phys_as_lightning", "tier1_min": 8.0, "tier1_max": 12.0, "desc": "%d%% Physical Damage taken as Lightning", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 9], "brand_tags": [], "no_roll": true},
 	{"stat_key": "phys_as_elemental", "tier1_min": 12.0, "tier1_max": 16.0, "desc": "%d%% of Physical Damage taken as Elemental", "applies_to": ["armor", "shield", "item"], "slots": [1, 6, 9], "brand_tags": []},
 
+	# Damage conversion (StatSheet.get_damage_conversion()): one step along
+	# Physical -> Elemental -> Esoteric, gloves, amulet and rings.
+	{"stat_key": "convert_phys_to_fire", "tier1_min": 26.0, "tier1_max": 32.0, "desc": "%d%% of Physical Damage converted to Fire", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["fire"]},
+	{"stat_key": "convert_phys_to_cold", "tier1_min": 26.0, "tier1_max": 32.0, "desc": "%d%% of Physical Damage converted to Cold", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["cold"]},
+	{"stat_key": "convert_phys_to_lightning", "tier1_min": 26.0, "tier1_max": 32.0, "desc": "%d%% of Physical Damage converted to Lightning", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["lightning"]},
+	{"stat_key": "convert_elemental_to_aetheric", "tier1_min": 26.0, "tier1_max": 32.0, "desc": "%d%% of Elemental Damage converted to Aetheric", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["aetheric"]},
+	{"stat_key": "convert_elemental_to_entropic", "tier1_min": 26.0, "tier1_max": 32.0, "desc": "%d%% of Elemental Damage converted to Entropic", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["entropic"]},
+	{"stat_key": "convert_elemental_to_pale", "tier1_min": 26.0, "tier1_max": 32.0, "desc": "%d%% of Elemental Damage converted to Pale", "applies_to": ["armor", "item"], "slots": [2, 9, 11], "brand_tags": ["pale"]},
+
 
 	# Armour Base Specific Mods
 	{"stat_key": "increased_ward", "defense": "ward", "tier1_min": 28.0, "tier1_max": 34.0, "desc": "+%d%% increased Ward", "applies_to": ["armor", "shield"], "slots": [0, 1, 2, 3, 6], "brand_tags": ["ward"]},
