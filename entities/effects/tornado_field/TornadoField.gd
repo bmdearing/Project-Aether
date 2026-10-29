@@ -24,6 +24,9 @@ const SPIN_SPEED := 4.5  # radians/sec the debris orbits at
 const FADE_IN := 0.4
 const FADE_OUT := 0.7
 const DUST := Color(0.62, 0.57, 0.5)
+## Web: Debris reach (times the radius) and damage (of a tick).
+const DEBRIS_REACH := 1.8
+const DEBRIS_DAMAGE := 1.5
 
 var _radius: float = 3.0
 var _ability: Ability
@@ -71,7 +74,15 @@ func _physics_process(delta: float) -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if enemy.distance_to_body(global_position) > _radius:
+		var dist: float = enemy.distance_to_body(global_position)
+		# Web: Debris - rocks flung at enemies just outside the funnel.
+		if pulse and dist > _radius and dist <= _radius * DEBRIS_REACH and _ability.has_twist("debris") and enemy.health.is_alive():
+			var rock := per_tick * DEBRIS_DAMAGE
+			if enemy.take_damage(rock, Constants.DamageType.KINETIC):
+				EventBus.damage_dealt.emit(_source, enemy, rock, Constants.DamageType.KINETIC, false, false)
+				SpellFx.shards(get_parent(), enemy.global_position + Vector3.UP, DUST, 5, Vector2(1.5, 3.0), Vector2(0.05, 0.12), 0.4, 60.0, false)
+			continue
+		if dist > _radius:
 			continue
 		enemy.take_dot(per_tick / TICK_INTERVAL, delta, _ability.damage_type, _source, "tornado")
 		if pulse:

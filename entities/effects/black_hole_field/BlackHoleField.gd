@@ -31,6 +31,7 @@ const LIGHT_ENERGY := 1.6
 ## the collapse fires them back out as a nova (PlayerAbilityCast.black_hole_nova()).
 const SWALLOW_RADIUS_SHARE := 0.6
 const MAX_SWALLOWED := 24
+const SPAGHETTIFY_MORE := 2.0
 var _swallowed: int = 0
 
 var _radius: float = 5.0
@@ -66,7 +67,12 @@ func _physics_process(delta: float) -> void:
 	_animate()
 	if _elapsed >= _duration:
 		_burst()
-		if _swallowed > 0 and is_instance_valid(_source) and _source is Player:
+		# Web: White Hole - the collapse throws everything outward instead of
+		# firing the swallowed shots back.
+		var white := _ability != null and _ability.has_twist("white_hole")
+		if white and is_instance_valid(_source) and _source is Player:
+			(_source as Player).ability_cast.white_hole(_ability, global_position, _radius)
+		elif _swallowed > 0 and is_instance_valid(_source) and _source is Player:
 			(_source as Player).ability_cast.black_hole_nova(_ability, global_position + Vector3.UP * CORE_HEIGHT, _swallowed)
 		queue_free()
 		return
@@ -89,7 +95,9 @@ func _physics_process(delta: float) -> void:
 		if dist >= 0.3:
 			enemy.apply_pull(to_center.normalized() * PULL_SPEED * clampf(dist / 1.5, 0.3, 1.0))
 		if dps > 0.0:
-			enemy.take_dot(dps, delta, _ability.damage_type, _source, "black_hole")
+			# Web: Spaghettify - up to SPAGHETTIFY_MORE at the very centre.
+			var closeness := 1.0 + (SPAGHETTIFY_MORE - 1.0) * clampf(1.0 - dist / maxf(_radius, 0.1), 0.0, 1.0) if _ability.has_twist("spaghettify") else 1.0
+			enemy.take_dot(dps * closeness, delta, _ability.damage_type, _source, "black_hole")
 
 ## ---- Visuals -----------------------------------------------------------------
 

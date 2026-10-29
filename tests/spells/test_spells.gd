@@ -9,7 +9,7 @@ const ABILITY_DIR := "res://data/abilities/instances/"
 var _checks := 0
 var _failures := 0
 var _finished := 0
-const TEST_COUNT := 20
+const TEST_COUNT := 21
 
 var _arena: Node3D
 var _player: Player
@@ -54,6 +54,7 @@ func _run() -> void:
 	await _test_shatter()
 	_test_conversion()
 	await _test_every_spell_casts()
+	await _test_every_twist_casts()
 	await _test_arkanus()
 	_check(_finished == TEST_COUNT, "every test function ran to the end (%d/%d)" % [_finished, TEST_COUNT])
 	print("spell tests: %d checks, %d failures" % [_checks, _failures])
@@ -518,4 +519,58 @@ func _test_conversion() -> void:
 	dummy.take_damage(50.0, Constants.DamageType.KINETIC)
 	_check(dummy.health.current_health < before, "a fully converted hit still lands")
 	sheet.enchant_conversion = {}
+	_finished += 1
+
+## Every spell cast with all of its web twists on (2026-10-29 batch smoke
+## test), with toggles switched on for a while, then the dummies killed so
+## the on-death twists run. Script errors show in the log; a few twists get
+## real checks.
+func _test_every_twist_casts() -> void:
+	await _reset_effects()
+	var dummies: Array[Enemy] = []
+	for x in [-2.0, 0.0, 2.0]:
+		dummies.append(_dummy(Vector3(x, 0, 24)))
+	await _frames(2)
+	_player.global_position = Vector3(0, 0, 30)
+	_player.rotation.y = 0.0
+	_player.camera.rotation.x = 0.0
+	var spells: Array[Ability] = []
+	for f in DirAccess.get_files_at(ABILITY_DIR):
+		if not f.ends_with(".tres"):
+			continue
+		var a := _ability(f.get_basename())
+		for node: SkillWeb.WebNode in SkillWeb.nodes_for(a):
+			if node.from_spell:
+				a.web_points[node.id] = 1
+		spells.append(a)
+		_cast._cast(a, Vector3(0, 0, 24))
+		await _frames(2)
+	await _wait(2.5)
+	_check(not get_tree().get_nodes_in_group("enemy").is_empty(), "the dummies outlast the twist casts")
+	# Twists that wait on something other than a cast.
+	var mana_before := _player.mana.current_mana
+	_cast.on_resisted(Constants.DamageType.FIRE, 100.0)
+	_check(not GameState.toggled_spells.has("triangulation") or _player.mana.current_mana >= mana_before, "Absorption restores Mana from resisted damage")
+	_cast._cold_snap()
+	_check(_cast.damage_taken_multiplier() > 0.0 and _cast.evasion_multiplier() >= 1.0, "defensive twist multipliers read")
+	EventBus.reload_finished.emit(null)
+	_cast.consume_hair_trigger()
+	_player.health.max_health = 1.0e6
+	_player.health.current_health = 1.0e6
+	_player.take_damage(5.0, Constants.DamageType.FIRE)
+	_player.take_damage(5.0, Constants.DamageType.KINETIC)
+	for d in dummies:
+		d.status_effects.apply_effect("ignite", null, 10.0)
+		d.status_effects.apply_curse("meager", _player, 5.0, 1.0)
+		if is_instance_valid(d):
+			d.health.apply_damage(d.health.current_health + 1.0)
+	await _wait(1.0)
+	for id in GameState.toggled_spells.duplicate():
+		_cast._set_toggle(id, false)
+	GameState.booming_blade_on = false
+	GameState.death_shroud_on = false
+	GameState.hex_auras.clear()
+	for a in spells:
+		a.web_points = {}
+	_check(_cast.ability_twist_on("comet", "scorched_earth") == false, "twists cleared after the smoke test")
 	_finished += 1

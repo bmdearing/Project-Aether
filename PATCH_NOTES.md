@@ -7,6 +7,23 @@ there. Most recent first.
 
 ---
 
+## 2026-10-29 — 55 new ability web nodes
+
+The user said "Build them all" for `documents/Ability_Node_Proposals.md`. Every ability now has one or two new twists in its web; the web describes each. That doc lists where a built node differs from its pitch, and why.
+- **Fire:** Comet *Scorched Earth* and *Gravity Well*; Cinder Lance *Kindling* and *Ember Trail*; Inferno *Backdraft* and *Heat Shimmer*; Flame Jets *Afterburn* and *Pressure Valve*; Flame Wall *Firebreak* and *Searing Gate*; Winter's Eye *Watchful Eye*; Enchantment *Tempered Edge* and *Kindle on Crit*.
+- **Cold:** Ice Pulse *Permafrost*; Blizzard *Eye of the Storm* and *Hailstones*; Frost Armor *Cold Snap*; Shatter *Lingering Frost*.
+- **Lightning:** Spark *Conductor* and *Ball Lightning*; Thunder Javelin *Lightning Rod*; Thunder Sweep *Static Field*; Static Discharge *Capacitor*; Stormcall *Ground Strike*; Thunderstorm *Eye of the Cloud* and *Downpour*; Booming Blade *Resonant Edge* and *Thunderclap*.
+- **Esoteric:** Black Hole *Spaghettify* and *White Hole*; Entropic Decay *Rot Spreads*; Linger *Haunting*; Pale Thread *Tether*; Reap *Death's Tithe*; Wraith *Possession*; Death Shroud *Cold Comfort*; Triangulation and Dark Arts *Absorption*; Invocation of Arach *Venom*; Inner Power *Overflow*; Innervate *Wellspring* and *Surge*; Aether Rebuke *Echo of Will*.
+- **Physical and utility:** Puncture *Hemorrhage* and *Riposte Point*; Tornado *Debris*; Caltrops *Barbed Wire*; Battle Cry, Intimidating Shout and Seismic Cry *War Drums*; Blink *Afterimage*; Purge *Cleansing Fire*; Charged Reflexes *Hair Trigger*; Nova *Implosion*; the four curses *Contagious Hex*.
+- **New pieces:**
+  - `GroundHazard`: a timed patch of ground that ticks a callback on whoever stands in it. Scorched Earth, Ember Trail and Permafrost use it.
+  - `PiercingBolt` gained growth per enemy pierced and drops along its path.
+  - `SparkCrawler` gained a bonus against Shocked enemies, a hit radius and an on-hit callback.
+  - Player hooks for the damage taken in Blizzard, Heat Shimmer's Evasion and Absorption's resisted damage.
+  - `StatSheet.enchant_more` and `spell_cost_reduction`.
+- **Numbers are mine:** every twist's value (the constants at the end of `PlayerAbilityCast.gd`).
+- **Testing:** `tests/spells` now casts every spell with all its twists on, then kills the dummies, and pokes the twists that need a block, a hit taken or a reload. This only catches script errors and checks a handful of effects; most twists haven't been seen in play.
+
 ## 2026-10-29 — Conversion, Innervate, Dunes sinkhole, dash and targeting
 
 User batch (2026-10-29).

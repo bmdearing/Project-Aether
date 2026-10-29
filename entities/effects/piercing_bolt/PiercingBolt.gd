@@ -17,6 +17,12 @@ var ability: Ability  # rolls its statuses on each enemy hit
 var follow_ground: bool = false
 var max_distance: float = 0.0
 
+## Web twists: Kindling grows the bolt by this share per enemy it passes
+## through; Ember Trail calls on_drop(position) every drop_every metres.
+var pierce_growth := 0.0
+var drop_every := 0.0
+var on_drop: Callable
+var _since_drop := 0.0
 var _hit_enemies: Array[Enemy] = []
 var _travelled: float = 0.0
 
@@ -63,6 +69,11 @@ func _physics_process(delta: float) -> void:
 	if follow_ground:
 		_snap_to_ground(space)
 	_travelled += step.length()
+	if drop_every > 0.0 and on_drop.is_valid():
+		_since_drop += step.length()
+		if _since_drop >= drop_every:
+			_since_drop = 0.0
+			on_drop.call(global_position)
 	if max_distance > 0.0 and _travelled >= max_distance:
 		queue_free()
 
@@ -88,6 +99,9 @@ func _hit(enemy: Enemy) -> void:
 	EventBus.damage_dealt.emit(source, enemy, damage_amount, damage_type, false, is_critical)
 	if ability:
 		ability.apply_statuses(enemy, source, damage_amount)
+	if pierce_growth > 0.0:
+		damage_amount *= 1.0 + pierce_growth
+		scale *= 1.0 + pierce_growth * 0.6
 
 ## ---- Visuals -----------------------------------------------------------------
 

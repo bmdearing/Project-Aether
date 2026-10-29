@@ -114,6 +114,9 @@ func _ready() -> void:
 	_player = get_parent()
 	EventBus.enemy_died.connect(_on_enemy_died)
 	EventBus.damage_dealt.connect(_on_damage_dealt)
+	EventBus.hit_blocked.connect(func(defender: Node) -> void: if defender == _player: _cold_snap())
+	EventBus.parry_successful.connect(func(who: Node, _enemy: Node) -> void: if who == _player: _cold_snap())
+	EventBus.reload_finished.connect(func(_weapon: Weapon) -> void: _hair_trigger_ready = _twist("charged_reflexes", "hair_trigger") and GameState.toggled_spells.has("charged_reflexes"))
 
 func _physics_process(delta: float) -> void:
 	if _flame_jets_fx:
@@ -353,7 +356,14 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		_blink_distance = BLINK_DISTANCE * (LONG_STEP if ability.has_twist("long_step") else 1.0)
 		if ability.has_twist("purging_step"):
 			_player.status_effects.clear_all_effects()
+		var left_from := _player.global_position
 		_perform_blink()
+		# Web: Afterimage - enemies near where you were lose you for a moment.
+		if ability.has_twist("afterimage"):
+			for enemy in _enemies_near(left_from, AFTERIMAGE_RADIUS):
+				if enemy.rank != Constants.EnemyRank.BOSS:
+					enemy.status_effects.apply_timed_effect("stun", AFTERIMAGE_DAZE)
+			SmokePuff.spawn(_player.get_tree().current_scene, left_from, 1.2, Color(0.75, 0.8, 1.0))
 		_flash_ring(_player.global_position, 1.4, ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
@@ -399,6 +409,8 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 		EventBus.ability_cast.emit(_player, ability)
 		return
 	if ability.ability_id == "purge":
+		if ability.has_twist("cleansing_fire"):
+			_cleansing_fire(ability)
 		_player.status_effects.clear_all_effects()
 		if ability.has_twist("second_wind"):
 			_player.health.heal(_player.health.max_health * 0.1)
@@ -525,6 +537,7 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 					_player.get_tree().current_scene.add_child(fx)
 					fx.global_position = spot
 					fx.call("play", r * 0.5, Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)))
+		_heat_shimmer(ability)
 		EventBus.ability_cast.emit(_player, ability)
 		return
 
@@ -536,8 +549,26 @@ func _cast_resolved(ability: Ability, cast_position: Vector3, damage_multiplier:
 
 	# Ice Pulse / Entropic Decay radiate outward: hits ride the expanding ring.
 	var wave := WAVE_DURATION if WAVE_ABILITY_IDS.has(ability.ability_id) else 0.0
-	_damage_area(ability, cast_position, ability.get_radius(_player.stat_sheet), damage_multiplier, apply_composure, wave, Callable())
+	var radius := ability.get_radius(_player.stat_sheet)
+	var on_hit := Callable()
+	# Web: Rot Spreads marks every enemy the decay touches.
+	if ability.ability_id == "entropic_decay" and ability.has_twist("rot_spreads"):
+		on_hit = func(enemy: Enemy) -> void: enemy.set_meta(&"rot_until", Time.get_ticks_msec() + int(ROT_SPREAD_WINDOW * 1000.0))
+	_damage_area(ability, cast_position, radius, damage_multiplier, apply_composure, wave, on_hit)
 	_play_range_effect(ability, cast_position)
+	if ability.ability_id == "inferno":
+		_heat_shimmer(ability)
+	# Web: Permafrost - the pulse leaves slowing ice behind.
+	if ability.ability_id == "ice_pulse" and ability.has_twist("permafrost"):
+		GroundHazard.spawn(_player.get_tree().current_scene, cast_position, radius * 0.85, PERMAFROST_SECONDS, 0.5, SpellFx.Mark.FROST, Color(0.55, 0.8, 1.0, 0.4), Color(0.7, 0.9, 1.0),
+			func(enemy: Enemy, _tick: float) -> void: enemy.status_effects.apply_effect("slow", _player))
+	# Web: Implosion - the nova drags everything to its centre.
+	if ability.ability_id == "nova" and ability.has_twist("implosion"):
+		for enemy in _enemies_near(cast_position, radius):
+			var inward := cast_position - enemy.global_position
+			inward.y = 0.0
+			if inward.length() > 0.5:
+				enemy.apply_knockback(inward.normalized() * minf(inward.length() * IMPLOSION_PULL, IMPLOSION_PULL * 4.0))
 	EventBus.ability_cast.emit(_player, ability)
 
 ## Shatter: Resonance adds this much per ailment broken beyond the first;
@@ -574,6 +605,9 @@ func _cast_shatter(ability: Ability, damage_multiplier: float, apply_composure: 
 			var damage_type: Constants.DamageType = entry[2]
 			_shatter_hit(enemy, damage, damage_type, hit["is_critical"], apply_composure)
 			_flash_ring(enemy.global_position + Vector3.UP * 0.1, 1.2, ability, Constants.DAMAGE_TYPE_COLOR.get(damage_type, Color.WHITE))
+			# Web: Lingering Frost - a broken Freeze leaves the target Chilled.
+			if entry[0] == "freeze" and ability.has_twist("lingering_frost") and is_instance_valid(enemy) and enemy.health.is_alive():
+				enemy.status_effects.apply_effect("chill", _player)
 			if ability.has_twist("splinter"):
 				for other in _enemies_by_distance(enemy.global_position, SHATTER_SPLINTER_RADIUS):
 					if other != enemy:
@@ -628,6 +662,9 @@ func _reap(ability: Ability, damage_multiplier: float, apply_composure: bool, di
 		_hit_enemy(ability, enemy, mult, apply_composure, Callable())
 		if harvest:
 			_player.health.heal(_player.health.max_health * REAP_HARVEST_LIFE)
+		# Web: Death's Tithe - each kill pays back part of the cast.
+		if ability.has_twist("deaths_tithe") and not enemy.health.is_alive():
+			_player.mana.restore(ability.get_mana_cost(_player.stat_sheet) * DEATHS_TITHE)
 	_reap_arc(origin, forward, radius, half, direction_sign)
 	if ability.has_twist("second_swing") and direction_sign > 0.0:
 		get_tree().create_timer(REAP_SECOND_SWING_DELAY, false).timeout.connect(func():
@@ -688,6 +725,8 @@ const VARIANTS := [
 	["stormcall", "hellfire_call", Constants.DamageType.FIRE, ["ignite"], false],
 	["entropic_decay", "pale_decay", Constants.DamageType.PALE, ["pallid"], false],
 	["reap", "withering_scythe", Constants.DamageType.ENTROPIC, ["unraveling"], false],
+	["thunder_sweep", "static_field", -1, ["shock"], true],
+	["puncture", "hemorrhage", -1, ["bleed"], true],
 ]
 
 func _web_variant(ability: Ability) -> Ability:
@@ -733,7 +772,26 @@ func _cast_comet(ability: Ability, target: Vector3, damage_multiplier: float, ap
 			impact.fall_duration *= HEAVY_MASS_FALL
 		_player.get_tree().current_scene.add_child(impact)
 		impact.global_position = spots[i]
-		impact.impacted.connect(_damage_area.bind(ability, spots[i], radius, mult, apply_composure, 0.0, Callable()))
+		var spot := spots[i]
+		# Web: Gravity Well - enemies around the spot are dragged in just before it lands.
+		if ability.has_twist("gravity_well"):
+			get_tree().create_timer(impact.fall_duration * 0.5 + 0.12 * i, false).timeout.connect(func() -> void:
+				if not is_instance_valid(_player):
+					return
+				for enemy in _enemies_near(spot, radius * GRAVITY_WELL_REACH):
+					var inward := spot - enemy.global_position
+					inward.y = 0.0
+					if inward.length() > 0.6:
+						enemy.apply_knockback(inward.normalized() * minf(inward.length() * IMPLOSION_PULL, IMPLOSION_PULL * 4.0)))
+		impact.impacted.connect(_damage_area.bind(ability, spot, radius, mult, apply_composure, 0.0, Callable()))
+		# Web: Scorched Earth - the crater burns on, Igniting whoever stands in it.
+		if ability.has_twist("scorched_earth"):
+			var burn := ability.predict_damage(_player.stat_sheet) * mult
+			var crater := radius * 0.75
+			impact.impacted.connect(func() -> void:
+				if is_instance_valid(_player):
+					GroundHazard.spawn(_player.get_tree().current_scene, spot, crater, SCORCHED_EARTH_SECONDS, 0.5, SpellFx.Mark.SCORCH, Color(0.25, 0.08, 0.02, 0.6), Color(1.0, 0.45, 0.1),
+						func(enemy: Enemy, _tick: float) -> void: enemy.status_effects.apply_effect("ignite", _player, burn * SCORCHED_EARTH_IGNITE)))
 		# Staggered a touch so a shower reads as three strikes.
 		get_tree().create_timer(0.12 * i, false).timeout.connect(impact.play.bind(radius, color))
 
@@ -785,6 +843,9 @@ func _hit_enemy(ability: Ability, enemy: Enemy, damage_multiplier: float, apply_
 		var primed := enemy.status_effects.has_effect("ignite") if ability.has_twist("molten_core") else (enemy.status_effects.has_effect("chill") or enemy.status_effects.has_effect("freeze"))
 		if primed:
 			damage *= COMET_CHILLED_BONUS
+	# Web: Backdraft - Inferno hits Ignited enemies harder.
+	if ability.ability_id == "inferno" and ability.has_twist("backdraft") and enemy.status_effects.has_effect("ignite"):
+		damage *= BACKDRAFT_MORE
 	# Web: Deep Freeze - Ice Pulse freezes enemies already Chilled.
 	if ability.ability_id == "ice_pulse" and ability.has_twist("deep_freeze") and enemy.status_effects.has_effect("chill"):
 		enemy.status_effects.apply_effect("freeze", _player, damage)
@@ -822,6 +883,12 @@ func _cast_stormcall(ability: Ability, centre: Vector3, damage_multiplier: float
 	for enemy in outer.slice(0, STORMCALL_BASE_FORKS + core.size()):
 		LightningArc.spawn(scene, centre + Vector3.UP * 0.3, enemy.global_position + Vector3.UP * ARC_HEIGHT, color)
 		_hit_enemy(ability, enemy, damage_multiplier * STORMCALL_FORK_DAMAGE, apply_composure, Callable())
+	# Web: Ground Strike - a second bolt from the sky on another enemy in range.
+	if ability.has_twist("ground_strike") and not outer.is_empty():
+		var second: Enemy = outer.pick_random()
+		LightningArc.spawn(scene, second.global_position + Vector3(randf_range(-1, 1), 9.0, randf_range(-1, 1)), second.global_position + Vector3.UP * 0.2, color)
+		SpellFx.light_pop(scene, second.global_position + Vector3.UP, color, 2.5, 5.0, 0.2)
+		_hit_enemy(ability, second, damage_multiplier, apply_composure, Callable())
 
 func _cast_static_discharge(ability: Ability, centre: Vector3, damage_multiplier: float, apply_composure: bool) -> void:
 	var radius := ability.get_radius(_player.stat_sheet)
@@ -829,6 +896,11 @@ func _cast_static_discharge(ability: Ability, centre: Vector3, damage_multiplier
 	if ability.has_twist("grounded"):
 		radius *= 0.5
 		damage_multiplier *= 2.0
+	# Web: Capacitor - charge builds between casts, up to CAPACITOR_MAX.
+	if ability.has_twist("capacitor"):
+		var since := (Time.get_ticks_msec() - _last_discharge_msec) / 1000.0
+		damage_multiplier *= 1.0 + (CAPACITOR_MAX - 1.0) * clampf(since / CAPACITOR_FULL, 0.0, 1.0)
+		_last_discharge_msec = Time.get_ticks_msec()
 	var jumps := 3 if ability.has_twist("chain_lightning") else 1
 	var chained := {}
 	for enemy in _enemies_by_distance(centre, radius):
@@ -980,6 +1052,15 @@ func _tick_flame_jets() -> void:
 			enemy.stance.apply_attack_stance_damage(damage, _flame_jets_ability.damage_type)
 		EventBus.damage_dealt.emit(_player, enemy, damage, _flame_jets_ability.damage_type, false, hit["is_critical"])
 		_flame_jets_ability.apply_statuses(enemy, _player, damage)
+		# Web: Afterburn - every enemy the jets touch keeps burning.
+		if _flame_jets_ability.has_twist("afterburn"):
+			enemy.status_effects.apply_effect("ignite", _player, hit["final_damage"])
+	# Web: Pressure Valve - a fireball down the stream every PRESSURE_VALVE_EVERY seconds.
+	if _flame_jets_ability.has_twist("pressure_valve"):
+		_flame_jets_valve += FLAME_JETS_TICK_INTERVAL
+		if _flame_jets_valve >= PRESSURE_VALVE_EVERY:
+			_flame_jets_valve = 0.0
+			_fire_spell_ball(_flame_jets_ability, PRESSURE_VALVE_DAMAGE, origin + forward * 0.6, forward)
 
 ## The flame stream: soft additive puffs from just below the view, out along
 ## the aim for FLAME_JETS_RANGE, growing and cooling from white-yellow to red.
@@ -1130,6 +1211,9 @@ func _fire_piercing_bolt(ability: Ability, damage_multiplier: float) -> void:
 		var yaw := _aim_yaw_offset + spread * (i - (count - 1) / 2.0)
 		xform.basis = Basis(Vector3.UP, deg_to_rad(yaw)) * xform.basis
 		_spawn_bolt(ability, damage_multiplier, xform)
+		# Web: Lightning Rod - where the javelin lands, the sky answers.
+		if ability.has_twist("lightning_rod"):
+			_lightning_rod(ability, damage_multiplier, xform)
 
 ## Ground bolts in a full horizontal circle around the player.
 func _fire_radiating_bolts(ability: Ability, damage_multiplier: float) -> void:
@@ -1161,6 +1245,16 @@ func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
 	# Web: Overcharge (fast, short-lived) or Stalking Spark (slow, long-lived).
 	var speed_mult := 1.7 if ability.has_twist("overcharge") else (0.6 if ability.has_twist("stalking_spark") else 1.0)
 	var life_mult := 0.5 if ability.has_twist("overcharge") else (2.0 if ability.has_twist("stalking_spark") else 1.0)
+	# Web: Ball Lightning - the sparks merge into one big, slow ball.
+	var ball := ability.has_twist("ball_lightning")
+	if ball:
+		damage_multiplier *= count * BALL_LIGHTNING_SHARE
+		count = 1
+		speed_mult *= 0.5
+		life_mult *= 1.5
+	var conductor := Callable()
+	if ability.has_twist("conductor"):
+		conductor = func(enemy: Enemy, damage: float) -> void: _conduct(ability, enemy, damage)
 	for i in range(count):
 		var offset_deg := SPARK_SPREAD_DEG * (i - (count - 1) / 2.0)
 		var heading: Vector3 = forward.rotated(Vector3.UP, deg_to_rad(offset_deg))
@@ -1174,6 +1268,10 @@ func _fire_spark(ability: Ability, damage_multiplier: float) -> void:
 		crawler.damage_multiplier = damage_multiplier
 		# Each spark keeps its own hit cooldown per enemy.
 		crawler.hit_key = StringName("spark_%d" % crawler.get_instance_id())
+		crawler.on_hit = conductor
+		if ball:
+			crawler.hit_radius = SparkCrawler.HIT_RADIUS * 2.2
+			crawler.scale = Vector3.ONE * 2.2
 		_player.get_tree().current_scene.add_child(crawler)
 		crawler.global_position = origin
 
@@ -1208,6 +1306,19 @@ func _spawn_bolt(ability: Ability, damage_multiplier: float, xform: Transform3D)
 	if ability.ability_id == "thunder_sweep":
 		bolt.follow_ground = true
 		bolt.max_distance = ability.get_radius(_player.stat_sheet)
+	# Web: Kindling grows the lance through each enemy; Ember Trail burns its path.
+	if ability.ability_id == "cinder_lance":
+		if ability.has_twist("kindling"):
+			bolt.pierce_growth = KINDLING_GROWTH
+		if ability.has_twist("ember_trail"):
+			var burn := ability.predict_damage(_player.stat_sheet) * damage_multiplier * EMBER_TRAIL_DPS
+			bolt.drop_every = EMBER_TRAIL_SPACING
+			bolt.on_drop = func(at: Vector3) -> void:
+				if not is_instance_valid(_player):
+					return
+				var ground := _ground_below(at)
+				GroundHazard.spawn(_player.get_tree().current_scene, ground, EMBER_TRAIL_RADIUS, EMBER_TRAIL_SECONDS, 0.25, SpellFx.Mark.SCORCH, Color(0.25, 0.08, 0.02, 0.5), Color(1.0, 0.45, 0.1),
+					func(enemy: Enemy, tick: float) -> void: enemy.take_dot(burn, tick, Constants.DamageType.FIRE, _player, "ember_trail"))
 	# Configured before entering the tree so _ready() colours it by damage type.
 	_player.get_tree().current_scene.add_child(bolt)
 	bolt.global_transform = xform
@@ -1328,17 +1439,19 @@ func _warcry(ability: Ability, damage_multiplier: float) -> void:
 	var radius := ability.get_radius(_player.stat_sheet)
 	var duration_mult := ability.get_duration_multiplier(_player.stat_sheet)
 	_flash_ring(centre, radius, ability, WARCRY_COLOR)
+	# Web: War Drums - every enemy caught adds to the cry, up to WAR_DRUMS_CAP.
+	var drums := mini(_enemies_near(centre, radius).size(), WAR_DRUMS_CAP) if ability.has_twist("war_drums") else 0
 	match ability.ability_id:
 		"battle_cry":
 			var more := BATTLE_CRY_MORE_DAMAGE + (ability.get_effective_level(_player.stat_sheet) - 1)
-			_player.unique_effects.add_timed_more(&"battle_cry", more, BATTLE_CRY_DURATION * duration_mult)
+			_player.unique_effects.add_timed_more(&"battle_cry", more, BATTLE_CRY_DURATION * duration_mult + drums)
 			if ability.has_twist("rallying_cry"):
 				_player.health.heal(_player.health.max_health * 0.05)
 		"intimidating_shout":
 			for enemy in _enemies_near(centre, radius):
-				enemy.status_effects.apply_timed_effect("intimidated", INTIMIDATE_DURATION * duration_mult)
+				enemy.status_effects.apply_timed_effect("intimidated", INTIMIDATE_DURATION * duration_mult + drums)
 		"seismic_cry":
-			_damage_area(ability, centre, radius, damage_multiplier, true, 0.0, Callable())
+			_damage_area(ability, centre, radius, damage_multiplier * (1.0 + WAR_DRUMS_SEISMIC * drums), true, 0.0, Callable())
 			for enemy in _enemies_near(centre, radius):
 				var away := enemy.global_position - centre
 				away.y = 0.0
@@ -1381,14 +1494,17 @@ func on_melee_swing() -> void:
 	if ability == null:
 		return
 	# Each trigger drains part of the cast cost; it switches off when Mana can't pay.
-	var drain := ability.get_mana_cost(_player.stat_sheet) * BOOMING_BLADE_TRIGGER_COST
+	# Web: Thunderclap - every THUNDERCLAP_EVERY-th trigger is free, with twice the bolts.
+	_booming_triggers += 1
+	var clap := ability.has_twist("thunderclap") and _booming_triggers % THUNDERCLAP_EVERY == 0
+	var drain := 0.0 if clap else ability.get_mana_cost(_player.stat_sheet) * BOOMING_BLADE_TRIGGER_COST
 	if _player.mana.current_mana < drain:
 		GameState.booming_blade_on = false
 		EventBus.ability_cast_failed.emit(_player, ability, "Not enough Mana")
 		return
 	_player.mana.spend(drain)
 	_booming_blade_cd = BOOMING_BLADE_COOLDOWN
-	var count := booming_blade_bolt_count(ability, _player.stat_sheet)
+	var count := booming_blade_bolt_count(ability, _player.stat_sheet) * (2 if clap else 1)
 	var spread := BOOMING_BLADE_SPREAD_DEG
 	# Web: Arc Blade - two more bolts, fanned wide.
 	if ability.has_twist("arc_blade"):
@@ -1406,6 +1522,8 @@ func on_melee_swing() -> void:
 		crawler.range_m = ability.get_radius(_player.stat_sheet)
 		crawler.hit_key = &"booming_blade"
 		crawler.hit_interval = BOOMING_BLADE_HIT_INTERVAL
+		if ability.has_twist("resonant_edge"):
+			crawler.shocked_more = RESONANT_EDGE_MORE
 		crawler.ability = ability
 		crawler.stat_sheet = _player.stat_sheet
 		crawler.source = _player
@@ -1518,8 +1636,17 @@ func _on_enemy_died(node: Node) -> void:
 		var arach := _resolve_ability_by_id("invocation_of_arach")
 		for i in (2 if arach and arach.has_twist("brood") else 1):  # Web: Brood
 			_summon_spider(dead.global_position + Vector3(i * 0.6, 0.0, 0.0))
+	if dead and dead.status_effects and is_instance_valid(_player):
+		_on_death_twists(dead)
 	if dead == null or dead.status_effects == null or not dead.status_effects.has_effect("linger") or not is_instance_valid(_player):
 		return
+	# Web: Haunting - the Lingering dead burst with Pale.
+	if ability_twist_on("linger", "haunting"):
+		var burst := dead.status_effects.get_linger_dps() * LINGER_DURATION * HAUNTING_SHARE
+		for near in _enemies_near(dead.global_position, HAUNTING_RADIUS):
+			if near != dead and near.take_damage(burst, Constants.DamageType.PALE, true):
+				EventBus.damage_dealt.emit(_player, near, burst, Constants.DamageType.PALE, false, false)
+		_flash_ring(dead.global_position, HAUNTING_RADIUS, _resolve_ability_by_id("linger"), PALE_COLOR)
 	var ability := _resolve_ability_by_id("linger")
 	var radius := ability.radius if ability else 10.0
 	var duration := LINGER_DURATION * (ability.get_duration_multiplier(_player.stat_sheet) if ability else 1.0)
@@ -1558,6 +1685,7 @@ var _thread_multiplier: float = 1.0
 var _thread_remaining: float = 0.0
 var _thread_ticker: float = 0.0
 var _thread_beam: Node3D
+var _thread_anchor := Vector3.ZERO
 
 func _start_pale_thread(ability: Ability, damage_multiplier: float) -> void:
 	# A weaker second trigger doesn't replace a full-strength thread.
@@ -1568,6 +1696,7 @@ func _start_pale_thread(ability: Ability, damage_multiplier: float) -> void:
 		return
 	_thread_ability = ability
 	_thread_target = target
+	_thread_anchor = target.global_position
 	_thread_multiplier = damage_multiplier
 	_thread_remaining = PALE_THREAD_DURATION * ability.get_duration_multiplier(_player.stat_sheet)
 	_thread_ticker = PALE_THREAD_TICK
@@ -1584,6 +1713,13 @@ func _tick_pale_thread(delta: float) -> void:
 		return
 	_thread_remaining -= delta
 	_thread_ticker -= delta
+	# Web: Tether - the threaded enemy can't stray from where it was caught.
+	if _thread_ability.has_twist("tether"):
+		var off := _thread_target.global_position - _thread_anchor
+		off.y = 0.0
+		if off.length() > TETHER_LENGTH:
+			var held := _thread_anchor + off.normalized() * TETHER_LENGTH
+			_thread_target.global_position = Vector3(held.x, _thread_target.global_position.y, held.z)
 	if _thread_ticker <= 0.0:
 		_thread_ticker += PALE_THREAD_TICK
 		var hit := _thread_ability.roll_damage(_player.stat_sheet)
@@ -2025,6 +2161,10 @@ func _set_toggle(id: String, on: bool) -> void:
 		if id == "thunderstorm":
 			_storm_timer = 0.3  # the first strike comes almost at once
 	elif not on:
+		# Web: Surge - switching Innervate off gives back a share of Mana.
+		if id == "innervate" and GameState.toggled_spells.has(id) and _innervate_surge_cd <= 0.0 and _twist("innervate", "surge"):
+			_innervate_surge_cd = SURGE_COOLDOWN
+			_player.mana.restore(_player.mana.max_mana * SURGE_SHARE)
 		GameState.toggled_spells.erase(id)
 	if id == "inner_power" or id == "innervate":
 		_player._apply_derived_stats()
@@ -2048,6 +2188,12 @@ func _tick_toggles(delta: float) -> void:
 	sheet.inner_power_on = GameState.toggled_spells.has("inner_power")
 	var inner := _resolve_ability_by_id("inner_power")
 	sheet.inner_power_more = StatSheet.INNER_POWER_AETHERIC_MORE * (2.0 if inner and inner.has_twist("still_waters") else 1.0)
+	# Web: Overflow - at full Life, Inner Power's regeneration tops up Ward.
+	if sheet.inner_power_on and inner and inner.has_twist("overflow") and _player.health.current_health >= _player.health.max_health:
+		_player.ward.restore(_player.health.regen_per_second * OVERFLOW_SHARE * delta)
+	var innervate := _resolve_ability_by_id("innervate")
+	sheet.spell_cost_reduction = WELLSPRING_REDUCTION if GameState.toggled_spells.has("innervate") and innervate and innervate.has_twist("wellspring") else 0.0
+	_innervate_surge_cd = maxf(_innervate_surge_cd - delta, 0.0)
 	_tick_resist_and_enchant(delta)
 	_tick_thunderstorm(delta)
 
@@ -2070,6 +2216,9 @@ func _tick_thunderstorm(delta: float) -> void:
 		_storm_drench_timer = STORM_DRENCH_PULSE
 		for enemy in _enemies_near(_player.global_position, radius):
 			enemy.status_effects.apply_timed_effect("drenched", STORM_DRENCH_PULSE + 0.5)
+			# Web: Downpour - the rain slows them too.
+			if ability.has_twist("downpour"):
+				enemy.status_effects.apply_effect("slow", _player)
 	_storm_timer -= delta
 	if _storm_timer > 0.0:
 		return
@@ -2082,7 +2231,13 @@ func _tick_thunderstorm(delta: float) -> void:
 	_player.mana.spend(drain)
 	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
 	var scene := _player.get_tree().current_scene
-	for enemy in _enemies_near(_player.global_position, radius):
+	var struck := _enemies_near(_player.global_position, radius)
+	# Web: Eye of the Cloud - the enemy at your crosshair is struck twice.
+	if ability.has_twist("eye_of_the_cloud"):
+		var marked := _crosshair_enemy()
+		if marked and struck.has(marked):
+			struck.append(marked)
+	for enemy in struck:
 		var top := _storm_cloud.bolt_origin()
 		LightningArc.spawn(scene, top, enemy.global_position + Vector3.UP * 0.2, color)
 		SpellFx.light_pop(scene, enemy.global_position + Vector3.UP, color, 2.5, 5.0, 0.2)
@@ -2130,6 +2285,15 @@ func _cast_manasaber(ability: Ability, damage_multiplier: float, apply_composure
 	var scene := _player.get_tree().current_scene
 	var tint: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE).lightened(0.35)
 	SpellFx.light_pop(scene, origin + forward * radius * 0.6 + Vector3.UP, tint, 3.0, radius * 1.4, 0.3)
+	# Web: Echo of Will - a fainter slash follows the first along the same arc.
+	if ability.has_twist("echo_of_will") and not _saber_return:
+		var spent_echo := spent
+		get_tree().create_timer(ECHO_OF_WILL_DELAY, false).timeout.connect(func():
+			if is_instance_valid(_player):
+				_saber_return = true
+				_manasaber_spent = spent_echo
+				_cast_manasaber(ability, damage_multiplier * ECHO_OF_WILL_DAMAGE, apply_composure)
+				_saber_return = false)
 	# Web: Twin Blade sweeps back for half damage (the return doesn't repeat).
 	if ability.has_twist("twin_blade") and not _saber_return:
 		var spent_now := spent
@@ -2162,7 +2326,9 @@ func _cast_puncture(ability: Ability, damage_multiplier: float, apply_composure:
 	var tip := origin + forward * reach * 0.8 + Vector3.UP
 	for target in targets:
 		tip = _body_centre(target)
-		_hit_enemy(ability, target, damage_multiplier, apply_composure, Callable())
+		# Web: Riposte Point - a Staggered enemy takes the point twice as hard.
+		var point := RIPOSTE_POINT_MORE if ability.has_twist("riposte_point") and target.is_staggered() else 1.0
+		_hit_enemy(ability, target, damage_multiplier * point, apply_composure, Callable())
 		target.status_effects.apply_timed_effect("punctured", PUNCTURE_DURATION * ability.get_duration_multiplier(_player.stat_sheet))
 	# The spike leaves from the weapon's point, wherever the thrust has it.
 	var start := _player.arm_rig.weapon_tip_position() if _player.arm_rig else _player.camera.global_transform * Vector3(0.2, -0.3, -0.5)
@@ -2206,8 +2372,16 @@ func _summon_spider(at: Vector3) -> void:
 	if ability:
 		SpiderMinion.summon(_player.get_tree().current_scene, _player, ability, at)
 
-func _on_damage_dealt(source: Node, target: Node, _amount: float, _type: int, _riposte: bool, _crit: bool) -> void:
-	if source != _player or _arach_cd > 0.0 or StatusEffectComponent.emitting_dot:
+func _on_damage_dealt(source: Node, target: Node, amount: float, _type: int, _riposte: bool, crit: bool) -> void:
+	if source != _player or StatusEffectComponent.emitting_dot:
+		return
+	# Web: Kindle on Crit - with Enchantment on, crits inflict its element's ailment.
+	if crit and target is Enemy and (target as Enemy).health.is_alive() and GameState.toggled_spells.has("enchantment") and _twist("enchantment", "kindle_on_crit"):
+		for t: int in _player.stat_sheet.enchant_conversion:
+			var ailment: String = KINDLE_AILMENTS.get(t, "")
+			if ailment != "":
+				(target as Enemy).status_effects.apply_effect(ailment, _player, amount)
+	if _arach_cd > 0.0:
 		return
 	var enemy := target as Enemy
 	if enemy == null or enemy.status_effects == null:
@@ -2242,6 +2416,10 @@ func _cast_blizzard(ability: Ability, cast_position: Vector3, damage_multiplier:
 				return
 			var at := enemy.global_position
 			_hit_enemy(ability, enemy, damage_multiplier, apply_composure, Callable())
+			# Web: Hailstones - every HAILSTONE_EVERY-th icicle Freezes.
+			_blizzard_icicles += 1
+			if ability.has_twist("hailstones") and _blizzard_icicles % HAILSTONE_EVERY == 0 and is_instance_valid(enemy) and enemy.health.is_alive():
+				enemy.status_effects.apply_effect("freeze", _player, ability.predict_damage(_player.stat_sheet))
 			# Web: Whiteout chills around each landing.
 			if ability.has_twist("whiteout"):
 				for near in _enemies_near(at, BLIZZARD_WHITEOUT_RADIUS):
@@ -2296,6 +2474,11 @@ func _tick_resist_and_enchant(delta: float) -> void:
 	sheet.spell_max_resistance = max_res
 	var enchant: Ability = _resolve_ability_by_id("enchantment") if GameState.toggled_spells.has("enchantment") else null
 	sheet.enchant_conversion = enchant_conversion(enchant, sheet) if enchant else {}
+	# Web: Tempered Edge - more damage of the element(s) Enchantment converts to.
+	sheet.enchant_more = {}
+	if enchant and enchant.has_twist("tempered_edge"):
+		for t: int in sheet.enchant_conversion:
+			sheet.enchant_more[t] = TEMPERED_EDGE_MORE
 
 ## Enchantment's share of Physical damage converted to Elemental at its level.
 static func enchant_percent(ability: Ability, stat_sheet: StatSheet) -> float:
@@ -2384,3 +2567,244 @@ func innervate_regen_multiplier() -> float:
 		return 1.0
 	var ability := _resolve_ability_by_id("innervate")
 	return 1.0 + innervate_regen_percent(ability, _player.stat_sheet) / 100.0 if ability else 1.0
+
+## ---- Web twists (2026-10-29) ----------------------------------------------
+
+const GRAVITY_WELL_REACH := 1.6
+const IMPLOSION_PULL := 2.5
+const SCORCHED_EARTH_SECONDS := 3.0
+const SCORCHED_EARTH_IGNITE := 0.5
+const KINDLING_GROWTH := 0.15
+const EMBER_TRAIL_SPACING := 1.5
+const EMBER_TRAIL_RADIUS := 1.1
+const EMBER_TRAIL_SECONDS := 2.0
+const EMBER_TRAIL_DPS := 0.25
+const BACKDRAFT_MORE := 1.5
+const HEAT_SHIMMER_SECONDS := 4.0
+const HEAT_SHIMMER_EVASION := 1.25
+const PRESSURE_VALVE_EVERY := 2.0
+const PRESSURE_VALVE_DAMAGE := 2.0
+const PERMAFROST_SECONDS := 3.0
+const EYE_OF_THE_STORM_TAKEN := 0.85
+const HAILSTONE_EVERY := 5
+const COLD_SNAP_COOLDOWN := 0.5
+const BALL_LIGHTNING_SHARE := 0.8
+const CONDUCTOR_RANGE := 5.0
+const CONDUCTOR_SHARE := 0.5
+const LIGHTNING_ROD_DELAY := 1.0
+const LIGHTNING_ROD_RADIUS := 3.0
+const LIGHTNING_ROD_DAMAGE := 0.8
+const CAPACITOR_MAX := 2.0
+const CAPACITOR_FULL := 4.0
+const RESONANT_EDGE_MORE := 1.4
+const THUNDERCLAP_EVERY := 4
+const WHITE_HOLE_DAMAGE := 2.0
+const WHITE_HOLE_THROW := 14.0
+const ROT_SPREAD_WINDOW := 4.0
+const ROT_SPREAD_RANGE := 8.0
+const ROT_SPREAD_DAMAGE := 0.5
+const HAUNTING_SHARE := 0.25
+const HAUNTING_RADIUS := 3.0
+const TETHER_LENGTH := 6.0
+const DEATHS_TITHE := 0.25
+const COLD_COMFORT_WARD := 0.02
+const ABSORPTION_SHARE := 0.05
+const OVERFLOW_SHARE := 0.5
+const WELLSPRING_REDUCTION := 0.1
+const SURGE_SHARE := 0.2
+const SURGE_COOLDOWN := 30.0
+const ECHO_OF_WILL_DELAY := 0.3
+const ECHO_OF_WILL_DAMAGE := 0.4
+const RIPOSTE_POINT_MORE := 2.0
+const WAR_DRUMS_CAP := 5
+const WAR_DRUMS_SEISMIC := 0.1
+const AFTERIMAGE_RADIUS := 5.0
+const AFTERIMAGE_DAZE := 1.0
+const CLEANSING_FIRE_SHARE := 0.2
+const CLEANSING_FIRE_RADIUS := 4.0
+const CONTAGIOUS_HEX_RANGE := 8.0
+const TEMPERED_EDGE_MORE := 1.1
+## Kindle on Crit: the ailment each converted element inflicts.
+const KINDLE_AILMENTS := {Constants.DamageType.FIRE: "ignite", Constants.DamageType.COLD: "chill", Constants.DamageType.LIGHTNING: "shock"}
+## Cleansing Fire: the element each removed ailment bursts in.
+const CLEANSE_TYPES := {
+	"ignite": Constants.DamageType.FIRE, "scorch": Constants.DamageType.FIRE,
+	"chill": Constants.DamageType.COLD, "freeze": Constants.DamageType.COLD,
+	"shock": Constants.DamageType.LIGHTNING, "electrocute": Constants.DamageType.LIGHTNING,
+	"bleed": Constants.DamageType.KINETIC, "unraveling": Constants.DamageType.ENTROPIC,
+	"pallid": Constants.DamageType.PALE, "aetherburn": Constants.DamageType.AETHERIC,
+}
+## Absorption: which Resistance spell soaks which damage types.
+const ABSORPTION_TYPES := {
+	"triangulation": [Constants.DamageType.FIRE, Constants.DamageType.COLD, Constants.DamageType.LIGHTNING],
+	"dark_arts": [Constants.DamageType.AETHERIC, Constants.DamageType.ENTROPIC, Constants.DamageType.PALE],
+}
+
+var _heat_shimmer_until := 0
+var _flame_jets_valve := 0.0
+var _blizzard_icicles := 0
+var _cold_snap_cd_msec := 0
+var _last_discharge_msec := -100000
+var _booming_triggers := 0
+var _innervate_surge_cd := 0.0
+var _hair_trigger_ready := false
+
+func ability_twist_on(ability_id: String, twist: String) -> bool:
+	return _twist(ability_id, twist)
+
+## Heat Shimmer: Inferno grants Evasion for a few seconds after it goes off.
+func _heat_shimmer(ability: Ability) -> void:
+	if ability.has_twist("heat_shimmer"):
+		_heat_shimmer_until = Time.get_ticks_msec() + int(HEAT_SHIMMER_SECONDS * 1000.0)
+
+## Player.take_damage(): Heat Shimmer's Evasion.
+func evasion_multiplier() -> float:
+	return HEAT_SHIMMER_EVASION if Time.get_ticks_msec() < _heat_shimmer_until else 1.0
+
+## Player.take_damage(): Eye of the Storm, standing inside your own Blizzard.
+func damage_taken_multiplier() -> float:
+	var blizzard := _resolve_ability_by_id("blizzard")
+	if blizzard == null or not blizzard.has_twist("eye_of_the_storm"):
+		return 1.0
+	for node in get_tree().get_nodes_in_group(_limit_group(blizzard)):
+		var field := node as BlizzardField
+		if field and not field.is_queued_for_deletion():
+			var flat := field.global_position - _player.global_position
+			flat.y = 0.0
+			if flat.length() <= field._radius:
+				return EYE_OF_THE_STORM_TAKEN
+	return 1.0
+
+## Player._take_damage_single(): Absorption turns resisted damage into Mana.
+func on_resisted(damage_type: int, resisted: float) -> void:
+	for id: String in ABSORPTION_TYPES:
+		if GameState.toggled_spells.has(id) and (ABSORPTION_TYPES[id] as Array).has(damage_type) and _twist(id, "absorption"):
+			_player.mana.restore(resisted * ABSORPTION_SHARE)
+			return
+
+## PlayerRangedAttack: Hair Trigger's guaranteed crit, used up by the shot.
+func consume_hair_trigger() -> bool:
+	var ready := _hair_trigger_ready and GameState.toggled_spells.has("charged_reflexes")
+	_hair_trigger_ready = false
+	return ready
+
+## Cold Snap: a block or parry while Frost Armor holds chills everything near.
+func _cold_snap() -> void:
+	if not has_frost_armor() or _frost_armor_ability == null or not _frost_armor_ability.has_twist("cold_snap"):
+		return
+	if Time.get_ticks_msec() < _cold_snap_cd_msec:
+		return
+	_cold_snap_cd_msec = Time.get_ticks_msec() + int(COLD_SNAP_COOLDOWN * 1000.0)
+	var radius := _frost_armor_ability.get_radius(_player.stat_sheet)
+	for enemy in _enemies_near(_player.global_position, radius):
+		enemy.status_effects.apply_effect("chill", _player)
+	_flash_ring(_player.global_position, radius, _frost_armor_ability)
+
+## Pressure Valve: a fireball down the line, as a spell projectile.
+func _fire_spell_ball(ability: Ability, damage: float, from: Vector3, dir: Vector3) -> void:
+	var hit := ability.roll_damage(_player.stat_sheet)
+	var shot: Projectile = BLACK_HOLE_NOVA_SCENE.instantiate()
+	shot.damage_amount = hit["final_damage"] * damage
+	shot.is_critical = hit["is_critical"]
+	shot.crit_multiplier = hit["crit_multiplier"]
+	shot.damage_type = ability.damage_type
+	shot.source = _player
+	shot.speed = 26.0
+	shot.lifetime = 1.0
+	shot.is_spell_projectile = true
+	shot.blast_radius = 2.0
+	_player.get_tree().current_scene.add_child(shot)
+	shot.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), from)
+	shot.scale = Vector3.ONE * 2.0
+
+## Conductor: a spark's hit jumps to the nearest other enemy for a share.
+func _conduct(ability: Ability, from_enemy: Enemy, damage: float) -> void:
+	if not is_instance_valid(from_enemy):
+		return
+	for next in _enemies_by_distance(from_enemy.global_position, CONDUCTOR_RANGE):
+		if next == from_enemy:
+			continue
+		var jump := damage * CONDUCTOR_SHARE
+		LightningArc.spawn(_player.get_tree().current_scene, from_enemy.global_position + Vector3.UP * ARC_HEIGHT, next.global_position + Vector3.UP * ARC_HEIGHT, Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE))
+		if next.take_damage(jump, ability.damage_type, true):
+			EventBus.damage_dealt.emit(_player, next, jump, ability.damage_type, false, false)
+		return
+
+## Lightning Rod: where the javelin will land along its line, a bolt falls
+## LIGHTNING_ROD_DELAY after it arrives.
+func _lightning_rod(ability: Ability, damage_multiplier: float, xform: Transform3D) -> void:
+	var dir := -xform.basis.z
+	var reach := 60.0
+	var query := PhysicsRayQueryParameters3D.create(xform.origin, xform.origin + dir * reach, 1)
+	query.exclude = [_player.get_rid()]
+	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
+	var landing: Vector3 = hit["position"] if not hit.is_empty() else xform.origin + dir * reach
+	var speed: float = BOLT_SPEEDS.get(ability.ability_id, 30.0)
+	var travel := xform.origin.distance_to(landing) / maxf(speed * ability.get_projectile_speed_multiplier(_player.stat_sheet), 1.0)
+	get_tree().create_timer(travel + LIGHTNING_ROD_DELAY, false).timeout.connect(func() -> void:
+		if not is_instance_valid(_player):
+			return
+		var ground := _ground_below(landing + Vector3.UP * 0.5)
+		var scene := _player.get_tree().current_scene
+		var color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+		LightningArc.spawn(scene, ground + Vector3(randf_range(-0.8, 0.8), 9.0, randf_range(-0.8, 0.8)), ground + Vector3.UP * 0.1, color)
+		SpellFx.light_pop(scene, ground + Vector3.UP, color, 3.0, 6.0, 0.25)
+		_flash_ring(ground, LIGHTNING_ROD_RADIUS, ability)
+		_damage_area(ability, ground, LIGHTNING_ROD_RADIUS, damage_multiplier * LIGHTNING_ROD_DAMAGE, true, 0.0, Callable()))
+
+## The floor under a point (the point itself over a drop).
+func _ground_below(at: Vector3) -> Vector3:
+	var query := PhysicsRayQueryParameters3D.create(at + Vector3.UP * 0.5, at + Vector3.DOWN * 6.0, 1)
+	var hit := _player.get_world_3d().direct_space_state.intersect_ray(query)
+	return hit["position"] if not hit.is_empty() else at
+
+## White Hole: the collapse throws every enemy in reach outward and hits them.
+func white_hole(ability: Ability, centre: Vector3, radius: float) -> void:
+	if not is_instance_valid(_player):
+		return
+	_damage_area(ability, centre, radius, WHITE_HOLE_DAMAGE, true, 0.0, Callable())
+	for enemy in _enemies_near(centre, radius):
+		var away := enemy.global_position - centre
+		away.y = 0.0
+		enemy.apply_knockback((away.normalized() if away.length() > 0.1 else Vector3.FORWARD) * WHITE_HOLE_THROW)
+	SpellFx.flash(_player.get_tree().current_scene, centre + Vector3.UP, Color(1.4, 1.3, 1.6), radius * 0.6, 0.3)
+	_flash_ring(centre, radius, ability, Color(0.95, 0.9, 1.0))
+
+## Cleansing Fire: every ailment Purge removes bursts in its element around you.
+func _cleansing_fire(ability: Ability) -> void:
+	var amount := _player.health.max_health * CLEANSING_FIRE_SHARE
+	for effect_id in _player.status_effects.active_effects():
+		var type: int = CLEANSE_TYPES.get(effect_id, -1)
+		if type < 0:
+			continue
+		for enemy in _enemies_near(_player.global_position, CLEANSING_FIRE_RADIUS):
+			if enemy.take_damage(amount, type as Constants.DamageType, true):
+				EventBus.damage_dealt.emit(_player, enemy, amount, type, false, false)
+		_flash_ring(_player.global_position, CLEANSING_FIRE_RADIUS, ability, Constants.DAMAGE_TYPE_COLOR.get(type, Color.WHITE))
+
+## Kill-triggered twists: Cold Comfort, Rot Spreads, Contagious Hex.
+func _on_death_twists(dead: Enemy) -> void:
+	if GameState.death_shroud_on and _twist("death_shroud", "cold_comfort"):
+		var shroud := _resolve_ability_by_id("death_shroud")
+		if dead.distance_to_body(_player.global_position) <= shroud.get_radius(_player.stat_sheet):
+			_player.ward.restore(_player.ward.max_ward * COLD_COMFORT_WARD)
+	if int(dead.get_meta(&"rot_until", 0)) > Time.get_ticks_msec():
+		dead.remove_meta(&"rot_until")
+		var decay := _resolve_ability_by_id("entropic_decay")
+		if decay:
+			for next in _enemies_by_distance(dead.global_position, ROT_SPREAD_RANGE):
+				if next == dead:
+					continue
+				_pale_flicker(_body_centre(dead), _body_centre(next))
+				_hit_enemy(_web_variant(decay), next, ROT_SPREAD_DAMAGE, true, func(e: Enemy) -> void: e.set_meta(&"rot_until", Time.get_ticks_msec() + int(ROT_SPREAD_WINDOW * 1000.0)))
+				break
+	for curse in dead.status_effects.get_curses():
+		if not _twist(curse, "contagious_hex"):
+			continue
+		var strength := dead.status_effects.get_magnitude(curse)
+		var left := maxf(dead.status_effects.remaining(curse), 2.0)
+		for next in _enemies_by_distance(dead.global_position, CONTAGIOUS_HEX_RANGE):
+			if next != dead and not next.status_effects.has_effect(curse):
+				next.status_effects.apply_curse(curse, _player, left, strength)
+				_pale_flicker(_body_centre(dead), _body_centre(next))
+				break

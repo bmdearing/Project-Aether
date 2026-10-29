@@ -75,6 +75,8 @@ func _physics_process(delta: float) -> void:
 	var scorch_now := _ticker <= 0.0
 	if scorch_now:
 		_ticker += TICK_INTERVAL
+	if _ability.has_twist("firebreak") or _ability.has_twist("searing_gate"):
+		_check_projectiles()
 	# TICK_DAMAGE_PERCENT of an expected hit per TICK_INTERVAL, dealt continuously.
 	var dps := _ability.predict_damage(_stat_sheet) * TICK_DAMAGE_PERCENT / TICK_INTERVAL
 	for enemy in _inside.duplicate():
@@ -187,3 +189,24 @@ func _animate() -> void:
 	if left < GUTTER:
 		for p in _emitters:
 			p.emitting = false
+
+## Web: Firebreak burns enemy projectiles crossing the wall; Searing Gate
+## gives your own SEARING_MORE damage, once each.
+const SEARING_MORE := 1.3
+
+func _check_projectiles() -> void:
+	for node in get_tree().get_nodes_in_group("projectile"):
+		var shot := node as Projectile
+		if shot == null or shot.is_queued_for_deletion() or shot.cosmetic:
+			continue
+		var local := to_local(shot.global_position)
+		if absf(local.x) > _half_width or absf(local.z) > WALL_THICKNESS or local.y < -0.2 or local.y > WALL_HEIGHT + 0.3:
+			continue
+		var mine := shot.source == _source
+		if not mine and _ability.has_twist("firebreak"):
+			SpellFx.burst(get_parent(), shot.global_position, Color(1.0, 0.55, 0.15), 10, Vector2(1.0, 2.5), 0.3)
+			shot.queue_free()
+		elif mine and _ability.has_twist("searing_gate") and not shot.has_meta(&"seared"):
+			shot.set_meta(&"seared", true)
+			shot.damage_amount *= SEARING_MORE
+			SpellFx.burst(get_parent(), shot.global_position, Color(1.0, 0.6, 0.2), 6, Vector2(0.5, 1.5), 0.25)

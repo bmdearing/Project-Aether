@@ -12,6 +12,7 @@ const SPEED := 7.0
 const BITE_RANGE := 1.3
 const BASE_ATTACK_INTERVAL := 0.7
 const BASE_DURATION := 15.0
+const VENOM_SHARE := 0.3
 ## Searches this far from the player for prey.
 const HUNT_RANGE := 25.0
 const IDLE_RADIUS := 2.5
@@ -227,6 +228,12 @@ func _bite(enemy: Enemy) -> void:
 	var damage: float = float(hit["final_damage"]) * (1.0 + player.stat_sheet.get_misc_bonus("minion_damage") / 100.0)
 	if not enemy.take_damage(damage, ability.damage_type, true):
 		return
+	# Web: Venom - bites Unravel and sting for VENOM_SHARE more as Entropic.
+	if ability.has_twist("venom") and enemy.health.is_alive():
+		enemy.status_effects.apply_effect("unraveling", player)
+		var sting := damage * VENOM_SHARE
+		if enemy.take_damage(sting, Constants.DamageType.ENTROPIC, true):
+			EventBus.damage_dealt.emit(player, enemy, sting, Constants.DamageType.ENTROPIC, false, false)
 	EventBus.damage_dealt.emit(player, enemy, damage, ability.damage_type, false, hit["is_critical"])
 	_body.position.z = -0.18
 	create_tween().tween_property(_body, "position:z", 0.0, 0.2)

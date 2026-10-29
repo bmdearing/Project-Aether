@@ -21,6 +21,11 @@ var player: Player
 ## More-damage stacks from the Ward it consumed.
 var stacks: int = 0
 var damage_share: float = 1.0
+## Possession: a wraith raised from a kill, and whether this one has raised one.
+const POSSESSED_LIFE := 6.0
+const POSSESSED_SHARE := 0.6
+var possessed := false
+var _raised := false
 
 var _life: float = BASE_DURATION
 var _attack_timer: float = 0.0
@@ -174,6 +179,14 @@ func _strike(enemy: Enemy) -> void:
 		return
 	EventBus.damage_dealt.emit(player, enemy, damage, ability.damage_type, false, hit["is_critical"])
 	ability.apply_statuses(enemy, player, damage)
+	# Web: Possession - the first enemy this wraith kills rises as a wraith
+	# of its own for POSSESSED_LIFE seconds (they don't raise others).
+	if not enemy.health.is_alive() and not possessed and not _raised and ability.has_twist("possession"):
+		_raised = true
+		var risen := WraithMinion.summon(get_parent(), player, ability, stacks, damage_share * POSSESSED_SHARE, Vector3.ZERO)
+		risen.possessed = true
+		risen._life = POSSESSED_LIFE
+		risen.global_position = enemy.global_position + Vector3.UP * HOVER
 	_body.position.z = -0.25  # a lunge the next frames ease back from
 	create_tween().tween_property(_body, "position:z", 0.0, 0.25)
 

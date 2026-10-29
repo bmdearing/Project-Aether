@@ -545,6 +545,9 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 	var original_crit_bonus := _player.stat_sheet.finesse_crit_bonus
 	if st and st.crit_chance_increase > 0.0:
 		_player.stat_sheet.finesse_crit_bonus = (1.0 + original_crit_bonus) * (1.0 + st.crit_chance_increase) - 1.0
+	# Charged Reflexes' Hair Trigger: the first shot after a reload always crits.
+	if _player.ability_cast and _player.ability_cast.consume_hair_trigger():
+		_player.stat_sheet.finesse_crit_bonus = 1000.0
 
 	var cosmetic := false
 	if st and st.rain_radius > 0.0 and _player.weapon_stance.is_ready(st):

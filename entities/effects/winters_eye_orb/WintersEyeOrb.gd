@@ -45,6 +45,9 @@ func _physics_process(delta: float) -> void:
 	if _elapsed >= _duration:
 		_detonate()
 		return
+	# Web: Watchful Eye - it keeps turning toward the nearest enemy.
+	if _ability and _ability.has_twist("watchful_eye"):
+		_track_nearest()
 	# Travels to the target, then hovers there until its duration ends.
 	var to_target: Vector3 = _target - global_position
 	var dist := to_target.length()
@@ -185,3 +188,21 @@ func _detonation_fx(radius: float) -> void:
 	SpellFx.shards(parent, global_position, ICE_CORE, 22, Vector2(4.0, 8.0), Vector2(0.06, 0.15), 0.8, 180.0)
 	SpellFx.ground_mark(parent, ground, radius * 0.8, SpellFx.Mark.FROST, Color(0.7, 0.85, 0.95, 0.35), Color(0.85, 0.95, 1.0, 0.8), 3.0, 1.5)
 	SpellCastFx.mist_ring(parent, ground, radius, Color(ICE, 0.5))
+
+## Watchful Eye: the target point moves to the nearest living enemy within
+## WATCH_RANGE of the orb, at the orb's own height.
+const WATCH_RANGE := 12.0
+
+func _track_nearest() -> void:
+	var best: Enemy = null
+	var best_d := WATCH_RANGE
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var e := node as Enemy
+		if e == null or not e.health.is_alive():
+			continue
+		var d := e.global_position.distance_to(global_position)
+		if d < best_d:
+			best_d = d
+			best = e
+	if best:
+		_target = Vector3(best.global_position.x, _target.y, best.global_position.z)

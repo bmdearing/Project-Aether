@@ -220,7 +220,8 @@ func get_mana_cost(stat_sheet: StatSheet = null) -> float:
 ## growth (also scales aura drains).
 func get_mana_cost_multiplier(stat_sheet: StatSheet = null) -> float:
 	var reduction := stat_sheet.get_misc_bonus("mana_cost_reduction") / 100.0 if stat_sheet else 0.0
-	return (1.0 - clampf(reduction, -1.0, 0.75)) * (1.0 - clampf(web_value(SkillWeb.MANA_COST) / 100.0, 0.0, 0.6))  # negative = costs more (Crown of the Ninth Bell)
+	var wellspring := stat_sheet.spell_cost_reduction if stat_sheet and not is_skill else 0.0
+	return (1.0 - clampf(reduction, -1.0, 0.75)) * (1.0 - clampf(web_value(SkillWeb.MANA_COST) / 100.0, 0.0, 0.6)) * (1.0 - wellspring)  # negative = costs more (Crown of the Ninth Bell)
 
 func get_radius(stat_sheet: StatSheet = null) -> float:
 	if not has_tag(TAG_AREA):

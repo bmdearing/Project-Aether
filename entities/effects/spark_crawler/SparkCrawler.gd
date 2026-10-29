@@ -29,6 +29,11 @@ var lifetime: float = LIFETIME
 var range_m: float = 0.0
 var hit_key: StringName = &"spark"
 var hit_interval: float = HIT_INTERVAL
+## Web twists: more damage to Shocked enemies (Resonant Edge), a wider
+## reach (Ball Lightning), and on_hit(enemy, damage) after each hit (Conductor).
+var shocked_more := 1.0
+var hit_radius := HIT_RADIUS
+var on_hit: Callable
 var _travelled: float = 0.0
 
 var _wander_timer: float = 0.0
@@ -89,17 +94,21 @@ func _hit_enemies_in_reach() -> void:
 	for enemy in get_tree().get_nodes_in_group("enemy"):
 		if not enemy is Enemy:
 			continue
-		if enemy.distance_to_body(global_position) > HIT_RADIUS:
+		if enemy.distance_to_body(global_position) > hit_radius:
 			continue
 		if not HitCooldown.try_hit(hit_key, enemy, hit_interval):
 			continue
 		var hit := ability.roll_damage(stat_sheet)
 		var damage: float = hit["final_damage"] * damage_multiplier
+		if shocked_more != 1.0 and enemy.status_effects.has_effect("shock"):
+			damage *= shocked_more
 		enemy.take_damage(damage, ability.damage_type)
 		if enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
 		EventBus.damage_dealt.emit(source, enemy, damage, ability.damage_type, false, hit["is_critical"])
 		ability.apply_statuses(enemy, source, damage)
+		if on_hit.is_valid():
+			on_hit.call(enemy, damage)
 
 func _find_nearest_enemy() -> Enemy:
 	var nearest: Enemy = null

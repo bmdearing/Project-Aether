@@ -184,7 +184,13 @@ func get_mastery(damage_type: int) -> float:
 ## Every "more" multiplier on the player's own hits from outside the skill
 ## itself: Uniques, Mastery, then the player's own debuffs.
 func outgoing_more_multiplier(damage_type: int) -> float:
-	return unique_damage_multiplier(damage_type) * (1.0 + get_mastery(damage_type)) * (status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0) * inner_power_multiplier(damage_type)
+	return unique_damage_multiplier(damage_type) * (1.0 + get_mastery(damage_type)) * (status_effects.get_outgoing_damage_multiplier() if status_effects else 1.0) * inner_power_multiplier(damage_type) * float(enchant_more.get(damage_type, 1.0))
+
+## Enchantment's Tempered Edge: DamageType -> more multiplier while it's on;
+## Innervate's Wellspring: share off every Spell's Mana cost. Both pushed by
+## PlayerAbilityCast each frame.
+var enchant_more: Dictionary = {}
+var spell_cost_reduction := 0.0
 
 ## Inner Power, set by PlayerAbilityCast each frame: prepared on the bar it
 ## forbids Physical damage; switched on it adds more Aetheric damage.

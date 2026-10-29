@@ -1,9 +1,22 @@
 # Ability Node Proposals (2026-10-29)
 
-New web twists, one or two per ability, for the user to pick from. Nothing
-here is built yet except Shatter's **Fault Lines** (built, since the brief asked
-for it). Each one is meant to change how the ability plays, not just add
-numbers. Mark the ones you want and they'll be built in the next batch.
+New web twists, one or two per ability. **All of them were built on 2026-10-29**
+(user: "Build them all"); the web text in `data/abilities/skill_web.gd` is the
+current wording. Where the code didn't fit the pitch, the built version differs:
+
+- **Inferno** isn't channelled, so *Backdraft* is +50% more damage to Ignited enemies, and *Heat Shimmer* grants 25% more Evasion for 4 s after the pillar.
+- **Flame Jets' Afterburn**: every enemy the jets touch is Ignited.
+- **Static Discharge's Capacitor** charges with time since the last cast (double at 4 s), not with a held cast.
+- **Thunderstorm** already strikes every enemy under it, so *Eye of the Cloud* strikes the crosshair enemy twice.
+- **Booming Blade's Resonant Edge**: +40% against Shocked enemies.
+- **White Hole** also hits for 200% as it throws.
+- **Linger** already jumps on death, so *Haunting* is a Pale burst (25% of Linger's total) around the body.
+- **Wraith's Possession**: the first enemy a wraith kills rises as a wraith for 6 s at 60% damage.
+- **Arach's Venom**: Unraveling plus a 30% Entropic sting.
+- **Puncture's Hemorrhage**: guaranteed Bleed. *Riposte Point*: double damage to Staggered enemies.
+- **Blink's Afterimage**: enemies within 5 m of where you left are dazed 1 s (not bosses). A decoy would need enemy AI changes.
+- **Shatter's Aftershock** is named *Lingering Frost* (Seismic Cry already has an Aftershock).
+- **Seismic Cry's War Drums**: +10% damage per enemy caught, up to 50%.
 
 Ring 2 = early pick, ring 3 = deep pick (needs a ring 1/2 block first).
 

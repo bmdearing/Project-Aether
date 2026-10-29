@@ -661,7 +661,7 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 	# Dodge (attacks only) negates the hit and never interrupts a cast;
 	# Deflection (attacks and spells) reduces it.
 	if hit_kind != HitKind.DOT:
-		var evasion := stat_sheet.get_total_evasion(equipment)
+		var evasion := stat_sheet.get_total_evasion(equipment) * (ability_cast.evasion_multiplier() if ability_cast else 1.0)
 		if evasion > 0.0:
 			var dodge := DamageCalculator.player_dodge_chance(evasion)
 			if hit_kind != HitKind.ATTACK:
@@ -674,6 +674,8 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 				EventBus.hit_deflected.emit(self)
 	if unique_effects:
 		amount *= unique_effects.damage_taken_multiplier(hit_kind == HitKind.SPELL)
+	if ability_cast:
+		amount *= ability_cast.damage_taken_multiplier()
 	# Monsters far above your level (past your XP zone) hit much harder.
 	if source is Enemy:
 		amount *= AreaLevel.gap_damage_multiplier((source as Enemy).level, GameState.player_level)
@@ -715,7 +717,10 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 		mitigated *= (1.0 - stat_sheet.get_reduced_damage_taken(Constants.DamageCategory.PHYSICAL))
 	elif category == Constants.DamageCategory.ELEMENTAL or category == Constants.DamageCategory.ESOTERIC:
 		var resistance := stat_sheet.get_effective_resistance(damage_type, status_effects.get_resistance_shred())
-		mitigated *= (1.0 - DamageCalculator.resistance_mitigation(resistance))
+		var resisted := mitigated * DamageCalculator.resistance_mitigation(resistance)
+		mitigated -= resisted
+		if ability_cast and resisted > 0.0:
+			ability_cast.on_resisted(damage_type, resisted)
 		# "% of Armour applies to Elemental": that share of Armour, through
 		# the physical curve, on top of Resistance (Elemental only).
 		if category == Constants.DamageCategory.ELEMENTAL:

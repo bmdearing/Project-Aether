@@ -97,6 +97,9 @@ func _physics_process(delta: float) -> void:
 			enemy.take_dot(dps, delta, Constants.DamageType.PIERCING, _source, "caltrops")
 		if slow_now:
 			enemy.status_effects.apply_effect("slow", _source)
+			# Web: Barbed Wire - an enemy that stops on the spikes is caught.
+			if _ability.has_twist("barbed_wire") and Vector2(enemy.velocity.x, enemy.velocity.z).length() < 0.6:
+				enemy.status_effects.apply_timed_effect("entangle", 0.5)
 
 ## ---- Visuals -----------------------------------------------------------------
 
