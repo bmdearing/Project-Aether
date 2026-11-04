@@ -174,6 +174,10 @@ func _run() -> void:
 					cam.position = c + Vector3(-half.x + 1.5, 3.2, -half.y + 1.5)
 					cam.look_at(c + Vector3(half.x, 0, half.y) * 0.4, Vector3.UP)
 					break
+		"fp":
+			# The player's own camera, so the held weapon is in shot.
+			cam.queue_free()
+			cam = (get_tree().get_first_node_in_group("player") as Player).camera
 		_:
 			var player := get_tree().get_first_node_in_group("player") as Player
 			cam.global_transform = player.camera.global_transform

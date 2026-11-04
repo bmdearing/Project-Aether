@@ -14,12 +14,16 @@ uniform sampler2D normal_tex : hint_normal_roughness_texture, filter_nearest, re
 #endif
 
 uniform vec3 ink : source_color = vec3(0.025, 0.02, 0.018);
-uniform float thickness = 1.4;          // sample offset in pixels at 1080p
+uniform float thickness = 1.05;         // sample offset in pixels at 1080p
 uniform float depth_threshold = 0.035;   // relative 1/z curvature that starts a line
 uniform float normal_threshold = 0.45;   // 1 - cos(angle) between neighbouring normals
 uniform float fade_start = 25.0;
 uniform float fade_end = 80.0;
 uniform float strength = 1.0;
+// The held weapon and arms sit inside arm's reach: thinner, fainter ink there.
+uniform float near_end = 1.4;
+uniform float near_thickness = 0.6;
+uniform float near_strength = 0.3;
 
 void vertex() {
 	POSITION = vec4(VERTEX.xy, 1.0, 1.0);
@@ -43,12 +47,13 @@ vec3 view_n(vec2 uv) {
 #endif
 
 void fragment() {
-	vec2 px = vec2(thickness * VIEWPORT_SIZE.y / 1080.0) / VIEWPORT_SIZE;
 	vec2 uv = SCREEN_UV;
+	float zc = view_z(uv, INV_PROJECTION_MATRIX);
+	float held = 1.0 - smoothstep(near_end * 0.6, near_end, zc);
+	vec2 px = vec2(thickness * mix(1.0, near_thickness, held) * VIEWPORT_SIZE.y / 1080.0) / VIEWPORT_SIZE;
 	vec2 ox = vec2(px.x, 0.0);
 	vec2 oy = vec2(0.0, px.y);
 
-	float zc = view_z(uv, INV_PROJECTION_MATRIX);
 	float zl = view_z(uv - ox, INV_PROJECTION_MATRIX);
 	float zr = view_z(uv + ox, INV_PROJECTION_MATRIX);
 	float zu = view_z(uv - oy, INV_PROJECTION_MATRIX);
@@ -65,6 +70,7 @@ void fragment() {
 
 	float znear = min(zc, min(min(zl, zr), min(zu, zd)));
 	float fade = 1.0 - smoothstep(fade_start, fade_end, znear);
+	fade *= mix(near_strength, 1.0, smoothstep(near_end * 0.6, near_end, znear));
 
 #if CURRENT_RENDERER != RENDERER_COMPATIBILITY
 	vec3 nc = view_n(uv);
