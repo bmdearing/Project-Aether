@@ -39,6 +39,8 @@ var always_show_sockets: bool = false
 var reduce_hole_patterns: bool = false
 ## Camera walk bob, mouse sway and landing dip (hit kicks and shakes stay).
 var camera_motion: bool = true
+## Ink outlines and banded light (CelShading).
+var cel_shading: bool = false
 
 ## Each entry is a resource_path String or a Dictionary
 ## (ItemSerializer.to_dict(), for rolled items with no path). Written by

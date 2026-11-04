@@ -32,6 +32,7 @@ SoundLib="*res://systems/audio/SoundLib.gd"
 KillBox="*res://autoloads/KillBox.gd"
 TooltipFollow="*res://autoloads/TooltipFollow.gd"
 LoadingScreen="*res://autoloads/LoadingScreen.gd"
+CelShading="*res://systems/rendering/CelShading.gd"
 
 [display]
 

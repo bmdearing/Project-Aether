@@ -18,6 +18,9 @@ func _run() -> void:
 	var view: String = args[2] if args.size() > 2 else "top"
 	GameState.reset_to_defaults()
 	GameState.debug_overlay_enabled = false
+	# CAPTURE_CEL=1 turns cel shading on for the shot.
+	GameState.cel_shading = OS.get_environment("CAPTURE_CEL") == "1"
+	EventBus.settings_changed.emit()
 	var figment := FigmentRoller.roll(1)
 	figment.tileset_id = style
 	GameState.active_map = figment

@@ -36,6 +36,7 @@ static func load_and_apply() -> void:
 		GameState.always_show_sockets = bool(cfg.get_value(SECTION, "always_show_sockets", GameState.always_show_sockets))
 		GameState.reduce_hole_patterns = bool(cfg.get_value(SECTION, "reduce_hole_patterns", GameState.reduce_hole_patterns))
 		GameState.camera_motion = bool(cfg.get_value(SECTION, "camera_motion", GameState.camera_motion))
+		GameState.cel_shading = bool(cfg.get_value(SECTION, "cel_shading", GameState.cel_shading))
 		for entry in REMAPPABLE:
 			var saved: Variant = cfg.get_value(CONTROLS, entry[0]) if cfg.has_section_key(CONTROLS, entry[0]) else null
 			if saved is Dictionary:
@@ -54,6 +55,7 @@ static func save() -> void:
 	cfg.set_value(SECTION, "always_show_sockets", GameState.always_show_sockets)
 	cfg.set_value(SECTION, "reduce_hole_patterns", GameState.reduce_hole_patterns)
 	cfg.set_value(SECTION, "camera_motion", GameState.camera_motion)
+	cfg.set_value(SECTION, "cel_shading", GameState.cel_shading)
 	# The hidden Dev switch (Dev.toggle()) lives in this file too; keep it.
 	var old := ConfigFile.new()
 	if old.load(PATH) == OK and old.has_section_key(Dev.SECTION, Dev.KEY):
