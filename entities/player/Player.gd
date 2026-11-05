@@ -807,6 +807,21 @@ func is_action_locked() -> bool:
 func is_mid_action() -> bool:
 	return arm_rig.is_animating() or not melee_attack.is_idle() or cast_time_handler.is_casting() or ranged_attack.is_reloading()
 
+## Standing against a slope too steep to stand on (but not a sheer wall)
+## still allows a jump, pushed away from it: wedged in a crease between a
+## steep slope and a wall, there's otherwise no floor to jump from.
+const STEEP_JUMP_PUSH := 3.0
+const STEEP_MIN_NORMAL_Y := 0.15
+
+func _steep_slope_normal() -> Vector3:
+	if is_on_floor() or velocity.y > 0.5:
+		return Vector3.ZERO
+	for i in get_slide_collision_count():
+		var n := get_slide_collision(i).get_normal()
+		if n.y > STEEP_MIN_NORMAL_Y:
+			return n
+	return Vector3.ZERO
+
 func _physics_process(delta: float) -> void:
 	if ledge_climb.busy():
 		ledge_climb.process(delta)
@@ -824,11 +839,15 @@ func _physics_process(delta: float) -> void:
 		if _knock_up_time > KNOCK_UP_MIN_SEC and is_on_floor():
 			_knock_up_time = -1.0
 	var stunned := status_effects.is_stunned() or is_knocked_up() or is_in_visceral()
-	_coyote_timer = COYOTE_TIME if is_on_floor() else maxf(_coyote_timer - delta, 0.0)
+	var steep := _steep_slope_normal()
+	_coyote_timer = COYOTE_TIME if is_on_floor() or steep != Vector3.ZERO else maxf(_coyote_timer - delta, 0.0)
 	_jump_buffer_timer = JUMP_BUFFER_TIME if Input.is_action_just_pressed("jump") else maxf(_jump_buffer_timer - delta, 0.0)
 	var rooted := stance_defense.is_rooted() or status_effects.has_effect("entangle") or (stance_attack.is_charging and stance_attack.get_move_speed_multiplier() <= 0.0)
 	if _jump_buffer_timer > 0.0 and _coyote_timer > 0.0 and not stunned and not rooted:
 		velocity.y = jump_velocity
+		if not is_on_floor() and steep != Vector3.ZERO:
+			# Off a too-steep slope: push away from it so a crease can't hold you.
+			velocity += Vector3(steep.x, 0, steep.z).normalized() * STEEP_JUMP_PUSH
 		_jump_buffer_timer = 0.0
 		_coyote_timer = 0.0
 		_is_sliding = false

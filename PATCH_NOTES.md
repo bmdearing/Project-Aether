@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-11-05 — Stuck on a bank (user report)
+
+The player got wedged on a Bone Flats bank. Where a bank tapered into a cliff it got steeper than the 45-degree floor limit, leaving a V between steep slope and rock. With no floor under you there, you couldn't jump.
+- Banks never steepen now. They average 12-27 degrees (steepest point ~37), and toward a cliff they sink in height instead, like scree at the cliff's foot.
+- Where a full bank won't fit (water, the field edge, another level), a smaller one with the same slope takes its place instead of a hard cut.
+- A pass caps how fast a bank's height changes along a side (30 degrees).
+- What's left over 45 degrees is 1-4% of bank triangles, small and only just over.
+- **Player:** pressed against a slope too steep to stand on (but not a sheer wall), you can still jump, pushed away from it (`Player._steep_slope_normal`). No crease can hold you.
+
 ## 2026-11-05 — Shield view, reload, terrain banks, damage meter, Reap, Life/Mana
 
 User batch (2026-11-05).
