@@ -7,6 +7,23 @@ there. Most recent first.
 
 ---
 
+## 2026-11-05 — Shield view, reload, terrain banks, damage meter, Reap, Life/Mana
+
+User batch (2026-11-05).
+- **Lowered shield:** shields rest lower and further left (`PlayerArmRig.SHIELD_REST`), mostly below the view. Raising the shield and parrying are unchanged. A focus keeps the old rest.
+- **Reload indicator:** RELOADING and the active-reload bar moved from the bottom-right ammo box to a small group 34 px under the crosshair. The bar is 96x5 (was 160x10).
+- **Ground items:** looking at a drop no longer scales its model up. Its name still brightens.
+- **Reap / Withering Scythe:** the hits already turned Entropic, but the sweep stayed cyan and the spell card still read Aetheric. The sweep now takes the converted type's colour (`_reap_tint`), the cast hands glow in it, and spell cards show web conversions (`PlayerAbilityCast.web_variant` in `ItemCard._render_ability`). This applies to every converting node, not just Reap.
+- **Life and Mana (user numbers):** Life is 32 base + 8 per level, Mana 22 base + 4 per level (`Player.BASE_LIFE` etc.). Strength's +4 Life per point, Intellect's Mana and gear stack on top. This replaces the scene's flat 150 Life / 100 Mana.
+- **Terrain banks (`EmbankmentBuilder`):** open-field terrace sides were sheer 2-4 m boxes. Each side now gets a grassy bank whose steepness comes from a smooth noise field: 12-40 degrees over most of a side, tapering to a sheer rock cliff where the noise peaks. Corners are rounded fans. Banks avoid water, the field edge and other terraces. `terrace_top()` includes them, so props, chests and packs stand on the slope. Climb links now go to the cliffiest stretch of a side. A side with a walkable stretch gets no link. **Judgment call:** this undoes v5.2's "every way to the Vault crosses a ledge to mantle". Gentle banks are walkable. Banks use the floor material in wall mode (side projection), so steep grass doesn't smear.
+- **Damage meter (`DamageMeter` autoload):**
+  - Every damage event against an enemy is credited to a source and an enemy type. The source is the spell, the weapon, an ailment (Ignite, Bleed...), a minion ("Wraith (minion)") or an effect (Riposte, Earthquake, Shatter). Emit sites set `DamageMeter.label` just before `EventBus.damage_dealt`.
+  - The meter resets when a new map loads (not on a portal return).
+  - **Damage tab (J, rebindable; a Tab-menu screen):** a header with Top Hit (and its source), Burst (most damage in 3 s), Total and DPS. Below it, a table per source: Total, biggest Hit, biggest Crit, Burst, Avg, Hits and Crit %. Then each enemy type with the four sources it took the most from.
+  - Ailment ticks count toward Total and Burst but not Hit or Crit.
+  - Overkill isn't shown: hits are reported after they land.
+  - **HUD recap (`DamageRecap`):** under the minimap, it shows live DPS (last 3 s), the map total and the top three sources with their share.
+
 ## 2026-11-05 — Item card readability
 
 User request: tighter, smaller, more legible item cards, clear prefix/suffix/tier, and a fix for Arkanus (a 6-jewel Mythic whose card ran off the screen).

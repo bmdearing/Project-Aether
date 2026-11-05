@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3]
+[gd_scene load_steps=27 format=3]
 
 [ext_resource type="PackedScene" path="res://entities/player/Player.tscn" id="1"]
 [ext_resource type="PackedScene" path="res://entities/interactables/reality_engine/RealityEngine.tscn" id="2"]
@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://entities/interactables/portal/HubPortalSpot.gd" id="22"]
 [ext_resource type="Script" path="res://levels/hub/MemoryNexus.gd" id="23"]
 [ext_resource type="PackedScene" path="res://ui/figment_tree/FigmentTreeScreen.tscn" id="24"]
+[ext_resource type="PackedScene" path="res://ui/damage_meter/DamageMeterScreen.tscn" id="dmg_meter"]
 [ext_resource type="PackedScene" path="res://entities/interactables/currency_shop/CurrencyShop.tscn" id="25"]
 [ext_resource type="PackedScene" path="res://entities/interactables/unique_catalogue/UniqueCatalogue.tscn" id="26"]
 [ext_resource type="PackedScene" path="res://entities/interactables/lenscrafter/Lenscrafter.tscn" id="27"]
@@ -103,6 +104,8 @@ autoplay = true
 [node name="MapScreen" parent="." instance=ExtResource("11")]
 
 [node name="FigmentTreeScreen" parent="." instance=ExtResource("24")]
+
+[node name="DamageMeterScreen" parent="." instance=ExtResource("dmg_meter")]
 
 [node name="ShopScreen" parent="." instance=ExtResource("12")]
 

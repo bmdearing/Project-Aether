@@ -79,6 +79,7 @@ func _physics_process(delta: float) -> void:
 		if pulse and dist > _radius and dist <= _radius * DEBRIS_REACH and _ability.has_twist("debris") and enemy.health.is_alive():
 			var rock := per_tick * DEBRIS_DAMAGE
 			if enemy.take_damage(rock, Constants.DamageType.KINETIC):
+				DamageMeter.label = (_ability.display_name if _ability else "Tornado")
 				EventBus.damage_dealt.emit(_source, enemy, rock, Constants.DamageType.KINETIC, false, false)
 				SpellFx.shards(get_parent(), enemy.global_position + Vector3.UP, DUST, 5, Vector2(1.5, 3.0), Vector2(0.05, 0.12), 0.4, 60.0, false)
 			continue

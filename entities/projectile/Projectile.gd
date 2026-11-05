@@ -22,6 +22,8 @@ var _launched := false
 var damage_amount: float = 0.0
 var damage_type: Constants.DamageType = Constants.DamageType.KINETIC
 var source: Node
+## What the damage meter credits this shot to (the weapon or spell).
+var meter_label: String = ""
 ## True for a projectile that is a spell rather than an attack (Evasion:
 ## spells can't be Dodged, only Deflected). Nothing sets it yet - enemies
 ## have no spells, only the ranged attack, which spawns attack projectiles.
@@ -161,6 +163,7 @@ func _hit_enemy(enemy: Enemy, aim_dir: Vector3 = Vector3.ZERO) -> void:
 		return  # dodged
 	if enemy.stance:
 		enemy.stance.apply_attack_stance_damage(final_amount, damage_type)
+	DamageMeter.label = meter_label
 	EventBus.damage_dealt.emit(source, enemy, final_amount, damage_type, false, crit)
 	if enemy.status_effects:
 		enemy.status_effects.roll_gear_ailments(source, final_amount, damage_type)

@@ -13,7 +13,7 @@ const STAT_TOOLTIPS := {
 	"Offhand Crit": "Chance for an offhand hit to be critical, and how hard critical hits land (150% base).",
 	"Agility": "Agility: +1% increased Attack Speed, Evasion and Critical Strike Chance per point. Gear can need a minimum Agility.",
 	# "Evasion Rating" is built live in _evasion_tooltip() - it shows the derived percentages.
-	"Max Health": "Your Life: Strength's +4 per point plus flat Life, multiplied by % increased Life. You die when it runs out. Ward takes damage before it.",
+	"Max Health": "Your Life: 32 base, +8 per level, Strength's +4 per point and flat Life, all multiplied by % increased Life. You die when it runs out. Ward takes damage before it.",
 	"Life Regen": "Life recovered per second: 0.5% of maximum Life plus flat regeneration, multiplied by % increased Life Regeneration.",
 	"Max Ward": "Absorbs damage of every type before Life, and refills after a short time without being hit. Comes from Ward on gear, multiplied by % increased Ward and Intellect (0.5% per point).",
 	"Armor": "Reduces Physical hits by Armour / (Armour + 30 x the hit), so it stops small hits better than big ones.",

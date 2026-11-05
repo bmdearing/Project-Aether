@@ -133,6 +133,9 @@ const RESTS := {
 ## shield stays left of and below the crosshair so it never hides the target.
 const OFF_ITEM_REST := [Vector3(-0.27, -0.3, -0.44), Vector3(0.1, 1, -0.2), Vector3(0, 0, 1)]
 const OFF_ITEM_GUARD := [Vector3(-0.17, -0.25, -0.42), Vector3(0.15, 1, -0.05), Vector3(-0.2, 0, 1)]
+## A lowered shield sits further down and out to the left, mostly below the
+## view; it rises to OFF_ITEM_GUARD when raised.
+const SHIELD_REST := [Vector3(-0.36, -0.5, -0.42), Vector3(0.12, 1, -0.3), Vector3(0.1, 0, 1)]
 
 ## Clip keys: [phase, fraction of that phase, hand offset, tip, face, ease curve].
 ## Phases "w" windup, "s" strike, "r" recovery; every clip ends back at rest.
@@ -884,7 +887,7 @@ func _off_rest() -> Pose:
 			return _pose_from(spec["off"]).lerp_to(_pose_from(spec["off_guard"]), _smooth(_guard_w))
 		OffMode.ITEM:
 			var guard := _shield_w if _offhand_item is Shield else 0.0
-			return _pose_from(OFF_ITEM_REST).lerp_to(_pose_from(OFF_ITEM_GUARD), _smooth(guard))
+			return _pose_from(SHIELD_REST if _offhand_item is Shield else OFF_ITEM_REST).lerp_to(_pose_from(OFF_ITEM_GUARD), _smooth(guard))
 		OffMode.DUAL:
 			var spec: Dictionary = RESTS.get(_off_family, RESTS[&"blade"])
 			var pose := _mirror_pose(_pose_from(spec["rest"]))
@@ -1184,7 +1187,7 @@ func _on_cast_interrupted() -> void:
 
 func _begin_hand_cast(ability: Ability, windup: float) -> void:
 	_hand_cast_t = windup + HAND_CAST_RELEASE
-	var c: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color(0.55, 0.8, 1.0))
+	var c: Color = Constants.DAMAGE_TYPE_COLOR.get(PlayerAbilityCast.web_variant(ability).damage_type, Color(0.55, 0.8, 1.0))
 	for glow in _hand_glows:
 		var mat := (glow.get_child(0) as MeshInstance3D).material_override as StandardMaterial3D
 		mat.albedo_color = Color(c.lightened(0.3), 0.85)

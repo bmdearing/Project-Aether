@@ -482,6 +482,7 @@ func _throw(weapon: Weapon) -> void:
 		projectile.damage_type = weapon.get_damage_type()
 		projectile.impact_sound = Projectile.ImpactSound.ARROW
 		projectile.source = _player
+		projectile.meter_label = weapon.display_name
 		projectile.speed = speed
 		projectile.drop_gravity = profile["gravity"]
 		projectile.pierce = profile["pierce"]
@@ -582,6 +583,7 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		var arrow := weapon.ammo_type == Constants.AmmoType.ARROW or weapon.ammo_type == Constants.AmmoType.CROSSBOW_BOLT
 		projectile.impact_sound = Projectile.ImpactSound.ARROW if arrow else Projectile.ImpactSound.BULLET
 		projectile.source = _player
+		projectile.meter_label = weapon.display_name
 		projectile.speed = speed if arrow else speed * BULLET_SPEED_MULTIPLIER
 		if arrow and not hitscan:
 			projectile.drop_gravity = BOLT_GRAVITY if weapon.ammo_type == Constants.AmmoType.CROSSBOW_BOLT else ARROW_GRAVITY
@@ -716,6 +718,7 @@ func _direct_hit(enemy: Enemy, amount: float, damage_type: Constants.DamageType,
 	if enemy.stance:
 		enemy.stance.apply_attack_stance_damage(amount, damage_type)
 	enemy.flash_hit()
+	DamageMeter.label = (_player.get_active_weapon().display_name if _player.get_active_weapon() else "Ranged")
 	EventBus.damage_dealt.emit(_player, enemy, amount, damage_type, false, is_critical)
 	enemy.status_effects.roll_gear_ailments(_player, amount, damage_type)
 	EventBus.hit_landed.emit(is_critical, false, not enemy.health.is_alive())

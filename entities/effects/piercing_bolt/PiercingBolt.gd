@@ -96,6 +96,7 @@ func _hit(enemy: Enemy) -> void:
 	enemy.take_damage(damage_amount, damage_type)
 	if enemy.stance:
 		enemy.stance.apply_attack_stance_damage(damage_amount, damage_type)
+	DamageMeter.label = (ability.display_name if ability else "")
 	EventBus.damage_dealt.emit(source, enemy, damage_amount, damage_type, false, is_critical)
 	if ability:
 		ability.apply_statuses(enemy, source, damage_amount)

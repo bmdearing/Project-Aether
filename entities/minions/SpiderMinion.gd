@@ -233,7 +233,9 @@ func _bite(enemy: Enemy) -> void:
 		enemy.status_effects.apply_effect("unraveling", player)
 		var sting := damage * VENOM_SHARE
 		if enemy.take_damage(sting, Constants.DamageType.ENTROPIC, true):
+			DamageMeter.label = "%s (minion)" % ability.display_name
 			EventBus.damage_dealt.emit(player, enemy, sting, Constants.DamageType.ENTROPIC, false, false)
+	DamageMeter.label = "%s (minion)" % ability.display_name
 	EventBus.damage_dealt.emit(player, enemy, damage, ability.damage_type, false, hit["is_critical"])
 	_body.position.z = -0.18
 	create_tween().tween_property(_body, "position:z", 0.0, 0.2)

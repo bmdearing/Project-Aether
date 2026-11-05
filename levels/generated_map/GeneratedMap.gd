@@ -66,6 +66,7 @@ const UI_SCENES: Array[PackedScene] = [
 	preload("res://ui/character_screen/CharacterScreen.tscn"),
 	preload("res://ui/map_screen/MapScreen.tscn"),
 	preload("res://ui/figment_tree/FigmentTreeScreen.tscn"),
+	preload("res://ui/damage_meter/DamageMeterScreen.tscn"),
 	preload("res://ui/ability_bar/AbilityBar.tscn"),
 	preload("res://ui/player_hud/PlayerHUD.tscn"),
 	preload("res://ui/death_screen/DeathScreen.tscn"),
@@ -149,6 +150,8 @@ func _ready() -> void:
 	randomize()
 	if not restore.is_empty():
 		_apply_restore(restore)
+	if restore.is_empty():
+		DamageMeter.start_map(MapTileset.display_name_of(tileset_id))
 	_spawn_ui()
 	_emit_enemy_count()  # HUD is up now (added by _spawn_ui())
 	if not restore.is_empty():
@@ -811,15 +814,19 @@ var terraces: Array[Dictionary] = []
 ## Hills (TerrainBuilder.build_hills): {"centre": Vector2, "ground", "footprint",
 ## "height", "r" (the sphere's radius)}.
 var hills: Array[Dictionary] = []
+## Grassy banks on open-field terrace sides (EmbankmentBuilder), or null.
+var embankments: EmbankmentBuilder
 
 ## The ground height at pos: the highest terrace top (0 off every terrace),
 ## raised by any hill there unless with_hills is false. For dropping props,
 ## chests and packs onto the right level.
-func terrace_top(pos: Vector3, with_hills: bool = true) -> float:
+func terrace_top(pos: Vector3, with_hills: bool = true, with_banks: bool = true) -> float:
 	var top := 0.0
 	for t in terraces:
 		if (t["rect"] as Rect2).has_point(Vector2(pos.x, pos.z)):
 			top = maxf(top, float(t["top"]))
+	if with_banks and embankments:
+		top = maxf(top, embankments.height_at(Vector2(pos.x, pos.z)))
 	if with_hills:
 		for h in hills:
 			var d := Vector2(pos.x, pos.z).distance_to(h["centre"])
@@ -903,11 +910,22 @@ func _link_terraces() -> void:
 			if not rect.grow(0.05).has_point(Vector2(face.x, face.z)):
 				continue  # water runs along this side
 			var along := Vector3(absf(out.z), 0, absf(out.x))
-			var shifted := face + along * randf_range(-0.3, 0.3) * cell_size
-			var top := shifted - out * 1.1
-			if rect.grow(-1.0).has_point(Vector2(top.x, top.z)) and not (water and water.is_wet(shifted + out * 1.1, 1.0)):
-				face = shifted
-			var low := Vector3(face.x, minf(fa, fb), face.z) + out * 1.1
+			var bank_run := 0.0
+			var bank: Dictionary = embankments.face_for(rect, Vector2(out.x, out.z)) if embankments else {}
+			if not bank.is_empty():
+				# Banked sides: a walkable stretch needs no link; otherwise it goes at the cliffiest spot.
+				var spot: Array = embankments.link_spot(bank)
+				if spot.is_empty():
+					continue
+				var at: float = spot[0]
+				face = Vector3(at, 0, face.z) if int(bank["axis"]) == 0 else Vector3(face.x, 0, at)
+				bank_run = spot[1]
+			else:
+				var shifted := face + along * randf_range(-0.3, 0.3) * cell_size
+				var top := shifted - out * 1.1
+				if rect.grow(-1.0).has_point(Vector2(top.x, top.z)) and not (water and water.is_wet(shifted + out * 1.1, 1.0)):
+					face = shifted
+			var low := Vector3(face.x, minf(fa, fb), face.z) + out * (1.1 + bank_run)
 			if water and water.is_wet(low, 1.0):
 				continue
 			_add_climb_link(low, Vector3(face.x, maxf(fa, fb), face.z) - out * 1.1)

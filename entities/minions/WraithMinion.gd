@@ -177,6 +177,7 @@ func _strike(enemy: Enemy) -> void:
 	var damage: float = hit["final_damage"]
 	if not enemy.take_damage(damage, ability.damage_type, true):
 		return
+	DamageMeter.label = "%s (minion)" % ability.display_name
 	EventBus.damage_dealt.emit(player, enemy, damage, ability.damage_type, false, hit["is_critical"])
 	ability.apply_statuses(enemy, player, damage)
 	# Web: Possession - the first enemy this wraith kills rises as a wraith

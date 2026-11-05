@@ -433,6 +433,8 @@ func _slate_mod_text(mod: SlateModifier, slate: Slate) -> String:
 
 func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 	_clear()
+	# Web conversions (Withering Scythe, Molten Core...) change the type the card shows.
+	ability = PlayerAbilityCast.web_variant(ability)
 	var element_color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, AFFIX_COLOR)
 	_set_card_style(element_color, ABILITY_BG, ABILITY_CORNER_RADIUS, ABILITY_BORDER_WIDTH)
 	_add_type_badge("SPELL", element_color)

@@ -52,6 +52,9 @@ func build_open_field(graph: MapGraph, cell_size: float) -> void:
 	for cell in graph.rooms:
 		if _map.room_floor.has(cell):
 			_map._build_terrace(_map.terrace_rect(cell), _map.room_floor[cell])
+	var field := Rect2(-cell_size / 2.0, -cell_size / 2.0, extent, extent)
+	_map.embankments = EmbankmentBuilder.new(_map, _floor_mat, field)
+	_map.embankments.build(_map.terraces)
 	if not (_map.tileset and _map.tileset.building_boundary):
 		_build_ridge_boundary(centre, extent)
 		_build_ridge_fins(graph, cell_size)

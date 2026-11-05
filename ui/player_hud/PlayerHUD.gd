@@ -141,6 +141,7 @@ func _ready() -> void:
 	EventBus.enemy_count_changed.connect(_on_enemy_count_changed)
 	add_child(LootLookCard.new())
 	add_child(Minimap.new())
+	add_child(DamageRecap.new())
 	add_child(Compass.new())
 	_build_inventory_full_label()
 	EventBus.inventory_full.connect(_on_inventory_full)
@@ -625,10 +626,30 @@ func _build_ammo_display() -> void:
 	add_child(_ammo_box)
 	_magazine_label = _make_ammo_label(44)
 	_reserve_label = _make_ammo_label(20)
-	_reload_label = _make_ammo_label(14)
-	_reload_label.text = "RELOADING"
+	_build_reload_display()
+
+## RELOADING and the active-reload bar sit small, just under the crosshair.
+const RELOAD_BELOW_CROSSHAIR := 34.0
+
+func _build_reload_display() -> void:
+	var box := VBoxContainer.new()
+	box.set_anchors_preset(Control.PRESET_CENTER)
+	box.offset_left = -60.0
+	box.offset_right = 60.0
+	box.offset_top = RELOAD_BELOW_CROSSHAIR
+	box.offset_bottom = RELOAD_BELOW_CROSSHAIR + 30.0
+	box.add_theme_constant_override("separation", 2)
+	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(box)
+	_reload_label = _make_ammo_label(11)
+	_ammo_box.remove_child(_reload_label)
+	_reload_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_reload_label.add_theme_constant_override("outline_size", 4)
+	_reload_label.text = AetherStyle.spaced("Reloading")
+	_reload_label.add_theme_color_override("font_color", Color(1, 1, 1, 0.85))
 	_reload_label.visible = false
-	_ammo_box.add_child(ACTIVE_RELOAD_BAR.new())
+	box.add_child(_reload_label)
+	box.add_child(ACTIVE_RELOAD_BAR.new())
 
 func _make_ammo_label(font_size: int) -> Label:
 	var label := Label.new()

@@ -578,6 +578,7 @@ func _deal_damage_once(target: Enemy, damage_scale: float = 1.0, is_primary: boo
 		AudioManager.play_at(SoundLib.pick_random(SoundLib.library.hit_critical), target.global_position, -4.0)
 	if target.stance:
 		target.stance.apply_attack_stance_damage(final_damage, damage_type)
+	DamageMeter.label = (_player.get_active_weapon().display_name if _player.get_active_weapon() else "Unarmed")
 	EventBus.damage_dealt.emit(_player, target, final_damage, damage_type, false, is_critical)
 	target.status_effects.roll_gear_ailments(_player, final_damage, damage_type)
 	if _player.gear_effects:

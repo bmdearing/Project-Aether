@@ -550,6 +550,7 @@ func _hit(enemy: Enemy, damage: float, damage_type: Constants.DamageType) -> boo
 	if enemy.stance:
 		enemy.stance.apply_attack_stance_damage(damage, damage_type)
 	enemy.flash_hit()
+	DamageMeter.label = "Stance attack"
 	EventBus.damage_dealt.emit(_player, enemy, damage, damage_type, false, false)
 	EventBus.hit_landed.emit(false, false, not enemy.health.is_alive())
 	return true

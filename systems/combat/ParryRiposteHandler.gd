@@ -142,6 +142,7 @@ func execute_riposte(target: Enemy, weapon: Weapon, base_motion_value: float, da
 	final_damage += hit["final_damage"] * player.stat_sheet.get_misc_bonus("riposte_counter_damage") / 100.0
 
 	target.take_damage(final_damage, damage_type)
+	DamageMeter.label = "Riposte"
 	EventBus.damage_dealt.emit(player, target, final_damage, damage_type, false, hit["is_critical"])
 
 	target.composure.end_broken_state()

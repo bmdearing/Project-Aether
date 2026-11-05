@@ -167,6 +167,7 @@ func _flush_dot(key: String) -> void:
 		return
 	var source: Node = entry["source"] if is_instance_valid(entry["source"]) else null
 	emitting_dot = true
+	DamageMeter.label = Constants.STATUS_EFFECT_NAME.get(key, key.capitalize())
 	EventBus.damage_dealt.emit(source, _owner, entry["amount"], entry["type"], false, false)
 	emitting_dot = false
 

@@ -618,6 +618,7 @@ func _shatter_hit(enemy: Enemy, damage: float, damage_type: Constants.DamageType
 		return
 	if apply_composure and enemy.stance:
 		enemy.stance.apply_attack_stance_damage(damage, damage_type)
+	DamageMeter.label = "Shatter"
 	EventBus.damage_dealt.emit(_player, enemy, damage, damage_type, false, is_critical)
 
 const IMPACT_ABILITY_IDS := ["comet"]
@@ -665,17 +666,23 @@ func _reap(ability: Ability, damage_multiplier: float, apply_composure: bool, di
 		# Web: Death's Tithe - each kill pays back part of the cast.
 		if ability.has_twist("deaths_tithe") and not enemy.health.is_alive():
 			_player.mana.restore(ability.get_mana_cost(_player.stat_sheet) * DEATHS_TITHE)
-	_reap_arc(origin, forward, radius, half, direction_sign)
+	_reap_arc(origin, forward, radius, half, direction_sign, _reap_tint(ability))
 	if ability.has_twist("second_swing") and direction_sign > 0.0:
 		get_tree().create_timer(REAP_SECOND_SWING_DELAY, false).timeout.connect(func():
 			if is_instance_valid(_player):
 				_reap(ability, damage_multiplier * REAP_SECOND_SWING_DAMAGE, apply_composure, -1.0))
 
+## Aetheric keeps the scythe's own pale cyan; a converted scythe (Withering
+## Scythe) takes its new type's colour.
+func _reap_tint(ability: Ability) -> Color:
+	if ability.damage_type == Constants.DamageType.AETHERIC:
+		return Color(REAP_COLOR.r, REAP_COLOR.g, REAP_COLOR.b)
+	return Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE)
+
 ## The scythe's sweep: a spectral blade racing across the arc, souls of
 ## light shed from its edge.
-func _reap_arc(origin: Vector3, forward: Vector3, radius: float, half: float, direction_sign: float) -> void:
+func _reap_arc(origin: Vector3, forward: Vector3, radius: float, half: float, direction_sign: float, tint: Color) -> void:
 	var scene := _player.get_tree().current_scene
-	var tint := Color(REAP_COLOR.r, REAP_COLOR.g, REAP_COLOR.b)
 	SpellFx.sweep(scene, origin, forward, radius, half, tint, 0.25, direction_sign, 1.2)
 	SpellFx.light_pop(scene, origin + forward * radius * 0.6 + Vector3.UP, tint, 2.0, radius * 1.2, 0.3)
 	var wisps := SpellFx.burst(scene, origin + forward * radius * 0.7 + Vector3.UP * 0.9, tint, 18, Vector2(0.5, 1.5), 0.7, Vector2(0.06, 0.14), 120.0, 1.5)
@@ -852,6 +859,7 @@ func _hit_enemy(ability: Ability, enemy: Enemy, damage_multiplier: float, apply_
 	enemy.take_damage(damage, ability.damage_type)
 	if apply_composure and enemy.stance:
 		enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
+	DamageMeter.label = ability.display_name
 	EventBus.damage_dealt.emit(_player, enemy, damage, ability.damage_type, false, hit["is_critical"])
 	ability.apply_statuses(enemy, _player, damage)
 	if on_hit.is_valid():
@@ -1050,6 +1058,7 @@ func _tick_flame_jets() -> void:
 		enemy.take_damage(damage, _flame_jets_ability.damage_type)
 		if enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, _flame_jets_ability.damage_type)
+		DamageMeter.label = _flame_jets_ability.display_name
 		EventBus.damage_dealt.emit(_player, enemy, damage, _flame_jets_ability.damage_type, false, hit["is_critical"])
 		_flame_jets_ability.apply_statuses(enemy, _player, damage)
 		# Web: Afterburn - every enemy the jets touch keeps burning.
@@ -1645,6 +1654,7 @@ func _on_enemy_died(node: Node) -> void:
 		var burst := dead.status_effects.get_linger_dps() * LINGER_DURATION * HAUNTING_SHARE
 		for near in _enemies_near(dead.global_position, HAUNTING_RADIUS):
 			if near != dead and near.take_damage(burst, Constants.DamageType.PALE, true):
+				DamageMeter.label = "Haunting"
 				EventBus.damage_dealt.emit(_player, near, burst, Constants.DamageType.PALE, false, false)
 		_flash_ring(dead.global_position, HAUNTING_RADIUS, _resolve_ability_by_id("linger"), PALE_COLOR)
 	var ability := _resolve_ability_by_id("linger")
@@ -1726,6 +1736,7 @@ func _tick_pale_thread(delta: float) -> void:
 		var damage: float = hit["final_damage"] * _thread_multiplier * PALE_THREAD_TICK
 		_thread_target.take_damage(damage, Constants.DamageType.PALE, true, false, true)
 		StatusEffectComponent.emitting_dot = true
+		DamageMeter.label = _thread_ability.display_name
 		EventBus.damage_dealt.emit(_player, _thread_target, damage, Constants.DamageType.PALE, false, hit["is_critical"])
 		StatusEffectComponent.emitting_dot = false
 		_player.ward.restore(_player.ward.max_ward * PALE_THREAD_WARD_PER_SEC * PALE_THREAD_TICK)
@@ -1983,6 +1994,7 @@ func _elemental_lightning(ability: Ability, damage_multiplier: float) -> void:
 	target.take_damage(damage, ability.damage_type, true)
 	if target.stance:
 		target.stance.apply_attack_stance_damage(damage, ability.damage_type)
+	DamageMeter.label = ability.display_name
 	EventBus.damage_dealt.emit(_player, target, damage, ability.damage_type, false, crit)
 	ability.apply_statuses(target, _player, damage)
 
@@ -2005,6 +2017,7 @@ func _elemental_fire(ability: Ability, damage_multiplier: float) -> void:
 		ball.speed = FIREBALL_SPEED
 		ball.lifetime = FIREBALL_LIFETIME
 		ball.is_spell_projectile = true
+		ball.meter_label = ability.display_name
 		ball.on_hit = func(enemy: Enemy, amount: float): _fireball_hit(ability, enemy, amount)
 		scene.add_child(ball)
 		ball.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), origin)
@@ -2024,6 +2037,7 @@ func _fireball_hit(ability: Ability, enemy: Enemy, amount: float) -> void:
 	ArkanusFx.forbidden_blast(scene, centre, enemy.global_position, radius)
 	for other in _enemies_by_distance(enemy.global_position, radius):
 		other.take_damage(amount, Constants.DamageType.FIRE, true)
+		DamageMeter.label = ability.display_name
 		EventBus.damage_dealt.emit(_player, other, amount, Constants.DamageType.FIRE, false, false)
 		other.status_effects.apply_forbidden_flame(_player, amount * ForbiddenFire.DAMAGE_SHARE, ForbiddenFire.DURATION)
 		ArkanusFx.enemy_flame(other, ForbiddenFire.DURATION)
@@ -2057,6 +2071,7 @@ func _elemental_aether(ability: Ability, damage_multiplier: float) -> void:
 	target.take_damage(damage, ability.damage_type, true)
 	if target.stance:
 		target.stance.apply_attack_stance_damage(damage, ability.damage_type)
+	DamageMeter.label = ability.display_name
 	EventBus.damage_dealt.emit(_player, target, damage, ability.damage_type, false, hit["is_critical"])
 
 ## How many of ELEMENT_GROUPS the enemy carries.
@@ -2281,6 +2296,7 @@ func _cast_manasaber(ability: Ability, damage_multiplier: float, apply_composure
 		enemy.take_damage(damage, ability.damage_type)
 		if apply_composure and enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
+		DamageMeter.label = ability.display_name
 		EventBus.damage_dealt.emit(_player, enemy, damage, ability.damage_type, false, crit)
 	var scene := _player.get_tree().current_scene
 	var tint: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE).lightened(0.35)
@@ -2516,6 +2532,7 @@ func black_hole_nova(ability: Ability, centre: Vector3, count: int) -> void:
 		shot.speed = BLACK_HOLE_NOVA_SPEED
 		shot.lifetime = 1.2
 		shot.is_spell_projectile = true
+		shot.meter_label = ability.display_name
 		shot.set_meta(&"black_hole_nova", true)
 		scene.add_child(shot)
 		shot.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), centre)
@@ -2712,6 +2729,7 @@ func _fire_spell_ball(ability: Ability, damage: float, from: Vector3, dir: Vecto
 	shot.speed = 26.0
 	shot.lifetime = 1.0
 	shot.is_spell_projectile = true
+	shot.meter_label = ability.display_name
 	shot.blast_radius = 2.0
 	_player.get_tree().current_scene.add_child(shot)
 	shot.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), from)
@@ -2727,6 +2745,7 @@ func _conduct(ability: Ability, from_enemy: Enemy, damage: float) -> void:
 		var jump := damage * CONDUCTOR_SHARE
 		LightningArc.spawn(_player.get_tree().current_scene, from_enemy.global_position + Vector3.UP * ARC_HEIGHT, next.global_position + Vector3.UP * ARC_HEIGHT, Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, Color.WHITE))
 		if next.take_damage(jump, ability.damage_type, true):
+			DamageMeter.label = ability.display_name
 			EventBus.damage_dealt.emit(_player, next, jump, ability.damage_type, false, false)
 		return
 
@@ -2779,6 +2798,7 @@ func _cleansing_fire(ability: Ability) -> void:
 			continue
 		for enemy in _enemies_near(_player.global_position, CLEANSING_FIRE_RADIUS):
 			if enemy.take_damage(amount, type as Constants.DamageType, true):
+				DamageMeter.label = ability.display_name
 				EventBus.damage_dealt.emit(_player, enemy, amount, type, false, false)
 		_flash_ring(_player.global_position, CLEANSING_FIRE_RADIUS, ability, Constants.DAMAGE_TYPE_COLOR.get(type, Color.WHITE))
 

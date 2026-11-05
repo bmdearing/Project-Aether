@@ -76,8 +76,6 @@ func use_throwable() -> void:
 
 var _last_active_weapon: Weapon = null
 var _gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity") * GRAVITY_MULTIPLIER
-var _base_max_health: float = 0.0
-var _base_max_mana: float = 0.0
 var _base_mana_regen: float = 0.0
 
 ## Crouch/slide: fully invented, no doc-sourced design. Capsule shrinks
@@ -228,10 +226,7 @@ func _ready() -> void:
 	collision_mask |= 1 << (WaterBuilder.BANK_WALL_LAYER - 1)  # river banks
 	collision_mask |= 1 << (GeneratedMap.CEILING_LAYER - 1)  # indoor ceilings
 	health.died.connect(_on_died)
-	# Captured before any gear bonus applies - the .tscn's static values
-	# are the class baseline Strength/Intellect add on top of.
-	_base_max_health = health.max_health
-	_base_max_mana = mana.max_mana
+	# Captured before any gear bonus applies.
 	_base_mana_regen = mana.regen_per_second
 	if collision_shape.shape:
 		collision_shape.shape = collision_shape.shape.duplicate()
@@ -332,12 +327,24 @@ var resilience: float = 0.0
 ## (StatSheet.get_ward_increased_from_stats()), so no armour means no Ward.
 const BASE_REGEN_PERCENT := 0.5
 
+## Every character starts with BASE_LIFE / BASE_MANA and gains a fixed amount
+## per level; attributes and gear add on top.
+const BASE_LIFE := 32.0
+const LIFE_PER_LEVEL := 8.0
+const BASE_MANA := 22.0
+const MANA_PER_LEVEL := 4.0
+
+static func base_life() -> float:
+	return BASE_LIFE + LIFE_PER_LEVEL * (GameState.player_level - 1)
+
+static func base_mana() -> float:
+	return BASE_MANA + MANA_PER_LEVEL * (GameState.player_level - 1)
+
 func _apply_derived_stats() -> void:
-	# Life: Strength's +4/point + flat Life, times increased Life. Level adds
-	# nothing directly; defences carry survival.
+	# Life: base + per level, Strength's +4/point and flat Life, times increased Life.
 	var life_mult := (unique_effects.max_life_multiplier() if unique_effects else 1.0) * (1.0 + stat_sheet.get_misc_bonus("life_increased") / 100.0) * (1.0 + stat_sheet.get_misc_bonus("no_ward_recovery_life_bonus") / 100.0)
 	var flat_life := stat_sheet.get_misc_bonus("max_life") + stat_sheet.get_misc_bonus("flat_life")
-	health.set_max_health((_base_max_health + stat_sheet.get_max_life_bonus() + flat_life) * life_mult)
+	health.set_max_health((base_life() + stat_sheet.get_max_life_bonus() + flat_life) * life_mult)
 	# Everyone regenerates BASE_REGEN_PERCENT of max Life/Mana per second on top of gear.
 	var life_regen := (health.max_health * BASE_REGEN_PERCENT / 100.0 + stat_sheet.get_misc_bonus("life_regen") + stat_sheet.get_misc_bonus("life_regen_flat")) * (1.0 + stat_sheet.get_misc_bonus("life_regen_increased") / 100.0)
 	health.regen_per_second = 0.0 if unique_effects and unique_effects.has(UniqueEffects.NO_LIFE_REGEN) else life_regen
@@ -345,7 +352,7 @@ func _apply_derived_stats() -> void:
 
 	# Mana: Intellect's +3/point + flat Mana, times increased Mana; regen likewise.
 	var flat_mana := stat_sheet.get_misc_bonus("max_mana") + stat_sheet.get_misc_bonus("flat_mana")
-	mana.set_max_mana((_base_max_mana + stat_sheet.get_mana_from_stats() + flat_mana) * (1.0 + stat_sheet.get_misc_bonus("mana_increased") / 100.0))
+	mana.set_max_mana((base_mana() + stat_sheet.get_mana_from_stats() + flat_mana) * (1.0 + stat_sheet.get_misc_bonus("mana_increased") / 100.0))
 	mana.regen_per_second = (_base_mana_regen + mana.max_mana * BASE_REGEN_PERCENT / 100.0 + stat_sheet.get_misc_bonus("mana_regen")) * (1.0 + stat_sheet.get_misc_bonus("mana_regen_increased") / 100.0)
 	mana.regen_per_second *= ability_cast.innervate_regen_multiplier() if ability_cast else 1.0
 	if unique_effects and unique_effects.has(UniqueEffects.ARKANUS):

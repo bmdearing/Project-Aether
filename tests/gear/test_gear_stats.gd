@@ -481,12 +481,12 @@ func _test_card_lines() -> void:
 	for a in w.affixes:
 		a.affix_id = a.stat_key
 	var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
-	var lines := card._merged_explicit_lines(w)
+	var lines: Array = card._merged_explicit_lines(w)["own"]
 	_check(lines.has("+56% increased Weapon Damage") and lines.has("Adds 7 to 12 Weapon Damage"), "the hybrid splits and merges with same-stat lines: %s" % [lines])
 	_check(lines.has("+21 Intellect") and lines.size() == 3, "two Intellect rolls read as one line")
 	var only_hybrid := _sword()
 	only_hybrid.affixes.append(w.affixes[0])
-	_check(card._merged_explicit_lines(only_hybrid).size() == 2, "a lone hybrid shows as two lines")
+	_check((card._merged_explicit_lines(only_hybrid)["own"] as Array).size() == 2, "a lone hybrid shows as two lines")
 	var base := load("res://data/armor/instances/gen_body_armour_shadow_vest.tres") as Item
 	card.display_item(base)
 	_check(not _card_text(card).contains("Maximum Evasion"), "base line names don't show as flavour")

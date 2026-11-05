@@ -196,6 +196,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_toggle_screen(get_tree().get_first_node_in_group("figment_tree_screen"))
 		get_viewport().set_input_as_handled()
 		return
+	if event.is_action_pressed("open_damage_meter"):
+		_toggle_screen(get_tree().get_first_node_in_group("damage_meter_screen"))
+		get_viewport().set_input_as_handled()
+		return
 	if show_return_to_hub and event.is_action_pressed("return_to_hub"):
 		get_viewport().set_input_as_handled()
 		var map := get_tree().current_scene as GeneratedMap

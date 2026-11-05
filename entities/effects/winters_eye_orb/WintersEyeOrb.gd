@@ -96,6 +96,7 @@ func _icicle_hit(enemy: Enemy) -> void:
 	var hit := _ability.roll_damage(_stat_sheet)
 	var damage: float = hit["final_damage"] * ICICLE_DAMAGE_PERCENT
 	enemy.take_damage(damage, _ability.damage_type)
+	DamageMeter.label = _ability.display_name
 	EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
 	_ability.apply_statuses(enemy, _source, damage)
 
@@ -109,6 +110,7 @@ func _detonate() -> void:
 		var hit := _ability.roll_damage(_stat_sheet)
 		var damage: float = hit["final_damage"] * DETONATE_MULTIPLIER
 		enemy.take_damage(damage, _ability.damage_type)
+		DamageMeter.label = _ability.display_name
 		EventBus.damage_dealt.emit(_source, enemy, damage, _ability.damage_type, false, hit["is_critical"])
 		_ability.apply_statuses(enemy, _source, damage)
 	_detonation_fx(_ability.get_radius(_stat_sheet))

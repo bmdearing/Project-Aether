@@ -105,6 +105,7 @@ func _hit_enemies_in_reach() -> void:
 		enemy.take_damage(damage, ability.damage_type)
 		if enemy.stance:
 			enemy.stance.apply_attack_stance_damage(damage, ability.damage_type)
+		DamageMeter.label = ability.display_name
 		EventBus.damage_dealt.emit(source, enemy, damage, ability.damage_type, false, hit["is_critical"])
 		ability.apply_statuses(enemy, source, damage)
 		if on_hit.is_valid():

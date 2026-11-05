@@ -33,6 +33,7 @@ KillBox="*res://autoloads/KillBox.gd"
 TooltipFollow="*res://autoloads/TooltipFollow.gd"
 LoadingScreen="*res://autoloads/LoadingScreen.gd"
 CelShading="*res://systems/rendering/CelShading.gd"
+DamageMeter="*res://autoloads/DamageMeter.gd"
 
 [display]
 
@@ -192,6 +193,11 @@ open_map={
 open_figment_tree={
 "deadzone": 0.2,
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":76,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
+]
+}
+open_damage_meter={
+"deadzone": 0.2,
+"events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":74,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
 open_menu={

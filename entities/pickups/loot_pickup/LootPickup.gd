@@ -308,7 +308,6 @@ func _settle_on_floor() -> void:
 
 const LOOK_GROUP := &"loot_look"
 const NAME_TAG_RANGE := 14.0
-const TARGETED_SCALE := 1.35
 
 var _name_tag: Label3D
 
@@ -353,11 +352,9 @@ func _add_name_tag() -> void:
 	_name_tag.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_name_tag)
 
-## LootPicker: grows the drop and brightens its name while it's the target.
+## LootPicker: brightens the drop's name while it's the target. The model
+## keeps its size.
 func set_targeted(on: bool) -> void:
-	mesh.scale = Vector3.ONE * (TARGETED_SCALE if on else 1.0)
-	if _model:
-		_model.scale = mesh.scale
 	if _name_tag:
 		_name_tag.font_size = 52 if on else 40
 		_name_tag.outline_modulate = Color(rarity_color().darkened(0.7), 0.95) if on else Color(0, 0, 0, 0.85)

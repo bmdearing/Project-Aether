@@ -1,7 +1,7 @@
 extends CanvasLayer
 class_name MenuTabStrip
 ## The overall menu's tab strip: shown across the top while any of the main
-## screens (Inventory, Character, Spells, Fate Board, Map, Figment Tree) is open. Click a
+## screens (Inventory, Character, Spells, Fate Board, Map, Figment Tree, Damage) is open. Click a
 ## tab to switch; Tab / Shift+Tab cycle (PauseMenu handles the key).
 
 signal tab_chosen(index: int)
@@ -14,6 +14,7 @@ const SCREENS := [
 	["fate_board_editor", "Fate Board", "open_fate_board"],
 	["map_screen", "Map", "open_map"],
 	["figment_tree_screen", "Figment Tree", "open_figment_tree"],
+	["damage_meter_screen", "Damage", "open_damage_meter"],
 ]
 
 var _buttons: Array[Button] = []

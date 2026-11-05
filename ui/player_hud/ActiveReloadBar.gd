@@ -1,9 +1,9 @@
 extends Control
-## Revolver Active Reload check, under the RELOADING label: a marker sweeps
+## Revolver Active Reload check, under the RELOADING label below the crosshair: a marker sweeps
 ## the bar over the reload; R inside the gold zone finishes it, inside the
 ## bright start of the zone is a Perfect. Shows the outcome briefly after.
 
-const SIZE := Vector2(160, 10)
+const SIZE := Vector2(96, 5)
 const BACK := Color(0.05, 0.05, 0.06, 0.8)
 const ZONE := Color(0.85, 0.68, 0.3, 0.9)
 const PERFECT := Color(1.0, 0.95, 0.7, 1.0)
@@ -17,7 +17,7 @@ var _result: String = ""
 var _result_left: float = 0.0
 
 func _ready() -> void:
-	custom_minimum_size = SIZE + Vector2(0, 16)
+	custom_minimum_size = SIZE + Vector2(0, 14)
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	EventBus.active_reload_resolved.connect(_on_resolved)
 
@@ -34,7 +34,7 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	var x := size.x - SIZE.x
+	var x := (size.x - SIZE.x) / 2.0
 	if not _view.is_empty():
 		draw_rect(Rect2(x, 0, SIZE.x, SIZE.y), BACK)
 		var start: float = _view["start"]
@@ -44,10 +44,10 @@ func _draw() -> void:
 			draw_rect(Rect2(x + SIZE.x * start, 0, SIZE.x * (end - start), SIZE.y), ZONE)
 			draw_rect(Rect2(x + SIZE.x * start, 0, SIZE.x * (perfect - start), SIZE.y), PERFECT)
 		var mx: float = x + SIZE.x * float(_view["progress"])
-		draw_rect(Rect2(mx - 1.5, -3, 3, SIZE.y + 6), JAM if _view["result"] == "jam" else MARKER)
+		draw_rect(Rect2(mx - 1.0, -2, 2, SIZE.y + 4), JAM if _view["result"] == "jam" else MARKER)
 	if _result_left > 0.0:
 		var text: String = {"perfect": "PERFECT", "good": "RELOADED", "jam": "JAMMED"}.get(_result, "")
 		var color := JAM if _result == "jam" else (PERFECT if _result == "perfect" else ZONE)
 		var font := get_theme_default_font()
-		var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13).x
-		draw_string(font, Vector2(size.x - w, SIZE.y + 15), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color(color, minf(_result_left / 0.3, 1.0)))
+		var w := font.get_string_size(text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11).x
+		draw_string(font, Vector2((size.x - w) / 2.0, SIZE.y + 13), text, HORIZONTAL_ALIGNMENT_LEFT, -1, 11, Color(color, minf(_result_left / 0.3, 1.0)))

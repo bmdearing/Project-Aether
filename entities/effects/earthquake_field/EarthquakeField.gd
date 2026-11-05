@@ -66,6 +66,7 @@ func rupture() -> void:
 	_ruptured = true
 	for e in _enemies_inside():
 		if e.take_damage(damage, damage_type, false, true):
+			DamageMeter.label = "Earthquake"
 			EventBus.damage_dealt.emit(player, e, damage, damage_type, false, false)
 	var ring := StanceAttack.IMPACT_RING_SCENE.instantiate()
 	get_parent().add_child(ring)
