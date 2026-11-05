@@ -58,6 +58,18 @@ static func serif() -> Font:
 		_serif = _font(SERIF_FILE, SERIF_NAMES, false)
 	return _serif
 
+static var _serif_text: Font
+
+## The serif a step heavier, for small body text (item cards): the regular
+## weight's thin strokes break up below ~17px.
+static func serif_text() -> Font:
+	if _serif_text == null:
+		var v := FontVariation.new()
+		v.base_font = serif()
+		v.variation_opentype = {TextServerManager.get_primary_interface().name_to_tag("wght"): 560}
+		_serif_text = v
+	return _serif_text
+
 static func serif_italic() -> Font:
 	if _serif_italic == null:
 		_serif_italic = _font(SERIF_ITALIC_FILE, SERIF_NAMES, true)

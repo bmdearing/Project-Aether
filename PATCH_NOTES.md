@@ -7,6 +7,13 @@ there. Most recent first.
 
 ---
 
+## 2026-11-05 — Item card readability
+
+User request: tighter, smaller, more legible item cards, clear prefix/suffix/tier, and a fix for Arkanus (a 6-jewel Mythic whose card ran off the screen).
+- **Text:** mod lines are 16px (were 18) in a heavier weight of the card serif (`AetherStyle.serif_text()`, wght 560), with tighter line spacing, smaller title, stat rows and dividers. The background is more transparent (0.74 alpha, was 0.95), and the text has a drop shadow so it holds up over bright scenes.
+- **Socketed jewels:** the main card lists the item's own modifiers first. Jewel stats the item already rolls still add into its lines. Stats only the jewels give move to a smaller "Socketed" section, which uses two columns once there are 6 or more and widens the card (`WIDE_CARD_WIDTH`).
+- **Alt:** keeps the name plate, with the item level in the subtitle. Each modifier is a row with a Prefix/Suffix (or Implicit) tag on the left, its roll and range in the middle and its tier (T5) on the right. Whole-number rolls show whole-number ranges ("+12(10-13)", not "(10.2-12.8)"). Cards with many jewel modifiers widen here too, so the rows don't wrap.
+
 ## 2026-10-29 — 55 new ability web nodes
 
 The user said "Build them all" for `documents/Ability_Node_Proposals.md`. Every ability now has one or two new twists in its web; the web describes each. That doc lists where a built node differs from its pitch, and why.

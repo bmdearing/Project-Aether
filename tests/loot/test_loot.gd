@@ -333,8 +333,8 @@ func _test_look_pickup() -> void:
 
 func _card_texts(card: ItemCard) -> String:
 	var texts: Array[String] = []
-	for child in card._content().get_children():
-		if child is Label and not child.is_queued_for_deletion():
+	for child in card._content().find_children("*", "Label", true, false):
+		if not child.is_queued_for_deletion():
 			texts.append((child as Label).text)
 	return "\n".join(texts)
 
@@ -355,7 +355,7 @@ func _test_card_alt() -> void:
 	add_child(card)
 	card.display_item(ring)
 	await _frames(1)
-	_check(not _card_texts(card).contains("Socketed ("), "main card folds jewel mods in, no socket section")
+	_check(not _card_texts(card).contains(AetherStyle.spaced("Socketed (")), "main card folds jewel mods in, no socket section")
 	var alt := InputEventKey.new()
 	alt.keycode = KEY_ALT
 	alt.pressed = true
@@ -363,8 +363,8 @@ func _test_card_alt() -> void:
 	await _frames(2)
 	var alt_text := _card_texts(card)
 	_check(card._showing_alt, "holding Alt switches the card to Alt view")
-	_check(alt_text.contains("[Tier 2]") and alt_text.contains("Socketed (1/1)"), "Alt view lists explicits, then the jewel mods in their own section")
-	_check(alt_text.find("Strength") < alt_text.find("Socketed ("), "the socket section sits below the explicits")
+	_check(alt_text.contains("T2") and alt_text.contains(AetherStyle.spaced("Socketed (1/1)")), "Alt view lists explicits, then the jewel mods in their own section")
+	_check(alt_text.find("Strength") < alt_text.find(AetherStyle.spaced("Socketed (")), "the socket section sits below the explicits")
 	var up := InputEventKey.new()
 	up.keycode = KEY_ALT
 	up.pressed = false

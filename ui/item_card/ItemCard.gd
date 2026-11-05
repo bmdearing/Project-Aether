@@ -35,7 +35,17 @@ const AMMO_INFO_COLOR := SUBTITLE_COLOR  # Magazine/Reload lines on ranged weapo
 const SUBTITLE_COLOR := Color(0.65, 0.65, 0.65)
 const FLAVOR_COLOR := Color(0.75, 0.65, 0.45)
 const MODIFIED_VALUE_COLOR := Color(0.4, 0.6, 1.0)  # a card value changed by a mod on the item itself (v4.10)
-const CARD_WIDTH := 320.0
+const CARD_WIDTH := 330.0
+## Cards carrying many jewel modifiers widen so the socket section fits in two
+## columns (main card) or unwrapped rows (Alt).
+const WIDE_CARD_WIDTH := 440.0
+const WIDE_AT_SOCKET_LINES := 6
+var _width := CARD_WIDTH
+const MOD_FONT := 16
+const SMALL_FONT := 14
+const TITLE_FONT := 20
+## Pulls wrapped lines together; the serif is tall for its size.
+const LINE_SPACING := -3
 const STAT_LABEL_COLOR := Color(0.66, 0.62, 0.55)
 
 const SLATE_BADGE_COLOR := Color(0.55, 0.35, 0.85)  # fixed - independent of the Slate's own rarity color, shown on the border instead
@@ -162,6 +172,8 @@ func _process(_delta: float) -> void:
 
 func _render_item(item: Item) -> void:
 	_clear()
+	if _merged_explicit_lines(item)["socket"].size() >= WIDE_AT_SOCKET_LINES:
+		_width = WIDE_CARD_WIDTH
 	var requirements_met := _check_requirements_met(item)
 	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
 	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH, AetherStyle.GOLD if requirements_met else REQUIREMENT_UNMET_COLOR)
@@ -210,8 +222,10 @@ func _render_item(item: Item) -> void:
 			for affix in item.jewel_affixes(jewel):
 				_add_mod_line(_affix_text(affix, false), SOCKETED_COLOR)
 	else:
-		for line in _merged_explicit_lines(item):
+		var merged := _merged_explicit_lines(item)
+		for line: String in merged["own"]:
 			_add_mod_line(line, mod_color)
+		_add_socket_only_lines(merged["socket"])
 	if item is Weapon:
 		_add_stance_lines(item as Weapon, true)
 	if item is Jewel:
@@ -526,10 +540,9 @@ func _affix_text(affix: ItemAffix, show_tier: bool) -> String:
 	var tier_at := text.rfind(TIER_SUFFIX)
 	if tier_at != -1 and text.ends_with(")"):
 		text = text.substr(0, tier_at)
-	if show_tier and not affix.is_implicit and affix.tier > 0:
-		text = _with_range(text, affix) + "  [Tier %d]" % affix.tier
-	elif show_tier and not affix.is_implicit and affix.value_max > affix.value_min:
-		text = _with_range(text, affix)  # unique modifiers: a range, no tier
+	# Tiers show in their own column (_add_affix_row), not in the text.
+	if show_tier and not affix.is_implicit and affix.value_max > affix.value_min:
+		text = _with_range(text, affix)
 	return text
 
 static var _number_regex: RegEx
@@ -540,8 +553,12 @@ func _with_range(text: String, affix: ItemAffix) -> String:
 		return text
 	if _number_regex == null:
 		_number_regex = RegEx.create_from_string("\\d+(\\.\\d+)?")
-	var range_text := "(%s-%s)" % [_format_num(affix.value_min), _format_num(affix.value_max)]
 	var m := _number_regex.search(text)
+	# A whole-number roll gets a whole-number range: "+12(10-13)", not "(10.2-12.8)".
+	var whole := m != null and not m.get_string().contains(".")
+	var lo := roundf(affix.value_min) if whole else affix.value_min
+	var hi := roundf(affix.value_max) if whole else affix.value_max
+	var range_text := "(%s-%s)" % [_format_num(lo), _format_num(hi)]
 	if m == null:
 		return "%s %s" % [text, range_text]
 	return text.substr(0, m.get_end()) + range_text + text.substr(m.get_end())
@@ -582,24 +599,36 @@ func _add_flavor_line(text: String) -> void:
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	label.custom_minimum_size = Vector2(_width, 0)
 	label.add_theme_font_size_override("font_size", 13)
 	label.add_theme_color_override("font_color", STAT_LABEL_COLOR)
 	_content().add_child(label)
 
+## Alt view's modifier rows: implicits, then each explicit with its slot tag
+## on the left and tier on the right, then the socketed jewels' rows.
 func _add_alt_affix_tiers(item: Item) -> void:
+	var implicits := item.affixes.filter(func(a: ItemAffix): return a.is_implicit)
 	var explicits := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
+	if not implicits.is_empty():
+		_add_separator()
+		for affix: ItemAffix in implicits:
+			_add_affix_row("Implicit", StatKeys.implicit_text(affix), "", IMPLICIT_COLOR)
 	if not explicits.is_empty():
 		_add_separator()
-		for affix in explicits:
-			_add_mod_line(_slot_tag(affix, item) + _affix_text(affix, true), AFFIX_COLOR)
+		var color := UNIQUE_MOD_COLOR if item.rarity >= Constants.ItemRarity.UNIQUE else AFFIX_COLOR
+		for affix: ItemAffix in explicits:
+			_add_alt_affix_row(affix, item, color)
 	_add_alt_socket_section(item)
 
-## Alt view's "(Pfx) "/"(Sfx) " lead-in; Uniques have no prefix/suffix split.
+func _add_alt_affix_row(affix: ItemAffix, owner: Item, color: Color, font_size: int = MOD_FONT) -> void:
+	var tier := "T%d" % affix.tier if affix.tier > 0 else ""
+	_add_affix_row(_slot_tag(affix, owner), _affix_text(affix, true), tier, color, font_size)
+
+## "Prefix"/"Suffix"; Uniques have no prefix/suffix split.
 func _slot_tag(affix: ItemAffix, owner: Item) -> String:
 	if owner.rarity >= Constants.ItemRarity.UNIQUE:
 		return ""
-	return "(Pfx) " if affix.is_prefix else "(Sfx) "
+	return "Prefix" if affix.is_prefix else "Suffix"
 
 ## Alt view: the socketed jewels' modifiers in their own section under the
 ## explicits, with ranges and tiers.
@@ -608,20 +637,75 @@ func _add_alt_socket_section(item: Item) -> void:
 	if jewels.is_empty():
 		return
 	_add_separator()
-	_add_mod_line("Socketed (%d/%d)" % [jewels.size(), item.sockets], STAT_LABEL_COLOR)
+	_add_section_heading("Socketed (%d/%d)" % [jewels.size(), item.sockets])
 	for jewel in jewels:
 		for affix in item.jewel_affixes(jewel):
-			_add_mod_line(_slot_tag(affix, jewel) + _affix_text(affix, true), SOCKETED_COLOR)
+			_add_alt_affix_row(affix, jewel, SOCKETED_COLOR, SMALL_FONT)
 
-## Main card: the item's explicits with its socketed jewels folded in, one
-## line per stat: modifiers feeding the same stat add up (two Intellect rolls
-## read as one), and a hybrid splits into its parts so they merge too. Alt
-## Info keeps every modifier separate.
-func _merged_explicit_lines(item: Item) -> Array[String]:
+const SLOT_TAG_WIDTH := 46.0
+const TIER_WIDTH := 30.0
+
+## One Alt modifier row: slot tag | text with its range | tier.
+func _add_affix_row(tag: String, text: String, tier: String, color: Color, font_size: int = MOD_FONT) -> void:
+	var row := AffixRow.new()
+	row.tag = tag
+	row.text = text
+	row.tier = tier
+	row.add_theme_constant_override("separation", 4)
+	var tag_label := Label.new()
+	tag_label.custom_minimum_size = Vector2(SLOT_TAG_WIDTH, 0)
+	tag_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	tag_label.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	if tag != "":
+		tag_label.text = tag
+		tag_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		tag_label.add_theme_font_override("font", AetherStyle.serif_text())
+		tag_label.add_theme_font_size_override("font_size", 11)
+		tag_label.add_theme_color_override("font_color", STAT_LABEL_COLOR)
+		tag_label.add_theme_stylebox_override("normal", AetherStyle.glass_box(Color(STAT_LABEL_COLOR, 0.35), Color(1, 1, 1, 0.04), 1, 2.0))
+	row.add_child(tag_label)
+	var body := _make_text_label(text, color, font_size)
+	body.custom_minimum_size = Vector2(_width - SLOT_TAG_WIDTH - TIER_WIDTH - 8.0, 0)
+	row.add_child(body)
+	var tier_label := Label.new()
+	tier_label.text = tier
+	tier_label.custom_minimum_size = Vector2(TIER_WIDTH, 0)
+	tier_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	tier_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	tier_label.size_flags_vertical = Control.SIZE_FILL
+	tier_label.add_theme_font_override("font", AetherStyle.numbers())
+	tier_label.add_theme_font_size_override("font_size", 14)
+	tier_label.add_theme_color_override("font_color", STAT_LABEL_COLOR)
+	row.add_child(tier_label)
+	_content().add_child(row)
+
+## Alt modifier row; ItemText copies it as one line.
+class AffixRow extends HBoxContainer:
+	var tag: String
+	var text: String
+	var tier: String
+
+	func plain_text() -> String:
+		var out := text
+		var extra := " ".join([tag, tier].filter(func(s: String): return s != ""))
+		return out + ("  [%s]" % extra if extra != "" else "")
+
+## Main card, one line per stat: modifiers feeding the same stat add up (two
+## Intellect rolls read as one), and a hybrid splits into its parts so they
+## merge too. "own": stats the item itself rolls, with any jewel share added
+## in. "socket": stats only the socketed jewels give, shown in their own
+## section so they don't bury the item's identity. Alt keeps every modifier
+## separate.
+func _merged_explicit_lines(item: Item) -> Dictionary:
+	var own_affixes := item.affixes.filter(func(a: ItemAffix): return not a.is_implicit)
 	var sources: Array[ItemAffix] = []
-	sources.assign(item.affixes.filter(func(a: ItemAffix): return not a.is_implicit))
+	sources.assign(own_affixes)
 	for jewel in item.get_socketed_jewels():
 		sources.append_array(item.jewel_affixes(jewel))
+	var own_stats: Dictionary = {}
+	for affix: ItemAffix in own_affixes:
+		for part in _line_parts(affix):
+			own_stats[part[0]] = true
 	var totals: Dictionary = {}  # stat -> [template, total, first affix]
 	var order: Array[String] = []
 	for affix in sources:
@@ -630,11 +714,57 @@ func _merged_explicit_lines(item: Item) -> Array[String]:
 				totals[part[0]] = [part[1], 0.0, affix]
 				order.append(part[0])
 			totals[part[0]][1] += part[2]
-	var lines: Array[String] = []
+	var own: Array[String] = []
+	var socket: Array[String] = []
 	for stat in order:
 		var entry: Array = totals[stat]
-		lines.append(ItemRoller.describe_value(entry[0], stat, entry[1]) if entry[0] != "" else _affix_text(entry[2], false))
-	return lines
+		var line := ItemRoller.describe_value(entry[0], stat, entry[1]) if entry[0] != "" else _affix_text(entry[2], false)
+		if own_stats.has(stat):
+			own.append(line)
+		else:
+			socket.append(line)
+	return {"own": own, "socket": socket}
+
+const SOCKET_HEADING := "Socketed"
+
+## Stats only the jewels give: a small heading, then smaller lines in the
+## socket colour.
+func _add_socket_only_lines(lines: Array[String]) -> void:
+	if lines.is_empty():
+		return
+	_add_separator()
+	_add_section_heading(SOCKET_HEADING)
+	if _width < WIDE_CARD_WIDTH:
+		for line in lines:
+			_add_mod_line(line, SOCKETED_COLOR, SMALL_FONT)
+		return
+	var grid := GridContainer.new()
+	grid.columns = 2
+	grid.add_theme_constant_override("h_separation", 8)
+	grid.add_theme_constant_override("v_separation", 1)
+	for line in lines:
+		var label := _make_text_label(line, SOCKETED_COLOR, SOCKET_GRID_FONT)
+		label.custom_minimum_size = Vector2((_width - 8.0) / 2.0, 0)
+		grid.add_child(label)
+	_content().add_child(grid)
+
+const SOCKET_GRID_FONT := 13
+
+func _jewel_affix_count(item: Item) -> int:
+	var n := 0
+	for jewel in item.get_socketed_jewels():
+		n += item.jewel_affixes(jewel).size()
+	return n
+
+## Letter-spaced small caps between sections ("SOCKETED").
+func _add_section_heading(text: String) -> void:
+	var label := Label.new()
+	label.text = AetherStyle.spaced(text.to_upper())
+	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_override("font", AetherStyle.title())
+	label.add_theme_font_size_override("font_size", 10)
+	label.add_theme_color_override("font_color", STAT_LABEL_COLOR)
+	_content().add_child(label)
 
 ## [stat, template, value] for each stat a modifier feeds. One without a known
 ## template (Uniques, corruption implicits) keeps its own line.
@@ -647,19 +777,28 @@ func _line_parts(affix: ItemAffix) -> Array:
 		return [["local_increased_weapon_damage", "+%d%% increased Weapon Damage", affix.value], ["local_flat_weapon_damage", "Adds %d to %d Weapon Damage", flat]]
 	return [[affix.key(), template, affix.value]]
 
+## Alt keeps the card's name plate, with the item level in the subtitle.
+func _add_alt_header(item: Item) -> void:
+	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
+	_add_title(item.display_name, rarity_color)
+	_add_subtitle("%s  ·  Item Level %d" % [_item_type_line(item), item.item_level])
+	_add_separator()
+
 func _render_alt_info() -> void:
 	_clear()
+	if _current_item != null and _jewel_affix_count(_current_item) >= WIDE_AT_SOCKET_LINES:
+		_width = WIDE_CARD_WIDTH
+	if _current_item != null:
+		_add_alt_header(_current_item)
 	if _current_item is Weapon:
 		var w := _current_item as Weapon
 		if w.honed:
 			_add_stat_line("Honed: +%d%% base damage" % roundi((Weapon.HONED_DAMAGE_MULTIPLIER - 1.0) * 100.0))
-		_add_stat_line("Item Level: %d" % w.item_level)
 		for line in _requirement_lines(w):
 			_add_stat_line(line)
 		_add_stance_lines(w)
 		_add_alt_affix_tiers(w)
 	elif _current_item != null:
-		_add_stat_line("Item Level: %d" % _current_item.item_level)
 		for line in _requirement_lines(_current_item):
 			_add_stat_line(line)
 		_add_alt_affix_tiers(_current_item)
@@ -852,7 +991,7 @@ func _format_num(v: float) -> String:
 func _add_socket_row(item: Item) -> void:
 	var row := SocketRow.new()
 	row.item = item
-	row.custom_minimum_size = Vector2(CARD_WIDTH, 24.0)
+	row.custom_minimum_size = Vector2(_width, 24.0)
 	_content().add_child(row)
 
 class SocketRow extends Control:
@@ -942,6 +1081,7 @@ func _item_stat_lines(item: Item) -> Array[String]:
 ## Removed now, not just queued: a queued child still counts toward this
 ## frame's size, which made the card jump when its content changed.
 func _clear() -> void:
+	_width = CARD_WIDTH
 	for child in _content().get_children():
 		_content().remove_child(child)
 		child.queue_free()
@@ -953,7 +1093,7 @@ func _set_card_style(accent: Color, bg_color: Color, corner_radius: int, border_
 	_accent = accent
 	_frame = frame if frame.a > 0.0 else accent
 	var box := StyleBoxFlat.new()
-	box.bg_color = Color(bg_color.r * 0.6, bg_color.g * 0.6, bg_color.b * 0.75, 0.95)
+	box.bg_color = Color(bg_color.r * 0.6, bg_color.g * 0.6, bg_color.b * 0.75, 0.74)
 	box.border_color = _frame
 	box.set_border_width_all(maxi(border_width - 1, 1) if corner_radius <= ITEM_CORNER_RADIUS else border_width)
 	box.set_corner_radius_all(corner_radius)
@@ -1002,9 +1142,10 @@ func _add_title(text: String, color: Color) -> void:
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	label.custom_minimum_size = Vector2(_width, 0)
 	label.add_theme_color_override("font_color", color)
-	label.add_theme_font_size_override("font_size", 23)
+	label.add_theme_font_size_override("font_size", TITLE_FONT)
+	label.add_theme_constant_override("line_spacing", LINE_SPACING)
 	_content().add_child(label)
 
 func _add_subtitle(text: String) -> void:
@@ -1012,13 +1153,13 @@ func _add_subtitle(text: String) -> void:
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.add_theme_font_override("font", AetherStyle.serif_italic())
-	label.add_theme_font_size_override("font_size", 13)
+	label.add_theme_font_size_override("font_size", 12)
 	label.add_theme_color_override("font_color", SUBTITLE_COLOR)
 	_content().add_child(label)
 
 func _add_separator() -> void:
 	var divider := CardDivider.new()
-	divider.custom_minimum_size = Vector2(CARD_WIDTH, 14)
+	divider.custom_minimum_size = Vector2(_width, 11)
 	_content().add_child(divider)
 
 ## "Label: value" lines become a dotted-leader row (label left, value
@@ -1031,6 +1172,7 @@ func _add_stat_line(text: String) -> void:
 	var label := Label.new()
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.add_theme_font_size_override("font_size", 15)
 	label.add_theme_color_override("font_color", STAT_COLOR)
 	_content().add_child(label)
 
@@ -1040,25 +1182,36 @@ func _add_leader_row(label: String, label_color: Color, value: String, value_col
 	row.label_color = label_color
 	row.value = value
 	row.value_color = value_color
-	row.custom_minimum_size = Vector2(CARD_WIDTH, 21)
+	row.custom_minimum_size = Vector2(_width, 19)
 	_content().add_child(row)
 
-func _add_mod_line(text: String, color: Color) -> void:
+func _add_mod_line(text: String, color: Color, font_size: int = MOD_FONT) -> void:
+	_content().add_child(_make_text_label(text, color, font_size))
+
+## A centred, wrapping body line in the card's text weight.
+func _make_text_label(text: String, color: Color, font_size: int = MOD_FONT) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	label.custom_minimum_size = Vector2(_width, 0)
+	label.add_theme_font_override("font", AetherStyle.serif_text())
+	label.add_theme_font_size_override("font_size", font_size)
+	label.add_theme_color_override("font_shadow_color", Color(0, 0, 0, 0.85))
+	label.add_theme_constant_override("line_spacing", LINE_SPACING)
 	label.add_theme_color_override("font_color", color)
-	_content().add_child(label)
+	return label
 
 func _add_flavor(text: String) -> void:
 	var label := Label.new()
 	label.text = text
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	label.custom_minimum_size = Vector2(CARD_WIDTH, 0)
+	label.custom_minimum_size = Vector2(_width, 0)
 	label.add_theme_font_override("font", AetherStyle.serif_italic())
+	label.add_theme_font_size_override("font_size", 15)
+	label.add_theme_constant_override("line_spacing", LINE_SPACING)
 	label.add_theme_color_override("font_color", FLAVOR_COLOR)
 	_content().add_child(label)
 
@@ -1077,12 +1230,12 @@ class LeaderRow extends Control:
 		var serif := AetherStyle.serif()
 		var numbers := AetherStyle.numbers()
 		var y := size.y - 5.0
-		AetherStyle.text(self, serif, Vector2(0, y), label, 15, label_color)
-		AetherStyle.text(self, numbers, Vector2(0, y), value, 16, value_color, HORIZONTAL_ALIGNMENT_RIGHT, size.x)
+		AetherStyle.text(self, serif, Vector2(0, y), label, 14, label_color)
+		AetherStyle.text(self, numbers, Vector2(0, y), value, 15, value_color, HORIZONTAL_ALIGNMENT_RIGHT, size.x)
 		if value == "":
 			return
-		var from := AetherStyle.text_width(serif, label, 15) + 8.0
-		var to := size.x - AetherStyle.text_width(numbers, value, 16) - 8.0
+		var from := AetherStyle.text_width(serif, label, 14) + 8.0
+		var to := size.x - AetherStyle.text_width(numbers, value, 15) - 8.0
 		var x := from
 		while x < to:
 			draw_circle(Vector2(x, y - 4.0), 0.8, AetherStyle.GOLD_FAINT)

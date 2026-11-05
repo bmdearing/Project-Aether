@@ -225,7 +225,7 @@ func _test_card() -> void:
 	card._showing_alt = true
 	card._render_alt_info()
 	text = _card_text(card)
-	_check(text.contains("+5 Strength") and text.contains("Socketed (1/2)") and text.contains("+10(9-11) Strength"), "Alt splits socket modifiers into their own section")
+	_check(text.contains("+5 Strength") and text.contains(AetherStyle.spaced("Socketed (1/2)")) and text.contains("+10(9-11) Strength"), "Alt splits socket modifiers into their own section")
 	card.display_item(_jewel({"cast_speed": 4.0}))
 	_check(_card_text(card).contains(ItemCard.JEWEL_HINT), "a jewel's card says how to socket it")
 	card.queue_free()

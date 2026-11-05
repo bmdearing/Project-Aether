@@ -37,6 +37,8 @@ static func _collect(node: Node, lines: Array[String]) -> void:
 			var rich := (child as RichTextLabel).get_parsed_text().strip_edges()
 			if rich != "":
 				lines.append(rich)
+		elif child is ItemCard.AffixRow:
+			lines.append(child.plain_text())
 		elif child is ItemCard.LeaderRow:
 			lines.append("%s: %s" % [child.label, child.value])
 		elif child is ItemCard.CardDivider or child is HSeparator:
