@@ -30,7 +30,13 @@ static func _def_for(source: SlateAffix) -> ModifierDef:
 	def.stat_key = source.stat_key
 	def.text = source.description
 	def.affix_type = ModifierDef.AffixType.PREFIX if source.is_prefix else ModifierDef.AffixType.SUFFIX
-	def.tags.append(StringName(source.tag))
+	# Its own tag (a Cold Slate's lines are "cold") plus the families its stat
+	# belongs to, so Life, Critical, Attributes... crafts reach Slates too.
+	def.tags = GearModifierPool._tags([source.tag], source.stat_key)
+	if source.damage_type != -1:
+		var type_tag := StringName(String(Constants.DAMAGE_TYPE_NAME.get(source.damage_type, "")).to_lower())
+		if type_tag != &"" and not def.tags.has(type_tag):
+			def.tags.append(type_tag)
 	def.damage_type = source.damage_type
 	for t in TIER_COUNT:
 		var range_ := ItemRoller._tier_range(source.value_min, source.value_max, t + 1)

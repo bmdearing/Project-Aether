@@ -17,7 +17,7 @@ const DERIVED_TAGS := {
 	"life": [&"life"], "crit": [&"critical"], "resistance": [&"resistance"],
 	"elemental_taken": [&"resistance"], "esoteric_taken": [&"resistance"],
 	"physical_taken": [&"armor"], "armor_to": [&"armor"],
-	"riposte": [&"attack"], "parry": [&"attack"], "mana": [&"mana"],
+	"riposte": [&"attack"], "parry": [&"attack"], "mana": [&"mana"], "minion": [&"minion"],
 }
 
 const DOT_STAT_KEYS := [
@@ -93,16 +93,41 @@ static func _is_suffix(stat_key: String) -> bool:
 			return true
 	return false
 
-## Source tags plus the Rev2 umbrella tags (mana/speed/spell/attack).
-static func _tags(source_tags: Array, stat_key: String) -> Array[StringName]:
+## Families for stats the word rules below don't reach (canonical stat keys).
+const STAT_FAMILIES := {
+	"increased_aoe_radius": [&"area"], "increased_area_damage": [&"area"],
+	"control_ailment_chance": [&"ailment"], "control_ailment_effect": [&"ailment"], "ailment_duration": [&"ailment"],
+	"curse_effect": [&"ailment"], "debuff_effectiveness": [&"ailment"], "additional_curses": [&"ailment"],
+	"ailment_effectiveness": [&"ailment"], "ailment_ignore_chance": [&"resilience"],
+	"block_chance_bonus": [&"block"], "increased_block_chance": [&"block"], "retaliate_on_block": [&"block"],
+	"increased_retaliation_damage": [&"block"],
+	"cooldown_recovery_rate": [&"skill"], "skill_effect_duration": [&"skill"], "skill_level_all": [&"skill"],
+	"flat_aether": [&"skill"],
+	"fire_rate": [&"attack"], "local_additional_arrows": [&"attack"], "stagger_effect": [&"attack"],
+	"damage_vs_staggered": [&"attack"], "stealth_effect": [&"attack"], "riposte_counter_damage": [&"attack"],
+	"item_quantity": [&"loot"], "item_rarity": [&"loot"], "magic_find": [&"loot"],
+	"phys_as_elemental": [&"armor"],
+}
+const ATTRIBUTE_WORDS := ["strength", "agility", "intellect", "attribute"]
+
+## Source tags plus the umbrella families (mana, speed, spell, attack,
+## attributes...), read from the line's real stat (StatKeys.canonical()), so a
+## library line like "generic_deadly" counts as Critical.
+static func _tags(source_tags: Array, raw_stat_key: String) -> Array[StringName]:
 	var tags: Array[StringName] = []
 	for t in source_tags:
 		tags.append(StringName(t))
 		if TAG_ALIASES.has(t):
 			tags.append(TAG_ALIASES[t])
-	if stat_key.contains("spell") or stat_key.contains("cast"):
+	var stat_key := StatKeys.canonical(raw_stat_key)
+	for tag in STAT_FAMILIES.get(stat_key, []):
+		if not tags.has(tag):
+			tags.append(tag)
+	if ATTRIBUTE_WORDS.any(func(w: String) -> bool: return stat_key.contains(w)) and not tags.has(&"attributes"):
+		tags.append(&"attributes")
+	if (stat_key.contains("spell") or stat_key.contains("cast")) and not tags.has(&"spell"):
 		tags.append(&"spell")
-	if stat_key.contains("attack") or stat_key.contains("weapon_damage"):
+	if (stat_key.contains("attack") or stat_key.contains("weapon_damage")) and not tags.has(&"attack"):
 		tags.append(&"attack")
 	if stat_key.contains("speed") and not tags.has(&"speed"):
 		tags.append(&"speed")

@@ -425,6 +425,7 @@ const CRAFT_FAMILIES := {
 	&"aetheric": &"residue_esoteric", &"entropic": &"residue_esoteric", &"pale": &"residue_esoteric", &"ward": &"residue_esoteric",
 	&"life": &"", &"mana": &"", &"speed": &"", &"attack": &"", &"spell": &"", &"critical": &"",
 	&"minion": &"", &"dot": &"", &"resistance": &"", &"resilience": &"",
+	&"attributes": &"", &"area": &"", &"ailment": &"", &"block": &"", &"skill": &"", &"loot": &"",
 }
 
 const QUALITY_CAP := 25

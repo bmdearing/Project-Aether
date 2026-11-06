@@ -248,6 +248,14 @@ func _test_slates_figments_lenses() -> void:
 	if not tags.has(off):
 		_check(_resolver.apply(slate, &"add", off).error == E.NO_VALID_OUTCOME, "an off-tag family fails on a Slate")
 	_check(_resolver.apply(slate, &"add").success, "an unfocused add works on a Slate")
+	var crit_slate := SlateRoller.roll(80)
+	crit_slate.explicits = [] as Array[ItemAffix]
+	crit_slate.rarity = Constants.SlateRarity.COMMON
+	var crit := _resolver.apply(crit_slate, &"add", &"critical")
+	_check(crit.success and _resolver.affix_tags(CraftTarget.wrap(crit_slate), crit_slate.explicits[0]).has(&"critical"), "a Critical add works on any Slate (%s)" % crit.get_message())
+	var ring := _item(RING)
+	var attr := _resolver.apply(ring, &"add", &"attributes")
+	_check(attr.success and ["flat_strength", "flat_agility", "flat_intellect"].has(StatKeys.canonical(_explicits(ring)[0].stat_key)), "the Attributes family adds an attribute")
 	var lens := LensRoller.roll(80)
 	var lens_ok := _resolver.apply(lens, &"settle").success or _resolver.apply(lens, &"add").success
 	_check(lens_ok, "Lenses take Siphon crafts")

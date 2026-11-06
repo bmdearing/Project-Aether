@@ -7,6 +7,14 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Siphon families reviewed: every modifier has one (user report)
+
+The user found many modifiers unreachable when crafting Slates with a family picked. An audit of every gear, jewel, Lens and Slate line found two causes:
+- **Library lines were tagged by their internal name, not their stat.** "generic_deadly" (Critical Strike damage) or "generic_of_strength" (Strength) matched nothing. Tags now come from the real stat (`StatKeys.canonical()`).
+- **Many lines had no family at all.** Six new families, all payable from any pool: **Attributes** (Strength, Agility, Intellect), **Area** (area damage and radius), **Ailment** (control ailments, ailment duration, curses, debuffs), **Block** (block chance, Retaliation), **Skill** (cooldown recovery, skill duration and levels, Aether capacity), **Loot** (Item Rarity and Quantity). Fire rate, extra arrows, stagger, riposte and stealth lines count as Attack; Physical-taken-as-Elemental counts as Armour; minion lines as Minion.
+- **Slates:** their lines carried only their Slate's own tag, so on a Fire Slate only Fire crafts worked. Now the shared lines carry their families (Life, Critical, Attack, Speed, Mana, Ailment...) and work on any Slate. Each Slate's damage lines still need its own type, and typed families still have to match the Slate.
+- After the change, no gear or jewel line is left without a family.
+
 ## 2026-11-06 — Stagger rebalance (user report)
 
 Zeo staggered enemies on every hit. Every enemy's Stance pool is a flat 100, and ordinary hits drained raw damage x0.2, so a 4,000 Kinetic hit drained ~800: eight full pools. That also meant bosses broke to any hit over ~500.
