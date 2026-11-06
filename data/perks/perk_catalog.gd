@@ -19,17 +19,17 @@ const PERKS := {
 		"slots": [S.PRIMARY_WEAPON], "kinds": ["throwing"], "sources": ["unchartered_javelineer"]},
 	&"heavy_knockback": {"name": "Enforcer's Weight", "text": "Heavy and charged melee hits knock enemies back and deal %d%% more damage", "min": 10.0, "max": 20.0,
 		"slots": [S.PRIMARY_WEAPON], "kinds": ["melee"], "sources": ["unchartered_enforcer"]},
-	&"elite_battle_cry": {"name": "Chieftain's Roar", "text": "Killing an Elite or stronger enemy grants %d%% more damage for 6 seconds", "min": 15.0, "max": 25.0,
+	&"elite_battle_cry": {"name": "Chieftain's Roar", "text": "Killing an Elite or stronger enemy lets out a roar that Stuns enemies within %d metres for 2 seconds (bosses, heavies and Champions resist)", "min": 6.0, "max": 10.0,
 		"slots": [S.AMULET], "sources": ["unchartered_chieftain"]},
-	&"last_round": {"name": "Soldier's Last Round", "text": "The last round in your magazine deals %d%% more damage", "min": 60.0, "max": 100.0,
+	&"last_round": {"name": "Soldier's Last Round", "text": "The last round in your magazine explodes on hit, dealing %d%% of its damage to enemies within 3.5 metres", "min": 100.0, "max": 150.0,
 		"slots": [S.PRIMARY_WEAPON], "kinds": ["ranged"], "sources": ["directorate_soldier"]},
 	&"adjudicator_mark": {"name": "Adjudicator's Mark", "text": "Weapon hits Mark enemies; your spells deal %d%% more damage to Marked enemies, consuming the Mark", "min": 20.0, "max": 35.0,
 		"slots": [S.GLOVES], "sources": ["directorate_adjudicator"]},
-	&"block_shockwave": {"name": "Dreadknight's Rebuke", "text": "Blocking releases a shockwave that knocks back nearby enemies and deals %d%% of your Armour as Kinetic damage", "min": 4.0, "max": 8.0,
+	&"block_shockwave": {"name": "Dreadknight's Rebuke", "text": "Blocking releases a shockwave that knocks back nearby enemies and deals %d%% of your strongest recent hit as Kinetic damage", "min": 100.0, "max": 150.0,
 		"slots": [S.OFFHAND], "kinds": ["shield"], "sources": ["legion_dreadknight"]},
-	&"landing_strike": {"name": "Threshold Landing", "text": "Landing from a jump or a fall deals %d%% of your maximum Life as Kinetic damage around you", "min": 15.0, "max": 25.0,
+	&"landing_strike": {"name": "Threshold Landing", "text": "Landing from a jump or a fall deals %d%% of your strongest recent hit as Kinetic damage around you (once a second)", "min": 60.0, "max": 100.0,
 		"slots": [S.BOOTS], "sources": ["legion_threshold_knight"]},
-	&"ember_trail": {"name": "Ember Stride", "text": "While sprinting, you Ignite enemies near you as if hit for %d%% of your maximum Life", "min": 10.0, "max": 20.0,
+	&"ember_trail": {"name": "Ember Stride", "text": "While sprinting, you Ignite enemies near you as if hit for %d%% of your strongest recent hit", "min": 30.0, "max": 50.0,
 		"slots": [S.BOOTS], "sources": ["synod_ember_golem"]},
 	&"free_spell": {"name": "Aether Golem's Core", "text": "Every %dth spell you cast costs no Mana", "min": 6.0, "max": 4.0,
 		"slots": [S.AMULET], "sources": ["synod_aether_golem"]},
@@ -57,13 +57,13 @@ const PERKS := {
 		"slots": [S.AMULET], "sources": ["veilborne_cantor"]},
 	&"melee_leech": {"name": "Ghoul's Cannibalism", "text": "Melee hits restore Life equal to %d%% of the damage dealt", "min": 2.0, "max": 4.0,
 		"slots": [S.GLOVES], "sources": ["hollowed_ghoul"]},
-	&"stench_aura": {"name": "Abomination's Stench", "text": "Enemies within 3 metres of you take %d%% of your maximum Life as Entropic damage per second", "min": 2.0, "max": 4.0,
+	&"stench_aura": {"name": "Abomination's Stench", "text": "Enemies within 3 metres of you take %d%% of your strongest recent hit as Entropic damage per second", "min": 15.0, "max": 25.0,
 		"slots": [S.BODY_ARMOUR], "sources": ["hollowed_abomination"]},
 	&"web_chill": {"name": "Crypt Fiend's Web", "text": "Ranged and thrown weapon hits Chill enemies as if hit for %d%% of the damage", "min": 50.0, "max": 100.0,
 		"slots": [S.GLOVES], "sources": ["hollowed_crypt_fiend"]},
-	&"long_shot": {"name": "Rifleman's Long Shot", "text": "Ranged weapon hits against enemies more than 15 metres away deal %d%% extra damage", "min": 30.0, "max": 50.0,
+	&"long_shot": {"name": "Rifleman's Long Shot", "text": "Ranged weapon hits against enemies more than 15 metres away have a %d%% chance to Pin them for 1.5 seconds (once every 4 seconds per enemy; bosses, heavies and Champions resist)", "min": 30.0, "max": 50.0,
 		"slots": [S.PRIMARY_WEAPON], "kinds": ["ranged"], "sources": ["directorate_rifleman"]},
-	&"low_life_fury": {"name": "Berserker's Fury", "text": "While below half of your maximum Life, you deal %d%% more damage", "min": 20.0, "max": 35.0,
+	&"low_life_fury": {"name": "Berserker's Fury", "text": "Dropping below half of your maximum Life lets out a roar that knocks back enemies within 5 metres and grants %d%% more damage for 6 seconds (once every 20 seconds)", "min": 20.0, "max": 35.0,
 		"slots": [S.BELT], "sources": ["unchartered_berserker"]},
 	&"war_stomp": {"name": "Doom Guard's War Stomp", "text": "Every 10 seconds, your next melee hit stomps the ground, knocking back enemies within 4 metres and dealing %d%% of the hit to each", "min": 100.0, "max": 150.0,
 		"slots": [S.AMULET], "sources": ["legion_doom_guard"]},
@@ -116,6 +116,25 @@ static func source_names(id: StringName) -> Array[String]:
 	for source in PERKS.get(id, {}).get("sources", []):
 		names.append(MonsterInfrequent.source_display_name(source))
 	return names
+
+## Ranges perks had before a rework. An old roll moves to the same spot in
+## the new range on load; rolls already in the new range are left alone.
+const OLD_RANGES := {
+	&"elite_battle_cry": [15.0, 25.0], &"last_round": [60.0, 100.0], &"block_shockwave": [4.0, 8.0],
+	&"landing_strike": [15.0, 25.0], &"ember_trail": [10.0, 20.0], &"stench_aura": [2.0, 4.0],
+}
+
+static func migrate_value(id: StringName, value: float) -> float:
+	if not OLD_RANGES.has(id):
+		return value
+	var def: Dictionary = PERKS[id]
+	var lo: float = minf(def["min"], def["max"])
+	var hi: float = maxf(def["min"], def["max"])
+	if value >= lo and value <= hi:
+		return value
+	var old: Array = OLD_RANGES[id]
+	var t := clampf(inverse_lerp(float(old[0]), float(old[1]), value), 0.0, 1.0)
+	return float(roundi(lerpf(lo, hi, t)))
 
 static func roll_value(id: StringName, rng: RandomNumberGenerator = null) -> float:
 	var def: Dictionary = PERKS[id]

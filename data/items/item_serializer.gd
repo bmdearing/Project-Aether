@@ -169,7 +169,7 @@ static func from_dict(d: Dictionary) -> Item:
 	var perks := {}
 	for id in d.get("perks", {}):
 		if PerkCatalog.has(StringName(id)):
-			perks[String(id)] = float(d["perks"][id])
+			perks[String(id)] = PerkCatalog.migrate_value(StringName(id), float(d["perks"][id]))
 	item.perks = perks
 	item.is_corrupted = d.get("is_corrupted", false)
 	item.mark = clampi(int(d.get("mark", 0)), 0, Item.Mark.size() - 1) as Item.Mark
