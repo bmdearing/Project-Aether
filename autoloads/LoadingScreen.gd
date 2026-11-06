@@ -43,6 +43,7 @@ var _busy := false
 func _ready() -> void:
 	layer = 120
 	process_mode = Node.PROCESS_MODE_ALWAYS
+	MaterialKeeper.start(get_tree())
 	_build()
 	visible = false
 
@@ -92,7 +93,9 @@ func _finish(scene: PackedScene) -> void:
 	_bar.value = 95.0
 	await get_tree().process_frame
 	# Compile every spell's effects now, behind the plate, not on first cast.
+	LootWarmup.start(get_tree())
 	await SpellWarmup.run(get_tree())
+	await LootWarmup.warm_drops(get_tree())
 	for i in SETTLE_FRAMES:
 		await get_tree().process_frame
 	var wait := MIN_SHOW_SEC - (Time.get_ticks_msec() - _shown_at) / 1000.0

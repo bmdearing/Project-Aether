@@ -148,6 +148,30 @@ func _build_visuals(radius: float, color: Color) -> void:
 
 ## A lathed funnel: narrow at the ground, flaring toward the top.
 func _add_shell(base_r: float, top_r: float, height: float, light: Color, dark: Color, opacity: float, spin: float, twist: float) -> void:
+	var mi := MeshInstance3D.new()
+	mi.mesh = _funnel(base_r, top_r, height)
+	var mat := ShaderMaterial.new()
+	mat.shader = FUNNEL_SHADER
+	mat.set_shader_parameter("color", light)
+	mat.set_shader_parameter("dark", dark)
+	mat.set_shader_parameter("opacity", opacity)
+	mat.set_shader_parameter("spin", spin)
+	mat.set_shader_parameter("twist", twist)
+	mat.set_shader_parameter("fade", 0.0)
+	mi.material_override = mat
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(mi)
+	_shell_mats.append(mat)
+
+## Funnel meshes by size, built once (each was ~3,500 vertices of GDScript per cast).
+static var _funnels: Dictionary = {}
+
+static func _funnel(base_r: float, top_r: float, height: float) -> ArrayMesh:
+	var key := "%s|%s|%s" % [base_r, top_r, height]
+	if _funnels.has(key):
+		return _funnels[key]
+	if _funnels.size() >= 32:
+		_funnels.clear()
 	var rings := 16
 	var segments := 36
 	var st := SurfaceTool.new()
@@ -169,20 +193,9 @@ func _add_shell(base_r: float, top_r: float, height: float, light: Color, dark: 
 				st.set_uv(uvs[idx])
 				st.set_normal(nrms[idx])
 				st.add_vertex(pos[idx])
-	var mi := MeshInstance3D.new()
-	mi.mesh = st.commit()
-	var mat := ShaderMaterial.new()
-	mat.shader = FUNNEL_SHADER
-	mat.set_shader_parameter("color", light)
-	mat.set_shader_parameter("dark", dark)
-	mat.set_shader_parameter("opacity", opacity)
-	mat.set_shader_parameter("spin", spin)
-	mat.set_shader_parameter("twist", twist)
-	mat.set_shader_parameter("fade", 0.0)
-	mi.material_override = mat
-	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	add_child(mi)
-	_shell_mats.append(mat)
+	var mesh := st.commit()
+	_funnels[key] = mesh
+	return mesh
 
 func _soft_material(color: Color, billboard: bool) -> StandardMaterial3D:
 	var tex := GlowTexture.radial()

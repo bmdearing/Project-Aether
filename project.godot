@@ -240,6 +240,7 @@ crouch={
 [physics]
 
 common/enable_pause_aware_picking=true
+common/max_physics_steps_per_frame=3
 
 [rendering]
 

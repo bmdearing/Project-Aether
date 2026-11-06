@@ -216,7 +216,23 @@ static func stop_after(p: CPUParticles3D, seconds: float, fade: float) -> void:
 
 ## An open tube from base_r at the ground to top_r at `height` (radius eased
 ## by `taper`), UV.x around 0..1 and UV.y bottom 0 -> top 1. Flames, funnels.
+## Built meshes by shape: building one in GDScript took several ms per cast.
+## Callers only set materials on the instance, never on the mesh.
+static var _tubes: Dictionary = {}
+const TUBE_CACHE_MAX := 96
+
 static func tube(base_r: float, top_r: float, height: float, rings: int = 12, segments: int = 32, taper: float = 1.0) -> ArrayMesh:
+	var key := "%s|%s|%s|%d|%d|%s" % [base_r, top_r, height, rings, segments, taper]
+	var cached: ArrayMesh = _tubes.get(key)
+	if cached:
+		return cached
+	if _tubes.size() >= TUBE_CACHE_MAX:
+		_tubes.clear()
+	var mesh := _build_tube(base_r, top_r, height, rings, segments, taper)
+	_tubes[key] = mesh
+	return mesh
+
+static func _build_tube(base_r: float, top_r: float, height: float, rings: int, segments: int, taper: float) -> ArrayMesh:
 	var st := SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
 	var corners: Array[Vector2i] = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(1, 1), Vector2i(0, 1)]
