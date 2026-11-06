@@ -39,7 +39,7 @@ func _ready() -> void:
 
 ## Monster Infrequents land louder, with a second chime, so they stand out.
 func _on_loot_dropped(item: Item, at: Vector3) -> void:
-	var mi := MonsterInfrequent.is_mi(item)
+	var mi := item != null and not item.perks.is_empty()
 	play_at(SoundLib.pick_random(SoundLib.library.item_drop), at, -2.0 if mi else -8.0)
 	if mi:
 		play_at(SoundLib.library.craft_apply, at, -2.0)

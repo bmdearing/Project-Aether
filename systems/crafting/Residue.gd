@@ -50,16 +50,14 @@ static func pay(payment: Dictionary) -> void:
 static func pool_for_damage_type(damage_type: int) -> StringName:
 	return POOL_BY_CATEGORY.get(Constants.DAMAGE_TYPE_CATEGORY.get(damage_type, Constants.DamageCategory.PHYSICAL), PHYSICAL)
 
-## Residue for killing `enemy`, credited to the pools.
-static func grant_for_kill(enemy: Enemy) -> void:
-	if enemy == null or enemy.definition == null:
-		return
-	var category: String = enemy.definition.archetype_category
-	var rarity: int = enemy.rarity_component.rarity if enemy.rarity_component else Constants.EnemyRarity.NORMAL
-	var gain := float(Constants.RESIDUE_PER_KILL.get(category, 1)) * float(Constants.RESIDUE_RARITY_MULT.get(rarity, 1.0)) * enemy._reward_mult("currency")
-	add(pool_for_damage_type(enemy.residue_damage_type()), maxi(1, roundi(gain)))
-	if enemy.rank == Constants.EnemyRank.BOSS:
+## Residue for a kill, credited to the pools (Enemy._on_died()). Takes plain
+## values, not the Enemy: autoloads use this class, and an Enemy reference here
+## pulls the enemy and projectile scripts into autoload startup.
+static func grant_for_kill(category: String, rarity: int, reward_mult: float, damage_type: int, is_boss: bool, boss_id: String) -> void:
+	var gain := float(Constants.RESIDUE_PER_KILL.get(category, 1)) * float(Constants.RESIDUE_RARITY_MULT.get(rarity, 1.0)) * reward_mult
+	add(pool_for_damage_type(damage_type), maxi(1, roundi(gain)))
+	if is_boss:
 		add(BOSS, Constants.RESIDUE_BOSS_PER_KILL)
-		var id := enemy.definition.resource_path.get_file().get_basename()
+		var id := boss_id
 		if id != "" and not GameState.killed_bosses.has(id):
 			GameState.killed_bosses.append(id)

@@ -1940,7 +1940,8 @@ func _update_aura_ring(ability: Ability) -> void:
 ## ---- Arkanus, the Forbidden Staff ------------------------------------------
 
 const ARKANUS_IDS := ["elemental_lightning", "elemental_fire", "elemental_water", "elemental_earth", "elemental_aether"]
-const ARKANUS_FIREBALL_SCENE := preload("res://entities/projectile/Projectile.tscn")
+## Loaded at runtime: a preload here sits in a circular load with LootPickup and comes back empty.
+var ARKANUS_FIREBALL_SCENE: PackedScene = load("res://entities/projectile/Projectile.tscn")
 ## Elemental Lightning: more damage on a shattered Freeze / a Drenched target.
 const SHATTER_MORE := 1.2
 const DRENCHED_MORE := 1.1
@@ -2513,7 +2514,8 @@ static func enchant_conversion(ability: Ability, stat_sheet: StatSheet) -> Dicti
 ## collapses, each a Black Hole hit times BLACK_HOLE_NOVA_DAMAGE.
 const BLACK_HOLE_NOVA_DAMAGE := 3.0
 const BLACK_HOLE_NOVA_SPEED := 18.0
-const BLACK_HOLE_NOVA_SCENE := preload("res://entities/projectile/Projectile.tscn")
+## Loaded at runtime: a preload here sits in a circular load with LootPickup and comes back empty.
+var BLACK_HOLE_NOVA_SCENE: PackedScene = load("res://entities/projectile/Projectile.tscn")
 
 func black_hole_nova(ability: Ability, centre: Vector3, count: int) -> void:
 	if not is_instance_valid(_player) or count <= 0:

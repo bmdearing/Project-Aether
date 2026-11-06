@@ -16,7 +16,8 @@ class_name PlayerRangedAttack
 ## loses it, and swapping never auto-reloads - it only cancels a reload in
 ## progress.
 
-const PROJECTILE_SCENE := preload("res://entities/projectile/Projectile.tscn")
+## Loaded at runtime: a preload here sits in a circular load with LootPickup and comes back empty.
+var PROJECTILE_SCENE: PackedScene = load("res://entities/projectile/Projectile.tscn")
 
 ## Cosmetic fire reaction on the viewmodel; bows get a slower release.
 const FIRE_WINDUP := 0.06

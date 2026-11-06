@@ -35,7 +35,8 @@ const MANA_STAR_MOTION_VALUE := 1.0
 const MANA_STAR_COOLDOWN := 0.25
 const MANA_STAR_MANA_COST := 4.0
 const PROJECTILE_SPEED := 30.0
-const PROJECTILE_SCENE := preload("res://entities/projectile/Projectile.tscn")
+## Loaded at runtime: a preload here sits in a circular load with LootPickup and comes back empty.
+var PROJECTILE_SCENE: PackedScene = load("res://entities/projectile/Projectile.tscn")
 const PUNCH_MOTION_VALUE := 1.2
 const REACH_STRIKE_MOTION_VALUE := 1.3
 const REACH_STRIKE_SHAPE := {"reach": 4.2, "half_angle": 14.0, "splash": 0.6, "max_targets": 2}

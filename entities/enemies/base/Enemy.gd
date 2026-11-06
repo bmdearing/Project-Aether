@@ -1060,8 +1060,9 @@ func _on_died() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player and player.experience:
 		player.experience.add_xp(earned_xp(GameState.player_level))
-	if player:
-		Residue.grant_for_kill(self)
+	if player and definition:
+		Residue.grant_for_kill(definition.archetype_category, rarity_component.rarity if rarity_component else Constants.EnemyRarity.NORMAL,
+				_reward_mult("currency"), residue_damage_type(), rank == Constants.EnemyRank.BOSS, definition.resource_path.get_file().get_basename())
 	if player and player.ward:
 		player.ward.restore_on_kill()
 	_drop_gold()
