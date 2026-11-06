@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Pre-0.9 fixes (user reports)
+
+- **Secret hoard chest in the wall:** the gilded chest settled with a ray cast from 3 m up, which in a low secret chamber started above the roof and landed the chest on top of it. It now casts from 0.8 m (`TreasureChest.settle(from_height)`; map chests keep 3 m).
+- **Ground item names** no longer grow when you look at one. The name brightens instead.
+- **Sockets craft and jewels:** jewels can't come out, but the craft said "Take jewels out first" and refused any item with one in. It now rerolls around them: the roll never goes below the number of socketed jewels, and an item whose sockets are all filled can't take it. The Recombinator's message says jewelled items can't be recombined.
+- **"That payment doesn't match the cost":** the Siphon let you craft while the per-pool payment didn't add up to the cost. The button now stays off, with "Split exactly N residue across the pools (now M)" under it.
+- **Siphon costs doubled** (user): Add 40, Recast 60, Bleed 30, Absolve 20, Settle 50, Anchor 240, Sockets 80, Retype 120, Restore Type 40, Vestige 20. Growth and the 10x cap are unchanged; the worst Anchor with full Foresight (4200) still fits in a pool.
+- **Night and rain visibility:** night ambient is 80% of day (was 58%) and moonlight 0.85 (was 0.63). Rain, snow and sand particles are unshaded, so they glared against the dark: they now dim to 40% at midnight. Rain streaks fade out within 2.5-6 m of the camera (was 1.5-4), and the drifting mist sheets are about half as opaque.
+
 ## 2026-11-05 — Crafting Rev 3: residue, the Siphon, Monster Infrequents (user design)
 
 Built from the user's Rev 3 brief and the perk addendum drafted with them. The goal: loot was the weakest part of the game.

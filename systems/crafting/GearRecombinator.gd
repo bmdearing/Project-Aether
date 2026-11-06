@@ -20,7 +20,7 @@ static func error(base: Item, donor: Item) -> String:
 	if base.is_corrupted or donor.is_corrupted:
 		return "Corrupted items can't be recombined."
 	if not base.socketed.is_empty() or not donor.socketed.is_empty():
-		return "Take their jewels out first."
+		return "Items with socketed jewels can't be recombined."
 	if base.get_item_type() != donor.get_item_type():
 		return "Needs two items of the same type."
 	if base.perks.is_empty() and donor.perks.is_empty():

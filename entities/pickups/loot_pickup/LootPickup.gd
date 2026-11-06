@@ -355,11 +355,11 @@ func _add_name_tag() -> void:
 	_name_tag.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	add_child(_name_tag)
 
-## LootPicker: brightens the drop's name while it's the target. The model
-## keeps its size.
+## LootPicker: brightens the drop's name while it's the target. Neither the
+## model nor the text changes size.
 func set_targeted(on: bool) -> void:
 	if _name_tag:
-		_name_tag.font_size = 52 if on else 40
+		_name_tag.modulate = rarity_color().lightened(0.35) if on else rarity_color()
 		_name_tag.outline_modulate = Color(rarity_color().darkened(0.7), 0.95) if on else Color(0, 0, 0, 0.85)
 
 func _on_body_entered(body: Node3D) -> void:

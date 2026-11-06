@@ -19,6 +19,9 @@ const FAMILY_CRAFTS: Array[StringName] = [&"add", &"recast", &"bleed", &"settle"
 ## Crafts a Figment takes (on its map mods, unfocused, any pool).
 const FIGMENT_CRAFTS: Array[StringName] = [&"add", &"recast", &"bleed", &"absolve", &"settle"]
 const VESTIGE_PREFIX := "vestige_"
+## UniqueEffects.NO_INFUSION, inlined: referencing UniqueEffects here pulls the
+## Player and projectile scripts into the item loading chain (a preload cycle).
+const NO_INFUSION_KEY := "unique_no_infusion"
 
 var rng: RandomNumberGenerator
 var pools: Dictionary = {}  # pool_id -> ModifierPool (Vestige pools)
@@ -229,11 +232,14 @@ func _check(t: CraftTarget, craft_id: StringName, family: StringName, choice: in
 			if t.is_slate or t.resource is Jewel or not t.resource is Item:
 				return E.INVALID_TARGET
 			var item := t.resource as Item
-			if item.fixed_sockets() > 0 or not item.socketed.is_empty() or item.max_sockets < 1:
+			if item.fixed_sockets() > 0 or item.max_sockets < 1:
 				return E.INVALID_TARGET
+			# Jewels can't come out, so a full item has nothing to reroll.
+			if item.socketed.size() >= item.max_sockets:
+				return E.NO_VALID_OUTCOME
 		&"retype":
 			var weapon := t.resource as Weapon
-			if weapon == null or weapon.get_all_affixes().any(func(a: ItemAffix): return a.stat_key == UniqueEffects.NO_INFUSION):
+			if weapon == null or weapon.get_all_affixes().any(func(a: ItemAffix): return a.stat_key == NO_INFUSION_KEY):
 				return E.INVALID_TARGET
 			var type := _damage_type_named(family)
 			if type == -1 or type == weapon.get_damage_type():
@@ -310,7 +316,7 @@ func _simulate(t: CraftTarget, craft_id: StringName, family: StringName, choice:
 			out["anchored"] = copy
 		&"sockets":
 			var item := t.resource as Item
-			out["sockets"] = rng.randi_range(1, item.max_sockets)
+			out["sockets"] = rng.randi_range(maxi(1, item.socketed.size()), item.max_sockets)
 		&"retype":
 			out["infused"] = _damage_type_named(family)
 		&"restore_type":

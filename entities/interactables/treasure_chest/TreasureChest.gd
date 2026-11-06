@@ -98,8 +98,9 @@ func _box(size: Vector3, at: Vector3, color: Color) -> MeshInstance3D:
 	return mesh
 
 ## Drops the chest onto the floor under it (its own collider ignored).
-func settle() -> void:
-	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * 3.0, global_position + Vector3.DOWN * 6.0, 1)
+## `from_height` is where the downward ray starts; keep it low under a ceiling.
+func settle(from_height := 3.0) -> void:
+	var query := PhysicsRayQueryParameters3D.create(global_position + Vector3.UP * from_height, global_position + Vector3.DOWN * 6.0, 1)
 	query.collision_mask = 1
 	query.exclude = [_body.get_rid()]
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)

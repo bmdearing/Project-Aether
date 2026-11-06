@@ -18,7 +18,8 @@ func _place_chest() -> void:
 		chest.set_opened()
 	await get_tree().physics_frame
 	if is_instance_valid(chest):
-		chest.settle()
+		# Secret rooms are low: a ray from high up lands on the wall or roof above.
+		chest.settle(0.8)
 
 func capture_state() -> Dictionary:
 	return {"opened": chest.is_opened() if is_instance_valid(chest) else _opened_on_restore}

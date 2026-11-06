@@ -46,7 +46,7 @@ descriptions = {
 "craft_absolve": "Removes every non-anchored modifier. Rarity drops to fit what's left.",
 "craft_settle": "Rerolls the values of the modifiers within their tiers. Unfocused, it also rerolls a Lens's radius.",
 "craft_anchor": "Anchors the modifier you choose: no craft removes, replaces or rerolls it.",
-"craft_sockets": "Rerolls the sockets (1 up to the item's maximum). Take jewels out first.",
+"craft_sockets": "Rerolls the sockets (1 up to the item's maximum). Socketed jewels stay, so it never rolls fewer sockets than jewels.",
 "craft_retype": "Changes a weapon's damage type to the one you choose.",
 "craft_restore_type": "Returns a weapon to its native damage type.",
 "craft_vestige_add": "Adds one modifier from a boss you've killed."

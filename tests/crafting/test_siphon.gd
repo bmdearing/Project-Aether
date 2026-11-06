@@ -184,8 +184,11 @@ func _test_sockets_and_type() -> void:
 	gloves.max_sockets = maxi(gloves.max_sockets, 2)
 	_check(_resolver.apply(gloves, &"sockets").success and gloves.sockets >= 1, "sockets roll 1 or more")
 	_check(_resolver.apply(gloves, &"sockets").success, "sockets can be rerolled")
+	gloves.max_sockets = 2
 	gloves.socketed = [Jewel.new()] as Array[Item]
-	_check(_resolver.apply(gloves, &"sockets").error == E.INVALID_TARGET, "sockets refuse an item with jewels in")
+	_check(_resolver.apply(gloves, &"sockets").success and gloves.sockets >= 1 and gloves.socketed.size() == 1, "sockets reroll around a jewel and keep it")
+	gloves.socketed.append(Jewel.new())
+	_check(_resolver.apply(gloves, &"sockets").error == E.NO_VALID_OUTCOME, "sockets refuse an item whose sockets are all filled")
 	_check(_resolver.apply(Jewel.new(), &"sockets").error == E.INVALID_TARGET, "sockets refuse jewels")
 	var dagger := _item(DAGGER) as Weapon
 	var native := dagger.get_damage_type()

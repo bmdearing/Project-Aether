@@ -410,8 +410,8 @@ const RESIDUE_POOL_CAP := 8000
 const RESIDUE_BOSS_POOL_CAP := 2000
 const CRAFT_COST_GROWTH := 1.12
 const CRAFT_COST_MULT_CAP := 10.0
-const CRAFT_BASE_COST := {&"add": 20, &"recast": 30, &"bleed": 15, &"absolve": 10, &"settle": 25,
-	&"anchor": 120, &"sockets": 40, &"retype": 60, &"restore_type": 20, &"vestige_add": 10}
+const CRAFT_BASE_COST := {&"add": 40, &"recast": 60, &"bleed": 30, &"absolve": 20, &"settle": 50,
+	&"anchor": 240, &"sockets": 80, &"retype": 120, &"restore_type": 40, &"vestige_add": 20}
 const FORESIGHT_MAX_OUTCOMES := 4
 const FORESIGHT_EXTRA_COST := 0.25
 ## Old saves: each removed Orb, Brand, Edict or Stone refunds this to every regular pool.

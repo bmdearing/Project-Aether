@@ -35,12 +35,15 @@ const WEATHER_LOOK := {
 const DAY_LENGTH := 900.0
 ## Time of day: 0 midnight, 0.25 sunrise, 0.5 noon, 0.75 sunset.
 const SUNRISE := 0.25
-const MOON_ENERGY := 0.63
+const MOON_ENERGY := 0.85
 const MOON_COLOR := Color(0.55, 0.65, 0.95)
 const DUSK_COLOR := Color(1.0, 0.5, 0.25)
 const NIGHT_TINT := Color(0.16, 0.2, 0.34)
 ## Ambient light at midnight, as a share of the style's daytime ambient.
-const NIGHT_AMBIENT := 0.58
+const NIGHT_AMBIENT := 0.8
+## Unshaded rain, snow and sand would glow against a dark night: they dim to
+## this share of their colour at midnight.
+const NIGHT_FALL_DIM := 0.4
 ## Weather fog thins to this share at midnight: dark fog reads as a wall.
 const NIGHT_FOG := 0.55
 const SUN_TILT := 0.35
@@ -77,6 +80,8 @@ var _env: Environment
 var _sun: DirectionalLight3D
 var _base_fog: float
 var _flash: float = 0.0
+## Weather particle materials and their daytime colours, dimmed by night.
+var _fall_mats: Dictionary = {}
 var _thunder_in: float = 0.0
 var _fall: GPUParticles3D
 var _apply_in: float = 0.0
@@ -131,6 +136,7 @@ func play_weather_sound() -> void:
 	AudioManager.play_ambience(ambience_spec(base_ambience))
 
 func _rebuild_weather() -> void:
+	_fall_mats.clear()
 	if is_instance_valid(_fall):
 		_fall.queue_free()
 	_fall = null
@@ -206,6 +212,10 @@ func _apply() -> void:
 	_env.ambient_light_energy = _style.ambient_energy * lerpf(NIGHT_AMBIENT, 1.0, day) * lerpf(1.0, 0.85, tint.a) + _flash
 	_env.fog_light_color = sky
 	MapFog.apply(_env, minf(_base_fog * float(look["fog"]), MAX_FOG_DENSITY) * lerpf(NIGHT_FOG, 1.0, day))
+	var dim := lerpf(NIGHT_FALL_DIM, 1.0, day)
+	for mat: StandardMaterial3D in _fall_mats:
+		var base: Color = _fall_mats[mat]
+		mat.albedo_color = Color(base.r * dim, base.g * dim, base.b * dim, base.a * lerpf(0.7, 1.0, day))
 	if _sky_mat:
 		_apply_sky(_env.background_color, day, dusk, tint)
 
@@ -278,8 +288,8 @@ func _sand() -> GPUParticles3D:
 	var streak := QuadMesh.new()
 	streak.size = Vector2(0.035, 0.7)
 	var streak_mat := _fall_material(Color(0.62, 0.46, 0.28, 0.75), false)
-	streak_mat.distance_fade_min_distance = 1.5
-	streak_mat.distance_fade_max_distance = 4.0
+	streak_mat.distance_fade_min_distance = 2.5
+	streak_mat.distance_fade_max_distance = 6.0
 	streak.material = streak_mat
 	grains.mesh = streak
 	var sand := _on_gpu(grains)
@@ -336,7 +346,7 @@ func _rain(storm: bool) -> GPUParticles3D:
 	sheets.scale_amount_max = 1.5
 	var puff := QuadMesh.new()
 	puff.size = Vector2.ONE * 4.0
-	var puff_mat := _fall_material(Color(0.58, 0.62, 0.7, 0.2 if storm else 0.15), true)
+	var puff_mat := _fall_material(Color(0.58, 0.62, 0.7, 0.12 if storm else 0.08), true)
 	puff_mat.distance_fade_min_distance = 1.0
 	puff_mat.distance_fade_max_distance = 4.0
 	puff.material = puff_mat
@@ -412,6 +422,7 @@ func _fall_material(color: Color, round: bool) -> StandardMaterial3D:
 	SpellFx.fade_near_camera(mat)
 	mat.distance_fade_min_distance = 0.3
 	mat.distance_fade_max_distance = 1.5
+	_fall_mats[mat] = color
 	return mat
 
 ## The emitter rides above the camera; what has fallen stays where it fell.

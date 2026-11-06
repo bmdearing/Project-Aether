@@ -225,6 +225,13 @@ func _craft_error() -> String:
 		return CurrencyText.error_message(CraftResult.error_name(preview.error))
 	if payment().is_empty():
 		return CurrencyText.error_message("CANT_AFFORD")
+	var cost := _resolver.cost_of(target, _craft, family(), outcome_count())
+	var paid := 0
+	var split := payment()
+	for pool in split:
+		paid += int(split[pool])
+	if paid != cost:
+		return "Split exactly %d residue across the pools (now %d)." % [cost, paid]
 	return ""
 
 func _refresh_payment(cost: int) -> void:
@@ -423,6 +430,8 @@ func _refresh_button_only() -> void:
 	var error := _craft_error()
 	_craft_button.disabled = error != "" or _session != null
 	_craft_button.tooltip_text = error
+	if error.begins_with("Split") or _hint.text.begins_with("Split"):
+		_set_hint(error if error.begins_with("Split") else "")
 
 func _label(text: String, size_px: int, color: Color) -> Label:
 	var label := Label.new()
