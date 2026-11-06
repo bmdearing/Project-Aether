@@ -1,7 +1,10 @@
 extends RefCounted
 class_name JewelRoller
-## Rolls a Jewel drop. Rarity comes from Loot.roll_rarity(); Uncommon rolls
-## 1 modifier and Rare 2, within the jewel's prefix/suffix limits.
+## The 4-modifier, uncraftable jewel's name.
+const GRAND_NAME := "Grand Jewel"
+## Rolls a Jewel drop. Jewels top out at Uncommon (1-2 modifiers, one prefix
+## and one suffix); a Common roll has none. JEWEL_GRAND_CHANCE of drops is a
+## Rare with two prefixes and two suffixes that can't be crafted.
 
 static func roll(item_level: int = 1, loot_rarity_multiplier: float = 1.0, rng: RandomNumberGenerator = null) -> Jewel:
 	if rng == null:
@@ -11,15 +14,16 @@ static func roll(item_level: int = 1, loot_rarity_multiplier: float = 1.0, rng: 
 	jewel.item_id = "jewel_rolled_%d" % rng.randi()
 	jewel.display_name = Jewel.DISPLAY_NAME
 	jewel.item_level = maxi(item_level, 1)
-	jewel.rarity = Loot.roll_rarity(loot_rarity_multiplier, rng)
-	if jewel.rarity >= Constants.ItemRarity.UNIQUE:
-		jewel.rarity = Constants.ItemRarity.RARE  # no unique jewels yet
 	var count := 0
-	match jewel.rarity:
-		Constants.ItemRarity.UNCOMMON:
-			count = 1
-		Constants.ItemRarity.RARE:
-			count = 2
+	if rng.randf() < Constants.JEWEL_GRAND_CHANCE * loot_rarity_multiplier:
+		jewel.rarity = Constants.ItemRarity.RARE
+		jewel.is_craftable = false
+		jewel.display_name = GRAND_NAME
+		count = 4
+	else:
+		jewel.rarity = mini(Loot.roll_rarity(loot_rarity_multiplier, rng), Constants.ItemRarity.UNCOMMON) as Constants.ItemRarity
+		if jewel.rarity == Constants.ItemRarity.UNCOMMON:
+			count = rng.randi_range(1, 2)
 	add_random_modifiers(jewel, count, rng)
 	return jewel
 

@@ -180,6 +180,8 @@ func _render_item(item: Item) -> void:
 	var badge_row := _add_type_badge(_item_badge(item), rarity_color)
 	if item.is_corrupted:
 		badge_row.add_child(_make_badge("CORRUPTED", CORRUPTED_BADGE_COLOR))
+	elif not item.is_craftable:
+		badge_row.add_child(_make_badge("UNCRAFTABLE", CORRUPTED_BADGE_COLOR))
 	_add_title(item.display_name, rarity_color)
 	_add_subtitle(_item_type_line(item))
 	_add_separator()

@@ -102,7 +102,7 @@ static func _tags(source_tags: Array, stat_key: String) -> Array[StringName]:
 			tags.append(TAG_ALIASES[t])
 	if stat_key.contains("spell") or stat_key.contains("cast"):
 		tags.append(&"spell")
-	if stat_key.contains("attack"):
+	if stat_key.contains("attack") or stat_key.contains("weapon_damage"):
 		tags.append(&"attack")
 	if stat_key.contains("speed") and not tags.has(&"speed"):
 		tags.append(&"speed")

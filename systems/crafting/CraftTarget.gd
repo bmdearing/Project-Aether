@@ -58,6 +58,10 @@ func get_affix_limits(rarity: int) -> Vector2i:
 		table = Constants.AFFIX_LIMITS_JEWEL
 	return table.get(rarity, Vector2i.ZERO)
 
+## Highest rarity crafting can raise this to: jewels stop at Uncommon.
+func max_craft_rarity() -> int:
+	return Constants.ItemRarity.UNCOMMON if resource is Jewel and not resource is Lens else Constants.ItemRarity.RARE
+
 ## Most explicits `rarity` allows in total (jewels cap below prefix + suffix).
 func get_total_limit(rarity: int) -> int:
 	if resource is Jewel and not resource is Lens:

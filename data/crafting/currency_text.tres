@@ -65,6 +65,7 @@ errors = {
 "INVALID_PAYMENT": "That payment doesn't match the cost or uses the wrong pool.",
 "OVER_LINE_LIMIT": "This item has more lines than items can hold now. Bleed or Absolve some first.",
 "NOT_UNLOCKED": "Kill that boss first.",
+"UNCRAFTABLE": "This item can't be crafted.",
 "HAS_BOSS_PERK": "This item already carries a boss perk.",
 "PERK_LIMIT": "This item already has two perks."
 }

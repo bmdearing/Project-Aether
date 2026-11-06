@@ -89,20 +89,22 @@ func _test_rolls() -> void:
 	var values_ok := true
 	var rare_counts_ok := true
 	var saw_rare := false
-	for i in 300:
-		var rolled := JewelRoller.roll(10, 2.0, rng)
+	for i in 600:
+		var rolled := JewelRoller.roll(10, 10.0, rng)
 		var prefixes := rolled.affixes.filter(func(a: ItemAffix): return a.is_prefix).size()
 		var suffixes := rolled.affixes.size() - prefixes
 		var limits := rolled.get_affix_limits()
 		limits_ok = limits_ok and prefixes <= limits.x and suffixes <= limits.y
 		if rolled.rarity == Constants.ItemRarity.RARE:
 			saw_rare = true
-			rare_counts_ok = rare_counts_ok and rolled.affixes.size() == 2
+			rare_counts_ok = rare_counts_ok and rolled.affixes.size() == 4 and not rolled.is_craftable
+		else:
+			rare_counts_ok = rare_counts_ok and rolled.rarity <= Constants.ItemRarity.UNCOMMON and rolled.affixes.size() <= 2
 		for a in rolled.affixes:
 			var in_pool := JewelModifierPool.STAT_KEYS.has(a.stat_key) and a.tier >= 1 and a.tier <= JewelModifierPool.TIER_COUNT
 			values_ok = values_ok and in_pool and a.value >= a.value_min - 0.001 and a.value <= a.value_max + 0.001
-	_check(limits_ok, "rolled jewels keep within 1 prefix / 1 suffix")
-	_check(saw_rare and rare_counts_ok, "rare jewels roll 2 modifiers")
+	_check(limits_ok, "rolled jewels keep within their limits")
+	_check(saw_rare and rare_counts_ok, "jewels drop Uncommon at most, except the rare uncraftable 4-modifier Grand Jewel")
 	_check(values_ok, "jewel modifiers come from the jewel pool with in-range values")
 	var level1 := JewelModifierPool.defs_for(JewelRoller.roll(1, 2.0, rng))
 	_check(level1.all(func(d: ModifierDef): return d.tiers.size() == 1 and d.tiers[0].tier == 3), "item level 1 jewels only reach Tier 3")
@@ -131,11 +133,15 @@ func _test_crafting() -> void:
 	_check(jewel.affixes.all(func(a): return JewelModifierPool.STAT_KEYS.has(a.stat_key)), "the Siphon rolls from the jewel pool")
 	r = resolver.apply(jewel, &"add")
 	var prefixes := jewel.affixes.filter(func(a: ItemAffix): return a.is_prefix).size()
-	_check(r.success and jewel.rarity == Constants.ItemRarity.RARE and jewel.affixes.size() == 2 and prefixes == 1, "a second add fills a jewel to 1 prefix + 1 suffix as a Rare")
+	_check(r.success and jewel.rarity == Constants.ItemRarity.UNCOMMON and jewel.affixes.size() == 2 and prefixes == 1, "a second add fills a jewel to 1 prefix + 1 suffix and it stays Uncommon")
 	r = resolver.apply(jewel, &"add")
 	_check(not r.success, "a full jewel takes no more modifiers")
 	r = resolver.apply(Jewel.new(), &"sockets")
 	_check(not r.success, "jewels have no sockets")
+	var grand := Jewel.new()
+	grand.rarity = Constants.ItemRarity.RARE
+	grand.is_craftable = false
+	_check(resolver.apply(grand, &"add").error == CraftResult.CraftError.UNCRAFTABLE, "a Grand Jewel can't be crafted")
 	_finished += 1
 
 func _test_stats() -> void:

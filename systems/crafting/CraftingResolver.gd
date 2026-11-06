@@ -187,6 +187,8 @@ func _check(t: CraftTarget, craft_id: StringName, family: StringName, choice: in
 		return E.INVALID_TARGET
 	if t.is_corrupted() and craft_id != &"sockets":
 		return E.CORRUPTED
+	if not t.is_corrupted() and t.resource is Item and not (t.resource as Item).is_craftable:
+		return E.UNCRAFTABLE
 	if FAMILY_CRAFTS.has(craft_id) and family != &"":
 		if not Constants.CRAFT_FAMILIES.has(family):
 			return E.INVALID_TARGET
@@ -379,9 +381,10 @@ func commit(item: Resource, craft_id: StringName, outcome: Dictionary) -> CraftR
 ## {"candidates", "rarity" it needs, "open": false when no line is free even
 ## at Rare}. Add raises Common -> Uncommon -> Rare only as far as needed.
 func _add_candidates(t: CraftTarget, explicits: Array[ItemAffix], family: StringName, _craft_id: StringName) -> Dictionary:
-	var rarity := maxi(t.get_rarity(), Constants.ItemRarity.UNCOMMON)
+	var top := t.max_craft_rarity()
+	var rarity := mini(maxi(t.get_rarity(), Constants.ItemRarity.UNCOMMON), top)
 	var open := _open_types(t, explicits, rarity)
-	while open.is_empty() and rarity < Constants.ItemRarity.RARE:
+	while open.is_empty() and rarity < top:
 		rarity += 1
 		open = _open_types(t, explicits, rarity)
 	if open.is_empty():

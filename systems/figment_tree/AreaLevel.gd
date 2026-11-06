@@ -14,15 +14,15 @@ const LEVELS_PER_DEPTH := 3
 const ENDGAME_BASE := 68
 const PINNACLE := 90
 
-## Monster stats compound per level above 1 (from tests/balance/probe_power_curve:
-## typical gear DPS grows ~20x from level 1 to 89, so health grows a little
-## faster, 24.6x, to keep time-to-kill steady). XP and Gold compound too.
-## Damage grows steeply (21x by 89) so fighting far above your level is
-## deadly, not just slow. Player Life and Ward do not grow with level: late
-## Figments are survived through defences (Armour, Evasion, Resistances,
-## Block, Ward, parrying), not a bigger pool.
-const HEALTH_GROWTH := 1.037
-const DAMAGE_GROWTH := 1.035
+## Monster stats compound per level above 1. Fitted 2026-11-06 to real saves
+## (a level 29 and a level 53 character): their hits grow about 5% a level
+## faster than the old 1.037 health curve, so whites died in one hit. At
+## 1.085 a white standard takes about 3 average hits at both levels, and at
+## 1.047 its hit is about 11% of the character's Life. XP and Gold compound too.
+## Late Figments are survived through defences (Armour, Evasion,
+## Resistances, Block, Ward, parrying) as well as Life.
+const HEALTH_GROWTH := 1.085
+const DAMAGE_GROWTH := 1.047
 ## Per Figment Tier on top (x7.4 Life, x2.3 damage at T21), for crafted
 ## endgame builds; Depths and Pinnacles don't ramp (tests/balance/probe_map_mobs).
 const TIER_HEALTH_GROWTH := 1.1

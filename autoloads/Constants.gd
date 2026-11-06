@@ -377,18 +377,20 @@ const AFFIX_LIMITS_GEAR := {
 ## Rolling gear explicits are worth this much more now that items carry 4
 ## lines, not 6. ItemRoller.gear_line_scale() lists the exceptions.
 const STAT_LINE_RESCALE := 1.4
-## Jewels: one prefix and one suffix, with a total cap per rarity
-## (Uncommon 1 line, Rare 2).
+## Jewels top out at Uncommon: one prefix and one suffix. The only Rare jewel
+## is the rare uncraftable drop with two of each (JEWEL_GRAND_CHANCE).
 const AFFIX_LIMITS_JEWEL := {
 	ItemRarity.COMMON: Vector2i(0, 0),
 	ItemRarity.UNCOMMON: Vector2i(1, 1),
-	ItemRarity.RARE: Vector2i(1, 1),
+	ItemRarity.RARE: Vector2i(2, 2),
 }
 const AFFIX_TOTAL_LIMITS_JEWEL := {
 	ItemRarity.COMMON: 0,
-	ItemRarity.UNCOMMON: 1,
-	ItemRarity.RARE: 2,
+	ItemRarity.UNCOMMON: 2,
+	ItemRarity.RARE: 4,
 }
+## Share of jewel drops that come as a Rare with 4 modifiers that can't be crafted.
+const JEWEL_GRAND_CHANCE := 0.01
 const JEWEL_LINE_RESCALE := 1.3
 ## Lenses keep the old jewel limits (two prefixes, two suffixes).
 const AFFIX_LIMITS_LENS := {

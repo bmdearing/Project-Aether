@@ -7,6 +7,12 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Monster scaling, jewels cap at Uncommon, Weapon Damage family (user report)
+
+- **Monsters scale much faster** (user: hitting 2-6k at level 50, whites die in one hit). Fitted to the user's own saves: a level 53 character averages 1,648 per hit with 2,020 Life, against white standards with 421 Life hitting for 108 at Area Level 53. Health growth 1.037 -> 1.085 per level and damage 1.035 -> 1.047 (level 1 unchanged): a white standard now takes about 3 average hits at levels 29 and 53, and its hit is about 11% of Life. AL53 white: ~4,400 Life, ~196 hit. AL89: ~86k Life, ~1,000 hit. The top end isn't checked against a level 80+ weapon build yet.
+- **Jewels top out at Uncommon** (one prefix, one suffix); the Siphon won't raise one to Rare. 1% of jewel drops (scaled by Item Rarity) is a **Grand Jewel**: Rare, two prefixes and two suffixes, and it can't be crafted.
+- **Weapon Damage lines count as Attack**, so an Attack-focused Siphon craft can add them. Before, they had no family tag and only appeared unfocused, which is why a Parrying Foil couldn't get one with a family picked.
+
 ## 2026-11-06 — Vestiges grant boss perks (user call)
 
 The user asked whether a Vestige could turn an item into a Monster Infrequent with a boss perk, then said "design it". Vestige crafts used to add a boss modifier, but no Vestige modifier pools were ever registered, so in play the craft always said "Kill that boss first".
