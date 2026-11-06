@@ -249,7 +249,7 @@ const BEAM_RADIUS := 0.018
 const MI_BEAM_SCALE := 1.8
 
 func _add_beam(color: Color) -> void:
-	var mi := MonsterInfrequent.is_mi(item)
+	var mi := item != null and not item.perks.is_empty()
 	var beam := MeshInstance3D.new()
 	beam.name = "Beam"
 	var cylinder := CylinderMesh.new()
