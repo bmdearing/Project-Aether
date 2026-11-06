@@ -218,6 +218,22 @@ func _refresh() -> void:
 	_craft_button.tooltip_text = error
 	_craft_button.text = "%s (%d)" % [CurrencyText.name_of(StringName("craft_" + String(_craft))), cost]
 	_refresh_outcomes()
+	_show_spend()
+
+## Lights up the meters the current craft would drain, by how much.
+func _show_spend() -> void:
+	var split := payment() if item() != null and _session == null else {}
+	var parts: Array[String] = []
+	for bar: ResidueBar in _meters.get_children():
+		var amount := int(split.get(bar.pool, 0))
+		bar.set_pending(amount)
+		if amount > 0:
+			parts.append("%d %s" % [amount, CurrencyText.name_of(bar.pool)])
+	# Pools that aren't paying fade back so the paying ones stand out.
+	for bar: ResidueBar in _meters.get_children():
+		bar.modulate = Color(0.55, 0.55, 0.55, 0.7) if not parts.is_empty() and bar.pending() == 0 else Color.WHITE
+	if item() != null and not parts.is_empty():
+		_cost.text += "\nPaid from: " + ", ".join(parts)
 
 func _craft_error() -> String:
 	var target := item()
@@ -429,6 +445,8 @@ func _refresh_button_only() -> void:
 	_craft_button.tooltip_text = error
 	if error.begins_with("Split") or _hint.text.begins_with("Split"):
 		_set_hint(error if error.begins_with("Split") else "")
+	_cost.text = _cost.text.get_slice("\nPaid from: ", 0)
+	_show_spend()
 
 func _label(text: String, size_px: int, color: Color) -> Label:
 	var label := Label.new()

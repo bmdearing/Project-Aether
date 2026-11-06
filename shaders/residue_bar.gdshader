@@ -10,6 +10,9 @@ uniform vec4 rim_color : source_color = vec4(0.85, 0.7, 0.4, 1.0);
 uniform vec2 rect_size = vec2(220.0, 22.0);
 // Brief brighten when the pool changes (ResidueBar sets it, then fades it).
 uniform float pulse : hint_range(0.0, 1.0) = 0.0;
+// The share of the capsule the current craft would spend (0 = this pool isn't
+// paying). That slice of liquid glows and streams, and the rim lights up.
+uniform float spend : hint_range(0.0, 1.0) = 0.0;
 
 float lattice_hash(vec2 p) {
 	uvec2 q = uvec2(ivec2(floor(p)) + ivec2(65536)) * uvec2(1597334673u, 3812015801u);
@@ -75,6 +78,17 @@ void fragment() {
 	float surface = smoothstep(3.0, 0.0, abs(p.x - edge)) * step(0.001, fill) * step(fill, 0.999);
 	lc += liquid_color.rgb * surface * 0.9;
 	lc *= 1.0 + pulse * 0.6;
+	// The slice being spent: brighter, with bands streaming toward the surface.
+	float armed = step(0.0005, spend);
+	float throb = 0.5 + 0.5 * sin(TIME * 5.0);
+	lc *= 1.0 + armed * (0.2 + 0.25 * throb);
+	// A small cost still gets a readable slice.
+	float spend_start = level - max(clamp(spend, 0.0, 1.0) * size.x, min(size.y * 0.6, level));
+	float in_spend = smoothstep(spend_start - 1.5, spend_start + 1.5, p.x) * armed;
+	float streams = 0.5 + 0.5 * sin(p.x * 0.35 - TIME * 9.0);
+	lc = mix(lc, liquid_color.rgb * (1.6 + 0.5 * throb) + vec3(0.25) * streams, in_spend * 0.85);
+	float seam = smoothstep(2.0, 0.0, abs(p.x - spend_start)) * armed;
+	lc += vec3(1.0) * seam * 0.8;
 	col = mix(col, lc, liquid);
 	alpha = mix(alpha, 1.0, liquid);
 
@@ -84,8 +98,10 @@ void fragment() {
 
 	// Rim.
 	float rim = 1.0 - smoothstep(0.0, 1.6, abs(d + 0.9));
-	col = mix(col, rim_color.rgb, rim * 0.9);
+	vec3 rim_col = mix(rim_color.rgb, liquid_color.rgb * 1.8, armed * (0.6 + 0.4 * throb));
+	col = mix(col, rim_col, rim * 0.9);
 	alpha = max(alpha, rim);
 
-	COLOR = vec4(col, alpha * inside);
+	// COLOR comes in as the node's modulate (ColorRect color is white).
+	COLOR = vec4(col, alpha * inside) * COLOR;
 }

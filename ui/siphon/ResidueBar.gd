@@ -2,7 +2,8 @@ extends VBoxContainer
 class_name ResidueBar
 ## One residue pool as a glass capsule of glowing liquid (residue_bar.gdshader),
 ## with its name and amount under it. The liquid eases to the new level and
-## brightens briefly whenever the pool changes.
+## brightens briefly whenever the pool changes. set_pending() marks how much a
+## craft would spend from it: that slice glows and the label shows the cost.
 
 const SHADER := preload("res://shaders/residue_bar.gdshader")
 const COLORS := {
@@ -21,6 +22,7 @@ var _label: Label
 var _material: ShaderMaterial
 var _shown := -1.0
 var _pulse := 0.0
+var _pending := 0
 
 static func create(p_pool: StringName, p_compact: bool = false) -> ResidueBar:
 	var bar := ResidueBar.new()
@@ -56,9 +58,31 @@ func refresh() -> void:
 	if compact:
 		pool_name = pool_name.get_slice(" ", 0)
 	_label.text = "%s  %d / %d" % [pool_name, amount, cap]
+	if _pending > 0:
+		_label.text += "   -%d" % _pending
+	var base := (COLORS.get(pool, Color.WHITE) as Color).lightened(0.35)
+	_label.add_theme_color_override("font_color", base.lightened(0.5) if _pending > 0 else base)
 	if _shown < 0.0:
 		_shown = _target()
 	_material.set_shader_parameter("fill", _shown)
+	_update_spend()
+
+## Residue the selected craft would take from this pool (0 = none).
+func set_pending(amount: int) -> void:
+	amount = maxi(amount, 0)
+	if amount == _pending:
+		return
+	_pending = amount
+	refresh()
+
+func pending() -> int:
+	return _pending
+
+func _update_spend() -> void:
+	var share := 0.0
+	if _pending > 0 and _shown > 0.0:
+		share = minf(float(_pending) / maxf(float(Residue.cap(pool)), 1.0), _shown)
+	_material.set_shader_parameter("spend", share)
 
 func _target() -> float:
 	return clampf(float(Residue.amount(pool)) / maxf(float(Residue.cap(pool)), 1.0), 0.0, 1.0)
@@ -75,6 +99,7 @@ func _process(delta: float) -> void:
 	if absf(_shown - target) > 0.0005:
 		_shown = lerpf(_shown, target, 1.0 - exp(-FILL_EASE * delta))
 		_material.set_shader_parameter("fill", _shown)
+		_update_spend()
 	if _pulse > 0.0:
 		_pulse = maxf(_pulse - PULSE_FADE * delta, 0.0)
 		_material.set_shader_parameter("pulse", _pulse)
