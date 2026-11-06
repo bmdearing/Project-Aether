@@ -31,8 +31,13 @@ func _init() -> void:
 func _centre() -> Vector2:
 	return Vector2(size.x * 0.5, (size.y - FOOTER) * 0.5)
 
+## Fits the outer ring inside the view both ways: the stretch widens it, and
+## a node drawn past the edge can't be clicked. SIDE_ROOM keeps its name label in.
+const SIDE_ROOM := 62.0
+
 func _scale() -> float:
-	return minf(size.x, size.y - FOOTER - 36.0) * 0.5
+	var outer := (RING_FIRST + RING_STEP * 2.0) * STRETCH
+	return maxf(minf((size.y - FOOTER - 36.0) * 0.5, (size.x * 0.5 - SIDE_ROOM) / outer), 1.0)
 
 func node_position(node: SkillWeb.WebNode) -> Vector2:
 	return _centre() + Vector2.from_angle(deg_to_rad(node.angle - 90.0)) * _ring_radius(node.ring) * Vector2(STRETCH, 1.0)

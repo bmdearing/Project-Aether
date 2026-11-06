@@ -372,10 +372,13 @@ static func find(ability: Ability, node_id: String) -> WebNode:
 static func points_available(ability: Ability) -> int:
 	return maxi(ability.level - 1, 0)
 
+## Points in nodes the web still has; ids left in a save by an older web
+## layout don't hold points hostage.
 static func points_spent(ability: Ability) -> int:
 	var total := 0
 	for id in ability.web_points:
-		total += int(ability.web_points[id])
+		if find(ability, id) != null:
+			total += int(ability.web_points[id])
 	return total
 
 static func points_left(ability: Ability) -> int:
