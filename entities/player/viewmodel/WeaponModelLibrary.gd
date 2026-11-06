@@ -188,7 +188,7 @@ static func build_offhand(item: Item) -> Node3D:
 			_: _build_rod(root, accent)
 		return root
 	var base := item.base_line_id.get_slice("_", 0)
-	var trim: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
+	var trim: Color = item.display_color()
 	var shield := _aether_entry(base)
 	if shield.get("family") == "shield":
 		_mount_aether(root, shield, accent, _flat(trim.darkened(0.3), 0.6, 0.2))

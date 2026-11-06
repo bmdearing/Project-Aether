@@ -1,0 +1,233 @@
+extends Node
+class_name PerkEffects
+## Runs the Monster Infrequent perks on the player's equipped gear
+## (PerkCatalog). Player refreshes it on equipment change. Two copies of a
+## perk don't stack: the best roll counts.
+
+const OPENING_STRIKE_SECONDS := 2.0
+const NEARBY_RADIUS := 6.0
+const SHOCKWAVE_RADIUS := 4.0
+const SHOCKWAVE_KNOCKBACK := 9.0
+const HEAVY_KNOCKBACK := 6.0
+const LANDING_RADIUS := 3.5
+const LANDING_MIN_AIR := 0.45
+const EMBER_RADIUS := 2.5
+const EMBER_INTERVAL := 0.5
+const EMBER_MIN_SPEED := 4.0
+const BIG_HIT_SHARE := 0.2
+const ELITE_CRY_SECONDS := 6.0
+const BURST_RADIUS := 4.0
+const ERUPT_RADIUS := 3.5
+const MARK_SECONDS := 6.0
+const SPELL_WINDOW_MSEC := 2500
+const CONTROL_AILMENTS := ["chill", "shock", "electrocute", "unraveling", "pallid"]
+const ELEMENTS := [Constants.DamageType.FIRE, Constants.DamageType.COLD, Constants.DamageType.LIGHTNING]
+
+var perks: Dictionary = {}  # StringName -> best value
+
+var _player: Player
+var _in_extra := false
+var _last_hit_msec: int = -100000
+var _last_element: int = -1
+var _casts := 0
+var _air_time := 0.0
+var _ember_timer := 0.0
+var _last_cast_msec: int = -100000
+var _last_weapon_msec: int = -100000
+
+func _ready() -> void:
+	_player = get_parent() as Player
+	EventBus.damage_dealt.connect(_on_damage_dealt)
+	EventBus.enemy_died.connect(_on_enemy_died)
+	EventBus.hit_blocked.connect(_on_hit_blocked)
+	EventBus.ability_cast.connect(_on_ability_cast)
+	EventBus.ammo_changed.connect(func(_t, _r): _last_weapon_msec = Time.get_ticks_msec())
+	EventBus.melee_attack_executed.connect(func(_s, _d, _t, _m): _last_weapon_msec = Time.get_ticks_msec())
+
+func refresh(items: Array[Item]) -> void:
+	perks = {}
+	for item in items:
+		for id in item.perks:
+			var key := StringName(id)
+			perks[key] = maxf(perks.get(key, 0.0), float(item.perks[id]))
+
+func has(id: StringName) -> bool:
+	return perks.has(id)
+
+func value(id: StringName) -> float:
+	return perks.get(id, 0.0)
+
+## ---- Outgoing damage ---------------------------------------------------
+
+## "More" multiplier on a weapon or spell hit of damage_type (StatSheet).
+func damage_multiplier(damage_type: int) -> float:
+	if perks.is_empty():
+		return 1.0
+	var mult := 1.0
+	if has(&"opening_strike") and Time.get_ticks_msec() - _last_hit_msec >= OPENING_STRIKE_SECONDS * 1000.0:
+		mult *= 1.0 + value(&"opening_strike") / 100.0
+	if has(&"last_round"):
+		var weapon := _player.get_active_weapon() if _player else null
+		if weapon and weapon.is_ranged and weapon.magazine_size > 0 and weapon.get_current_magazine() == 0:
+			mult *= 1.0 + value(&"last_round") / 100.0
+	if has(&"element_shift") and ELEMENTS.has(damage_type) and _last_element != -1 and _last_element != damage_type:
+		mult *= 1.0 + value(&"element_shift") / 100.0
+	return mult
+
+## Extra multiplier on a melee swing (PlayerMeleeAttack); heavy = not a jab.
+func melee_multiplier(heavy: bool) -> float:
+	return 1.0 + value(&"heavy_knockback") / 100.0 if heavy and has(&"heavy_knockback") else 1.0
+
+func on_melee_hit(target: Enemy, heavy: bool) -> void:
+	if heavy and has(&"heavy_knockback") and is_instance_valid(target) and target.health.is_alive():
+		target.apply_knockback(_away(target) * HEAVY_KNOCKBACK)
+
+func _on_damage_dealt(source: Node, target: Node, amount: float, damage_type: int, _more: bool, _crit: bool) -> void:
+	if source != _player or not target is Enemy:
+		return
+	var now := Time.get_ticks_msec()
+	_last_hit_msec = now
+	if ELEMENTS.has(damage_type):
+		_last_element = damage_type
+	if _in_extra or perks.is_empty():
+		return
+	var enemy := target as Enemy
+	_in_extra = true
+	var weapon := _player.get_active_weapon()
+	var is_spell := now - _last_cast_msec <= SPELL_WINDOW_MSEC and _last_cast_msec > _last_weapon_msec
+	if has(&"adjudicator_mark") and is_instance_valid(enemy):
+		var marked_until: int = enemy.get_meta("perk_mark", 0)
+		if is_spell and marked_until > now:
+			enemy.remove_meta("perk_mark")
+			if enemy.health.is_alive():
+				enemy.take_damage(amount * value(&"adjudicator_mark") / 100.0, damage_type, true)
+		elif not is_spell:
+			enemy.set_meta("perk_mark", now + int(MARK_SECONDS * 1000.0))
+	if has(&"ricochet") and weapon and weapon.is_throwing() and not is_spell:
+		var other := _nearest_other(enemy)
+		if other:
+			other.take_damage(amount * value(&"ricochet") / 100.0, damage_type)
+	if has(&"ignite_spread") and weapon and not weapon.is_ranged and not weapon.is_conduit and not is_spell \
+			and is_instance_valid(enemy) and enemy.status_effects and enemy.status_effects.has_effect("ignite"):
+		var other := _nearest_other(enemy)
+		if other and other.status_effects:
+			other.status_effects.apply_effect("ignite", _player, amount * value(&"ignite_spread") / 100.0)
+	if has(&"ignite_erupt") and damage_type == Constants.DamageType.FIRE and is_instance_valid(enemy) \
+			and enemy.status_effects and enemy.status_effects.has_effect("ignite"):
+		var at := enemy.global_position
+		for other in _enemies_near(at, ERUPT_RADIUS):
+			if other != enemy:
+				other.take_damage(amount * value(&"ignite_erupt") / 100.0, Constants.DamageType.FIRE, true)
+		SpellFx.burst(enemy.get_parent(), at + Vector3.UP * 0.6, Color(1.0, 0.45, 0.1), 14, Vector2(0.3, 0.8), 0.6, Vector2(0.05, 0.1), 40.0, 0.6)
+	_in_extra = false
+
+## ---- Events ------------------------------------------------------------
+
+func _on_enemy_died(node: Node) -> void:
+	if perks.is_empty() or _player == null or not _player.health.is_alive() or not node is Enemy:
+		return
+	var enemy := node as Enemy
+	if has(&"reload_on_kill") and randf() * 100.0 < value(&"reload_on_kill"):
+		var weapon := _player.get_active_weapon()
+		if weapon and weapon.is_ranged and weapon.magazine_size > 0:
+			weapon.current_magazine = weapon.magazine_size
+			EventBus.ammo_changed.emit(weapon.ammo_type, AmmoInventory.get_reserve(weapon.ammo_type))
+	if has(&"elite_battle_cry") and enemy.rarity_component and enemy.rarity_component.rarity != Constants.EnemyRarity.NORMAL:
+		_player.unique_effects.add_timed_more(&"perk_elite_cry", value(&"elite_battle_cry"), ELITE_CRY_SECONDS)
+	if has(&"airborne_mana") and not _player.is_on_floor():
+		_player.mana.restore(value(&"airborne_mana"))
+	if has(&"hollow_life"):
+		_player.health.heal(_player.health.max_health * value(&"hollow_life") / 100.0)
+	var at := enemy.global_position
+	if has(&"curse_spread") and enemy.status_effects:
+		var curses := enemy.status_effects.get_curses()
+		var other := _nearest_other(enemy)
+		if other and other.status_effects:
+			for curse in curses:
+				other.status_effects.apply_curse(curse, _player, 6.0, enemy.status_effects.get_magnitude(curse) * value(&"curse_spread") / 100.0)
+	if has(&"control_burst") and enemy.status_effects and CONTROL_AILMENTS.any(func(id: String) -> bool: return enemy.status_effects.has_effect(id)):
+		var dmg := enemy.health.max_health * value(&"control_burst") / 100.0
+		for other in _enemies_near(at, BURST_RADIUS):
+			if other != enemy:
+				other.take_damage(dmg, Constants.DamageType.AETHERIC, true)
+		SpellFx.burst(enemy.get_parent(), at + Vector3.UP * 0.8, Color(0.6, 0.4, 1.0), 18, Vector2(0.4, 1.0), 0.7, Vector2(0.05, 0.12), 45.0, 0.7)
+	if has(&"sand_burst"):
+		for other in _enemies_near(at, value(&"sand_burst")):
+			if other != enemy and other.status_effects:
+				other.status_effects.apply_effect("chill", _player, _player.health.max_health * 0.1)
+		SpellFx.burst(enemy.get_parent(), at + Vector3.UP * 0.4, Color(0.85, 0.75, 0.5), 20, Vector2(0.3, 0.9), 0.8, Vector2(0.05, 0.12), 30.0, 0.8)
+
+func _on_hit_blocked(defender: Node) -> void:
+	if defender != _player or not has(&"block_shockwave"):
+		return
+	var dmg := _player.equipment.get_total_armor() * value(&"block_shockwave") / 100.0 if _player.equipment else 0.0
+	for enemy in _enemies_near(_player.global_position, SHOCKWAVE_RADIUS):
+		enemy.apply_knockback(_away(enemy) * SHOCKWAVE_KNOCKBACK)
+		if dmg > 0.0:
+			enemy.take_damage(dmg, Constants.DamageType.KINETIC)
+	SpellFx.burst(_player.get_parent(), _player.global_position + Vector3.UP * 0.8, Color(0.9, 0.85, 0.7), 16, Vector2(0.3, 0.8), 0.5, Vector2(0.05, 0.1), 50.0, 0.5)
+
+func _on_ability_cast(caster: Node, ability: Ability) -> void:
+	if caster != _player:
+		return
+	_last_cast_msec = Time.get_ticks_msec()
+	if not has(&"free_spell") or ability == null:
+		return
+	_casts += 1
+	if _casts >= maxi(int(value(&"free_spell")), 2):
+		_casts = 0
+		_player.mana.restore(ability.get_mana_cost(_player.stat_sheet))
+
+## A hit that got past mitigation (Player.take_damage).
+func on_damage_taken(amount: float) -> void:
+	if has(&"big_hit_ward") and _player.ward and amount > _player.health.max_health * BIG_HIT_SHARE:
+		_player.ward.restore(amount * value(&"big_hit_ward") / 100.0)
+
+func _physics_process(delta: float) -> void:
+	if _player == null or perks.is_empty():
+		return
+	if not _player.is_on_floor():
+		_air_time += delta
+	else:
+		if _air_time >= LANDING_MIN_AIR and has(&"landing_strike"):
+			var dmg := _player.health.max_health * value(&"landing_strike") / 100.0
+			for enemy in _enemies_near(_player.global_position, LANDING_RADIUS):
+				enemy.take_damage(dmg, Constants.DamageType.KINETIC)
+			SpellFx.burst(_player.get_parent(), _player.global_position + Vector3.UP * 0.2, Color(0.75, 0.7, 0.6), 18, Vector2(0.3, 0.9), 0.5, Vector2(0.05, 0.1), 40.0, 0.5)
+		_air_time = 0.0
+	if has(&"ember_trail"):
+		_ember_timer -= delta
+		var speed := Vector2(_player.velocity.x, _player.velocity.z).length()
+		if _ember_timer <= 0.0 and Input.is_action_pressed("sprint") and speed >= EMBER_MIN_SPEED and _player.is_on_floor():
+			_ember_timer = EMBER_INTERVAL
+			var hit := _player.health.max_health * value(&"ember_trail") / 100.0
+			for enemy in _enemies_near(_player.global_position, EMBER_RADIUS):
+				if enemy.status_effects:
+					enemy.status_effects.apply_effect("ignite", _player, hit)
+
+## ---- Helpers -----------------------------------------------------------
+
+func _enemies_near(at: Vector3, radius: float) -> Array[Enemy]:
+	var result: Array[Enemy] = []
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var enemy := node as Enemy
+		if enemy and enemy.health and enemy.health.is_alive() and enemy.global_position.distance_to(at) <= radius:
+			result.append(enemy)
+	return result
+
+func _nearest_other(enemy: Enemy) -> Enemy:
+	if not is_instance_valid(enemy):
+		return null
+	var best: Enemy = null
+	var best_d := NEARBY_RADIUS
+	for other in _enemies_near(enemy.global_position, NEARBY_RADIUS):
+		var d := other.global_position.distance_to(enemy.global_position)
+		if other != enemy and d < best_d:
+			best = other
+			best_d = d
+	return best
+
+func _away(enemy: Enemy) -> Vector3:
+	var away := enemy.global_position - _player.global_position
+	away.y = 0.0
+	return away.normalized() if away.length() > 0.1 else -_player.global_transform.basis.z

@@ -17,6 +17,13 @@ const SIZE_NAMES := {2: "Small", 3: "Medium", 4: "Large"}
 @export var radius_tag: int = -1
 
 ## The radius modifier as card text: "Fire Slates in radius have 30% stronger modifiers".
+func get_affix_limits() -> Vector2i:
+	return Constants.AFFIX_LIMITS_LENS.get(rarity, Vector2i.ZERO)
+
+func get_total_limit() -> int:
+	var limits := get_affix_limits()
+	return limits.x + limits.y
+
 func radius_text() -> String:
 	var def := radius_def()
 	if def.is_empty():

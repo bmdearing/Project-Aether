@@ -19,6 +19,7 @@ const FALL_GRAVITY_MULTIPLIER := 1.5
 ## Equipped Unique/Mythic mechanics (created in _ready()).
 var unique_effects: UniqueEffects
 var gear_effects: GearEffects
+var perk_effects: PerkEffects
 var loot_picker: LootPicker
 
 @onready var head: Node3D = $Head
@@ -238,6 +239,10 @@ func _ready() -> void:
 	gear_effects = GearEffects.new()
 	gear_effects.name = "GearEffects"
 	add_child(gear_effects)
+	perk_effects = PerkEffects.new()
+	perk_effects.name = "PerkEffects"
+	add_child(perk_effects)
+	stat_sheet.perk_effects = perk_effects
 	loot_picker = LootPicker.new()
 	loot_picker.name = "LootPicker"
 	add_child(loot_picker)
@@ -282,6 +287,8 @@ func _apply_arkanus_spells() -> void:
 func _on_equipment_changed() -> void:
 	if unique_effects:
 		unique_effects.refresh(equipment.get_all_equipped_items())
+	if perk_effects:
+		perk_effects.refresh(equipment.get_all_equipped_items())
 	_apply_arkanus_spells()
 	stat_sheet.set_equipment_bonus(equipment.compute_stat_bonuses())
 	stat_sheet.set_equipment_resistance(equipment.compute_resistance_bonuses())
@@ -741,6 +748,8 @@ func _take_damage_single(amount: float, damage_type: Constants.DamageType, sourc
 	if unique_effects:
 		mitigated = unique_effects.absorb_esoteric(mitigated, damage_type)
 		unique_effects.record_damage_taken(mitigated)
+	if perk_effects:
+		perk_effects.on_damage_taken(mitigated)
 	# "% of Damage from Mana before Life": Mana pays its share before Ward.
 	var mana_shield_pct := stat_sheet.get_damage_from_mana_percent()
 	if mana_shield_pct > 0.0 and mana and mana.current_mana > 0.0:

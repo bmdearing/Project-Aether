@@ -245,21 +245,24 @@ static func build_tome(tome: SkillTome) -> Node3D:
 ## A thin column from the floor so every drop shows its rarity across a field.
 const BEAM_HEIGHT := 2.4
 const BEAM_RADIUS := 0.018
+## Monster Infrequents get a taller, thicker green beam.
+const MI_BEAM_SCALE := 1.8
 
 func _add_beam(color: Color) -> void:
+	var mi := MonsterInfrequent.is_mi(item)
 	var beam := MeshInstance3D.new()
 	beam.name = "Beam"
 	var cylinder := CylinderMesh.new()
-	cylinder.top_radius = BEAM_RADIUS * 0.4
-	cylinder.bottom_radius = BEAM_RADIUS
-	cylinder.height = BEAM_HEIGHT
+	cylinder.top_radius = BEAM_RADIUS * 0.4 * (MI_BEAM_SCALE if mi else 1.0)
+	cylinder.bottom_radius = BEAM_RADIUS * (MI_BEAM_SCALE if mi else 1.0)
+	cylinder.height = BEAM_HEIGHT * (MI_BEAM_SCALE if mi else 1.0)
 	cylinder.radial_segments = 8
 	cylinder.cap_top = false
 	cylinder.cap_bottom = false
 	beam.mesh = cylinder
 	beam.material_override = _additive(Color(color, 0.85))
 	beam.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	beam.position = _center + Vector3(0, BEAM_HEIGHT / 2.0, 0)
+	beam.position = _center + Vector3(0, cylinder.height / 2.0, 0)
 	_ground.add_child(beam)
 	var flare := MeshInstance3D.new()
 	flare.name = "Flare"
@@ -333,7 +336,7 @@ func display_name() -> String:
 func rarity_color() -> Color:
 	if slate:
 		return Constants.SLATE_RARITY_COLOR.get(slate.rarity, Color.WHITE)
-	return Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE) if item else Color.WHITE
+	return item.display_color() if item else Color.WHITE
 
 ## Name above the drop, so you can find the one to look at.
 func _add_name_tag() -> void:

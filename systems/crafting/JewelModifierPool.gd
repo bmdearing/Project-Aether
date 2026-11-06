@@ -61,13 +61,14 @@ static func best_tier_for(item_level: int) -> int:
 
 static func defs_for(jewel: Item) -> Array[ModifierDef]:
 	var best_tier := best_tier_for(jewel.item_level)
+	var rescale: float = 1.0 if jewel is Lens else Constants.JEWEL_LINE_RESCALE
 	var defs: Array[ModifierDef] = []
 	var own_keys := OWN_RANGES.map(func(e: Dictionary) -> String: return e["stat_key"])
 	for entry in ItemRoller.AFFIX_POOL:
 		if STAT_KEYS.has(entry["stat_key"]) and not own_keys.has(entry["stat_key"]):
-			defs.append(_def_for(entry, best_tier, VALUE_SCALE))
+			defs.append(_def_for(entry, best_tier, VALUE_SCALE * rescale))
 	for entry in OWN_RANGES:
-		defs.append(_def_for(entry, best_tier, 1.0))
+		defs.append(_def_for(entry, best_tier, rescale))
 	return defs
 
 static func tier_range(tier1_min: float, tier1_max: float, tier: int, value_scale: float = VALUE_SCALE) -> Vector2:
@@ -75,7 +76,7 @@ static func tier_range(tier1_min: float, tier1_max: float, tier: int, value_scal
 	return Vector2(tier1_min * scale, tier1_max * scale)
 
 static func _def_for(entry: Dictionary, best_tier: int, value_scale: float) -> ModifierDef:
-	var key := "%s|%d" % [entry["stat_key"], best_tier]
+	var key := "%s|%d|%s" % [entry["stat_key"], best_tier, value_scale]
 	if _cache.has(key):
 		return _cache[key]
 	var def := ModifierDef.new()

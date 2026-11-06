@@ -569,6 +569,8 @@ func _deal_damage_once(target: Enemy, damage_scale: float = 1.0, is_primary: boo
 		final_damage *= COUNTER_DAMAGE_MULTIPLIER
 	if is_combo_finisher():
 		final_damage *= COMBO_FINISHER_DAMAGE
+	if _player.perk_effects:
+		final_damage *= _player.perk_effects.melee_multiplier(_attack_type != AttackType.JAB)
 
 	if not target.take_damage(final_damage, damage_type, false, true, false, _stance_release.get("ignore_armor", false)):
 		return  # dodged - no stance damage, riders, or hit feedback
@@ -584,6 +586,8 @@ func _deal_damage_once(target: Enemy, damage_scale: float = 1.0, is_primary: boo
 	if _player.gear_effects:
 		_player.gear_effects.note_melee_hit()
 	EventBus.melee_attack_executed.emit(_player, final_damage, damage_type, motion_value)
+	if _player.perk_effects:
+		_player.perk_effects.on_melee_hit(target, _attack_type != AttackType.JAB)
 	EventBus.hit_landed.emit(is_critical, is_critical_spot, not target.health.is_alive())
 	if is_counter:
 		EventBus.counter_hit.emit(_player, target)

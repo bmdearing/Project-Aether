@@ -184,7 +184,7 @@ static func draw(ci: CanvasItem, content, rect: Rect2) -> void:
 	var pen := Pen.new(ci, fit(rect, aspect_of(key)))
 	var accent := GOLD
 	if content is Item:
-		accent = Constants.ITEM_RARITY_COLOR.get(content.rarity, GOLD)
+		accent = (content as Item).display_color()
 	_draw_key(pen, key, content, accent)
 
 ## Faint silhouette of an item type, for an empty equipment slot.

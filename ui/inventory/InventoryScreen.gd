@@ -872,7 +872,7 @@ func _apply_button_color(button: Button, color: Color) -> void:
 
 ## Rarity color, matching ItemCard's border.
 func _item_color(item: Item) -> Color:
-	return Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
+	return item.display_color()
 
 func _on_equip_failed(reason: String) -> void:
 	status_label.text = "Can't equip: %s" % reason

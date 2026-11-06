@@ -31,11 +31,18 @@ func _ready() -> void:
 	get_tree().node_added.connect(_on_node_added)
 	EventBus.parry_successful.connect(func(player: Node, _attacker: Node): if player is Node3D: play_at(SoundLib.pick_random(SoundLib.library.parry), (player as Node3D).global_position, -2.0))
 	EventBus.hit_blocked.connect(func(player: Node): if player is Node3D: play_at(SoundLib.pick_random(SoundLib.library.shield_block), (player as Node3D).global_position, -4.0))
-	EventBus.loot_dropped.connect(func(_item, at: Vector3): play_at(SoundLib.pick_random(SoundLib.library.item_drop), at, -8.0))
+	EventBus.loot_dropped.connect(_on_loot_dropped)
 	EventBus.loot_picked_up.connect(func(_item): play_2d(SoundLib.library.item_pickup, -8.0))
 	EventBus.craft_completed.connect(func(_item, _result): play_2d(SoundLib.library.craft_apply, -6.0))
 	EventBus.craft_failed.connect(func(_item, _error, _message): play_2d(SoundLib.library.dry_click, -6.0))
 	EventBus.ability_cast_failed.connect(_on_ability_cast_failed)
+
+## Monster Infrequents land louder, with a second chime, so they stand out.
+func _on_loot_dropped(item: Item, at: Vector3) -> void:
+	var mi := MonsterInfrequent.is_mi(item)
+	play_at(SoundLib.pick_random(SoundLib.library.item_drop), at, -2.0 if mi else -8.0)
+	if mi:
+		play_at(SoundLib.library.craft_apply, at, -2.0)
 
 ## Warcraft III's Human "Not enough mana", at most once per NO_MANA_VOICE_GAP_MSEC.
 const NOT_ENOUGH_MANA := preload("res://assets/sfx/ui/not_enough_mana.ogg")

@@ -51,6 +51,8 @@ const MIN_SHOP_ITEM_LEVEL := 5
 ## the Unique Catalogue has them all).
 const TEST_STOCK := ["arkanus"]
 const TEST_STOCK_COST := 1
+## Dev: this many Monster Infrequents (random perks) join the stock at TEST_STOCK_COST.
+const TEST_MI_STOCK := 6
 
 ## The saved stock, rerolled once the player has levelled or enough play time passed.
 func _refresh_stock() -> void:
@@ -72,6 +74,13 @@ func _roll_stock() -> void:
 		for def in UniqueCatalog.DEFS:
 			if def["id"] == id:
 				_stock.add(UniqueRoller.build(def, shop_item_level))
+	if Dev.enabled:
+		var ids: Array = PerkCatalog.PERKS.keys()
+		ids.shuffle()
+		for id in ids.slice(0, TEST_MI_STOCK):
+			var mi := MonsterInfrequent.roll_perk(id, shop_item_level)
+			if mi:
+				_stock.add(mi)
 	GameState.shop_stock = _stock
 	GameState.shop_stock_level = GameState.player_level
 	GameState.shop_stock_time = GameState.play_time
@@ -97,7 +106,7 @@ func buy_price(content) -> int:
 	var item := content as Item
 	if item == null:
 		return 0
-	return TEST_STOCK_COST if TEST_STOCK.has(item.unique_id) else COST_BY_RARITY.get(item.rarity, 20)
+	return TEST_STOCK_COST if TEST_STOCK.has(item.unique_id) or (Dev.enabled and MonsterInfrequent.is_mi(item)) else COST_BY_RARITY.get(item.rarity, 20)
 
 ## Sells every carried item marked Trash. Returns (items sold, Gold gained).
 static func sell_trash() -> Vector2i:

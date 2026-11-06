@@ -133,7 +133,7 @@ func _color_for(entry: GridInventory.Entry) -> Color:
 		return CURRENCY_COLOR
 	if entry.content is Slate:
 		return Constants.SLATE_RARITY_COLOR.get(entry.content.rarity, Color.GRAY)
-	return Constants.ITEM_RARITY_COLOR.get(entry.content.rarity, Color.GRAY)
+	return (entry.content as Item).display_color() if entry.content is Item else Constants.ITEM_RARITY_COLOR.get(entry.content.rarity, Color.GRAY)
 
 func _style(button: Button, color: Color, border: Color = Color.TRANSPARENT) -> void:
 	# Dark glass with the rarity as the border; a highlight (active Brand,

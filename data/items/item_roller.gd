@@ -304,12 +304,40 @@ const AFFIX_POOL := [
 ## the Hub - a rough "how strong should this roll be" signal.
 ## loot_rarity_multiplier: shifts the rarity roll upward.
 ## Modifiers on a dropped Rare.
-const RARE_AFFIX_COUNT := Vector2i(3, 6)
+const RARE_AFFIX_COUNT := Vector2i(3, 4)
+
+## Gear explicit lines that keep their authored values under
+## Constants.STAT_LINE_RESCALE: whole skill levels, conversions, capped
+## lines and binary mods (no %d in their text).
+const LINE_RESCALE_SKIP := ["move_speed", "increased_block_chance", "retaliate_on_block"]
+static var _binary_keys: Dictionary = {}
+
+static func gear_line_scale(stat_key: String) -> float:
+	var key := StatKeys.canonical(stat_key)
+	if key.begins_with("skill_level_") or key.contains("_as_") or LINE_RESCALE_SKIP.has(key):
+		return 1.0
+	if _binary_keys.is_empty():
+		_binary_keys[""] = true
+		for entry in AFFIX_POOL:
+			if not "%" in String(entry["desc"]):
+				_binary_keys[StatKeys.canonical(entry["stat_key"])] = true
+	return 1.0 if _binary_keys.has(key) else Constants.STAT_LINE_RESCALE
+
+static func _scaled(stat_key: String, r: Vector2) -> Vector2:
+	var s := gear_line_scale(stat_key)
+	if s == 1.0:
+		return r
+	r *= s
+	if has_levelled_tiers(stat_key):
+		r = Vector2(roundf(r.x), maxf(roundf(r.y), roundf(r.x)))
+	return r
 ## Gear lines offered on only this share of drops (chase modifiers).
 const RARE_GEAR_MODIFIERS := {"skill_level_all": 0.35}
 
-static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> Item:
-	var base := _pick_base_item(power_level)
+## base_filter narrows the base (Monster Infrequents); forced_rarity skips
+## the rarity roll (an Uncommon or Rare, never a Unique).
+static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0, base_filter: Callable = Callable(), forced_rarity: int = -1) -> Item:
+	var base := _pick_base_item(power_level, base_filter)
 	if base == null:
 		return null
 	var item: Item = base.duplicate(true)
@@ -327,7 +355,7 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0) -> I
 
 	# Loot.roll_rarity() weights Common/Uncommon/Rare; loot_rarity_multiplier
 	# (Item Rarity) scales the non-Common weights.
-	item.rarity = Loot.roll_rarity(loot_rarity_multiplier)
+	item.rarity = Loot.roll_rarity(loot_rarity_multiplier) if forced_rarity < 0 else forced_rarity
 	if item.rarity >= Constants.ItemRarity.UNIQUE:
 		var unique := UniqueRoller.roll(item.rarity, power_level)
 		if unique:
@@ -562,9 +590,11 @@ static func roll_levelled_tier(stat_key: String, level: int) -> Dictionary:
 ## tier table if it has one, else a gated tier of Tier 1 x TIER_DECAY.
 static func roll_tier_range(stat_key: String, tier1_min: float, tier1_max: float, power_level: int, top_level: int = TOP_TIER_LEVEL) -> Dictionary:
 	if has_levelled_tiers(stat_key):
-		return roll_levelled_tier(stat_key, power_level)
+		var rolled := roll_levelled_tier(stat_key, power_level)
+		var lr := _scaled(stat_key, Vector2(rolled["min"], rolled["max"]))
+		return {"tier": rolled["tier"], "min": lr.x, "max": lr.y}
 	var tier := _roll_tier(power_level, top_level)
-	var r := _tier_range(tier1_min, tier1_max, tier)
+	var r := _scaled(stat_key, _tier_range(tier1_min, tier1_max, tier))
 	return {"tier": tier, "min": r.x, "max": r.y}
 
 ## A value in range; whole numbers for table modifiers (levels, flat damage).
@@ -744,19 +774,19 @@ static func _roll_weapon_affixes(weapon: Weapon, affix_count: int, power_level: 
 	prefix_pool.shuffle()
 	suffix_pool.shuffle()
 
-	var prefix_target: int = min(3, ceili(affix_count / 2.0))
-	var suffix_target: int = min(3, affix_count - prefix_target)
+	var prefix_target: int = mini(Item.MAX_PREFIXES, ceili(affix_count / 2.0))
+	var suffix_target: int = mini(Item.MAX_SUFFIXES, affix_count - prefix_target)
 	# One modifier per stat: several library mods feed the same stat (StatKeys).
 	var used := {}
 	var prefixes := _take_distinct(prefix_pool, prefix_target, used)
 	var suffixes := _take_distinct(suffix_pool, suffix_target, used)
 	var picked: Array[ItemAffix] = prefixes + suffixes
 	# Fill any remaining budget (a pool ran dry) from the other side, still
-	# respecting the 3-per-side cap.
+	# respecting the per-side cap.
 	if picked.size() < affix_count:
-		picked.append_array(_take_distinct(prefix_pool, mini(3 - prefixes.size(), affix_count - picked.size()), used))
+		picked.append_array(_take_distinct(prefix_pool, mini(Item.MAX_PREFIXES - prefixes.size(), affix_count - picked.size()), used))
 	if picked.size() < affix_count:
-		picked.append_array(_take_distinct(suffix_pool, mini(3 - suffixes.size(), affix_count - picked.size()), used))
+		picked.append_array(_take_distinct(suffix_pool, mini(Item.MAX_SUFFIXES - suffixes.size(), affix_count - picked.size()), used))
 
 	for source in picked:
 		var rolled := roll_tier_range(source.stat_key, source.value_min, source.value_max, power_level, top_level_of(source))
@@ -786,7 +816,7 @@ static func _roll_weapon_affixes(weapon: Weapon, affix_count: int, power_level: 
 ## are static content, never added/removed/edited at runtime.
 static var _candidate_meta_cache: Dictionary = {}
 
-static func _pick_base_item(target_item_level: int) -> Item:
+static func _pick_base_item(target_item_level: int, base_filter: Callable = Callable()) -> Item:
 	if _candidate_meta_cache.is_empty():
 		_build_candidate_meta_cache()
 	if _candidate_meta_cache.is_empty():
@@ -815,6 +845,8 @@ static func _pick_base_item(target_item_level: int) -> Item:
 			best_per_line[line_id] = {"path": path, "item_level": item_level}
 	for entry in best_per_line.values():
 		pool.append(entry["path"])
+	if base_filter.is_valid():
+		pool = pool.filter(func(path: String) -> bool: return base_filter.call(load(path) as Item))
 	if pool.is_empty():
 		return null
 	return load(pool[randi() % pool.size()]) as Item
@@ -928,15 +960,15 @@ static func tier_range_for(affix: ItemAffix, tier: int, slot: int = -1) -> Vecto
 	var table := levelled_table(affix.stat_key)
 	if not table.is_empty():
 		var row: Array = table[clampi(tier, 1, table.size()) - 1]
-		return Vector2(row[1], row[2])
+		return _scaled(affix.stat_key, Vector2(row[1], row[2]))
 	for entry in AFFIX_POOL:
 		if entry["stat_key"] == affix.stat_key:
-			return _tier_range(entry_tiers(entry, slot).x, entry_tiers(entry, slot).y, tier)
+			return _scaled(affix.stat_key, _tier_range(entry_tiers(entry, slot).x, entry_tiers(entry, slot).y, tier))
 	if _weapon_affix_cache.is_empty():
 		_build_weapon_affix_cache()
 	for source in _weapon_affix_cache:
 		if source.affix_id != "" and source.affix_id == affix.affix_id:
-			return _tier_range(source.value_min, source.value_max, tier)
+			return _scaled(affix.stat_key, _tier_range(source.value_min, source.value_max, tier))
 	return Vector2(-1.0, -1.0)
 
 ## Moves a rolled modifier to `tier`, keeping its value's place in the range,

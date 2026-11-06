@@ -62,6 +62,7 @@ static func to_dict(item: Item) -> Dictionary:
 		"max_sockets": item.max_sockets,
 		"flavor_text": item.flavor_text,
 		"unique_id": item.unique_id,
+		"perks": item.perks.duplicate(),
 		"affixes": affixes,
 		"is_corrupted": item.is_corrupted,
 		"mark": item.mark,
@@ -167,6 +168,11 @@ static func from_dict(d: Dictionary) -> Item:
 	item.max_sockets = d.get("max_sockets", 0)
 	item.flavor_text = d.get("flavor_text", "")
 	item.unique_id = d.get("unique_id", "")
+	var perks := {}
+	for id in d.get("perks", {}):
+		if PerkCatalog.has(StringName(id)):
+			perks[String(id)] = float(d["perks"][id])
+	item.perks = perks
 	item.is_corrupted = d.get("is_corrupted", false)
 	item.mark = clampi(int(d.get("mark", 0)), 0, Item.Mark.size() - 1) as Item.Mark
 	item.is_craftable = d.get("is_craftable", true)

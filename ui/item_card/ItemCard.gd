@@ -175,7 +175,7 @@ func _render_item(item: Item) -> void:
 	if _merged_explicit_lines(item)["socket"].size() >= WIDE_AT_SOCKET_LINES:
 		_width = WIDE_CARD_WIDTH
 	var requirements_met := _check_requirements_met(item)
-	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
+	var rarity_color: Color = item.display_color()
 	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH, AetherStyle.GOLD if requirements_met else REQUIREMENT_UNMET_COLOR)
 	var badge_row := _add_type_badge(_item_badge(item), rarity_color)
 	if item.is_corrupted:
@@ -226,6 +226,7 @@ func _render_item(item: Item) -> void:
 		for line: String in merged["own"]:
 			_add_mod_line(line, mod_color)
 		_add_socket_only_lines(merged["socket"])
+	_add_perk_lines(item)
 	if item is Weapon:
 		_add_stance_lines(item as Weapon, true)
 	if item is Jewel:
@@ -263,6 +264,15 @@ func _render_item(item: Item) -> void:
 		else:
 			_add_mod_line("Favored: kept off the shop's sell list.", AetherStyle.GOLD)
 	_add_craft_section(preview)
+
+## Monster Infrequent perks: a green section under the modifiers.
+func _add_perk_lines(item: Item) -> void:
+	if item.perks.is_empty():
+		return
+	_add_separator()
+	for id in item.perks:
+		_add_mod_line(PerkCatalog.name_of(StringName(id)), Constants.MONSTER_INFREQUENT_COLOR)
+		_add_mod_line(PerkCatalog.text_of(StringName(id), float(item.perks[id])), Constants.MONSTER_INFREQUENT_COLOR.lightened(0.35))
 
 func _render_slate(slate: Slate) -> void:
 	_clear()
@@ -781,7 +791,7 @@ func _line_parts(affix: ItemAffix) -> Array:
 
 ## Alt keeps the card's name plate, with the item level in the subtitle.
 func _add_alt_header(item: Item) -> void:
-	var rarity_color: Color = Constants.ITEM_RARITY_COLOR.get(item.rarity, Color.WHITE)
+	var rarity_color: Color = item.display_color()
 	_add_title(item.display_name, rarity_color)
 	_add_subtitle("%s  ·  Item Level %d" % [_item_type_line(item), item.item_level])
 	_add_separator()
@@ -1015,6 +1025,8 @@ class SocketRow extends Control:
 
 ## "UNIQUE" / "MYTHIC" for those rarities, else "ITEM".
 func _item_badge(item: Item) -> String:
+	if not item.perks.is_empty():
+		return "MONSTER INFREQUENT"
 	if item.rarity == Constants.ItemRarity.MYTHIC:
 		return "MYTHIC"
 	if item.rarity == Constants.ItemRarity.UNIQUE:

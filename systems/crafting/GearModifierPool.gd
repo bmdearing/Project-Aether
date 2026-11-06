@@ -59,7 +59,7 @@ static func _pool_def(entry: Dictionary, best_tier: int, level: int = 100, slot:
 	def.text = entry["desc"]
 	def.affix_type = ModifierDef.AffixType.SUFFIX if _is_suffix(entry["stat_key"]) else ModifierDef.AffixType.PREFIX
 	def.tags = _tags(entry["brand_tags"], entry["stat_key"])
-	def.tiers = _levelled_tiers(entry["stat_key"], level) if levelled else _tiers(range_.x, range_.y, best_tier)
+	def.tiers = _levelled_tiers(entry["stat_key"], level) if levelled else _tiers(range_.x, range_.y, best_tier, entry["stat_key"])
 	_cache[key] = def
 	return def
 
@@ -80,7 +80,7 @@ static func _library_def(source: ItemAffix, best_tier: int, level: int) -> Modif
 	if source.damage_type != -1:
 		tags.append(Constants.DAMAGE_TYPE_NAME.get(source.damage_type, "").to_lower())
 	def.tags = _tags(tags, source.stat_key)
-	def.tiers = _levelled_tiers(source.stat_key, level) if levelled else _tiers(source.value_min, source.value_max, best_tier)
+	def.tiers = _levelled_tiers(source.stat_key, level) if levelled else _tiers(source.value_min, source.value_max, best_tier, source.stat_key)
 	def.damage_type = source.damage_type
 	def.is_generic = source.is_generic
 	def.is_local = source.is_local
@@ -124,10 +124,10 @@ static func _tags(source_tags: Array, stat_key: String) -> Array[StringName]:
 				tags.append(tag)
 	return tags
 
-static func _tiers(tier1_min: float, tier1_max: float, best_tier: int) -> Array[ModifierTier]:
+static func _tiers(tier1_min: float, tier1_max: float, best_tier: int, stat_key: String = "") -> Array[ModifierTier]:
 	var tiers: Array[ModifierTier] = []
 	for t in range(best_tier, ItemRoller.TIER_COUNT + 1):
-		var range_ := ItemRoller._tier_range(tier1_min, tier1_max, t)
+		var range_ := ItemRoller._scaled(stat_key, ItemRoller._tier_range(tier1_min, tier1_max, t))
 		var tier := ModifierTier.new()
 		tier.tier = t
 		tier.value_min = range_.x
@@ -152,8 +152,9 @@ static func _levelled_tiers(stat_key: String, level: int) -> Array[ModifierTier]
 	for i in rows.size():
 		var tier := ModifierTier.new()
 		tier.tier = table.find(rows[i]) + 1
-		tier.value_min = rows[i][1]
-		tier.value_max = rows[i][2]
+		var scaled := ItemRoller._scaled(stat_key, Vector2(rows[i][1], rows[i][2]))
+		tier.value_min = scaled.x
+		tier.value_max = scaled.y
 		tier.weight = maxi(1, roundi((i + 1) * regular_total / shape_total))
 		tiers.append(tier)
 	return tiers

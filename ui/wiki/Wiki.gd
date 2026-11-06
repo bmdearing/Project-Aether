@@ -6,7 +6,7 @@ class_name Wiki
 
 signal back_pressed
 
-const PAGES := ["Uniques", "Modifiers", "Lenses", "Corruption", "Status Effects", "Monsters", "Defences", "Base Types"]
+const PAGES := ["Uniques", "Modifiers", "Lenses", "Corruption", "Status Effects", "Monsters", "Defences", "Base Types", "Monster Infrequents"]
 const PAGE_HEIGHT := 650.0
 
 var uniques: UniqueWiki
@@ -17,6 +17,7 @@ var monsters: MonsterWiki
 var lenses: LensWiki
 var defences: DefenceWiki
 var base_types: BaseTypeWiki
+var infrequents: MonsterInfrequentWiki
 var current_page: String = "Uniques"
 
 var _tabs: HBoxContainer
@@ -72,10 +73,13 @@ func show_page(page: String) -> void:
 	elif page == "Base Types" and base_types == null:
 		base_types = BaseTypeWiki.new()
 		_holder.add_child(base_types)
+	elif page == "Monster Infrequents" and infrequents == null:
+		infrequents = MonsterInfrequentWiki.new()
+		_holder.add_child(infrequents)
 	elif page == "Lenses" and lenses == null:
 		lenses = LensWiki.new()
 		_holder.add_child(lenses)
-	var by_page := {"Uniques": uniques, "Modifiers": modifiers, "Corruption": corruption, "Status Effects": statuses, "Monsters": monsters, "Lenses": lenses, "Defences": defences, "Base Types": base_types}
+	var by_page := {"Uniques": uniques, "Modifiers": modifiers, "Corruption": corruption, "Status Effects": statuses, "Monsters": monsters, "Lenses": lenses, "Defences": defences, "Base Types": base_types, "Monster Infrequents": infrequents}
 	for name in by_page:
 		if by_page[name]:
 			by_page[name].visible = name == page

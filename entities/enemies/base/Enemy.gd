@@ -1138,6 +1138,16 @@ func _maybe_drop_loot() -> void:
 	var mods := Loot.multipliers(rarity_component)
 	for i in Loot.roll_count((Loot.base_drop_rolls(rank, rarity_component) + extra_drop_rolls()) * mods["quantity"]):
 		_roll_drop(mods["rarity"])
+	_maybe_drop_monster_infrequent(mods["rarity"])
+
+## Monster Infrequents: this enemy's own perk items, rolled apart from gear.
+func _maybe_drop_monster_infrequent(rarity_mult: float) -> void:
+	var enemy_rarity: int = rarity_component.rarity if rarity_component else Constants.EnemyRarity.NORMAL
+	if randf() >= MonsterInfrequent.drop_chance(definition, enemy_rarity, _reward_mult("gear")):
+		return
+	var mi := MonsterInfrequent.roll(definition, _compute_item_level(), rarity_mult)
+	if mi:
+		_spawn_pickup(mi)
 
 ## Drop rolls on top of rank and rarity (Figment Tree: Ascendancy; the
 ## Figment boss overrides it).

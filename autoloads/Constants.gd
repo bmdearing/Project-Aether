@@ -218,6 +218,8 @@ const ITEM_RARITY_COLOR := {
 	ItemRarity.UNIQUE: Color(0.9, 0.55, 0.15),
 	ItemRarity.MYTHIC: Color(0.98, 0.75, 0.75),
 }
+## Monster Infrequents (items with a perk) show green over their rarity colour.
+const MONSTER_INFREQUENT_COLOR := Color(0.3, 0.85, 0.35)
 
 # Base crit chance keyed by Weapon.weapon_type; unlisted types (e.g. Bow)
 # use DEFAULT_BASE_CRIT_CHANCE.
@@ -364,10 +366,26 @@ static func get_contrasting_text_color(bg: Color) -> Color:
 const AFFIX_LIMITS_GEAR := {
 	ItemRarity.COMMON: Vector2i(0, 0),
 	ItemRarity.UNCOMMON: Vector2i(1, 1),
-	ItemRarity.RARE: Vector2i(3, 3),
+	ItemRarity.RARE: Vector2i(2, 2),
 }
-## Jewels: up to two prefixes and two suffixes.
+## Rolling gear explicits are worth this much more now that items carry 4
+## lines, not 6. ItemRoller.gear_line_scale() lists the exceptions.
+const STAT_LINE_RESCALE := 1.4
+## Jewels: one prefix and one suffix, with a total cap per rarity
+## (Uncommon 1 line, Rare 2).
 const AFFIX_LIMITS_JEWEL := {
+	ItemRarity.COMMON: Vector2i(0, 0),
+	ItemRarity.UNCOMMON: Vector2i(1, 1),
+	ItemRarity.RARE: Vector2i(1, 1),
+}
+const AFFIX_TOTAL_LIMITS_JEWEL := {
+	ItemRarity.COMMON: 0,
+	ItemRarity.UNCOMMON: 1,
+	ItemRarity.RARE: 2,
+}
+const JEWEL_LINE_RESCALE := 1.3
+## Lenses keep the old jewel limits (two prefixes, two suffixes).
+const AFFIX_LIMITS_LENS := {
 	ItemRarity.COMMON: Vector2i(0, 0),
 	ItemRarity.UNCOMMON: Vector2i(1, 1),
 	ItemRarity.RARE: Vector2i(2, 2),

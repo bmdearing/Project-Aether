@@ -166,9 +166,12 @@ func apply_equipment_affixes(items: Array[Item]) -> void:
 ## The player's UniqueEffects (set by Player), for unique_damage_multiplier().
 var unique_effects: UniqueEffects
 
+var perk_effects: PerkEffects
+
 ## "More" multiplier from equipped Uniques on a hit of damage_type.
 func unique_damage_multiplier(damage_type: int) -> float:
-	return unique_effects.damage_multiplier(damage_type) if unique_effects else 1.0
+	var mult: float = unique_effects.damage_multiplier(damage_type) if unique_effects else 1.0
+	return mult * (perk_effects.damage_multiplier(damage_type) if perk_effects else 1.0)
 
 ## The player's StatusEffectComponent (set by Player): Pallid and Meager on
 ## the player lower the damage they deal.

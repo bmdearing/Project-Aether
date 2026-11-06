@@ -483,6 +483,8 @@ func _open_types(t: CraftTarget, explicits: Array[ItemAffix], rarity: int, posit
 	var prefixes := explicits.filter(func(a: ItemAffix): return a.is_prefix).size()
 	var suffixes := explicits.size() - prefixes
 	var open: Array[int] = []
+	if explicits.size() >= t.get_total_limit(rarity):
+		return open
 	if prefixes < limits.x and positional != BrandDef.Positional.SUFFIX_ONLY:
 		open.append(PREFIX)
 	if suffixes < limits.y and positional != BrandDef.Positional.PREFIX_ONLY:
@@ -593,7 +595,7 @@ func _fitting_rarity(t: CraftTarget, explicits: Array[ItemAffix]) -> int:
 	var prefixes := explicits.filter(func(a: ItemAffix): return a.is_prefix).size()
 	var suffixes := explicits.size() - prefixes
 	var limits := t.get_affix_limits(Constants.ItemRarity.UNCOMMON)
-	if prefixes <= limits.x and suffixes <= limits.y:
+	if prefixes <= limits.x and suffixes <= limits.y and explicits.size() <= t.get_total_limit(Constants.ItemRarity.UNCOMMON):
 		return Constants.ItemRarity.UNCOMMON
 	return Constants.ItemRarity.RARE
 

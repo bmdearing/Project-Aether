@@ -97,12 +97,12 @@ func _test_rolls() -> void:
 		limits_ok = limits_ok and prefixes <= limits.x and suffixes <= limits.y
 		if rolled.rarity == Constants.ItemRarity.RARE:
 			saw_rare = true
-			rare_counts_ok = rare_counts_ok and rolled.affixes.size() >= 3 and rolled.affixes.size() <= 4
+			rare_counts_ok = rare_counts_ok and rolled.affixes.size() == 2
 		for a in rolled.affixes:
 			var in_pool := JewelModifierPool.STAT_KEYS.has(a.stat_key) and a.tier >= 1 and a.tier <= JewelModifierPool.TIER_COUNT
 			values_ok = values_ok and in_pool and a.value >= a.value_min - 0.001 and a.value <= a.value_max + 0.001
-	_check(limits_ok, "rolled jewels keep within 2 prefixes / 2 suffixes")
-	_check(saw_rare and rare_counts_ok, "rare jewels roll 3-4 modifiers")
+	_check(limits_ok, "rolled jewels keep within 1 prefix / 1 suffix")
+	_check(saw_rare and rare_counts_ok, "rare jewels roll 2 modifiers")
 	_check(values_ok, "jewel modifiers come from the jewel pool with in-range values")
 	var level1 := JewelModifierPool.defs_for(JewelRoller.roll(1, 2.0, rng))
 	_check(level1.all(func(d: ModifierDef): return d.tiers.size() == 1 and d.tiers[0].tier == 3), "item level 1 jewels only reach Tier 3")
@@ -131,7 +131,7 @@ func _test_crafting() -> void:
 	forged.item_level = 50
 	r = resolver.apply(forged, &"forging")
 	var prefixes := forged.affixes.filter(func(a: ItemAffix): return a.is_prefix).size()
-	_check(r.success and forged.rarity == Constants.ItemRarity.RARE and forged.affixes.size() == 4 and prefixes == 2, "Forging fills a jewel to 2 prefixes + 2 suffixes")
+	_check(r.success and forged.rarity == Constants.ItemRarity.RARE and forged.affixes.size() == 2 and prefixes == 1, "Forging fills a jewel to 1 prefix + 1 suffix")
 	r = resolver.apply(forged, &"ascendant")
 	_check(not r.success, "a full jewel takes no more modifiers")
 	r = resolver.apply(Jewel.new(), &"opening")

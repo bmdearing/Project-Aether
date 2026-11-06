@@ -52,9 +52,18 @@ func get_affix_limits(rarity: int) -> Vector2i:
 	var table: Dictionary = Constants.AFFIX_LIMITS_GEAR
 	if is_slate:
 		table = Constants.AFFIX_LIMITS_SLATE
+	elif resource is Lens:
+		table = Constants.AFFIX_LIMITS_LENS
 	elif resource is Jewel:
 		table = Constants.AFFIX_LIMITS_JEWEL
 	return table.get(rarity, Vector2i.ZERO)
+
+## Most explicits `rarity` allows in total (jewels cap below prefix + suffix).
+func get_total_limit(rarity: int) -> int:
+	if resource is Jewel and not resource is Lens:
+		return Constants.AFFIX_TOTAL_LIMITS_JEWEL.get(rarity, 0)
+	var limits := get_affix_limits(rarity)
+	return limits.x + limits.y
 
 func get_explicits() -> Array[ItemAffix]:
 	if is_slate:

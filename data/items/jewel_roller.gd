@@ -1,7 +1,7 @@
 extends RefCounted
 class_name JewelRoller
 ## Rolls a Jewel drop. Rarity comes from Loot.roll_rarity(); Uncommon rolls
-## 1-2 modifiers and Rare 3-4, within the jewel's prefix/suffix limits.
+## 1 modifier and Rare 2, within the jewel's prefix/suffix limits.
 
 static func roll(item_level: int = 1, loot_rarity_multiplier: float = 1.0, rng: RandomNumberGenerator = null) -> Jewel:
 	if rng == null:
@@ -17,9 +17,9 @@ static func roll(item_level: int = 1, loot_rarity_multiplier: float = 1.0, rng: 
 	var count := 0
 	match jewel.rarity:
 		Constants.ItemRarity.UNCOMMON:
-			count = rng.randi_range(1, 2)
+			count = 1
 		Constants.ItemRarity.RARE:
-			count = rng.randi_range(3, 4)
+			count = 2
 	add_random_modifiers(jewel, count, rng)
 	return jewel
 
@@ -29,6 +29,8 @@ static func add_random_modifiers(jewel: Jewel, count: int, rng: RandomNumberGene
 	var resolver := CraftingResolver.new(rng)
 	var limits := jewel.get_affix_limits()
 	for i in count:
+		if jewel.affixes.size() >= jewel.get_total_limit():
+			return
 		var groups := jewel.affixes.map(func(a: ItemAffix): return a.get_group())
 		var prefixes := jewel.affixes.filter(func(a: ItemAffix): return a.is_prefix).size()
 		var suffixes := jewel.affixes.size() - prefixes

@@ -46,6 +46,15 @@ func get_quality_cap() -> int:
 @export var flavor_text: String = ""
 ## Set on Uniques and Mythics: their UniqueCatalog id.
 @export var unique_id: String = ""
+## Monster Infrequent perks: PerkCatalog id -> rolled value, at most
+## MonsterInfrequent.MAX_PERKS. Separate from affixes, so no crafting touches them.
+@export var perks: Dictionary = {}
+
+## Card, beam and grid colour: green for a Monster Infrequent, else the rarity's.
+func display_color() -> Color:
+	if not perks.is_empty():
+		return Constants.MONSTER_INFREQUENT_COLOR
+	return Constants.ITEM_RARITY_COLOR.get(rarity, Color.WHITE)
 
 ## Shard of Tharsis. is_corrupted records that a Shard was used (Orbs then
 ## only allow Opening and Tempering); is_craftable goes false with it and
@@ -114,8 +123,8 @@ func requirement_level() -> int:
 ## CraftingSystem, tooltip UI, dozens of .tres instances) keeps working
 ## unchanged. Data architecture only, per the brief - no crafting UI or
 ## ItemRoller affix generation reads these yet.
-const MAX_PREFIXES := 3
-const MAX_SUFFIXES := 3
+const MAX_PREFIXES := 2
+const MAX_SUFFIXES := 2
 const MAX_IMPLICITS := 3
 
 func get_all_affixes() -> Array[ItemAffix]:

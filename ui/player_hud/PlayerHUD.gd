@@ -811,7 +811,7 @@ func _refresh_weapon_indicator() -> void:
 	_weapon_plate.weapon_name = weapon.display_name if weapon else "No weapon"
 	_weapon_plate.item = weapon
 	_weapon_plate.weapon_type = weapon.weapon_type if weapon else ""
-	_weapon_plate.name_color = Constants.ITEM_RARITY_COLOR.get(weapon.rarity, AetherStyle.TEXT) if weapon else AetherStyle.TEXT_DIM
+	_weapon_plate.name_color = weapon.display_color() if weapon else AetherStyle.TEXT_DIM
 	_weapon_plate.set_text = "Set %s" % ("A" if _player.equipment.active_weapon_set == 0 else "B")
 	_weapon_plate.gold = GameState.gold
 	_weapon_plate.queue_redraw()

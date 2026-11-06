@@ -9,7 +9,7 @@ class_name SlateBenchScreen
 ## left on the bench (inventory first, then the stash). The rules and prices
 ## are SlateRecombinator's.
 
-enum Mode { RECOMBINE, SPLIT }
+enum Mode { RECOMBINE, SPLIT, GEAR }
 
 const SLOT_SIZE := 132
 const CELL := 36
@@ -25,6 +25,7 @@ var _hint: Label
 var _bench: HBoxContainer
 var _craft_button: Button
 var _inventory_view: InventoryGridView
+var _mode_tabs: HBoxContainer
 
 ## The scene's screen, created on first use.
 static func open_for(tree: SceneTree, p_mode: Mode) -> SlateBenchScreen:
@@ -47,14 +48,20 @@ func is_open() -> bool:
 	return _is_open
 
 func open(p_mode: Mode) -> void:
+	_clear_bench()
 	mode = p_mode
 	_build_bench()
-	var split := mode == Mode.SPLIT
-	_title.text = "Slate Splitter" if split else "Recombinator"
-	_notice.text = ("Split a Slate with two or more crafted modifiers into two Slates, the modifiers dealt between them. Split Slates can't be split again." if split
-		else "Merge two Slates of the same kind into one. A modifier both have keeps its better roll; each other modifier survives at %d%%." % roundi(SlateRecombinator.KEEP_CHANCE * 100.0))
+	_title.text = "Slate Splitter" if mode == Mode.SPLIT else "Recombinator"
+	match mode:
+		Mode.SPLIT:
+			_notice.text = "Split a Slate with two or more crafted modifiers into two Slates, the modifiers dealt between them. Split Slates can't be split again."
+		Mode.GEAR:
+			_notice.text = "Combine two items of the same type. The result is the base item; the donor gives only its perks. Each perk survives at %d%% (at least one always does, two at most). Both items are used up." % roundi(GearRecombinator.KEEP_CHANCE * 100.0)
+		_:
+			_notice.text = "Merge two Slates of the same kind into one. A modifier both have keeps its better roll; each other modifier survives at %d%%." % roundi(SlateRecombinator.KEEP_CHANCE * 100.0)
+	_mode_tabs.visible = mode != Mode.SPLIT
 	_inventory_view.set_inventory(GameState.inventory)
-	_set_hint("Drag a Slate onto the bench, or right-click it in your inventory.")
+	_set_hint("Drag %s onto the bench, or right-click it in your inventory." % ("an item" if mode == Mode.GEAR else "a Slate"))
 	_refresh()
 	_is_open = true
 	visible = true
@@ -62,14 +69,18 @@ func open(p_mode: Mode) -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 
 func close() -> void:
-	for slot in _inputs + _outputs:
-		if slot.slate:
-			_stow(slot.slate)
-			slot.slate = null
+	_clear_bench()
 	_is_open = false
 	visible = false
 	get_tree().paused = false
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+
+## Returns anything left on the bench (inventory first, then the stash).
+func _clear_bench() -> void:
+	for slot in _inputs + _outputs:
+		if slot.content:
+			_stow(slot.content)
+			slot.content = null
 
 func _unhandled_input(event: InputEvent) -> void:
 	if _is_open and event.is_action_pressed("ui_cancel"):
@@ -79,18 +90,33 @@ func _unhandled_input(event: InputEvent) -> void:
 ## ---- Bench --------------------------------------------------------------
 
 func cost() -> int:
-	return SlateRecombinator.SPLIT_COST if mode == Mode.SPLIT else SlateRecombinator.RECOMBINE_COST
+	match mode:
+		Mode.SPLIT: return SlateRecombinator.SPLIT_COST
+		Mode.GEAR: return GearRecombinator.COST
+	return SlateRecombinator.RECOMBINE_COST
+
+## Whether `content` can go on the bench in this mode.
+func accepts(content: Resource) -> bool:
+	if mode == Mode.GEAR:
+		return content is Item and (content as Item).is_equipment()
+	return content is Slate
 
 ## Why the button can't be pressed right now, or "" when it can.
 func craft_error() -> String:
 	for slot in _outputs:
-		if slot.slate:
-			return "Take the finished Slate%s first." % ("s" if _outputs.size() > 1 else "")
+		if slot.content:
+			return "Take the finished result first."
 	for slot in _inputs:
-		if slot.slate == null:
-			return "Place a Slate." if _inputs.size() == 1 else "Place two Slates of the same kind."
-	var error := SlateRecombinator.split_error(_inputs[0].slate) if mode == Mode.SPLIT \
-		else SlateRecombinator.recombine_error(_inputs[0].slate, _inputs[1].slate)
+		if slot.content == null:
+			match mode:
+				Mode.SPLIT: return "Place a Slate."
+				Mode.GEAR: return "Place a base item and a donor of the same type."
+			return "Place two Slates of the same kind."
+	var error := ""
+	match mode:
+		Mode.SPLIT: error = SlateRecombinator.split_error(_inputs[0].slate)
+		Mode.GEAR: error = GearRecombinator.error(_inputs[0].item, _inputs[1].item)
+		_: error = SlateRecombinator.recombine_error(_inputs[0].slate, _inputs[1].slate)
 	if error != "":
 		return error
 	if GameState.gold < cost():
@@ -101,62 +127,67 @@ func craft() -> bool:
 	if craft_error() != "":
 		return false
 	GameState.gold -= cost()
-	var results: Array[Slate] = []
-	if mode == Mode.SPLIT:
-		results = SlateRecombinator.split(_inputs[0].slate)
-	else:
-		results.append(SlateRecombinator.recombine(_inputs[0].slate, _inputs[1].slate))
+	var results: Array[Resource] = []
+	match mode:
+		Mode.SPLIT:
+			results.append_array(SlateRecombinator.split(_inputs[0].slate))
+		Mode.GEAR:
+			results.append(GearRecombinator.recombine(_inputs[0].item, _inputs[1].item))
+		_:
+			results.append(SlateRecombinator.recombine(_inputs[0].slate, _inputs[1].slate))
 	for slot in _inputs:
-		slot.slate = null
+		slot.content = null
 	for i in results.size():
-		_outputs[i].slate = results[i]
+		_outputs[i].content = results[i]
 	_set_hint("Split in two." if mode == Mode.SPLIT else "Recombined.")
 	_refresh()
 	return true
 
-## Moves a Slate from the inventory onto an input box (the first empty one
-## when `index` is -1). A Slate already there goes back to the inventory.
-func place(slate: Slate, index: int = -1) -> bool:
+## Moves a Slate or item from the inventory onto an input box (the first
+## empty one when `index` is -1). Whatever was there goes back.
+func place(content: Resource, index: int = -1) -> bool:
+	if not accepts(content):
+		return false
 	if index < 0:
 		for i in _inputs.size():
-			if _inputs[i].slate == null:
+			if _inputs[i].content == null:
 				index = i
 				break
 	if index < 0 or index >= _inputs.size():
-		_set_hint("The bench is full - click a box to take a Slate back.")
+		_set_hint("The bench is full - click a box to take it back.")
 		return false
-	if not GameState.remove_from_inventory(slate):
+	if not GameState.remove_from_inventory(content):
 		return false
-	var old := _inputs[index].slate
-	_inputs[index].slate = slate
+	var old := _inputs[index].content
+	_inputs[index].content = content
 	if old:
 		_stow(old)
 	_set_hint("")
 	_refresh()
 	return true
 
-## Takes a box's Slate back into the inventory.
+## Takes a box's Slate or item back into the inventory.
 func take(slot: BenchSlot) -> void:
-	if slot.slate == null:
+	if slot.content == null:
 		return
-	if not GameState.add_to_inventory(slot.slate):
+	if not GameState.add_to_inventory(slot.content):
 		_set_hint("No room in your inventory.")
 		return
-	slot.slate = null
+	slot.content = null
 	_set_hint("")
 	_refresh()
 
-## Inventory first, then the stash's Slate tab, then any stash tab.
-func _stow(slate: Slate) -> void:
-	if GameState.add_to_inventory(slate):
+## Inventory first, then the stash's Slate tab for Slates, then any stash tab.
+func _stow(content: Resource) -> void:
+	if GameState.add_to_inventory(content):
 		return
-	var slate_tab := GameState.stash.get_tab(GridInventory.Accepts.SLATE)
-	if slate_tab and slate_tab.add(slate) == 0:
+	var slate_tab := GameState.stash.get_tab(GridInventory.Accepts.SLATE) if content is Slate else null
+	if slate_tab and slate_tab.add(content) == 0:
 		return
 	for tab in GameState.stash.tabs:
-		if tab.add(slate) == 0:
+		if tab.add(content) == 0:
 			return
-	push_warning("SlateBenchScreen: nowhere to put %s" % slate.display_name)
+	push_warning("SlateBenchScreen: nowhere to put %s" % content.get("display_name"))
 
 func _refresh() -> void:
 	_inventory_view.refresh()
@@ -194,6 +225,17 @@ func _build() -> void:
 	_notice.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_notice.custom_minimum_size = Vector2(760, 0)
 	root.add_child(_notice)
+	_mode_tabs = HBoxContainer.new()
+	_mode_tabs.alignment = BoxContainer.ALIGNMENT_CENTER
+	_mode_tabs.add_theme_constant_override("separation", 8)
+	for tab in [["Slates", Mode.RECOMBINE], ["Gear", Mode.GEAR]]:
+		var button := Button.new()
+		button.text = tab[0]
+		button.custom_minimum_size = Vector2(120, 32)
+		var target: Mode = tab[1]
+		button.pressed.connect(func(): if mode != target: open(target))
+		_mode_tabs.add_child(button)
+	root.add_child(_mode_tabs)
 
 	var columns := HBoxContainer.new()
 	columns.add_theme_constant_override("separation", 36)
@@ -218,17 +260,17 @@ func _build() -> void:
 	var right := VBoxContainer.new()
 	right.add_theme_constant_override("separation", 6)
 	columns.add_child(right)
-	right.add_child(_label("Your inventory - right-click a Slate to place it", 15, AetherStyle.TEXT))
+	right.add_child(_label("Your inventory - right-click to place on the bench", 15, AetherStyle.TEXT))
 	_inventory_view = InventoryGridView.new()
 	_inventory_view.cell_size = CELL
 	_inventory_view.allow_drop = true
 	_inventory_view.entry_right_clicked.connect(func(_v, entry: GridInventory.Entry):
-		if entry.content is Slate:
+		if accepts(entry.content):
 			place(entry.content)
 		else:
-			_set_hint("Only Slates go on the bench."))
+			_set_hint("Only gear goes on the bench here." if mode == Mode.GEAR else "Only Slates go on the bench."))
 	_inventory_view.entry_hovered.connect(func(_v, entry: GridInventory.Entry):
-		_set_hint("Right-click or drag to place it" if entry.content is Slate else ""))
+		_set_hint("Right-click or drag to place it" if accepts(entry.content) else ""))
 	right.add_child(_inventory_view)
 
 	_hint = _label("", 15, AetherStyle.TEXT)
@@ -300,6 +342,13 @@ class BenchSlot extends ItemSlotButton:
 	var is_output := false
 	var index := 0
 	var caption: Label
+	## The Slate or gear item in this box.
+	var content: Resource:
+		get:
+			return slate if slate else item
+		set(value):
+			slate = value as Slate
+			item = value as Item
 
 	func _init() -> void:
 		tooltip_text = " "
@@ -310,8 +359,14 @@ class BenchSlot extends ItemSlotButton:
 		if slate:
 			caption.text = slate.display_name
 			caption.add_theme_color_override("font_color", Constants.SLATE_RARITY_COLOR.get(slate.rarity, Color.WHITE))
+		elif item:
+			caption.text = item.display_name
+			caption.add_theme_color_override("font_color", item.display_color())
 		else:
-			caption.text = "Result" if is_output else "Slate"
+			var empty := "Slate"
+			if bench.mode == SlateBenchScreen.Mode.GEAR:
+				empty = "Base" if index == 0 else "Donor (perks only)"
+			caption.text = "Result" if is_output else empty
 			caption.add_theme_color_override("font_color", AetherStyle.TEXT_DIM)
 
 	func _gui_input(event: InputEvent) -> void:
@@ -322,7 +377,7 @@ class BenchSlot extends ItemSlotButton:
 
 	func _can_drop_data(_at_position: Vector2, data: Variant) -> bool:
 		return not is_output and data is Dictionary and data.has("grid_entry") \
-			and (data["grid_entry"] as GridInventory.Entry).content is Slate
+			and bench.accepts((data["grid_entry"] as GridInventory.Entry).content)
 
 	func _drop_data(_at_position: Vector2, data: Variant) -> void:
 		bench.place((data["grid_entry"] as GridInventory.Entry).content, index)
