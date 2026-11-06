@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Snow and Pale ramps (user report)
+
+"Snow and Pale areas had broken ramps." A headless test walked the player up every bank (the slopes up to raised terraces) on Forest, Dunes, Tundra, Frostwood and Bone Flats; about 1 in 8 Snow/Pale banks stopped the player, mostly because loose props (rocks, columns, bones, tombstones with box collision) and mounds stood on the bank or on the terrace edge where it arrives. Snow and Pale scatter far more solid props and bigger mounds than Forest, so they were hit hardest. Staircases (Frozen Crypt, dungeons) all climbed fine; canyons and streets have no ramps, only ledges.
+- Props keep 1.5 m clear of every bank (`RoomDresser._on_bank()`), which also keeps the top edge clear.
+- Mounds shrink, or are skipped, rather than overlap a bank (`TerrainBuilder._touches_bank()`).
+- A bank that would stop within 0.75 m of the terrace top (a run capped at 9 m, or a shrunk bank) now reaches the top, lengthening its run to stay walkable, so it doesn't end in a lip you walk into (`EmbankmentBuilder._close_lip()`).
+- Same seeds, failed bank walks: Tundra 8 -> 5 of 54, Frostwood 5 -> 2 of 40, Bone Flats 5 -> 1 of 46 (Forest 2 of 56 before and after). What's left is a few seams where a bank sinks into a cliff beside a walkable stretch.
+
+
 ## 2026-11-06 — Pack tactics: surround, shooter fans, cover (user)
 
 - **Melee packs surround you.** Engaged melee units within 10 m get evenly spaced slots round the player (`EnemyTactics`), kept in their current order so nobody crosses through the pack, and walk round to them on a curve instead of piling in from one side. Inside stop range they still sidestep to their slot (between swings, since an attack locks movement). A lone melee unit keeps the old small random offset.

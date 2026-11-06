@@ -89,7 +89,22 @@ func _build_mound(pos: Vector3) -> void:
 			return
 		height *= room / radius
 		radius = room
+	# Nor sits on a bank: its sides would wall off the way up.
+	while radius >= DUNE_MOUND_RADIUS.x * 0.5 and _touches_bank(pos, radius):
+		height *= 0.75
+		radius *= 0.75
+	if radius < DUNE_MOUND_RADIUS.x * 0.5:
+		return
 	_add_ellipsoid(pos + Vector3(0, -height * DUNE_MOUND_SINK, 0), radius, height, _floor_mat, pos.y)
+
+func _touches_bank(pos: Vector3, radius: float) -> bool:
+	if _map.embankments == null:
+		return false
+	for i in 12:
+		var a := TAU * i / 12.0
+		if _map.embankments.height_at(Vector2(pos.x, pos.z) + Vector2(cos(a), sin(a)) * (radius + 1.0)) > -INF:
+			return true
+	return _map.embankments.height_at(Vector2(pos.x, pos.z)) > -INF
 
 ## Distance from pos to the nearest terrace face: the edge of the terrace
 ## it stands on, or of any higher one.

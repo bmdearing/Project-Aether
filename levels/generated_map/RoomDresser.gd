@@ -195,6 +195,17 @@ func measure(scene: PackedScene) -> AABB:
 	node.free()
 	return bounds
 
+func _on_bank(rect: Rect2) -> bool:
+	var banks: EmbankmentBuilder = _parent.get(&"embankments") if _parent else null
+	if banks == null:
+		return false
+	for ix in 4:
+		for iz in 4:
+			var p := rect.position + rect.size * Vector2(ix / 3.0, iz / 3.0)
+			if banks.height_at(p) > -INF:
+				return true
+	return false
+
 ## World XZ rectangle covering a prop's visible bounds at pos and yaw.
 func _footprint(pos: Vector3, yaw: float, bounds: AABB, s: float) -> Rect2:
 	var rect := Rect2()
@@ -207,7 +218,13 @@ func _footprint(pos: Vector3, yaw: float, bounds: AABB, s: float) -> Rect2:
 		first = false
 	return rect
 
+## Props keep this far off banks (open fields): a rock on a bank, or on the
+## terrace edge where it arrives, blocks the way up.
+const BANK_CLEARANCE := 1.5
+
 func _overlaps(rect: Rect2) -> bool:
+	if _on_bank(rect.grow(BANK_CLEARANCE)):
+		return true
 	var grown := rect.grow(FOOTPRINT_GAP)
 	for other in _occupied:
 		if grown.intersects(other):

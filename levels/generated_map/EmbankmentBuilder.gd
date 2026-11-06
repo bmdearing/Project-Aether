@@ -205,8 +205,26 @@ func _sample(p: Vector2, out: Vector2, top: float) -> Vector3:
 	# nothing in one step would leave a steep crease against the face.
 	for scale in [1.0, 0.8, 0.6, 0.4, 0.25]:
 		if height * scale >= MIN_BANK_HEIGHT and _fits(p, out, run * scale, low):
-			return Vector3(run * scale, low, low + height * scale)
+			return _close_lip(Vector3(run * scale, low, low + height * scale), p, out, top)
 	return none
+
+## A bank that ends a little short of the top looks like a ramp but leaves a
+## lip the player walks into and stops at. Within LIP_SNAP of the top it goes
+## all the way up instead, lengthening its run (if it fits) to stay under
+## MAX_SNAP_SLOPE; failing that it keeps its lip, which then reads as a cliff.
+const LIP_SNAP := 0.75
+## Average slope (tan) a closed bank may reach: the profile's steepest point
+## is 1.5x this, ~42 degrees, under the player's 45-degree floor limit.
+const MAX_SNAP_SLOPE := 0.6
+
+func _close_lip(s: Vector3, p: Vector2, out: Vector2, top: float) -> Vector3:
+	var lip := top - s.z
+	if lip <= 0.01 or lip > LIP_SNAP or s.x <= 0.05:
+		return s
+	var run := maxf(s.x, (top - s.y) / MAX_SNAP_SLOPE)
+	if run > MAX_RUN + 0.01 or not _fits(p, out, run, s.y):
+		return s
+	return Vector3(run, s.y, top)
 
 func _fits(p: Vector2, out: Vector2, run: float, low: float) -> bool:
 	var foot := p + out * run
