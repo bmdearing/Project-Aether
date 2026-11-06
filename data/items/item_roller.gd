@@ -32,6 +32,8 @@ const BASE_ITEM_DIRS := [
 ## Base lines that never roll, matched as substrings of Item.base_line_id.
 ## Infusion Grenades are retired: their bases stay so old saves load, but they never roll or show in the Wiki.
 const EXCLUDED_ITEM_TYPES := ["infusion_grenade"]
+## Retired single bases (no base line), matched on item_id. Kept so old saves and Unique bases load.
+const EXCLUDED_BASE_IDS := ["iron_ring", "swift_ring", "ward_ring"]
 
 static func _is_excluded_line(base_line_id: String) -> bool:
 	for excluded in EXCLUDED_ITEM_TYPES:
@@ -828,7 +830,7 @@ static func _build_candidate_meta_cache() -> void:
 			if file_name.ends_with(".tres"):
 				var path: String = dir_path + file_name
 				var item := load(path) as Item
-				if item and not _is_excluded_line(item.base_line_id):
+				if item and not _is_excluded_line(item.base_line_id) and not EXCLUDED_BASE_IDS.has(item.item_id):
 					_candidate_meta_cache[path] = {"item_level": item.item_level, "base_line_id": item.base_line_id, "item_type": String(item.get_item_type()), "equip_slot": item.equip_slot}
 			file_name = dir.get_next().trim_suffix(".remap")
 		dir.list_dir_end()

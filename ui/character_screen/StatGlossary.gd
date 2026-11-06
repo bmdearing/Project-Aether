@@ -21,7 +21,7 @@ const NAME_OVERRIDES := {
 	"ward_delay_reduction": "Faster Ward Recharge (seconds)", "retaliate_on_block": "Chance to Retaliate on Block",
 	"hybrid_defense_life": "Hybrid Defence and Life", "crit_damage": "Increased Critical Strike Bonus",
 	"increased_attack_damage": "Increased Weapon Damage",
-	"amulet_increased_armor": "Increased Armour (Amulet)", "amulet_increased_evasion": "Increased Evasion (Amulet)", "amulet_increased_ward": "Increased Ward (Amulet)",
+	"amulet_increased_armor": "Increased Armour (Amulet)", "amulet_increased_evasion": "Increased Evasion (Amulet)", "amulet_increased_ward": "Increased Ward (Amulet)", "increased_defences": "Increased Defences",
 }
 
 const FLAT_DECIMALS := {"mana_regen": 1, "ward_delay_reduction": 1, "life_regen_flat": 1}
@@ -105,6 +105,7 @@ const EXPLAIN := {
 	"amulet_increased_armor": "Raises all of your Armour (from every item). Adds to the increased Armour on your armour pieces.",
 	"amulet_increased_evasion": "Raises all of your Evasion (from every item). Adds to the increased Evasion on your armour pieces.",
 	"amulet_increased_ward": "Raises all of your Ward (from every item). Adds to the increased Ward on your armour pieces.",
+	"increased_defences": "Raises all of your Armour, Evasion and Ward (from every item). Adds to every other increased defence.",
 	"esoteric_penetration": "Your Aetheric, Entropic and Pale hits treat the enemy's Esoteric Resistance as this much lower.",
 	"phys_as_elemental": "This share of Physical damage you take arrives split evenly as Fire, Cold and Lightning, so Resistances apply to it rather than Armour.",
 	"convert_phys_to_fire": "This share of the Physical damage you deal becomes Fire. Damage converts once, one step along Physical, Elemental, Esoteric; above 100% the shares scale down.",

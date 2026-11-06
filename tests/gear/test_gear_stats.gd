@@ -291,9 +291,19 @@ func _test_slates() -> void:
 	_finished += 1
 
 func _test_bases() -> void:
-	for id in ["agility_pendant", "intellect_pendant", "convergence_pendant", "aetheric_conduit", "vital_pendant", "resonant_pendant", "ward_ring", "vital_ring", "resonant_ring", "iron_ring", "swift_ring", "iron_belt", "leather_belt", "strength_belt"]:
+	for id in ["agility_pendant", "intellect_pendant", "convergence_pendant", "aetheric_conduit", "vital_pendant", "resonant_pendant", "ward_ring", "vital_ring", "resonant_ring", "iron_ring", "swift_ring", "bastion_ring", "steel_ring", "prism_ring", "occult_ring", "iron_belt", "leather_belt", "strength_belt"]:
 		var item := load("res://data/items/instances/%s.tres" % id) as Item
 		_check(item != null and not item.affixes.is_empty() and item.affixes[0].is_implicit, "%s exists with its implicit" % id)
+	var bastion := load("res://data/items/instances/bastion_ring.tres") as Item
+	var gear := EquipmentComponent.new()
+	gear.rings = [Item.new()]
+	gear.rings[0].affixes.append(_affix("flat_armor", 100.0))
+	var bare := gear.get_total_armor()
+	gear.rings.append(bastion)
+	_check(is_equal_approx(gear.get_total_armor(), bare * (1.0 + bastion.affixes[0].value / 100.0)), "the Bastion Ring raises global Defences")
+	gear.free()
+	ItemRoller._build_candidate_meta_cache()
+	_check(not ItemRoller._candidate_meta_cache.has("res://data/items/instances/iron_ring.tres") and ItemRoller._candidate_meta_cache.has("res://data/items/instances/prism_ring.tres"), "retired rings stop dropping; new rings drop")
 	var vest := load("res://data/armor/instances/gen_body_armour_specters_carapace.tres") as Armor
 	_check(vest.evasion_value > 100.0, "high-level evasion armours have their defence (%d)" % vest.evasion_value)
 	_check(not vest.affixes.is_empty(), "final armour tiers carry their implicit")

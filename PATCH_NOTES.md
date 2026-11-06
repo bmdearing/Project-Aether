@@ -7,6 +7,14 @@ there. Most recent first.
 
 ---
 
+## 2026-11-05 — Ring implicits (user design)
+
+Ring implicits are now mostly resistances, with a few damage rings.
+- **Bastion Ring** (new): 10-14% increased Defences, a new global stat (`increased_defences`) that raises Armour, Evasion and Ward together, like the amulet lines. It replaces the Iron, Swift and Ward rings, which gave too much.
+- **Steel / Prism / Occult Ring** (new): 15-25% increased Physical / Elemental / Esoteric damage. Kept under the 24-30% T1 explicit damage roll on purpose (user).
+- Iron, Swift and Ward rings no longer drop (`ItemRoller.EXCLUDED_BASE_IDS`). Their files stay so old saves load and the Iron Ring unique base keeps working.
+- Ember, Frost, Volt and Void (single resistances), Vital, Resonant and Tarnished are unchanged.
+
 ## 2026-11-05 — Stuck on a bank (user report)
 
 The player got wedged on a Bone Flats bank. Where a bank tapered into a cliff it got steeper than the 45-degree floor limit, leaving a V between steep slope and rock. With no floor under you there, you couldn't jump.

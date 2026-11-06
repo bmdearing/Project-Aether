@@ -233,6 +233,7 @@ const IMPLICIT_TEXT := {
 	"increased_evasion": "+%d%% increased Evasion",
 	"increased_armor": "+%d%% increased Armour",
 	"increased_ward": "+%d%% increased Ward",
+	"increased_defences": "+%d%% increased Defences",
 	"move_speed": "+%d%% increased Movement Speed",
 }
 
