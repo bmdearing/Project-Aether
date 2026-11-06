@@ -189,6 +189,8 @@ func _describe(result: CraftResult) -> String:
 		parts.append("Anchored: " + result.anchored.description)
 	if result.sockets_rolled_to >= 0:
 		parts.append("Sockets: %d" % result.sockets_rolled_to)
+	if result.perk_added != &"":
+		parts.append("Perk: " + PerkCatalog.text_of(result.perk_added, result.perk_value))
 	return "  ".join(parts)
 
 ## ---- Refresh -------------------------------------------------------------
@@ -262,6 +264,8 @@ func _refresh_outcomes() -> void:
 			lines.append("+ " + (a as ItemAffix).description)
 		for a in o.get("removed", []):
 			lines.append("- " + (a as ItemAffix).description)
+		if o.has("perk"):
+			lines.append("+ " + PerkCatalog.text_of(o["perk"][0], o["perk"][1]))
 		var button := Button.new()
 		button.text = "Outcome %d: %s" % [i + 1, ", ".join(lines) if not lines.is_empty() else "values rerolled"]
 		button.pressed.connect(_choose.bind(i))
@@ -293,9 +297,9 @@ func _fill_picker() -> void:
 				_picker.add_item(String(Constants.DAMAGE_TYPE_NAME[type]))
 				_picker.set_item_metadata(_picker.item_count - 1, String(Constants.DAMAGE_TYPE_NAME[type]).to_lower())
 		&"vestige_add":
-			_picker_label.text = "Boss"
+			_picker_label.text = "Boss (its perk)"
 			for id in GameState.killed_bosses:
-				_picker.add_item(MonsterInfrequent.source_display_name(id))
+				_picker.add_item("%s  (%s)" % [MonsterInfrequent.source_display_name(id), PerkCatalog.name_of(PerkCatalog.boss_perk(id))])
 				_picker.set_item_metadata(_picker.item_count - 1, id)
 		&"anchor":
 			_picker_label.text = "Modifier"

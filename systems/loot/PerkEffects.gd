@@ -22,6 +22,16 @@ const MARK_SECONDS := 6.0
 const SPELL_WINDOW_MSEC := 2500
 const CONTROL_AILMENTS := ["chill", "shock", "electrocute", "unraveling", "pallid"]
 const ELEMENTS := [Constants.DamageType.FIRE, Constants.DamageType.COLD, Constants.DamageType.LIGHTNING]
+## Boss perks (Vestige crafts).
+const SUN_COOLDOWN := 8.0
+const SUN_RADIUS := 4.0
+const WHEEL_HITS := 5
+const WHEEL_RADIUS := 5.0
+const WHEEL_KNOCKBACK := 8.0
+const MAW_COOLDOWN := 4.0
+const MAW_RADIUS := 8.0
+const MAW_PULL := 10.0
+const AILMENT_OF := {Constants.DamageType.FIRE: "ignite", Constants.DamageType.COLD: "chill", Constants.DamageType.LIGHTNING: "shock"}
 
 var perks: Dictionary = {}  # StringName -> best value
 
@@ -34,6 +44,9 @@ var _air_time := 0.0
 var _ember_timer := 0.0
 var _last_cast_msec: int = -100000
 var _last_weapon_msec: int = -100000
+var _sun_ready_msec: int = 0
+var _wheel_hits := 0
+var _maw_ready_msec: int = 0
 
 func _ready() -> void:
 	_player = get_parent() as Player
@@ -112,6 +125,7 @@ func _on_damage_dealt(source: Node, target: Node, amount: float, damage_type: in
 		var other := _nearest_other(enemy)
 		if other and other.status_effects:
 			other.status_effects.apply_effect("ignite", _player, amount * value(&"ignite_spread") / 100.0)
+	_boss_hit_perks(enemy, amount, damage_type, is_spell, now)
 	if has(&"ignite_erupt") and damage_type == Constants.DamageType.FIRE and is_instance_valid(enemy) \
 			and enemy.status_effects and enemy.status_effects.has_effect("ignite"):
 		var at := enemy.global_position
@@ -138,6 +152,9 @@ func _on_enemy_died(node: Node) -> void:
 		_player.mana.restore(value(&"airborne_mana"))
 	if has(&"hollow_life"):
 		_player.health.heal(_player.health.max_health * value(&"hollow_life") / 100.0)
+	if has(&"herald_maw") and Time.get_ticks_msec() >= _maw_ready_msec:
+		_maw_ready_msec = Time.get_ticks_msec() + int(MAW_COOLDOWN * 1000.0)
+		_open_maw(enemy)
 	var at := enemy.global_position
 	if has(&"curse_spread") and enemy.status_effects:
 		var curses := enemy.status_effects.get_curses()
@@ -205,6 +222,57 @@ func _physics_process(delta: float) -> void:
 				if enemy.status_effects:
 					enemy.status_effects.apply_effect("ignite", _player, hit)
 
+## ---- Boss perks ----------------------------------------------------------
+
+## Runs inside _on_damage_dealt (so extra damage here doesn't retrigger).
+func _boss_hit_perks(enemy: Enemy, amount: float, damage_type: int, is_spell: bool, now: int) -> void:
+	# Ailment ticks report as the player's damage too; they aren't hits.
+	if not is_instance_valid(enemy) or StatusEffectComponent.emitting_dot:
+		return
+	if has(&"convergence") and AILMENT_OF.has(damage_type) and enemy.status_effects and enemy.health.is_alive():
+		for type in AILMENT_OF:
+			if type != damage_type:
+				enemy.status_effects.apply_effect(AILMENT_OF[type], _player, amount * value(&"convergence") / 100.0)
+	if has(&"falling_sun") and now >= _sun_ready_msec:
+		_sun_ready_msec = now + int(SUN_COOLDOWN * 1000.0)
+		var at := enemy.global_position
+		for other in _enemies_near(at, SUN_RADIUS):
+			other.take_damage(amount * value(&"falling_sun") / 100.0, Constants.DamageType.FIRE, true)
+		SpellFx.burst(enemy.get_parent(), at + Vector3.UP * 0.5, Color(1.0, 0.6, 0.15), 30, Vector2(2.0, 5.0), 0.7, Vector2(0.08, 0.18), 70.0, -3.0)
+		SpellFx.shockwave(enemy.get_parent(), at + Vector3.UP * 0.1, SUN_RADIUS, Color(1.0, 0.55, 0.15))
+		SpellFx.light_pop(enemy.get_parent(), at + Vector3.UP * 1.5, Color(1.0, 0.7, 0.3), 4.0, SUN_RADIUS * 2.0, 0.4)
+	if has(&"earth_wheel") and not is_spell:
+		_wheel_hits += 1
+		if _wheel_hits >= WHEEL_HITS:
+			_wheel_hits = 0
+			var origin := _player.global_position
+			for other in _enemies_near(origin, WHEEL_RADIUS):
+				other.apply_knockback(_away(other) * WHEEL_KNOCKBACK)
+				other.take_damage(amount * value(&"earth_wheel") / 100.0, Constants.DamageType.KINETIC)
+			SpellFx.shockwave(_player.get_parent(), origin + Vector3.UP * 0.1, WHEEL_RADIUS, Color(0.7, 0.6, 0.45))
+			SpellFx.burst(_player.get_parent(), origin + Vector3.UP * 0.2, Color(0.6, 0.5, 0.4), 22, Vector2(2.0, 5.0), 0.5, Vector2(0.06, 0.14), 20.0, -6.0)
+	# Last, so the hits above count first.
+	if has(&"sealed_verdict") and enemy.health.is_alive() and enemy.boss_brain == null \
+			and enemy.rank != Constants.EnemyRank.BOSS \
+			and enemy.health.current_health < enemy.health.max_health * value(&"sealed_verdict") / 100.0:
+		_execute.call_deferred(enemy, damage_type)
+
+## The Herald's Maw: nearby enemies are dragged to the corpse and take a share
+## of its maximum Life as Entropic damage.
+func _open_maw(dead: Enemy) -> void:
+	var at := dead.global_position
+	var dmg := dead.health.max_health * value(&"herald_maw") / 100.0
+	for other in _enemies_near(at, MAW_RADIUS):
+		if other == dead:
+			continue
+		var pull := at - other.global_position
+		pull.y = 0.0
+		if pull.length() > 0.5:
+			other.apply_knockback(pull.normalized() * minf(MAW_PULL, pull.length() * 2.0))
+		other.take_damage(dmg, Constants.DamageType.ENTROPIC, true)
+	SpellFx.burst(dead.get_parent(), at + Vector3.UP * 0.8, Color(0.35, 0.1, 0.5), 28, Vector2(-4.0, -1.5), 0.6, Vector2(0.06, 0.14), 180.0, 0.0)
+	SpellFx.shockwave(dead.get_parent(), at + Vector3.UP * 0.1, MAW_RADIUS, Color(0.45, 0.15, 0.65))
+
 ## ---- Helpers -----------------------------------------------------------
 
 func _enemies_near(at: Vector3, radius: float) -> Array[Enemy]:
@@ -231,3 +299,10 @@ func _away(enemy: Enemy) -> Vector3:
 	var away := enemy.global_position - _player.global_position
 	away.y = 0.0
 	return away.normalized() if away.length() > 0.1 else -_player.global_transform.basis.z
+
+## The Sealed King's Verdict, after the hit that set it up has finished.
+func _execute(enemy: Enemy, damage_type: int) -> void:
+	if not is_instance_valid(enemy) or not enemy.health.is_alive():
+		return
+	SpellFx.burst(enemy.get_parent(), enemy.global_position + Vector3.UP * 1.0, Color(0.95, 0.9, 1.0), 16, Vector2(1.0, 3.0), 0.5, Vector2(0.05, 0.12), 180.0, 0.0)
+	enemy.take_damage(enemy.health.current_health + 1.0, damage_type, true, false, false, true)

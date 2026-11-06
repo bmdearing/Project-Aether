@@ -50,5 +50,8 @@ func _entry(id: StringName) -> Control:
 	var slots: Array = (def["slots"] as Array).map(func(s): return SLOT_NAMES.get(s, "?"))
 	var kinds: Array = def.get("kinds", [])
 	var where := ", ".join(slots) + (" (%s)" % ", ".join(kinds) if not kinds.is_empty() else "")
-	box.add_child(ModifierWiki._text("Rolls on: %s    Dropped by: %s" % [where, ", ".join(PerkCatalog.source_names(id))], 13, ModifierWiki.MUTED))
+	if PerkCatalog.is_boss(id):
+		box.add_child(ModifierWiki._text("Any non-unique gear    From: a Vestige of %s at the Siphon" % ", ".join(PerkCatalog.source_names(id)), 13, ModifierWiki.MUTED))
+	else:
+		box.add_child(ModifierWiki._text("Rolls on: %s    Dropped by: %s" % [where, ", ".join(PerkCatalog.source_names(id))], 13, ModifierWiki.MUTED))
 	return box

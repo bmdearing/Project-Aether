@@ -33,7 +33,7 @@ func _test_catalog() -> void:
 		for source in PerkCatalog.PERKS[id]["sources"]:
 			sources_ok = sources_ok and ResourceLoader.exists(MonsterInfrequent.DEFINITIONS_DIR % source)
 	_check(sources_ok, "every perk source is a real enemy definition")
-	_check(PerkCatalog.PERKS.size() == 20, "20 starter perks")
+	_check(PerkCatalog.PERKS.keys().filter(func(id): return not PerkCatalog.is_boss(id)).size() == 20 and PerkCatalog.boss_perk("ataras") == &"falling_sun", "20 starter perks plus one per Pinnacle boss")
 	_check(PerkCatalog.text_of(&"reload_on_kill", 20.0).contains("20%"), "perk text fills its value")
 
 func _test_rolls() -> void:

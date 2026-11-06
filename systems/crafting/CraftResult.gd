@@ -16,6 +16,8 @@ enum CraftError {
 	INVALID_PAYMENT,
 	OVER_LINE_LIMIT,
 	NOT_UNLOCKED,
+	HAS_BOSS_PERK,
+	PERK_LIMIT,
 }
 
 var success: bool = false
@@ -26,6 +28,9 @@ var removed: Array[ItemAffix] = []
 var anchored: ItemAffix
 var quality_gained: int = 0
 var sockets_rolled_to: int = -1
+## Vestige: the boss perk it added and its roll.
+var perk_added: StringName = &""
+var perk_value: float = 0.0
 
 static func error_name(code: CraftError) -> String:
 	return CraftError.keys()[code]

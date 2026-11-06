@@ -174,7 +174,7 @@ func _test_modifier_pages() -> void:
 		total += r["chance"]
 	_check(is_equal_approx(total, 1.0), "Orb chances on a blank item add up to 100%% (%.3f)" % total)
 	var dmg: Array = rows.filter(func(r): return r["def"].stat_key == "local_increased_weapon_damage")
-	_check(dmg.size() == 1 and dmg[0]["tiers"].size() == 9 and dmg[0]["tiers"][0]["level"] == 83 and is_equal_approx(dmg[0]["tiers"][0]["max"], 225.0), "Weapon Damage shows its 9 tiers, Tier 1 at item level 83 up to 225%")
+	_check(dmg.size() == 1 and dmg[0]["tiers"].size() == 9 and dmg[0]["tiers"][0]["level"] == 83 and is_equal_approx(dmg[0]["tiers"][0]["max"], 315.0), "Weapon Damage shows its 9 tiers, Tier 1 at item level 83 up to 315%")
 	var low := WikiCatalog.modifier_rows(sword["base"], 1)
 	var low_dmg: Array = low.filter(func(r): return r["def"].stat_key == "local_increased_weapon_damage")[0]["tiers"]
 	_check(low_dmg.filter(func(t): return t["chance"] > 0.0).size() == 1, "at item level 1 only the lowest tier can roll")

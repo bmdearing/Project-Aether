@@ -110,7 +110,7 @@ func preview(item: Resource, craft_id: StringName, family: StringName = &"", cho
 		return p
 	var explicits := t.get_explicits()
 	match craft_id:
-		&"add", &"vestige_add":
+		&"add":
 			var add := _add_candidates(t, explicits, family, craft_id)
 			_merge_outcomes(p.outcomes, add["candidates"], 1.0)
 			p.add_count = 1
@@ -195,10 +195,18 @@ func _check(t: CraftTarget, craft_id: StringName, family: StringName, choice: in
 			return E.NO_VALID_OUTCOME
 	var explicits := t.get_explicits()
 	match craft_id:
-		&"add", &"vestige_add":
-			if craft_id == &"vestige_add":
-				if not GameState.killed_bosses.has(String(family)) or not pools.has(StringName(VESTIGE_PREFIX + String(family))):
-					return E.NOT_UNLOCKED
+		&"vestige_add":
+			var perk := PerkCatalog.boss_perk(String(family))
+			if perk == &"" or not GameState.killed_bosses.has(String(family)):
+				return E.NOT_UNLOCKED
+			var gear := t.resource as Item
+			if t.is_slate or gear == null or not PerkCatalog.fits(perk, gear):
+				return E.INVALID_TARGET
+			if gear.perks.keys().any(func(id): return PerkCatalog.is_boss(StringName(id))):
+				return E.HAS_BOSS_PERK
+			if gear.perks.size() >= MonsterInfrequent.MAX_PERKS:
+				return E.PERK_LIMIT
+		&"add":
 			var limits := t.get_affix_limits(Constants.ItemRarity.RARE)
 			if explicits.size() > t.get_total_limit(Constants.ItemRarity.RARE) or _prefix_count(explicits) > limits.x or explicits.size() - _prefix_count(explicits) > limits.y:
 				return E.OVER_LINE_LIMIT
@@ -274,7 +282,12 @@ func _simulate(t: CraftTarget, craft_id: StringName, family: StringName, choice:
 	var removed: Array[ItemAffix] = []
 	var out := {"explicits": explicits, "rarity": rarity, "added": added, "removed": removed, "anchored": null}
 	match craft_id:
-		&"add", &"vestige_add":
+		&"vestige_add":
+			# The boss's perk makes the item a Monster Infrequent (Uncommon at least).
+			var perk := PerkCatalog.boss_perk(String(family))
+			out["perk"] = [perk, PerkCatalog.roll_value(perk, rng)]
+			rarity = maxi(rarity, Constants.ItemRarity.UNCOMMON)
+		&"add":
 			var add := _add_candidates(t, explicits, family, craft_id)
 			var affix := _roll_affix(_pick(add["candidates"]))
 			explicits.append(affix)
@@ -346,6 +359,10 @@ func commit(item: Resource, craft_id: StringName, outcome: Dictionary) -> CraftR
 			(item as Weapon).infused_damage_type = outcome["infused"]
 		if outcome.has("radius_value") and item is Lens:
 			(item as Lens).radius_value = outcome["radius_value"]
+		if outcome.has("perk"):
+			(item as Item).perks[String(outcome["perk"][0])] = float(outcome["perk"][1])
+			result.perk_added = outcome["perk"][0]
+			result.perk_value = outcome["perk"][1]
 		result.added = outcome["added"]
 		result.removed = outcome["removed"]
 		result.anchored = outcome["anchored"]
@@ -361,7 +378,7 @@ func commit(item: Resource, craft_id: StringName, outcome: Dictionary) -> CraftR
 
 ## {"candidates", "rarity" it needs, "open": false when no line is free even
 ## at Rare}. Add raises Common -> Uncommon -> Rare only as far as needed.
-func _add_candidates(t: CraftTarget, explicits: Array[ItemAffix], family: StringName, craft_id: StringName) -> Dictionary:
+func _add_candidates(t: CraftTarget, explicits: Array[ItemAffix], family: StringName, _craft_id: StringName) -> Dictionary:
 	var rarity := maxi(t.get_rarity(), Constants.ItemRarity.UNCOMMON)
 	var open := _open_types(t, explicits, rarity)
 	while open.is_empty() and rarity < Constants.ItemRarity.RARE:
@@ -369,11 +386,7 @@ func _add_candidates(t: CraftTarget, explicits: Array[ItemAffix], family: String
 		open = _open_types(t, explicits, rarity)
 	if open.is_empty():
 		return {"candidates": [] as Array[Dictionary], "rarity": rarity, "open": false}
-	var pool_ids: Array[StringName] = []
-	if craft_id == &"vestige_add":
-		pool_ids.append(StringName(VESTIGE_PREFIX + String(family)))
-		family = &""
-	return {"candidates": _candidates(t, explicits, open, family, pool_ids), "rarity": rarity, "open": true}
+	return {"candidates": _candidates(t, explicits, open, family), "rarity": rarity, "open": true}
 
 func _candidates(t: CraftTarget, explicits: Array[ItemAffix], open: Array[int], family: StringName, pool_ids: Array[StringName] = []) -> Array[Dictionary]:
 	var result: Array[Dictionary] = []

@@ -49,7 +49,7 @@ descriptions = {
 "craft_sockets": "Rerolls the sockets (1 up to the item's maximum). Socketed jewels stay, so it never rolls fewer sockets than jewels.",
 "craft_retype": "Changes a weapon's damage type to the one you choose.",
 "craft_restore_type": "Returns a weapon to its native damage type.",
-"craft_vestige_add": "Adds one modifier from a boss you've killed."
+"craft_vestige_add": "Gives the item the perk of a Pinnacle boss you've killed, making it a Monster Infrequent. Any non-unique gear; one boss perk per item, two perks at most."
 }
 errors = {
 "ALREADY_ANCHORED": "This item already has its most anchored modifiers.",
@@ -64,5 +64,7 @@ errors = {
 "CANT_AFFORD": "Not enough residue.",
 "INVALID_PAYMENT": "That payment doesn't match the cost or uses the wrong pool.",
 "OVER_LINE_LIMIT": "This item has more lines than items can hold now. Bleed or Absolve some first.",
-"NOT_UNLOCKED": "Kill that boss first."
+"NOT_UNLOCKED": "Kill that boss first.",
+"HAS_BOSS_PERK": "This item already carries a boss perk.",
+"PERK_LIMIT": "This item already has two perks."
 }

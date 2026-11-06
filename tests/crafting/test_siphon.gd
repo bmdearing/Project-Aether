@@ -113,11 +113,13 @@ func _test_families_and_payment() -> void:
 	_check(_resolver.begin(gloves, &"add", &"cold", {Residue.ELEMENTAL: _resolver.cost_of(gloves, &"add")}).error == E.CANT_AFFORD, "an unaffordable craft fails")
 	_fill()
 	var vest := _item(RING)
-	_check(_resolver.apply(vest, &"vestige_add", &"test_boss").error == E.NOT_UNLOCKED, "Vestige needs the boss killed")
-	GameState.killed_bosses.append("test_boss")
+	_check(_resolver.apply(vest, &"vestige_add", &"ataras").error == E.NOT_UNLOCKED, "Vestige needs the boss killed")
+	GameState.killed_bosses.append("ataras")
 	var boss_before := Residue.amount(Residue.BOSS)
-	var vr := _resolver.apply(vest, &"vestige_add", &"test_boss")
-	_check(vr.success and _explicits(vest)[0].stat_key == "flat_life" and Residue.amount(Residue.BOSS) < boss_before, "Vestige adds from the boss pool, paid in boss residue")
+	var lines := _explicits(vest).size()
+	var vr := _resolver.apply(vest, &"vestige_add", &"ataras")
+	_check(vr.success and vest.perks.has("falling_sun") and _explicits(vest).size() == lines and vest.rarity >= Constants.ItemRarity.UNCOMMON and Residue.amount(Residue.BOSS) < boss_before, "Vestige adds the boss perk (an MI), paid in boss residue")
+	_check(_resolver.apply(vest, &"vestige_add", &"ataras").error == E.HAS_BOSS_PERK, "one boss perk per item")
 
 func _test_rarity() -> void:
 	_fill()

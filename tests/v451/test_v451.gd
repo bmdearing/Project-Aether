@@ -142,9 +142,9 @@ func _test_jewels_and_butterfly() -> void:
 	var by_key := {}
 	for def in JewelModifierPool.defs_for(jewel):
 		by_key[def.stat_key] = def
-	for want in [["increased_attack_damage", 40.0], ["attack_speed", 15.0], ["crit_chance_increased", 20.0]]:
+	for want in [["increased_attack_damage", 52.0], ["attack_speed", 19.5], ["crit_chance_increased", 26.0]]:
 		var def: ModifierDef = by_key.get(want[0])
-		_check(def != null and is_equal_approx(def.tiers[0].value_max, want[1]), "jewels roll %s up to %d%%" % [want[0], want[1]])
+		_check(def != null and is_equal_approx(def.tiers[0].value_max, want[1]), "jewels roll %s up to %.1f%%" % [want[0], want[1]])
 	var butterfly: Dictionary = {}
 	for d in UniqueCatalog.DEFS:
 		if d["id"] == "butterfly":

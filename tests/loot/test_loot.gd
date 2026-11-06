@@ -303,7 +303,7 @@ func _test_look_pickup() -> void:
 	await _frames(2)
 	var picker := _player.loot_picker
 	_check(picker.target == ahead, "the drop in the middle of the view is the target")
-	_check(ahead.mesh.scale.x > 1.0 and is_equal_approx(aside.mesh.scale.x, 1.0), "only the target is highlighted")
+	_check((ahead.get_node("NameTag") as Label3D).modulate != ahead.rarity_color() and is_equal_approx(ahead.mesh.scale.x, 1.0), "only the target is highlighted, by name, not size")
 	var look_card: LootLookCard = _hub.find_children("*", "LootLookCard", true, false)[0] if not _hub.find_children("*", "LootLookCard", true, false).is_empty() else null
 	_check(look_card != null and look_card._card.visible and look_card._card._current_item == sword, "the HUD shows the looked-at item's card")
 	_check(look_card != null and look_card._prompt.text.begins_with("E "), "the prompt names the Interact key")

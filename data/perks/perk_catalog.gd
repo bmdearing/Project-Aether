@@ -8,6 +8,8 @@ class_name PerkCatalog
 const S := Constants.EquipmentSlot
 
 ## kinds: optional weapon kinds ("melee", "ranged", "throwing", "conduit").
+## boss: a Pinnacle boss's perk. It never drops; a Vestige craft at the Siphon
+## puts it on any non-unique gear ("slots" empty = every slot), one per item.
 const PERKS := {
 	&"reload_on_kill": {"name": "Brigand's Haste", "text": "Kills have a %d%% chance to fully reload your weapon", "min": 15.0, "max": 25.0,
 		"slots": [S.PRIMARY_WEAPON], "kinds": ["ranged"], "sources": ["unchartered_brigand"]},
@@ -49,6 +51,16 @@ const PERKS := {
 		"slots": [S.BELT], "sources": ["sand_globe"]},
 	&"ignite_erupt": {"name": "Golem's Eruption", "text": "Fire hits on Ignited enemies erupt for %d%% of the hit to enemies around them", "min": 30.0, "max": 50.0,
 		"slots": [S.GLOVES], "sources": ["aurelia_fire_golem"]},
+	&"sealed_verdict": {"name": "The Sealed King's Verdict", "text": "Your hits kill non-boss enemies left below %d%% of their maximum Life", "min": 8.0, "max": 12.0,
+		"slots": [], "boss": true, "sources": ["almighty"]},
+	&"falling_sun": {"name": "Ataras's Falling Sun", "text": "Every 8 seconds, your next hit calls down a sun that deals %d%% of the hit as Fire to enemies around the target", "min": 150.0, "max": 250.0,
+		"slots": [], "boss": true, "sources": ["ataras"]},
+	&"earth_wheel": {"name": "Aurelia's Earth Wheel", "text": "Every 5th weapon hit sends a ring of stone out from you that knocks enemies back and deals %d%% of the hit as Kinetic damage", "min": 100.0, "max": 160.0,
+		"slots": [], "boss": true, "sources": ["aurelia"]},
+	&"convergence": {"name": "The Lord's Convergence", "text": "Your Fire, Cold and Lightning hits also inflict the other two elements' ailments at %d%% strength", "min": 25.0, "max": 40.0,
+		"slots": [], "boss": true, "sources": ["lord_of_the_elements"]},
+	&"herald_maw": {"name": "The Herald's Maw", "text": "Kills open a void, at most once every 4 seconds, that pulls nearby enemies in and deals %d%% of the slain enemy's maximum Life as Entropic damage", "min": 15.0, "max": 25.0,
+		"slots": [], "boss": true, "sources": ["xalatath"]},
 }
 
 static func has(id: StringName) -> bool:
@@ -62,11 +74,21 @@ static func text_of(id: StringName, value: float) -> String:
 	var text: String = PERKS.get(id, {}).get("text", String(id))
 	return text % roundi(value) if "%d" in text else text
 
-## Perks the enemy with this definition file name can drop.
+static func is_boss(id: StringName) -> bool:
+	return bool(PERKS.get(id, {}).get("boss", false))
+
+## The perk a Vestige of this boss (its definition file name) grants, or &"".
+static func boss_perk(boss_id: String) -> StringName:
+	for id in PERKS:
+		if is_boss(id) and (PERKS[id]["sources"] as Array).has(boss_id):
+			return id
+	return &""
+
+## Perks the enemy with this definition file name can drop (never a boss perk).
 static func perks_from(source: String) -> Array[StringName]:
 	var result: Array[StringName] = []
 	for id in PERKS:
-		if (PERKS[id]["sources"] as Array).has(source):
+		if not is_boss(id) and (PERKS[id]["sources"] as Array).has(source):
 			result.append(id)
 	return result
 
@@ -88,6 +110,8 @@ static func fits(id: StringName, item: Item) -> bool:
 	var def: Dictionary = PERKS[id]
 	if item == null or not item.is_equipment() or item.unique_id != "":
 		return false
+	if (def["slots"] as Array).is_empty():
+		return true
 	if not (def["slots"] as Array).has(int(item.equip_slot)):
 		return false
 	var kinds: Array = def.get("kinds", [])

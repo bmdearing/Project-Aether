@@ -7,6 +7,25 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Vestiges grant boss perks (user call)
+
+The user asked whether a Vestige could turn an item into a Monster Infrequent with a boss perk, then said "design it". Vestige crafts used to add a boss modifier, but no Vestige modifier pools were ever registered, so in play the craft always said "Kill that boss first".
+- **Vestige (Siphon, Boss residue):** pick a Pinnacle boss you've killed. The item gains that boss's perk, rolled in its range, and becomes an MI (Uncommon at least). Its lines aren't touched. It works on any non-unique, non-corrupted gear, at most one boss perk per item and two perks in all. Foresight shows several rolls. New errors: "This item already carries a boss perk", "This item already has two perks".
+- **Boss perks never drop.** `PerkCatalog` marks them `boss: true` with an empty slot list (any gear). `perks_from()` skips them, so a Pinnacle kill's MI roll can't produce one. The Recombinator still carries them like any perk.
+- **The five perks (`PerkEffects`):**
+  - The Sealed King's Verdict: your hits kill non-boss enemies left below 8-12% Life (deferred one frame, after the hit resolves).
+  - Ataras's Falling Sun: every 8 s, the next hit drops a sun dealing 150-250% of the hit as Fire within 4 m of the target.
+  - Aurelia's Earth Wheel: every 5th weapon hit, a ring of stone (5 m) knocks enemies back for 100-160% of the hit as Kinetic.
+  - The Lord's Convergence: Fire, Cold and Lightning hits also apply the other two elements' ailments at 25-40% strength.
+  - The Herald's Maw: a kill (once per 4 s) drags enemies within 8 m toward the corpse and deals 15-25% of the slain enemy's max Life as Entropic.
+- Ailment ticks don't trigger any of them (`StatusEffectComponent.emitting_dot`).
+- The Siphon's boss picker lists each boss with its perk name. The MI wiki lists boss perks with "From: a Vestige of <boss> at the Siphon".
+- **Judgment calls to check:** every name and number above; Vestige still costs 20 Boss residue (two Pinnacle kills); any slot, rather than a slot per boss.
+
+**Tests brought up to date:** v451 jewel caps (52 / 19.5 / 26%) and the wiki's Weapon Damage Tier 1 (315%) after the x1.3 / x1.4 rescale; test_loot checks the brighter name, not a bigger model.
+
+**Found, not changed:** with Mana at 22 + 4 per level, toggle spells drain 7% of max Mana per second (1.8/s at level 1), but base Mana regen is 5/s, so toggles are free early on. `test_pale_curses` fails on this.
+
 ## 2026-11-06 — Pre-0.9 fixes (user reports)
 
 - **Secret hoard chest in the wall:** the gilded chest settled with a ray cast from 3 m up, which in a low secret chamber started above the roof and landed the chest on top of it. It now casts from 0.8 m (`TreasureChest.settle(from_height)`; map chests keep 3 m).
