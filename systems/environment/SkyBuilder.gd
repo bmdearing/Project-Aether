@@ -37,6 +37,12 @@ const ARENA_SKIES := {
 		"cloud_cover": 0.32, "cloud_color": Color(0.34, 0.1, 0.42), "cloud_shade": Color(0.04, 0.0, 0.06), "cloud_opacity": 0.75,
 		"star_amount": 0.9, "aurora_color": Color(0.75, 0.3, 1.0), "aurora_amount":  0.45,
 		"follow_light": false, "sun_direction": Vector3(-0.2, 0.42, -1.0)},
+	# Nyxareth: starless black, a thin violet glow low on the horizon.
+	"darkness": {"zenith_color": Color(0.0, 0.0, 0.01), "horizon_color": Color(0.07, 0.03, 0.11),
+		"ground_color": Color(0.0, 0.0, 0.01), "horizon_curve": 0.7,
+		"sun_energy": 0.0, "sun_glow": 0.0,
+		"cloud_cover": 0.3, "cloud_color": Color(0.06, 0.02, 0.09), "cloud_shade": Color(0.0, 0.0, 0.01), "cloud_speed": 0.01,
+		"star_amount": 0.05},
 	# Herald of the Maw: a violet storm wheeling round a black eye overhead.
 	"maw": {"zenith_color": Color(0.02, 0.0, 0.04), "horizon_color": Color(0.3, 0.05, 0.34),
 		"ground_color": Color(0.02, 0.0, 0.04), "horizon_curve": 0.6,

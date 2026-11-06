@@ -13,6 +13,8 @@ var color := Color(1.0, 0.25, 0.15)
 var duration := 1.0
 var persist := false
 var _fill: MeshInstance3D
+## The fill grows outward in X and Z (a circle or cone), not along Z.
+var _radial := false
 var _elapsed := 0.0
 
 ## A disc of `radius` metres.
@@ -37,6 +39,43 @@ static func line(parent: Node, from: Vector3, direction: Vector3, length: float,
 		t.look_at(t.global_position + flat, Vector3.UP)
 	t._build_box(Vector3(width, 0.02, length))
 	return t
+
+## A cone `length` metres long and `half_deg` either side of `direction`,
+## its point at `from`; fills outward from the point.
+static func cone(parent: Node, from: Vector3, direction: Vector3, length: float, half_deg: float, time: float, tint: Color) -> BossTelegraph:
+	var t := BossTelegraph.new()
+	t.color = tint
+	t.duration = time
+	parent.add_child(t)
+	var flat := Vector3(direction.x, 0, direction.z).normalized()
+	t.global_position = from + Vector3(0, FLOOR_LIFT, 0)
+	if flat.length() > 0.01:
+		t.look_at(t.global_position + flat, Vector3.UP)
+	t._build_fan(length, deg_to_rad(half_deg))
+	return t
+
+## A flat fan along -Z (look_at's forward).
+func _build_fan(length: float, half: float) -> void:
+	var steps := 24
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	for i in steps:
+		var a0 := -half + 2.0 * half * i / steps
+		var a1 := -half + 2.0 * half * (i + 1) / steps
+		st.add_vertex(Vector3.ZERO)
+		st.add_vertex(Vector3(sin(a0), 0, -cos(a0)) * length)
+		st.add_vertex(Vector3(sin(a1), 0, -cos(a1)) * length)
+	var fan := st.commit()
+	var edge := MeshInstance3D.new()
+	edge.mesh = fan
+	edge.material_override = _material(FILL_ALPHA * 0.5)
+	add_child(edge)
+	_fill = MeshInstance3D.new()
+	_fill.mesh = fan
+	_fill.material_override = _material(FILL_ALPHA)
+	_fill.scale = Vector3(0.01, 1, 0.01)
+	_radial = true
+	add_child(_fill)
 
 func _build_circle(radius: float) -> void:
 	var edge := MeshInstance3D.new()
@@ -85,7 +124,7 @@ func _material(alpha: float) -> StandardMaterial3D:
 func _process(delta: float) -> void:
 	_elapsed += delta
 	var f := clampf(_elapsed / maxf(duration, 0.01), 0.0, 1.0)
-	if _fill and _fill.mesh is CylinderMesh:
+	if _fill and (_radial or _fill.mesh is CylinderMesh):
 		_fill.scale = Vector3(maxf(f, 0.01), 1, maxf(f, 0.01))
 	elif _fill:
 		_fill.scale = Vector3(1, 1, maxf(f, 0.01))

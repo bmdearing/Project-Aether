@@ -18,6 +18,8 @@ const BOSSES := {
 	"lord_of_the_elements": {"name": "Lord of the Elements", "scene": "res://entities/enemies/lord_of_the_elements/LordOfTheElements.tscn", "hidden": true},
 	"herald_of_the_maw": {"name": "Herald of the Maw", "scene": "res://entities/enemies/xalatath/Xalatath.tscn", "music": "res://assets/music/boss/herald.mp3"},
 	"ataras": {"name": "Ataras", "scene": "res://entities/enemies/ataras/Ataras.tscn", "music": "res://assets/music/boss/ataras.mp3"},
+	# Placeholder name; the model is the Darkness Dragon.
+	"darkness_dragon": {"name": "Nyxareth, the Lightless", "scene": "res://entities/enemies/darkness_dragon/DarknessDragon.tscn"},
 	# A model test (classic MDX + BLP); the model is a fan Bleach model, placeholder only.
 	"almighty": {"name": "The Sealed King", "scene": "res://entities/enemies/almighty/Almighty.tscn"},
 }

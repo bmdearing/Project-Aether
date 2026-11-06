@@ -142,6 +142,22 @@ func play_channel(seconds: float) -> bool:
 	_one_shot_until = Time.get_ticks_msec() + int(seconds * 1000.0)
 	return true
 
+## Plays any clip of the model in the Attack state: once, stretched to last
+## `seconds`, or looped for `seconds`. False when the model has no such clip.
+func play_clip(clip: String, seconds: float, loop := false) -> bool:
+	if _tree == null or _dead or _state_machine == null or _player == null or not _player.has_animation(clip):
+		return false
+	var node := _tree.tree_root.get_node("Attack") as AnimationNodeAnimation
+	node.animation = clip
+	node.use_custom_timeline = true
+	node.stretch_time_scale = true
+	node.timeline_length = _player.get_animation(clip).length if loop else maxf(seconds, 0.05)
+	node.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+	_state_machine.start(&"Attack", true)
+	_one_shot_state = &"Attack"
+	_one_shot_until = Time.get_ticks_msec() + int(seconds * 1000.0)
+	return true
+
 ## A channel swapped the Attack state's clip; ordinary swings put it back.
 func _restore_attack_clip(node: AnimationNodeAnimation) -> void:
 	if node == null or animation_set == null:
