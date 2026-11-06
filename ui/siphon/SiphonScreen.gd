@@ -22,6 +22,7 @@ var _crafts: VBoxContainer
 var _picker: OptionButton
 var _picker_label: Label
 var _cost: Label
+var _paid: RichTextLabel
 var _payment_box: HBoxContainer
 var _spins: Dictionary = {}  # pool -> SpinBox
 var _craft_button: Button
@@ -228,12 +229,24 @@ func _show_spend() -> void:
 		var amount := int(split.get(bar.pool, 0))
 		bar.set_pending(amount)
 		if amount > 0:
-			parts.append("%d %s" % [amount, CurrencyText.name_of(bar.pool)])
+			parts.append("[color=#%s]%d %s[/color]" % [ResidueBar.text_color(bar.pool).to_html(false), amount, CurrencyText.name_of(bar.pool)])
 	# Pools that aren't paying fade back so the paying ones stand out.
 	for bar: ResidueBar in _meters.get_children():
 		bar.modulate = Color(0.55, 0.55, 0.55, 0.7) if not parts.is_empty() and bar.pending() == 0 else Color.WHITE
-	if item() != null and not parts.is_empty():
-		_cost.text += "\nPaid from: " + ", ".join(parts)
+	_paid.visible = item() != null and not parts.is_empty()
+	_paid.text = "Paid from: " + ", ".join(parts)
+	_color_picker()
+
+## The family picker's text takes the colour of the pool the family pays from.
+func _color_picker() -> void:
+	var pool: StringName = Constants.CRAFT_FAMILIES.get(family(), &"") if _craft in [&"add", &"recast", &"bleed", &"settle"] else &""
+	if pool == &"" and _craft == &"vestige_add":
+		pool = Residue.BOSS
+	for state in ["font_color", "font_hover_color", "font_pressed_color", "font_focus_color"]:
+		if pool != &"":
+			_picker.add_theme_color_override(state, ResidueBar.text_color(pool))
+		else:
+			_picker.remove_theme_color_override(state)
 
 func _craft_error() -> String:
 	var target := item()
@@ -308,6 +321,8 @@ func _fill_picker() -> void:
 				var pool: StringName = Constants.CRAFT_FAMILIES[tag]
 				_picker.add_item("%s  (%s)" % [String(tag).capitalize(), CurrencyText.name_of(pool) if pool != &"" else "any pool"])
 				_picker.set_item_metadata(_picker.item_count - 1, String(tag))
+				if pool != &"":
+					_picker.set_item_icon(_picker.item_count - 1, _pool_dot(pool))
 		&"retype":
 			_picker_label.text = "Damage type"
 			for type in Constants.DAMAGE_TYPE_NAME:
@@ -322,6 +337,23 @@ func _fill_picker() -> void:
 			_picker_label.text = ""
 	_picker.visible = _picker.item_count > 0
 	_picker_label.visible = _picker.visible
+
+var _dots: Dictionary = {}  # pool -> ImageTexture
+
+## A small dot in the pool's colour, for the family list.
+func _pool_dot(pool: StringName) -> Texture2D:
+	if _dots.has(pool):
+		return _dots[pool]
+	var size := 12
+	var image := Image.create(size, size, false, Image.FORMAT_RGBA8)
+	var color := ResidueBar.text_color(pool)
+	for y in size:
+		for x in size:
+			var d := Vector2(x + 0.5, y + 0.5).distance_to(Vector2(size, size) * 0.5)
+			image.set_pixel(x, y, Color(color, clampf(size * 0.5 - d, 0.0, 1.0)))
+	var texture := ImageTexture.create_from_image(image)
+	_dots[pool] = texture
+	return texture
 
 func _set_hint(text: String) -> void:
 	_hint.text = text
@@ -394,10 +426,17 @@ func _build() -> void:
 	middle.add_child(_picker)
 	_cost = _label("", 15, AetherStyle.TEXT)
 	middle.add_child(_cost)
+	_paid = RichTextLabel.new()
+	_paid.bbcode_enabled = true
+	_paid.fit_content = true
+	_paid.scroll_active = false
+	_paid.add_theme_font_size_override("normal_font_size", 15)
+	_paid.add_theme_color_override("default_color", AetherStyle.TEXT)
+	middle.add_child(_paid)
 	_payment_box = HBoxContainer.new()
 	middle.add_child(_payment_box)
 	for pool in Residue.REGULAR:
-		_payment_box.add_child(_label(CurrencyText.name_of(pool).get_slice(" ", 0), 12, AetherStyle.TEXT_DIM))
+		_payment_box.add_child(_label(CurrencyText.name_of(pool).get_slice(" ", 0), 12, ResidueBar.text_color(pool)))
 		var spin := SpinBox.new()
 		spin.step = 1
 		spin.value_changed.connect(func(_v): _refresh_button_only())
@@ -445,7 +484,6 @@ func _refresh_button_only() -> void:
 	_craft_button.tooltip_text = error
 	if error.begins_with("Split") or _hint.text.begins_with("Split"):
 		_set_hint(error if error.begins_with("Split") else "")
-	_cost.text = _cost.text.get_slice("\nPaid from: ", 0)
 	_show_spend()
 
 func _label(text: String, size_px: int, color: Color) -> Label:

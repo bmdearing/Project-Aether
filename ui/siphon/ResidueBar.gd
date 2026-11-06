@@ -24,6 +24,10 @@ var _shown := -1.0
 var _pulse := 0.0
 var _pending := 0
 
+## The pool's colour for text (its liquid, lightened to read on dark panels).
+static func text_color(p_pool: StringName) -> Color:
+	return (COLORS.get(p_pool, Color.WHITE) as Color).lightened(0.35)
+
 static func create(p_pool: StringName, p_compact: bool = false) -> ResidueBar:
 	var bar := ResidueBar.new()
 	bar.pool = p_pool
@@ -44,7 +48,7 @@ func _ready() -> void:
 	_label = Label.new()
 	_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_label.add_theme_font_size_override("font_size", 11 if compact else 13)
-	_label.add_theme_color_override("font_color", (COLORS.get(pool, Color.WHITE) as Color).lightened(0.35))
+	_label.add_theme_color_override("font_color", text_color(pool))
 	add_child(_label)
 	EventBus.residue_changed.connect(_on_residue_changed)
 	refresh()
@@ -60,7 +64,7 @@ func refresh() -> void:
 	_label.text = "%s  %d / %d" % [pool_name, amount, cap]
 	if _pending > 0:
 		_label.text += "   -%d" % _pending
-	var base := (COLORS.get(pool, Color.WHITE) as Color).lightened(0.35)
+	var base := text_color(pool)
 	_label.add_theme_color_override("font_color", base.lightened(0.5) if _pending > 0 else base)
 	if _shown < 0.0:
 		_shown = _target()
