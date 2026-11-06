@@ -795,14 +795,18 @@ func _update_chase() -> void:
 		return
 
 	var dir := to_player / dist
+	if not heading_for_target:
+		EnemyTactics.update(_player, get_tree())
 	# A shooter without a clear shot keeps closing in (around the wall)
 	# instead of standing at range.
 	var blocked_shot := is_ranged_unit() and not heading_for_target and not can_see_player()
-	if retreat_distance > 0.0 and dist < retreat_distance and not blocked_shot:
+	if is_ranged_unit() and not heading_for_target and not blocked_shot and _ranged_reposition(goal, dist, dir, speed):
+		pass
+	elif retreat_distance > 0.0 and dist < retreat_distance and not blocked_shot:
 		var away := _nav_direction(global_position - dir * 4.0, -dir)
 		velocity.x = away.x * speed
 		velocity.z = away.z * speed
-	elif dist > stop_distance or blocked_shot:
+	elif dist > stop_distance or blocked_shot or _off_ring_slot(goal, dist, heading_for_target):
 		var step := _nav_direction(_approach_point(goal, dist, heading_for_target), dir)
 		velocity.x = step.x * speed
 		velocity.z = step.z * speed
@@ -827,8 +831,24 @@ const STUCK_CHECK_SEC := 0.8
 const STUCK_MIN_MOVE := 0.35
 const UNSTICK_SEC := 0.45
 ## Melee enemies spread around the player within this range.
-const SURROUND_RANGE := 6.0
+const SURROUND_RANGE := 10.0
+const LONE_SURROUND_RANGE := 6.0
 const SIGHT_CACHE_MSEC := 250
+## Ring/fan slot error (radians) that still counts as in place.
+const RING_SLOT_TOLERANCE := 0.3
+const RANGED_SLOT_TOLERANCE := 0.08
+## Furthest the approach point leads round the player per waypoint.
+const RING_STEP_MAX := 0.9
+const RANGED_STEP_MAX := 0.5
+## Gap a shot needs past an ally's body.
+const SHOT_CLEARANCE := 0.25
+
+## Set by EnemyTactics: this enemy's slot angle round the player (NAN when
+## not in a formation) and the bulky ally it is standing behind, if any.
+var tactic_angle: float = NAN
+var tactic_cover: Enemy = null
+var _blocker: Enemy = null
+var _blocker_msec: int = -SIGHT_CACHE_MSEC
 
 var _path := PackedVector3Array()
 var _path_index: int = 0
@@ -871,7 +891,8 @@ func can_see_player() -> bool:
 	return _sight
 
 ## Close to the player, melee enemies aim at a spot beside them rather
-## than all at the same point, so a pack spreads around instead of queuing.
+## than all at the same point. In a pack the spot walks round toward this
+## enemy's ring slot (EnemyTactics), so the pack surrounds the player.
 func _approach_point(goal: Vector3, dist: float, heading_for_target: bool) -> Vector3:
 	if heading_for_target or is_ranged_unit() or dist > SURROUND_RANGE:
 		return goal
@@ -879,7 +900,88 @@ func _approach_point(goal: Vector3, dist: float, heading_for_target: bool) -> Ve
 	from_goal.y = 0.0
 	if from_goal.length() < 0.01:
 		return goal
-	return goal + from_goal.normalized().rotated(Vector3.UP, _surround_angle) * stop_distance * 0.8
+	if is_nan(tactic_angle):
+		if dist > LONE_SURROUND_RANGE:
+			return goal
+		return goal + from_goal.normalized().rotated(Vector3.UP, _surround_angle) * stop_distance * 0.8
+	var here := EnemyTactics.angle_of(global_position, goal)
+	var err := wrapf(tactic_angle - here, -PI, PI)
+	# Big swings round the player keep a wider radius so the path curves
+	# round them instead of cutting through.
+	var radius := maxf(stop_distance * 0.8, dist - 1.5)
+	if absf(err) > RING_SLOT_TOLERANCE * 2.0:
+		radius = maxf(radius, stop_distance + 0.6)
+	return goal + EnemyTactics.direction(here + clampf(err, -RING_STEP_MAX, RING_STEP_MAX)) * radius
+
+## Melee units inside stop range still sidestep to their ring slot.
+func _off_ring_slot(goal: Vector3, dist: float, heading_for_target: bool) -> bool:
+	if heading_for_target or is_ranged_unit() or is_nan(tactic_angle) or dist > SURROUND_RANGE:
+		return false
+	return absf(wrapf(tactic_angle - EnemyTactics.angle_of(global_position, goal), -PI, PI)) > RING_SLOT_TOLERANCE
+
+## Shooters walk round to their fan / cover slot (EnemyTactics) at their
+## preferred range, and sidestep out from behind an ally standing in the
+## line of fire. Returns false when the plain range-keeping logic should run.
+func _ranged_reposition(goal: Vector3, dist: float, dir: Vector3, speed: float) -> bool:
+	if move_speed <= 0.0:
+		return false
+	var here := EnemyTactics.angle_of(global_position, goal)
+	var err := 0.0 if is_nan(tactic_angle) else wrapf(tactic_angle - here, -PI, PI)
+	var blocker := shot_blocker()
+	if blocker:
+		# Step to whichever side of the blocker this shooter already leans.
+		var lean := wrapf(here - EnemyTactics.angle_of(blocker.global_position, goal), -PI, PI)
+		var away := 1.0 if lean >= 0.0 else -1.0
+		if absf(err) < 0.2 or signf(err) != away:
+			err = away * 0.6
+	if absf(err) <= RANGED_SLOT_TOLERANCE:
+		return false
+	var stand := clampf(dist, retreat_distance + 0.5, maxf(stop_distance, retreat_distance + 0.5))
+	var target := goal + EnemyTactics.direction(here + clampf(err, -RANGED_STEP_MAX, RANGED_STEP_MAX)) * stand
+	var to_target := _flat(target - global_position)
+	var step := _nav_direction(target, to_target.normalized() if to_target.length() > 0.01 else dir)
+	velocity.x = step.x * speed
+	velocity.z = step.z * speed
+	return true
+
+## Another enemy standing between this shooter and the player (a shot would
+## hit it and stop). Bosses fire regardless. Cached with the sight check.
+func shot_blocker() -> Enemy:
+	if rank == Constants.EnemyRank.BOSS or not is_instance_valid(_player):
+		return null
+	var now := Time.get_ticks_msec()
+	if now - _blocker_msec < SIGHT_CACHE_MSEC:
+		return _blocker if is_instance_valid(_blocker) else null
+	_blocker_msec = now
+	_blocker = null
+	var from := _flat(get_cast_origin())
+	var to := _flat(_player.global_position)
+	var line := to - from
+	var length := line.length()
+	if length < 0.5:
+		return null
+	var along_dir := line / length
+	for node in get_tree().get_nodes_in_group("enemy"):
+		var e := node as Enemy
+		if e == null or e == self or not e.health.is_alive():
+			continue
+		var rel := _flat(e.global_position) - from
+		var along := rel.dot(along_dir)
+		if along <= 0.3 or along >= length - 0.3:
+			continue
+		if (rel - along_dir * along).length() < e.body_radius + SHOT_CLEARANCE:
+			_blocker = e
+			break
+	return _blocker
+
+## Clear sight past walls and allies alike: what the ranged attack fires on.
+func has_clear_shot() -> bool:
+	return can_see_player() and shot_blocker() == null
+
+## Joins EnemyTactics' pack positioning.
+func takes_formation() -> bool:
+	return rank != Constants.EnemyRank.BOSS and not immovable and move_speed > 0.0 and health.is_alive() \
+		and is_in_combat() and not is_instance_valid(move_target)
 
 ## Direction to walk toward goal: along the navigation path when there is
 ## one, else fallback.

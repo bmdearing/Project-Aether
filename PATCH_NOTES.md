@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Pack tactics: surround, shooter fans, cover (user)
+
+- **Melee packs surround you.** Engaged melee units within 10 m get evenly spaced slots round the player (`EnemyTactics`), kept in their current order so nobody crosses through the pack, and walk round to them on a curve instead of piling in from one side. Inside stop range they still sidestep to their slot (between swings, since an attack locks movement). A lone melee unit keeps the old small random offset.
+- **Shooters fan out** across ~5 m of arc each at their own range (whole fan capped at ~240°).
+- **Shooters hide behind tanks.** A heavy/elite melee ally (or a wide body, or 1.6x the shooter's Life) nearer the player screens a shooter: it stands behind it, just far enough off its line for the shot to clear its body; a second shooter behind the same screen takes the other side.
+- **No shots into allies.** Enemy bolts stop on any enemy they touch, so a shooter now holds fire while an ally stands in its line (`Enemy.shot_blocker()` / `has_clear_shot()`) and sidesteps out instead. Bosses ignore this and fire as before.
+- Bosses, immovable and stationary units, and units walking to a `move_target` stay out of formations.
+- Test: `tests/combat/test_pack_tactics.tscn`.
+
 ## 2026-11-06 — Feedback batch: Fate Board, crosshair, combat callouts (user)
 
 - **Chain lines** read "Kinetic chain: 25 tiles, Chain Bonus +7.5%, Mastery +5.4% more Damage" (`ChainCalculator.chain_line()`).
