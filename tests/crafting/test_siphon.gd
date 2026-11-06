@@ -143,14 +143,16 @@ func _test_anchor() -> void:
 	var item := _item(GLOVES)
 	for i in 3:
 		_resolver.apply(item, &"add")
-	_check(_resolver.apply(item, &"anchor", &"", 1).success and _explicits(item)[1].anchored, "the chosen modifier is anchored")
-	var kept: String = _explicits(item)[1].description
+	var p := _resolver.preview(item, &"anchor")
+	_check(p.affected.size() == 3 and p.affected.all(func(e): return is_equal_approx(e["probability"], 1.0 / 3.0)), "anchor's preview gives every modifier the same chance")
+	_check(_resolver.apply(item, &"anchor").success and _explicits(item).filter(func(a: ItemAffix): return a.anchored).size() == 1, "anchor locks one modifier at random")
+	var kept: String = _explicits(item).filter(func(a: ItemAffix): return a.anchored)[0].description
 	for craft: StringName in [&"recast", &"bleed", &"absolve", &"settle"]:
 		_resolver.apply(item, craft)
 	_check(_explicits(item).any(func(a: ItemAffix): return a.anchored and a.description == kept), "the anchor survives recast, bleed, absolve and settle")
 	var thin := _item(GLOVES)
 	_resolver.apply(thin, &"add")
-	_check(_resolver.apply(thin, &"anchor", &"", 0).error == E.TOO_FEW_MODIFIERS, "anchor needs enough modifiers")
+	_check(_resolver.apply(thin, &"anchor").error == E.TOO_FEW_MODIFIERS, "anchor needs enough modifiers")
 	for i in 3:
 		_resolver.apply(item, &"add")
 	var other := -1
@@ -158,7 +160,7 @@ func _test_anchor() -> void:
 	for i in explicits.size():
 		if not explicits[i].anchored:
 			other = i
-	_check(_resolver.apply(item, &"anchor", &"", other).error == E.ALREADY_ANCHORED, "only MAX_ANCHORED_MODIFIERS can be anchored")
+	_check(_resolver.apply(item, &"anchor").error == E.ALREADY_ANCHORED, "only MAX_ANCHORED_MODIFIERS can be anchored")
 
 func _test_cost() -> void:
 	_fill(8000)

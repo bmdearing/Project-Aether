@@ -90,7 +90,7 @@ func family() -> StringName:
 	return StringName(str(_picker.get_item_metadata(_picker.selected)))
 
 func choice() -> int:
-	return int(_picker.get_item_metadata(_picker.selected)) if _craft == &"anchor" and _picker.selected >= 0 and _picker.item_count > 0 else -1
+	return -1
 
 func outcome_count() -> int:
 	return clampi(GameState.foresight_outcomes, 1, Constants.FORESIGHT_MAX_OUTCOMES)
@@ -241,6 +241,9 @@ func _refresh_payment(cost: int) -> void:
 	_payment_box.visible = pools.size() > 1 and item() != null
 	if not _payment_box.visible:
 		return
+	# Caps first: a SpinBox clamps on assignment and starts with a max of 100.
+	for pool in _spins:
+		(_spins[pool] as SpinBox).max_value = float(mini(Residue.amount(pool), cost))
 	var auto := _resolver.auto_payment(item(), _craft, family(), outcome_count())
 	var total := 0
 	for pool in _spins:
@@ -248,9 +251,6 @@ func _refresh_payment(cost: int) -> void:
 	if total != cost:
 		for pool in _spins:
 			(_spins[pool] as SpinBox).set_value_no_signal(float(auto.get(pool, 0)))
-	for pool in _spins:
-		var spin: SpinBox = _spins[pool]
-		spin.max_value = float(mini(Residue.amount(pool), cost))
 
 func _refresh_outcomes() -> void:
 	for child in _outcomes.get_children():
@@ -301,14 +301,6 @@ func _fill_picker() -> void:
 			for id in GameState.killed_bosses:
 				_picker.add_item("%s  (%s)" % [MonsterInfrequent.source_display_name(id), PerkCatalog.name_of(PerkCatalog.boss_perk(id))])
 				_picker.set_item_metadata(_picker.item_count - 1, id)
-		&"anchor":
-			_picker_label.text = "Modifier"
-			var t: CraftTarget = CraftTarget.wrap(target) if target else null
-			if t:
-				var explicits := t.get_explicits()
-				for i in explicits.size():
-					_picker.add_item(("[Anchored] " if explicits[i].anchored else "") + explicits[i].description)
-					_picker.set_item_metadata(_picker.item_count - 1, i)
 		_:
 			_picker_label.text = ""
 	_picker.visible = _picker.item_count > 0

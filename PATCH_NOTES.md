@@ -7,6 +7,11 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Random Anchor, Siphon payment fills to the cost (user)
+
+- **Anchor is random again** (user): it locks one of the item's non-anchored modifiers at random. The picker is gone, and the preview gives each modifier the same chance.
+- **The payment boxes fill to the full cost.** A SpinBox starts with a maximum of 100 and the screen set each value before raising the maximum, so any cost over 100 was clamped (474 showed as 99). Maximums are set first now.
+
 ## 2026-11-06 — Siphon families reviewed: every modifier has one (user report)
 
 The user found many modifiers unreachable when crafting Slates with a family picked. An audit of every gear, jewel, Lens and Slate line found two causes:

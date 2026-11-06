@@ -143,7 +143,7 @@ func _on_entry_right_clicked(_view: InventoryGridView, entry: GridInventory.Entr
 		_status.text = "Pick a craft in the dropdown, then right-click an item."
 		return
 	var used: StringName = _currency_picker.get_selected_metadata()
-	var result := _resolver.apply(entry.content, used, &"", 0)
+	var result := _resolver.apply(entry.content, used)
 	_status.text = ("%s: done.\n%s" % [CurrencyText.name_of(StringName("craft_" + String(used))), InventoryGridView.describe(entry)]) if result.success else result.get_message()
 	_refresh()
 

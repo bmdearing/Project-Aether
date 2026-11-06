@@ -8,7 +8,6 @@ class_name CraftingResolver
 ##
 ## family: a modifier tag (CRAFT_FAMILIES) for add/recast/bleed/settle, a
 ## damage type name for retype, a boss id for vestige_add; &"" = unfocused.
-## choice: the explicit's index for anchor.
 
 const E := CraftResult.CraftError
 const PREFIX := ModifierDef.AffixType.PREFIX
@@ -132,7 +131,9 @@ func preview(item: Resource, craft_id: StringName, family: StringName = &"", cho
 			for affix in _settleable(t, explicits, family):
 				p.affected.append({"affix": affix, "effect": &"reroll", "probability": 1.0})
 		&"anchor":
-			p.affected.append({"affix": explicits[choice], "effect": &"anchor", "probability": 1.0})
+			var options := _anchorable(explicits)
+			for affix in options:
+				p.affected.append({"affix": affix, "effect": &"anchor", "probability": 1.0 / options.size()})
 	return p
 
 func begin(item: Resource, craft_id: StringName, family: StringName, payment: Dictionary, outcomes: int = 1, choice: int = -1) -> CraftSession:
@@ -236,7 +237,7 @@ func _check(t: CraftTarget, craft_id: StringName, family: StringName, choice: in
 				return E.TOO_FEW_MODIFIERS
 			if explicits.filter(func(a: ItemAffix): return a.anchored).size() >= Constants.MAX_ANCHORED_MODIFIERS:
 				return E.ALREADY_ANCHORED
-			if choice < 0 or choice >= explicits.size() or explicits[choice].anchored:
+			if _anchorable(explicits).is_empty():
 				return E.NO_VALID_OUTCOME
 		&"sockets":
 			if t.is_slate or t.resource is Jewel or not t.resource is Item:
@@ -325,9 +326,11 @@ func _simulate(t: CraftTarget, craft_id: StringName, family: StringName, choice:
 			if family == &"" and range_.y > range_.x:
 				out["radius_value"] = roundf(rng.randf_range(range_.x, range_.y))
 		&"anchor":
-			var copy := explicits[choice].duplicate() as ItemAffix
+			var options := _anchorable(explicits)
+			var chosen: ItemAffix = options[rng.randi_range(0, options.size() - 1)]
+			var copy := chosen.duplicate() as ItemAffix
 			copy.anchored = true
-			explicits[choice] = copy
+			explicits[explicits.find(chosen)] = copy
 			out["anchored"] = copy
 		&"sockets":
 			var item := t.resource as Item
@@ -440,6 +443,14 @@ func _open_types(t: CraftTarget, explicits: Array[ItemAffix], rarity: int) -> Ar
 
 func _prefix_count(explicits: Array[ItemAffix]) -> int:
 	return explicits.filter(func(a: ItemAffix): return a.is_prefix).size()
+
+## Anchor picks one of these at random.
+func _anchorable(explicits: Array[ItemAffix]) -> Array[ItemAffix]:
+	var result: Array[ItemAffix] = []
+	for a in explicits:
+		if not a.anchored:
+			result.append(a)
+	return result
 
 ## Non-anchored explicits in the family (all of them when unfocused).
 func _removable(t: CraftTarget, explicits: Array[ItemAffix], family: StringName) -> Array[ItemAffix]:
