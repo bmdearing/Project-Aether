@@ -64,6 +64,7 @@ static func run(tree: SceneTree) -> void:
 		BossFx.charge(holder, spot + Vector3.UP, type, 0.2, false)
 		BossFx.hazard_aura(holder, 2.0, type)
 		BossFx.dress_bolt(holder, type)
+	holders.append_array(_fading_bodies(tree, scene, spot))
 	for i in FRAMES:
 		await tree.process_frame
 	for holder in holders:
@@ -76,6 +77,38 @@ static func run(tree: SceneTree) -> void:
 		cam.queue_free()
 	if is_instance_valid(player) and player.camera:
 		player.camera.current = true
+
+## Corpses fade out (Enemy._dissolve_then_free), and a see-through body
+## draws through new pipelines: the first corpse of each type hitched as it
+## began to fade. One half-faded copy of each enemy type on the map, here.
+static func _fading_bodies(tree: SceneTree, scene: Node, spot: Vector3) -> Array[Node]:
+	var copies: Array[Node] = []
+	var seen := {}
+	for e in tree.get_nodes_in_group("enemy"):
+		var enemy := e as Enemy
+		if enemy == null:
+			continue
+		var key: String = enemy.definition.resource_path if enemy.definition else enemy.scene_file_path
+		if seen.has(key):
+			continue
+		seen[key] = true
+		var copy: Node3D
+		if enemy._model_root:
+			copy = enemy._model_root.duplicate() as Node3D
+		else:
+			# Bosses build their bodies without a model root: copy the meshes alone.
+			copy = Node3D.new()
+			for g: GeometryInstance3D in enemy.find_children("*", "GeometryInstance3D", true, false):
+				var part := g.duplicate(0) as GeometryInstance3D
+				copy.add_child(part)
+				part.transform = enemy.global_transform.affine_inverse() * g.global_transform
+		copy.process_mode = Node.PROCESS_MODE_DISABLED
+		scene.add_child(copy)
+		copy.global_position = spot + Vector3(randf_range(-2.0, 2.0), 0, randf_range(-1.0, 1.0))
+		for g: GeometryInstance3D in copy.find_children("*", "GeometryInstance3D", true, false):
+			g.transparency = 0.5
+		copies.append(copy)
+	return copies
 
 ## A harmless, motionless copy of the spell's bolt, so its look compiles too.
 static func _bolt(scene: Node, player: Player, ability: Ability, spot: Vector3) -> Node:

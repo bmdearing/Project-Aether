@@ -71,6 +71,9 @@ static func _consider(material: Material) -> void:
 			for t in BaseMaterial3D.TEXTURE_MAX:
 				copy.set_texture(t, null)
 			copy.next_pass = null
+			# The shader is only built when something asks for the RID; a copy
+			# that never builds it holds nothing, and every flash recompiled.
+			copy.get_rid()
 			_kept[key] = copy
 		m = m.next_pass as BaseMaterial3D
 

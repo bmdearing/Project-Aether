@@ -4,6 +4,15 @@ class_name UniqueRoller
 ## a Unique/Mythic rarity roll here, and falls back to Rare when nothing of
 ## that rarity can drop.
 
+## Base items by path, kept for the session: each roll read the fixed-base
+## Mythics from disk again once nothing held them (~80 ms on the kill frame).
+static var _bases: Dictionary = {}
+
+static func _base(path: String) -> Item:
+	if not _bases.has(path):
+		_bases[path] = load(path) as Item
+	return _bases[path]
+
 ## Weighted pick among the droppable entries of `rarity`, built at item_level.
 ## boss_id adds that Pinnacle boss's own uniques to the pool. Null if there
 ## are none.
@@ -30,7 +39,7 @@ static func build(def: Dictionary, item_level: int = 1, base: Item = null) -> It
 	var from_catalog := base == null
 	if from_catalog:
 		# "base_item": a fixed base (a Mythic's chosen staff) instead of the best of its type.
-		base = load(def["base_item"]) as Item if def.has("base_item") else base_for(def["base_type"], item_level)
+		base = _base(def["base_item"]) if def.has("base_item") else base_for(def["base_type"], item_level)
 	if base == null:
 		return null
 	var item: Item = base.duplicate(true)
@@ -85,7 +94,7 @@ static func make_affix(mod: Array) -> ItemAffix:
 static func base_level(def: Dictionary) -> int:
 	if not def.has("base_item"):
 		return 1
-	var base := load(def["base_item"]) as Item
+	var base := _base(def["base_item"])
 	return base.item_level if base else 1
 
 ## Highest-level base of the type the level allows, else its lowest.
@@ -108,7 +117,7 @@ static func base_for(base_type: String, item_level: int) -> Item:
 			lowest_level = level
 			lowest_path = path
 	var chosen := best_path if best_path != "" else lowest_path
-	return load(chosen) as Item if chosen != "" else null
+	return _base(chosen) if chosen != "" else null
 
 ## A catalog modifier as text with its roll range: "(40-50)% more Ward".
 static func range_text(mod: Array) -> String:

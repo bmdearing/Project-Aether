@@ -29,7 +29,8 @@ static func warm_drops(tree: SceneTree) -> void:
 	var level := maxi(GameState.player_level, 1)
 	var items: Array[Item] = []
 	for item: Item in [ItemRoller.roll(level, 1.0), JewelRoller.roll(level, 1.0), LensRoller.roll(level, 1.0),
-			FigmentRoller.roll_for_drop(), TomeRoller.roll_for_unowned([])]:
+			FigmentRoller.roll_for_drop(), TomeRoller.roll_for_unowned([]),
+			UniqueRoller.roll(Constants.ItemRarity.UNIQUE, level), UniqueRoller.roll(Constants.ItemRarity.MYTHIC, level)]:
 		if item:
 			items.append(item)
 	Constants.roll_currency_drop(level)
