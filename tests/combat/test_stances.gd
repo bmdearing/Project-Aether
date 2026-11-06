@@ -29,6 +29,8 @@ func _seconds(s: float) -> void:
 func _run() -> void:
 	GameState.reset_to_defaults()
 	GameState.game_started = false
+	# Level 20 (184 Life): the hits below stay well under a full Life bar.
+	GameState.player_level = 20
 	GameState.stance_page = 0
 	await _setup()
 	await _test_rapier()

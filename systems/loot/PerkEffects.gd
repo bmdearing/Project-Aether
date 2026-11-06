@@ -252,8 +252,7 @@ func _boss_hit_perks(enemy: Enemy, amount: float, damage_type: int, is_spell: bo
 			SpellFx.shockwave(_player.get_parent(), origin + Vector3.UP * 0.1, WHEEL_RADIUS, Color(0.7, 0.6, 0.45))
 			SpellFx.burst(_player.get_parent(), origin + Vector3.UP * 0.2, Color(0.6, 0.5, 0.4), 22, Vector2(2.0, 5.0), 0.5, Vector2(0.06, 0.14), 20.0, -6.0)
 	# Last, so the hits above count first.
-	if has(&"sealed_verdict") and enemy.health.is_alive() and enemy.boss_brain == null \
-			and enemy.rank != Constants.EnemyRank.BOSS \
+	if has(&"sealed_verdict") and enemy.health.is_alive() and not _is_boss(enemy) \
 			and enemy.health.current_health < enemy.health.max_health * value(&"sealed_verdict") / 100.0:
 		_execute.call_deferred(enemy, damage_type)
 
@@ -306,3 +305,8 @@ func _execute(enemy: Enemy, damage_type: int) -> void:
 		return
 	SpellFx.burst(enemy.get_parent(), enemy.global_position + Vector3.UP * 1.0, Color(0.95, 0.9, 1.0), 16, Vector2(1.0, 3.0), 0.5, Vector2(0.05, 0.12), 180.0, 0.0)
 	enemy.take_damage(enemy.health.current_health + 1.0, damage_type, true, false, false, true)
+
+## Pinnacle and Figment bosses (their brains have phases); Ascendants cast
+## spells through a phaseless brain and count as ordinary enemies here.
+func _is_boss(enemy: Enemy) -> bool:
+	return enemy.rank == Constants.EnemyRank.BOSS or (enemy.boss_brain != null and not enemy.boss_brain.phase_thresholds.is_empty())

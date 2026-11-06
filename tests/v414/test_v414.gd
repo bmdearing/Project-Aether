@@ -307,7 +307,7 @@ func _test_hub() -> void:
 	add_child(hub)
 	await _frames(6)
 	var spots := {"spawn": Vector3(0, 0, 6), "dais top": Vector3(0, 1.2, -17), "bridge west": Vector3(-9.5, 0, -3), "south landing": Vector3(0, 0, 15)}
-	for node_name in ["GearShop", "SpellTestShop", "StashChest", "RealityEngine", "HubPortalSpot"]:
+	for node_name in ["GearShop", "StashChest", "RealityEngine", "HubPortalSpot"]:  # SpellTestShop is Dev-mode only
 		var n := hub.get_node_or_null(node_name) as Node3D
 		_check(n != null, "hub has %s" % node_name)
 		if n:
