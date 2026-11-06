@@ -1,0 +1,793 @@
+{
+  "source": "cryptfiend.mdx",
+  "version": 1800,
+  "scale": 0.017,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.210129653930664,
+      -0.012969299912452699,
+      -1.2656568222045899
+    ],
+    "max": [
+      1.2759809188842774,
+      1.9643500518798829,
+      1.2656568222045899
+    ],
+    "height": 1.9773193517923358
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 4000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 4033,
+      "end": 11367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 11400,
+      "end": 12533,
+      "move_speed": 4.590000000000001,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 12567,
+      "end": 15600,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 15633,
+      "end": 16733,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 16767,
+      "end": 76767,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Bone",
+      "start": 76800,
+      "end": 136800,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Morph",
+      "start": 136833,
+      "end": 137833,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Alternate 1",
+      "start": 137867,
+      "end": 137900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Morph Alternate",
+      "start": 137933,
+      "end": 138933,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "undead_cryptFiend_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_main_diffuse.dds",
+        "normal": "undead_cryptfiend_main_normal.dds",
+        "orm": "undead_cryptfiend_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "undead_cryptFiend_rig:main_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_main_diffuse.dds",
+        "normal": "undead_cryptfiend_main_normal.dds",
+        "orm": "undead_cryptfiend_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "undead_cryptFiend_rig:hair_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_hair_diffuse.dds",
+        "normal": "undead_cryptfiend_hair_normal.dds",
+        "orm": "undead_cryptfiend_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "undead_cryptFiend_rig:skeleton_geo",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_corpse_diffuse.dds",
+        "normal": "undead_cryptfiend_corpse_normal.dds",
+        "orm": "undead_cryptfiend_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_CryptFiend_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_CryptFiend_Corpse_Normal.tif",
+        "orm": "Textures/Undead_CryptFiend_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Walk 1": false,
+        "Death 1": false,
+        "Attack 1": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": false,
+        "Stand Alternate 1": false,
+        "Morph Alternate": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "undead_cryptFiend_rig:burrow_geo",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_burrow_diffuse.dds",
+        "normal": "undead_burrow_normal.dds",
+        "orm": "undead_burrow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_Burrow_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_Burrow_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_Burrow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Walk 1": false,
+        "Death 1": false,
+        "Attack 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": true,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "undead_cryptFiend_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_main_diffuse.dds",
+        "normal": "undead_cryptfiend_main_normal.dds",
+        "orm": "undead_cryptfiend_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "undead_cryptFiend_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_main_diffuse.dds",
+        "normal": "undead_cryptfiend_main_normal.dds",
+        "orm": "undead_cryptfiend_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "undead_cryptFiend_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_main_diffuse.dds",
+        "normal": "undead_cryptfiend_main_normal.dds",
+        "orm": "undead_cryptfiend_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "undead_cryptFiend_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_main_diffuse.dds",
+        "normal": "undead_cryptfiend_main_normal.dds",
+        "orm": "undead_cryptfiend_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "undead_cryptFiend_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_main_diffuse.dds",
+        "normal": "undead_cryptfiend_main_normal.dds",
+        "orm": "undead_cryptfiend_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "undead_cryptFiend_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_main_diffuse.dds",
+        "normal": "undead_cryptfiend_main_normal.dds",
+        "orm": "undead_cryptfiend_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "undead_cryptFiend_righair_geo_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_hair_diffuse.dds",
+        "normal": "undead_cryptfiend_hair_normal.dds",
+        "orm": "undead_cryptfiend_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "undead_cryptFiend_righair_geo_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_hair_diffuse.dds",
+        "normal": "undead_cryptfiend_hair_normal.dds",
+        "orm": "undead_cryptfiend_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "undead_cryptFiend_righair_geo_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_hair_diffuse.dds",
+        "normal": "undead_cryptfiend_hair_normal.dds",
+        "orm": "undead_cryptfiend_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_CryptFiend_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Attack 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": false,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "undead_cryptFiend_rigskeleton_geo_LOD1",
+      "lod": 1,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_corpse_diffuse.dds",
+        "normal": "undead_cryptfiend_corpse_normal.dds",
+        "orm": "undead_cryptfiend_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_CryptFiend_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_CryptFiend_Corpse_Normal.tif",
+        "orm": "Textures/Undead_CryptFiend_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Walk 1": false,
+        "Death 1": false,
+        "Attack 1": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": false,
+        "Stand Alternate 1": false,
+        "Morph Alternate": false
+      }
+    },
+    {
+      "index": 15,
+      "name": "undead_cryptFiend_rigskeleton_geo_LOD2",
+      "lod": 2,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_corpse_diffuse.dds",
+        "normal": "undead_cryptfiend_corpse_normal.dds",
+        "orm": "undead_cryptfiend_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_CryptFiend_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_CryptFiend_Corpse_Normal.tif",
+        "orm": "Textures/Undead_CryptFiend_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Walk 1": false,
+        "Death 1": false,
+        "Attack 1": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": false,
+        "Stand Alternate 1": false,
+        "Morph Alternate": false
+      }
+    },
+    {
+      "index": 16,
+      "name": "undead_cryptFiend_rigskeleton_geo_LOD3",
+      "lod": 3,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_cryptfiend_corpse_diffuse.dds",
+        "normal": "undead_cryptfiend_corpse_normal.dds",
+        "orm": "undead_cryptfiend_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_CryptFiend_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_CryptFiend_Corpse_Normal.tif",
+        "orm": "Textures/Undead_CryptFiend_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Walk 1": false,
+        "Death 1": false,
+        "Attack 1": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Morph": false,
+        "Stand Alternate 1": false,
+        "Morph Alternate": false
+      }
+    },
+    {
+      "index": 17,
+      "name": "undead_cryptFiend_rigburrow_geo_LOD1",
+      "lod": 1,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_burrow_diffuse.dds",
+        "normal": "undead_burrow_normal.dds",
+        "orm": "undead_burrow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_Burrow_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_Burrow_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_Burrow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Walk 1": false,
+        "Death 1": false,
+        "Attack 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": true,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 18,
+      "name": "undead_cryptFiend_rigburrow_geo_LOD2",
+      "lod": 2,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_burrow_diffuse.dds",
+        "normal": "undead_burrow_normal.dds",
+        "orm": "undead_burrow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_Burrow_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_Burrow_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_Burrow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Walk 1": false,
+        "Death 1": false,
+        "Attack 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": true,
+        "Morph Alternate": true
+      }
+    },
+    {
+      "index": 19,
+      "name": "undead_cryptFiend_rigburrow_geo_LOD3",
+      "lod": 3,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_burrow_diffuse.dds",
+        "normal": "undead_burrow_normal.dds",
+        "orm": "undead_burrow_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/CryptFiend/Undead_Burrow_Diffuse.tif",
+        "normal": "Units/Undead/CryptFiend/Undead_Burrow_Normal.tif",
+        "orm": "Units/Undead/CryptFiend/Undead_Burrow_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Stand 2": false,
+        "Walk 1": false,
+        "Death 1": false,
+        "Attack 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false,
+        "Morph": true,
+        "Stand Alternate 1": true,
+        "Morph Alternate": true
+      }
+    }
+  ]
+}

@@ -347,6 +347,16 @@ const ENEMY_PACKS_NORMAL := [
 	{"weight": 0.8, "units": [["hollowed_shambler", 3, 5]]},
 	{"weight": 0.6, "units": [[SYNOD_GOLEMS, 1, 1], ["hollowed_shambler", 0, 2]]},
 	{"weight": 0.6, "units": [["veilborne_mindbender", 2, 3]]},
+	{"weight": 0.8, "units": [["hollowed_ghoul", 3, 5]]},
+	{"weight": 0.6, "units": [["hollowed_abomination", 1, 1], ["hollowed_ghoul", 2, 3]]},
+	{"weight": 0.6, "units": [["hollowed_crypt_fiend", 1, 2], [["hollowed_ghoul", "hollowed_shambler"], 1, 3]]},
+	{"weight": 0.8, "units": [["unchartered_grunt", 1, 2], ["unchartered_peon", 2, 3]]},
+	{"weight": 0.6, "units": [["unchartered_berserker", 1, 2], ["unchartered_grunt", 1, 1]]},
+	{"weight": 0.7, "units": [["directorate_rifleman", 2, 3]]},
+	{"weight": 0.4, "units": [["legion_infernal", 1, 1], ["hollowed_ghoul", 1, 3]]},
+	{"weight": 0.3, "units": [["legion_doom_guard", 1, 1], ["legion_infernal", 0, 1]]},
+	{"weight": 0.6, "units": [["veilborne_faerie_dragon", 2, 4]]},
+	{"weight": 0.4, "units": [["veilborne_destroyer", 1, 1], ["veilborne_faerie_dragon", 1, 2]]},
 ]
 
 # Combined cap across all cooldown reduction sources (Ability.get_final_cooldown()).

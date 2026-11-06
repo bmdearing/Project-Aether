@@ -1,0 +1,38 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyDefinition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://entities/enemies/models/VeilborneDestroyerModel.tscn" id="2"]
+[ext_resource type="Resource" path="res://data/enemies/animation_sets/veilborne_destroyer.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Veilborne Destroyer"
+faction = "veilborne"
+lore_description = "A Veilborne construct of black stone that drinks magic out of the air and fires it back."
+model_scene = ExtResource("2")
+animation_set = ExtResource("3")
+scale_modifier = 1.0
+model_yaw_offset = -1.5707964
+model_hover = 0.6
+mob_level = 4
+archetype_category = "heavy"
+ward_percent = 0.2
+armor_value = 160.0
+evasion_value = 0.0
+damage_type = 6
+move_speed = 3.6
+chase_range = 18.0
+stop_distance = 9.0
+retreat_distance = 4.0
+is_ranged = true
+attack_range = 13.0
+attack_cooldown = 1.8
+xp_reward = 26.0
+gold_reward_min = 6
+gold_reward_max = 12
+pack_size_min = 1
+pack_size_max = 1
+weight_normal = 75
+weight_elite = 20
+weight_champion = 4
+weight_ascendant = 1

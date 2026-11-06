@@ -689,6 +689,9 @@ func take_damage(amount: float, damage_type: Constants.DamageType, source: Node 
 			if randf() < DamageCalculator.player_deflection_chance(evasion):
 				amount *= 1.0 - DamageCalculator.player_deflection_mitigation(evasion)
 				EventBus.hit_deflected.emit(self)
+	if hit_kind == HitKind.SPELL and perk_effects and perk_effects.avoids_spell_hit():
+		EventBus.hit_dodged.emit(self)
+		return
 	if unique_effects:
 		amount *= unique_effects.damage_taken_multiplier(hit_kind == HitKind.SPELL)
 	if ability_cast:

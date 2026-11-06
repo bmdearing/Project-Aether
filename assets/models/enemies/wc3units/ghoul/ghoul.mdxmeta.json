@@ -1,0 +1,1036 @@
+{
+  "source": "ghoul.mdx",
+  "version": 1800,
+  "scale": 0.021,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.47922419929504395,
+      -0.014779800474643709,
+      -1.5324602279663087
+    ],
+    "max": [
+      1.0089323844909668,
+      1.5993264312744142,
+      1.5324602279663087
+    ],
+    "height": 1.6141062317490578
+  },
+  "sequences": [
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 2033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 2067,
+      "end": 2733,
+      "move_speed": 5.67,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 2767,
+      "end": 4433,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 4467,
+      "end": 5300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 5333,
+      "end": 8167,
+      "move_speed": 5.565,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 8200,
+      "end": 9033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 9067,
+      "end": 10700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 10733,
+      "end": 70733,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Bone",
+      "start": 70767,
+      "end": 130767,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 130800,
+      "end": 131800,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 131833,
+      "end": 135167,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 135200,
+      "end": 136200,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Lumber 1",
+      "start": 136233,
+      "end": 137233,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Lumber 1",
+      "start": 137267,
+      "end": 138100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Lumber 1",
+      "start": 138133,
+      "end": 138967,
+      "move_speed": 5.67,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready Lumber 1",
+      "start": 139000,
+      "end": 140000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel Lumber 1",
+      "start": 140033,
+      "end": 141033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Stand",
+      "start": 141067,
+      "end": 142733,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Walk One",
+      "start": 142767,
+      "end": 144067,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "undead_ghoul_rig_ingame:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_main_diffuse.dds",
+        "normal": "undead_ghoul_main_normal.dds",
+        "orm": "undead_ghoul_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Main_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Main_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "undead_ghoul_rig_ingame:main_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_main_diffuse.dds",
+        "normal": "undead_ghoul_main_normal.dds",
+        "orm": "undead_ghoul_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Main_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Main_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "undead_ghoul_rig_ingame:hair_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_hair_diffuse.dds",
+        "normal": "undead_ghoul_hair_normal.dds",
+        "orm": "undead_ghoul_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Hair_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Hair_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "undead_ghoul_rig_ingame:wood_geo",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_wood_diffuse.dds",
+        "normal": "undead_ghoul_wood_normal.dds",
+        "orm": "undead_ghoul_wood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Wood_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Wood_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Wood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": false,
+        "Walk 1": false,
+        "Stand 1": false,
+        "Attack 2": false,
+        "Stand 3": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": false,
+        "Cinematic Walk One": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "undead_ghoul_rig_ingame:skeleton_geo",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_corpse_diffuse.dds",
+        "normal": "undead_ghoul_corpse_normal.dds",
+        "orm": "undead_ghoul_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Ghoul_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Ghoul_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Ghoul_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": false,
+        "Walk 1": false,
+        "Stand 1": false,
+        "Attack 2": false,
+        "Stand 3": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Lumber 1": false,
+        "Attack Lumber 1": false,
+        "Walk Lumber 1": false,
+        "Stand Ready Lumber 1": false,
+        "Stand Channel Lumber 1": false,
+        "Cinematic Stand": false,
+        "Cinematic Walk One": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "undead_ghoul_rig_ingamemain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_main_diffuse.dds",
+        "normal": "undead_ghoul_main_normal.dds",
+        "orm": "undead_ghoul_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Main_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Main_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "undead_ghoul_rig_ingamemain_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_main_diffuse.dds",
+        "normal": "undead_ghoul_main_normal.dds",
+        "orm": "undead_ghoul_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Main_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Main_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "undead_ghoul_rig_ingamemain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_main_diffuse.dds",
+        "normal": "undead_ghoul_main_normal.dds",
+        "orm": "undead_ghoul_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Main_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Main_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "undead_ghoul_rig_ingamemain_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_main_diffuse.dds",
+        "normal": "undead_ghoul_main_normal.dds",
+        "orm": "undead_ghoul_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Main_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Main_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "undead_ghoul_rig_ingamemain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_main_diffuse.dds",
+        "normal": "undead_ghoul_main_normal.dds",
+        "orm": "undead_ghoul_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Main_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Main_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "undead_ghoul_rig_ingamemain_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_main_diffuse.dds",
+        "normal": "undead_ghoul_main_normal.dds",
+        "orm": "undead_ghoul_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Main_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Main_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "undead_ghoul_rig_ingamehair_geo_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_hair_diffuse.dds",
+        "normal": "undead_ghoul_hair_normal.dds",
+        "orm": "undead_ghoul_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Hair_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Hair_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "undead_ghoul_rig_ingamehair_geo_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_hair_diffuse.dds",
+        "normal": "undead_ghoul_hair_normal.dds",
+        "orm": "undead_ghoul_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Hair_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Hair_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "undead_ghoul_rig_ingamehair_geo_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_hair_diffuse.dds",
+        "normal": "undead_ghoul_hair_normal.dds",
+        "orm": "undead_ghoul_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Hair_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Hair_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": true,
+        "Walk 1": true,
+        "Stand 1": true,
+        "Attack 2": true,
+        "Stand 3": true,
+        "Attack 1": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false,
+        "Stand Ready 1": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": true,
+        "Cinematic Walk One": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "undead_ghoul_rig_ingamewood_geo_LOD1",
+      "lod": 1,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_wood_diffuse.dds",
+        "normal": "undead_ghoul_wood_normal.dds",
+        "orm": "undead_ghoul_wood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Wood_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Wood_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Wood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": false,
+        "Walk 1": false,
+        "Stand 1": false,
+        "Attack 2": false,
+        "Stand 3": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": false,
+        "Cinematic Walk One": false
+      }
+    },
+    {
+      "index": 15,
+      "name": "undead_ghoul_rig_ingamewood_geo_LOD2",
+      "lod": 2,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_wood_diffuse.dds",
+        "normal": "undead_ghoul_wood_normal.dds",
+        "orm": "undead_ghoul_wood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Wood_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Wood_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Wood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": false,
+        "Walk 1": false,
+        "Stand 1": false,
+        "Attack 2": false,
+        "Stand 3": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": false,
+        "Cinematic Walk One": false
+      }
+    },
+    {
+      "index": 16,
+      "name": "undead_ghoul_rig_ingamewood_geo_LOD3",
+      "lod": 3,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_wood_diffuse.dds",
+        "normal": "undead_ghoul_wood_normal.dds",
+        "orm": "undead_ghoul_wood_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Ghoul/Undead_Ghoul_Wood_Diffuse.tif",
+        "normal": "Units/Undead/Ghoul/Undead_Ghoul_Wood_Normal.tif",
+        "orm": "Units/Undead/Ghoul/Undead_Ghoul_Wood_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": false,
+        "Walk 1": false,
+        "Stand 1": false,
+        "Attack 2": false,
+        "Stand 3": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Lumber 1": true,
+        "Attack Lumber 1": true,
+        "Walk Lumber 1": true,
+        "Stand Ready Lumber 1": true,
+        "Stand Channel Lumber 1": true,
+        "Cinematic Stand": false,
+        "Cinematic Walk One": false
+      }
+    },
+    {
+      "index": 17,
+      "name": "undead_ghoul_rig_ingameskeleton_geo_LOD1",
+      "lod": 1,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_corpse_diffuse.dds",
+        "normal": "undead_ghoul_corpse_normal.dds",
+        "orm": "undead_ghoul_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Ghoul_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Ghoul_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Ghoul_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": false,
+        "Walk 1": false,
+        "Stand 1": false,
+        "Attack 2": false,
+        "Stand 3": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Lumber 1": false,
+        "Attack Lumber 1": false,
+        "Walk Lumber 1": false,
+        "Stand Ready Lumber 1": false,
+        "Stand Channel Lumber 1": false,
+        "Cinematic Stand": false,
+        "Cinematic Walk One": false
+      }
+    },
+    {
+      "index": 18,
+      "name": "undead_ghoul_rig_ingameskeleton_geo_LOD2",
+      "lod": 2,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_corpse_diffuse.dds",
+        "normal": "undead_ghoul_corpse_normal.dds",
+        "orm": "undead_ghoul_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Ghoul_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Ghoul_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Ghoul_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": false,
+        "Walk 1": false,
+        "Stand 1": false,
+        "Attack 2": false,
+        "Stand 3": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Lumber 1": false,
+        "Attack Lumber 1": false,
+        "Walk Lumber 1": false,
+        "Stand Ready Lumber 1": false,
+        "Stand Channel Lumber 1": false,
+        "Cinematic Stand": false,
+        "Cinematic Walk One": false
+      }
+    },
+    {
+      "index": 19,
+      "name": "undead_ghoul_rig_ingameskeleton_geo_LOD3",
+      "lod": 3,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_ghoul_corpse_diffuse.dds",
+        "normal": "undead_ghoul_corpse_normal.dds",
+        "orm": "undead_ghoul_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Undead_Ghoul_Corpse_Diffuse.tif",
+        "normal": "Textures/Undead_Ghoul_Corpse_Normal.tif",
+        "orm": "Textures/Undead_Ghoul_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 2": false,
+        "Walk 1": false,
+        "Stand 1": false,
+        "Attack 2": false,
+        "Stand 3": false,
+        "Attack 1": false,
+        "Death 1": false,
+        "Decay Flesh": true,
+        "Decay Bone": true,
+        "Stand Ready 1": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Lumber 1": false,
+        "Attack Lumber 1": false,
+        "Walk Lumber 1": false,
+        "Stand Ready Lumber 1": false,
+        "Stand Channel Lumber 1": false,
+        "Cinematic Stand": false,
+        "Cinematic Walk One": false
+      }
+    }
+  ]
+}

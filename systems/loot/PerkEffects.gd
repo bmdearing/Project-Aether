@@ -31,7 +31,15 @@ const WHEEL_KNOCKBACK := 8.0
 const MAW_COOLDOWN := 4.0
 const MAW_RADIUS := 8.0
 const MAW_PULL := 10.0
-const AILMENT_OF := {Constants.DamageType.FIRE: "ignite", Constants.DamageType.COLD: "chill", Constants.DamageType.LIGHTNING: "shock"}
+const RIPOSTE_SECONDS := 3.0
+const STENCH_RADIUS := 3.0
+const STENCH_INTERVAL := 0.5
+const LONG_SHOT_DISTANCE := 15.0
+const FURY_LIFE_SHARE := 0.5
+const STOMP_COOLDOWN := 10.0
+const STOMP_RADIUS := 4.0
+const STOMP_KNOCKBACK := 8.0
+const AILMENT_OF :={Constants.DamageType.FIRE: "ignite", Constants.DamageType.COLD: "chill", Constants.DamageType.LIGHTNING: "shock"}
 
 var perks: Dictionary = {}  # StringName -> best value
 
@@ -47,6 +55,9 @@ var _last_weapon_msec: int = -100000
 var _sun_ready_msec: int = 0
 var _wheel_hits := 0
 var _maw_ready_msec: int = 0
+var _riposte_until_msec: int = 0
+var _stench_timer := 0.0
+var _stomp_ready_msec: int = 0
 
 func _ready() -> void:
 	_player = get_parent() as Player
@@ -85,15 +96,28 @@ func damage_multiplier(damage_type: int) -> float:
 			mult *= 1.0 + value(&"last_round") / 100.0
 	if has(&"element_shift") and ELEMENTS.has(damage_type) and _last_element != -1 and _last_element != damage_type:
 		mult *= 1.0 + value(&"element_shift") / 100.0
+	if has(&"low_life_fury") and _player and _player.health.current_health < _player.health.max_health * FURY_LIFE_SHARE:
+		mult *= 1.0 + value(&"low_life_fury") / 100.0
 	return mult
 
-## Extra multiplier on a melee swing (PlayerMeleeAttack); heavy = not a jab.
+## Extra multiplier on a melee swing (PlayerMeleeAttack, once per target hit);
+## heavy = not a jab.
 func melee_multiplier(heavy: bool) -> float:
-	return 1.0 + value(&"heavy_knockback") / 100.0 if heavy and has(&"heavy_knockback") else 1.0
+	var mult := 1.0 + value(&"heavy_knockback") / 100.0 if heavy and has(&"heavy_knockback") else 1.0
+	var now := Time.get_ticks_msec()
+	if has(&"riposte") and now < _riposte_until_msec:
+		mult *= 1.0 + value(&"riposte") / 100.0
+		# Spent by this swing: other targets of the same cleave still get it.
+		_riposte_until_msec = mini(_riposte_until_msec, now + 200)
+	return mult
 
 func on_melee_hit(target: Enemy, heavy: bool) -> void:
 	if heavy and has(&"heavy_knockback") and is_instance_valid(target) and target.health.is_alive():
 		target.apply_knockback(_away(target) * HEAVY_KNOCKBACK)
+
+## Faerie Dragon's Phase Shift: whether this spell hit is avoided (Player.take_damage).
+func avoids_spell_hit() -> bool:
+	return has(&"phase_shift") and randf() * 100.0 < value(&"phase_shift")
 
 func _on_damage_dealt(source: Node, target: Node, amount: float, damage_type: int, _more: bool, _crit: bool) -> void:
 	if source != _player or not target is Enemy:
@@ -125,6 +149,7 @@ func _on_damage_dealt(source: Node, target: Node, amount: float, damage_type: in
 		var other := _nearest_other(enemy)
 		if other and other.status_effects:
 			other.status_effects.apply_effect("ignite", _player, amount * value(&"ignite_spread") / 100.0)
+	_new_hit_perks(enemy, amount, damage_type, is_spell, now)
 	_boss_hit_perks(enemy, amount, damage_type, is_spell, now)
 	if has(&"ignite_erupt") and damage_type == Constants.DamageType.FIRE and is_instance_valid(enemy) \
 			and enemy.status_effects and enemy.status_effects.has_effect("ignite"):
@@ -175,7 +200,11 @@ func _on_enemy_died(node: Node) -> void:
 		SpellFx.burst(enemy.get_parent(), at + Vector3.UP * 0.4, Color(0.85, 0.75, 0.5), 20, Vector2(0.3, 0.9), 0.8, Vector2(0.05, 0.12), 30.0, 0.8)
 
 func _on_hit_blocked(defender: Node) -> void:
-	if defender != _player or not has(&"block_shockwave"):
+	if defender != _player:
+		return
+	if has(&"riposte"):
+		_riposte_until_msec = Time.get_ticks_msec() + int(RIPOSTE_SECONDS * 1000.0)
+	if not has(&"block_shockwave"):
 		return
 	var dmg := _player.equipment.get_total_armor() * value(&"block_shockwave") / 100.0 if _player.equipment else 0.0
 	for enemy in _enemies_near(_player.global_position, SHOCKWAVE_RADIUS):
@@ -212,6 +241,14 @@ func _physics_process(delta: float) -> void:
 				enemy.take_damage(dmg, Constants.DamageType.KINETIC)
 			SpellFx.burst(_player.get_parent(), _player.global_position + Vector3.UP * 0.2, Color(0.75, 0.7, 0.6), 18, Vector2(0.3, 0.9), 0.5, Vector2(0.05, 0.1), 40.0, 0.5)
 		_air_time = 0.0
+	if has(&"stench_aura"):
+		_stench_timer -= delta
+		if _stench_timer <= 0.0:
+			_stench_timer = STENCH_INTERVAL
+			var tick := _player.health.max_health * value(&"stench_aura") / 100.0 * STENCH_INTERVAL
+			for enemy in _enemies_near(_player.global_position, STENCH_RADIUS + Enemy.MAX_BODY_RADIUS):
+				if enemy.distance_to_body(_player.global_position) <= STENCH_RADIUS:
+					enemy.take_damage(tick, Constants.DamageType.ENTROPIC, true)
 	if has(&"ember_trail"):
 		_ember_timer -= delta
 		var speed := Vector2(_player.velocity.x, _player.velocity.z).length()
@@ -221,6 +258,32 @@ func _physics_process(delta: float) -> void:
 			for enemy in _enemies_near(_player.global_position, EMBER_RADIUS):
 				if enemy.status_effects:
 					enemy.status_effects.apply_effect("ignite", _player, hit)
+
+## ---- Hit perks (runs inside _on_damage_dealt) ----------------------------
+
+func _new_hit_perks(enemy: Enemy, amount: float, damage_type: int, is_spell: bool, now: int) -> void:
+	if not is_instance_valid(enemy) or StatusEffectComponent.emitting_dot:
+		return
+	var weapon := _player.get_active_weapon()
+	var melee := weapon != null and not weapon.is_ranged and not weapon.is_conduit and not weapon.is_throwing() and not is_spell
+	var shot := weapon != null and (weapon.is_ranged or weapon.is_throwing()) and not weapon.is_conduit and not is_spell
+	if has(&"cursed_extra") and enemy.health.is_alive() and enemy.status_effects and not enemy.status_effects.get_curses().is_empty():
+		enemy.take_damage(amount * value(&"cursed_extra") / 100.0, damage_type, true)
+	if has(&"melee_leech") and melee:
+		_player.health.heal(amount * value(&"melee_leech") / 100.0)
+	if has(&"web_chill") and shot and enemy.health.is_alive() and enemy.status_effects:
+		enemy.status_effects.apply_effect("chill", _player, amount * value(&"web_chill") / 100.0)
+	if has(&"long_shot") and shot and weapon.is_ranged and enemy.health.is_alive() \
+			and enemy.global_position.distance_to(_player.global_position) > LONG_SHOT_DISTANCE:
+		enemy.take_damage(amount * value(&"long_shot") / 100.0, damage_type, true)
+	if has(&"war_stomp") and melee and now >= _stomp_ready_msec:
+		_stomp_ready_msec = now + int(STOMP_COOLDOWN * 1000.0)
+		var origin := _player.global_position
+		for other in _enemies_near(origin, STOMP_RADIUS):
+			other.apply_knockback(_away(other) * STOMP_KNOCKBACK)
+			other.take_damage(amount * value(&"war_stomp") / 100.0, Constants.DamageType.KINETIC, true)
+		SpellFx.shockwave(_player.get_parent(), origin + Vector3.UP * 0.1, STOMP_RADIUS, Color(1.0, 0.5, 0.2))
+		SpellFx.burst(_player.get_parent(), origin + Vector3.UP * 0.2, Color(0.7, 0.45, 0.3), 20, Vector2(1.5, 4.0), 0.5, Vector2(0.06, 0.14), 20.0, -6.0)
 
 ## ---- Boss perks ----------------------------------------------------------
 

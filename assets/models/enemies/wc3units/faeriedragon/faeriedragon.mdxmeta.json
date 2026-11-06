@@ -1,0 +1,328 @@
+{
+  "source": "faeriedragon.mdx",
+  "version": 1800,
+  "scale": 0.018,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.2664709472656248,
+      -0.4858236007690429,
+      -2.1369960021972654
+    ],
+    "max": [
+      0.7294301834106445,
+      0.5422679901123046,
+      2.1205619659423824
+    ],
+    "height": 1.0280915908813475
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 833,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 867,
+      "end": 5033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 5067,
+      "end": 5900,
+      "move_speed": 6.3,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 2",
+      "start": 5933,
+      "end": 17000,
+      "move_speed": 6.3,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Spell 1",
+      "start": 17033,
+      "end": 18700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 18733,
+      "end": 20000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 20033,
+      "end": 22167,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "faerieDragon:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nightelf_faeriedragon_diffuse.dds",
+        "normal": "nightelf_faeriedragon_normal.dds",
+        "orm": "nightelf_faeriedragon_orm.dds",
+        "emissive": "nightelf_faeriedragon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Diffuse.tif",
+        "normal": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Normal.tif",
+        "orm": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_ORM.tif",
+        "emissive": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Walk 2": true,
+        "Attack Spell 1": true,
+        "Stand Channel 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "faerieDragon:wings_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nightelf_faeriedragon_diffuse.dds",
+        "normal": "nightelf_faeriedragon_normal.dds",
+        "orm": "nightelf_faeriedragon_orm.dds",
+        "emissive": "nightelf_faeriedragon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Diffuse.tif",
+        "normal": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Normal.tif",
+        "orm": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_ORM.tif",
+        "emissive": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Walk 2": true,
+        "Attack Spell 1": true,
+        "Stand Channel 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "faerieDragonmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nightelf_faeriedragon_diffuse.dds",
+        "normal": "nightelf_faeriedragon_normal.dds",
+        "orm": "nightelf_faeriedragon_orm.dds",
+        "emissive": "nightelf_faeriedragon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Diffuse.tif",
+        "normal": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Normal.tif",
+        "orm": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_ORM.tif",
+        "emissive": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Walk 2": true,
+        "Attack Spell 1": true,
+        "Stand Channel 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "faerieDragonmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nightelf_faeriedragon_diffuse.dds",
+        "normal": "nightelf_faeriedragon_normal.dds",
+        "orm": "nightelf_faeriedragon_orm.dds",
+        "emissive": "nightelf_faeriedragon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Diffuse.tif",
+        "normal": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Normal.tif",
+        "orm": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_ORM.tif",
+        "emissive": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Walk 2": true,
+        "Attack Spell 1": true,
+        "Stand Channel 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "faerieDragonmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nightelf_faeriedragon_diffuse.dds",
+        "normal": "nightelf_faeriedragon_normal.dds",
+        "orm": "nightelf_faeriedragon_orm.dds",
+        "emissive": "nightelf_faeriedragon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Diffuse.tif",
+        "normal": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Normal.tif",
+        "orm": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_ORM.tif",
+        "emissive": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Walk 2": true,
+        "Attack Spell 1": true,
+        "Stand Channel 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "faerieDragonwings_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nightelf_faeriedragon_diffuse.dds",
+        "normal": "nightelf_faeriedragon_normal.dds",
+        "orm": "nightelf_faeriedragon_orm.dds",
+        "emissive": "nightelf_faeriedragon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Diffuse.tif",
+        "normal": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Normal.tif",
+        "orm": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_ORM.tif",
+        "emissive": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Walk 2": true,
+        "Attack Spell 1": true,
+        "Stand Channel 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "faerieDragonwings_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nightelf_faeriedragon_diffuse.dds",
+        "normal": "nightelf_faeriedragon_normal.dds",
+        "orm": "nightelf_faeriedragon_orm.dds",
+        "emissive": "nightelf_faeriedragon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Diffuse.tif",
+        "normal": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Normal.tif",
+        "orm": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_ORM.tif",
+        "emissive": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Walk 2": true,
+        "Attack Spell 1": true,
+        "Stand Channel 1": true,
+        "Death 1": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "faerieDragonwings_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "nightelf_faeriedragon_diffuse.dds",
+        "normal": "nightelf_faeriedragon_normal.dds",
+        "orm": "nightelf_faeriedragon_orm.dds",
+        "emissive": "nightelf_faeriedragon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Diffuse.tif",
+        "normal": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Normal.tif",
+        "orm": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_ORM.tif",
+        "emissive": "Units/NightElf/FaerieDragon/NightElf_FaerieDragon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Walk 1": true,
+        "Walk 2": true,
+        "Attack Spell 1": true,
+        "Stand Channel 1": true,
+        "Death 1": false
+      }
+    }
+  ]
+}

@@ -116,6 +116,61 @@
       "unit": "almighty_awakened",
       "mdx": "assets/models/enemies/pinnacle/almighty/Yhwach_Almighty/Shio_Bleach_Yhwach_Almighty_B1.mdx",
       "scale": 0.02
+    },
+    {
+      "unit": "hollowed_ghoul",
+      "mdx": "assets/models/enemies/wc3units/ghoul/ghoul.mdx",
+      "scale": 0.021
+    },
+    {
+      "unit": "hollowed_abomination",
+      "mdx": "assets/models/enemies/wc3units/abomination/abomination.mdx",
+      "scale": 0.015
+    },
+    {
+      "unit": "hollowed_crypt_fiend",
+      "mdx": "assets/models/enemies/wc3units/cryptfiend/cryptfiend.mdx",
+      "scale": 0.017
+    },
+    {
+      "unit": "directorate_rifleman",
+      "mdx": "assets/models/enemies/wc3units/rifleman/rifleman.mdx",
+      "scale": 0.013
+    },
+    {
+      "unit": "unchartered_peon",
+      "mdx": "assets/models/enemies/wc3units/peon/peon.mdx",
+      "scale": 0.016
+    },
+    {
+      "unit": "unchartered_grunt",
+      "mdx": "assets/models/enemies/wc3units/grunt/grunt.mdx",
+      "scale": 0.0165
+    },
+    {
+      "unit": "unchartered_berserker",
+      "mdx": "assets/models/enemies/wc3units/berserker/headhunter_v1.mdx",
+      "scale": 0.0135
+    },
+    {
+      "unit": "legion_infernal",
+      "mdx": "assets/models/enemies/wc3units/infernal/infernal.mdx",
+      "scale": 0.013
+    },
+    {
+      "unit": "legion_doom_guard",
+      "mdx": "assets/models/enemies/wc3units/doomguard/doomguard.mdx",
+      "scale": 0.009
+    },
+    {
+      "unit": "veilborne_faerie_dragon",
+      "mdx": "assets/models/enemies/wc3units/faeriedragon/faeriedragon.mdx",
+      "scale": 0.018
+    },
+    {
+      "unit": "veilborne_destroyer",
+      "mdx": "assets/models/enemies/wc3units/destroyer/obsidianstatue.mdx",
+      "scale": 0.013
     }
   ]
 }

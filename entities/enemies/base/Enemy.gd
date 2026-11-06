@@ -300,9 +300,9 @@ func convert_attack_type(damage_type: int) -> int:
 func _apply_model() -> void:
 	if definition == null or definition.model_scene == null:
 		return
-	_install_model(definition.model_scene, definition.animation_set, definition.scale_modifier, definition.model_yaw_offset)
+	_install_model(definition.model_scene, definition.animation_set, definition.scale_modifier, definition.model_yaw_offset, definition.model_hover)
 
-func _install_model(model_scene: PackedScene, anim_set: AnimationSet, model_scale: float, yaw_offset: float) -> void:
+func _install_model(model_scene: PackedScene, anim_set: AnimationSet, model_scale: float, yaw_offset: float, hover: float = 0.0) -> void:
 	var placeholder := get_node_or_null("MeshInstance3D")
 	if placeholder:
 		placeholder.queue_free()
@@ -310,6 +310,7 @@ func _install_model(model_scene: PackedScene, anim_set: AnimationSet, model_scal
 	add_child(model)
 	model.scale = Vector3.ONE * model_scale
 	model.rotation.y = yaw_offset
+	model.position.y = hover
 	model_forward_yaw_offset = yaw_offset
 	_model_root = model
 	_fit_body_to_model(model)

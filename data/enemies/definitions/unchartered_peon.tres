@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyDefinition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://entities/enemies/models/UncharteredPeonModel.tscn" id="2"]
+[ext_resource type="Resource" path="res://data/enemies/animation_sets/unchartered_peon.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Unchartered Peon"
+faction = "unchartered"
+lore_description = "A camp labourer pressed into the raid. Swings whatever tool was nearest."
+model_scene = ExtResource("2")
+animation_set = ExtResource("3")
+scale_modifier = 1.0
+model_yaw_offset = -1.5707964
+mob_level = 1
+archetype_category = "light"
+ward_percent = 0.0
+armor_value = 20.0
+evasion_value = 60.0
+damage_type = 0
+move_speed = 4.2
+chase_range = 12.0
+stop_distance = 1.7
+retreat_distance = 0.0
+is_ranged = false
+attack_range = 1.8
+attack_cooldown = 1.4
+xp_reward = 5.0
+gold_reward_min = 1
+gold_reward_max = 3
+pack_size_min = 2
+pack_size_max = 3
+weight_normal = 75
+weight_elite = 20
+weight_champion = 4
+weight_ascendant = 1

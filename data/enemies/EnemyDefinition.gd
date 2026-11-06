@@ -19,6 +19,8 @@ class_name EnemyDefinition
 ## doesn't match how they stand when animated; 0 = fit to the model.
 @export var body_height_override: float = 0.0
 @export var body_radius_override: float = 0.0
+## Metres the model floats above the body's feet (flyers).
+@export var model_hover: float = 0.0
 
 # Level scaling - health/damage come from Constants.MOB_BASE_* by category
 # and this level (see Enemy._apply_definition()); base_health/base_damage

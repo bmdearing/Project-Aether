@@ -194,5 +194,17 @@
   "res://assets/models/environment/forest/Bushes Part 2/bushes_red_02/bush_small_red_diffuse.dds": "res://assets/models/environment/forest/Bushes Part 2/bushes_red_01/bush_small_red_diffuse.dds",
   "res://assets/models/environment/forest/Bushes Part 2/bushes_red_03/bush_small_red_diffuse.dds": "res://assets/models/environment/forest/Bushes Part 2/bushes_red_01/bush_small_red_diffuse.dds",
   "res://assets/models/environment/forest/Bushes Part 2/bushes_teal_02/bush_small_teal_diffuse.dds": "res://assets/models/environment/forest/Bushes Part 2/bushes_teal_01/bush_small_teal_diffuse.dds",
-  "res://assets/models/environment/forest/Bushes Part 2/bushes_teal_03/bush_small_teal_diffuse.dds": "res://assets/models/environment/forest/Bushes Part 2/bushes_teal_01/bush_small_teal_diffuse.dds"
+  "res://assets/models/environment/forest/Bushes Part 2/bushes_teal_03/bush_small_teal_diffuse.dds": "res://assets/models/environment/forest/Bushes Part 2/bushes_teal_01/bush_small_teal_diffuse.dds",
+  "res://assets/models/enemies/wc3units/destroyer/undead_obsidianstatue_main_diffuse.dds": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+  "res://assets/models/enemies/wc3units/destroyer/undead_obsidianstatue_main_emissive.dds": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds",
+  "res://assets/models/enemies/wc3units/destroyer/undead_obsidianstatue_main_normal.dds": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+  "res://assets/models/enemies/wc3units/destroyer/undead_obsidianstatue_main_orm.dds": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+  "res://assets/models/enemies/wc3units/infernal/infernal_main_normal.dds": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem/infernal_main_normal.dds",
+  "res://assets/models/enemies/wc3units/infernal/infernal_main_orm.dds": "res://assets/models/enemies/pinnacle/aurelia/Fire Golem/Fire Golem/infernal_main_orm.dds",
+  "res://assets/models/enemies/wc3units/peon/orc_corpse_diffuse.dds": "res://assets/models/enemies/wc3units/grunt/orc_corpse_diffuse.dds",
+  "res://assets/models/enemies/wc3units/peon/orc_corpse_normal.dds": "res://assets/models/enemies/wc3units/grunt/orc_corpse_normal.dds",
+  "res://assets/models/enemies/wc3units/peon/orc_corpse_orm.dds": "res://assets/models/enemies/wc3units/grunt/orc_corpse_orm.dds",
+  "res://assets/models/enemies/wc3units/rifleman/dwarf_corpse_diffuse.dds": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+  "res://assets/models/enemies/wc3units/rifleman/dwarf_corpse_normal.dds": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+  "res://assets/models/enemies/wc3units/rifleman/dwarf_corpse_orm.dds": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds"
 }

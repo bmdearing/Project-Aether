@@ -1,0 +1,459 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_1gw1w"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_main_diffuse.dds" id="2_h2u4h"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_main_normal.dds" id="3_hpj2x"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_main_orm.dds" id="4_gnnk5"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_hair_diffuse.dds" id="5_3pikc"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_hair_normal.dds" id="6_db8m5"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_hair_orm.dds" id="7_5iog7"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_wood_diffuse.dds" id="8_d8jda"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_wood_normal.dds" id="9_i4d3i"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_wood_orm.dds" id="10_ag6e1"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_corpse_diffuse.dds" id="11_jc8du"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_corpse_normal.dds" id="12_gdpyt"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/wc3units/ghoul/undead_ghoul_corpse_orm.dds" id="13_myq4r"]
+[ext_resource type="PackedScene" path="res://assets/models/enemies/wc3units/ghoul/ghoul.glb" id="14_fu5e1"]
+[ext_resource type="PackedScene" path="res://entities/enemies/base/HumanoidAnimTree.tscn" id="15_515gf"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_d35f8"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_h2u4h")
+orm_texture = ExtResource("4_gnnk5")
+normal_enabled = true
+normal_texture = ExtResource("3_hpj2x")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3erxn"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_h2u4h")
+orm_texture = ExtResource("4_gnnk5")
+normal_enabled = true
+normal_texture = ExtResource("3_hpj2x")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_wmpvh"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("5_3pikc")
+orm_texture = ExtResource("7_5iog7")
+normal_enabled = true
+normal_texture = ExtResource("6_db8m5")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_qachv"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("8_d8jda")
+orm_texture = ExtResource("10_ag6e1")
+normal_enabled = true
+normal_texture = ExtResource("9_i4d3i")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_1yg82"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("11_jc8du")
+orm_texture = ExtResource("13_myq4r")
+normal_enabled = true
+normal_texture = ExtResource("12_gdpyt")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_rt3t6"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_h2u4h")
+orm_texture = ExtResource("4_gnnk5")
+normal_enabled = true
+normal_texture = ExtResource("3_hpj2x")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_q7ipw"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_h2u4h")
+orm_texture = ExtResource("4_gnnk5")
+normal_enabled = true
+normal_texture = ExtResource("3_hpj2x")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3tr1p"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_h2u4h")
+orm_texture = ExtResource("4_gnnk5")
+normal_enabled = true
+normal_texture = ExtResource("3_hpj2x")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gjytd"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_h2u4h")
+orm_texture = ExtResource("4_gnnk5")
+normal_enabled = true
+normal_texture = ExtResource("3_hpj2x")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_26x2p"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_h2u4h")
+orm_texture = ExtResource("4_gnnk5")
+normal_enabled = true
+normal_texture = ExtResource("3_hpj2x")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_powi6"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_h2u4h")
+orm_texture = ExtResource("4_gnnk5")
+normal_enabled = true
+normal_texture = ExtResource("3_hpj2x")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_eyv72"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("5_3pikc")
+orm_texture = ExtResource("7_5iog7")
+normal_enabled = true
+normal_texture = ExtResource("6_db8m5")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ereho"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("5_3pikc")
+orm_texture = ExtResource("7_5iog7")
+normal_enabled = true
+normal_texture = ExtResource("6_db8m5")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_joing"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("5_3pikc")
+orm_texture = ExtResource("7_5iog7")
+normal_enabled = true
+normal_texture = ExtResource("6_db8m5")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_c510e"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("8_d8jda")
+orm_texture = ExtResource("10_ag6e1")
+normal_enabled = true
+normal_texture = ExtResource("9_i4d3i")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_kgh6k"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("8_d8jda")
+orm_texture = ExtResource("10_ag6e1")
+normal_enabled = true
+normal_texture = ExtResource("9_i4d3i")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_vj7tr"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("8_d8jda")
+orm_texture = ExtResource("10_ag6e1")
+normal_enabled = true
+normal_texture = ExtResource("9_i4d3i")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_kyq78"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("11_jc8du")
+orm_texture = ExtResource("13_myq4r")
+normal_enabled = true
+normal_texture = ExtResource("12_gdpyt")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ojslu"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("11_jc8du")
+orm_texture = ExtResource("13_myq4r")
+normal_enabled = true
+normal_texture = ExtResource("12_gdpyt")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_3q4jk"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("11_jc8du")
+orm_texture = ExtResource("13_myq4r")
+normal_enabled = true
+normal_texture = ExtResource("12_gdpyt")
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_uxmb3"]
+animation = &"Attack"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ugs6u"]
+animation = &"Death"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_rn56s"]
+animation = &"HitReact"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3c17d"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jp5ti"]
+animation = &"Run"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_1mj3m"]
+animation = &"Stagger"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xo6c6"]
+animation = &"Walk"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tola0"]
+xfade_time = 0.12
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_4g1jm"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"moving"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_317bp"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stopped"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c5h2g"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"running"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_a37j7"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"walking"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ipoep"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_i60ko"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_nhync"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pduiw"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c46fj"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_mot78"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_d0m3f"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_28hg5"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_xxwru"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_o3hln"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_sylrt"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_uhnpq"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_3blcx"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0ieg5"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_vde4t"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gkawd"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_cgh1m"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pld0m"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_wr1x7"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jypwp"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gnvh3"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_7m1o2"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_g1woi"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_a1ugo"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_dv4a3"]
+states/Attack/node = SubResource("AnimationNodeAnimation_uxmb3")
+states/Attack/position = Vector2(600, 0)
+states/Death/node = SubResource("AnimationNodeAnimation_ugs6u")
+states/Death/position = Vector2(400, 140)
+states/HitReact/node = SubResource("AnimationNodeAnimation_rn56s")
+states/HitReact/position = Vector2(0, 140)
+states/Idle/node = SubResource("AnimationNodeAnimation_3c17d")
+states/Idle/position = Vector2(0, 0)
+states/Run/node = SubResource("AnimationNodeAnimation_jp5ti")
+states/Run/position = Vector2(400, 0)
+states/Stagger/node = SubResource("AnimationNodeAnimation_1mj3m")
+states/Stagger/position = Vector2(200, 140)
+states/Walk/node = SubResource("AnimationNodeAnimation_xo6c6")
+states/Walk/position = Vector2(200, 0)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_tola0"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_4g1jm"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_317bp"), "Walk", "Run", SubResource("AnimationNodeStateMachineTransition_c5h2g"), "Run", "Walk", SubResource("AnimationNodeStateMachineTransition_a37j7"), "Idle", "Attack", SubResource("AnimationNodeStateMachineTransition_ipoep"), "Walk", "Attack", SubResource("AnimationNodeStateMachineTransition_i60ko"), "Run", "Attack", SubResource("AnimationNodeStateMachineTransition_nhync"), "HitReact", "Attack", SubResource("AnimationNodeStateMachineTransition_pduiw"), "Stagger", "Attack", SubResource("AnimationNodeStateMachineTransition_c46fj"), "Idle", "HitReact", SubResource("AnimationNodeStateMachineTransition_mot78"), "Walk", "HitReact", SubResource("AnimationNodeStateMachineTransition_d0m3f"), "Run", "HitReact", SubResource("AnimationNodeStateMachineTransition_28hg5"), "Attack", "HitReact", SubResource("AnimationNodeStateMachineTransition_xxwru"), "Stagger", "HitReact", SubResource("AnimationNodeStateMachineTransition_o3hln"), "Idle", "Stagger", SubResource("AnimationNodeStateMachineTransition_sylrt"), "Walk", "Stagger", SubResource("AnimationNodeStateMachineTransition_uhnpq"), "Run", "Stagger", SubResource("AnimationNodeStateMachineTransition_3blcx"), "Attack", "Stagger", SubResource("AnimationNodeStateMachineTransition_0ieg5"), "HitReact", "Stagger", SubResource("AnimationNodeStateMachineTransition_vde4t"), "Idle", "Death", SubResource("AnimationNodeStateMachineTransition_gkawd"), "Walk", "Death", SubResource("AnimationNodeStateMachineTransition_cgh1m"), "Run", "Death", SubResource("AnimationNodeStateMachineTransition_pld0m"), "Attack", "Death", SubResource("AnimationNodeStateMachineTransition_wr1x7"), "HitReact", "Death", SubResource("AnimationNodeStateMachineTransition_jypwp"), "Stagger", "Death", SubResource("AnimationNodeStateMachineTransition_gnvh3"), "Attack", "Idle", SubResource("AnimationNodeStateMachineTransition_7m1o2"), "HitReact", "Idle", SubResource("AnimationNodeStateMachineTransition_g1woi"), "Stagger", "Idle", SubResource("AnimationNodeStateMachineTransition_a1ugo")]
+
+[node name="HollowedGhoulModel" type="Node3D" unique_id=1943808319]
+script = ExtResource("1_1gw1w")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_d35f8"),
+1: SubResource("ORMMaterial3D_3erxn"),
+2: SubResource("ORMMaterial3D_wmpvh"),
+3: SubResource("ORMMaterial3D_qachv"),
+4: SubResource("ORMMaterial3D_1yg82"),
+5: SubResource("ORMMaterial3D_rt3t6"),
+6: SubResource("ORMMaterial3D_q7ipw"),
+7: SubResource("ORMMaterial3D_3tr1p"),
+8: SubResource("ORMMaterial3D_gjytd"),
+9: SubResource("ORMMaterial3D_26x2p"),
+10: SubResource("ORMMaterial3D_powi6"),
+11: SubResource("ORMMaterial3D_eyv72"),
+12: SubResource("ORMMaterial3D_ereho"),
+13: SubResource("ORMMaterial3D_joing"),
+14: SubResource("ORMMaterial3D_c510e"),
+15: SubResource("ORMMaterial3D_kgh6k"),
+16: SubResource("ORMMaterial3D_vj7tr"),
+17: SubResource("ORMMaterial3D_kyq78"),
+18: SubResource("ORMMaterial3D_ojslu"),
+19: SubResource("ORMMaterial3D_3q4jk")
+}
+hidden_geosets = {
+"Attack 1": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Attack 2": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Attack Lumber 1": PackedInt32Array(4, 17, 18, 19),
+"Cinematic Stand": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Cinematic Walk One": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Death 1": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Decay Bone": PackedInt32Array(0, 1, 2, 3, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16),
+"Decay Flesh": PackedInt32Array(3, 14, 15, 16),
+"Stand 1": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Stand 2": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Stand 3": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Stand Channel 1": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Stand Channel Lumber 1": PackedInt32Array(4, 17, 18, 19),
+"Stand Lumber 1": PackedInt32Array(4, 17, 18, 19),
+"Stand Ready 1": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Stand Ready Lumber 1": PackedInt32Array(4, 17, 18, 19),
+"Stand Victory 1": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Walk 1": PackedInt32Array(3, 4, 14, 15, 16, 17, 18, 19),
+"Walk Lumber 1": PackedInt32Array(4, 17, 18, 19)
+}
+always_hidden = PackedInt32Array(5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19)
+idle_clip = "Stand 1"
+clip_move_speeds = {
+"Stand 3": 5.565,
+"Walk 1": 5.67,
+"Walk Lumber 1": 5.67
+}
+
+[node name="Model" type="Node3D" parent="." unique_id=1009524444 instance=ExtResource("14_fu5e1")]
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=338442281 instance=ExtResource("15_515gf")]
+active = false
+tree_root = SubResource("AnimationNodeStateMachine_dv4a3")
+anim_player = NodePath("../Model/AnimationPlayer")
+parameters/conditions/attack_triggered = false
+parameters/conditions/hit_triggered = false
+parameters/conditions/is_dead = false
+parameters/conditions/moving = false
+parameters/conditions/running = false
+parameters/conditions/stagger_triggered = false
+parameters/conditions/stopped = false
+parameters/conditions/walking = false

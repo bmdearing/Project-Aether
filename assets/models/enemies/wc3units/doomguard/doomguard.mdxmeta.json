@@ -1,0 +1,676 @@
+{
+  "source": "doomguard.mdx",
+  "version": 1800,
+  "scale": 0.009,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.8614969329833984,
+      -0.001221300020813942,
+      -2.220192031860351
+    ],
+    "max": [
+      2.3535,
+      3.2817238769531247,
+      2.220192031860351
+    ],
+    "height": 3.282945176973939
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 2667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 2700,
+      "end": 3600,
+      "move_speed": 2.4299999999999997,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 3633,
+      "end": 5633,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 5667,
+      "end": 7000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 7033,
+      "end": 8033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 8067,
+      "end": 11067,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 11100,
+      "end": 13100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 2667,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Attack Slam 1",
+      "start": 13133,
+      "end": 14467,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 14500,
+      "end": 74500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Bone",
+      "start": 74533,
+      "end": 134533,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "DoomGuard_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wc3r_doomguard_body_diffuse.dds",
+        "normal": "wc3r_doomguard_body_normal.dds",
+        "orm": "wc3r_doomguard_body_orm.dds",
+        "emissive": "wc3r_doomguard_body_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Diffuse.tif",
+        "normal": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Normal.tif",
+        "orm": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_ORM.tif",
+        "emissive": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "DoomGuard_rig:skeleton_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "doomguard_corpse_diffuse.dds",
+        "normal": "doomguard_corpse_normal.dds",
+        "orm": "doomguard_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/DoomGuard_Corpse_Diffuse.tif",
+        "normal": "Textures/DoomGuard_Corpse_Normal.tif",
+        "orm": "Textures/DoomGuard_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": false,
+        "Death 1": false,
+        "Stand 2": false,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "DoomGuard_rig:organs_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "doomguard_corpse_diffuse.dds",
+        "normal": "doomguard_corpse_normal.dds",
+        "orm": "doomguard_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/DoomGuard_Corpse_Diffuse.tif",
+        "normal": "Textures/DoomGuard_Corpse_Normal.tif",
+        "orm": "Textures/DoomGuard_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": false,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "DoomGuard_rig:weapon_geo",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wc3r_doomguard_armor_diffuse.dds",
+        "normal": "wc3r_doomguard_armor_normal.dds",
+        "orm": "wc3r_doomguard_armor_orm.dds",
+        "emissive": "wc3r_doomguard_armor_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Diffuse.tif",
+        "normal": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Normal.tif",
+        "orm": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_ORM.tif",
+        "emissive": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "DoomGuard_rigmain_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wc3r_doomguard_body_diffuse.dds",
+        "normal": "wc3r_doomguard_body_normal.dds",
+        "orm": "wc3r_doomguard_body_orm.dds",
+        "emissive": "wc3r_doomguard_body_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Diffuse.tif",
+        "normal": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Normal.tif",
+        "orm": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_ORM.tif",
+        "emissive": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "DoomGuard_rigmain_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wc3r_doomguard_body_diffuse.dds",
+        "normal": "wc3r_doomguard_body_normal.dds",
+        "orm": "wc3r_doomguard_body_orm.dds",
+        "emissive": "wc3r_doomguard_body_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Diffuse.tif",
+        "normal": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Normal.tif",
+        "orm": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_ORM.tif",
+        "emissive": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "DoomGuard_rigmain_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wc3r_doomguard_body_diffuse.dds",
+        "normal": "wc3r_doomguard_body_normal.dds",
+        "orm": "wc3r_doomguard_body_orm.dds",
+        "emissive": "wc3r_doomguard_body_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Diffuse.tif",
+        "normal": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Normal.tif",
+        "orm": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_ORM.tif",
+        "emissive": "Units/Demon/DoomGuard/WC3R_Doomguard_Body_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "DoomGuard_rigskeleton_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "doomguard_corpse_diffuse.dds",
+        "normal": "doomguard_corpse_normal.dds",
+        "orm": "doomguard_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/DoomGuard_Corpse_Diffuse.tif",
+        "normal": "Textures/DoomGuard_Corpse_Normal.tif",
+        "orm": "Textures/DoomGuard_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": false,
+        "Death 1": false,
+        "Stand 2": false,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "DoomGuard_rigskeleton_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "doomguard_corpse_diffuse.dds",
+        "normal": "doomguard_corpse_normal.dds",
+        "orm": "doomguard_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/DoomGuard_Corpse_Diffuse.tif",
+        "normal": "Textures/DoomGuard_Corpse_Normal.tif",
+        "orm": "Textures/DoomGuard_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": false,
+        "Death 1": false,
+        "Stand 2": false,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "DoomGuard_rigskeleton_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "doomguard_corpse_diffuse.dds",
+        "normal": "doomguard_corpse_normal.dds",
+        "orm": "doomguard_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/DoomGuard_Corpse_Diffuse.tif",
+        "normal": "Textures/DoomGuard_Corpse_Normal.tif",
+        "orm": "Textures/DoomGuard_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": false,
+        "Walk 1": false,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": false,
+        "Death 1": false,
+        "Stand 2": false,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "DoomGuard_rigorgans_geo_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "doomguard_corpse_diffuse.dds",
+        "normal": "doomguard_corpse_normal.dds",
+        "orm": "doomguard_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/DoomGuard_Corpse_Diffuse.tif",
+        "normal": "Textures/DoomGuard_Corpse_Normal.tif",
+        "orm": "Textures/DoomGuard_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": false,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 11,
+      "name": "DoomGuard_rigorgans_geo_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "doomguard_corpse_diffuse.dds",
+        "normal": "doomguard_corpse_normal.dds",
+        "orm": "doomguard_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/DoomGuard_Corpse_Diffuse.tif",
+        "normal": "Textures/DoomGuard_Corpse_Normal.tif",
+        "orm": "Textures/DoomGuard_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": false,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 12,
+      "name": "DoomGuard_rigorgans_geo_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "doomguard_corpse_diffuse.dds",
+        "normal": "doomguard_corpse_normal.dds",
+        "orm": "doomguard_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/DoomGuard_Corpse_Diffuse.tif",
+        "normal": "Textures/DoomGuard_Corpse_Normal.tif",
+        "orm": "Textures/DoomGuard_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": false,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 13,
+      "name": "DoomGuard_rigweapon_geo_LOD1",
+      "lod": 1,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wc3r_doomguard_armor_diffuse.dds",
+        "normal": "wc3r_doomguard_armor_normal.dds",
+        "orm": "wc3r_doomguard_armor_orm.dds",
+        "emissive": "wc3r_doomguard_armor_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Diffuse.tif",
+        "normal": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Normal.tif",
+        "orm": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_ORM.tif",
+        "emissive": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 14,
+      "name": "DoomGuard_rigweapon_geo_LOD2",
+      "lod": 2,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wc3r_doomguard_armor_diffuse.dds",
+        "normal": "wc3r_doomguard_armor_normal.dds",
+        "orm": "wc3r_doomguard_armor_orm.dds",
+        "emissive": "wc3r_doomguard_armor_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Diffuse.tif",
+        "normal": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Normal.tif",
+        "orm": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_ORM.tif",
+        "emissive": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 15,
+      "name": "DoomGuard_rigweapon_geo_LOD3",
+      "lod": 3,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "wc3r_doomguard_armor_diffuse.dds",
+        "normal": "wc3r_doomguard_armor_normal.dds",
+        "orm": "wc3r_doomguard_armor_orm.dds",
+        "emissive": "wc3r_doomguard_armor_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Diffuse.tif",
+        "normal": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Normal.tif",
+        "orm": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_ORM.tif",
+        "emissive": "Units/Demon/DoomGuard/WC3R_Doomguard_Armor_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Stand Victory 1": true,
+        "Death 1": true,
+        "Stand 2": true,
+        "Attack Slam 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    }
+  ]
+}

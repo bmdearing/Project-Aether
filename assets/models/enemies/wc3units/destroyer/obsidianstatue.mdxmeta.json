@@ -1,0 +1,1681 @@
+{
+  "source": "obsidianstatue.mdx",
+  "version": 1800,
+  "scale": 0.013,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.3182519912719726,
+      -0.007424299955368041,
+      -1.9807579650878906
+    ],
+    "max": [
+      1.12513565826416,
+      2.663830047607422,
+      1.9807579650878906
+    ],
+    "height": 2.67125434756279
+  },
+  "sequences": [
+    {
+      "name": "Stand Alternate 1",
+      "start": 0,
+      "end": 1067,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Alternate 2",
+      "start": 1100,
+      "end": 5367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Alternate 3",
+      "start": 5400,
+      "end": 8600,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Alternate 1",
+      "start": 8633,
+      "end": 9700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Alternate 2",
+      "start": 9733,
+      "end": 11867,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Spell Alternate 1",
+      "start": 11900,
+      "end": 13567,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death Alternate 1",
+      "start": 13600,
+      "end": 15267,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Morph",
+      "start": 15300,
+      "end": 17300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Morph Alternate",
+      "start": 17333,
+      "end": 19833,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 19867,
+      "end": 21000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 21033,
+      "end": 22167,
+      "move_speed": 2.4699999999999998,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Spell 1",
+      "start": 22200,
+      "end": 23867,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 23900,
+      "end": 25900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay",
+      "start": 25933,
+      "end": 26267,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "undead_obsidianStatue_rig:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "undead_obsidianStatue_rig:main_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "undead_obsidianStatue_rig:main_geo_LOD1",
+      "lod": 1,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "undead_obsidianStatue_rig:main_geo_LOD1",
+      "lod": 1,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "undead_obsidianStatue_rig:main_geo_LOD2",
+      "lod": 2,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "undead_obsidianStatue_rig:main_geo_LOD2",
+      "lod": 2,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "undead_obsidianStatue_rig:main_geo_LOD3",
+      "lod": 3,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "undead_obsidianStatue_rig:main_geo_LOD3",
+      "lod": 3,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 8,
+      "name": "undead_obsidianStatue_rig:wing_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 9,
+      "name": "undead_obsidianStatue_rig:wing_geo",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 10,
+      "name": "undead_obsidianStatue_rig:wing_geo_LOD1",
+      "lod": 1,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 11,
+      "name": "undead_obsidianStatue_rig:wing_geo_LOD1",
+      "lod": 1,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 12,
+      "name": "undead_obsidianStatue_rig:wing_geo_LOD2",
+      "lod": 2,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 13,
+      "name": "undead_obsidianStatue_rig:wing_geo_LOD2",
+      "lod": 2,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 14,
+      "name": "undead_obsidianStatue_rig:wing_geo_LOD3",
+      "lod": 3,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 15,
+      "name": "undead_obsidianStatue_rig:wing_geo_LOD3",
+      "lod": 3,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 16,
+      "name": "undead_obsidianStatue_rig:base_geo",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_base_diffuse.dds",
+        "normal": "undead_obsidianstatue_base_normal.dds",
+        "orm": "undead_obsidianstatue_base_orm.dds",
+        "emissive": "undead_obsidianstatue_base_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 17,
+      "name": "undead_obsidianStatue_rig:base_geo_LOD1",
+      "lod": 1,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_base_diffuse.dds",
+        "normal": "undead_obsidianstatue_base_normal.dds",
+        "orm": "undead_obsidianstatue_base_orm.dds",
+        "emissive": "undead_obsidianstatue_base_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 18,
+      "name": "undead_obsidianStatue_rig:base_geo_LOD2",
+      "lod": 2,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_base_diffuse.dds",
+        "normal": "undead_obsidianstatue_base_normal.dds",
+        "orm": "undead_obsidianstatue_base_orm.dds",
+        "emissive": "undead_obsidianstatue_base_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 19,
+      "name": "undead_obsidianStatue_rig:base_geo_LOD3",
+      "lod": 3,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_base_diffuse.dds",
+        "normal": "undead_obsidianstatue_base_normal.dds",
+        "orm": "undead_obsidianstatue_base_orm.dds",
+        "emissive": "undead_obsidianstatue_base_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 20,
+      "name": "undead_obsidianStatue_rig:weapon_01_geo",
+      "lod": 0,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_weapon_diffuse.dds",
+        "normal": "undead_obsidianstatue_weapon_normal.dds",
+        "orm": "undead_obsidianstatue_weapon_orm.dds",
+        "emissive": "undead_obsidianstatue_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 21,
+      "name": "undead_obsidianStatue_rig:weapon_01_geo_LOD1",
+      "lod": 1,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_weapon_diffuse.dds",
+        "normal": "undead_obsidianstatue_weapon_normal.dds",
+        "orm": "undead_obsidianstatue_weapon_orm.dds",
+        "emissive": "undead_obsidianstatue_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 22,
+      "name": "undead_obsidianStatue_rig:weapon_01_geo_LOD2",
+      "lod": 2,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_weapon_diffuse.dds",
+        "normal": "undead_obsidianstatue_weapon_normal.dds",
+        "orm": "undead_obsidianstatue_weapon_orm.dds",
+        "emissive": "undead_obsidianstatue_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 23,
+      "name": "undead_obsidianStatue_rig:weapon_01_geo_LOD3",
+      "lod": 3,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_weapon_diffuse.dds",
+        "normal": "undead_obsidianstatue_weapon_normal.dds",
+        "orm": "undead_obsidianstatue_weapon_orm.dds",
+        "emissive": "undead_obsidianstatue_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 24,
+      "name": "undead_obsidianStatue_rig:weapon_02_geo",
+      "lod": 0,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_weapon_diffuse.dds",
+        "normal": "undead_obsidianstatue_weapon_normal.dds",
+        "orm": "undead_obsidianstatue_weapon_orm.dds",
+        "emissive": "undead_obsidianstatue_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 25,
+      "name": "undead_obsidianStatue_rig:weapon_02_geo_LOD1",
+      "lod": 1,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_weapon_diffuse.dds",
+        "normal": "undead_obsidianstatue_weapon_normal.dds",
+        "orm": "undead_obsidianstatue_weapon_orm.dds",
+        "emissive": "undead_obsidianstatue_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 26,
+      "name": "undead_obsidianStatue_rig:weapon_02_geo_LOD2",
+      "lod": 2,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_weapon_diffuse.dds",
+        "normal": "undead_obsidianstatue_weapon_normal.dds",
+        "orm": "undead_obsidianstatue_weapon_orm.dds",
+        "emissive": "undead_obsidianstatue_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 27,
+      "name": "undead_obsidianStatue_rig:weapon_02_geo_LOD3",
+      "lod": 3,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_weapon_diffuse.dds",
+        "normal": "undead_obsidianstatue_weapon_normal.dds",
+        "orm": "undead_obsidianstatue_weapon_orm.dds",
+        "emissive": "undead_obsidianstatue_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Alternate 3": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Attack Spell Alternate 1": true,
+        "Death Alternate 1": true,
+        "Morph": true,
+        "Morph Alternate": true,
+        "Stand 1": true,
+        "Walk 1": true,
+        "Attack Spell 1": true,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 28,
+      "name": "undead_obsidianStatue_rig:break_main_geo",
+      "lod": 0,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 29,
+      "name": "undead_obsidianStatue_rig:break_main_geo_LOD1",
+      "lod": 1,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 30,
+      "name": "undead_obsidianStatue_rig:break_main_geo_LOD2",
+      "lod": 2,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 31,
+      "name": "undead_obsidianStatue_rig:break_main_geo_LOD3",
+      "lod": 3,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/undead_obsidianstatue_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 32,
+      "name": "undead_obsidianStatue_rig:break_wing_geo",
+      "lod": 0,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 33,
+      "name": "undead_obsidianStatue_rig:break_wing_geo_LOD1",
+      "lod": 1,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 34,
+      "name": "undead_obsidianStatue_rig:break_wing_geo_LOD2",
+      "lod": 2,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 35,
+      "name": "undead_obsidianStatue_rig:break_wing_geo_LOD3",
+      "lod": 3,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_wing_diffuse.dds",
+        "normal": "undead_obsidianstatue_wing_normal.dds",
+        "orm": "undead_obsidianstatue_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 36,
+      "name": "undead_obsidianStatue_rig:break_base_geo",
+      "lod": 0,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_base_diffuse.dds",
+        "normal": "undead_obsidianstatue_base_normal.dds",
+        "orm": "undead_obsidianstatue_base_orm.dds",
+        "emissive": "undead_obsidianstatue_base_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 37,
+      "name": "undead_obsidianStatue_rig:break_base_geo_LOD1",
+      "lod": 1,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_base_diffuse.dds",
+        "normal": "undead_obsidianstatue_base_normal.dds",
+        "orm": "undead_obsidianstatue_base_orm.dds",
+        "emissive": "undead_obsidianstatue_base_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 38,
+      "name": "undead_obsidianStatue_rig:break_base_geo_LOD2",
+      "lod": 2,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_base_diffuse.dds",
+        "normal": "undead_obsidianstatue_base_normal.dds",
+        "orm": "undead_obsidianstatue_base_orm.dds",
+        "emissive": "undead_obsidianstatue_base_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    },
+    {
+      "index": 39,
+      "name": "undead_obsidianStatue_rig:break_base_geo_LOD3",
+      "lod": 3,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_obsidianstatue_base_diffuse.dds",
+        "normal": "undead_obsidianstatue_base_normal.dds",
+        "orm": "undead_obsidianstatue_base_orm.dds",
+        "emissive": "undead_obsidianstatue_base_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Diffuse.tif",
+        "normal": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Normal.tif",
+        "orm": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_ORM.tif",
+        "emissive": "Units/Undead/ObsidianStatue/Undead_ObsidianStatue_Base_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand Alternate 1": false,
+        "Stand Alternate 2": false,
+        "Stand Alternate 3": false,
+        "Walk Alternate 1": false,
+        "Walk Alternate 2": false,
+        "Attack Spell Alternate 1": false,
+        "Death Alternate 1": false,
+        "Morph": false,
+        "Morph Alternate": false,
+        "Stand 1": false,
+        "Walk 1": false,
+        "Attack Spell 1": false,
+        "Death 1": false,
+        "Decay": false
+      }
+    }
+  ]
+}
