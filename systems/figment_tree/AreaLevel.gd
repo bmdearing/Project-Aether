@@ -67,8 +67,16 @@ static func health_scale(level: int, tier: int = 0) -> float:
 	var bonus := lerpf(LIFE_BONUS_LOW, LIFE_BONUS_HIGH, clampf(float(maxi(level, 1) - 1) / float(PINNACLE - 1), 0.0, 1.0))
 	return bonus * pow(HEALTH_GROWTH, maxi(level, 1) - 1) * pow(TIER_HEALTH_GROWTH, tier)
 
+## Early Figments hit softer so a fresh melee character can learn to fight:
+## x0.45 at level 1, back to the full curve by LOW_DAMAGE_UNTIL.
+const LOW_DAMAGE_FLOOR := 0.45
+const LOW_DAMAGE_UNTIL := 25
+## Ascendant packs only roll from this Area Level up.
+const ASCENDANT_MIN_LEVEL := 20
+
 static func damage_scale(level: int, tier: int = 0) -> float:
-	return pow(DAMAGE_GROWTH, maxi(level, 1) - 1) * pow(TIER_DAMAGE_GROWTH, tier)
+	var soften := lerpf(LOW_DAMAGE_FLOOR, 1.0, clampf(float(maxi(level, 1) - 1) / float(LOW_DAMAGE_UNTIL - 1), 0.0, 1.0))
+	return soften * pow(DAMAGE_GROWTH, maxi(level, 1) - 1) * pow(TIER_DAMAGE_GROWTH, tier)
 
 ## Monsters further above you than your XP zone hit harder still: x1.04 per
 ## level past it. A level 14 takes ~12% of their Life from a standard hit 20

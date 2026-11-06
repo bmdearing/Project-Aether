@@ -70,6 +70,8 @@ func _placement_failure_reason(slate: Slate, origin: Vector2i, rotation_steps: i
 			return "cell_occupied"
 		if star_cells.has(c):
 			return "anchor_cell"
+	if check_rules and has_unique_copy(slate):
+		return "unique_duplicate"
 	if check_rules and used_with(slate, cells) > aether_capacity:
 		return "insufficient_aether"
 	# Restores skip this: saved order isn't placement order, so a Slate can
@@ -79,6 +81,16 @@ func _placement_failure_reason(slate: Slate, origin: Vector2i, rotation_steps: i
 	if check_rules and not _tag_connected(slate, cells):
 		return "tag_not_connected"
 	return ""
+
+## Only one copy of each Unique Slate can be placed (rolled copies share the name).
+func has_unique_copy(slate: Slate) -> bool:
+	if slate.rarity != Constants.SlateRarity.UNIQUE:
+		return false
+	for id in placements:
+		var placed: Slate = (placements[id] as PlacedSlateData).slate
+		if placed != slate and placed.rarity == Constants.SlateRarity.UNIQUE and placed.display_name == slate.display_name:
+			return true
+	return false
 
 ## True if any cell of the candidate placement is orthogonally adjacent
 ## to a reached Star or an already-occupied cell.
@@ -229,6 +241,24 @@ func socket_lens(placement_id: String, lens: Lens) -> String:
 	if data.slate.resource_path != "":
 		data.slate = data.slate.duplicate(true)
 	data.slate.lenses.append(lens)
+	_reprice_all()
+	EventBus.aether_budget_changed.emit(aether_used, aether_capacity)
+	EventBus.slate_lenses_changed.emit(placement_id)
+	GameState.sync_fate_board(self)
+	return ""
+
+## Takes the last-set Lens out of a placed Slate. Returns why not ("" on
+## success): "no_lens", or "insufficient_aether" when losing a cheap Lens
+## would push the board over its Aether.
+func unsocket_lens(placement_id: String) -> String:
+	var data: PlacedSlateData = placements.get(placement_id)
+	if data == null or data.slate.lenses.is_empty():
+		return "no_lens"
+	var lens: Lens = data.slate.lenses.pop_back()
+	if _board_cost() > aether_capacity:
+		data.slate.lenses.append(lens)
+		_reprice_all()
+		return "insufficient_aether"
 	_reprice_all()
 	EventBus.aether_budget_changed.emit(aether_used, aether_capacity)
 	EventBus.slate_lenses_changed.emit(placement_id)

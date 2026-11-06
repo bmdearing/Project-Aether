@@ -58,6 +58,9 @@ var _stealth_spent: bool = false
 ## Charged stances charge from holding RMB alone: set while RMB is held in
 ## one and its charge hasn't started (a swing was still finishing) or fired.
 var _wants_charge: bool = false
+## Halberd Sweep fires on letting go of RMB too, unless LMB already fired it this hold.
+var _release_behavior: MeleeStanceBehavior
+var _release_held_msec: int = 0
 ## Letting go of RMB sooner than this cancels instead of firing, so a tap
 ## into stance doesn't throw a lunge.
 const MIN_HOLD_TO_FIRE := 0.2
@@ -75,6 +78,9 @@ func is_charged_stance() -> bool:
 ## Connected by Player._ready() (WeaponStance isn't resolved yet in ours).
 func _on_stance_entered() -> void:
 	_wants_charge = false
+	var entered := _player.weapon_stance.current_behavior as MeleeStanceBehavior
+	_release_behavior = entered if entered and entered.stance_type == MeleeStanceBehavior.MeleeStanceType.SWEEP else null
+	_release_held_msec = Time.get_ticks_msec()
 	if not is_charged_stance():
 		return
 	var behavior := _player.weapon_stance.current_behavior
@@ -86,6 +92,12 @@ func _on_stance_entered() -> void:
 
 func _on_stance_exited() -> void:
 	_wants_charge = false
+	var sweep := _release_behavior
+	_release_behavior = null
+	if sweep and Input.is_action_just_released("stance") and Time.get_ticks_msec() - _release_held_msec >= int(MIN_HOLD_TO_FIRE * 1000.0):
+		if _player.melee_attack.is_idle() and _player.weapon_stance.is_ready(sweep):
+			_fire_instant(sweep)
+		return
 	if not is_charging:
 		return
 	if _held >= maxf(_behavior.charge_min_time, MIN_HOLD_TO_FIRE) and not _behavior.require_full_charge:
@@ -368,6 +380,10 @@ func try_instant() -> bool:
 	if not _player.weapon_stance.is_ready(b):
 		_on_cooldown(b)
 		return true
+	_release_behavior = null
+	return _fire_instant(b)
+
+func _fire_instant(b: MeleeStanceBehavior) -> bool:
 	_player.weapon_stance.start_cooldown(b)
 	var params := {"motion_mult": b.motion_value_min}
 	match b.stance_type:

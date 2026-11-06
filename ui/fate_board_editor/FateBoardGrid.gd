@@ -106,6 +106,7 @@ func _setup_background() -> void:
 			_draw_outlines(board.get_occupied_cells())
 		_draw_lens_cover(board.get_occupied_cells())
 		_draw_stars()
+		_draw_sockets()
 		_draw_placement_cost())
 	_outline_layer.size = _background.size
 	add_child(_outline_layer)
@@ -195,10 +196,13 @@ func _make_custom_tooltip(for_text: String) -> Object:
 		return null
 	var card: ItemCard = ItemSlotButton.new_item_card()
 	card.footer_lines = ChainCalculator.chain_lines_for(board, for_text)
-	card.footer_lines.append("Right-click to take this Slate off the board.")
-	if not (board.placements[for_text].slate as Slate).lenses.is_empty():
-		card.footer_lines.append("Its Lenses stay in while it's placed: take it off, then Ctrl+right-click it in the inventory.")
+	if (board.placements[for_text].slate as Slate).lenses.is_empty():
+		card.footer_lines.append("Right-click to take this Slate off the board.")
+	else:
+		card.footer_lines.append("Right-click to take its Lens out (then again to take the Slate off).")
 	card.slate_amplifier = ChainCalculator.attribute_multiplier(board, for_text)
+	card.slate_misc_amplifier = ChainCalculator.lens_multiplier(board, board.placements[for_text], false)
+	card.slate_cost_text = cost_breakdown(board.placements[for_text].slate, board.placements[for_text].cells)
 	card.display_slate(board.placements[for_text].slate)
 	return card
 
@@ -314,31 +318,64 @@ func _outline_slate(id: String, occupied: Dictionary, color: Color, w: float, in
 
 const DISTANCE_RING_COLOR := Color(0.86, 0.71, 0.42, 0.35)
 
-## While a Slate is held: the distance-cost rings (each FateBoard.AETHER_RING_SIZE
-## tiles out from the Centre adds +1) and what it would cost under the cursor.
+## The distance-cost rings (each FateBoard.AETHER_RING_SIZE tiles out from the
+## Centre adds +1), brighter while a Slate is held, and what the held Slate
+## would cost under the cursor.
 func _draw_placement_cost() -> void:
-	if pending_slate == null:
-		return
 	var font := AetherStyle.title()
 	var a := Vector2(FateBoard.ANCHOR_CELL)
 	var ring := FateBoard.AETHER_RING_SIZE
+	var ring_color := DISTANCE_RING_COLOR if pending_slate else Color(DISTANCE_RING_COLOR, DISTANCE_RING_COLOR.a * 0.5)
 	var step := 1
 	while ring * step <= FateBoard.BOARD_RADIUS:
 		# The edge of the tiles still under ring * step: everything outside pays +step.
 		var d := float(ring * step - 1)
 		var rect := Rect2((a - Vector2(d, d)) * _cell_px, Vector2(2.0 * d + 1.0, 2.0 * d + 1.0) * _cell_px)
-		_outline_layer.draw_rect(rect, DISTANCE_RING_COLOR, false, maxf(1.0, _cell_px * 0.03))
-		AetherStyle.text(_outline_layer, font, rect.position + Vector2(_cell_px * 0.15, -_cell_px * 0.2), "+%d" % step, STAR_FONT_SIZE, Color(DISTANCE_RING_COLOR, 0.8))
+		_outline_layer.draw_rect(rect, ring_color, false, maxf(1.0, _cell_px * 0.03))
+		AetherStyle.text(_outline_layer, font, rect.position + Vector2(_cell_px * 0.15, -_cell_px * 0.2), "+%d" % step, STAR_FONT_SIZE, Color(ring_color, minf(ring_color.a * 2.3, 0.8)))
 		step += 1
-	if not _in_bounds(_hover_cell):
+	if pending_slate == null or not _in_bounds(_hover_cell):
 		return
 	var world: Array[Vector2i] = []
 	for c in pending_slate.get_transformed_shape(pending_rotation, pending_flipped):
 		world.append(_hover_cell + c)
-	var cost := board.placement_cost(pending_slate, world)
-	var distance := FateBoard.distance_cost(world)
-	var cost_text := "%d Aether" % cost + (" (+%d distance)" % distance if distance > 0 else "")
-	AetherStyle.text(_outline_layer, font, (Vector2(_hover_cell) + Vector2(1.2, -0.3)) * _cell_px, cost_text, STAR_FONT_SIZE + 2, AetherStyle.GOLD)
+	AetherStyle.text(_outline_layer, font, (Vector2(_hover_cell) + Vector2(1.2, -0.3)) * _cell_px, cost_breakdown(pending_slate, world), STAR_FONT_SIZE + 2, AetherStyle.GOLD)
+
+## "7 Aether (5 base, +3 distance, -1 Lenses)" for `slate` at `cells`.
+func cost_breakdown(slate: Slate, cells: Array[Vector2i]) -> String:
+	var cost := board.placement_cost(slate, cells)
+	var distance := FateBoard.distance_cost(cells)
+	var discount := slate.aether_cost + distance - cost
+	var parts := PackedStringArray(["%d base" % slate.aether_cost])
+	if distance > 0:
+		parts.append("+%d distance" % distance)
+	if discount > 0:
+		parts.append("-%d Lenses" % discount)
+	return "%d Aether (%s)" % [cost, ", ".join(parts)] if parts.size() > 1 else "%d Aether" % cost
+
+const SOCKET_EMPTY_COLOR := Color(0.85, 0.85, 0.85, 0.75)
+
+## Lens sockets on every placed Slate: an open ring per free socket and a
+## filled Lens-coloured gem per socketed Lens, along its first cell's top edge.
+func _draw_sockets() -> void:
+	var r := maxf(3.0, _cell_px * 0.13)
+	for id in board.placements:
+		var data: FateBoard.PlacedSlateData = board.placements[id]
+		if data.slate.sockets <= 0 or data.cells.is_empty():
+			continue
+		var anchor_cell: Vector2i = data.cells[0]
+		for c in data.cells:
+			if c.y < anchor_cell.y or (c.y == anchor_cell.y and c.x < anchor_cell.x):
+				anchor_cell = c
+		var origin := Vector2(anchor_cell) * _cell_px + Vector2(r + 3.0, r + 3.0)
+		for i in data.slate.sockets:
+			var at := origin + Vector2(i * (r * 2.0 + 3.0), 0.0)
+			_outline_layer.draw_circle(at, r + 1.5, Color(0.05, 0.04, 0.03, 0.85))
+			if i < data.slate.lenses.size():
+				_outline_layer.draw_circle(at, r, ItemCard.LENS_COLOR)
+				_outline_layer.draw_circle(at - Vector2(r, r) * 0.3, r * 0.3, Color(1, 1, 1, 0.8))
+			else:
+				_outline_layer.draw_arc(at, r * 0.8, 0.0, TAU, 16, SOCKET_EMPTY_COLOR, maxf(1.2, r * 0.25))
 
 const LENS_COVER_COLOR := Color(0.6, 1.0, 0.92, 0.95)
 

@@ -20,7 +20,7 @@ const TIPS := [
 	"Hold Alt over an item to see its modifier tiers and ranges.",
 	"Slates that touch and share a tag form a chain. Longer chains amplify their attributes more.",
 	"Press T to open a portal home. Your Figment waits for you to come back.",
-	"Spells level up with gold and Crystallized Aether on the Spells screen (K).",
+	"Spells level up with gold and Crystallized Aether on the Abilities screen (K).",
 	"Jewels socket permanently: right-click one, then click the item to set it in.",
 	"Jumping won't save you: anything marked on the ground still hits you in the air, and hits that catch you mid-air deal 10% more.",
 	"Magic Find raises both the number of drops and their rarity.",

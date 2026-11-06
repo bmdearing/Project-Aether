@@ -92,11 +92,24 @@ func _test_pools() -> void:
 	_finished += 1
 
 func _test_pack_weights() -> void:
+	var previous_map: FigmentItem = GameState.active_map
+	var low := FigmentItem.new()
+	low.depth = 1
+	GameState.active_map = low
+	var low_ascendants := 0
+	for i in 500:
+		if EnemyRarityComponent.roll_pack_rarity() == Constants.EnemyRarity.ASCENDANT:
+			low_ascendants += 1
+	_check(low_ascendants == 0, "no Ascendant packs below Area Level %d" % AreaLevel.ASCENDANT_MIN_LEVEL)
+	var high := FigmentItem.new()
+	high.tier = 5
+	GameState.active_map = high
 	var counts := {}
 	for i in 2000:
 		var r := EnemyRarityComponent.roll_pack_rarity()
 		counts[r] = counts.get(r, 0) + 1
 	_check(counts.get(Constants.EnemyRarity.NORMAL, 0) > counts.get(Constants.EnemyRarity.ELITE, 0) and counts.get(Constants.EnemyRarity.ELITE, 0) > counts.get(Constants.EnemyRarity.CHAMPION, 0) and counts.get(Constants.EnemyRarity.CHAMPION, 0) > counts.get(Constants.EnemyRarity.ASCENDANT, 0) and counts.get(Constants.EnemyRarity.ASCENDANT, 0) > 0, "pack rarity odds fall Normal > Elite > Champion > Ascendant (%s)" % counts)
+	GameState.active_map = previous_map
 	_finished += 1
 
 func _test_elite_pack() -> void:

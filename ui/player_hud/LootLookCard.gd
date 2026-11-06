@@ -32,6 +32,10 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	var target := _current_target()
+	# A weapon swap or gear change alters what the drop is compared against.
+	if target and target == _shown and target.item and not target.slate and target.currency_id == &"" \
+			and ItemCompare.equipped_for(target.item) != _card.compare_against:
+		_shown = null
 	if target != _shown:
 		_shown = target
 		if target and target.slate:

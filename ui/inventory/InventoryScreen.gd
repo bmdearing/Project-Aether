@@ -39,7 +39,7 @@ const DOLL_GAP := 4
 @onready var paper_doll: Control = $HBox/SidePanel/PaperDoll
 var _weapon_set_label: Label
 var _weapon_set_button: Button
-## Equipment / Behaviors tabs at the top left of the paper doll. Behaviors
+## Equipment / Stances tabs at the top left of the paper doll. Stances
 ## swaps the doll for per-weapon settings: which stance RMB uses, and
 ## whether RMB raises an equipped shield instead.
 var _equipment_tab: Button
@@ -220,7 +220,7 @@ func _build_weapon_set_indicator() -> void:
 	var tabs := ButtonGroup.new()
 	_equipment_tab = _make_toggle("Equipment", tabs, true)
 	_equipment_tab.pressed.connect(_show_tab.bind(false))
-	_behaviors_tab = _make_toggle("Behaviors", tabs, false)
+	_behaviors_tab = _make_toggle("Stances", tabs, false)
 	_behaviors_tab.pressed.connect(_show_tab.bind(true))
 	row.add_child(_equipment_tab)
 	row.add_child(_behaviors_tab)

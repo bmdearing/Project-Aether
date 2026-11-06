@@ -166,6 +166,29 @@ func get_current_magazine() -> int:
 func is_reloading() -> bool:
 	return _is_reloading
 
+## 0-1 through the current reload (per-shell reloads: through filling the
+## magazine), or -1 when not reloading. For the crosshair ring.
+func get_reload_progress() -> float:
+	if not _is_reloading or _reload_weapon == null:
+		return -1.0
+	var total: float = _active_reload.get("total", reload_duration(_reload_weapon))
+	var step := clampf(1.0 - _reload_timer / maxf(total, 0.001), 0.0, 1.0)
+	if not _reload_weapon.reload_per_shell:
+		return step
+	var size := maxi(_reload_weapon.magazine_size, 1)
+	return clampf((_reload_weapon.get_current_magazine() + step) / float(size), 0.0, 1.0)
+
+## Half-angle (degrees, sideways; half that up/down) shots scatter in right
+## now, before extra arrows fan out. Matches _fire().
+func spread_degrees(weapon: Weapon, aimed: bool) -> float:
+	var spread := weapon.pellet_spread_degrees * (AIMED_SPREAD_MULTIPLIER if aimed else 1.0)
+	if _player.is_dual_wielding():
+		spread = weapon.pellet_spread_degrees * (DUAL_AIMED_SPREAD_MULTIPLIER if aimed else 1.0) + DUAL_SPREAD_DEG * (0.5 if aimed else 1.0)
+	var st := _stance() if aimed else null
+	if st:
+		spread = spread * st.spread_multiplier + st.spread_add_degrees
+	return spread
+
 func _on_weapon_swapped(_player_node: Node) -> void:
 	if _is_reloading and _reload_weapon:
 		EventBus.reload_interrupted.emit(_reload_weapon)
@@ -509,12 +532,9 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 	var st := _stance() if aimed else null
 	var motion_value := base_motion_value * (AIMED_DAMAGE_MULTIPLIER if aimed else 1.0)
 	var pellets := maxi(weapon.pellet_count, 1)
-	var spread := weapon.pellet_spread_degrees * (AIMED_SPREAD_MULTIPLIER if aimed else 1.0)
-	if _player.is_dual_wielding():
-		spread = weapon.pellet_spread_degrees * (DUAL_AIMED_SPREAD_MULTIPLIER if aimed else 1.0) + DUAL_SPREAD_DEG * (0.5 if aimed else 1.0)
+	var spread := spread_degrees(weapon, aimed)
 	if st:
 		motion_value *= st.damage_multiplier * get_aim_multiplier()
-		spread = spread * st.spread_multiplier + st.spread_add_degrees
 	if _perfect_shots > 0:
 		motion_value *= ACTIVE_RELOAD_PERFECT_DAMAGE
 	_aim_time = 0.0

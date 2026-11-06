@@ -95,7 +95,7 @@ func _fire() -> void:
 		var dir := aim.rotated(Vector3.UP, deg_to_rad(EXTRA_PROJECTILE_SPREAD) * (i - (count - 1) * 0.5))
 		# Muzzle offset forward of the enemy's capsule - spawning at `origin`
 		# would land inside the shooter's own collision shape.
-		var spawn_pos := origin + dir * 0.7
+		var spawn_pos := origin + dir * maxf(0.7, _enemy.body_radius + 0.35)
 		var projectile: Projectile = PROJECTILE_SCENE.instantiate()
 		projectile.damage_amount = _enemy.roll_crit(damage_amount * _enemy.get_outgoing_damage_multiplier())
 		projectile.damage_type = _enemy.convert_attack_type(damage_type)

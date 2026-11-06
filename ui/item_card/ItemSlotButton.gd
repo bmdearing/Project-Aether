@@ -35,6 +35,8 @@ var ability: Ability:
 var draggable: bool = false
 ## Shows the equipped item(s) this item would replace beside its card.
 var compare: bool = false
+## Shown at the bottom right of an ability's hover card (Abilities screen).
+var ability_hint: String = ""
 ## false for invisible tooltip-only buttons laid over custom-drawn widgets.
 var show_icon: bool = true:
 	set(value):
@@ -127,5 +129,6 @@ func _make_custom_tooltip(_for_text: String) -> Object:
 		card.display_slate(slate)
 	else:
 		var player := get_tree().get_first_node_in_group("player") as Player
+		card.ability_hint = ability_hint
 		card.display_ability(ability, player.stat_sheet if player else null)
 	return card

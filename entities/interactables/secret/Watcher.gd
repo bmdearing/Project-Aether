@@ -232,7 +232,7 @@ func _spawn_champion() -> void:
 	if map == null:
 		return
 	var first := map._next_spawn_index
-	map._spawn_pack(EnemyRoster.roll_pack(map._pack_table()), global_position + Vector3(0, 0.1, 0), Constants.EnemyRarity.ASCENDANT)
+	map._spawn_pack(EnemyRoster.roll_pack(map._pack_table()), global_position + Vector3(0, 0.1, 0), Constants.EnemyRarity.ASCENDANT if AreaLevel.current() >= AreaLevel.ASCENDANT_MIN_LEVEL else Constants.EnemyRarity.CHAMPION)
 	for child in map.get_children():
 		if child is Enemy and int(child.get_meta(&"spawn_index", -1)) >= first:
 			_champions[child.get_instance_id()] = child

@@ -30,6 +30,7 @@ var _library: VBoxContainer
 var _grid: GridContainer
 var _skill_grid: GridContainer
 var _skill_header: Control
+var _spell_header: Control
 var _empty_label: Label
 var _page_slots: Array[ItemSlotButton] = []
 var _currency_label: Label
@@ -113,7 +114,7 @@ func _build() -> void:
 	AetherStyle.wrap_in_plate(root, 24)
 
 	var title := Label.new()
-	title.text = "Spells & Skills"
+	title.text = "Abilities"
 	AetherStyle.title_label(title, 30)
 	root.add_child(title)
 
@@ -136,6 +137,7 @@ func _build() -> void:
 	_library.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_library.add_theme_constant_override("separation", 10)
 	main.add_child(_library)
+	_library.add_child(_build_filters())
 	var scroll := ScrollContainer.new()
 	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scroll.custom_minimum_size.y = ICON_SIZE * 3 + 40.0
@@ -149,7 +151,8 @@ func _build() -> void:
 	lists.add_child(_skill_header)
 	_skill_grid = _new_grid()
 	lists.add_child(_skill_grid)
-	lists.add_child(AetherStyle.section_header("Known Spells"))
+	_spell_header = AetherStyle.section_header("Known Spells")
+	lists.add_child(_spell_header)
 	_grid = _new_grid()
 	lists.add_child(_grid)
 	_empty_label = _dim_label("You don't know any spells yet. Skill Tomes drop in Figments.")
@@ -256,18 +259,93 @@ func _build_grid() -> void:
 		child.queue_free()
 	_scan_owned_abilities()
 	_empty_label.visible = _owned_abilities.is_empty()
-	for ability in _owned_abilities:
+	var shown := _owned_abilities.filter(_passes_filters)
+	if not _owned_abilities.is_empty() and shown.is_empty():
+		_empty_label.text = "No abilities match these filters."
+		_empty_label.visible = true
+	else:
+		_empty_label.text = "You don't know any spells yet. Skill Tomes drop in Figments."
+	for ability: Ability in shown:
 		var icon := SpellIcon.new()
 		icon.custom_minimum_size = Vector2(ICON_SIZE, ICON_SIZE)
 		icon.ability = ability
 		icon.tooltip_text = ability.display_name
+		icon.ability_hint = "LMB  Open its page      RMB  Choose its slot"
 		AetherStyle.style_slot_button(icon, SpellArt.colour_of(ability))
 		icon.left_clicked.connect(_open_web.bind(ability))
 		icon.right_clicked.connect(_open_assign.bind(ability))
 		(_skill_grid if ability.is_skill else _grid).add_child(icon)
-	_skill_header.visible = _owned_abilities.any(func(a: Ability): return a.is_skill)
+	_skill_header.visible = shown.any(func(a: Ability): return a.is_skill)
 	_skill_grid.visible = _skill_header.visible
+	_spell_header.visible = shown.any(func(a: Ability): return not a.is_skill)
+	_grid.visible = _spell_header.visible
 	_refresh_currency()
+
+## ---- Filters ---------------------------------------------------------------
+
+const KIND_FILTERS := ["All kinds", "Spells", "Skills", "Auras"]
+const LEVEL_FILTERS := ["Any level", "Levelled", "Not levelled"]
+
+var _kind_filter: OptionButton
+var _type_filter: OptionButton
+var _level_filter: OptionButton
+## Type option index -> [&"tag", StringName] or [&"damage", int]; index 0 is "All types".
+var _type_keys: Array = [[]]
+
+func _build_filters() -> HBoxContainer:
+	var row := HBoxContainer.new()
+	row.add_theme_constant_override("separation", 10)
+	var label := _dim_label("Filter:")
+	label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	row.add_child(label)
+	_kind_filter = _filter_option(KIND_FILTERS)
+	row.add_child(_kind_filter)
+	var types := ["All types"]
+	for tag in Ability.TAG_NAMES:
+		types.append(Ability.TAG_NAMES[tag])
+		_type_keys.append([&"tag", tag])
+	for t in Constants.DAMAGE_TYPE_NAME:
+		types.append(Constants.DAMAGE_TYPE_NAME[t])
+		_type_keys.append([&"damage", t])
+	_type_filter = _filter_option(types)
+	row.add_child(_type_filter)
+	_level_filter = _filter_option(LEVEL_FILTERS)
+	row.add_child(_level_filter)
+	return row
+
+func _filter_option(labels: Array) -> OptionButton:
+	var option := OptionButton.new()
+	for text in labels:
+		option.add_item(text)
+	option.select(0)
+	option.item_selected.connect(func(_i: int) -> void: _build_grid())
+	return option
+
+func _passes_filters(ability: Ability) -> bool:
+	match _kind_filter.selected:
+		1:
+			if ability.is_skill:
+				return false
+		2:
+			if not ability.is_skill:
+				return false
+		3:
+			if not ability.has_tag(Ability.TAG_AURA):
+				return false
+	if _type_filter.selected > 0:
+		var key: Array = _type_keys[_type_filter.selected]
+		if key[0] == &"tag" and not ability.has_tag(key[1]):
+			return false
+		if key[0] == &"damage" and (not ability.deals_damage() or ability.damage_type != key[1]):
+			return false
+	match _level_filter.selected:
+		1:
+			if ability.level <= 1:
+				return false
+		2:
+			if ability.level > 1:
+				return false
+	return true
 
 func _new_grid() -> GridContainer:
 	var grid := GridContainer.new()
@@ -335,7 +413,7 @@ func _build_web_page(root: VBoxContainer) -> void:
 	header.add_theme_constant_override("separation", 12)
 	_web_page.add_child(header)
 	var back := Button.new()
-	back.text = "< All Spells"
+	back.text = "< All Abilities"
 	back.pressed.connect(_show_library)
 	header.add_child(back)
 	_web_icon = SpellIcon.new()

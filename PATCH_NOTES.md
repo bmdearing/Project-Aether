@@ -7,6 +7,26 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Feedback batch: Fate Board, crosshair, combat callouts (user)
+
+- **Chain lines** read "Kinetic chain: 25 tiles, Chain Bonus +7.5%, Mastery +5.4% more Damage" (`ChainCalculator.chain_line()`).
+- **Renames:** inventory "Behaviors" tab is now "Stances"; the Spells screen/tab is "Abilities (K)". XP under the bar has thousands commas. Offhand Conduits (Talisman, Tome, ...) and every Shield show "Offhand" as their type line.
+- **EVADED / BLOCKED** in grey under the crosshair when an enemy evades your hit or you block one (`HitMarker.show_callout()`).
+- **Halberd Sweep** also fires on letting go of RMB (held at least 0.2 s), not only on LMB in stance.
+- **Veilborne Mindbender** never landed a shot: its wide body (0.6 m) overlapped its own bolt on the first frame, which hit it and vanished. Projectiles now ignore their shooter, and enemy bolts spawn just outside the body.
+- **Low maps hit softer:** monster damage x0.45 at Area Level 1, easing to the full curve by AL25 (`AreaLevel.LOW_DAMAGE_FLOOR/UNTIL`). Ascendant packs only roll from AL20 (`ASCENDANT_MIN_LEVEL`); below it the Watcher's challenge is a Champion pack.
+- **Starter weapon "corrupted":** saved weapons stored as a resource path were equipped as the shared cached resource, so crafting/corrupting one carried into every later new character that session. They're now equipped as a copy (and then saved as their own data).
+- **Fate Board:** Centre view button; right-click a placed Slate takes its last Lens out (refused if the Aether would go over), right-click again takes the Slate off; sockets and Lenses show as rings/gems on placed Slates; the +1 Aether rings show at all times (brighter while holding a Slate); the cost under the cursor and on placed Slates' cards shows the breakdown (base, +distance, -Lenses); placed Slates' non-attribute lines show their value with Lens "stronger modifiers" applied (stats already used it, the card didn't); only one copy of a Unique Slate can be placed (`FateBoard.has_unique_copy()`).
+- **Item cards:** equipped items carry an EQUIPPED badge. The ground-loot card re-compares after a weapon swap or gear change.
+- **Abilities screen:** filters for kind (Spells / Skills / Auras), type (tag or damage type) and level (levelled / not). Library cards end with "LMB Open its page / RMB Choose its slot". Skills show "Requires: <weapons>" in the stat block (no longer in the blue text) and a SKILL badge.
+- **Hub:** the Stash moved to the east platform's far side, ~8 m from the Recombinator.
+- **Sights:** the Battle Rifle's model has a scope, so it now scopes like the Bolt Action Rifle (milder zoom, FOV 38). The Machine Gun aims 8 cm lower so its sight post, not the receiver, sits on the crosshair (`PlayerArmRig.AIM_SIGHT_DROP`). Other guns checked on a contact sheet and already line up.
+- **Shields:** taller bases sit further down and left (rest and raised) so they stay below/left of the crosshair (`PlayerArmRig.SHIELD_SIZE_SHIFT`, all 8 bases checked).
+- **Crosshair:** with a gun or bow out, the ticks spread to the ellipse shots can land in (from the same spread `_fire()` uses, aimed or not, dual wield and extra arrows included); no ellipse when shots always land on the dot. A ring around it fills while reloading (per-shell reloads fill with the magazine).
+
+Not done: "some ramps aren't working" needs a location.
+
+
 ## 2026-11-06 — Focused Siphon crafts cost more (user)
 
 - Add, recast, bleed and settle cost x2 when a family is picked (`Constants.CRAFT_FOCUS_COST_MULT`), on top of the item's craft-count multiplier and any foresight. Unfocused crafts and crafts with no family (absolve, anchor, sockets, retype, restore type, Vestige) are unchanged. The Siphon's cost line shows "focused x2". Every craft still fits inside a full pool.

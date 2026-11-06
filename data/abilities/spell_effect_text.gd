@@ -147,8 +147,7 @@ static func lines(ability: Ability, sheet: StatSheet, player: Player = null) -> 
 		if text != "":
 			out.append(text)
 	if ability.is_skill:
-		var needs := "any melee weapon" if ability.skill_weapon_types.is_empty() else ", ".join(ability.skill_weapon_types)
-		var skill := "Skill: deals your weapon's hit at %s of its motion value (+%s per level), and takes %s of its attack time; needs %s" % [_pct(ability.skill_motion_value), _pct(Ability.SKILL_MOTION_PER_LEVEL), _pct(ability.attack_time_multiplier), needs]
+		var skill := "Skill: deals your weapon's hit at %s of its motion value (+%s per level), and takes %s of its attack time" % [_pct(ability.skill_motion_value), _pct(Ability.SKILL_MOTION_PER_LEVEL), _pct(ability.attack_time_multiplier)]
 		if player and player.ability_cast and player.get_active_weapon():
 			skill += " (now %ss)" % _num(player.ability_cast.skill_swing_time(ability))
 		out.insert(0, skill)

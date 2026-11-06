@@ -75,6 +75,12 @@ var footer_lines: Array[String] = []
 ## in brackets after each one. Below 0: the Slate isn't placed, so it shows
 ## what it gives as a chain of its own.
 var slate_amplifier: float = -1.0
+## Placed Slates: Lens "stronger modifiers" on its non-attribute lines (1 = none).
+var slate_misc_amplifier: float = 1.0
+## Placed Slates: what it costs where it sits ("7 Aether (5 base, +3 distance)").
+var slate_cost_text: String = ""
+## Abilities screen: a click hint at the card's bottom right ("LMB  Open page").
+var ability_hint: String = ""
 ## Equipped items this card's item is compared with (ItemCompare): a
 ## "Equipping this" section lists what changes.
 var compare_against: Array[Item] = []
@@ -182,6 +188,9 @@ func _render_item(item: Item) -> void:
 		badge_row.add_child(_make_badge("CORRUPTED", CORRUPTED_BADGE_COLOR))
 	elif not item.is_craftable:
 		badge_row.add_child(_make_badge("UNCRAFTABLE", CORRUPTED_BADGE_COLOR))
+	var equipment := GameState.player_equipment as EquipmentComponent
+	if equipment and equipment.get_all_equipped_items().has(item):
+		badge_row.add_child(_make_badge("EQUIPPED", AetherStyle.GOLD))
 	_add_title(item.display_name, rarity_color)
 	_add_subtitle(_item_type_line(item))
 	_add_separator()
@@ -290,7 +299,7 @@ func _render_slate(slate: Slate) -> void:
 	_add_subtitle("Slate - %s" % tag_name)
 	_add_separator()
 	_add_stat_line("Size: %d tiles" % slate.get_size())
-	_add_stat_line("Aether Cost: %d" % slate.lensed_aether_cost())
+	_add_stat_line("Aether Cost: %s" % slate_cost_text if slate_cost_text != "" else "Aether Cost: %d" % slate.lensed_aether_cost())
 	if slate.is_hybrid:
 		var secondary_name: String = Constants.DAMAGE_TYPE_NAME.get(slate.secondary_tag, "?")
 		_add_stat_line("Hybrid: bridges %s / %s chains" % [tag_name, secondary_name])
@@ -307,7 +316,10 @@ func _render_slate(slate: Slate) -> void:
 			_add_craft_marked_lines(slate.explicits, preview)
 		else:
 			for affix in slate.explicits:
-				_add_mod_line(_affix_text(affix, false), AFFIX_COLOR)
+				var text := _affix_text(affix, false)
+				if EquipmentComponent.is_misc_key(affix.key()):
+					text += _lensed_suffix(affix.value)
+				_add_mod_line(text, AFFIX_COLOR)
 	if slate.sockets > 0:
 		_add_separator()
 		_add_stat_line("Lens sockets: %d / %d" % [slate.lenses.size(), slate.sockets])
@@ -432,7 +444,7 @@ func _add_craft_section(preview: CraftPreview) -> void:
 func _slate_mod_text(mod: SlateModifier, slate: Slate) -> String:
 	var key := mod.stat_key
 	if not EquipmentComponent.AFFIX_STAT_KEYS.has(key):
-		return mod.description
+		return mod.description + (_lensed_suffix(mod.value) if EquipmentComponent.is_misc_key(StatKeys.canonical(key)) else "")
 	var amplifier := slate_amplifier if slate_amplifier >= 0.0 else ChainCalculator.lone_multiplier(slate)
 	var stat_name: String = Constants.Stat.keys()[EquipmentComponent.AFFIX_STAT_KEYS[key]].capitalize()
 	var base := mod.description
@@ -441,18 +453,27 @@ func _slate_mod_text(mod: SlateModifier, slate: Slate) -> String:
 		base = base.substr(0, label_at)
 	return "%s (%+.1f %s)" % [base, mod.value * amplifier, stat_name]
 
+## " (13.2 with Lenses)" when a Lens in range makes this line stronger.
+func _lensed_suffix(value: float) -> String:
+	if is_equal_approx(slate_misc_amplifier, 1.0):
+		return ""
+	var text := ("%.2f" % (value * slate_misc_amplifier)).rstrip("0").rstrip(".")
+	return " (%s with Lenses)" % text
+
 func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 	_clear()
 	# Web conversions (Withering Scythe, Molten Core...) change the type the card shows.
 	ability = PlayerAbilityCast.web_variant(ability)
 	var element_color: Color = Constants.DAMAGE_TYPE_COLOR.get(ability.damage_type, AFFIX_COLOR)
 	_set_card_style(element_color, ABILITY_BG, ABILITY_CORNER_RADIUS, ABILITY_BORDER_WIDTH)
-	_add_type_badge("SPELL", element_color)
+	_add_type_badge("SKILL" if ability.is_skill else "SPELL", element_color)
 	_add_title(ability.display_name, element_color)
 	var sheet := stat_sheet if stat_sheet else _stat_sheet_for_card()
 	_add_subtitle(_spell_level_text(ability, sheet))
 	_add_mod_line(", ".join(ability.get_tag_names()), TAG_COLOR)
 	_add_separator()
+	if ability.is_skill:
+		_add_stat_line("Requires: %s" % ("any melee weapon" if ability.skill_weapon_types.is_empty() else ", ".join(ability.skill_weapon_types)))
 	_add_spell_damage_line(ability, sheet)
 	_add_stat_line("Cast Type: %s" % _get_cast_type_label(ability))
 	if ability.cooldown_seconds > 0.0:
@@ -479,6 +500,14 @@ func _render_ability(ability: Ability, stat_sheet: StatSheet) -> void:
 	if ability.description != "":
 		_add_separator()
 		_add_flavor(ability.description)
+	if ability_hint != "":
+		var hint := Label.new()
+		hint.text = ability_hint
+		hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+		hint.add_theme_font_size_override("font_size", 13)
+		hint.add_theme_color_override("font_color", AetherStyle.GOLD)
+		hint.custom_minimum_size = Vector2(_width, 0)
+		_content().add_child(hint)
 
 const SpellEffectText := preload("res://data/abilities/spell_effect_text.gd")
 const TAG_COLOR := Color(0.62, 0.66, 0.74)
@@ -1040,6 +1069,8 @@ func _item_type_line(item: Item) -> String:
 		return "Jewel"
 	if item is Weapon:
 		var w := item as Weapon
+		if w.is_offhand and not w.is_main_hand:
+			return "Offhand"
 		var tags: Array[String] = []
 		if w.is_two_handed:
 			tags.append("Two-Handed")
@@ -1049,7 +1080,7 @@ func _item_type_line(item: Item) -> String:
 	if item is Armor:
 		return "Armour - %s" % String(Constants.EquipmentSlot.find_key(item.equip_slot)).capitalize()
 	if item is Shield:
-		return "Shield"
+		return "Offhand"
 	if item is FigmentItem:
 		var fig := item as FigmentItem
 		return "Figment - Depth %d" % fig.depth if fig.is_levelling() else "Figment - Tier %d" % fig.tier

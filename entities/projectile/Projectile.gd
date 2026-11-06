@@ -121,6 +121,8 @@ func _on_body_entered(body: Node3D) -> void:
 	if body.is_in_group(&"stairs"):
 		_stairs = body
 		return
+	if body == source:
+		return  # a wide shooter can overlap its own shot on the first frame
 	if cosmetic:
 		queue_free()
 		return

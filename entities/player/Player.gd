@@ -486,7 +486,10 @@ func _apply_saved_loadout() -> void:
 ## the inventory, so the restored copy is the only instance.
 func _resolve_equipment_ref(ref) -> Item:
 	if ref is String:
-		return load(ref) if ref != "" else null
+		# A copy: crafting on the cached resource would carry into every later
+		# character that starts with the same weapon.
+		var base := load(ref) as Item if ref != "" else null
+		return base.duplicate(true) as Item if base else null
 	if not (ref is Dictionary):
 		return null
 	return ItemSerializer.from_dict(ref)

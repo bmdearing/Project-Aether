@@ -204,5 +204,10 @@ static func chain_lines_for(board: FateBoard, placement_id: String) -> Array[Str
 	var lines: Array[String] = []
 	for result in compute_chains(board):
 		if result.placement_ids.has(placement_id):
-			lines.append("%s chain: %d tiles, +%.2f%% attributes, Mastery +%.1f%% more" % [Constants.DAMAGE_TYPE_NAME.get(result.tag, "?"), result.tile_count, result.bonus_percent * 100.0, chain_mastery(result) * 100.0])
+			lines.append(chain_line(result))
 	return lines
+
+## "Kinetic chain: 25 tiles, Chain Bonus +7.5%, Mastery +5.4% more Damage"
+static func chain_line(result: ChainResult) -> String:
+	var bonus := ("%.2f" % (result.bonus_percent * 100.0)).rstrip("0").rstrip(".")
+	return "%s chain: %d tiles, Chain Bonus +%s%%, Mastery +%.1f%% more Damage" % [Constants.DAMAGE_TYPE_NAME.get(result.tag, "?"), result.tile_count, bonus, chain_mastery(result) * 100.0]

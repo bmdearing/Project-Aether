@@ -57,6 +57,11 @@ func _ready() -> void:
 		FateBoardGrid.show_outlines = on
 		grid.queue_redraw())
 	aether_label.add_sibling(outlines)
+	var recenter := Button.new()
+	recenter.text = "Centre view"
+	recenter.tooltip_text = "Scroll back to the Centre Star."
+	recenter.pressed.connect(grid.center_on_anchor)
+	outlines.add_sibling(recenter)
 	_keys_hint = VBoxContainer.new()
 	status_label.add_sibling(_keys_hint)
 	_cursor_icon = ItemIcon.new()
@@ -221,6 +226,9 @@ func _on_cell_clicked(cell: Vector2i, button_index: int) -> void:
 				_take_star_lens(FateStars.star_at(cell))
 			return
 		var occupied := _board.get_occupied_cells()
+		if occupied.has(cell) and button_index == MOUSE_BUTTON_RIGHT and not (_board.placements[occupied[cell]].slate as Slate).lenses.is_empty():
+			_take_slate_lens(occupied[cell])
+			return
 		if occupied.has(cell):
 			if _board.removal_breaks_chain(occupied[cell]):
 				status_label.text = "Can't remove that Slate: other Slates connect to the center through it. Remove the outer ones first."
@@ -297,6 +305,22 @@ func _take_star_lens(star: int) -> void:
 	status_label.text = "%s taken out of the %s." % [lens.display_name, FateStars.NAMES[star]]
 	_refresh_board_view()
 
+## Right-click on a placed Slate with Lenses: its last Lens goes back to the inventory.
+func _take_slate_lens(placement_id: String) -> void:
+	var slate: Slate = _board.placements[placement_id].slate
+	var lens: Lens = slate.lenses.back()
+	var reason := _board.unsocket_lens(placement_id)
+	if reason != "":
+		status_label.text = "Not enough Aether to take that Lens out: the Slates it made cheaper would cost more." if reason == "insufficient_aether" else reason
+		return
+	if not GameState.add_to_inventory(lens):
+		_board.socket_lens(placement_id, lens)
+		status_label.text = "No room in your inventory for that Lens."
+		_refresh_board_view()
+		return
+	status_label.text = "%s taken out of %s." % [lens.display_name, slate.display_name]
+	_refresh_board_view()
+
 func _refresh_board_view() -> void:
 	grid.mark_cells_dirty()
 	grid.queue_redraw()
@@ -341,6 +365,7 @@ const _FAILURE_MESSAGES := {
 	"off_board": "Can't place: that's off the edge of the Fate Board.",
 	"not_connected": "Can't place: Slates must connect to a reached Star or an already-placed Slate.",
 	"tag_not_connected": "Can't place: a Slate must touch a reached Star or a placed Slate it shares a tag with (Hybrid Slates and Lenses can bridge).",
+	"unique_duplicate": "Can't place: only one copy of a Unique Slate can be on the Fate Board.",
 }
 
 func _on_placement_failed(reason: String) -> void:
@@ -348,15 +373,14 @@ func _on_placement_failed(reason: String) -> void:
 
 func _refresh_aether() -> void:
 	aether_label.text = "Aether: %d / %d\n+1 Aether per %d tiles from the Centre Star" % [_board.aether_used, _board.aether_capacity, FateBoard.AETHER_RING_SIZE]
-	aether_label.tooltip_text = "A Slate costs its own Aether, +1 for every %d tiles between the Centre Star and its nearest tile (rings show while you hold a Slate), -1 for each cheap Lens whose radius reaches it. At least 1. Prices update whenever the board changes." % FateBoard.AETHER_RING_SIZE
+	aether_label.tooltip_text = "A Slate costs its own Aether, +1 for every %d tiles between the Centre Star and its nearest tile (the rings on the board), -1 for each cheap Lens whose radius reaches it. At least 1. Prices update whenever the board changes." % FateBoard.AETHER_RING_SIZE
 
 func _refresh_chains() -> void:
 	var results := ChainCalculator.compute_chains(_board)
 	var lines := PackedStringArray()
 	for i in range(results.size()):
 		var r: ChainCalculator.ChainResult = results[i]
-		var tag_name: String = Constants.DAMAGE_TYPE_NAME.get(r.tag, "?")
-		lines.append("%s chain: %d tiles, +%.2f%%, Mastery +%.1f%% more" % [tag_name, r.tile_count, r.bonus_percent * 100.0, ChainCalculator.chain_mastery(r) * 100.0])
+		lines.append(ChainCalculator.chain_line(r))
 		EventBus.chain_recalculated.emit(i, r.tile_count, r.bonus_percent)
 	chain_label.text = ("\n".join(lines) if lines.size() > 0 else "No chains yet") + "\n(hover for how chains work)"
 	chain_label.text += _star_summary()
@@ -382,7 +406,7 @@ func _build_key_hints() -> void:
 		child.queue_free()
 	_keys_hint.add_child(AetherStyle.key_hints([
 		["LMB", "Place / drag to pan"],
-		["RMB", "Take a Slate back"],
+		["RMB", "Take a Lens out / a Slate back"],
 		[GameSettings.key_name("fate_board_rotate"), "Rotate"],
 		[GameSettings.key_name("fate_board_flip"), "Flip"],
 		[GameSettings.key_name("toggle_tooltips"), "Hide tooltips"],

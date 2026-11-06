@@ -136,6 +136,14 @@ const OFF_ITEM_GUARD := [Vector3(-0.17, -0.25, -0.42), Vector3(0.15, 1, -0.05), 
 ## A lowered shield sits further down and out to the left, mostly below the
 ## view; it rises to OFF_ITEM_GUARD when raised.
 const SHIELD_REST := [Vector3(-0.36, -0.5, -0.42), Vector3(0.12, 1, -0.3), Vector3(0.1, 0, 1)]
+## Taller shields sit further down and left (rest and raised) so their top
+## edge stays clear of the crosshair; keyed by base (base_line_id prefix).
+const SHIELD_SIZE_SHIFT := {
+	"tower": Vector3(-0.07, -0.14, 0.0), "pavise": Vector3(-0.07, -0.14, 0.0),
+	"great": Vector3(-0.06, -0.1, 0.0), "kite": Vector3(-0.04, -0.07, 0.0),
+	"spiked": Vector3(-0.03, -0.04, 0.0), "rune": Vector3(-0.03, -0.04, 0.0),
+	"warded": Vector3(-0.03, -0.04, 0.0), "buckler": Vector3(-0.01, -0.02, 0.0),
+}
 
 ## Clip keys: [phase, fraction of that phase, hand offset, tip, face, ease curve].
 ## Phases "w" windup, "s" strike, "r" recovery; every clip ends back at rest.
@@ -363,6 +371,9 @@ var _weapon: Weapon
 var _offhand_item: Item
 var _family: StringName = &"blade"
 var _weapon_type: String = ""
+## Aiming lowers these guns further so their sight post, not the receiver,
+## sits on the crosshair (their sights stand taller than the family pose expects).
+const AIM_SIGHT_DROP := {"Machine Gun": 0.08}
 var _wand_alt: bool = false
 var _off_mode: OffMode = OffMode.HIDDEN
 var _offhand_grip: Vector3 = Vector3.ZERO
@@ -865,6 +876,7 @@ func _main_rest() -> Pose:
 		pose = pose.lerp_to(_pose_from(spec["guard"]), _smooth(_guard_w))
 	if spec.has("aim") and _aim_w > 0.0:
 		var aim := _pose_from(spec["aim"])
+		aim.pos.y -= AIM_SIGHT_DROP.get(_weapon_type, 0.0)
 		if _off_mode == OffMode.DUAL:
 			aim.pos.x += DUAL_AIM_SPREAD
 		pose = pose.lerp_to(aim, _smooth(_aim_w))
@@ -887,7 +899,10 @@ func _off_rest() -> Pose:
 			return _pose_from(spec["off"]).lerp_to(_pose_from(spec["off_guard"]), _smooth(_guard_w))
 		OffMode.ITEM:
 			var guard := _shield_w if _offhand_item is Shield else 0.0
-			return _pose_from(SHIELD_REST if _offhand_item is Shield else OFF_ITEM_REST).lerp_to(_pose_from(OFF_ITEM_GUARD), _smooth(guard))
+			var item_pose := _pose_from(SHIELD_REST if _offhand_item is Shield else OFF_ITEM_REST).lerp_to(_pose_from(OFF_ITEM_GUARD), _smooth(guard))
+			if _offhand_item is Shield:
+				item_pose.pos += SHIELD_SIZE_SHIFT.get(String(_offhand_item.base_line_id).get_slice("_", 0), Vector3.ZERO)
+			return item_pose
 		OffMode.DUAL:
 			var spec: Dictionary = RESTS.get(_off_family, RESTS[&"blade"])
 			var pose := _mirror_pose(_pose_from(spec["rest"]))

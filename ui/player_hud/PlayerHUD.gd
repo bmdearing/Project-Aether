@@ -159,6 +159,10 @@ func _ready() -> void:
 		EventBus.weapon_swapped.connect(_on_weapon_swapped)
 		_player.equipment.equipment_changed.connect(_refresh_weapon_indicator)
 		EventBus.hit_landed.connect(_hit_marker.show_hit)
+		EventBus.enemy_hit_dodged.connect(func(_enemy: Node) -> void: _hit_marker.show_callout("EVADED"))
+		EventBus.hit_blocked.connect(func(defender: Node) -> void:
+			if defender == _player:
+				_hit_marker.show_callout("BLOCKED"))
 		EventBus.throwable_used.connect(_on_throwable_used)
 		call_deferred("_initial_refresh")
 
@@ -767,7 +771,7 @@ func _on_ward_changed(current: float, max_value: float) -> void:
 ## call: the old bar fills to the end, resets, then fills to the new value.
 func _on_xp_changed(current: float, needed: float) -> void:
 	var at_max_level: bool = _player.experience.is_max_level()
-	_xp_label.text = "MAX LEVEL" if at_max_level else "%.0f / %.0f XP" % [current, needed]
+	_xp_label.text = "MAX LEVEL" if at_max_level else "%s / %s XP" % [WeaponPlate._thousands(roundi(current)), WeaponPlate._thousands(roundi(needed))]
 	_level_badge.level = _player.experience.level
 	var target_ratio: float = 1.0 if at_max_level else clamp(current / needed, 0.0, 1.0)
 

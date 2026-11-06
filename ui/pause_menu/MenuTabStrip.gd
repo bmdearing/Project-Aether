@@ -10,7 +10,7 @@ signal tab_chosen(index: int)
 const SCREENS := [
 	["inventory_screen", "Inventory", "open_inventory"],
 	["character_screen", "Character", "open_character"],
-	["abilities_screen", "Spells", "open_abilities"],
+	["abilities_screen", "Abilities", "open_abilities"],
 	["fate_board_editor", "Fate Board", "open_fate_board"],
 	["map_screen", "Map", "open_map"],
 	["figment_tree_screen", "Figment Tree", "open_figment_tree"],

@@ -34,7 +34,7 @@ const MELEE := {
 		{"name": "Hooking Strike", "desc": "LMB pulls the target toward you, interrupting their current action."},
 	],
 	"Halberd": [
-		{"name": "Sweep", "desc": "Wide 270 degree arc around you. Hits every enemy in range and knocks them back."},
+		{"name": "Sweep", "desc": "Wide 270 degree arc around you. Hits every enemy in range and knocks them back. Fires on LMB in stance or on letting go of RMB."},
 		{"name": "Brace", "desc": "Plant the halberd. Enemies that charge into you take Piercing damage and are staggered."},
 	],
 	"Spear": [

@@ -340,6 +340,8 @@ static func roll_pack_rarity() -> Constants.EnemyRarity:
 	weights[Constants.EnemyRarity.ELITE] *= 1.0 + FigmentTree.effect("rarity_weight:elite") / 100.0
 	weights[Constants.EnemyRarity.CHAMPION] *= 1.0 + FigmentTree.effect("rarity_weight:champion") / 100.0
 	weights[Constants.EnemyRarity.ASCENDANT] *= 1.0 + FigmentTree.effect("rarity_weight:ascendant") / 100.0
+	if AreaLevel.current() < AreaLevel.ASCENDANT_MIN_LEVEL:
+		weights[Constants.EnemyRarity.ASCENDANT] = 0.0
 	var total := 0.0
 	for w in weights.values():
 		total += w

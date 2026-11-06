@@ -25,6 +25,12 @@ const WEAKPOINT_KILL_GAP := 7.0
 const TICK_LENGTH := 4.0
 const TICK_OFFSET := 5.5  # distance from center along each arm where the crit tick crosses it
 
+## Grey word under the cross when a hit is evaded or blocked.
+const CALLOUT_COLOR := Color(0.72, 0.72, 0.72, 1.0)
+const CALLOUT_DURATION := 0.6
+const CALLOUT_FONT_SIZE := 15
+const CALLOUT_OFFSET_Y := 26.0
+
 const _DIRS: Array[Vector2] = [Vector2(-1, -1), Vector2(1, -1), Vector2(-1, 1), Vector2(1, 1)]
 
 var _timer: float = 0.0
@@ -32,6 +38,8 @@ var _active: bool = false
 var _color: Color = NORMAL_COLOR
 var _is_critical: bool = false
 var _gap: float = NORMAL_GAP
+var _callout: String = ""
+var _callout_timer: float = 0.0
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -49,7 +57,15 @@ func show_hit(is_critical: bool, is_critical_spot: bool, is_kill: bool) -> void:
 	_active = true
 	queue_redraw()
 
+func show_callout(text: String) -> void:
+	_callout = text
+	_callout_timer = CALLOUT_DURATION
+	queue_redraw()
+
 func _process(delta: float) -> void:
+	if _callout_timer > 0.0:
+		_callout_timer -= delta
+		queue_redraw()
 	if _active:
 		_timer -= delta
 		if _timer <= 0.0:
@@ -57,9 +73,15 @@ func _process(delta: float) -> void:
 			queue_redraw()
 
 func _draw() -> void:
+	var c := get_viewport_rect().size / 2.0
+	if _callout_timer > 0.0:
+		var font := AetherStyle.numbers()
+		var fade := clampf(_callout_timer / (CALLOUT_DURATION * 0.4), 0.0, 1.0)
+		var width := 200.0
+		draw_string_outline(font, Vector2(c.x - width * 0.5, c.y + CALLOUT_OFFSET_Y), _callout, HORIZONTAL_ALIGNMENT_CENTER, width, CALLOUT_FONT_SIZE, 4, Color(0, 0, 0, 0.8 * fade))
+		draw_string(font, Vector2(c.x - width * 0.5, c.y + CALLOUT_OFFSET_Y), _callout, HORIZONTAL_ALIGNMENT_CENTER, width, CALLOUT_FONT_SIZE, Color(CALLOUT_COLOR, fade))
 	if not _active:
 		return
-	var c := get_viewport_rect().size / 2.0
 	for d in _DIRS:
 		var dir: Vector2 = d.normalized()
 		var inner := c + dir * _gap

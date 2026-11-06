@@ -35,8 +35,10 @@ const AIM_FOV := 55.0
 const AIM_ZOOM_DURATION := 0.2
 ## Scoped rifles zoom further and swap the gun model for a scope overlay once
 ## the zoom finishes.
-const SCOPED_WEAPON_TYPES := ["Bolt Action Rifle"]
+const SCOPED_WEAPON_TYPES := ["Bolt Action Rifle", "Battle Rifle"]
 const SCOPE_FOV := 22.0
+## Lower-power scopes zoom less (FOV).
+const SCOPE_FOV_BY_TYPE := {"Battle Rifle": 38.0}
 var _scope_layer: CanvasLayer
 var _scoped := false
 
@@ -153,7 +155,7 @@ func _enter_stance() -> void:
 	elif weapon.is_ranged:
 		_mode = Mode.RANGED
 		if SCOPED_WEAPON_TYPES.has(weapon.weapon_type):
-			_tween_fov(SCOPE_FOV)
+			_tween_fov(SCOPE_FOV_BY_TYPE.get(weapon.weapon_type, SCOPE_FOV))
 			if _fov_tween and _fov_tween.is_valid():
 				_fov_tween.tween_callback(_set_scoped.bind(true))
 		else:
