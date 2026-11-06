@@ -872,7 +872,8 @@ func _stat_sheet_for_card() -> StatSheet:
 
 ## "<Type> Damage: lo to hi" - the item's own per-hit range, in the type it
 ## deals (its Infusion if infused): the base in white, or in blue with this
-## item's flat added damage and local increased Weapon Damage applied. The
+## item's flat added damage, local increased Weapon Damage and its socketed
+## jewels' increased Weapon Damage applied. The
 ## character's Strength is deliberately NOT included - the card shows the
 ## item, the character screen shows damage with stats. Primary damage type
 ## always shown; extra lines only for a
@@ -880,7 +881,7 @@ func _stat_sheet_for_card() -> StatSheet:
 ## produces one yet).
 func _build_attack_power_lines(weapon: Weapon) -> Array:
 	var lines := []
-	var local_mult := weapon.get_local_multiplier("local_increased_weapon_damage") * weapon.get_quality_multiplier()
+	var local_mult := weapon.get_local_multiplier("local_increased_weapon_damage") * weapon.get_quality_multiplier() * weapon.get_jewel_attack_multiplier()
 	var range := weapon.get_base_range()
 	var added := weapon.get_flat_added_damage()
 	var primary_color: Color = Constants.DAMAGE_TYPE_COLOR.get(weapon.get_damage_type(), Color.WHITE)

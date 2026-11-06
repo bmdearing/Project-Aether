@@ -107,7 +107,7 @@ static func average_hit(w: Weapon) -> float:
 	for affix in w.affixes:
 		if affix.stat_key == "gain_as_damage" and affix.damage_type != -1:
 			total += (range.x + range.y) * 0.5 * affix.value / 100.0
-	return total * w.get_local_multiplier("local_increased_weapon_damage")
+	return total * w.get_local_multiplier("local_increased_weapon_damage") * w.get_jewel_attack_multiplier()
 
 ## Fills a template with the size of the change, signed: "+12 to Strength",
 ## "-4% increased Attack Speed".

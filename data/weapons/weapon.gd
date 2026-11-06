@@ -252,6 +252,17 @@ func get_local_multiplier(stat_key: String) -> float:
 			mult += affix.value / 100.0
 	return mult
 
+## 1 + "increased Weapon Damage" from the jewels in this weapon's sockets.
+## It's a global attack increase in combat (added to the other increases);
+## cards and compares fold it in so the weapon's own numbers show it.
+func get_jewel_attack_multiplier() -> float:
+	var total := 0.0
+	for jewel in get_socketed_jewels():
+		for affix in jewel_affixes(jewel):
+			if affix.key() == "increased_attack_damage":
+				total += affix.value
+	return 1.0 + total / 100.0
+
 ## Sum of this weapon's whole-number local modifier, e.g. "local_additional_arrows".
 func get_local_count(stat_key: String) -> int:
 	var total := 0.0

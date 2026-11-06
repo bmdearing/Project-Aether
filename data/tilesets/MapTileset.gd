@@ -268,9 +268,8 @@ func make_environment() -> Environment:
 	env.ambient_light_color = ambient_color
 	env.ambient_light_energy = ambient_energy
 	if fog_density > 0.0:
-		env.fog_enabled = true
 		env.fog_light_color = fog_color
-		env.fog_density = fog_density
+		MapFog.apply(env, fog_density)
 	env.tonemap_exposure = _render("exposure", exposure)
 	var ssao := _render("ssao", ssao_intensity)
 	if ssao > 0.0:

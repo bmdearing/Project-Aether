@@ -124,8 +124,8 @@ func _set_env(env: Environment) -> void:
 	env.set_meta(ORIG_SSAO, env.ssao_intensity)
 	env.ssao_intensity *= SSAO_SCALE
 	var fade_end := 80.0
-	if env.fog_enabled and env.fog_density > 0.0:
-		fade_end = clampf(1.6 / env.fog_density, 25.0, 120.0)  # ~80% fogged
+	if env.fog_enabled:
+		fade_end = clampf(MapFog.reach(env), 25.0, 120.0)
 	_outline_mat.set_shader_parameter(&"fade_end", fade_end)
 	_outline_mat.set_shader_parameter(&"fade_start", fade_end * 0.35)
 

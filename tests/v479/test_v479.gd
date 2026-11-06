@@ -167,7 +167,7 @@ func _test_weather() -> void:
 	_check(rain != null and rain.amount >= 1500 and rain.emitting, "a storm pours rain")
 	_check(rain != null and rain.layers == 1 << (MapAtmosphere.WEATHER_LAYER - 1), "rain stays off the minimap's layer")
 	_check(rain != null and rain.global_position.distance_to(camera.global_position) < MapAtmosphere.FALL_HEIGHT, "the rain follows the camera")
-	_check(env.fog_density > style.fog_density * 2.0, "storms thicken the fog")
+	_check(MapFog.density_of(env) > style.fog_density * 2.0, "storms thicken the fog")
 	var calm := _luma(env.background_color)
 	atmo.strike()
 	await get_tree().process_frame
@@ -179,7 +179,7 @@ func _test_weather() -> void:
 	_check(atmo.ambience_spec("wind_gusts") == "wind_gusts:4", "a sandstorm turns the wind up instead of doubling it (%s)" % atmo.ambience_spec("wind_gusts"))
 	atmo.weather = W.BLIZZARD
 	await get_tree().process_frame
-	_check(env.fog_density <= MapAtmosphere.MAX_FOG_DENSITY, "even a blizzard leaves you something to see")
+	_check(MapFog.density_of(env) <= MapAtmosphere.MAX_FOG_DENSITY, "even a blizzard leaves you something to see")
 	for n in [atmo, sun, camera]:
 		n.queue_free()
 	await _frames(2)

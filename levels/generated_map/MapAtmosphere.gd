@@ -204,9 +204,8 @@ func _apply() -> void:
 	_env.background_color = sky.lerp(Color(0.75, 0.78, 0.9), _flash * 0.6)
 	_env.ambient_light_color = _style.ambient_color.lerp(_style.ambient_color * NIGHT_TINT * 2.4, 1.0 - day)
 	_env.ambient_light_energy = _style.ambient_energy * lerpf(NIGHT_AMBIENT, 1.0, day) * lerpf(1.0, 0.85, tint.a) + _flash
-	_env.fog_enabled = true
 	_env.fog_light_color = sky
-	_env.fog_density = minf(_base_fog * float(look["fog"]), MAX_FOG_DENSITY) * lerpf(NIGHT_FOG, 1.0, day)
+	MapFog.apply(_env, minf(_base_fog * float(look["fog"]), MAX_FOG_DENSITY) * lerpf(NIGHT_FOG, 1.0, day))
 	if _sky_mat:
 		_apply_sky(_env.background_color, day, dusk, tint)
 
