@@ -291,10 +291,11 @@ func _test_dungeon() -> void:
 		_check(overlaps < occupied.size(), "%s: props don't pile up (%d overlaps among %d footprints)" % [style_id, overlaps, occupied.size()])
 		if style_id == "dungeon_cellblock":
 			var boss := map._boss
+			var death := boss.global_position
 			boss.health.apply_damage(1.0e9)
 			await _frames(4)
 			var portals := map.get_children().filter(func(c): return c is Portal)
-			_check(portals.size() == 1 and portals[0].global_position.distance_to(map.boss_portal_point) < 0.1, "killing the boss opens a portal on the altar")
+			_check(portals.size() == 1 and GeneratedMap._flat(portals[0].global_position - death).length() > 5.0, "killing the boss opens a portal away from its body")
 		map.queue_free()
 		await _frames(2)
 	GameState.active_map = null

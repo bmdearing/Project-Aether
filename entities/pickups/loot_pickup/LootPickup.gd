@@ -242,20 +242,45 @@ static func build_tome(tome: SkillTome) -> Node3D:
 	var model := item_model("tome_" + kind)
 	return model if model else item_model("tome_neutral")
 
-## A thin column from the floor so every drop shows its rarity across a field.
+## A thin column from the floor so every drop shows its rarity across a field;
+## Rare and up get a LootBeam instead.
 const BEAM_HEIGHT := 2.4
 const BEAM_RADIUS := 0.018
-## Monster Infrequents get a taller, thicker green beam.
-const MI_BEAM_SCALE := 1.8
+
+## 0 for the thin beam, else the LootBeam tier: Rare, Unique (and Monster
+## Infrequents), Mythic.
+func beam_tier() -> int:
+	if slate:
+		match slate.rarity:
+			Constants.SlateRarity.RARE, Constants.SlateRarity.VERY_RARE:
+				return LootBeam.RARE
+			Constants.SlateRarity.UNIQUE:
+				return LootBeam.UNIQUE
+			Constants.SlateRarity.MYTHIC:
+				return LootBeam.MYTHIC
+		return 0
+	if item == null or currency_id != &"" or auto_pickup():
+		return 0
+	match item.rarity:
+		Constants.ItemRarity.MYTHIC:
+			return LootBeam.MYTHIC
+		Constants.ItemRarity.UNIQUE:
+			return LootBeam.UNIQUE
+	if not item.perks.is_empty():
+		return LootBeam.UNIQUE
+	return LootBeam.RARE if item.rarity == Constants.ItemRarity.RARE else 0
 
 func _add_beam(color: Color) -> void:
-	var mi := item != null and not item.perks.is_empty()
+	var tier := beam_tier()
+	if tier > 0:
+		LootBeam.build(_ground, _center, color, tier)
+		return
 	var beam := MeshInstance3D.new()
 	beam.name = "Beam"
 	var cylinder := CylinderMesh.new()
-	cylinder.top_radius = BEAM_RADIUS * 0.4 * (MI_BEAM_SCALE if mi else 1.0)
-	cylinder.bottom_radius = BEAM_RADIUS * (MI_BEAM_SCALE if mi else 1.0)
-	cylinder.height = BEAM_HEIGHT * (MI_BEAM_SCALE if mi else 1.0)
+	cylinder.top_radius = BEAM_RADIUS * 0.4
+	cylinder.bottom_radius = BEAM_RADIUS
+	cylinder.height = BEAM_HEIGHT
 	cylinder.radial_segments = 8
 	cylinder.cap_top = false
 	cylinder.cap_bottom = false

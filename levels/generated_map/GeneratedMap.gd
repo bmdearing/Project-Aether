@@ -115,6 +115,9 @@ var room_wall_height: Dictionary = {}
 var secret: SecretRoomBuilder
 ## Where the portal home opens when the Figment's boss dies.
 var boss_portal_point: Vector3
+## Where it actually opened: moved off the boss's body and loot (saved, so a
+## portal return finds it in the same place).
+var completion_portal_point: Vector3
 var _completion_portal: Portal
 var _portal_player_position: Vector3
 var _portal_player_yaw: float
@@ -370,16 +373,67 @@ func _add_portal(pos: Vector3) -> Portal:
 	return portal
 
 
-## The boss's death completes the Figment and opens a portal home at a fixed
-## spot: the boss room's altar, or the top of the dais in open layouts.
+## The boss's death completes the Figment and opens a portal home: the boss
+## room's altar, or the top of the dais in open layouts, unless the boss fell
+## near it, then a clear spot well away from the body and its loot.
 ## It doesn't count toward the portal limit.
 func _on_figment_completed(_figment: FigmentItem) -> void:
-	_open_completion_portal.call_deferred()
+	var spot := boss_portal_point
+	if is_instance_valid(_boss):
+		spot = _portal_spot_away_from(_boss.global_position)
+	_open_completion_portal.call_deferred(spot)
 
-func _open_completion_portal() -> void:
+func _open_completion_portal(spot: Vector3) -> void:
 	if is_instance_valid(_completion_portal):
 		return
-	_completion_portal = _add_portal(boss_portal_point)
+	completion_portal_point = spot
+	_completion_portal = _add_portal(spot)
+
+## How far the completion portal opens from where the boss fell.
+const PORTAL_CLEAR_OF_BOSS := 7.5
+## A candidate floor more than this above/below the death spot (a pit, a
+## ledge) is skipped; the foot of a dais is fine.
+const PORTAL_MAX_DROP := 3.0
+
+## The altar when it's already clear of `death`; otherwise PORTAL_CLEAR_OF_BOSS
+## out from the body, trying the altar's side first, then the player's side,
+## then around, skipping walls and drops. The roomiest heading if none fits.
+func _portal_spot_away_from(death: Vector3) -> Vector3:
+	if _flat(boss_portal_point - death).length() >= PORTAL_CLEAR_OF_BOSS:
+		return boss_portal_point
+	var preferred := _flat(boss_portal_point - death)
+	if preferred.length() < 0.5:
+		var player := get_tree().get_first_node_in_group("player") as Node3D
+		preferred = _flat(player.global_position - death) if player else Vector3.ZERO
+	preferred = preferred.normalized() if preferred.length() > 0.01 else Vector3.FORWARD
+	var space := get_world_3d().direct_space_state
+	var origin := death + Vector3.UP * 1.0
+	var need := PORTAL_CLEAR_OF_BOSS + Portal.RADIUS
+	var best := boss_portal_point
+	var best_room := -1.0
+	for step in [0, 1, -1, 2, -2, 3, -3, 4]:
+		var dir := preferred.rotated(Vector3.UP, step * PI / 4.0)
+		var query := PhysicsRayQueryParameters3D.create(origin, origin + dir * need, 1)
+		var exclude: Array[RID] = []
+		if is_instance_valid(_boss):
+			exclude.append(_boss.get_rid())
+		query.exclude = exclude
+		var hit := space.intersect_ray(query)
+		var room := need if hit.is_empty() else origin.distance_to(hit["position"])
+		var reach := minf(room - Portal.RADIUS - 0.2, PORTAL_CLEAR_OF_BOSS)
+		if reach <= best_room:
+			continue
+		var spot := _ground_point(death + dir * reach, INF)
+		if spot.y == INF or absf(spot.y - death.y) > PORTAL_MAX_DROP:
+			continue
+		if room >= need:
+			return spot
+		best_room = reach
+		best = spot
+	return best
+
+static func _flat(v: Vector3) -> Vector3:
+	return Vector3(v.x, 0.0, v.z)
 ## Saves this map's state and goes to the Hub.
 func leave_through_portal(portal: Portal = null) -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
@@ -432,6 +486,7 @@ func capture_state() -> Dictionary:
 		"loot": loot,
 		"portal": _vec_to_array(_portal.global_position) if is_instance_valid(_portal) else [],
 		"via_completion": _left_by_completion_portal,
+		"completion_portal": _vec_to_array(completion_portal_point) if is_instance_valid(_completion_portal) else [],
 		"player": _vec_to_array(player_pos),
 		"player_yaw": _portal_player_yaw,
 		"chests_opened": _opened_chest_indices(),
@@ -486,7 +541,9 @@ func _apply_restore(state: Dictionary) -> void:
 			_chests[int(i)].set_opened()
 	var portal_saved: Array = state.get("portal", [])
 	var portal_pos := _array_to_vec(portal_saved)
-	var came_from := boss_portal_point if state.get("via_completion", false) else portal_pos
+	var completion_saved: Array = state.get("completion_portal", [])
+	var completion_spot := _array_to_vec(completion_saved) if completion_saved.size() == 3 else boss_portal_point
+	var came_from := completion_spot if state.get("via_completion", false) else portal_pos
 	if player:
 		player.global_position = _array_to_vec(state.get("player", []))
 		player.rotation.y = facing_away(came_from, player.global_position, float(state.get("player_yaw", 0.0)))
@@ -495,7 +552,7 @@ func _apply_restore(state: Dictionary) -> void:
 	if portal_saved.size() == 3:
 		_portal = _add_portal(portal_pos)
 	if _boss != null and (not is_instance_valid(_boss) or _boss.is_queued_for_deletion() or not _boss.is_inside_tree()):
-		_open_completion_portal()
+		_open_completion_portal(completion_spot)
 
 const LOOT_PICKUP_SCENE := preload("res://entities/pickups/loot_pickup/LootPickup.tscn")
 const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPickup.tscn")
