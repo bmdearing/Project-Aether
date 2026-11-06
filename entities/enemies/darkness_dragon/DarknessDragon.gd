@@ -70,7 +70,7 @@ func _ready() -> void:
 	_rise.call_deferred()
 
 func pinnacle_life() -> float:
-	return 20_000_000.0 if Dev.enabled else 60_000_000.0
+	return 60_000_000.0
 
 func abilities() -> Array:
 	return [

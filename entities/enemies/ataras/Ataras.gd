@@ -117,7 +117,7 @@ func _ready() -> void:
 	display_name = DISPLAY_NAME
 
 func pinnacle_life() -> float:
-	return 24_000_000.0 if Dev.enabled else 65_000_000.0
+	return 65_000_000.0
 
 func phase_thresholds() -> Array[float]:
 	return PHASES
