@@ -372,11 +372,12 @@ func _test_mechanics() -> void:
 	enemy._ward_current = 0.0
 	sheet.misc_bonus = {}
 	enemy.stance.reset()
-	enemy.stance.apply_attack_stance_damage(100.0, Constants.DamageType.KINETIC)
+	enemy.stance.apply_attack_stance_damage(enemy.health.max_health * 0.1, Constants.DamageType.KINETIC)
 	var plain_drain := enemy.stance.max_stance - enemy.stance.current_stance
+	_check(is_equal_approx(plain_drain, 0.1 * StanceComponent.ATTACK_STANCE_PER_LIFE), "a hit drains Stance by its share of the enemy's Life, not its raw size")
 	enemy.stance.reset()
 	sheet.misc_bonus = {"stagger_effect": 100.0}
-	enemy.stance.apply_attack_stance_damage(100.0, Constants.DamageType.KINETIC)
+	enemy.stance.apply_attack_stance_damage(enemy.health.max_health * 0.1, Constants.DamageType.KINETIC)
 	_check(is_equal_approx(enemy.stance.max_stance - enemy.stance.current_stance, plain_drain * 2.0), "Stagger effect doubles Stance damage")
 	enemy.stance.reset()
 	_check(not enemy.is_staggered(), "not Staggered by default")

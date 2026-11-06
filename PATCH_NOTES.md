@@ -7,6 +7,13 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Stagger rebalance (user report)
+
+Zeo staggered enemies on every hit. Every enemy's Stance pool is a flat 100, and ordinary hits drained raw damage x0.2, so a 4,000 Kinetic hit drained ~800: eight full pools. That also meant bosses broke to any hit over ~500.
+- A hit now drains Stance by its share of the enemy's Life: 120 Stance per 100% of Life dealt (`StanceComponent.ATTACK_STANCE_PER_LIFE`), times the damage category weight (Physical 1, Elemental 0.6, Esoteric 0.35). This is the same at every Area Level.
+- Physical hits alone break Stance at about 83% of Life dealt, so Parries (flat Stance damage, unchanged) stay the main way to break it, as the design intends. Increased Stagger effect still multiplies the drain.
+- Unchanged: combo finishers and charged attacks still stagger rank-and-file enemies outright.
+
 ## 2026-11-06 — Monster scaling, jewels cap at Uncommon, Weapon Damage family (user report)
 
 - **Monsters scale much faster** (user: hitting 2-6k at level 50, whites die in one hit). Fitted to the user's own saves: a level 53 character averages 1,648 per hit with 2,020 Life, against white standards with 421 Life hitting for 108 at Area Level 53. Health growth 1.037 -> 1.085 per level and damage 1.035 -> 1.047 (level 1 unchanged): a white standard now takes about 3 average hits at levels 29 and 53, and its hit is about 11% of Life. AL53 white: ~4,400 Life, ~196 hit. AL89: ~86k Life, ~1,000 hit. The top end isn't checked against a level 80+ weapon build yet.
