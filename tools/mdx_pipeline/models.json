@@ -171,6 +171,36 @@
       "unit": "veilborne_destroyer",
       "mdx": "assets/models/enemies/wc3units/destroyer/obsidianstatue.mdx",
       "scale": 0.013
+    },
+    {
+      "unit": "unchartered_sea_dog",
+      "mdx": "assets/models/enemies/Old Sea Dog/Oldseadog.mdx",
+      "scale": 0.0095
+    },
+    {
+      "unit": "veilborne_satyr_heretic",
+      "mdx": "assets/models/enemies/Satyr heretic/satyrheretic.mdx",
+      "scale": 0.0095
+    },
+    {
+      "unit": "synod_gilded_sentinel",
+      "mdx": "assets/models/enemies/Mighty Tutatis/Mightytutatis.mdx",
+      "scale": 0.013
+    },
+    {
+      "unit": "darkness_dragon",
+      "mdx": "assets/models/enemies/pinnacle/Darkness Dragon/darknessdragon.mdx",
+      "scale": 0.03
+    },
+    {
+      "unit": "chimaerus",
+      "mdx": "assets/models/enemies/beasts/Chimaerus The Undreamt God/chimaerus.mdx",
+      "scale": 0.014
+    },
+    {
+      "unit": "chromatus",
+      "mdx": "assets/models/enemies/pinnacle/Chromatus/Chromatus/Chromatus.mdx",
+      "scale": 0.012
     }
   ]
 }

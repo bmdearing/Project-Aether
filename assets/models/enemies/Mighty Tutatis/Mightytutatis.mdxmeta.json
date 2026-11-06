@@ -1,0 +1,154 @@
+{
+  "source": "Mightytutatis.mdx",
+  "version": 800,
+  "scale": 0.013,
+  "idle_sequence": "Stand",
+  "bounds": {
+    "min": [
+      -0.46235018920898435,
+      -0.052139617443084714,
+      -1.44601602935791
+    ],
+    "max": [
+      0.2679521007537842,
+      2.5465309143066404,
+      0.714070514678955
+    ],
+    "height": 2.5986705317497254
+  },
+  "sequences": [
+    {
+      "name": "Walk",
+      "start": 33,
+      "end": 1233,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 01",
+      "start": 1366,
+      "end": 2366,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 02",
+      "start": 2500,
+      "end": 3833,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 03",
+      "start": 3966,
+      "end": 5700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 04",
+      "start": 5833,
+      "end": 7966,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "death",
+      "start": 8100,
+      "end": 10600,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "stand hit",
+      "start": 10733,
+      "end": 11233,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "spell Relax",
+      "start": 11366,
+      "end": 13300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand",
+      "start": 13433,
+      "end": 15033,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Mightytutatis.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Mightytutatis.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk": true,
+        "Attack 01": true,
+        "Attack 02": true,
+        "Attack 03": true,
+        "Attack 04": true,
+        "death": true,
+        "stand hit": true,
+        "spell Relax": true,
+        "Stand": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "Mightytutatisdiff.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Mightytutatisdiff.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk": true,
+        "Attack 01": true,
+        "Attack 02": true,
+        "Attack 03": true,
+        "Attack 04": true,
+        "death": true,
+        "stand hit": true,
+        "spell Relax": true,
+        "Stand": true
+      }
+    }
+  ]
+}

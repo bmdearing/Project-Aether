@@ -1,0 +1,388 @@
+{
+  "source": "Chromatus.mdx",
+  "version": 1200,
+  "scale": 0.012,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -4.118303833007813,
+      -1.8115440673828125,
+      -4.447296020507813
+    ],
+    "max": [
+      2.519278015136719,
+      1.4590742797851564,
+      4.447296020507813
+    ],
+    "height": 3.270618347167969
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 100,
+      "end": 1500,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 1600,
+      "end": 3400,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 3500,
+      "end": 4500,
+      "move_speed": 3.6,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 4600,
+      "end": 5600,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 5700,
+      "end": 7200,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "neutral_blueDragon_lvl_10_rig:head_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_bluedragon_lvl_10_head_diffuse.dds",
+        "normal": "neutral_bluedragon_lvl_10_head_normal.dds",
+        "orm": "neutral_bluedragon_lvl_10_head_orm.dds",
+        "emissive": "neutral_bluedragon_lvl_10_head_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/AzureDragon/Neutral_BlueDragon_Lvl_10_Head_Diffuse.tif",
+        "normal": "Units/Creeps/AzureDragon/Neutral_BlueDragon_Lvl_10_Head_Normal.tif",
+        "orm": "Units/Creeps/AzureDragon/Neutral_BlueDragon_Lvl_10_Head_ORM.tif",
+        "emissive": "Units/Creeps/AzureDragon/Neutral_BlueDragon_Lvl_10_Head_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "neutral_blackDragon_lvl_10_rig:head_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_blackdragon_lvl_10_head_diffuse.dds",
+        "normal": "neutral_blackdragon_lvl_10_head_normal.dds",
+        "orm": "neutral_blackdragon_lvl_10_head_orm.dds",
+        "emissive": "neutral_blackdragon_lvl_10_head_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BlackDragon/Neutral_BlackDragon_Lvl_10_Head_Diffuse.tif",
+        "normal": "Units/Creeps/BlackDragon/Neutral_BlackDragon_Lvl_10_Head_Normal.tif",
+        "orm": "Units/Creeps/BlackDragon/Neutral_BlackDragon_Lvl_10_Head_ORM.tif",
+        "emissive": "Units/Creeps/BlackDragon/Neutral_BlackDragon_Lvl_10_Head_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "neutral_bronzeDragon_lvl_10_rig:head_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_bronzedragon_lvl_10_head_diffuse.dds",
+        "normal": "neutral_bronzedragon_lvl_10_head_normal.dds",
+        "orm": "neutral_bronzedragon_lvl_10_head_orm.dds",
+        "emissive": "neutral_bronzedragon_lvl_10_head_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/BronzeDragon/Neutral_BronzeDragon_Lvl_10_Head_Diffuse.tif",
+        "normal": "Units/Creeps/BronzeDragon/Neutral_BronzeDragon_Lvl_10_Head_Normal.tif",
+        "orm": "Units/Creeps/BronzeDragon/Neutral_BronzeDragon_Lvl_10_Head_ORM.tif",
+        "emissive": "Units/Creeps/BronzeDragon/Neutral_BronzeDragon_Lvl_10_Head_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "neutral_redDragon_lvl_10_rig:head_geo",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_reddragon_lvl_10_head_diffuse.dds",
+        "normal": "neutral_reddragon_lvl_10_head_normal.dds",
+        "orm": "neutral_reddragon_lvl_10_head_orm.dds",
+        "emissive": "neutral_reddragon_lvl_10_head_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/RedDragon/Neutral_RedDragon_Lvl_10_Head_Diffuse.tif",
+        "normal": "Units/Creeps/RedDragon/Neutral_RedDragon_Lvl_10_Head_Normal.tif",
+        "orm": "Units/Creeps/RedDragon/Neutral_RedDragon_Lvl_10_Head_ORM.tif",
+        "emissive": "Units/Creeps/RedDragon/Neutral_RedDragon_Lvl_10_Head_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "neutral_greenDragon_lvl_10_rig:head_geo",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_greendragon_lvl_10_head_diffuse.dds",
+        "normal": "neutral_greendragon_lvl_10_head_normal.dds",
+        "orm": "neutral_greendragon_lvl_10_head_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/GreenDragon/Neutral_GreenDragon_Lvl_10_Head_Diffuse.tif",
+        "normal": "Units/Creeps/GreenDragon/Neutral_GreenDragon_Lvl_10_Head_Normal.tif",
+        "orm": "Units/Creeps/GreenDragon/Neutral_GreenDragon_Lvl_10_Head_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "undead_Sapphiron_rig:main_geo",
+      "lod": 0,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_sapphironliving_body_diffuse.dds",
+        "normal": "undead_sapphironliving_body_normal.dds",
+        "orm": "undead_sapphironliving_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_Diffuse.tif",
+        "normal": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_Normal.tif",
+        "orm": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "undead_Sapphiron_rig:wing_geo",
+      "lod": 0,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_sapphironliving_fin_diffuse.dds",
+        "normal": "undead_sapphironliving_fin_normal.dds",
+        "orm": "undead_sapphironliving_fin_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Fin_Diffuse.tif",
+        "normal": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Fin_Normal.tif",
+        "orm": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Fin_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "Chimaera:main_geo",
+      "lod": 0,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Chromatus/Chromatus Portrait/Chromatus_Left_Diffuse.dds",
+        "normal": "undead_sapphironliving_body_normal.dds",
+        "orm": "undead_sapphironliving_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Chromatus_Left_Diffuse.dds",
+        "normal": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_Normal.tif",
+        "orm": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "Chimaera:main_geo",
+      "lod": 0,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Chromatus/Chromatus Portrait/Chromatus_Right_Diffuse.dds",
+        "normal": "undead_sapphironliving_body_normal.dds",
+        "orm": "undead_sapphironliving_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Chromatus_Right_Diffuse.dds",
+        "normal": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_Normal.tif",
+        "orm": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "AncientHydra_rig_cin:main_geo",
+      "lod": 0,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Chromatus/Chromatus Portrait/Chromatus_Right_Diffuse.dds",
+        "normal": "undead_sapphironliving_body_normal.dds",
+        "orm": "undead_sapphironliving_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Chromatus_Right_Diffuse.dds",
+        "normal": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_Normal.tif",
+        "orm": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "AncientHydra_rig_cin:main_geo",
+      "lod": 0,
+      "material_id": 10,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Chromatus/Chromatus Portrait/Chromatus_Left_Diffuse.dds",
+        "normal": "undead_sapphironliving_body_normal.dds",
+        "orm": "undead_sapphironliving_body_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Chromatus_Left_Diffuse.dds",
+        "normal": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_Normal.tif",
+        "orm": "Units/Creeps/Sapphiron/Undead_SapphironLiving_Body_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Walk 1": true,
+        "Death 1": true,
+        "Spell 1": true
+      }
+    }
+  ]
+}

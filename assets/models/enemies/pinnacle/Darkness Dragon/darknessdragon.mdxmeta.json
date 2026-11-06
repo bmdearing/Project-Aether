@@ -1,0 +1,258 @@
+{
+  "source": "darknessdragon.mdx",
+  "version": 800,
+  "scale": 0.03,
+  "idle_sequence": "stand",
+  "bounds": {
+    "min": [
+      -6.449820098876953,
+      -0.007021470218896865,
+      -3.7089900970458984
+    ],
+    "max": [
+      1.3844760131835936,
+      6.981179809570312,
+      3.7089900970458984
+    ],
+    "height": 6.988201279789209
+  },
+  "sequences": [
+    {
+      "name": "attack 01",
+      "start": 40,
+      "end": 2440,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "attack 02",
+      "start": 2600,
+      "end": 5000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "attack slam",
+      "start": 5160,
+      "end": 8160,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "birth",
+      "start": 8320,
+      "end": 11920,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "death",
+      "start": 12080,
+      "end": 15480,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "death 02",
+      "start": 15640,
+      "end": 20840,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "stand 01",
+      "start": 26360,
+      "end": 29560,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "stand 02",
+      "start": 29720,
+      "end": 33720,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "stand 03",
+      "start": 33880,
+      "end": 40680,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "spell attack",
+      "start": 40840,
+      "end": 43640,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "sleep",
+      "start": 46760,
+      "end": 49160,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "spell channeling",
+      "start": 51880,
+      "end": 54280,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "walk",
+      "start": 54440,
+      "end": 55240,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "stand",
+      "start": 55400,
+      "end": 60200,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "stand ready",
+      "start": 60360,
+      "end": 76360,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "walk 02",
+      "start": 83240,
+      "end": 85640,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "darknessdragon.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "darknessdragon.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "attack 01": true,
+        "attack 02": true,
+        "attack slam": true,
+        "birth": true,
+        "death": true,
+        "death 02": true,
+        "stand 01": true,
+        "stand 02": true,
+        "stand 03": true,
+        "spell attack": true,
+        "sleep": true,
+        "spell channeling": true,
+        "walk": true,
+        "stand": true,
+        "stand ready": true,
+        "walk 02": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "darknessdragon.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "darknessdragon.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "attack 01": true,
+        "attack 02": true,
+        "attack slam": true,
+        "birth": true,
+        "death": true,
+        "death 02": true,
+        "stand 01": true,
+        "stand 02": true,
+        "stand 03": true,
+        "spell attack": true,
+        "sleep": true,
+        "spell channeling": true,
+        "walk": true,
+        "stand": true,
+        "stand ready": true,
+        "walk 02": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "darknessdragon.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "darknessdragon.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "attack 01": true,
+        "attack 02": true,
+        "attack slam": true,
+        "birth": true,
+        "death": true,
+        "death 02": true,
+        "stand 01": true,
+        "stand 02": true,
+        "stand 03": true,
+        "spell attack": true,
+        "sleep": true,
+        "spell channeling": true,
+        "walk": true,
+        "stand": true,
+        "stand ready": true,
+        "walk 02": true
+      }
+    }
+  ]
+}

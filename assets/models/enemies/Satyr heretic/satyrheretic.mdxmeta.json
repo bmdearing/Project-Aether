@@ -1,0 +1,96 @@
+{
+  "source": "satyrheretic.mdx",
+  "version": 800,
+  "scale": 0.0095,
+  "idle_sequence": "Stand",
+  "bounds": {
+    "min": [
+      -0.3943545150756836,
+      -0.0000036954999377485363,
+      -1.2040965156555175
+    ],
+    "max": [
+      0.36227016258239747,
+      2.0035595092773435,
+      0.57167010307312
+    ],
+    "height": 2.0035632047772816
+  },
+  "sequences": [
+    {
+      "name": "stand hit",
+      "start": 33,
+      "end": 533,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 01",
+      "start": 666,
+      "end": 1733,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "death",
+      "start": 1866,
+      "end": 4000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "spell Relax",
+      "start": 4133,
+      "end": 6800,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand",
+      "start": 6933,
+      "end": 8266,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk",
+      "start": 8400,
+      "end": 9600,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "satyrheretic.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "satyrheretic.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "stand hit": true,
+        "Attack 01": true,
+        "death": true,
+        "spell Relax": true,
+        "Stand": true,
+        "Walk": true
+      }
+    }
+  ]
+}

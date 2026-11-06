@@ -1,0 +1,688 @@
+{
+  "source": "chimaerus.mdx",
+  "version": 1000,
+  "scale": 0.014,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -3.4277347412109376,
+      0,
+      -2.23880029296875
+    ],
+    "max": [
+      1.5915186157226562,
+      7.020549255371094,
+      2.23880029296875
+    ],
+    "height": 7.020549255371094
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 4800,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 105319,
+      "end": 113319,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Alternate 1",
+      "start": 15909,
+      "end": 17909,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Alternate 2",
+      "start": 17910,
+      "end": 19910,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 271297,
+      "end": 274297,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 2",
+      "start": 274298,
+      "end": 277298,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 19911,
+      "end": 22578,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Swim 1",
+      "start": 70231,
+      "end": 72197,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Swim 2",
+      "start": 72198,
+      "end": 74164,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 78034,
+      "end": 81701,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 22579,
+      "end": 23676,
+      "move_speed": 3.7800000000000002,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Alternate 1",
+      "start": 6369,
+      "end": 7936,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Alternate 2",
+      "start": 4801,
+      "end": 6368,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Alternate 3",
+      "start": 11073,
+      "end": 12640,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Alternate 4",
+      "start": 44315,
+      "end": 49115,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Fast 1",
+      "start": 23677,
+      "end": 24774,
+      "move_speed": 3.7800000000000002,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Swim 1",
+      "start": 65027,
+      "end": 66327,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 27709,
+      "end": 28709,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 28710,
+      "end": 29710,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Alternate 1",
+      "start": 49116,
+      "end": 50516,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Alternate 2",
+      "start": 62225,
+      "end": 63425,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 277967,
+      "end": 279000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Channel 1",
+      "start": 129788,
+      "end": 138021,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Channel 2",
+      "start": 270296,
+      "end": 271296,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Channel Throw 1",
+      "start": 269295,
+      "end": 270295,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Slam 1",
+      "start": 279001,
+      "end": 280034,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Throw 1",
+      "start": 277299,
+      "end": 277966,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Morph 1",
+      "start": 99748,
+      "end": 100648,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Morph Alternate 1",
+      "start": 85370,
+      "end": 87303,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 143191,
+      "end": 147858,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death Alternate 1",
+      "start": 50517,
+      "end": 52483,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death Swim 1",
+      "start": 31779,
+      "end": 39646,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Bone 1",
+      "start": 207860,
+      "end": 267860,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh 1",
+      "start": 147859,
+      "end": 207859,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Swim 1",
+      "start": 39647,
+      "end": 44314,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "Geoset0",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "voidtouchedwolfbat_skin.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "voidtouchedwolfbat_skin.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Channel 1": true,
+        "Stand Channel 2": true,
+        "Stand Ready 1": true,
+        "Stand Swim 1": true,
+        "Stand Swim 2": true,
+        "Stand Victory 1": true,
+        "Walk 1": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Walk Alternate 3": true,
+        "Walk Alternate 4": true,
+        "Walk Fast 1": true,
+        "Walk Swim 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack Alternate 1": true,
+        "Attack Alternate 2": true,
+        "Spell 1": true,
+        "Spell Channel 1": true,
+        "Spell Channel 2": true,
+        "Spell Channel Throw 1": true,
+        "Spell Slam 1": true,
+        "Spell Throw 1": true,
+        "Morph 1": true,
+        "Morph Alternate 1": true,
+        "Death 1": true,
+        "Death Alternate 1": true,
+        "Death Swim 1": true,
+        "Decay Bone 1": true,
+        "Decay Flesh 1": true,
+        "Decay Swim 1": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "Geoset1",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 3,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "voidtouchedwolfbat_fx.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "voidtouchedwolfbat_fx.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Channel 1": true,
+        "Stand Channel 2": true,
+        "Stand Ready 1": true,
+        "Stand Swim 1": true,
+        "Stand Swim 2": true,
+        "Stand Victory 1": true,
+        "Walk 1": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Walk Alternate 3": true,
+        "Walk Alternate 4": true,
+        "Walk Fast 1": true,
+        "Walk Swim 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack Alternate 1": true,
+        "Attack Alternate 2": true,
+        "Spell 1": true,
+        "Spell Channel 1": true,
+        "Spell Channel 2": true,
+        "Spell Channel Throw 1": true,
+        "Spell Slam 1": true,
+        "Spell Throw 1": true,
+        "Morph 1": true,
+        "Morph Alternate 1": true,
+        "Death 1": true,
+        "Death Alternate 1": true,
+        "Death Swim 1": true,
+        "Decay Bone 1": true,
+        "Decay Flesh 1": true,
+        "Decay Swim 1": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "Geoset2",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "voidtouchedwolfbat_wings.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "voidtouchedwolfbat_wings.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Channel 1": true,
+        "Stand Channel 2": true,
+        "Stand Ready 1": true,
+        "Stand Swim 1": true,
+        "Stand Swim 2": true,
+        "Stand Victory 1": true,
+        "Walk 1": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Walk Alternate 3": true,
+        "Walk Alternate 4": true,
+        "Walk Fast 1": true,
+        "Walk Swim 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack Alternate 1": true,
+        "Attack Alternate 2": true,
+        "Spell 1": true,
+        "Spell Channel 1": true,
+        "Spell Channel 2": true,
+        "Spell Channel Throw 1": true,
+        "Spell Slam 1": true,
+        "Spell Throw 1": true,
+        "Morph 1": true,
+        "Morph Alternate 1": true,
+        "Death 1": true,
+        "Death Alternate 1": true,
+        "Death Swim 1": true,
+        "Decay Bone 1": true,
+        "Decay Flesh 1": true,
+        "Decay Swim 1": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "Geoset3",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 3,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "voidtouchedwolfbat_7197540.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "voidtouchedwolfbat_7197540.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Channel 1": true,
+        "Stand Channel 2": true,
+        "Stand Ready 1": true,
+        "Stand Swim 1": true,
+        "Stand Swim 2": true,
+        "Stand Victory 1": true,
+        "Walk 1": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Walk Alternate 3": true,
+        "Walk Alternate 4": true,
+        "Walk Fast 1": true,
+        "Walk Swim 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack Alternate 1": true,
+        "Attack Alternate 2": true,
+        "Spell 1": true,
+        "Spell Channel 1": true,
+        "Spell Channel 2": true,
+        "Spell Channel Throw 1": true,
+        "Spell Slam 1": true,
+        "Spell Throw 1": true,
+        "Morph 1": true,
+        "Morph Alternate 1": true,
+        "Death 1": true,
+        "Death Alternate 1": true,
+        "Death Swim 1": true,
+        "Decay Bone 1": true,
+        "Decay Flesh 1": true,
+        "Decay Swim 1": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "Geoset4",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "voidtouchedwolfbat_skin.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "voidtouchedwolfbat_skin.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Channel 1": true,
+        "Stand Channel 2": true,
+        "Stand Ready 1": true,
+        "Stand Swim 1": true,
+        "Stand Swim 2": true,
+        "Stand Victory 1": true,
+        "Walk 1": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Walk Alternate 3": true,
+        "Walk Alternate 4": true,
+        "Walk Fast 1": true,
+        "Walk Swim 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack Alternate 1": true,
+        "Attack Alternate 2": true,
+        "Spell 1": true,
+        "Spell Channel 1": true,
+        "Spell Channel 2": true,
+        "Spell Channel Throw 1": true,
+        "Spell Slam 1": true,
+        "Spell Throw 1": true,
+        "Morph 1": true,
+        "Morph Alternate 1": true,
+        "Death 1": true,
+        "Death Alternate 1": true,
+        "Death Swim 1": true,
+        "Decay Bone 1": true,
+        "Decay Flesh 1": true,
+        "Decay Swim 1": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "Geoset5",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "voidtouchedwolfbat_wings.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "voidtouchedwolfbat_wings.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Channel 1": true,
+        "Stand Channel 2": true,
+        "Stand Ready 1": true,
+        "Stand Swim 1": true,
+        "Stand Swim 2": true,
+        "Stand Victory 1": true,
+        "Walk 1": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Walk Alternate 3": true,
+        "Walk Alternate 4": true,
+        "Walk Fast 1": true,
+        "Walk Swim 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack Alternate 1": true,
+        "Attack Alternate 2": true,
+        "Spell 1": true,
+        "Spell Channel 1": true,
+        "Spell Channel 2": true,
+        "Spell Channel Throw 1": true,
+        "Spell Slam 1": true,
+        "Spell Throw 1": true,
+        "Morph 1": true,
+        "Morph Alternate 1": true,
+        "Death 1": true,
+        "Death Alternate 1": true,
+        "Death Swim 1": true,
+        "Decay Bone 1": true,
+        "Decay Flesh 1": true,
+        "Decay Swim 1": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "Geoset6",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 3,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "voidtouchedwolfbat_fx.png",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "voidtouchedwolfbat_fx.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand Alternate 1": true,
+        "Stand Alternate 2": true,
+        "Stand Channel 1": true,
+        "Stand Channel 2": true,
+        "Stand Ready 1": true,
+        "Stand Swim 1": true,
+        "Stand Swim 2": true,
+        "Stand Victory 1": true,
+        "Walk 1": true,
+        "Walk Alternate 1": true,
+        "Walk Alternate 2": true,
+        "Walk Alternate 3": true,
+        "Walk Alternate 4": true,
+        "Walk Fast 1": true,
+        "Walk Swim 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack Alternate 1": true,
+        "Attack Alternate 2": true,
+        "Spell 1": true,
+        "Spell Channel 1": true,
+        "Spell Channel 2": true,
+        "Spell Channel Throw 1": true,
+        "Spell Slam 1": true,
+        "Spell Throw 1": true,
+        "Morph 1": true,
+        "Morph Alternate 1": true,
+        "Death 1": true,
+        "Death Alternate 1": true,
+        "Death Swim 1": true,
+        "Decay Bone 1": true,
+        "Decay Flesh 1": true,
+        "Decay Swim 1": true
+      }
+    }
+  ]
+}

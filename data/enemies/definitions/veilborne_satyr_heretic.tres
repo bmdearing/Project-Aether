@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyDefinition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://entities/enemies/models/VeilborneSatyrHereticModel.tscn" id="2"]
+[ext_resource type="Resource" path="res://data/enemies/animation_sets/veilborne_satyr_heretic.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Veilborne Heretic"
+faction = "veilborne"
+lore_description = "A satyr who heard the Choir and sang back the wrong words. Carries a shield against the others who heard it."
+model_scene = ExtResource("2")
+animation_set = ExtResource("3")
+scale_modifier = 1.0
+model_yaw_offset = -1.5707964
+mob_level = 2
+archetype_category = "standard"
+ward_percent = 0.0
+armor_value = 120.0
+evasion_value = 60.0
+damage_type = 7
+move_speed = 4.4
+chase_range = 15.0
+stop_distance = 1.8
+retreat_distance = 0.0
+is_ranged = false
+attack_range = 2.0
+attack_cooldown = 1.4
+xp_reward = 12.0
+gold_reward_min = 3
+gold_reward_max = 7
+pack_size_min = 2
+pack_size_max = 3
+weight_normal = 75
+weight_elite = 20
+weight_champion = 4
+weight_ascendant = 1

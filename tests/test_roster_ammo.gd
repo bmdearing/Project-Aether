@@ -14,6 +14,7 @@ const UNIT_IDS := [
 	"hollowed_ghoul", "hollowed_abomination", "hollowed_crypt_fiend", "directorate_rifleman",
 	"unchartered_peon", "unchartered_grunt", "unchartered_berserker", "legion_infernal",
 	"legion_doom_guard", "veilborne_faerie_dragon", "veilborne_destroyer",
+	"unchartered_sea_dog", "veilborne_satyr_heretic", "synod_gilded_sentinel",
 ]
 const UNIT_SCENES := ["res://entities/enemies/units/MeleeUnit.tscn", "res://entities/enemies/units/RangedUnit.tscn"]
 const MAP_RUNS := 20

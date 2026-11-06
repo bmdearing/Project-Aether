@@ -357,6 +357,9 @@ const ENEMY_PACKS_NORMAL := [
 	{"weight": 0.3, "units": [["legion_doom_guard", 1, 1], ["legion_infernal", 0, 1]]},
 	{"weight": 0.6, "units": [["veilborne_faerie_dragon", 2, 4]]},
 	{"weight": 0.4, "units": [["veilborne_destroyer", 1, 1], ["veilborne_faerie_dragon", 1, 2]]},
+	{"weight": 0.7, "units": [["unchartered_sea_dog", 2, 3], ["unchartered_javelineer", 0, 1]]},
+	{"weight": 0.6, "units": [["veilborne_satyr_heretic", 2, 3], ["veilborne_mindbender", 0, 1]]},
+	{"weight": 0.4, "units": [["synod_gilded_sentinel", 1, 1], [SYNOD_GOLEMS, 0, 1]]},
 ]
 
 # Combined cap across all cooldown reduction sources (Ability.get_final_cooldown()).
