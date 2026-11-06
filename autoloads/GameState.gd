@@ -90,6 +90,12 @@ var fate_board_star_lenses: Dictionary = {}
 
 ## Dropped by enemies, spent at the Hub's GearShop.
 var gold: int = 0
+## Crafting residue per pool (Residue.gd ids), and the bosses killed at least
+## once (definition file names), which open their Vestige crafts.
+var residue: Dictionary = {}
+var killed_bosses: Array[String] = []
+## Siphon foresight: outcomes shown per craft (0 = off). Dev toggle only for now.
+var foresight_outcomes: int = 0
 ## Seconds played on this character (counted while unpaused).
 var play_time: float = 0.0
 ## The GearShop stock, kept until the player levels up or SHOP_RESTOCK_SECONDS
@@ -195,6 +201,8 @@ func sync_fate_board(board: FateBoard) -> void:
 	fate_board_star_lenses = stars
 
 func reset_to_defaults() -> void:
+	residue = {}
+	killed_bosses = []
 	equipment_refs = DEFAULT_EQUIPMENT_PATHS.duplicate()
 	weapon_set_refs = [DEFAULT_WEAPON_SET_0_PATHS.duplicate(), []]
 	active_weapon_set = 0

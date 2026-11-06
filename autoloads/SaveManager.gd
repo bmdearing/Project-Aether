@@ -119,6 +119,9 @@ func save_game() -> void:
 		"player_level": GameState.player_level,
 		"player_xp": GameState.player_xp,
 		"gold": GameState.gold,
+		"residue": GameState.residue,
+		"killed_bosses": GameState.killed_bosses,
+		"foresight_outcomes": GameState.foresight_outcomes,
 		"play_time": GameState.play_time,
 		"shop_stock": GameState.shop_stock.to_dict() if GameState.shop_stock else {},
 		"shop_stock_level": GameState.shop_stock_level,
@@ -192,6 +195,7 @@ func _read_save(path: String) -> Dictionary:
 	return parsed
 
 func load_game() -> void:
+	GridInventory.legacy_currency_found = {}
 	load_shared_stash()
 	var parsed := _read_save(_path())
 	if parsed.is_empty():
@@ -225,6 +229,13 @@ func load_game() -> void:
 	GameState.player_level = int(parsed.get("player_level", GameState.player_level))
 	GameState.player_xp = float(parsed.get("player_xp", GameState.player_xp))
 	GameState.gold = int(parsed.get("gold", GameState.gold))
+	GameState.residue = {}
+	var residue_raw: Variant = parsed.get("residue", {})
+	if residue_raw is Dictionary:
+		for pool in residue_raw:
+			GameState.residue[StringName(pool)] = int(residue_raw[pool])
+	GameState.killed_bosses = _to_string_array(parsed.get("killed_bosses", []), [] as Array[String])
+	GameState.foresight_outcomes = int(parsed.get("foresight_outcomes", 0))
 	GameState.play_time = float(parsed.get("play_time", 0.0))
 	var shop_raw: Variant = parsed.get("shop_stock", {})
 	GameState.shop_stock = GridInventory.from_dict(shop_raw) if shop_raw is Dictionary and not shop_raw.is_empty() else null
@@ -286,6 +297,19 @@ func load_game() -> void:
 
 	if int(parsed.get("inventory_version", 1)) < INVENTORY_VERSION:
 		_migrate_legacy_inventory(parsed)
+	_refund_legacy_currency()
+
+## Crafting Rev 3: every removed Orb, Brand, Edict or Stone found in the
+## inventory or stash refunds LEGACY_CURRENCY_REFUND to each regular pool.
+func _refund_legacy_currency() -> void:
+	var total := 0
+	for id in GridInventory.legacy_currency_found:
+		total += int(GridInventory.legacy_currency_found[id])
+	GridInventory.legacy_currency_found = {}
+	if total <= 0:
+		return
+	for pool in Residue.REGULAR:
+		Residue.add(pool, total * Constants.LEGACY_CURRENCY_REFUND)
 
 ## Deletes a slot's save (the current slot by default).
 func delete_save(n: int = -1) -> void:
@@ -334,9 +358,7 @@ func _migrate_legacy_inventory(parsed: Dictionary) -> void:
 			equipped_keys.erase(key)
 			continue
 		if ItemSerializer.is_legacy_brand(entry):
-			var currency := ItemSerializer.legacy_brand_currency(entry)
-			if currency != &"":
-				_store_migrated(currency)
+			GridInventory._note_legacy(String(entry.get("item_id", "")), 1)
 			continue
 		var item := ItemSerializer.from_dict(entry)
 		if item:

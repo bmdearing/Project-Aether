@@ -121,21 +121,21 @@ func _test_rolls() -> void:
 	_finished += 1
 
 func _test_crafting() -> void:
+	for pool in Residue.REGULAR:
+		GameState.residue[pool] = 2000
 	var resolver := CraftingResolver.create_default()
 	var jewel := Jewel.new()
 	jewel.item_level = 80  # Tier 1 needs item level 80
-	var r := resolver.apply(jewel, &"quickening")
-	_check(r.success and jewel.rarity == Constants.ItemRarity.UNCOMMON and jewel.affixes.size() == 1, "Quickening makes an Uncommon jewel with one modifier")
-	_check(jewel.affixes.all(func(a): return JewelModifierPool.STAT_KEYS.has(a.stat_key)), "Orbs roll from the jewel pool")
-	var forged := Jewel.new()
-	forged.item_level = 50
-	r = resolver.apply(forged, &"forging")
-	var prefixes := forged.affixes.filter(func(a: ItemAffix): return a.is_prefix).size()
-	_check(r.success and forged.rarity == Constants.ItemRarity.RARE and forged.affixes.size() == 2 and prefixes == 1, "Forging fills a jewel to 1 prefix + 1 suffix")
-	r = resolver.apply(forged, &"ascendant")
+	var r := resolver.apply(jewel, &"add")
+	_check(r.success and jewel.rarity == Constants.ItemRarity.UNCOMMON and jewel.affixes.size() == 1, "an add makes an Uncommon jewel with one modifier")
+	_check(jewel.affixes.all(func(a): return JewelModifierPool.STAT_KEYS.has(a.stat_key)), "the Siphon rolls from the jewel pool")
+	r = resolver.apply(jewel, &"add")
+	var prefixes := jewel.affixes.filter(func(a: ItemAffix): return a.is_prefix).size()
+	_check(r.success and jewel.rarity == Constants.ItemRarity.RARE and jewel.affixes.size() == 2 and prefixes == 1, "a second add fills a jewel to 1 prefix + 1 suffix as a Rare")
+	r = resolver.apply(jewel, &"add")
 	_check(not r.success, "a full jewel takes no more modifiers")
-	r = resolver.apply(Jewel.new(), &"opening")
-	_check(not r.success, "jewels have no sockets to open")
+	r = resolver.apply(Jewel.new(), &"sockets")
+	_check(not r.success, "jewels have no sockets")
 	_finished += 1
 
 func _test_stats() -> void:

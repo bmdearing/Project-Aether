@@ -2,7 +2,7 @@ extends Node
 ## Reap and Wraith, and the Minion modifiers: Reap hits what's in its arc
 ## and not behind you; Wraith drinks all your Ward, locks Ward recovery while
 ## it lives, strikes enemies, hits harder for more Ward, and scales with
-## increased Minion damage; the Minion modifiers and Brand exist.
+## increased Minion damage; the Minion modifiers and crafting family exist.
 ## Run: Godot --headless --path . res://tests/minions/test_minions.tscn --quit-after 12000
 
 const ABILITY_DIR := "res://data/abilities/instances/"
@@ -153,6 +153,6 @@ func _test_modifiers() -> void:
 	var keys := ItemRoller.AFFIX_POOL.map(func(e): return e["stat_key"])
 	_check(keys.has("minion_damage") and keys.has("minion_attack_speed") and keys.has("minion_duration"), "gear can roll Minion modifiers")
 	_check(JewelModifierPool.STAT_KEYS.has("minion_damage"), "Jewels can roll Minion damage")
-	_check(ResourceLoader.exists("res://data/crafting/brands/brand_minion.tres"), "there's a Minion Brand")
+	_check(Constants.CRAFT_FAMILIES.has(&"minion"), "there's a Minion crafting family")
 	_check(SlateAffixPool.get_pool_for_tag("spell").any(func(a): return a.stat_key == "minion_damage"), "Spell Slates can roll Minion damage")
 	_check(_ability("wraith").has_tag(Ability.TAG_MINION) and "Minion" in _ability("wraith").get_tag_names(), "Wraith is a Minion spell")

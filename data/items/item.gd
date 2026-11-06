@@ -34,12 +34,12 @@ class_name Item
 
 func get_quality_cap() -> int:
 	return Constants.QUALITY_CAP + quality_cap_bonus
-## Orb crafting state (see CraftingResolver). sockets_rolled marks the one
-## Orb of Opening use; tolerance is the lifetime crafting budget, rolled on drop.
+## Siphon crafts made on this item; each costs more (CraftingResolver.cost_of()).
+@export var craft_count: int = 0
+## Retired (Orb of Opening, Aether Tolerance), kept only so old saves load.
 @export var sockets_rolled: bool = false
 @export var tolerance: int = 0
 @export var tolerance_max: int = 0
-@export var active_edict: EdictDef
 ## Overrides the derived type key (see get_item_type()).
 @export var item_type: StringName = &""
 @export var affixes: Array[ItemAffix] = []
@@ -147,7 +147,9 @@ func get_local_defence(defence: String) -> float:
 		if affix.key() == "hybrid_defense_life":
 			EquipmentComponent._add_hybrid_defense(hybrid, self, affix.value)
 	var flat: float = own_affix_total("flat_" + defence) + float(hybrid.get("flat_" + defence, 0.0))
-	return ((float(base) if base != null else 0.0) + flat) * (1.0 + own_affix_total("increased_" + defence) / 100.0)
+	# Quality (Tempering): 1% more base defence per point.
+	var quality_base := (float(base) if base != null else 0.0) * (1.0 + quality / 100.0)
+	return (quality_base + flat) * (1.0 + own_affix_total("increased_" + defence) / 100.0)
 
 ## The item's own modifiers plus those of the jewels in its sockets, and
 ## for the Band of Wishes the other ring's too: what the stat totals read.

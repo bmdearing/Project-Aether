@@ -395,13 +395,11 @@ func _add_craft_section(preview: CraftPreview) -> void:
 	if preview == null:
 		return
 	_add_separator()
-	var orb_name := CurrencyText.name_of(preview.orb_id)
+	var orb_name := CurrencyText.name_of(StringName("craft_" + String(preview.craft_id)))
 	if not preview.is_valid():
 		_add_mod_line("%s: %s" % [orb_name, CurrencyText.error_message(CraftResult.error_name(preview.error))], REQUIREMENT_UNMET_COLOR)
 		return
-	_add_mod_line(orb_name, CURRENCY_COLOR)
-	if not preview.applied_brands.is_empty():
-		_add_mod_line("Brands: " + ", ".join(preview.applied_brands.map(func(b): return CurrencyText.name_of(b))), BRAND_COLOR)
+	_add_mod_line("%s  (%d residue)" % [orb_name, preview.cost], CURRENCY_COLOR)
 	if preview.outcomes.is_empty():
 		return
 	var outcomes := preview.outcomes.duplicate()
@@ -410,7 +408,7 @@ func _add_craft_section(preview: CraftPreview) -> void:
 	var by_line: Dictionary = {}
 	for o in outcomes:
 		var def: ModifierDef = o["def"]
-		var text := (def.text if def.text != "" else String(def.id)).replace("%d", "#").replace("%%", "%").replace("%s", "#")
+		var text := (def.text if def.text != "" else String(def.id)).replace("%d", "#").replace("%.1f", "#").replace("%%", "%").replace("%s", "#")
 		by_line[text] = by_line.get(text, 0.0) + float(o["probability"])
 	var lines := by_line.keys()
 	lines.sort_custom(func(a, b): return by_line[a] > by_line[b])
@@ -421,7 +419,7 @@ func _add_craft_section(preview: CraftPreview) -> void:
 	for text in lines.slice(0, CRAFT_OUTCOME_LINES):
 		_add_mod_line("%s  (%.0f%%)" % [text, by_line[text] * 100.0], STAT_COLOR)
 	if lines.size() > CRAFT_OUTCOME_LINES:
-		_add_mod_line("...and %d more. Brands narrow the pool." % (lines.size() - CRAFT_OUTCOME_LINES), SUBTITLE_COLOR)
+		_add_mod_line("...and %d more. Pick a family to narrow the pool." % (lines.size() - CRAFT_OUTCOME_LINES), SUBTITLE_COLOR)
 
 ## Patch v3.8 Section 4: Motion Value/Predicted Damage/Scaling Grade
 ## removed from the main card (Scaling Grade moved to Alt Info); Cast

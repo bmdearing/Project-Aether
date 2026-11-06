@@ -137,9 +137,11 @@ func _test_saving_and_crafting() -> void:
 	_check(copy.unique_id == "the_pale_eye" and copy.rarity == Constants.ItemRarity.UNIQUE and copy.display_name == eye.display_name, "a unique survives a save")
 	_check(copy.affixes.size() == eye.affixes.size() and copy.flavor_text == eye.flavor_text, "its modifiers and flavour survive too")
 	var resolver := CraftingResolver.create_default()
-	_check(not resolver.apply(eye, &"ascendant").success and not resolver.apply(eye, &"reckoning").success, "Orbs don't work on uniques")
+	for pool in Residue.REGULAR:
+		GameState.residue[pool] = 2000
+	_check(not resolver.apply(eye, &"add").success and not resolver.apply(eye, &"settle").success, "the Siphon only does sockets on uniques")
 	var solen := _unique("unmaking_of_solen_vrath") as Weapon
-	_check(not CraftingSystem.infuse(solen)["success"] and solen.infused_damage_type == -1, "Solen Vrath can't be Infused")
+	_check(not resolver.apply(solen, &"retype", &"fire").success and solen.infused_damage_type == -1, "Solen Vrath can't be retyped")
 	_finished += 1
 
 func _test_defensive_uniques() -> void:

@@ -1,16 +1,15 @@
 extends Control
 class_name CurrencyTabView
 ## The stash's Currency tab, laid out like Path of Exile's: every currency
-## has its own fixed slot, grouped (Orbs, stones, fragments, Brands,
-## Edicts), showing the total held. Empty slots show the currency faded.
+## has its own fixed slot, grouped (crafting items, fragments), showing the
+## total held. Empty slots show the currency faded.
 ## Storage is still the stash's CURRENCY GridInventory; this only shows it.
 ## Click a slot to take a stack (Shift or Ctrl: as much as fits); drop
 ## currency from the inventory anywhere on the tab to store it.
 ##
 ## Right-click a currency to hold it on the cursor and click any item to use
-## it, as in PoE; Brands and Edicts right-click on for the next craft. The
-## Crafting Bench holds one item to craft on here, and hovering an Orb shows
-## what it would do to it (StashScreen does the crafting).
+## it, as in PoE (Tempering and the Shard). The Crafting Bench holds one item
+## to use them on here (StashScreen does the crafting).
 
 signal slot_clicked(id: StringName, take_all: bool)
 signal currency_dropped(data: Dictionary)
@@ -25,16 +24,8 @@ const PAD := 18.0
 ## Slots between groups on a shelf, and between shelves.
 const GROUP_GAP := 1.0
 const SHELF_GAP := 0.5
-const ORBS: Array[StringName] = [&"quickening", &"grafting", &"severance", &"reckoning", &"tempering", &"elevation",
-	&"recasting", &"ascendant", &"absolution", &"opening", &"forging", &"anchoring"]
-const STONES: Array[StringName] = [&"infusion_stone", &"shrivening_stone", &"shard_of_tharsis", &"crystallized_aether"]
+const CRAFTING: Array[StringName] = [&"tempering", &"shard_of_tharsis", &"crystallized_aether"]
 const FRAGMENTS: Array[StringName] = [&"maw_fragment_ash", &"maw_fragment_tide", &"maw_fragment_storm", &"maw_fragment_hollow"]
-const DAMAGE_BRANDS: Array[StringName] = [&"brand_kinetic", &"brand_piercing", &"brand_explosive", &"brand_fire", &"brand_cold",
-	&"brand_lightning", &"brand_aetheric", &"brand_entropic", &"brand_pale"]
-const DEFENCE_BRANDS: Array[StringName] = [&"brand_armor", &"brand_evasion", &"brand_ward", &"brand_resistance", &"brand_resilience", &"brand_life", &"brand_mana"]
-const EDICTS: Array[StringName] = [&"edict_prefix", &"edict_suffix", &"edict_spell", &"edict_attack",
-	&"edict_level_61", &"edict_level_72", &"edict_level_83"]
-const OTHER_BRANDS: Array[StringName] = [&"brand_spell", &"brand_attack", &"brand_critical", &"brand_minion", &"brand_dot", &"brand_speed", &"brand_prefix", &"brand_suffix", &"brand_preservation"]
 const COLUMNS := 12
 const BENCH := &"_bench"
 ## Bench size in slots.
@@ -43,13 +34,8 @@ const BENCH_SLOTS := 2
 ## Groups in order, packed left to right onto shelves COLUMNS wide
 ## (_layout()), so none can overlap however many ids a group has.
 var _groups: Array[Dictionary] = [
-	{"cols": 6, "ids": ORBS},
-	{"cols": 2, "ids": STONES},
+	{"cols": 3, "ids": CRAFTING},
 	{"cols": 2, "ids": FRAGMENTS},
-	{"cols": 5, "ids": DAMAGE_BRANDS},
-	{"cols": 4, "ids": DEFENCE_BRANDS},
-	{"cols": 4, "ids": OTHER_BRANDS},
-	{"cols": 4, "ids": EDICTS},
 	{"cols": BENCH_SLOTS, "ids": [] as Array[StringName], "bench": true},
 ]
 
@@ -65,8 +51,6 @@ var bench_item: Resource:
 			_bench.refresh()
 ## Optional (id) -> CraftPreview of that currency on the bench item.
 var preview_for: Callable
-## Optional (id) -> bool: a Brand switched on for the next bench craft.
-var brand_active: Callable
 ## Optional (id) -> bool: that currency is on the cursor.
 var held: Callable
 var _slots: Dictionary = {}  # id -> CurrencySlot
@@ -180,7 +164,7 @@ func _drop_data(_at_position: Vector2, data: Variant) -> void:
 ## Whether a currency does something on the bench item when right-clicked.
 static func is_bench_currency(id: StringName) -> bool:
 	var s := String(id)
-	return Constants.ORB_IDS.has(id) or s.begins_with("edict_") or s.begins_with("brand_")
+	return Constants.CRAFTING_CONSUMABLE_IDS.has(s)
 
 class CurrencySlot extends Button:
 	var view: CurrencyTabView
@@ -218,9 +202,6 @@ class CurrencySlot extends Button:
 	func _draw() -> void:
 		if _label:
 			_label.text = CurrencyTabView.short_count(count) if count > 0 else ""
-		# A Brand switched on for the bench glows.
-		if view.brand_active.is_valid() and view.brand_active.call(id):
-			draw_rect(Rect2(Vector2.ZERO, size).grow(-1), Color(1.0, 0.75, 0.3), false, 2.5)
 		# The currency on the cursor.
 		if view.held.is_valid() and view.held.call(id):
 			draw_rect(Rect2(Vector2.ZERO, size).grow(-1), Color(1.0, 0.95, 0.7), false, 3.0)
@@ -235,25 +216,12 @@ class CurrencySlot extends Button:
 				view.slot_used.emit(id)
 				accept_event()
 
-	## With an item on the bench, an Orb shows the item with what the Orb
-	## would do to it (removals marked orange, the modifiers it can add).
 	func _make_custom_tooltip(_for_text: String) -> Object:
 		var card: ItemCard = ItemSlotButton.new_item_card()
-		var bench := view.bench_item
-		if bench != null and Constants.ORB_IDS.has(id) and view.preview_for.is_valid():
-			var preview: CraftPreview = view.preview_for.call(id)
-			card.craft_preview_for = func(_t: Resource) -> CraftPreview: return preview
-			if bench is Slate:
-				card.display_slate(bench as Slate)
-			else:
-				card.display_item(bench as Item)
-			return card
 		var hint := "None stored."
 		if count > 0:
 			var s := String(id)
-			if s.begins_with("brand_") or s.begins_with("edict_"):
-				hint = "Right-click to switch it on for your next craft from the stash. Click to take a stack (Shift: as much as fits)."
-			elif Constants.ORB_IDS.has(id) or Constants.CRAFTING_CONSUMABLE_IDS.has(s):
+			if Constants.CRAFTING_CONSUMABLE_IDS.has(s):
 				hint = "Right-click to pick it up, then click an item to use it (hold Shift to keep using it). Click to take a stack (Shift: as much as fits)."
 			else:
 				hint = "Click to take a stack. Shift-click to take as much as fits."

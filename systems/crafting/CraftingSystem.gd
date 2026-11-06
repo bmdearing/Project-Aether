@@ -1,9 +1,9 @@
 extends RefCounted
 class_name CraftingSystem
-## The crafting actions that sit outside the Orb system (Crafting &
-## Inventory Rev2 Part 1): Infusion/Shrivening Stone, the Shard of Tharsis
-## (a thin wrapper around CorruptionSystem.gd), and Figment empowering.
-## Orb crafting is CraftingResolver.gd. The old Cube was removed in Rev2.
+## The crafting actions outside the Siphon (Crafting Rev 3): the two physical
+## crafting items (Tempering and the Shard of Tharsis, a thin wrapper around
+## CorruptionSystem.gd), the map-mod crafts the Siphon runs on Figments, and
+## Figment empowering. Siphon crafting is CraftingResolver.gd.
 
 ## Figment "affixes" are FigmentMods mods, not player stats, so empowering
 ## is its own Gold-priced action. It can't pass the highest tier a Figment
@@ -24,33 +24,21 @@ static func empower_figment(figment: FigmentItem) -> Dictionary:
 	FigmentRoller.strengthen(figment)
 	return {"success": true, "message": "The Figment grows harder - now Tier %d." % figment.tier}
 
-## ---- Infusion / Shrivening Stone ---------------------------------
+## ---- Tempering ---------------------------------------------------
 
-## Rerolls a weapon's damage-type identity to a random type other than
-## its own native one.
-static func infuse(weapon: Weapon) -> Dictionary:
-	if weapon == null:
-		return {"success": false, "message": "Choose a weapon to infuse."}
-	if weapon.rarity >= Constants.ItemRarity.UNIQUE:
-		return {"success": false, "message": "Unique weapons cannot be Infused."}
-	if weapon.get_all_affixes().any(func(a: ItemAffix): return a.stat_key == UniqueEffects.NO_INFUSION):
-		return {"success": false, "message": "%s cannot be Infused." % weapon.display_name}
-	var options: Array = Constants.DamageType.values().filter(func(t): return t != weapon.native_damage_type)
-	weapon.infused_damage_type = options[randi() % options.size()]
-	EventBus.item_stats_changed.emit(weapon)
-	return {"success": true, "message": "Infused with %s." % Constants.DAMAGE_TYPE_NAME.get(weapon.infused_damage_type, "?")}
-
-static func shrive(weapon: Weapon) -> Dictionary:
-	if weapon == null:
-		return {"success": false, "message": "Choose a weapon to shrive."}
-	if weapon.rarity >= Constants.ItemRarity.UNIQUE:
-		return {"success": false, "message": "Unique weapons cannot be Shriven."}
-	if weapon.infused_damage_type == -1:
-		return {"success": false, "message": "This weapon has no infusion to remove."}
-	var native_name: String = Constants.DAMAGE_TYPE_NAME.get(weapon.native_damage_type, "?")
-	weapon.infused_damage_type = -1
-	EventBus.item_stats_changed.emit(weapon)
-	return {"success": true, "message": "The infusion is stripped away - back to native %s." % native_name}
+## Raises a weapon's or armour piece's quality (weapons: 1% more weapon
+## damage per point; armour and shields: 1% more base defences). Works on
+## corrupted, Unique and Mythic items too.
+static func temper(item: Item) -> Dictionary:
+	if not (item is Weapon or item is Armor or item is Shield):
+		return {"success": false, "message": "Tempering only works on weapons and armour."}
+	if item.quality >= item.get_quality_cap():
+		return {"success": false, "message": CurrencyText.error_message("QUALITY_CAPPED")}
+	var before := item.quality
+	item.quality = mini(item.get_quality_cap(), item.quality + randi_range(Constants.TEMPERING_QUALITY_GAIN.x, Constants.TEMPERING_QUALITY_GAIN.y))
+	EventBus.item_quality_changed.emit(item)
+	EventBus.item_stats_changed.emit(item)
+	return {"success": true, "message": "Quality +%d%% (now %d%%)." % [item.quality - before, item.quality]}
 
 ## ---- Shard of Tharsis (Corruption) --------------------------------
 
@@ -86,55 +74,32 @@ static func _random_affix_for(item: Item, pool: Array, power_level: int, exclude
 	affix.is_prefix = item.affixes.size() % 2 == 0
 	return affix
 
-## ---- Orbs on Figments -------------------------------------------------------
+## ---- Siphon crafts on Figments ------------------------------------------
 
-## Orbs on a Figment work on its map mods (FigmentMods), not gear modifiers:
-## quickening (Common: 1-2 mods), forging (Common: a full roll), elevation
-## (Uncommon: +2), grafting (Uncommon: +1), ascendant (Rare: +1), recasting
-## (reroll all), severance (remove one), absolution (remove all), reckoning
-## (reroll values). Mods never pass the band's maximum count.
-const FIGMENT_ORBS: Array[StringName] = [&"quickening", &"forging", &"elevation", &"grafting", &"ascendant", &"recasting", &"severance", &"absolution", &"reckoning"]
-
-static func craft_figment(figment: FigmentItem, orb_id: StringName) -> Dictionary:
-	if not FIGMENT_ORBS.has(orb_id):
-		return {"success": false, "message": "%s has no effect on a Figment." % CurrencyText.name_of(orb_id)}
+## The Siphon on a Figment works on its map mods (FigmentMods), not gear
+## modifiers: add (+1), recast (one mod replaced), bleed (one removed),
+## absolve (all removed), settle (values rerolled). Mods never pass the
+## band's maximum count. CraftingResolver validates; this applies.
+static func figment_craft(figment: FigmentItem, craft_id: StringName) -> void:
 	var count := figment.affixes.size()
-	var cap := figment_mod_cap(figment)
-	var rarity := figment.rarity if count > 0 else Constants.ItemRarity.COMMON
-	match orb_id:
-		&"quickening", &"forging":
-			if count > 0:
-				return {"success": false, "message": "Only works on a Figment with no mods."}
-			_add_figment_mods(figment, randi_range(1, 2) if orb_id == &"quickening" else FigmentMods.roll_mod_count(figment.tier))
-		&"elevation", &"grafting", &"ascendant":
-			var needed := Constants.ItemRarity.RARE if orb_id == &"ascendant" else Constants.ItemRarity.UNCOMMON
-			if rarity != needed:
-				return {"success": false, "message": "Only works on a%s %s Figment." % ["" if needed == Constants.ItemRarity.RARE else "n", "Rare" if needed == Constants.ItemRarity.RARE else "Uncommon"]}
-			if count >= cap:
-				return {"success": false, "message": "This Figment already has its most mods (%d)." % cap}
-			_add_figment_mods(figment, 2 if orb_id == &"elevation" else 1)
-		&"recasting":
-			if count == 0:
-				return {"success": false, "message": "This Figment has no mods to reroll."}
+	match craft_id:
+		&"add":
+			_add_figment_mods(figment, 1)
+		&"recast":
+			var removed: ItemAffix = figment.affixes[randi() % count]
+			figment.affixes.erase(removed)
+			_add_figment_mods(figment, 1)
+		&"bleed":
+			figment.affixes.remove_at(randi() % count)
+		&"absolve":
 			figment.affixes = [] as Array[ItemAffix]
-			_add_figment_mods(figment, clampi(count, 1, cap))
-		&"severance", &"absolution":
-			if count == 0:
-				return {"success": false, "message": "This Figment has no mods to remove."}
-			if orb_id == &"absolution":
-				figment.affixes = [] as Array[ItemAffix]
-			else:
-				figment.affixes.remove_at(randi() % count)
-		&"reckoning":
-			if count == 0:
-				return {"success": false, "message": "This Figment has no mods to reroll."}
+		&"settle":
 			for affix in figment.affixes:
 				affix.value = FigmentMods.roll_value(affix.stat_key, figment.tier)
 				affix.description = FigmentMods.describe(affix.stat_key, affix.value, affix.damage_type)
 	FigmentRoller._finish(figment)
 	if figment.affixes.is_empty():
 		figment.rarity = Constants.ItemRarity.COMMON
-	return {"success": true, "message": "%s used: %d mod%s." % [CurrencyText.name_of(orb_id), figment.affixes.size(), "" if figment.affixes.size() == 1 else "s"]}
 
 ## Most mods a Figment can hold: its band's top count (plus the Figment Tree's extra mod).
 static func figment_mod_cap(figment: FigmentItem) -> int:

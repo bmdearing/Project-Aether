@@ -90,11 +90,12 @@ static func _learn_spells() -> void:
 static func _stock_currency() -> void:
 	var tab := GameState.stash.get_tab(GridInventory.Accepts.CURRENCY)
 	var stock := {Ability.AETHER_CURRENCY: AETHER}
-	for id in Constants.ORB_IDS:
-		stock[id] = ORBS_EACH
 	for id in Constants.CRAFTING_CONSUMABLE_IDS:
 		stock[StringName(id)] = ORBS_EACH
 	for id in stock:
 		var left: int = tab.add(id, stock[id]) if tab else stock[id]
 		if left > 0:
 			GameState.add_to_inventory(id, left)
+	for pool in Residue.REGULAR:
+		Residue.add(pool, Constants.RESIDUE_POOL_CAP)
+	Residue.add(Residue.BOSS, Constants.RESIDUE_BOSS_POOL_CAP)

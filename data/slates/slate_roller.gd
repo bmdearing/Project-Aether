@@ -84,31 +84,23 @@ static func roll(power_level: int = 1, rarity_multiplier: float = 1.0) -> Slate:
 	slate.modifiers = _roll_modifiers(slate.tag, tile_count, power_level)
 	slate.aether_cost = tile_count + RARITY_AETHER_BONUS.get(bracket_rarity, 0)
 	slate.sockets = _roll_sockets(tile_count)
-	CraftingResolver.roll_tolerance(slate)
 	roll_rarity_modifiers(slate, Loot.roll_rarity(rarity_multiplier))
 	return slate
 
-## Uncommon: 1-2 modifiers (Quickening, then maybe Grafting); Rare and above:
-## 3-4 (Forging). Applied without spending the Slate's Aether Tolerance.
+## Uncommon: 1-2 modifiers; Rare and above: 3-4. Rolled like Siphon adds,
+## without paying or counting crafts.
 static func roll_rarity_modifiers(slate: Slate, item_rarity: int) -> void:
-	var orbs: Array[StringName] = []
+	var count := 0
 	if item_rarity == Constants.ItemRarity.UNCOMMON:
-		orbs.append(&"quickening")
-		if randf() < 0.5:
-			orbs.append(&"grafting")
+		count = randi_range(1, 2)
 	elif item_rarity >= Constants.ItemRarity.RARE:
-		orbs.append(&"forging")
-	if orbs.is_empty():
-		return
+		count = randi_range(3, 4)
 	var resolver := CraftingResolver.create_default()
-	for orb in orbs:
-		var target := CraftTarget.wrap(slate)
-		var ctx := resolver._resolve_brands(orb, null)
-		if resolver._check(target, orb, ctx, null) != CraftResult.CraftError.NONE:
+	var target := CraftTarget.wrap(slate)
+	for i in count:
+		if resolver._check(target, &"add", &"", -1) != CraftResult.CraftError.NONE:
 			return
-		var sim := resolver._simulate(target, orb, ctx, null)
-		if sim["error"] != CraftResult.CraftError.NONE:
-			return
+		var sim := resolver._simulate(target, &"add", &"", -1)
 		target.set_explicits(sim["explicits"])
 		target.set_rarity(sim["rarity"])
 

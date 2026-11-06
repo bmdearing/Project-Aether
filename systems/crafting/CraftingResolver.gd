@@ -1,531 +1,453 @@
 extends RefCounted
 class_name CraftingResolver
-## Orb crafting (Crafting & Inventory Rev2, Parts 1-5). preview() has no side
-## effects; apply() validates everything first, so a failed craft consumes
-## nothing - no Orb, no Brands, no tolerance - and leaves the Edict in place.
+## The Siphon (Crafting Rev 3): crafts paid in residue. preview() has no side
+## effects. begin() validates everything first (a failed craft spends nothing),
+## then pays, counts the craft on the item and simulates the outcomes; the
+## CraftSession it returns applies one (choose) or none (decline). apply() is
+## begin + choose(0) with the default payment.
+##
+## family: a modifier tag (CRAFT_FAMILIES) for add/recast/bleed/settle, a
+## damage type name for retype, a boss id for vestige_add; &"" = unfocused.
+## choice: the explicit's index for anchor.
 
 const E := CraftResult.CraftError
 const PREFIX := ModifierDef.AffixType.PREFIX
 const SUFFIX := ModifierDef.AffixType.SUFFIX
 
-enum OrbKind { ADD, RECAST, REMOVE, OTHER }
-
-const POOLS_DIR := "res://data/crafting/pools/"
-const BRANDS_DIR := "res://data/crafting/brands/"
-const EDICTS_DIR := "res://data/crafting/edicts/"
+const CRAFT_IDS: Array[StringName] = [&"add", &"recast", &"bleed", &"absolve", &"settle", &"anchor", &"sockets", &"retype", &"restore_type", &"vestige_add"]
+const FAMILY_CRAFTS: Array[StringName] = [&"add", &"recast", &"bleed", &"settle"]
+## Crafts a Figment takes (on its map mods, unfocused, any pool).
+const FIGMENT_CRAFTS: Array[StringName] = [&"add", &"recast", &"bleed", &"absolve", &"settle"]
+const VESTIGE_PREFIX := "vestige_"
 
 var rng: RandomNumberGenerator
-## Crafting currency source: anything with count_of(id) / remove_currency(id, n).
-## Null skips the ownership check and consumption of the Orb.
-var currency: Object
-var pools: Dictionary = {}        # pool_id -> ModifierPool
-var brand_defs: Dictionary = {}   # id -> BrandDef
-var edict_defs: Dictionary = {}   # id -> EdictDef
+var pools: Dictionary = {}  # pool_id -> ModifierPool (Vestige pools)
 
 func _init(p_rng: RandomNumberGenerator = null) -> void:
 	rng = p_rng if p_rng != null else RandomNumberGenerator.new()
+	if p_rng == null:
+		rng.randomize()
 
 static func create_default(p_rng: RandomNumberGenerator = null) -> CraftingResolver:
-	var resolver := CraftingResolver.new(p_rng)
-	for res in _load_dir(POOLS_DIR):
-		if res is ModifierPool:
-			resolver.register_pool(res)
-	for res in _load_dir(BRANDS_DIR):
-		if res is BrandDef:
-			resolver.register_brand(res)
-	for res in _load_dir(EDICTS_DIR):
-		if res is EdictDef:
-			resolver.register_edict(res)
-	return resolver
+	return CraftingResolver.new(p_rng)
 
 func register_pool(pool: ModifierPool) -> void:
 	pools[pool.pool_id] = pool
 
-func register_brand(def: BrandDef) -> void:
-	brand_defs[def.id] = def
+## Always null now: modifiers are matched to their pools by id or stat.
+static func find_def(_id: StringName) -> ModifierDef:
+	return null
 
-func register_edict(def: EdictDef) -> void:
-	edict_defs[def.id] = def
+## ---- Cost and payment -----------------------------------------------------
 
-static var _def_cache: Dictionary = {}
+func cost_of(item: Resource, craft_id: StringName, _family: StringName = &"", outcomes: int = 1) -> int:
+	var count := _craft_count(item)
+	var mult := minf(pow(Constants.CRAFT_COST_GROWTH, count), Constants.CRAFT_COST_MULT_CAP)
+	var foresight := 1.0 + Constants.FORESIGHT_EXTRA_COST * (clampi(outcomes, 1, Constants.FORESIGHT_MAX_OUTCOMES) - 1)
+	return ceili(float(Constants.CRAFT_BASE_COST.get(craft_id, 0)) * mult * foresight)
 
-## Looks up a shipped ModifierDef by id (for restoring saved modifiers).
-static func find_def(id: StringName) -> ModifierDef:
-	if id == &"":
-		return null
-	if _def_cache.is_empty():
-		for res in _load_dir(POOLS_DIR):
-			if res is ModifierPool:
-				for def in res.modifiers:
-					_def_cache[def.id] = def
-	return _def_cache.get(id)
+## The item's current cost multiplier, for the UI.
+static func cost_multiplier(item: Resource) -> float:
+	return minf(pow(Constants.CRAFT_COST_GROWTH, _craft_count(item)), Constants.CRAFT_COST_MULT_CAP)
 
-static func roll_tolerance(target: Resource, p_rng: RandomNumberGenerator = null) -> void:
-	var t := CraftTarget.wrap(target)
-	if t == null or not t.uses_tolerance():
-		return
-	var range_: Vector2i = Constants.STARTING_TOLERANCE_BY_ITEM_TYPE.get(t.get_item_type(), Constants.STARTING_TOLERANCE_DEFAULT)
-	var value := p_rng.randi_range(range_.x, range_.y) if p_rng != null else randi_range(range_.x, range_.y)
-	target.tolerance = value
-	target.tolerance_max = value
+## Pools allowed to pay: one typed pool, the boss pool, or any regular pool.
+static func payment_pools(craft_id: StringName, family: StringName) -> Array[StringName]:
+	if craft_id == &"vestige_add":
+		return [Residue.BOSS] as Array[StringName]
+	if craft_id == &"retype":
+		var type := _damage_type_named(family)
+		return [Residue.pool_for_damage_type(type)] as Array[StringName] if type != -1 else [] as Array[StringName]
+	if FAMILY_CRAFTS.has(craft_id) and family != &"":
+		var pool: StringName = Constants.CRAFT_FAMILIES.get(family, &"")
+		if pool != &"":
+			return [pool] as Array[StringName]
+	return Residue.REGULAR.duplicate()
 
-## ---- Public API ------------------------------------------------------
+## Takes from the fullest allowed pool first. Empty when it can't be afforded.
+func auto_payment(item: Resource, craft_id: StringName, family: StringName = &"", outcomes: int = 1) -> Dictionary:
+	var left := cost_of(item, craft_id, family, outcomes)
+	var allowed := payment_pools(craft_id, family)
+	allowed.sort_custom(func(a: StringName, b: StringName) -> bool: return Residue.amount(a) > Residue.amount(b))
+	var payment := {}
+	for pool in allowed:
+		if left <= 0:
+			break
+		var take := mini(left, Residue.amount(pool))
+		if take > 0:
+			payment[pool] = take
+			left -= take
+	return payment if left <= 0 else {}
 
-func preview(item: Resource, orb_id: StringName, active_brands: ActiveBrands = null) -> CraftPreview:
+func _payment_error(item: Resource, craft_id: StringName, family: StringName, payment: Dictionary, outcomes: int) -> int:
+	var allowed := payment_pools(craft_id, family)
+	var total := 0
+	for pool in payment:
+		if not allowed.has(StringName(pool)) or int(payment[pool]) < 0:
+			return E.INVALID_PAYMENT
+		total += int(payment[pool])
+	if total != cost_of(item, craft_id, family, outcomes):
+		return E.INVALID_PAYMENT
+	if not Residue.can_pay(payment):
+		return E.CANT_AFFORD
+	return E.NONE
+
+## ---- Public API -----------------------------------------------------------
+
+func preview(item: Resource, craft_id: StringName, family: StringName = &"", choice: int = -1) -> CraftPreview:
 	var p := CraftPreview.new()
-	p.orb_id = orb_id
+	p.craft_id = craft_id
+	p.family = family
 	var t := CraftTarget.wrap(item)
 	if t == null:
 		p.error = E.INVALID_TARGET
 		return p
-	var edict := _edict_for(t, orb_id, active_brands)
-	var ctx := _resolve_brands(orb_id, active_brands, edict if t.get_active_edict() == null else null)
-	p.applied_brands = ctx["applied"]
-	p.consumed_brands = ctx["consumed"]
-	p.error = _check(t, orb_id, ctx, edict)
-	if p.error != E.NONE:
+	p.cost = cost_of(item, craft_id, family)
+	p.error = _check(t, craft_id, family, choice)
+	if p.error != E.NONE or t.resource is FigmentItem:
 		return p
-
 	var explicits := t.get_explicits()
-	var rarity := t.get_rarity()
-	match _kind(orb_id):
-		OrbKind.ADD:
-			var cands := _candidates(t, explicits, _rarity_after(orb_id, rarity), ctx, edict)
-			if cands.is_empty():
-				p.error = E.NO_VALID_OUTCOME
-				return p
-			_merge_outcomes(p.outcomes, cands, 1.0)
-			p.add_count = _add_count_range(t, orb_id).y
-		OrbKind.RECAST:
-			var branches := _recast_branches(t, explicits, rarity, ctx, edict)
-			if branches.is_empty():
-				p.error = E.NO_VALID_OUTCOME
-				return p
+	match craft_id:
+		&"add", &"vestige_add":
+			var add := _add_candidates(t, explicits, family, craft_id)
+			_merge_outcomes(p.outcomes, add["candidates"], 1.0)
+			p.add_count = 1
+		&"recast":
+			var branches := _recast_branches(t, explicits, family)
 			var share := 1.0 / branches.size()
 			for branch in branches:
 				p.removals.append({"affix": branch["affix"], "probability": share})
 				p.affected.append({"affix": branch["affix"], "effect": &"replace", "probability": share})
 				_merge_outcomes(p.outcomes, branch["candidates"], share)
 			p.add_count = 1
-		OrbKind.REMOVE:
-			var removable := _removable(t, explicits, ctx, edict)
-			var chance := 1.0 if orb_id == &"absolution" else 1.0 / removable.size()
+		&"bleed", &"absolve":
+			var removable := _removable(t, explicits, family if craft_id == &"bleed" else &"")
+			var chance := 1.0 if craft_id == &"absolve" else 1.0 / removable.size()
 			for affix in removable:
 				p.removals.append({"affix": affix, "probability": chance})
 				p.affected.append({"affix": affix, "effect": &"remove", "probability": chance})
-		OrbKind.OTHER:
-			match orb_id:
-				&"anchoring":
-					var options := _anchorable(explicits)
-					for affix in options:
-						p.affected.append({"affix": affix, "effect": &"anchor", "probability": 1.0 / options.size()})
-				&"reckoning":
-					for affix in explicits:
-						if not _locked(affix, edict) and affix.value_max > affix.value_min:
-							p.affected.append({"affix": affix, "effect": &"reroll", "probability": 1.0})
+		&"settle":
+			for affix in _settleable(t, explicits, family):
+				p.affected.append({"affix": affix, "effect": &"reroll", "probability": 1.0})
+		&"anchor":
+			p.affected.append({"affix": explicits[choice], "effect": &"anchor", "probability": 1.0})
 	return p
 
-func apply(item: Resource, orb_id: StringName, active_brands: ActiveBrands = null) -> CraftResult:
-	var result := CraftResult.new()
-	result.orb_id = orb_id
+func begin(item: Resource, craft_id: StringName, family: StringName, payment: Dictionary, outcomes: int = 1, choice: int = -1) -> CraftSession:
+	var session := CraftSession.new()
+	session.resolver = self
+	session.target = item
+	session.craft_id = craft_id
 	var t := CraftTarget.wrap(item)
-	if t == null:
-		return _fail(item, result, E.INVALID_TARGET)
-	var edict := _edict_for(t, orb_id, active_brands)
-	var ctx := _resolve_brands(orb_id, active_brands, edict if t.get_active_edict() == null else null)
-	var error := _check(t, orb_id, ctx, edict)
+	var error: int = E.INVALID_TARGET if t == null else _check(t, craft_id, family, choice)
+	outcomes = clampi(outcomes, 1, Constants.FORESIGHT_MAX_OUTCOMES)
+	if error == E.NONE:
+		error = _payment_error(item, craft_id, family, payment, outcomes)
 	if error != E.NONE:
-		return _fail(item, result, error)
-	if currency != null and currency.count_of(orb_id) < 1:
-		return _fail(item, result, E.MISSING_CURRENCY)
+		session.error = error
+		_fail(item, craft_id, error)
+		return session
+	Residue.pay(payment)
+	session.paid = payment.duplicate()
+	t.set_craft_count(t.get_craft_count() + 1)
+	for i in outcomes:
+		session.outcomes.append(_simulate(t, craft_id, family, choice))
+	return session
 
-	var sim := _simulate(t, orb_id, ctx, edict)
-	if sim["error"] != E.NONE:
-		return _fail(item, result, sim["error"])
+## One craft with the default payment (fullest pool first), outcome applied.
+func apply(item: Resource, craft_id: StringName, family: StringName = &"", choice: int = -1) -> CraftResult:
+	var payment := auto_payment(item, craft_id, family)
+	if payment.is_empty():
+		var t := CraftTarget.wrap(item)
+		var error: int = E.INVALID_TARGET if t == null else _check(t, craft_id, family, choice)
+		var failed := CraftResult.new()
+		failed.craft_id = craft_id
+		failed.error = error if error != E.NONE else E.CANT_AFFORD
+		_fail(item, craft_id, failed.error)
+		return failed
+	var session := begin(item, craft_id, family, payment, 1, choice)
+	if session.error != E.NONE:
+		var failed := CraftResult.new()
+		failed.craft_id = craft_id
+		failed.error = session.error
+		return failed
+	return session.choose(0)
 
-	if t.uses_tolerance():
-		var cost_range: Vector2i = Constants.TOLERANCE_COST.get(orb_id, Vector2i.ONE)
-		var cost := rng.randi_range(cost_range.x, cost_range.y)
-		result.tolerance_spent = mini(cost, t.get_tolerance())
-		t.set_tolerance(maxi(0, t.get_tolerance() - cost))
+## ---- Validation -----------------------------------------------------------
 
-	t.set_explicits(sim["explicits"])
-	var rarity_changed: bool = t.get_rarity() != sim["rarity"]
-	t.set_rarity(sim["rarity"])
-	if orb_id == &"tempering":
-		t.set_quality(sim["quality"])
-	elif orb_id == &"opening":
-		t.set_sockets(sim["sockets"])
-		result.sockets_rolled_to = sim["sockets"]
-	elif orb_id == &"reckoning" and item is Lens:
-		var range_ := _lens_radius_range(t)
-		if range_.y > range_.x:
-			(item as Lens).radius_value = roundf(rng.randf_range(range_.x, range_.y))
-	result.added = sim["added"]
-	result.removed = sim["removed"]
-	result.anchored = sim["anchored"]
-	result.quality_gained = sim["quality_gained"]
-
-	if currency != null:
-		currency.remove_currency(orb_id, 1)
-	for id in ctx["consumed"]:
-		active_brands.consume(id)
-	result.consumed_brands = ctx["consumed"]
-	t.set_active_edict(null)
-
-	result.success = true
-	if item is Item:
-		EventBus.item_stats_changed.emit(item)
-		if rarity_changed:
-			EventBus.item_rarity_changed.emit(item)
-	EventBus.craft_completed.emit(item, result)
-	return result
-
-## Places an Edict on an item. Not a craft: costs no tolerance and doesn't
-## clear anything.
-func apply_edict(item: Resource, edict_id: StringName) -> CraftResult:
-	var result := CraftResult.new()
-	result.orb_id = edict_id
-	var t := CraftTarget.wrap(item)
-	var def: EdictDef = edict_defs.get(edict_id)
-	if t == null or def == null or t.get_rarity() >= Constants.ItemRarity.UNIQUE or t.get_active_edict() != null:
-		return _fail(item, result, E.INVALID_TARGET)
-	# Tier levels only mean something on gear.
-	if def.item_level > 0 and (not item is Item or item is Jewel or item is FigmentItem):
-		return _fail(item, result, E.INVALID_TARGET)
-	if t.is_corrupted():
-		return _fail(item, result, E.CORRUPTED)
-	if currency != null and not currency.remove_currency(edict_id, 1):
-		return _fail(item, result, E.MISSING_CURRENCY)
-	t.set_active_edict(def)
-	result.success = true
-	return result
-
-## ---- Validation --------------------------------------------------------
-
-func _check(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: EdictDef) -> int:
-	if not Constants.ORB_IDS.has(orb_id):
+func _check(t: CraftTarget, craft_id: StringName, family: StringName, choice: int) -> int:
+	if not CRAFT_IDS.has(craft_id):
 		return E.INVALID_TARGET
+	if t.resource is FigmentItem:
+		return _check_figment(t.resource as FigmentItem, craft_id)
 	var rarity := t.get_rarity()
-	# Uniques and Mythics: only Orbs that leave their fixed modifiers alone.
-	if rarity >= Constants.ItemRarity.UNIQUE and orb_id != &"opening" and orb_id != &"tempering":
+	if rarity >= Constants.ItemRarity.UNIQUE and craft_id != &"sockets":
 		return E.INVALID_TARGET
-	if t.is_corrupted() and orb_id != &"opening" and orb_id != &"tempering":
+	if t.is_corrupted() and craft_id != &"sockets":
 		return E.CORRUPTED
-	if t.uses_tolerance() and t.get_tolerance() <= 0:
-		return E.NO_TOLERANCE
+	if FAMILY_CRAFTS.has(craft_id) and family != &"":
+		if not Constants.CRAFT_FAMILIES.has(family):
+			return E.INVALID_TARGET
+		var slate_tags := t.get_slate_tags()
+		if t.is_slate and Constants.CRAFT_FAMILIES[family] != &"" and not slate_tags.has(family):
+			return E.NO_VALID_OUTCOME
 	var explicits := t.get_explicits()
-	var positional: int = ctx["positional"]
-	match orb_id:
-		&"quickening", &"forging":
-			if rarity != Constants.ItemRarity.COMMON:
-				return E.INVALID_TARGET
-		&"elevation":
-			if rarity != Constants.ItemRarity.UNCOMMON:
-				return E.INVALID_TARGET
-		&"grafting", &"ascendant":
-			var needed := Constants.ItemRarity.UNCOMMON if orb_id == &"grafting" else Constants.ItemRarity.RARE
-			if rarity != needed:
-				return E.INVALID_TARGET
-			if _open_types(t, explicits, rarity, positional).is_empty():
+	match craft_id:
+		&"add", &"vestige_add":
+			if craft_id == &"vestige_add":
+				if not GameState.killed_bosses.has(String(family)) or not pools.has(StringName(VESTIGE_PREFIX + String(family))):
+					return E.NOT_UNLOCKED
+			var limits := t.get_affix_limits(Constants.ItemRarity.RARE)
+			if explicits.size() > t.get_total_limit(Constants.ItemRarity.RARE) or _prefix_count(explicits) > limits.x or explicits.size() - _prefix_count(explicits) > limits.y:
+				return E.OVER_LINE_LIMIT
+			var add := _add_candidates(t, explicits, family, craft_id)
+			if add["open"] == false:
 				return E.NO_OPEN_AFFIX
-		&"recasting":
-			if rarity != Constants.ItemRarity.RARE:
-				return E.INVALID_TARGET
-			if _removable(t, explicits, ctx, edict).is_empty():
+			if (add["candidates"] as Array).is_empty():
+				return E.NO_VALID_OUTCOME
+		&"recast":
+			if _removable(t, explicits, family).is_empty():
 				return E.NOTHING_TO_REMOVE
-		&"severance", &"absolution":
-			if _removable(t, explicits, ctx, edict).is_empty():
+			if _recast_branches(t, explicits, family).is_empty():
+				return E.NO_VALID_OUTCOME
+		&"bleed":
+			if _removable(t, explicits, family).is_empty():
 				return E.NOTHING_TO_REMOVE
-		&"anchoring":
+		&"absolve":
+			if _removable(t, explicits, &"").is_empty():
+				return E.NOTHING_TO_REMOVE
+		&"settle":
+			if _settleable(t, explicits, family).is_empty() and not (family == &"" and _lens_radius_range(t).y > _lens_radius_range(t).x):
+				return E.NO_VALID_OUTCOME
+		&"anchor":
 			if explicits.size() < Constants.ANCHORING_MIN_MODIFIERS:
 				return E.TOO_FEW_MODIFIERS
 			if explicits.filter(func(a: ItemAffix): return a.anchored).size() >= Constants.MAX_ANCHORED_MODIFIERS:
 				return E.ALREADY_ANCHORED
-			if _anchorable(explicits).is_empty():
+			if choice < 0 or choice >= explicits.size() or explicits[choice].anchored:
 				return E.NO_VALID_OUTCOME
-		&"tempering":
-			if t.is_slate or not t.can_temper():
+		&"sockets":
+			if t.is_slate or t.resource is Jewel or not t.resource is Item:
 				return E.INVALID_TARGET
-			if t.get_quality() >= t.get_quality_cap():
-				return E.QUALITY_CAPPED
-		&"opening":
-			if t.is_slate or t.resource is Jewel:
+			var item := t.resource as Item
+			if item.fixed_sockets() > 0 or not item.socketed.is_empty() or item.max_sockets < 1:
 				return E.INVALID_TARGET
-			if t.sockets_rolled() or t.get_sockets() > 0:
-				return E.SOCKETS_ALREADY_ROLLED
-		&"reckoning":
-			if _lens_radius_range(t).y > _lens_radius_range(t).x:
-				return E.NONE
-			if explicits.is_empty():
-				return E.TOO_FEW_MODIFIERS
-			if not explicits.any(func(a: ItemAffix): return not _locked(a, edict)):
+		&"retype":
+			var weapon := t.resource as Weapon
+			if weapon == null or weapon.get_all_affixes().any(func(a: ItemAffix): return a.stat_key == UniqueEffects.NO_INFUSION):
+				return E.INVALID_TARGET
+			var type := _damage_type_named(family)
+			if type == -1 or type == weapon.get_damage_type():
+				return E.NO_VALID_OUTCOME
+		&"restore_type":
+			var weapon := t.resource as Weapon
+			if weapon == null or weapon.infused_damage_type == -1:
 				return E.NO_VALID_OUTCOME
 	return E.NONE
 
-## ---- Simulation --------------------------------------------------------
+func _check_figment(figment: FigmentItem, craft_id: StringName) -> int:
+	if not FIGMENT_CRAFTS.has(craft_id):
+		return E.INVALID_TARGET
+	var count := figment.affixes.size()
+	if craft_id == &"add" and count >= CraftingSystem.figment_mod_cap(figment):
+		return E.NO_OPEN_AFFIX
+	if craft_id != &"add" and count == 0:
+		return E.NOTHING_TO_REMOVE
+	return E.NONE
 
-## Computes the post-craft state without touching the item.
-func _simulate(t: CraftTarget, orb_id: StringName, ctx: Dictionary, edict: EdictDef) -> Dictionary:
+## ---- Simulation -----------------------------------------------------------
+
+## The post-craft state, without touching the item.
+func _simulate(t: CraftTarget, craft_id: StringName, family: StringName, choice: int) -> Dictionary:
+	if t.resource is FigmentItem:
+		var copy := (t.resource as FigmentItem).duplicate(true) as FigmentItem
+		CraftingSystem.figment_craft(copy, craft_id)
+		return {"figment": copy}
 	var explicits := t.get_explicits()
 	var rarity := t.get_rarity()
 	var added: Array[ItemAffix] = []
 	var removed: Array[ItemAffix] = []
-	var out := {
-		"error": E.NONE, "explicits": explicits, "rarity": rarity,
-		"added": added, "removed": removed, "anchored": null,
-		"quality": t.get_quality(), "quality_gained": 0, "sockets": t.get_sockets(),
-	}
-	match _kind(orb_id):
-		OrbKind.ADD:
-			rarity = _rarity_after(orb_id, rarity)
-			var range_ := _add_count_range(t, orb_id)
-			for i in rng.randi_range(range_.x, range_.y):
-				var cands := _candidates(t, explicits, rarity, ctx, edict)
-				if cands.is_empty():
-					out["error"] = E.NO_VALID_OUTCOME
-					return out
-				var affix := _roll_affix(_pick(cands))
-				explicits.append(affix)
-				out["added"].append(affix)
-		OrbKind.RECAST:
-			var branches := _recast_branches(t, explicits, rarity, ctx, edict)
-			if branches.is_empty():
-				out["error"] = E.NO_VALID_OUTCOME
-				return out
+	var out := {"explicits": explicits, "rarity": rarity, "added": added, "removed": removed, "anchored": null}
+	match craft_id:
+		&"add", &"vestige_add":
+			var add := _add_candidates(t, explicits, family, craft_id)
+			var affix := _roll_affix(_pick(add["candidates"]))
+			explicits.append(affix)
+			added.append(affix)
+			rarity = maxi(rarity, add["rarity"])
+		&"recast":
+			var branches := _recast_branches(t, explicits, family)
 			var branch: Dictionary = branches[rng.randi_range(0, branches.size() - 1)]
 			explicits.erase(branch["affix"])
-			out["removed"].append(branch["affix"])
+			removed.append(branch["affix"])
 			var affix := _roll_affix(_pick(branch["candidates"]))
 			explicits.append(affix)
-			out["added"].append(affix)
-		OrbKind.REMOVE:
-			var removable := _removable(t, explicits, ctx, edict)
-			if orb_id == &"severance":
-				var chosen: ItemAffix = removable[rng.randi_range(0, removable.size() - 1)]
-				removable.clear()
-				removable.append(chosen)
-			for affix in removable:
+			added.append(affix)
+		&"bleed":
+			var removable := _removable(t, explicits, family)
+			var chosen: ItemAffix = removable[rng.randi_range(0, removable.size() - 1)]
+			explicits.erase(chosen)
+			removed.append(chosen)
+		&"absolve":
+			for affix in _removable(t, explicits, &""):
 				explicits.erase(affix)
-				out["removed"].append(affix)
-			if orb_id == &"absolution":
-				rarity = _fitting_rarity(t, explicits)
-		OrbKind.OTHER:
-			match orb_id:
-				&"anchoring":
-					var options := _anchorable(explicits)
-					var chosen: ItemAffix = options[rng.randi_range(0, options.size() - 1)]
-					var copy := chosen.duplicate() as ItemAffix
-					copy.anchored = true
-					explicits[explicits.find(chosen)] = copy
-					out["anchored"] = copy
-				&"tempering":
-					var gain := rng.randi_range(Constants.TEMPERING_QUALITY_GAIN.x, Constants.TEMPERING_QUALITY_GAIN.y)
-					out["quality"] = mini(t.get_quality_cap(), t.get_quality() + gain)
-					out["quality_gained"] = out["quality"] - t.get_quality()
-				&"opening":
-					out["sockets"] = rng.randi_range(mini(1, t.get_max_sockets()), t.get_max_sockets())  # always at least one
-				&"reckoning":
-					for i in explicits.size():
-						var affix: ItemAffix = explicits[i]
-						if _locked(affix, edict) or affix.value_max <= affix.value_min:
-							continue
-						var copy := affix.duplicate() as ItemAffix
-						copy.value = rng.randf_range(copy.value_min, copy.value_max)
-						if ItemRoller.has_levelled_tiers(copy.stat_key):
-							copy.value = roundf(copy.value)
-						_describe(copy)
-						explicits[i] = copy
+				removed.append(affix)
+			rarity = _fitting_rarity(t, explicits)
+		&"settle":
+			for affix in _settleable(t, explicits, family):
+				var copy := affix.duplicate() as ItemAffix
+				copy.value = rng.randf_range(copy.value_min, copy.value_max)
+				if ItemRoller.has_levelled_tiers(copy.stat_key):
+					copy.value = roundf(copy.value)
+				_describe(copy)
+				explicits[explicits.find(affix)] = copy
+			var range_ := _lens_radius_range(t)
+			if family == &"" and range_.y > range_.x:
+				out["radius_value"] = roundf(rng.randf_range(range_.x, range_.y))
+		&"anchor":
+			var copy := explicits[choice].duplicate() as ItemAffix
+			copy.anchored = true
+			explicits[choice] = copy
+			out["anchored"] = copy
+		&"sockets":
+			var item := t.resource as Item
+			out["sockets"] = rng.randi_range(1, item.max_sockets)
+		&"retype":
+			out["infused"] = _damage_type_named(family)
+		&"restore_type":
+			out["infused"] = -1
 	out["rarity"] = rarity
 	return out
 
-## ---- Brands ------------------------------------------------------------
+## Applies a simulated outcome to the item (CraftSession.choose()).
+func commit(item: Resource, craft_id: StringName, outcome: Dictionary) -> CraftResult:
+	var result := CraftResult.new()
+	result.craft_id = craft_id
+	if outcome.has("figment"):
+		var figment := item as FigmentItem
+		var done := outcome["figment"] as FigmentItem
+		figment.affixes = done.affixes
+		figment.rarity = done.rarity
+		FigmentRoller._finish(figment)
+	else:
+		var t := CraftTarget.wrap(item)
+		var rarity_changed: bool = t.get_rarity() != outcome["rarity"]
+		t.set_explicits(outcome["explicits"])
+		t.set_rarity(outcome["rarity"])
+		if outcome.has("sockets"):
+			(item as Item).sockets = outcome["sockets"]
+			result.sockets_rolled_to = outcome["sockets"]
+		if outcome.has("infused"):
+			(item as Weapon).infused_damage_type = outcome["infused"]
+		if outcome.has("radius_value") and item is Lens:
+			(item as Lens).radius_value = outcome["radius_value"]
+		result.added = outcome["added"]
+		result.removed = outcome["removed"]
+		result.anchored = outcome["anchored"]
+		if item is Item and rarity_changed:
+			EventBus.item_rarity_changed.emit(item)
+	result.success = true
+	if item is Item:
+		EventBus.item_stats_changed.emit(item)
+	EventBus.craft_completed.emit(item, result)
+	return result
 
-## Which active Brands apply to this Orb, what they restrict, and which of
-## them the craft consumes. Category and positional Brands narrow both what
-## an Orb adds and which existing modifier it removes or replaces; never what
-## Anchoring anchors (Brands neither steer nor are spent on it).
-## The Edict this craft obeys: one already on the item (placed before Edicts
-## were switched on like Brands), else the active one, for the Orbs it can
-## constrain (adding, recasting, removing, Reckoning).
-func _edict_for(t: CraftTarget, orb_id: StringName, active: ActiveBrands) -> EdictDef:
-	if t.get_active_edict() != null:
-		return t.get_active_edict()
-	if active == null or (_kind(orb_id) == OrbKind.OTHER and orb_id != &"reckoning"):
-		return null
-	for id in active.get_ids():
-		var def: EdictDef = edict_defs.get(id)
-		if def and (def.item_level == 0 or (t.resource is Item and not t.resource is Jewel and not t.resource is FigmentItem)):
-			return def
-	return null
+## ---- Candidates -----------------------------------------------------------
 
-## active_edict: an Edict switched on like a Brand - applied, and consumed
-## (or kept by Preservation) with the Brands.
-func _resolve_brands(orb_id: StringName, active: ActiveBrands, active_edict: EdictDef = null) -> Dictionary:
-	var applied: Array[StringName] = []
-	var categories: Array[BrandDef] = []
-	var vestige_pools: Array[StringName] = []
-	var has_prefix := false
-	var has_suffix := false
-	var preservation: BrandDef = null
-	var kind := _kind(orb_id)
-	if active != null and kind != OrbKind.OTHER:
-		for id in active.get_ids():
-			var def: BrandDef = brand_defs.get(id)
-			if def == null:
-				continue
-			if def.is_preservation:
-				preservation = def
-				continue
-			if def.is_vestige():
-				if (kind == OrbKind.ADD or kind == OrbKind.RECAST) and def.applies_to_orbs.has(orb_id):
-					applied.append(id)
-					vestige_pools.append(def.vestige_pool)
-				continue
-			var used := false
-			if def.positional == BrandDef.Positional.PREFIX_ONLY:
-				has_prefix = true
-				used = true
-			elif def.positional == BrandDef.Positional.SUFFIX_ONLY:
-				has_suffix = true
-				used = true
-			if def.is_category():
-				categories.append(def)
-				used = true
-			if used:
-				applied.append(id)
-
-	var positional := BrandDef.Positional.NONE
-	if has_prefix and not has_suffix:
-		positional = BrandDef.Positional.PREFIX_ONLY
-	elif has_suffix and not has_prefix:
-		positional = BrandDef.Positional.SUFFIX_ONLY
-
-	var required: Array[StringName] = []
-	for brand in categories:
-		for tag in brand.tags:
-			if not required.has(tag):
-				required.append(tag)
-
-	if active_edict != null:
-		applied.append(active_edict.id)
-	var consumed: Array[StringName] = applied.duplicate()
-	if preservation != null and not applied.is_empty():
-		applied.append(preservation.id)
-		consumed.clear()
-		consumed.append(preservation.id)
-	return {
-		"applied": applied, "consumed": consumed, "categories": categories,
-		"positional": positional, "vestige_pools": vestige_pools, "required_tags": required,
-	}
-
-## ---- Candidate filter --------------------------------------------------
-
-func _candidates(t: CraftTarget, explicits: Array[ItemAffix], rarity: int, ctx: Dictionary, edict: EdictDef) -> Array[Dictionary]:
-	var result: Array[Dictionary] = []
-	var open := _open_types(t, explicits, rarity, ctx["positional"])
+## {"candidates", "rarity" it needs, "open": false when no line is free even
+## at Rare}. Add raises Common -> Uncommon -> Rare only as far as needed.
+func _add_candidates(t: CraftTarget, explicits: Array[ItemAffix], family: StringName, craft_id: StringName) -> Dictionary:
+	var rarity := maxi(t.get_rarity(), Constants.ItemRarity.UNCOMMON)
+	var open := _open_types(t, explicits, rarity)
+	while open.is_empty() and rarity < Constants.ItemRarity.RARE:
+		rarity += 1
+		open = _open_types(t, explicits, rarity)
 	if open.is_empty():
-		return result
+		return {"candidates": [] as Array[Dictionary], "rarity": rarity, "open": false}
+	var pool_ids: Array[StringName] = []
+	if craft_id == &"vestige_add":
+		pool_ids.append(StringName(VESTIGE_PREFIX + String(family)))
+		family = &""
+	return {"candidates": _candidates(t, explicits, open, family, pool_ids), "rarity": rarity, "open": true}
 
-	var slate_tags := t.get_slate_tags()
-	for brand: BrandDef in ctx["categories"]:
-		if t.is_slate and not brand.tags.any(func(tag: StringName): return slate_tags.has(tag)):
-			return result
-	var required: Array[StringName] = ctx["required_tags"]
-	var excluded: Array[StringName] = []
-	if edict != null:
-		excluded = edict.excludes_tags
+func _candidates(t: CraftTarget, explicits: Array[ItemAffix], open: Array[int], family: StringName, pool_ids: Array[StringName] = []) -> Array[Dictionary]:
+	var result: Array[Dictionary] = []
 	var present_groups := explicits.map(func(a: ItemAffix): return a.get_group())
 	var tier_cap: int = Constants.SLATE_TIER_CAP_BY_SIZE.get(t.get_slate_size(), 0) if t.is_slate else 0
 	var item_type := t.get_item_type()
-
-	for def in _pool_defs(t, ctx["vestige_pools"]):
+	for def in _pool_defs(t, pool_ids):
 		if not def.item_types.is_empty() and not def.item_types.has(item_type):
 			continue
 		if not open.has(def.affix_type):
 			continue
-		if not required.all(func(tag: StringName): return def.tags.has(tag)):
-			continue
-		if def.tags.any(func(tag: StringName): return excluded.has(tag)):
+		if family != &"" and not def.tags.has(family):
 			continue
 		if present_groups.has(def.group):
 			continue
 		for tier in def.tiers:
 			if tier.tier < tier_cap or tier.weight <= 0:
 				continue
-			if edict != null and edict.item_level > 0 and ItemRoller.def_tier_level(def, tier.tier) < edict.item_level:
-				continue
 			result.append({"def": def, "tier": tier, "weight": tier.weight})
 	return result
 
-func _pool_defs(t: CraftTarget, vestige_pools: Array[StringName]) -> Array[ModifierDef]:
-	var ids: Array[StringName] = vestige_pools.duplicate()
-	if ids.is_empty():
-		ids.append(&"slate" if t.is_slate else &"gear")
+func _pool_defs(t: CraftTarget, pool_ids: Array[StringName] = []) -> Array[ModifierDef]:
 	var defs: Array[ModifierDef] = []
-	for id in ids:
-		var pool: ModifierPool = pools.get(id)
-		if pool == null and id == &"gear" and t.resource is Item:
-			defs.append_array(GearModifierPool.defs_for(t.resource))
-			continue
-		if pool == null and id == &"slate" and t.is_slate:
+	if pool_ids.is_empty():
+		if t.is_slate:
 			defs.append_array(SlateModifierPool.defs_for(t.resource))
-			continue
-		if pool == null:
-			continue
-		for def in pool.modifiers:
-			if not defs.has(def):
-				defs.append(def)
+		elif t.resource is Item:
+			defs.append_array(GearModifierPool.defs_for(t.resource))
+		return defs
+	for id in pool_ids:
+		var pool: ModifierPool = pools.get(id)
+		if pool:
+			defs.append_array(pool.modifiers)
 	return defs
 
-func _open_types(t: CraftTarget, explicits: Array[ItemAffix], rarity: int, positional: int) -> Array[int]:
+func _open_types(t: CraftTarget, explicits: Array[ItemAffix], rarity: int) -> Array[int]:
 	var limits := t.get_affix_limits(rarity)
-	var prefixes := explicits.filter(func(a: ItemAffix): return a.is_prefix).size()
+	var prefixes := _prefix_count(explicits)
 	var suffixes := explicits.size() - prefixes
 	var open: Array[int] = []
 	if explicits.size() >= t.get_total_limit(rarity):
 		return open
-	if prefixes < limits.x and positional != BrandDef.Positional.SUFFIX_ONLY:
+	if prefixes < limits.x:
 		open.append(PREFIX)
-	if suffixes < limits.y and positional != BrandDef.Positional.PREFIX_ONLY:
+	if suffixes < limits.y:
 		open.append(SUFFIX)
 	return open
 
-func _removable(t: CraftTarget, explicits: Array[ItemAffix], ctx: Dictionary, edict: EdictDef) -> Array[ItemAffix]:
+func _prefix_count(explicits: Array[ItemAffix]) -> int:
+	return explicits.filter(func(a: ItemAffix): return a.is_prefix).size()
+
+## Non-anchored explicits in the family (all of them when unfocused).
+func _removable(t: CraftTarget, explicits: Array[ItemAffix], family: StringName) -> Array[ItemAffix]:
 	var result: Array[ItemAffix] = []
 	for a in explicits:
-		if not a.anchored and not _locked(a, edict) and _matches_brands(t, a, ctx) and not _level_protected(a, edict):
+		if not a.anchored and (family == &"" or affix_tags(t, a).has(family)):
 			result.append(a)
 	return result
 
-func _anchorable(explicits: Array[ItemAffix]) -> Array[ItemAffix]:
-	var result: Array[ItemAffix] = []
-	for a in explicits:
-		if not a.anchored:
-			result.append(a)
-	return result
+func _settleable(t: CraftTarget, explicits: Array[ItemAffix], family: StringName) -> Array[ItemAffix]:
+	return _removable(t, explicits, family).filter(func(a: ItemAffix) -> bool: return a.value_max > a.value_min)
 
-## An existing modifier passes the positional Brand and carries every
-## category Brand's tag.
-func _matches_brands(t: CraftTarget, affix: ItemAffix, ctx: Dictionary) -> bool:
-	var positional: int = ctx["positional"]
-	if positional == BrandDef.Positional.PREFIX_ONLY and not affix.is_prefix:
-		return false
-	if positional == BrandDef.Positional.SUFFIX_ONLY and affix.is_prefix:
-		return false
-	var required: Array[StringName] = ctx["required_tags"]
-	if required.is_empty():
-		return true
-	var tags := affix_tags(t, affix)
-	return required.all(func(tag: StringName): return tags.has(tag))
+## Recast removes only when something in the family can be added back.
+func _recast_branches(t: CraftTarget, explicits: Array[ItemAffix], family: StringName) -> Array[Dictionary]:
+	var branches: Array[Dictionary] = []
+	for affix in _removable(t, explicits, family):
+		var rest := explicits.duplicate()
+		rest.erase(affix)
+		var cands := _candidates(t, rest, _open_types(t, rest, t.get_rarity()), family)
+		if not cands.is_empty():
+			branches.append({"affix": affix, "candidates": cands})
+	return branches
 
-## A rolled modifier's Brand tags. Modifiers restored from a save or rolled
-## by drops have no def, so they're matched to the pool's def by id or stat.
+## A rolled modifier's family tags. Modifiers from drops or saves have no def,
+## so they're matched to the pool's def by id or stat.
 func affix_tags(t: CraftTarget, affix: ItemAffix) -> Array[StringName]:
 	if affix.def != null:
 		return affix.def.tags
 	var key := StringName(affix.key())
-	for def in _pool_defs(t, []):
+	for def in _pool_defs(t):
 		if def.id == affix.modifier_id or (affix.affix_id != "" and String(def.id) == affix.affix_id) or def.id == StringName(affix.stat_key) or def.group == key:
 			return def.tags
 	var source_tags: Array = []
@@ -537,62 +459,29 @@ func affix_tags(t: CraftTarget, affix: ItemAffix) -> Array[StringName]:
 		tags.append(StringName(String(Constants.DAMAGE_TYPE_NAME.get(affix.damage_type, "")).to_lower()))
 	return tags
 
-## Recasting only removes a modifier when something can be added back, so
-## each branch is a removable modifier plus the candidates left after it goes.
-func _recast_branches(t: CraftTarget, explicits: Array[ItemAffix], rarity: int, ctx: Dictionary, edict: EdictDef) -> Array[Dictionary]:
-	var branches: Array[Dictionary] = []
-	for affix in _removable(t, explicits, ctx, edict):
-		var rest := explicits.duplicate()
-		rest.erase(affix)
-		var cands := _candidates(t, rest, rarity, ctx, edict)
-		if not cands.is_empty():
-			branches.append({"affix": affix, "candidates": cands})
-	return branches
-
-## A Lens's radius modifier value range (Reckoning rerolls it too); zero otherwise.
+## A Lens's radius modifier value range (unfocused settle rerolls it); zero otherwise.
 func _lens_radius_range(t: CraftTarget) -> Vector2:
 	if not t.resource is Lens:
 		return Vector2.ZERO
 	var def: Dictionary = LensRoller.RADIUS_MODS.get((t.resource as Lens).radius_mod, {})
 	return Vector2(def.get("min", 0.0), def.get("max", 0.0))
 
-func _locked(affix: ItemAffix, edict: EdictDef) -> bool:
-	if edict == null:
-		return false
-	return (edict.locks == EdictDef.Lock.PREFIX and affix.is_prefix) or (edict.locks == EdictDef.Lock.SUFFIX and not affix.is_prefix)
+## ---- Helpers --------------------------------------------------------------
 
-## ---- Helpers -----------------------------------------------------------
+static func _craft_count(item: Resource) -> int:
+	return int(item.get("craft_count")) if item != null and item.get("craft_count") != null else 0
 
-func _kind(orb_id: StringName) -> OrbKind:
-	match orb_id:
-		&"quickening", &"grafting", &"elevation", &"forging", &"ascendant":
-			return OrbKind.ADD
-		&"recasting":
-			return OrbKind.RECAST
-		&"severance", &"absolution":
-			return OrbKind.REMOVE
-	return OrbKind.OTHER
-
-func _rarity_after(orb_id: StringName, rarity: int) -> int:
-	match orb_id:
-		&"quickening":
-			return Constants.ItemRarity.UNCOMMON
-		&"elevation", &"forging":
-			return Constants.ItemRarity.RARE
-	return rarity
-
-func _add_count_range(t: CraftTarget, orb_id: StringName) -> Vector2i:
-	if orb_id != &"forging":
-		return Vector2i.ONE
-	if t.is_slate:
-		return Constants.FORGING_MODIFIERS_SLATE
-	return Vector2i(Constants.FORGING_MODIFIERS_GEAR, Constants.FORGING_MODIFIERS_GEAR)
+static func _damage_type_named(name: StringName) -> int:
+	for type in Constants.DAMAGE_TYPE_NAME:
+		if String(Constants.DAMAGE_TYPE_NAME[type]).to_lower() == String(name).to_lower():
+			return type
+	return -1
 
 ## Lowest rarity whose limits still fit the remaining modifiers.
 func _fitting_rarity(t: CraftTarget, explicits: Array[ItemAffix]) -> int:
 	if explicits.is_empty():
 		return Constants.ItemRarity.COMMON
-	var prefixes := explicits.filter(func(a: ItemAffix): return a.is_prefix).size()
+	var prefixes := _prefix_count(explicits)
 	var suffixes := explicits.size() - prefixes
 	var limits := t.get_affix_limits(Constants.ItemRarity.UNCOMMON)
 	if prefixes <= limits.x and suffixes <= limits.y and explicits.size() <= t.get_total_limit(Constants.ItemRarity.UNCOMMON):
@@ -650,16 +539,14 @@ func _describe(affix: ItemAffix) -> void:
 		return
 	affix.description = "%s (Tier %d)" % [ItemRoller.describe_value(text, affix.stat_key, affix.value), affix.tier]
 
-## The line's format string: from its ModifierDef, or for a modifier rolled
-## before Orbs existed, from the AFFIX_POOL entry / weapon library affix it
-## came from.
+## The line's format string: from its ModifierDef, else from the AFFIX_POOL
+## entry / weapon library affix it came from.
 static func _template_for(affix: ItemAffix) -> String:
 	if affix.def != null:
 		return affix.def.text if affix.def.text != "" else String(affix.def.id)
 	for entry in ItemRoller.AFFIX_POOL:
 		if entry["stat_key"] == affix.stat_key:
 			return entry["desc"]
-	# Retired pool names (StatKeys aliases) use their stat's current entry.
 	for entry in ItemRoller.AFFIX_POOL:
 		if StatKeys.canonical(entry["stat_key"]) == affix.key():
 			return entry["desc"]
@@ -670,27 +557,5 @@ static func _template_for(affix: ItemAffix) -> String:
 			return source.description
 	return ""
 
-func _fail(item: Resource, result: CraftResult, code: int) -> CraftResult:
-	result.error = code
-	EventBus.craft_failed.emit(item, code, result.get_message())
-	return result
-
-static func _load_dir(path: String) -> Array[Resource]:
-	var found: Array[Resource] = []
-	var dir := DirAccess.open(path)
-	if dir == null:
-		return found
-	dir.list_dir_begin()
-	var file_name := dir.get_next().trim_suffix(".remap")
-	while file_name != "":
-		if file_name.ends_with(".tres"):
-			var res := load(path + file_name)
-			if res:
-				found.append(res)
-		file_name = dir.get_next().trim_suffix(".remap")
-	dir.list_dir_end()
-	return found
-
-## Item-level Edicts keep removals off modifiers whose tier needs the Edict's level.
-static func _level_protected(affix: ItemAffix, edict: EdictDef) -> bool:
-	return edict != null and edict.item_level > 0 and ItemRoller.affix_tier_level(affix) >= edict.item_level
+func _fail(item: Resource, _craft_id: StringName, code: int) -> void:
+	EventBus.craft_failed.emit(item, code, CurrencyText.error_message(CraftResult.error_name(code)))

@@ -32,7 +32,7 @@ func _run() -> void:
 		add_child(pickup)
 		pickup.global_position = Vector3((i % 5 - 2) * 1.4, Enemy.DROP_HOVER, -2.0 - (i / 5) * 1.6)
 	var currency: LootPickup = load("res://entities/pickups/loot_pickup/LootPickup.tscn").instantiate()
-	currency.currency_id = Constants.roll_currency_drop(1)
+	currency.currency_id = Constants.roll_currency_drop()
 	add_child(currency)
 	currency.global_position = Vector3(2.8, Enemy.DROP_HOVER, -3.6)
 	var cam := Camera3D.new()

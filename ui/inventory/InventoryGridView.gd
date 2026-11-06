@@ -118,12 +118,8 @@ static func describe(entry: GridInventory.Entry, show_count: bool = true) -> Str
 	var lines: Array[String] = [entry.content.display_name]
 	var t := CraftTarget.wrap(entry.content)
 	if t != null:
-		if t.uses_tolerance():
-			lines.append("Tolerance %d/%d" % [t.get_tolerance(), entry.content.tolerance_max])
 		if not t.is_slate:
-			lines.append("Quality %d  Sockets %d%s" % [t.get_quality(), t.get_sockets(), " (opened)" if t.sockets_rolled() else ""])
-		if t.get_active_edict() != null:
-			lines.append("Edict: %s" % CurrencyText.name_of(t.get_active_edict().id))
+			lines.append("Quality %d  Sockets %d" % [t.get_quality(), t.get_sockets()])
 		for a in t.get_explicits():
 			lines.append(("[Anchored] " if a.anchored else "") + a.description)
 	return "\n".join(lines)

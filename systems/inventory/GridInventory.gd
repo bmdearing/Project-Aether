@@ -34,6 +34,13 @@ func _init(p_width: int = Constants.INVENTORY_SIZE.x, p_height: int = Constants.
 
 ## Crafting stones used to be Items; one arriving as an Item (old save,
 ## old drop) is stored as its currency stack instead.
+## Old saves: crafting currency removed by Rev 3 found while loading (id ->
+## count). SaveManager refunds it as residue and clears it.
+static var legacy_currency_found: Dictionary = {}
+
+static func _note_legacy(id: String, count: int) -> void:
+	legacy_currency_found[id] = int(legacy_currency_found.get(id, 0)) + count
+
 static func as_currency_if_consumable(content):
 	if content is Item and Constants.CRAFTING_CONSUMABLE_IDS.has(String(content.item_id)):
 		return StringName(content.item_id)
@@ -210,14 +217,17 @@ static func from_dict(d: Dictionary) -> GridInventory:
 	var inv := GridInventory.new(int(d.get("width", Constants.INVENTORY_SIZE.x)), int(d.get("height", Constants.INVENTORY_SIZE.y)), int(d.get("accepts", Accepts.ANY)))
 	for e in d.get("entries", []):
 		var content
+		var count := int(e.get("count", 1))
+		if e.has("currency") and Constants.is_legacy_currency(String(e["currency"])):
+			_note_legacy(String(e["currency"]), count)
+			continue
+		if e.has("item") and (ItemSerializer.is_legacy_brand(e["item"]) or Constants.is_legacy_currency(String(e["item"].get("item_id", "")))):
+			_note_legacy(String(e["item"].get("item_id", "")), count)
+			continue
 		if e.has("currency"):
 			content = StringName(e["currency"])
 		elif e.has("slate"):
 			content = SlateSerializer.from_dict(e["slate"])
-		elif ItemSerializer.is_legacy_brand(e.get("item", {})):
-			content = ItemSerializer.legacy_brand_currency(e["item"])
-			if content == &"":
-				continue
 		else:
 			content = ItemSerializer.from_dict(e.get("item", {}))
 		if content != null:

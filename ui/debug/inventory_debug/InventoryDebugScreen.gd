@@ -1,7 +1,7 @@
 extends CanvasLayer
 ## Debug-only view of the footprint grid inventory and Hub stash (F6).
 ## Drag to move between cells, tabs and the stash. Right-click an item to
-## use the selected Orb or Edict on it, or a Brand to toggle it active.
+## run the selected Siphon craft on it (unfocused, residue paid automatically).
 ## Doesn't pause the game.
 
 var _is_open := false
@@ -14,7 +14,6 @@ var _ammo_label: Label
 var _status: Label
 var _currency_picker: OptionButton
 var _resolver: CraftingResolver
-var _active_brands: ActiveBrands
 
 func _ready() -> void:
 	layer = AetherStyle.SCREEN_LAYER  # above the HUD
@@ -32,9 +31,6 @@ func open() -> void:
 	visible = true
 	Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
 	_resolver = CraftingResolver.create_default()
-	_resolver.currency = GameState.inventory
-	if _active_brands == null or _active_brands.carried != GameState.inventory:
-		_active_brands = ActiveBrands.new(GameState.inventory)
 	_refresh()
 
 func close() -> void:
@@ -82,14 +78,9 @@ func _build() -> void:
 	left.add_child(craft_row)
 	craft_row.add_child(_label("Right-click item uses:"))
 	_currency_picker = OptionButton.new()
-	for id in Constants.ORB_IDS:
-		_currency_picker.add_item(CurrencyText.name_of(id))
+	for id in CraftingResolver.CRAFT_IDS:
+		_currency_picker.add_item(CurrencyText.name_of(StringName("craft_" + String(id))))
 		_currency_picker.set_item_metadata(_currency_picker.item_count - 1, id)
-	for path in DirAccess.get_files_at(CraftingResolver.EDICTS_DIR):
-		if path.ends_with(".tres"):
-			var id := StringName(path.get_basename())
-			_currency_picker.add_item(CurrencyText.name_of(id))
-			_currency_picker.set_item_metadata(_currency_picker.item_count - 1, id)
 	craft_row.add_child(_currency_picker)
 	_status = _label("")
 	_status.custom_minimum_size.x = 420
@@ -141,8 +132,7 @@ func _refresh() -> void:
 		b.disabled = i == _active_tab
 		_tab_bar.add_child(b)
 	_stash_view.set_inventory(tabs[_active_tab])
-	var brands := _active_brands.get_ids().map(func(id): return CurrencyText.name_of(id)) if _active_brands else []
-	_ammo_label.text = "Active Brands: " + ", ".join(brands) if not brands.is_empty() else ""
+	_ammo_label.text = "Residue: " + ", ".join(Residue.ALL.map(func(p: StringName): return "%s %d" % [CurrencyText.name_of(p), Residue.amount(p)]))
 
 func _select_tab(index: int) -> void:
 	_active_tab = index
@@ -150,26 +140,11 @@ func _select_tab(index: int) -> void:
 
 func _on_entry_right_clicked(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
 	if entry.is_currency():
-		var id: StringName = entry.content
-		if not _resolver.brand_defs.has(id):
-			_status.text = "Pick it in the dropdown, then right-click an item."
-			return
-		if _active_brands.is_active(id):
-			_active_brands.deactivate(id)
-			_status.text = "%s deactivated." % CurrencyText.name_of(id)
-		elif _active_brands.activate(id):
-			_status.text = "%s activated." % CurrencyText.name_of(id)
-		else:
-			_status.text = "Brands must be carried to be activated."
-		_refresh()
+		_status.text = "Pick a craft in the dropdown, then right-click an item."
 		return
 	var used: StringName = _currency_picker.get_selected_metadata()
-	var result: CraftResult
-	if _resolver.edict_defs.has(used):
-		result = _resolver.apply_edict(entry.content, used)
-	else:
-		result = _resolver.apply(entry.content, used, _active_brands)
-	_status.text = ("%s: done.\n%s" % [CurrencyText.name_of(used), InventoryGridView.describe(entry)]) if result.success else result.get_message()
+	var result := _resolver.apply(entry.content, used, &"", 0)
+	_status.text = ("%s: done.\n%s" % [CurrencyText.name_of(StringName("craft_" + String(used))), InventoryGridView.describe(entry)]) if result.success else result.get_message()
 	_refresh()
 
 func _add_gear() -> void:
@@ -185,14 +160,12 @@ func _add_slate() -> void:
 	_refresh()
 
 func _add_currency() -> void:
-	for id in Constants.ORB_IDS:
-		GameState.inventory.add(id, 20)
-	for id in [&"brand_fire", &"brand_cold", &"brand_prefix", &"brand_suffix", &"brand_preservation", &"edict_prefix"]:
-		GameState.inventory.add(id, 5)
+	for id in Constants.CRAFTING_CONSUMABLE_IDS:
+		GameState.inventory.add(StringName(id), 20)
+	for pool in Residue.REGULAR:
+		Residue.add(pool, 500)
 	_refresh()
 
 func _clear() -> void:
 	GameState.inventory = GridInventory.new()
-	_active_brands = ActiveBrands.new(GameState.inventory)
-	_resolver.currency = GameState.inventory
 	_refresh()

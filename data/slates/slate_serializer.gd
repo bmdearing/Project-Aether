@@ -40,9 +40,7 @@ static func to_dict(slate: Slate) -> Dictionary:
 		"lenses": slate.lenses.map(func(l: Lens): return ItemSerializer.to_dict(l)),
 		"is_corrupted": slate.is_corrupted,
 		"is_split": slate.is_split,
-		"tolerance": slate.tolerance,
-		"tolerance_max": slate.tolerance_max,
-		"active_edict": String(slate.active_edict.id) if slate.active_edict else "",
+		"craft_count": slate.craft_count,
 	}
 
 static func from_dict(d: Dictionary) -> Slate:

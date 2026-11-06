@@ -7,6 +7,31 @@ there. Most recent first.
 
 ---
 
+## 2026-11-05 — Crafting Rev 3: residue, the Siphon, Monster Infrequents (user design)
+
+Built from the user's Rev 3 brief and the perk addendum drafted with them. The goal: loot was the weakest part of the game.
+
+**Residue & the Siphon**
+- Kills fill residue pools by the enemy's damage category (Physical, Elemental, Esoteric); bosses also fill a Boss pool. Totals show under the inventory grid.
+- The Siphon (Hub, west platform) replaces Orbs: add, recast, bleed, absolve, settle, anchor (you pick the modifier), sockets, retype, restore type, Vestige. Pick a family to focus a craft; typed families pay from their pool, generic and unfocused crafts from any pool.
+- Each craft on an item costs 1.12x the last, capped at 10x. No craft ever becomes impossible. Foresight (see 1-4 outcomes, +25% each) works in the engine, dev toggle only.
+- Removed: every Orb except Tempering, Brands, Edicts, Infusion and Shrivening Stones, Aether Tolerance. Old saves refund 5 residue to each regular pool per removed item.
+- Tempering now also works on armour and shields: 1% more base defences per quality point.
+
+**Monster Infrequents and perks**
+- 20 placeholder perks, each dropped only by one enemy, on green Uncommon/Rare items with a bigger beam and louder drop. Crafting never touches a perk.
+- The Recombinator's new Gear tab puts a second perk on an item: base + donor of the same type, both used up, each perk survives at 65%, 1-2 kept.
+- Wiki: a Monster Infrequents page lists every perk, its range, slots and source.
+
+**Fewer, stronger lines**
+- Items hold 2 prefixes / 2 suffixes (Rares drop with 3-4); jewels 1 + 1. Lenses keep 2/2. Gear line ranges x1.4, jewel lines x1.3. Old items keep their extra lines.
+
+**Judgment calls to check**
+- Perks I swapped where a mechanic didn't exist: Shambler's perk heals on kill (no player minion system for "risen" enemies), Cutthroat's is more damage (not a forced crit), Sand Globe chills (no Blind).
+- Lord of the Elements' residue uses its definition's single damage type.
+- Conduit spells don't use weapon quality; only weapon hits do.
+- Testing paths need Dev mode (Ctrl+Shift+D on the title screen): Gear Shop MIs at 1 Gold, the Currency Exchange's +500 residue.
+
 ## 2026-11-05 — Ring implicits (user design)
 
 Ring implicits are now mostly resistances, with a few damage rings.

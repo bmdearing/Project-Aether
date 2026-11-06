@@ -102,7 +102,7 @@ func _test_pickups() -> void:
 
 	var saved := GameState.inventory
 	GameState.inventory = GridInventory.new(1, 1)
-	GameState.inventory.add(&"quickening")
+	GameState.inventory.add(&"tempering")
 	var blocked: LootPickup = load(LOOT_PICKUP).instantiate()
 	blocked.item = _armor(Constants.EquipmentSlot.GLOVES, "Test Gloves")
 	_hub.add_child(blocked)
@@ -136,7 +136,7 @@ func _test_equip_unequip() -> void:
 
 	var saved := GameState.inventory
 	GameState.inventory = GridInventory.new(1, 1)
-	GameState.inventory.add(&"quickening")
+	GameState.inventory.add(&"tempering")
 	_screen._on_doll_slot_pressed(_doll_row(Constants.EquipmentSlot.BODY_ARMOUR))
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.BODY_ARMOUR) == body, "unequip refused when the grid is full")
 	GameState.inventory = saved
@@ -192,7 +192,7 @@ func _test_fate_board() -> void:
 	editor._on_cell_clicked(FateBoard.ANCHOR_CELL + Vector2i(1, 0), MOUSE_BUTTON_LEFT)
 	var saved := GameState.inventory
 	GameState.inventory = GridInventory.new(1, 1)
-	GameState.inventory.add(&"quickening")
+	GameState.inventory.add(&"tempering")
 	editor._on_cell_clicked(FateBoard.ANCHOR_CELL + Vector2i(1, 0), MOUSE_BUTTON_RIGHT)
 	_check(GameState.fate_board.placements.size() == 1, "removal refused when the grid is full")
 	GameState.inventory = saved
@@ -204,7 +204,7 @@ func _test_shop_refund() -> void:
 	var gear_shop: GearShop = _hub.get_node("GearShop")
 	var saved := GameState.inventory
 	GameState.inventory = GridInventory.new(1, 1)
-	GameState.inventory.add(&"quickening")
+	GameState.inventory.add(&"tempering")
 	GameState.gold = 1000  # new games start with none
 	var gold := GameState.gold
 	var item := _weapon("Dagger", false)
@@ -253,7 +253,7 @@ func _test_migration() -> void:
 	_check(names.has("Old Loose Slate") and not names.has("Old Placed Slate"), "migration moves unplaced slates into the grid")
 	var ref = GameState.fate_board_placements[0]["slate_ref"]
 	_check(ref is Dictionary and ref.get("display_name", "") == "Old Placed Slate", "placed slate index converted to full data")
-	_check(GameState.get_inventory_items().all(func(i): return (i.tolerance > 0) == (i is Slate)), "migrated slates get tolerance, gear does not")
+	_check(GameState.get_inventory_items().all(func(i): return i.craft_count == 0), "migrated items start with no Siphon crafts")
 
 	var crowded := {"owned_loot": []}
 	for i in 30:
@@ -276,13 +276,13 @@ func _test_crafting_fluidity() -> void:
 	var item := _armor(Constants.EquipmentSlot.HELMET, "Craft Test Helm")
 	item.rarity = Constants.ItemRarity.COMMON
 	GameState.add_to_inventory(item)
-	GameState.inventory.add(&"quickening", 3)
+	GameState.inventory.add(&"tempering", 3)
 	_screen.open()
 	await _frames(2)
 	var block_before = _screen.inventory_grid._blocks.get(_entry_for(item))
-	_screen._on_currency_right_clicked(&"quickening")
+	_screen._on_currency_right_clicked(&"tempering")
 	await _frames(2)
-	_check(_screen._cursor_icon.visible and _screen._cursor_icon.content == &"quickening", "a picked-up Orb rides on the cursor")
+	_check(_screen._cursor_icon.visible and _screen._cursor_icon.content == &"tempering", "picked-up Tempering rides on the cursor")
 	_check(_screen.inventory_grid._blocks.get(_entry_for(item)) == block_before, "picking up an Orb doesn't rebuild the grid")
 	_screen._use_armed_on(item)
 	await _frames(2)

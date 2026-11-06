@@ -1037,11 +1037,9 @@ const TOME_DROP_CHANCE := 0.08  # flat, independent of the gear roll below
 ## Spell upgrade material: its own roll, on top of whatever else drops.
 const AETHER_DROP_CHANCE := 0.18
 const AETHER_DROP_COUNT := Vector2i(1, 3)
-## Crafting currency (Orbs, Brands, Edicts) drops as loot only, picked by
-## Constants.CURRENCY_DROP_WEIGHTS. Stones/Shard are rarer (one flat roll
-## picks between the 3, not 3 independent rolls).
-const CURRENCY_DROP_CHANCE := 0.12
-const CRAFTING_CONSUMABLE_DROP_CHANCE := 0.03
+## Tempering and the Shard of Tharsis, the only physical crafting items
+## (Constants.roll_currency_drop()); crafting is otherwise paid in residue.
+const CRAFTING_CONSUMABLE_DROP_CHANCE := 0.05
 const CRAFTING_CONSUMABLE_DIR := "res://data/consumables/instances/"
 const SLATE_DROP_CHANCE := 0.10
 const FIGMENT_DROP_CHANCE := 0.06
@@ -1050,6 +1048,10 @@ const GOLD_PICKUP_SCENE := preload("res://entities/pickups/gold_pickup/GoldPicku
 
 ## XP for this kill: xp_reward is the level-1 value; it's credited at the
 ## player's level and adjusted by the level gap (AreaLevel.xp_multiplier()).
+## The damage type whose category decides which residue pool this kill fills.
+func residue_damage_type() -> int:
+	return definition.damage_type if definition else Constants.DamageType.KINETIC
+
 func earned_xp(player_level: int) -> float:
 	return xp_reward * AreaLevel.xp_scale(player_level) * AreaLevel.xp_multiplier(level, player_level)
 
@@ -1058,6 +1060,8 @@ func _on_died() -> void:
 	var player := get_tree().get_first_node_in_group("player") as Player
 	if player and player.experience:
 		player.experience.add_xp(earned_xp(GameState.player_level))
+	if player:
+		Residue.grant_for_kill(self)
 	if player and player.ward:
 		player.ward.restore_on_kill()
 	_drop_gold()
@@ -1168,12 +1172,8 @@ func _roll_drop(rarity_mult: float) -> void:
 			_spawn_pickup(tome)
 			return  # one drop per roll
 
-	if randf() <= CURRENCY_DROP_CHANCE * _reward_mult("currency"):
-		_spawn_currency_pickup(Constants.roll_currency_drop(_compute_item_level()))
-		return
-
 	if randf() <= CRAFTING_CONSUMABLE_DROP_CHANCE * _reward_mult("currency"):
-		_spawn_currency_pickup(StringName(Constants.CRAFTING_CONSUMABLE_IDS.pick_random()))
+		_spawn_currency_pickup(Constants.roll_currency_drop())
 		return
 
 	if randf() <= SLATE_DROP_CHANCE * _reward_mult("slates"):

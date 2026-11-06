@@ -1,7 +1,7 @@
 extends Node
 ## Screenshots real UI states in the Hub for visual review.
 ## Run windowed: Godot --path . res://tests/ui_capture/capture_ui.tscn --resolution 1920x1080 -- <out.png> <mode>
-## Modes: hud, engine, engine_far, engine_ui, rings (Alt range rings), portal, hud_fx (life damage trail + a spell coming off cooldown), inventory, inventory_icons, icons, character, abilities, web <spell_id>, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview
+## Modes: hud, engine, engine_far, engine_ui, rings (Alt range rings), portal, hud_fx (life damage trail + a spell coming off cooldown), inventory, inventory_icons, icons, character, abilities, web <spell_id>, fateboard, map, pause, shop, stash, card, sockets, uniques, death, craft_preview, siphon
 
 const CaptureTiming := preload("res://tests/ui_capture/CaptureTiming.gd")
 
@@ -250,6 +250,8 @@ func _run() -> void:
 			_show_compare(player)
 		"craft_preview":
 			_show_craft_preview()
+		"siphon":
+			_show_siphon()
 		"inventory_icons":
 			_fill_icon_inventory()
 			_screen("inventory_screen").open(false)
@@ -261,9 +263,9 @@ func _run() -> void:
 
 func _fill_stash(currency: bool) -> void:
 	var stash := GameState.stash
-	for id in [&"quickening", &"grafting", &"tempering", &"brand_fire", &"edict_spell", &"maw_fragment_ash", &"crystallized_aether"]:
+	for id in [&"tempering", &"shard_of_tharsis", &"maw_fragment_ash", &"crystallized_aether"]:
 		stash.get_tab(GridInventory.Accepts.CURRENCY).add(id, randi_range(3, 4200))
-	stash.get_tab(GridInventory.Accepts.CURRENCY).add(&"severance", 51000)
+	stash.get_tab(GridInventory.Accepts.CURRENCY).add(&"tempering", 51000)
 	for k in 10:
 		stash.tabs[0].add(ItemRoller.roll(30, 3.0))
 	var screen := _screen("stash_screen") as StashScreen
@@ -301,41 +303,45 @@ func _show_compare(player: Player) -> void:
 	layer.add_child(shown)
 	shown.position = Vector2(400, 120)
 
-## Rare gear and a Lens as their cards show them with an Orb picked up:
-## Severance under a Resistance Brand, Recasting under a Fire Brand.
+## Rare gear and a Lens as their cards show a Siphon craft's odds: a Fire
+## add on the Lens, a Resistance recast on the gear, an unfocused settle.
 func _show_craft_preview() -> void:
 	var resolver := CraftingResolver.create_default()
-	var bag := CurrencyBag.new()
-	for id in [&"brand_resistance", &"brand_fire"]:
-		bag.add_currency(id, 3)
+	for pool in Residue.REGULAR:
+		GameState.residue[pool] = 4000
 	var rare: Item = null
 	for i in 400:
 		var item := ItemRoller.roll(70, 30.0)
-		if item and not item is Weapon and item.rarity == Constants.ItemRarity.RARE and resolver.preview(item, &"severance", _active(bag, &"brand_resistance")).is_valid():
+		if item and not item is Weapon and item.rarity == Constants.ItemRarity.RARE and resolver.preview(item, &"recast", &"resistance").is_valid():
 			rare = item
 			break
 	var lens := LensRoller.roll(80, 50.0)
 	lens.rarity = Constants.ItemRarity.COMMON
 	CraftTarget.wrap(lens).set_explicits([])
-	resolver.apply(lens, &"forging")
+	resolver.apply(lens, &"add")
 	var layer := CanvasLayer.new()
 	layer.layer = 100
 	get_tree().root.add_child(layer)
 	var x := 60.0
-	for pair in [[rare, &"severance", &"brand_resistance"], [lens, &"recasting", &"brand_fire"], [lens, &"anchoring", &""]]:
+	for pair in [[rare, &"recast", &"resistance"], [lens, &"add", &"fire"], [lens, &"settle", &""]]:
 		var card: ItemCard = load("res://ui/item_card/ItemCard.tscn").instantiate()
-		var orb: StringName = pair[1]
-		var brand: StringName = pair[2]
-		card.craft_preview_for = func(target: Resource) -> CraftPreview: return resolver.preview(target, orb, _active(bag, brand) if brand != &"" else null)
+		var craft: StringName = pair[1]
+		var family: StringName = pair[2]
+		card.craft_preview_for = func(target: Resource) -> CraftPreview: return resolver.preview(target, craft, family)
 		layer.add_child(card)
 		card.display_item(pair[0])
 		card.position = Vector2(x, 80)
 		x += 400.0
 
-func _active(bag: CurrencyBag, id: StringName) -> ActiveBrands:
-	var active := ActiveBrands.new(bag)
-	active.activate(id)
-	return active
+## The Siphon screen with a Rare in the box and full pools.
+func _show_siphon() -> void:
+	GameState.residue = {Residue.PHYSICAL: 3200, Residue.ELEMENTAL: 7400, Residue.ESOTERIC: 650, Residue.BOSS: 1300}
+	GameState.killed_bosses = ["aurelia"]
+	var item := ItemRoller.roll(70, 30.0)
+	GameState.inventory.add(item)
+	var screen := SiphonScreen.open_for(get_tree())
+	screen.place(item)
+	screen.set_craft(&"add")
 
 func _screen(group: String) -> Node:
 	return get_tree().get_first_node_in_group(group)
@@ -364,9 +370,8 @@ func _dress_player(player: Player) -> void:
 	player.experience.add_xp(60.0)
 	for k in 6:
 		GameState.add_to_inventory(ItemRoller.roll(10, 3.0))
-	GameState.inventory.add(&"quickening", 7)
-	GameState.inventory.add(&"brand_fire", 2)
-	GameState.inventory.add(&"elevation", 3)
+	GameState.inventory.add(&"tempering", 7)
+	GameState.inventory.add(&"shard_of_tharsis", 2)
 
 func _show_card(player: Player) -> void:
 	var item := ItemRoller.roll(30, 4.0)
@@ -478,7 +483,7 @@ func _show_icon_sheet() -> void:
 
 ## Inventory holding one of everything the icon pass covers.
 func _fill_icon_inventory() -> void:
-	for id in [&"absolution", &"anchoring", &"ascendant", &"elevation", &"forging", &"grafting", &"opening", &"quickening", &"recasting", &"reckoning", &"severance", &"tempering", &"brand_cold", &"brand_lightning", &"brand_armor", &"brand_prefix", &"edict_spell", &"edict_suffix", &"infusion_stone", &"shrivening_stone", &"shard_of_tharsis", &"crystallized_aether"]:
+	for id in [&"tempering", &"shard_of_tharsis", &"crystallized_aether"]:
 		GameState.inventory.add(id, randi_range(1, 40))
 	for id in Pinnacle.FRAGMENT_IDS:
 		GameState.inventory.add(id, 1)

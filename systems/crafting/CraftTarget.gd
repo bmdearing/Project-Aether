@@ -90,24 +90,15 @@ func set_explicits(explicits: Array[ItemAffix]) -> void:
 func is_corrupted() -> bool:
 	return resource.is_corrupted
 
-## Aether Tolerance is a Slate-only crafting budget; gear crafts freely.
-func uses_tolerance() -> bool:
-	return is_slate
+## Siphon crafts made on this item; each one costs more (CraftingResolver.cost_of()).
+func get_craft_count() -> int:
+	return resource.craft_count
 
-func get_tolerance() -> int:
-	return resource.tolerance
-
-func set_tolerance(value: int) -> void:
-	resource.tolerance = value
-
-func get_active_edict() -> EdictDef:
-	return resource.active_edict
-
-func set_active_edict(edict: EdictDef) -> void:
-	resource.active_edict = edict
+func set_craft_count(value: int) -> void:
+	resource.craft_count = value
 
 func can_temper() -> bool:
-	return resource is Armor or resource is Weapon
+	return resource is Armor or resource is Weapon or resource is Shield
 
 func get_quality() -> int:
 	return 0 if is_slate else (resource as Item).quality
@@ -124,11 +115,3 @@ func get_sockets() -> int:
 
 func get_max_sockets() -> int:
 	return 0 if is_slate else (resource as Item).max_sockets
-
-func sockets_rolled() -> bool:
-	return false if is_slate else (resource as Item).sockets_rolled
-
-func set_sockets(count: int) -> void:
-	var item := resource as Item
-	item.sockets = count
-	item.sockets_rolled = true

@@ -145,7 +145,6 @@ func _build() -> void:
 	_currency_view.bench_clicked.connect(_take_from_bench)
 	_currency_view.bench_dropped.connect(_on_bench_dropped)
 	_currency_view.preview_for = _bench_preview
-	_currency_view.brand_active = func(id: StringName) -> bool: return _bench_brands != null and _bench_brands.is_active(id)
 	page.add_child(_currency_view)
 	_unique_view = UniqueTabView.new()
 	_unique_view.visible = false
@@ -439,25 +438,9 @@ func _withdraw_currency(id: StringName, take_all: bool) -> void:
 ## ---- Crafting Bench ----------------------------------------------------
 ## One item on the Currency tab, crafted on with the stash's own currency.
 
-var _resolver: CraftingResolver
-var _bench_brands: ActiveBrands
-
-## The resolver and Brands both draw on the stash's currency tab.
-func _bench_resolver() -> CraftingResolver:
-	var tab := GameState.stash.get_tab(GridInventory.Accepts.CURRENCY)
-	if _resolver == null:
-		_resolver = CraftingResolver.create_default()
-	_resolver.currency = tab
-	if _bench_brands == null or _bench_brands.carried != tab:
-		_bench_brands = ActiveBrands.new(tab)
-	return _resolver
-
-func _bench_preview(id: StringName) -> CraftPreview:
-	var bench := GameState.stash.bench
-	if bench == null or bench is FigmentItem:
-		return null
-	var resolver := _bench_resolver()
-	return resolver.preview(bench, id, _bench_brands)
+## Tempering and the Shard only: the Siphon has no preview here.
+func _bench_preview(_id: StringName) -> CraftPreview:
+	return null
 
 func _on_bench_dropped(data: Dictionary) -> void:
 	var entry: GridInventory.Entry = data["grid_entry"]
@@ -492,16 +475,7 @@ func _take_from_bench() -> void:
 ## Right-click on a Currency tab slot: a Brand or Edict switches on or off
 ## for the next craft; anything usable goes onto the cursor (again: back).
 func _on_currency_right_clicked(id: StringName) -> void:
-	var resolver := _bench_resolver()
-	if resolver.brand_defs.has(id) or resolver.edict_defs.has(id):
-		if _bench_brands.is_active(id):
-			_bench_brands.deactivate(id)
-			_status.text = "%s switched off." % CurrencyText.name_of(id)
-		elif _bench_brands.activate(id):
-			_status.text = "%s switched on for your next craft from the stash." % CurrencyText.name_of(id)
-		_currency_view.refresh()
-		return
-	if not (Constants.ORB_IDS.has(id) or Constants.CRAFTING_CONSUMABLE_IDS.has(String(id))):
+	if not Constants.CRAFTING_CONSUMABLE_IDS.has(String(id)):
 		_status.text = CurrencyText.description_of(id)
 		return
 	if _held == id:
@@ -533,23 +507,11 @@ func _use_held_on(target: Resource) -> void:
 	if tab.count_of(id) <= 0:
 		_drop_held()
 		return
-	var resolver := _bench_resolver()
-	if target is FigmentItem:
-		if not Constants.ORB_IDS.has(id):
-			_status.text = "%s can't be used on a Figment." % CurrencyText.name_of(id)
-			return
-		var outcome := CraftingSystem.craft_figment(target, id)
-		if outcome["success"]:
-			tab.remove_currency(id)
-		_status.text = outcome["message"]
-	elif not (target is Item or target is Slate):
+	if not target is Item or target is FigmentItem:
 		_status.text = "%s can't be used on that." % CurrencyText.name_of(id)
 		return
-	elif Constants.ORB_IDS.has(id):
-		var result := resolver.apply(target, id, _bench_brands)
-		_status.text = InventoryScreen._describe_craft(id, result) if result.success else result.get_message()
 	else:
-		var outcome := InventoryScreen.use_stone(id, target)
+		var outcome := InventoryScreen.use_consumable(id, target)
 		if outcome["success"]:
 			tab.remove_currency(id)
 		_status.text = outcome["message"]
@@ -558,13 +520,8 @@ func _use_held_on(target: Resource) -> void:
 	_text_cache.erase(target.get_instance_id())
 	_refresh()
 
-## The held Orb's preview on target, for its card while hovering.
-func _held_preview(target: Resource) -> CraftPreview:
-	if _held == &"" or not Constants.ORB_IDS.has(_held):
-		return null
-	if not (target is Item or target is Slate) or target is FigmentItem or target.resource_path != "":
-		return null
-	return _bench_resolver().preview(target, _held, _bench_brands)
+func _held_preview(_target: Resource) -> CraftPreview:
+	return null
 
 func _refresh_views() -> void:
 	_carried_view.refresh()

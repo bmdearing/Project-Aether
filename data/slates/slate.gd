@@ -27,12 +27,14 @@ class_name Slate
 ## before placement.
 @export var requires_spell_designation: bool = false
 
-## Orb crafting state - same meaning as the matching Item fields. modifiers
+## Crafting state - same meaning as the matching Item fields. modifiers
 ## above are the tile-derived lines; explicits are the crafted ones.
 @export var explicits: Array[ItemAffix] = []
+## Siphon crafts made on this Slate (CraftingResolver.cost_of()).
+@export var craft_count: int = 0
+## Retired Aether Tolerance, kept only so old saves load.
 @export var tolerance: int = 0
 @export var tolerance_max: int = 0
-@export var active_edict: EdictDef
 @export var is_corrupted: bool = false
 ## Split at the Recombinator: a split Slate can't be split again.
 @export var is_split: bool = false

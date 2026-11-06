@@ -51,7 +51,7 @@ func _ready() -> void:
 		{"x": 4, "y": 0, "count": 1, "item": ItemSerializer.to_dict(_old_item("infusion_stone"))},
 	]}
 	var loaded := GridInventory.from_dict(old_save)
-	_check(loaded.count_of(&"shard_of_tharsis") == 2 and loaded.count_of(&"infusion_stone") == 1, "old saved stones load as currency")
+	_check(loaded.count_of(&"shard_of_tharsis") == 2 and loaded.count_of(&"infusion_stone") == 0, "old saved Shards load as currency; removed Stones are refunded")
 	_check(loaded.get_entries().all(func(e): return e.is_currency()), "no stone stays an Item after loading")
 
 	# A saved shield keeps its base line (and so its 2x2 size), also from

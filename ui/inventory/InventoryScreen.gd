@@ -53,8 +53,6 @@ var _doll_rows: Array[Dictionary] = []
 
 ## Currency picked up with right-click; the next item clicked receives it.
 var _armed: StringName = &""
-var _resolver: CraftingResolver
-var _active_brands: ActiveBrands
 ## A jewel picked up from the grid, waiting to be clicked into a socket.
 var _held_jewel: Jewel
 const ARMED_BORDER := Color(1.0, 0.82, 0.3)
@@ -62,8 +60,8 @@ const ARMED_BORDER := Color(1.0, 0.82, 0.3)
 ## put back.
 const CURSOR_ICON_SIZE := 46.0
 var _cursor_icon: ItemIcon
-const ACTIVE_BRAND_BORDER := Color(0.95, 0.15, 0.15)
-const PREVIEW_LINES := 5
+## Residue pool capsules, under the grid.
+var _residue_row: HBoxContainer
 const STATUS_LINES := 2
 const HINT := "Right-click an item to equip it; click an equipped slot to unequip. Right-click a Brand or Edict to switch it on for your next Orb, or an Orb or stone to pick it up, then click an item to use it; hovering an item with an Orb shows which modifiers it would touch. Right-click a Jewel to pick it up, then click an item to socket it - socketing is permanent. C shows the character sheet. Hold Alt over an item for details."
 
@@ -384,10 +382,6 @@ func open(show_stats: bool = false, show_items: bool = true) -> void:
 	_equipment = GameState.player_equipment
 	if _equipment and not _equipment.equip_failed.is_connected(_on_equip_failed):
 		_equipment.equip_failed.connect(_on_equip_failed)
-	_resolver = CraftingResolver.create_default()
-	_resolver.currency = GameState.inventory
-	if _active_brands == null or _active_brands.carried != GameState.inventory:
-		_active_brands = ActiveBrands.new(GameState.inventory)
 	_held_jewel = null
 	_armed = &""
 	stats_panel.visible = show_stats
@@ -453,6 +447,17 @@ func _unhandled_input(event: InputEvent) -> void:
 func _build_inventory_grid() -> void:
 	inventory_grid.set_inventory(GameState.inventory)
 	(inventory_grid.get_parent() as Control).custom_minimum_size = inventory_grid.custom_minimum_size
+	if _residue_row == null:
+		_residue_row = HBoxContainer.new()
+		_residue_row.add_theme_constant_override("separation", 12)
+		for pool in Residue.ALL:
+			_residue_row.add_child(ResidueBar.create(pool, true))
+		var scroll := inventory_grid.get_parent()
+		scroll.get_parent().add_child(_residue_row)
+		scroll.get_parent().move_child(_residue_row, scroll.get_index() + 1)
+	for bar: ResidueBar in _residue_row.get_children():
+		bar.visible = bar.pool != Residue.BOSS or Residue.amount(Residue.BOSS) > 0 or not GameState.killed_bosses.is_empty()
+		bar.refresh()
 
 func _is_equippable(item: Item) -> bool:
 	return item.is_equipment()
@@ -556,22 +561,14 @@ func _after_socket_change(item: Item) -> void:
 		_build_inventory_grid()
 
 ## ---- Crafting -------------------------------------------------------
-
-## Brands and Edicts are switched on for the next Orb.
-func _is_brand(id: StringName) -> bool:
-	return _resolver != null and (_resolver.brand_defs.has(id) or _resolver.edict_defs.has(id))
+## Only the two physical crafting items are used here (Tempering, the Shard
+## of Tharsis); every other craft is the Siphon's, paid in residue.
 
 func _is_usable_currency(id: StringName) -> bool:
-	return Constants.ORB_IDS.has(id) or Constants.CRAFTING_CONSUMABLE_IDS.has(String(id))
+	return Constants.CRAFTING_CONSUMABLE_IDS.has(String(id))
 
 func _on_currency_right_clicked(id: StringName) -> void:
-	if _is_brand(id):
-		if _active_brands.is_active(id):
-			_active_brands.deactivate(id)
-			status_label.text = "%s deactivated." % CurrencyText.name_of(id)
-		elif _active_brands.activate(id):
-			status_label.text = "%s active - it applies to your next Orb." % CurrencyText.name_of(id)
-	elif _is_usable_currency(id):
+	if _is_usable_currency(id):
 		if _armed == id:
 			_disarm()
 			return
@@ -596,72 +593,36 @@ func _disarm() -> void:
 func _highlight_for(entry: GridInventory.Entry) -> Color:
 	if _held_jewel and entry.content == _held_jewel:
 		return ARMED_BORDER
-	if not entry.is_currency():
-		return Color.TRANSPARENT
-	if entry.content == _armed:
+	if entry.is_currency() and entry.content == _armed:
 		return ARMED_BORDER
-	if _active_brands and _active_brands.is_active(entry.content):
-		return ACTIVE_BRAND_BORDER
 	return Color.TRANSPARENT
 
 func _hint_for(entry: GridInventory.Entry) -> String:
-	var id: StringName = entry.content
-	if _is_brand(id):
-		return "Active - right-click to deactivate." if _active_brands.is_active(id) else "Right-click to activate for your next Orb."
-	if _is_usable_currency(id):
+	if _is_usable_currency(entry.content):
 		return "Right-click to pick up, then click an item to use it."
 	return ""
 
-## Uses the picked-up Orb/stone on target (a grid or equipped item).
+## Uses the picked-up Tempering or Shard on target (a grid or equipped item).
 func _use_armed_on(target: Resource) -> void:
 	var id := _armed
-	if target is FigmentItem and Constants.ORB_IDS.has(id):
-		var outcome := CraftingSystem.craft_figment(target, id)
-		status_label.text = outcome["message"]
-		if outcome["success"]:
-			GameState.inventory.remove_currency(id)
-			if GameState.inventory.count_of(id) <= 0:
-				_armed = &""
-		_after_craft(target)
-		return
-	if not (target is Item or target is Slate) or target is FigmentItem:
+	if not target is Item or target is FigmentItem:
 		status_label.text = "%s can't be used on that." % CurrencyText.name_of(id)
 		return
 	if target.resource_path != "":
 		status_label.text = "Unequip this item first to craft on it."
 		return
-	if Constants.ORB_IDS.has(id):
-		var result := _resolver.apply(target, id, _active_brands)
-		status_label.text = _describe_craft(id, result) if result.success else result.get_message()
-	else:
-		var outcome := use_stone(id, target)
-		status_label.text = outcome["message"]
-		if outcome["success"]:
-			GameState.inventory.remove_currency(id)
+	var outcome := use_consumable(id, target)
+	status_label.text = outcome["message"]
+	if outcome["success"]:
+		GameState.inventory.remove_currency(id)
 	if GameState.inventory.count_of(id) <= 0:
 		_armed = &""
 	_after_craft(target)
 
-static func _describe_craft(id: StringName, result: CraftResult) -> String:
-	var parts: Array[String] = ["%s used." % CurrencyText.name_of(id)]
-	for a in result.removed:
-		parts.append("Removed: " + a.description)
-	for a in result.added:
-		parts.append("Added: " + a.description)
-	if result.anchored:
-		parts.append("Anchored: " + result.anchored.description)
-	if result.quality_gained > 0:
-		parts.append("+%d quality" % result.quality_gained)
-	if result.sockets_rolled_to >= 0:
-		parts.append("Sockets: %d" % result.sockets_rolled_to)
-	return "  ".join(parts)
-
-static func use_stone(id: StringName, target: Resource) -> Dictionary:
+static func use_consumable(id: StringName, target: Resource) -> Dictionary:
 	match String(id):
-		"infusion_stone":
-			return CraftingSystem.infuse(target) if target is Weapon else {"success": false, "message": "Infusion Stone only works on weapons."}
-		"shrivening_stone":
-			return CraftingSystem.shrive(target) if target is Weapon else {"success": false, "message": "Shrivening Stone only works on weapons."}
+		"tempering":
+			return CraftingSystem.temper(target) if target is Item else {"success": false, "message": "Tempering only works on weapons and armour."}
 		"shard_of_tharsis":
 			if not target is Item:
 				return {"success": false, "message": "The Shard only corrupts gear."}
@@ -669,49 +630,12 @@ static func use_stone(id: StringName, target: Resource) -> Dictionary:
 			return CraftingSystem.corrupt(target, power_level)
 	return {"success": false, "message": "That can't be used here."}
 
-## The picked-up Orb's preview on target, for its card; null without one.
-func _craft_preview_for(target: Resource) -> CraftPreview:
-	if not _is_open or _resolver == null or not Constants.ORB_IDS.has(_armed):
-		return null
-	if not (target is Item or target is Slate) or target is FigmentItem or target.resource_path != "":
-		return null
-	return _resolver.preview(target, _armed, _active_brands)
+## No preview on cards here: the Siphon shows its own odds.
+func _craft_preview_for(_target: Resource) -> CraftPreview:
+	return null
 
-## Hovering an item with an Orb picked up previews the outcomes.
-func _on_entry_hovered(_view: InventoryGridView, entry: GridInventory.Entry) -> void:
-	if _armed == &"" or entry.is_currency() or not Constants.ORB_IDS.has(_armed):
-		return
-	if entry.content is FigmentItem:
-		status_label.text = "%s: %s" % [CurrencyText.name_of(_armed), "works on Figments" if CraftingSystem.FIGMENT_ORBS.has(_armed) else "no effect on Figments"]
-		return
-	if not (entry.content is Item or entry.content is Slate) or entry.content is FigmentItem:
-		return
-	status_label.text = _preview_text(entry.content)
-
-func _preview_text(target: Resource) -> String:
-	var p := _resolver.preview(target, _armed, _active_brands)
-	var orb_name := CurrencyText.name_of(_armed)
-	if not p.is_valid():
-		return "%s: %s" % [orb_name, CurrencyText.error_message(CraftResult.error_name(p.error))]
-	var lines: Array[String] = [orb_name + ": " + CurrencyText.description_of(_armed)]
-	if not p.applied_brands.is_empty():
-		lines.append("Brands used: " + ", ".join(p.applied_brands.map(func(b): return CurrencyText.name_of(b))))
-	if not p.affected.is_empty():
-		var hits := p.affected.size()
-		var total := CraftTarget.wrap(target).get_explicits().size()
-		if p.affected.all(func(e): return e["effect"] == &"remove"):
-			lines.append("Can remove %d of %d modifiers (highlighted orange on the item's card)." % [hits, total])
-		else:
-			lines.append("Can touch %d of %d modifiers (marked on the item's card)." % [hits, total])
-	var outcomes := p.outcomes.duplicate()
-	outcomes.sort_custom(func(a, b): return a["probability"] > b["probability"])
-	var shown: Array[String] = []
-	for o in outcomes.slice(0, PREVIEW_LINES):
-		var text: String = o["def"].text if o["def"].text != "" else String(o["def"].id)
-		shown.append("%s (%.0f%%)" % [text.replace("%d", "X").replace("%%", "%"), o["probability"] * 100.0])
-	if not shown.is_empty():
-		lines.append("Likely: " + ", ".join(shown) + (" ..." if outcomes.size() > PREVIEW_LINES else ""))
-	return "\n".join(lines)
+func _on_entry_hovered(_view: InventoryGridView, _entry: GridInventory.Entry) -> void:
+	pass
 
 func _empower_figment(figment: FigmentItem) -> void:
 	if GameState.gold < CraftingSystem.EMPOWER_FIGMENT_GOLD_COST:
@@ -798,10 +722,7 @@ func _on_doll_slot_pressed(row: Dictionary) -> void:
 func _inventory_copy(item: Item) -> Item:
 	if item.resource_path == "":
 		return item
-	var copy := item.duplicate(true) as Item
-	if copy.tolerance_max == 0:
-		CraftingResolver.roll_tolerance(copy)
-	return copy
+	return item.duplicate(true) as Item
 
 func _after_equipment_change() -> void:
 	GameState.sync_equipment(_equipment)

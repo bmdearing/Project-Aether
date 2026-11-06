@@ -98,6 +98,9 @@ signal hit_deflected(defender: Node)
 ## Orb crafting (CraftingResolver). item is an Item or a Slate.
 signal craft_completed(item: Resource, result: CraftResult)
 signal craft_failed(item: Resource, error: int, message: String)
+## Residue pools (Residue.gd): a pool changed, and a Siphon payment went out.
+signal residue_changed(pool_id: StringName, delta: int, total: int)
+signal residue_spent(payment: Dictionary)
 
 ## Portals (GeneratedMap). opened: the T-key portal appeared in a map;
 ## returned: the player came back into a saved map through the Hub portal.

@@ -351,7 +351,6 @@ static func roll(power_level: int = 1, loot_rarity_multiplier: float = 1.0, base
 	# Rolls 0..max_sockets sockets; max_sockets never passes the category cap.
 	item.max_sockets = mini(item.max_sockets, get_socket_cap(item))
 	item.sockets = randi() % (item.max_sockets + 1)
-	CraftingResolver.roll_tolerance(item)
 
 	# Loot.roll_rarity() weights Common/Uncommon/Rare; loot_rarity_multiplier
 	# (Item Rarity) scales the non-Common weights.

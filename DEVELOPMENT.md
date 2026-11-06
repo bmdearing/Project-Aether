@@ -1006,53 +1006,59 @@ the footprint grid (`GameState.inventory`, persisted in full) and is
 equippable from `InventoryScreen`, or stays on the ground if there's no room; a Tome unlocks its ability into
 `GameState.owned_ability_ids` and shows up in `AbilitiesScreen`.
 
-**Crafting, inventory, stash & portals** (Crafting & Inventory Rev2,
-`documents/Aether_Crafting_Inventory_Rev2.docx`; replaces Section 20's Cube).
-- **Orbs** (`systems/crafting/CraftingResolver.gd`): Quickening, Grafting,
-  Elevation, Forging, Ascendant, Recasting, Severance, Absolution, Anchoring,
-  Tempering, Opening, Reckoning. `preview()` has no side effects and gives
-  every possible modifier/tier with its exact chance; `apply()` validates
-  first, so a failed craft consumes nothing. Rarity limits: gear 1/1
-  Uncommon, 3/3 Rare; Slates 1/1, 2/2. Unique/Mythic aren't Orb-craftable;
-  corrupted items only take Opening and Tempering.
+**Crafting, inventory, stash & portals** (Crafting Rev 3 and its perk
+addendum, `documents/Aether_Crafting_Rev3_ClaudeCode_Brief.md` and
+`Aether_Crafting_Rev3_Addendum_Perks.md`; the grid inventory, stash and
+portals are Rev2's).
+- **Residue** (`systems/crafting/Residue.gd`, `GameState.residue`): kills fill
+  the pool of the enemy's damage category (Physical, Elemental, Esoteric;
+  `EnemyDefinition.damage_type`), scaled by archetype and rarity; bosses also
+  fill the shared Boss pool and are recorded in `GameState.killed_bosses`.
+  Pools cap at 8000 (Boss 2000). Shown in the inventory under the grid.
+- **The Siphon** (Hub west platform, `SiphonScreen`, rules in
+  `systems/crafting/CraftingResolver.gd`): add, recast, bleed, absolve,
+  settle, anchor (you pick the modifier), sockets, retype, restore type,
+  Vestige add. A craft can target a family (`Constants.CRAFT_FAMILIES`):
+  typed families (Fire, Pale, Armour...) pay from their own pool, generic
+  ones and unfocused crafts from any regular pool (split freely), Vestige
+  from the Boss pool. Every resolved craft adds 1 to the item's
+  `craft_count`; cost = base x min(1.12^count, 10). Nothing ever becomes
+  impossible. `begin()` pays and counts, then returns a `CraftSession` with
+  1-4 simulated outcomes (foresight, `GameState.foresight_outcomes`, dev
+  only); `choose()` applies one, `decline()` keeps the item. `preview()` has
+  no side effects. Uniques, Mythics and corrupted items only take sockets.
+  Figments take add/recast/bleed/absolve/settle on their map mods.
+- **Line limits**: gear 1/1 Uncommon, 2/2 Rare (Rares drop with 3-4 lines);
+  jewels 1 line Uncommon, 1/1 Rare; Lenses 2/2; Slates 1/1, 2/2. Gear
+  explicit ranges are x1.4 their authored values
+  (`ItemRoller.gear_line_scale()`, skipping skill levels, conversions,
+  capped and binary lines), jewel lines x1.3. Older items over the limit
+  keep their lines; the Siphon won't add to them until they're under.
+- **Physical crafting items**: only Tempering (quality on weapons and
+  armour; armour quality is 1% more base defences per point) and the Shard
+  of Tharsis remain. Right-click either in the inventory or the stash's
+  Currency tab, then click an item. Orbs, Brands, Edicts, Stones and Aether
+  Tolerance were removed; old saves refund 5 residue to each regular pool
+  per removed item (`GridInventory.legacy_currency_found`).
 - **Modifier pools**: real gear rolls from `GearModifierPool` (built from
   `ItemRoller.AFFIX_POOL` and the weapon affix library with the same
-  eligibility rules drops use, 5 tiers gated by item level). Each slot has
+  eligibility rules drops use, tiers gated by item level). Each slot has
   a role through `AFFIX_POOL`'s `slots` lists (v4.55): Gloves and Rings
   offence, Amulet build-defining, Helmet caster/utility, Body and Shield
   major defence, Boots mobility, Belt sustain; attributes, Resilience, Life
-  and resistances are filler everywhere; Slates from
-  `SlateModifierPool` (their own tags only: a Cold Slate rolls Cold
-  modifiers, a Fire/Cold Hybrid Fire and Cold ones; each damage type and
-  Spell has 2 prefixes and 3 suffixes so Forging's 4 always fit). Gear and
-  Slate pools never mix. Test content can register its own pools.
-- **Aether Tolerance** (Slates only): each Slate rolls a crafting budget on
-  drop; each Orb spends a random amount; at 0 the Slate is finished. Gear
-  has no budget and can be crafted indefinitely.
-- **Brands & Edicts** (`data/crafting/brands/`, `edicts/`): 20 tag Brands,
-  Prefix/Suffix, Preservation, and Vestige support; tags combine (Fire +
-  Cold needs both). Tag and positional Brands narrow both what an Orb adds
-  and which existing modifier Severance, Absolution, Recasting (removed and
-  added) and Anchoring pick; Reckoning and Tempering ignore them. A modifier
-  with no `def` (drop-rolled, or loaded from a save) gets its tags from the
-  matching pool def (`CraftingResolver.affix_tags()`). `GearModifierPool`
-  derives tags for lines with none of their own: ailment lines take their
-  ailment's damage types, plus life, critical, resistance, armour, mana.
-  Brands must be carried and activated
-  (`ActiveBrands`; one no longer carried drops out); Edicts sit on the item
-  until its next resolved craft.
+  and resistances are filler everywhere; Slates from `SlateModifierPool`
+  (their own tags only). A modifier with no `def` gets its family tags from
+  the matching pool def (`CraftingResolver.affix_tags()`). Vestige pools are
+  `ModifierPool`s registered as `vestige_<boss id>` (only a test pool so far).
   All player-facing names/errors live in `data/crafting/currency_text.tres`.
-- **Crafting in the Inventory** (the old K screen is gone): right-click a
-  Brand to activate it (red border, applies to the next Orb); right-click an
-  Orb, Edict or stone to pick it up (gold border), then click a grid item or
-  paper-doll slot to use it - hovering an item first previews the Orb: its
-  card marks each modifier the Orb would remove, replace, anchor or reroll
-  (with the chance) and dims the safe ones, then lists what it can add
-  (`CraftPreview.affected`, `ItemCard.craft_preview_for`). Reckoning on a
-  Lens also rerolls its radius modifier's value. Esc or right-clicking the currency again puts it back.
-  Hand-authored starting gear must be unequipped first (it becomes its own
-  copy). Right-clicking a Figment empowers it. Currency drops from enemies
-  as loot pickups; currency tooltips explain each one.
+- **Monster Infrequents** (`data/perks/`): an Uncommon or Rare item with one
+  perk (`Item.perks`, outside the line limits; no craft touches it), dropped
+  only by the perk's source enemies (`PerkCatalog`, 20 placeholder perks),
+  shown green with a bigger beam and a louder drop. `PerkEffects` (on the
+  Player) runs them; two copies of a perk count once. The Recombinator's Gear
+  tab (`GearRecombinator`) combines a base and a donor of the same type: the
+  base's lines stay, each perk survives at 65%, 1-2 kept. Wiki: Monster
+  Infrequents page. Dev: the Gear Shop stocks 6 MIs at 1 Gold.
 - **Inventory (B)**: a 14x7 footprint grid (`GridInventory`,
   `GameState.inventory`), no rotation; currency stacks to 100 per cell.
   Right-click to equip (displaced gear goes back into the grid, or the swap is
@@ -1062,8 +1068,8 @@ equippable from `InventoryScreen`, or stays on the ground if there's no room; a 
   the game; combat input is ignored while the cursor is showing. Full
   inventory leaves pickups on the ground ("Inventory full" on the HUD).
 - **Stash**: the chest in the Hub (E) opens 4 general tabs plus Currency and
-  Slate tabs; drag between sides or right-click to send. Orbs work on
-  stash items; Brands must be carried. F6 opens a debug grid view with
+  Slate tabs; drag between sides or right-click to send. Tempering and the
+  Shard work on stash items from the Currency tab. F6 opens a debug grid view with
   test-loot buttons. The stash is shared by every save slot (`user://save_slot_stash.json`, `SaveManager.stash_path()`); the first boot with it pooled every slot's old stash into one.
 - **Portals**: T opens a portal in a generated map; walking in saves the
   map (seed, defeated enemies, loot on the ground, portal spot, Figment)
@@ -1475,10 +1481,11 @@ call. How each one got here is in PATCH_NOTES.md.
     level to character level and a stat by weapon or defence type. The
     older `Item.stat_requirement`/`stat_requirement_value` fields are still
     on `Item` but aren't what blocks equipping.
-11. **Crafting numbers are placeholders**: Aether Tolerance ranges, Orb
-    costs and tier weights, currency drop weights, the quality cap of 20
-    (quality doesn't raise modifier values), corruption and Shard outcome
-    odds.
+11. **Crafting numbers are placeholders**: residue gains and caps, Siphon
+    costs and growth, tier weights, the x1.4 line rescale, Monster
+    Infrequent drop chances and perk values, the Recombinator keep chance,
+    corruption and Shard outcome odds. Quality doesn't raise modifier
+    values, and conduit spells don't use weapon quality.
 12. **Gold** is an invented currency; all prices are invented.
 13. **Slates and the Fate Board**: Chain Bonus is read as increased damage
     for its tag (the doc never says what it modifies). Shape templates,

@@ -71,9 +71,7 @@ static func to_dict(item: Item) -> Dictionary:
 		"sockets_rolled": item.sockets_rolled,
 		"quality": item.quality,
 		"quality_cap_bonus": item.quality_cap_bonus,
-		"tolerance": item.tolerance,
-		"tolerance_max": item.tolerance_max,
-		"active_edict": String(item.active_edict.id) if item.active_edict else "",
+		"craft_count": item.craft_count,
 		"base_line_id": item.base_line_id,
 		"item_level": item.item_level,
 		"base_level": item.base_level,
@@ -304,17 +302,10 @@ static func _class_tag(item: Item) -> String:
 		return "FigmentItem"
 	return "Item"
 
-## Orb-crafting fields shared with SlateSerializer. Saves from before
-## tolerance existed get a fresh roll.
+## Crafting fields shared with SlateSerializer. Retired tolerance and Edicts
+## in old saves are ignored.
 static func read_craft_state(target: Resource, d: Dictionary) -> void:
-	if d.has("tolerance"):
-		target.tolerance = d["tolerance"]
-		target.tolerance_max = d.get("tolerance_max", d["tolerance"])
-	else:
-		CraftingResolver.roll_tolerance(target)
-	var edict_id: String = d.get("active_edict", "")
-	if edict_id != "" and ResourceLoader.exists(CraftingResolver.EDICTS_DIR + edict_id + ".tres"):
-		target.active_edict = load(CraftingResolver.EDICTS_DIR + edict_id + ".tres")
+	target.craft_count = int(d.get("craft_count", 0))
 
 ## An armour or shield from an older defence revision: its base's current
 ## defences, or (without a base) Armour x ARMOUR_RESCALE.

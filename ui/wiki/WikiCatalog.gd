@@ -114,7 +114,7 @@ static func _top_level(def: ModifierDef) -> int:
 	return ItemRoller.TOP_TIER_LEVEL
 
 ## Every modifier the base can roll, with its tiers and the chance an Orb
-## adds it to a blank item of `level` (no Brands). Rows:
+## adds it to a blank Rare item of `level` (an unfocused Siphon add). Rows:
 ## {"def", "text", "prefix", "local", "chance", "min_level",
 ##  "tiers": [{"tier", "min", "max", "level", "chance"}]}
 static func modifier_rows(base: Resource, level: int) -> Array:
@@ -123,9 +123,8 @@ static func modifier_rows(base: Resource, level: int) -> Array:
 		_resolver = CraftingResolver.create_default()
 	var resolver := _resolver
 	var target := CraftTarget.wrap(_blank(base, level))
-	var ctx := resolver._resolve_brands(&"quickening", null)
 	var none: Array[ItemAffix] = []
-	var cands := resolver._candidates(target, none, Constants.ItemRarity.RARE, ctx, null)
+	var cands := resolver._candidates(target, none, resolver._open_types(target, none, Constants.ItemRarity.RARE), &"")
 	var total := 0.0
 	for c in cands:
 		total += c["weight"]

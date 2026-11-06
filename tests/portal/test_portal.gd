@@ -112,7 +112,7 @@ func _test_round_trip(round_index: int) -> void:
 	slate_pickup.position = Vector3(-2, 0.5, 1)
 	map.add_child(slate_pickup)
 	var orbs: LootPickup = load(LOOT_PICKUP).instantiate()
-	orbs.currency_id = &"forging"
+	orbs.currency_id = &"maw_fragment_tide"
 	orbs.currency_count = 3
 	orbs.position = Vector3(2, 0.5, -1)
 	map.add_child(orbs)
@@ -210,7 +210,7 @@ func _test_hub() -> void:
 	_check(screen != null, "stash chest finds the stash screen")
 	screen.open()
 	_check(screen.is_open() and not get_tree().paused, "stash opens without pausing")
-	GameState.inventory.add(&"grafting", 3)
+	GameState.inventory.add(&"crystallized_aether", 3)
 	var sword := Weapon.new()
 	sword.weapon_type = "Rapier"
 	GameState.inventory.add(sword)
@@ -218,7 +218,7 @@ func _test_hub() -> void:
 		var target: GridInventory = GameState.stash.get_tab(GridInventory.Accepts.CURRENCY) if entry.is_currency() else GameState.stash.tabs[0]
 		StashScreen.send(GameState.inventory, entry, target)
 	_check(GameState.inventory.get_entries().is_empty(), "items sent to the stash leave the inventory")
-	_check(GameState.stash.tabs[0].has_content(sword) and GameState.stash.get_tab(GridInventory.Accepts.CURRENCY).count_of(&"grafting") == 3, "items land in the right stash tabs")
+	_check(GameState.stash.tabs[0].has_content(sword) and GameState.stash.get_tab(GridInventory.Accepts.CURRENCY).count_of(&"crystallized_aether") == 3, "items land in the right stash tabs")
 	var entry: GridInventory.Entry = GameState.stash.tabs[0].get_entries()[0]
 	screen._active_tab = 0
 	screen._on_entry_right_clicked(screen._stash_view, entry)

@@ -94,9 +94,15 @@ const STATUS_EFFECT_DAMAGE_TYPE := {
 	"forbidden_fire": DamageType.ENTROPIC,
 }
 
-## Stackable crafting currency, held like the Orbs. Older saves held them as
-## Items; GridInventory converts those on load.
-const CRAFTING_CONSUMABLE_IDS := ["infusion_stone", "shrivening_stone", "shard_of_tharsis"]
+## The two physical crafting items left after Crafting Rev 3 (everything else
+## is a Siphon craft paid in residue). Stackable currency.
+const CRAFTING_CONSUMABLE_IDS := ["tempering", "shard_of_tharsis"]
+## Crafting currency removed by Rev 3. Old saves refund residue for each one
+## (Constants.LEGACY_CURRENCY_REFUND); see GridInventory.strip_legacy_currency().
+const LEGACY_CURRENCY_IDS := ["quickening", "grafting", "elevation", "forging", "ascendant", "recasting",
+	"severance", "absolution", "anchoring", "opening", "reckoning", "infusion_stone", "shrivening_stone"]
+static func is_legacy_currency(id: String) -> bool:
+	return LEGACY_CURRENCY_IDS.has(id) or id.begins_with("brand_") or id.begins_with("edict_")
 
 ## Every reserve is unlimited (AmmoInventory); ARROW weapons also have no
 ## magazine. THROWN: throwing weapons.
@@ -396,40 +402,33 @@ const AFFIX_LIMITS_SLATE := {
 	ItemRarity.RARE: Vector2i(2, 2),
 }
 
-const ORB_IDS: Array[StringName] = [
-	&"quickening", &"grafting", &"elevation", &"forging", &"ascendant", &"recasting",
-	&"severance", &"absolution", &"anchoring", &"tempering", &"opening", &"reckoning",
-]
-
-## Placeholder tolerance cost per Orb use, rolled uniformly in [x, y].
-const TOLERANCE_COST := {
-	&"quickening": Vector2i(2, 4),
-	&"grafting": Vector2i(3, 6),
-	&"elevation": Vector2i(4, 8),
-	&"forging": Vector2i(10, 16),
-	&"ascendant": Vector2i(6, 10),
-	&"recasting": Vector2i(6, 12),
-	&"severance": Vector2i(3, 6),
-	&"absolution": Vector2i(8, 14),
-	&"anchoring": Vector2i(10, 18),
-	&"tempering": Vector2i(1, 3),
-	&"opening": Vector2i(4, 8),
-	&"reckoning": Vector2i(4, 8),
-}
-
-## Placeholder starting tolerance range by item type (Item.get_item_type()),
-## falling back to the default.
-const STARTING_TOLERANCE_DEFAULT := Vector2i(40, 60)
-const STARTING_TOLERANCE_BY_ITEM_TYPE := {
-	&"slate": Vector2i(30, 50),
+## ---- Residue & the Siphon (Crafting Rev 3, placeholders) --------------------
+const RESIDUE_PER_KILL := {"light": 1, "standard": 2, "heavy": 3, "elite": 5, "boss": 40}
+const RESIDUE_RARITY_MULT := {EnemyRarity.NORMAL: 1.0, EnemyRarity.ELITE: 2.0, EnemyRarity.CHAMPION: 4.0, EnemyRarity.ASCENDANT: 8.0}
+const RESIDUE_BOSS_PER_KILL := 10
+const RESIDUE_POOL_CAP := 8000
+const RESIDUE_BOSS_POOL_CAP := 2000
+const CRAFT_COST_GROWTH := 1.12
+const CRAFT_COST_MULT_CAP := 10.0
+const CRAFT_BASE_COST := {&"add": 20, &"recast": 30, &"bleed": 15, &"absolve": 10, &"settle": 25,
+	&"anchor": 120, &"sockets": 40, &"retype": 60, &"restore_type": 20, &"vestige_add": 10}
+const FORESIGHT_MAX_OUTCOMES := 4
+const FORESIGHT_EXTRA_COST := 0.25
+## Old saves: each removed Orb, Brand, Edict or Stone refunds this to every regular pool.
+const LEGACY_CURRENCY_REFUND := 5
+## Family tag -> the pool that pays for crafts in it ("" = any regular pool).
+const CRAFT_FAMILIES := {
+	&"kinetic": &"residue_physical", &"piercing": &"residue_physical", &"explosive": &"residue_physical", &"armor": &"residue_physical",
+	&"fire": &"residue_elemental", &"cold": &"residue_elemental", &"lightning": &"residue_elemental", &"evasion": &"residue_elemental",
+	&"aetheric": &"residue_esoteric", &"entropic": &"residue_esoteric", &"pale": &"residue_esoteric", &"ward": &"residue_esoteric",
+	&"life": &"", &"mana": &"", &"speed": &"", &"attack": &"", &"spell": &"", &"critical": &"",
+	&"minion": &"", &"dot": &"", &"resistance": &"", &"resilience": &"",
 }
 
 const QUALITY_CAP := 25
 ## The "Tempered Limit" corruption outcome raises one item's quality cap by this much.
 const CORRUPT_QUALITY_CAP_BONUS := 15
 const TEMPERING_QUALITY_GAIN := Vector2i(2, 4)
-const FORGING_MODIFIERS_GEAR := 4
-const FORGING_MODIFIERS_SLATE := Vector2i(3, 4)
 const ANCHORING_MIN_MODIFIERS := 3
 const MAX_ANCHORED_MODIFIERS := 1
 ## Slate size (tile count) -> best tier it may roll. Empty = no cap.
@@ -454,41 +453,13 @@ const GEAR_TIER_WEIGHTS: Array[int] = [2, 4, 10, 20, 30, 36]
 ## Placeholder Orb roll weight per Slate tier (index 0 = Tier 1).
 const SLATE_TIER_WEIGHTS: Array[int] = [10, 30, 60]
 
-## Drop weights for crafting currency (Enemy._maybe_drop_loot()), tiered:
-##   common    - Quickening, Grafting, Tempering, Opening
-##   uncommon  - Elevation, Forging, Reckoning, Recasting, Absolution
-##   rare      - Ascendant, Severance (the Annulment), Anchoring
-## Every rarity upgrade (Common -> Uncommon -> Rare) outdrops Severance.
-## Brands and Edicts are many small weights: together about a seventh of drops.
-const CURRENCY_DROP_WEIGHTS := {
-	&"quickening": 200, &"grafting": 160, &"tempering": 120, &"opening": 90,
-	&"elevation": 50, &"forging": 25, &"reckoning": 40, &"recasting": 40, &"absolution": 35,
-	&"ascendant": 12, &"severance": 8, &"anchoring": 4,
-	&"brand_kinetic": 5, &"brand_piercing": 5, &"brand_explosive": 5, &"brand_fire": 5,
-	&"brand_cold": 5, &"brand_lightning": 5, &"brand_aetheric": 5, &"brand_entropic": 5,
-	&"brand_pale": 5, &"brand_armor": 5, &"brand_evasion": 5, &"brand_ward": 5,
-	&"brand_resistance": 5, &"brand_resilience": 5, &"brand_mana": 5, &"brand_spell": 5,
-	&"brand_attack": 5, &"brand_speed": 5, &"brand_life": 5, &"brand_critical": 5, &"brand_minion": 5, &"brand_dot": 5,
-	&"brand_prefix": 4, &"brand_suffix": 4,
-	&"brand_preservation": 2,
-	&"edict_prefix": 3, &"edict_suffix": 3, &"edict_spell": 3, &"edict_attack": 3,
-	# Item-level Edicts: 83 is the chase, about one in 3,600 currency drops.
-	&"edict_level_61": 3, &"edict_level_72": 1, &"edict_level_83": 0.25,
-}
+## Drop weights for the two physical crafting items (chests, secrets).
+const CRAFTING_CONSUMABLE_WEIGHTS := {&"tempering": 85.0, &"shard_of_tharsis": 15.0}
 
-## Item-level Edicts only drop at or above their own level.
-const EDICT_DROP_MIN_LEVEL := {&"edict_level_61": 61, &"edict_level_72": 72, &"edict_level_83": 83}
-
-static func roll_currency_drop(item_level: int = 100) -> StringName:
-	var total := 0.0
-	for id in CURRENCY_DROP_WEIGHTS:
-		if item_level >= int(EDICT_DROP_MIN_LEVEL.get(id, 0)):
-			total += CURRENCY_DROP_WEIGHTS[id]
-	var roll := randf() * total
-	for id in CURRENCY_DROP_WEIGHTS:
-		if item_level < int(EDICT_DROP_MIN_LEVEL.get(id, 0)):
-			continue
-		roll -= CURRENCY_DROP_WEIGHTS[id]
+static func roll_currency_drop(_item_level: int = 100) -> StringName:
+	var roll := randf() * 100.0
+	for id in CRAFTING_CONSUMABLE_WEIGHTS:
+		roll -= CRAFTING_CONSUMABLE_WEIGHTS[id]
 		if roll < 0:
 			return id
-	return &"quickening"
+	return &"tempering"
