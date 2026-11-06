@@ -178,7 +178,8 @@ func _process(_delta: float) -> void:
 
 func _render_item(item: Item) -> void:
 	_clear()
-	if _merged_explicit_lines(item)["socket"].size() >= WIDE_AT_SOCKET_LINES:
+	var merged := _merged_explicit_lines(item)
+	if merged["socket"].size() >= WIDE_AT_SOCKET_LINES:
 		_width = WIDE_CARD_WIDTH
 	var requirements_met := _check_requirements_met(item)
 	var rarity_color: Color = item.display_color()
@@ -233,7 +234,6 @@ func _render_item(item: Item) -> void:
 			for affix in item.jewel_affixes(jewel):
 				_add_mod_line(_affix_text(affix, false), SOCKETED_COLOR)
 	else:
-		var merged := _merged_explicit_lines(item)
 		for line: String in merged["own"]:
 			_add_mod_line(line, mod_color)
 		_add_socket_only_lines(merged["socket"])

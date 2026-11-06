@@ -78,6 +78,10 @@ func _run() -> void:
 		await _bench_fade()
 		get_tree().quit()
 		return
+	if args.has("cards"):
+		await _bench_card_modes()
+		get_tree().quit()
+		return
 	if args.has("rolls"):
 		_bench_unique()
 		_bench_rolls()
@@ -114,6 +118,9 @@ func _run() -> void:
 		pickup.item = item
 		get_tree().current_scene.add_child(pickup)
 		var cam := player.camera
+		# Lands beside the player first, then gets looked at, as in play.
+		pickup.global_position = cam.global_position + cam.global_transform.basis.x * 4.0 + Vector3.DOWN * 0.3
+		await _frames(8)
 		pickup.global_position = cam.global_position - cam.global_transform.basis.z * 2.5 + Vector3.DOWN * 0.3
 		var p0 := _pipelines()
 		var w: Array = await _worst_of(30)
@@ -278,3 +285,33 @@ func _bench_rolls() -> void:
 			slow += 1
 			print("ROLL slow %dus %s rarity=%d base=%s unique=%s" % [dt, it.display_name, it.rarity, it.resource_path if it.resource_path else it.item_id, it.unique_id])
 	print("ROLL slow=%d/300" % slow)
+
+## Card build variants: on a shown card, on a hidden card in the tree, then showing it.
+func _bench_card_modes() -> void:
+	var shown := ItemSlotButton.new_item_card()
+	add_child(shown)
+	var hidden := ItemSlotButton.new_item_card()
+	hidden.visible = false
+	add_child(hidden)
+	for i in 6:
+		var item := ItemRoller.roll(80, 3.0)
+		var worn := ItemCompare.equipped_for(item)
+		var t := Time.get_ticks_usec()
+		shown.compare_against = worn
+		shown.display_item(item)
+		shown.reset_size()
+		var a := Time.get_ticks_usec() - t
+		await _frames(3)
+		t = Time.get_ticks_usec()
+		hidden.compare_against = worn
+		hidden.display_item(item)
+		var b := Time.get_ticks_usec() - t
+		await _frames(3)
+		t = Time.get_ticks_usec()
+		hidden.visible = true
+		hidden.reset_size()
+		var c := Time.get_ticks_usec() - t
+		var w: Array = await _worst_of(2)
+		print("MODES %s shown_build=%d hidden_build=%d show=%d next_frame=%.1fms" % [item.display_name, a, b, c, w[0]])
+		hidden.visible = false
+		await _frames(3)
