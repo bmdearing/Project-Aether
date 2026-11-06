@@ -7,6 +7,10 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Focused Siphon crafts cost more (user)
+
+- Add, recast, bleed and settle cost x2 when a family is picked (`Constants.CRAFT_FOCUS_COST_MULT`), on top of the item's craft-count multiplier and any foresight. Unfocused crafts and crafts with no family (absolve, anchor, sockets, retype, restore type, Vestige) are unchanged. The Siphon's cost line shows "focused x2". Every craft still fits inside a full pool.
+
 ## 2026-11-06 — Random Anchor, Siphon payment fills to the cost (user)
 
 - **Anchor is random again** (user): it locks one of the item's non-anchored modifiers at random. The picker is gone, and the preview gives each modifier the same chance.

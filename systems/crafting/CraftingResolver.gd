@@ -42,11 +42,15 @@ static func find_def(_id: StringName) -> ModifierDef:
 
 ## ---- Cost and payment -----------------------------------------------------
 
-func cost_of(item: Resource, craft_id: StringName, _family: StringName = &"", outcomes: int = 1) -> int:
+func cost_of(item: Resource, craft_id: StringName, family: StringName = &"", outcomes: int = 1) -> int:
 	var count := _craft_count(item)
 	var mult := minf(pow(Constants.CRAFT_COST_GROWTH, count), Constants.CRAFT_COST_MULT_CAP)
 	var foresight := 1.0 + Constants.FORESIGHT_EXTRA_COST * (clampi(outcomes, 1, Constants.FORESIGHT_MAX_OUTCOMES) - 1)
-	return ceili(float(Constants.CRAFT_BASE_COST.get(craft_id, 0)) * mult * foresight)
+	return ceili(float(Constants.CRAFT_BASE_COST.get(craft_id, 0)) * mult * foresight * focus_multiplier(craft_id, family))
+
+## CRAFT_FOCUS_COST_MULT when a family craft has a family picked, else 1.
+static func focus_multiplier(craft_id: StringName, family: StringName) -> float:
+	return Constants.CRAFT_FOCUS_COST_MULT if FAMILY_CRAFTS.has(craft_id) and family != &"" else 1.0
 
 ## The item's current cost multiplier, for the UI.
 static func cost_multiplier(item: Resource) -> float:

@@ -110,7 +110,7 @@ func _test_families_and_payment() -> void:
 	var count := ring.craft_count
 	_check(_resolver.begin(ring, &"add", &"", {Residue.PHYSICAL: 1}).error == E.INVALID_PAYMENT and ring.craft_count == count, "a wrong payment spends nothing and doesn't count")
 	GameState.residue[Residue.ELEMENTAL] = 0
-	_check(_resolver.begin(gloves, &"add", &"cold", {Residue.ELEMENTAL: _resolver.cost_of(gloves, &"add")}).error == E.CANT_AFFORD, "an unaffordable craft fails")
+	_check(_resolver.begin(gloves, &"add", &"cold", {Residue.ELEMENTAL: _resolver.cost_of(gloves, &"add", &"cold")}).error == E.CANT_AFFORD, "an unaffordable craft fails")
 	_fill()
 	var vest := _item(RING)
 	_check(_resolver.apply(vest, &"vestige_add", &"ataras").error == E.NOT_UNLOCKED, "Vestige needs the boss killed")
@@ -177,10 +177,13 @@ func _test_cost() -> void:
 	_check(item.craft_count == 5, "every craft counts and absolve doesn't reset it")
 	var ok := true
 	for id: StringName in Constants.CRAFT_BASE_COST:
-		var worst: float = Constants.CRAFT_BASE_COST[id] * Constants.CRAFT_COST_MULT_CAP * (1.0 + Constants.FORESIGHT_EXTRA_COST * (Constants.FORESIGHT_MAX_OUTCOMES - 1))
+		var worst: float = Constants.CRAFT_BASE_COST[id] * Constants.CRAFT_COST_MULT_CAP * (1.0 + Constants.FORESIGHT_EXTRA_COST * (Constants.FORESIGHT_MAX_OUTCOMES - 1)) * CraftingResolver.focus_multiplier(id, &"fire")
 		var cap := Constants.RESIDUE_BOSS_POOL_CAP if id == &"vestige_add" else Constants.RESIDUE_POOL_CAP
 		ok = ok and worst <= cap
 	_check(ok, "no craft, even with full foresight at the cap, costs more than a full pool")
+	var fresh := _item(GLOVES)
+	_check(_resolver.cost_of(fresh, &"bleed", &"life") == ceili(Constants.CRAFT_BASE_COST[&"bleed"] * Constants.CRAFT_FOCUS_COST_MULT) and _resolver.cost_of(fresh, &"bleed") == Constants.CRAFT_BASE_COST[&"bleed"], "a focused bleed costs x%.0f the unfocused one" % Constants.CRAFT_FOCUS_COST_MULT)
+	_check(_resolver.cost_of(fresh, &"anchor", &"life") == _resolver.cost_of(fresh, &"anchor"), "crafts with no family pay no focus cost")
 
 func _test_sockets_and_type() -> void:
 	_fill()

@@ -205,7 +205,8 @@ func _refresh() -> void:
 	_box.refresh_caption()
 	var target := item()
 	var cost: int = _resolver.cost_of(target, _craft, family(), outcome_count()) if target else 0
-	_cost.text = "Cost: %d residue   (this item's multiplier x%.2f)" % [cost, CraftingResolver.cost_multiplier(target)] if target else "Cost: -"
+	var focus := CraftingResolver.focus_multiplier(_craft, family())
+	_cost.text = ("Cost: %d residue   (this item's multiplier x%.2f%s)" % [cost, CraftingResolver.cost_multiplier(target), ", focused x%.0f" % focus if focus > 1.0 else ""]) if target else "Cost: -"
 	_refresh_payment(cost)
 	if target is Slate:
 		_card.display_slate(target as Slate)

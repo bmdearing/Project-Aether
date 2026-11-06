@@ -416,6 +416,9 @@ const CRAFT_BASE_COST := {&"add": 40, &"recast": 60, &"bleed": 30, &"absolve": 2
 	&"anchor": 240, &"sockets": 80, &"retype": 120, &"restore_type": 40, &"vestige_add": 20}
 const FORESIGHT_MAX_OUTCOMES := 4
 const FORESIGHT_EXTRA_COST := 0.25
+## A craft aimed at a family (add, recast, bleed, settle with one picked) costs
+## this many times the unfocused price.
+const CRAFT_FOCUS_COST_MULT := 2.0
 ## Old saves: each removed Orb, Brand, Edict or Stone refunds this to every regular pool.
 const LEGACY_CURRENCY_REFUND := 5
 ## Family tag -> the pool that pays for crafts in it ("" = any regular pool).
