@@ -7,6 +7,15 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Mob balancing: tactics by faction, per-unit Life/damage (user)
+
+- **Only military factions use pack tactics.** Directorate, Karvis Legion and Synod surround, fan out, take cover and hold fire past allies; Hollowed, Unchartered and Veilborne just rush in (and fire through allies). `EnemyTactics.TACTICAL_FACTIONS`, overridable per unit with `EnemyDefinition.tactics`: the Turncloak (a Directorate deserter) keeps the drill, the Legion Infernal (a walking rock) and the Gilded Sentinel (an independent vault guardian) don't.
+- **Per-unit Life/damage multipliers** on top of the archetype curve (`EnemyDefinition.health_multiplier` / `damage_multiplier`, read in `Enemy._level_scaled_*`). Figment bosses that borrow a definition are unaffected.
+  - Directorate Duelist x2.6 damage (26 a hit at level 1 every 0.9 s; a standard mob does 18 every 1.6 s). Legion Doom Guard x2.3 damage (~52 a hit, above an elite's 36) and x1.3 Life.
+  - Tougher: Abomination x1.5, Infernal x1.4, Gilded Sentinel x1.4, Warden Golem x1.35, Grunt x1.3, Legionary x1.25 Life. Harder-hitting: Cutthroat x1.4, Justicar x1.3, Dreadknight/Turncloak/Infernal x1.25.
+  - Weaker: Peon x0.75/x0.7, Shambler x0.8 damage, Faerie Dragon x0.75 Life, casters (Arcanist, Frost Adept, Dread Matron) x0.8-0.85 Life. Full list in the definitions.
+- Dread Matron's faction was `"legion"`; now `"karvis_legion"` like the rest of the Legion.
+
 ## 2026-11-06 — Snow and Pale ramps (user report)
 
 "Snow and Pale areas had broken ramps." A headless test walked the player up every bank (the slopes up to raised terraces) on Forest, Dunes, Tundra, Frostwood and Bone Flats; about 1 in 8 Snow/Pale banks stopped the player, mostly because loose props (rocks, columns, bones, tombstones with box collision) and mounds stood on the bank or on the terrace edge where it arrives. Snow and Pale scatter far more solid props and bigger mounds than Forest, so they were hit hardest. Staircases (Frozen Crypt, dungeons) all climbed fine; canyons and streets have no ramps, only ledges.

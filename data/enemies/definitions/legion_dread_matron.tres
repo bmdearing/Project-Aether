@@ -7,7 +7,7 @@
 [resource]
 script = ExtResource("1")
 display_name = "Dread Matron"
-faction = "legion"
+faction = "karvis_legion"
 lore_description = "A Nathrezim matriarch who wears a stolen face. She bargains first and casts second, but never for long."
 model_scene = ExtResource("2")
 animation_set = ExtResource("3")
@@ -16,6 +16,8 @@ model_yaw_offset = -1.5707964
 mob_level = 4
 archetype_category = "elite"
 ward_percent = 0.25
+health_multiplier = 0.85
+damage_multiplier = 1.2
 armor_value = 0.0
 evasion_value = 80.0
 damage_type = 7

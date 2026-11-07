@@ -201,11 +201,11 @@ func _fit_hitbox_reach(reach: float) -> void:
 ## archetype_category, compounding per level and Figment Tier (AreaLevel).
 func _level_scaled_health(at_level: int) -> float:
 	var base_h: float = Constants.MOB_BASE_HEALTH.get(definition.archetype_category, 55.0)
-	return base_h * AreaLevel.health_scale(at_level, AreaLevel.current_tier())
+	return base_h * definition.health_multiplier * AreaLevel.health_scale(at_level, AreaLevel.current_tier())
 
 func _level_scaled_damage(at_level: int) -> float:
 	var base_d: float = Constants.MOB_BASE_DAMAGE.get(definition.archetype_category, 10.0)
-	return base_d * AreaLevel.damage_scale(at_level, AreaLevel.current_tier())
+	return base_d * definition.damage_multiplier * AreaLevel.damage_scale(at_level, AreaLevel.current_tier())
 
 ## Refills the Ward pool to definition.ward_percent of current max health.
 ## Called whenever max health is (re)derived, so it tracks tier/rarity scaling.
@@ -948,7 +948,7 @@ func _ranged_reposition(goal: Vector3, dist: float, dir: Vector3, speed: float) 
 ## Another enemy standing between this shooter and the player (a shot would
 ## hit it and stop). Bosses fire regardless. Cached with the sight check.
 func shot_blocker() -> Enemy:
-	if rank == Constants.EnemyRank.BOSS or not is_instance_valid(_player):
+	if rank == Constants.EnemyRank.BOSS or not is_instance_valid(_player) or not uses_tactics():
 		return null
 	var now := Time.get_ticks_msec()
 	if now - _blocker_msec < SIGHT_CACHE_MSEC:
@@ -982,7 +982,13 @@ func has_clear_shot() -> bool:
 ## Joins EnemyTactics' pack positioning.
 func takes_formation() -> bool:
 	return rank != Constants.EnemyRank.BOSS and not immovable and move_speed > 0.0 and health.is_alive() \
-		and is_in_combat() and not is_instance_valid(move_target)
+		and is_in_combat() and not is_instance_valid(move_target) and uses_tactics()
+
+## Military factions fight as a unit; mindless ones (the Hollowed) just rush in.
+func uses_tactics() -> bool:
+	if definition == null or definition.tactics == 0:
+		return faction in EnemyTactics.TACTICAL_FACTIONS
+	return definition.tactics == 2
 
 ## Direction to walk toward goal: along the navigation path when there is
 ## one, else fallback.

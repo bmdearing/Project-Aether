@@ -28,6 +28,10 @@ class_name EnemyDefinition
 @export var mob_level: int = 1
 @export var archetype_category: String = "standard"  # "light", "standard", "heavy", "elite", "boss"
 @export var ward_percent: float = 0.0  # spawn Ward pool as a fraction of max health; 0 = none, never regenerates
+## Per-unit scaling on top of the archetype curve: how much tougher or
+## harder-hitting this unit is than others of its category.
+@export var health_multiplier: float = 1.0
+@export var damage_multiplier: float = 1.0
 
 # Stats
 @export var base_health: float = 100.0
@@ -44,6 +48,9 @@ class_name EnemyDefinition
 @export var is_ranged: bool = false  # spawned on RangedUnit.tscn instead of MeleeUnit.tscn (EnemyRoster)
 @export var attack_range: float = 2.0
 @export var attack_cooldown: float = 1.5
+## Pack tactics (EnemyTactics: surround, fans, cover, holding fire past allies).
+## Faction default = on for EnemyTactics.TACTICAL_FACTIONS.
+@export_enum("Faction default", "Never", "Always") var tactics: int = 0
 @export var xp_reward: float = 10.0
 @export var gold_reward_min: int = 3
 @export var gold_reward_max: int = 8

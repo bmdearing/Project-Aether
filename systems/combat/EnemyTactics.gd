@@ -11,6 +11,8 @@ extends RefCounted
 ## Results land on Enemy.tactic_angle / Enemy.tactic_cover; angles use
 ## atan2(x, z) round the player (direction = (sin a, 0, cos a)).
 
+## Factions that use pack tactics unless EnemyDefinition.tactics says otherwise.
+const TACTICAL_FACTIONS := ["directorate", "karvis_legion", "synod"]
 const UPDATE_FRAMES := 6
 const ENGAGE_RADIUS := 24.0
 ## Melee units nearer the player than this join the ring.

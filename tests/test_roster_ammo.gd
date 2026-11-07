@@ -57,10 +57,10 @@ func _run() -> void:
 	quit(1 if _failures > 0 else 0)
 
 func _expected_health(def) -> float:
-	return _constants.MOB_BASE_HEALTH[def.archetype_category] * load("res://systems/figment_tree/AreaLevel.gd").health_scale(def.mob_level)
+	return _constants.MOB_BASE_HEALTH[def.archetype_category] * def.health_multiplier * load("res://systems/figment_tree/AreaLevel.gd").health_scale(def.mob_level)
 
 func _expected_damage(def) -> float:
-	return _constants.MOB_BASE_DAMAGE[def.archetype_category] * load("res://systems/figment_tree/AreaLevel.gd").damage_scale(def.mob_level)
+	return _constants.MOB_BASE_DAMAGE[def.archetype_category] * def.damage_multiplier * load("res://systems/figment_tree/AreaLevel.gd").damage_scale(def.mob_level)
 
 func _test_definitions_and_units() -> void:
 	for id in UNIT_IDS:
