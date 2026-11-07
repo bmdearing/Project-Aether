@@ -83,6 +83,8 @@ signal hit_blocked(defender: Node)
 
 ## A player weapon attack dodged by an enemy's evasion_value.
 signal enemy_hit_dodged(enemy: Node)
+## A hit landed on an enemy's guarded front (EnemyDefinition.front_guard).
+signal enemy_hit_guarded(enemy: Node)
 
 ## GeneratedMap counts spawns/deaths and emits enemy_count_changed for the HUD.
 signal enemy_died(enemy: Node)

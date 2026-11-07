@@ -44,7 +44,46 @@ const SPELLBOOKS := {
 			"telegraph": 1.2, "cooldown": 20.0, "max_range": 20.0,
 			"description": "Summons two Veilborne Mindbenders."},
 	],
+	"synod_gilded_sentinel": [
+		{"id": "vault_seal", "display_name": "Vault Seal", "kind": BossAbility.Kind.SHOCKWAVE, "count": 2, "radius": 12.0, "speed": 8.5,
+			"telegraph": 1.0, "cooldown": 9.0, "damage_mult": 1.3, "max_range": 9.0,
+			"description": "Stamps the vault floor: two rings of force run out from it. Jump them."},
+		{"id": "sealing_glyphs", "display_name": "Sealing Glyphs", "kind": BossAbility.Kind.MINES, "count": 4, "radius": 1.6, "duration": 10.0,
+			"telegraph": 0.8, "cooldown": 12.0, "damage_mult": 1.4, "status": "aetherburn", "min_range": 3.0, "max_range": 18.0,
+			"description": "Lays four gilded glyphs around you that burst when you step near. They inflict Aetherburn."},
+		{"id": "keepers_reach", "display_name": "Keeper's Reach", "kind": BossAbility.Kind.PULL, "radius": 4.0, "telegraph": 1.0,
+			"cooldown": 11.0, "damage_mult": 1.3, "min_range": 6.0, "max_range": 14.0,
+			"description": "Drags a trespasser back to it, then slams the ground around itself."},
+		{"id": "gilded_bulwark", "display_name": "Gilded Bulwark", "kind": BossAbility.Kind.BARRIER, "duration": 5.0, "radius": 8.0, "shield_share": 0.1,
+			"cooldown": 22.0, "damage_mult": 2.0, "max_range": 14.0,
+			"description": "Channels behind a shield worth 10% of its Life. Break it and the Sentinel is stunned, its front left open; let it hold and it bursts around itself."},
+	],
 }
+
+## Abilities a unit casts at any rarity (an Ascendant casts its SPELLBOOKS
+## entry instead). Same fields as SPELLBOOKS.
+const INNATE := {
+	"synod_gilded_sentinel": [
+		{"id": "vault_seal", "display_name": "Vault Seal", "kind": BossAbility.Kind.SHOCKWAVE, "count": 1, "radius": 10.0, "speed": 8.5,
+			"telegraph": 1.1, "cooldown": 11.0, "damage_mult": 1.1, "max_range": 8.0,
+			"description": "Stamps the floor: a ring of force runs out from it. Jump it."},
+	],
+}
+const INNATE_GAP := 5.0
+
+## Gives a non-Ascendant enemy a BossBrain casting its unit's INNATE list.
+static func attach_innate(enemy: Enemy, unit_id: String) -> BossBrain:
+	if enemy.boss_brain != null or not INNATE.has(unit_id):
+		return null
+	var brain := BossBrain.new()
+	brain.name = "InnateSpells"
+	for fields in INNATE[unit_id]:
+		brain.abilities.append(BossAbility.make(fields))
+	brain.global_gap = INNATE_GAP
+	brain.opening_gap = OPENING_GAP
+	brain.require_sight = true
+	enemy.add_child(brain)
+	return brain
 
 static func has_spellbook(unit_id: String) -> bool:
 	return SPELLBOOKS.has(unit_id)

@@ -51,6 +51,11 @@ class_name EnemyDefinition
 ## Pack tactics (EnemyTactics: surround, fans, cover, holding fire past allies).
 ## Faction default = on for EnemyTactics.TACTICAL_FACTIONS.
 @export_enum("Faction default", "Never", "Always") var tactics: int = 0
+## Share of a hit's damage turned aside when the player is in front of the
+## model (within FRONT_GUARD_ARC of its facing). DoTs go through.
+@export var front_guard: float = 0.0
+## Model turn rate toward the player; 0 = Enemy.MODEL_TURN_SPEED.
+@export var turn_speed: float = 0.0
 @export var xp_reward: float = 10.0
 @export var gold_reward_min: int = 3
 @export var gold_reward_max: int = 8

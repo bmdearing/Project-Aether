@@ -160,6 +160,7 @@ func _ready() -> void:
 		_player.equipment.equipment_changed.connect(_refresh_weapon_indicator)
 		EventBus.hit_landed.connect(_hit_marker.show_hit)
 		EventBus.enemy_hit_dodged.connect(func(_enemy: Node) -> void: _hit_marker.show_callout("EVADED"))
+		EventBus.enemy_hit_guarded.connect(func(_enemy: Node) -> void: _hit_marker.show_callout("GUARDED"))
 		EventBus.hit_blocked.connect(func(defender: Node) -> void:
 			if defender == _player:
 				_hit_marker.show_callout("BLOCKED"))

@@ -7,6 +7,13 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — Gilded Sentinel: elite, Ascendant, new abilities (user)
+
+- **Elite now** (was heavy): x1.3 Life and x1.15 damage on the elite curve (364 Life / 41 a hit at level 1), 10% Ward, elite rewards. Its pack weight drops 0.4 -> 0.3 since every Sentinel is now an elite-class unit.
+- **Gilded front (new mechanic):** hits taken while the player stands within 65° of its facing deal 60% less ("GUARDED" callout); DoTs and a stunned Sentinel aren't guarded (`EnemyDefinition.front_guard`, `Enemy.is_guarding_front()`). It turns slowly (`turn_speed` 1.8 vs the usual 8) and plants its feet mid-swing and mid-cast, so you get round it then.
+- **Vault Seal** (every Sentinel): a stamp that sends a jumpable ring of force out to 10 m (`AscendantSpells.INNATE`, attached for non-Ascendants).
+- **Ascendant leader** (`ASCENDANT_UNITS`), with a four-spell book: Vault Seal (two rings), Sealing Glyphs (four Aetherburn mines round you), Keeper's Reach (pull + slam, its answer to kiting), Gilded Bulwark (a 10%-Life shield: break it and it is stunned with its front open; let it hold and it bursts in 8 m). As an Ascendant it has ~1.3x the Life of the other three leaders.
+
 ## 2026-11-06 — Mob balancing: tactics by faction, per-unit Life/damage (user)
 
 - **Only military factions use pack tactics.** Directorate, Karvis Legion and Synod surround, fan out, take cover and hold fire past allies; Hollowed, Unchartered and Veilborne just rush in (and fire through allies). `EnemyTactics.TACTICAL_FACTIONS`, overridable per unit with `EnemyDefinition.tactics`: the Turncloak (a Directorate deserter) keeps the drill, the Legion Infernal (a walking rock) and the Gilded Sentinel (an independent vault guardian) don't.

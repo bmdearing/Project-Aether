@@ -332,7 +332,7 @@ const ENEMY_PACK_RARITY_WEIGHTS := {
 	EnemyRarity.CHAMPION: 8.0,
 	EnemyRarity.ASCENDANT: 2.0,
 }
-const ASCENDANT_UNITS := ["synod_vindicator", "legion_dreadknight", "veilborne_cantor"]
+const ASCENDANT_UNITS := ["synod_vindicator", "legion_dreadknight", "veilborne_cantor", "synod_gilded_sentinel"]
 const ASCENDANT_ESCORTS := 2
 
 ## Placeholder pack tables for GeneratedMap, rolled by EnemyRoster.roll_pack().
@@ -360,7 +360,7 @@ const ENEMY_PACKS_NORMAL := [
 	{"weight": 0.4, "units": [["veilborne_destroyer", 1, 1], ["veilborne_faerie_dragon", 1, 2]]},
 	{"weight": 0.7, "units": [["unchartered_sea_dog", 2, 3], ["unchartered_javelineer", 0, 1]]},
 	{"weight": 0.6, "units": [["veilborne_satyr_heretic", 2, 3], ["veilborne_mindbender", 0, 1]]},
-	{"weight": 0.4, "units": [["synod_gilded_sentinel", 1, 1], [SYNOD_GOLEMS, 0, 1]]},
+	{"weight": 0.3, "units": [["synod_gilded_sentinel", 1, 1], [SYNOD_GOLEMS, 0, 1]]},
 	{"weight": 0.9, "units": [["directorate_legionary", 2, 3], ["directorate_pikeman", 1, 2]]},
 	{"weight": 0.6, "units": [["directorate_captain", 1, 1], [DIRECTORATE_LINE, 2, 3]]},
 	{"weight": 0.6, "units": [["directorate_duelist", 2, 3], ["directorate_rifleman", 0, 1]]},

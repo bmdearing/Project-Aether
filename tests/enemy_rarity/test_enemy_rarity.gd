@@ -172,7 +172,7 @@ func _test_ascendant() -> void:
 	for i in 3:
 		var pack := _pack(ids, Constants.EnemyRarity.ASCENDANT)
 		var ascendants := pack.filter(func(e: Enemy): return e.rarity_component.rarity == Constants.EnemyRarity.ASCENDANT)
-		_check((ascendants.size() == 1 or (ascendants.size() == 2 and ascendants[0].rarity_component.has_mechanic(EnemyRarityComponent.MECHANIC_ARCHON))) and Constants.ASCENDANT_UNITS.has(ascendants[0].definition.resource_path.get_file().get_basename()), "an Ascendant pack is led by a Vindicator, Dreadknight or Cantor (%s)" % (ascendants[0].definition.resource_path.get_file().get_basename() if not ascendants.is_empty() else "-"))
+		_check((ascendants.size() == 1 or (ascendants.size() == 2 and ascendants[0].rarity_component.has_mechanic(EnemyRarityComponent.MECHANIC_ARCHON))) and Constants.ASCENDANT_UNITS.has(ascendants[0].definition.resource_path.get_file().get_basename()), "an Ascendant pack is led by a Vindicator, Dreadknight, Cantor or Sentinel (%s)" % (ascendants[0].definition.resource_path.get_file().get_basename() if not ascendants.is_empty() else "-"))
 		_check(pack.size() - ascendants.size() <= Constants.ASCENDANT_ESCORTS, "with at most %d escorts" % Constants.ASCENDANT_ESCORTS)
 		if not ascendants.is_empty():
 			var affixes: Array = ascendants[0].rarity_component.affixes

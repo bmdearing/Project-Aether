@@ -257,7 +257,7 @@ const RARITY_INTENT := {
 	Constants.EnemyRarity.NORMAL: "No modifiers.",
 	Constants.EnemyRarity.ELITE: "The whole pack is Elite and shares one pack affix.",
 	Constants.EnemyRarity.CHAMPION: "Leads a pack of Normal enemies. Its aura affects every enemy nearby, whether it spawned with them or not.",
-	Constants.EnemyRarity.ASCENDANT: "A Synod Vindicator, Legion Dreadknight or Veilborne Cantor: stronger, scarier, with affixes from its own pool and a suite of spells of its own. Shown on the large health bar.",
+	Constants.EnemyRarity.ASCENDANT: "A Synod Vindicator, Legion Dreadknight, Veilborne Cantor or Gilded Sentinel: stronger, scarier, with affixes from its own pool and a suite of spells of its own. Shown on the large health bar.",
 }
 
 ## {"rarity", "name", "color", "chance" (per pack), "life", "damage", "text",

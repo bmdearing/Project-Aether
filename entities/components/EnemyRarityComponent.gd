@@ -69,8 +69,12 @@ func _late_setup() -> void:
 		return
 	if is_unstoppable() and _enemy.status_effects:
 		_enemy.status_effects.immune_to = UNSTOPPABLE_IMMUNITIES
-	if rarity == Constants.EnemyRarity.ASCENDANT and _enemy.definition:
-		AscendantSpells.attach(_enemy, _enemy.definition.resource_path.get_file().get_basename())
+	if _enemy.definition:
+		var unit_id := _enemy.definition.resource_path.get_file().get_basename()
+		if rarity == Constants.EnemyRarity.ASCENDANT:
+			AscendantSpells.attach(_enemy, unit_id)
+		else:
+			AscendantSpells.attach_innate(_enemy, unit_id)
 	_build_visuals()
 
 ## ---- Stat queries -------------------------------------------------------

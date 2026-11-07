@@ -495,9 +495,13 @@ func _update_model(delta: float) -> void:
 		var heading_for_target := is_instance_valid(move_target)
 		var to_player := (move_target.global_position if heading_for_target else _player.global_position) - global_position
 		to_player.y = 0.0
-		if to_player.length() > 0.1 and (to_player.length() <= chase_range or is_in_combat() or heading_for_target):
+		# A front-guarded unit plants its feet mid-swing and mid-cast, which is
+		# when the player gets round it.
+		var planted := definition != null and definition.front_guard > 0.0 and is_attack_locked()
+		if not planted and to_player.length() > 0.1 and (to_player.length() <= chase_range or is_in_combat() or heading_for_target):
 			var target_yaw := atan2(to_player.x, to_player.z) + model_forward_yaw_offset - global_rotation.y
-			_model_root.rotation.y = lerp_angle(_model_root.rotation.y, target_yaw, clamp(MODEL_TURN_SPEED * delta, 0.0, 1.0))
+			var turn := definition.turn_speed if definition and definition.turn_speed > 0.0 else MODEL_TURN_SPEED
+			_model_root.rotation.y = lerp_angle(_model_root.rotation.y, target_yaw, clamp(turn * delta, 0.0, 1.0))
 	if _anim_controller:
 		_anim_controller.set_speed(Vector2(velocity.x, velocity.z).length())
 
@@ -1381,6 +1385,9 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 		status_multiplier *= 1.0 + GearEffects.player_bonus(get_tree(), "pallid_damage_taken") / 100.0
 	if rarity_component:
 		status_multiplier *= rarity_component.get_damage_taken_multiplier()
+	if not is_dot and is_guarding_front():
+		status_multiplier *= 1.0 - definition.front_guard
+		EventBus.enemy_hit_guarded.emit(self)
 	_last_damaged_msec = Time.get_ticks_msec()
 	var attacker := _player.stat_sheet if is_instance_valid(_player) else null
 	# The player's damage conversion splits a hit; each part is mitigated as
@@ -1588,6 +1595,21 @@ var ability_shield_max: float = 0.0
 func raise_ability_shield(amount: float) -> void:
 	ability_shield = amount
 	ability_shield_max = amount
+
+## Half-angle (radians) of the front a front_guard covers.
+const FRONT_GUARD_ARC := deg_to_rad(65.0)
+
+## The player stands in front of a front-guarded model (hits get turned aside).
+func is_guarding_front() -> bool:
+	if definition == null or definition.front_guard <= 0.0 or _model_root == null or not is_instance_valid(_player):
+		return false
+	if status_effects and status_effects.is_stunned():
+		return false
+	var to_player := _flat(_player.global_position - global_position)
+	if to_player.length() < 0.05:
+		return false
+	var facing := _model_root.rotation.y - model_forward_yaw_offset + global_rotation.y
+	return Vector3(sin(facing), 0.0, cos(facing)).dot(to_player.normalized()) >= cos(FRONT_GUARD_ARC)
 
 func clear_ability_shield() -> void:
 	ability_shield = 0.0
