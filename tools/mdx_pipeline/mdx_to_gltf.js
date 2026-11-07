@@ -42,6 +42,7 @@ const path = require("path");
 const { mat4, quat } = require("gl-matrix");
 const { loadModel } = require("./mdx_load");
 const { buildSidecar } = require("./mdx_sidecar");
+const interp = require("./mdx_interp");
 
 // WC3/MDX is Z-up, right-handed. glTF is Y-up, right-handed, -Z forward.
 // Standard Z-up -> Y-up conversion preserving handedness: (x,y,z) -> (x,z,-y).
@@ -318,9 +319,10 @@ function usableAnimVector(av) {
 // is present on this model's keys but approximated as linear, flagged as
 // a simplification (most of this model's own channels are already
 // LineType Linear in practice, checked directly against the real file).
-function evalVec3(av, frameMs, fallback) {
+function evalVec3(av, frameMs, fallback, seq) {
   const usable = usableAnimVector(av);
   if (!usable) return fallback.slice();
+  if (seq) return interp.evalComponents(usable, frameMs, seq.Interval[0], seq.Interval[1]) || fallback.slice();
   const keys = usable.Keys;
   if (frameMs <= keys[0].Frame) return Array.from(keys[0].Vector);
   if (frameMs >= keys[keys.length - 1].Frame) return Array.from(keys[keys.length - 1].Vector);
@@ -337,9 +339,10 @@ function evalVec3(av, frameMs, fallback) {
   return fallback.slice();
 }
 
-function evalQuat(av, frameMs, fallback) {
+function evalQuat(av, frameMs, fallback, seq) {
   const usable = usableAnimVector(av);
   if (!usable) return fallback.slice();
+  if (seq) return interp.evalQuat(usable, frameMs, seq.Interval[0], seq.Interval[1]) || fallback.slice();
   const keys = usable.Keys;
   if (frameMs <= keys[0].Frame) return Array.from(keys[0].Vector);
   if (frameMs >= keys[keys.length - 1].Frame) return Array.from(keys[keys.length - 1].Vector);
@@ -363,10 +366,14 @@ function nodeHasAnimation(node) {
 // The LOCAL delta matrix for one node at one absolute frame (ms) -
 // Translate(pivot)*Translate(T)*Rotate(R)*Scale(S)*Translate(-pivot),
 // matching war3-model's updateNode() exactly (see file-level comment).
-function bakeLocalMatrix(node, frameMs) {
-  const t = evalVec3(node.Translation, frameMs, DEFAULT_TRANSLATION);
-  const r = evalQuat(node.Rotation, frameMs, DEFAULT_ROTATION);
-  const s = evalVec3(node.Scaling, frameMs, DEFAULT_SCALE);
+// With seq, tracks are evaluated the way WC3 plays them: only keys inside
+// the sequence count (Hermite/Bezier tangents kept), and a track with no key
+// in it holds the default. Without the window, a bone hidden by a zero-scale
+// key in another sequence (Death, Dissipate) stays hidden in this one.
+function bakeLocalMatrix(node, frameMs, seq) {
+  const t = evalVec3(node.Translation, frameMs, DEFAULT_TRANSLATION, seq);
+  const r = evalQuat(node.Rotation, frameMs, DEFAULT_ROTATION, seq);
+  const s = evalVec3(node.Scaling, frameMs, DEFAULT_SCALE, seq);
   const out = mat4.create();
   mat4.fromRotationTranslationScaleOrigin(out, r, t, s, node.PivotPoint);
   return out;
@@ -409,13 +416,13 @@ function buildAnimations(model, skeleton, gltfNodes, buffers, bufferViews, acces
       const scales = new Float32Array(sampleCount * 3);
       for (let i = 0; i < sampleCount; ++i) {
         const frameMs = Math.min(startMs + i * stepMs, endMs);
-        const local = bakeLocalMatrix(node, frameMs);
+        const local = bakeLocalMatrix(node, frameMs, seq);
         const t = mat4.getTranslation([0, 0, 0], local);
         // Linear part is exactly R*S, so R and S are taken from the
         // evaluated channels rather than decomposed - decomposing a
         // zero-scale key (WC3's way of hiding a bone) yields NaN rotations.
-        const r = quat.normalize([0, 0, 0, 1], evalQuat(node.Rotation, frameMs, DEFAULT_ROTATION));
-        const s = evalVec3(node.Scaling, frameMs, DEFAULT_SCALE);
+        const r = quat.normalize([0, 0, 0, 1], evalQuat(node.Rotation, frameMs, DEFAULT_ROTATION, seq));
+        const s = evalVec3(node.Scaling, frameMs, DEFAULT_SCALE, seq);
         translations.set(convertVec3(t), i * 3);
         rotations.set(convertQuat(r), i * 4);
         scales.set(convertScale(s), i * 3);

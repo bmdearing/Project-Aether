@@ -205,7 +205,12 @@
     {
       "unit": "directorate_legionary",
       "mdx": "assets/models/enemies/Elite Human Soldiers/EliteSoldier.mdx",
-      "scale": 0.018
+      "scale": 0.018,
+      "hide_geosets": [
+        0,
+        11,
+        12
+      ]
     },
     {
       "unit": "directorate_pikeman",
@@ -230,12 +235,21 @@
     {
       "unit": "directorate_captain",
       "mdx": "assets/models/enemies/Veteran Soldiers of the Alliance/VeteranCaptain.mdx",
-      "scale": 0.018
+      "scale": 0.018,
+      "hide_geosets": [
+        1,
+        2,
+        5
+      ]
     },
     {
       "unit": "directorate_justicar",
       "mdx": "assets/models/enemies/Paladin Captains/HeroPaladinCaptainHammer.mdx",
-      "scale": 0.019
+      "scale": 0.019,
+      "hide_geosets": [
+        2,
+        3
+      ]
     },
     {
       "unit": "unchartered_turncloak",
@@ -256,6 +270,11 @@
       "unit": "legion_dread_matron",
       "mdx": "assets/models/enemies/Dreadlord Jaina  Female Nathrezim/Dreadlord Jaina  Female Nathrezim/DreadLordJaina.mdx",
       "scale": 0.019
+    },
+    {
+      "unit": "synod_frost_adept",
+      "mdx": "assets/models/enemies/Winter Mage/WinterMage2.0.mdx",
+      "scale": 0.0125
     }
   ],
   "_props_comment": "Static props (no animation baked, no AnimationTree): convert_all.js converts them after the units, build_mdx_wrappers builds each wrapper at scene.",

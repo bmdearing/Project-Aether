@@ -15,7 +15,7 @@ const UNIT_IDS := [
 	"unchartered_peon", "unchartered_grunt", "unchartered_berserker", "legion_infernal",
 	"legion_doom_guard", "veilborne_faerie_dragon", "veilborne_destroyer",
 	"directorate_legionary", "directorate_pikeman", "directorate_duelist", "directorate_captain",
-	"directorate_justicar", "unchartered_turncloak", "synod_arcanist", "legion_dread_matron",
+	"directorate_justicar", "unchartered_turncloak", "synod_arcanist", "legion_dread_matron", "synod_frost_adept",
 	"unchartered_sea_dog", "veilborne_satyr_heretic", "synod_gilded_sentinel",
 ]
 const UNIT_SCENES := ["res://entities/enemies/units/MeleeUnit.tscn", "res://entities/enemies/units/RangedUnit.tscn"]

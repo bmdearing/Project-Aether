@@ -1,0 +1,930 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_iyf78"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/elfvillagerwoman.dds" id="2_kwoin"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/humancampaignswordhandlr.dds" id="3_8bnhi"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/humanmage.dds" id="4_fhnip"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/battroll.dds" id="5_4bm5t"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/be_robe.dds" id="6_4v4gp"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/campaignorcsash.dds" id="7_gjnq3"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/ice.dds" id="8_j1u5w"]
+[ext_resource type="Shader" path="res://entities/enemies/models/mdx_overlay_layer.gdshader" id="9_lfu7x"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/humantransportship.dds" id="10_okxfp"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/outlanddoodads.dds" id="11_bubhm"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/jaina.dds" id="12_lynvo"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/undeadairbarge.dds" id="13_n2b8r"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/house.dds" id="14_204u8"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/arthas.dds" id="15_p5oc5"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/genericglow2_64.dds" id="16_r7jxm"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/crystalsheild.dds" id="17_8bekp"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/glowcolors.dds" id="18_dnhkl"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/flare.dds" id="19_p7cjo"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/wirlwinds.dds" id="20_akn8a"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/icecrown_ground1.dds" id="21_sv45n"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/firering1a.dds" id="22_37xd8"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/teamglow08.dds" id="23_5x6lj"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/icecrownwalls.dds" id="24_kb4ei"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/nightelffemaleeyeglow1.dds" id="25_2vuhq"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/dust3.dds" id="26_ahs54"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/energybolt.dds" id="27_ak11a"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/tail_dust3.dds" id="28_blmjv"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/tinkerrocketribbon.dds" id="29_jt5bh"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/blizzard.dds" id="30_whkja"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/razormane.dds" id="31_fhe6f"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/gargoyle.dds" id="32_jnuu1"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/dust5ablack.dds" id="33_35kx1"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/teleporttarget.dds" id="34_engve"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/purple_glow_dim.dds" id="35_abbil"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/northrendnatural03.dds" id="36_7sveu"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/peasant.dds" id="37_esk1r"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Winter Mage/grad6.dds" id="38_s3hnp"]
+[ext_resource type="PackedScene" path="res://assets/models/enemies/Winter Mage/WinterMage2.0.glb" id="39_4833c"]
+[ext_resource type="PackedScene" path="res://entities/enemies/base/HumanoidAnimTree.tscn" id="40_3ah6s"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fxom6"]
+cull_mode = 2
+albedo_texture = ExtResource("2_kwoin")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6ivle"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("3_8bnhi")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5q4bv"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("4_fhnip")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qdqpi"]
+cull_mode = 2
+albedo_texture = ExtResource("5_4bm5t")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4nuaa"]
+cull_mode = 2
+albedo_texture = ExtResource("6_4v4gp")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gamkx"]
+cull_mode = 2
+albedo_texture = ExtResource("7_gjnq3")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bjh4l"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("10_okxfp")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_eslqa"]
+next_pass = SubResource("ShaderMaterial_bjh4l")
+cull_mode = 2
+albedo_texture = ExtResource("8_j1u5w")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ndgoa"]
+cull_mode = 2
+albedo_texture = ExtResource("2_kwoin")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kcej8"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("11_bubhm")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_fabvq"]
+next_pass = SubResource("ShaderMaterial_kcej8")
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("11_bubhm")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ukpok"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("12_lynvo")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 0.3
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d62u8"]
+next_pass = SubResource("ShaderMaterial_ukpok")
+cull_mode = 2
+albedo_texture = ExtResource("12_lynvo")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a6gpk"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("13_n2b8r")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_y2pvs"]
+cull_mode = 2
+albedo_texture = ExtResource("14_204u8")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1bwvh"]
+cull_mode = 2
+albedo_texture = ExtResource("15_p5oc5")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_41uov"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("16_r7jxm")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1ao1i"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("16_r7jxm")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v3peu"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("16_r7jxm")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c2qa3"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("17_8bekp")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_knu63"]
+next_pass = SubResource("ShaderMaterial_c2qa3")
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("17_8bekp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_f2ytm"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("17_8bekp")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_u4gtd"]
+next_pass = SubResource("ShaderMaterial_f2ytm")
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("17_8bekp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_afhqt"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("17_8bekp")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ifhbj"]
+next_pass = SubResource("ShaderMaterial_afhqt")
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("17_8bekp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_k0ol8"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("17_8bekp")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_oxg3u"]
+next_pass = SubResource("ShaderMaterial_k0ol8")
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("17_8bekp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_wjlxb"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("17_8bekp")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_13o6j"]
+next_pass = SubResource("ShaderMaterial_wjlxb")
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("17_8bekp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_uqttv"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("17_8bekp")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_uq7k4"]
+next_pass = SubResource("ShaderMaterial_uqttv")
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("17_8bekp")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ncv8o"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("17_8bekp")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_d643s"]
+next_pass = SubResource("ShaderMaterial_ncv8o")
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("17_8bekp")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ejkpa"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("18_dnhkl")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oikvf"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("19_p7cjo")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_56wvx"]
+next_pass = SubResource("ShaderMaterial_oikvf")
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("19_p7cjo")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_5ju0v"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("20_akn8a")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4x48l"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("21_sv45n")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_q3c5v"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("22_37xd8")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bvgq4"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_q3c5v")
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("22_37xd8")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ewcwu"]
+next_pass = SubResource("ShaderMaterial_bvgq4")
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("22_37xd8")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_oe0ay"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("19_p7cjo")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4wqbc"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_oe0ay")
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("19_p7cjo")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_rw15d"]
+next_pass = SubResource("ShaderMaterial_4wqbc")
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("23_5x6lj")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_si8j6"]
+cull_mode = 2
+albedo_texture = ExtResource("2_kwoin")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_p088e"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("21_sv45n")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ktmy0"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("24_kb4ei")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qbul5"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_ktmy0")
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("24_kb4ei")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wyxa7"]
+next_pass = SubResource("ShaderMaterial_qbul5")
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("24_kb4ei")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_dy548"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("25_2vuhq")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 0.25
+shader_parameter/uv_scale = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ruxse"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_dy548")
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("26_ahs54")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sv68l"]
+next_pass = SubResource("ShaderMaterial_ruxse")
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("19_p7cjo")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_yw7uj"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("25_2vuhq")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 0.25
+shader_parameter/uv_scale = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_af45u"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_yw7uj")
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("26_ahs54")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bqswv"]
+next_pass = SubResource("ShaderMaterial_af45u")
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("19_p7cjo")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_yvgbi"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("27_ak11a")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ysltg"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("28_blmjv")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 0.75
+shader_parameter/uv_scale = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_rxkx7"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_ysltg")
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("28_blmjv")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 0.75
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xb0n5"]
+next_pass = SubResource("ShaderMaterial_rxkx7")
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("28_blmjv")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_nofjf"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("30_whkja")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kjlj4"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_nofjf")
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("29_jt5bh")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_twf5k"]
+next_pass = SubResource("ShaderMaterial_kjlj4")
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("29_jt5bh")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_fyqva"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("31_fhe6f")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 0.9
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_1mgeg"]
+next_pass = SubResource("ShaderMaterial_fyqva")
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("31_fhe6f")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_0r8qb"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("32_jnuu1")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 0.1
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2kfcw"]
+next_pass = SubResource("ShaderMaterial_0r8qb")
+cull_mode = 2
+albedo_texture = ExtResource("32_jnuu1")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_87gg0"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("18_dnhkl")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ntxi5"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("24_kb4ei")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_ytnwi"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_ntxi5")
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("24_kb4ei")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_en8q0"]
+next_pass = SubResource("ShaderMaterial_ytnwi")
+transparency = 1
+cull_mode = 2
+albedo_texture = ExtResource("24_kb4ei")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_m2jve"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("19_p7cjo")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 0.425
+shader_parameter/uv_scale = null
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_4ou0b"]
+render_priority = 0
+next_pass = SubResource("ShaderMaterial_m2jve")
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("19_p7cjo")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 0.8
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_a5f2v"]
+next_pass = SubResource("ShaderMaterial_4ou0b")
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("33_35kx1")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_8qo5w"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("34_engve")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_086bq"]
+next_pass = SubResource("ShaderMaterial_8qo5w")
+transparency = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("34_engve")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_kb1p0"]
+render_priority = 0
+shader = ExtResource("9_lfu7x")
+shader_parameter/layer_texture = ExtResource("35_abbil")
+shader_parameter/uv_scroll = Vector2(0, 0)
+shader_parameter/layer_alpha = 1.0
+shader_parameter/uv_scale = null
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7lc5h"]
+next_pass = SubResource("ShaderMaterial_kb1p0")
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.4, 0.4, 0.42, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_to8e3"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.4, 0.4, 0.42, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ceeln"]
+cull_mode = 2
+shading_mode = 0
+albedo_color = Color(0.4, 0.4, 0.42, 1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_qme7c"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("36_7sveu")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_odbwq"]
+cull_mode = 2
+albedo_texture = ExtResource("37_esk1r")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_57dsg"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("38_s3hnp")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3kwa8"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("38_s3hnp")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_glnhs"]
+transparency = 1
+blend_mode = 1
+cull_mode = 2
+shading_mode = 0
+albedo_texture = ExtResource("38_s3hnp")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_73eee"]
+cull_mode = 2
+albedo_texture = ExtResource("2_kwoin")
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_uxmb3"]
+animation = &"Attack"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ugs6u"]
+animation = &"Death"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_rn56s"]
+animation = &"HitReact"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3c17d"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jp5ti"]
+animation = &"Run"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_1mj3m"]
+animation = &"Stagger"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xo6c6"]
+animation = &"Walk"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tola0"]
+xfade_time = 0.12
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_4g1jm"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"moving"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_317bp"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stopped"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c5h2g"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"running"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_a37j7"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"walking"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ipoep"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_i60ko"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_nhync"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pduiw"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c46fj"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_mot78"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_d0m3f"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_28hg5"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_xxwru"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_o3hln"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_sylrt"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_uhnpq"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_3blcx"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0ieg5"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_vde4t"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gkawd"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_cgh1m"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pld0m"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_wr1x7"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jypwp"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gnvh3"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_7m1o2"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_g1woi"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_a1ugo"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_dv4a3"]
+states/Attack/node = SubResource("AnimationNodeAnimation_uxmb3")
+states/Attack/position = Vector2(600, 0)
+states/Death/node = SubResource("AnimationNodeAnimation_ugs6u")
+states/Death/position = Vector2(400, 140)
+states/HitReact/node = SubResource("AnimationNodeAnimation_rn56s")
+states/HitReact/position = Vector2(0, 140)
+states/Idle/node = SubResource("AnimationNodeAnimation_3c17d")
+states/Idle/position = Vector2(0, 0)
+states/Run/node = SubResource("AnimationNodeAnimation_jp5ti")
+states/Run/position = Vector2(400, 0)
+states/Stagger/node = SubResource("AnimationNodeAnimation_1mj3m")
+states/Stagger/position = Vector2(200, 140)
+states/Walk/node = SubResource("AnimationNodeAnimation_xo6c6")
+states/Walk/position = Vector2(200, 0)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_tola0"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_4g1jm"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_317bp"), "Walk", "Run", SubResource("AnimationNodeStateMachineTransition_c5h2g"), "Run", "Walk", SubResource("AnimationNodeStateMachineTransition_a37j7"), "Idle", "Attack", SubResource("AnimationNodeStateMachineTransition_ipoep"), "Walk", "Attack", SubResource("AnimationNodeStateMachineTransition_i60ko"), "Run", "Attack", SubResource("AnimationNodeStateMachineTransition_nhync"), "HitReact", "Attack", SubResource("AnimationNodeStateMachineTransition_pduiw"), "Stagger", "Attack", SubResource("AnimationNodeStateMachineTransition_c46fj"), "Idle", "HitReact", SubResource("AnimationNodeStateMachineTransition_mot78"), "Walk", "HitReact", SubResource("AnimationNodeStateMachineTransition_d0m3f"), "Run", "HitReact", SubResource("AnimationNodeStateMachineTransition_28hg5"), "Attack", "HitReact", SubResource("AnimationNodeStateMachineTransition_xxwru"), "Stagger", "HitReact", SubResource("AnimationNodeStateMachineTransition_o3hln"), "Idle", "Stagger", SubResource("AnimationNodeStateMachineTransition_sylrt"), "Walk", "Stagger", SubResource("AnimationNodeStateMachineTransition_uhnpq"), "Run", "Stagger", SubResource("AnimationNodeStateMachineTransition_3blcx"), "Attack", "Stagger", SubResource("AnimationNodeStateMachineTransition_0ieg5"), "HitReact", "Stagger", SubResource("AnimationNodeStateMachineTransition_vde4t"), "Idle", "Death", SubResource("AnimationNodeStateMachineTransition_gkawd"), "Walk", "Death", SubResource("AnimationNodeStateMachineTransition_cgh1m"), "Run", "Death", SubResource("AnimationNodeStateMachineTransition_pld0m"), "Attack", "Death", SubResource("AnimationNodeStateMachineTransition_wr1x7"), "HitReact", "Death", SubResource("AnimationNodeStateMachineTransition_jypwp"), "Stagger", "Death", SubResource("AnimationNodeStateMachineTransition_gnvh3"), "Attack", "Idle", SubResource("AnimationNodeStateMachineTransition_7m1o2"), "HitReact", "Idle", SubResource("AnimationNodeStateMachineTransition_g1woi"), "Stagger", "Idle", SubResource("AnimationNodeStateMachineTransition_a1ugo")]
+
+[node name="SynodFrostAdeptModel" type="Node3D" unique_id=2139441516]
+script = ExtResource("1_iyf78")
+geoset_materials = {
+0: SubResource("StandardMaterial3D_fxom6"),
+1: SubResource("StandardMaterial3D_6ivle"),
+2: SubResource("StandardMaterial3D_5q4bv"),
+3: SubResource("StandardMaterial3D_qdqpi"),
+4: SubResource("StandardMaterial3D_4nuaa"),
+5: SubResource("StandardMaterial3D_gamkx"),
+6: SubResource("StandardMaterial3D_eslqa"),
+7: SubResource("StandardMaterial3D_ndgoa"),
+8: SubResource("StandardMaterial3D_fabvq"),
+9: SubResource("StandardMaterial3D_d62u8"),
+10: SubResource("StandardMaterial3D_a6gpk"),
+11: SubResource("StandardMaterial3D_y2pvs"),
+12: SubResource("StandardMaterial3D_1bwvh"),
+13: SubResource("StandardMaterial3D_41uov"),
+14: SubResource("StandardMaterial3D_1ao1i"),
+15: SubResource("StandardMaterial3D_v3peu"),
+16: SubResource("StandardMaterial3D_knu63"),
+17: SubResource("StandardMaterial3D_u4gtd"),
+18: SubResource("StandardMaterial3D_ifhbj"),
+19: SubResource("StandardMaterial3D_oxg3u"),
+20: SubResource("StandardMaterial3D_13o6j"),
+21: SubResource("StandardMaterial3D_uq7k4"),
+22: SubResource("StandardMaterial3D_d643s"),
+23: SubResource("StandardMaterial3D_ejkpa"),
+24: SubResource("StandardMaterial3D_56wvx"),
+25: SubResource("StandardMaterial3D_5ju0v"),
+26: SubResource("StandardMaterial3D_4x48l"),
+27: SubResource("StandardMaterial3D_ewcwu"),
+28: SubResource("StandardMaterial3D_rw15d"),
+29: SubResource("StandardMaterial3D_si8j6"),
+30: SubResource("StandardMaterial3D_p088e"),
+31: SubResource("StandardMaterial3D_wyxa7"),
+32: SubResource("StandardMaterial3D_sv68l"),
+33: SubResource("StandardMaterial3D_bqswv"),
+34: SubResource("StandardMaterial3D_yvgbi"),
+35: SubResource("StandardMaterial3D_xb0n5"),
+36: SubResource("StandardMaterial3D_twf5k"),
+37: SubResource("StandardMaterial3D_1mgeg"),
+38: SubResource("StandardMaterial3D_2kfcw"),
+39: SubResource("StandardMaterial3D_87gg0"),
+40: SubResource("StandardMaterial3D_en8q0"),
+41: SubResource("StandardMaterial3D_a5f2v"),
+42: SubResource("StandardMaterial3D_086bq"),
+43: SubResource("StandardMaterial3D_7lc5h"),
+44: SubResource("StandardMaterial3D_to8e3"),
+45: SubResource("StandardMaterial3D_ceeln"),
+46: SubResource("StandardMaterial3D_qme7c"),
+47: SubResource("StandardMaterial3D_odbwq"),
+48: SubResource("StandardMaterial3D_57dsg"),
+49: SubResource("StandardMaterial3D_3kwa8"),
+50: SubResource("StandardMaterial3D_glnhs"),
+51: SubResource("StandardMaterial3D_73eee")
+}
+hidden_geosets = {
+"Attack 1": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Attack 2": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Attack 3": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Death": PackedInt32Array(13, 14, 15, 16, 17, 18, 19, 20, 21, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Dissipate": PackedInt32Array(13, 14, 15, 16, 17, 18, 19, 20, 21, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Portrait": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 46, 48, 49, 50),
+"Portrait 2": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 46, 48, 49, 50),
+"Portrait Talk": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 46, 48, 49, 50),
+"Portrait Talk 2": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 46, 48, 49, 50),
+"Spell": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Spell Channel": PackedInt32Array(13, 14, 15, 16, 17, 18, 33, 34, 35, 36, 40, 41, 45, 46, 48, 49, 50),
+"Spell Slam": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Spell Throw": PackedInt32Array(13, 14, 15, 16, 17, 18, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Spell two": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 39, 40, 41, 42, 45, 46, 48, 49, 50),
+"Stand": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Stand 2": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Stand 3": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Stand Channel": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Stand Ready": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Walk": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Walk Defend": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Walk Fast": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 46, 48, 49, 50),
+"Walk Fast 2": PackedInt32Array(13, 14, 15, 16, 17, 18, 30, 31, 32, 33, 34, 35, 36, 40, 41, 42, 45, 48, 49, 50)
+}
+always_hidden = PackedInt32Array(43, 44)
+idle_clip = "Stand"
+clip_move_speeds = {
+"Walk": 3.625,
+"Walk Defend": 2.1875,
+"Walk Fast": 4.125,
+"Walk Fast 2": 4.125
+}
+
+[node name="Model" type="Node3D" parent="." unique_id=1553195394 instance=ExtResource("39_4833c")]
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=338442281 instance=ExtResource("40_3ah6s")]
+active = false
+tree_root = SubResource("AnimationNodeStateMachine_dv4a3")
+anim_player = NodePath("../Model/AnimationPlayer")
+parameters/conditions/attack_triggered = false
+parameters/conditions/hit_triggered = false
+parameters/conditions/is_dead = false
+parameters/conditions/moving = false
+parameters/conditions/running = false
+parameters/conditions/stagger_triggered = false
+parameters/conditions/stopped = false
+parameters/conditions/walking = false

@@ -1,0 +1,3100 @@
+{
+  "source": "WinterMage2.0.mdx",
+  "version": 800,
+  "scale": 0.0125,
+  "idle_sequence": "Stand",
+  "bounds": {
+    "min": [
+      -1.3564370155334473,
+      0.0006305456161499024,
+      -1.3564406394958497
+    ],
+    "max": [
+      1.3564370155334473,
+      1.9787042617797852,
+      1.3565214157104493
+    ],
+    "height": 1.9780737161636353
+  },
+  "sequences": [
+    {
+      "name": "Stand",
+      "start": 200,
+      "end": 1700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 2000,
+      "end": 5700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 6200,
+      "end": 9200,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk",
+      "start": 9500,
+      "end": 10500,
+      "move_speed": 3.625,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready",
+      "start": 10700,
+      "end": 11700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 12000,
+      "end": 13100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 13500,
+      "end": 14700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 3",
+      "start": 15000,
+      "end": 16300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Defend",
+      "start": 16600,
+      "end": 17600,
+      "move_speed": 2.1875,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell",
+      "start": 18000,
+      "end": 19200,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel",
+      "start": 19600,
+      "end": 20600,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Throw",
+      "start": 21000,
+      "end": 22300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Slam",
+      "start": 22800,
+      "end": 24300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell Channel",
+      "start": 24750,
+      "end": 26050,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell two",
+      "start": 26450,
+      "end": 27700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death",
+      "start": 28050,
+      "end": 31250,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 31550,
+      "end": 33050,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Fast",
+      "start": 33350,
+      "end": 34150,
+      "move_speed": 4.125,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk Fast 2",
+      "start": 34450,
+      "end": 38050,
+      "move_speed": 4.125,
+      "duplicate_of": null
+    },
+    {
+      "name": "Portrait",
+      "start": 40050,
+      "end": 41450,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Portrait 2",
+      "start": 41750,
+      "end": 45750,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Portrait Talk",
+      "start": 46050,
+      "end": 49350,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Portrait Talk 2",
+      "start": 49650,
+      "end": 53850,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "elfvillagerwoman.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units\\Critters\\ElfVillagerWoman\\ElfVillagerWoman.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "humancampaignswordhandlr.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "UI\\Glues\\SinglePlayer\\HumanCampaign3D\\HumanCampaignSwordHandlr.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "humanmage.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units\\Creeps\\HumanMage\\HumanMage.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "battroll.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\BatTroll.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "be_robe.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "UI\\Glues\\SinglePlayer\\Alliance_Exp\\BE_Robe.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "",
+      "lod": 0,
+      "material_id": 5,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "campaignorcsash.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "UI\\Glues\\SinglePlayer\\OrcCampaign3D\\CampaignOrcSash.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "",
+      "lod": 0,
+      "material_id": 6,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "ice.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\Ice.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "humantransportship.dds",
+          "source": "Units\\Creeps\\HumanTransportShip\\HumanTransportShip.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "elfvillagerwoman.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units\\Critters\\ElfVillagerWoman\\ElfVillagerWoman.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "",
+      "lod": 0,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "outlanddoodads.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\OutlandDoodads.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "outlanddoodads.dds",
+          "source": "Textures\\OutlandDoodads.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "",
+      "lod": 0,
+      "material_id": 8,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "jaina.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units\\Human\\Jaina\\Jaina.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "jaina.dds",
+          "source": "Units\\Human\\Jaina\\Jaina.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 0.30000001192092896,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "",
+      "lod": 0,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undeadairbarge.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units\\Undead\\UndeadAirBarge\\UndeadAirBarge.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "",
+      "lod": 0,
+      "material_id": 10,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "house.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings\\Human\\Farm\\House.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "",
+      "lod": 0,
+      "material_id": 11,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "arthas.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\Arthas.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "",
+      "lod": 0,
+      "material_id": 12,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "genericglow2_64.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\GenericGlow2_64.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 14,
+      "name": "",
+      "lod": 0,
+      "material_id": 12,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "genericglow2_64.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\GenericGlow2_64.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 15,
+      "name": "",
+      "lod": 0,
+      "material_id": 12,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "genericglow2_64.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\GenericGlow2_64.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 16,
+      "name": "",
+      "lod": 0,
+      "material_id": 13,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "crystalsheild.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\CrystalSheild.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "crystalsheild.dds",
+          "source": "Textures\\CrystalSheild.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 17,
+      "name": "",
+      "lod": 0,
+      "material_id": 13,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "crystalsheild.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\CrystalSheild.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "crystalsheild.dds",
+          "source": "Textures\\CrystalSheild.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 18,
+      "name": "",
+      "lod": 0,
+      "material_id": 13,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "crystalsheild.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\CrystalSheild.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "crystalsheild.dds",
+          "source": "Textures\\CrystalSheild.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 19,
+      "name": "",
+      "lod": 0,
+      "material_id": 14,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "crystalsheild.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\CrystalSheild.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "crystalsheild.dds",
+          "source": "Textures\\CrystalSheild.blp",
+          "filter_mode": 1,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 20,
+      "name": "",
+      "lod": 0,
+      "material_id": 14,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "crystalsheild.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\CrystalSheild.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "crystalsheild.dds",
+          "source": "Textures\\CrystalSheild.blp",
+          "filter_mode": 1,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 21,
+      "name": "",
+      "lod": 0,
+      "material_id": 14,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "crystalsheild.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\CrystalSheild.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "crystalsheild.dds",
+          "source": "Textures\\CrystalSheild.blp",
+          "filter_mode": 1,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 22,
+      "name": "",
+      "lod": 0,
+      "material_id": 14,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "crystalsheild.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\CrystalSheild.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "crystalsheild.dds",
+          "source": "Textures\\CrystalSheild.blp",
+          "filter_mode": 1,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 23,
+      "name": "",
+      "lod": 0,
+      "material_id": 15,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "glowcolors.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads\\Cinematic\\GlowingRunes\\GLowColors.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 24,
+      "name": "",
+      "lod": 0,
+      "material_id": 16,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "flare.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\Flare.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "flare.dds",
+          "source": "Textures\\Flare.blp",
+          "filter_mode": 3,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 25,
+      "name": "",
+      "lod": 0,
+      "material_id": 17,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "wirlwinds.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\Wirlwinds.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 26,
+      "name": "",
+      "lod": 0,
+      "material_id": 18,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "icecrown_ground1.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "UI\\Glues\\SinglePlayer\\Undead3D_Exp\\icecrown_ground1.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 27,
+      "name": "",
+      "lod": 0,
+      "material_id": 19,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "firering1a.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\firering1A.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "firering1a.dds",
+          "source": "Textures\\firering1A.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        },
+        {
+          "texture": "firering1a.dds",
+          "source": "Textures\\firering1A.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 28,
+      "name": "",
+      "lod": 0,
+      "material_id": 20,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "teamglow08.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "ReplaceableTextures\\TeamGlow\\TeamGlow08.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "flare.dds",
+          "source": "Textures\\Flare.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        },
+        {
+          "texture": "flare.dds",
+          "source": "Textures\\Flare.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 29,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "elfvillagerwoman.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units\\Critters\\ElfVillagerWoman\\ElfVillagerWoman.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 30,
+      "name": "",
+      "lod": 0,
+      "material_id": 18,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "icecrown_ground1.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "UI\\Glues\\SinglePlayer\\Undead3D_Exp\\icecrown_ground1.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": true,
+        "Spell Slam": false,
+        "Spell Channel": true,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 31,
+      "name": "",
+      "lod": 0,
+      "material_id": 21,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icecrownwalls.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\IceCrownWalls.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "icecrownwalls.dds",
+          "source": "Textures\\IceCrownWalls.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        },
+        {
+          "texture": "icecrownwalls.dds",
+          "source": "Textures\\IceCrownWalls.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": true,
+        "Spell Slam": false,
+        "Spell Channel": true,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 32,
+      "name": "",
+      "lod": 0,
+      "material_id": 22,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "flare.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\Flare.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "dust3.dds",
+          "source": "Textures\\Dust3.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        },
+        {
+          "texture": "nightelffemaleeyeglow1.dds",
+          "source": "UI\\Glues\\SinglePlayer\\NightElfCampaign3D\\NightElfFemaleEyeGlow1.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.25,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": true,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 33,
+      "name": "",
+      "lod": 0,
+      "material_id": 22,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "flare.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\Flare.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "dust3.dds",
+          "source": "Textures\\Dust3.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        },
+        {
+          "texture": "nightelffemaleeyeglow1.dds",
+          "source": "UI\\Glues\\SinglePlayer\\NightElfCampaign3D\\NightElfFemaleEyeGlow1.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.25,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 34,
+      "name": "",
+      "lod": 0,
+      "material_id": 23,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "energybolt.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Abilities\\Weapons\\SearingArrow\\EnergyBolt.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 35,
+      "name": "",
+      "lod": 0,
+      "material_id": 24,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "tail_dust3.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Abilities\\Spells\\Human\\Slow\\Tail_Dust3.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "tail_dust3.dds",
+          "source": "Abilities\\Spells\\Human\\Slow\\Tail_Dust3.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.75,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        },
+        {
+          "texture": "tail_dust3.dds",
+          "source": "Abilities\\Spells\\Human\\Slow\\Tail_Dust3.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.75,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 36,
+      "name": "",
+      "lod": 0,
+      "material_id": 25,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "tinkerrocketribbon.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Abilities\\Spells\\Other\\TinkerRocket\\TinkerRocketRibbon.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "tinkerrocketribbon.dds",
+          "source": "Abilities\\Spells\\Other\\TinkerRocket\\TinkerRocketRibbon.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        },
+        {
+          "texture": "blizzard.dds",
+          "source": "ReplaceableTextures\\Weather\\Blizzard.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 37,
+      "name": "",
+      "lod": 0,
+      "material_id": 26,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "razormane.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\Razormane.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "razormane.dds",
+          "source": "Textures\\Razormane.blp",
+          "filter_mode": 1,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 0.8999999761581421,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 38,
+      "name": "",
+      "lod": 0,
+      "material_id": 27,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "gargoyle.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units\\Undead\\Gargoyle\\Gargoyle.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "gargoyle.dds",
+          "source": "Units\\Undead\\Gargoyle\\Gargoyle.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.10000000149011612,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 39,
+      "name": "",
+      "lod": 0,
+      "material_id": 15,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "glowcolors.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Doodads\\Cinematic\\GlowingRunes\\GLowColors.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": false,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 40,
+      "name": "",
+      "lod": 0,
+      "material_id": 21,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "icecrownwalls.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\IceCrownWalls.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "icecrownwalls.dds",
+          "source": "Textures\\IceCrownWalls.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": false,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        },
+        {
+          "texture": "icecrownwalls.dds",
+          "source": "Textures\\IceCrownWalls.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 41,
+      "name": "",
+      "lod": 0,
+      "material_id": 28,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "dust5ablack.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\Dust5ABlack.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "flare.dds",
+          "source": "Textures\\Flare.blp",
+          "filter_mode": 2,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.800000011920929,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        },
+        {
+          "texture": "flare.dds",
+          "source": "Textures\\Flare.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 0.42500001192092896,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 42,
+      "name": "",
+      "lod": 0,
+      "material_id": 29,
+      "filter_mode": 2,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "teleporttarget.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units\\Human\\Phoenix\\TeleportTarget.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "teleporttarget.dds",
+          "source": "Units\\Human\\Phoenix\\TeleportTarget.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": true,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 43,
+      "name": "",
+      "lod": 0,
+      "material_id": 30,
+      "filter_mode": 3,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [
+        {
+          "texture": "purple_glow_dim.dds",
+          "source": "Textures\\Purple_Glow_Dim.blp",
+          "filter_mode": 4,
+          "two_sided": true,
+          "unshaded": true,
+          "alpha": 1,
+          "uv_scroll": [
+            0,
+            0
+          ]
+        }
+      ],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 44,
+      "name": "",
+      "lod": 0,
+      "material_id": 31,
+      "filter_mode": 3,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 45,
+      "name": "",
+      "lod": 0,
+      "material_id": 32,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": null,
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 46,
+      "name": "",
+      "lod": 0,
+      "material_id": 33,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "northrendnatural03.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\NorthrendNatural03.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": true,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 47,
+      "name": "",
+      "lod": 0,
+      "material_id": 34,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "peasant.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\Peasant.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    },
+    {
+      "index": 48,
+      "name": "",
+      "lod": 0,
+      "material_id": 35,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "grad6.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\grad6.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 49,
+      "name": "",
+      "lod": 0,
+      "material_id": 35,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "grad6.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\grad6.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 50,
+      "name": "",
+      "lod": 0,
+      "material_id": 35,
+      "filter_mode": 4,
+      "two_sided": true,
+      "unshaded": true,
+      "textures": {
+        "diffuse": "grad6.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures\\grad6.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": false,
+        "Stand 2": false,
+        "Stand 3": false,
+        "Walk": false,
+        "Stand Ready": false,
+        "Attack 1": false,
+        "Attack 2": false,
+        "Attack 3": false,
+        "Walk Defend": false,
+        "Spell": false,
+        "Stand Channel": false,
+        "Spell Throw": false,
+        "Spell Slam": false,
+        "Spell Channel": false,
+        "Spell two": false,
+        "Death": false,
+        "Dissipate": false,
+        "Walk Fast": false,
+        "Walk Fast 2": false,
+        "Portrait": false,
+        "Portrait 2": false,
+        "Portrait Talk": false,
+        "Portrait Talk 2": false
+      }
+    },
+    {
+      "index": 51,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "elfvillagerwoman.dds",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units\\Critters\\ElfVillagerWoman\\ElfVillagerWoman.blp",
+        "normal": null,
+        "orm": null,
+        "emissive": null
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Walk": true,
+        "Stand Ready": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Attack 3": true,
+        "Walk Defend": true,
+        "Spell": true,
+        "Stand Channel": true,
+        "Spell Throw": true,
+        "Spell Slam": true,
+        "Spell Channel": true,
+        "Spell two": true,
+        "Death": true,
+        "Dissipate": true,
+        "Walk Fast": true,
+        "Walk Fast 2": true,
+        "Portrait": true,
+        "Portrait 2": true,
+        "Portrait Talk": true,
+        "Portrait Talk 2": true
+      }
+    }
+  ]
+}

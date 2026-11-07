@@ -383,7 +383,7 @@ states/Walk/node = SubResource("AnimationNodeAnimation_xo6c6")
 states/Walk/position = Vector2(200, 0)
 transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_tola0"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_4g1jm"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_317bp"), "Walk", "Run", SubResource("AnimationNodeStateMachineTransition_c5h2g"), "Run", "Walk", SubResource("AnimationNodeStateMachineTransition_a37j7"), "Idle", "Attack", SubResource("AnimationNodeStateMachineTransition_ipoep"), "Walk", "Attack", SubResource("AnimationNodeStateMachineTransition_i60ko"), "Run", "Attack", SubResource("AnimationNodeStateMachineTransition_nhync"), "HitReact", "Attack", SubResource("AnimationNodeStateMachineTransition_pduiw"), "Stagger", "Attack", SubResource("AnimationNodeStateMachineTransition_c46fj"), "Idle", "HitReact", SubResource("AnimationNodeStateMachineTransition_mot78"), "Walk", "HitReact", SubResource("AnimationNodeStateMachineTransition_d0m3f"), "Run", "HitReact", SubResource("AnimationNodeStateMachineTransition_28hg5"), "Attack", "HitReact", SubResource("AnimationNodeStateMachineTransition_xxwru"), "Stagger", "HitReact", SubResource("AnimationNodeStateMachineTransition_o3hln"), "Idle", "Stagger", SubResource("AnimationNodeStateMachineTransition_sylrt"), "Walk", "Stagger", SubResource("AnimationNodeStateMachineTransition_uhnpq"), "Run", "Stagger", SubResource("AnimationNodeStateMachineTransition_3blcx"), "Attack", "Stagger", SubResource("AnimationNodeStateMachineTransition_0ieg5"), "HitReact", "Stagger", SubResource("AnimationNodeStateMachineTransition_vde4t"), "Idle", "Death", SubResource("AnimationNodeStateMachineTransition_gkawd"), "Walk", "Death", SubResource("AnimationNodeStateMachineTransition_cgh1m"), "Run", "Death", SubResource("AnimationNodeStateMachineTransition_pld0m"), "Attack", "Death", SubResource("AnimationNodeStateMachineTransition_wr1x7"), "HitReact", "Death", SubResource("AnimationNodeStateMachineTransition_jypwp"), "Stagger", "Death", SubResource("AnimationNodeStateMachineTransition_gnvh3"), "Attack", "Idle", SubResource("AnimationNodeStateMachineTransition_7m1o2"), "HitReact", "Idle", SubResource("AnimationNodeStateMachineTransition_g1woi"), "Stagger", "Idle", SubResource("AnimationNodeStateMachineTransition_a1ugo")]
 
-[node name="DirectorateLegionaryModel" type="Node3D" unique_id=1059710281]
+[node name="DirectorateLegionaryModel" type="Node3D" unique_id=1526798988]
 script = ExtResource("1_p2551")
 geoset_materials = {
 0: SubResource("ORMMaterial3D_kf1gx"),
@@ -433,14 +433,14 @@ hidden_geosets = {
 "Walk 1": PackedInt32Array(3, 4),
 "Walk Defend 1": PackedInt32Array(3, 4)
 }
-always_hidden = PackedInt32Array()
+always_hidden = PackedInt32Array(0, 11, 12)
 idle_clip = "Stand 1"
 clip_move_speeds = {
 "Cinematic Walk One": 2.1599999999999997,
 "Walk Defend 1": 1.44
 }
 
-[node name="Model" type="Node3D" parent="." unique_id=2013845206 instance=ExtResource("35_11db5")]
+[node name="Model" type="Node3D" parent="." unique_id=1714385094 instance=ExtResource("35_11db5")]
 
 [node name="AnimationTree" type="AnimationTree" parent="." unique_id=338442281 instance=ExtResource("36_yhdck")]
 active = false

@@ -368,6 +368,7 @@ const ENEMY_PACKS_NORMAL := [
 	{"weight": 0.6, "units": [["unchartered_turncloak", 2, 3], ["unchartered_cutthroat", 0, 1]]},
 	{"weight": 0.6, "units": [["synod_arcanist", 2, 3], [SYNOD_GOLEMS, 0, 1]]},
 	{"weight": 0.35, "units": [["legion_dread_matron", 1, 1], ["legion_infernal", 0, 1]]},
+	{"weight": 0.6, "units": [["synod_frost_adept", 2, 3], [SYNOD_GOLEMS, 0, 1]]},
 ]
 
 # Combined cap across all cooldown reduction sources (Ability.get_final_cooldown()).
