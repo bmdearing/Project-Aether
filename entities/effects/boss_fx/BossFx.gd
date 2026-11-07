@@ -220,7 +220,7 @@ static func blink(parent: Node, from: Vector3, to: Vector3, damage_type: int) ->
 	sound(pick(SoundLib.library.boss_whoosh), to, 0.0, 1.3)
 
 ## A beam along `direction` for `length` metres that flares and thins out.
-static func lance(parent: Node, from: Vector3, direction: Vector3, length: float, damage_type: int) -> void:
+static func lance(parent: Node, from: Vector3, direction: Vector3, length: float, damage_type: int, with_sound: bool = true) -> void:
 	var color := glow_of(damage_type)
 	var flat := Vector3(direction.x, 0, direction.z).normalized()
 	var beam := MeshInstance3D.new()
@@ -242,7 +242,82 @@ static func lance(parent: Node, from: Vector3, direction: Vector3, length: float
 	tween.tween_callback(beam.queue_free)
 	SpellFx.flash(parent, from, color, 2.5, 0.25)
 	SpellFx.shards(parent, from + flat * length, color, 16)
-	sound(cast_sound(damage_type), from, 0.0, 0.8)
+	if with_sound:
+		sound(cast_sound(damage_type), from, 0.0, 0.8)
+
+## A SHOCKWAVE's low wall of energy; BossBrain grows it with set_ring_radius().
+static func ring_wave(parent: Node, at: Vector3, damage_type: int) -> MeshInstance3D:
+	var ring := MeshInstance3D.new()
+	var torus := TorusMesh.new()
+	torus.rings = 64
+	torus.ring_segments = 8
+	ring.mesh = torus
+	ring.material_override = SpellFx.energy_material(glow_of(damage_type), 3.0, 0.7)
+	ring.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(ring)
+	ring.global_position = at + Vector3.UP * 0.3
+	ring.scale = Vector3(1.0, 1.1, 1.0)
+	set_ring_radius(ring, 0.5, 1.0)
+	sound(pick(SoundLib.library.boss_whoosh), at, -2.0, 0.6)
+	return ring
+
+## `strength` 1..0 thins the wall as it runs out.
+static func set_ring_radius(ring: MeshInstance3D, radius: float, strength: float) -> void:
+	var torus := ring.mesh as TorusMesh
+	var half := lerpf(0.12, 0.3, clampf(strength, 0.0, 1.0))
+	torus.outer_radius = radius + half
+	torus.inner_radius = maxf(radius - half, 0.01)
+
+## A MINES orb hovering over its marker.
+static func mine_orb(marker: Node3D, damage_type: int) -> void:
+	var orb := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	sphere.radius = 0.3
+	sphere.height = 0.6
+	sphere.radial_segments = 16
+	sphere.rings = 8
+	orb.mesh = sphere
+	orb.name = "Orb"
+	orb.material_override = SpellFx.energy_material(glow_of(damage_type), 2.5, 0.8)
+	orb.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	marker.add_child(orb)
+	orb.position = Vector3.UP * 0.6
+	var tween := orb.create_tween().set_loops()
+	tween.tween_property(orb, "position:y", 0.85, 0.7).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(orb, "position:y", 0.6, 0.7).set_trans(Tween.TRANS_SINE)
+
+## A tripped mine swells and flickers until it goes off.
+static func mine_trip(marker: Node3D, damage_type: int, seconds: float) -> void:
+	var orb := marker.get_node_or_null("Orb") as Node3D
+	if orb:
+		orb.create_tween().tween_property(orb, "scale", Vector3.ONE * 2.2, seconds)
+	SpellFx.flash(marker.get_parent(), marker.global_position + Vector3.UP * 0.7, glow_of(damage_type), 1.5, seconds)
+	sound(cast_sound(damage_type), marker.global_position, -4.0, 1.6)
+
+## A BARRIER's shell around the boss; set_bubble_fill() shrinks it as it's worn down.
+static func barrier_bubble(boss: Enemy, damage_type: int) -> MeshInstance3D:
+	var bubble := MeshInstance3D.new()
+	var sphere := SphereMesh.new()
+	var r := maxf(boss.body_radius * 2.4, boss.body_height * 0.62)
+	sphere.radius = r
+	sphere.height = r * 2.0
+	bubble.mesh = sphere
+	bubble.material_override = SpellFx.energy_material(glow_of(damage_type), 1.6, 0.15)
+	bubble.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	boss.add_child(bubble)
+	bubble.position = Vector3.UP * boss.body_height * 0.5
+	sound(cast_sound(damage_type), boss.global_position, 0.0, 0.6)
+	return bubble
+
+static func set_bubble_fill(bubble: MeshInstance3D, fraction: float) -> void:
+	bubble.scale = Vector3.ONE * lerpf(0.7, 1.0, clampf(fraction, 0.0, 1.0))
+
+static func barrier_break(parent: Node, at: Vector3, damage_type: int) -> void:
+	var color := glow_of(damage_type)
+	SpellFx.shards(parent, at, color.lightened(0.3), 40, Vector2(4, 9))
+	SpellFx.flash(parent, at, color, 5.0, 0.35)
+	SpellFx.light_pop(parent, at, color, 4.0, 10.0, 0.5)
+	sound(pick(SoundLib.library.boss_ice_shatter), at, 2.0, 0.9)
 
 ## A gate opening where a summoned unit steps through.
 static func summon_gate(parent: Node, at: Vector3, damage_type: int) -> void:

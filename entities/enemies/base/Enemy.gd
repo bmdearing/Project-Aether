@@ -1399,6 +1399,14 @@ func take_damage(amount: float, damage_type: Constants.DamageType, is_spell: boo
 	# Killing blows skip it, so the body is thrown at once.
 	if not is_dot and mitigated > 0.0 and mitigated < health.current_health + _ward_current:
 		_start_hit_hold(mitigated)
+	if ability_shield > 0.0:
+		var soaked := minf(ability_shield, mitigated)
+		ability_shield -= soaked
+		mitigated -= soaked
+		if show_number:
+			_spawn_damage_number(soaked, damage_type, DamageNumber.WARD_ALPHA, WARD_NUMBER_EXTRA_HEIGHT, is_dot)
+		if mitigated <= 0.0:
+			return true
 	if _ward_current > 0.0:
 		var absorbed: float = min(_ward_current, mitigated)
 		_ward_current -= absorbed
@@ -1567,6 +1575,17 @@ func on_unit_summoned(_unit: Enemy) -> void:
 var boss_brain: BossBrain
 ## Phase transitions: hits land but deal nothing.
 var invulnerable: bool = false
+## A BARRIER ability's shield: soaks hits before Ward.
+var ability_shield: float = 0.0
+var ability_shield_max: float = 0.0
+
+func raise_ability_shield(amount: float) -> void:
+	ability_shield = amount
+	ability_shield_max = amount
+
+func clear_ability_shield() -> void:
+	ability_shield = 0.0
+	ability_shield_max = 0.0
 
 func is_casting() -> bool:
 	return boss_brain != null and boss_brain.casting

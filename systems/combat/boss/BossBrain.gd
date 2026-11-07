@@ -45,6 +45,18 @@ const LEAP_CROUCH := 0.4
 const WAVE_STEP_SEC := 0.28
 ## Metres a LANCE runs on past the player.
 const LANCE_OVERSHOOT := 8.0
+## A SHOCKWAVE ring hits within this many metres of its front.
+const SHOCKWAVE_BAND := 0.8
+const SHOCKWAVE_GAP := 0.6
+const RAY_WAVE_GAP := 0.7
+const SAFE_TINT := Color(0.55, 1.0, 0.75)
+## MINES: seconds before a laid mine can trigger, and from trigger to blast;
+## the blast reaches this much past the trigger radius.
+const MINE_ARM := 0.8
+const MINE_FUSE := 0.4
+const MINE_BLAST_SCALE := 1.3
+## A broken BARRIER stuns the boss this long.
+const BARRIER_STUN := 3.5
 
 var abilities: Array[BossAbility] = []
 ## Health fractions that start phase 2, 3, ... (descending).
@@ -70,6 +82,7 @@ var _player: Player
 var _cooldowns: Dictionary = {}
 var _gap: float = OPENING_GAP
 var _hazards: Array[Dictionary] = []
+var _mines: Array[Dictionary] = []
 var _summoned: Array[Node] = []
 var _far_time: float = 0.0
 var _answer_cooldown: float = 0.0
@@ -84,10 +97,12 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if _boss == null or not _boss.health.is_alive():
 		_clear_hazards()
+		_clear_mines()
 		return
 	if not is_instance_valid(_player):
 		_player = get_tree().get_first_node_in_group("player") as Player
 	_tick_hazards(delta)
+	_tick_mines(delta)
 	_check_phase()
 	var speed: float = 1.0 / _cooldown_scale()
 	for key in _cooldowns:
@@ -247,6 +262,16 @@ func cast(a: BossAbility) -> void:
 			await _wave(s)
 		BossAbility.Kind.LANCE:
 			await _lance(s)
+		BossAbility.Kind.SHOCKWAVE:
+			await _shockwave(s)
+		BossAbility.Kind.ERUPTION:
+			await _eruption(s)
+		BossAbility.Kind.RAYS:
+			await _rays(s)
+		BossAbility.Kind.MINES:
+			await _lay_mines(s)
+		BossAbility.Kind.BARRIER:
+			await _barrier(s)
 	if not _alive():
 		return
 	casting = false
@@ -535,6 +560,195 @@ func _lance(a: BossAbility) -> void:
 	var along := rel.dot(dir)
 	if along >= 0.0 and along <= length and (rel - dir * along).length() <= a.radius and _player.health.is_alive():
 		_damage_player(a)
+
+## The rings are timed by `count` and `speed`; the cast ends as the last
+## one leaves, so the boss can follow up while they're still running.
+func _shockwave(a: BossAbility) -> void:
+	var center := _boss.global_position
+	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
+	BossTelegraph.circle(_scene(), center, 2.5, a.telegraph, _tint(a))
+	await _wait(a.telegraph)
+	for i in a.count:
+		if not _alive():
+			return
+		BossFx.impact(_scene(), center, 2.5, _type(a), i == 0)
+		_run_ring(center, a)
+		await _wait(SHOCKWAVE_GAP)
+
+func _run_ring(center: Vector3, a: BossAbility) -> void:
+	var ring := BossFx.ring_wave(_scene(), center, _type(a))
+	var r := 0.5
+	var hit := false
+	while r < a.radius:
+		await get_tree().physics_frame
+		if not _alive() or not is_instance_valid(ring):
+			break
+		r += a.speed * get_physics_process_delta_time()
+		BossFx.set_ring_radius(ring, r, 1.0 - r / a.radius)
+		if hit or _player == null or not _player.health.is_alive() or not _player.is_on_floor():
+			continue
+		var d := _flat_distance(center, _player.global_position)
+		if absf(d - r) <= SHOCKWAVE_BAND and absf(_player.global_position.y - center.y) < 2.5:
+			hit = true
+			_damage_player(a)
+			var push := _player.global_position - center
+			push.y = 0.0
+			_player.apply_impulse(push.normalized() * 6.0)
+	if is_instance_valid(ring):
+		ring.queue_free()
+
+func _eruption(a: BossAbility) -> void:
+	var center := _boss.global_position
+	_boss.begin_channel(a.telegraph)
+	_wind_up(a)
+	BossTelegraph.circle(_scene(), center, a.radius, a.telegraph, _tint(a))
+	var safes: Array[Vector3] = []
+	var start := randf() * TAU
+	for i in a.count:
+		var angle := start + TAU * i / maxf(a.count, 1) + randf_range(-0.35, 0.35)
+		var spot := center + Vector3(cos(angle), 0, sin(angle)) * randf_range(0.35, 0.8) * a.radius
+		safes.append(spot)
+		BossTelegraph.circle(_scene(), spot + Vector3.UP * 0.02, a.safe_radius, a.telegraph, SAFE_TINT)
+		SpellFx.light_pop(_scene(), spot + Vector3.UP * 1.5, SAFE_TINT, 2.0, a.safe_radius + 2.0, a.telegraph)
+	_boss.on_ability_telegraph(a, center, a.telegraph)
+	await _wait(a.telegraph)
+	if not _alive():
+		return
+	ground_struck.emit(a, center, a.radius)
+	if _player == null or not _player.health.is_alive() or not GroundHit.in_circle(center, a.radius, _player.global_position):
+		return
+	for spot in safes:
+		if GroundHit.in_circle(spot, a.safe_radius, _player.global_position, 0.0):
+			return
+	_damage_player(a)
+
+## The first beam is aimed at the player; each later set turns half a gap,
+## so the safe lanes of one set are where the next one fires.
+func _rays(a: BossAbility) -> void:
+	var origin := _boss.global_position
+	var to := _player.global_position - origin
+	to.y = 0.0
+	var aim := atan2(to.x, to.z) if to.length() > 0.1 else randf() * TAU
+	var step := TAU / maxi(a.count, 1)
+	_boss.begin_channel(a.telegraph + RAY_WAVE_GAP * (a.waves - 1))
+	_wind_up(a)
+	for w in a.waves:
+		_ray_set(origin, aim + step * 0.5 * w, step, a)
+		if w < a.waves - 1:
+			await _wait(RAY_WAVE_GAP)
+			if not _alive():
+				return
+	await _wait(a.telegraph)
+
+func _ray_set(origin: Vector3, first: float, step: float, a: BossAbility) -> void:
+	var dirs: Array[Vector3] = []
+	for i in a.count:
+		var angle := first + step * i
+		var dir := Vector3(sin(angle), 0, cos(angle))
+		dirs.append(dir)
+		BossTelegraph.line(_scene(), origin, dir, a.reach, a.radius * 2.0, a.telegraph, _tint(a))
+	await _wait(a.telegraph)
+	if not _alive():
+		return
+	for i in dirs.size():
+		BossFx.lance(_scene(), origin + Vector3.UP * 0.9, dirs[i], a.reach, _type(a), i == 0)
+	if _player == null or not _player.health.is_alive():
+		return
+	var rel := _player.global_position - origin
+	rel.y = 0.0
+	for dir in dirs:
+		var along := rel.dot(dir)
+		if along >= 0.0 and along <= a.reach and (rel - dir * along).length() <= a.radius:
+			_damage_player(a)
+			return
+
+## One mine lands near the player's feet, the rest scattered around them.
+func _lay_mines(a: BossAbility) -> void:
+	_boss.begin_attack_telegraph(a.telegraph)
+	_wind_up(a)
+	await _wait(a.telegraph)
+	if not _alive() or _player == null:
+		return
+	var around := _player.global_position
+	BossFx.sound(BossFx.cast_sound(_type(a)), _boss.get_cast_origin(), -2.0, 0.8)
+	for i in a.count:
+		var angle := randf() * TAU
+		var dist := randf_range(1.0, 2.5) if i == 0 else randf_range(a.radius * 1.6, a.radius * 5.0)
+		var spot: Variant = _floor_at(around + Vector3(cos(angle), 0, sin(angle)) * dist)
+		if spot == null:
+			continue
+		var marker := BossTelegraph.circle(_scene(), spot, a.radius, MINE_ARM, _tint(a))
+		marker.persist = true
+		BossFx.mine_orb(marker, _type(a))
+		_mines.append({"node": marker, "center": spot, "ability": a, "left": a.duration, "arm": MINE_ARM, "fuse": -1.0})
+
+func _tick_mines(delta: float) -> void:
+	for m in _mines.duplicate():
+		var a: BossAbility = m["ability"]
+		m["left"] -= delta
+		m["arm"] -= delta
+		if m["fuse"] >= 0.0:
+			m["fuse"] -= delta
+			if m["fuse"] <= 0.0:
+				_remove_mine(m)
+				_hit_circle(m["center"], a.radius * MINE_BLAST_SCALE, a)
+				ground_struck.emit(a, m["center"], a.radius * MINE_BLAST_SCALE)
+		elif m["arm"] <= 0.0 and _player and _player.health.is_alive() and GroundHit.in_circle(m["center"], a.radius, _player.global_position, 0.0):
+			m["fuse"] = MINE_FUSE
+			BossFx.mine_trip(m["node"], _type(a), MINE_FUSE)
+		elif m["left"] <= 0.0:
+			_remove_mine(m)
+
+func _remove_mine(m: Dictionary) -> void:
+	if is_instance_valid(m["node"]):
+		m["node"].queue_free()
+	_mines.erase(m)
+
+func mine_count() -> int:
+	return _mines.size()
+
+func _clear_mines() -> void:
+	for m in _mines:
+		if is_instance_valid(m["node"]):
+			m["node"].queue_free()
+	_mines.clear()
+
+## Floor under `point` (within a few metres up or down), or null.
+func _floor_at(point: Vector3) -> Variant:
+	var query := PhysicsRayQueryParameters3D.create(point + Vector3.UP * 3.0, point + Vector3.DOWN * 4.0, 1)
+	query.exclude = [_boss.get_rid()]
+	var hit := _boss.get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty() or hit.get("collider") is Enemy or hit.get("collider") is Player:
+		return null
+	return hit["position"]
+
+func _barrier(a: BossAbility) -> void:
+	var center := _boss.global_position
+	_boss.raise_ability_shield(_boss.health.max_health * a.shield_share)
+	_boss.begin_channel(a.duration)
+	BossFx.charge(_boss, _boss.get_cast_origin(), _type(a), a.duration)
+	BossTelegraph.circle(_scene(), center, a.radius, a.duration, _tint(a))
+	var bubble := BossFx.barrier_bubble(_boss, _type(a))
+	var t := 0.0
+	while t < a.duration and _boss.ability_shield > 0.0:
+		await get_tree().physics_frame
+		if not _alive():
+			if is_instance_valid(bubble):
+				bubble.queue_free()
+			return
+		t += get_physics_process_delta_time()
+		BossFx.set_bubble_fill(bubble, _boss.ability_shield / maxf(_boss.ability_shield_max, 0.001))
+	if is_instance_valid(bubble):
+		bubble.queue_free()
+	if _boss.ability_shield <= 0.0:
+		_boss.clear_ability_shield()
+		BossFx.barrier_break(_scene(), _boss.global_position + Vector3.UP * _boss.body_height * 0.5, _type(a))
+		_boss.status_effects.apply_timed_effect("stun", BARRIER_STUN)
+		return
+	_boss.clear_ability_shield()
+	_hit_circle(center, a.radius, a)
+	ground_struck.emit(a, center, a.radius)
 
 ## Ground abilities land in their element; hazard pools open quieter.
 func _on_ground_struck(a: BossAbility, center: Vector3, radius: float) -> void:

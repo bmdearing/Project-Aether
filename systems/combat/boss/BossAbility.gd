@@ -16,10 +16,21 @@ class_name BossAbility
 ##   WAVE   - `count` circles marching from the boss, each stepping toward
 ##            wherever the player is now.
 ##   LANCE  - a strip from the boss through the player, aimed at the cast.
+##   SHOCKWAVE - `count` rings run out from the boss to `radius` at `speed`;
+##            a ring hits a player on the floor as it passes (jump it).
+##   ERUPTION - the ground within `radius` of the boss bursts, except inside
+##            `count` safe circles of `safe_radius`.
+##   RAYS   - `count` beams `reach` long fan out from the boss, the first
+##            aimed at the player; each of `waves` sets turns half a gap.
+##   MINES  - `count` orbs laid around the player; one goes off a moment after
+##            the player steps within `radius`, or fades after `duration`.
+##   BARRIER - the boss channels for `duration` behind a shield worth
+##            `shield_share` of its max Life: broken, it is stunned; held,
+##            it bursts around itself (`radius`).
 ## Damage is the boss's own attack damage times `damage_mult`; damage_type -1
 ## asks the boss (Enemy.get_ability_damage_type(), e.g. the Lord's element).
 
-enum Kind { SLAM, BLAST, HAZARD, CHARGE, VOLLEY, SUMMON, PULL, CUSTOM, LEAP, BLINK, WAVE, LANCE }
+enum Kind { SLAM, BLAST, HAZARD, CHARGE, VOLLEY, SUMMON, PULL, CUSTOM, LEAP, BLINK, WAVE, LANCE, SHOCKWAVE, ERUPTION, RAYS, MINES, BARRIER }
 
 var id: String = ""
 var display_name: String = ""
@@ -45,6 +56,15 @@ var weight: float = 1.0
 var pull_stop: float = BossBrain.PULL_STOP_DISTANCE
 ## PULL: the most it moves the player.
 var max_drag: float = BossBrain.PULL_MAX_DRAG
+## SHOCKWAVE: ring speed in m/s.
+var speed: float = 9.0
+## ERUPTION: radius of each safe circle.
+var safe_radius: float = 2.4
+## RAYS: beam length, and how many beam sets fire in turn.
+var reach: float = 18.0
+var waves: int = 1
+## BARRIER: shield size as a share of the boss's max Life.
+var shield_share: float = 0.08
 
 func copy() -> BossAbility:
 	var c := BossAbility.new()

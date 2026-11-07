@@ -234,6 +234,71 @@ func _test_ability_kinds() -> void:
 	_check(_hurt() == 0.0, "sidestepping a lance dodges it")
 	boss.free()
 	await _frames(2)
+
+	# SHOCKWAVE: the ring reaches a grounded player.
+	boss = await _caster({"id": "ring", "kind": Kind.SHOCKWAVE, "telegraph": 0.2, "radius": 10.0, "speed": 20.0, "count": 1, "damage_mult": 1.0})
+	_heal_player()
+	_player.global_position = boss.global_position + Vector3(0, 0, 5)
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	await _seconds(0.5)
+	_check(_hurt() > 0.0, "a shockwave ring hits a grounded player")
+	boss.free()
+	await _frames(2)
+
+	# ERUPTION: everywhere but the safe circles.
+	boss = await _caster({"id": "erupt", "kind": Kind.ERUPTION, "telegraph": 0.2, "radius": 10.0, "count": 0, "damage_mult": 1.0})
+	_heal_player()
+	_player.global_position = boss.global_position + Vector3(0, 0, 4)
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	_check(_hurt() > 0.0, "an eruption hits a player outside any safe circle")
+	_heal_player()
+	boss.boss_brain.abilities = [BossAbility.make({"id": "erupt_safe", "kind": Kind.ERUPTION, "telegraph": 0.2, "radius": 10.0, "count": 1, "safe_radius": 30.0, "damage_mult": 1.0})]
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	_check(_hurt() == 0.0, "an eruption spares a player in a safe circle")
+	boss.free()
+	await _frames(2)
+
+	# RAYS: the first beam is aimed at the player.
+	boss = await _caster({"id": "rays", "kind": Kind.RAYS, "telegraph": 0.2, "radius": 1.0, "reach": 18.0, "count": 3, "waves": 2, "damage_mult": 1.0})
+	_heal_player()
+	_player.global_position = boss.global_position + Vector3(4, 0, 6)
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	_check(_hurt() > 0.0, "a ray hits the player it was aimed at")
+	boss.free()
+	await _frames(2)
+
+	# MINES: one lands by the player's feet and goes off.
+	boss = await _caster({"id": "mines", "kind": Kind.MINES, "telegraph": 0.2, "radius": 3.0, "count": 3, "duration": 10.0, "damage_mult": 1.0})
+	_heal_player()
+	_player.global_position = boss.global_position + Vector3(0, 0, 8)
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	_check(boss.boss_brain.mine_count() > 0, "mines are laid")
+	for i in 30:
+		boss.boss_brain._tick_mines(0.05)
+	_check(_hurt() > 0.0, "a mine by the player's feet goes off")
+	boss.free()
+	await _frames(2)
+
+	# BARRIER: broken, the boss is stunned; held, it bursts.
+	boss = await _caster({"id": "barrier", "kind": Kind.BARRIER, "duration": 0.6, "radius": 6.0, "shield_share": 0.1, "damage_mult": 1.0})
+	_heal_player()
+	_player.global_position = boss.global_position + Vector3(0, 0, 3)
+	var breaker := func():
+		await _frames(3)
+		boss.take_damage(boss.health.max_health, Constants.DamageType.FIRE, true)
+	breaker.call()
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	_check(boss.status_effects.is_stunned() and boss.ability_shield == 0.0, "breaking a barrier stuns the boss")
+	_check(_hurt() == 0.0 and boss.health.is_alive(), "the shield took the hit and nothing burst")
+	boss.free()
+	await _frames(2)
+	boss = await _caster({"id": "barrier", "kind": Kind.BARRIER, "duration": 0.4, "radius": 6.0, "shield_share": 0.1, "damage_mult": 1.0})
+	_heal_player()
+	_player.global_position = boss.global_position + Vector3(0, 0, 3)
+	await boss.boss_brain.cast(boss.boss_brain.abilities[0])
+	_check(_hurt() > 0.0 and boss.ability_shield == 0.0, "a held barrier bursts around the boss")
+	boss.free()
+	await _frames(2)
 	_finished += 1
 
 func _test_phases() -> void:

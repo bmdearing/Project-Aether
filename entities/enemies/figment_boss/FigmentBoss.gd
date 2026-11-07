@@ -18,7 +18,8 @@ const PHASE_TWO_AT := 0.5
 
 ## Abilities are BossAbility fields (see BossAbility.make()). Kinds:
 ## SLAM 0, BLAST 1, HAZARD 2, CHARGE 3, VOLLEY 4, SUMMON 5, PULL 6, LEAP 8,
-## BLINK 9, WAVE 10, LANCE 11. "range_answer" is cast at a player who keeps
+## BLINK 9, WAVE 10, LANCE 11, SHOCKWAVE 12, ERUPTION 13, RAYS 14, MINES 15,
+## BARRIER 16. "range_answer" is cast at a player who keeps
 ## beyond "answer_distance" (BossBrain default 13 m).
 const PROFILES := {
 	"chieftain": {
@@ -30,6 +31,7 @@ const PROFILES := {
 			{"id": "war_stomp", "display_name": "War Stomp", "kind": BossAbility.Kind.SLAM, "cooldown": 7.0, "telegraph": 1.1, "radius": 5.0, "damage_mult": 1.3, "max_range": 5.0},
 			{"id": "hurled_axes", "display_name": "Hurled Axes", "kind": BossAbility.Kind.VOLLEY, "cooldown": 7.0, "telegraph": 0.7, "count": 2, "spread_degrees": 12.0, "damage_mult": 0.9, "min_range": 6.0, "max_range": 22.0},
 			{"id": "rally", "display_name": "Rally the Raiders", "kind": BossAbility.Kind.SUMMON, "cooldown": 25.0, "telegraph": 1.0, "count": 2, "unit_id": "unchartered_cutthroat", "min_phase": 2},
+			{"id": "earthshaker", "display_name": "Earthshaker", "kind": BossAbility.Kind.SHOCKWAVE, "cooldown": 10.0, "telegraph": 1.0, "radius": 14.0, "count": 2, "speed": 9.0, "damage_mult": 1.2, "max_range": 10.0},
 		],
 		"range_answer": {"id": "skullsplitter_leap", "display_name": "Skullsplitter Leap", "kind": BossAbility.Kind.LEAP, "telegraph": 1.3, "radius": 4.0, "damage_mult": 1.7},
 	},
@@ -41,15 +43,18 @@ const PROFILES := {
 			{"id": "hammer_of_judgement", "display_name": "Hammer of Judgement", "kind": BossAbility.Kind.BLAST, "cooldown": 6.0, "telegraph": 1.2, "radius": 3.0, "damage_mult": 1.6, "max_range": 18.0},
 			{"id": "consecrate", "display_name": "Consecrate", "kind": BossAbility.Kind.HAZARD, "cooldown": 11.0, "telegraph": 0.9, "radius": 3.5, "duration": 6.0, "damage_mult": 1.0, "damage_type": Constants.DamageType.FIRE},
 			{"id": "searing_bolt", "display_name": "Searing Bolt", "kind": BossAbility.Kind.VOLLEY, "cooldown": 5.0, "telegraph": 0.6, "count": 1, "damage_mult": 1.1, "min_range": 5.0, "max_range": 24.0, "damage_type": Constants.DamageType.FIRE},
-			{"id": "verdict", "display_name": "Verdict", "kind": BossAbility.Kind.BLAST, "cooldown": 14.0, "telegraph": 1.3, "radius": 2.5, "count": 4, "damage_mult": 1.3, "min_phase": 2},
+			{"id": "sentence", "display_name": "Sentence", "kind": BossAbility.Kind.RAYS, "cooldown": 11.0, "telegraph": 1.1, "radius": 0.9, "reach": 18.0, "count": 4, "waves": 2, "damage_mult": 1.2, "max_range": 16.0},
+			{"id": "verdict", "display_name": "Final Verdict", "kind": BossAbility.Kind.ERUPTION, "cooldown": 18.0, "telegraph": 2.0, "radius": 13.0, "count": 3, "safe_radius": 2.4, "damage_mult": 1.8, "min_phase": 2, "damage_type": Constants.DamageType.FIRE},
 		],
 		"range_answer": {"id": "procession", "display_name": "Procession of Judgement", "kind": BossAbility.Kind.WAVE, "telegraph": 0.9, "radius": 2.6, "count": 8, "damage_mult": 1.4},
 	},
 	"threshold_knight": {
 		"name": "The Threshold Knight", "definition": "legion_threshold_knight", "scale": 1.45,
 		"damage_type": Constants.DamageType.PALE, "move_speed": 1.8, "stop_distance": 2.4,
-		"opener": "pale_ruin",
+		"opener": "pale_bulwark",
 		"abilities": [
+			{"id": "soul_snares", "display_name": "Soul Snares", "kind": BossAbility.Kind.MINES, "cooldown": 12.0, "telegraph": 0.8, "radius": 1.6, "count": 4, "duration": 12.0, "damage_mult": 1.2, "max_range": 20.0, "status": "pallid"},
+			{"id": "pale_bulwark", "display_name": "Pale Bulwark", "kind": BossAbility.Kind.BARRIER, "cooldown": 24.0, "duration": 6.0, "radius": 9.0, "shield_share": 0.08, "damage_mult": 2.0, "min_phase": 2, "status": "pallid"},
 			{"id": "relentless_charge", "display_name": "Relentless Charge", "kind": BossAbility.Kind.CHARGE, "cooldown": 8.0, "telegraph": 0.9, "damage_mult": 1.4, "min_range": 4.0, "max_range": 16.0, "status": "pallid"},
 			{"id": "soul_chains", "display_name": "Soul Chains", "kind": BossAbility.Kind.PULL, "cooldown": 12.0, "telegraph": 1.0, "radius": 4.0, "damage_mult": 1.3, "min_range": 5.0, "max_range": 14.0},
 			{"id": "pale_bolts", "display_name": "Pale Bolts", "kind": BossAbility.Kind.VOLLEY, "cooldown": 7.0, "telegraph": 0.7, "count": 3, "spread_degrees": 18.0, "damage_mult": 0.8, "min_range": 6.0, "max_range": 22.0},
@@ -66,8 +71,49 @@ const PROFILES := {
 			{"id": "glacial_spike", "display_name": "Glacial Spike", "kind": BossAbility.Kind.BLAST, "cooldown": 9.0, "telegraph": 1.2, "radius": 2.5, "count": 3, "damage_mult": 1.2, "status": "chill"},
 			{"id": "frost_nova", "display_name": "Frost Nova", "kind": BossAbility.Kind.SLAM, "cooldown": 8.0, "telegraph": 1.0, "radius": 5.0, "damage_mult": 1.2, "max_range": 5.0, "status": "chill"},
 			{"id": "blizzard", "display_name": "Blizzard", "kind": BossAbility.Kind.HAZARD, "cooldown": 14.0, "telegraph": 1.0, "radius": 4.0, "duration": 7.0, "damage_mult": 1.1, "min_phase": 2, "status": "chill"},
+			{"id": "frozen_star", "display_name": "Frozen Star", "kind": BossAbility.Kind.RAYS, "cooldown": 11.0, "telegraph": 1.2, "radius": 0.9, "reach": 18.0, "count": 6, "damage_mult": 1.2, "max_range": 16.0, "status": "chill"},
 		],
 		"range_answer": {"id": "glacial_lance", "display_name": "Glacial Lance", "kind": BossAbility.Kind.LANCE, "telegraph": 1.0, "radius": 1.2, "damage_mult": 2.0, "status": "chill"}, "answer_distance": 20.0,
+	},
+	"abomination": {
+		"name": "The Stitched Colossus", "definition": "hollowed_abomination", "scale": 1.5,
+		"damage_type": Constants.DamageType.KINETIC, "move_speed": 1.3, "stop_distance": 2.6,
+		"opener": "burst_seams",
+		"abilities": [
+			{"id": "meat_hook", "display_name": "Meat Hook", "kind": BossAbility.Kind.PULL, "cooldown": 11.0, "telegraph": 0.9, "radius": 3.5, "damage_mult": 1.2, "min_range": 5.0, "max_range": 16.0, "pull_stop": 2.5},
+			{"id": "cleaver", "display_name": "Cleaver", "kind": BossAbility.Kind.SLAM, "cooldown": 6.0, "telegraph": 1.0, "radius": 4.0, "damage_mult": 1.4, "max_range": 4.5},
+			{"id": "bile", "display_name": "Bile", "kind": BossAbility.Kind.HAZARD, "cooldown": 10.0, "telegraph": 0.9, "radius": 3.0, "duration": 6.0, "damage_mult": 0.9, "damage_type": Constants.DamageType.ENTROPIC, "status": "unraveling"},
+			{"id": "corpse_sacs", "display_name": "Corpse Sacs", "kind": BossAbility.Kind.MINES, "cooldown": 13.0, "telegraph": 0.8, "radius": 1.6, "count": 5, "duration": 12.0, "damage_mult": 1.3, "max_range": 20.0, "damage_type": Constants.DamageType.ENTROPIC, "status": "unraveling"},
+			{"id": "burst_seams", "display_name": "Burst Seams", "kind": BossAbility.Kind.ERUPTION, "cooldown": 18.0, "telegraph": 2.2, "radius": 14.0, "count": 3, "safe_radius": 2.4, "damage_mult": 1.8, "min_phase": 2, "damage_type": Constants.DamageType.ENTROPIC},
+			{"id": "spill", "display_name": "Spill", "kind": BossAbility.Kind.SUMMON, "cooldown": 22.0, "telegraph": 1.0, "count": 3, "unit_id": "hollowed_ghoul", "min_phase": 2},
+		],
+		"range_answer": {"id": "long_hook", "display_name": "Long Hook", "kind": BossAbility.Kind.PULL, "telegraph": 1.0, "radius": 4.0, "damage_mult": 1.4, "pull_stop": 2.5, "max_drag": 14.0},
+	},
+	"doom_guard": {
+		"name": "The Doomwarden", "definition": "legion_doom_guard", "scale": 1.4,
+		"damage_type": Constants.DamageType.FIRE, "move_speed": 1.6, "stop_distance": 2.8,
+		"opener": "call_infernals",
+		"abilities": [
+			{"id": "hellfire_ring", "display_name": "Hellfire Ring", "kind": BossAbility.Kind.SHOCKWAVE, "cooldown": 9.0, "telegraph": 1.0, "radius": 16.0, "count": 2, "speed": 9.5, "damage_mult": 1.3, "max_range": 12.0, "status": "ignite"},
+			{"id": "doom_rush", "display_name": "Doom Rush", "kind": BossAbility.Kind.CHARGE, "cooldown": 8.0, "telegraph": 0.9, "damage_mult": 1.4, "min_range": 4.0, "max_range": 16.0},
+			{"id": "rain_of_fire", "display_name": "Rain of Fire", "kind": BossAbility.Kind.BLAST, "cooldown": 9.0, "telegraph": 1.1, "radius": 2.6, "count": 4, "damage_mult": 1.2, "min_range": 3.0, "max_range": 22.0, "status": "ignite"},
+			{"id": "doom", "display_name": "Doom", "kind": BossAbility.Kind.BARRIER, "cooldown": 24.0, "duration": 6.0, "radius": 9.0, "shield_share": 0.08, "damage_mult": 2.2, "min_phase": 2, "status": "ignite"},
+			{"id": "call_infernals", "display_name": "Call the Infernals", "kind": BossAbility.Kind.SUMMON, "cooldown": 30.0, "telegraph": 1.2, "count": 2, "unit_id": "legion_infernal", "min_phase": 2},
+		],
+		"range_answer": {"id": "doomfall", "display_name": "Doomfall", "kind": BossAbility.Kind.LEAP, "telegraph": 1.3, "radius": 4.5, "damage_mult": 1.7, "status": "ignite"},
+	},
+	"destroyer": {
+		"name": "The Veil Destroyer", "definition": "veilborne_destroyer", "scale": 1.35,
+		"damage_type": Constants.DamageType.AETHERIC, "move_speed": 1.6, "stop_distance": 9.0, "ranged": true,
+		"opener": "drink_the_veil",
+		"abilities": [
+			{"id": "arcane_volley", "display_name": "Arcane Volley", "kind": BossAbility.Kind.VOLLEY, "cooldown": 5.0, "telegraph": 0.7, "count": 5, "spread_degrees": 30.0, "damage_mult": 0.75, "min_range": 4.0, "max_range": 24.0},
+			{"id": "star_of_unmaking", "display_name": "Star of Unmaking", "kind": BossAbility.Kind.RAYS, "cooldown": 10.0, "telegraph": 1.1, "radius": 1.0, "reach": 20.0, "count": 5, "waves": 2, "damage_mult": 1.3, "max_range": 18.0},
+			{"id": "annihilation_orbs", "display_name": "Annihilation Orbs", "kind": BossAbility.Kind.MINES, "cooldown": 12.0, "telegraph": 0.8, "radius": 1.8, "count": 4, "duration": 10.0, "damage_mult": 1.3, "max_range": 24.0, "status": "aetherburn"},
+			{"id": "drink_the_veil", "display_name": "Drink the Veil", "kind": BossAbility.Kind.BARRIER, "cooldown": 24.0, "duration": 6.0, "radius": 10.0, "shield_share": 0.08, "damage_mult": 2.0, "min_phase": 2},
+			{"id": "unmaking", "display_name": "Unmaking", "kind": BossAbility.Kind.RAYS, "cooldown": 14.0, "telegraph": 1.0, "radius": 1.0, "reach": 20.0, "count": 7, "waves": 3, "damage_mult": 1.3, "max_range": 18.0, "min_phase": 2},
+		],
+		"range_answer": {"id": "annihilation_beam", "display_name": "Annihilation Beam", "kind": BossAbility.Kind.LANCE, "telegraph": 1.0, "radius": 1.2, "damage_mult": 2.0}, "answer_distance": 22.0,
 	},
 }
 
@@ -98,7 +144,7 @@ func _ready() -> void:
 		melee.damage_amount *= AreaLevel.damage_scale(level, AreaLevel.current_tier())  # the scene's value is level 1
 	if profile.get("ranged", false):
 		_add_ranged_attack(profile["damage_type"])
-	_install_model(definition_res.model_scene, definition_res.animation_set, definition_res.scale_modifier * profile["scale"], definition_res.model_yaw_offset)
+	_install_model(definition_res.model_scene, definition_res.animation_set, definition_res.scale_modifier * profile["scale"], definition_res.model_yaw_offset, definition_res.model_hover * profile["scale"])
 	_add_brain(profile)
 
 func _add_ranged_attack(damage_type: int) -> void:
