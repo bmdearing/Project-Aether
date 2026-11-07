@@ -292,7 +292,7 @@ func _add_perk_lines(item: Item) -> void:
 		if fused:
 			var sources := PerkCatalog.source_names(StringName(id))
 			if not sources.is_empty():
-				_add_mod_line("From the %s" % sources[0], Constants.MONSTER_INFREQUENT_COLOR.darkened(0.35), SMALL_FONT)
+				_add_mod_line(_perk_source_line(StringName(id), sources[0]), Constants.MONSTER_INFREQUENT_COLOR.darkened(0.35), SMALL_FONT)
 
 func _render_slate(slate: Slate) -> void:
 	_clear()
@@ -1295,3 +1295,11 @@ class LeaderRow extends Control:
 		while x < to:
 			draw_circle(Vector2(x, y - 4.0), 0.8, AetherStyle.GOLD_FAINT)
 			x += 6.0
+
+## "From the Unchartered Cutthroat" for a monster type; bosses are named
+## ("From Aurelia"), and a name already starting with "The" isn't doubled
+## ("From the Sealed King").
+static func _perk_source_line(id: StringName, source: String) -> String:
+	if source.begins_with("The "):
+		return "From the %s" % source.substr(4)
+	return ("From %s" if PerkCatalog.is_boss(id) else "From the %s") % source
