@@ -7,6 +7,16 @@ there. Most recent first.
 
 ---
 
+## 2026-11-06 — MI perk rework, shaped projectiles, Fork, fused MIs (user)
+
+- **Four perks kept pace with monsters badly.** Threshold Landing, Ember Stride, Abomination's Stench and Dreadknight's Rebuke read maximum Life or Armour, which grow far slower than monster Life (1.085/level). They now scale off the **strongest recent hit** (`PerkEffects.recent_hit()`: the biggest direct hit, halving every 5 s, never below the latest hit). Landing has a 1 s cooldown so hopping can't spam it.
+- **Perk damage was counted as a hit.** Stench ticks, landings and Rebukes fed other perks (a Stench tick could fire Ataras's Falling Sun or advance Aurelia's Earth Wheel). They're dealt through `_perk_damage()` now, which doesn't.
+- **Four damage perks became mechanics:** Soldier's Last Round explodes (100-150% within 3.5 m, once per magazine); Rifleman's Long Shot has a 30-50% chance to Pin for 1.5 s (rank-and-file only, once per 4 s per enemy); Chieftain's Roar Stuns rank-and-file within 6-10 m for 2 s; Berserker's Fury roars a 5 m knockback and 20-35% more damage for 6 s on dropping below half Life (once per 20 s). All numbers are judgment calls.
+- **Old saves:** `PerkCatalog.OLD_RANGES` moves rolls from the old ranges to the same spot in the new range on load.
+- **Shaped projectiles** (user: "actual projectiles instead of just balls"). `ProjectileLook` builds bullets with a hot streak, arrows and bolts (shaft, steel head, damage-tinted fletching), enemy javelins, tumbling axes, web globs and magic bolts, with shared meshes/materials and no shadows. Enemies pick by definition (`ENEMY_KINDS`, else magic); Sand Globe and Pinnacle bosses keep their own dressing (`Enemy.projectile_look()` returns NONE). Hitscan tracers are a fading line plus a racing streak. Look check: `tests/ui_capture/capture_projectiles.tscn`.
+- **Arcanist's Fork** (user idea; Ring, Synod Arcanist): gun, bow and crossbow hits split into 2 shots 25° either side for 50-70% of the hit. Splits pass through the struck enemy and never split again; thrown weapons (Ricochet's job) and cosmetic shots don't fork.
+- **Fused MIs** (two perks). The Recombinator names them after both sources without the faction ("Cutthroat-Adjudicator's Aegis Gauntlets"); the card adds a FUSED badge and a "Fused perks" heading with each perk's source; every item icon shows one green pip per perk; a fused result pops, flashes green and chimes. No new colour: green already means MI and the user ruled MIs aren't a rarity.
+
 ## 2026-11-06 — Gilded Sentinel: elite, Ascendant, new abilities (user)
 
 - **Elite now** (was heavy): x1.3 Life and x1.15 damage on the elite curve (364 Life / 41 a hit at level 1), 10% Ward, elite rewards. Its pack weight drops 0.4 -> 0.3 since every Sentinel is now an elite-class unit.

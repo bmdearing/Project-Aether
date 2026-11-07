@@ -311,7 +311,9 @@ func _test_hub() -> void:
 		var n := hub.get_node_or_null(node_name) as Node3D
 		_check(n != null, "hub has %s" % node_name)
 		if n:
-			spots[node_name] = n.global_position + Vector3(1.6, 0, 0) if node_name != "HubPortalSpot" else n.global_position
+			# Where the player stands to use it: 1.6 m toward the hub centre.
+			var inward := Vector3(-n.global_position.x, 0, -n.global_position.z).normalized()
+			spots[node_name] = n.global_position + inward * 1.6 if node_name != "HubPortalSpot" else n.global_position
 	for spot_name in spots:
 		var hit := _ray_down(hub, spots[spot_name] + Vector3.UP * 2.0)
 		_check(not hit.is_empty(), "hub: solid ground at %s" % spot_name)

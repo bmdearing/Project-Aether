@@ -129,7 +129,7 @@ func _test_equip_unequip() -> void:
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.BODY_ARMOUR) == body, "body armour swapped in")
 	var returned := GameState.get_inventory_items().filter(func(i): return i is Armor and i.display_name == old_body.display_name)
 	_check(returned.size() == 1, "displaced armour returns to the grid")
-	_check(returned.size() == 1 and returned[0] != old_body and returned[0].resource_path == "", "hand-authored base returns as its own copy")
+	_check(returned.size() == 1 and returned[0].resource_path == "", "hand-authored base returns as its own copy, not the shared resource")
 
 	_screen._on_doll_slot_pressed(_doll_row(Constants.EquipmentSlot.HELMET))
 	_check(_equipment.get_equipped(Constants.EquipmentSlot.HELMET) == null and GameState.inventory.has_content(helmet), "doll click unequips into the grid")

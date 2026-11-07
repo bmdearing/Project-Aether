@@ -53,8 +53,10 @@ func _draw() -> void:
 ## One green diamond per Monster Infrequent perk in the top-left corner, so
 ## fused items (two perks) stand out without opening the card.
 func _draw_perk_pips() -> void:
-	var item := content as Item
-	if item == null or item.perks.is_empty():
+	if not content is Item:
+		return  # also currency ids, which aren't objects
+	var item: Item = content
+	if item.perks.is_empty():
 		return
 	var r := clampf(minf(size.x, size.y) * 0.075, 3.0, 5.5)
 	var green := Constants.MONSTER_INFREQUENT_COLOR
