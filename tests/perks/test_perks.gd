@@ -88,6 +88,12 @@ func _test_recombine() -> void:
 	dup.perks["opening_strike"] = 60.0
 	var merged := GearRecombinator.recombine(base, dup, rng)
 	_check(merged.perks.size() == 1 and merged.perks["opening_strike"] == 60.0, "the same perk merges to the better roll")
+	var fused := base.duplicate(true) as Item
+	fused.perks["adjudicator_mark"] = 25.0
+	MonsterInfrequent.rename(fused)
+	var plain := MonsterInfrequent.base_name(base)
+	_check(MonsterInfrequent.is_fused(fused) and fused.display_name == "Cutthroat-Adjudicator's %s" % plain and MonsterInfrequent.base_name(fused) == plain,
+			"a fused MI is named after both sources (%s)" % fused.display_name)
 
 func _test_line_cap() -> void:
 	var ok := true

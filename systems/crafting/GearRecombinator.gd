@@ -53,5 +53,6 @@ static func recombine(base: Item, donor: Item, rng: RandomNumberGenerator = null
 	for id in kept:
 		perks[id] = pool[id]
 	result.perks = perks
+	MonsterInfrequent.rename(result)
 	result.mark = Item.Mark.NONE
 	return result

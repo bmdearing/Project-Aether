@@ -185,6 +185,8 @@ func _render_item(item: Item) -> void:
 	var rarity_color: Color = item.display_color()
 	_set_card_style(rarity_color, ITEM_BG, ITEM_CORNER_RADIUS, ITEM_BORDER_WIDTH, AetherStyle.GOLD if requirements_met else REQUIREMENT_UNMET_COLOR)
 	var badge_row := _add_type_badge(_item_badge(item), rarity_color)
+	if MonsterInfrequent.is_fused(item):
+		badge_row.add_child(_make_badge("FUSED", Constants.MONSTER_INFREQUENT_COLOR.lightened(0.3)))
 	if item.is_corrupted:
 		badge_row.add_child(_make_badge("CORRUPTED", CORRUPTED_BADGE_COLOR))
 	elif not item.is_craftable:
@@ -281,9 +283,16 @@ func _add_perk_lines(item: Item) -> void:
 	if item.perks.is_empty():
 		return
 	_add_separator()
+	var fused := MonsterInfrequent.is_fused(item)
+	if fused:
+		_add_section_heading("Fused perks")
 	for id in item.perks:
 		_add_mod_line(PerkCatalog.name_of(StringName(id)), Constants.MONSTER_INFREQUENT_COLOR)
 		_add_mod_line(PerkCatalog.text_of(StringName(id), float(item.perks[id])), Constants.MONSTER_INFREQUENT_COLOR.lightened(0.35))
+		if fused:
+			var sources := PerkCatalog.source_names(StringName(id))
+			if not sources.is_empty():
+				_add_mod_line("From the %s" % sources[0], Constants.MONSTER_INFREQUENT_COLOR.darkened(0.35), SMALL_FONT)
 
 func _render_slate(slate: Slate) -> void:
 	_clear()

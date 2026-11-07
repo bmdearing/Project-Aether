@@ -20,13 +20,20 @@ const MAX_PERKS := 2
 static func source_of(definition: EnemyDefinition) -> String:
 	return definition.resource_path.get_file().get_basename() if definition else ""
 
+static var _display_names: Dictionary = {}
+static var _known_names: Dictionary = {}
+
 static func source_display_name(source: String) -> String:
+	if _display_names.has(source):
+		return _display_names[source]
+	var shown := source.capitalize()
 	var path := DEFINITIONS_DIR % source
 	if ResourceLoader.exists(path):
 		var def := load(path) as EnemyDefinition
 		if def and def.display_name != "":
-			return def.display_name
-	return source.capitalize()
+			shown = def.display_name
+	_display_names[source] = shown
+	return shown
 
 ## Chance this kill drops an MI (0 when the enemy is no perk's source).
 static func drop_chance(definition: EnemyDefinition, enemy_rarity: int, reward_mult: float) -> float:
@@ -57,3 +64,46 @@ static func add_perk(item: Item, id: StringName, value: float) -> void:
 
 static func is_mi(item: Item) -> bool:
 	return item != null and not item.perks.is_empty()
+
+## Fused: two or more perks (the Recombinator, or a Vestige perk on an MI).
+static func is_fused(item: Item) -> bool:
+	return item != null and item.perks.size() >= 2
+
+const FACTIONS := ["Unchartered", "Directorate", "Legion", "Synod", "Veilborne", "Hollowed"]
+
+## A source's name without its faction: "Unchartered Brigand" -> "Brigand".
+static func short_source_name(source: String) -> String:
+	var full := source_display_name(source)
+	var first := full.get_slice(" ", 0)
+	return full.substr(first.length() + 1) if FACTIONS.has(first) and full.contains(" ") else full
+
+## The item's name with any "<Source>'s " or "<A>-<B>'s " MI prefix removed.
+static func base_name(item: Item) -> String:
+	var text := item.display_name
+	var cut := text.find("'s ")
+	if cut < 0:
+		return text
+	if _known_names.is_empty():
+		for id in PerkCatalog.PERKS:
+			for source in PerkCatalog.PERKS[id]["sources"]:
+				_known_names[source_display_name(source)] = true
+				_known_names[short_source_name(source)] = true
+	var known := _known_names
+	for part in text.substr(0, cut).split("-"):
+		if not known.has(part):
+			return text
+	return text.substr(cut + 3)
+
+## Names an MI after its perks' sources: "Brigand-Cutthroat's Gloves" when
+## fused, "Unchartered Brigand's Gloves" for one perk.
+static func rename(item: Item) -> void:
+	var base := base_name(item)
+	var names: Array[String] = []
+	for id in item.perks:
+		var sources: Array = PerkCatalog.PERKS.get(StringName(id), {}).get("sources", [])
+		if sources.is_empty():
+			continue
+		var short := short_source_name(sources[0]) if item.perks.size() >= 2 else source_display_name(sources[0])
+		if not names.has(short):
+			names.append(short)
+	item.display_name = "%s's %s" % ["-".join(names), base] if not names.is_empty() else base

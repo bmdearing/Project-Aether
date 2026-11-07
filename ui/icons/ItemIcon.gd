@@ -40,6 +40,7 @@ func _draw() -> void:
 			IconArt.draw_ghost(self, ghost_key, rect, GHOST_COLOR)
 		return
 	IconArt.draw(self, content, rect)
+	_draw_perk_pips()
 	if count > 1:
 		var font := AetherStyle.numbers()
 		var px := clampi(int(minf(size.x, size.y) * 0.3), 10, 18)
@@ -48,3 +49,16 @@ func _draw() -> void:
 		var pos := Vector2(size.x - w - 3.0, size.y - 4.0)
 		draw_string_outline(font, pos, s, HORIZONTAL_ALIGNMENT_LEFT, -1, px, 4, IconArt.OUTLINE)
 		draw_string(font, pos, s, HORIZONTAL_ALIGNMENT_LEFT, -1, px, COUNT_COLOR)
+
+## One green diamond per Monster Infrequent perk in the top-left corner, so
+## fused items (two perks) stand out without opening the card.
+func _draw_perk_pips() -> void:
+	var item := content as Item
+	if item == null or item.perks.is_empty():
+		return
+	var r := clampf(minf(size.x, size.y) * 0.075, 3.0, 5.5)
+	var green := Constants.MONSTER_INFREQUENT_COLOR
+	for i in item.perks.size():
+		var centre := Vector2(r + 3.0 + i * (r * 2.0 + 2.0), r + 3.0)
+		draw_circle(centre, r + 1.5, Color(0, 0, 0, 0.6))
+		AetherStyle.diamond(self, centre, r, green.darkened(0.15), green.lightened(0.45))

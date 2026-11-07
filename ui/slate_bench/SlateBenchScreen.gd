@@ -141,7 +141,21 @@ func craft() -> bool:
 		_outputs[i].content = results[i]
 	_set_hint("Split in two." if mode == Mode.SPLIT else "Recombined.")
 	_refresh()
+	if mode == Mode.GEAR and MonsterInfrequent.is_fused(results[0] as Item):
+		_fused_flourish(_outputs[0])
 	return true
+
+## Two perks survived: the result box flashes green and pops, with a chime.
+func _fused_flourish(slot: BenchSlot) -> void:
+	_set_hint("Fused - both perks held.")
+	AudioManager.play_2d(SoundLib.library.craft_apply, -2.0)
+	get_tree().create_timer(0.14).timeout.connect(func(): AudioManager.play_2d(SoundLib.library.craft_apply, -6.0))
+	slot.pivot_offset = slot.size * 0.5
+	slot.modulate = Constants.MONSTER_INFREQUENT_COLOR.lightened(0.6) * 1.6
+	slot.scale = Vector2.ONE * 1.15
+	var tween := slot.create_tween().set_parallel()
+	tween.tween_property(slot, "scale", Vector2.ONE, 0.35).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tween.tween_property(slot, "modulate", Color.WHITE, 0.6)
 
 ## Moves a Slate or item from the inventory onto an input box (the first
 ## empty one when `index` is -1). Whatever was there goes back.
