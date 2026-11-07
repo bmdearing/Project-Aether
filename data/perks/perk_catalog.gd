@@ -69,6 +69,8 @@ const PERKS := {
 		"slots": [S.AMULET], "sources": ["legion_doom_guard"]},
 	&"phase_shift": {"name": "Faerie Dragon's Phase Shift", "text": "Spell hits against you have a %d%% chance to be avoided", "min": 10.0, "max": 20.0,
 		"slots": [S.RING], "sources": ["veilborne_faerie_dragon"]},
+	&"fork": {"name": "Arcanist's Fork", "text": "Gun, bow and crossbow hits split into 2 shots that fly on at an angle, each dealing %d%% of the hit's damage (splits don't split again)", "min": 50.0, "max": 70.0,
+		"slots": [S.RING], "sources": ["synod_arcanist"]},
 	&"sealed_verdict": {"name": "The Sealed King's Verdict", "text": "Your hits kill non-boss enemies left below %d%% of their maximum Life", "min": 8.0, "max": 12.0,
 		"slots": [], "boss": true, "sources": ["almighty"]},
 	&"falling_sun": {"name": "Ataras's Falling Sun", "text": "Every 8 seconds, your next hit calls down a sun that deals %d%% of the hit as Fire to enemies around the target", "min": 150.0, "max": 250.0,

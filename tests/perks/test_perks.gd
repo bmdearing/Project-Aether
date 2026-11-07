@@ -33,7 +33,7 @@ func _test_catalog() -> void:
 		for source in PerkCatalog.PERKS[id]["sources"]:
 			sources_ok = sources_ok and ResourceLoader.exists(MonsterInfrequent.DEFINITIONS_DIR % source)
 	_check(sources_ok, "every perk source is a real enemy definition")
-	_check(PerkCatalog.PERKS.keys().filter(func(id): return not PerkCatalog.is_boss(id)).size() == 29 and PerkCatalog.boss_perk("ataras") == &"falling_sun", "29 starter perks plus one per Pinnacle boss")
+	_check(PerkCatalog.PERKS.keys().filter(func(id): return not PerkCatalog.is_boss(id)).size() == 30 and PerkCatalog.boss_perk("ataras") == &"falling_sun", "30 starter perks plus one per Pinnacle boss")
 	_check(PerkCatalog.text_of(&"reload_on_kill", 20.0).contains("20%"), "perk text fills its value")
 	_check(PerkCatalog.migrate_value(&"stench_aura", 4.0) == 25.0 and PerkCatalog.migrate_value(&"stench_aura", 20.0) == 20.0 \
 			and PerkCatalog.migrate_value(&"last_round", 80.0) == 125.0, "reworked perks move old rolls into the new range, once")

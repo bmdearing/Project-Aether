@@ -611,6 +611,11 @@ func _fire(weapon: Weapon, aimed: bool = false) -> void:
 		if not arrow:
 			projectile.lifetime /= BULLET_SPEED_MULTIPLIER
 		projectile.cosmetic = cosmetic
+		projectile.can_fork = not cosmetic
+		if weapon.ammo_type == Constants.AmmoType.CROSSBOW_BOLT:
+			projectile.look = ProjectileLook.Kind.BOLT
+		else:
+			projectile.look = ProjectileLook.Kind.ARROW if arrow else ProjectileLook.Kind.BULLET
 		if hitscan:
 			projectile.hitscan_range = HITSCAN_RANGE
 			projectile.hitscan_origin = _player.camera.global_position

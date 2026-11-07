@@ -1646,6 +1646,11 @@ func on_ranged_windup(_seconds: float) -> void:
 func on_projectile_fired(_projectile: Projectile) -> void:
 	pass
 
+## The shape of this enemy's ranged shots. Enemies that dress their own
+## (on_projectile_fired) return NONE.
+func projectile_look() -> ProjectileLook.Kind:
+	return ProjectileLook.for_enemy(definition)
+
 ## Played as a boss enters a new phase (BossFx.phase_roar()).
 func roar_sound() -> AudioStream:
 	return SoundLib.pick_random(SoundLib.library.boss_roar)

@@ -64,6 +64,9 @@ func get_cast_origin() -> Vector3:
 func on_ranged_windup(seconds: float) -> void:
 	BossFx.charge(self, get_cast_origin(), get_ability_damage_type(), seconds, false)
 
+func projectile_look() -> ProjectileLook.Kind:
+	return ProjectileLook.Kind.NONE
+
 func on_projectile_fired(projectile: Projectile) -> void:
 	BossFx.dress_bolt(projectile, projectile.damage_type)
 	BossFx.sound(BossFx.cast_sound(projectile.damage_type), get_cast_origin(), -10.0, 1.3)

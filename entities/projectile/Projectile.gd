@@ -56,11 +56,24 @@ var blast_radius: float = 0.0
 ## end over end at spin radians/s.
 var model: Node3D
 var spin: float = 0.0
+## Shaped look (ProjectileLook) built as the model when nothing else set
+## one; NONE keeps the plain ball for spawners that dress it themselves.
+var look: ProjectileLook.Kind = ProjectileLook.Kind.NONE
+## Fork perk: a player weapon shot splits once, on its first enemy hit.
+var can_fork := false
+## The enemy a fork split off from: it passes through it.
+var _ignore: Node3D = null
+const FORK_ANGLE_DEG := 25.0
+const FORK_HITSCAN_RANGE := 25.0
+static var _scene: PackedScene
 
 @onready var mesh: MeshInstance3D = $MeshInstance3D
 
 func _ready() -> void:
 	add_to_group(&"projectile")  # Black Hole swallows these
+	if model == null and look != ProjectileLook.Kind.NONE and hitscan_range <= 0.0:
+		model = ProjectileLook.build(look, damage_type)
+		spin = ProjectileLook.SPIN.get(look, spin)
 	if model:
 		add_child(model)
 		if mesh:
@@ -121,7 +134,7 @@ func _on_body_entered(body: Node3D) -> void:
 	if body.is_in_group(&"stairs"):
 		_stairs = body
 		return
-	if body == source:
+	if body == source or body == _ignore:
 		return  # a wide shooter can overlap its own shot on the first frame
 	if cosmetic:
 		queue_free()
@@ -175,6 +188,43 @@ func _hit_enemy(enemy: Enemy, aim_dir: Vector3 = Vector3.ZERO) -> void:
 		EventBus.hit_landed.emit(crit, is_critical_spot, not enemy.health.is_alive())
 		if not is_spell_projectile:
 			BloodFx.hit(enemy, -global_transform.basis.z, 0.6 * (1.5 if is_critical_spot else 1.0), not enemy.health.is_alive())
+		if can_fork:
+			_fork(enemy)
+
+## The Fork perk: two shots split off at FORK_ANGLE_DEG either side, each
+## carrying the perk's share of this shot's damage. Splits don't split.
+func _fork(enemy: Enemy) -> void:
+	can_fork = false
+	var player := source as Player
+	var effects: PerkEffects = player.perk_effects if player else null
+	if effects == null or not effects.has(&"fork"):
+		return
+	if _scene == null:
+		_scene = load("res://entities/projectile/Projectile.tscn")
+	var share := effects.value(&"fork") / 100.0
+	var dir := _velocity.normalized() if _launched else -global_transform.basis.z.normalized()
+	var at := global_position
+	for side in [-1.0, 1.0]:
+		var fork: Projectile = _scene.instantiate()
+		fork.damage_amount = damage_amount * share
+		fork.damage_type = damage_type
+		fork.source = source
+		fork.meter_label = meter_label
+		fork.is_critical = is_critical
+		fork.crit_multiplier = crit_multiplier
+		fork.impact_sound = impact_sound
+		fork.speed = speed
+		fork.drop_gravity = drop_gravity
+		fork.lifetime = minf(lifetime, 1.5)
+		fork.look = look
+		fork.damage_modifier = damage_modifier
+		fork._ignore = enemy
+		if hitscan_range > 0.0:
+			fork.hitscan_range = FORK_HITSCAN_RANGE
+			fork.hitscan_origin = at
+		get_tree().current_scene.add_child(fork)
+		var d := dir.rotated(Vector3.UP, deg_to_rad(FORK_ANGLE_DEG * side))
+		fork.global_transform = Transform3D(Basis.looking_at(d, Vector3.UP if absf(d.y) < 0.99 else Vector3.RIGHT), at)
 
 func _blast() -> void:
 	var at := global_position
@@ -230,6 +280,8 @@ func _resolve_hitscan() -> void:
 	var exclude: Array[RID] = []
 	if is_instance_valid(source) and source is CollisionObject3D:
 		exclude.append((source as CollisionObject3D).get_rid())
+	if is_instance_valid(_ignore) and _ignore is CollisionObject3D:
+		exclude.append((_ignore as CollisionObject3D).get_rid())
 	var end := hitscan_origin + dir * hitscan_range
 	var muzzle := global_position
 	# Walks the ray through pierced enemies until something stops it.
@@ -269,27 +321,7 @@ func _resolve_hitscan() -> void:
 	queue_free()
 
 func _spawn_tracer(from: Vector3, to: Vector3) -> void:
-	var length := from.distance_to(to)
-	if length < 0.05:
-		return
-	var tracer := MeshInstance3D.new()
-	var box := BoxMesh.new()
-	box.size = Vector3(0.025, 0.025, length)
-	tracer.mesh = box
-	tracer.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
-	var mat := StandardMaterial3D.new()
-	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-	mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
-	var color: Color = Constants.DAMAGE_TYPE_COLOR.get(damage_type, Color.WHITE)
-	mat.albedo_color = Color(color.r, color.g, color.b, 0.9).lerp(Color(1, 0.95, 0.8, 0.9), 0.5)
-	tracer.material_override = mat
-	get_tree().current_scene.add_child(tracer)
-	tracer.global_position = (from + to) * 0.5
-	tracer.look_at_from_position(tracer.global_position, to, Vector3.UP if absf((to - from).normalized().y) < 0.99 else Vector3.RIGHT)
-	var tween := tracer.create_tween()
-	tween.tween_property(mat, "albedo_color:a", 0.0, TRACER_TIME)
-	tween.tween_callback(tracer.queue_free)
+	ProjectileLook.tracer(get_tree().current_scene, from, to, damage_type, TRACER_TIME)
 
 ## True when `point` is inside one of a staircase's drawn steps (or the
 ## raised floor behind its foot), not just under the hidden walking ramp.

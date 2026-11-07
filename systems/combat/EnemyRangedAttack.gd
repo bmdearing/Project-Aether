@@ -101,6 +101,7 @@ func _fire() -> void:
 		projectile.damage_type = _enemy.convert_attack_type(damage_type)
 		projectile.source = _enemy
 		projectile.speed = projectile_speed * _enemy.get_projectile_speed_multiplier()
+		projectile.look = _enemy.projectile_look()
 		_enemy.get_tree().current_scene.add_child(projectile)
 		projectile.global_transform = Transform3D(Basis.looking_at(dir, Vector3.UP), spawn_pos)
 		_enemy.on_projectile_fired(projectile)
