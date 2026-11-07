@@ -1,0 +1,665 @@
+{
+  "source": "HeroPaladinCaptainHammer.mdx",
+  "version": 1000,
+  "scale": 0.019,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.3150484008789063,
+      -0.0028785000294446945,
+      -0.8175794715881347
+    ],
+    "max": [
+      1.3769390106201171,
+      2.142698066711426,
+      1.3940584640502929
+    ],
+    "height": 2.1455765667408704
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 300,
+      "end": 2967,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 3267,
+      "end": 9934,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 10234,
+      "end": 16134,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 16434,
+      "end": 18101,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 18401,
+      "end": 19401,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 2",
+      "start": 19701,
+      "end": 20867,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 21167,
+      "end": 23667,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 23967,
+      "end": 25700,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 26000,
+      "end": 28166,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 28466,
+      "end": 30132,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Hit 1",
+      "start": 30432,
+      "end": 30932,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 31232,
+      "end": 34899,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 35199,
+      "end": 35966,
+      "move_speed": 5.13,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 4",
+      "start": 36266,
+      "end": 41899,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Walk One",
+      "start": 42199,
+      "end": 43266,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Walk Two",
+      "start": 43566,
+      "end": 44633,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Listening Two",
+      "start": 44933,
+      "end": 48600,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Cinematic Listening One",
+      "start": 48900,
+      "end": 52567,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "human_paladin_rig_ingame:weapon_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_weapon_diffuse.dds",
+        "normal": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_weapon_normal.dds",
+        "orm": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_weapon_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroPaladin/Human_Paladin_Weapon_Diffuse.tif",
+        "normal": "Units/Human/HeroPaladin/Human_Paladin_Weapon_Normal.tif",
+        "orm": "Units/Human/HeroPaladin/Human_Paladin_Weapon_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "human_MagrothTheDefender_rig:weapon_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_weapon_diffuse.dds",
+        "normal": "human_magroththedefender_weapon_normal.dds",
+        "orm": "human_magroththedefender_weapon_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Weapon_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Weapon_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Weapon_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "human_paladin_rig_ingame:weapon_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_weapon_diffuse.dds",
+        "normal": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_weapon_normal.dds",
+        "orm": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_weapon_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroPaladin/Human_Paladin_Weapon_Diffuse.tif",
+        "normal": "Units/Human/HeroPaladin/Human_Paladin_Weapon_Normal.tif",
+        "orm": "Units/Human/HeroPaladin/Human_Paladin_Weapon_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "human_MagrothTheDefender_rig:weapon_geo",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_magroththedefender_weapon_diffuse.dds",
+        "normal": "human_magroththedefender_weapon_normal.dds",
+        "orm": "human_magroththedefender_weapon_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Weapon_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Weapon_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Weapon_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "human_arthas_rig_cin:main_geo",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Elite Human Soldiers/human_arthasmenethil_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/Elite Human Soldiers/human_arthasmenethil_main_normal.dds",
+        "orm": "res://assets/models/enemies/Elite Human Soldiers/human_arthasmenethil_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Elite Human Soldiers/human_arthasmenethil_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/Arthas/Human_ArthasMenethil_Main_Diffuse.tif",
+        "normal": "Units/Human/Arthas/Human_ArthasMenethil_Main_Normal.tif",
+        "orm": "Units/Human/Arthas/Human_ArthasMenethil_Main_ORM.tif",
+        "emissive": "Units/Human/Arthas/Human_ArthasMenethil_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 5,
+      "name": "human_captain_rig:pauldron_geo",
+      "lod": 0,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/TheCaptain/Human_Captain_Main_Diffuse.tif",
+        "normal": "Units/Human/TheCaptain/Human_Captain_Main_Normal.tif",
+        "orm": "Units/Human/TheCaptain/Human_Captain_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 6,
+      "name": "human_MagrothTheDefender_rig:main_geo",
+      "lod": 0,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Elite Human Soldiers/human_magroththedefender_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_magroththedefender_main_normal.dds",
+        "orm": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_magroththedefender_main_orm.dds",
+        "emissive": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_magroththedefender_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_Normal.tif",
+        "orm": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_ORM.tif",
+        "emissive": "Units/Human/HeroMagroth/Human_MagrothTheDefender_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "human_captain_rig:main_geo",
+      "lod": 0,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/TheCaptain/Human_Captain_Main_Diffuse.tif",
+        "normal": "Units/Human/TheCaptain/Human_Captain_Main_Normal.tif",
+        "orm": "Units/Human/TheCaptain/Human_Captain_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "human_captain_rig:helmet_geo",
+      "lod": 0,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/TheCaptain/Human_Captain_Main_Diffuse.tif",
+        "normal": "Units/Human/TheCaptain/Human_Captain_Main_Normal.tif",
+        "orm": "Units/Human/TheCaptain/Human_Captain_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "human_HalahkTheLifebringer_rig:main_geo",
+      "lod": 0,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_orm.dds",
+        "emissive": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Normal.tif",
+        "orm": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_ORM.tif",
+        "emissive": "Units/Human/HeroHalahk/Human_HalahkTheLifebringer_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "human_paladin_rig_ingame:main_geo",
+      "lod": 0,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_normal.dds",
+        "orm": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroPaladin/Human_Paladin_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroPaladin/Human_Paladin_Main_Normal.tif",
+        "orm": "Units/Human/HeroPaladin/Human_Paladin_Main_ORM.tif",
+        "emissive": "Units/Human/HeroPaladin/Human_Paladin_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": true,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "human_paladin_rig_ingame:main_geo",
+      "lod": 0,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_normal.dds",
+        "orm": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_orm.dds",
+        "emissive": "res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Human/HeroPaladin/Human_Paladin_Main_Diffuse.tif",
+        "normal": "Units/Human/HeroPaladin/Human_Paladin_Main_Normal.tif",
+        "orm": "Units/Human/HeroPaladin/Human_Paladin_Main_ORM.tif",
+        "emissive": "Units/Human/HeroPaladin/Human_Paladin_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Stand 3": true,
+        "Stand Ready 1": true,
+        "Attack 1": true,
+        "Attack 2": true,
+        "Death 1": true,
+        "Stand Victory 1": true,
+        "Spell 1": true,
+        "Stand Channel 1": true,
+        "Stand Hit 1": true,
+        "Dissipate": false,
+        "Walk 1": true,
+        "Stand 4": true,
+        "Cinematic Walk One": true,
+        "Cinematic Walk Two": true,
+        "Cinematic Listening Two": true,
+        "Cinematic Listening One": true
+      }
+    }
+  ]
+}

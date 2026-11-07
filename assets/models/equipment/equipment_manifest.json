@@ -99,6 +99,21 @@
     "family": "body_armour",
     "base": "body_armour_line5"
   },
+  "boots": {
+    "file": "res://entities/pickups/loot_pickup/models/LootBoots.tscn",
+    "family": "boots",
+    "display_name": "Boots"
+  },
+  "gloves": {
+    "file": "res://entities/pickups/loot_pickup/models/LootGloves.tscn",
+    "family": "gloves",
+    "display_name": "Gloves"
+  },
+  "helmet": {
+    "file": "res://entities/pickups/loot_pickup/models/LootHelmet.tscn",
+    "family": "helmet",
+    "display_name": "Helmet"
+  },
   "ring_ember": {
     "file": "res://assets/models/equipment/ring_ember.glb",
     "family": "ring",

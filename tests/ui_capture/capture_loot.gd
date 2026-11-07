@@ -105,6 +105,9 @@ const EQUIPMENT := [
 	"res://data/items/instances/void_ring.tres",
 	"res://data/items/instances/vitality_pendant.tres",
 	"res://data/items/instances/aetheric_conduit.tres",
+	"res://data/armor/instances/battered_helm.tres",
+	"res://data/armor/instances/gen_gloves_aegis_gauntlets.tres",
+	"res://data/armor/instances/gen_boots_battle_boots.tres",
 ]
 
 ## A copy named the way ItemRoller names rolled items.

@@ -1,0 +1,456 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_p2551"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/human_sirgregoryedmunson_weapon_diffuse.dds" id="2_ktig3"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/human_sirgregoryedmunson_weapon_emissive.dds" id="3_ncbhv"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/human_sirgregoryedmunson_weapon_normal.dds" id="4_ix4hg"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/human_sirgregoryedmunson_weapon_orm.dds" id="5_s7pbb"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_diffuse.dds" id="6_n7iu1"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_normal.dds" id="7_cu5o3"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_captain_main_orm.dds" id="8_ihxng"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds" id="9_j71pk"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds" id="10_h8b05"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds" id="11_2rwal"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_magroththedefender_main_diffuse.dds" id="12_6ti57"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_magroththedefender_main_emissive.dds" id="13_n2avm"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_magroththedefender_main_normal.dds" id="14_3ik6g"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_magroththedefender_main_orm.dds" id="15_vphg6"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_arthasmenethil_main_diffuse.dds" id="16_1d61p"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_arthasmenethil_main_emissive.dds" id="17_udajv"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_arthasmenethil_main_normal.dds" id="18_7g00y"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_arthasmenethil_main_orm.dds" id="19_m14o5"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_diffuse.dds" id="20_doouv"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_emissive.dds" id="21_k57p6"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_normal.dds" id="22_qgcao"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/human_halahkthelifebringer_main_orm.dds" id="23_gvaq8"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/human_sirgregoryedmunson_main_diffuse.dds" id="24_f0urr"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/human_sirgregoryedmunson_main_normal.dds" id="25_f3hqa"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/human_sirgregoryedmunson_main_orm.dds" id="26_lyaul"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_diffuse.dds" id="27_vkq5j"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_emissive.dds" id="28_oskv7"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_normal.dds" id="29_eapsw"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_paladin_main_orm.dds" id="30_wukyx"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_uther_armor_diffuse.dds" id="31_tw56n"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_uther_armor_emissive.dds" id="32_j4cqk"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_uther_armor_normal.dds" id="33_ie5du"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/Elite Human Soldiers/human_uther_armor_orm.dds" id="34_mpl54"]
+[ext_resource type="PackedScene" path="res://assets/models/enemies/Elite Human Soldiers/EliteSoldier.glb" id="35_11db5"]
+[ext_resource type="PackedScene" path="res://entities/enemies/base/HumanoidAnimTree.tscn" id="36_yhdck"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_kf1gx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_ktig3")
+orm_texture = ExtResource("5_s7pbb")
+emission_enabled = true
+emission_texture = ExtResource("3_ncbhv")
+normal_enabled = true
+normal_texture = ExtResource("4_ix4hg")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_by0l0"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_ktig3")
+orm_texture = ExtResource("5_s7pbb")
+emission_enabled = true
+emission_texture = ExtResource("3_ncbhv")
+normal_enabled = true
+normal_texture = ExtResource("4_ix4hg")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_tgbxw"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("6_n7iu1")
+orm_texture = ExtResource("8_ihxng")
+normal_enabled = true
+normal_texture = ExtResource("7_cu5o3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ebfpc"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("9_j71pk")
+orm_texture = ExtResource("11_2rwal")
+normal_enabled = true
+normal_texture = ExtResource("10_h8b05")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_kdlhh"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("9_j71pk")
+orm_texture = ExtResource("11_2rwal")
+normal_enabled = true
+normal_texture = ExtResource("10_h8b05")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_gp5hc"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("12_6ti57")
+orm_texture = ExtResource("15_vphg6")
+emission_enabled = true
+emission_texture = ExtResource("13_n2avm")
+normal_enabled = true
+normal_texture = ExtResource("14_3ik6g")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_w7jry"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("16_1d61p")
+orm_texture = ExtResource("19_m14o5")
+emission_enabled = true
+emission_texture = ExtResource("17_udajv")
+normal_enabled = true
+normal_texture = ExtResource("18_7g00y")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_5eqmw"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("20_doouv")
+orm_texture = ExtResource("23_gvaq8")
+emission_enabled = true
+emission_texture = ExtResource("21_k57p6")
+normal_enabled = true
+normal_texture = ExtResource("22_qgcao")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_a62ra"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("24_f0urr")
+orm_texture = ExtResource("26_lyaul")
+normal_enabled = true
+normal_texture = ExtResource("25_f3hqa")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_l7ldx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("27_vkq5j")
+orm_texture = ExtResource("30_wukyx")
+emission_enabled = true
+emission_texture = ExtResource("28_oskv7")
+normal_enabled = true
+normal_texture = ExtResource("29_eapsw")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_4sd3y"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("6_n7iu1")
+orm_texture = ExtResource("8_ihxng")
+normal_enabled = true
+normal_texture = ExtResource("7_cu5o3")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_xpagm"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_ktig3")
+orm_texture = ExtResource("5_s7pbb")
+emission_enabled = true
+emission_texture = ExtResource("3_ncbhv")
+normal_enabled = true
+normal_texture = ExtResource("4_ix4hg")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_mkx0u"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_ktig3")
+orm_texture = ExtResource("5_s7pbb")
+emission_enabled = true
+emission_texture = ExtResource("3_ncbhv")
+normal_enabled = true
+normal_texture = ExtResource("4_ix4hg")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_c0td5"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("2_ktig3")
+orm_texture = ExtResource("5_s7pbb")
+emission_enabled = true
+emission_texture = ExtResource("3_ncbhv")
+normal_enabled = true
+normal_texture = ExtResource("4_ix4hg")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_i30a5"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+albedo_texture = ExtResource("31_tw56n")
+orm_texture = ExtResource("34_mpl54")
+emission_enabled = true
+emission_texture = ExtResource("32_j4cqk")
+normal_enabled = true
+normal_texture = ExtResource("33_ie5du")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_m0y2m"]
+albedo_texture = ExtResource("6_n7iu1")
+orm_texture = ExtResource("8_ihxng")
+normal_enabled = true
+normal_texture = ExtResource("7_cu5o3")
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_uxmb3"]
+animation = &"Attack"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_ugs6u"]
+animation = &"Death"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_rn56s"]
+animation = &"HitReact"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3c17d"]
+animation = &"Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_jp5ti"]
+animation = &"Run"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_1mj3m"]
+animation = &"Stagger"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xo6c6"]
+animation = &"Walk"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_tola0"]
+xfade_time = 0.12
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_4g1jm"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"moving"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_317bp"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stopped"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c5h2g"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"running"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_a37j7"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"walking"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_ipoep"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_i60ko"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_nhync"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pduiw"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_c46fj"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"attack_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_mot78"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_d0m3f"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_28hg5"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_xxwru"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_o3hln"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"hit_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_sylrt"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_uhnpq"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_3blcx"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_0ieg5"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_vde4t"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"stagger_triggered"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gkawd"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_cgh1m"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pld0m"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_wr1x7"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jypwp"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_gnvh3"]
+xfade_time = 0.12
+advance_mode = 2
+advance_condition = &"is_dead"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_7m1o2"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_g1woi"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_a1ugo"]
+xfade_time = 0.12
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_dv4a3"]
+states/Attack/node = SubResource("AnimationNodeAnimation_uxmb3")
+states/Attack/position = Vector2(600, 0)
+states/Death/node = SubResource("AnimationNodeAnimation_ugs6u")
+states/Death/position = Vector2(400, 140)
+states/HitReact/node = SubResource("AnimationNodeAnimation_rn56s")
+states/HitReact/position = Vector2(0, 140)
+states/Idle/node = SubResource("AnimationNodeAnimation_3c17d")
+states/Idle/position = Vector2(0, 0)
+states/Run/node = SubResource("AnimationNodeAnimation_jp5ti")
+states/Run/position = Vector2(400, 0)
+states/Stagger/node = SubResource("AnimationNodeAnimation_1mj3m")
+states/Stagger/position = Vector2(200, 140)
+states/Walk/node = SubResource("AnimationNodeAnimation_xo6c6")
+states/Walk/position = Vector2(200, 0)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_tola0"), "Idle", "Walk", SubResource("AnimationNodeStateMachineTransition_4g1jm"), "Walk", "Idle", SubResource("AnimationNodeStateMachineTransition_317bp"), "Walk", "Run", SubResource("AnimationNodeStateMachineTransition_c5h2g"), "Run", "Walk", SubResource("AnimationNodeStateMachineTransition_a37j7"), "Idle", "Attack", SubResource("AnimationNodeStateMachineTransition_ipoep"), "Walk", "Attack", SubResource("AnimationNodeStateMachineTransition_i60ko"), "Run", "Attack", SubResource("AnimationNodeStateMachineTransition_nhync"), "HitReact", "Attack", SubResource("AnimationNodeStateMachineTransition_pduiw"), "Stagger", "Attack", SubResource("AnimationNodeStateMachineTransition_c46fj"), "Idle", "HitReact", SubResource("AnimationNodeStateMachineTransition_mot78"), "Walk", "HitReact", SubResource("AnimationNodeStateMachineTransition_d0m3f"), "Run", "HitReact", SubResource("AnimationNodeStateMachineTransition_28hg5"), "Attack", "HitReact", SubResource("AnimationNodeStateMachineTransition_xxwru"), "Stagger", "HitReact", SubResource("AnimationNodeStateMachineTransition_o3hln"), "Idle", "Stagger", SubResource("AnimationNodeStateMachineTransition_sylrt"), "Walk", "Stagger", SubResource("AnimationNodeStateMachineTransition_uhnpq"), "Run", "Stagger", SubResource("AnimationNodeStateMachineTransition_3blcx"), "Attack", "Stagger", SubResource("AnimationNodeStateMachineTransition_0ieg5"), "HitReact", "Stagger", SubResource("AnimationNodeStateMachineTransition_vde4t"), "Idle", "Death", SubResource("AnimationNodeStateMachineTransition_gkawd"), "Walk", "Death", SubResource("AnimationNodeStateMachineTransition_cgh1m"), "Run", "Death", SubResource("AnimationNodeStateMachineTransition_pld0m"), "Attack", "Death", SubResource("AnimationNodeStateMachineTransition_wr1x7"), "HitReact", "Death", SubResource("AnimationNodeStateMachineTransition_jypwp"), "Stagger", "Death", SubResource("AnimationNodeStateMachineTransition_gnvh3"), "Attack", "Idle", SubResource("AnimationNodeStateMachineTransition_7m1o2"), "HitReact", "Idle", SubResource("AnimationNodeStateMachineTransition_g1woi"), "Stagger", "Idle", SubResource("AnimationNodeStateMachineTransition_a1ugo")]
+
+[node name="DirectorateLegionaryModel" type="Node3D" unique_id=1059710281]
+script = ExtResource("1_p2551")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_kf1gx"),
+1: SubResource("ORMMaterial3D_by0l0"),
+2: SubResource("ORMMaterial3D_tgbxw"),
+3: SubResource("ORMMaterial3D_ebfpc"),
+4: SubResource("ORMMaterial3D_kdlhh"),
+5: SubResource("ORMMaterial3D_gp5hc"),
+6: SubResource("ORMMaterial3D_w7jry"),
+7: SubResource("ORMMaterial3D_5eqmw"),
+8: SubResource("ORMMaterial3D_a62ra"),
+9: SubResource("ORMMaterial3D_l7ldx"),
+10: SubResource("ORMMaterial3D_4sd3y"),
+11: SubResource("ORMMaterial3D_xpagm"),
+12: SubResource("ORMMaterial3D_mkx0u"),
+13: SubResource("ORMMaterial3D_c0td5"),
+14: SubResource("ORMMaterial3D_i30a5"),
+15: SubResource("ORMMaterial3D_m0y2m")
+}
+hidden_geosets = {
+"Attack 1": PackedInt32Array(3, 4),
+"Attack 2": PackedInt32Array(3, 4),
+"Attack Defend 1": PackedInt32Array(3, 4),
+"Attack Defend 2": PackedInt32Array(3, 4),
+"Cinematic Die": PackedInt32Array(3, 4),
+"Cinematic Headnod One": PackedInt32Array(3, 4),
+"Cinematic Injured One": PackedInt32Array(3, 4),
+"Cinematic Kneeling One": PackedInt32Array(3, 4),
+"Cinematic Listening One": PackedInt32Array(3, 4),
+"Cinematic Point One": PackedInt32Array(3, 4),
+"Cinematic Salute Exit One": PackedInt32Array(3, 4),
+"Cinematic Salute Idle One": PackedInt32Array(3, 4),
+"Cinematic Salute One": PackedInt32Array(3, 4),
+"Cinematic Sitting One": PackedInt32Array(3, 4),
+"Cinematic Stand": PackedInt32Array(3, 4),
+"Cinematic Standard One": PackedInt32Array(3, 4),
+"Cinematic Walk One": PackedInt32Array(3, 4),
+"Cinematic Wave One": PackedInt32Array(3, 4),
+"Death 1": PackedInt32Array(3, 4),
+"Decay Bone": PackedInt32Array(0, 2, 3, 11, 12, 13, 14, 15),
+"Stand 1": PackedInt32Array(3, 4),
+"Stand 2": PackedInt32Array(3, 4),
+"Stand 4": PackedInt32Array(3, 4),
+"Stand Defend 1": PackedInt32Array(3, 4),
+"Stand Ready 1": PackedInt32Array(3, 4),
+"Stand Victory 1": PackedInt32Array(3, 4),
+"Walk 1": PackedInt32Array(3, 4),
+"Walk Defend 1": PackedInt32Array(3, 4)
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+clip_move_speeds = {
+"Cinematic Walk One": 2.1599999999999997,
+"Walk Defend 1": 1.44
+}
+
+[node name="Model" type="Node3D" parent="." unique_id=2013845206 instance=ExtResource("35_11db5")]
+
+[node name="AnimationTree" type="AnimationTree" parent="." unique_id=338442281 instance=ExtResource("36_yhdck")]
+active = false
+tree_root = SubResource("AnimationNodeStateMachine_dv4a3")
+anim_player = NodePath("../Model/AnimationPlayer")
+parameters/conditions/attack_triggered = false
+parameters/conditions/hit_triggered = false
+parameters/conditions/is_dead = false
+parameters/conditions/moving = false
+parameters/conditions/running = false
+parameters/conditions/stagger_triggered = false
+parameters/conditions/stopped = false
+parameters/conditions/walking = false

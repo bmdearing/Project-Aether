@@ -1,0 +1,27 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_od76i"]
+[ext_resource type="Texture2D" path="res://assets/models/items/Inventory Item/itemboots0.mdx/human_footman_main_diffuse.dds" id="2_ffsw7"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_normal.dds" id="3_6eo15"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_orm.dds" id="4_t8vp6"]
+[ext_resource type="PackedScene" path="res://assets/models/items/Inventory Item/itemboots0.mdx/itemboots0.glb" id="5_vc2o5"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_ck72s"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("2_ffsw7")
+orm_texture = ExtResource("4_t8vp6")
+normal_enabled = true
+normal_texture = ExtResource("3_6eo15")
+
+[node name="LootBoots" type="Node3D" unique_id=1688910337]
+script = ExtResource("1_od76i")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_ck72s")
+}
+always_hidden = PackedInt32Array()
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=270127830 instance=ExtResource("5_vc2o5")]

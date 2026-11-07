@@ -1,0 +1,127 @@
+{
+  "source": "itemhelmet0.mdx",
+  "version": 1800,
+  "scale": 0.0075,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.32626250267028806,
+      0.15893282890319824,
+      -0.07267381668090821
+    ],
+    "max": [
+      0.08129542350769042,
+      0.5057818222045898,
+      0.07236982583999634
+    ],
+    "height": 0.3468489933013916
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Birth",
+      "start": 3367,
+      "end": 4367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 4400,
+      "end": 4900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand 4",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_helmet_diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_helmet_normal.dds",
+        "orm": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_helmet_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Helmet_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Helmet_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Helmet_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 3": true,
+        "Stand 4": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/undead/Zombie footman/human_footman_hair_diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Zombie footman/human_footman_hair_normal.dds",
+        "orm": "res://assets/models/enemies/undead/Zombie footman/human_footman_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Hair_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Hair_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 3": true,
+        "Stand 4": true
+      }
+    }
+  ]
+}

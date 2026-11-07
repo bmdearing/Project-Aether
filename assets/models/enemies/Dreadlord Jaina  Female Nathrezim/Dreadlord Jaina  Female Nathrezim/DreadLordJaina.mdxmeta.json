@@ -1,0 +1,541 @@
+{
+  "source": "DreadLordJaina.mdx",
+  "version": 1000,
+  "scale": 0.019,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -1.1160503921508789,
+      0.0014677734300494194,
+      -1.0329484405517577
+    ],
+    "max": [
+      1.0950247421264647,
+      2.1263473281860352,
+      1.0464911880493164
+    ],
+    "height": 2.1248795547559856
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 300,
+      "end": 2300,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack 1",
+      "start": 2600,
+      "end": 4000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Spell 1",
+      "start": 4300,
+      "end": 7000,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Walk 1",
+      "start": 7300,
+      "end": 8300,
+      "move_speed": 5.13,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 8600,
+      "end": 10267,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 10567,
+      "end": 13267,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 13567,
+      "end": 15901,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Dissipate",
+      "start": 16201,
+      "end": 18701,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "human_jaina_rig_ingame:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Dreadlord Jaina  Female Nathrezim/Dreadlord Jaina  Female Nathrezim Portrait/DreadJaina_Main_Diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Candace Icemoon/Candace Icemoon/human_jainaproudmoore_main_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Candace Icemoon/Candace Icemoon/human_jainaproudmoore_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "DreadJaina_Main_Diffuse.dds",
+        "normal": "Units/Human/Jaina/Human_JainaProudmoore_Main_Normal.tif",
+        "orm": "Units/Human/Jaina/Human_JainaProudmoore_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 1,
+      "name": "human_jaina_rig_ingame:hair_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Dreadlord Jaina  Female Nathrezim/Dreadlord Jaina  Female Nathrezim Portrait/DreadJaina_Hair_Diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Candace Icemoon/Candace Icemoon/human_jainaproudmoore_hair_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Candace Icemoon/Candace Icemoon/human_jainaproudmoore_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "DreadJaina_Hair_Diffuse.dds",
+        "normal": "Units/Human/Jaina/Human_JainaProudmoore_Hair_Normal.tif",
+        "orm": "Units/Human/Jaina/Human_JainaProudmoore_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 2,
+      "name": "",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_balnazzar_main_diffuse.dds",
+        "normal": "undead_balnazzar_main_normal.dds",
+        "orm": "undead_balnazzar_main_orm.dds",
+        "emissive": "undead_balnazzar_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_Diffuse.tif",
+        "normal": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_Normal.tif",
+        "orm": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_ORM.tif",
+        "emissive": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 3,
+      "name": "",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_dreadlord_main_diffuse.dds",
+        "normal": "undead_dreadlord_main_normal.dds",
+        "orm": "undead_dreadlord_main_orm.dds",
+        "emissive": "undead_dreadlord_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/HeroDreadLord/Undead_Dreadlord_Main_Diffuse.tif",
+        "normal": "Units/Undead/HeroDreadLord/Undead_Dreadlord_Main_Normal.tif",
+        "orm": "Units/Undead/HeroDreadLord/Undead_DreadLord_Main_ORM.tif",
+        "emissive": "Units/Undead/HeroDreadLord/Undead_DreadLord_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 4,
+      "name": "",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_balnazzar_main_diffuse.dds",
+        "normal": "undead_balnazzar_main_normal.dds",
+        "orm": "undead_balnazzar_main_orm.dds",
+        "emissive": "undead_balnazzar_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_Diffuse.tif",
+        "normal": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_Normal.tif",
+        "orm": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_ORM.tif",
+        "emissive": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "",
+      "lod": 0,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "DreadJaina_Armor_Diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/queenofsuffering_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/queenofsuffering_main_orm.dds",
+        "emissive": "queenofsuffering_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "DreadJaina_Armor_Diffuse.dds",
+        "normal": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_Normal.tif",
+        "orm": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_ORM.tif",
+        "emissive": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "",
+      "lod": 0,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_balnazzar_main_diffuse.dds",
+        "normal": "undead_balnazzar_main_normal.dds",
+        "orm": "undead_balnazzar_main_orm.dds",
+        "emissive": "undead_balnazzar_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_Diffuse.tif",
+        "normal": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_Normal.tif",
+        "orm": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_ORM.tif",
+        "emissive": "Units/Undead/Balnazzar/Undead_Balnazzar_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 7,
+      "name": "",
+      "lod": 0,
+      "material_id": 7,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "DreadJaina_Armor_Diffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/queenofsuffering_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/queenofsuffering_main_orm.dds",
+        "emissive": "queenofsuffering_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "DreadJaina_Armor_Diffuse.dds",
+        "normal": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_Normal.tif",
+        "orm": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_ORM.tif",
+        "emissive": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 8,
+      "name": "",
+      "lod": 0,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_kelthuzadnecromancer_weapon_diffuse.dds",
+        "normal": "undead_kelthuzadnecromancer_weapon_normal.dds",
+        "orm": "undead_kelthuzadnecromancer_weapon_orm.dds",
+        "emissive": "undead_kelthuzadnecromancer_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Kelthuzad/Undead_KelThuzadNecromancer_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/Kelthuzad/Undead_KelThuzadNecromancer_Weapon_Normal.tif",
+        "orm": "Units/Undead/Kelthuzad/Undead_KelThuzadNecromancer_Weapon_ORM.tif",
+        "emissive": "Units/Undead/Kelthuzad/Undead_KelThuzadNecromancer_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 9,
+      "name": "",
+      "lod": 0,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_kelthuzadnecromancer_weapon_diffuse.dds",
+        "normal": "undead_kelthuzadnecromancer_weapon_normal.dds",
+        "orm": "undead_kelthuzadnecromancer_weapon_orm.dds",
+        "emissive": "undead_kelthuzadnecromancer_weapon_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/Kelthuzad/Undead_KelThuzadNecromancer_Weapon_Diffuse.tif",
+        "normal": "Units/Undead/Kelthuzad/Undead_KelThuzadNecromancer_Weapon_Normal.tif",
+        "orm": "Units/Undead/Kelthuzad/Undead_KelThuzadNecromancer_Weapon_ORM.tif",
+        "emissive": "Units/Undead/Kelthuzad/Undead_KelThuzadNecromancer_Weapon_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 10,
+      "name": "",
+      "lod": 0,
+      "material_id": 10,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "undead_dreadlord_main_diffuse.dds",
+        "normal": "undead_dreadlord_main_normal.dds",
+        "orm": "undead_dreadlord_main_orm.dds",
+        "emissive": "undead_dreadlord_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Undead/HeroDreadLord/Undead_Dreadlord_Main_Diffuse.tif",
+        "normal": "Units/Undead/HeroDreadLord/Undead_Dreadlord_Main_Normal.tif",
+        "orm": "Units/Undead/HeroDreadLord/Undead_DreadLord_Main_ORM.tif",
+        "emissive": "Units/Undead/HeroDreadLord/Undead_DreadLord_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 11,
+      "name": "",
+      "lod": 0,
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Dreadlord Jaina  Female Nathrezim/Dreadlord Jaina  Female Nathrezim Portrait/Dread_Diffuse.dds",
+        "normal": "undead_detheroc_main_normal.dds",
+        "orm": "undead_detheroc_main_orm.dds",
+        "emissive": "undead_detheroc_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dread_Diffuse.dds",
+        "normal": "Units/Undead/Detheroc/Undead_Detheroc_Main_Normal.tif",
+        "orm": "Units/Undead/Detheroc/Undead_Detheroc_Main_ORM.tif",
+        "emissive": "Units/Undead/Detheroc/Undead_Detheroc_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 12,
+      "name": "",
+      "lod": 0,
+      "material_id": 12,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Dreadlord Jaina  Female Nathrezim/Dreadlord Jaina  Female Nathrezim Portrait/Dread_Diffuse.dds",
+        "normal": "undead_detheroc_main_normal.dds",
+        "orm": "undead_detheroc_main_orm.dds",
+        "emissive": "undead_detheroc_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Dread_Diffuse.dds",
+        "normal": "Units/Undead/Detheroc/Undead_Detheroc_Main_Normal.tif",
+        "orm": "Units/Undead/Detheroc/Undead_Detheroc_Main_ORM.tif",
+        "emissive": "Units/Undead/Detheroc/Undead_Detheroc_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    },
+    {
+      "index": 13,
+      "name": "undead_Detheroc_rig:wing_geo",
+      "lod": 0,
+      "material_id": 13,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Dreadlord Jaina  Female Nathrezim/Dreadlord Jaina  Female Nathrezim Portrait/Wing_Diffuse.dds",
+        "normal": "undead_detheroc_wing_normal.dds",
+        "orm": "undead_detheroc_wing_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Wing_Diffuse.dds",
+        "normal": "Units/Undead/Detheroc/Undead_Detheroc_Wing_Normal.tif",
+        "orm": "Units/Undead/Detheroc/Undead_Detheroc_Wing_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Attack 1": true,
+        "Spell 1": true,
+        "Walk 1": true,
+        "Stand Ready 1": true,
+        "Stand Channel 1": true,
+        "Death 1": true,
+        "Dissipate": false
+      }
+    }
+  ]
+}

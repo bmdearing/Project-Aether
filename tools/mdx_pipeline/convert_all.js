@@ -9,7 +9,11 @@ const manifest = require("./models.json");
 
 const root = path.resolve(__dirname, "../..");
 const only = process.argv.slice(2);
-const entries = manifest.models.filter((e) => !only.length || only.includes(e.unit));
+// Props (static, no animation) are named by "name" instead of "unit".
+const entries = [
+  ...manifest.models,
+  ...(manifest.props || []).map((p) => ({ unit: p.name, mdx: p.mdx, scale: p.scale, static: true })),
+].filter((e) => !only.length || only.includes(e.unit));
 
 let fetcher = null;
 if (manifest.wc3_install && fs.existsSync(path.join(manifest.wc3_install, ".build.info"))) {
@@ -28,7 +32,7 @@ for (const entry of entries) {
     console.log(`  textures: ${fetched.length} extracted, ${unresolved.length} not in the install`);
     unresolved.forEach((u) => console.log(`    not found: ${u}`));
   }
-  convert(mdx, out, entry.scale, true);
+  convert(mdx, out, entry.scale, !entry.static);
 }
 if (fetcher) fetcher.close();
 // Cap texture resolution and drop duplicate copies (see README: Texture budget).

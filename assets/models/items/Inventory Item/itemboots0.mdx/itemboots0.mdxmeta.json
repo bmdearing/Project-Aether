@@ -1,0 +1,96 @@
+{
+  "source": "itemboots0.mdx",
+  "version": 1800,
+  "scale": 0.0075,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.16521998405456542,
+      0.02482073128223419,
+      -0.20425838470458985
+    ],
+    "max": [
+      0.21353764057159422,
+      0.4551770496368408,
+      0.16203283309936523
+    ],
+    "height": 0.43035631835460664
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Birth",
+      "start": 3367,
+      "end": 4367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 4400,
+      "end": 4900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand 4",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_footman_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_normal.dds",
+        "orm": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Main_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 3": true,
+        "Stand 4": true
+      }
+    }
+  ]
+}

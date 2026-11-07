@@ -1,0 +1,96 @@
+{
+  "source": "itemgloves0.mdx",
+  "version": 1800,
+  "scale": 0.0075,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.1580734920501709,
+      0.0651657485961914,
+      -0.18779758930206297
+    ],
+    "max": [
+      0.17335989475250244,
+      0.29786064147949215,
+      0.2108629560470581
+    ],
+    "height": 0.23269489288330078
+  },
+  "sequences": [
+    {
+      "name": "Stand 1",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Birth",
+      "start": 3367,
+      "end": 4367,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 4400,
+      "end": 4900,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    },
+    {
+      "name": "Stand 4",
+      "start": 0,
+      "end": 3333,
+      "move_speed": 0,
+      "duplicate_of": "Stand 1"
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/items/Inventory Item/itemboots0.mdx/human_footman_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_normal.dds",
+        "orm": "res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_main_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Footman/Human_Footman_Main_Diffuse.tif",
+        "normal": "Units/Human/Footman/Human_Footman_Main_Normal.tif",
+        "orm": "Units/Human/Footman/Human_Footman_Main_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Stand 1": true,
+        "Stand 2": true,
+        "Birth": true,
+        "Death 1": true,
+        "Stand 3": true,
+        "Stand 4": true
+      }
+    }
+  ]
+}

@@ -201,6 +201,85 @@
       "unit": "chromatus",
       "mdx": "assets/models/enemies/pinnacle/Chromatus/Chromatus/Chromatus.mdx",
       "scale": 0.012
+    },
+    {
+      "unit": "directorate_legionary",
+      "mdx": "assets/models/enemies/Elite Human Soldiers/EliteSoldier.mdx",
+      "scale": 0.018
+    },
+    {
+      "unit": "directorate_pikeman",
+      "mdx": "assets/models/enemies/Elite Human Soldiers/EliteSpearSoldier.mdx",
+      "scale": 0.018,
+      "hide_geosets": [
+        11,
+        12,
+        13
+      ]
+    },
+    {
+      "unit": "directorate_duelist",
+      "mdx": "assets/models/enemies/Elite Human Soldiers/EliteDualWieldSoldier.mdx",
+      "scale": 0.018,
+      "hide_geosets": [
+        10,
+        12,
+        13
+      ]
+    },
+    {
+      "unit": "directorate_captain",
+      "mdx": "assets/models/enemies/Veteran Soldiers of the Alliance/VeteranCaptain.mdx",
+      "scale": 0.018
+    },
+    {
+      "unit": "directorate_justicar",
+      "mdx": "assets/models/enemies/Paladin Captains/HeroPaladinCaptainHammer.mdx",
+      "scale": 0.019
+    },
+    {
+      "unit": "unchartered_turncloak",
+      "mdx": "assets/models/enemies/Lionheart dual-wielders/hoodeddualwieldlionheartcaptain.mdx",
+      "scale": 0.018,
+      "hide_geosets": [
+        3,
+        4,
+        6
+      ]
+    },
+    {
+      "unit": "synod_arcanist",
+      "mdx": "assets/models/enemies/Draenei Mage/Draenei Mage/DraeneiMage.mdx",
+      "scale": 0.019
+    },
+    {
+      "unit": "legion_dread_matron",
+      "mdx": "assets/models/enemies/Dreadlord Jaina  Female Nathrezim/Dreadlord Jaina  Female Nathrezim/DreadLordJaina.mdx",
+      "scale": 0.019
+    }
+  ],
+  "_props_comment": "Static props (no animation baked, no AnimationTree): convert_all.js converts them after the units, build_mdx_wrappers builds each wrapper at scene.",
+  "props": [
+    {
+      "name": "loot_helmet",
+      "mdx": "assets/models/items/Inventory Item/itemhelmet0.mdx/itemhelmet0.mdx",
+      "scale": 0.0075,
+      "scene": "entities/pickups/loot_pickup/models/LootHelmet.tscn",
+      "hide_geosets": [
+        1
+      ]
+    },
+    {
+      "name": "loot_gloves",
+      "mdx": "assets/models/items/Inventory Item/itemgloves0.mdx/itemgloves0.mdx",
+      "scale": 0.0075,
+      "scene": "entities/pickups/loot_pickup/models/LootGloves.tscn"
+    },
+    {
+      "name": "loot_boots",
+      "mdx": "assets/models/items/Inventory Item/itemboots0.mdx/itemboots0.mdx",
+      "scale": 0.0075,
+      "scene": "entities/pickups/loot_pickup/models/LootBoots.tscn"
     }
   ]
 }

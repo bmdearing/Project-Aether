@@ -7,6 +7,7 @@ extends Node
 ## doodads.json, under DOODAD_OUT_DIR/<family>/.
 ## Run after convert_all.js / extract_doodads.js:
 ##   Godot --headless --path . res://tools/build_mdx_wrappers.tscn --quit-after 20
+## Names after "--" (units, prop names, doodad basenames) build only those.
 ## Prints every geoset left untextured (texture not shipped with the model).
 
 const MANIFEST_PATH := "res://tools/mdx_pipeline/models.json"
@@ -25,9 +26,18 @@ func _ready() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	var only := OS.get_cmdline_user_args()
 	var manifest: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(MANIFEST_PATH))
 	for entry in manifest["models"]:
-		_build_wrapper(entry["unit"], "res://" + String(entry["mdx"]), OUT_DIR + _scene_name(entry["unit"]) + ".tscn", true)
+		if not only.is_empty() and not only.has(entry["unit"]):
+			continue
+		_build_wrapper(entry["unit"], "res://" + String(entry["mdx"]), OUT_DIR + _scene_name(entry["unit"]) + ".tscn", true, entry.get("hide_geosets", []))
+	for prop in manifest.get("props", []):
+		if not only.is_empty() and not only.has(prop["name"]):
+			continue
+		var scene := "res://" + String(prop["scene"])
+		DirAccess.make_dir_recursive_absolute(scene.get_base_dir())
+		_build_wrapper(prop["name"], "res://" + String(prop["mdx"]), scene, false, prop.get("hide_geosets", []))
 	var doodads: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(DOODAD_MANIFEST_PATH))
 	for family in doodads["families"]:
 		var kit: Dictionary = doodads["families"][family]
@@ -35,11 +45,15 @@ func _run() -> void:
 		for role in kit["roles"]:
 			for casc_path in kit["roles"][role]:
 				var base := String(casc_path).get_file().get_basename()
+				if not only.is_empty() and not only.has(base):
+					continue
 				var mdx := "res://%s/%s.mdx" % [kit["dir"], base]
 				_build_wrapper(base, mdx, "%s%s/%s.tscn" % [DOODAD_OUT_DIR, family, base.to_pascal_case()], false)
 	get_tree().quit()
 
-func _build_wrapper(label: String, mdx_path: String, out_path: String, with_anim_tree: bool) -> void:
+## hide_geosets (models.json, optional): geosets the model never shows, e.g.
+## duplicate weapons a kitbash leaves bound to a second bone.
+func _build_wrapper(label: String, mdx_path: String, out_path: String, with_anim_tree: bool, hide_geosets: Array = []) -> void:
 	var dir := mdx_path.get_base_dir() + "/"
 	var glb_path := mdx_path.get_basename() + ".glb"
 	var meta: Dictionary = JSON.parse_string(FileAccess.get_file_as_string(mdx_path.get_basename() + ".mdxmeta.json"))
@@ -84,6 +98,9 @@ func _build_wrapper(label: String, mdx_path: String, out_path: String, with_anim
 
 	root.set("geoset_materials", materials)
 	root.set("hidden_geosets", hidden)
+	for index in hide_geosets:
+		if not always_hidden.has(int(index)):
+			always_hidden.append(int(index))
 	root.set("always_hidden", always_hidden)
 	root.set("idle_clip", String(meta["idle_sequence"]))
 	var speeds := {}

@@ -340,6 +340,7 @@ const ASCENDANT_ESCORTS := 2
 ## picks a random id per unit. Unit ids are data/enemies/definitions/ files.
 const UNCHARTERED_RAIDERS := ["unchartered_cutthroat", "unchartered_javelineer", "unchartered_brigand"]
 const SYNOD_GOLEMS := ["synod_warden_golem", "synod_ember_golem", "synod_aether_golem"]
+const DIRECTORATE_LINE := ["directorate_legionary", "directorate_pikeman"]
 const ENEMY_PACKS_NORMAL := [
 	{"weight": 1.0, "units": [["unchartered_brigand", 1, 1], ["unchartered_javelineer", 1, 2]]},
 	{"weight": 1.0, "units": [["unchartered_enforcer", 1, 1], ["unchartered_cutthroat", 1, 2]]},
@@ -360,6 +361,13 @@ const ENEMY_PACKS_NORMAL := [
 	{"weight": 0.7, "units": [["unchartered_sea_dog", 2, 3], ["unchartered_javelineer", 0, 1]]},
 	{"weight": 0.6, "units": [["veilborne_satyr_heretic", 2, 3], ["veilborne_mindbender", 0, 1]]},
 	{"weight": 0.4, "units": [["synod_gilded_sentinel", 1, 1], [SYNOD_GOLEMS, 0, 1]]},
+	{"weight": 0.9, "units": [["directorate_legionary", 2, 3], ["directorate_pikeman", 1, 2]]},
+	{"weight": 0.6, "units": [["directorate_captain", 1, 1], [DIRECTORATE_LINE, 2, 3]]},
+	{"weight": 0.6, "units": [["directorate_duelist", 2, 3], ["directorate_rifleman", 0, 1]]},
+	{"weight": 0.35, "units": [["directorate_justicar", 1, 1], [DIRECTORATE_LINE, 1, 2]]},
+	{"weight": 0.6, "units": [["unchartered_turncloak", 2, 3], ["unchartered_cutthroat", 0, 1]]},
+	{"weight": 0.6, "units": [["synod_arcanist", 2, 3], [SYNOD_GOLEMS, 0, 1]]},
+	{"weight": 0.35, "units": [["legion_dread_matron", 1, 1], ["legion_infernal", 0, 1]]},
 ]
 
 # Combined cap across all cooldown reduction sources (Ability.get_final_cooldown()).

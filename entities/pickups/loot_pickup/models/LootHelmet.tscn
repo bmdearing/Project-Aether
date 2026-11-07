@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://entities/enemies/models/MdxModel.gd" id="1_ugbb6"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_helmet_diffuse.dds" id="2_bpwcc"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_helmet_normal.dds" id="3_jagh0"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Teron Gorefiend (Death Knight Hero)/human_footman_helmet_orm.dds" id="4_25ndw"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Zombie footman/human_footman_hair_diffuse.dds" id="5_8w2ln"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Zombie footman/human_footman_hair_normal.dds" id="6_sgnsg"]
+[ext_resource type="Texture2D" path="res://assets/models/enemies/undead/Zombie footman/human_footman_hair_orm.dds" id="7_ltven"]
+[ext_resource type="PackedScene" path="res://assets/models/items/Inventory Item/itemhelmet0.mdx/itemhelmet0.glb" id="8_3qbpi"]
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_0rd8p"]
+albedo_texture = ExtResource("2_bpwcc")
+orm_texture = ExtResource("4_25ndw")
+normal_enabled = true
+normal_texture = ExtResource("3_jagh0")
+
+[sub_resource type="ORMMaterial3D" id="ORMMaterial3D_l48vx"]
+transparency = 2
+alpha_scissor_threshold = 0.5
+alpha_antialiasing_mode = 0
+cull_mode = 2
+albedo_texture = ExtResource("5_8w2ln")
+orm_texture = ExtResource("7_ltven")
+normal_enabled = true
+normal_texture = ExtResource("6_sgnsg")
+
+[node name="LootHelmet" type="Node3D" unique_id=1816910800]
+script = ExtResource("1_ugbb6")
+geoset_materials = {
+0: SubResource("ORMMaterial3D_0rd8p"),
+1: SubResource("ORMMaterial3D_l48vx")
+}
+always_hidden = PackedInt32Array(1)
+idle_clip = "Stand 1"
+
+[node name="Model" type="Node3D" parent="." unique_id=1367216093 instance=ExtResource("8_3qbpi")]

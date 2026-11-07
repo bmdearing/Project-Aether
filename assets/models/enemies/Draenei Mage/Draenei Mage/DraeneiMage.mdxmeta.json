@@ -1,0 +1,604 @@
+{
+  "source": "DraeneiMage.mdx",
+  "version": 1000,
+  "scale": 0.019,
+  "idle_sequence": "Stand 1",
+  "bounds": {
+    "min": [
+      -0.6384873809814453,
+      -0.0016902242749929428,
+      -0.6879918670654297
+    ],
+    "max": [
+      0.2288516855239868,
+      1.9865787811279296,
+      0.6879918670654297
+    ],
+    "height": 1.9882690054029226
+  },
+  "sequences": [
+    {
+      "name": "Walk 1",
+      "start": 300,
+      "end": 1300,
+      "move_speed": 5.13,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 2",
+      "start": 1600,
+      "end": 5100,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Victory 1",
+      "start": 5400,
+      "end": 9033,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Channel 1",
+      "start": 9333,
+      "end": 10833,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand Ready 1",
+      "start": 11133,
+      "end": 12633,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 1",
+      "start": 12933,
+      "end": 14433,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Attack Spell 1",
+      "start": 14733,
+      "end": 16267,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Stand 3",
+      "start": 16567,
+      "end": 22267,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Death 1",
+      "start": 22567,
+      "end": 24434,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Flesh",
+      "start": 24734,
+      "end": 84734,
+      "move_speed": 0,
+      "duplicate_of": null
+    },
+    {
+      "name": "Decay Bone",
+      "start": 85034,
+      "end": 145034,
+      "move_speed": 0,
+      "duplicate_of": null
+    }
+  ],
+  "geosets": [
+    {
+      "index": 0,
+      "name": "sorceress:main_geo",
+      "lod": 0,
+      "material_id": 0,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Draenei Mage/Draenei Mage Portrait/maindiffuse.dds",
+        "normal": "human_sorceress_main_normal.dds",
+        "orm": "mainorm.dds",
+        "emissive": "mainemissive.dds"
+      },
+      "sources": {
+        "diffuse": "maindiffuse.dds",
+        "normal": "Units/Human/Sorceress/Human_Sorceress_Main_Normal.tif",
+        "orm": "mainorm.dds",
+        "emissive": "mainemissive.dds"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 1,
+      "name": "sorceress:main_geo",
+      "lod": 0,
+      "material_id": 1,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Draenei Mage/Draenei Mage Portrait/maindiffuse.dds",
+        "normal": "human_sorceress_main_normal.dds",
+        "orm": "mainorm.dds",
+        "emissive": "mainemissive.dds"
+      },
+      "sources": {
+        "diffuse": "maindiffuse.dds",
+        "normal": "Units/Human/Sorceress/Human_Sorceress_Main_Normal.tif",
+        "orm": "mainorm.dds",
+        "emissive": "mainemissive.dds"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 2,
+      "name": "sorceress:hair_geo",
+      "lod": 0,
+      "material_id": 2,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_sorceress_hair_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/human_sorceress_hair_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/human_sorceress_hair_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Human/Sorceress/Human_Sorceress_Hair_Diffuse.tif",
+        "normal": "Units/Human/Sorceress/Human_Sorceress_Hair_Normal.tif",
+        "orm": "Units/Human/Sorceress/Human_Sorceress_Hair_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 3,
+      "name": "sorceress:bracelet_geo",
+      "lod": 0,
+      "material_id": 3,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/Draenei Mage/Draenei Mage Portrait/maindiffuse.dds",
+        "normal": "human_sorceress_main_normal.dds",
+        "orm": "mainorm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "maindiffuse.dds",
+        "normal": "Units/Human/Sorceress/Human_Sorceress_Main_Normal.tif",
+        "orm": "mainorm.dds",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 4,
+      "name": "sorceress:organs_geo",
+      "lod": 0,
+      "material_id": 4,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Female_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Female_Corpse_Normal.tif",
+        "orm": "Textures/Human_Female_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": false,
+        "Stand 2": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Ready 1": false,
+        "Stand 1": false,
+        "Attack Spell 1": false,
+        "Stand 3": false,
+        "Death 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 5,
+      "name": "sorceress:skeleton_geo",
+      "lod": 0,
+      "material_id": 5,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Better Bandits/bandit_ride_corpse_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Textures/Human_Female_Corpse_Diffuse.tif",
+        "normal": "Textures/Human_Female_Corpse_Normal.tif",
+        "orm": "Textures/Human_Female_Corpse_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": false,
+        "Stand 2": false,
+        "Stand Victory 1": false,
+        "Stand Channel 1": false,
+        "Stand Ready 1": false,
+        "Stand 1": false,
+        "Attack Spell 1": false,
+        "Stand 3": false,
+        "Death 1": false,
+        "Decay Flesh": false,
+        "Decay Bone": false
+      }
+    },
+    {
+      "index": 6,
+      "name": "",
+      "lod": -1,
+      "material_id": 6,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "viletormentor_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/sampleLegion/Candace Icemoon/Candace Icemoon/viletormentor_main_normal.dds",
+        "orm": "res://assets/models/enemies/sampleLegion/Candace Icemoon/Candace Icemoon/viletormentor_main_orm.dds",
+        "emissive": "viletormentor_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/VileTormentor/VileTormentor_Main_Diffuse.tif",
+        "normal": "Units/Demon/VileTormentor/VileTormentor_Main_Normal.tif",
+        "orm": "Units/Demon/VileTormentor/VileTormentor_Main_ORM.tif",
+        "emissive": "Units/Demon/VileTormentor/VileTormentor_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 7,
+      "name": "",
+      "lod": -1,
+      "material_id": 7,
+      "filter_mode": 0,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "draeneidemolisher_diffuse.dds",
+        "normal": "draeneidemolisher_normal.dds",
+        "orm": "draeneidemolisher_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Units/Creeps/DraeneiDemolisher/DraeneiDemolisher_diffuse.tif",
+        "normal": "Units/Creeps/DraeneiDemolisher/DraeneiDemolisher_normal.tif",
+        "orm": "Units/Creeps/DraeneiDemolisher/DraeneiDemolisher_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 8,
+      "name": "",
+      "lod": -1,
+      "material_id": 8,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "eredarsorcerer_main_diffuse.dds",
+        "normal": "eredarsorcerer_main_normal.dds",
+        "orm": "eredarsorcerer_main_orm.dds",
+        "emissive": "eredarsorcerer_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/EredarSorcerer/EredarSorcerer_main_Diffuse.tif",
+        "normal": "Units/Demon/EredarSorcerer/EredarSorcerer_main_Normal.tif",
+        "orm": "Units/Demon/EredarSorcerer/EredarSorcerer_main_ORM.tif",
+        "emissive": "Units/Demon/EredarSorcerer/EredarSorcerer_main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 9,
+      "name": "",
+      "lod": -1,
+      "material_id": 9,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/warlock_main_diffuse.dds",
+        "normal": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/warlock_main_normal.dds",
+        "orm": "res://assets/models/enemies/pinnacle/Xalatath (Sponsored by Missing Shadowsong)/Xalatath/warlock_main_orm.dds",
+        "emissive": "res://assets/models/enemies/pinnacle/Ataras/Anubithas  Anubis/warlock_main_emissive.dds"
+      },
+      "sources": {
+        "diffuse": "Units/Demon/Warlock/Warlock_Main_Diffuse.tif",
+        "normal": "Units/Demon/Warlock/Warlock_Main_Normal.tif",
+        "orm": "Units/Demon/Warlock/Warlock_Main_ORM.tif",
+        "emissive": "Units/Demon/Warlock/Warlock_Main_Emissive.tif"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 10,
+      "name": "",
+      "lod": -1,
+      "material_id": 10,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "legdiffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/queenofsuffering_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/queenofsuffering_main_orm.dds",
+        "emissive": "legemissive.dds"
+      },
+      "sources": {
+        "diffuse": "legdiffuse.dds",
+        "normal": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_Normal.tif",
+        "orm": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_ORM.tif",
+        "emissive": "legemissive.dds"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 11,
+      "name": "",
+      "lod": -1,
+      "material_id": 11,
+      "filter_mode": 1,
+      "two_sided": true,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "legdiffuse.dds",
+        "normal": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/queenofsuffering_main_normal.dds",
+        "orm": "res://assets/models/enemies/beasts/Priestess of the Damned (Reforged)/POTD Version 2/queenofsuffering_main_orm.dds",
+        "emissive": "legemissive.dds"
+      },
+      "sources": {
+        "diffuse": "legdiffuse.dds",
+        "normal": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_Normal.tif",
+        "orm": "Units/Demon/QueenOfSuffering/QueenOfSuffering_main_ORM.tif",
+        "emissive": "legemissive.dds"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 12,
+      "name": "",
+      "lod": -1,
+      "material_id": 12,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "neutral_draeneibarracks_diffuse.dds",
+        "normal": "neutral_draeneibarracks_normal.dds",
+        "orm": "neutral_draeneibarracks_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/DraeneiBarracks/Neutral_DraeneiBarracks_Diffuse.tif",
+        "normal": "Buildings/Other/DraeneiBarracks/Neutral_DraeneiBarracks_Normal.tif",
+        "orm": "Buildings/Other/DraeneiBarracks/Neutral_DraeneiBarracks_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    },
+    {
+      "index": 13,
+      "name": "",
+      "lod": -1,
+      "material_id": 13,
+      "filter_mode": 1,
+      "two_sided": false,
+      "unshaded": false,
+      "textures": {
+        "diffuse": "human_highelvenguardtower_diffuse.dds",
+        "normal": "human_highelvenguardtower_normal.dds",
+        "orm": "human_highelvenguardtower_orm.dds",
+        "emissive": null
+      },
+      "sources": {
+        "diffuse": "Buildings/Other/ElvenGuardTower/Human_HighElvenGuardTower_Diffuse.tif",
+        "normal": "Buildings/Other/ElvenGuardTower/Human_HighElvenGuardTower_Normal.tif",
+        "orm": "Buildings/Other/ElvenGuardTower/Human_HighElvenGuardTower_ORM.tif",
+        "emissive": "Textures/Black32.blp"
+      },
+      "missing": [],
+      "overlays": [],
+      "visibility": {
+        "Walk 1": true,
+        "Stand 2": true,
+        "Stand Victory 1": true,
+        "Stand Channel 1": true,
+        "Stand Ready 1": true,
+        "Stand 1": true,
+        "Attack Spell 1": true,
+        "Stand 3": true,
+        "Death 1": true,
+        "Decay Flesh": true,
+        "Decay Bone": true
+      }
+    }
+  ]
+}

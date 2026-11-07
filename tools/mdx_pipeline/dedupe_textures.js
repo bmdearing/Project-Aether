@@ -23,11 +23,21 @@ function walk(dir) {
 }
 
 const resPath = (file) => "res://" + path.relative(root, file).split(path.sep).join("/");
+// res:// paths of the .dds files git tracks; empty outside a git checkout.
+function trackedTextures() {
+  try {
+    const out = require("child_process").execFileSync("git", ["ls-files", "-z", "--", "assets/models"], { cwd: root, maxBuffer: 64 << 20 });
+    return new Set(out.toString("utf8").split("\0").filter((f) => /\.dds$/i.test(f)).map((f) => "res://" + f));
+  } catch {
+    return new Set();
+  }
+}
 const loadLinks = () => (fs.existsSync(linksPath) ? JSON.parse(fs.readFileSync(linksPath, "utf8")) : {});
 
 function dedupe(dryRun = false) {
   const links = loadLinks();
   const targets = new Set(Object.values(links));
+  const tracked = trackedTextures();
   const groups = new Map();
   for (const file of walk(modelsDir).filter((f) => /\.dds$/i.test(f))) {
     const hash = crypto.createHash("md5").update(fs.readFileSync(file)).digest("hex");
@@ -38,9 +48,11 @@ function dedupe(dryRun = false) {
   let bytes = 0;
   for (const paths of groups.values()) {
     if (paths.length < 2) continue;
-    // Keep an existing link target so earlier links stay valid, else the first path.
+    // Keep an existing link target so earlier links stay valid, then a copy
+    // already committed (so a new pack never moves textures out of older
+    // models' folders), else the first path.
     paths.sort();
-    const keep = paths.find((p) => targets.has(p)) || paths[0];
+    const keep = paths.find((p) => targets.has(p)) || paths.find((p) => tracked.has(p)) || paths[0];
     for (const p of paths) if (p !== keep) removed[p] = keep;
   }
   Object.assign(links, removed);
@@ -65,7 +77,7 @@ function dedupe(dryRun = false) {
     let changed = false;
     for (const g of meta.geosets) {
       for (const [slot, name] of Object.entries(g.textures)) {
-        const target = name && !name.startsWith("res://") ? links[dir + name] : null;
+        const target = !name ? null : name.startsWith("res://") ? links[name] : links[dir + name];
         if (!target) continue;
         g.textures[slot] = target;
         changed = true;

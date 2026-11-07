@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="EnemyDefinition" load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://data/enemies/EnemyDefinition.gd" id="1"]
+[ext_resource type="PackedScene" path="res://entities/enemies/models/SynodArcanistModel.tscn" id="2"]
+[ext_resource type="Resource" path="res://data/enemies/animation_sets/synod_arcanist.tres" id="3"]
+
+[resource]
+script = ExtResource("1")
+display_name = "Synod Arcanist"
+faction = "synod"
+lore_description = "A Synod field caster who draws Aether straight through the body. The glow under the skin never quite fades."
+model_scene = ExtResource("2")
+animation_set = ExtResource("3")
+scale_modifier = 1.0
+model_yaw_offset = -1.5707964
+mob_level = 3
+archetype_category = "standard"
+ward_percent = 0.2
+armor_value = 0.0
+evasion_value = 60.0
+damage_type = 6
+move_speed = 4.2
+chase_range = 16.0
+stop_distance = 9.0
+retreat_distance = 6.0
+is_ranged = true
+attack_range = 14.0
+attack_cooldown = 1.6
+xp_reward = 16.0
+gold_reward_min = 4
+gold_reward_max = 9
+pack_size_min = 1
+pack_size_max = 2
+weight_normal = 75
+weight_elite = 20
+weight_champion = 4
+weight_ascendant = 1

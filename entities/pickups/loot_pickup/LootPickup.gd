@@ -149,6 +149,9 @@ static func _equipment_entry(it: Item) -> Dictionary:
 				if base_id.ends_with("_" + kind):
 					key = kind + "_" + base_id.trim_suffix("_" + kind)
 		e = _equipment.get(key, {})
+	# Helmets, gloves and boots share one model per slot.
+	if e.is_empty() and it.is_equipment() and it.get_item_type() in [&"helmet", &"gloves", &"boots"]:
+		e = _equipment.get(String(it.get_item_type()), {})
 	return e if not e.is_empty() and ResourceLoader.exists(e["file"]) else {}
 
 ## Slates, Lenses, Skill Tomes and gold piles (tools/blender), authored flat,
